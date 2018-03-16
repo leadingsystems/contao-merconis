@@ -31,6 +31,16 @@
 				<div class="formbody">
 					<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
 					<input type="hidden" name="APIURL" value="<?php echo $this->str_apiResourceUrl; ?>">
+					<div class="authFields">
+						<label for="ls_api_key">API key:</label>
+						<input type="text" id="ls_api_key" name="ls_api_key" data-lsjs-element="ls_api_key">
+
+						<label for="ls_api_username">API username:</label>
+						<input type="text" id="ls_api_username" name="ls_api_username" data-lsjs-element="ls_api_username">
+
+						<label for="ls_api_password">API password:</label>
+						<input type="text" id="ls_api_password" name="ls_api_password" data-lsjs-element="ls_api_password">
+					</div>
 
 					<div class="productDataField">
 						<?php
