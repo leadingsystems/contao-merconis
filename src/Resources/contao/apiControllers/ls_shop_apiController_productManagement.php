@@ -45,108 +45,191 @@ class ls_shop_apiController_productManagement
 
 	/**
 	 * Returns all contao page aliases that can be used as product categories
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getCategoryAliases()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getPageAliases());
 	}
 
 	/**
 	 * Returns the input price type used by Merconis
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getInputPriceType()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data($GLOBALS['TL_CONFIG']['ls_shop_priceType'] == 'brutto' ? 'gross' : 'net');
 	}
 
 	/**
 	 * Returns the available price and weight modification types that are required to specify a variant price or weight
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getPriceAndWeightModificationTypes()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(array_keys(ls_shop_productManagementApiHelper::$modificationTypesTranslationMap));
 	}
 
 	/**
 	 * Returns the available scale price types
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getScalePriceTypes()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::$arr_scalePriceTypes);
 	}
 
 	/**
 	 * Returns the available scale price quantity detection methods
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getScalePriceQuantityDetectionMethods()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::$arr_scalePriceQuantityDetectionMethods);
 	}
 
 	/**
 	 * Returns the aliases of all existing delivery info types
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getDeliveryInfoTypeAliases()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getDeliveryInfoTypeAliases());
 	}
 
 	/**
 	 * Returns the aliases of all existing configurators
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getConfiguratorAliases()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getConfiguratorAliases());
 	}
 
 	/**
 	 * Returns the names of all existing product details templates
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getProductDetailsTemplates()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(array_keys(\Controller::getTemplateGroup('template_productDetails_')));
 	}
 
 	/**
 	 * Returns the aliases of all existing properties and values. The first level keys of the response object represent the property aliases and the second level keys the respective value aliases
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getPropertyAndValueAliases()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getAttributeAndValueAliasesInRelation());
 	}
 
 	/**
 	 * Returns the aliases of existing tax classes
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getTaxClassAliases()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getTaxClassAliases());
 	}
 
 	/**
 	 * Returns a list containing the names of all images that are stored in the standard product image folder
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_getProductImageNames()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(ls_shop_generalHelper::getImagesFromStandardFolder('__ALL_IMAGES__', false));
 	}
 
 	/**
 	 * Returns an image that is stored in the standard product image folder and that can be identified by its name
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: no restriction
 	 */
 	protected function apiResource_getProductImageByName()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+
 		$arr_dataRows = json_decode($_GET['data'], true);
 
 		if (!count($arr_dataRows)) {
@@ -192,9 +275,16 @@ class ls_shop_apiController_productManagement
 
 	/**
 	 * Inserts product data or updates product data if it already exists. Expects the request details JSON formatted as POST parameter 'data'
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_writeProductData()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$arr_dataRows = json_decode($_POST['data'], true);
 
 		if (!count($arr_dataRows)) {
@@ -231,9 +321,16 @@ class ls_shop_apiController_productManagement
 
 	/**
 	 * Deletes product data. Expects the request details JSON formatted as POST parameter 'data'
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_deleteProductData()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$arr_dataRows = json_decode($_POST['data'], true);
 
 		if (!count($arr_dataRows)) {
@@ -270,9 +367,16 @@ class ls_shop_apiController_productManagement
 
 	/**
 	 * Changes product or variant stock. Expects the request details JSON formatted as POST parameter 'data'
+	 *
+	 * Scope: FE
+	 *
+	 * Allowed user types: apiUser
 	 */
 	protected function apiResource_changeStock()
 	{
+		$this->obj_apiReceiver->requireScope(['FE']);
+		$this->obj_apiReceiver->requireUser(['apiUser']);
+
 		$arr_dataRows = json_decode($_POST['data'], true);
 
 		if (!count($arr_dataRows)) {
