@@ -1,0 +1,16 @@
+<div id="merconis-installer">
+	<h1>Merconis Installer</h1>
+	<?php
+	if ($this->bln_installedCompletely) {
+		?>
+		<p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['installer']['installedCompletely']; ?></p>
+		<?php
+	} else {
+		?>
+		<p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['installer']['notInstalledYet']; ?></p>
+
+		<div data-merconis-component-autostart="installer"></div>
+		<?php
+	}
+	?>
+</div>

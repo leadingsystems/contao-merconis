@@ -109,6 +109,10 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_sortingCharacterTranslationTable'] = array('Replacement table for sorting', 'In order to control the way special characters are considered during sorting, you can define replacements for special characters.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dcaNamesWithoutMultilanguageSupport'] = array('DCAs to skip in multilanguage initialization', 'Comma-separated list of DCA names to skip in the multilanguage initialization.');
 
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsDebugMode'] = array('Debug mode');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoCacheMode'] = array('Deactivate caching');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoMinifierMode'] = array('Deactivate minification');
+
 	/*
 	 * Legends
 	 */
@@ -132,7 +136,9 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['compatSettings_legend'] = 'Compatibility settings';
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ipWhitelist_legend'] = 'Whitelist for referer check';
-	
+
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['backendLsjs_legend'] = 'Settings for LSJS in the backend';
+
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Advanced settings';
 	
 	/*

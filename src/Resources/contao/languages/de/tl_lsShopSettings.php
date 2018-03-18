@@ -109,6 +109,10 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_sortingCharacterTranslationTable'] = array('Ersetzungstabelle f&uuml;r Sortierung', 'Um die Ber&uuml;cksichtigung von Sonderzeichen bei der Sortierung zu kontrollieren, k&ouml;nnen Sie hier definieren, mit welchem Zeichen bzw. welcher Zeichenfolge Sonderzeichen bei der Sortierung ersetzt werden.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dcaNamesWithoutMultilanguageSupport'] = array('Bei Mehrsprachinitialisierung auszulassende DCAs', 'Kommagetrennte Liste von DCA-Namen, die bei der Mehrsprachinitialisierung übersprungen werden sollen.');
 
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsDebugMode'] = array('Debug-Modus');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoCacheMode'] = array('Caching deaktivieren');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoMinifierMode'] = array('Komprimierung deaktivieren');
+
 	/*
 	 * Legends
 	 */
@@ -131,8 +135,10 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['compatSettings_legend'] = 'Kompatibilit&auml;ts-Einstellungen';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ipWhitelist_legend'] = 'Whitelist f&uuml;r Referer-Prüfung';
 	
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['backendLsjs_legend'] = 'Einstellungen für LSJS im Backend';
+
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Erweiterte Einstellungen';
-	
+
 	/*
 	 * References
 	 */

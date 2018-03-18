@@ -20,6 +20,7 @@
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_configurator']			= array('Product configurators', 'Create product configurators here with which your customers can individualize and configure products during ordering.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_productSearch']			= array('Product search', 'Search your product inventory.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_stockManagement']		= array('Goods in stock', 'Manage your goods in stock here.');
+	$GLOBALS['TL_LANG']['MOD']['ls_shop_dashboard']				= array('DASHBOARD', '');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_import']				= array('Product import', 'Use the possibility to quickly and comfortably import an extensive product inventory into your online shop.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_message_type']			= array('Message models', 'Manage the models for MERCONIS messages here.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_messages_sent']			= array('Sent messages', 'Here you will find an overview of the messages sent by MERCONIS');

@@ -20,6 +20,7 @@
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_configurator']			= array('Produkt-Konfiguratoren', 'Erstellen Sie hier Produkt-Konfiguratoren, mit denen Ihre Kunden bei der Bestellung Produkte individualisieren und konfigurieren k&ouml;nnen.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_productSearch']			= array('Produkt-Suche', 'Durchsuchen Sie Ihren Produktbestand.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_stockManagement']		= array('Lagerbestand', 'Verwalten Sie hier Ihren Lagerbestand.');
+	$GLOBALS['TL_LANG']['MOD']['ls_shop_dashboard']				= array('DASHBOARD', '');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_import']				= array('Produkt-Import', 'Nutzen Sie die M&ouml;glichkeit, einen umfassenden Produktbestand schnell und komfortabel in den Online-Shop zu importieren.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_message_type']			= array('Nachrichtenvorlagen', 'Verwalten Sie hier die Vorlagen für MERCONIS-Nachrichten.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_messages_sent']			= array('Gesendete Nachrichten', 'Hier erhalten Sie einen &Uuml;berblick &uuml;ber die von MERCONIS gesendeten Nachrichten.');

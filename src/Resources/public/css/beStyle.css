@@ -1157,16 +1157,27 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
  * importer: end
  */
 
-#tl_navigation li#merconis ul li:nth-child(10),
-#tl_navigation li#merconis ul li:nth-child(17) {
+#tl_navigation li#merconis ul li {
+	margin-left: 15px;
+	margin-right: 15px;
+}
+
+#tl_navigation li#merconis ul li a {
+	padding-left: 20px;
+	padding-right: 3px;
+}
+
+#tl_navigation li#merconis ul li:nth-child(2),
+#tl_navigation li#merconis ul li:nth-child(11),
+#tl_navigation li#merconis ul li:nth-child(18) {
 	margin-top: 5px;
 }
 
-#tl_navigation li#merconis ul li:nth-child(9),
-#tl_navigation li#merconis ul li:nth-child(16) {
+#tl_navigation li#merconis ul li:nth-child(1),
+#tl_navigation li#merconis ul li:nth-child(10),
+#tl_navigation li#merconis ul li:nth-child(17) {
 	padding-bottom: 5px;
 	border-bottom: 1px dashed #555555;
-	width: 90%;
 }
 
 /*

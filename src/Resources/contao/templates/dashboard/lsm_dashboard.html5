@@ -1,0 +1,5 @@
+<div class="contaoBeMainContainer">
+	<div id="merconis-dashboard">
+		<?php echo $this->str_output; ?>
+	</div>
+</div>
