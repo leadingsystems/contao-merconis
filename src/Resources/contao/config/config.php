@@ -18,6 +18,20 @@ $GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_
  * Include the lsjs app for the merconis backend
  */
 if (TL_MODE === 'BE') {
+	ob_start();
+	?>
+	<script type="text/javascript">
+		window.addEvent('domready', function () {
+			if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {
+				lsjs.__appHelpers.merconisBackendApp.obj_config.REQUEST_TOKEN = '<?php echo \RequestToken::get(); ?>';
+				lsjs.__appHelpers.merconisBackendApp.obj_config.API_KEY = '<?php echo $GLOBALS['TL_CONFIG']['ls_api_key']; ?>';
+				lsjs.__appHelpers.merconisBackendApp.start();
+			}
+		});
+	</script>
+	<?php
+	$GLOBALS['TL_MOOTOOLS'][] = ob_get_clean();
+
 	$GLOBALS['TL_JAVASCRIPT'][] = 'assets/lsjs/core/appBinder/binder.php?output=js&pathToApp='.urldecode('_dup4_/web/bundles/leadingsystemsmerconis/js/lsjs/backend/app').'&includeCore=no&includeCoreModules=no';
 	$GLOBALS['TL_CSS'][] = 'assets/lsjs/core/appBinder/binder.php?output=css&pathToApp='.urldecode('_dup4_/web/bundles/leadingsystemsmerconis/js/lsjs/backend/app').'&includeCore=no&includeCoreModules=no';
 }

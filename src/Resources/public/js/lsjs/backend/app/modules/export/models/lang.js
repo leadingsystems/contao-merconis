@@ -10,10 +10,11 @@ var obj_classdef_model = {
 	
 	loadData: function() {
 		lsjs.loadingIndicator.__controller.show();
-		
+
 		lsjs.apiInterface.request({
 			str_resource: 'loadLanguageFiles',
 			obj_params: {
+				'ls_api_key': lsjs.__appHelpers.merconisBackendApp.obj_config.API_KEY,
 				'var_name': 'tl_ls_shop_export',
 				'var_keys': 'TL_LANG.tl_ls_shop_export.ajax'
 			},

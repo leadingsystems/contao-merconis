@@ -5,9 +5,7 @@
 		obj_references: {},
 		
 		initialize: function() {
-			this.start();
-		}
-		,
+		},
 		
 		start: function() {
 			lsjs.apiInterface.str_apiUrl = 'contao?do=be_mod_ls_apiReceiver';

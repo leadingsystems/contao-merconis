@@ -13,7 +13,7 @@
     "contao/core-bundle": "~4.4",
     "leadingsystems/contao-helpers": "^2.0",
     "leadingsystems/contao-lsjs4c": "^2.0.2",
-    "leadingsystems/contao-api": "^2.0",
+    "leadingsystems/contao-api": "^2.0.1",
     "leadingsystems/contao-cajax": "^2.0",
     "leadingsystems/merconis-languageselector": "^2.0",
     "leadingsystems/contao-datacollector": "^2.0",
