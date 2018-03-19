@@ -166,6 +166,13 @@ class ls_shop_productManagementApiHelper {
 			$arr_flexContents[] = $str_flexImportFieldKey;
 			$arr_flexContents[] = $arr_row[$str_flexImportFieldKey];
 		}
+
+		/*
+		 * Since Merconis 4 we store this value JSON encoded and as a two-dimensional array whereas it previously was
+		 * one-dimensional.
+		 */
+		$arr_flexContents = \LeadingSystems\Helpers\createMultidimensionalArray($arr_flexContents, 2);
+
 		return json_encode($arr_flexContents);
 	}
 
@@ -175,6 +182,13 @@ class ls_shop_productManagementApiHelper {
 			$arr_flexContents[] = $str_flexImportFieldKey;
 			$arr_flexContents[] = $arr_row[$str_flexImportFieldKey];
 		}
+
+		/*
+		 * Since Merconis 4 we store this value JSON encoded and as a two-dimensional array whereas it previously was
+		 * one-dimensional.
+		 */
+		$arr_flexContents = \LeadingSystems\Helpers\createMultidimensionalArray($arr_flexContents, 2);
+
 		return json_encode($arr_flexContents);
 	}
 
@@ -404,7 +418,7 @@ class ls_shop_productManagementApiHelper {
 		}
 
 		/*
-		 * Since Merconis we store this value JSON encoded and as a two-dimensional array whereas it previously was
+		 * Since Merconis 4 we store this value JSON encoded and as a two-dimensional array whereas it previously was
 		 * one-dimensional.
 		 */
 		$arr_scalePrice = \LeadingSystems\Helpers\createMultidimensionalArray($arr_scalePrice, 2);
