@@ -763,6 +763,13 @@ returns the id of the variant that has currently been selected
 			/*-->
 			 * Preise
 			 <--*/
+
+			case '_basePrice':
+				$basePrice = $this->mainData['basePrice'];
+				$basePrice = ls_shop_generalHelper::outputPrice($basePrice);
+				return $basePrice;
+				break;
+
 			case '_useScalePrice':
 				return isset($this->mainData['useScalePrice']) && $this->mainData['useScalePrice'];
 				break;
