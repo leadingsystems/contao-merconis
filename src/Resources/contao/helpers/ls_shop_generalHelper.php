@@ -4368,6 +4368,7 @@ class ls_shop_generalHelper
                 'scalePriceKeyword' => $arr_productData['scalePriceKeyword_' . $i],
                 'scalePrice' => $arr_productData['scalePrice_' . $i],
                 'useOldPrice' => $arr_productData['useOldPrice_' . $i],
+                'basePrice' => $arr_productData['lsShopProductPrice'],		    
             );
 
             if ($str_productOrVariant === 'product' || $str_productOrVariant === '') {
