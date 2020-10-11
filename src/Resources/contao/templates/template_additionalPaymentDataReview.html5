@@ -1,17 +1,13 @@
-<div>
-	<h3><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline']; ?> <?php echo \Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info']['title']; ?></h3>
-
-	<?php
-	foreach ($this->arr_data as $str_key => $var_value) {
-		if (!$var_value) {
-			continue;
-		}
-		?>
-		<div>
-			<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['fieldNames'][$str_key]; ?>:</span>
-			<span class="value"><?php echo $var_value; ?></span>
-		</div>
-		<?php
-	}
-	?>
-</div>
+<?php
+foreach ($this->arr_data as $str_key => $var_value) {
+    if (!$var_value) {
+        continue;
+    }
+    ?>
+    <div>
+        <span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['fieldNames'][$str_key]; ?>:</span>
+        <span class="value"><?php echo $var_value; ?></span>
+    </div>
+    <?php
+}
+?>

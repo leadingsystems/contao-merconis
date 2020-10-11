@@ -12,7 +12,7 @@
 						?>
 						<div class="attributeInfo <?php echo standardize($arr_valuesForAttribute[0]['attributeTitle']); ?>">
 							<span class="attributeTitle"><?php echo $arr_valuesForAttribute[0]['attributeTitle']; ?>:</span>
-							<span class="attributeValue">
+							<div class="attributeValue">
 								<?php
 									foreach ($arr_valuesForAttribute as $int_attributeValueKey => $arr_valueForAttribute) {
 										if ($int_attributeValueKey > 0) {
@@ -21,7 +21,7 @@
 										?><span class="singleAttributeValue <?php echo standardize($arr_valueForAttribute['valueTitle']); ?>"><?php echo $arr_valueForAttribute['valueTitle']; ?></span><?php
 									}
 								?>
-							</span>
+							</div>
 						</div>
 						<?php
 					}
@@ -48,7 +48,7 @@
 						?>
 						<div class="attributeInfo <?php echo standardize($arr_valuesForAttribute[0]['attributeTitle']); ?>">
 							<span class="attributeTitle"><?php echo $arr_valuesForAttribute[0]['attributeTitle']; ?>:</span>
-							<span class="attributeValue">
+							<div class="attributeValue">
 								<?php
 									foreach ($arr_valuesForAttribute as $int_attributeValueKey => $arr_valueForAttribute) {
 										if ($int_attributeValueKey > 0) {
@@ -57,7 +57,7 @@
 										?><span class="singleAttributeValue <?php echo standardize($arr_valueForAttribute['valueTitle']); ?>"><?php echo $arr_valueForAttribute['valueTitle']; ?></span><?php
 									}
 								?>
-							</span>
+							</div>
 						</div>
 						<?php
 					}
@@ -67,3 +67,5 @@
 		<?php
 	}
 ?>
+
+

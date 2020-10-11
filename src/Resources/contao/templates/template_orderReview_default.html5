@@ -1,26 +1,52 @@
-<?php
-	$bln_reviewMode = true;
+<!-- indexer::stop -->
+<div id="cart-big" class="<?php echo $this->strTemplate ?>">
+    <div id="checkout-content" class="order-overview">
+        <div id="checkoutStepCustomerDataReview">
+            <h3><i class="icon icon-sprache_02"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData'][$this->arr_data['useDeviantShippingAddress'] ? 'billingAddress' : 'billingAndShippingAddress']; ?></h3>
+            <div class="content">
+                <?php echo $this->arrRequiredCheckoutData['customerDataReview']; ?>
+            </div>
+        </div>
 
-	include(__DIR__.'/template_cart--big_include_cart.html5');
+        <?php
+        //########## PAYMENT ##########
+        if ($this->arrRequiredCheckoutData['paymentMethodAdditionalDataReview']) {
+            ?>
+            <div id="checkoutStepPaymentDataReview">
+                <h3><i class="icon icon-zahlung_01"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline']; ?> <?php echo \Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info']['title']; ?></h3>
+                <div class="content">
+                    <?php echo $this->arrRequiredCheckoutData['paymentMethodAdditionalDataReview']; ?>
+                </div>
+            </div>
+            <?php
+        }
 
-	echo $this->arrRequiredCheckoutData['customerDataReview'];
+        //########## SHIPPING ##########
+        if ($this->arrRequiredCheckoutData['shippingMethodAdditionalDataReview']) {
+            ?>
+            <div id="checkoutStepShippingDataReview">
+                <h3><i class="icon icon-schnelle-lieferung_01"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['shippingData']['headline']; ?> <?php echo \Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee']['info']['title']; ?></h3>
+                <div class="content">
+                    <?php echo $this->arrRequiredCheckoutData['shippingMethodAdditionalDataReview']; ?>
+                </div>
+            </div>
+            <?php
+        }
+        ?>
 
-//########## PAYMENT ##########
-if ($this->arrRequiredCheckoutData['paymentMethodAdditionalDataReview']) {
-	?>
-	<div class="borderless payment formPaymentMethodAdditionalData form"><?php echo $this->arrRequiredCheckoutData['paymentMethodAdditionalDataReview']; ?></div>
-	<?php
-}
+        <?php
+        $bln_reviewMode = true;
+        include(__DIR__.'/template_cart--big_include_cart.html5');
+        include(__DIR__.'/template_cart--big_include_calculation.html5');
 
-//########## SHIPPING ##########
-if ($this->arrRequiredCheckoutData['shippingMethodAdditionalDataReview']) {
-	?>
-	<div class="borderless shipping formShippingMethodAdditionalData form"><?php echo $this->arrRequiredCheckoutData['shippingMethodAdditionalDataReview']; ?></div>
-	<?php
-}
-
-//########## CONFIRM ORDER FORM ##########
-?>
-<div class="borderless confirmOrder formConfirmOrder form">
-	<?php echo $this->formConfirmOrder; ?>
+        if (\Merconis\Core\ls_shop_generalHelper::check_finishingOrderIsAllowed()) {
+            ?>
+            <div id="checkoutStepFinalConfirmation">
+                <?php echo $this->formConfirmOrder; ?>
+            </div>
+            <?php
+        }
+        ?>
+    </div>
 </div>
+<!-- indexer::continue -->

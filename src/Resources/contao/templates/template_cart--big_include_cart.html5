@@ -1,6 +1,4 @@
 <?php
-use function LeadingSystems\Helpers\ls_add;
-
 $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
 
 /*
@@ -33,21 +31,23 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 ?>
 
 <?php // ########## PRODUCTS IN CART ########## ?>
-<div
-	id="checkoutStepCartAndCalculation"
-	class="checkoutStep"
->
-	<h3 class="headlineMainSection">
-		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText008-01']; ?><?php if (!$this->arrRequiredCheckoutData['cartIsValid']) { ?> <span class="error">(<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText058']; ?>)</span><?php } ?>
+<div id="checkoutStepCart" class="<?php echo $bln_reviewMode ? ' review' : ''; ?>">
+	<h3>
+        <i class="icon icon-warenkorb_03"></i>
+		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText008-01']; ?>
 	</h3>
-    <div class="product-listing">
+
+    <?php if (!$this->arrRequiredCheckoutData['cartIsValid']) { ?>
+        <div class="checkout-validation-error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText058']; ?></div>
+    <?php } ?>
+
+	<div class="product-list">
         <?php
         if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
             ?>
             <p class="msgNoProductsInCart"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText133']; ?></p>
             <?php
         } else {
-            $count = 0;
             foreach (\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
                 $objProduct = &$cartItem['objProduct'];
 
@@ -56,24 +56,20 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                 } else {
                     $obj_tmp_productOrVariant = &$objProduct;
                 }
-
-                $count++;
-                $oddEven = $count % 2 == 0 ? 'even' : 'odd';
-                ?>
+            ?>
                 <div
-                        class="row shopProduct <?php echo $oddEven ?>"
+                    class="product"
                     <?php if (!$bln_reviewMode) { ?>
                         data-lsjs-component="statusToggler"
                         data-lsjs-statusTogglerOptions="
-								{
-									str_propertyToToggle: 'data-misc-changeQuantityMode',
-									arr_statusValue: ['no', 'yes'],
-									str_sessionStorageKey: 'quantityChangeMode_<?php echo $productCartKey; ?>'
-								}
-							"
+                            {
+                                str_propertyToToggle: 'data-misc-changeQuantityMode',
+                                arr_statusValue: ['no', 'yes']
+                            }
+                        "
                     <?php } ?>
                 >
-                    <div class="col-sm field image">
+                    <div class="image">
                         <?php
                         $imgToUse = $obj_tmp_productOrVariant->_mainImage ? $obj_tmp_productOrVariant->_mainImage : '';
 
@@ -90,7 +86,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                                 <?php
                             }
                             ?>
-                            <img src="<?php echo \Image::get($imgToUse, 100, 100, 'box'); ?>" alt="" />
+                            <img src="<?php echo \Image::get($imgToUse, 600, 600, 'box'); ?>" alt="" />
                             <?php
                             if (!$objProduct->_configuratorHasValue) {
                                 ?>
@@ -102,7 +98,8 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                         }
                         ?>
                     </div>
-                    <div class="col-sm field productDetails">
+
+                    <div class="name-and-description">
                         <?php
                         if (\Merconis\Core\ls_shop_msg::checkMsg('cartPositionOrderNotAllowed', $productCartKey)) {
                             ?>
@@ -129,350 +126,149 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 
                         <div class="title">
                             <?php if ($objProduct->_variantIsSelected) { ?>
-                                <h4><?php echo $obj_tmp_productOrVariant->_productTitle; ?>, <span class="small"><?php echo $obj_tmp_productOrVariant->_title; ?></span></h4>
+                                <div class="product-title"><?php echo $obj_tmp_productOrVariant->_productTitle; ?>, <span class="variant-title"><?php echo $obj_tmp_productOrVariant->_title; ?></span></div>
                             <?php } else { ?>
-                                <h4><?php echo $obj_tmp_productOrVariant->_title; ?></h4>
+                                <div class="product-title"><?php echo $obj_tmp_productOrVariant->_title; ?></div>
                             <?php } ?>
                         </div>
 
-                        <?php if (false) { ?>
-                            <div class="artNr">
-                                <?php echo $obj_tmp_productOrVariant->_code; ?>
-                            </div>
-                        <?php } ?>
+                        <div class="artNr">
+                            <?php echo $obj_tmp_productOrVariant->_code; ?>
+                        </div>
 
                         <?php if ($objProduct->_hasConfigurator) { ?>
                             <div class="configuratorRepresentation">
                                 <?php echo $objProduct->_configuratorWithCartRepresentation; ?>
                             </div>
                         <?php } ?>
+
+                        <?php if (!$bln_reviewMode) { ?>
+                            <button data-lsjs-element="toggler" class="edit-item">Bearbeiten</button>
+                        <?php } ?>
                     </div>
-                    <div class="col-sm field price priceSingle">
+
+                    <div class="price-single">
                         <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText014'] ?></div>
                         <div class="field-content">
                             <?php echo $obj_tmp_productOrVariant->_priceAfterTaxFormatted; ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? '/<span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
                         </div>
                     </div>
-                    <div class="col-sm field quantity">
-                        <div class="show-quantity">
-                            <div class="field-label">
-                                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'] ?>
-                                <?php if (!$bln_reviewMode) { ?>
-                                    <div data-lsjs-element="toggler" role="button"></div>
-                                <?php } ?>
-                            </div>
-                            <div class="field-content">
-                                <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], $obj_tmp_productOrVariant->_quantityDecimals); ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? ' <span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
-                            </div>
+                    <div class="quantity">
+                        <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'] ?></div>
+                        <div class="field-content">
+                            <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], $obj_tmp_productOrVariant->_quantityDecimals); ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? ' <span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
                         </div>
-                        <?php if (!$bln_reviewMode) { ?>
-                            <div class="change-quantity">
-                                <div class="field-label">
-                                    <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText135'] ?>
-                                    <?php if (!$bln_reviewMode) { ?>
-                                        <div data-lsjs-element="toggler" role="button"></div>
-                                    <?php } ?>
-                                </div>
-                                <div class="field-content">
-                                    <form
-                                            class="formQuantity"
-                                            action="<?php echo $this->formAction ?>"
-                                            method="<?php echo $this->formMethod ?>"
-                                            data-lsjs-component="cajaxCaller"
-                                            data-lsjs-cajaxCallerOptions="
-                                                 {
-                                                    'obj_cajaxRequestData': {
-                                                        'requestedElementID': 'checkoutContent'
-                                                    }
-                                                 }
-                                                 "
-                                    >
-                                        <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
-                                        <input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
-                                        <input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
-                                        <?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
-                                        <button class="btn" type="submit" name="submitChange" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText006']; ?>"></button>
-                                    </form>
-                                    <form
-                                            class="formDelete"
-                                            action="<?php echo $this->formAction ?>"
-                                            method="<?php echo $this->formMethod ?>"
-                                            data-lsjs-component="cajaxCaller"
-                                            data-lsjs-cajaxCallerOptions="
-                                                 {
-                                                    'obj_cajaxRequestData': {
-                                                        'requestedElementID': 'checkoutContent'
-                                                    }
-                                                 }
-                                                 "
-                                    >
-                                        <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
-                                        <input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
-                                        <input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
-                                        <button class="btn" type="submit" name="submitDelete" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button>
-                                    </form>
-                                </div>
-                            </div>
-                        <?php } ?>
                     </div>
-                    <div class="col-sm field price priceCumulative">
-                        <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText018'] ?></div>
+
+                    <div class="price-cumulative">
+                        <div class="field-label "><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText018'] ?></div>
                         <div class="field-content">
                             <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['priceCumulative']); ?>
                         </div>
                     </div>
-                    <div class="col-sm field taxClass">
+                    <div class="tax-class">
                         <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
                         <div class="field-content">
                             <?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['taxPercentage']); ?> %
                         </div>
                     </div>
+
+                    <?php if (!$bln_reviewMode) { ?>
+                        <div class="edit-item-box">
+                            <div class="inside">
+                                <form
+                                    class="form-quantity"
+                                    action="<?php echo $this->formAction ?>"
+                                    method="<?php echo $this->formMethod ?>"
+                                    data-lsjs-component="cajaxCaller"
+                                    data-lsjs-cajaxCallerOptions="
+													 {
+														'obj_cajaxRequestData': {
+															'requestedElementID': 'checkout-content,cart-num-items,cart-preview-items-list,cart-preview-headline'
+														}
+													 }
+													 "
+                                >
+                                    <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+                                    <input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
+                                    <input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
+                                    <?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
+                                    <button type="submit" id="ctrl_<?= $this->id ?>_submit" title="<?= $this->slabel ?>"></button>
+                                </form>
+                                <form
+                                        class="form-delete"
+                                        action="<?php echo $this->formAction ?>"
+                                        method="<?php echo $this->formMethod ?>"
+                                        data-lsjs-component="cajaxCaller"
+                                        data-lsjs-cajaxCallerOptions="
+													 {
+														'obj_cajaxRequestData': {
+															'requestedElementID': 'checkout-content,cart-num-items,cart-preview-items-list,cart-preview-headline'
+														}
+													 }
+													 "
+                                >
+                                    <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+                                    <input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
+                                    <input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
+                                    <button type="submit" name="submitDelete" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button>
+                                </form>
+
+
+                                <?php if (false) { ?>
+                                <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText135'] ?></div>
+                                <div class="field-content">
+                                    <form
+                                        class="formQuantity"
+                                        action="<?php echo $this->formAction ?>"
+                                        method="<?php echo $this->formMethod ?>"
+                                        data-lsjs-component="cajaxCaller"
+                                        data-lsjs-cajaxCallerOptions="
+													 {
+														'obj_cajaxRequestData': {
+															'requestedElementID': 'checkoutContent,cart-num-items,cart-preview-items-list,cart-preview-headline'
+														}
+													 }
+													 "
+                                    >
+                                        <div>
+                                            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+                                            <input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
+                                            <input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
+                                            <span><?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?></span>
+                                            <span><button type="submit" id="ctrl_<?= $this->id ?>_submit" class="fi fi-ok pointer mgl-s" value="" title="<?= $this->slabel ?>"></button></span>
+                                        </div>
+                                    </form>
+                                    <form
+                                        class="formDelete"
+                                        action="<?php echo $this->formAction ?>"
+                                        method="<?php echo $this->formMethod ?>"
+                                        data-lsjs-component="cajaxCaller"
+                                        data-lsjs-cajaxCallerOptions="
+													 {
+														'obj_cajaxRequestData': {
+															'requestedElementID': 'checkoutContent,cart-num-items,cart-preview-items-list,cart-preview-headline'
+														}
+													 }
+													 "
+                                    >
+                                        <div>
+                                            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+                                            <input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
+                                            <input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
+                                            <span class="txs-l-all"><button type="submit" name="submitDelete" class="fi fi-delete pointer mgl-s" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button></span>
+                                        </div>
+                                    </form>
+                                </div>
+                                <?php } ?>
+                                <div data-lsjs-element="toggler" class="close-edit-item"></div>
+                            </div>
+                        </div>
+                    <?php } ?>
                 </div>
                 <?php
             }
         }
         ?>
-    </div>
-
-    <?php // ########## CALCULATION SHEET ##########?>
-    <?php if (\Merconis\Core\ls_shop_cartX::getInstance()->numItems) { ?>
-        <div id="calculation" class="calculation reloadByCouponForm">
-            <div class="field-group total-value-of-goods">
-                <div class="field">
-                    <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText020']; ?></div>
-                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['totalValueOfGoods'][0]); ?></div>
-                </div>
-
-                <?php if (!$this->noVATBecauseOfEnteredIDs) { ?>
-                    <?php
-                    foreach (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['totalValueOfGoods'] as $taxClassID => $value) {
-                        if ($taxClassID == 0) {
-                            continue;
-                        }
-                        ?>
-                        <div class="field info">
-                            <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID)).' %'; ?></div>
-                            <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($value); ?></div>
-                        </div>
-                        <?php
-                    }
-                    ?>
-                <?php } ?>
-
-                <?php if (!$this->minimumOrderValueOkay) { ?>
-                    <div class="field error">
-                        <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText024'], \Merconis\Core\ls_shop_generalHelper::outputPrice($this->minimumOrderValue)) ?></div>
-                    </div>
-                <?php } ?>
-            </div>
-
-            <?php if ($this->minimumOrderValueOkay) { ?>
-                <div
-                        class="field-group coupons"
-                    <?php if (!$bln_reviewMode) { ?>
-                        data-lsjs-component="statusToggler"
-                        data-lsjs-statusTogglerOptions="
-							{
-								str_propertyToToggle: 'data-misc-highlighted',
-								arr_statusValue: ['no', 'yes'],
-								str_sessionStorageKey: 'couponFieldInCartCalculation'
-							}
-						"
-                    <?php } ?>
-                >
-                    <div class="field">
-                        <div class="field-label" data-lsjs-element="toggler" role="button">
-                            <?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text012']; ?>
-                        </div>
-                        <?php
-                        $float_cumulatedCouponValue = 0;
-
-                        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['couponValues'] as $int_couponId => $arr_couponValue) {
-                            $float_cumulatedCouponValue = ls_add($float_cumulatedCouponValue, $arr_couponValue[0]);
-                        }
-                        ?>
-                        <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($float_cumulatedCouponValue); ?></div>
-                    </div>
-
-                    <?php
-                    if (!is_array(\Merconis\Core\ls_shop_cartX::getInstance()->couponsUsed) || !count(\Merconis\Core\ls_shop_cartX::getInstance()->couponsUsed)) {
-                        ?>
-                        <?php if (!$bln_reviewMode) { ?>
-                            <div class="field hideWhenNotHighlighted">
-                                <div class="field-description">
-                                    <form
-                                            class="formUseCoupon"
-                                            action="<?php echo $this->formAction ?>"
-                                            method="<?php echo $this->formMethod ?>"
-                                            data-lsjs-component="cajaxCaller"
-                                            data-lsjs-cajaxCallerOptions="
-										 {
-											'obj_cajaxRequestData': {
-												'requestedElementID': 'checkoutContent'
-											}
-										 }
-										 "
-                                    >
-                                        <div>
-                                            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
-                                            <input name="FORM_SUBMIT" value="useCouponSubmit" type="hidden">
-                                            <?php echo $this->fflInputCoupon; ?>
-                                            <button class="btn btn-primary" type="submit" title="<?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text002']; ?>"></button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        <?php } ?>
-                        <?php
-                    } else {
-                        $countCoupons = 0;
-                        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->couponsUsed as $couponID => $arrCouponInfo) {
-                            $countCoupons++;
-                            ?>
-                            <div class="field hideWhenNotHighlighted info">
-                                <div class="field-label">
-                                    <?php if (!$bln_reviewMode) { ?>
-                                        <a
-                                                class="delete-coupon"
-                                                href="<?php echo $arrCouponInfo['deleteUrl'] ?>"
-                                                title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"
-                                                data-lsjs-component="cajaxCaller"
-                                                data-lsjs-cajaxCallerOptions="
-											 {
-												'obj_cajaxRequestData': {
-													'requestedElementID': 'checkoutContent'
-												}
-											 }
-											 "
-                                        ><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?></a>
-                                    <?php } ?>
-                                    <?php echo $arrCouponInfo['title']; ?> (<?php echo $arrCouponInfo['extendedInfo']['discountOutput'] ?>)
-                                </div>
-                                <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['couponValues'][$couponID][0]); ?></div>
-                                <div class="field-description">
-                                    <?php echo $arrCouponInfo['description']; ?>
-                                </div>
-                            </div>
-                            <?php
-                            foreach ($arrCouponInfo['errors'] as $errorCode => $errorText) {
-                                if ($errorText) {
-                                    ?>
-                                    <div class="field error">
-                                        <div class="field-label"><?php echo $errorText; ?></div>
-                                    </div>
-                                    <?php
-                                }
-                            }
-
-                            if (!$this->noVATBecauseOfEnteredIDs) {
-                                foreach (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['couponValues'][$couponID] as $taxClassID => $value) {
-                                    if ($taxClassID == 0) {
-                                        continue;
-                                    }
-                                    ?>
-                                    <div class="field info hideWhenNotHighlighted">
-                                        <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID), 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator'])).' %'; ?></div>
-                                        <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($value); ?></div>
-                                    </div>
-                                    <?php
-                                }
-                            }
-                        }
-                    }
-                    ?>
-                </div>
-                <?php
-                if (isset(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info']) && is_array(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info'])) {
-                    ?>
-                    <div class="field-group payment-fee">
-                        <div class="field">
-                            <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$this->arrRequiredCheckoutData['noPaymentMethodSelected'] ? 'miscText021-2' : 'miscText021'].' '.\Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info']['title']; ?></div>
-                            <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee'][0]); ?></div>
-                        </div>
-                        <div class="field info">
-                            <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
-                            <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info']['taxPercentage']); ?> %</div>
-                        </div>
-                    </div>
-                    <?php
-                }
-                ?>
-
-                <?php
-                if (isset(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee']['info']) && is_array(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee']['info'])) {
-                    ?>
-                    <div class="field-group shipping-fee">
-                        <div class="field">
-                            <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$this->arrRequiredCheckoutData['noShippingMethodSelected'] ? 'miscText022-2' : 'miscText022'].' '.\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee']['info']['title']; ?></div>
-                            <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee'][0]); ?></div>
-                        </div>
-                        <div class="field info">
-                            <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
-                            <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee']['info']['taxPercentage']); ?> %</div>
-                        </div>
-                    </div>
-                    <?php
-                }
-                ?>
-
-                <div class="field-group <?php echo \Merconis\Core\ls_shop_cartX::getInstance()->calculation['taxInclusive'] ? 'invoiced-amount' : 'full-amount'; ?>">
-                    <div class="field">
-                        <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][\Merconis\Core\ls_shop_cartX::getInstance()->calculation['taxInclusive'] ? 'miscText023' : 'miscText051']; ?></div>
-                        <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['total'][0]); ?></div>
-                    </div>
-
-                    <?php if (!$this->noVATBecauseOfEnteredIDs) { ?>
-                        <?php
-                        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['total'] as $taxClassID => $value) {
-                            if ($taxClassID == 0) {
-                                continue;
-                            }
-                            ?>
-                            <div class="field info">
-                                <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID)).' %'; ?></div>
-                                <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($value); ?></div>
-                            </div>
-                            <?php
-                        }
-                        ?>
-                    <?php } ?>
-                </div>
-
-                <div class="field-group tax">
-                    <?php if (!$this->noVATBecauseOfEnteredIDs) { ?>
-                        <?php
-                        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['tax'] as $taxClassID => $value) {
-                            if ($taxClassID == 0) {
-                                continue;
-                            }
-                            ?>
-                            <div class="field info">
-                                <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][\Merconis\Core\ls_shop_cartX::getInstance()->calculation['taxInclusive'] ? 'miscText052' : 'miscText053']; ?> (<?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID)).' %'; ?>)</div>
-                                <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($value); ?></div>
-                            </div>
-                            <?php
-                        }
-                        ?>
-                    <?php } else { ?>
-                        <div class="field info no-vat-because-of-entered-ids">
-                            <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['noVAT'], $GLOBALS['TL_CONFIG']['ls_shop_ownVATID']) ?></div>
-                        </div>
-                    <?php } ?>
-                </div>
-
-                <?php
-                if (!\Merconis\Core\ls_shop_cartX::getInstance()->calculation['taxInclusive']) {
-                    ?>
-                    <div class="field-group invoiced-amount">
-                        <div class="field">
-                            <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText023']; ?></div>
-                            <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['invoicedAmount']); ?></div>
-                        </div>
-                    </div>
-                    <?php
-                }
-                ?>
-            <?php } ?>
-        </div>
-    <?php } ?>
+	</div>
 </div>

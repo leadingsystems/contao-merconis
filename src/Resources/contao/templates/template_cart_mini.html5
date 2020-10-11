@@ -1,13 +1,3 @@
 <!-- indexer::stop -->
-<div
-	id="miniCart_1"
-	class="ajax-reload-by-putInCart <?php echo $this->strTemplate ?> miniCartToggler"
->
-	<div id="cart-checkout">
-		<a class="gotoCart" href="{{shopLink::cartPage}}">
-			<span class="cart-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText131']; ?></span>
-			<span class="cart-num-items"><?php echo \Merconis\Core\ls_shop_cartX::getInstance()->numItems; ?></span>
-		</a>
-	</div>
-</div>
+<span id="cart-num-items" class="cart-num-items ajax-reload-by-putInCart"><?php echo \Merconis\Core\ls_shop_cartX::getInstance()->numItems; ?></span>
 <!-- indexer::continue -->

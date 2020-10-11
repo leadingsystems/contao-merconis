@@ -1,20 +1,14 @@
 <!-- indexer::stop -->
 <div class="<?php echo $this->strTemplate ?>">
-	<form action="<?php echo $this->request; ?>" class="tl_form sortingForm" method="post">
-		<input type="hidden" name="FORM_SUBMIT" value="myOrders_numPerPage">
-		<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
-		<div class="numPerPageBox">
-			<label><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText091']; ?></label> <?php echo $this->fflNumPerPage; ?>
-		</div>
-		<div class="sortingBox">
-			<?php if ($this->useSortingWidget) { ?>
-				<label><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText092']; ?></label> <?php echo $this->fflSorting; ?> <?php echo $this->fflSortingDirection; ?>
-			<?php } ?>
-		</div>
-		<div class="submitBox">
-			<input type="submit" name="submitNumPerPage" id="submitNumPerPage" class="tl_submit" value="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['ok']; ?>">
-		</div>
-	</form>
+    <?php if ($this->useSortingWidget) { ?>
+        <form action="<?php echo $this->request; ?>" class="tl_form sortingForm" method="post">
+            <input type="hidden" name="FORM_SUBMIT" value="myOrders_numPerPage">
+            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+
+            <?php echo $this->fflSorting; ?> <?php echo $this->fflSortingDirection; ?>
+            <input type="submit" name="submitNumPerPage" id="submitNumPerPage" class="tl_submit submit" value="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['ok']; ?>">
+        </form>
+    <?php } ?>
 	<?php
 		if (!is_array($this->arrOrders) || !count($this->arrOrders)) {
 			?>
@@ -23,49 +17,43 @@
 		} else {
 			?>
 			<?php echo $this->pagination; ?>
-			<div class="ls_r_table myOrdersTable">
-				<div class="ls_r_thead">
-					<div class="ls_r_tr header">
-						<div class="ls_r_td orderNumber"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText089']; ?></div>
-						<div class="ls_r_td orderDate"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText088']; ?></div>
-						<div class="ls_r_td orderStatus"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText095']; ?></div>
-						<div class="ls_r_td orderPayment"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText096']; ?></div>
-						<div class="ls_r_td orderDetails"></div>
-					</div>
+			<div class="myOrdersTable">
+				<div class="header">
+					<div class="orderNumber"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText089']; ?></div>
+					<div class="orderDate"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText088']; ?></div>
+					<div class="orderStatus"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText095']; ?></div>
+					<div class="orderPayment"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText096']; ?></div>
+					<div class="orderDetails"></div>
 				</div>
-				<div class="ls_r_tbody">
-					<?php
-						$count = 0;
-						$int_numOrders = count($this->arrOrders);
-						foreach ($this->arrOrders as $arrOrder) {
-							$count++;
-							$oddEven = $count % 2 == 0 ? 'even' : 'odd';
-							?>
-								<div class="ls_r_tr myOrder <?php echo $oddEven ?><?php echo $count == 1 ? ' first' : ''; ?><?php echo $count == $int_numOrders ? ' last' : ''; ?>">
-									<div class="ls_r_td orderNumber">
-										<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText089']; ?></div>
-										<div class="value"><?php echo $arrOrder['orderNr']; ?></div>
-									</div>
-									<div class="ls_r_td orderDate">
-										<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText088']; ?></div>
-										<div class="value"><?php echo \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $arrOrder['orderDateUnixTimestamp']); ?></div>
-									</div>
-									<div class="ls_r_td orderStatus">
-										<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText095']; ?></div>
-										<div class="value"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues'][$arrOrder['status01']]; ?></div>
-									</div>
-									<div class="ls_r_td orderPayment">
-										<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText096']; ?></div>
-										<div class="value"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues'][$arrOrder['status02']]; ?></div>
-									</div>
-									<div class="ls_r_td orderDetails">
-										<div class="value"><a class="button" href="<?php echo $arrOrder['linkToDetails']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText087']; ?></a></div>
-									</div>
+				<?php
+					foreach ($this->arrOrders as $arrOrder) {
+						?>
+							<div class="myOrder">
+								<div class="orderNumber">
+									<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText089']; ?></div>
+									<div class="value"><?php echo $arrOrder['orderNr']; ?></div>
 								</div>
-							<?php
-						}
-					?>
-				</div>
+								<div class="orderDate">
+									<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText088']; ?></div>
+									<div class="value"><?php echo \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $arrOrder['orderDateUnixTimestamp']); ?></div>
+								</div>
+								<div class="orderStatus">
+									<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText095']; ?></div>
+									<div class="value"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues'][$arrOrder['status01']]; ?></div>
+								</div>
+								<div class="orderPayment">
+									<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText096']; ?></div>
+									<div class="value"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues'][$arrOrder['status02']]; ?></div>
+								</div>
+								<div class="orderDetails">
+									<div class="value">
+                                        <a class="button" href="<?php echo $arrOrder['linkToDetails']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText087']; ?></a>
+                                    </div>
+								</div>
+							</div>
+						<?php
+					}
+				?>
 			</div>
 			<?php echo $this->pagination; ?>
 			<?php

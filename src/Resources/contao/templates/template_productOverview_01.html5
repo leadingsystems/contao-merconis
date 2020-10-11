@@ -4,142 +4,184 @@
 	
 	global $objPage;
 ?>
+
 <div class="shopProduct <?php echo $this->productTemplateType; ?> <?php echo $this->productTemplate; ?> <?php echo $this->productPositionsClassString; ?> block">
+	<div class="boxInnerWrapper">
 
-	<?php
-		/*
-		 * If a product filter has been used, products with variants are displayed if at least one of the variants
-		 * match the filter. In case not the whole product/all of its variants fit, we display a message.
-		 */
-		if ($this->blnUseFilter && $this->objProduct->_filterMatch == 'partial') {
-			?>
-			<div class="msgSomeVariantsMatchFilter"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText104']; ?></div>
+		<?php // ##### INFO MATCHING VARIANTS ##### -> ?>
 			<?php
-		}
-	?>
-	
-	<a id="<?php echo $this->objProduct->_anchor; ?>"></a>
-	<div class="productInfoBlock01">
-		<h2><a class="productTitle" href="<?php echo $this->objProduct->_linkToProduct; ?>#<?php echo $this->objProduct->_anchor; ?>"><?php echo $this->objProduct->_title; ?></a></h2>
-		<div class="producer">
-			<?php echo $this->objProduct->_producer; ?>
-		</div>
-	</div>
-
-	<div class="productInfoBlock02">
-		<div class="imageContainer">
-			<?php if ($this->objProduct->_hasMainImage): ?>
-				<a class="lsZoom" href="<?php echo $this->objProduct->_linkToProduct; ?>#<?php echo $this->objProduct->_anchor; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 500, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 120, 250, 'box'); ?>" alt="" /></a>
-			<?php endif; ?>
-			<?php if ($this->objProduct->_isNew): ?>
-				<a href="<?php echo $this->objProduct->_linkToProduct; ?>#<?php echo $this->objProduct->_anchor; ?>" class="productImageOverlay isNew"><img src="<?php echo LeadingSystems\Helpers\ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_systemImages_isNewOverlaySmall']); ?>" alt="" /></a>
-			<?php endif; ?>
-			<?php if ($this->objProduct->_isOnSale): ?>
-				<a href="<?php echo $this->objProduct->_linkToProduct; ?>#<?php echo $this->objProduct->_anchor; ?>" class="productImageOverlay isOnSale"><img src="<?php echo LeadingSystems\Helpers\ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_systemImages_isOnSaleOverlaySmall']); ?>" alt="" /></a>
-			<?php endif; ?>
-		</div>
-	</div>
-
-	<div class="productInfoBlock03">
-		<div class="priceContainer">
-			<div class="currentPrice">
-				<?php if ($this->objProduct->_unscaledPricesAreDifferent): ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php endif; ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-			</div>
-			<?php if ($this->objProduct->_hasOldPrice): ?>
-				<div class="oldPrice">
-					<?php if ($this->objProduct->_oldPricesAreDifferent): ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php endif; ?><?php echo $this->objProduct->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-				</div>
-			<?php endif; ?>
-	
-			<div class="taxInfo"><?php echo $this->objProduct->_taxInfo; ?></div>
-	
-			<div class="shippingInfo"><?php echo $this->objProduct->_shippingInfo; ?></div>
-			
-			<?php if ($this->objProduct->_orderAllowed && $this->objProduct->_hasQuantityInput): ?>
-				<div
-					id="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>_1"
-					class="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>"
-					data-merconis-component="put-in-cart-form"
-					data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
-					data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
-				>
+				/*
+				 * If a product filter has been used, products with variants are displayed if at least one of the variants
+				 * match the filter. In case not the whole product/all of its variants fit, we display a message.
+				 */
+				if ($this->blnUseFilter && $this->objProduct->_filterMatch == 'partial') {
+					?>
+					<div class="msgSomeVariantsMatchFilter"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText104']; ?></div>
 					<?php
-						// ####################################################################
-						// message to display after putting the product/variant into the cart
-						if (\Merconis\Core\ls_shop_msg::checkMsg('addedToCart', $this->objProduct->_productVariantID)) { // check if an "addedToCart" message is set for this product/variant
-							$msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('addedToCart', $this->objProduct->_productVariantID); // get the message details
-							if ($this->objProduct->_useStock && $msgDetails['stockNotSufficient']) { // check if the product/variant uses stock and if the stock was not sufficient
-								?>
-									<div class="hasBeenPutInCart error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCartStockNotSufficient'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit,  \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
-								<?php
-							} else {
-								?>
-									<div class="hasBeenPutInCart"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCart'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
-								<?php
-							}
-						} else if (\Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $this->objProduct->_productVariantID)) { // if no "addedToCart" message is set, check for a "couldNotBePutInCart" message for this product/variant
+				}
+			?>
+		<?php // <- ##### INFO MATCHING VARIANTS ##### ?>
+
+		<?php // ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### -> ?>
+			<div class="imageContainer">
+				<?php if ($this->objProduct->_hasMainImage) { ?>
+					<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+						<?php // ##### LINK TO PRODUCT DETAILS ##### -> ?>
+							<div class="gotoProductDetails fullwidth">
+								<a class="" href="<?php echo $this->objProduct->_linkToProduct; ?>">
+									<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText073']; ?>
+								</a>
+							</div>
+						<?php // <- ##### LINK TO PRODUCT DETAILS ##### ?>
+					<?php } // <----- NOT USED BY DEFAULT ----- ?>
+
+					<a class="productMainImage boxImage fullwidth" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="" /></a>
+
+					<div class="iconWrapper">
+						<?php if ($this->objProduct->_isNew) { ?>
+							<a href="<?php echo $this->objProduct->_linkToProduct; ?>" class="productImageOverlay isNew">NEW</a>
+						<?php } ?>
+						<?php if ($this->objProduct->_isOnSale) { ?>
+							<a href="<?php echo $this->objProduct->_linkToProduct; ?>" class="productImageOverlay isOnSale">SALE</a>
+						<?php } ?>
+					</div>
+				<?php } ?>
+			</div>
+		<?php // <- ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### ?>
+
+		<div class="bottomWrapper newline">
+			<?php // ##### TITLE ##### -> ?>
+				<h2><a class="productTitle" href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php echo $this->objProduct->_title; ?></a></h2>
+			<?php // <- ##### TITLE ##### ?>
+
+			<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+				<?php // ##### PRODUCER ##### -> ?>
+					<div class="producer">
+						<?php echo $this->objProduct->_producer; ?>
+					</div>
+				<?php // <- ##### PRODUCER ##### ?>
+			<?php } // <----- NOT USED BY DEFAULT ----- ?>
+
+			<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+				<?php // ##### STOCK INFO ##### -> ?>
+					<?php if (!$this->objProduct->_hasVariants && $this->objProduct->_useStock) { ?>
+						<div class="stockInfo"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['stockAvailable'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($this->objProduct->_stock, $this->objProduct->_quantityDecimals), $this->objProduct->_quantityUnit); ?></div>
+					<?php } ?>
+				<?php // <- ##### STOCK INFO ##### ?>
+			<?php } // <----- NOT USED BY DEFAULT ----- ?>
+
+			<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+				<?php // ##### DELIVERY INFO ##### -> ?>
+					<?php if (!$this->objProduct->_hasVariants) { ?>
+						<?php echo $this->objProduct->_useCustomTemplate('template_productIncludes_deliveryInfo_01'); ?>
+					<?php } ?>
+				<?php // ##### DELIVERY INFO ##### -> ?>
+			<?php } // <----- NOT USED BY DEFAULT ----- ?>
+
+			<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+				<?php // ##### ATTRIBUTES ##### -> ?>
+					<?php
+						/*
+						 * If the product itself (not considering its variants) has attributes, display them.
+						 *
+						 * Hint: Use $this->objProduct->_attributes to get an array holding all of the product's
+						 * attributes/values. So, if you don't like the default string representation, you
+						 * can create your very own output.
+						 */
+						if ($this->objProduct->_attributesAsString) {
 							?>
-								<div class="notPutInCart"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['couldNotBePutInCart']; ?></div>
+							<div class="attributes">
+								<p><?php echo $this->objProduct->_attributesAsString; ?></p>
+							</div>
 							<?php
 						}
-						// ####################################################################
 					?>
-					<?php echo $this->objProduct->_quantityInput; ?>
-				</div>
-			<?php endif; ?>
-		</div>
-		
-		<?php if (!$this->objProduct->_hasVariants && $this->objProduct->_useStock) { ?>
-			<div class="stockInfo"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['stockAvailable'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($this->objProduct->_stock, $this->objProduct->_quantityDecimals), $this->objProduct->_quantityUnit); ?></div>
-		<?php } ?>
-	
-		<?php if (!$this->objProduct->_hasVariants) { ?>
-			<?php echo $this->objProduct->_useCustomTemplate('template_productIncludes_deliveryInfo_01'); ?>
-		<?php } ?>
-		
-		<div class="gotoProductDetails">
-			<a class="button" href="<?php echo $this->objProduct->_linkToProduct; ?>">
-				<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText073']; ?>
-			</a>
-		</div>
-	</div>
+				<?php // <- ##### ATTRIBUTES ##### ?>
+			<?php } // <----- NOT USED BY DEFAULT ----- ?>
 
-	<div class="productInfoBlock04">
-		<?php
-			/*
-			 * If the product itself (not considering its variants) has attributes, display them.
-			 * 
-			 * Hint: Use $this->objProduct->_attributes to get an array holding all of the product's
-			 * attributes/values. So, if you don't like the default string representation, you
-			 * can create your very own output.
-			 */
-			if ($this->objProduct->_attributesAsString) {
-				?>
-				<div class="attributes">
-					<p><?php echo $this->objProduct->_attributesAsString; ?></p>
+			<?php // ##### SHORT DESCRIPTION ##### -> ?>
+			<div class="shortDescriptionContainer">
+					<?php if ($this->objProduct->_hasShortDescription) { ?>
+						<?php echo $this->objProduct->_shortDescription; ?>
+					<?php } ?>
 				</div>
-				<?php
-			}	
-		?>
-		<div class="shortDescriptionContainer">
-			<?php if ($this->objProduct->_hasShortDescription): ?>
-				<?php echo $this->objProduct->_shortDescription; ?>
-			<?php endif; ?>
-		</div>
-	</div>
-	
-	<div class="productInfoBlock05">
-		<div class="watchlistContainer <?php echo $this->objProduct->_isFavorite ? 'inMyWatchlist' : 'notInMyWatchlist';?>">
-			<?php echo FE_USER_LOGGED_IN ? $this->objProduct->_favoritesForm : ''; ?>
-		</div>
-		
-		<div class="socialMediaButtons">
-			<ul class="buttons">
-			  <li class="first facebook"><a href="share?p=facebook[&]u=<?php echo urlencode($this->Environment->url.'/'.$this->objProduct->_linkToProduct); ?>[&]t=<?php echo urlencode(html_entity_decode($this->objProduct->_title)); ?>" rel="nofollow" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText064']; ?>" onclick="window.open(this.href, '', 'width=760,height=570,modal=yes,left=100,top=50,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no'); return false;">Facebook</a></li>
-			  <li class="twitter"><a href="share?p=twitter[&]u=<?php echo urlencode($this->Environment->url.'/'.$this->objProduct->_linkToProduct); ?>[&]t=<?php echo urlencode(html_entity_decode($this->objProduct->_title)); ?>" rel="nofollow" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText065']; ?>" onclick="window.open(this.href, '', 'width=800,height=600,modal=yes,left=100,top=50,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no'); return false;">Twitter</a></li>
-			  <li class="googleplus"><a href="https://plus.google.com/share?url=<?php echo urlencode($this->Environment->url.'/'.$this->objProduct->_linkToProduct); ?>" rel="nofollow" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText066']; ?>" onclick="window.open(this.href, '', 'width=800,height=600,modal=yes,left=100,top=50,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no'); return false;">Google+</a></li>
-			  <li class="last email"><a href="mailto:<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText067']; ?>?subject=<?php echo rawurlencode(html_entity_decode($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText068'].": ".$this->objProduct->_title)); ?>[&]body=<?php echo rawurlencode($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText069'].': '.$this->Environment->url.'/'.$this->objProduct->_linkToProduct); ?>" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText070']; ?>">E-Mail</a></li>
-			</ul>
+			<?php // <- ##### SHORT DESCRIPTION ##### ?>
+
+			<div class="priceContainer">
+				<?php // ##### CURRENT PRICE ##### -> ?>
+					<span class="currentPrice newline<?php echo $this->objProduct->_isOnSale ? ' isOnSale' : ''; ?>">
+						<?php if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?>
+					</span>
+				<?php // <- ##### CURRENT PRICE ##### ?>
+
+				<?php // ##### OLD PRICE ##### -> ?>
+					<?php if ($this->objProduct->_hasOldPrice) { ?>
+						<span class="oldPrice">
+							[<?php if ($this->objProduct->_oldPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?>]
+						</span>
+					<?php } ?>
+				<?php // <- ##### OLD PRICE ##### ?>
+
+				<div class="clear"></div>
+
+				<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+					<?php // ##### TAX ##### -> ?>
+						<span class="taxInfo"><?php echo $this->objProduct->_taxInfo; ?></span>
+					<?php // <- ##### TAX ##### ?>
+				<?php } // <----- NOT USED BY DEFAULT ----- ?>
+
+				<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+					<?php // ##### SHIPPING ##### -> ?>
+						<span class="shippingInfo"><?php echo $this->objProduct->_shippingInfo; ?></span>
+					<?php // <- ##### SHIPPING ##### ?>
+				<?php } // <----- NOT USED BY DEFAULT ----- ?>
+
+				<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+					<?php // ##### QUANTITY INPUT / PUT IN CART BUTTON ##### -> ?>
+						<?php if ($this->objProduct->_orderAllowed && $this->objProduct->_hasQuantityInput) { ?>
+							<div
+								id="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>_1"
+								class="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>"
+								data-merconis-component="put-in-cart-form"
+								data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
+								data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
+							>
+								<?php
+									// ####################################################################
+									// message to display after putting the product/variant into the cart
+									if (\Merconis\Core\ls_shop_msg::checkMsg('addedToCart', $this->objProduct->_productVariantID)) { // check if an "addedToCart" message is set for this product/variant
+										$msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('addedToCart', $this->objProduct->_productVariantID); // get the message details
+										if ($this->objProduct->_useStock && $msgDetails['stockNotSufficient']) { // check if the product/variant uses stock and if the stock was not sufficient
+											?>
+												<div class="hasBeenPutInCart effectAutohide error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCartStockNotSufficient'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit,  \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
+											<?php
+										} else {
+											?>
+												<div class="hasBeenPutInCart effectAutohide success"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCart'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
+											<?php
+										}
+									} else if (\Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $this->objProduct->_productVariantID)) { // if no "addedToCart" message is set, check for a "couldNotBePutInCart" message for this product/variant
+										?>
+											<div class="notPutInCart effectAutohide error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['couldNotBePutInCart']; ?></div>
+										<?php
+									}
+									// ####################################################################
+								?>
+								<?php echo $this->objProduct->_quantityInput; ?>
+							</div>
+						<?php } ?>
+					<?php // <- ##### QUANTITY INPUT / PUT IN CART BUTTON ##### ?>
+				<?php } // <----- NOT USED BY DEFAULT ----- ?>
+			</div>
+
+
+			<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+				<?php // ##### WATCHLIST BUTTON ##### -> ?>
+					<div class="watchlistContainer <?php echo $this->objProduct->_isFavorite ? 'inMyWatchlist' : 'notInMyWatchlist';?>">
+						<?php echo FE_USER_LOGGED_IN ? $this->objProduct->_favoritesForm : ''; ?>
+					</div>
+				<?php // <- ##### WATCHLIST BUTTON ##### ?>
+			<?php } // <----- NOT USED BY DEFAULT ----- ?>
 		</div>
 	</div>
 </div>

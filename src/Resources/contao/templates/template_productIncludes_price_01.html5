@@ -18,32 +18,24 @@ if ($this->objProduct->_variantIsSelected) {
 			) {
 				?>
 				<div class="basePrice">
-					<div class="label">
-						<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['basePrice']; ?>:
-					</div>
-					<div class="value">
-						<?php echo $obj_tmp_productOrVariant->_unscaledPriceBeforeConfiguratorAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-					</div>
+					<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['basePrice']; ?>:</span>
+					<span class="value"><?php echo $obj_tmp_productOrVariant->_unscaledPriceBeforeConfiguratorAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
 				</div>
 				<div class="configuratorPrice">
-					<div class="label">
-						<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['configuratorPrice']; ?>:
-					</div>
-					<div class="value">
-						<?php echo $obj_tmp_productOrVariant->_unscaledPriceModificationByConfiguratorFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-					</div>
+					<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['configuratorPrice']; ?>:</span>
+					<span class="value"><?php echo $obj_tmp_productOrVariant->_unscaledPriceModificationByConfiguratorFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
 				</div>
 			<?php } ?>
 			<div class="finalPrice">
-				<div class="label"></div>
-				<div class="value">
+				<span class="label"></span>
+				<span class="value">
 					<?php
 						/*
 						 * Either a variant is selected or, if it isn't, the product does not have different variant prices. In both cases we have a precise price to display
 						 */
 						if ($this->objProduct->_variantIsSelected || !$this->objProduct->_unscaledPricesAreDifferent) {
 							?>
-							<?php echo $obj_tmp_productOrVariant->_unscaledPriceAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+							<?php echo $obj_tmp_productOrVariant->_unscaledPriceAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
 							<div class="quantityComparison">
 								<?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText('_unscaledPriceAfterTax'); ?>
 							</div>
@@ -62,7 +54,7 @@ if ($this->objProduct->_variantIsSelected) {
 							<?php
 						}
 					?>
-				</div>
+				</span>
 			</div>
 		</div>
 		<?php // <- unscaled price output ?>
@@ -111,77 +103,82 @@ if ($this->objProduct->_variantIsSelected) {
 					)
 			) {
 				?>
-				<div class="scalePriceInformation <?php echo $obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator ? 'pricesInfluencedByConfigurator' : 'pricesNotInfluencedByConfigurator'; ?>">
-					<?php
-					$count = 1;
-					foreach ($obj_tmp_productOrVariant->_scalePricesOutput as $arrStep) {
-						$count++;
-						?>
-						<div class="scalePriceStep <?php echo ($count % 2 ? 'odd' : 'even').($count == 1 ? ' first' : '').($count == count($obj_tmp_productOrVariant->_scalePricesOutput) + 1 ? ' last' : ''); ?>">
-							<div class="scalePriceStepMinQuantity">
-								<?php echo $arrStep['minQuantity']; ?>
-							</div>
+				<section
+                        data-lsjs-component="elementFolder"
+                        data-lsjs-elementFolderOptions="
+                         {
+                            str_initialCookieStatus: 'closed'
+                         }
+                         "
+                        id="scalePrices_<?php echo $this->objProduct->_id; ?>"
+                        class="mgb-10"
+                >
+					<div data-lsjs-element="elementFolderToggler" class="mgb-5 pointer iconWithText"><i class="fi fi-scalePrice txs-xl mgr-10"></i><span class=""><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscTextScalePrice']; ?></span></div>
+					<div data-lsjs-element="elementFolderContent">
+						<div class="scalePriceInformation <?php echo $obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator ? 'pricesInfluencedByConfigurator' : 'pricesNotInfluencedByConfigurator'; ?>">
 							<?php
-							if (
-								// we have a configuration which affects the price
-								$obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator
-							) {
+							$count = 1;
+							foreach ($obj_tmp_productOrVariant->_scalePricesOutput as $arrStep) {
+								$count++;
 								?>
-								<div class="basePrice">
-									<div class="label">
-										<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['basePrice']; ?>:
+								<div class="scalePriceStep <?php echo ($count % 2 ? 'odd' : 'even').($count == 1 ? ' first' : '').($count == count($obj_tmp_productOrVariant->_scalePricesOutput) + 1 ? ' last' : ''); ?>">
+									<div class="scalePriceStepMinQuantity sameLine">
+										<span><?php echo $arrStep['minQuantity']; ?></span>
 									</div>
-									<div class="value">
-										<?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-									</div>
-								</div>
-								<div class="configuratorPrice">
-									<div class="label">
-										<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['configuratorPrice']; ?>:
-									</div>
-									<div class="value">
-										<?php echo $arrStep['priceConfigurator']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-									</div>
-								</div>
-							<?php } ?>
-							<div class="finalPrice">
-								<div class="label"></div>
-								<div class="value">
 									<?php
 									if (
 										// we have a configuration which affects the price
 										$obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator
 									) {
 										?>
-										<?php echo $arrStep['priceConfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-										<?php
-										if ($this->objProduct->_hasQuantityComparisonUnit) {
-											?>
-											<div class="quantityComparison">
-												<?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText($arrStep['priceConfiguredUnformatted']); ?>
-											</div>										
-											<?php
-										}
-										?>
-									<?php } else { ?>
-										<?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-										<?php
-										if ($this->objProduct->_hasQuantityComparisonUnit) {
-											?>
-											<div class="quantityComparison">
-												<?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText($arrStep['priceUnconfiguredUnformatted']); ?>
-											</div>										
-											<?php
-										}
-										?>
+										<div class="basePrice">
+											<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['basePrice']; ?>:</span>
+											<span class="value"><?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
+										</div>
+										<div class="configuratorPrice">
+											<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['configuratorPrice']; ?>:</span>
+											<span class="value"><?php echo $arrStep['priceConfigurator']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
+										</div>
 									<?php } ?>
+									<div class="finalPrice sameLine">
+										<div class="value"><span>
+											<?php
+											if (
+												// we have a configuration which affects the price
+												$obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator
+											) {
+												?>
+												<?php echo $arrStep['priceConfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+												<?php
+												if ($this->objProduct->_hasQuantityComparisonUnit) {
+													?>
+													<div class="quantityComparison">
+														<?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText($arrStep['priceConfiguredUnformatted']); ?>
+													</div>
+													<?php
+												}
+												?>
+											<?php } else { ?>
+												<?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+												<?php
+												if ($this->objProduct->_hasQuantityComparisonUnit) {
+													?>
+													<div class="quantityComparison">
+														<?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText($arrStep['priceUnconfiguredUnformatted']); ?>
+													</div>
+													<?php
+												}
+												?>
+											<?php } ?>
+										</span></div>
+									</div>
 								</div>
-							</div>
+								<?php
+							}
+							?>
 						</div>
-						<?php
-					}
-					?>				
-				</div>
+					</div>
+				</section>
 				<?php
 			}
 		?>
@@ -217,7 +214,7 @@ if ($this->objProduct->_variantIsSelected) {
 	<div class="shippingInfo"><?php echo $obj_tmp_productOrVariant->_shippingInfo; ?></div>
 	<?php if ($obj_tmp_productOrVariant->_objConfigurator->arrData['stayInDataEntryMode'] || !$obj_tmp_productOrVariant->_configuratorInDataEntryMode): ?>
 		<?php if ($obj_tmp_productOrVariant->_orderAllowed && $obj_tmp_productOrVariant->_hasQuantityInput): ?>
-			<?php echo $obj_tmp_productOrVariant->_quantityInput; ?>
+			<?php echo str_replace('type="text"', 'type="number" min="1"', $obj_tmp_productOrVariant->_quantityInput); ?>
 
 			<?php
 				// ####################################################################
@@ -226,16 +223,16 @@ if ($this->objProduct->_variantIsSelected) {
 					$msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('addedToCart', $obj_tmp_productOrVariant->_productVariantID); // get the message details
 					if ($obj_tmp_productOrVariant->_useStock && $msgDetails['stockNotSufficient']) { // check if the product/variant uses stock and if the stock was not sufficient
 						?>
-							<div class="hasBeenPutInCart error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCartStockNotSufficient'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit,  \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit); ?></div>
+							<div class="hasBeenPutInCart effectAutohide error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCartStockNotSufficient'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit,  \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit); ?></div>
 						<?php
 					} else {
 						?>
-							<div class="hasBeenPutInCart"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCart'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit); ?></div>
+							<div class="hasBeenPutInCart effectAutohide"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCart'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit); ?></div>
 						<?php
 					}
 				} else if (\Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $obj_tmp_productOrVariant->_productVariantID)) { // if no "addedToCart" message is set, check for a "couldNotBePutInCart" message for this product/variant
 					?>
-						<div class="notPutInCart"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['couldNotBePutInCart']; ?></div>
+						<div class="notPutInCart effectAutohide error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['couldNotBePutInCart']; ?></div>
 					<?php
 				}
 				// ####################################################################

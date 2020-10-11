@@ -1,0 +1,45 @@
+<?php
+	// use this to show the available output options:
+	// echo $this->objProduct->_outputOptions;
+	
+	global $objPage;
+?>
+<div class="shopProduct flexElement <?php echo $this->productTemplateType; ?> <?php echo $this->productTemplate; ?> <?php echo $this->productPositionsClassString; ?> block">
+	<div class="boxInnerWrapper">
+		<?php // ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### -> ?>
+			<div class="imageContainer">
+				<?php if ($this->objProduct->_hasMainImage): ?>
+					<a class="productMainImage boxImagefullwidth" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="" /></a>
+					<div class="iconWrapper">
+						<?php if ($this->objProduct->_isNew): ?>
+							<a href="<?php echo $this->objProduct->_linkToProduct; ?>" class="productImageOverlay isNew">NEW</a>
+						<?php endif; ?>
+						<?php if ($this->objProduct->_isOnSale): ?>
+							<a href="<?php echo $this->objProduct->_linkToProduct; ?>" class="productImageOverlay isOnSale">SALE</a>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
+			</div>
+		<?php // <- ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### ?>
+
+		<div class="bottomWrapper newline">
+			<?php // ##### TITLE ##### -> ?>
+				<h2><a class="productTitle sameLine" href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php echo $this->objProduct->_title; ?></a></h2>
+			<?php // <- ##### TITLE ##### ?>
+
+			<?php // ##### CURRENT PRICE ##### -> ?>
+				<p class="currentPrice newline">
+					<?php if ($this->objProduct->_unscaledPricesAreDifferent): ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php endif; ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+				</p>
+			<?php // <- ##### CURRENT PRICE ##### ?>
+
+			<?php // ##### OLD PRICE ##### -> ?>
+				<?php if ($this->objProduct->_hasOldPrice): ?>
+					<p class="oldPrice">
+						<?php if ($this->objProduct->_oldPricesAreDifferent): ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php endif; ?><?php echo $this->objProduct->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+					</p>
+				<?php endif; ?>
+			<?php // <- ##### OLD PRICE ##### ?>
+		</div>
+	</div>
+</div>

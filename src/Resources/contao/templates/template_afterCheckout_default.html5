@@ -1,42 +1,61 @@
-<?php // ########## PAYMENT ##########?>
-<?php if ($this->arrOrder['paymentMethod_infoAfterCheckout_customerLanguage']) { ?>
-	<div class="payment infoForPaymentMethod">
-		<?php echo $this->arrOrder['paymentMethod_infoAfterCheckout_customerLanguage']; ?>
-	</div>
-<?php } ?>
+<div id="checkout-content" class="order-overview">
+    <?php // ########## PAYMENT ##########?>
+    <?php if ($this->arrOrder['paymentMethod_infoAfterCheckout_customerLanguage']) { ?>
+        <div id="info-for-payment-method">
+            <?php echo $this->arrOrder['paymentMethod_infoAfterCheckout_customerLanguage']; ?>
+        </div>
+    <?php } ?>
 
-<?php // ########## PAYMENT SPECIAL INFOS ##########?>
-<?php if ($this->specialInfoForPaymentMethod) { ?>
-	<div class="payment specialInfoForPaymentMethod">
-		<?php echo $this->specialInfoForPaymentMethod; ?>
-	</div>
-<?php } ?>
+    <?php // ########## PAYMENT SPECIAL INFOS ##########?>
+    <?php if ($this->specialInfoForPaymentMethod) { ?>
+        <div id="special-info-for-payment-method">
+            <?php echo $this->specialInfoForPaymentMethod; ?>
+        </div>
+    <?php } ?>
 
-<?php // ########## SHIPPING ##########?>
-<?php if ($this->arrOrder['shippingMethod_infoAfterCheckout_customerLanguage']) { ?>
-	<div class="shipping infoForShippingMethod">
-		<?php echo $this->arrOrder['shippingMethod_infoAfterCheckout_customerLanguage']; ?>
-	</div>
-<?php } ?>
+    <?php // ########## SHIPPING ##########?>
+    <?php if ($this->arrOrder['shippingMethod_infoAfterCheckout_customerLanguage']) { ?>
+        <div id="info-for-shipping-method">
+            <?php echo $this->arrOrder['shippingMethod_infoAfterCheckout_customerLanguage']; ?>
+        </div>
+    <?php } ?>
 
-<?php // ########## SHIPPING SPECIAL INFOS ##########?>
-<?php if ($this->specialInfoForShippingMethod) { ?>
-	<div class="shipping specialInfoForShippingMethod">
-		<?php echo $this->specialInfoForShippingMethod; ?>
-	</div>
-<?php } ?>
+    <?php // ########## SHIPPING SPECIAL INFOS ##########?>
+    <?php if ($this->specialInfoForShippingMethod) { ?>
+        <div id="special-info-for-shipping-method">
+            <?php echo $this->specialInfoForShippingMethod; ?>
+        </div>
+    <?php } ?>
 
-<?php
-	include(__DIR__.'/template_afterCheckout--cart.html5');
-?>
-<div class="borderless customerData formCustomerData form"><?php echo $this->arrOrder['personalDataReview_customerLanguage']; ?></div>
+    <?php
+        include(__DIR__.'/template_afterCheckout--cart.html5');
+        include(__DIR__.'/template_afterCheckout--calculation.html5');
+    ?>
 
-<?php // ########## PAYMENT ##########?>
-<?php if ($this->arrOrder['paymentDataReview']) { ?>
-	<div class="borderless payment formPaymentMethodAdditionalData form"><?php echo $this->arrOrder['paymentDataReview_customerLanguage']; ?></div>
-<?php } ?>
+    <div id="checkoutStepCustomerDataReview">
+        <h3><i class="icon icon-sprache_02"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData'][$this->arr_data['useDeviantShippingAddress'] ? 'billingAddress' : 'billingAndShippingAddress']; ?></h3>
+        <div class="content">
+            <?php echo $this->arrOrder['personalDataReview_customerLanguage']; ?>
+        </div>
+    </div>
 
-<?php // ########## PAYMENT ##########?>
-<?php if ($this->arrOrder['shippingDataReview']) { ?>
-	<div class="borderless shipping formShippingMethodAdditionalData form"><?php echo $this->arrOrder['shippingDataReview_customerLanguage']; ?></div>
-<?php } ?>
+    <?php // ########## PAYMENT ##########?>
+    <?php if ($this->arrOrder['paymentDataReview']) { ?>
+        <div id="checkoutStepPaymentDataReview">
+            <h3><i class="icon icon-zahlung_01"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline']; ?> <?php echo $this->arrOrder['paymentMethod_title_customerLanguage']; ?></h3>
+            <div class="content">
+                <?php echo $this->arrOrder['paymentDataReview_customerLanguage']; ?>
+            </div>
+        </div>
+    <?php } ?>
+
+    <?php // ########## PAYMENT ##########?>
+    <?php if ($this->arrOrder['shippingDataReview']) { ?>
+        <div id="checkoutStepShippingDataReview">
+            <h3><i class="icon icon-schnelle-lieferung_01"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['shippingData']['headline']; ?> <?php echo $this->arrOrder['shippingMethod_title_customerLanguage']; ?></h3>
+            <div class="content">
+                <?php echo $this->arrOrder['shippingDataReview_customerLanguage']; ?>
+            </div>
+        </div>
+    <?php } ?>
+</div>

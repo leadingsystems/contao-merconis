@@ -1,72 +1,15 @@
-<div data-lsjs-component="navtab">
-	<div data-lsjs-element="navtabNavigation" class="navigation">
-		<div data-lsjs-element="btn_prev" class="prev">PREV</div>
-		<div data-lsjs-element="btn_next" class="next">NEXT</div>
-		<div data-lsjs-element="btn_play" class="play">PLAY</div>
-		<div data-lsjs-element="btn_stop" class="stop">STOP</div>
-	</div>
-	<div data-lsjs-element="navtabLabelContainer">
-		<?php
-			$count = 0;
-			if (is_array($this->images[0])) {
-				foreach($this->images[0] as $image) {
-					?>
-					<div data-lsjs-element="navtabLabel" class="<?php if ($count == 0) { echo 'start'; } ?>"><img src="<?php echo $image->src; ?>"<?php echo $image->imgSize; ?> alt="<?php echo $image->alt; ?>" /></div>
-					<?php
-					$count++;
-				}
-			}
-		?>
-	</div>
-	<div data-lsjs-element="navtabContentContainer">
-		<?php
-			$count = 0;
-			if (is_array($this->images[1])) {
-				foreach($this->images[1] as $image) {
-					$count++;
-					?>
-					<div data-lsjs-element="navtabContent" class="<?php if ($count == 1) { echo 'noJsDefault'; } ?>">
-						<div class="imageContainer<?php echo $this->additionalClass ? ' '.$this->additionalClass : ''; ?>"<?php if ($image->margin): ?> style="<?php echo $image->margin; ?>"<?php endif; ?>>
-							<?php if ($image->href): ?>
-								<a href="<?php echo $image->href; ?>"<?php echo $image->attributes; ?> title="<?php echo $image->alt; ?>"><img class="productImage<?php echo is_array($image->arrOverlays) && in_array('isVideo', $image->arrOverlays) ? ' isVideo' : ''; ?>" src="<?php echo $image->src; ?>"<?php echo $image->imgSize; ?> alt="<?php echo $image->alt; ?>" /></a>
-							<?php else: ?>
-								<img class="productImage<?php echo is_array($image->arrOverlays) && in_array('isVideo', $image->arrOverlays) ? ' isVideo' : ''; ?>" src="<?php echo $image->src; ?>"<?php echo $image->imgSize; ?> alt="<?php echo $image->alt; ?>" />
-							<?php endif; ?>
-							<?php if ($image->caption): ?>
-								<div class="caption"><?php echo $image->caption; ?></div>
-							<?php endif; ?>
-							<?php
-								if (is_array($image->arrOverlays)) {
-									foreach ($image->arrOverlays as $overlayName) {
-										$img = '';
-										switch ($overlayName) {
-											case 'isVideo':
-												$img = LeadingSystems\Helpers\ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_systemImages_videoCoverOverlay']);
-												break;
-												
-											case 'isNew':
-												$img = LeadingSystems\Helpers\ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_systemImages_isNewOverlay']);
-												break;
-												
-											case 'isOnSale':
-												$img = LeadingSystems\Helpers\ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_systemImages_isOnSaleOverlay']);
-												break;
-										}
-										?>
-										<?php if ($image->href): ?>
-											<a href="<?php echo $image->href; ?>"<?php echo $image->attributes; ?> class="productImageOverlay <?php echo $overlayName; ?>"><?php echo $img ? '<img src="'.$img.'" alt="" />': ''; ?></a>
-										<?php else: ?>
-											<div <?php echo $image->attributes; ?> class="productImageOverlay <?php echo $overlayName; ?>"><?php echo $img ? '<img src="'.$img.'" alt="" />': ''; ?></div>
-										<?php endif; ?>
-										<?php
-									}
-								}
-							?>
-						</div>
-					</div>
-					<?php
-				}
-			}
-		?>
-	</div>
-</div>
+<?php
+if (is_array($this->images[1])) {
+    foreach($this->images[1] as $image) {
+        ?>
+        <div class="imageContainer">
+            <?php if ($image->href) { ?>
+                <a class="lsjs-image-zoomer" href="<?php echo $image->href; ?>"<?php echo str_replace('data-lightbox', 'data-lightbox-deactivated', $image->attributes); ?> title="<?php echo $image->alt; ?>"><img class="productImage<?php echo is_array($image->arrOverlays) && in_array('isVideo', $image->arrOverlays) ? ' isVideo' : ''; ?>" src="<?php echo $image->src; ?>"<?php echo $image->imgSize; ?> alt="<?php echo $image->alt; ?>" /></a>
+            <?php } else { ?>
+                <img class="productImage<?php echo is_array($image->arrOverlays) && in_array('isVideo', $image->arrOverlays) ? ' isVideo' : ''; ?>" src="<?php echo $image->src; ?>"<?php echo $image->imgSize; ?> alt="<?php echo $image->alt; ?>" />
+            <?php } ?>
+        </div>
+        <?php
+    }
+}
+?>

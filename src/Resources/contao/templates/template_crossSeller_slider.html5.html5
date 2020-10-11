@@ -1,0 +1,6 @@
+<div class="crossSeller slider block <?php echo $this->outputContext; ?> <?php echo $this->crossSellerType; ?>">
+	<?php echo $this->text01; ?>
+	<?php echo $this->truncatedResultsMsg; ?>
+	<?php echo $this->output; ?>
+	<?php echo $this->text02; ?>
+</div>

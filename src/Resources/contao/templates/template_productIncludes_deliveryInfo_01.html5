@@ -9,7 +9,7 @@ if ($this->objProduct->_variantIsSelected) {
 if ($obj_tmp_productOrVariant !== null) {
 	$bln_criticalDeliveryTime = $obj_tmp_productOrVariant->_deliveryTimeDays <= 0 || $obj_tmp_productOrVariant->_deliveryTimeDays > 5;
 	?>
-	<div class="deliveryMessageContainer<?php echo $bln_criticalDeliveryTime ? ' deliveryTimeAlert' : ''  ?>">
+	<div class="deliveryMessageContainer deliveryInfo-icon <?php echo $bln_criticalDeliveryTime ? ' deliveryTimeAlert' : ''  ?>">
 		<?php echo $obj_tmp_productOrVariant->_deliveryTimeMessage; ?>
 	</div>
 	<?php

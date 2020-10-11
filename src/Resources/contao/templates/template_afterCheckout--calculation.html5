@@ -1,0 +1,181 @@
+<?php
+/*
+ * IMPORTANT NOTE:
+ * This template is most likely being included in another template file.
+ * If you duplicate this template, please make sure to adjust the include paths in the other file.
+ */
+?>
+
+<?php // ########## CALCULATION ##########?>
+<div id="checkoutStepCalculation">
+    <h3><i class="icon icon-rechnung_01"></i>
+        <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText023']; ?>
+    </h3>
+
+    <div id="calculation" class="calculation">
+        <div class="field-group total-value-of-goods">
+            <div class="field">
+                <div class="field-label totalValueOfGoods"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText020']; ?></div>
+                <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arrOrder['totalValueOfGoods']); ?></div>
+            </div>
+
+            <?php if (!$this->arrOrder['noVATBecauseOfEnteredIDs']) { ?>
+                <?php
+                foreach ($this->arrOrder['totalValueOfGoodsTaxedWith'] as $taxClassID => $arrTaxInfo) {
+                    if ($taxClassID == 0) {
+                        continue;
+                    }
+                    ?>
+                    <div class="field info">
+                        <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID)) . ' %'; ?></div>
+                        <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($arrTaxInfo['amountTaxedHerewith']); ?></div>
+                    </div>
+                    <?php
+                }
+                ?>
+            <?php } ?>
+        </div>
+
+        <div class="field-group coupons">
+            <div class="field">
+                <div class="field-label">
+                    <?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text012']; ?>
+                </div>
+
+                <?php
+                $float_cumulatedCouponValue = 0;
+                if (is_array($this->arrOrder['couponsUsed'])) {
+                    foreach ($this->arrOrder['couponsUsed'] as $couponID => $arrCouponInfo) {
+                        $float_cumulatedCouponValue = \LeadingSystems\Helpers\ls_add($float_cumulatedCouponValue, $arrCouponInfo['amount']);
+                    }
+                }
+                ?>
+                <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($float_cumulatedCouponValue); ?></div>
+            </div>
+
+            <?php
+            if (is_array($this->arrOrder['couponsUsed'])) {
+                foreach ($this->arrOrder['couponsUsed'] as $couponID => $arrCouponInfo) {
+                    ?>
+                    <div class="field info">
+                        <div class="field-label">
+                            <?php echo $arrCouponInfo['title_customerLanguage']; ?>
+                        </div>
+                        <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($arrCouponInfo['amount']); ?></div>
+                        <div class="field-description">
+                            <?php echo $arrCouponInfo['description_customerLanguage']; ?>
+                        </div>
+                    </div>
+                    <?php
+                    if (!$this->arrOrder['noVATBecauseOfEnteredIDs']) {
+                        foreach ($arrCouponInfo['amountTaxedWith'] as $taxClassID => $arrTaxInfo) {
+                            if ($taxClassID == 0) {
+                                continue;
+                            }
+                            ?>
+                            <div class="field info">
+                                <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::outputNumber($arrTaxInfo['taxRate'], 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator'])).' %'; ?></div>
+                                <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($arrTaxInfo['amountTaxedHerewith']); ?></div>
+                            </div>
+                            <?php
+                        }
+                    }
+
+                }
+            }
+            ?>
+        </div>
+        <?php
+        if (isset(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info']) && is_array(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info'])) {
+            ?>
+            <div class="field-group">
+                <div class="field">
+                    <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText021'].' '.$this->arrOrder['paymentMethod_title_customerLanguage']; ?></div>
+                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arrOrder['paymentMethod_amount']); ?></div>
+                </div>
+                <div class="field info">
+                    <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
+                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber($this->arrOrder['paymentMethod_amountTaxedWith'][1]['taxRate'], 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator']); ?> %</div>
+                </div>
+            </div>
+            <?php
+        }
+        ?>
+
+        <?php
+        if (isset(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee']['info']) && is_array(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee']['info'])) {
+            ?>
+            <div class="field-group">
+                <div class="field">
+                    <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText022'].' '.$this->arrOrder['shippingMethod_title_customerLanguage']; ?></div>
+                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arrOrder['shippingMethod_amount']); ?></div>
+                </div>
+                <div class="field info">
+                    <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
+                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber($this->arrOrder['shippingMethod_amountTaxedWith'][1]['taxRate'], 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator']); ?> %</div>
+                </div>
+            </div>
+            <?php
+        }
+        ?>
+
+        <div class="field-group <?php echo $this->arrOrder['taxInclusive'] ? 'invoiced-amount' : 'full-amount'; ?>">
+            <div class="field">
+                <div class="field-label ls_invoiced-amount"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$this->arrOrder['taxInclusive'] ? 'miscText023' : 'miscText051']; ?></div>
+                <div class="field-content ls_invoiced-amount"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arrOrder['total']); ?></div>
+            </div>
+
+            <?php if (!$this->arrOrder['noVATBecauseOfEnteredIDs']) { ?>
+                <?php
+                foreach ($this->arrOrder['totalTaxedWith'] as $taxClassID => $arrTaxInfo) {
+                    if ($taxClassID == 0) {
+                        continue;
+                    }
+                    ?>
+                    <div class="field info">
+                        <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID)).' %'; ?></div>
+                        <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($arrTaxInfo['amountTaxedHerewith']); ?></div>
+                    </div>
+                    <?php
+                }
+                ?>
+            <?php } ?>
+        </div>
+
+
+        <div class="field-group tax">
+            <?php if (!$this->arrOrder['noVATBecauseOfEnteredIDs']) { ?>
+                <?php
+                foreach ($this->arrOrder['tax'] as $taxClassID => $arrTaxInfo) {
+                    if ($taxClassID == 0) {
+                        continue;
+                    }
+                    ?>
+                    <div class="field info">
+                        <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][\Merconis\Core\ls_shop_cartX::getInstance()->calculation['taxInclusive'] ? 'miscText052' : 'miscText053']; ?> (<?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID)).' %'; ?>)</div>
+                        <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($arrTaxInfo['taxAmount']); ?></div>
+                    </div>
+                    <?php
+                }
+                ?>
+            <?php } else { ?>
+                <div class="field info no-vat-because-of-entered-ids">
+                    <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['noVAT'], $GLOBALS['TL_CONFIG']['ls_shop_ownVATID']) ?></div>
+                </div>
+            <?php } ?>
+        </div>
+
+        <?php
+        if (!$this->arrOrder['taxInclusive']) {
+            ?>
+            <div class="field-group invoiced-amount">
+                <div class="field">
+                    <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText023']; ?></div>
+                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arrOrder['invoicedAmount']); ?></div>
+                </div>
+            </div>
+            <?php
+        }
+        ?>
+    </div>
+</div>

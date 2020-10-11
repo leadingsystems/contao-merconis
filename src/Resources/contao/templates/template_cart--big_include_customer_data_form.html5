@@ -9,56 +9,60 @@
 <?php
 if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
 	?>
-	<div
-		id="checkoutStepLogin"
-		class="checkoutStep"
-	>
-		<h3 class="headlineMainSection">
+	<div id="checkoutStepLogin">
+		<h3><i class="icon icon-sprache_02"></i>
 			<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText136']; ?>
 		</h3>
-        <div class="customerLogin">
-            <div class="feLogin"
-                 data-lsjs-component="cajaxCaller"
-                 data-lsjs-cajaxCallerOptions="
+		<div>
+			<div class="customerLogin">
+				<div class="feLogin"
+					 data-lsjs-component="cajaxCaller"
+					 data-lsjs-cajaxCallerOptions="
 					{
 						'obj_cajaxRequestData': {
-							'requestedElementID': 'checkoutContent'
+							'requestedElementID': 'checkout-content'
 						}
 					}
 					"
-            >
-                <?php // ########## FE LOGIN ##########?>
-                <?php
-                if (!FE_USER_LOGGED_IN) {
-                    ?>
-                    <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText034'][$this->allowCheckout]; ?></p>
-                    <?php
-                }
-                ?>
-                {{insert_module::<?php echo $GLOBALS['TL_CONFIG']['ls_shop_loginModuleID']; ?>}}
-                <?php
-                if (!FE_USER_LOGGED_IN) {
-                    ?>
-                    <p><?php echo $this->arrRequiredCheckoutData['signUpLink']; ?></p>
-                    <?php
-                }
-                ?>
-            </div>
-        </div>
-    </div>
+				>
+					<?php // ########## FE LOGIN ##########?>
+					<?php
+					if (!FE_USER_LOGGED_IN) {
+						?>
+						<p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText034'][$this->allowCheckout]; ?></p>
+						<?php
+					}
+					?>
+					{{insert_module::<?php echo $GLOBALS['TL_CONFIG']['ls_shop_loginModuleID']; ?>}}
+					<?php
+					if (!FE_USER_LOGGED_IN) {
+						?>
+						<p><?php echo $this->arrRequiredCheckoutData['signUpLink']; ?></p>
+						<?php
+					}
+					?>
+				</div>
+			</div>
+		</div>
+	</div>
 	<?php
 }
 ?>
 
 <div
-	id="checkoutStepLoginCustomerData"
-	class="checkoutStep customerDataForm"
+	id="checkoutStepCustomerData"
 	data-misc-close-form-initially="<?php echo $this->arrRequiredCheckoutData['customerDataIsValid'] ? '1' : ''; ?>"
+    data-misc-form-reviewer-toggler-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText138']; ?>"
 	data-lsjs-component="customerDataForm formReviewer"
 >
-	<h3 class="headlineMainSection">
-		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText010']; ?><?php if (!$this->arrRequiredCheckoutData['customerDataIsValid']) { ?> <span class="error">(<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText036']; ?>)</span><?php } ?>
+	<h3><i class="icon icon-meinshop_01"></i>
+		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText010']; ?>
 	</h3>
+
+	<?php if (!$this->arrRequiredCheckoutData['customerDataIsValid']) { ?>
+        <div class="checkout-validation-error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText036']; ?></div>
+    <?php } ?>
+
 	<div>
 		<?php
 			if ($this->allowCheckout != 'withLogin' || FE_USER_LOGGED_IN) {
@@ -69,7 +73,7 @@ if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
 						data-lsjs-cajaxCallerOptions="
 						{
 							'obj_cajaxRequestData': {
-								'requestedElementID': 'checkoutContent'
+								'requestedElementID': 'checkout-content'
 							}
 						}
 						"

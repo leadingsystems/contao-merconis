@@ -1,39 +1,53 @@
 <!-- indexer::stop -->
-<div class="<?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>">
-	<?php if ($this->headline) { ?>
-		<<?php echo $this->hl; ?> data-lsjs-element="filterFormHeadline"><?php echo $this->headline; ?></<?php echo $this->hl; ?>>
-	<?php } ?>
-	<div class="filterContent" data-lsjs-element="filterFormContent">
-	<?php
-		if (!$this->blnNothingToFilter) {
-			?>
-				<form action="<?php echo $this->request; ?>" class="tl_form" method="post">
-					<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
-					<input type="hidden" name="FORM_SUBMIT" value="filterForm">
-					
-					<?php
-						if (is_array($this->arrWidgets_filterFields) && count($this->arrWidgets_filterFields)) {
-						 	foreach ($this->arrWidgets_filterFields as $filterFieldWidget) {
-							 	?>
-								<?php echo $filterFieldWidget; ?>
-							 	<?php
-							}
-							?>
-							<div>
-								<button type="submit" id="ctrl_" class="submit submitFilter" name="submitFilter"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097']; ?></button>
-								<button type="submit" id="ctrl_" class="submit resetFilter" name="resetFilter" value="1"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText106']; ?></button>
-							</div>
-							<?php
-						} else {
-							?>
-							<p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText105']; ?></p>
-							<?php
-						}
-					?>
-				</form>
-			<?php
-		}
-	?>
-	</div>
+<div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>">
+    <?php
+    $str_filterSummary = trim(\Merconis\Core\ls_shop_filterHelper::getFilterSummary());
+    ?>
+    <div class="off-canvas-filter-form-toggler main-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$str_filterSummary ? 'miscText097-03' : 'miscText097-02']; ?></div>
+    <?php echo $str_filterSummary; ?>
+    <div id="off-canvas-filter-form-container" class="oc-flex-default-container">
+        <div id="off-canvas-filter-form-container-inside">
+            <div class="off-canvas-filter-form-toggler close-button">&nbsp;</div>
+            <?php if ($this->headline) { ?>
+                <?php echo '<' . $this->hl . '>'; ?><?php echo $this->headline; ?><?php echo '</' . $this->hl . '>'; ?>
+            <?php } ?>
+            <div class="filterContent">
+            <?php
+                if (!$this->blnNothingToFilter) {
+                    ?>
+                        <form action="<?php echo $this->request; ?>" class="tl_form" method="post">
+                            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+                            <input type="hidden" name="FORM_SUBMIT" value="filterForm">
+
+                            <?php
+                                if (is_array($this->arrWidgets_filterFields) && count($this->arrWidgets_filterFields)) {
+                                    ?>
+                                    <div class="filter-fields">
+                                        <?php
+                                        foreach ($this->arrWidgets_filterFields as $filterFieldWidget) {
+                                            ?>
+                                            <?php echo $filterFieldWidget; ?>
+                                            <?php
+                                        }
+                                        ?>
+                                    </div>
+                                    <div class="filter-submit-box">
+                                        <button type="submit" id="ctrl_" class="submit submitFilter" name="submitFilter"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097']; ?></button>
+                                        <button type="submit" id="ctrl_" class="submit resetFilter" name="resetFilter" value="1"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText106']; ?></button>
+                                    </div>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText105']; ?></p>
+                                    <?php
+                                }
+                            ?>
+                        </form>
+                    <?php
+                }
+            ?>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- indexer::continue -->

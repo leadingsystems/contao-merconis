@@ -1,50 +1,39 @@
 <!-- indexer::stop -->
-<div class="productList">
-    <?php if ($this->allowUserSorting || $this->pagination) { ?>
-        <div class="product-list-navigation">
-            <div class="userSortingForm">
-                <?php if ($this->allowUserSorting) { ?>
-                    <form action="<?php echo \Environment::get('request'); ?>" method="post" onsubmit="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
-                        <div>
-                            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
-                            <input type="hidden" name="FORM_SUBMIT" value="userSorting">
-                            <input type="hidden" name="identifyCorrespondingOutputDefinition" value="<?php echo $this->identifyCorrespondingOutputDefinition; ?>">
-                            <?php echo $this->fflSorting; ?>
-                            <button type="submit" class="submit">
-                                <span class="button-content"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit']; ?></span>
-                            </button>
-                        </div>
-                    </form>
-                <?php } ?>
-            </div>
-            <?php if ($this->pagination) { ?>
-                <div onclick="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
-                    <?php echo $this->pagination; ?>
-                </div>
-            <?php } ?>
-        </div>
-    <?php } ?>
-    
-    <?php
-    if ($this->blnNotAllProductsMatchFilter) {
-        ?>
-        <div class="msgFilterHidesSomeProducts"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText108'], $this->numProductsNotMatching, $this->numProductsBeforeFilter); ?></div>
-        <?php
-    }
-    ?>
-    
-    <div class="products">
-        <?php echo $this->products; ?>
+<?php if ($this->allowUserSorting) { ?>
+	<div class="userSortingForm">
+		<form action="<?php echo \Environment::get('request'); ?>" method="post" onsubmit="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
+			<div>
+				<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+				<input type="hidden" name="FORM_SUBMIT" value="userSorting">
+				<input type="hidden" name="identifyCorrespondingOutputDefinition" value="<?php echo $this->identifyCorrespondingOutputDefinition; ?>">
+				<div class="sorting-field"><?php echo $this->fflSorting; ?></div>
+				<button type="submit" class="submit"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit']; ?></button>
+			</div>
+		</form>
+	</div>
+<?php } ?>
+
+<?php if ($this->pagination) { ?>
+    <div class="pagination-container" onclick="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
+        <?php echo $this->pagination; ?>
     </div>
-    
-    <?php if ($this->pagination) { ?>
-        <div class="product-list-navigation">
-            <div onclick="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
-                <?php echo $this->pagination; ?>
-            </div>
-        </div>
-    <?php } ?>
-    
-    <div class="clearFloat"></div>
+<?php } ?>
+
+<?php
+	if ($this->blnNotAllProductsMatchFilter) {
+		?>
+		<div class="msgFilterHidesSomeProducts"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText108'], $this->numProductsNotMatching, $this->numProductsBeforeFilter); ?></div>
+		<?php
+	}
+?>
+
+<div class="productList flexElement">
+	<?php echo $this->products; ?>
 </div>
+
+<?php if ($this->pagination) { ?>
+    <div class="pagination-container">
+        <?php echo $this->pagination; ?>
+    </div>
+<?php } ?>
 <!-- indexer::continue -->
