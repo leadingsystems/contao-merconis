@@ -12,6 +12,7 @@ relevant foreign key relations concerning tables which are not defined in this f
 @tl_newsletter_channel.jumpTo@tl_page.id=single@
 @tl_page.layout@tl_layout.id=single@
 @tl_page.groups@tl_member_group.id=array@
+@tl_member.groups@tl_member_group.id=array@
 @tl_layout.pid@tl_theme.id=single@
 @tl_module.pid@tl_theme.id=single@
 @tl_module.rootPage@tl_page.id=single@
