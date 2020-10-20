@@ -133,10 +133,28 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
 
                 <?php // <- ##### WATCH LIST BUTTON ###### ?>
-                <div class="watchlistContainer <?php echo $this->objProduct->_isFavorite ? 'inMyWatchlist' : 'notInMyWatchlist'; ?>">
-                    <?php echo $this->objProduct->_favoritesForm; ?>
-                </div>
+                <?php
+                if (FE_USER_LOGGED_IN) {
+                    ?>
+                    <div class="watchlistContainer <?php echo $this->objProduct->_isFavorite ? 'inMyWatchlist' : 'notInMyWatchlist'; ?>">
+                        <?php echo $this->objProduct->_favoritesForm; ?>
+                    </div>
+                    <?php
+                }
+                ?>
                 <?php // <- ##### WATCH LIST BUTTON ###### ?>
+
+                <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
+                <?php
+                if (FE_USER_LOGGED_IN) {
+                    ?>
+                    <div class="restockInfoListContainer <?php echo $this->objProduct->_isOnRestockInfoList ? 'onRestockInfoList' : 'notOnRestockInfoList'; ?>">
+                        <?php echo $this->objProduct->_restockInfoListForm; ?>
+                    </div>
+                    <?php
+                }
+                ?>
+                <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
 
 
             </div>

@@ -65,6 +65,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['productSelectionType']['options'
     'searchSelection' => array('Produkt-Suche', 'Die im CrossSeller darzustellenden Produkte werden anhand vorgegebener Suchkriterien ermittelt.'),
     'lastSeen' => array('Zuletzt gesehene Produkte', 'Im CrossSeller werden die zuletzt gesehenen Produkte dargestellt.'),
     'favorites' => array('Favoriten/Merkliste', 'Im CrossSeller werden die Produkte dargestellt, die der Besucher seinen Favoriten/seiner Merkliste hinzugefügt hat.'),
+    'restockInfoList' => array('Produkte mit aktiver Wiederverfügbarkeitsbenachrichtigung', 'Im CrossSeller werden die Produkte dargestellt, für die der Besucher die Wiederverfügbarkeitsbenachrichtigung aktiviert hat.'),
     'recommendedProducts' => array('Empfohlene Produkte', 'Im CrossSeller werden Produkte dargestellt, die Sie dem in der Detailansicht dargestellten Produkt als "empfohlene Produkte" zugeordnet haben.'),
     'frontendProductSearch' => array('Frontend-Produktsuche', 'Im CrossSeller wird das Suchergebnis einer im Frontend ausgeführten Produktsuche dargestellt.')
 );

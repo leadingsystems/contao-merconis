@@ -111,6 +111,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 									groupStopSearchSelectionTags',
 		'lastSeen' => '{title_legend},title;{textOutput_legend},text01,text02;{template_legend},template,doNotUseCrossSellerOutputDefinitions;{fallbackCrossSeller_legend},fallbackCrossSeller,fallbackOutput;{filterSettings_legend},canBeFiltered;{published_legend},published;{productSelectionType_legend},productSelectionType;{lastSeen_legend},maxNumProducts',
 		'favorites' => '{title_legend},title;{textOutput_legend},text01,text02;{template_legend},template,doNotUseCrossSellerOutputDefinitions;{fallbackCrossSeller_legend},fallbackCrossSeller,fallbackOutput;{filterSettings_legend},canBeFiltered;{published_legend},published;{productSelectionType_legend},productSelectionType',
+		'restockInfoList' => '{title_legend},title;{textOutput_legend},text01,text02;{template_legend},template,doNotUseCrossSellerOutputDefinitions;{fallbackCrossSeller_legend},fallbackCrossSeller,fallbackOutput;{filterSettings_legend},canBeFiltered;{published_legend},published;{productSelectionType_legend},productSelectionType',
 		'recommendedProducts' => '{title_legend},title;{textOutput_legend},text01,text02;{template_legend},template,doNotUseCrossSellerOutputDefinitions;{fallbackCrossSeller_legend},fallbackCrossSeller,fallbackOutput;{filterSettings_legend},canBeFiltered;{published_legend},published;{productSelectionType_legend},productSelectionType;{recommendedProducts_legend},maxNumProducts',
 		'frontendProductSearch' => '{title_legend},title;{textOutput_legend},text01,text02;{template_legend},template,doNotUseCrossSellerOutputDefinitions;{fallbackCrossSeller_legend},fallbackCrossSeller,fallbackOutput;{filterSettings_legend},canBeFiltered;{published_legend},published;{productSelectionType_legend},productSelectionType;{frontendProductSearch_legend},maxNumProducts,noOutputIfMoreThanMaxResults'
 	),
@@ -194,7 +195,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'default'                 => 'directSelection',
 			'exclude' => true,
 			'inputType'               => 'select',
-			'options'                 => array('directSelection', 'searchSelection', 'lastSeen', 'recommendedProducts', 'frontendProductSearch', 'favorites', 'hookSelection'),
+			'options'                 => array('directSelection', 'searchSelection', 'lastSeen', 'recommendedProducts', 'frontendProductSearch', 'favorites', 'restockInfoList', 'hookSelection'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['productSelectionType']['options'],
 			'eval'					  => array('helpwizard' => true, 'submitOnChange' => true),
 			'filter' => true

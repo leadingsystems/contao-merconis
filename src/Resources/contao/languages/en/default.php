@@ -208,6 +208,12 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText142'] = 'Cart & Checkout';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText143'] = 'Thank you very much for your order';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText144'] = 'Please carry out the payment now';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText145'] = 'Activate notification of renewed availability';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText146'] = 'Deactivate notification of renewed availability';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText147'] = 'Notification of renewed availability has been activated';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText148'] = 'Notification of renewed availability has been deactivated';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText149'] = 'Please log in to request a notification when the product is available again';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'] = 'You can still use Merconis for %s days for free. Please purchase a license in time and enter the license number in the Merconis basic settings to continue using Merconis after the free trial period. If you see this message although you have entered a license number in the basic settings, please check the number for correctness and contact Merconis techSupport if necessary.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodExpiredMessage'] = 'Please purchase a Merconis license, otherwise your shop will no longer be available for your customers.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = 'ATTENTION: The Merconis service number is missing or incorrect in your localconfig file. Merconis cannot be operated without a valid service number. Your shop is therefore currently unavailable for your customers. Please contact Merconis techSupport to resolve this problem.';

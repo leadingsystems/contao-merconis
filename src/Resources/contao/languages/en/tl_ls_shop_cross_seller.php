@@ -65,6 +65,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['productSelectionType']['options'
     'searchSelection' => array('Product search', 'The products to be displayed in the CrossSeller are determined by means of stipulated search criteria.'),
     'lastSeen' => array('Last viewed products', 'The last viewed products are displayed in the CrossSeller.'),
     'favorites' => array('Favorites/Watchlist', 'The products that the visitor has added to his favorites/watchlist are displayed in the CrossSeller.'),
+    'restockInfoList' => array('Products with active notification of renewed availability', 'The CrossSeller displays the products for which the visitor has activated the notification of renewed availability.'),
     'recommendedProducts' => array('Recommended products', 'The CrossSeller displays products which you have allocated the product displayed in the detail view as "Recommended products".'),
     'frontendProductSearch' => array('Frontend product search', 'The search result of a product search carried out in the frontend is displayed in the CrossSeller.')
 );

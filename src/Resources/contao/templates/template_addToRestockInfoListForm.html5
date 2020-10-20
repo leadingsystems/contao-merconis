@@ -1,0 +1,34 @@
+<!-- indexer::stop -->
+<div class="restockInfoListSwitchBox">
+	<?php
+		if (\Merconis\Core\ls_shop_msg::checkMsg('addedToRestockInfoList', $this->objProduct->_id)) {
+			?>
+			<div class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText147']; ?></div>
+			<?php
+		}
+
+		if (\Merconis\Core\ls_shop_msg::checkMsg('removedFromRestockInfoList', $this->objProduct->_id)) {
+			?>
+			<div class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText148']; ?></div>
+			<?php
+		}
+	?>
+	
+	<?php
+		if(FE_USER_LOGGED_IN) {
+			?>
+				<form action="<?php echo ampersand(\Environment::get('request')); ?>" method="post" enctype="application/x-www-form-urlencoded">
+					<div>
+						<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+						<input type="hidden" name="FORM_SUBMIT" value="<?php echo $this->str_formSubmitValue; ?>">
+						<input type="hidden" name="restockInfoListProductID" value="<?php echo $this->str_restockInfoListProductId; ?>">
+						<button type="submit" class="submit" name="restockInfoListAddOrRemoveSubmit"><?php echo !$this->bln_isOnRestockInfoList ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText145'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText146']; ?></button>
+					</div>
+				</form>
+			<?php
+		} else {
+		    echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText149'];
+		}
+	?>
+</div>
+<!-- indexer::continue -->

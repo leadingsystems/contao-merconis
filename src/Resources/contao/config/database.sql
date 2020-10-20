@@ -1041,7 +1041,8 @@ CREATE TABLE `tl_member` (
   `mobile_alternative` varchar(64) NOT NULL default '',
   `fax_alternative` varchar(64) NOT NULL default '',
   `email_alternative` varchar(255) NOT NULL default '',
-  `merconis_favoriteProducts` blob NULL
+  `merconis_favoriteProducts` blob NULL,
+  `merconis_restockInfoList` blob NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tl_form_field` (

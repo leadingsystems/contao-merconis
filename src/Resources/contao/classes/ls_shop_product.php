@@ -758,6 +758,19 @@ returns the id of the variant that has currently been selected
 				return ls_shop_generalHelper::getFavoritesForm($this);
 				break;
 
+			case '_isOnRestockInfoList':
+				$obj_user = \System::importStatic('FrontendUser');
+				$strRestockInfoList = isset($obj_user->merconis_restockInfoList) ? $obj_user->merconis_restockInfoList : '';
+				$arrRestockInfoList = $strRestockInfoList ? deserialize($strRestockInfoList) : array();
+				$arrRestockInfoList = is_array($arrRestockInfoList) ? $arrRestockInfoList : array();
+
+				return in_array($this->_id, $arrRestockInfoList);
+				break;
+
+			case '_restockInfoListForm':
+				return ls_shop_generalHelper::getRestockInfoListForm($this);
+				break;
+
 
 
 			/*-->

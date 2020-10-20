@@ -4546,6 +4546,65 @@ class ls_shop_generalHelper
         return $quantityInput;
     }
 
+    public static function getRestockInfoListForm($obj_product)
+    {
+        $obj_user = \System::importStatic('FrontendUser');
+        $objTemplate = new \FrontendTemplate('template_addToRestockInfoListForm');
+        $str_formSubmitValue = 'restockInfoListProduct_form_' . $obj_product->_id;
+        $objTemplate->str_formSubmitValue = $str_formSubmitValue;
+        $objTemplate->str_restockInfoListProductId = $obj_product->_id;
+        $objTemplate->bln_isOnRestockInfoList = $obj_product->_isOnRestockInfoList;
+
+        if (
+            \Input::post('FORM_SUBMIT')
+            && \Input::post('FORM_SUBMIT') == $str_formSubmitValue
+            && \Input::post('restockInfoListProductID')
+            && \Input::post('restockInfoListProductID') == $obj_product->_id
+        ) {
+            $strRestockInfoList = isset($obj_user->merconis_restockInfoList) ? $obj_user->merconis_restockInfoList : '';
+            $arrRestockInfoList = $strRestockInfoList ? deserialize($strRestockInfoList) : array();
+            $arrRestockInfoList = is_array($arrRestockInfoList) ? $arrRestockInfoList : array();
+
+            if (!$obj_product->_isOnRestockInfoList) {
+                /*
+                 * Add the product to the restockInfoList
+                 */
+                $arrRestockInfoList[] = $obj_product->_id;
+
+                ls_shop_msg::setMsg(array(
+                    'class' => 'addedToRestockInfoList',
+                    'reference' => $obj_product->_id
+                ));
+            } else {
+                /*
+                 * Remove the product from the restockInfoList
+                 */
+                unset($arrRestockInfoList[array_search($obj_product->_id, $arrRestockInfoList)]);
+
+                ls_shop_msg::setMsg(array(
+                    'class' => 'removedFromRestockInfoList',
+                    'reference' => $obj_product->_id
+                ));
+            }
+
+            \Database::getInstance()->prepare("
+				UPDATE		`tl_member`
+				SET			`merconis_restockInfoList` = ?
+				WHERE		`id` = ?
+			")
+                ->limit(1)
+                ->execute(serialize($arrRestockInfoList), $obj_user->id);
+
+            if (!\Input::post('isAjax')) {
+                \Controller::reload();
+            }
+        }
+
+        $objTemplate->objProduct = $obj_product;
+        $restockInfoListForm = $objTemplate->parse();
+        return $restockInfoListForm;
+    }
+
     public static function getFavoritesForm($obj_product)
     {
         $obj_user = \System::importStatic('FrontendUser');

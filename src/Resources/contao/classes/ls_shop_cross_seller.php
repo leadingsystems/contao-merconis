@@ -141,6 +141,22 @@ class ls_shop_cross_seller
                 }
                 break;
 
+            case 'restockInfoList':
+                // $arrProducts available directly
+                $this->setArrProducts($this->ls_getRestockInfoListSelection(), false);
+                if (!count($this->arrProducts)) {
+                    return $this->getFallback();
+                }
+
+                $objProductList = new ls_shop_productList($GLOBALS['lsShopProductViewContext']);
+                $objProductList->mode = $this->ls_details['doNotUseCrossSellerOutputDefinitions'] ? 'standard': 'crossSeller';
+                $objProductList->arrSearchCriteria = array('id' => $this->arrProducts);
+                $productListOutput = $objProductList->parseOutput();
+                if (!$productListOutput) {
+                    return $this->getFallback();
+                }
+                break;
+
             case 'recommendedProducts':
                 // $arrProducts available directly
                 $this->setArrProducts($this->ls_getRecommendedProductsSelection());
@@ -352,6 +368,15 @@ class ls_shop_cross_seller
     protected function ls_getFavoritesSelection() {
         $obj_user = \System::importStatic('FrontendUser');
         $strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
+        $arrFavorites = $strFavorites ? deserialize($strFavorites) : array();
+        $arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
+        $arrFavorites = ls_shop_generalHelper::ls_array_unique($arrFavorites);
+        return $arrFavorites;
+    }
+
+    protected function ls_getRestockInfoListSelection() {
+        $obj_user = \System::importStatic('FrontendUser');
+        $strFavorites = isset($obj_user->merconis_restockInfoList) ? $obj_user->merconis_restockInfoList : '';
         $arrFavorites = $strFavorites ? deserialize($strFavorites) : array();
         $arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
         $arrFavorites = ls_shop_generalHelper::ls_array_unique($arrFavorites);

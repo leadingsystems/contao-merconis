@@ -153,16 +153,16 @@
 										$msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('addedToCart', $this->objProduct->_productVariantID); // get the message details
 										if ($this->objProduct->_useStock && $msgDetails['stockNotSufficient']) { // check if the product/variant uses stock and if the stock was not sufficient
 											?>
-												<div class="hasBeenPutInCart effectAutohide error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCartStockNotSufficient'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit,  \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
+												<div class="hasBeenPutInCart error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCartStockNotSufficient'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit,  \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
 											<?php
 										} else {
 											?>
-												<div class="hasBeenPutInCart effectAutohide success"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCart'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
+												<div class="hasBeenPutInCart success"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCart'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
 											<?php
 										}
 									} else if (\Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $this->objProduct->_productVariantID)) { // if no "addedToCart" message is set, check for a "couldNotBePutInCart" message for this product/variant
 										?>
-											<div class="notPutInCart effectAutohide error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['couldNotBePutInCart']; ?></div>
+											<div class="notPutInCart error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['couldNotBePutInCart']; ?></div>
 										<?php
 									}
 									// ####################################################################
@@ -176,12 +176,32 @@
 
 
 			<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
-				<?php // ##### WATCHLIST BUTTON ##### -> ?>
-					<div class="watchlistContainer <?php echo $this->objProduct->_isFavorite ? 'inMyWatchlist' : 'notInMyWatchlist';?>">
-						<?php echo FE_USER_LOGGED_IN ? $this->objProduct->_favoritesForm : ''; ?>
-					</div>
-				<?php // <- ##### WATCHLIST BUTTON ##### ?>
+                <?php // <- ##### WATCH LIST BUTTON ###### ?>
+                <?php
+                if (FE_USER_LOGGED_IN) {
+                    ?>
+                    <div class="watchlistContainer <?php echo $this->objProduct->_isFavorite ? 'inMyWatchlist' : 'notInMyWatchlist'; ?>">
+                        <?php echo $this->objProduct->_favoritesForm; ?>
+                    </div>
+                    <?php
+                }
+                ?>
+                <?php // <- ##### WATCH LIST BUTTON ###### ?>
 			<?php } // <----- NOT USED BY DEFAULT ----- ?>
+
+            <?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+                <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
+                <?php
+                if (FE_USER_LOGGED_IN) {
+                    ?>
+                    <div class="restockInfoListContainer <?php echo $this->objProduct->_isOnRestockInfoList ? 'onRestockInfoList' : 'notOnRestockInfoList'; ?>">
+                        <?php echo $this->objProduct->_restockInfoListForm; ?>
+                    </div>
+                    <?php
+                }
+                ?>
+                <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
+            <?php } // <----- NOT USED BY DEFAULT ----- ?>
 		</div>
 	</div>
 </div>

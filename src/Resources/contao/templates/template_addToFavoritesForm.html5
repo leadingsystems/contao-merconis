@@ -3,13 +3,13 @@
 	<?php
 		if (\Merconis\Core\ls_shop_msg::checkMsg('addedToFavorites', $this->objProduct->_id)) {
 			?>
-			<div class="success effectAutohide"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText126']; ?></div>
+			<div class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText126']; ?></div>
 			<?php
 		}
 
 		if (\Merconis\Core\ls_shop_msg::checkMsg('removedFromFavorites', $this->objProduct->_id)) {
 			?>
-			<div class="success effectAutohide"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText127']; ?></div>
+			<div class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText127']; ?></div>
 			<?php
 		}
 	?>
