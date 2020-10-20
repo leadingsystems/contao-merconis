@@ -27,7 +27,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		
 		{liveHits_legend},ls_shop_liveHitImageSizeWidth,ls_shop_liveHitImageSizeHeight,ls_shop_liveHitsMaxNumHits,ls_shop_liveHitsMinLengthSearchTerm;
 		
-		{systemImages_legend},ls_shop_systemImages_videoDummyCover,ls_shop_systemImages_videoCoverOverlay,ls_shop_systemImages_videoCoverOverlaySmall,ls_shop_systemImages_isNewOverlay,ls_shop_systemImages_isNewOverlaySmall,ls_shop_systemImages_isOnSaleOverlay,ls_shop_systemImages_isOnSaleOverlaySmall;
+		{systemImages_legend},ls_shop_systemImages_videoDummyCover;
 		{pageSettings_legend},ls_shop_shippingInfoPages,ls_shop_cartPages,ls_shop_reviewPages,ls_shop_signUpPages,ls_shop_checkoutPaymentErrorPages,ls_shop_checkoutShippingErrorPages,ls_shop_checkoutFinishPages,ls_shop_paymentAfterCheckoutPages,ls_shop_afterCheckoutPages,ls_shop_ajaxPages,ls_shop_searchResultPages,ls_shop_myOrdersPages,ls_shop_myOrderDetailsPages;
 		{systemSettings_legend},ls_shop_loginModuleID,ls_shop_miniCartModuleID;
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch;
@@ -450,84 +450,6 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		'ls_shop_systemImages_videoDummyCover' => array(
 			'exclude'		=>	true,
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover'],
-			'inputType'		=>	'fileTree',
-			'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF'),
-			'save_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'idFromUuid')
-			),
-			'load_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId')
-			)
-		),
-		
-		'ls_shop_systemImages_videoCoverOverlay' => array(
-			'exclude'		=>	true,
-			'label'			=>	&$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoCoverOverlay'],
-			'inputType'		=>	'fileTree',
-			'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF'),
-			'save_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'idFromUuid')
-			),
-			'load_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId')
-			)
-		),
-		
-		'ls_shop_systemImages_videoCoverOverlaySmall' => array(
-			'exclude'		=>	true,
-			'label'			=>	&$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoCoverOverlaySmall'],
-			'inputType'		=>	'fileTree',
-			'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF'),
-			'save_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'idFromUuid')
-			),
-			'load_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId')
-			)
-		),
-		
-		'ls_shop_systemImages_isNewOverlay' => array(
-			'exclude'		=>	true,
-			'label'			=>	&$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isNewOverlay'],
-			'inputType'		=>	'fileTree',
-			'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF'),
-			'save_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'idFromUuid')
-			),
-			'load_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId')
-			)
-		),
-		
-		'ls_shop_systemImages_isNewOverlaySmall' => array(
-			'exclude'		=>	true,
-			'label'			=>	&$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isNewOverlaySmall'],
-			'inputType'		=>	'fileTree',
-			'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF'),
-			'save_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'idFromUuid')
-			),
-			'load_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId')
-			)
-		),
-		
-		'ls_shop_systemImages_isOnSaleOverlay' => array(
-			'exclude'		=>	true,
-			'label'			=>	&$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isOnSaleOverlay'],
-			'inputType'		=>	'fileTree',
-			'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF'),
-			'save_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'idFromUuid')
-			),
-			'load_callback' => array(
-				array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId')
-			)
-		),
-		
-		'ls_shop_systemImages_isOnSaleOverlaySmall' => array(
-			'exclude'		=>	true,
-			'label'			=>	&$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isOnSaleOverlaySmall'],
 			'inputType'		=>	'fileTree',
 			'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF'),
 			'save_callback' => array(

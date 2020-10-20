@@ -54,13 +54,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrderDetailsPages'] = array('Seite "Meine Bestellungen - Details"', 'Wählen Sie hier die Seite aus, in der das Modul "Meine Bestellungen - Details" eingebunden ist. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover']	= array('Default-Cover für Videos', 'Wählen Sie hier eine Grafik aus, die als Coverbild für Videos verwendet werden soll, wenn keine zum Video passende Cover-Grafik ermittelt werden kann.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoCoverOverlay']	= array('Hinweis-Grafik für Video-Cover', 'Wenn Sie für ein Produkt neben Bildern auch ein Video auswählen, dann wird das Video zunächst durch eine Vorschau-Grafik (das Cover) repräsentiert. Nach Klick auf das Cover wird das Video abgespielt. Damit der Shop-Besucher ein Video auch als solches erkennt, wird die Hinweisgrafik auf das Cover gelegt.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoCoverOverlaySmall']	= array('Hinweis-Grafik für Video-Cover (klein)', 'Wenn Sie für ein Produkt neben Bildern auch ein Video auswählen, dann wird das Video zunächst durch eine Vorschau-Grafik (das Cover) repräsentiert. Nach Klick auf das Cover wird das Video abgespielt. Damit der Shop-Besucher ein Video auch als solches erkennt, wird die Hinweisgrafik auf das Cover gelegt.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isNewOverlay']		= array('Hinweis-Grafik für Neuheiten');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isNewOverlaySmall']		= array('Hinweis-Grafik für Neuheiten (klein)');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isOnSaleOverlay']	= array('Hinweis-Grafik für Sonderangebote');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isOnSaleOverlaySmall']	= array('Hinweis-Grafik für Sonderangebote (klein)');
-	
+
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_sizeMainImage']			= array('Produkt-Hauptbilder: Bildbreite und Bildhöhe', 'Bitte stellen Sie hier die Bildbreite und Bildhöhe für die Darstellung von Produkt-Hauptbildern ein.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_sizeMoreImages']			= array('Weitere Produkt-Bilder: Bildbreite und Bildhöhe', 'Bitte stellen Sie hier die Bildbreite und Bildhöhe für die Darstellung weiterer Produkt-Bilder ein.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_moreImagesMargin']			= array('Weitere Produkt-Bilder: Bildabstand', 'Bitte stellen Sie hier den oberen, rechten, unteren und linken Bildabstand für die Darstellung weiterer Produkt-Bilder ein.');

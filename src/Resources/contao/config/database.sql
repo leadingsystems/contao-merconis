@@ -38,12 +38,6 @@ localconfig foreign key relations are also noted here although their parent tabl
 @localconfig.ls_shop_miniCartModuleID@tl_module.id=single@
 @localconfig.ls_shop_standardGroup@tl_member_group.id=single@
 @localconfig.ls_shop_systemImages_videoDummyCover@tl_files.id=single@
-@localconfig.ls_shop_systemImages_videoCoverOverlay@tl_files.id=single@
-@localconfig.ls_shop_systemImages_videoCoverOverlaySmall@tl_files.id=single@
-@localconfig.ls_shop_systemImages_isNewOverlay@tl_files.id=single@
-@localconfig.ls_shop_systemImages_isNewOverlaySmall@tl_files.id=single@
-@localconfig.ls_shop_systemImages_isOnSaleOverlay@tl_files.id=single@
-@localconfig.ls_shop_systemImages_isOnSaleOverlaySmall@tl_files.id=single@
 @localconfig.ls_shop_standardProductImageFolder@tl_files.id=single@
 @localconfig.ls_shop_standardProductImportFolder@tl_files.id=single@
 */

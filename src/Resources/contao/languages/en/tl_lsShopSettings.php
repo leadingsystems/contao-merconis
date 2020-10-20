@@ -54,13 +54,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrderDetailsPages'] = array('Page "My orders - details"', 'Select the page which contains the module "My orders - details". Should you run a multilingual shop, please select the corresponding page for each language.');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover']	= array('Default cover for videos', 'Select a graphic to be used as cover image for videos if no cover graphic matching the video can be found.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoCoverOverlay']	= array('Help graphic for video cover', 'If you select a video for a product along with images, then the video will be represented by a preview graphic (the cover). By clicking the cover, the video will be played. The help graphic will be assigned to the cover to enable the shop visitor to see that this is a video.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoCoverOverlaySmall']	= array('Help graphic for video cover (small)', 'If you select a video for a product along with images, then the video will be represented by a preview graphic (the cover). By clicking the cover, the video will be played. The help graphic will be assigned to the cover to enable the shop visitor to see that this is a video.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isNewOverlay']		= array('Help graphic for news');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isNewOverlaySmall']		= array('Help graphic for news (small)');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isOnSaleOverlay']	= array('Help graphic for special offers');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_isOnSaleOverlaySmall']	= array('Help graphic for special offers (small)');
-	
+
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_sizeMainImage']			= array('Product main images: Image width and height', 'Please set the image width and height for product main images here.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_sizeMoreImages']			= array('Further product images: Image width and height', 'Please set the image width and height for further product images here.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_moreImagesMargin']			= array('Further product images: Distance between images', 'Please define the top, right, bottom and left distance for further product images here.');
