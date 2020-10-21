@@ -376,11 +376,20 @@ class ls_shop_cross_seller
 
     protected function ls_getRestockInfoListSelection() {
         $obj_user = \System::importStatic('FrontendUser');
-        $strFavorites = isset($obj_user->merconis_restockInfoList) ? $obj_user->merconis_restockInfoList : '';
-        $arrFavorites = $strFavorites ? deserialize($strFavorites) : array();
-        $arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
-        $arrFavorites = ls_shop_generalHelper::ls_array_unique($arrFavorites);
-        return $arrFavorites;
+
+        $obj_dbres_restockInfoListRecords = \Database::getInstance()
+            ->prepare("
+                SELECT      productVariantId
+                FROM        tl_ls_shop_restock_info_list
+                WHERE       memberId = ?
+            ")
+            ->execute(
+                $obj_user->id
+            );
+
+        $arr_restockInfoList = $obj_dbres_restockInfoListRecords->fetchEach('productVariantId');
+
+        return $arr_restockInfoList;
     }
 
     protected function ls_getRecommendedProductsSelection() {

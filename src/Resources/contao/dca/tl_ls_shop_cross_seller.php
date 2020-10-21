@@ -195,7 +195,22 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'default'                 => 'directSelection',
 			'exclude' => true,
 			'inputType'               => 'select',
-			'options'                 => array('directSelection', 'searchSelection', 'lastSeen', 'recommendedProducts', 'frontendProductSearch', 'favorites', 'restockInfoList', 'hookSelection'),
+			'options'                 => array(
+			    'directSelection',
+                'searchSelection',
+                'lastSeen',
+                'recommendedProducts',
+                'frontendProductSearch',
+                'favorites',
+
+/*
+ * Deactivate this type of CrossSeller as long as product lists aren't able to show variants
+ */
+//                'restockInfoList',
+
+
+                'hookSelection'
+            ),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['productSelectionType']['options'],
 			'eval'					  => array('helpwizard' => true, 'submitOnChange' => true),
 			'filter' => true

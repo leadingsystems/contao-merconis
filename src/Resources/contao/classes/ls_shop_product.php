@@ -760,11 +760,20 @@ returns the id of the variant that has currently been selected
 
 			case '_isOnRestockInfoList':
 				$obj_user = \System::importStatic('FrontendUser');
-				$strRestockInfoList = isset($obj_user->merconis_restockInfoList) ? $obj_user->merconis_restockInfoList : '';
-				$arrRestockInfoList = $strRestockInfoList ? deserialize($strRestockInfoList) : array();
-				$arrRestockInfoList = is_array($arrRestockInfoList) ? $arrRestockInfoList : array();
 
-				return in_array($this->_id, $arrRestockInfoList);
+                $obj_dbres_restockInfoListRecord = \Database::getInstance()
+                    ->prepare("
+                        SELECT      *
+                        FROM        tl_ls_shop_restock_info_list
+                        WHERE       productVariantId = ?
+                            AND     memberId = ?
+                    ")
+                    ->execute(
+                        $this->_productVariantID,
+                        $obj_user->id
+                    );
+
+                return (bool) $obj_dbres_restockInfoListRecord->numRows;
 				break;
 
 			case '_restockInfoListForm':

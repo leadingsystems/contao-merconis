@@ -4550,50 +4550,56 @@ class ls_shop_generalHelper
     {
         $obj_user = \System::importStatic('FrontendUser');
         $objTemplate = new \FrontendTemplate('template_addToRestockInfoListForm');
-        $str_formSubmitValue = 'restockInfoListProduct_form_' . $obj_product->_id;
+        $str_formSubmitValue = 'restockInfoListProduct_form_' . $obj_product->_productVariantID;
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;
-        $objTemplate->str_restockInfoListProductId = $obj_product->_id;
+        $objTemplate->str_restockInfoListProductId = $obj_product->_productVariantID;
         $objTemplate->bln_isOnRestockInfoList = $obj_product->_isOnRestockInfoList;
 
         if (
             \Input::post('FORM_SUBMIT')
             && \Input::post('FORM_SUBMIT') == $str_formSubmitValue
             && \Input::post('restockInfoListProductID')
-            && \Input::post('restockInfoListProductID') == $obj_product->_id
+            && \Input::post('restockInfoListProductID') == $obj_product->_productVariantID
         ) {
-            $strRestockInfoList = isset($obj_user->merconis_restockInfoList) ? $obj_user->merconis_restockInfoList : '';
-            $arrRestockInfoList = $strRestockInfoList ? deserialize($strRestockInfoList) : array();
-            $arrRestockInfoList = is_array($arrRestockInfoList) ? $arrRestockInfoList : array();
-
             if (!$obj_product->_isOnRestockInfoList) {
                 /*
                  * Add the product to the restockInfoList
                  */
-                $arrRestockInfoList[] = $obj_product->_id;
+                \Database::getInstance()
+                    ->prepare("
+                        INSERT INTO tl_ls_shop_restock_info_list
+                        SET         productVariantId = ?,
+                                    memberId = ?
+                    ")
+                    ->execute(
+                        $obj_product->_productVariantID,
+                        $obj_user->id
+                    );
 
                 ls_shop_msg::setMsg(array(
                     'class' => 'addedToRestockInfoList',
-                    'reference' => $obj_product->_id
+                    'reference' => $obj_product->_productVariantID
                 ));
             } else {
                 /*
                  * Remove the product from the restockInfoList
                  */
-                unset($arrRestockInfoList[array_search($obj_product->_id, $arrRestockInfoList)]);
+                \Database::getInstance()
+                    ->prepare("
+                        DELETE FROM tl_ls_shop_restock_info_list
+                        WHERE       productVariantId = ?
+                            AND     memberId = ?
+                    ")
+                    ->execute(
+                        $obj_product->_productVariantID,
+                        $obj_user->id
+                    );
 
                 ls_shop_msg::setMsg(array(
                     'class' => 'removedFromRestockInfoList',
-                    'reference' => $obj_product->_id
+                    'reference' => $obj_product->_productVariantID
                 ));
             }
-
-            \Database::getInstance()->prepare("
-				UPDATE		`tl_member`
-				SET			`merconis_restockInfoList` = ?
-				WHERE		`id` = ?
-			")
-                ->limit(1)
-                ->execute(serialize($arrRestockInfoList), $obj_user->id);
 
             if (!\Input::post('isAjax')) {
                 \Controller::reload();

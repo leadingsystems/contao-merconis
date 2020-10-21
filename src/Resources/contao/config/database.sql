@@ -971,6 +971,12 @@ CREATE TABLE `tl_ls_shop_singular_storage` (
   PRIMARY KEY  (`key`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE `tl_ls_shop_restock_info_list` (
+	`productVariantId` varchar(64) NOT NULL default '',
+	`memberId` int(10) unsigned NOT NULL default '0'
+	KEY `productVariantId` (`productVariantId`),
+	KEY `memberId` (`memberId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
 
@@ -1041,8 +1047,7 @@ CREATE TABLE `tl_member` (
   `mobile_alternative` varchar(64) NOT NULL default '',
   `fax_alternative` varchar(64) NOT NULL default '',
   `email_alternative` varchar(255) NOT NULL default '',
-  `merconis_favoriteProducts` blob NULL,
-  `merconis_restockInfoList` blob NULL
+  `merconis_favoriteProducts` blob NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tl_form_field` (

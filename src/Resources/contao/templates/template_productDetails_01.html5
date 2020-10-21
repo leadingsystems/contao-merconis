@@ -145,15 +145,17 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // <- ##### WATCH LIST BUTTON ###### ?>
 
                 <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
-                <?php
-                if (FE_USER_LOGGED_IN) {
-                    ?>
-                    <div class="restockInfoListContainer <?php echo $this->objProduct->_isOnRestockInfoList ? 'onRestockInfoList' : 'notOnRestockInfoList'; ?>">
-                        <?php echo $this->objProduct->_restockInfoListForm; ?>
-                    </div>
+                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> fullwidth" id="ajaxReloadByVariantSelector_6_<?php echo $this->objProduct->_id; ?>">
                     <?php
-                }
-                ?>
+                    if (FE_USER_LOGGED_IN) {
+                        ?>
+                        <div class="restockInfoListContainer <?php echo $this->objProduct->_isOnRestockInfoList ? 'onRestockInfoList' : 'notOnRestockInfoList'; ?>">
+                            <?php echo $this->objProduct->_restockInfoListForm; ?>
+                        </div>
+                        <?php
+                    }
+                    ?>
+                </div>
                 <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
 
 
