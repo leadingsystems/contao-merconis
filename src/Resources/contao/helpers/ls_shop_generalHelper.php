@@ -2378,6 +2378,28 @@ class ls_shop_generalHelper
         return $deliveryInfoSet[0];
     }
 
+    public static function sendRestockInfo($str_productVariantId) {
+        /*
+         * Get all members that have to be notified about renewed availability
+         */
+        $obj_dbres_restockInfoListRecords = \Database::getInstance()
+            ->prepare("
+                    SELECT      memberId,
+                                language
+                    FROM        tl_ls_shop_restock_info_list
+                    WHERE       productVariantId = ?
+                ")
+            ->execute(
+                $str_productVariantId
+            );
+
+
+        while ($obj_dbres_restockInfoListRecords->next()) {
+            $objOrderMessages = new ls_shop_orderMessages(null, 'onRestock', 'sendWhen', $obj_dbres_restockInfoListRecords->language, false, $obj_dbres_restockInfoListRecords->memberId, $str_productVariantId);
+            $objOrderMessages->sendMessages();
+        }
+    }
+
     public static function sendStockNotification($stock, $obj_productOrVariant)
     {
         if ($obj_productOrVariant->_deliveryInfo['alertWhenLowerThanMinimumStock'] && $stock < $obj_productOrVariant->_deliveryInfo['minimumStock']) {
@@ -4548,6 +4570,9 @@ class ls_shop_generalHelper
 
     public static function getRestockInfoListForm($obj_product)
     {
+        /** @var \PageModel $objPage */
+        global $objPage;
+
         $obj_user = \System::importStatic('FrontendUser');
         $objTemplate = new \FrontendTemplate('template_addToRestockInfoListForm');
         $str_formSubmitValue = 'restockInfoListProduct_form_' . $obj_product->_productVariantID;
@@ -4569,11 +4594,13 @@ class ls_shop_generalHelper
                     ->prepare("
                         INSERT INTO tl_ls_shop_restock_info_list
                         SET         productVariantId = ?,
-                                    memberId = ?
+                                    memberId = ?,
+                                    language = ?
                     ")
                     ->execute(
                         $obj_product->_productVariantID,
-                        $obj_user->id
+                        $obj_user->id,
+                        $objPage->language
                     );
 
                 ls_shop_msg::setMsg(array(

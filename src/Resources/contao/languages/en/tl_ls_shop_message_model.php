@@ -24,6 +24,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataField'] = array('Name of customer data input field', 'Enter the name of the input field that contains the e-mail address here.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToSpecificAddress'] = array('Special address', 'Please activate this checkbox if this message shall be sent to a special address that has been permanently stored here. If it is, for example, an order notification, it makes sense to indicate your own e-mail address. Should you also have activated the option to send a message to a customer address, then the address indicated here will be used as BCC.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['specificAddress'] = array('Special receiving address');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToMemberAddress'] = array('Member address', 'Please activate this checkbox if the message should be sent to the member\'s e-mail address. This option can only be used in connection with notifications about renewed availibility.');
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['attachments'] = array('File attachments');
 	

@@ -24,7 +24,8 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataField'] = array('Name des Kundendaten-Eingabefelds', 'Geben Sie hier den Namen des Eingabefeldes, welches die E-Mail-Adresse enthält, an.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToSpecificAddress'] = array('Spezielle Adresse', 'Bitte aktivieren Sie diese Checkbox, wenn diese Nachricht an eine spezielle hier fest hinterlegte Adresse gesendet werden soll. Dies ist z. B. für eine Bestellbenachrichtigung Ihre eigene E-Mail-Adresse sinnvoll. Sofern Sie auch den Versand an eine Kunden-Adresse aktiviert haben, wird die hier angegebene Adresse als BCC verwendet.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['specificAddress'] = array('Spezielle Empfängeradresse');
-	
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToMemberAddress'] = array('Mitglieder-Adresse', 'Bitte aktivieren Sie diese Checkbox, wenn die Nachricht an die E-Mail-Adresse des Mitglieds versendet werden soll. Diese Option ist nur im Zusammenhang mit Wiederverfügbarkeitsbenachrichtigungen nutzbar.');
+
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['attachments'] = array('Datei-Anhänge');
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['dynamicAttachments'] = array('Dynamisch erzeugter PDF-Anhang', 'Wählen Sie hier eine PHP-Datei aus, die zur Erstellung eines dynamisch generierten PDF-Anhangs verwendet wird. Wenn Sie keine Datei auswählen, so wird kein dynamisch generiertes PDF angehängt.');

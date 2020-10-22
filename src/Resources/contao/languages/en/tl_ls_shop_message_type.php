@@ -57,7 +57,8 @@
 		'onStatusChangeCronDaily' => 'status-dependent by means of Cronjob (daily)',
 		'onStatusChangeCronHourly' => 'status-dependent by means of Cronjob (hourly)',
 		'asOrderConfirmation' => 'as a confirmation of order',
-		'asOrderNotice' => 'as an order notification'
+		'asOrderNotice' => 'as an order notification',
+        'onRestock' => 'as notification of renewed availability'
 	);
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['paymentStatusCorrelation_paymentProvider']['options'] = array(

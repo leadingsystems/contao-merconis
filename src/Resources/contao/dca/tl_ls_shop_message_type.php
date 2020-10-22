@@ -228,7 +228,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['sendWhen'],
 			'exclude'                 => true,
 			'inputType'				  => 'select',
-			'options'				  => array('manual','onStatusChangeImmediately','onStatusChangeCronDaily','onStatusChangeCronHourly','asOrderConfirmation','asOrderNotice'),
+			'options'				  => array('manual','onStatusChangeImmediately','onStatusChangeCronDaily','onStatusChangeCronHourly','asOrderConfirmation','asOrderNotice','onRestock'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['sendWhen']['options'],
 			'eval'					  => array('tl_class' => 'clr', 'submitOnChange' => true),
 			'filter'				  => true

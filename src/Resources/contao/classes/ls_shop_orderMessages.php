@@ -13,10 +13,13 @@ class ls_shop_orderMessages
 	protected $arrOrder = null;
 	protected $arrMessageModels = null;
 	protected $arrMessageTypes = null;
+
+	protected $arr_memberData = null;
+	protected $obj_product = null;
 	
 	protected $counterNr = null;
 	
-	public function __construct($orderID = null, $identificationToken = null, $findBy = null, $language = null, $blnForceOrderRefresh = false) {
+	public function __construct($orderID = null, $identificationToken = null, $findBy = null, $language = null, $blnForceOrderRefresh = false, $int_memberId = null, $str_productVariantId = null) {
 		/** @var \PageModel $objPage */
 		global $objPage;
 		
@@ -25,6 +28,27 @@ class ls_shop_orderMessages
 		$this->findBy = $findBy ? $findBy : $this->findBy;
 		
 		$this->arrOrder = $this->orderID ? ls_shop_generalHelper::getOrder($this->orderID, 'id', $blnForceOrderRefresh) : null;
+
+		if ($int_memberId) {
+		    $obj_dbres_memberData = \Database::getInstance()
+                ->prepare("
+                    SELECT      *
+                    FROM        tl_member
+                    WHERE       id = ?
+                ")
+                ->limit(1)
+                ->execute(
+                    $int_memberId
+                );
+
+		    if ($obj_dbres_memberData->numRows) {
+		        $this->arr_memberData = $obj_dbres_memberData->row();
+            }
+        }
+
+		if ($str_productVariantId) {
+		    $this->obj_product = ls_shop_generalHelper::getObjProduct($str_productVariantId);
+        }
 		
 		/*
 		 * If no language is given as an attribute on instantiation, $objPage->language will be used. If $objPage->language
@@ -135,25 +159,58 @@ class ls_shop_orderMessages
 	public function getMessageModels() {
 		$arrMessageModels = array();
 		
-		if (!$this->orderID || !$this->identificationToken || ($this->findBy != 'id' && $this->findBy != 'alias' && $this->findBy != 'sendWhen')) {
+		if (
+		    (
+		        !$this->orderID
+                && $this->arr_memberData === null
+            )
+            || !$this->identificationToken
+            || (
+                $this->findBy != 'id'
+                && $this->findBy != 'alias'
+                && $this->findBy != 'sendWhen'
+            )
+        ) {
 			return null;
 		}
 		
 		$this->getMessageTypes();
 		
 		foreach ($this->arrMessageTypes as $messageTypeID => $arrMessageType) {
-			$objMessageModels = \Database::getInstance()->prepare("
-				SELECT		*
-				FROM		`tl_ls_shop_message_model`
-				WHERE		`pid` = ?
-					AND		`member_group` LIKE ?
-					AND		`published` = 1
-			")
-			->execute($messageTypeID, '%%"'.$this->arrOrder['memberGroupInfo_id'].'"%');
-			
-			if (!$objMessageModels->numRows) {
-				continue;
-			}
+		    if ($this->orderID) {
+                $objMessageModels = \Database::getInstance()->prepare("
+                        SELECT		*
+                        FROM		`tl_ls_shop_message_model`
+                        WHERE		`pid` = ?
+                            AND		`member_group` LIKE ?
+                            AND		`published` = 1
+                    ")
+                    ->execute($messageTypeID, '%%"' . $this->arrOrder['memberGroupInfo_id'] . '"%');
+
+                if (!$objMessageModels->numRows) {
+                    continue;
+                }
+            } else {
+                $objMessageModels = \Database::getInstance()->prepare("
+                        SELECT		*
+                        FROM		`tl_ls_shop_message_model`
+                        WHERE		`pid` = ?
+                            AND		`published` = 1
+                    ")
+                    ->execute($messageTypeID);
+
+                if (!$objMessageModels->numRows) {
+                    continue;
+                }
+
+                $arr_messageModelMemberGroups = \StringUtil::deserialize($objMessageModels->member_group, true);
+                $arr_memberGroups = \StringUtil::deserialize($this->arr_memberData['groups'], true);
+                $arr_memberGroupIntersection = array_intersect($arr_messageModelMemberGroups, $arr_memberGroups);
+
+                if (!count($arr_memberGroupIntersection)) {
+                    continue;
+                }
+            }
 			
 			$arrMessageModels[$objMessageModels->id] = $objMessageModels->row();
 			$arrMessageModels[$objMessageModels->id]['multilanguage'] = ls_shop_languageHelper::getMultiLanguage($objMessageModels->id, "tl_ls_shop_message_model_languages", array('subject', 'senderName', 'content_html', 'content_rawtext', 'attachments', 'dynamicAttachments'), array($this->ls_language));
@@ -236,7 +293,7 @@ class ls_shop_orderMessages
 			
 			$arrMessageToSendAndSave = array(
 				'tstamp' => time(),
-				'orderID' => $this->orderID,
+				'orderID' => $this->orderID ?: 0,
 				'orderNr' => $this->arrOrder['orderNr'],
 				'messageTypeAlias' => $this->arrMessageTypes[$arrMessageModel['pid']]['alias'],
 				'messageTypeID' => $currentMessageTypeID,
@@ -482,17 +539,23 @@ class ls_shop_orderMessages
 			'main' => null,
 			'bcc' => null
 		);
-		
-		// use customer address no. 1 if it can be determined
-		if ($arrMessageModel['sendToCustomerAddress1'] && isset($this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) && $this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) {
-			$arrReceiverAddresses['main'] = $this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']];
-		}
-		
-		// overwrite the current main address with customer address no. 2 if it can be determined
-		if ($arrMessageModel['sendToCustomerAddress2'] && isset($this->arrOrder['customerData'][$arrMessageModel['customerDataType2']][$arrMessageModel['customerDataField2']]) && $this->arrOrder['customerData'][$arrMessageModel['customerDataType2']][$arrMessageModel['customerDataField2']]) {
-			$arrReceiverAddresses['main'] = $this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField2']];
-		}
-		
+
+		if ($this->arrOrder !== null) {
+            // use customer address no. 1 if it can be determined
+            if ($arrMessageModel['sendToCustomerAddress1'] && isset($this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) && $this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) {
+                $arrReceiverAddresses['main'] = $this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']];
+            }
+
+            // overwrite the current main address with customer address no. 2 if it can be determined
+            if ($arrMessageModel['sendToCustomerAddress2'] && isset($this->arrOrder['customerData'][$arrMessageModel['customerDataType2']][$arrMessageModel['customerDataField2']]) && $this->arrOrder['customerData'][$arrMessageModel['customerDataType2']][$arrMessageModel['customerDataField2']]) {
+                $arrReceiverAddresses['main'] = $this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField2']];
+            }
+        } else {
+		    if ($arrMessageModel['sendToMemberAddress'] && $this->arr_memberData !== null && $this->arr_memberData['email']) {
+                $arrReceiverAddresses['main'] = $this->arr_memberData['email'];
+            }
+        }
+
 		if ($arrMessageModel['sendToSpecificAddress'] && $arrMessageModel['specificAddress']) {
 			if (!$arrReceiverAddresses['main']) {
 				// set the main address to the specific address if this one is given and the main address is not yet set

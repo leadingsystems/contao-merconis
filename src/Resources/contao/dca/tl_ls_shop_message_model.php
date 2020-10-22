@@ -66,7 +66,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			subject;
 			{receiver_legend},
 			sendToCustomerAddress1,
-			sendToSpecificAddress;
+			sendToSpecificAddress,
+			sendToMemberAddress;
 			{content_legend},
 			useHTML,
 			useRawtext;
@@ -190,7 +191,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'rgxp' => 'email', 'maxlength'=>255),
 			'search' => true
 		),
-		
+
+		'sendToMemberAddress' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToMemberAddress'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'clr'),
+			'filter'				  => true
+		),
+
 		'useHTML' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['useHTML'],
 			'exclude'                 => true,
