@@ -596,7 +596,7 @@ class ls_shop_orderMessages
             $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $this->arrOrder);
         }
 		if ($this->obj_product !== null) {
-            $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $this->obj_product);
+            $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $this->obj_product, $this->ls_language);
         }
 		if ($this->arr_memberData !== null) {
             $text = ls_shop_generalHelper::ls_replaceMemberWildcards($text, $this->arr_memberData);

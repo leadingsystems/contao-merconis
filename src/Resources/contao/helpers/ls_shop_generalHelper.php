@@ -3544,8 +3544,14 @@ class ls_shop_generalHelper
         return $arrOptions;
     }
 
-    public static function ls_replaceProductWildcards($str_text, $obj_product)
+    public static function ls_replaceProductWildcards($str_text, $obj_product, $str_language)
     {
+        /** @var \PageModel $objPage */
+        global $objPage;
+
+        $str_tmp_objPageLanguage = $objPage->language;
+        $objPage->language = $str_language;
+
         if ($obj_product->_variantIsSelected) {
             $obj_tmp_productOrVariant = &$obj_product->_selectedVariant;
         } else {
@@ -3574,6 +3580,8 @@ class ls_shop_generalHelper
             }
             $str_text = preg_replace('/(&#35;&#35;|##)product::' . $str_keyword . '(&#35;&#35;|##)/', $str_replace, $str_text);
         }
+
+        $objPage->language = $str_tmp_objPageLanguage;
 
         return $str_text;
     }
