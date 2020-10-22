@@ -592,7 +592,15 @@ class ls_shop_orderMessages
 			$text = preg_replace('/(&#35;&#35;counterNr&#35;&#35;)|(##counterNr##)/siU', $this->counterNr, $text);
 		}
 
-        $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $this->arrOrder);
+		if ($this->arrOrder !== null) {
+            $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $this->arrOrder);
+        }
+		if ($this->obj_product !== null) {
+            $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $this->obj_product);
+        }
+		if ($this->arr_memberData !== null) {
+            $text = ls_shop_generalHelper::ls_replaceMemberWildcards($text, $this->arr_memberData);
+        }
 
 		return $text;
 	}

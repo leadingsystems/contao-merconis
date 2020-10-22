@@ -973,10 +973,14 @@ CREATE TABLE `tl_ls_shop_singular_storage` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tl_ls_shop_restock_info_list` (
-	`productVariantId` varchar(64) NOT NULL default '',
+    `productVariantId` varchar(64) NOT NULL default '',
+	`productId` int(10) unsigned NOT NULL default '0',
+	`variantId` int(10) unsigned NOT NULL default '0',
 	`memberId` int(10) unsigned NOT NULL default '0',
 	`language` varchar(8) NOT NULL default ''
 	KEY `productVariantId` (`productVariantId`),
+	KEY `productId` (`productId`),
+	KEY `variantId` (`variantId`),
 	KEY `memberId` (`memberId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

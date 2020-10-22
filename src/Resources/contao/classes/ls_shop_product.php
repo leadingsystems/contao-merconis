@@ -2044,10 +2044,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 			ls_shop_generalHelper::sendStockNotification($newStock, $this);
 
-            if ($this->_stock <= 0 && $newStock > 0) {
-                ls_shop_generalHelper::sendRestockInfo($this->_productVariantID);
-            }
-
 			return true;
 		}
 	}

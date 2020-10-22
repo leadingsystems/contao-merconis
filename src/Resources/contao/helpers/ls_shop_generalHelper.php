@@ -2378,25 +2378,93 @@ class ls_shop_generalHelper
         return $deliveryInfoSet[0];
     }
 
-    public static function sendRestockInfo($str_productVariantId) {
-        /*
-         * Get all members that have to be notified about renewed availability
-         */
-        $obj_dbres_restockInfoListRecords = \Database::getInstance()
+    public static function sendRestockInfo() {
+        $obj_dbres_productsBackInStock = \Database::getInstance()
             ->prepare("
-                    SELECT      memberId,
-                                language
-                    FROM        tl_ls_shop_restock_info_list
-                    WHERE       productVariantId = ?
-                ")
-            ->execute(
-                $str_productVariantId
+                SELECT
+                    N.productVariantId
+                    , N.productId
+                    , N.variantId
+                    , N.memberId
+                    , N.language
+                    , P.lsShopProductStock
+                    
+                FROM tl_ls_shop_restock_info_list N
+                
+                LEFT JOIN tl_ls_shop_product P
+                    ON P.id = N.productId
+                
+                WHERE N.variantId = 0
+                    AND P.lsShopProductStock > 0
+            ")
+            ->execute();
+
+        while ($obj_dbres_productsBackInStock->next()) {
+            $objOrderMessages = new ls_shop_orderMessages(
+                null,
+                'onRestock',
+                'sendWhen',
+                $obj_dbres_productsBackInStock->language,
+                false,
+                $obj_dbres_productsBackInStock->memberId,
+                $obj_dbres_productsBackInStock->productVariantId
             );
-
-
-        while ($obj_dbres_restockInfoListRecords->next()) {
-            $objOrderMessages = new ls_shop_orderMessages(null, 'onRestock', 'sendWhen', $obj_dbres_restockInfoListRecords->language, false, $obj_dbres_restockInfoListRecords->memberId, $str_productVariantId);
             $objOrderMessages->sendMessages();
+
+            \Database::getInstance()
+                ->prepare("
+                    DELETE FROM tl_ls_shop_restock_info_list
+                    WHERE       productVariantId = ?
+                        AND     memberId = ?
+                ")
+                ->execute(
+                    $obj_dbres_productsBackInStock->productVariantId,
+                    $obj_dbres_productsBackInStock->memberId
+                );
+        }
+
+        $obj_dbres_variantsBackInStock = \Database::getInstance()
+            ->prepare("
+                SELECT
+                    N.productVariantId
+                    , N.productId
+                    , N.variantId
+                    , N.memberId
+                    , N.language
+                    , V.lsShopVariantStock
+                    
+                FROM tl_ls_shop_restock_info_list N
+                
+                LEFT JOIN tl_ls_shop_variant V
+                    ON V.id = N.variantId
+                
+                WHERE N.variantId > 0
+                    AND V.lsShopVariantStock > 0
+            ")
+            ->execute();
+
+        while ($obj_dbres_variantsBackInStock->next()) {
+            $objOrderMessages = new ls_shop_orderMessages(
+                null,
+                'onRestock',
+                'sendWhen',
+                $obj_dbres_variantsBackInStock->language,
+                false,
+                $obj_dbres_variantsBackInStock->memberId,
+                $obj_dbres_variantsBackInStock->productVariantId
+            );
+            $objOrderMessages->sendMessages();
+
+            \Database::getInstance()
+                ->prepare("
+                    DELETE FROM tl_ls_shop_restock_info_list
+                    WHERE       productVariantId = ?
+                        AND     memberId = ?
+                ")
+                ->execute(
+                    $obj_dbres_variantsBackInStock->productVariantId,
+                    $obj_dbres_variantsBackInStock->memberId
+                );
         }
     }
 
@@ -3474,6 +3542,51 @@ class ls_shop_generalHelper
         $arrStatusValues = ls_shop_generalHelper::getStatusValues();
         $arrOptions = $arrStatusValues['status05'];
         return $arrOptions;
+    }
+
+    public static function ls_replaceProductWildcards($str_text, $obj_product)
+    {
+        if ($obj_product->_variantIsSelected) {
+            $obj_tmp_productOrVariant = &$obj_product->_selectedVariant;
+        } else {
+            $obj_tmp_productOrVariant = &$obj_product;
+        }
+
+        preg_match_all('/(?:&#35;&#35;|##)product::(.*?)(?:&#35;&#35;|##)/', $str_text, $arr_matches);
+
+        foreach ($arr_matches[1] as $str_keyword) {
+            switch($str_keyword) {
+                case '_title':
+                    if ($obj_product->_variantIsSelected) {
+                        $str_replace = $obj_tmp_productOrVariant->_productTitle . ', ' . $obj_tmp_productOrVariant->{$str_keyword};
+                    } else {
+                        $str_replace = $obj_tmp_productOrVariant->{$str_keyword};
+                    }
+                    break;
+
+                case '_link':
+                    $str_replace = \Environment::get('base') . $obj_tmp_productOrVariant->{$str_keyword};
+                    break;
+
+                default:
+                    $str_replace = $obj_tmp_productOrVariant->{$str_keyword};
+                    break;
+            }
+            $str_text = preg_replace('/(&#35;&#35;|##)product::' . $str_keyword . '(&#35;&#35;|##)/', $str_replace, $str_text);
+        }
+
+        return $str_text;
+    }
+
+    public static function ls_replaceMemberWildcards($str_text, $arr_memberData)
+    {
+        preg_match_all('/(?:&#35;&#35;|##)member::(.*?)(?:&#35;&#35;|##)/', $str_text, $arr_matches);
+
+        foreach ($arr_matches[1] as $str_keyword) {
+            $str_text = preg_replace('/(&#35;&#35;|##)member::' . $str_keyword . '(&#35;&#35;|##)/', $arr_memberData[$str_keyword], $str_text);
+        }
+
+        return $str_text;
     }
 
     public static function ls_replaceOrderWildcards($text, $arrOrder)
@@ -4590,15 +4703,21 @@ class ls_shop_generalHelper
                 /*
                  * Add the product to the restockInfoList
                  */
+                $arr_splitProductVariantId = ls_shop_generalHelper::splitProductVariantID($obj_product->_productVariantID);
+
                 \Database::getInstance()
                     ->prepare("
                         INSERT INTO tl_ls_shop_restock_info_list
                         SET         productVariantId = ?,
+                                    productId = ?,
+                                    variantId = ?,
                                     memberId = ?,
                                     language = ?
                     ")
                     ->execute(
                         $obj_product->_productVariantID,
+                        $arr_splitProductVariantId['productID'],
+                        $arr_splitProductVariantId['variantID'],
                         $obj_user->id,
                         $objPage->language
                     );
