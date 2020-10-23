@@ -99,8 +99,7 @@ class ModuleProductSearch extends \Module {
 					$objProductSearch->sorting = array(
 						0 => array('field' => 'priority', 'direction' => 'DESC')
 					);
-					
-					$objProductSearch->limitRows = $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMaxNumHits'];
+
 					$objProductSearch->search();
 					$arrProducts = $objProductSearch->productResultsComplete;
 					
@@ -119,6 +118,9 @@ class ModuleProductSearch extends \Module {
 					
 					foreach ($arrProductsTmp as $productID) {
 						$count++;
+						if ($count > $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMaxNumHits']) {
+						    break;
+                        }
 						$objProduct = ls_shop_generalHelper::getObjProduct($productID, '', false);
 						
 						$arrHit = array();
