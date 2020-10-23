@@ -1,13 +1,13 @@
 <!-- indexer::stop -->
 <div class="restockInfoListSwitchBox">
 	<?php
-		if (\Merconis\Core\ls_shop_msg::checkMsg('addedToRestockInfoList', $this->objProduct->_id)) {
+		if (\Merconis\Core\ls_shop_msg::checkMsg('addedToRestockInfoList', $this->objProduct->_productVariantID)) {
 			?>
 			<div class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText147']; ?></div>
 			<?php
 		}
 
-		if (\Merconis\Core\ls_shop_msg::checkMsg('removedFromRestockInfoList', $this->objProduct->_id)) {
+		if (\Merconis\Core\ls_shop_msg::checkMsg('removedFromRestockInfoList', $this->objProduct->_productVariantID)) {
 			?>
 			<div class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText148']; ?></div>
 			<?php
