@@ -1,6 +1,11 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.0 beta10 (2020-10-23)
+
+ * Fixing a bug that caused the live hits results to be cut off not beginning from the
+ result with the lowest priority but randomly
+
 ### 5.0.0 beta9 (2020-10-23)
 
 ### 5.0.0 beta8 (2020-10-23)
