@@ -1,5 +1,8 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
+
+### 5.0.0 beta9 (2020-10-23)
+
 ### 5.0.0 beta8 (2020-10-23)
 
  * Add functionality to notify registered members about products which are in stock again
