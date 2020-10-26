@@ -1,6 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.0 beta11 (2020-10-26)
+
+* Make sure that custom conditional insert tags don't produce "unknown insert tag" log entries
+
 ### 5.0.0 beta10 (2020-10-23)
 
  * Fixing a bug that caused the live hits results to be cut off not beginning from the
