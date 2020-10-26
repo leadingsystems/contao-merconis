@@ -25,6 +25,7 @@ class ls_shop_customInserttags
                     }
                 }
                 unset($arrCache[$strTag]);
+                return '';
                 break;
 
             case 'IfFeUserNotLoggedIn':
@@ -36,6 +37,7 @@ class ls_shop_customInserttags
                     }
                 }
                 unset($arrCache[$strTag]);
+                return '';
                 break;
 
             case 'IfOnCartPage':
@@ -47,6 +49,7 @@ class ls_shop_customInserttags
                     }
                 }
                 unset($arrCache[$strTag]);
+                return '';
                 break;
 
             case 'IfNotOnCartPage':
@@ -58,6 +61,7 @@ class ls_shop_customInserttags
                     }
                 }
                 unset($arrCache[$strTag]);
+                return '';
                 break;
 
             case 'IfInCheckout':
@@ -78,6 +82,7 @@ class ls_shop_customInserttags
                     }
                 }
                 unset($arrCache[$strTag]);
+                return '';
                 break;
 
             case 'IfNotInCheckout':
@@ -98,6 +103,7 @@ class ls_shop_customInserttags
                     }
                 }
                 unset($arrCache[$strTag]);
+                return '';
                 break;
 
             case 'CurrentLanguage':
