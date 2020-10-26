@@ -1,8 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.0.0 beta11 (2020-10-26)
+### 5.0.0 beta12 (2020-10-26)
+* Don't show the messageTypes which are sent "onRestock" in the backend order overview
 
+### 5.0.0 beta11 (2020-10-26)
 * Make sure that custom conditional insert tags don't produce "unknown insert tag" log entries
 
 ### 5.0.0 beta10 (2020-10-23)
