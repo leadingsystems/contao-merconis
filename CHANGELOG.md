@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.0 beta13 (2020-10-26)
+ * Return null instead of an empty string in custom conditional insert tags
+
 ### 5.0.0 beta12 (2020-10-26)
 * Don't show the messageTypes which are sent "onRestock" in the backend order overview
 
