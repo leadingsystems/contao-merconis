@@ -32,13 +32,18 @@
 					$arrRequestedAttributeValues[$attributeID] = \Input::post('attribute_'.$attributeID);
 				}
 			}
-			
-			$objMatchingVariant = $this->objProduct->_getVariantByAttributeValues($arrRequestedAttributeValues);
-			if ($objMatchingVariant !== null) {
+
+            $arr_matchingVariants = $this->objProduct->_getVariantsByAttributeValues($arrRequestedAttributeValues, false);
+
+			if (!is_array($arr_matchingVariants) || count($arr_matchingVariants) <= 0) {
+                $blnNoVariantFound = true;
+                $this->redirect($this->objProduct->_linkToProduct);
+            } else if (count($arr_matchingVariants) > 1) {
+                $this->redirect($this->objProduct->_linkToProduct);
+            } else {
+                $objMatchingVariant = $arr_matchingVariants[0];
 				$this->redirect($objMatchingVariant->_linkToVariant);
-			} else {
-				$blnNoVariantFound = true; 
-			}
+            }
 		}
 		?>
 		<div

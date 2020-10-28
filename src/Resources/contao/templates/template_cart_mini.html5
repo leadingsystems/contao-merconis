@@ -8,64 +8,6 @@
 			<span class="cart-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText131']; ?></span>
 			<span class="cart-num-items"><?php echo \Merconis\Core\ls_shop_cartX::getInstance()->numItems; ?></span>
 		</a>
-		<div class="cartPreview">
-			<div class="insideContainer">
-				<div class="topLine">
-					<h3><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText134']; ?></h3>
-					<div class="closeButton ls_icon medium button x-d y-a"></div>
-				</div>
-				<div id="checkoutContent" class="checkoutContent cartProducts">
-					<?php
-					if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
-						?>
-						<p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText025']; ?></p>
-						<?php
-					} else {
-						?>
-						<?php
-						include(__DIR__.'/template_cart--big_include_cart.html5');
-						include(__DIR__.'/template_cart--big_include_customer_data_form.html5');
-						include(__DIR__.'/template_cart--big_include_shipping_selection_form.html5');
-						include(__DIR__.'/template_cart--big_include_payment_selection_form.html5');
-						?>
-
-						<?php if (\Merconis\Core\ls_shop_generalHelper::check_finishingOrderIsAllowed()) { ?>
-
-							<?php
-							// ########## LINK TO REVIEW AND CONFIRMATION PAGE ##########
-							// used for two page checkout if javascript isn't available
-							?>
-							<div class="submitBox borderless hideWhenLsjs">
-								<?php if (\Merconis\Core\ls_shop_generalHelper::check_finishingOrderIsAllowed()) { ?>
-									<a class="button continueCheckout" href="{{shopLink::reviewPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText033']; ?></a>
-								<?php } ?>
-							</div>
-
-
-							<?php
-							// ########## CONFIRM ORDER FORM ##########
-							// used for single page checkout with javascript
-							?>
-							<div
-								id="checkoutStepConfirmation"
-								class="checkoutStep hideWhenNoLsjs"
-							>
-								<h3 class="headlineMainSection">
-									<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText137']; ?>
-								</h3>
-								<div class="borderless confirmOrder formConfirmOrder form">
-									<?php echo $this->formConfirmOrder; ?>
-								</div>
-							</div>
-						<?php } ?>
-						<?php
-					}
-					?>
-				</div>
-				<div class="bottomLine">
-				</div>
-			</div>
-		</div>
 	</div>
 </div>
 <!-- indexer::continue -->

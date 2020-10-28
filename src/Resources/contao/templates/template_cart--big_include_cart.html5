@@ -189,7 +189,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 												<input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
 												<input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
 												<?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
-												<button type="submit" name="submitDelete" class="ls_icon medium button x-i y-a" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText006']; ?>"></button>
+												<button type="submit" name="submitDelete" class="ls_icon medium button x-i y-a" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText006']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText006']; ?></button>
 											</div>
 										</form>
 										<form
@@ -209,7 +209,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 												<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
 												<input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
 												<input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
-												<button type="submit" name="submitDelete" class="ls_icon medium button x-f y-a" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button>
+												<button type="submit" name="submitDelete" class="ls_icon medium button x-f y-a" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?></button>
 											</div>
 										</form>
 									</div>

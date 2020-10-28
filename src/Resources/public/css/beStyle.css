@@ -2027,7 +2027,7 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
  * LSJS backend widgets ->
  */
 /* key-value-widget -> */
-.key-value-widget .main .field-container {
+.key-value-widget .main.merconisWidgetMultiText .field-container {
 	display: block;
 	width: 100%;
 }

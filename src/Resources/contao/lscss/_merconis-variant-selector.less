@@ -1,0 +1,22 @@
+.variantSelector {
+  width: 100%;
+  margin-bottom: 5rem;
+
+  .main.variantSelectorInstance {
+    width: 100%;
+    display: flex;
+
+    .attributeBox {
+      width: 33%;
+
+      [data-lsjs-element="btn_valueSelect"]:not([data-lsjs-class*="possible"]) {
+        opacity: .3;
+      }
+
+      [data-lsjs-element="btn_valueSelect"][data-lsjs-class*="selected"] {
+        font-weight: 900;
+        color: #FFFF00;
+      }
+    }
+  }
+}
