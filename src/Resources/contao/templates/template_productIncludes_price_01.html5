@@ -111,9 +111,8 @@ if ($this->objProduct->_variantIsSelected) {
                          }
                          "
                         id="scalePrices_<?php echo $this->objProduct->_id; ?>"
-                        class="mgb-10"
                 >
-					<div data-lsjs-element="elementFolderToggler" class="mgb-5 pointer iconWithText"><i class="fi fi-scalePrice txs-xl mgr-10"></i><span class=""><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscTextScalePrice']; ?></span></div>
+					<div data-lsjs-element="elementFolderToggler" class="pointer"><i class="fi fi-scalePrice txs-xl mgr-10"></i><span class=""><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscTextScalePrice']; ?></span></div>
 					<div data-lsjs-element="elementFolderContent">
 						<div class="scalePriceInformation <?php echo $obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator ? 'pricesInfluencedByConfigurator' : 'pricesNotInfluencedByConfigurator'; ?>">
 							<?php

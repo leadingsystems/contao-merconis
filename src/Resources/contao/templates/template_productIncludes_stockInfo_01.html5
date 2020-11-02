@@ -8,7 +8,7 @@ if ($this->objProduct->_variantIsSelected && $this->objProduct->_selectedVariant
 
 if ($obj_tmp_productOrVariant !== null) {
 	?>
-	<div class="stockInfo stockInfo-icon iconWithText fullwidth sameLine-all<?php echo $obj_tmp_productOrVariant->_stockIsInsufficient ? ' error-all' : ' success-all'  ?>"><p><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['stockAvailable'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($obj_tmp_productOrVariant->_stock, $obj_tmp_productOrVariant->_quantityDecimals), $obj_tmp_productOrVariant->_quantityUnit); ?></p></div>
+	<div class="stockInfo stockInfo-icon sameLine-all<?php echo $obj_tmp_productOrVariant->_stockIsInsufficient ? ' error-all' : ' success-all'  ?>"><p><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['stockAvailable'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($obj_tmp_productOrVariant->_stock, $obj_tmp_productOrVariant->_quantityDecimals), $obj_tmp_productOrVariant->_quantityUnit); ?></p></div>
 	<?php
 }
 ?>
