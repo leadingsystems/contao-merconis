@@ -6,6 +6,7 @@
 
     > * {
       margin-left: 1rem;
+      margin-bottom: 1rem;
     }
 
     .submit {
@@ -13,22 +14,16 @@
     }
 
     @media screen and (max-width: 500px){
-      select[name="sorting"] {
+      select {
         width: 100%;
         margin-left: 0;
-        margin-bottom: 1rem;
-      }
-
-      select[name="sortingDirection"] {
-        width: 70%;
-        margin-left: 0;
-      }
-
-      .submit {
-        width: 29%;
-        margin-left: 1%;
       }
     }
+  }
+
+  .pagination {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
   }
 
   .myOrdersTable {

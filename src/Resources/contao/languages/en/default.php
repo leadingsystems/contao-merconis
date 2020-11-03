@@ -140,7 +140,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText088'] = 'Date';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText089'] = 'Order no.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText090'] = 'Status';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText091'] = 'Number of orders per page';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText091'] = '%s per page';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText092'] = 'Sorting';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText093'] = 'ascending';

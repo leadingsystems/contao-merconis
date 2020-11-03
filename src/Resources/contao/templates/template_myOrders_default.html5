@@ -6,6 +6,18 @@
             <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
 
             <?php echo $this->fflSorting; ?> <?php echo $this->fflSortingDirection; ?>
+            <?php
+            $arr_numPerPageOptions = [10, 20, 50, 100];
+            ?>
+            <select name="numPerPage">
+                <?php
+                foreach ($arr_numPerPageOptions as $int_numPerPageOption) {
+                    ?>
+                    <option <?php echo $_SESSION['lsShop']['myOrders']['numPerPage'] == $int_numPerPageOption ? 'selected' : ''; ?> value="<?php echo $int_numPerPageOption; ?>"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText091'], $int_numPerPageOption); ?></option>
+                    <?php
+                }
+                ?>
+            </select>
             <input type="submit" name="submitNumPerPage" id="submitNumPerPage" class="tl_submit submit" value="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['ok']; ?>">
         </form>
     <?php } ?>
