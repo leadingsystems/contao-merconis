@@ -17,6 +17,8 @@ relevant foreign key relations concerning tables which are not defined in this f
 @tl_module.pid@tl_theme.id=single@
 @tl_module.rootPage@tl_page.id=single@
 @tl_module.reg_groups@tl_member_group.id=array@
+@tl_module.news_archives@tl_news_archive.id=array@
+@tl_news.pid@tl_news_archive.id=single@
 
 
 localconfig foreign key relations are also noted here although their parent table is in fact the localconfig file:

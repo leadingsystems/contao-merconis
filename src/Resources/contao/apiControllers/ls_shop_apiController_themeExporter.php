@@ -280,6 +280,8 @@ class ls_shop_apiController_themeExporter
             'tl_newsletter_channel' => array(),
             'tl_page' => array(),
             'tl_theme' => array(),
+            'tl_news_archive' => array(),
+            'tl_news' => array(),
         );
 
         foreach ($arrTables as $tableName => $v) {
