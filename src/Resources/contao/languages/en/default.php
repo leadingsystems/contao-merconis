@@ -490,6 +490,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importer'] = array(
 	)
 );
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['newLabel'] = 'New';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['saleLabel'] = 'Sale';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText01'] = 'Product import';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText02'] = 'There is no file to import on the server. Please upload a CSV file:';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText03'] = 'Upload file';

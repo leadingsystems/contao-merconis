@@ -21,6 +21,7 @@ if ($this->objProduct->_variantIsSelected) {
  * Parse outsourced templates and get html responses to include later in this template
  */
 $str_html_gallery = $this->objProduct->_useCustomTemplate('template_productIncludes_imageOutput_01');
+$str_html_statusIcons = $this->objProduct->_useCustomTemplate('template_productIncludes_statusIcons_01', ['bln_doNotlinkToProduct' => true]);
 $str_html_attributesInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_detailedAttrAndVal_01');
 $str_html_deliveryInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_deliveryInfo_01');
 $str_html_stockInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_stockInfo_01');
@@ -47,16 +48,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                      id="ajaxReloadByVariantSelector_1_<?php echo $this->objProduct->_id; ?>">
 
-                    <?php // ##### NEW AND SALE ICONS ###### -> ?>
-                    <div class="iconWrapper">
-                        <?php if ($this->objProduct->_isNew) { ?>
-                            <a href="<?php echo $this->objProduct->_linkToProduct; ?>" class="isNew">NEW</a>
-                        <?php } ?>
-                        <?php if ($this->objProduct->_isOnSale) { ?>
-                            <a href="<?php echo $this->objProduct->_linkToProduct; ?>" class="isOnSale">SALE</a>
-                        <?php } ?>
-                    </div>
-                    <?php // <- ##### NEW AND SALE ICONS ###### ?>
+                    <?php echo $str_html_statusIcons ?: ''; ?>
 
                     <?php // ##### IMAGE GALLERY ###### -> ?>
                     <?php echo isset($str_html_gallery) ? $str_html_gallery : ''; ?>

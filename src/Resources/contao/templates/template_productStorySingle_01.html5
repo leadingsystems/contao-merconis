@@ -3,24 +3,19 @@
 	// echo $this->objProduct->_outputOptions;
 	
 	global $objPage;
+
+    $str_html_statusIcons = $this->objProduct->_useCustomTemplate('template_productIncludes_statusIcons_01');
 ?>
 <div class="shopProduct  <?php echo $this->productTemplateType; ?> <?php echo $this->productTemplate; ?> <?php echo $this->productPositionsClassString; ?> block">
 	<div class="boxInnerWrapper">
 		<?php // ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### -> ?>
 			<div class="imageContainer">
-				<?php if ($this->objProduct->_hasMainImage): ?>
+				<?php if ($this->objProduct->_hasMainImage) { ?>
 					
 					<a class="productMainImage boxImage fullwidth" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="" /></a>
-					
-					<div class="iconWrapper">
-						<?php if ($this->objProduct->_isNew): ?>
-							<a href="<?php echo $this->objProduct->_linkToProduct; ?>" class="productImageOverlay isNew"><i class="fi fi-new"></i></a>
-						<?php endif; ?>
-						<?php if ($this->objProduct->_isOnSale): ?>
-							<a href="<?php echo $this->objProduct->_linkToProduct; ?>" class="productImageOverlay isOnSale"><i class="fi fi-sale"></i></a>
-						<?php endif; ?>
-					</div>
-				<?php endif; ?>
+
+                    <?php echo $str_html_statusIcons ?: ''; ?>
+				<?php } ?>
 			</div>
 		<?php // <- ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### ?>
 
