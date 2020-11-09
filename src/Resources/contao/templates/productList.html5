@@ -27,7 +27,7 @@
 	}
 ?>
 
-<div class="productList flexElement">
+<div class="product-list">
 	<?php echo $this->products; ?>
 </div>
 
