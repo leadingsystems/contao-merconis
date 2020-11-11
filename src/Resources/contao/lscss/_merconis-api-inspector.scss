@@ -7,7 +7,7 @@
 }
 
 [data-merconis-component="product-management-api-test"] .widget:nth-child(odd) {
-  background-color: #EEEEEE;
+  background-color: $ls-color-grey;
 }
 
 [data-merconis-component="product-management-api-test"] .widget label {
@@ -31,12 +31,12 @@
 
 [data-merconis-component="product-management-api-test"] .requestOutput,
 [data-merconis-component="product-management-api-test"] .responseOutput {
-  border: 1px solid #000000;
+  border: 1px solid $ls-color-black;
   margin-top: 10px;
 }
 
 [data-merconis-component="product-management-api-test"] .dataInput {
-  border: 1px solid #000000;
+  border: 1px solid $ls-color-black;
   margin-top: 10px;
 }
 
@@ -58,9 +58,9 @@
   margin: 0;
   padding: 5px;
   padding-left: 10px;
-  border-bottom: 1px solid #000000;
-  background-color: #EEEEEE;
-  color: #000000;
+  border-bottom: 1px solid $ls-color-black;
+  background-color: $ls-color-grey;
+  color: $ls-color-black;
   font-weight: bold;
   font-size: 16px;
 }
@@ -69,17 +69,17 @@
   margin: 0;
   padding: 5px;
   padding-left: 10px;
-  border-top: 1px solid #000000;
-  background-color: #EEEEEE;
-  color: #000000;
+  border-top: 1px solid $ls-color-black;
+  background-color: $ls-color-grey;
+  color: $ls-color-black;
 }
 
 [data-merconis-component="product-management-api-test"] .buttonContainer button {
   font-weight: bold;
   font-size: 16px;
   margin: 5px;
-  background-color: #FFFFFF;
-  border: 1px solid #000000;
+  background-color: $ls-color-white;
+  border: 1px solid $ls-color-black;
 }
 
 [data-merconis-component="product-management-api-test"] .productDataField {
@@ -95,7 +95,7 @@
 [data-merconis-component="product-management-api-test"] .api-inspector-navigation a.resourceLink {
   text-decoration: none;
   font-size: 14px;
-  color: #000000;
+  color: $ls-color-black;
 }
 
 [data-merconis-component="product-management-api-test"] .api-inspector-navigation a.resourceLink:hover {
@@ -107,7 +107,7 @@
 }
 
 [data-merconis-component="product-management-api-test"] .api-inspector-navigation {
-  border-bottom: 1px dashed #000000;
+  border-bottom: 1px dashed $ls-color-black;
   margin-bottom: 20px;
   padding-bottom: 20px;
 }

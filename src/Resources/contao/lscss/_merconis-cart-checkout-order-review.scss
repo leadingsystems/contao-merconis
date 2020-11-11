@@ -325,7 +325,7 @@ $ls-product-list-field-space: 2%;
         bottom: 0;
         left: 0;
         display: none;
-        background-color: #FFFFFFEE;
+        background-color: rgba($ls-color-white, 0.85);
 
         .inside {
           display: flex;

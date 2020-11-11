@@ -10,7 +10,7 @@
     opacity: .3;
   }
   .value[data-lsjs-class*="selected"] {
-    border: 1px solid #e8e8e8;
+    border: 1px solid $ls-color-grey;
     border-left: 2px solid;
     cursor: default;
   }
