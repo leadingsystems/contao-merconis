@@ -92,14 +92,14 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 </div>
 
 
-                <div class="ls_fullwidth newline">
+                <div>
                     <?php // ##### VARIANT SELECTOR ###### -> ?>
                     <?php echo isset($str_html_variantSelector) ? $str_html_variantSelector : ''; ?>
                     <?php // <- ##### VARIANT SELECTOR ###### ?>
                 </div>
 
 
-                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> fullwidth"
+                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                      id="ajaxReloadByVariantSelector_3_<?php echo $this->objProduct->_id; ?>">
                     <?php // ##### INCLUDED TEMPLATES ###### -> ?>
                     <div class="boxRight">
@@ -131,7 +131,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // <- ##### WATCH LIST BUTTON ###### ?>
 
                 <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
-                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> fullwidth" id="ajaxReloadByVariantSelector_6_<?php echo $this->objProduct->_id; ?>">
+                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>" id="ajaxReloadByVariantSelector_6_<?php echo $this->objProduct->_id; ?>">
                     <?php
                     if ($obj_tmp_productOrVariant->_stockIsInsufficient) {
                         ?>
@@ -148,7 +148,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
             </div>
 
             <?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
-                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> ls_fullwidth"
+                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                      id="ajaxReloadByVariantSelector_4_<?php echo $this->objProduct->_id; ?>">
                     <?php // ##### VARIANT ATTRIBUTES ###### -> ?>
                     <?php echo isset($str_html_attributesInfo) ? $str_html_attributesInfo : ''; ?>
@@ -157,7 +157,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
             <?php } // <----- NOT USED BY DEFAULT ----- ?>
         </div>
         <div class="descriptionWrapper">
-            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> newline"
+            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                  id="ajaxReloadByVariantSelector_5_<?php echo $this->objProduct->_id; ?>">
                 <?php // ##### DESCRIPTION ###### -> ?>
 

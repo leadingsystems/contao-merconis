@@ -12,7 +12,7 @@
 			<div class="imageContainer">
 				<?php if ($this->objProduct->_hasMainImage) { ?>
 					
-					<a class="productMainImage boxImage fullwidth" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="" /></a>
+					<a class="productMainImage boxImage" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="" /></a>
 
                     <?php echo $str_html_statusIcons ?: ''; ?>
 				<?php } ?>
@@ -25,7 +25,7 @@
 
 		<?php
 			if ($this->objProduct->_flexContentExists('flexContent3')) { ?>
-				<div class="attributeSymbole newline">
+				<div class="attributeSymbole">
 					<?php echo $this->objProduct->_flexContents['flexContent3']; ?>
 				</div>
 		<?php }	?>

@@ -14,7 +14,7 @@
 		
 				<?php
 			if ($this->objProduct->_flexContentExists('flexContent2')) { ?>
-				<div class="attributeSymbole newline">
+				<div class="attributeSymbole">
 					<?php echo $this->objProduct->_flexContents['flexContent2']; ?>
 				</div>
 		<?php }	?>
@@ -23,7 +23,7 @@
 		
 		<div class="priceContainer">
 			<?php // ##### CURRENT PRICE ##### -> ?>
-				<span class="currentPrice newline">
+				<span class="currentPrice">
 					<?php if ($this->objProduct->_unscaledPricesAreDifferent): ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php endif; ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
 				</span>
 			<?php // <- ##### CURRENT PRICE ##### ?>
@@ -39,19 +39,19 @@
 			<div class="clear"></div>
 			<?php if (false): // ----- NOT USED IN THEME -----> ?>	
 				<?php // ##### TAX ##### -> ?>
-					<span class="taxInfo txs-xxs "><?php echo $this->objProduct->_taxInfo; ?></span>
+					<span class="taxInfo"><?php echo $this->objProduct->_taxInfo; ?></span>
 				<?php // <- ##### TAX ##### ?>
 
 			<?php // ##### SHIPPING ##### -> ?>
-				<span class="shippingInfo txs-xxs"><?php echo $this->objProduct->_shippingInfo; ?></span>
+				<span class="shippingInfo"><?php echo $this->objProduct->_shippingInfo; ?></span>
 			<?php // <- ##### SHIPPING ##### ?>
 						<?php endif; // <----- NOT USED IN THEME ----- ?>
 			
 		</div>
 		
 		<?php // ##### LINK TO PRODUCT DETAILS ##### -> ?>
-			<div class="gotoProductDetails newline">
-				<a class="ls_button_02" href="<?php echo $this->objProduct->_linkToProduct; ?>">
+			<div class="gotoProductDetails">
+				<a href="<?php echo $this->objProduct->_linkToProduct; ?>">
 					<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText073']; ?>
 				</a>
 			</div>

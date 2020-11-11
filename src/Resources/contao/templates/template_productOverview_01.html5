@@ -29,7 +29,7 @@
 				<?php if ($this->objProduct->_hasMainImage) { ?>
 					<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
 						<?php // ##### LINK TO PRODUCT DETAILS ##### -> ?>
-							<div class="gotoProductDetails fullwidth">
+							<div class="gotoProductDetails">
 								<a class="" href="<?php echo $this->objProduct->_linkToProduct; ?>">
 									<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText073']; ?>
 								</a>
@@ -37,14 +37,14 @@
 						<?php // <- ##### LINK TO PRODUCT DETAILS ##### ?>
 					<?php } // <----- NOT USED BY DEFAULT ----- ?>
 
-					<a class="productMainImage boxImage fullwidth" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="" /></a>
+					<a class="productMainImage boxImage" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="" /></a>
 
                     <?php echo $str_html_statusIcons ?: ''; ?>
 				<?php } ?>
 			</div>
 		<?php // <- ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### ?>
 
-		<div class="bottomWrapper newline">
+		<div class="bottomWrapper">
 			<?php // ##### TITLE ##### -> ?>
 				<h2><a class="productTitle" href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php echo $this->objProduct->_title; ?></a></h2>
 			<?php // <- ##### TITLE ##### ?>
@@ -104,7 +104,7 @@
 
 			<div class="priceContainer">
 				<?php // ##### CURRENT PRICE ##### -> ?>
-					<span class="currentPrice newline<?php echo $this->objProduct->_isOnSale ? ' isOnSale' : ''; ?>">
+					<span class="currentPrice<?php echo $this->objProduct->_isOnSale ? ' isOnSale' : ''; ?>">
 						<?php if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?>
 					</span>
 				<?php // <- ##### CURRENT PRICE ##### ?>

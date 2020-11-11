@@ -11,20 +11,20 @@
 		<?php // ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### -> ?>
 			<div class="imageContainer">
 				<?php if ($this->objProduct->_hasMainImage) { ?>
-					<a class="productMainImage boxImagefullwidth" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="" /></a>
+					<a class="productMainImage boxImage" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="" /></a>
 
                     <?php echo $str_html_statusIcons ?: ''; ?>
 				<?php } ?>
 			</div>
 		<?php // <- ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### ?>
 
-		<div class="bottomWrapper newline">
+		<div class="bottomWrapper">
 			<?php // ##### TITLE ##### -> ?>
 				<h2><a class="productTitle sameLine" href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php echo $this->objProduct->_title; ?></a></h2>
 			<?php // <- ##### TITLE ##### ?>
 
 			<?php // ##### CURRENT PRICE ##### -> ?>
-				<p class="currentPrice newline">
+				<p class="currentPrice">
 					<?php if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?>
 				</p>
 			<?php // <- ##### CURRENT PRICE ##### ?>
