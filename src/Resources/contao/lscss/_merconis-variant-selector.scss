@@ -1,20 +1,17 @@
 .variantSelectorInstance .attributeBox {
   width: 100%;
   .value {
-    padding: 16px;
+    padding: $grid-gutter-width-super-small;
     position: relative;
-    border-left: 2px solid transparent;
+    border-left: 0.1rem solid transparent;
     cursor: pointer;
   }
   .value:not([data-lsjs-class*="possible"]) {
     opacity: .3;
   }
   .value[data-lsjs-class*="selected"] {
-    border: 1px solid $ls-color-grey;
-    border-left: 2px solid;
+    border: 0.1rem solid $ls-color-grey;
+    border-left: 0.1rem solid;
     cursor: default;
-  }
-  h3 {
-    padding-left: 16px;
   }
 }

@@ -1,0 +1,18 @@
+.galleryContainer {
+  .imageContainer {
+    display: block;
+    float: left;
+    width: 100%;
+  }
+  &.lsjs-slider-applied {
+    .navigation-arrow-container {
+      display: none;
+    }
+    .navigation-dots-container {
+      position: relative;
+      .navigation-dot {
+        margin-top: 2.4rem;
+      }
+    }
+  }
+}

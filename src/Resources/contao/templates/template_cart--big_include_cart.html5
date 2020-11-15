@@ -43,184 +43,178 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 
 	<div class="cart-item-list">
         <?php
-        if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
-            ?>
-            <p class="msgNoProductsInCart"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText133']; ?></p>
-            <?php
-        } else {
-            foreach (\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
-                $objProduct = &$cartItem['objProduct'];
+        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
+            $objProduct = &$cartItem['objProduct'];
 
-                if ($objProduct->_variantIsSelected) {
-                    $obj_tmp_productOrVariant = &$objProduct->_selectedVariant;
-                } else {
-                    $obj_tmp_productOrVariant = &$objProduct;
-                }
-            ?>
-                <div
-                    class="product"
-                    <?php if (!$bln_reviewMode) { ?>
-                        data-lsjs-component="statusToggler"
-                        data-lsjs-statusTogglerOptions="
-                            {
-                                str_propertyToToggle: 'data-misc-changeQuantityMode',
-                                arr_statusValue: ['no', 'yes']
-                            }
-                        "
+            if ($objProduct->_variantIsSelected) {
+                $obj_tmp_productOrVariant = &$objProduct->_selectedVariant;
+            } else {
+                $obj_tmp_productOrVariant = &$objProduct;
+            }
+        ?>
+            <div
+                class="product"
+                <?php if (!$bln_reviewMode) { ?>
+                    data-lsjs-component="statusToggler"
+                    data-lsjs-statusTogglerOptions="
+                        {
+                            str_propertyToToggle: 'data-misc-changeQuantityMode',
+                            arr_statusValue: ['no', 'yes']
+                        }
+                    "
+                <?php } ?>
+            >
+                <div class="image">
+                    <?php
+                    $imgToUse = $obj_tmp_productOrVariant->_mainImage ? $obj_tmp_productOrVariant->_mainImage : '';
+
+                    if ($obj_tmp_productOrVariant->_objectType === 'variant' && !$imgToUse) {
+                        $imgToUse = $obj_tmp_productOrVariant->_objParentProduct->_mainImage ? $obj_tmp_productOrVariant->_objParentProduct->_mainImage : '';
+                    }
+
+                    if ($imgToUse) {
+                        ?>
+                        <?php
+                        if (!$objProduct->_configuratorHasValue) {
+                            ?>
+                            <a href="<?php echo $obj_tmp_productOrVariant->_link; ?>">
+                            <?php
+                        }
+                        ?>
+                        <img src="<?php echo \Image::get($imgToUse, 600, 600, 'box'); ?>" alt="" />
+                        <?php
+                        if (!$objProduct->_configuratorHasValue) {
+                            ?>
+                            </a>
+                            <?php
+                        }
+                        ?>
+                        <?php
+                    }
+                    ?>
+                </div>
+
+                <div class="name-and-description">
+                    <?php
+                    if (\Merconis\Core\ls_shop_msg::checkMsg('cartPositionOrderNotAllowed', $productCartKey)) {
+                        ?>
+                        <p class="error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText059']; ?></p>
+                        <?php
+                    }
+                    ?>
+                    <?php
+                    if (\Merconis\Core\ls_shop_msg::checkMsg('checkCartPositionsStockSufficient', $productCartKey)) {
+                        $msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('checkCartPositionsStockSufficient', $productCartKey);
+                        ?>
+                        <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText056'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['originalQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['newQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit']); ?></p>
+                        <?php
+                    }
+                    ?>
+                    <?php
+                    if (\Merconis\Core\ls_shop_msg::checkMsg('setItemQuantity', $productCartKey)) {
+                        $msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('setItemQuantity', $productCartKey);
+                        ?>
+                        <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText057'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['availableQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit']); ?></p>
+                        <?php
+                    }
+                    ?>
+
+                    <div class="title">
+                        <?php if ($objProduct->_variantIsSelected) { ?>
+                            <div class="product-title"><?php echo $obj_tmp_productOrVariant->_productTitle; ?>, <span class="variant-title"><?php echo $obj_tmp_productOrVariant->_title; ?></span></div>
+                        <?php } else { ?>
+                            <div class="product-title"><?php echo $obj_tmp_productOrVariant->_title; ?></div>
+                        <?php } ?>
+                    </div>
+
+                    <div class="artNr">
+                        <?php echo $obj_tmp_productOrVariant->_code; ?>
+                    </div>
+
+                    <?php if ($objProduct->_hasConfigurator) { ?>
+                        <div class="configuratorRepresentation">
+                            <?php echo $objProduct->_configuratorWithCartRepresentation; ?>
+                        </div>
                     <?php } ?>
-                >
-                    <div class="image">
-                        <?php
-                        $imgToUse = $obj_tmp_productOrVariant->_mainImage ? $obj_tmp_productOrVariant->_mainImage : '';
-
-                        if ($obj_tmp_productOrVariant->_objectType === 'variant' && !$imgToUse) {
-                            $imgToUse = $obj_tmp_productOrVariant->_objParentProduct->_mainImage ? $obj_tmp_productOrVariant->_objParentProduct->_mainImage : '';
-                        }
-
-                        if ($imgToUse) {
-                            ?>
-                            <?php
-                            if (!$objProduct->_configuratorHasValue) {
-                                ?>
-                                <a href="<?php echo $obj_tmp_productOrVariant->_link; ?>">
-                                <?php
-                            }
-                            ?>
-                            <img src="<?php echo \Image::get($imgToUse, 600, 600, 'box'); ?>" alt="" />
-                            <?php
-                            if (!$objProduct->_configuratorHasValue) {
-                                ?>
-                                </a>
-                                <?php
-                            }
-                            ?>
-                            <?php
-                        }
-                        ?>
-                    </div>
-
-                    <div class="name-and-description">
-                        <?php
-                        if (\Merconis\Core\ls_shop_msg::checkMsg('cartPositionOrderNotAllowed', $productCartKey)) {
-                            ?>
-                            <p class="error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText059']; ?></p>
-                            <?php
-                        }
-                        ?>
-                        <?php
-                        if (\Merconis\Core\ls_shop_msg::checkMsg('checkCartPositionsStockSufficient', $productCartKey)) {
-                            $msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('checkCartPositionsStockSufficient', $productCartKey);
-                            ?>
-                            <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText056'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['originalQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['newQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit']); ?></p>
-                            <?php
-                        }
-                        ?>
-                        <?php
-                        if (\Merconis\Core\ls_shop_msg::checkMsg('setItemQuantity', $productCartKey)) {
-                            $msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('setItemQuantity', $productCartKey);
-                            ?>
-                            <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText057'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['availableQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit']); ?></p>
-                            <?php
-                        }
-                        ?>
-
-                        <div class="title">
-                            <?php if ($objProduct->_variantIsSelected) { ?>
-                                <div class="product-title"><?php echo $obj_tmp_productOrVariant->_productTitle; ?>, <span class="variant-title"><?php echo $obj_tmp_productOrVariant->_title; ?></span></div>
-                            <?php } else { ?>
-                                <div class="product-title"><?php echo $obj_tmp_productOrVariant->_title; ?></div>
-                            <?php } ?>
-                        </div>
-
-                        <div class="artNr">
-                            <?php echo $obj_tmp_productOrVariant->_code; ?>
-                        </div>
-
-                        <?php if ($objProduct->_hasConfigurator) { ?>
-                            <div class="configuratorRepresentation">
-                                <?php echo $objProduct->_configuratorWithCartRepresentation; ?>
-                            </div>
-                        <?php } ?>
-
-                        <?php if (!$bln_reviewMode) { ?>
-                            <button data-lsjs-element="toggler" class="edit-item">Bearbeiten</button>
-                        <?php } ?>
-                    </div>
-
-                    <div class="price-single">
-                        <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText014'] ?></div>
-                        <div class="field-content">
-                            <?php echo $obj_tmp_productOrVariant->_priceAfterTaxFormatted; ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? '/<span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
-                        </div>
-                    </div>
-                    <div class="quantity">
-                        <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'] ?></div>
-                        <div class="field-content">
-                            <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], $obj_tmp_productOrVariant->_quantityDecimals); ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? ' <span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
-                        </div>
-                    </div>
-
-                    <div class="price-cumulative">
-                        <div class="field-label "><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText018'] ?></div>
-                        <div class="field-content">
-                            <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['priceCumulative']); ?>
-                        </div>
-                    </div>
-                    <div class="tax-class">
-                        <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
-                        <div class="field-content">
-                            <?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['taxPercentage']); ?> %
-                        </div>
-                    </div>
 
                     <?php if (!$bln_reviewMode) { ?>
-                        <div class="edit-item-box">
-                            <div class="inside">
-                                <form
-                                    class="form-quantity"
+                        <button data-lsjs-element="toggler" class="edit-item">Bearbeiten</button>
+                    <?php } ?>
+                </div>
+
+                <div class="price-single">
+                    <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText014'] ?></div>
+                    <div class="field-content">
+                        <?php echo $obj_tmp_productOrVariant->_priceAfterTaxFormatted; ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? '/<span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
+                    </div>
+                </div>
+                <div class="quantity">
+                    <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'] ?></div>
+                    <div class="field-content">
+                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], $obj_tmp_productOrVariant->_quantityDecimals); ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? ' <span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
+                    </div>
+                </div>
+
+                <div class="price-cumulative">
+                    <div class="field-label "><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText018'] ?></div>
+                    <div class="field-content">
+                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['priceCumulative']); ?>
+                    </div>
+                </div>
+                <div class="tax-class">
+                    <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
+                    <div class="field-content">
+                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['taxPercentage']); ?> %
+                    </div>
+                </div>
+
+                <?php if (!$bln_reviewMode) { ?>
+                    <div class="edit-item-box">
+                        <div class="inside">
+                            <form
+                                class="form-quantity"
+                                action="<?php echo $this->formAction ?>"
+                                method="<?php echo $this->formMethod ?>"
+                                data-lsjs-component="cajaxCaller"
+                                data-lsjs-cajaxCallerOptions="
+                                                 {
+                                                    'obj_cajaxRequestData': {
+                                                        'requestedElementID': 'checkout-content,cart-num-items,cart-preview-items-list,cart-preview-headline'
+                                                    }
+                                                 }
+                                                 "
+                            >
+                                <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+                                <input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
+                                <input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
+                                <?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
+                                <button type="submit" id="ctrl_<?= $this->id ?>_submit" title="<?= $this->slabel ?>"></button>
+                            </form>
+                            <form
+                                    class="form-delete"
                                     action="<?php echo $this->formAction ?>"
                                     method="<?php echo $this->formMethod ?>"
                                     data-lsjs-component="cajaxCaller"
                                     data-lsjs-cajaxCallerOptions="
-													 {
-														'obj_cajaxRequestData': {
-															'requestedElementID': 'checkout-content,cart-num-items,cart-preview-items-list,cart-preview-headline'
-														}
-													 }
-													 "
-                                >
-                                    <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
-                                    <input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
-                                    <input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
-                                    <?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
-                                    <button type="submit" id="ctrl_<?= $this->id ?>_submit" title="<?= $this->slabel ?>"></button>
-                                </form>
-                                <form
-                                        class="form-delete"
-                                        action="<?php echo $this->formAction ?>"
-                                        method="<?php echo $this->formMethod ?>"
-                                        data-lsjs-component="cajaxCaller"
-                                        data-lsjs-cajaxCallerOptions="
-													 {
-														'obj_cajaxRequestData': {
-															'requestedElementID': 'checkout-content,cart-num-items,cart-preview-items-list,cart-preview-headline'
-														}
-													 }
-													 "
-                                >
-                                    <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
-                                    <input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
-                                    <input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
-                                    <button type="submit" name="submitDelete" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button>
-                                </form>
+                                                 {
+                                                    'obj_cajaxRequestData': {
+                                                        'requestedElementID': 'checkout-content,cart-num-items,cart-preview-items-list,cart-preview-headline'
+                                                    }
+                                                 }
+                                                 "
+                            >
+                                <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+                                <input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
+                                <input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
+                                <button type="submit" name="submitDelete" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button>
+                            </form>
 
-                                <div data-lsjs-element="toggler" class="close-edit-item"></div>
-                            </div>
+                            <div data-lsjs-element="toggler" class="close-edit-item"></div>
                         </div>
-                    <?php } ?>
-                </div>
-                <?php
-            }
+                    </div>
+                <?php } ?>
+            </div>
+            <?php
         }
         ?>
 	</div>

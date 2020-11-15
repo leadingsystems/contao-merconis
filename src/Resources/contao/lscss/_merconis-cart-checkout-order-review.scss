@@ -266,7 +266,11 @@ $ls-product-list-field-space: 2%;
   margin-bottom: 5rem;
 
   .widget.deviant-shipping-address-checkbox {
-    margin-bottom: 3rem;
+    margin-bottom: $grid-gutter-width-small;
+  }
+
+  fieldset.useDeviantShippingAddress {
+    margin-top: 3rem;
   }
 }
 
@@ -278,6 +282,14 @@ $ls-product-list-field-space: 2%;
   margin-bottom: 5rem;
 
   .paymentAndShippingOptionContainer {
+    margin-top: $grid-gutter-width-super-small;
+    padding: $grid-gutter-width-super-small;
+    border: 0.1rem solid $ls-color-grey;
+
+    &.selected {
+      border: 0.2rem solid $ls-color-black;
+    }
+
     > a {
       display: flex;
 

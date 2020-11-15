@@ -34,17 +34,18 @@
   .header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
+    margin-top: $grid-gutter-width-super-small;
+    padding-bottom: $grid-gutter-width-super-small;
+    border-bottom: 0.1rem solid $ls-color-dark-grey;
 
-    &:not(:last-child) {
-      margin-bottom: 2rem;
-    }
 
     > div {
-      width: calc((100% - 10rem) / 4);
+      width: calc((100% - 12rem) / 4);
 
       &.orderDetails {
-        width: 10rem;
+        width: 12rem;
         text-align: right;
       }
     }
@@ -85,7 +86,7 @@
 
         &.orderDetails {
           width: 100%;
-          text-align: right;
+          text-align: left;
         }
       }
     }

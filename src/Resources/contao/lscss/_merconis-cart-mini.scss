@@ -1,0 +1,12 @@
+#cart-num-items {
+  line-height: 1.6rem;
+  position: absolute;
+  background: $ls-color-red;
+  color: $ls-color-white;
+  padding: 0.1rem 0.6rem 0.1rem 0.7rem;
+  margin: -0.7rem 0 0 0.4rem;
+  font-size: 1rem;
+  top: 0.2rem;
+  border-radius: 50%;
+  left: 50%;
+}

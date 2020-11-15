@@ -1,0 +1,26 @@
+form.santanderWebQuickBirthday {
+  .inputBlock {
+    display: inline-block;
+    margin-right: 0.5rem;
+    vertical-align: bottom;
+    label {
+      display: block;
+      font-weight: bold;
+    }
+    input {
+      display: block;
+    }
+  }
+  [name="santanderWebQuickBirthdayDay"] {
+    width: 7rem !important;
+  }
+  [name="santanderWebQuickBirthdayMonth"] {
+    width: 7rem !important;
+  }
+  [name="santanderWebQuickBirthdayYear"] {
+    width: 9rem !important;
+  }
+  .submit {
+    margin-bottom: 0 !important;
+  }
+}
