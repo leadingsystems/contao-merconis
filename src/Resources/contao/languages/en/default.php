@@ -14,8 +14,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or'] = 'or';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText001'] = 'VAT incl.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText002'] = 'plus %s VAT';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText003'] = 'plus shipping charges (info)';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText004'] = 'shipping charges incl. (info)';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText003'] = 'plus shipping charges';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText004'] = 'shipping charges incl.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText005'] = 'Place in shopping cart';
 
@@ -235,6 +235,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['finalPrice'] = 'Final price';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['ok'] = 'OK';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['and'] = 'and';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] = 'from';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['showScalePrices'] = 'Show scale prices';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['scalePriceQuantityFrom'] = 'from';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['priceScale'] = 'Price scale';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityForScalePrice'] = 'Quantity considered for scale price:';

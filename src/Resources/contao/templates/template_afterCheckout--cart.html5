@@ -18,7 +18,7 @@
         ?>
     </h3>
 
-    <div class="product-list">
+    <div class="cart-item-list">
         <?php
         foreach ($this->arrOrder['items'] as $itemPosition => $cartItem) {
             ?>

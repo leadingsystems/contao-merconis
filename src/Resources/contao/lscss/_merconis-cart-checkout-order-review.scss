@@ -306,248 +306,246 @@ $ls-product-list-field-space: 2%;
 }
 
 .order-overview {
-  .product-list {
-    .product {
-      display: flex;
-      flex-wrap: wrap;
-      position: relative;
+  .product {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
 
-      &:not(:last-child) {
-        padding-bottom: 2rem;
-        border-bottom: 0.1rem solid $ls-color-grey;
-        margin-bottom: 2rem;
+    &:not(:last-child) {
+      padding-bottom: 2rem;
+      border-bottom: 0.1rem solid $ls-color-grey;
+      margin-bottom: 2rem;
+    }
+
+    .edit-item-box {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: none;
+      background-color: rgba($ls-color-white, 0.85);
+
+      .inside {
+        display: flex;
+        justify-content: center;
       }
 
-      .edit-item-box {
+      .close-edit-item {
         position: absolute;
         top: 0;
         right: 0;
-        bottom: 0;
-        left: 0;
-        display: none;
-        background-color: rgba($ls-color-white, 0.85);
+        font-size: 2.5rem;
+        color: $ls-color-black;
+        cursor: pointer;
 
-        .inside {
-          display: flex;
-          justify-content: center;
-        }
-
-        .close-edit-item {
-          position: absolute;
-          top: 0;
-          right: 0;
-          font-size: 2.5rem;
-          color: $ls-color-black;
-          cursor: pointer;
-
-          &::before {
-            @extend .fas;
-            content: fa-content($fa-var-times);
-            margin-right: 0.5rem;
-          }
-        }
-
-        form.form-quantity {
-          display: flex;
-          position: relative;
-
-          label {
-            font-weight: $ls-font-weight-bold;
-          }
-
-          input[name="quantity_item"] {
-            width: 10rem;
-            text-align: right;
-          }
-
-          .errors {
-            position: absolute;
-          }
-
-          button {
-            font-size: 1.4rem;
-            padding: 0.5rem;
-            border: 0.1rem solid $ls-color-grey;
-            background-color: $ls-color-white;
-            color: $ls-color-black;
-            margin-left: 1rem;
-
-            &::before {
-              @extend .fas;
-              content: fa-content($fa-var-check);
-            }
-          }
-        }
-
-        form.form-delete {
-          display: flex;
-          position: relative;
-
-          button {
-            font-size: 1.4rem;
-            padding: 0.5rem;
-            border: 0.1rem solid $ls-color-grey;
-            background-color: $ls-color-white;
-            color: $ls-color-black;
-            margin-left: 1rem;
-
-            &::before {
-              @extend .fas;
-              content: fa-content($fa-var-trash);
-            }
-          }
+        &::before {
+          @extend .fas;
+          content: fa-content($fa-var-times);
+          margin-right: 0.5rem;
         }
       }
 
-      &[data-misc-changequantitymode="yes"] {
-        .edit-item-box {
-          display: block;
-        }
-      }
-
-      .field-label {
-        font-weight: $ls-font-weight-bold;
-        font-size: 1.3rem;
-        text-align: right;
-      }
-
-      .field-content {
-        text-align: right;
-        white-space: nowrap;
-      }
-
-      .product-title {
-        font-size: 2rem;
-
-        .variant-title {
-          font-size: 80%;
-        }
-      }
-
-      .image {
-        width: 18% - $ls-product-list-field-space;
-        margin-right: $ls-product-list-field-space;
-
-        img {
-          max-height: 11rem;
-        }
-      }
-
-      .name-and-description {
-        width: 25% - $ls-product-list-field-space;
-        margin-right: $ls-product-list-field-space;
+      form.form-quantity {
+        display: flex;
         position: relative;
-        padding-bottom: 5rem;
 
-        .edit-item {
+        label {
+          font-weight: $ls-font-weight-bold;
+        }
+
+        input[name="quantity_item"] {
+          width: 10rem;
+          text-align: right;
+        }
+
+        .errors {
           position: absolute;
-          bottom: 0;
+        }
+
+        button {
           font-size: 1.4rem;
           padding: 0.5rem;
           border: 0.1rem solid $ls-color-grey;
           background-color: $ls-color-white;
           color: $ls-color-black;
+          margin-left: 1rem;
 
           &::before {
             @extend .fas;
-            content: fa-content($fa-var-edit);
-            margin-right: 0.5rem;
+            content: fa-content($fa-var-check);
           }
+        }
+      }
+
+      form.form-delete {
+        display: flex;
+        position: relative;
+
+        button {
+          font-size: 1.4rem;
+          padding: 0.5rem;
+          border: 0.1rem solid $ls-color-grey;
+          background-color: $ls-color-white;
+          color: $ls-color-black;
+          margin-left: 1rem;
+
+          &::before {
+            @extend .fas;
+            content: fa-content($fa-var-trash);
+          }
+        }
+      }
+    }
+
+    &[data-misc-changequantitymode="yes"] {
+      .edit-item-box {
+        display: block;
+      }
+    }
+
+    .field-label {
+      font-weight: $ls-font-weight-bold;
+      font-size: 1.3rem;
+      text-align: right;
+    }
+
+    .field-content {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .product-title {
+      font-size: 2rem;
+
+      .variant-title {
+        font-size: 80%;
+      }
+    }
+
+    .image {
+      width: 18% - $ls-product-list-field-space;
+      margin-right: $ls-product-list-field-space;
+
+      img {
+        max-height: 11rem;
+      }
+    }
+
+    .name-and-description {
+      width: 25% - $ls-product-list-field-space;
+      margin-right: $ls-product-list-field-space;
+      position: relative;
+      padding-bottom: 5rem;
+
+      .edit-item {
+        position: absolute;
+        bottom: 0;
+        font-size: 1.4rem;
+        padding: 0.5rem;
+        border: 0.1rem solid $ls-color-grey;
+        background-color: $ls-color-white;
+        color: $ls-color-black;
+
+        &::before {
+          @extend .fas;
+          content: fa-content($fa-var-edit);
+          margin-right: 0.5rem;
+        }
+      }
+    }
+
+    .price-single {
+      width: 16% - $ls-product-list-field-space;
+      margin-right: $ls-product-list-field-space;
+    }
+
+    .quantity {
+      width: 16% - $ls-product-list-field-space;
+      margin-right: $ls-product-list-field-space;
+    }
+
+    .price-cumulative {
+      width: 16% - $ls-product-list-field-space;
+      margin-right: $ls-product-list-field-space;
+    }
+
+    .tax-class {
+      width: 9%;
+      margin-right: 0;
+    }
+
+    @media screen and(min-width: 600px) and(max-width: 990px) {
+      .name-and-description {
+        padding-right: 15rem;
+
+        .edit-item {
+          right: 0;
+          bottom: unset;
+          top: 0;
+        }
+      }
+    }
+
+    @media screen and(max-width: 990px) {
+      .image {
+        width: 30% - $ls-product-list-field-space;
+        margin-right: $ls-product-list-field-space;
+        margin-bottom: 2rem;
+      }
+
+      .name-and-description {
+        width: 70%;
+        margin-right: 0;
+        margin-bottom: 2rem;
+
+        .edit-item {
+          right: 0;
         }
       }
 
       .price-single {
-        width: 16% - $ls-product-list-field-space;
+        width: 25% - $ls-product-list-field-space;
         margin-right: $ls-product-list-field-space;
       }
 
       .quantity {
-        width: 16% - $ls-product-list-field-space;
+        width: 25% - $ls-product-list-field-space;
         margin-right: $ls-product-list-field-space;
       }
 
       .price-cumulative {
-        width: 16% - $ls-product-list-field-space;
+        width: 25% - $ls-product-list-field-space;
         margin-right: $ls-product-list-field-space;
       }
 
       .tax-class {
-        width: 9%;
+        width: 25%;
         margin-right: 0;
       }
+    }
 
-      @media screen and(min-width: 600px) and(max-width: 990px) {
-        .name-and-description {
-          padding-right: 15rem;
-
-          .edit-item {
-            right: 0;
-            bottom: unset;
-            top: 0;
-          }
-        }
+    @media screen and(max-width: 600px) {
+      .price-single,
+      .quantity,
+      .price-cumulative,
+      .tax-class {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 1rem;
+        display: flex;
       }
 
-      @media screen and(max-width: 990px) {
-        .image {
-          width: 30% - $ls-product-list-field-space;
-          margin-right: $ls-product-list-field-space;
-          margin-bottom: 2rem;
-        }
-
-        .name-and-description {
-          width: 70%;
-          margin-right: 0;
-          margin-bottom: 2rem;
-
-          .edit-item {
-            right: 0;
-          }
-        }
-
-        .price-single {
-          width: 25% - $ls-product-list-field-space;
-          margin-right: $ls-product-list-field-space;
-        }
-
-        .quantity {
-          width: 25% - $ls-product-list-field-space;
-          margin-right: $ls-product-list-field-space;
-        }
-
-        .price-cumulative {
-          width: 25% - $ls-product-list-field-space;
-          margin-right: $ls-product-list-field-space;
-        }
-
-        .tax-class {
-          width: 25%;
-          margin-right: 0;
-        }
+      .field-label {
+        font-weight: $ls-font-weight-bold;
+        font-size: inherit;
+        text-align: left;
+        width: 50%;
       }
 
-      @media screen and(max-width: 600px) {
-        .price-single,
-        .quantity,
-        .price-cumulative,
-        .tax-class {
-          width: 100%;
-          margin-right: 0;
-          margin-bottom: 1rem;
-          display: flex;
-        }
-
-        .field-label {
-          font-weight: $ls-font-weight-bold;
-          font-size: inherit;
-          text-align: left;
-          width: 50%;
-        }
-
-        .field-content {
-          text-align: right;
-          width: 50%;
-        }
+      .field-content {
+        text-align: right;
+        width: 50%;
       }
     }
   }

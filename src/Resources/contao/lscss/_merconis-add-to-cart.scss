@@ -16,9 +16,4 @@
       -moz-appearance: textfield;
     }
   }
-
-  button.submit {
-    @include ls_defaultButton;
-    @include ls_dynamicBackground;
-  }
 }

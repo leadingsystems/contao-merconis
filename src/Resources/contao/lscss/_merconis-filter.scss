@@ -1,0 +1,296 @@
+#off-canvas-filter-form-container {
+  background-color: rgba($ls-color-black, 0.5);
+
+  @media only screen and (min-width: 420px) {
+    display: flex;
+  }
+
+  @media only screen and (max-width: 419px) {
+    padding: 0;
+  }
+}
+
+#off-canvas-filter-form-container-inside {
+  @include ls_narrowContentWrapper;
+  position: relative;
+  background-color: $ls-color-white;
+  padding: 5rem;
+  margin: auto;
+  line-height: normal;
+
+  @media only screen and (max-width: 419px) {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+
+  .off-canvas-filter-form-toggler {
+    cursor: pointer;
+
+    &.close-button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+
+      &::after {
+        @extend .fas;
+        content: fa-content($fa-var-window-close);
+        font-size: 2rem;
+      }
+    }
+  }
+}
+
+.off-canvas-filter-form-toggler {
+  cursor: pointer;
+
+  &.main-toggler {
+    padding-bottom: 0.5rem;
+    border-bottom: 0.1rem solid $ls-color-grey;
+    margin-bottom: 1rem;
+
+    &::before {
+      @extend .fas;
+      content: fa-content($fa-var-filter);
+      margin-right: 1rem;
+    }
+  }
+}
+
+.filter-container {
+  @include ls_contentWrapper;
+}
+
+.filter-summary-container {
+  overflow: hidden;
+  margin-bottom: 2rem;
+
+  .filter-summary {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin-left: -4rem;
+
+    .filter-criterion-title {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 80%;
+      font-weight: $ls-font-weight-bold;
+    }
+
+    > li {
+      margin-left: 2rem;
+      border-left: 0.1rem solid $ls-color-grey;
+      padding-left: 2rem;
+      margin-bottom: 3rem;
+
+      .filter-values {
+        display: flex;
+        list-style: none;
+        flex-wrap: wrap;
+
+        .filter-criterion-value-title {
+          font-weight: $ls-font-weight-bold;
+        }
+
+        li {
+          &:not(:last-child) {
+            margin-right: 1rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+.template_filterForm_default {
+  input,
+  select {
+    padding: 0.5rem !important;
+  }
+
+  .price-from,
+  .price-to {
+    .flexWidget {
+      display: inline-block;
+    }
+  }
+
+  &.useLsUnfold {
+    h2 {
+      cursor: pointer;
+      margin-top: 0;
+      margin-bottom: 0;
+      &:after {
+        position: absolute;
+        font-size: 2.72rem;
+        transition: opacity 0.4s linear;
+        font-weight: bold;
+      }
+    }
+    &.lsUnfoldClosed h2:after {
+      @extend .fas;
+      content: fa-content($fa-var-caret-down);
+      opacity: 1;
+      cursor: pointer;
+      right: 2.8rem;
+      top: 0.5rem;
+    }
+    &.lsUnfoldOpen h2:after {
+      @extend .fas;
+      content: fa-content($fa-var-caret-up);
+      opacity: 1;
+      cursor: pointer;
+      right: 2.8rem;
+      top: 0.5rem;
+    }
+    &.lsUnfoldRunning h2:after {
+      opacity: 0;
+    }
+  }
+  .noMatch {
+    color: $ls-color-grey;
+    font-style: italic;
+  }
+  .checkAll {
+    color: $ls-color-grey;
+    font-style: italic;
+  }
+  .noSelection {
+    color: $ls-color-grey;
+    font-style: italic;
+  }
+  #priceLow {
+    width: 10rem;
+  }
+  #priceHigh {
+    width: 10rem;
+  }
+
+  .filter-submit-box {
+    margin-top: 2rem;
+  }
+
+  button {
+    &.submitFilter {
+      width: auto;
+      float: left;
+      margin-right: 1rem;
+    }
+    &.resetFilter {
+      width: auto;
+    }
+  }
+  &.nothingToFilter {
+    display: none;
+  }
+}
+.filterOptionsBox,
+.filterPriceBox {
+  margin-bottom: 0.5rem;
+
+  &:not(:last-child) {
+    border-bottom: 0.1rem solid $ls-color-grey;
+  }
+
+  .label {
+    margin: 0;
+    padding: 0.5rem 2.6rem 0.5rem 0.5rem;
+    position: relative;
+    cursor: pointer;
+  }
+
+  &.useLsUnfold {
+    .label {
+      cursor: pointer;
+      &:after {
+        position: absolute;
+        right: 0.5rem;
+        top: 0;
+        font-size: 1.92rem;
+        transition: opacity 0.4s linear;
+        font-weight: bold;
+      }
+    }
+    &.lsUnfoldClosed .label:after {
+      @extend .fas;
+      content: fa-content($fa-var-caret-down);
+      opacity: 1;
+      cursor: pointer;
+      right: 1rem;
+      top: 0.6rem;
+    }
+
+    &.lsUnfoldOpen .label {
+      font-weight: bold;
+
+      &:after {
+        @extend .fas;
+        content: fa-content($fa-var-caret-up);
+        opacity: 1;
+        cursor: pointer;
+        right: 1rem;
+        top: 0.6rem;
+      }
+    }
+    &.lsUnfoldRunning .label:after {
+      opacity: 0;
+    }
+  }
+  .showAndHideOptionsIcon {
+    cursor: pointer;
+    display: inline-block;
+    &:after {
+      @extend .fas;
+      content: fa-content($fa-var-minus);
+      opacity: 1;
+      cursor: pointer;
+      right: 0.1rem;
+      top: 0.6rem;
+    }
+    &.hidden {
+      display: none;
+    }
+    &.currentlyHiding:after {
+      @extend .fas;
+      content: fa-content($fa-var-plus);
+      opacity: 1;
+      cursor: pointer;
+      right: 0.1rem;
+      top: 0.6rem;
+    }
+  }
+  .content {
+    padding: 0.5rem;
+    display: block;
+    position: relative;
+  }
+  .checkAll {
+    display: none;
+  }
+  &.closed .content {
+    display: none;
+  }
+  .filterOption.hidden {
+    display: none;
+  }
+}
+@media only screen and(max-width:400px) {
+  .template_filterForm_default {
+    button {
+      &.submitFilter {
+        float: none;
+        width: 100%;
+        margin-right: 0;
+        margin-top: 0.5rem;
+      }
+      &.resetFilter {
+        float: none;
+        width: 100%;
+        margin-right: 0;
+        margin-top: 0.5rem;
+      }
+    }
+  }
+}

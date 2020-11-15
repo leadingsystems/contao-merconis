@@ -33,128 +33,112 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
 <?php echo isset($str_html_ajaxTest) ? $str_html_ajaxTest : ''; ?>
 
-<div class="ls_contentWrapper template_productDetails_01">
+<div class="template_productDetails_01">
     <?php // ##### BACK BUTTON ###### -> ?>
     <?php // CAUTION: DO NOT REMOVE THIS INSERT TAG. IF YOU DON'T NEED IT, JUST HIDE IT. -> ?>
     <div class="backButton"><a href="{{shopCategoryLinkOrSearchResult}}">zur Übersicht</a></div>
     <?php // <- ##### BACK BUTTON ###### ?>
 
-    <div class="shopProductWrapper">
-        <div class="shopProduct <?php echo $this->productTemplateType; ?> <?php echo $this->productTemplate; ?> <?php echo $this->productPositionsClassString; ?> block">
-            <a id="<?php echo $this->objProduct->_anchor; ?>"></a>
+    <div class="shop-product">
+        <div class="wrapper-gallery">
+            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+                 id="ajaxReloadByVariantSelector_1_<?php echo $this->objProduct->_id; ?>">
 
+                <?php echo $str_html_statusIcons ?: ''; ?>
 
-            <div class="outerGalleryWrapper">
-                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                     id="ajaxReloadByVariantSelector_1_<?php echo $this->objProduct->_id; ?>">
+                <?php // ##### IMAGE GALLERY ###### -> ?>
+                <?php echo isset($str_html_gallery) ? $str_html_gallery : ''; ?>
 
-                    <?php echo $str_html_statusIcons ?: ''; ?>
-
-                    <?php // ##### IMAGE GALLERY ###### -> ?>
-                    <?php echo isset($str_html_gallery) ? $str_html_gallery : ''; ?>
-
-                    <?php // <- ##### IMAGE GALLERY ###### ?>
-                </div>
+                <?php // <- ##### IMAGE GALLERY ###### ?>
             </div>
-
-            <div class="outerWrapperRight">
-                <?php // ##### TITLE ###### -> ?>
-                <h1 class="productTitle"><?php echo $this->objProduct->_title; ?></h1>
-                <?php // <- ##### TITLE ###### ?>
-
-                <div class=" ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                     id="ajaxReloadByVariantSelector_2_<?php echo $this->objProduct->_id; ?>">
-                    <div>
-                        <?php // ##### PRODUCER ###### -> ?>
-                        <?php if ($this->objProduct->_hasProducer) { ?>
-                            <p class="producer"><?php echo $this->objProduct->_producer; ?></p>
-                        <?php } ?>
-                        <?php // ##### PRODUCER ###### -> ?>
-
-                        <?php // ##### PRODUCT CODE ###### -> ?>
-                        <?php if ($this->objProduct->_hasCode) { ?>
-                            <p class="code"><?php echo $this->objProduct->_variantIsSelected ? $this->objProduct->_selectedVariant->_code : $this->objProduct->_code; ?></p>
-                        <?php } ?>
-                        <?php // <- ##### PRODUCT CODE ###### ?>
-                    </div>
-
-                    <?php // ##### VARIANT TITLE ###### -> ?>
-                    <?php if ($this->objProduct->_variantIsSelected) { ?>
-                        <p class="variantTitle"> <?php echo $this->objProduct->_selectedVariant->_title; ?></p>
-                    <?php } ?>
-                    <?php // <- ##### VARIANT TITLE ###### ?>
-
-                    <?php // ##### FILTER MATCH ###### -> ?>
-                    <?php echo isset($str_html_filterMatch) ? $str_html_filterMatch : ''; ?>
-                    <?php // <- ##### FILTER MATCH ###### ?>
-                </div>
-
-
-                <div>
-                    <?php // ##### VARIANT SELECTOR ###### -> ?>
-                    <?php echo isset($str_html_variantSelector) ? $str_html_variantSelector : ''; ?>
-                    <?php // <- ##### VARIANT SELECTOR ###### ?>
-                </div>
-
-
-                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                     id="ajaxReloadByVariantSelector_3_<?php echo $this->objProduct->_id; ?>">
-                    <?php // ##### INCLUDED TEMPLATES ###### -> ?>
-                    <div class="boxRight">
-
-                        <?php if (false) { // ----- NOT USED BY DEFAULT -----> ?><?php echo isset($str_html_stockInfo) ? $str_html_stockInfo : ''; ?><?php } // <----- NOT USED BY DEFAULT ----- ?>
-                        <?php if (isset($str_html_price)) { ?>
-                            <div
-                                    id="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>_1"
-                                    class="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>"
-                                    data-merconis-component="put-in-cart-form"
-                                    data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
-                                    data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
-                            >
-                                <?php echo $str_html_price; ?>
-                            </div>
-                        <?php } ?>
-
-                        <?php echo isset($str_html_deliveryInfo) ? $str_html_deliveryInfo : ''; ?>
-
-                    </div>
-                    <?php // <- ##### INCLUDED TEMPLATES ###### ?>
-                </div>
-
-
-                <?php // <- ##### WATCH LIST BUTTON ###### ?>
-                <div class="watchlistContainer <?php echo $this->objProduct->_isFavorite ? 'inMyWatchlist' : 'notInMyWatchlist'; ?>">
-                    <?php echo $this->objProduct->_favoritesForm; ?>
-                </div>
-                <?php // <- ##### WATCH LIST BUTTON ###### ?>
-
-                <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
-                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>" id="ajaxReloadByVariantSelector_6_<?php echo $this->objProduct->_id; ?>">
-                    <?php
-                    if ($obj_tmp_productOrVariant->_stockIsInsufficient) {
-                        ?>
-                        <div class="restockInfoListContainer <?php echo $this->objProduct->_isOnRestockInfoList ? 'onRestockInfoList' : 'notOnRestockInfoList'; ?>">
-                            <?php echo $this->objProduct->_restockInfoListForm; ?>
-                        </div>
-                        <?php
-                    }
-                    ?>
-                </div>
-                <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
-
-
-            </div>
-
-            <?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
-                <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                     id="ajaxReloadByVariantSelector_4_<?php echo $this->objProduct->_id; ?>">
-                    <?php // ##### VARIANT ATTRIBUTES ###### -> ?>
-                    <?php echo isset($str_html_attributesInfo) ? $str_html_attributesInfo : ''; ?>
-                    <?php // <- ##### VARIANT ATTRIBUTES ###### ?>
-                </div>
-            <?php } // <----- NOT USED BY DEFAULT ----- ?>
         </div>
-        <div class="descriptionWrapper">
+
+        <div class="wrapper-price-etc">
+            <?php // ##### TITLE ###### -> ?>
+            <h1 class="productTitle"><?php echo $this->objProduct->_title; ?></h1>
+            <?php // <- ##### TITLE ###### ?>
+
+            <div class=" ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+                 id="ajaxReloadByVariantSelector_2_<?php echo $this->objProduct->_id; ?>">
+                <div>
+                    <?php // ##### PRODUCER ###### -> ?>
+                    <?php if ($this->objProduct->_hasProducer) { ?>
+                        <p class="producer"><?php echo $this->objProduct->_producer; ?></p>
+                    <?php } ?>
+                    <?php // ##### PRODUCER ###### -> ?>
+
+                    <?php // ##### PRODUCT CODE ###### -> ?>
+                    <?php if ($this->objProduct->_hasCode) { ?>
+                        <p class="code"><?php echo $this->objProduct->_variantIsSelected ? $this->objProduct->_selectedVariant->_code : $this->objProduct->_code; ?></p>
+                    <?php } ?>
+                    <?php // <- ##### PRODUCT CODE ###### ?>
+                </div>
+
+                <?php // ##### VARIANT TITLE ###### -> ?>
+                <?php if ($this->objProduct->_variantIsSelected) { ?>
+                    <p class="variantTitle"> <?php echo $this->objProduct->_selectedVariant->_title; ?></p>
+                <?php } ?>
+                <?php // <- ##### VARIANT TITLE ###### ?>
+
+                <?php // ##### FILTER MATCH ###### -> ?>
+                <?php echo isset($str_html_filterMatch) ? $str_html_filterMatch : ''; ?>
+                <?php // <- ##### FILTER MATCH ###### ?>
+            </div>
+
+
+            <div>
+                <?php // ##### VARIANT SELECTOR ###### -> ?>
+                <?php echo isset($str_html_variantSelector) ? $str_html_variantSelector : ''; ?>
+                <?php // <- ##### VARIANT SELECTOR ###### ?>
+            </div>
+
+
+            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+                 id="ajaxReloadByVariantSelector_3_<?php echo $this->objProduct->_id; ?>">
+                <div class="boxRight">
+
+                    <?php if (isset($str_html_price)) { ?>
+                        <div
+                                id="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>_1"
+                                class="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>"
+                                data-merconis-component="put-in-cart-form"
+                                data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
+                                data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
+                        >
+                            <?php echo $str_html_price; ?>
+                        </div>
+                    <?php } ?>
+
+                    <?php echo isset($str_html_deliveryInfo) ? $str_html_deliveryInfo : ''; ?>
+
+                </div>
+            </div>
+
+
+            <?php // <- ##### WATCH LIST BUTTON ###### ?>
+            <div class="watchlistContainer <?php echo $this->objProduct->_isFavorite ? 'inMyWatchlist' : 'notInMyWatchlist'; ?>">
+                <?php echo $this->objProduct->_favoritesForm; ?>
+            </div>
+            <?php // <- ##### WATCH LIST BUTTON ###### ?>
+
+            <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
+            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>" id="ajaxReloadByVariantSelector_6_<?php echo $this->objProduct->_id; ?>">
+                <?php
+                if ($obj_tmp_productOrVariant->_stockIsInsufficient) {
+                    ?>
+                    <div class="restockInfoListContainer <?php echo $this->objProduct->_isOnRestockInfoList ? 'onRestockInfoList' : 'notOnRestockInfoList'; ?>">
+                        <?php echo $this->objProduct->_restockInfoListForm; ?>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+            <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
+
+
+        </div>
+
+        <div class="wrapper-description">
             <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                  id="ajaxReloadByVariantSelector_5_<?php echo $this->objProduct->_id; ?>">
                 <?php // ##### DESCRIPTION ###### -> ?>

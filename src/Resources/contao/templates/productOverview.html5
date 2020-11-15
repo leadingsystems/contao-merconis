@@ -1,5 +1,5 @@
 <!-- indexer::stop -->
-<div class="productOverview">
+<div class="product-list-container">
 	<?php echo $this->output; ?>
 </div>
 <!-- indexer::continue -->

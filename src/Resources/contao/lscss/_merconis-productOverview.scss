@@ -1,3 +1,9 @@
-.productOverview {
-  @include ls_contentWrapper;
+.template_productOverview {
+  .imageContainer {
+    position: relative;
+  }
+
+  .bottomWrapper {
+    margin-top: $grid-gutter-width-super-small;
+  }
 }

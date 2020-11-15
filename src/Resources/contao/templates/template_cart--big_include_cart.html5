@@ -41,7 +41,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
         <div class="checkout-validation-error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText058']; ?></div>
     <?php } ?>
 
-	<div class="product-list">
+	<div class="cart-item-list">
         <?php
         if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
             ?>

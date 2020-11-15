@@ -14,8 +14,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or'] = 'oder';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText001'] = 'inkl. MwSt.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText002'] = 'zzgl. %s MwSt.';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText003'] = 'zzgl. Versandkosten (Info)';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText004'] = 'inkl. Versandkosten (Info)';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText003'] = 'zzgl. Versandkosten';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText004'] = 'inkl. Versandkosten';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText005'] = 'In den Warenkorb';
 
@@ -86,8 +86,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText050']['confirmPaymentMethod'] = '
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText050']['confirmShippingMethod'] = 'Versandoption wählen';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText051'] = 'Gesamtbetrag';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText052'] = 'enthaltene Mehrwertsteuer';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText053'] = 'zzgl. Mehrwertsteuer';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText052'] = 'enth. MwSt.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText053'] = 'zzgl. MwSt.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText054'] = 'Produktdefinition ändern';
 
@@ -236,6 +236,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['finalPrice'] = 'Endpreis';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['ok'] = 'OK';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['and'] = 'und';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] = 'ab';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['showScalePrices'] = 'Staffelpreise anzeigen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['scalePriceQuantityFrom'] = 'ab';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['priceScale'] = 'Preisstaffel';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityForScalePrice'] = 'Für Preisstaffel zu berücksichtigende Menge:';
