@@ -1,5 +1,12 @@
 .product-list-container {
   @include ls_contentWrapper;
+
+  .user-sorting-form {
+    form {
+      @include ls_sameLine;
+      text-align: right;
+    }
+  }
 }
 
 .product-list {
