@@ -4633,6 +4633,9 @@ class ls_shop_generalHelper
                             'str_methodName' => 'quantityInput'
                         )
                     ),
+                    'arr_moreData' => [
+                        'class' => 'quantity-input'
+                    ],
                     'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
                     'str_allowedRequestMethod' => 'post',
                     'var_value' => isset($GLOBALS['TL_CONFIG']['ls_shop_quantityDefault']) ? $GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'] : ''

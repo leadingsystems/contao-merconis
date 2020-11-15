@@ -214,53 +214,6 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                                     <button type="submit" name="submitDelete" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button>
                                 </form>
 
-
-                                <?php if (false) { ?>
-                                <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText135'] ?></div>
-                                <div class="field-content">
-                                    <form
-                                        class="formQuantity"
-                                        action="<?php echo $this->formAction ?>"
-                                        method="<?php echo $this->formMethod ?>"
-                                        data-lsjs-component="cajaxCaller"
-                                        data-lsjs-cajaxCallerOptions="
-													 {
-														'obj_cajaxRequestData': {
-															'requestedElementID': 'checkoutContent,cart-num-items,cart-preview-items-list,cart-preview-headline'
-														}
-													 }
-													 "
-                                    >
-                                        <div>
-                                            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
-                                            <input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
-                                            <input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
-                                            <span><?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?></span>
-                                            <span><button type="submit" id="ctrl_<?= $this->id ?>_submit" class="fi fi-ok pointer mgl-s" value="" title="<?= $this->slabel ?>"></button></span>
-                                        </div>
-                                    </form>
-                                    <form
-                                        class="formDelete"
-                                        action="<?php echo $this->formAction ?>"
-                                        method="<?php echo $this->formMethod ?>"
-                                        data-lsjs-component="cajaxCaller"
-                                        data-lsjs-cajaxCallerOptions="
-													 {
-														'obj_cajaxRequestData': {
-															'requestedElementID': 'checkoutContent,cart-num-items,cart-preview-items-list,cart-preview-headline'
-														}
-													 }
-													 "
-                                    >
-                                        <div>
-                                            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
-                                            <input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
-                                            <input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
-                                            <span class="txs-l-all"><button type="submit" name="submitDelete" class="fi fi-delete pointer mgl-s" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button></span>
-                                        </div>
-                                    </form>
-                                </div>
-                                <?php } ?>
                                 <div data-lsjs-element="toggler" class="close-edit-item"></div>
                             </div>
                         </div>

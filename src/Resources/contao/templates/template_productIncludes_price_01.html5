@@ -112,7 +112,7 @@ if ($this->objProduct->_variantIsSelected) {
                          "
                         id="scalePrices_<?php echo $this->objProduct->_id; ?>"
                 >
-					<div data-lsjs-element="elementFolderToggler" class="pointer"><i class="fi fi-scalePrice txs-xl mgr-10"></i><span class=""><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscTextScalePrice']; ?></span></div>
+					<div data-lsjs-element="elementFolderToggler"><i class="fi fi-scalePrice txs-xl mgr-10"></i><span class=""><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscTextScalePrice']; ?></span></div>
 					<div data-lsjs-element="elementFolderContent">
 						<div class="scalePriceInformation <?php echo $obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator ? 'pricesInfluencedByConfigurator' : 'pricesNotInfluencedByConfigurator'; ?>">
 							<?php
@@ -121,7 +121,7 @@ if ($this->objProduct->_variantIsSelected) {
 								$count++;
 								?>
 								<div class="scalePriceStep <?php echo ($count % 2 ? 'odd' : 'even').($count == 1 ? ' first' : '').($count == count($obj_tmp_productOrVariant->_scalePricesOutput) + 1 ? ' last' : ''); ?>">
-									<div class="scalePriceStepMinQuantity sameLine">
+									<div class="scalePriceStepMinQuantity">
 										<span><?php echo $arrStep['minQuantity']; ?></span>
 									</div>
 									<?php
@@ -139,7 +139,7 @@ if ($this->objProduct->_variantIsSelected) {
 											<span class="value"><?php echo $arrStep['priceConfigurator']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
 										</div>
 									<?php } ?>
-									<div class="finalPrice sameLine">
+									<div class="finalPrice">
 										<div class="value"><span>
 											<?php
 											if (

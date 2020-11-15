@@ -65,24 +65,22 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <div class=" ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                      id="ajaxReloadByVariantSelector_2_<?php echo $this->objProduct->_id; ?>">
                     <div>
-                        <?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
-                            <?php // ##### PRODUCER ###### -> ?>
-                            <?php if ($this->objProduct->_hasProducer) { ?>
-                                <p class="producer sameLine "><?php echo $this->objProduct->_producer; ?> | </p>
-                            <?php } ?>
-                            <?php // ##### PRODUCER ###### -> ?>
-                        <?php } // <----- NOT USED BY DEFAULT ----- ?>
+                        <?php // ##### PRODUCER ###### -> ?>
+                        <?php if ($this->objProduct->_hasProducer) { ?>
+                            <p class="producer"><?php echo $this->objProduct->_producer; ?></p>
+                        <?php } ?>
+                        <?php // ##### PRODUCER ###### -> ?>
 
                         <?php // ##### PRODUCT CODE ###### -> ?>
                         <?php if ($this->objProduct->_hasCode) { ?>
-                            <p class="code sameLine"><?php echo $this->objProduct->_variantIsSelected ? $this->objProduct->_selectedVariant->_code : $this->objProduct->_code; ?></p>
+                            <p class="code"><?php echo $this->objProduct->_variantIsSelected ? $this->objProduct->_selectedVariant->_code : $this->objProduct->_code; ?></p>
                         <?php } ?>
                         <?php // <- ##### PRODUCT CODE ###### ?>
                     </div>
 
                     <?php // ##### VARIANT TITLE ###### -> ?>
                     <?php if ($this->objProduct->_variantIsSelected) { ?>
-                        <p class="variantTitle sameLine"> <?php echo $this->objProduct->_selectedVariant->_title; ?></p>
+                        <p class="variantTitle"> <?php echo $this->objProduct->_selectedVariant->_title; ?></p>
                     <?php } ?>
                     <?php // <- ##### VARIANT TITLE ###### ?>
 
@@ -178,7 +176,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                             id="configurator_<?php echo $this->objProduct->_id; ?>"
                             class=""
                     >
-                        <div data-lsjs-element="elementFolderToggler" class="pointer"><i
+                        <div data-lsjs-element="elementFolderToggler"><i
                                     class="fi fi-configuration"></i><span
                                     class=""><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText075']; ?></span>
                         </div>

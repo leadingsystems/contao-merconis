@@ -20,7 +20,7 @@
 
 		<div class="bottomWrapper">
 			<?php // ##### TITLE ##### -> ?>
-				<h2><a class="productTitle sameLine" href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php echo $this->objProduct->_title; ?></a></h2>
+				<h2><a class="productTitle" href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php echo $this->objProduct->_title; ?></a></h2>
 			<?php // <- ##### TITLE ##### ?>
 
 			<?php // ##### CURRENT PRICE ##### -> ?>

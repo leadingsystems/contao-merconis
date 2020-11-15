@@ -1,0 +1,24 @@
+.add-to-cart-container {
+  &.empty {
+    display: none;
+  }
+
+  .add-to-cart {
+    @include ls_sameLine;
+  }
+
+  .quantity-input {
+    label {
+      display: none;
+    }
+    input {
+      max-width: 7.5rem;
+      -moz-appearance: textfield;
+    }
+  }
+
+  button.submit {
+    @include ls_defaultButton;
+    @include ls_dynamicBackground;
+  }
+}

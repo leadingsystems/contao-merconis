@@ -1,16 +1,13 @@
 <!-- indexer::stop -->
-<div class="quantityInput">
+<div class="add-to-cart-container<?php echo $this->showInputQuantity ? '' : ' empty'; ?>">
 	<?php if ($this->showInputQuantity): ?>
-		<form action="<?php echo ampersand(\Environment::get('request')); ?>" method="post" enctype="application/x-www-form-urlencoded">
-			<div>
-				<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
-				<input type="hidden" name="FORM_SUBMIT" value="<?php echo $this->str_formSubmitValue; ?>">
-				<input type="hidden" name="productVariantID" value="<?php echo $this->str_productVariantId; ?>">
-				<div class="inputQuantity">
-					<div class="quantityWrapper sameLine"><?php echo $this->str_widget_inputQuantity; ?></div>
-					<button type="submit" class="submit sameLine"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText005']; ?></button>
-				</div>
-			</div>
+		<form class="add-to-cart" action="<?php echo ampersand(\Environment::get('request')); ?>" method="post" enctype="application/x-www-form-urlencoded">
+            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+            <input type="hidden" name="FORM_SUBMIT" value="<?php echo $this->str_formSubmitValue; ?>">
+            <input type="hidden" name="productVariantID" value="<?php echo $this->str_productVariantId; ?>">
+
+            <?php echo $this->str_widget_inputQuantity; ?>
+            <button type="submit" class="submit"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText005']; ?></button>
 		</form>
 	<?php endif; ?>
 </div>
