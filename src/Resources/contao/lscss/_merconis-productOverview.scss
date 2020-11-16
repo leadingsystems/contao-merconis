@@ -6,4 +6,13 @@
   .bottomWrapper {
     margin-top: $grid-gutter-width-super-small;
   }
+
+  .oldPrice {
+    text-decoration: line-through;
+    color: $ls-color-red;
+  }
+
+  .currentPrice {
+    font-weight: $ls-font-weight-bold;
+  }
 }
