@@ -151,7 +151,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // ##### CONFIGURATOR ###### -> ?>
                 <?php if ($this->objProduct->_hasConfigurator) { ?>
                     <?php if (!$this->objProduct->_hasVariants || $this->objProduct->_variantIsSelected) { ?>
-                        <div class="configuratorContainer">
+                        <div class="configurator-container">
                             <?php echo $obj_tmp_productOrVariant->_configurator ? $obj_tmp_productOrVariant->_configurator : ''; ?>
                         </div>
                     <?php } ?>
@@ -160,7 +160,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
                 <?php // ##### CONTACT FORM ###### -> ?>
 
-                <div class="contactProduct">
+                <div class="contact-product">
                     <h2>Sie haben Fragen zum Produkt?</h2>
                     <p>{{insert_form::merconis-contact-product}}</p>
                 </div>

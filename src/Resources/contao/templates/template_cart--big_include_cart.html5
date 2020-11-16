@@ -133,7 +133,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 
                     <?php if ($objProduct->_hasConfigurator) { ?>
                         <div class="configuratorRepresentation">
-                            <?php echo $objProduct->_configuratorWithCartRepresentation; ?>
+                            <?php echo $objProduct->_configuratorCartRepresentation; ?>
                         </div>
                     <?php } ?>
 

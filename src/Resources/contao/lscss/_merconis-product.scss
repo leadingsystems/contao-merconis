@@ -175,6 +175,12 @@
     padding-bottom: $grid-gutter-width-super-small;
   }
 
+  .configurator-container,
+  .contact-product,
+  .description {
+    margin-top: $grid-gutter-width;
+  }
+
   .backButton {
     & > a::before {
       @extend .fas;
