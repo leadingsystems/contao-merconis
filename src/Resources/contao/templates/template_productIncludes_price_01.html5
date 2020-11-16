@@ -8,7 +8,31 @@ if ($this->objProduct->_variantIsSelected) {
 ?>
 
 <div class="priceContainer">
-	<div class="currentPrice">
+    <?php if ($obj_tmp_productOrVariant->_hasOldPrice) { ?>
+        <div class="oldPrice">
+            <?php
+            /*
+             * Either a variant is selected or, if it isn't, the product does not have different old variant prices. In both cases we have a precise old price to display
+             */
+            if ($this->objProduct->_variantIsSelected || !$this->objProduct->_oldPricesAreDifferent) {
+                ?>
+                <?php echo $obj_tmp_productOrVariant->_priceOldAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                <?php
+            }
+
+            /*
+             * No variant is selected and the product has different old variant prices which means that we have to show something like "from [minimum old price]"
+             */
+            else {
+                ?>
+                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php echo $obj_tmp_productOrVariant->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                <?php
+            }
+            ?>
+        </div>
+    <?php } ?>
+
+    <div class="currentPrice">
 		<?php // unscaled price output -> ?>
 		<div class="unscaledSinglePrice">
 			<?php
@@ -27,35 +51,47 @@ if ($this->objProduct->_variantIsSelected) {
 				</div>
 			<?php } ?>
 			<div class="finalPrice">
-				<span class="label"></span>
-				<span class="value">
-					<?php
-						/*
-						 * Either a variant is selected or, if it isn't, the product does not have different variant prices. In both cases we have a precise price to display
-						 */
-						if ($this->objProduct->_variantIsSelected || !$this->objProduct->_unscaledPricesAreDifferent) {
-							?>
-							<?php echo $obj_tmp_productOrVariant->_unscaledPriceAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-							<div class="quantityComparison">
-								<?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText('_unscaledPriceAfterTax'); ?>
-							</div>
-							<?php
-						}
-						
-						/*
-						 * No variant is selected and the product has different variant prices which means that we have to show something like "from [minimum price]"
-						 */
-						else {
-							?>
-							<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php echo $obj_tmp_productOrVariant->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-							<div class="quantityComparison">
-								<?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText('_unscaledPriceMinimumAfterTax'); ?>
-							</div>
-							<?php
-						}
-					?>
-				</span>
+                <?php
+                    /*
+                     * Either a variant is selected or, if it isn't, the product does not have different variant prices. In both cases we have a precise price to display
+                     */
+                    if ($this->objProduct->_variantIsSelected || !$this->objProduct->_unscaledPricesAreDifferent) {
+                        ?>
+                        <?php echo $obj_tmp_productOrVariant->_unscaledPriceAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                        <?php
+                    }
+
+                    /*
+                     * No variant is selected and the product has different variant prices which means that we have to show something like "from [minimum price]"
+                     */
+                    else {
+                        ?>
+                        <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php echo $obj_tmp_productOrVariant->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                        <?php
+                    }
+                ?>
 			</div>
+            <div class="quantityComparison">
+                <?php
+                /*
+                 * Either a variant is selected or, if it isn't, the product does not have different variant prices. In both cases we have a precise price to display
+                 */
+                if ($this->objProduct->_variantIsSelected || !$this->objProduct->_unscaledPricesAreDifferent) {
+                    ?>
+                    <?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText('_unscaledPriceAfterTax'); ?>
+                    <?php
+                }
+
+                /*
+                 * No variant is selected and the product has different variant prices which means that we have to show something like "from [minimum price]"
+                 */
+                else {
+                    ?>
+                    <?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText('_unscaledPriceMinimumAfterTax'); ?>
+                    <?php
+                }
+                ?>
+            </div>
 		</div>
 		<?php // <- unscaled price output ?>
 		
@@ -104,6 +140,7 @@ if ($this->objProduct->_variantIsSelected) {
 			) {
 				?>
 				<section
+                        class="scale-prices"
                         data-lsjs-component="elementFolder"
                         data-lsjs-elementFolderOptions="
                          {
@@ -112,7 +149,7 @@ if ($this->objProduct->_variantIsSelected) {
                          "
                         id="scalePrices_<?php echo $this->objProduct->_id; ?>"
                 >
-					<div data-lsjs-element="elementFolderToggler"><i class="fi fi-scalePrice"></i><span class=""><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['showScalePrices']; ?></span></div>
+					<div data-lsjs-element="elementFolderToggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['showScalePrices']; ?></div>
 					<div data-lsjs-element="elementFolderContent">
 						<div class="scalePriceInformation <?php echo $obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator ? 'pricesInfluencedByConfigurator' : 'pricesNotInfluencedByConfigurator'; ?>">
 							<?php
@@ -122,55 +159,61 @@ if ($this->objProduct->_variantIsSelected) {
 								?>
 								<div class="scalePriceStep <?php echo ($count % 2 ? 'odd' : 'even').($count == 1 ? ' first' : '').($count == count($obj_tmp_productOrVariant->_scalePricesOutput) + 1 ? ' last' : ''); ?>">
 									<div class="scalePriceStepMinQuantity">
-										<span><?php echo $arrStep['minQuantity']; ?></span>
+                                        <?php echo $arrStep['minQuantity']; ?>
 									</div>
-									<?php
-									if (
-										// we have a configuration which affects the price
-										$obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator
-									) {
-										?>
-										<div class="basePrice">
-											<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['basePrice']; ?>:</span>
-											<span class="value"><?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
-										</div>
-										<div class="configuratorPrice">
-											<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['configuratorPrice']; ?>:</span>
-											<span class="value"><?php echo $arrStep['priceConfigurator']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
-										</div>
-									<?php } ?>
-									<div class="finalPrice">
-										<div class="value"><span>
-											<?php
-											if (
-												// we have a configuration which affects the price
-												$obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator
-											) {
-												?>
-												<?php echo $arrStep['priceConfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-												<?php
-												if ($this->objProduct->_hasQuantityComparisonUnit) {
-													?>
-													<div class="quantityComparison">
-														<?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText($arrStep['priceConfiguredUnformatted']); ?>
-													</div>
-													<?php
-												}
-												?>
-											<?php } else { ?>
-												<?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-												<?php
-												if ($this->objProduct->_hasQuantityComparisonUnit) {
-													?>
-													<div class="quantityComparison">
-														<?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText($arrStep['priceUnconfiguredUnformatted']); ?>
-													</div>
-													<?php
-												}
-												?>
-											<?php } ?>
-										</span></div>
-									</div>
+                                    <div class="scalePriceStepPrice">
+                                        <?php
+                                        if (
+                                            // we have a configuration which affects the price
+                                            $obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator
+                                        ) {
+                                            ?>
+                                            <div class="basePrice">
+                                                <span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['basePrice']; ?>:</span>
+                                                <span class="value"><?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
+                                            </div>
+                                            <div class="configuratorPrice">
+                                                <span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['configuratorPrice']; ?>:</span>
+                                                <span class="value"><?php echo $arrStep['priceConfigurator']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
+                                            </div>
+                                        <?php } ?>
+                                        <div class="finalPrice">
+                                            <?php
+                                            if (
+                                                // we have a configuration which affects the price
+                                                $obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator
+                                            ) {
+                                                ?>
+                                                <?php echo $arrStep['priceConfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                                            <?php } else { ?>
+                                                <?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                                            <?php } ?>
+                                        </div>
+                                        <div class="quantityComparison">
+                                            <?php
+                                            if (
+                                                // we have a configuration which affects the price
+                                                $obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator
+                                            ) {
+                                                ?>
+                                                <?php
+                                                if ($obj_tmp_productOrVariant->_hasQuantityComparisonUnit) {
+                                                    ?>
+                                                    <?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText((float) $arrStep['priceConfiguredUnformatted']); ?>
+                                                    <?php
+                                                }
+                                                ?>
+                                            <?php } else { ?>
+                                                <?php
+                                                if ($obj_tmp_productOrVariant->_hasQuantityComparisonUnit) {
+                                                    ?>
+                                                    <?php echo $obj_tmp_productOrVariant->_getQuantityComparisonText((float) $arrStep['priceUnconfiguredUnformatted']); ?>
+                                                    <?php
+                                                }
+                                                ?>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
 								</div>
 								<?php
 							}
@@ -183,34 +226,11 @@ if ($this->objProduct->_variantIsSelected) {
 		?>
 		<?php // <- scale price information ?>
 	</div>
-	
 
-	<?php if ($obj_tmp_productOrVariant->_hasOldPrice): ?>
-		<div class="oldPrice">
-			<?php
-				/*
-				 * Either a variant is selected or, if it isn't, the product does not have different old variant prices. In both cases we have a precise old price to display
-				 */
-				if ($this->objProduct->_variantIsSelected || !$this->objProduct->_oldPricesAreDifferent) {
-					?>
-					<?php echo $obj_tmp_productOrVariant->_priceOldAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-					<?php
-				}
-				
-				/*
-				 * No variant is selected and the product has different old variant prices which means that we have to show something like "from [minimum old price]"
-				 */
-				else {
-					?>
-					<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php echo $obj_tmp_productOrVariant->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-					<?php
-				}
-			?>
-		</div>
-	<?php endif; ?>
-
-	<div class="taxInfo"><?php echo $obj_tmp_productOrVariant->_taxInfo; ?></div>
-	<div class="shippingInfo"><?php echo $obj_tmp_productOrVariant->_shippingInfo; ?></div>
+    <div class="tax-and-shipping-info">
+        <div class="taxInfo"><?php echo $obj_tmp_productOrVariant->_taxInfo; ?></div>
+        <div class="shippingInfo"><?php echo $obj_tmp_productOrVariant->_shippingInfo; ?></div>
+    </div>
 	<?php if ($obj_tmp_productOrVariant->_objConfigurator->arrData['stayInDataEntryMode'] || !$obj_tmp_productOrVariant->_configuratorInDataEntryMode): ?>
 		<?php if ($obj_tmp_productOrVariant->_orderAllowed && $obj_tmp_productOrVariant->_hasQuantityInput): ?>
 			<?php echo str_replace('type="text"', 'type="number" min="1"', $obj_tmp_productOrVariant->_quantityInput); ?>

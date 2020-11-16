@@ -40,6 +40,7 @@
   @include ls_contentWrapper;
 
   .shop-product {
+    margin-top: $grid-gutter-width-small;
     @include make-row();
 
     .wrapper-gallery {
@@ -67,15 +68,87 @@
 
   .wrapper-gallery {
     position: relative;
+
+    .wrapper-gallery-inside {
+      position: relative;
+    }
   }
+
+  .priceContainer {
+    text-align: right;
+  }
+
   .oldPrice {
     font-size: $ls-font-size-h3;
+    @include ls_decreaseFontSizes($ls-font-size-h3);
     text-decoration: line-through;
     color: $ls-color-red;
   }
-  .currentPrice {
+  .finalPrice {
     font-size: $ls-font-size-h1;
+    @include ls_decreaseFontSizes($ls-font-size-h1);
   }
+
+  .basePrice,
+  .configuratorPrice {
+    font-size: $ls-font-size-h4;
+    @include ls_decreaseFontSizes($ls-font-size-h4);
+  }
+
+  .scale-prices {
+    margin-top: $grid-gutter-width-super-small;
+
+    .finalPrice {
+      font-size: $ls-font-size-h3;
+      @include ls_decreaseFontSizes($ls-font-size-h3);
+    }
+
+    .basePrice,
+    .configuratorPrice {
+      font-size: $ls-font-size-body;
+      @include ls_decreaseFontSizes($ls-font-size-body);
+    }
+
+    [data-lsjs-element="elementFolderToggler"] {
+      cursor: pointer;
+
+      &::before {
+        @extend .fas;
+        margin-right: 0.5rem;
+      }
+
+      &.lsUnfoldClosed,
+      &.lsUnfoldOpen.lsUnfoldRunning {
+        &::before {
+          content: fa-content($fa-var-caret-square-down);
+        }
+      }
+
+      &.lsUnfoldOpen,
+      &.lsUnfoldClosed.lsUnfoldRunning {
+        &::before {
+          content: fa-content($fa-var-caret-square-up);
+        }
+      }
+    }
+
+    .scalePriceStep {
+      margin-top: $grid-gutter-width-super-small;
+      border-top: 0.1rem dotted $ls-color-dark-grey;
+      padding-top: $grid-gutter-width-super-small;
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+  .tax-and-shipping-info {
+    margin-top: $grid-gutter-width-super-small;
+  }
+
+  .deliveryMessageContainer {
+    margin-top: $grid-gutter-width-super-small;
+  }
+
   .hasBeenPutInCart {
     @include ls_autohideCenterMessage;
   }

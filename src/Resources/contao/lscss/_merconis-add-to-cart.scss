@@ -1,4 +1,6 @@
 .add-to-cart-container {
+  margin-top: $grid-gutter-width-super-small;
+
   &.empty {
     display: none;
   }

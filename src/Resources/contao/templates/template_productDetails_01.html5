@@ -41,7 +41,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
     <div class="shop-product">
         <div class="wrapper-gallery">
-            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+            <div class="wrapper-gallery-inside ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                  id="ajaxReloadByVariantSelector_1_<?php echo $this->objProduct->_id; ?>">
 
                 <?php echo $str_html_statusIcons ?: ''; ?>
@@ -150,28 +150,11 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
                 <?php // ##### CONFIGURATOR ###### -> ?>
                 <?php if ($this->objProduct->_hasConfigurator) { ?>
-                    <section
-                            data-lsjs-component="elementFolder"
-                            data-lsjs-elementFolderOptions="
-                                     {
-                                        str_initialCookieStatus: 'closed'
-                                     }
-                                     "
-                            id="configurator_<?php echo $this->objProduct->_id; ?>"
-                            class=""
-                    >
-                        <div data-lsjs-element="elementFolderToggler"><i
-                                    class="fi fi-configuration"></i><span
-                                    class=""><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText075']; ?></span>
+                    <?php if (!$this->objProduct->_hasVariants || $this->objProduct->_variantIsSelected) { ?>
+                        <div class="configuratorContainer">
+                            <?php echo $obj_tmp_productOrVariant->_configurator ? $obj_tmp_productOrVariant->_configurator : ''; ?>
                         </div>
-                        <div data-lsjs-element="elementFolderContent">
-                            <?php if (!$this->objProduct->_hasVariants || $this->objProduct->_variantIsSelected) { ?>
-                                <div class="configuratorContainer">
-                                    <?php echo $obj_tmp_productOrVariant->_configurator ? $obj_tmp_productOrVariant->_configurator : ''; ?>
-                                </div>
-                            <?php } ?>
-                        </div>
-                    </section>
+                    <?php } ?>
                 <?php } ?>
                 <?php // <- ##### CONFIGURATOR ###### ?>
 
