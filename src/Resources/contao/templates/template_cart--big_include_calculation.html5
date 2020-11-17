@@ -12,7 +12,7 @@ $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
 ?>
 
 <div id="checkoutStepCalculation" class="<?php echo $bln_reviewMode ? ' review' : ''; ?>">
-    <h3><i class="icon icon-rechnung_01"></i>
+    <h3><i class="lsi lsi-payment-01"></i>
         <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText023']; ?>
     </h3>
 
@@ -63,7 +63,7 @@ $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
                     <div class="field">
                         <div class="field-label">
                             <?php if (!$bln_reviewMode) { ?>
-                                <span data-lsjs-element="toggler"><i class="icon icon-eingeben_01"></i></span>
+                                <span data-lsjs-element="toggler"><i class="lsi lsi-pen-01"></i></span>
                             <?php } ?>
                             <?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text012']; ?>
                         </div>

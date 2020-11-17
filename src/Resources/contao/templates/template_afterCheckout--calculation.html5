@@ -8,7 +8,7 @@
 
 <?php // ########## CALCULATION ##########?>
 <div id="checkoutStepCalculation">
-    <h3><i class="icon icon-rechnung_01"></i>
+    <h3><i class="lsi lsi-payment-01"></i>
         <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText023']; ?>
     </h3>
 

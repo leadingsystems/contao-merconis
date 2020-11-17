@@ -7,7 +7,7 @@
 ?>
 
 <div id="checkoutStepPayment">
-	<h3><i class="icon icon-zahlung_01"></i>
+	<h3><i class="lsi lsi-wallet-01"></i>
 		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText011']; ?>
 		<?php if (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee'][0]) { ?>
 			<span class="feeValue">(+ <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee'][0]); ?>)</span>

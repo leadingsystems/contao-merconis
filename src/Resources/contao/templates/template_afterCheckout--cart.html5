@@ -8,7 +8,7 @@
 <?php // ########## PRODUCTS IN CART ########## ?>
 <div id="checkoutStepCart">
     <h3>
-        <i class="icon icon-warenkorb_03"></i>
+        <i class="lsi lsi-shopping-bag-01"></i>
         <?php
         if ($bln_orderDetailMode) {
             echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText084'], \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $this->arrOrder['orderDateUnixTimestamp']));

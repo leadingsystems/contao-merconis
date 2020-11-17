@@ -2,7 +2,7 @@
 <div id="cart-big" class="<?php echo $this->strTemplate ?>">
     <div id="checkout-content" class="order-overview">
         <div id="checkoutStepCustomerDataReview">
-            <h3><i class="icon icon-sprache_02"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData'][$this->arr_data['useDeviantShippingAddress'] ? 'billingAddress' : 'billingAndShippingAddress']; ?></h3>
+            <h3><i class="lsi lsi-location-02"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData'][$this->arr_data['useDeviantShippingAddress'] ? 'billingAddress' : 'billingAndShippingAddress']; ?></h3>
             <div class="content">
                 <?php echo $this->arrRequiredCheckoutData['customerDataReview']; ?>
             </div>
@@ -13,7 +13,7 @@
         if ($this->arrRequiredCheckoutData['paymentMethodAdditionalDataReview']) {
             ?>
             <div id="checkoutStepPaymentDataReview">
-                <h3><i class="icon icon-zahlung_01"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline']; ?> <?php echo \Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info']['title']; ?></h3>
+                <h3><i class="lsi lsi-wallet-01"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline']; ?> <?php echo \Merconis\Core\ls_shop_cartX::getInstance()->calculation['paymentFee']['info']['title']; ?></h3>
                 <div class="content">
                     <?php echo $this->arrRequiredCheckoutData['paymentMethodAdditionalDataReview']; ?>
                 </div>
@@ -25,7 +25,7 @@
         if ($this->arrRequiredCheckoutData['shippingMethodAdditionalDataReview']) {
             ?>
             <div id="checkoutStepShippingDataReview">
-                <h3><i class="icon icon-schnelle-lieferung_01"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['shippingData']['headline']; ?> <?php echo \Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee']['info']['title']; ?></h3>
+                <h3><i class="lsi lsi-delivery-03"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['shippingData']['headline']; ?> <?php echo \Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee']['info']['title']; ?></h3>
                 <div class="content">
                     <?php echo $this->arrRequiredCheckoutData['shippingMethodAdditionalDataReview']; ?>
                 </div>

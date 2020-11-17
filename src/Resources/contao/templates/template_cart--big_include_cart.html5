@@ -33,7 +33,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 <?php // ########## PRODUCTS IN CART ########## ?>
 <div id="checkoutStepCart" class="<?php echo $bln_reviewMode ? ' review' : ''; ?>">
 	<h3>
-        <i class="icon icon-warenkorb_03"></i>
+        <i class="lsi lsi-shopping-bag-01"></i>
 		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText008-01']; ?>
 	</h3>
 

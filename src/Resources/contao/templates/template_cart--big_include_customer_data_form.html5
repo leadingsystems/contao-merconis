@@ -10,7 +10,7 @@
 if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
 	?>
 	<div id="checkoutStepLogin">
-		<h3><i class="icon icon-sprache_02"></i>
+		<h3><i class="lsi lsi-location-02"></i>
 			<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText136']; ?>
 		</h3>
 		<div>
@@ -55,7 +55,7 @@ if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
     data-misc-form-reviewer-toggler-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText138']; ?>"
 	data-lsjs-component="customerDataForm formReviewer"
 >
-	<h3><i class="icon icon-meinshop_01"></i>
+	<h3><i class="lsi lsi-house-02"></i>
 		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText010']; ?>
 	</h3>
 

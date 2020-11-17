@@ -12,7 +12,7 @@
     data-misc-form-reviewer-toggler-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText139']; ?>"
 	data-misc-close-form-initially="<?php echo $this->arrRequiredCheckoutData['shippingMethodDataIsValid'] ? '1' : ''; ?>"
 >
-	<h3><i class="icon icon-schnelle-lieferung_01"></i>
+	<h3><i class="lsi lsi-delivery-03"></i>
 		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText012']; ?>
 		<?php if (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee'][0]) { ?>
 			<span class="feeValue">(+ <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee'][0]); ?>)</span>
