@@ -64,6 +64,11 @@
 		<div
 			class="variantSelector"
 			data-merconis-component="variantSelector"
+			data-merconis-variantSelectorOptions="
+			{
+			    interfaceType: 'compact'
+            }
+            "
 			data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
 			data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
 		>

@@ -1,17 +1,5 @@
-.variantSelectorInstance.main {
-  @include make-row();
-
+.variant-selector-interface {
   .attributeBox {
-    margin-top: $grid-gutter-width;
-
-    @include make-col-ready();
-    @include media-breakpoint-up(11) {
-      @include make-col(6);
-    }
-    @include media-breakpoint-up(16) {
-      @include make-col(4);
-    }
-
     .selection-required {
       color: $ls-color-red;
 
@@ -19,27 +7,59 @@
         visibility: hidden;
       }
     }
-
     .value {
       padding: $grid-gutter-width-super-small;
+      margin-left: $grid-gutter-width-small;
       position: relative;
-      border-left: 0.1rem solid transparent;
       cursor: pointer;
-    }
-    .value:not([data-lsjs-class*="possible"]) {
-      opacity: .3;
-    }
-    .value[data-lsjs-class*="selected"],
-    .value[data-lsjs-class*="only-option"]{
-      cursor: default;
-      position: relative;
 
-      &::before {
-        @extend .fas;
-        content: fa-content($fa-var-check);
-        position: absolute;
-        left: -1rem;
-        top: 1.9rem;
+      &:not([data-lsjs-class*="possible"]):not(:hover) {
+        opacity: .3;
+      }
+
+      &[data-lsjs-class*="selected"],
+      &[data-lsjs-class*="only-option"]{
+        cursor: default;
+        position: relative;
+
+        &::before {
+          @extend .fas;
+          content: fa-content($fa-var-check);
+          position: absolute;
+          left: -1rem;
+          top: 1.9rem;
+        }
+      }
+    }
+  }
+
+  &.standard {
+    @include make-row();
+
+    .attributeBox {
+      margin-top: $grid-gutter-width;
+
+      @include make-col-ready();
+      @include media-breakpoint-up(11) {
+        @include make-col(6);
+      }
+      @include media-breakpoint-up(16) {
+        @include make-col(4);
+      }
+    }
+  }
+
+  &.compact {
+    .attributeBox {
+      border: 0.1rem solid $ls-color-black;
+      padding: $grid-gutter-width-super-small;
+
+      .attribute-headline {
+        cursor: pointer;
+      }
+
+      .selection-required {
+        cursor: pointer;
       }
     }
   }
