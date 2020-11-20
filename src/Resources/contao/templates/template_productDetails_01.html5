@@ -11,12 +11,15 @@ global $objPage;
 
 /*
  * ######################################################################################################
- * Warning: Do no use this if you're using the lsjs variant selector because it won't play well together!
- * Only activate this code if you want to implement your own variant selection handling and if you know
- * exactly what you're doing!
- *
- * $this->objProduct->_preselectVariantIfPossible();
- *
+ * Important: You can deactivate variant preselection by removing the following lines of code entirely.
+ * Apart from that, please do not change the following lines of code unless you know exactly what you're doing!
+ */
+if (!$_SESSION['merconis']['tmp']['variantSelector']['bln_preventVariantPreselection']) {
+    $this->objProduct->_preselectVariantIfPossible();
+} else {
+    unset($_SESSION['merconis']['tmp']['variantSelector']['bln_preventVariantPreselection']);
+}
+ /*
  * ######################################################################################################
  */
 
