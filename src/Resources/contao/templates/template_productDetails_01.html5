@@ -87,8 +87,8 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 </div>
 
                 <?php // ##### VARIANT TITLE ###### -> ?>
-                <?php if ($this->objProduct->_variantIsSelected && $this->objProduct->_hasOriginalTitle) { ?>
-                    <p class="variantTitle"> <?php echo $this->objProduct->_selectedVariant->_title; ?></p>
+                <?php if ($this->objProduct->_variantIsSelected && $this->objProduct->_selectedVariant->_hasOriginalTitle) { ?>
+                    <p class="variantTitle"><?php echo $this->objProduct->_selectedVariant->_title; ?></p>
                 <?php } ?>
                 <?php // <- ##### VARIANT TITLE ###### ?>
 
