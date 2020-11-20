@@ -9,7 +9,8 @@
   .value:not([data-lsjs-class*="possible"]) {
     opacity: .3;
   }
-  .value[data-lsjs-class*="selected"] {
+  .value[data-lsjs-class*="selected"],
+  .value[data-lsjs-class*="only-option"]{
     border: 0.1rem solid $ls-color-grey;
     border-left: 0.1rem solid;
     cursor: default;
