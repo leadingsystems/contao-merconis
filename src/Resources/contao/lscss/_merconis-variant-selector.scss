@@ -1,18 +1,46 @@
-.variantSelectorInstance .attributeBox {
-  width: 100%;
-  .value {
-    padding: $grid-gutter-width-super-small;
-    position: relative;
-    border-left: 0.1rem solid transparent;
-    cursor: pointer;
-  }
-  .value:not([data-lsjs-class*="possible"]) {
-    opacity: .3;
-  }
-  .value[data-lsjs-class*="selected"],
-  .value[data-lsjs-class*="only-option"]{
-    border: 0.1rem solid $ls-color-grey;
-    border-left: 0.1rem solid;
-    cursor: default;
+.variantSelectorInstance.main {
+  @include make-row();
+
+  .attributeBox {
+    margin-top: $grid-gutter-width;
+
+    @include make-col-ready();
+    @include media-breakpoint-up(11) {
+      @include make-col(6);
+    }
+    @include media-breakpoint-up(16) {
+      @include make-col(4);
+    }
+
+    .selection-required {
+      color: $ls-color-red;
+
+      &:not([data-lsjs-class="show"]) {
+        visibility: hidden;
+      }
+    }
+
+    .value {
+      padding: $grid-gutter-width-super-small;
+      position: relative;
+      border-left: 0.1rem solid transparent;
+      cursor: pointer;
+    }
+    .value:not([data-lsjs-class*="possible"]) {
+      opacity: .3;
+    }
+    .value[data-lsjs-class*="selected"],
+    .value[data-lsjs-class*="only-option"]{
+      cursor: default;
+      position: relative;
+
+      &::before {
+        @extend .fas;
+        content: fa-content($fa-var-check);
+        position: absolute;
+        left: -1rem;
+        to: 1.9rem;
+      }
+    }
   }
 }
