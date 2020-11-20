@@ -1,4 +1,6 @@
 <?php
+    $bln_calledFromLsjsVariantSelector = false;
+
 	if ($this->objProduct->_hasVariants) {
 		/*
 		 * Create a variant selection form
@@ -25,6 +27,7 @@
 			||	\Input::post('FORM_SUBMIT') == 'variantSelectionForm_'.$this->objProduct->_productVariantID
 		) {
 			if (\Input::post('json_attributeValueSelection')) {
+                $bln_calledFromLsjsVariantSelector = true;
 				$arrRequestedAttributeValues = json_decode(\Input::post('json_attributeValueSelection'), true);
 			} else {
 				$arrRequestedAttributeValues = array();
@@ -33,12 +36,27 @@
 				}
 			}
 
-			$objMatchingVariant = $this->objProduct->_getVariantByAttributeValues($arrRequestedAttributeValues);
-			if ($objMatchingVariant !== null) {
-				$this->redirect($objMatchingVariant->_linkToVariant);
-			} else {
-				$blnNoVariantFound = true;
-			}
+			$var_matchingVariant = $this->objProduct->_getVariantByAttributeValues($arrRequestedAttributeValues, $bln_calledFromLsjsVariantSelector ? false : true);
+
+            if ($bln_calledFromLsjsVariantSelector) {
+                if (count($var_matchingVariant) === 1) {
+                    $obj_matchingVariant = $var_matchingVariant[0];
+                    // exactly one variant found (in lsjs context) or first variant of many returned (in non-lsjs context) => redirect to the variant
+                    $this->redirect($obj_matchingVariant->_linkToVariant);
+                } else {
+                    // more than one or no variant found, redirect to the product without selected variant
+                    $this->redirect($this->objProduct->_linkToProduct);
+                }
+            } else {
+                if (is_object($var_matchingVariant)) {
+                    // found one or more variants, returned the next best variant => redirect to the variant
+                    $this->redirect($var_matchingVariant->_linkToVariant);
+                } else {
+                    // no variant found, don't redirect anywhere. Show frontend message in this case.
+                    $blnNoVariantFound = true;
+                }
+            }
+
 		}
 		?>
 

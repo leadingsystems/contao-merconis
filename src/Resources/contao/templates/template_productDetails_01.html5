@@ -9,7 +9,16 @@ global $objPage;
 # echo $this->objProduct->_variants[key($this->objProduct->_variants)]->_outputOptions;
 # exit;
 
-$this->objProduct->_preselectVariantIfPossible();
+/*
+ * ######################################################################################################
+ * Warning: Do no use this if you're using the lsjs variant selector because it won't play well together!
+ * Only activate this code if you want to implement your own variant selection handling and if you know
+ * exactly what you're doing!
+ *
+ * $this->objProduct->_preselectVariantIfPossible();
+ *
+ * ######################################################################################################
+ */
 
 if ($this->objProduct->_variantIsSelected) {
     $obj_tmp_productOrVariant = &$this->objProduct->_selectedVariant;
