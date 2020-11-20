@@ -376,8 +376,17 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				return $this->_linkToVariant;
 				break;
 
+            case '_originalTitle':
+                $title = $this->currentLanguageData['title'] ? $this->currentLanguageData['title'] : $this->mainData['title'];
+                return $title;
+                break;
+
+            case '_hasOriginalTitle':
+                return $this->_originalTitle ? true : false;
+                break;
+
 			case '_title':
-				$title = $this->currentLanguageData['title'] ? $this->currentLanguageData['title'] : $this->mainData['title'];
+				$title = $this->_originalTitle;
 				if (!$title) {
 					/*-->
 					 * Unklar, ob es Sinn macht, die Produktbezeichnung hier für die Erzeugung der Variantenbezeichnung ebenfalls zu verwenden.

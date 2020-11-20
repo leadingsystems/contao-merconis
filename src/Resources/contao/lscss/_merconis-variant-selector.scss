@@ -1,12 +1,18 @@
 .variant-selector-interface {
   .attributeBox {
-    .selection-required {
-      color: $ls-color-red;
+    .attribute-header {
+      .selected-value-info {
+        display: block;
+        height: 3rem;
+        overflow: hidden;
+        transition: height 0.6s ease-out;
 
-      &:not([data-lsjs-class="show"]) {
-        visibility: hidden;
+        &.selection-required {
+          color: $ls-color-red;
+        }
       }
     }
+
     .value {
       padding: $grid-gutter-width-super-small;
       margin-left: $grid-gutter-width-small;
@@ -46,20 +52,42 @@
       @include media-breakpoint-up(16) {
         @include make-col(4);
       }
+
+      .attribute-header {
+        .selected-value-info {
+          &:not(.selection-required) {
+            display: none;
+          }
+        }
+      }
     }
   }
 
-  &.compact {
+  &.folded {
     .attributeBox {
-      border: 0.1rem solid $ls-color-black;
-      padding: $grid-gutter-width-super-small;
+      //border: 0.1rem solid $ls-color-black;
+      //padding: $grid-gutter-width-super-small;
+
+      &:not(:first-child) {
+        margin-top: $grid-gutter-width-small;
+      }
+
+      &.lsUnfoldOpen:not(.lsUnfoldRunning),
+      &.lsUnfoldClosed.lsUnfoldRunning{
+        .attribute-header {
+          .selected-value-info {
+            height: 0;
+          }
+        }
+      }
 
       .attribute-headline {
         cursor: pointer;
+        border-bottom: 0.1rem solid $ls-color-black;
       }
 
-      .selection-required {
-        cursor: pointer;
+      .selected-value-info {
+          cursor: pointer;
       }
     }
   }

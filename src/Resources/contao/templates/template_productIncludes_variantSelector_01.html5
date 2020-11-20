@@ -66,7 +66,7 @@
 			data-merconis-component="variantSelector"
 			data-merconis-variantSelectorOptions="
 			{
-			    interfaceType: 'compact'
+			    interfaceType: 'folded'
             }
             "
 			data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
