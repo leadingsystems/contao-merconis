@@ -156,7 +156,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // ##### DESCRIPTION ###### -> ?>
 
                 <div class="description">
-                    <p><?php echo $obj_tmp_productOrVariant->_description; ?></p>
+                    <p><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></p>
                 </div>
                 <?php // <- ##### DESCRIPTION ###### ?>
 
