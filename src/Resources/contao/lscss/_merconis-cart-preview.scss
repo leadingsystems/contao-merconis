@@ -12,6 +12,7 @@
 
 #off-canvas-cart-preview-container-inside {
   @include ls_narrowContentWrapper;
+  max-width: unset;
   position: relative;
   background-color: $ls-color-white;
   padding: 5rem;
