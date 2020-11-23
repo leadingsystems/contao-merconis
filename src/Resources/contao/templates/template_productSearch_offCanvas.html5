@@ -5,7 +5,7 @@
 			<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
 			<input type="hidden" name="FORM_SUBMIT" value="merconisProductSearch">
 			<?php echo $this->str_widget_searchWord; ?>
-			<button type="submit" class="submit"></button>
+			<button type="submit" class="submit no-button"></button>
 		</div>
 	</form>
 </div>
