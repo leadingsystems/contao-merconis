@@ -27,6 +27,9 @@ body:not(.lsjs-active) .variantSelector {
   margin-top: $grid-gutter-width;
   .attributeBox {
     .attribute-header {
+      position: relative;
+      @include clearfix;
+
       .selected-value-info {
         display: block;
         height: 3rem;
@@ -36,6 +39,13 @@ body:not(.lsjs-active) .variantSelector {
         &.selection-required {
           color: $ls-color-red;
         }
+      }
+
+      .more-options-info {
+        display: none;
+        height: 3rem;
+        overflow: hidden;
+        transition: height 0.6s ease-out;
       }
     }
 
@@ -51,7 +61,6 @@ body:not(.lsjs-active) .variantSelector {
 
       &[data-lsjs-class*="selected"],
       &[data-lsjs-class*="only-option"]{
-        cursor: default;
         position: relative;
 
         &::before {
@@ -86,6 +95,13 @@ body:not(.lsjs-active) .variantSelector {
           }
         }
       }
+
+      .value {
+        &[data-lsjs-class*="selected"],
+        &[data-lsjs-class*="only-option"] {
+          cursor: default;
+        }
+      }
     }
   }
 
@@ -101,19 +117,30 @@ body:not(.lsjs-active) .variantSelector {
       &.lsUnfoldOpen:not(.lsUnfoldRunning),
       &.lsUnfoldClosed.lsUnfoldRunning{
         .attribute-header {
-          .selected-value-info {
+          .selected-value-info,
+          .more-options-info {
             height: 0;
           }
         }
       }
 
       .attribute-headline {
+        margin: 0;
+        position: relative;
         cursor: pointer;
         border-bottom: 0.1rem solid $ls-color-black;
       }
 
       .selected-value-info {
-          cursor: pointer;
+        cursor: pointer;
+        float: left;
+      }
+
+      .more-options-info {
+        display: block;
+        float: right;
+        text-align: right;
+        cursor: pointer;
       }
     }
   }
