@@ -4951,60 +4951,13 @@ class ls_shop_generalHelper
     }
 
     public static function getBackendLscssStyles() {
-        $str_pathToOutputFile = 'assets/css/lscss4c_backend.css';
-        $str_pathToSourceMapFile = 'assets/css/lscss4c_backend.map';
-        $str_relativePathToSourceMapFile = 'lscss4c_backend.map'; // relative from the css file's perspective
-
-        /*
-         * TODO: Integrating lscss in the backend should not be handled by merconis. It should be handled by lscss4c.
-         * However, since we don't know whether lscss will ever be used in the backend in situations where merconis
-         * isn't present, we don't want to waste any development time right now but instead hardcode the lscss integration
-         * right here. Time will tell if a cleaner approach will become necessary.
-         */
-        $str_scssFileToLoad = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.scss';
-        $bln_lscss4c_noCache = $GLOBALS['TL_CONFIG']['ls_shop_lscssNoCacheMode'];
-        $bln_lscss4c_noMinifier = $GLOBALS['TL_CONFIG']['ls_shop_lscssNoMinifierMode'];
-        $bln_lscss4c_debugMode = $GLOBALS['TL_CONFIG']['ls_shop_lscssDebugMode'];
-
-        if (!file_exists(TL_ROOT . '/' . $str_scssFileToLoad)) {
-            return '';
-        }
-
-        if (
-            !file_exists(TL_ROOT . '/' . $str_pathToOutputFile)
-            || $bln_lscss4c_noCache
-        ) {
-            $str_filePath = $str_scssFileToLoad;
-            $str_dirPath = \dirname($str_filePath);
-
-            $obj_scssCompiler = new \ScssPhp\ScssPhp\Compiler();
-            $obj_scssCompiler->addImportPath(TL_ROOT . '/' . $str_dirPath);
-            $obj_scssCompiler->setFormatter($bln_lscss4c_noMinifier ? \ScssPhp\ScssPhp\Formatter\Nested::class : \ScssPhp\ScssPhp\Formatter\Compressed::class);
-            if ($bln_lscss4c_debugMode) {
-                $obj_scssCompiler->setLineNumberStyle(\ScssPhp\ScssPhp\Compiler::LINE_COMMENTS);
-                $obj_scssCompiler->setSourceMap(\ScssPhp\ScssPhp\Compiler::SOURCE_MAP_FILE);
-                $obj_scssCompiler->setSourceMapOptions([
-                    // absolute path to write .map file
-                    'sourceMapWriteTo'  => TL_ROOT . '/' . $str_pathToSourceMapFile,
-
-                    // relative or full url to the above .map file
-                    'sourceMapURL'      => $str_relativePathToSourceMapFile,
-
-                    // (optional) relative or full url to the .css file
-                    'sourceMapFilename' => $str_pathToOutputFile,
-
-                    // partial path (server root) removed (normalized) to create a relative url
-                    'sourceMapBasepath' => TL_ROOT,
-
-                    // (optional) prepended to 'source' field entries for relocating source files
-                    'sourceRoot'        => '/',
-                ]);
-            }
-
-            file_put_contents(TL_ROOT . '/' . $str_pathToOutputFile, $obj_scssCompiler->compile(file_get_contents(TL_ROOT . '/' . $str_filePath)));
-        }
-
-        return $str_pathToOutputFile;
+        $obj_lscss4cController = \LeadingSystems\Lscss4c\lscss4C_controller::getInstance();
+        return $obj_lscss4cController->getLscss(
+            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.scss',
+            $GLOBALS['TL_CONFIG']['ls_shop_lscssNoCacheMode'],
+            $GLOBALS['TL_CONFIG']['ls_shop_lscssNoMinifierMode'],
+            $GLOBALS['TL_CONFIG']['ls_shop_lscssDebugMode']
+        );
     }
 
     /*
