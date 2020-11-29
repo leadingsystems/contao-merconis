@@ -134,7 +134,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
             <?php // <- ##### WATCH LIST BUTTON ###### ?>
 
             <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
-            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>" id="ajaxReloadByVariantSelector_6_<?php echo $this->objProduct->_id; ?>">
+            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>" id="ajaxReloadByVariantSelector_4_<?php echo $this->objProduct->_id; ?>">
                 <?php
                 if ($obj_tmp_productOrVariant->_stockIsInsufficient) {
                     ?>
@@ -151,11 +151,13 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
         </div>
 
         <div class="wrapper-description">
-            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                 id="ajaxReloadByVariantSelector_5_<?php echo $this->objProduct->_id; ?>">
+            <div>
                 <?php // ##### DESCRIPTION ###### -> ?>
 
-                <div class="description">
+                <div
+                    class="description ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+                    id="ajaxReloadByVariantSelector_5_<?php echo $this->objProduct->_id; ?>"
+                >
                     <p><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></p>
                 </div>
                 <?php // <- ##### DESCRIPTION ###### ?>
@@ -163,7 +165,10 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // ##### CONFIGURATOR ###### -> ?>
                 <?php if ($this->objProduct->_hasConfigurator) { ?>
                     <?php if (!$this->objProduct->_hasVariants || $this->objProduct->_variantIsSelected) { ?>
-                        <div class="configurator-container">
+                        <div
+                            class="configurator-container ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+                            id="ajaxReloadByVariantSelector_6_<?php echo $this->objProduct->_id; ?>"
+                        >
                             <?php echo $obj_tmp_productOrVariant->_configurator ? $obj_tmp_productOrVariant->_configurator : ''; ?>
                         </div>
                     <?php } ?>
