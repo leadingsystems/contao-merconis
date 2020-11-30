@@ -619,7 +619,11 @@ class ls_shop_productManagementApiHelper {
 		return $arr_queryParams;
 	}
 
-	public static function generateProductAlias($str_title, $str_givenAlias = '', $int_productId = 0, $str_language = '', $bln_alwaysAddIdToAlias = true) {
+	public static function generateProductAlias($str_title, $str_givenAlias = '', $int_productId = 0, $str_language = '', $bln_alwaysAddIdToAlias = 'default') {
+	    if ($bln_alwaysAddIdToAlias === 'default') {
+	        $bln_alwaysAddIdToAlias = isset($GLOBALS['TL_CONFIG']['ls_shop_alwaysAddIdToAliasDuringProductImport']) && $GLOBALS['TL_CONFIG']['ls_shop_alwaysAddIdToAliasDuringProductImport'];
+        }
+
 		$str_alias = $str_givenAlias ? $str_givenAlias : \StringUtil::generateAlias($str_title);
 
 		/*
