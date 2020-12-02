@@ -16,13 +16,13 @@
     margin-top: $grid-gutter-width;
 
     @include make-col-ready();
-    @include media-breakpoint-up(6) {
+    @include media-breakpoint-up(6, $grid-breakpoints-ls) {
       @include make-col(6);
     }
-    @include media-breakpoint-up(12) {
+    @include media-breakpoint-up(12, $grid-breakpoints-ls) {
       @include make-col(4);
     }
-    @include media-breakpoint-up(16) {
+    @include media-breakpoint-up(16, $grid-breakpoints-ls) {
       @include make-col(3);
     }
   }
