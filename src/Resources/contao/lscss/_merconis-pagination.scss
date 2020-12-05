@@ -1,0 +1,35 @@
+nav.merconis-pagination {
+  .link-label {
+    display: none;
+  }
+
+  > *:not(:first-child) {
+    margin-left: $grid-gutter-width-super-small;
+  }
+
+  a {
+    &::after {
+      @extend .fas;
+    }
+
+    &:not(.possible) {
+      opacity: 0.3;
+    }
+
+    &.first::after {
+      content: fa-content($fa-var-step-backward);
+    }
+
+    &.previous::after {
+      content: fa-content($fa-var-backward);
+    }
+
+    &.next::after {
+      content: fa-content($fa-var-forward);
+    }
+
+    &.last::after {
+      content: fa-content($fa-var-step-forward);
+    }
+  }
+}

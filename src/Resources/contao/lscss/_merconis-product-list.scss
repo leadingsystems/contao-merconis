@@ -7,6 +7,40 @@
       text-align: right;
     }
   }
+
+  .pagination-and-sorting-container {
+    display: flex;
+    flex-wrap: wrap;
+
+    .pagination-container {
+      margin: auto 0;
+
+    }
+
+    .user-sorting-form {
+      margin-left: auto;
+
+      button.submit {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+    }
+
+    @include media-breakpoint-down(5, $grid-breakpoints-ls) {
+      .pagination-container {
+        margin: $grid-gutter-width-super-small 0 0;
+        width: 100%;
+
+        nav {
+          text-align: center;
+        }
+      }
+
+      .user-sorting-form {
+        margin: $grid-gutter-width-super-small auto 0;
+      }
+    }
+  }
 }
 
 .product-list {

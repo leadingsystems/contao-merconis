@@ -1,19 +1,23 @@
 <!-- indexer::stop -->
-<?php if ($this->allowUserSorting) { ?>
-	<div class="user-sorting-form">
-		<form action="<?php echo \Environment::get('request'); ?>" method="post" onsubmit="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
-            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
-            <input type="hidden" name="FORM_SUBMIT" value="userSorting">
-            <input type="hidden" name="identifyCorrespondingOutputDefinition" value="<?php echo $this->identifyCorrespondingOutputDefinition; ?>">
-            <div class="sorting-field"><?php echo $this->fflSorting; ?></div>
-            <button type="submit" class="submit"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit']; ?></button>
-		</form>
-	</div>
-<?php } ?>
+<?php if ($this->allowUserSorting || $this->pagination) { ?>
+    <div class="pagination-and-sorting-container">
+        <?php if ($this->pagination) { ?>
+            <div class="pagination-container" onclick="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
+                <?php echo $this->pagination; ?>
+            </div>
+        <?php } ?>
 
-<?php if ($this->pagination) { ?>
-    <div class="pagination-container" onclick="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
-        <?php echo $this->pagination; ?>
+        <?php if ($this->allowUserSorting) { ?>
+            <div class="user-sorting-form">
+                <form action="<?php echo \Environment::get('request'); ?>" method="post" onsubmit="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
+                    <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+                    <input type="hidden" name="FORM_SUBMIT" value="userSorting">
+                    <input type="hidden" name="identifyCorrespondingOutputDefinition" value="<?php echo $this->identifyCorrespondingOutputDefinition; ?>">
+                    <div class="sorting-field"><?php echo $this->fflSorting; ?></div>
+                    <button type="submit" class="submit"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit']; ?></button>
+                </form>
+            </div>
+        <?php } ?>
     </div>
 <?php } ?>
 
@@ -30,8 +34,10 @@
 </div>
 
 <?php if ($this->pagination) { ?>
-    <div class="pagination-container">
-        <?php echo $this->pagination; ?>
+    <div class="pagination-and-sorting-container">
+        <div class="pagination-container">
+            <?php echo $this->pagination; ?>
+        </div>
     </div>
 <?php } ?>
 <!-- indexer::continue -->
