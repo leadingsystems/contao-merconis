@@ -1,6 +1,6 @@
 <!-- indexer::stop -->
 <?php if ($this->allowUserSorting || $this->pagination) { ?>
-    <div class="pagination-and-sorting-container">
+    <div class="pagination-and-sorting-container top">
         <?php if ($this->pagination) { ?>
             <div class="pagination-container" onclick="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
                 <?php echo $this->pagination; ?>
@@ -34,7 +34,7 @@
 </div>
 
 <?php if ($this->pagination) { ?>
-    <div class="pagination-and-sorting-container">
+    <div class="pagination-and-sorting-container bottom">
         <div class="pagination-container">
             <?php echo $this->pagination; ?>
         </div>

@@ -12,6 +12,10 @@
     display: flex;
     flex-wrap: wrap;
 
+    &.bottom {
+      margin-top: $grid-gutter-width;
+    }
+
     .pagination-container {
       margin: auto 0;
 
