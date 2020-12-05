@@ -99,7 +99,7 @@ class ModuleMyOrders extends \Module {
 			$this->redirect(ls_shop_generalHelper::getUrl(false, array('page')));
 		}
 
-		$objPagination = new \Pagination($objOrdersAll->numRows, $_SESSION['lsShop']['myOrders']['numPerPage']);
+		$objPagination = new \Pagination($objOrdersAll->numRows, $_SESSION['lsShop']['myOrders']['numPerPage'], 7, 'page', new \FrontendTemplate('merconisPagination'));
 		$this->Template->pagination = $objPagination->generate();
 		$this->Template->request = ampersand(\Environment::get('request'), true);
 		

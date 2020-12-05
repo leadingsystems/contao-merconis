@@ -1,0 +1,10 @@
+
+<!-- indexer::stop -->
+<nav class="merconis-pagination block" aria-label="<?= $this->pagination ?>">
+    <a class="first <?php echo $this->hasPrevious ? 'possible' : ''; ?>" href="<?= $this->first['href'] ?>" title="<?= $this->first['title'] ?>"><span class="link-label"><?= $this->first['link'] ?></span></a>
+    <a class="previous <?php echo $this->hasPrevious ? 'possible' : ''; ?>" href="<?= $this->previous['href'] ?>" title="<?= $this->previous['title'] ?>"><span class="link-label"><?= $this->previous['link'] ?></span></a>
+    <span class="page-info"><?= $this->total ?></span>
+    <a class="next <?php echo $this->hasNext ? 'possible' : ''; ?>" href="<?= $this->next['href'] ?>" title="<?= $this->next['title'] ?>"><span class="link-label"><?= $this->next['link'] ?></span></a>
+    <a class="last <?php echo $this->hasNext ? 'possible' : ''; ?>" href="<?= $this->last['href'] ?>" title="<?= $this->last['title'] ?>"><span class="link-label"><?= $this->last['link'] ?></span></a>
+</nav>
+<!-- indexer::continue -->

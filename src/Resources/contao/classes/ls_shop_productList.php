@@ -240,7 +240,7 @@ class ls_shop_productList
 		$objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;
 		$objTemplate->numProductsBeforeFilter = $objProductSearch->numProductsBeforeFilter;
 		
-		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID);
+		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, new \FrontendTemplate('merconisPagination'));
 		$paginationHTML = $objPagination->generate(' ');
 				
 		$objTemplate->pagination = $paginationHTML;
