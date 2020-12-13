@@ -84,6 +84,16 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                         <p class="code"><?php echo $this->objProduct->_variantIsSelected ? $this->objProduct->_selectedVariant->_code : $this->objProduct->_code; ?></p>
                     <?php } ?>
                     <?php // <- ##### PRODUCT CODE ###### ?>
+
+                    <?php // ##### ATTRIBUTES INFO ###### -> ?>
+                    <?php if (false) { // CURRENTLY NOT USED IN THEME ?>
+                        <?php if ($str_html_attributesInfo) { ?>
+                            <div class="attributes-info">
+                                <?php echo $str_html_attributesInfo; ?>
+                            </div>
+                        <?php } ?>
+                    <?php } ?>
+                    <?php // <- ##### ATTRIBUTES INFO ###### ?>
                 </div>
 
                 <?php // ##### VARIANT TITLE ###### -> ?>
