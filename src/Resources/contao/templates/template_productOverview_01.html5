@@ -134,7 +134,7 @@
 					<?php // <- ##### SHIPPING ##### ?>
 				<?php } // <----- NOT USED BY DEFAULT ----- ?>
 
-				<?php if (true) { // ----- NOT USED BY DEFAULT -----> ?>
+				<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
 					<?php // ##### QUANTITY INPUT / PUT IN CART BUTTON ##### -> ?>
 						<?php if ($this->objProduct->_orderAllowed && $this->objProduct->_hasQuantityInput) { ?>
 							<div
