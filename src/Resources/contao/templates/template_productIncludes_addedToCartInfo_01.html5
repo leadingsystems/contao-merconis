@@ -22,8 +22,8 @@ $bln_displayProductCartPreview = true;
             || \Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $obj_tmp_productOrVariant->_productVariantID)
         ) {
             ?>
-            <div id="off-canvas-added-to-cart-info-container" class="oc-flex-default-container">
-                <div id="off-canvas-added-to-cart-info-container-inside" class="added-to-cart-info">
+            <div id="off-canvas-added-to-cart-info-container_<?php echo $this->objProduct->_productVariantID; ?>" class="oc-flex-default-container">
+                <div class="off-canvas-added-to-cart-info-container-inside added-to-cart-info">
                     <div class="off-canvas-added-to-cart-info-toggler close-button">&nbsp;</div>
                     <div class="headline-area">
                         <h3>

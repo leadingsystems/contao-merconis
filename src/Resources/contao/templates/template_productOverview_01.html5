@@ -5,9 +5,12 @@
 	global $objPage;
 
     $str_html_statusIcons = $this->objProduct->_useCustomTemplate('template_productIncludes_statusIcons_01');
+    $str_html_addedToCartInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_addedToCartInfo_01');
 ?>
 
 <div class="shopProduct <?php echo $this->productTemplateType; ?> <?php echo $this->productTemplate; ?> <?php echo $this->productPositionsClassString; ?> block">
+    <?php echo isset($str_html_addedToCartInfo) ? $str_html_addedToCartInfo : ''; ?>
+
 	<div class="boxInnerWrapper">
 
 		<?php // ##### INFO MATCHING VARIANTS ##### -> ?>
@@ -131,7 +134,7 @@
 					<?php // <- ##### SHIPPING ##### ?>
 				<?php } // <----- NOT USED BY DEFAULT ----- ?>
 
-				<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
+				<?php if (true) { // ----- NOT USED BY DEFAULT -----> ?>
 					<?php // ##### QUANTITY INPUT / PUT IN CART BUTTON ##### -> ?>
 						<?php if ($this->objProduct->_orderAllowed && $this->objProduct->_hasQuantityInput) { ?>
 							<div
@@ -141,27 +144,6 @@
 								data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
 								data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
 							>
-								<?php
-									// ####################################################################
-									// message to display after putting the product/variant into the cart
-									if (\Merconis\Core\ls_shop_msg::checkMsg('addedToCart', $this->objProduct->_productVariantID)) { // check if an "addedToCart" message is set for this product/variant
-										$msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('addedToCart', $this->objProduct->_productVariantID); // get the message details
-										if ($this->objProduct->_useStock && $msgDetails['stockNotSufficient']) { // check if the product/variant uses stock and if the stock was not sufficient
-											?>
-												<div class="hasBeenPutInCart error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCartStockNotSufficient'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit,  \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
-											<?php
-										} else {
-											?>
-												<div class="hasBeenPutInCart success"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCart'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $this->objProduct->_quantityDecimals).' '.$this->objProduct->_quantityUnit); ?></div>
-											<?php
-										}
-									} else if (\Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $this->objProduct->_productVariantID)) { // if no "addedToCart" message is set, check for a "couldNotBePutInCart" message for this product/variant
-										?>
-											<div class="notPutInCart error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['couldNotBePutInCart']; ?></div>
-										<?php
-									}
-									// ####################################################################
-								?>
 								<?php echo $this->objProduct->_quantityInput; ?>
 							</div>
 						<?php } ?>
