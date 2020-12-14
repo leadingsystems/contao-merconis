@@ -149,12 +149,6 @@
     margin-top: $grid-gutter-width-super-small;
   }
 
-  .hasBeenPutInCart {
-    @include ls_autohideCenterMessage;
-  }
-  .notPutInCart {
-    @include ls_autohideCenterMessage;
-  }
   .favoriteSwitchBox,
   .restockInfoListSwitchBox {
     margin-top: $grid-gutter-width-small;

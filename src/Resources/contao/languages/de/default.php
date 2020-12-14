@@ -34,6 +34,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText013'] = 'Artikelbezeichnung';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText014'] = 'Einzelpreis';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText015'] = 'Einzelgewicht';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'] = 'Menge';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016-2'] = 'Menge im Warenkorb';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText017'] = 'Gesamtgewicht';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText018'] = 'Preis';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText019'] = 'Gewicht';

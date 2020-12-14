@@ -234,29 +234,6 @@ if ($this->objProduct->_variantIsSelected) {
 	<?php if ($obj_tmp_productOrVariant->_objConfigurator->arrData['stayInDataEntryMode'] || !$obj_tmp_productOrVariant->_configuratorInDataEntryMode): ?>
 		<?php if ($obj_tmp_productOrVariant->_orderAllowed && $obj_tmp_productOrVariant->_hasQuantityInput): ?>
 			<?php echo str_replace('type="text"', 'type="number" min="1"', $obj_tmp_productOrVariant->_quantityInput); ?>
-
-			<?php
-				// ####################################################################
-				// message to display after putting the product/variant into the cart
-				if (\Merconis\Core\ls_shop_msg::checkMsg('addedToCart', $obj_tmp_productOrVariant->_productVariantID)) { // check if an "addedToCart" message is set for this product/variant
-					$msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('addedToCart', $obj_tmp_productOrVariant->_productVariantID); // get the message details
-					if ($obj_tmp_productOrVariant->_useStock && $msgDetails['stockNotSufficient']) { // check if the product/variant uses stock and if the stock was not sufficient
-						?>
-							<div class="hasBeenPutInCart error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCartStockNotSufficient'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit,  \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit); ?></div>
-						<?php
-					} else {
-						?>
-							<div class="hasBeenPutInCart"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCart'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit); ?></div>
-						<?php
-					}
-				} else if (\Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $obj_tmp_productOrVariant->_productVariantID)) { // if no "addedToCart" message is set, check for a "couldNotBePutInCart" message for this product/variant
-					?>
-						<div class="notPutInCart error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['couldNotBePutInCart']; ?></div>
-					<?php
-				}
-				// ####################################################################
-			?>
-
 		<?php endif; ?>
 	<?php endif; ?>
 </div>

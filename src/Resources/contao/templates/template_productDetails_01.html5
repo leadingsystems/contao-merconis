@@ -39,11 +39,14 @@ $str_html_deliveryInfo = $this->objProduct->_useCustomTemplate('template_product
 $str_html_stockInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_stockInfo_01');
 $str_html_variantSelector = $this->objProduct->_useCustomTemplate('template_productIncludes_variantSelector_01');
 $str_html_price = $this->objProduct->_useCustomTemplate('template_productIncludes_price_01');
+$str_html_addedToCartInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_addedToCartInfo_01');
 $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productIncludes_filterMatch_01');
 // $str_html_ajaxTest = $this->objProduct->_useCustomTemplate('template_productIncludes_ajaxTest_01');
 ?>
 
 <?php echo isset($str_html_ajaxTest) ? $str_html_ajaxTest : ''; ?>
+
+<?php echo isset($str_html_addedToCartInfo) ? $str_html_addedToCartInfo : ''; ?>
 
 <div class="template_productDetails_01">
     <?php // ##### BACK BUTTON ###### -> ?>

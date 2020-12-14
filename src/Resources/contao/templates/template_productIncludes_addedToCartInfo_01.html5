@@ -1,0 +1,135 @@
+<?php
+$obj_tmp_productOrVariant = null;
+if ($this->objProduct->_variantIsSelected) {
+	$obj_tmp_productOrVariant = $this->objProduct->_selectedVariant;
+} else {
+	$obj_tmp_productOrVariant = $this->objProduct;
+}
+
+$bln_displayProductCartPreview = true;
+?>
+
+<!-- indexer::stop -->
+<div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+     id="ajaxReloadByVariantSelector_7_<?php echo $this->objProduct->_id; ?>">
+    <div
+        id="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>_2"
+        class="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>"
+    >
+        <?php
+        if (
+            \Merconis\Core\ls_shop_msg::checkMsg('addedToCart', $obj_tmp_productOrVariant->_productVariantID)
+            || \Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $obj_tmp_productOrVariant->_productVariantID)
+        ) {
+            ?>
+            <div id="off-canvas-added-to-cart-info-container" class="oc-flex-default-container">
+                <div id="off-canvas-added-to-cart-info-container-inside" class="added-to-cart-info">
+                    <div class="off-canvas-added-to-cart-info-toggler close-button">&nbsp;</div>
+                    <div class="headline-area">
+                        <h3>
+                            <?php
+                            // ####################################################################
+                            // message to display after putting the product/variant into the cart
+                            if (\Merconis\Core\ls_shop_msg::checkMsg('addedToCart', $obj_tmp_productOrVariant->_productVariantID)) { // check if an "addedToCart" message is set for this product/variant
+                                $msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('addedToCart', $obj_tmp_productOrVariant->_productVariantID); // get the message details
+                                if ($obj_tmp_productOrVariant->_useStock && $msgDetails['stockNotSufficient']) { // check if the product/variant uses stock and if the stock was not sufficient
+                                    $bln_displayProductCartPreview = $msgDetails['quantityCurrentlyInCart'] > 0;
+                                    ?>
+                                    <span class="hasBeenPutInCart error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCartStockNotSufficient'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit,  \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit); ?></span>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <span class="hasBeenPutInCart"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['hasBeenPutInCart'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['quantityPutInCart'], $obj_tmp_productOrVariant->_quantityDecimals).' '.$obj_tmp_productOrVariant->_quantityUnit); ?></span>
+                                    <?php
+                                }
+                            } else if (\Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $obj_tmp_productOrVariant->_productVariantID)) { // if no "addedToCart" message is set, check for a "couldNotBePutInCart" message for this product/variant
+                                $bln_displayProductCartPreview = false;
+                                ?>
+                                <span class="notPutInCart error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['couldNotBePutInCart']; ?></span>
+                                <?php
+                            }
+                            // ####################################################################
+                            ?>
+                        </h3>
+                        <a class="off-canvas-added-to-cart-info-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping']; ?></a>
+                        <span id="cart-preview-link-to-cart">
+                            <?php
+                            if (\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
+                                ?>
+                                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or']; ?> <a href="{{shopLink::cartPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart']; ?></a>
+                                <?php
+                            }
+                            ?>
+                        </span>
+                    </div>
+                    <?php
+                    if ($bln_displayProductCartPreview) {
+                        $arr_cartItem = \Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended[$msgDetails['cartKeyCurrentlyPutInCart']];
+                        $obj_productInCart = $arr_cartItem['objProduct'];
+
+                        if ($obj_productInCart->_variantIsSelected) {
+                            $obj_tmp_productOrVariantInCart = &$obj_productInCart->_selectedVariant;
+                        } else {
+                            $obj_tmp_productOrVariantInCart = &$obj_productInCart;
+                        }
+                        ?>
+                        <div class="product">
+                            <div class="image">
+                                <?php
+                                $imgToUse = $obj_tmp_productOrVariantInCart->_mainImage ? $obj_tmp_productOrVariantInCart->_mainImage : '';
+
+                                if ($obj_tmp_productOrVariantInCart->_objectType === 'variant' && !$imgToUse) {
+                                    $imgToUse = $obj_tmp_productOrVariantInCart->_objParentProduct->_mainImage ? $obj_tmp_productOrVariantInCart->_objParentProduct->_mainImage : '';
+                                }
+
+                                if ($imgToUse) {
+                                    ?>
+                                    <a<?php if (!$obj_productInCart->_configuratorHasValue) { ?> href="<?php echo $obj_tmp_productOrVariantInCart->_link; ?>"<?php } ?>>
+                                        <img src="<?php echo \Image::get($imgToUse, 600, 600, 'box'); ?>" alt="" />
+                                    </a>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                            <div class="ls-field details">
+                                <div class="title">
+                                    <?php if ($obj_productInCart->_variantIsSelected && $obj_tmp_productOrVariantInCart->_productTitle != $obj_tmp_productOrVariantInCart->_title) { ?>
+                                        <h4 class=""><?php echo $obj_tmp_productOrVariantInCart->_productTitle; ?>, <span class="variantTitle"><?php echo $obj_tmp_productOrVariantInCart->_title; ?></span></h4>
+                                    <?php } else { ?>
+                                        <h4 class=""><?php echo $obj_tmp_productOrVariantInCart->_title; ?></h4>
+                                    <?php } ?>
+                                </div>
+
+                                <div class="artNr">
+                                    <?php echo $obj_tmp_productOrVariantInCart->_code; ?>
+                                </div>
+
+                                <?php if ($obj_productInCart->_hasConfigurator) { ?>
+                                    <div class="configuratorRepresentation">
+                                        <?php echo $obj_productInCart->_configuratorCartRepresentation; ?>
+                                    </div>
+                                <?php } ?>
+                            </div>
+
+                            <div class="ls-field quantity">
+                                <div class="ls-field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016-2'] ?>:</div>
+                                <div class="ls-field-content">
+                                    <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($arr_cartItem['quantity'], $obj_tmp_productOrVariantInCart->_quantityDecimals); ?><?php echo $obj_tmp_productOrVariantInCart->_hasQuantityUnit ? ' <span class="quantityUnit">'.$obj_tmp_productOrVariantInCart->_quantityUnit.'</span>' : '' ?>
+                                </div>
+                            </div>
+
+                            <div class="ls-field price-cumulative">
+                                <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$msgDetails['cartKeyCurrentlyPutInCart']]['priceCumulative']); ?>
+                            </div>
+                        </div>
+                        <?php
+                    }
+                    ?>
+                </div>
+            </div>
+            <?php
+        }
+        ?>
+    </div>
+</div>
+<!-- indexer::continue -->
