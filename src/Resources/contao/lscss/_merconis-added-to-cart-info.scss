@@ -1,0 +1,129 @@
+/*
+ * We have to use a flexible attribute selector instead of a regular id selector because we could have
+ * multiple elements with different IDs which start with the same string. Since this selector would
+ * be considered less specific than an ID selector, we have to add the .oc-flex-default-container part
+ * to make it more specific in order to override the default styles of .oc-flex-default-container
+ */
+[id^="off-canvas-added-to-cart-info-container"].oc-flex-default-container {
+  background-color: rgba($ls-color-black, 0.5);
+
+  @media only screen and (min-width: 420px) {
+    display: flex;
+  }
+
+  @media only screen and (max-width: 419px) {
+    padding: 0;
+  }
+}
+
+.off-canvas-added-to-cart-info-container-inside {
+  @include ls_narrowContentWrapper;
+  max-width: unset;
+  position: relative;
+  background-color: $ls-color-white;
+  padding: 5rem;
+  margin: auto;
+  line-height: normal;
+
+  @media only screen and (max-width: 419px) {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+
+  .off-canvas-added-to-cart-info-toggler.close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+
+    &::after {
+      @extend .fas;
+      content: fa-content($fa-var-window-close);
+      font-size: 2rem;
+    }
+  }
+}
+
+.added-to-cart-info {
+  .headline-area {
+    margin-bottom: 2rem;
+
+    a {
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+  }
+
+  .product {
+    @include display-grid;
+    @include grid-template-columns(1fr grid-repeat(11, 0.5rem 1fr));
+    @include grid-template-rows(1fr grid-repeat(3, 0.5rem 1fr));
+
+    &:not(:last-child) {
+      padding-bottom: 1rem;
+      border-bottom: 0.1rem solid $ls-color-grey;
+      margin-bottom: 1rem;
+    }
+
+    .image {
+      @include grid-column(1, 8);
+      @include grid-row(1, 8);
+      @include grid-justify-self(start);
+      @include grid-align-self(stretch);
+      @include grid-justify-self(stretch);
+
+      a {
+        display: flex;
+        height: 100%;
+        width: 100%;
+
+        img {
+          width: auto;
+          height: auto;
+          max-width: 100%;
+          max-height: 100%;
+          margin: 0 auto auto auto;
+        }
+      }
+    }
+
+    .details {
+      @include grid-column(11, 24);
+      @include grid-row(1, 4);
+      @include grid-justify-self(start);
+
+      .title {
+        h4 {
+          font-weight: $ls-font-weight-bold;
+        }
+      }
+    }
+
+    .quantity {
+      @include grid-column(11, 24);
+      @include grid-row(5, 6);
+      @include grid-justify-self(start);
+
+      > * {
+        display: inline-block;
+      }
+
+      .ls-field-label {
+        font-weight: $ls-font-weight-bold;
+        margin-right: 2rem;
+      }
+    }
+
+    .price-cumulative {
+      @include grid-column(11, 24);
+      @include grid-row(7, 8);
+      @include grid-justify-self(start);
+
+      width: 100%;
+      text-align: right;
+      font-weight: $ls-font-weight-bold;
+    }
+  }
+}
