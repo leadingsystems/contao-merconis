@@ -987,7 +987,7 @@ class ls_shop_languageHelper {
 					WHERE		`alias_".$str_sourceLanguage."` = ?
 				")
 				->execute(
-					$str_alias
+					urldecode($str_alias)
 				);
 		} catch (\Exception $e) {
 			return $str_alias;
@@ -1012,7 +1012,7 @@ class ls_shop_languageHelper {
 					WHERE		`alias_".$str_sourceLanguage."` = ?
 				")
 				->execute(
-					$str_alias
+					urldecode($str_alias)
 				);
 		} catch (\Exception $e) {
 			return $str_alias;
