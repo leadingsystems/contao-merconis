@@ -215,6 +215,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText147'] = 'Benachrichtigung bei Wie
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText148'] = 'Benachrichtigung bei Wiederverfügbarkeit wurde deaktiviert';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText149'] = 'Bitte melden Sie sich an, um eine Benachrichtigung bei Wiederverfügbarkeit anzufordern.';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'zur Übersicht';
+
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'] = 'Sie können Merconis noch %s Tage kostenlos benutzen. Bitte erwerben Sie rechtzeitig eine Lizenz und tragen Sie die Lizenznummer in den Merconis-Grundeinstellungen ein, um Merconis auch nach dem kostenlosen Probezeitraum weiter nutzen zu können. Wenn Sie diese Meldung sehen, obwohl Sie eine Lizenznummer in den Grundeinstellungen eingetragen haben, prüfen Sie die Nummer bitte auf Korrektheit und kontaktieren Sie nötigenfalls den Merconis techSupport.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodExpiredMessage'] = 'Bitte erwerben Sie eine Merconis-Lizenz, da Ihr Shop ansonsten nicht mehr für Ihre Kunden erreichbar ist.';

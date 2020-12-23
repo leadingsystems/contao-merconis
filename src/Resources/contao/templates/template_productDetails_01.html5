@@ -51,7 +51,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 <div class="template_productDetails_01">
     <?php // ##### BACK BUTTON ###### -> ?>
     <?php // CAUTION: DO NOT REMOVE THIS INSERT TAG. IF YOU DON'T NEED IT, JUST HIDE IT. -> ?>
-    <div class="backButton"><a href="{{shopCategoryLinkOrSearchResult}}">zur Übersicht</a></div>
+    <div class="backButton"><a href="{{shopCategoryLinkOrSearchResult}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150']; ?></a></div>
     <?php // <- ##### BACK BUTTON ###### ?>
 
     <div class="shop-product">
