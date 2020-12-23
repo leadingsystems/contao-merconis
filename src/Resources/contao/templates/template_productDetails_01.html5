@@ -191,7 +191,6 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // ##### CONTACT FORM ###### -> ?>
 
                 <div class="contact-product">
-                    <h2>Sie haben Fragen zum Produkt?</h2>
                     <p>{{insert_form::merconis-contact-product}}</p>
                 </div>
                 <?php // <- ##### CONTACT FORM ###### ?>
