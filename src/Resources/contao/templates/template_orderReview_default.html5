@@ -1,6 +1,10 @@
 <!-- indexer::stop -->
 <div id="cart-big" class="<?php echo $this->strTemplate ?>">
     <div id="checkout-content" class="order-overview">
+        <div class="back-button-box">
+            <a href="{{shopLink::cartPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['checkoutFlow']['goToPreviousStep']; ?></a>
+        </div>
+
         <div id="checkoutStepCustomerDataReview">
             <h3><i class="lsi lsi-location-02"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData'][$this->arr_data['useDeviantShippingAddress'] ? 'billingAddress' : 'billingAndShippingAddress']; ?></h3>
             <div class="content">
