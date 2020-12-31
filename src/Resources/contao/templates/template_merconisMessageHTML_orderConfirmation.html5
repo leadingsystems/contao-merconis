@@ -90,7 +90,19 @@
 				text-align: right;
 				white-space: nowrap;
 			}
+
+            .orderRepresentation table td.title .configuratorRepresentation {
+                margin-top: 10px;
+            }
 			
+			.orderRepresentation table td.title .configuratorRepresentation .field {
+				margin-bottom: 10px;
+			}
+
+			.orderRepresentation table td.title .configuratorRepresentation .label {
+                font-weight: bold;
+            }
+
 			.orderRepresentation table tr.space td {
 				border: none;
 				height: 20px;

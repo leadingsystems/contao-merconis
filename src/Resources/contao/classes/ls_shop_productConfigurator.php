@@ -543,6 +543,16 @@ class ls_shop_productConfigurator {
 			$cartRepresentation = $this->objCustomLogic->getRepresentationOfConfiguratorSettings();
 		}
 
+		if (!$cartRepresentation) {
+            $arr_receivedPostForReview = ls_shop_generalHelper::getArrDataReview($this->arrReceivedPost);
+            $arr_formFieldLabels = ls_shop_generalHelper::getFormFieldLabels($this->formID);
+
+            $obj_template_defaultConfiguratorRepresentation = new \FrontendTemplate('template_defaultConfiguratorDataReview');
+            $obj_template_defaultConfiguratorRepresentation->arr_data = $arr_receivedPostForReview;
+            $obj_template_defaultConfiguratorRepresentation->arr_formFieldLabels = $arr_formFieldLabels;
+            $cartRepresentation = $obj_template_defaultConfiguratorRepresentation->parse();
+        }
+
 		return $blnReplaceInsertTags ? \Controller::replaceInsertTags($cartRepresentation) : $cartRepresentation;
 	}
 	

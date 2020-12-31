@@ -1,0 +1,15 @@
+<div class="default-configurator-data-review">
+    <?php
+    foreach ($this->arr_data as $str_key => $var_value) {
+        if (!$var_value) {
+            continue;
+        }
+        ?>
+        <div class="field">
+            <div class="label"><?php echo $this->arr_formFieldLabels[$str_key]; ?></div>
+            <div class="value"><?php echo $var_value; ?></div>
+        </div>
+        <?php
+    }
+    ?>
+</div>

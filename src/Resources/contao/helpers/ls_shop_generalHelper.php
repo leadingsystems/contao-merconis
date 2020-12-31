@@ -3201,6 +3201,29 @@ class ls_shop_generalHelper
         return $arrOutput;
     }
 
+    public static function getFormFieldLabels($int_formId) {
+        $arr_formFieldLabels = [];
+
+        $obj_dbres_formFields = \Database::getInstance()
+            ->prepare("
+                SELECT      id,
+                            label,
+                            name
+                FROM        tl_form_field
+                WHERE       pid = ?
+                    AND     name != ''
+            ")
+            ->execute(
+                $int_formId
+            );
+
+        while ($obj_dbres_formFields->next()) {
+            $arr_formFieldLabels[$obj_dbres_formFields->name] = $obj_dbres_formFields->label;
+        }
+
+        return $arr_formFieldLabels;
+    }
+
     /*
      * Diese Funktion prüft, ob die von einem Formular erfassten und gespeicherten Daten valide sind. Hier passiert im Grunde dasselbe,
      * was die contaoeigene Funktion bei der Verarbeitung von Formulardaten auch direkt macht. Allerdings geht es hier darum, nachträglich
