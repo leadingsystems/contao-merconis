@@ -1071,6 +1071,10 @@ CREATE TABLE `tl_content` (
 	`lsShopOutputCondition` varchar(32) NOT NULL default ''
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE `tl_article` (
+	`lsShopOutputCondition` varchar(32) NOT NULL default ''
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 /*
 @tl_page.lsShopOutputDefinitionSet@tl_ls_shop_output_definitions.id=single@
 @tl_page.lsShopLayoutForDetailsView@tl_layout.id=single@

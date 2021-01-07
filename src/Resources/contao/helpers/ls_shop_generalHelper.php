@@ -2665,6 +2665,56 @@ class ls_shop_generalHelper
         return $strOptions;
     }
 
+    public static function conditionalArticleOutput(\ArticleModel &$obj_article) {
+        switch ($obj_article->lsShopOutputCondition) {
+            case 'always':
+                return;
+                break;
+
+            case 'onlyInOverview':
+                if (\Input::get('product')) {
+                    $obj_article->published = false;
+                    return;
+                }
+                break;
+
+            case 'onlyInSingleview':
+                if (!\Input::get('product')) {
+                    $obj_article->published = false;
+                    return;
+                }
+                break;
+
+            case 'onlyIfCartNotEmpty':
+                if (ls_shop_cartX::getInstance()->isEmpty) {
+                    $obj_article->published = false;
+                    return;
+                }
+                break;
+
+            case 'onlyIfCartEmpty':
+                if (!ls_shop_cartX::getInstance()->isEmpty) {
+                    $obj_article->published = false;
+                    return;
+                }
+                break;
+
+            case 'onlyIfFeUserLoggedIn':
+                if (!FE_USER_LOGGED_IN) {
+                    $obj_article->published = false;
+                    return;
+                }
+                break;
+
+            case 'onlyIfFeUserNotLoggedIn':
+                if (FE_USER_LOGGED_IN) {
+                    $obj_article->published = false;
+                    return;
+                }
+                break;
+        }
+    }
+
     /*
      * Diese Funktion wird als Hook (getContentElement) aufgerufen und prüft, ob für ein
      * CTE eine Ausgabebedingung hinterlegt ist und gibt einen Leerstring zurück, falls

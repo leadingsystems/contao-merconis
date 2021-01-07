@@ -80,6 +80,7 @@ $GLOBALS['TL_HOOKS']['getSearchablePages'][] = array('Merconis\Core\ls_shop_gene
  * Hook für bedingte CTE-Ausgabe
  */
 $GLOBALS['TL_HOOKS']['getContentElement'][] = array('Merconis\Core\ls_shop_generalHelper', 'conditionalCTEOutput');
+$GLOBALS['TL_HOOKS']['getArticle'][] = array('Merconis\Core\ls_shop_generalHelper', 'conditionalArticleOutput');
 
 /*
  * Hook zum Generieren und Einfügen des Filter-Formulars an seine Platzhalterstelle
