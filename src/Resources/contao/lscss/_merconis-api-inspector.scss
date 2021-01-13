@@ -1,9 +1,10 @@
 [data-merconis-component="product-management-api-test"] {
-  padding: 5rem;
+  @include ls_contentWrapper;
 }
 
 [data-merconis-component="product-management-api-test"] .widget {
-  padding: 5px;
+  padding: 1rem;
+  margin: 0;
 }
 
 [data-merconis-component="product-management-api-test"] .widget:nth-child(odd) {
@@ -18,6 +19,7 @@
 
 [data-merconis-component="product-management-api-test"] .widget input {
   margin-left: 10px;
+  width: auto;
 }
 
 [data-merconis-component="product-management-api-test"] button.addRow,
@@ -38,6 +40,10 @@
 [data-merconis-component="product-management-api-test"] .dataInput {
   border: 1px solid $ls-color-black;
   margin-top: 10px;
+}
+
+[data-merconis-component="product-management-api-test"] .authFields {
+  padding: 1rem;
 }
 
 [data-merconis-component="product-management-api-test"] form {
@@ -86,6 +92,11 @@
   max-height: 400px;
   overflow-y: scroll;
   margin-bottom: 10px;
+}
+
+[data-merconis-component="product-management-api-test"] .api-inspector-navigation ul {
+  list-style: none;
+  padding-left: 3rem;
 }
 
 [data-merconis-component="product-management-api-test"] .api-inspector-navigation ul li {
