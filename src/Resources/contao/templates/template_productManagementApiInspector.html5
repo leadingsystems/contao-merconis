@@ -13,7 +13,7 @@
 			<?php
 			foreach ($this->arr_allResourceLinks as $str_resourceName => $arr_resourceLink) {
 				?>
-				<li><a class="resourceLink<?php echo $arr_resourceLink['bln_currentlySelected'] ? ' selected' : ''; ?>" href="<?php echo $arr_resourceLink['str_href']; ?>"><?php echo strtoupper($arr_resourceLink['str_httpRequestMethod']); ?>: <?php echo $str_resourceName; ?></a></li>
+				<li><a target="_blank" class="resourceLink<?php echo $arr_resourceLink['bln_currentlySelected'] ? ' selected' : ''; ?>" href="<?php echo $arr_resourceLink['str_href']; ?>"><?php echo strtoupper($arr_resourceLink['str_httpRequestMethod']); ?>: <?php echo $str_resourceName; ?></a></li>
 				<?php
 			}
 			?>
