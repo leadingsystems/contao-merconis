@@ -59,6 +59,130 @@ class ls_shop_apiController_productManagement
 		$this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getPageAliases(true));
 	}
 
+
+
+
+    /**
+     * Returns all contao pages that can be used as product categories
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
+
+    protected function apiResource_getCategorys()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getCategorys(true));
+    }
+
+
+    /**
+     * Inserts new or updates existing (if it already exists) pages that can be used as product categories
+     * Expects the request details JSON formatted as POST parameter 'data'
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
+    protected function apiResource_writeCategorys()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
+
+        $arr_dataRows = json_decode($_POST['data'], true);
+
+        if (!count($arr_dataRows)) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message('data parameter missing or empty');
+            return;
+        }
+
+        $arr_preprocessingResult = ls_shop_productManagementApiPreprocessor::preprocess($arr_dataRows, __FUNCTION__);
+
+        if ($arr_preprocessingResult['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_preprocessingResult['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $arr_dataRows = $arr_preprocessingResult['arr_preprocessedDataRows'];
+
+        $arr_result = $this->performCategoryImport($arr_dataRows);
+
+        ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
+
+        if ($arr_result['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_result['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_result);
+    }
+
+    /**
+     * Deletes pages that can be used as product categories
+     * Expects the request details JSON formatted as POST parameter 'data'
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
+    protected function apiResource_deleteCategorys()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
+
+        $arr_dataRows = json_decode($_POST['data'], true);
+
+        if (!count($arr_dataRows)) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message('data parameter missing or empty');
+            return;
+        }
+
+        $arr_preprocessingResult = ls_shop_productManagementApiPreprocessor::preprocess($arr_dataRows, __FUNCTION__);
+
+        if ($arr_preprocessingResult['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_preprocessingResult['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $arr_dataRows = $arr_preprocessingResult['arr_preprocessedDataRows'];
+
+        foreach ($arr_dataRows as $arr_dataRow) {
+            $int_pageId = $arr_dataRow['id'];
+            $bln_deleted = ls_shop_productManagementApiHelper::deleteCategory($int_pageId);
+
+            if ($bln_deleted) {
+                $arr_result['arr_messages']['categoryDeleted'][] = $int_pageId;
+            } else {
+                $arr_result['arr_messages']['categoryNotDeleted'][] = $int_pageId;
+            }
+         }
+
+        ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
+
+        if ($arr_result['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_result['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_result);
+    }
+
 	/**
 	 * Returns the input price type used by Merconis
 	 *
@@ -572,4 +696,62 @@ class ls_shop_apiController_productManagement
 		return $arr_result;
 	}
 
+	/*
+	 * Führt den Import von Kategorien in die tl_page durch
+	 *
+	 * Rückgabe: Ergebnisarray mit evtl. Fehlermeldungen oder einer Liste der eingetragenen Datensatz IDs
+	 * */
+    protected function performCategoryImport($arr_dataRows)
+    {
+
+        $int_lastInsertId = '';
+
+        $arr_result = array(
+            'bln_hasError' => false,
+            'arr_messages' => array()
+        );
+
+            foreach ($arr_dataRows as $int_rowNumber => $arr_dataRow) {
+                /*
+                 * Since we import one data row type at a time, we skip rows that have the wrong type
+                 */
+
+
+                //gehört der Type zu den gültigen ?
+                if ( !in_array($arr_dataRow['type'], ls_shop_productManagementApiHelper::$dataCategoryRowTypesInOrderToProcess )) {
+                    throw new \Exception('unknown/invalid page Type: '.$arr_dataRow['type']);
+                }
+
+                try {
+                    switch ($arr_dataRow['type']) {
+                        case 'regular':
+                            // TODO: prüfen, ob die anderen Pagetypen überhaupt notwendig sind
+                        #, 'root', 'error_404', 'error_403', 'error_401':
+
+                            $int_lastInsertId = ls_shop_productManagementApiHelper::insertOrUpdateCategoryRecord($arr_dataRow);
+
+                            $arr_result['arr_messages']['lastInsertId'][] = $int_lastInsertId;
+                            break;
+/*
+                        case 'variant':
+                            ls_shop_productManagementApiHelper::insertOrUpdateVariantRecord($arr_dataRow);
+                            break;
+
+                        case 'productLanguage':
+                            ls_shop_productManagementApiHelper::writeProductLanguageData($arr_dataRow);
+                            break;
+
+                        case 'variantLanguage':
+                            ls_shop_productManagementApiHelper::writeVariantLanguageData($arr_dataRow);
+                            break;
+*/
+                    }
+                } catch (\Exception $e) {
+                    $arr_result['bln_hasError'] = true;
+                    $arr_result['arr_messages'][$int_rowNumber + 1] = $e->getMessage();
+                }
+            }
+
+        return $arr_result;
+    }
 }

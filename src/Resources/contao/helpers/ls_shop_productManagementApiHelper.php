@@ -6,6 +6,7 @@ class ls_shop_productManagementApiHelper {
 	public static $int_numImportableGroupPrices = 5;
 	public static $int_numImportableAttributesAndValues = 20;
 	public static $dataRowTypesInOrderToProcess = array('product', 'variant', 'productLanguage', 'variantLanguage');
+    public static $dataCategoryRowTypesInOrderToProcess = array('root', 'regular', 'error_403', 'error_401');
 	public static $modificationTypesTranslationMap = array('independent' => 'standalone', 'percentaged' => 'adjustmentPercentaged', 'fixed' => 'adjustmentFix');
 	public static $arr_scalePriceQuantityDetectionMethods = array('separatedVariantsAndConfigurations', 'separatedVariants', 'separatedProducts', 'separatedScalePriceKeywords');
 	public static $arr_scalePriceTypes = array('scalePriceStandalone', 'scalePricePercentaged', 'scalePriceFixedAdjustment');
@@ -353,6 +354,155 @@ class ls_shop_productManagementApiHelper {
 		}
 		return $GLOBALS['merconis_globals']['pageAliases'];
 	}
+
+
+
+
+
+    public static function getCategorys($bln_considerOnlyPagesMarkedAsCategoriesForErp = false) {
+
+        //19.01.2021, um diese Ressource allgemeingültig zu halten werden nicht nur die Felder geliefert, die für den
+        // Connector notwendig sind, sondern alle die auch zukünftig gebraucht werden könnten (vorhanden aber auskommentiert).
+        //Funktionsname könnte auch noch in "getPages" oder "getPageCategorys" umbenannt werden, falls gewünscht
+        if (!isset($GLOBALS['merconis_globals']['pageCategorys'])) {
+            $GLOBALS['merconis_globals']['pageCategorys'] = array();
+
+            $obj_dbres_pages = \Database::getInstance()
+                ->prepare("
+				SELECT		id, pid, sorting, language, title, pageTitle, alias, description, published, type, 
+                    robots, redirect, jumpTo, redirectBack, url, target, dns, staticFiles, staticPlugins, favicon,
+                    robotsTxt, adminEmail, dateFormat, timeFormat, datimFormat, validAliasCharacters, createSitemap
+                    sitemapName, useSSL, autoforward, protected, groups, includeLayout, layout, includeCache, cache,
+                    alwaysLoadFromCache, clientCache, includeChmod, cuser, cgroup, chmod, noSearch, requireItem, cssClass,
+                    sitemap, hide, guests, tabindex, accesskey, start, stop, enforceTwoFactor, twoFactorJumpTo, 
+                    lsShopLayoutForDetailsView, lsShopIncludeLayoutforDetailsView, lsShopOutputDefinitionSet, 
+                    ls_shop_thousandsSeparator, ls_shop_decimalsSeparator, ls_shop_currencyBeforeValue, ls_shop_useAsCategoryForErp,
+                    ls_cnc_languageSelector_correspondingMainLanguagePage
+				FROM		`tl_page`
+				".($bln_considerOnlyPagesMarkedAsCategoriesForErp ? "WHERE       `ls_shop_useAsCategoryForErp` = '1'" : "")."
+			")
+                ->execute();
+
+            while ($obj_dbres_pages->next()) {
+                // Check whether root page is fallback language or not and only then add the page to the pageAliases array
+                $obj_pageDetails = \PageModel::findWithDetails($obj_dbres_pages->id);
+
+                $obj_rootPage = \Database::getInstance()
+                    ->prepare("
+                        SELECT fallback 
+                        FROM `tl_page` WHERE `id` = ?
+                    ")
+                    ->limit(1)
+                    ->execute($obj_pageDetails->rootId);
+
+                if ($obj_rootPage->fallback) {
+
+                    $GLOBALS['merconis_globals']['pageCategorys'][] = array(
+                        'id' => $obj_dbres_pages->id,
+                        'pid' => $obj_dbres_pages->pid,
+                        'sorting' => $obj_dbres_pages->sorting,
+                        'language' => $obj_pageDetails->language,
+                        'title' => $obj_dbres_pages->title,
+                        'pageTitle' => $obj_dbres_pages->pageTitle,
+                        'alias' => $obj_dbres_pages->alias,
+                        'description' => $obj_dbres_pages->description,
+                        'published' => $obj_dbres_pages->published,
+                        'type' => $obj_dbres_pages->type,
+
+
+                        'robots' => $obj_dbres_pages->robots,
+                        'redirect' => $obj_dbres_pages->redirect,
+                        'jumpTo' => $obj_dbres_pages->jumpTo,
+                        'redirectBack' => $obj_dbres_pages->redirectBack,
+                        'url' => $obj_dbres_pages->url,
+                        'target' => $obj_dbres_pages->target,
+                        'dns' => $obj_dbres_pages->dns,
+                        'staticFiles' => $obj_dbres_pages->staticFiles,
+                        'staticPlugins' => $obj_dbres_pages->staticPlugins,
+                        'favicon' => $obj_dbres_pages->favicon,
+                        'robotsTxt' => $obj_dbres_pages->robotsTxt,
+                        'robotsTxt' => $obj_dbres_pages->robotsTxt,
+                        'adminEmail' => $obj_dbres_pages->adminEmail,
+                        'dateFormat' => $obj_dbres_pages->dateFormat,
+                        'timeFormat' => $obj_dbres_pages->timeFormat,
+                        'datimFormat' => $obj_dbres_pages->datimFormat,
+                        'validAliasCharacters' => $obj_dbres_pages->validAliasCharacters,
+                        'createSitemap' => $obj_dbres_pages->createSitemap,
+                        'sitemapName' => $obj_dbres_pages->sitemapName,
+                        'useSSL' => $obj_dbres_pages->useSSL,
+                        'autoforward' => $obj_dbres_pages->autoforward,
+                        'protected' => $obj_dbres_pages->protected,
+                        'groups' => $obj_dbres_pages->groups,
+                        'includeLayout' => $obj_dbres_pages->includeLayout,
+                        'layout' => $obj_dbres_pages->layout,
+                        'includeCache' => $obj_dbres_pages->includeCache,
+                        'cache' => $obj_dbres_pages->cache,
+                        'alwaysLoadFromCache' => $obj_dbres_pages->alwaysLoadFromCache,
+                        'clientCache' => $obj_dbres_pages->clientCache,
+                        'includeChmod' => $obj_dbres_pages->includeChmod,
+                        'cuser' => $obj_dbres_pages->cuser,
+                        'cgroup' => $obj_dbres_pages->cgroup,
+                        'chmod' => $obj_dbres_pages->chmod,
+                        'noSearch' => $obj_dbres_pages->noSearch,
+                        'requireItem' => $obj_dbres_pages->requireItem,
+                        'cssClass' => $obj_dbres_pages->cssClass,
+                        'sitemap' => $obj_dbres_pages->sitemap,
+                        'hide' => $obj_dbres_pages->hide,
+                        'guests' => $obj_dbres_pages->guests,
+                        'tabindex' => $obj_dbres_pages->tabindex,
+                        'accesskey' => $obj_dbres_pages->accesskey,
+                        'start' => $obj_dbres_pages->start,
+                        'stop' => $obj_dbres_pages->stop,
+                        'enforceTwoFactor' => $obj_dbres_pages->enforceTwoFactor,
+                        'twoFactorJumpTo' => $obj_dbres_pages->twoFactorJumpTo,
+                        'lsShopLayoutForDetailsView' => $obj_dbres_pages->lsShopLayoutForDetailsView,
+                        'lsShopIncludeLayoutforDetailsView' => $obj_dbres_pages->lsShopIncludeLayoutforDetailsView,
+                        'lsShopOutputDefinitionSet' => $obj_dbres_pages->lsShopOutputDefinitionSet,
+                        'ls_shop_thousandsSeparator' => $obj_dbres_pages->ls_shop_thousandsSeparator,
+                        'ls_shop_decimalsSeparator' => $obj_dbres_pages->ls_shop_decimalsSeparator,
+                        'ls_shop_currencyBeforeValue' => $obj_dbres_pages->ls_shop_currencyBeforeValue,
+                        'ls_shop_useAsCategoryForErp' => $obj_dbres_pages->ls_shop_useAsCategoryForErp,
+                        'ls_cnc_languageSelector_correspondingMainLanguagePage' => $obj_dbres_pages->ls_cnc_languageSelector_correspondingMainLanguagePage,
+
+                    );
+                }
+            }
+        }
+        return $GLOBALS['merconis_globals']['pageCategorys'];
+    }
+
+
+    /*
+     * Löscht eine Seite aus der tl_page. Sicherheitshalber dürfen nur "regular" Seiten gelöscht werden die für das ERP (JTL Wawi)
+     * vorgesehen sind
+     *
+     * @param $int_pageId   Die ID des tl_page Eintrags
+     * @param $bln_considerOnlyPagesMarkedAsCategoriesForErp    Optionaler Parameter der bestimmt ob nur ERP Kategorieseiten betroffen sein sollen
+     * @return Boolean true, wenn sie gelöscht wurde, false, wenn sie nicht gelöscht wurde
+     */
+    public static function deleteCategory($int_pageId, $bln_considerOnlyPagesMarkedAsCategoriesForErp = true) {
+
+        $obj_dbres_pages = \Database::getInstance()
+            ->prepare("
+				DELETE 
+				FROM		`tl_page`
+				WHERE type = 'regular' AND id = ?
+				".($bln_considerOnlyPagesMarkedAsCategoriesForErp ? "AND       `ls_shop_useAsCategoryForErp` = '1'" : "")."
+			")
+            ->execute($int_pageId);
+
+        //Sollte sie noch bestehen, wurde sie NICHT gelöscht
+        $obj_dbres_pages = \Database::getInstance()
+            ->prepare("
+				SELECT id  
+				FROM		`tl_page`
+				WHERE id = ?
+			")
+            ->execute($int_pageId);
+        $int_idExists = $obj_dbres_pages->first()->id;
+
+        return is_null($int_idExists);
+    }
 
 	public static function getDeliveryInfoTypeAliases() {
 		if (!isset($GLOBALS['merconis_globals']['deliveryInfoTypeAliases'])) {
@@ -1583,4 +1733,206 @@ class ls_shop_productManagementApiHelper {
 	public static function getAvailableProductImages() {
 		
 	}
+
+
+    /*
+     * Eintrag oder Aktualisierung eines Kategorie/Page Eintrags
+     * $arr_preprocessedDataRow = Liste der Werte für eine tl_page
+     *
+     * Rückgabe: Datensatz ID eines Neueintrags oder beim Update des bestehenden.
+     * */
+    public static function insertOrUpdateCategoryRecord($arr_preprocessedDataRow) {
+
+        $int_lastInsertId = '';
+
+        //falls keine Parentid angegeben wurde, muss es die Wurzel-Seite sein. Wir holen die erste veröffentlichte
+        if (!isset($GLOBALS['merconis_globals']['cache']['int_firstRootId'])) {
+
+            $col_rootPages = \PageModel::findPublishedRootPages();
+
+            $GLOBALS['merconis_globals']['cache']['int_firstRootId'] = $col_rootPages[0]->id;
+        }
+
+        $sql = 'INSERT INTO tl_page (id, pid, tstamp, sorting, language, title, pageTitle, alias, description, published, type, 
+                    robots, redirect, jumpTo, redirectBack, url, target, dns, staticFiles, staticPlugins, 
+                    robotsTxt, adminEmail, dateFormat, timeFormat, datimFormat, validAliasCharacters, createSitemap, 
+                    sitemapName, useSSL, autoforward, protected, groups, includeLayout, layout, includeCache, cache, 
+                    alwaysLoadFromCache, clientCache, includeChmod, cuser, cgroup, chmod, noSearch, requireItem, cssClass, 
+                    sitemap, hide, guests, tabindex, accesskey, start, stop, enforceTwoFactor, twoFactorJumpTo,  
+                    lsShopLayoutForDetailsView, lsShopIncludeLayoutforDetailsView, lsShopOutputDefinitionSet, 
+                    ls_shop_thousandsSeparator, ls_shop_decimalsSeparator, ls_shop_currencyBeforeValue, ls_shop_useAsCategoryForErp, 
+                    ls_cnc_languageSelector_correspondingMainLanguagePage
+                )
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+                    ?, ?, ?, ?, ?, ?, ?, 
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+                    ?, ?, ?, ?, ?
+                )
+                ON DUPLICATE KEY UPDATE 
+                    pid = ?, tstamp = ?, sorting = ?,language = ?,title = ?, pageTitle = ?,
+                    alias = ?,description = ?,published = ?,type = ?,
+                    robots = ?,redirect = ?,jumpTo = ?,redirectBack = ?,url = ?,target = ?,
+                    dns = ?,staticFiles = ?,staticPlugins = ?,
+                    robotsTxt = ?,
+                    adminEmail = ?,dateFormat = ?,timeFormat = ?,datimFormat = ?,validAliasCharacters = ?,
+                    createSitemap = ?,sitemapName = ?,useSSL = ?,autoforward = ?,protected = ?,
+                    groups = ?,includeLayout = ?,layout = ?,includeCache = ?,cache = ?,
+                    alwaysLoadFromCache = ?,clientCache = ?,includeChmod = ?,cuser = ?,cgroup = ?,
+                    chmod = ?,noSearch = ?,requireItem = ?,cssClass = ?,sitemap = ?,
+                    hide = ?,guests = ?,tabindex = ?,accesskey = ?,start = ?,
+                    stop = ?,enforceTwoFactor = ?,twoFactorJumpTo = ?,lsShopLayoutForDetailsView = ?,lsShopIncludeLayoutforDetailsView = ?,
+                    lsShopOutputDefinitionSet = ?,ls_shop_thousandsSeparator = ?,ls_shop_decimalsSeparator = ?,ls_shop_currencyBeforeValue = ?,ls_shop_useAsCategoryForErp = ?,
+                    ls_cnc_languageSelector_correspondingMainLanguagePage = ?
+            ';
+
+        $obj_dbquery_updateProduct = \Database::getInstance()
+            ->prepare($sql);
+
+        $arr_queryParams = [
+            $arr_preprocessedDataRow['id'],
+            $arr_preprocessedDataRow['parentId'] ? $arr_preprocessedDataRow['parentId'] : $GLOBALS['merconis_globals']['cache']['int_firstRootId'],
+            time(),
+            $arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
+            $arr_preprocessedDataRow['language'], // text
+            $arr_preprocessedDataRow['title'], // text
+            $arr_preprocessedDataRow['pageTitle'], // text
+            $arr_preprocessedDataRow['alias'], // text
+            $arr_preprocessedDataRow['description'], // text
+            $arr_preprocessedDataRow['published'] ? '1' : '', // 1 or ''       char(1)
+            $arr_preprocessedDataRow['type'], //regular, root, error_
+
+            //Alle weiteren Felder
+            $arr_preprocessedDataRow['robots'] ? $arr_preprocessedDataRow['robots'] : '',     //text, darf nicht null sein,
+            $arr_preprocessedDataRow['redirect'] ? $arr_preprocessedDataRow['redirect'] : 'permanent',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['jumpTo'] ? $arr_preprocessedDataRow['jumpTo'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['redirectBack'] ? $arr_preprocessedDataRow['redirectBack'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['url'] ? $arr_preprocessedDataRow['url'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['target'] ? $arr_preprocessedDataRow['target'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['dns'] ? $arr_preprocessedDataRow['dns'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['staticFiles'] ? $arr_preprocessedDataRow['staticFiles'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['staticPlugins'] ? $arr_preprocessedDataRow['staticPlugins'] : '',     //varchar(255), darf nicht null sein,
+
+            $arr_preprocessedDataRow['robotsTxt'],
+            $arr_preprocessedDataRow['adminEmail'] ? $arr_preprocessedDataRow['adminEmail'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['dateFormat'] ? $arr_preprocessedDataRow['dateFormat'] : '',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['timeFormat'] ? $arr_preprocessedDataRow['timeFormat'] : '',     //varchar(32 darf nicht null sein,
+            $arr_preprocessedDataRow['datimFormat'] ? $arr_preprocessedDataRow['datimFormat'] : '',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['validAliasCharacters'] ? $arr_preprocessedDataRow['validAliasCharacters'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['createSitemap'] ? $arr_preprocessedDataRow['createSitemap'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['sitemapName'] ? $arr_preprocessedDataRow['sitemapName'] : '',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['useSSL'] ? $arr_preprocessedDataRow['useSSL'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['autoforward'] ? $arr_preprocessedDataRow['autoforward'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['protected'] ? $arr_preprocessedDataRow['protected'] : '',     //char(1), protected darf nicht null sein
+            $arr_preprocessedDataRow['groups'],         //blob
+            $arr_preprocessedDataRow['includeLayout'] ? $arr_preprocessedDataRow['includeLayout'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['layout'] ? $arr_preprocessedDataRow['layout'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['includeCache'] ? $arr_preprocessedDataRow['includeCache'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['cache'] ? $arr_preprocessedDataRow['cache'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['alwaysLoadFromCache'] ? $arr_preprocessedDataRow['alwaysLoadFromCache'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['clientCache'] ? $arr_preprocessedDataRow['clientCache'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['includeChmod'] ? $arr_preprocessedDataRow[''] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['cuser'] ? $arr_preprocessedDataRow['cuser'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['cgroup'] ? $arr_preprocessedDataRow['cgroup'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['chmod'] ? $arr_preprocessedDataRow['chmod'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['noSearch'] ? $arr_preprocessedDataRow['noSearch'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['requireItem'] ? $arr_preprocessedDataRow['requireItem'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['cssClass'] ? $arr_preprocessedDataRow['cssClass'] : '',     //varchar(64), darf nicht null sein,
+            $arr_preprocessedDataRow['sitemap'] ? $arr_preprocessedDataRow['sitemap'] : '',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['hide'] ? $arr_preprocessedDataRow['hide'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['guests'] ? $arr_preprocessedDataRow['guests'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['tabindex'] ? $arr_preprocessedDataRow['tabindex'] : 0,     //smallint(5), darf nicht null sein,
+            $arr_preprocessedDataRow['accesskey'] ? $arr_preprocessedDataRow['accesskey'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['start'] ? $arr_preprocessedDataRow['start'] : '',     //varchar(10), darf nicht null sein,
+            $arr_preprocessedDataRow['stop'] ? $arr_preprocessedDataRow['stop'] : '',     //varchar(10), darf nicht null sein,
+            $arr_preprocessedDataRow['enforceTwoFactor'] ? $arr_preprocessedDataRow['enforceTwoFactor'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['twoFactorJumpTo'] ? $arr_preprocessedDataRow['twoFactorJumpTo'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['lsShopLayoutForDetailsView'] ? $arr_preprocessedDataRow['lsShopLayoutForDetailsView'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['lsShopIncludeLayoutforDetailsView'] ? $arr_preprocessedDataRow['lsShopIncludeLayoutforDetailsView'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['lsShopOutputDefinitionSet'] ? $arr_preprocessedDataRow['lsShopOutputDefinitionSet'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_shop_thousandsSeparator'] ? $arr_preprocessedDataRow['ls_shop_thousandsSeparator'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_shop_decimalsSeparator'] ? $arr_preprocessedDataRow['ls_shop_decimalsSeparator'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_shop_currencyBeforeValue'] ? $arr_preprocessedDataRow['ls_shop_currencyBeforeValue'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_shop_useAsCategoryForErp'] ? $arr_preprocessedDataRow['ls_shop_useAsCategoryForErp'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_cnc_languageSelector_correspondingMainLanguagePage'] ? $arr_preprocessedDataRow['ls_cnc_languageSelector_correspondingMainLanguagePage'] : '',     //int(10), darf nicht null sein,
+
+
+            //die Parameter für den Update-Teil
+            $arr_preprocessedDataRow['parentId'] ? $arr_preprocessedDataRow['parentId'] : $GLOBALS['merconis_globals']['cache']['int_firstRootId'],
+            time(),
+            $arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
+            $arr_preprocessedDataRow['language'], // text
+            $arr_preprocessedDataRow['title'], //
+            $arr_preprocessedDataRow['pageTitle'], // text
+            $arr_preprocessedDataRow['alias'], // text
+            $arr_preprocessedDataRow['description'], // text
+            $arr_preprocessedDataRow['published'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['type'], //regular, root, error_
+            $arr_preprocessedDataRow['robots'] ? $arr_preprocessedDataRow['robots'] : '',     //text, robots darf nicht null sein,
+            $arr_preprocessedDataRow['redirect'] ? $arr_preprocessedDataRow['redirect'] : 'permanent',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['jumpTo'] ? $arr_preprocessedDataRow['jumpTo'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['redirectBack'] ? $arr_preprocessedDataRow['redirectBack'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['url'] ? $arr_preprocessedDataRow['url'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['target']? $arr_preprocessedDataRow['target'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['dns'] ? $arr_preprocessedDataRow['dns'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['staticFiles'] ? $arr_preprocessedDataRow['staticFiles'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['staticPlugins'] ? $arr_preprocessedDataRow['staticPlugins'] : '',     //varchar(255), darf nicht null sein,
+
+            $arr_preprocessedDataRow['robotsTxt'],
+            $arr_preprocessedDataRow['adminEmail'] ? $arr_preprocessedDataRow['adminEmail'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['dateFormat'] ? $arr_preprocessedDataRow['dateFormat'] : '',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['timeFormat'] ? $arr_preprocessedDataRow['timeFormat'] : '',     //varchar(32 darf nicht null sein,
+            $arr_preprocessedDataRow['datimFormat'] ? $arr_preprocessedDataRow['datimFormat'] : '',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['validAliasCharacters'] ? $arr_preprocessedDataRow['validAliasCharacters'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['createSitemap'] ? $arr_preprocessedDataRow['createSitemap'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['sitemapName'] ? $arr_preprocessedDataRow['sitemapName'] : '',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['useSSL'] ? $arr_preprocessedDataRow['useSSL'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['autoforward'] ? $arr_preprocessedDataRow['autoforward'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['protected'] ? $arr_preprocessedDataRow['protected'] : '',     //protected darf nicht null sein
+            $arr_preprocessedDataRow['groups'], //blob
+            $arr_preprocessedDataRow['includeLayout'] ? $arr_preprocessedDataRow['includeLayout'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['layout'] ? $arr_preprocessedDataRow['layout'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['includeCache'] ? $arr_preprocessedDataRow['includeCache'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['cache'] ? $arr_preprocessedDataRow['cache'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['alwaysLoadFromCache'] ? $arr_preprocessedDataRow['alwaysLoadFromCache'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['clientCache'] ? $arr_preprocessedDataRow['clientCache'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['includeChmod'] ? $arr_preprocessedDataRow[''] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['cuser'] ? $arr_preprocessedDataRow['cuser'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['cgroup'] ? $arr_preprocessedDataRow['cgroup'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['chmod'] ? $arr_preprocessedDataRow['chmod'] : '',     //varchar(255), darf nicht null sein,
+            $arr_preprocessedDataRow['noSearch'] ? $arr_preprocessedDataRow['noSearch'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['requireItem'] ? $arr_preprocessedDataRow['requireItem'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['cssClass'] ? $arr_preprocessedDataRow['cssClass'] : '',     //varchar(64), darf nicht null sein,
+            $arr_preprocessedDataRow['sitemap'] ? $arr_preprocessedDataRow['sitemap'] : '',     //varchar(32), darf nicht null sein,
+            $arr_preprocessedDataRow['hide'] ? $arr_preprocessedDataRow['hide'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['guests'] ? $arr_preprocessedDataRow['guests'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['tabindex'] ? $arr_preprocessedDataRow['tabindex'] : 0,     //smallint(5), darf nicht null sein,
+            $arr_preprocessedDataRow['accesskey'] ? $arr_preprocessedDataRow['accesskey'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['start'] ? $arr_preprocessedDataRow['start'] : '',     //varchar(10), darf nicht null sein,
+            $arr_preprocessedDataRow['stop'] ? $arr_preprocessedDataRow['stop'] : '',     //varchar(10), darf nicht null sein,
+            $arr_preprocessedDataRow['enforceTwoFactor'] ? $arr_preprocessedDataRow['enforceTwoFactor'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['twoFactorJumpTo'] ? $arr_preprocessedDataRow['twoFactorJumpTo'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['lsShopLayoutForDetailsView'] ? $arr_preprocessedDataRow['lsShopLayoutForDetailsView'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['lsShopIncludeLayoutforDetailsView'] ? $arr_preprocessedDataRow['lsShopIncludeLayoutforDetailsView'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['lsShopOutputDefinitionSet'] ? $arr_preprocessedDataRow['lsShopOutputDefinitionSet'] : '',     //int(10), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_shop_thousandsSeparator'] ? $arr_preprocessedDataRow['ls_shop_thousandsSeparator'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_shop_decimalsSeparator'] ? $arr_preprocessedDataRow['ls_shop_decimalsSeparator'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_shop_currencyBeforeValue'] ? $arr_preprocessedDataRow['ls_shop_currencyBeforeValue'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_shop_useAsCategoryForErp'] ? $arr_preprocessedDataRow['ls_shop_useAsCategoryForErp'] : '',     //char(1), darf nicht null sein,
+            $arr_preprocessedDataRow['ls_cnc_languageSelector_correspondingMainLanguagePage'] ? $arr_preprocessedDataRow['ls_cnc_languageSelector_correspondingMainLanguagePage'] : '',     //int(10), darf nicht null sein,
+
+        ];
+
+        $obj_dbquery_updateProduct->execute(
+            $arr_queryParams
+        );
+        $int_lastInsertId = $obj_dbquery_updateProduct->insertId;
+
+        // TODO: beim Neueintrag gibt es einen zusätzlichen Eintrag in die tl_version - noch klären ob der notwendig ist.
+
+        return $int_lastInsertId;
+    }
+
 }

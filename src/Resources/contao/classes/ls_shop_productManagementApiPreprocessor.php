@@ -825,6 +825,346 @@ class ls_shop_productManagementApiPreprocessor
 			'arr_fields' => array()
 		),
 
+        'apiResource_getCategorys' => array(
+            'arr_fields' => array()
+        ),
+
+        'apiResource_deleteCategorys' => array(
+            'bln_expectsMultipleDataRows' => true,
+            'str_httpRequestMethod' => 'post',
+            'str_responseType' => 'json',
+            'arr_fields' => array(
+
+                'id' => array(
+                    'preprocessor' => 'preprocess_categoryId',
+                    'description' => 'must be an existing page id or null ',
+                    'fieldType' => 'input_output'
+                ),
+            )
+        ),
+
+        'apiResource_writeCategorys' => array(
+            'bln_expectsMultipleDataRows' => true,
+            'str_httpRequestMethod' => 'post',
+            'str_responseType' => 'json',
+            'arr_fields' => array(
+
+                'id' => array(
+                    'preprocessor' => 'preprocess_categoryId',
+                    'description' => 'must be an existing page id or null ',
+                    'fieldType' => 'input_output'
+                ),
+                'parentId' => array(
+                    'preprocessor' => 'preprocess_categoryId',
+                    'description' => 'must be an existing page id or null ',
+                    'fieldType' => 'input_output'
+                ),
+                'type' => array(
+                    'preprocessor' => 'preprocess_categoryRowType',
+                    'description' => 'Einer der Werte root, regular, error_xxx',
+                    'fieldType' => 'input_output',
+                    'exceptionSkipsRow' => true
+                ),
+                'sorting' => array(
+                    'preprocessor' => 'preprocess_categorySorting',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'published' => array(
+                    'preprocessor' => 'preprocess_pseudoBoolean',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'language' => array(
+                    'preprocessor' => 'preprocess_language',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'title' => array(
+                    'preprocessor' => 'preprocess_categoryName',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'alias' => array(
+                    'preprocessor' => 'preprocess_urlAlias',
+                    'description' => 'string der als eindeutiger identifizierer in der url verwendet werden kann',
+                    'fieldType' => 'input_output'
+                ),
+                'pageTitle' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'description' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+
+
+
+                'robots' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'redirect' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'jumpTo' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'redirectBack' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'url' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'target' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'dns' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'staticFiles' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'staticPlugins' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'favicon' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'robotsTxt' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'adminEmail' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'dateFormat' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'timeFormat' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'datimFormat' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'validAliasCharacters' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'createSitemap' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'sitemapName' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'useSSL' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'autoforward' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'groups' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'includeLayout' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'layout' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'includeCache' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'cache' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'alwaysLoadFromCache' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'clientCache' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'includeChmod' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'cuser' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'cgroup' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'chmod' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'noSearch' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'requireItem' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'cssClass' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'sitemap' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'hide' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'guests' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'tabindex' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'accesskey' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'start' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'stop' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'enforceTwoFactor' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'twoFactorJumpTo' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'lsShopLayoutForDetailsView' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'lsShopIncludeLayoutforDetailsView' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'lsShopOutputDefinitionSet' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'ls_shop_thousandsSeparator' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'ls_shop_decimalsSeparator' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'ls_shop_currencyBeforeValue' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'ls_shop_useAsCategoryForErp' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'ls_cnc_languageSelector_correspondingMainLanguagePage' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+
+            )
+        ),
+
+
+
+
 		'apiResource_getInputPriceType' => array(
 			'arr_fields' => array()
 		),
@@ -2225,4 +2565,115 @@ class ls_shop_productManagementApiPreprocessor
 
 		return $str_output;
 	}
+
+
+    /**
+     * Expected input: 'root', 'regular', 'error_403' or 'error_401'
+     * Accepted input: as expected
+     * Normalization: none
+     */
+    protected static function preprocess_categoryRowType($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+        $str_output = trim($var_input);
+
+        if (!$str_output) {
+            throw new \Exception('no row type given (allowed values: \''.implode('\', \'', ls_shop_productManagementApiHelper::$dataCategoryRowTypesInOrderToProcess).'\')');
+        }
+
+        if (!in_array($str_output, ls_shop_productManagementApiHelper::$dataCategoryRowTypesInOrderToProcess)) {
+            throw new \Exception('wrong row type given (allowed values: \''.implode('\', \'', ls_shop_productManagementApiHelper::$dataCategoryRowTypesInOrderToProcess).'\')');
+        }
+        return $str_output;
+    }
+
+    /**
+     * Expected input: an existing page id or null
+     * Accepted input: as expected
+     * Normalization: none
+     */
+    protected static function preprocess_categoryId($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+        $str_output = trim($var_input);
+
+        if ($var_input ) {
+            $arr_result = ls_shop_generalHelper::ls_shop_getPageDataForID($var_input);
+
+            if (count($arr_result) == 0) {
+                throw new \Exception('this page Id does not existes: \''.$var_input.'\')');
+            }
+        }
+        return $str_output;
+    }
+
+
+    /**
+     * Expected input: any string with 1 to 255 characters
+     * Accepted input: as expected
+     * Normalization: the input string will be trimmed, i.e. leading and trailing whitespace will be removed
+     */
+    protected static function preprocess_categoryName($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+        $str_output = trim($var_input);
+
+        $int_length = strlen($str_output);
+
+        if ($int_length < 1) {
+            if (
+            in_array($arr_row['type'],
+                ls_shop_productManagementApiHelper::$dataCategoryRowTypesInOrderToProcess
+                )
+
+            ) {
+                throw new \Exception('the value must be at least one character long');
+            }
+        }
+
+        if ($int_length > 255) {
+            throw new \Exception('the value must not be longer than 255 characters');
+        }
+
+        return $str_output;
+    }
+
+    /**
+     * Expected input: positive integer
+     * Accepted input: anything
+     * Normalization: cast as positive integer
+     */
+    protected static function preprocess_categorySorting($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+        if (
+        !in_array($arr_row['type'], array('regular', 'root', 'error_401', 'error_403', 'error_404'))
+        ) {
+            return '';
+        }
+
+        $int_length = strlen($var_input);
+        if ($int_length < 1) {
+            throw new \Exception('the value must be at least one character long');
+        }
+
+        $int_output = (int) $var_input;
+        $int_output = abs($int_output);
+        return $int_output;
+    }
+
+
+    /**
+     * Expected input: String: Der Seitenalias ist eine eindeutige Referenz, die anstelle der numerischen Seiten-ID aufgerufen werden kann
+     * Die Funktion wirft entweder einen Fehler auf, wenn der Alias völlig ungültig ist und formatiert ihn andernfalls in einen
+     * gültigen URL-Schlüssel
+     * Accepted input: Buchstaben, Zahlen und die Sonderzeichen: .-/_
+     * Normalization: cast as url valid string
+     */
+    protected static function preprocess_urlAlias($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+        if (
+        preg_match( '/[^a-zA-Z0-9 \.\/\-_]/',$var_input)
+        ) {
+            throw new \Exception('the value contains forbidden characters. (Allowed: a-z, 0-9, . - _ /)');
+        }
+
+        //TODO: prüfen, ob die URL schon besteht
+
+        $str_output = trim($var_input);
+        $str_output = strtolower($str_output);
+        $str_output = str_replace(' ', '-', $str_output);
+        return $str_output;
+    }
 }
