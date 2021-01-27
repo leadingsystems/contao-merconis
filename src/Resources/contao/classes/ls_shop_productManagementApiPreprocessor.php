@@ -1162,6 +1162,9 @@ class ls_shop_productManagementApiPreprocessor
             )
         ),
 
+        'apiResource_getManufacturer' => array(
+            'arr_fields' => array()
+        ),
 
 
 

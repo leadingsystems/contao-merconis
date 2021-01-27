@@ -504,6 +504,28 @@ class ls_shop_productManagementApiHelper {
         return is_null($int_idExists);
     }
 
+    public static function getManufacturer() {
+
+        if (!isset($GLOBALS['merconis_globals']['manufacturer'])) {
+            $GLOBALS['merconis_globals']['manufacturer'] = array();
+
+            $obj_dbres_manufacturer = \Database::getInstance()
+                ->prepare("
+				SELECT lsShopProductProducer 
+				FROM `tl_ls_shop_product` 
+				WHERE IFNULL(lsShopProductProducer, '') != ''
+                GROUP BY lsShopProductProducer
+			")
+                ->execute();
+
+            while ($obj_dbres_manufacturer->next()) {
+                $GLOBALS['merconis_globals']['manufacturer'][] = array(
+                    'name' => $obj_dbres_manufacturer->lsShopProductProducer,
+                );
+            }
+        }
+        return $GLOBALS['merconis_globals']['manufacturer'];
+    }
 	public static function getDeliveryInfoTypeAliases() {
 		if (!isset($GLOBALS['merconis_globals']['deliveryInfoTypeAliases'])) {
 			$GLOBALS['merconis_globals']['deliveryInfoTypeAliases'] = array();
