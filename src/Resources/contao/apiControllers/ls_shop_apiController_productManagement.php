@@ -199,7 +199,14 @@ class ls_shop_apiController_productManagement
         $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getManufacturer());
     }
 
+    protected function apiResource_getShippingMethods()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
 
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getShippingMethods());
+    }
 
     protected function apiResource_getTaxRates()
     {

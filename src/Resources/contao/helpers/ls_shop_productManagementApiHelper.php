@@ -554,6 +554,55 @@ class ls_shop_productManagementApiHelper {
         return $GLOBALS['merconis_globals']['taxRates'];
     }
 
+    public static function getShippingMethods() {
+
+        if (!isset($GLOBALS['merconis_globals']['shippingMethods'])) {
+
+            $obj_dbres_shippingMethods = \Database::getInstance()
+                ->prepare("
+				SELECT		id, alias, type, steuersatz, excludedGroups, weightLimitMin, weightLimitMax, priceLimitMin, priceLimitMax,
+				            countries, countriesAsBlacklist, feetype, feeValue, feeAddCouponToValueOfGoods, feeFormula,
+				            feeFormulaResultConvertToDisplayPrice, feeWeightValues, feePriceValues, published, title, description,
+				            additionalInfo, title_de, description_de, additionalInfo_de 
+				            
+				FROM		`tl_ls_shop_shipping_methods`
+			")
+                ->execute();
+
+            while ($obj_dbres_shippingMethods->next()) {
+                $GLOBALS['merconis_globals']['shippingMethods'][] = array(
+                    'id' => $obj_dbres_shippingMethods->id,
+                    'alias' => $obj_dbres_shippingMethods->alias,
+                    'type' => $obj_dbres_shippingMethods->type,
+                    'steuersatz' => $obj_dbres_shippingMethods->steuersatz,
+                    'excludedGroups' => $obj_dbres_shippingMethods->excludedGroups,
+                    'weightLimitMin' => $obj_dbres_shippingMethods->weightLimitMin,
+                    'weightLimitMax' => $obj_dbres_shippingMethods->weightLimitMax,
+                    'priceLimitMin' => $obj_dbres_shippingMethods->priceLimitMin,
+                    'priceLimitMax' => $obj_dbres_shippingMethods->priceLimitMax,
+                    'countries' => $obj_dbres_shippingMethods->countries,
+                    'countriesAsBlacklist' => $obj_dbres_shippingMethods->countriesAsBlacklist,
+                    'feetype' => $obj_dbres_shippingMethods->feetype,
+                    'feeValue' => $obj_dbres_shippingMethods->feeValue,
+                    'feeAddCouponToValueOfGoods' => $obj_dbres_shippingMethods->feeAddCouponToValueOfGoods,
+                    'feeFormula' => $obj_dbres_shippingMethods->feeFormula,
+                    'feeFormulaResultConvertToDisplayPrice' => $obj_dbres_shippingMethods->feeFormulaResultConvertToDisplayPrice,
+                    'feeWeightValues' => $obj_dbres_shippingMethods->feeWeightValues,
+                    'feePriceValues' => $obj_dbres_shippingMethods->feePriceValues,
+                    'published' => $obj_dbres_shippingMethods->published,
+                    'title' => $obj_dbres_shippingMethods->title,
+                    'description' => $obj_dbres_shippingMethods->description,
+                    'additionalInfo' => $obj_dbres_shippingMethods->additionalInfo,
+                    'title_de' => $obj_dbres_shippingMethods->title_de,
+                    'description_de' => $obj_dbres_shippingMethods->description_de,
+                    'additionalInfo_de' => $obj_dbres_shippingMethods->additionalInfo_de,
+                );
+            }
+        }
+
+        return $GLOBALS['merconis_globals']['shippingMethods'];
+    }
+
     public static function getCurrency() {
 
         if (!isset($GLOBALS['merconis_globals']['currency'])) {
