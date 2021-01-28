@@ -1166,7 +1166,33 @@ class ls_shop_productManagementApiPreprocessor
             'arr_fields' => array()
         ),
 
+        'apiResource_getCurrency' => array(
+            'arr_fields' => array()
+        ),
 
+        'apiResource_writeCurrency' => array(
+            'bln_expectsMultipleDataRows' => false,
+            'str_httpRequestMethod' => 'post',
+            'str_responseType' => 'json',
+            'arr_fields' => array(
+
+                'id' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => 'must be an existing page id or null e.g. €',
+                    'fieldType' => 'input_output'
+                ),
+                'symbol' => array(
+                    'preprocessor' => 'preprocess_minLength',
+                    'description' => 'Character that represents the currency symbol ',
+                    'fieldType' => 'input_output'
+                ),
+                'isoCode' => array(
+                    'preprocessor' => 'preprocess_currencyIso',
+                    'description' => 'currency code according to ISO-4217, e.g. EUR',
+                    'fieldType' => 'input_output'
+                ),
+            )
+        ),
 
 		'apiResource_getInputPriceType' => array(
 			'arr_fields' => array()
@@ -2677,6 +2703,44 @@ class ls_shop_productManagementApiPreprocessor
         $str_output = trim($var_input);
         $str_output = strtolower($str_output);
         $str_output = str_replace(' ', '-', $str_output);
+        return $str_output;
+    }
+
+
+    /**
+     * Expected input: Text
+     * Accepted input: Mindestens ein Zeichen länge
+     * Normalization: the input string will be trimmed
+     */
+    protected static function preprocess_minLength($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+
+        $str_output = trim($var_input);
+
+        $int_length = strlen($str_output);
+
+        if ($int_length < 1) {
+            throw new \Exception('the value must be at least one character long');
+        }
+
+        return $str_output;
+    }
+
+    /**
+     * Expected input: String als ISO Code für die Währung
+     * Accepted input: 3 Buchstaben die einer Währung gemäß ISO 4217 entspricht
+     * Normalization: the input string will be trimmed
+     */
+    protected static function preprocess_currencyIso($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+
+        $var_input = trim($var_input);
+        $str_output = strtoupper($var_input);
+
+        if (
+            !in_array($str_output, array('AED','AFN','ALL','AMD','ANG','AOA','ARS','AUD','AWG','AZN','BAM','BBD','BDT','BGN','BHD','BIF','BMD','BND','BOB','BOV','BRL','BSD','BTN','BWP','BYN','BZD','CAD','CDF','CHE','CHF','CHW','CLF','CLP','CNY','COP','COU','CRC','CUC','CUP','CVE','CZK','DJF','DKK','DOP','DZD','EGP','ERN','ETB','EUR','FJD','FKP','GBP','GEL','GHS','GIP','GMD','GNF','GTQ','GYD','HKD','HNL','HRK','HTG','HUF','IDR','ILS','INR','IQD','IRR','ISK','JMD','JOD','JPY','KES','KGS','KHR','KMF','KPW','KRW','KWD','KYD','KZT','LAK','LBP','LKR','LRD','LSL','LYD','MAD','MDL','MGA','MKD','MMK','MNT','MOP','MRU','MUR','MVR','MWK','MXN','MXV','MYR','MZN','NAD','NGN','NIO','NOK','NPR','NZD','OMR','PAB','PEN','PGK','PHP','PKR','PLN','PYG','QAR','RON','RSD','RUB','RWF','SAR','SBD','SCR','SDG','SEK','SGD','SHP','SLL','SOS','SRD','SSP','STN','SVC','SYP','SZL','THB','TJS','TMT','TND','TOP','TRY','TTD','TWD','TZS','UAH','UGX','UAH','UYI','UYU','UYW','UZS','VES','VND','VUV','WST','XAF','XCD','XOF','XPF','XSU','YER','ZAR','ZMW','ZWL'))
+            ) {
+            throw new \Exception('the value have to be one of accepted ISO Codes');
+        }
+
         return $str_output;
     }
 }

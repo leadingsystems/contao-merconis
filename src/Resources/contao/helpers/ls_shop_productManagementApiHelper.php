@@ -526,6 +526,23 @@ class ls_shop_productManagementApiHelper {
         }
         return $GLOBALS['merconis_globals']['manufacturer'];
     }
+
+
+
+
+    public static function getCurrency() {
+
+        if (!isset($GLOBALS['merconis_globals']['currency'])) {
+            $GLOBALS['merconis_globals']['currency'] = array(
+                'symbol' => $GLOBALS['TL_CONFIG']['ls_shop_currency'],
+                'isoCode' => $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'],
+            );
+        }
+
+        return $GLOBALS['merconis_globals']['currency'];
+    }
+
+
 	public static function getDeliveryInfoTypeAliases() {
 		if (!isset($GLOBALS['merconis_globals']['deliveryInfoTypeAliases'])) {
 			$GLOBALS['merconis_globals']['deliveryInfoTypeAliases'] = array();

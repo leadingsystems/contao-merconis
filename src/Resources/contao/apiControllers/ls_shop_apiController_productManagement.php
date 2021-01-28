@@ -200,6 +200,65 @@ class ls_shop_apiController_productManagement
     }
 
 
+
+
+
+    protected function apiResource_getCurrency()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getCurrency());
+    }
+
+    /**
+     * Inserts or updates existing Currency Settings
+     * Expects the request details JSON formatted as POST parameter 'data'
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
+    protected function apiResource_writeCurrency()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
+
+        $arr_dataRows = json_decode($_POST['data'], true);
+
+        if (!count($arr_dataRows)) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message('data parameter missing or empty');
+            return;
+        }
+
+        $arr_preprocessingResult = ls_shop_productManagementApiPreprocessor::preprocess($arr_dataRows, __FUNCTION__);
+
+        if ($arr_preprocessingResult['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_preprocessingResult['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $arr_dataRows = $arr_preprocessingResult['arr_preprocessedDataRows'];
+
+        $arr_result = $this->performCurrencyImport($arr_dataRows);
+
+        ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
+
+        if ($arr_result['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_result['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_result);
+    }
+
 	/**
 	 * Returns the input price type used by Merconis
 	 *
@@ -768,6 +827,33 @@ class ls_shop_apiController_productManagement
                     $arr_result['arr_messages'][$int_rowNumber + 1] = $e->getMessage();
                 }
             }
+
+        return $arr_result;
+    }
+
+    /*
+	 * Führt die Aktualisierung von Grundeinstellungen->Währungen durch
+	 *
+	 * Rückgabe: Ergebnisarray mit evtl. Fehlermeldungen
+	 * */
+    protected function performCurrencyImport($arr_dataRows)
+    {
+
+        $arr_result = array(
+            'bln_hasError' => false,
+            'arr_messages' => array()
+        );
+
+        try {
+
+            //TODO: die Währung kommt aus einer Konfigurationsdatei. Erst absprechen wie und ob das von hier aus eingetragen werden soll
+            #$int_lastInsertId = ls_shop_productManagementApiHelper::insertOrUpdateCategoryRecord($arr_dataRow);
+            $arr_result['arr_messages']['result'] = 'erfolg';
+
+        } catch (\Exception $e) {
+            $arr_result['bln_hasError'] = true;
+            $arr_result['arr_messages']['result'] = $e->getMessage();
+        }
 
         return $arr_result;
     }
