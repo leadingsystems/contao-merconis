@@ -199,6 +199,29 @@ class ls_shop_apiController_productManagement
         $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getManufacturer());
     }
 
+    /**
+     * Returns all types of Customers/Members
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
+    protected function apiResource_getMemberGroups()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getMemberGroups());
+    }
+
+    /**
+     * Returns all Methods used for the delivery of the goods
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
     protected function apiResource_getShippingMethods()
     {
         $this->obj_apiReceiver->requireScope(['FE']);
@@ -208,6 +231,13 @@ class ls_shop_apiController_productManagement
         $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getShippingMethods());
     }
 
+    /**
+     * Returns all TaxRates
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
     protected function apiResource_getTaxRates()
     {
         $this->obj_apiReceiver->requireScope(['FE']);
@@ -217,6 +247,13 @@ class ls_shop_apiController_productManagement
         $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getTaxRates());
     }
 
+    /**
+     * Returns the used Currency saved in localconfig.php
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
     protected function apiResource_getCurrency()
     {
         $this->obj_apiReceiver->requireScope(['FE']);

@@ -554,6 +554,41 @@ class ls_shop_productManagementApiHelper {
         return $GLOBALS['merconis_globals']['taxRates'];
     }
 
+    public static function getMemberGroups() {
+
+        if (!isset($GLOBALS['merconis_globals']['memberGroups'])) {
+
+            $obj_dbres_shippingMethods = \Database::getInstance()
+                ->prepare("
+				SELECT		id, name, disable, start, stop, lsShopPriceAdjustment, lsShopMinimumOrderValueAddCouponToValueOfGoods,
+				            lsShopMinimumOrderValue, lsShopOutputPriceType, lsShopFormConfirmOrder, lsShopFormCustomerData, 
+				            lsShopStandardShippingMethod, lsShopStandardPaymentMethod
+				FROM		`tl_member_group`
+			")
+                ->execute();
+
+            while ($obj_dbres_shippingMethods->next()) {
+                $GLOBALS['merconis_globals']['memberGroups'][] = array(
+                    'id' => $obj_dbres_shippingMethods->id,
+                    'name' => $obj_dbres_shippingMethods->name,
+                    'disable' => $obj_dbres_shippingMethods->disable,
+                    'start' => $obj_dbres_shippingMethods->start,
+                    'stop' => $obj_dbres_shippingMethods->stop,
+                    'lsShopPriceAdjustment' => $obj_dbres_shippingMethods->lsShopPriceAdjustment,
+                    'lsShopMinimumOrderValueAddCouponToValueOfGoods' => $obj_dbres_shippingMethods->lsShopMinimumOrderValueAddCouponToValueOfGoods,
+                    'lsShopMinimumOrderValue' => $obj_dbres_shippingMethods->lsShopMinimumOrderValue,
+                    'lsShopOutputPriceType' => $obj_dbres_shippingMethods->lsShopOutputPriceType,
+                    'lsShopFormConfirmOrder' => $obj_dbres_shippingMethods->lsShopFormConfirmOrder,
+                    'lsShopFormCustomerData' => $obj_dbres_shippingMethods->lsShopFormCustomerData,
+                    'lsShopStandardShippingMethod' => $obj_dbres_shippingMethods->lsShopStandardShippingMethod,
+                    'lsShopStandardPaymentMethod' => $obj_dbres_shippingMethods->lsShopStandardPaymentMethod,
+                );
+            }
+        }
+
+        return $GLOBALS['merconis_globals']['memberGroups'];
+    }
+
     public static function getShippingMethods() {
 
         if (!isset($GLOBALS['merconis_globals']['shippingMethods'])) {
