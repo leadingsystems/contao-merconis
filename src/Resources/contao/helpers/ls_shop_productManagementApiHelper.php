@@ -528,7 +528,31 @@ class ls_shop_productManagementApiHelper {
     }
 
 
+    public static function getTaxRates() {
 
+        if (!isset($GLOBALS['merconis_globals']['taxRates'])) {
+
+            $obj_dbres_taxRates = \Database::getInstance()
+                ->prepare("
+				SELECT		id, title, alias, steuerProzentPeriod1, startPeriod1, stopPeriod1
+				FROM		`tl_ls_shop_steuersaetze`
+			")
+                ->execute();
+
+            while ($obj_dbres_taxRates->next()) {
+                $GLOBALS['merconis_globals']['taxRates'][] = array(
+                    'id' => $obj_dbres_taxRates->id,
+                    'title' => $obj_dbres_taxRates->title,
+                    'alias' => $obj_dbres_taxRates->alias,
+                    'steuerProzentPeriod1' => $obj_dbres_taxRates->steuerProzentPeriod1,
+                    'startPeriod1' => $obj_dbres_taxRates->startPeriod1,
+                    'stopPeriod1' => $obj_dbres_taxRates->stopPeriod1,
+                );
+            }
+        }
+
+        return $GLOBALS['merconis_globals']['taxRates'];
+    }
 
     public static function getCurrency() {
 

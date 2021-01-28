@@ -1166,6 +1166,10 @@ class ls_shop_productManagementApiPreprocessor
             'arr_fields' => array()
         ),
 
+        'apiResource_getTaxRates' => array(
+            'arr_fields' => array()
+        ),
+
         'apiResource_getCurrency' => array(
             'arr_fields' => array()
         ),
