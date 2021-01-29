@@ -2082,4 +2082,44 @@ class ls_shop_productManagementApiHelper {
         return $int_lastInsertId;
     }
 
+
+    public static function getProducts() {
+
+        if (!isset($GLOBALS['merconis_globals']['products'])) {
+
+            $obj_dbres_products = \Database::getInstance()
+                ->prepare("
+                    SELECT `id`, `lsShopProductCode`, `published`, `lsShopProductIsNew`, `lsShopProductIsOnSale`, `sorting`, `configurator`, `useGroupRestrictions`, 
+                        `lsShopProductProducer`, `lsShopProductPrice`, `useScalePrice`, `scalePriceType`, `scalePriceQuantityDetectionMethod`,
+                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations`, `scalePriceKeyword`, `scalePrice`, `lsShopProductPriceOld`,
+                        `useOldPrice`, `lsShopProductSteuersatz`, `lsShopProductWeight`, `lsShopProductQuantityDecimals`, `lsShopProductMengenvergleichDivisor`,
+                        `useGroupPrices_1`, `lsShopProductPrice_1`, `useScalePrice_1`, `scalePriceType_1`, `scalePriceQuantityDetectionMethod_1`,
+                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_1`, `scalePriceKeyword_1`, `scalePrice_1`, `lsShopProductPriceOld_1`,
+                        `useOldPrice_1`, `useGroupPrices_2`, `lsShopProductPrice_2`, `useScalePrice_2`, `scalePriceType_2`, `scalePriceQuantityDetectionMethod_2`,
+                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_2`, `scalePriceKeyword_2`, `scalePrice_2`, `lsShopProductPriceOld_2`,
+                        `useOldPrice_2`, `useGroupPrices_3` `lsShopProductPrice_3`, `useScalePrice_3`, `scalePriceType_3`, `scalePriceQuantityDetectionMethod_3`,
+                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_3`, `scalePriceKeyword_3`, `scalePrice_3`, `lsShopProductPriceOld_3`,
+                        `useOldPrice_3`, `useGroupPrices_4`, `lsShopProductPrice_4`, `useScalePrice_4`, `scalePriceType_4`, `scalePriceQuantityDetectionMethod_4`,
+                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_4`, `scalePriceKeyword_4`, `scalePrice_4`, `lsShopProductPriceOld_4`,
+                        `useOldPrice_4`, `useGroupPrices_5`, `lsShopProductPrice_5`, `useScalePrice_5`, `scalePriceType_5`, `scalePriceQuantityDetectionMethod_5`,
+                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_5`, `scalePriceKeyword_5`, `scalePrice_5`, `lsShopProductPriceOld_5`,
+                        `useOldPrice_5`, `lsShopProductDeliveryInfoSet`, `title`, `alias`, `keywords`, `pageTitle`, `pageDescription`, `shortDescription`,
+                        `description`, `lsShopProductQuantityUnit`, `lsShopProductMengenvergleichUnit`, `lsShopProductStock`, `lsShopProductNumSales`,
+                        `flex_contents`, `title_de`, `description_de`, `shortDescription_de`, `keywords_de`, `pageTitle_de`, `pageDescription_de`,
+                        `flex_contents_de`, `alias_de`, `lsShopProductQuantityUnit_de`, `lsShopProductMengenvergleichUnit_de`
+                     FROM tl_ls_shop_product
+			    ")
+                ->execute();
+
+            $GLOBALS['merconis_globals']['products'] = $obj_dbres_products->fetchAllAssoc();
+
+        }
+
+        //TODO: Verarbeitung von Varianten bzw. Berücksichtigung von Product, Variant, ProductLanguage, VariantLanguage
+
+
+        return $GLOBALS['merconis_globals']['products'];
+    }
+
+
 }
