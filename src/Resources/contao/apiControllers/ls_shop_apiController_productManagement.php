@@ -561,6 +561,22 @@ class ls_shop_apiController_productManagement
 		exit;
 	}
 
+    /**
+     * Returns all products (no Variants)
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
+    protected function apiResource_getProducts()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getProducts());
+    }
+
 	/**
 	 * Inserts product data or updates product data if it already exists. Expects the request details JSON formatted as POST parameter 'data'
 	 *
