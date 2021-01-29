@@ -511,18 +511,21 @@ class ls_shop_productManagementApiHelper {
 
             $obj_dbres_manufacturer = \Database::getInstance()
                 ->prepare("
-				SELECT lsShopProductProducer 
+				SELECT lsShopProductProducer AS name 
 				FROM `tl_ls_shop_product` 
 				WHERE IFNULL(lsShopProductProducer, '') != ''
                 GROUP BY lsShopProductProducer
 			")
                 ->execute();
-
+/*
             while ($obj_dbres_manufacturer->next()) {
                 $GLOBALS['merconis_globals']['manufacturer'][] = array(
-                    'name' => $obj_dbres_manufacturer->lsShopProductProducer,
+                    #'name' => $obj_dbres_manufacturer->lsShopProductProducer,
+                    'name' => $obj_dbres_manufacturer->name,
                 );
             }
+*/
+            $GLOBALS['merconis_globals']['manufacturer'] = $obj_dbres_manufacturer->fetchAllAssoc();
         }
         return $GLOBALS['merconis_globals']['manufacturer'];
     }
@@ -538,7 +541,7 @@ class ls_shop_productManagementApiHelper {
 				FROM		`tl_ls_shop_steuersaetze`
 			")
                 ->execute();
-
+/*
             while ($obj_dbres_taxRates->next()) {
                 $GLOBALS['merconis_globals']['taxRates'][] = array(
                     'id' => $obj_dbres_taxRates->id,
@@ -549,6 +552,8 @@ class ls_shop_productManagementApiHelper {
                     'stopPeriod1' => $obj_dbres_taxRates->stopPeriod1,
                 );
             }
+*/
+            $GLOBALS['merconis_globals']['taxRates'] = $obj_dbres_taxRates->fetchAllAssoc();
         }
 
         return $GLOBALS['merconis_globals']['taxRates'];
@@ -566,7 +571,7 @@ class ls_shop_productManagementApiHelper {
 				FROM		`tl_member_group`
 			")
                 ->execute();
-
+/*
             while ($obj_dbres_shippingMethods->next()) {
                 $GLOBALS['merconis_globals']['memberGroups'][] = array(
                     'id' => $obj_dbres_shippingMethods->id,
@@ -584,6 +589,8 @@ class ls_shop_productManagementApiHelper {
                     'lsShopStandardPaymentMethod' => $obj_dbres_shippingMethods->lsShopStandardPaymentMethod,
                 );
             }
+*/
+            $GLOBALS['merconis_globals']['memberGroups'] = $obj_dbres_shippingMethods->fetchAllAssoc();
         }
 
         return $GLOBALS['merconis_globals']['memberGroups'];
@@ -603,7 +610,7 @@ class ls_shop_productManagementApiHelper {
 				FROM		`tl_ls_shop_shipping_methods`
 			")
                 ->execute();
-
+/*
             while ($obj_dbres_shippingMethods->next()) {
                 $GLOBALS['merconis_globals']['shippingMethods'][] = array(
                     'id' => $obj_dbres_shippingMethods->id,
@@ -633,6 +640,8 @@ class ls_shop_productManagementApiHelper {
                     'additionalInfo_de' => $obj_dbres_shippingMethods->additionalInfo_de,
                 );
             }
+*/
+            $GLOBALS['merconis_globals']['shippingMethods'] = $obj_dbres_shippingMethods->fetchAllAssoc();
         }
 
         return $GLOBALS['merconis_globals']['shippingMethods'];
