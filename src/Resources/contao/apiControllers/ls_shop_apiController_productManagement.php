@@ -869,6 +869,7 @@ class ls_shop_apiController_productManagement
                     switch ($arr_dataRow['type']) {
                         case 'regular':
                             // TODO: prüfen, ob die anderen Pagetypen überhaupt notwendig sind
+//01.02.2021 nur Regular
                         #, 'root', 'error_404', 'error_403', 'error_401':
 
                             $int_lastInsertId = ls_shop_productManagementApiHelper::insertOrUpdateCategoryRecord($arr_dataRow);

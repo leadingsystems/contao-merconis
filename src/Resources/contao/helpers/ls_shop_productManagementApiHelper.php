@@ -2092,34 +2092,43 @@ class ls_shop_productManagementApiHelper {
     }
 
 
-    public static function getProducts() {
+    public static function getProducts($blnOnlyPublished = true) {
 
         if (!isset($GLOBALS['merconis_globals']['products'])) {
 
             $obj_dbres_products = \Database::getInstance()
                 ->prepare("
-                    SELECT `id`, `lsShopProductCode`, `published`, `lsShopProductIsNew`, `lsShopProductIsOnSale`, `sorting`, `configurator`, `useGroupRestrictions`, 
-                        `lsShopProductProducer`, `lsShopProductPrice`, `useScalePrice`, `scalePriceType`, `scalePriceQuantityDetectionMethod`,
-                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations`, `scalePriceKeyword`, `scalePrice`, `lsShopProductPriceOld`,
-                        `useOldPrice`, `lsShopProductSteuersatz`, `lsShopProductWeight`, `lsShopProductQuantityDecimals`, `lsShopProductMengenvergleichDivisor`,
-                        `useGroupPrices_1`, `lsShopProductPrice_1`, `useScalePrice_1`, `scalePriceType_1`, `scalePriceQuantityDetectionMethod_1`,
-                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_1`, `scalePriceKeyword_1`, `scalePrice_1`, `lsShopProductPriceOld_1`,
-                        `useOldPrice_1`, `useGroupPrices_2`, `lsShopProductPrice_2`, `useScalePrice_2`, `scalePriceType_2`, `scalePriceQuantityDetectionMethod_2`,
-                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_2`, `scalePriceKeyword_2`, `scalePrice_2`, `lsShopProductPriceOld_2`,
-                        `useOldPrice_2`, `useGroupPrices_3` `lsShopProductPrice_3`, `useScalePrice_3`, `scalePriceType_3`, `scalePriceQuantityDetectionMethod_3`,
-                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_3`, `scalePriceKeyword_3`, `scalePrice_3`, `lsShopProductPriceOld_3`,
-                        `useOldPrice_3`, `useGroupPrices_4`, `lsShopProductPrice_4`, `useScalePrice_4`, `scalePriceType_4`, `scalePriceQuantityDetectionMethod_4`,
-                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_4`, `scalePriceKeyword_4`, `scalePrice_4`, `lsShopProductPriceOld_4`,
-                        `useOldPrice_4`, `useGroupPrices_5`, `lsShopProductPrice_5`, `useScalePrice_5`, `scalePriceType_5`, `scalePriceQuantityDetectionMethod_5`,
-                        `scalePriceQuantityDetectionAlwaysSeparateConfigurations_5`, `scalePriceKeyword_5`, `scalePrice_5`, `lsShopProductPriceOld_5`,
-                        `useOldPrice_5`, `lsShopProductDeliveryInfoSet`, `title`, `alias`, `keywords`, `pageTitle`, `pageDescription`, `shortDescription`,
-                        `description`, `lsShopProductQuantityUnit`, `lsShopProductMengenvergleichUnit`, `lsShopProductStock`, `lsShopProductNumSales`,
-                        `flex_contents`, `title_de`, `description_de`, `shortDescription_de`, `keywords_de`, `pageTitle_de`, `pageDescription_de`,
-                        `flex_contents_de`, `alias_de`, `lsShopProductQuantityUnit_de`, `lsShopProductMengenvergleichUnit_de`
-                     FROM tl_ls_shop_product
+                    SELECT P.id, lsShopProductCode, P.published, P.lsShopProductIsNew, P.lsShopProductIsOnSale, P.sorting, P.configurator, P.pages,
+                        P.useGroupRestrictions, 
+                        lsShopProductProducer, P.lsShopProductPrice, P.useScalePrice, P.scalePriceType, P.scalePriceQuantityDetectionMethod,
+                        scalePriceQuantityDetectionAlwaysSeparateConfigurations, P.scalePriceKeyword, P.scalePrice, P.lsShopProductPriceOld,
+                        useOldPrice, P.lsShopProductSteuersatz, P.lsShopProductWeight, P.lsShopProductQuantityDecimals, P.lsShopProductMengenvergleichDivisor,
+                        useGroupPrices_1, P.lsShopProductPrice_1, P.useScalePrice_1, P.scalePriceType_1, P.scalePriceQuantityDetectionMethod_1,
+                        scalePriceQuantityDetectionAlwaysSeparateConfigurations_1, P.scalePriceKeyword_1, P.scalePrice_1, P.lsShopProductPriceOld_1,
+                        useOldPrice_1, P.useGroupPrices_2, P.lsShopProductPrice_2, P.useScalePrice_2, P.scalePriceType_2, P.scalePriceQuantityDetectionMethod_2,
+                        scalePriceQuantityDetectionAlwaysSeparateConfigurations_2, P.scalePriceKeyword_2, P.scalePrice_2, P.lsShopProductPriceOld_2,
+                        useOldPrice_2, P.useGroupPrices_3 lsShopProductPrice_3, P.useScalePrice_3, P.scalePriceType_3, P.scalePriceQuantityDetectionMethod_3,
+                        scalePriceQuantityDetectionAlwaysSeparateConfigurations_3, P.scalePriceKeyword_3, P.scalePrice_3, P.lsShopProductPriceOld_3,
+                        useOldPrice_3, P.useGroupPrices_4, P.lsShopProductPrice_4, P.useScalePrice_4, P.scalePriceType_4, P.scalePriceQuantityDetectionMethod_4,
+                        scalePriceQuantityDetectionAlwaysSeparateConfigurations_4, P.scalePriceKeyword_4, P.scalePrice_4, P.lsShopProductPriceOld_4,
+                        useOldPrice_4, P.useGroupPrices_5, P.lsShopProductPrice_5, P.useScalePrice_5, P.scalePriceType_5, P.scalePriceQuantityDetectionMethod_5,
+                        scalePriceQuantityDetectionAlwaysSeparateConfigurations_5, P.scalePriceKeyword_5, P.scalePrice_5, P.lsShopProductPriceOld_5,
+                        useOldPrice_5, P.lsShopProductDeliveryInfoSet, 
+                        IFNULL(L.alias, '') AS deliveryAlias, IFNULL(L.title, '') AS deliveryTitle, IFNULL(L.title_de, '') AS deliveryTitle_de, 
+                        P.title, P.alias, P.keywords, P.pageTitle, P.pageDescription, P.shortDescription,
+                        description, P.lsShopProductQuantityUnit, P.lsShopProductMengenvergleichUnit, P.lsShopProductStock, P.lsShopProductNumSales,
+                        flex_contents, P.title_de, P.description_de, P.shortDescription_de, P.keywords_de, P.pageTitle_de, P.pageDescription_de,
+                        flex_contents_de, P.alias_de, P.lsShopProductQuantityUnit_de, P.lsShopProductMengenvergleichUnit_de, 
+                        ? AS lsShopPriceType, S.steuerProzentPeriod1, S.startPeriod1, S.stopPeriod1, S.steuerProzentPeriod2, S.startPeriod2, S.stopPeriod2
+                     FROM tl_ls_shop_product P
+                     LEFT JOIN tl_ls_shop_delivery_info L ON P.lsShopProductDeliveryInfoSet = L.id
+                     LEFT JOIN tl_ls_shop_steuersaetze S ON P.lsShopProductSteuersatz = S.id
+                     WHERE 1
+                     ".($blnOnlyPublished ? " AND published = 1 ":"")."
 			    ")
-                ->execute();
-
+#".($bln_considerOnlyPagesMarkedAsCategoriesForErp ? "WHERE       `ls_shop_useAsCategoryForErp` = '1'" : "")."
+                ->execute($GLOBALS['TL_CONFIG']['ls_shop_priceType']);
+#\LeadingSystems\Helpers\lsErrorLog('getProducts:', $obj_dbres_products->query, 'perm');
             $GLOBALS['merconis_globals']['products'] = $obj_dbres_products->fetchAllAssoc();
 
         }
