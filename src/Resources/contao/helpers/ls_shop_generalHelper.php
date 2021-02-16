@@ -878,7 +878,7 @@ class ls_shop_generalHelper
      * und gibt dann den für den aktuellen Zeitpunkt gültigen Steuer-Prozentwert
      * zurück.
      */
-    public static function getCurrentTax($steuersatzID, $blnParseTaxRateValue = true)
+    public static function getCurrentTax($steuersatzID, $blnParseTaxRateValue = true, $str_customerCountryIsoCodeToSimulate = '')
     {
         $parameterHash = md5($steuersatzID . ($blnParseTaxRateValue ? 1 : 0) . ls_shop_generalHelper::getCustomerCountry());
         if (!isset($GLOBALS['merconis_globals']['getCurrentTax'][$parameterHash])) {
@@ -919,7 +919,7 @@ class ls_shop_generalHelper
                 foreach ($arrCountriesSteuerzone as $k => $v) {
                     $arrCountriesSteuerzone[$k] = strtolower($v);
                 }
-                if (in_array(ls_shop_generalHelper::getCustomerCountry(), $arrCountriesSteuerzone)) {
+                if (in_array($str_customerCountryIsoCodeToSimulate ?: ls_shop_generalHelper::getCustomerCountry(), $arrCountriesSteuerzone)) {
                     $currentSteuersatzInProzent = $arrSteuerzonen[0];
                     $foundMatchingSteuerzone = true;
                 }
