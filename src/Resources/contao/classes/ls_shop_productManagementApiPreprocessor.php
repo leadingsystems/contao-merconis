@@ -1618,7 +1618,7 @@ class ls_shop_productManagementApiPreprocessor
 	}
 
 	/**
-	 * Expected input: an existing tax class alias or an empty string
+	 * Expected input: an existing tax class alias or a special String containing Country-Iso and taxrate or an empty string
 	 * Accepted input: as expected
 	 * Normalization: translate into the taxclass id
 	 */
@@ -1634,8 +1634,9 @@ class ls_shop_productManagementApiPreprocessor
 			throw new \Exception('a value is mandatory for row type \'' . $arr_row['type'] . '\'');
 		}
 
-		if ($str_output && !ls_shop_productManagementApiHelper::getTaxClassID($str_output)) {
-			throw new \Exception('the given tax class alias does not exist');
+        $strError = '';
+		if ($str_output && !ls_shop_productManagementApiHelper::getTaxClassID($str_output, $strError)) {
+            throw new \Exception($strError ?: 'the given tax class alias does not exist');
 		}
 
 		$str_output = ls_shop_productManagementApiHelper::getTaxClassID($str_output);

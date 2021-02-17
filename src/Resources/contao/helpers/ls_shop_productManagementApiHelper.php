@@ -52,29 +52,76 @@ class ls_shop_productManagementApiHelper {
 
 	/*
 	 * Diese Funktion liest anhand des Alias die ID aus und gibt diese zurück
+	 * Diese Funktion erwartet entweder einen Steuerklassen-Alias oder einen speziellen String der sich aus dem Länder-ISO-Code einem Doppelpunkt
+	 * und einer numerischen Steuerrate zusammensetzt
+	 * Im ersten Fall wird die ID zu dem Alias zurückgegeben. Im zweiten Fall wird gesucht, ob es zu Land und Steuersatz mindestens einen gültigen
+	 * Steuerklasseneintrag gibt (dessen ID dann zurückgegeben wird)
+	 * Syntax des Länder-ISO-Code-Steuerklassen String:     [Länder-ISO Lowercase]:[Satz als Float]
+	 * Bsp:    de:7.995             oder        it:19               nicht aber:     De:16       oder    de:16.
 	 */
-	public static function getTaxClassID($str_alias = '') {
-        if ($str_alias === '' || $str_alias === null) {
+	public static function getTaxClassID($str_aliasOrCountryTaxRate = '', &$str_errorMessage = '') {
+        $int_resultId = 0;
+
+        if ($str_aliasOrCountryTaxRate === '' || $str_aliasOrCountryTaxRate === null) {
 			return 0;
 		}
 
-		if (!isset($GLOBALS['merconis_globals']['getTaxClassID'][$str_alias])) {
+		if (!isset($GLOBALS['merconis_globals']['getTaxClassID'][$str_aliasOrCountryTaxRate])) {
 			$obj_dbres_row = \Database::getInstance()
 			->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_steuersaetze`
 				WHERE		`alias` = ?
 			")
-			->execute($str_alias);
+			->execute($str_aliasOrCountryTaxRate);
 
 			if ($obj_dbres_row->numRows) {
-				$GLOBALS['merconis_globals']['getTaxClassID'][$str_alias] = $obj_dbres_row->id;
+				$GLOBALS['merconis_globals']['getTaxClassID'][$str_aliasOrCountryTaxRate] = $obj_dbres_row->id;
 			} else {
-				$GLOBALS['merconis_globals']['getTaxClassID'][$str_alias] = 0;
+                //Alias NICHT gefunden-> es könnte ein spezieller Länder-ISO Steuerraten-String sein
+
+                if (preg_match_all( '/^([a-z]{2}):(\d{1,2}(\.\d{1,4})*)$/', $str_aliasOrCountryTaxRate, $arrMatches) ) {
+
+                    $str_country = $arrMatches[1][0];
+                    $flt_apiTaxRate = $arrMatches[2][0];
+
+                    //Alle zeitlich gültigen Steuersatz-Zonen Datensätze holen
+                    $obj_dbres_rates = \Database::getInstance()
+                        ->prepare("
+                            SELECT id
+                            FROM tl_ls_shop_steuersaetze
+                        ")
+                        ->execute();
+
+                    $GLOBALS['merconis_globals']['getTaxClassID'][$str_aliasOrCountryTaxRate] = 0;
+
+                    while($obj_dbres_rates->next()) {
+
+                        $flt_shopTaxRate = ls_shop_generalHelper::getCurrentTax($obj_dbres_rates->id, false, $str_country);
+
+                        //Die Rate muss zur übergebenen passen
+                        if ($int_resultId == 0 ) {
+                            //Noch keine ID gefunden. Wenn die eingegebene Steuerrate (und das Land)  mit der vom Shop übereinstimmt,
+                            $int_resultId = ($flt_apiTaxRate == $flt_shopTaxRate) ? $obj_dbres_rates->id: 0;
+                        } else {
+                            //Wir haben bereits eine passende ID
+                            if ($flt_apiTaxRate == $flt_shopTaxRate) {
+                                //Jetzt gibt es MEHR ALS EINE ID - Die Eindeutigkeit ist nicht mehr gegeben - 0 zurückliefern
+                                $str_errorMessage = 'More than one taxclass id found.';
+                                $int_resultId = 0;
+                                break;
+                            }
+                        }
+                    }
+                    $GLOBALS['merconis_globals']['getTaxClassID'][$str_aliasOrCountryTaxRate] = $int_resultId;
+
+                } else {
+                    $GLOBALS['merconis_globals']['getTaxClassID'][$str_aliasOrCountryTaxRate] = 0;
+                    $str_errorMessage = 'No taxclass id found.';
+                }
 			}
 		}
-
-		return $GLOBALS['merconis_globals']['getTaxClassID'][$str_alias];
+		return $GLOBALS['merconis_globals']['getTaxClassID'][$str_aliasOrCountryTaxRate];
 	}
 
 	/*
