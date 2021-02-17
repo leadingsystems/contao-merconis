@@ -609,6 +609,7 @@ class ls_shop_apiController_productManagement
 		$arr_dataRows = $arr_preprocessingResult['arr_preprocessedDataRows'];
 
 		$arr_result = $this->performImport($arr_dataRows);
+        $arr_resultIds = $arr_result['arr_idsInsertedOrUpdated'];
 
 		ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
 
@@ -620,7 +621,7 @@ class ls_shop_apiController_productManagement
 		}
 
 		$this->obj_apiReceiver->success();
-		$this->obj_apiReceiver->set_data(null);
+		$this->obj_apiReceiver->set_data($arr_resultIds );
 	}
 
 	/**
@@ -797,8 +798,10 @@ class ls_shop_apiController_productManagement
 	{
 		$arr_result = array(
 			'bln_hasError' => false,
-			'arr_messages' => array()
+			'arr_messages' => array(),
+            'arr_idsInsertedOrUpdated' => array()
 		);
+		$int_idInsertedOrUpdated = 0;
 
 		foreach (ls_shop_productManagementApiHelper::$dataRowTypesInOrderToProcess as $str_dataRowType) {
 			foreach ($arr_dataRows as $int_rowNumber => $arr_dataRow) {
@@ -808,11 +811,12 @@ class ls_shop_apiController_productManagement
 				if ($arr_dataRow['type'] != $str_dataRowType) {
 					continue;
 				}
+                $int_idInsertedOrUpdated = 0;
 
 				try {
 					switch ($str_dataRowType) {
 						case 'product':
-							ls_shop_productManagementApiHelper::insertOrUpdateProductRecord($arr_dataRow);
+							ls_shop_productManagementApiHelper::insertOrUpdateProductRecord($arr_dataRow, $int_idInsertedOrUpdated);
 							break;
 
 						case 'variant':
@@ -827,6 +831,10 @@ class ls_shop_apiController_productManagement
 							ls_shop_productManagementApiHelper::writeVariantLanguageData($arr_dataRow);
 							break;
 					}
+
+					//Neue oder bestehende Ids zurückgeben (da der Connector sie für das PK-Mapping benötigt)
+                    $arr_result['arr_idsInsertedOrUpdated'][$int_rowNumber + 1] = $int_idInsertedOrUpdated;
+
 				} catch (\Exception $e) {
 					$arr_result['bln_hasError'] = true;
 					$arr_result['arr_messages'][$int_rowNumber + 1] = $e->getMessage();

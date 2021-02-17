@@ -1090,7 +1090,7 @@ class ls_shop_productManagementApiHelper {
 		return $int_variantId;
 	}
 
-	public static function insertOrUpdateProductRecord($arr_preprocessedDataRow) {
+	public static function insertOrUpdateProductRecord($arr_preprocessedDataRow, &$int_idInsertedOrUpdated = 0) {
 		// Prüfen, ob es ein Produkt mit der Artikelnummer bereits gibt
 		$int_alreadyExistsAsID = 0;
 
@@ -1104,6 +1104,7 @@ class ls_shop_productManagementApiHelper {
 
 		if ($obj_dbres_prodExists->numRows) {
 			$int_alreadyExistsAsID = $obj_dbres_prodExists->id;
+            $int_idInsertedOrUpdated = $int_alreadyExistsAsID;
 		}
 
 		/*
@@ -1346,6 +1347,7 @@ class ls_shop_productManagementApiHelper {
 			$obj_insertProduct->execute($arr_queryParams);
 
 			$int_newProductID = $obj_insertProduct->insertId;
+            $int_idInsertedOrUpdated = $int_newProductID;
 
 			ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable($arr_preprocessedDataRow['propertiesAndValues'], $int_newProductID, 0);
 
