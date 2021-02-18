@@ -77,7 +77,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 	),
 	
 	'palettes' => array(
-		'default' => '{title_legend},title,alias;'
+		'default' => '{title_legend},title,alias,hostid;'
 	),
 	
 	'fields' => array(
@@ -102,7 +102,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 			'sorting' => true,
 			'flag' => 11,
 			'search' => true
-		)
+		),
+
+        'hostid' => array (
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['hostid'],
+            'exclude' => true,
+            'inputType'               => 'text',
+            'search' => true,
+            'sorting' => true,
+            'sql'                     => "int(10) unsigned NULL "
+        )
 	)
 );
 

@@ -95,11 +95,21 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 			'exclude' => true,
 			'inputType'               => 'text',
 			'eval'                    => array('rgxp'=>'alnum', 'doNotCopy'=>true, 'spaceToUnderscore'=>true, 'maxlength'=>128, 'tl_class'=>'clr topLinedGroup'),
+			'eval'                    => array('rgxp'=>'alnum', 'doNotCopy'=>true, 'spaceToUnderscore'=>true, 'maxlength'=>128, 'tl_class'=>'clr topLinedGroup'),
 			'save_callback' => array (
 				array('Merconis\Core\ls_shop_attribute_values', 'generateAlias')
 			),
 			'search' => true
 		),
+
+        'hostid' => array (
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['hostid'],
+            'exclude' => true,
+            'inputType'               => 'text',
+            'search' => true,
+            'sorting' => true,
+            'sql'                     => "int(10) unsigned NULL "
+        ),
 		
 		'classForFilterFormField' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['classForFilterFormField'],
