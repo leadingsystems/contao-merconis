@@ -670,6 +670,100 @@ class ls_shop_apiController_productManagement
 		$this->obj_apiReceiver->set_data(null);
 	}
 
+    /**
+     * Inserts Product Properties or updates it if it already exists. Expects the request details JSON formatted as POST parameter 'data'
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
+    protected function apiResource_writeProperty()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
+
+        $arr_dataRows = json_decode($_POST['data'], true);
+
+        if (!count($arr_dataRows)) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message('data parameter missing or empty');
+            return;
+        }
+
+        $arr_preprocessingResult = ls_shop_productManagementApiPreprocessor::preprocess($arr_dataRows, __FUNCTION__);
+
+        if ($arr_preprocessingResult['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_preprocessingResult['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $arr_dataRows = $arr_preprocessingResult['arr_preprocessedDataRows'];
+
+        $arr_result = $this->performPropertyImport($arr_dataRows);
+        $arr_resultIds = $arr_result['arr_idsInsertedOrUpdated'];
+
+        ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
+
+        if ($arr_result['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_result['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_resultIds );
+    }
+
+    /**
+     * Inserts Product Property Values or updates it if it already exists. Expects the request details JSON formatted as POST parameter 'data'
+     *
+     * Scope: FE
+     *
+     * Allowed user types: apiUser
+     */
+    protected function apiResource_writePropertyValue()
+    {
+        $this->obj_apiReceiver->requireScope(['FE']);
+        $this->obj_apiReceiver->requireUser(['apiUser']);
+
+        $arr_dataRows = json_decode($_POST['data'], true);
+
+        if (!count($arr_dataRows)) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message('data parameter missing or empty');
+            return;
+        }
+
+        $arr_preprocessingResult = ls_shop_productManagementApiPreprocessor::preprocess($arr_dataRows, __FUNCTION__);
+
+        if ($arr_preprocessingResult['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_preprocessingResult['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $arr_dataRows = $arr_preprocessingResult['arr_preprocessedDataRows'];
+
+        $arr_result = $this->performPropertyValueImport($arr_dataRows);
+        $arr_resultIds = $arr_result['arr_idsInsertedOrUpdated'];
+
+        ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
+
+        if ($arr_result['bln_hasError']) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($arr_result['arr_messages']);
+            $this->obj_apiReceiver->set_httpResponseCode(200);
+            return;
+        }
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_resultIds);
+    }
+
 	/**
 	 * Changes product or variant stock. Expects the request details JSON formatted as POST parameter 'data'
 	 *
@@ -929,6 +1023,121 @@ class ls_shop_apiController_productManagement
         } catch (\Exception $e) {
             $arr_result['bln_hasError'] = true;
             $arr_result['arr_messages']['result'] = $e->getMessage();
+        }
+
+        return $arr_result;
+    }
+
+    protected function performPropertyImport($arr_dataRows)
+    {
+\LeadingSystems\Helpers\lsErrorLog('performPropertyImport: $arr_dataRows', $arr_dataRows, 'perm');
+        $arr_result = array(
+            'bln_hasError' => false,
+            'arr_messages' => array(),
+            'arr_idsInsertedOrUpdated' => array()
+        );
+        $int_idInsertedOrUpdated = 0;
+
+        foreach ($arr_dataRows as $int_rowNumber => $arr_dataRow) {
+
+            $int_idInsertedOrUpdated = 0;
+
+            try {
+                //TODO: Hier den Eintrag des Merkmals umsetzen
+\LeadingSystems\Helpers\lsErrorLog('performPropertyImport: $int_rowNumber', $int_rowNumber, 'perm');
+\LeadingSystems\Helpers\lsErrorLog('performPropertyImport: $arr_dataRow', $arr_dataRow, 'perm');
+/*
+                $obj_dbres_page = \Database::getInstance()
+                    ->prepare("
+						SELECT		`id`
+						FROM		`tl_page`
+						WHERE		`alias` = ?
+					")
+                    ->execute($str_category);
+*/
+
+                //Spracheinträge, sofern übergeben
+                if (isset($arr_dataRow['languageTitles']) AND $arr_dataRow['languageTitles'] != '' ) {
+\LeadingSystems\Helpers\lsErrorLog('performPropertyImport: $arr_dataRow[\'languageTitles\'] ', $arr_dataRow['languageTitles'], 'perm');
+                //TODO: Hier den Eintrag der Spracheinträge des Merkmals umsetzen
+/*
+                    $obj_dbres_page = \Database::getInstance()
+                        ->prepare("
+						SELECT		`id`
+						FROM		`tl_page`
+						WHERE		`alias` = ?
+					")
+                        ->execute($str_category);
+*/
+                }
+
+
+
+                //Neue oder bestehende Ids zurückgeben (da der Connector sie für das PK-Mapping benötigt)
+                $arr_result['arr_idsInsertedOrUpdated'][$int_rowNumber + 1] = $int_idInsertedOrUpdated;
+
+            } catch (\Exception $e) {
+                $arr_result['bln_hasError'] = true;
+                $arr_result['arr_messages'][$int_rowNumber + 1] = $e->getMessage();
+            }
+        }
+
+
+
+        return $arr_result;
+    }
+
+
+    protected function performPropertyValueImport($arr_dataRows)
+    {
+\LeadingSystems\Helpers\lsErrorLog('performPropertyValueImport: $arr_dataRows', $arr_dataRows, 'perm');
+        $arr_result = array(
+            'bln_hasError' => false,
+            'arr_messages' => array(),
+            'arr_idsInsertedOrUpdated' => array()
+        );
+        $int_idInsertedOrUpdated = 0;
+
+        foreach ($arr_dataRows as $int_rowNumber => $arr_dataRow) {
+
+            $int_idInsertedOrUpdated = 0;
+
+            try {
+                //TODO: Hier den Eintrag des Merkmalswerts umsetzen
+\LeadingSystems\Helpers\lsErrorLog('performPropertyValueImport: $int_rowNumber', $int_rowNumber, 'perm');
+\LeadingSystems\Helpers\lsErrorLog('performPropertyValueImport: $arr_dataRow', $arr_dataRow, 'perm');
+/*
+                $obj_dbres_page = \Database::getInstance()
+                    ->prepare("
+                        SELECT		`id`
+                        FROM		`tl_page`
+                        WHERE		`alias` = ?
+                    ")
+                    ->execute($str_category);
+*/
+
+                //Spracheinträge, sofern übergeben
+                if (isset($arr_dataRow['languageTitles']) AND $arr_dataRow['languageTitles'] != '' ) {
+\LeadingSystems\Helpers\lsErrorLog('performPropertyValueImport: $arr_dataRow[\'languageTitles\'] ', $arr_dataRow['languageTitles'], 'perm');
+                    //TODO: Hier den Eintrag der Spracheinträge der Merkmals-Werte umsetzen
+/*
+                    $obj_dbres_page = \Database::getInstance()
+                        ->prepare("
+                        SELECT		`id`
+                        FROM		`tl_page`
+                        WHERE		`alias` = ?
+                    ")
+                        ->execute($str_category);
+*/
+                }
+
+                //Neue oder bestehende Ids zurückgeben (da der Connector sie für das PK-Mapping benötigt)
+                $arr_result['arr_idsInsertedOrUpdated'][$int_rowNumber + 1] = $int_idInsertedOrUpdated;
+
+            } catch (\Exception $e) {
+                $arr_result['bln_hasError'] = true;
+                $arr_result['arr_messages'][$int_rowNumber + 1] = $e->getMessage();
+            }
         }
 
         return $arr_result;

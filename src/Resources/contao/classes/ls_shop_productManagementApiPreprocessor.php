@@ -1210,6 +1210,64 @@ class ls_shop_productManagementApiPreprocessor
             )
         ),
 
+        'apiResource_writeProperty' => array(
+            'bln_expectsMultipleDataRows' => true,
+            'str_httpRequestMethod' => 'post',
+            'str_responseType' => 'json',
+            'arr_fields' => array(
+
+                'hostid' => array(
+                    'preprocessor' => 'preprocess_integerForId',
+                    'description' => 'must be an integer',
+                    'fieldType' => 'input_output'
+                ),
+                'title' => array(
+                    'preprocessor' => 'preprocess_minLength',
+                    'description' => 'Text that represents the name of a Property',
+                    'fieldType' => 'input_output'
+                ),
+                'languageTitles' => array(
+                    'preprocessor' => 'preprocess_languageStringsJson',
+                    'description' => 'json string for other language titles',
+                    'fieldType' => 'input_output'
+                ),
+            )
+        ),
+
+        'apiResource_writePropertyValue' => array(
+            'bln_expectsMultipleDataRows' => false,
+            'str_httpRequestMethod' => 'post',
+            'str_responseType' => 'json',
+            'arr_fields' => array(
+
+                'hostid' => array(
+                    'preprocessor' => 'preprocess_integerForId',
+                    'description' => 'must be an integer',
+                    'fieldType' => 'input_output'
+                ),
+                'title' => array(
+                    'preprocessor' => 'preprocess_minLength',
+                    'description' => 'Text that represents the name of a Propertyvalue',
+                    'fieldType' => 'input_output'
+                ),
+                'languageTitles' => array(
+                    'preprocessor' => 'preprocess_languageStringsJson',
+                    'description' => 'json string for other language titles',
+                    'fieldType' => 'input_output'
+                ),
+                'cssClass' => array(
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => 'Text that represents a css Class',
+                    'fieldType' => 'input_output'
+                ),
+                'important' => array(
+                    'preprocessor' => 'preprocess_pseudoBoolean',
+                    'description' => '1 for true or 0 or empty for false',
+                    'fieldType' => 'input_output'
+                ),
+            )
+        ),
+
 		'apiResource_getInputPriceType' => array(
 			'arr_fields' => array()
 		),
@@ -2759,5 +2817,93 @@ class ls_shop_productManagementApiPreprocessor
         }
 
         return $str_output;
+    }
+
+    /**
+     * Expected input: positive integer
+     * Accepted input: anything
+     * Normalization: cast as positive integer
+     */
+    protected static function preprocess_integerForId($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+#\LeadingSystems\Helpers\lsErrorLog('preprocess_integerForId: $var_input', $var_input, 'perm');
+
+        $int_length = strlen($var_input);
+        if ($int_length < 1) {
+            throw new \Exception('the value must be at least one character long');
+            #$str_error = 'the value must be at least one character long ';
+        }
+
+        if (!is_numeric($var_input)) {
+            throw new \Exception('the value must be numeric');
+            #$str_error .= 'the value must be numeric ';
+        }
+
+        #if (!is_integer($var_input)) {
+            #throw new \Exception('the value must be an integer');
+        #}
+
+
+#\LeadingSystems\Helpers\lsErrorLog('preprocess_integerForId: $int_output', $int_output, 'perm');
+        #if ($str_error) {
+            #throw new \Exception($str_error);
+        #}
+
+        $int_output = (int) $var_input;
+        $int_output = abs($int_output);
+
+#\LeadingSystems\Helpers\lsErrorLog('preprocess_integerForId: $int_output', $int_output, 'perm');
+        return $int_output;
+    }
+
+
+    /**
+     * Expected input: An empty string or a valid json string containing ´countrycode´=>´title´ values.
+     * Accepted input: as expected
+     * Normalization: an import-ready language-title collection will be created
+     */
+    protected static function preprocess_languageStringsJson($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+\LeadingSystems\Helpers\lsErrorLog('preprocess_languageStringsJson: $var_input', $var_input, 'perm');
+        if ($var_input == '') {
+            return '';
+        }
+
+        $str_output = trim($var_input);
+#\LeadingSystems\Helpers\lsErrorLog('preprocess_languageStringsJson: $str_output', $str_output, 'perm');
+
+        $arr_languageStrings = json_decode($str_output, true);
+#\LeadingSystems\Helpers\lsErrorLog('preprocess_languageStringsJson: $arr_languageStrings', $arr_languageStrings, 'perm');
+
+        if (!is_array($arr_languageStrings)) {
+            throw new \Exception('the value must be valid json data');
+/*
+            $arr_flexContentFields = ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $str_output);
+\LeadingSystems\Helpers\lsErrorLog('preprocess_languageStringsJson: $arr_flexContentFields', $arr_flexContentFields, 'perm');
+            $arr_languageStrings = array();
+
+            foreach ($arr_flexContentFields as $str_flexContentFieldKey) {
+                $arr_languageStrings[] = array(
+                    $str_flexContentFieldKey,
+                    isset($arr_row[$str_flexContentFieldKey]) ? $arr_row[$str_flexContentFieldKey] : ''
+                );
+            }
+\LeadingSystems\Helpers\lsErrorLog('preprocess_languageStringsJson: wenn es kein array war: $arr_languageStrings', $arr_languageStrings, 'perm');
+*/
+        }
+
+        //die Keys dürfen nur aus 2 Kleinbuchstaben bestehen
+        foreach($arr_languageStrings AS $strKey => $strValue) {
+#\LeadingSystems\Helpers\lsErrorLog('preprocess_languageStringsJson: $strKey', $strKey, 'perm');
+            #if ( strlen($strKey) != 2) {
+            if (!preg_match('/^[a-z]{2}$/', $strKey) ){
+                throw new \Exception('at least one language iso ('.$strKey.') is not correct (2 Characters, lowercase)');
+            }
+        }
+
+
+        $str_output = json_encode($arr_languageStrings);
+\LeadingSystems\Helpers\lsErrorLog('preprocess_languageStringsJson: $str_output', $str_output, 'perm');
+        return $str_output;
+        //TODO: vielleicht ist hier die Rückgabe als Array geeigneter
+        #return $arr_languageStrings;
     }
 }
