@@ -2475,7 +2475,7 @@ class ls_shop_productManagementApiPreprocessor
 	}
 
 	/**
-	 * Expected input: an existing property alias or an empty string
+	 * Expected input: an existing property alias or an existing id or an empty string
 	 * Accepted input: as expected
 	 * Normalization: translates into the property id
 	 */
@@ -2495,16 +2495,19 @@ class ls_shop_productManagementApiPreprocessor
 		$arr_attributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 
 		if (!in_array($str_output, $arr_attributeAndValueAliases['attributeAliases'])) {
-			throw new \Exception('given property alias does not exist');
-		}
-
-		$str_output = ls_shop_productManagementApiHelper::getAttributeIDForAlias($str_output);
+            if (!in_array($str_output, $arr_attributeAndValueAliases['attributeIds'])) {
+                throw new \Exception('found neither as alias nor as id');
+            }
+		} else {
+		    //Alias ist vorhanden -> dessen ID zurückgeben
+            $str_output = ls_shop_productManagementApiHelper::getAttributeIDForAlias($str_output);
+        }
 
 		return $str_output;
 	}
 
 	/**
-	 * Expected input: an existing property value alias or an empty string
+	 * Expected input: an existing property value alias or an id or an empty string
 	 * Accepted input: as expected
 	 * Normalization: translates into the property value id
 	 */
@@ -2524,10 +2527,15 @@ class ls_shop_productManagementApiPreprocessor
 		$arr_attributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 
 		if (!in_array($str_output, $arr_attributeAndValueAliases['attributeValueAliases'])) {
-			throw new \Exception('given property value alias does not exist');
-		}
 
-		$str_output = ls_shop_productManagementApiHelper::getAttributeValueIDForAlias($str_output);
+            if (!in_array($str_output, $arr_attributeAndValueAliases['attributeValueIds'])) {
+                throw new \Exception('found neither as alias nor as id');
+            }
+
+		} else {
+		    //Als Alias gefunden -> die ID dazu holen
+            $str_output = ls_shop_productManagementApiHelper::getAttributeValueIDForAlias($str_output);
+        }
 
 		$int_attributeValueFieldNumber = preg_replace('/[^\d]/', '', $str_fieldName);
 

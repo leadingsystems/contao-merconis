@@ -258,29 +258,33 @@ class ls_shop_productManagementApiHelper {
 		if (!isset($GLOBALS['merconis_globals']['attributeAndValueAliases'])) {
 			$GLOBALS['merconis_globals']['attributeAndValueAliases'] = array(
 				'attributeAliases' => array(),
-				'attributeValueAliases' => array()
+                'attributeIds' => array(),
+				'attributeValueAliases' => array(),
+                'attributeValueIds' => array()
 			);
 
 			$obj_dbres_attributes = \Database::getInstance()
 			->prepare("
-				SELECT		`alias`
+				SELECT		`id`, `alias`
 				FROM		`tl_ls_shop_attributes`
 			")
 			->execute();
 
 			while($obj_dbres_attributes->next()) {
 				$GLOBALS['merconis_globals']['attributeAndValueAliases']['attributeAliases'][] = $obj_dbres_attributes->alias;
+                $GLOBALS['merconis_globals']['attributeAndValueAliases']['attributeIds'][] = $obj_dbres_attributes->id;
 			}
 
 			$obj_attributeValues = \Database::getInstance()
 			->prepare("
-				SELECT		`alias`
+				SELECT		`id`, `alias`
 				FROM		`tl_ls_shop_attribute_values`
 			")
 			->execute();
 
 			while($obj_attributeValues->next()) {
 				$GLOBALS['merconis_globals']['attributeAndValueAliases']['attributeValueAliases'][] = $obj_attributeValues->alias;
+                $GLOBALS['merconis_globals']['attributeAndValueAliases']['attributeValueIds'][] = $obj_attributeValues->id;
 			}
 		}
 
