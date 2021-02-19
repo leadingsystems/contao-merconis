@@ -1234,6 +1234,20 @@ class ls_shop_productManagementApiPreprocessor
             )
         ),
 
+        'apiResource_deleteProperty' => array(
+            'bln_expectsMultipleDataRows' => true,
+            'str_httpRequestMethod' => 'post',
+            'str_responseType' => 'json',
+            'arr_fields' => array(
+
+                'id' => array(
+                    'preprocessor' => 'preprocess_propertyId',
+                    'description' => 'must be an existing property id',
+                    'fieldType' => 'input_output'
+                ),
+            )
+        ),
+
         'apiResource_writePropertyValue' => array(
             'bln_expectsMultipleDataRows' => false,
             'str_httpRequestMethod' => 'post',
@@ -1263,6 +1277,20 @@ class ls_shop_productManagementApiPreprocessor
                 'important' => array(
                     'preprocessor' => 'preprocess_pseudoBoolean',
                     'description' => '1 for true or 0 or empty for false',
+                    'fieldType' => 'input_output'
+                ),
+            )
+        ),
+
+        'apiResource_deletePropertyValue' => array(
+            'bln_expectsMultipleDataRows' => true,
+            'str_httpRequestMethod' => 'post',
+            'str_responseType' => 'json',
+            'arr_fields' => array(
+
+                'id' => array(
+                    'preprocessor' => 'preprocess_propertyValueId',
+                    'description' => 'must be an existing property Value id',
                     'fieldType' => 'input_output'
                 ),
             )
