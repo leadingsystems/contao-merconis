@@ -27,6 +27,14 @@ if ($this->allowCheckout == 'both') {
             </h3>
             <button data-lsjs-element="toggler" class="order-with-login"><span class="label">Mit Kundenkonto bestellen</span></button>
             <button data-lsjs-element="toggler" class="order-without-login"><span class="label">Als Gast bestellen</span></button>
+
+            <?php
+            if (!FE_USER_LOGGED_IN) {
+                ?>
+                <p class="sign-up-link"><?php echo $this->arrRequiredCheckoutData['signUpLink']; ?></p>
+                <?php
+            }
+            ?>
         </div>
     <?php
 }
@@ -50,16 +58,9 @@ if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
                         "
                     >
                         <?php // ########## FE LOGIN ##########?>
-                        <?php
-                        if (!FE_USER_LOGGED_IN) {
-                            ?>
-                            <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText034'][$this->allowCheckout]; ?></p>
-                            <?php
-                        }
-                        ?>
                         {{insert_module::<?php echo $GLOBALS['TL_CONFIG']['ls_shop_loginModuleID']; ?>}}
                         <?php
-                        if (!FE_USER_LOGGED_IN) {
+                        if ($this->allowCheckout == 'withLogin' && !FE_USER_LOGGED_IN) {
                             ?>
                             <p><?php echo $this->arrRequiredCheckoutData['signUpLink']; ?></p>
                             <?php
