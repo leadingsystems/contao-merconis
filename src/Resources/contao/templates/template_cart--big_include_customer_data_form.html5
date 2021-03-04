@@ -58,6 +58,13 @@ if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
                         "
                     >
                         <?php // ########## FE LOGIN ##########?>
+                        <?php
+                        if (!FE_USER_LOGGED_IN) {
+                            ?>
+                            <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText034'][$this->allowCheckout]; ?></p>
+                            <?php
+                        }
+                        ?>
                         {{insert_module::<?php echo $GLOBALS['TL_CONFIG']['ls_shop_loginModuleID']; ?>}}
                         <?php
                         if ($this->allowCheckout == 'withLogin' && !FE_USER_LOGGED_IN) {
