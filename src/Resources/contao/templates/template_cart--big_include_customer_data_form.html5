@@ -7,45 +7,75 @@
 ?>
 
 <?php
+if ($this->allowCheckout == 'both') {
+    ?>
+    <div
+        class="order-login-type-wrapper"
+        data-lsjs-component="statusToggler"
+        data-lsjs-statusTogglerOptions="
+                            {
+                                str_propertyToToggle: 'data-misc-order-login-type',
+                                arr_statusValue: ['with-login', 'without-login'],
+                                str_sessionStorageKey: 'merconisOrderLoginType'
+                            }
+                        "
+        data-misc-order-login-type="without-login"
+    >
+        <div id="checkoutStepOrderLoginType" class="<?php echo FE_USER_LOGGED_IN ? 'currently-logged-in' : 'currently-not-logged-in'; ?>">
+            <h3><i class="lsi lsi-location-02"></i>
+                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151']; ?>
+            </h3>
+            <button data-lsjs-element="toggler" class="order-with-login"><span class="label">Mit Kundenkonto bestellen</span></button>
+            <button data-lsjs-element="toggler" class="order-without-login"><span class="label">Als Gast bestellen</span></button>
+        </div>
+    <?php
+}
+
 if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
 	?>
-	<div id="checkoutStepLogin">
-		<h3><i class="lsi lsi-location-02"></i>
-			<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText136']; ?>
-		</h3>
-		<div>
-			<div class="customerLogin">
-				<div class="feLogin"
-					 data-lsjs-component="cajaxCaller"
-					 data-lsjs-cajaxCallerOptions="
-					{
-						'obj_cajaxRequestData': {
-							'requestedElementID': 'checkout-content'
-						}
-					}
-					"
-				>
-					<?php // ########## FE LOGIN ##########?>
-					<?php
-					if (!FE_USER_LOGGED_IN) {
-						?>
-						<p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText034'][$this->allowCheckout]; ?></p>
-						<?php
-					}
-					?>
-					{{insert_module::<?php echo $GLOBALS['TL_CONFIG']['ls_shop_loginModuleID']; ?>}}
-					<?php
-					if (!FE_USER_LOGGED_IN) {
-						?>
-						<p><?php echo $this->arrRequiredCheckoutData['signUpLink']; ?></p>
-						<?php
-					}
-					?>
-				</div>
-			</div>
-		</div>
-	</div>
+        <div id="checkoutStepLogin">
+            <h3><i class="lsi lsi-person-02"></i>
+                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText136']; ?>
+            </h3>
+            <div>
+                <div class="customerLogin">
+                    <div class="feLogin"
+                         data-lsjs-component="cajaxCaller"
+                         data-lsjs-cajaxCallerOptions="
+                        {
+                            'obj_cajaxRequestData': {
+                                'requestedElementID': 'checkout-content'
+                            }
+                        }
+                        "
+                    >
+                        <?php // ########## FE LOGIN ##########?>
+                        <?php
+                        if (!FE_USER_LOGGED_IN) {
+                            ?>
+                            <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText034'][$this->allowCheckout]; ?></p>
+                            <?php
+                        }
+                        ?>
+                        {{insert_module::<?php echo $GLOBALS['TL_CONFIG']['ls_shop_loginModuleID']; ?>}}
+                        <?php
+                        if (!FE_USER_LOGGED_IN) {
+                            ?>
+                            <p><?php echo $this->arrRequiredCheckoutData['signUpLink']; ?></p>
+                            <?php
+                        }
+                        ?>
+                    </div>
+                </div>
+            </div>
+        </div>
 	<?php
+}
+
+if ($this->allowCheckout == 'both') {
+    ?>
+    </div>
+    <?php
 }
 ?>
 

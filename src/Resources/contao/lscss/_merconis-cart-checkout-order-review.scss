@@ -262,7 +262,58 @@ $ls-product-list-field-space: 2%;
   }
 }
 
+#checkoutStepOrderLoginType {
+  @include ls_mediumContentWrapper;
+
+  margin-top: 5rem;
+  margin-bottom: 5rem;
+
+  &.currently-logged-in {
+    button.order-without-login {
+      display: none;
+    }
+  }
+
+  [data-misc-order-login-type="without-login"] & {
+    button.order-without-login {
+      background-color: $ls-color-black;
+      color: $ls-color-white;
+      cursor: default;
+
+      .label {
+        &::before {
+          @extend .fas;
+          content: fa-content($fa-var-check);
+          display: inline-block;
+          margin-right: 1rem;
+        }
+      }
+    }
+  }
+
+  [data-misc-order-login-type="with-login"] & {
+    button.order-with-login {
+      background-color: $ls-color-black;
+      color: $ls-color-white;
+      cursor: default;
+
+      .label {
+        &::before {
+          @extend .fas;
+          content: fa-content($fa-var-check);
+          display: inline-block;
+          margin-right: 1rem;
+        }
+      }
+    }
+  }
+}
+
 #checkoutStepLogin {
+  [data-misc-order-login-type="without-login"] & {
+    display: none;
+  }
+
   @include ls_mediumContentWrapper;
 
   margin-top: 5rem;
