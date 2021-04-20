@@ -71,12 +71,7 @@ if (is_array($this->arr_data) && count($this->arr_data)) {
 
 	$int_rowCount = 1;
 	foreach ($this->arr_data as $arr_row) {
-		/*
-		 * We assume that if the firstname of an alternative shipping address is given, the alternative shipping
-		 * address information is complete. Making sure that this is always the case is the job of validation routines
-		 * in the checkout process.
-		 */
-		$str_alternativeShippingAddressSuffixIfRequired = (isset($arr_row['arr_customerData']['personalData']['firstname_alternative']) && $arr_row['arr_customerData']['personalData']['firstname_alternative']) ? '_alternative' : '';
+		$str_alternativeShippingAddressSuffixIfRequired = (isset($arr_row['arr_customerData']['personalData_originalOptionValues']['useDeviantShippingAddress']) && $arr_row['arr_customerData']['personalData_originalOptionValues']['useDeviantShippingAddress']) ? '_alternative' : '';
 
 		$str_regexpHouseNumberSeparator = '/([^\d]+)\s?(.+)/i';
 		$arr_streetHouseNumber = array();
