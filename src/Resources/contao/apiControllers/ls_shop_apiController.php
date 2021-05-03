@@ -122,6 +122,59 @@ class ls_shop_apiController {
 		$this->obj_apiReceiver->set_data($var_return);
 	}
 
+	/**
+	 * Calls a method of a product's configurator object.
+     * Add the parameter 'productId' to the resource to specify for which product
+     * you are calling the configurator's custom logic method.
+     * Add the parameter 'parameters' holding an array with the parameters to pass
+     * to the requested configurator custom logic method in the order required by the method.
+     *
+     * Please note that not every return value can be json encoded and therefore not
+     * every return value can be successfully read with an api call.
+	 */
+	protected function apiResource_callConfiguratorCustomLogicMethodForProduct() {
+        if (!\Input::get('productId')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no productId given');
+            return;
+        }
+
+        if (!\Input::get('method')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no method specified');
+            return;
+        }
+
+        $obj_productOrVariant = ls_shop_generalHelper::getObjProduct(\Input::get('productId'));
+        if ($obj_productOrVariant->_variantIsSelected) {
+            $obj_productOrVariant = $obj_productOrVariant->_selectedVariant;
+        }
+        $obj_configurator = $obj_productOrVariant->_objConfigurator;
+
+        $arr_parameters = json_decode(\Input::get('parameters'), true);
+
+        if (!is_array($arr_parameters)) {
+            $arr_parameters = array();
+        }
+
+        if (!is_object($obj_configurator->objCustomLogic)) {
+            $this->obj_apiReceiver->success();
+            $this->obj_apiReceiver->set_data('product has no configurator custom logic object');
+            return;
+        }
+
+        if (!method_exists($obj_configurator->objCustomLogic, \Input::get('method'))) {
+            $this->obj_apiReceiver->success();
+            $this->obj_apiReceiver->set_data('method does not exist in configurator custom logic object');
+            return;
+        }
+
+        $var_return = call_user_func_array(array($obj_configurator->objCustomLogic, \Input::get('method')), $arr_parameters);
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($var_return);
+    }
+
     /**
      * Returns a specific merconis url
      */
