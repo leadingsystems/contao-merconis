@@ -168,7 +168,7 @@ class ls_shop_productSearcher
         if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'] as $mccb) {
                 $objMccb = \System::importStatic($mccb[0]);
-                $this->blnCacheCanBeUsed = $objMccb->{$mccb[1]}($this->str_productListID);
+                $this->blnCacheCanBeUsed = $objMccb->{$mccb[1]}($this->str_productListID, $this->blnCacheCanBeUsed);
             }
         }
 
