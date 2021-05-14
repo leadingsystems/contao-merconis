@@ -1,0 +1,78 @@
+<?php
+/*
+ * Please use the following export settings in the contao backend:
+ * - content type "text/plain"
+ * - a filename like "google_shopping_{{date:Y-m-d_H-i-s}}.txt"
+ * - data source: "product search"
+ * - make sure to check "create product objects"
+ */
+if (is_array($this->arr_data) && count($this->arr_data)) {
+	/*
+	 * Create a pseudo file pointer for php's output stream
+	 */
+	$str_output = fopen('php://output', 'w');
+
+	$str_delimiter = "\t";
+
+	fputcsv($str_output, ['id', 'title', 'price', 'availability', 'condition', 'description', 'image_link', 'brand', 'link', 'gtin'], $str_delimiter);
+
+    foreach ($this->arr_data as $int_productId => $obj_product) {
+		$var_id = $obj_product->_code;
+		$var_title = $obj_product->_title;
+		$var_price = $obj_product->_unscaledPriceAfterTax . ' ' . $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'];
+		$var_availability = $obj_product->_stock > 0 ? 'in_stock' : 'backorder';
+		$var_condition = 'new';
+		$var_description = $obj_product->_description ?: $obj_product->_shortDescription;
+		$var_imageLink = $obj_product->_hasMainImage ? \Environment::get('base') . $obj_product->_mainImage : '';
+		$var_brand = $obj_product->_producer;
+		$var_link = \Environment::get('base') . $obj_product->_linkToProduct;
+		$var_gtin = $obj_product->_flexContentExistsLanguageIndependent('flexContent1LanguageIndependent') ? $obj_product->_flexContentsLanguageIndependent['flexContent1LanguageIndependent'] : '';
+
+        if (!$obj_product->_hasVariants) {
+            fputcsv(
+                $str_output,
+                [
+                    $var_id,
+                    $var_title,
+                    $var_price,
+                    $var_availability,
+                    $var_condition,
+                    $var_description,
+                    $var_imageLink,
+                    $var_brand,
+                    $var_link,
+                    $var_gtin
+                ],
+                $str_delimiter
+            );
+        } else {
+            foreach ($obj_product->_variants as $obj_variant) {
+                $var_id = $obj_variant->_code;
+                $var_title = $obj_variant->_title;
+                $var_price = $obj_variant->_unscaledPriceAfterTax;
+                $var_availability = $obj_variant->_stock > 0 ? 'in_stock' : 'backorder';
+                $var_description = $obj_variant->_description ?: $obj_variant->_shortDescription;
+                $var_imageLink = $obj_variant->_hasMainImage ? \Environment::get('base') . $obj_variant->_mainImage : '';
+                $var_link = \Environment::get('base') . $obj_variant->_linkToVariant;
+                $var_gtin = $obj_variant->_flexContentExistsLanguageIndependent('flexContent1LanguageIndependent') ? $obj_variant->_flexContentsLanguageIndependent['flexContent1LanguageIndependent'] : '';
+
+                fputcsv(
+                    $str_output,
+                    [
+                        $var_id,
+                        $var_title,
+                        $var_price,
+                        $var_availability,
+                        $var_condition,
+                        $var_description,
+                        $var_imageLink,
+                        $var_brand,
+                        $var_link,
+                        $var_gtin
+                    ],
+                    $str_delimiter
+                );
+            }
+        }
+	}
+}
