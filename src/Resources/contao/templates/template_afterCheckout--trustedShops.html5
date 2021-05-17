@@ -9,7 +9,7 @@
 <div id="trustedShopsCheckout" style="display: none;">
     <span id="tsCheckoutOrderNr"><?php echo $this->arrOrder['orderNr']; ?></span>
     <span id="tsCheckoutBuyerEmail"><?php echo $this->arrOrder['customerData']['personalData']['email']; ?></span>
-    <span id="tsCheckoutOrderAmount"><?php echo $this->arrOrder['invoicedAmount']; ?></span>
+    <span id="tsCheckoutOrderAmount"><?php echo number_format($this->arrOrder['invoicedAmount'], 2, '.', ''); ?></span>
     <span id="tsCheckoutOrderCurrency"><?php echo $this->arrOrder['currency']; ?></span>
     <span id="tsCheckoutOrderPaymentType"><?php echo $this->arrOrder['paymentMethod_title']; ?></span>
 <?php
