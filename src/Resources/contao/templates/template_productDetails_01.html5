@@ -136,6 +136,48 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
                     <?php echo isset($str_html_deliveryInfo) ? $str_html_deliveryInfo : ''; ?>
 
+                    <?php
+                    // TrustedShops product rating -->
+                    // activate if necessary
+                    if (false) {
+                        ?>
+                        <script type="text/javascript">
+                            _tsProductReviewsConfig = {
+                                tsid: '', /* the trusted shops id is required */
+                                sku: ['<?php echo $this->objProduct->_variantIsSelected ? $this->objProduct->_selectedVariant->_code : $this->objProduct->_code; ?>'],
+                                variant: 'productreviews',
+                                /* optional */
+                                borderColor: '#0DBEDC',
+                                backgroundColor: '#ffffff',
+                                locale: 'de_DE',
+                                starColor: '#FFDC0F',
+                                commentBorderColor: '#dad9d5',
+                                commentHideArrow: 'false',
+                                richSnippets: 'on',
+                                starSize: '15px',
+                                ratingSummary: 'false',
+                                maxHeight: '1200px',
+                                hideEmptySticker: 'false',
+                                filter: 'true',
+                                introtext: 'What our customers say about us:'
+
+                            };
+                            var scripts = document.getElementsByTagName('SCRIPT'),
+                                me = scripts[scripts.length - 1];
+                            var _ts = document.createElement('SCRIPT');
+                            _ts.type = 'text/javascript';
+                            _ts.async = true;
+                            _ts.charset = 'utf-8';
+                            _ts.src ='//widgets.trustedshops.com/reviews/tsSticker/tsProductSticker.js';
+                            me.parentNode.insertBefore(_ts, me);
+                            _tsProductReviewsConfig.script = _ts;
+                        </script>
+                        <?php
+                    }
+                    // <-- TrustedShops product rating
+                    ?>
+
+
                 </div>
             </div>
 
