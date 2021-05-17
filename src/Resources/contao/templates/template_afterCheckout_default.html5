@@ -30,6 +30,7 @@
     <?php
         include(__DIR__.'/template_afterCheckout--cart.html5');
         include(__DIR__.'/template_afterCheckout--calculation.html5');
+//        include(__DIR__.'/template_afterCheckout--trustedShops.html5');
     ?>
 
     <div id="checkoutStepCustomerDataReview">

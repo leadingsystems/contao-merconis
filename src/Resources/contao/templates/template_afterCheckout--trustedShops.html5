@@ -1,0 +1,65 @@
+<?php
+/*
+ * IMPORTANT NOTE:
+ * This template is most likely being included in another template file.
+ * If you duplicate this template, please make sure to adjust the include paths in the other file.
+ */
+?>
+
+<div id="trustedShopsCheckout" style="display: none;">
+    <span id="tsCheckoutOrderNr"><?php echo $this->arrOrder['orderNr']; ?></span>
+    <span id="tsCheckoutBuyerEmail"><?php echo $this->arrOrder['customerData']['personalData']['email']; ?></span>
+    <span id="tsCheckoutOrderAmount"><?php echo $this->arrOrder['invoicedAmount']; ?></span>
+    <span id="tsCheckoutOrderCurrency"><?php echo $this->arrOrder['currency']; ?></span>
+    <span id="tsCheckoutOrderPaymentType"><?php echo $this->arrOrder['paymentMethod_title']; ?></span>
+<?php
+    /*
+     * The delivery date is optional for product ratings and buyer protection.
+     * Whether or not a delivery date is available depends on the specific settings which my vary from shop to shop.
+     * Therefore we don't use this parameter by default.
+     */
+    if (false) {
+?>
+    <span id="tsCheckoutOrderEstDeliveryDate">YYYY-MM-DD</span>
+<?php
+    }
+?>
+    <!-- product reviews start -->
+    <!-- for each product in the basket full set of data is required -->
+<?php
+    foreach ($this->arrOrder['items'] as $itemPosition => $cartItem) {
+?>
+        <span class="tsCheckoutProductItem">
+            <span class="tsCheckoutProductName"><?php echo $cartItem['isVariant'] ? ($cartItem['extendedInfo']['_productTitle_customerLanguage'] . ', ' . $cartItem['extendedInfo']['_title_customerLanguage']) : $cartItem['extendedInfo']['_productTitle_customerLanguage']; ?></span>
+            <span class="tsCheckoutProductSKU"><?php echo $cartItem['extendedInfo']['_code']; ?></span>
+<?php
+            /*
+             * The GTIN is required if product ratings should be displayed in google shopping ads.
+             * Whether or not a GTIN is available here depends on the specific shop configuration.
+             * Therefore we don't use this parameter by default.
+             * The disabled example shows how a GTIN could be used if it was stored in a flex content.
+             * Note: The flex content is not read from the stored order but from a product object instead. Since this
+             * code is only relevant directly after an order has been finished and there is no realistic way that
+             * the product data could have changed since finishing the order, this is okay.
+             */
+            if (true) {
+                $obj_productOrVariant = Merconis\Core\ls_shop_generalHelper::getObjProduct($cartItem['productVariantID']);
+                $obj_productOrVariant = $obj_productOrVariant->_variantIsSelected ? $obj_productOrVariant->_selectedVariant : $obj_productOrVariant;
+
+                if ($obj_productOrVariant->_flexContentExistsLanguageIndependent('flexContent1LanguageIndependent')) {
+?>
+            <span class="tsCheckoutProductGTIN"><?php echo $obj_productOrVariant->_flexContentsLanguageIndependent['flexContent1LanguageIndependent'] ?></span>
+<?php
+                }
+            }
+?>
+            <span class="tsCheckoutProductUrl"><?php echo \Environment::get('base') .  ($cartItem['extendedInfo']['_linkToVariant'] ?: $cartItem['extendedInfo']['_linkToProduct']); ?></span>
+            <span class="tsCheckoutProductImageUrl"><?php echo \Environment::get('base') .  ($cartItem['extendedInfo']['_mainImageOfVariant'] ?: $cartItem['extendedInfo']['_mainImageOfProduct']); ?></span>
+            <span class="tsCheckoutProductBrand"><?php echo $cartItem['extendedInfo']['_producer']; ?></span>
+
+        </span>
+<?php
+    }
+?>
+    <!-- product reviews end -->
+</div>
