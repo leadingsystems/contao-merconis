@@ -1,0 +1,148 @@
+<?php
+/*
+ * Please use the following export settings in the contao backend:
+ * - content type "text/csv"
+ * - a filename like "idealo_{{date:Y-m-d_H-i-s}}.csv"
+ * - data source: "product search"
+ * - make sure to check "create product objects"
+ * - make sure to specify the required flex parameters (see function "csvIdealo_prepareAndValidateFlexParameters" for reference)
+ */
+if (is_array($this->arr_data) && count($this->arr_data)) {
+    $arr_flexParameters = csvIdealo_prepareAndValidateFlexParameters($this->arr_flex_parameters);
+
+	/*
+	 * Create a pseudo file pointer for php's output stream
+	 */
+	$str_output = fopen('php://output', 'w');
+
+	$str_delimiter = ",";
+
+	fputcsv($str_output, [
+	    'sku',
+        'brand',
+        'title',
+        'categoryPath',
+        'url',
+        'description',
+        'imageUrls',
+        'price',
+        'basePrice',
+        'deliveryTime',
+        'checkout',
+        'fulfillmentType',
+        'eans',
+        'deliveryCost_de',
+        'paymentCosts_cash_in_advance',
+        'paymentCosts_paypal',
+    ], $str_delimiter);
+
+    foreach ($this->arr_data as $int_productId => $obj_product) {
+        if ($obj_product->_deliveryTimeDays <= 0 && !$obj_product->_hasVariants) {
+            // Products without realistic delivery time information will not be accepted by idealo
+            continue;
+        }
+
+		$var_sku = $obj_product->_code;
+		$var_brand = $obj_product->_producer;
+		$var_title = $obj_product->_title;
+		$var_categoryPath = !is_array($obj_product->_pages) || !count($obj_product->_pages) ? '' : (\PageModel::findWithDetails($obj_product->_pages[0])->title);
+		$var_url = \Environment::get('base') . $obj_product->_linkToProduct;
+        $var_description = $obj_product->_description ?: $obj_product->_shortDescription;
+        $var_imageUrls = $obj_product->_hasMainImage ? \Environment::get('base') . $obj_product->_mainImage : '';
+		$var_price = $obj_product->_unscaledPriceAfterTax ;
+        $var_basePrice = $obj_product->_hasQuantityComparisonUnit ?  $obj_product->_getQuantityComparisonText('_unscaledPriceAfterTax') : '';
+        $var_deliveryTime = $obj_product->_deliveryTimeDays . ' ' . $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'];
+        $var_checkout = false;
+        $var_fulfillmentType = 'Parcel_Service';
+		$var_eans = $obj_product->_flexContentExistsLanguageIndependent('flexContent1LanguageIndependent') ? $obj_product->_flexContentsLanguageIndependent['flexContent1LanguageIndependent'] : '';
+		$var_deliveryCost_de = $arr_flexParameters['DELIVERY_COST_DE'];
+		$var_paymentCosts_cash_in_advance = '0.00';
+		$var_paymentCosts_paypal = '0.00';
+
+        if (!$obj_product->_hasVariants) {
+            fputcsv(
+                $str_output,
+                [
+                    $var_sku,
+                    $var_brand,
+                    $var_title,
+                    $var_categoryPath,
+                    $var_url,
+                    $var_description,
+                    $var_imageUrls,
+                    $var_price,
+                    $var_basePrice,
+                    $var_deliveryTime,
+                    $var_checkout,
+                    $var_fulfillmentType,
+                    $var_eans,
+                    $var_deliveryCost_de,
+                    $var_paymentCosts_cash_in_advance,
+                    $var_paymentCosts_paypal,
+                ],
+                $str_delimiter
+            );
+        } else {
+            foreach ($obj_product->_variants as $obj_variant) {
+                if ($obj_variant->_deliveryTimeDays <= 0) {
+                    // Products without realistic delivery time information will not be accepted by idealo
+                    continue;
+                }
+
+                $var_sku = $obj_variant->_code;
+                $var_title = $obj_variant->_title;
+                $var_url = \Environment::get('base') . $obj_variant->_linkToVariant;
+                $var_description = $obj_variant->_description ?: $obj_variant->_shortDescription;
+                $var_imageUrls = $obj_variant->_hasMainImage ? \Environment::get('base') . $obj_variant->_mainImage : '';
+                $var_price = $obj_variant->_unscaledPriceAfterTax;
+                $var_basePrice = $obj_variant->_hasQuantityComparisonUnit ?  $obj_variant->_getQuantityComparisonText('_unscaledPriceAfterTax') : '';
+                $var_deliveryTime = $obj_variant->_deliveryTimeDays . ' ' . $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'];
+                $var_eans = $obj_variant->_flexContentExistsLanguageIndependent('flexContent1LanguageIndependent') ? $obj_variant->_flexContentsLanguageIndependent['flexContent1LanguageIndependent'] : '';
+
+
+                fputcsv(
+                    $str_output,
+                    [
+                        $var_sku,
+                        $var_brand,
+                        $var_title,
+                        $var_categoryPath,
+                        $var_url,
+                        $var_description,
+                        $var_imageUrls,
+                        $var_price,
+                        $var_basePrice,
+                        $var_deliveryTime,
+                        $var_checkout,
+                        $var_fulfillmentType,
+                        $var_eans,
+                        $var_deliveryCost_de,
+                        $var_paymentCosts_cash_in_advance,
+                        $var_paymentCosts_paypal,
+                    ],
+                    $str_delimiter
+                );
+            }
+        }
+	}
+}
+
+
+
+function csvIdealo_prepareAndValidateFlexParameters($arr_flexParameters) {
+    $arr_errorMsgs = '';
+
+    if (!isset($arr_flexParameters['DELIVERY_COST_DE']) || !$arr_flexParameters['DELIVERY_COST_DE']) {
+        $arr_errorMsgs[] = "flex parameter &quot;DELIVERY_COST_DE&quot; is required";
+    }
+
+    if (is_array($arr_errorMsgs) && count($arr_errorMsgs)) {
+        echo '<pre>';
+        echo "ERRORS IN FLEX PARAMETERS: \r\n\r\n";
+        echo "=&gt; ".implode("\r\n\r\n=&gt; ", $arr_errorMsgs);
+        echo '</pre>';
+        exit;
+    }
+
+    return $arr_flexParameters;
+}
