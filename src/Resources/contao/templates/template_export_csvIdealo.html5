@@ -47,7 +47,10 @@ if (is_array($this->arr_data) && count($this->arr_data)) {
 		$var_title = $obj_product->_title;
 		$var_categoryPath = !is_array($obj_product->_pages) || !count($obj_product->_pages) ? '' : (\PageModel::findWithDetails($obj_product->_pages[0])->title);
 		$var_url = \Environment::get('base') . $obj_product->_linkToProduct;
-        $var_description = $obj_product->_description ?: $obj_product->_shortDescription;
+
+        $var_description = str_replace('  ', ' ', strip_tags(str_replace('<', ' <', ($obj_product->_description ?: $obj_product->_shortDescription))));
+        $var_description = strlen($var_description) <= 1000 ? $var_description : (substr($var_description, 0, 996) . ' ...');
+
         $var_imageUrls = $obj_product->_hasMainImage ? \Environment::get('base') . $obj_product->_mainImage : '';
 		$var_price = $obj_product->_unscaledPriceAfterTax ;
         $var_basePrice = $obj_product->_hasQuantityComparisonUnit ?  $obj_product->_getQuantityComparisonText('_unscaledPriceAfterTax') : '';
@@ -92,7 +95,10 @@ if (is_array($this->arr_data) && count($this->arr_data)) {
                 $var_sku = $obj_variant->_code;
                 $var_title = $obj_variant->_title;
                 $var_url = \Environment::get('base') . $obj_variant->_linkToVariant;
-                $var_description = $obj_variant->_description ?: $obj_variant->_shortDescription;
+
+                $var_description = str_replace('  ', ' ', strip_tags(str_replace('<', ' <', ($obj_variant->_description ?: $obj_variant->_shortDescription))));
+                $var_description = strlen($var_description) <= 1000 ? $var_description : (substr($var_description, 0, 996) . ' ...');
+
                 $var_imageUrls = $obj_variant->_hasMainImage ? \Environment::get('base') . $obj_variant->_mainImage : '';
                 $var_price = $obj_variant->_unscaledPriceAfterTax;
                 $var_basePrice = $obj_variant->_hasQuantityComparisonUnit ?  $obj_variant->_getQuantityComparisonText('_unscaledPriceAfterTax') : '';
