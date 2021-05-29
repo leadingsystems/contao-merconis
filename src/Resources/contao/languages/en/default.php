@@ -202,8 +202,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText136'] = 'Login';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText137'] = 'Finish order';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText138'] = 'Edit address';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText139'] = 'Edit shipping details';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText140'] = 'Edit payment details';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText139'] = 'Edit payment details';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText140'] = 'Edit shipping details';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText141'] = 'No';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText142'] = 'Cart & Checkout';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText143'] = 'Thank you very much for your order';

@@ -82,7 +82,7 @@
 					    ?>
                         <div
                             data-lsjs-component="formReviewer"
-                            data-misc-form-reviewer-toggler-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText140']; ?>"
+                            data-misc-form-reviewer-toggler-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$this->str_selectWhat === 'shipping' ? 'miscText140': 'miscText139']; ?>"
                             data-misc-close-form-initially="<?php echo \Merconis\Core\ls_shop_checkoutData::getInstance()->{$this->str_selectWhat . 'MethodDataIsValid'} ? '1' : ''; ?>"
                         >
                             <?php echo $str_outputBuffer_additionalForms; ?>

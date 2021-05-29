@@ -6,12 +6,7 @@
  */
 ?>
 
-<div
-	id="checkoutStepShipping"
-	data-lsjs-component="formReviewer"
-    data-misc-form-reviewer-toggler-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText139']; ?>"
-	data-misc-close-form-initially="<?php echo $this->arrRequiredCheckoutData['shippingMethodDataIsValid'] ? '1' : ''; ?>"
->
+<div id="checkoutStepShipping">
 	<h3><i class="lsi lsi-delivery-03"></i>
 		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText012']; ?>
 		<?php if (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['shippingFee'][0]) { ?>
