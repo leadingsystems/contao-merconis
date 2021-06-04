@@ -1,4 +1,25 @@
-<div id="checkout-content" class="order-overview">
+<div
+        id="checkout-content"
+        class="order-overview"
+        data-gtm-situation="after-checkout"
+        data-gtm-after-checkout-conversion-value="<?php echo $this->arrOrder['total']; ?>"
+        data-gtm-after-checkout-transaction-id="<?php echo $this->arrOrder['orderNr']; ?>"
+        data-gtm-after-checkout-currency-code="<?php echo $this->arrOrder['currency']; ?>"
+        data-gtm-after-checkout-discount="<?php echo $this->arrOrder['couponsTotalValue'] < 0 ? $this->arrOrder['couponsTotalValue'] * -1 : 0; ?>"
+        data-gtm-after-checkout-items='<?php
+        $arr_gtmAfterCheckoutItems = [];
+
+        foreach ($this->arrOrder['items'] as $itemPosition => $cartItem) {
+            $arr_gtmAfterCheckoutItems[] = [
+                'id' => $cartItem['extendedInfo']['_code'],
+                'quantity' => \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], $cartItem['extendedInfo']['_quantityDecimals'], '.', ''),
+                'price' => (float) $cartItem['price']
+            ];
+        }
+
+        echo json_encode($arr_gtmAfterCheckoutItems);
+        ?>'
+>
     <?php // ########## PAYMENT ##########?>
     <?php if ($this->arrOrder['paymentMethod_infoAfterCheckout_customerLanguage']) { ?>
         <div id="info-for-payment-method">
