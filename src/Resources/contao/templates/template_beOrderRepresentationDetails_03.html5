@@ -290,4 +290,7 @@
 			<?php } ?>
 		</tbody>
 	</table>
+    <div class="oih">
+        order identification hash: <?php echo $this->value['orderIdentificationHash']; ?>
+    </div>
 </div>
