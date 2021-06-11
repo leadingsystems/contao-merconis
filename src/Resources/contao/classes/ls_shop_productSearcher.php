@@ -1295,6 +1295,21 @@ class ls_shop_productSearcher
 
             $arrProductsComplete = $tmpArrProductsComplete;
 
+            /*
+             * This hook is only meant to be called in a product list context and therefore
+             * we check for a given productListID. If the cache can be used we don't call
+             * the hook since it wouldn't have any effect because the cached result would
+             * always be returned.
+             */
+            if ($this->str_productListID && !$this->checkIfCacheCanBeUsed()) {
+                if (isset($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'])) {
+                    foreach ($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'] as $mccb) {
+                        $objMccb = \System::importStatic($mccb[0]);
+                        $arrProductsComplete = $objMccb->{$mccb[1]}($this->str_productListID, $arrProductsComplete);
+                    }
+                }
+            }
+
             if (count($arrProductsComplete) > 1 || (count($arrProductsComplete) == 1 && count($arrProductsComplete[key($arrProductsComplete)]['variants']))) {
                 $this->blnEnoughProductsOrVariantsToFilterAvailable = true;
             }

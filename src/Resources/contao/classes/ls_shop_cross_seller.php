@@ -352,7 +352,7 @@ class ls_shop_cross_seller
         if (isset($GLOBALS['MERCONIS_HOOKS']['crossSellerHookSelection']) && is_array($GLOBALS['MERCONIS_HOOKS']['crossSellerHookSelection'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['crossSellerHookSelection'] as $mccb) {
                 $objMccb = \System::importStatic($mccb[0]);
-                $arr_products = $objMccb->{$mccb[1]}($GLOBALS['lsShopProductViewContext']);
+                $arr_products = $objMccb->{$mccb[1]}($GLOBALS['lsShopProductViewContext'], $this->ls_currentProductInDetailMode);
             }
         }
 
