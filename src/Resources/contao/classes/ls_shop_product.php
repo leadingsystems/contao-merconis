@@ -903,6 +903,19 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				break;
 
 			case '_priceCheapestVariantBeforeTax':
+                $float_lowestPriceBeforeTaxFromHook = null;
+
+                if (isset($GLOBALS['MERCONIS_HOOKS']['getProductData_priceCheapestVariantBeforeTax']) && is_array($GLOBALS['MERCONIS_HOOKS']['getProductData_priceCheapestVariantBeforeTax'])) {
+                    foreach ($GLOBALS['MERCONIS_HOOKS']['getProductData_priceCheapestVariantBeforeTax'] as $mccb) {
+                        $objMccb = \System::importStatic($mccb[0]);
+                        $float_lowestPriceBeforeTaxFromHook = $objMccb->{$mccb[1]}($this);
+                    }
+                }
+
+                if ($float_lowestPriceBeforeTaxFromHook !== null) {
+                    return $float_lowestPriceBeforeTaxFromHook;
+                }
+
 				$lowestPriceBeforeTax = $this->_priceBeforeTax;
 				$count = 0;
 				foreach ($this->_variants as $variant) {
@@ -923,6 +936,19 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				break;
 
 			case '_unscaledPriceCheapestVariantBeforeTax':
+			    $float_lowestPriceBeforeTaxFromHook = null;
+
+			    if (isset($GLOBALS['MERCONIS_HOOKS']['getProductData_unscaledPriceCheapestVariantBeforeTax']) && is_array($GLOBALS['MERCONIS_HOOKS']['getProductData_unscaledPriceCheapestVariantBeforeTax'])) {
+                    foreach ($GLOBALS['MERCONIS_HOOKS']['getProductData_unscaledPriceCheapestVariantBeforeTax'] as $mccb) {
+                        $objMccb = \System::importStatic($mccb[0]);
+                        $float_lowestPriceBeforeTaxFromHook = $objMccb->{$mccb[1]}($this);
+                    }
+                }
+
+			    if ($float_lowestPriceBeforeTaxFromHook !== null) {
+			        return $float_lowestPriceBeforeTaxFromHook;
+                }
+
 				$lowestPriceBeforeTax = $this->_unscaledPriceBeforeTax;
 				$count = 0;
 				foreach ($this->_variants as $variant) {
