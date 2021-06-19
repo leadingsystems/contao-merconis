@@ -25,14 +25,14 @@ if (
     || $bln_priceFilterCurrentlyAvailable
 ) {
     ?>
-    <div class="filter-summary-container">
+    <div id="filter-summary-container" class="filter-summary-container ajax-reload-by-filter">
         <ul class="filter-summary">
             <?php
             if ($bln_attributesFilterCurrentlyAvailable) {
                 foreach ($this->arr_filterAllFields['arr_attributes'] as $int_attributeId => $arr_filterAttribute) {
                     ?>
                     <li class="filter-criterion-attribute">
-                        <span class="filter-criterion-title off-canvas-filter-form-toggler mini-toggler">
+                        <span class="filter-criterion-title off-canvas-filter-form-toggler-remote mini-toggler">
                             <?php echo $arr_filterAttribute['str_title']; ?>
                             <?php
                             $int_numAllAttributeValues = count($arr_filterAttribute['arr_values']);
@@ -62,7 +62,7 @@ if (
                                             <?php
                                         }
                                         ?>
-                                        <li><span class="filter-criterion-value-title off-canvas-filter-form-toggler mini-toggler"><?php echo $str_filterValueTitle; ?></span></li>
+                                        <li><span class="filter-criterion-value-title off-canvas-filter-form-toggler-remote mini-toggler"><?php echo $str_filterValueTitle; ?></span></li>
                                         <?php
                                     }
                                     ?>
@@ -79,7 +79,7 @@ if (
             if ($bln_poducerFilterCurrentlyAvailable) {
                 ?>
                 <li class="filter-criterion-producer">
-                    <span class="filter-criterion-title off-canvas-filter-form-toggler mini-toggler">
+                    <span class="filter-criterion-title off-canvas-filter-form-toggler-remote mini-toggler">
                         <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?>
                         <?php
                         $int_numAllProducers = count($this->arr_filterAllFields['arr_producers']);
@@ -106,7 +106,7 @@ if (
                                     <?php
                                 }
                                 ?>
-                                <li><span class="filter-criterion-value-title off-canvas-filter-form-toggler mini-toggler"><?php echo $str_producerName; ?></span></li>
+                                <li><span class="filter-criterion-value-title off-canvas-filter-form-toggler-remote mini-toggler"><?php echo $str_producerName; ?></span></li>
                                 <?php
                             }
                         }
@@ -119,7 +119,7 @@ if (
             if ($bln_priceFilterCurrentlyAvailable) {
                 ?>
                 <li class="filter-criterion-price">
-                    <span class="filter-criterion-title off-canvas-filter-form-toggler mini-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
+                    <span class="filter-criterion-title off-canvas-filter-form-toggler-remote mini-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
                     <ul class="filter-values">
                         <?php
                         if ($bln_currentlyFilteringByPrice) {
@@ -127,7 +127,7 @@ if (
                                 ?>
                                 <li class="filter-price-from">
                                     <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098']; ?>
-                                    <span class="filter-criterion-value-title off-canvas-filter-form-toggler mini-toggler">
+                                    <span class="filter-criterion-value-title off-canvas-filter-form-toggler-remote mini-toggler">
                                         <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arr_filterSummary['arr_price']['low']); ?>
                                     </span>
                                 </li>
@@ -137,7 +137,7 @@ if (
                                 ?>
                                 <li class="filter-price-to">
                                     <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099']; ?>
-                                    <span class="filter-criterion-value-title off-canvas-filter-form-toggler mini-toggler">
+                                    <span class="filter-criterion-value-title off-canvas-filter-form-toggler-remote mini-toggler">
                                         <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arr_filterSummary['arr_price']['high']); ?>
                                     </span>
                                 </li>

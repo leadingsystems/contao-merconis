@@ -79,6 +79,10 @@
       font-weight: $ls-font-weight-bold;
     }
 
+    .off-canvas-filter-form-toggler-remote {
+      cursor: pointer;
+    }
+
     > li {
       margin-left: 2rem;
       border-left: 0.1rem solid $ls-color-grey;
