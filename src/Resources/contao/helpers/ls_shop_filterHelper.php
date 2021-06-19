@@ -3,6 +3,8 @@ namespace Merconis\Core;
 
 class ls_shop_filterHelper {
     public static function getFilterSummary() {
+        global $objPage;
+
         $arr_filterSummary = [
             'arr_attributes' => [],
             'arr_producers' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['producers'],
