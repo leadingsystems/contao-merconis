@@ -32,7 +32,21 @@ if (
                 foreach ($this->arr_filterAllFields['arr_attributes'] as $int_attributeId => $arr_filterAttribute) {
                     ?>
                     <li class="filter-criterion-attribute">
-                        <span class="filter-criterion-title off-canvas-filter-form-toggler mini-toggler"><?php echo $arr_filterAttribute['str_title']; ?></span>
+                        <span class="filter-criterion-title off-canvas-filter-form-toggler mini-toggler">
+                            <?php echo $arr_filterAttribute['str_title']; ?>
+                            <?php
+                            $int_numAllAttributeValues = count($arr_filterAttribute['arr_values']);
+                            if (!isset($this->arr_filterSummary['arr_attributes'][$int_attributeId]) || !is_array($this->arr_filterSummary['arr_attributes'][$int_attributeId])) {
+                                echo ' (' . $int_numAllAttributeValues . ')';
+                            } else {
+                                $int_numCurrentlySelectedAttributeValues = count($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values']);
+                                $int_numRemainingAttributeValues = $int_numAllAttributeValues - $int_numCurrentlySelectedAttributeValues;
+                                if ($int_numRemainingAttributeValues > 0) {
+                                    echo ' (+ ' . $int_numRemainingAttributeValues . ')';
+                                }
+                            }
+                            ?>
+                        </span>
                         <?php
                         if (isset($this->arr_filterSummary['arr_attributes'][$int_attributeId])) {
                             if (is_array($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values'])) {
