@@ -1013,6 +1013,7 @@ CREATE TABLE `tl_module` (
   `ls_shop_myOrders_sortingOptions` blob NULL,
   `ls_shop_myOrderDetails_template` varchar(64) NOT NULL default '',
   `ls_shop_filterForm_template` varchar(64) NOT NULL default '',
+  `ls_shop_filterSummary_template` varchar(64) NOT NULL default '',
   `ls_shop_productSearch_template` varchar(64) NOT NULL default '',
   `ls_shop_productSearch_minlengthInput` int(10) unsigned NOT NULL default '0',
   `ls_shop_cross_seller` int(10) unsigned NOT NULL default '0',

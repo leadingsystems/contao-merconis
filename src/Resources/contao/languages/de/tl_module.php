@@ -12,6 +12,7 @@ $GLOBALS['TL_LANG']['tl_module']['ls_shop_myOrders_template']					= array('Templ
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_myOrders_sortingOptions']				= array('Angebotene Sortieroptionen');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_myOrderDetails_template']				= array('Template zur Darstellung der Bestellungsdetails');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_filterForm_template']				= array('Template zur Darstellung des Filter-Formulars');
+$GLOBALS['TL_LANG']['tl_module']['ls_shop_filterSummary_template'] = array('Template zur Darstellung des Filter-Zusammenfassung');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productSearch_template']				= array('Template zur Darstellung des Suchformulars');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productSearch_minlengthInput']		= array('Mindestlänge des Suchbegriffs');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_cross_seller']							= array('Cross-Seller', 'Bitte wählen Sie hier aus, welchen CrossSeller Sie einbinden möchten.');

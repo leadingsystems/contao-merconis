@@ -11,6 +11,7 @@ $GLOBALS['TL_LANG']['tl_module']['ls_shop_myOrders_template']					= array('Templ
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_myOrders_sortingOptions']				= array('Sorting options offered');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_myOrderDetails_template']				= array('Template for displaying the order details');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_filterForm_template']				= array('Template for displaying the filter form');
+$GLOBALS['TL_LANG']['tl_module']['ls_shop_filterSummary_template'] = array('Template for displaying the filter summary');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productSearch_template']				= array('Template for displaying the query form');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productSearch_minlengthInput']		= array('Minimum length of search term');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_cross_seller']							= array('Cross-seller', 'Please select here which cross-seller you wish to implement.');

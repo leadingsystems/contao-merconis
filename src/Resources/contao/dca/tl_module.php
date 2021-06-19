@@ -13,7 +13,7 @@ $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_paymentAfterCheckout'] = '{
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_cross_seller'] = '{title_legend},name,headline,type;{lsShopCrossSeller_legend},ls_shop_cross_seller;{expert_legend:hide},cssID';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_myOrders'] = '{title_legend},name,headline,type;{lsShopMyOrders_legend},ls_shop_myOrders_sortingOptions,ls_shop_myOrders_template;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_myOrderDetails'] = '{title_legend},name,headline,type;{lsShopMyOrderDetails_legend},ls_shop_myOrderDetails_template;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
-$GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_filterForm'] = '{title_legend},name,headline,type;{lsShopFilterForm_legend},ls_shop_filterForm_template;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_filterForm'] = '{title_legend},name,headline,type;{lsShopFilterForm_legend},ls_shop_filterForm_template,ls_shop_filterSummary_template;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_productSearch'] = '{title_legend},name,headline,type;{lsShopProductSearch_legend},ls_shop_productSearch_template,ls_shop_productSearch_minlengthInput;{expert_legend:hide},cssID';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_productManagementApiInspector'] = '{title_legend},name,headline,type;{ls_shop_productManagementApiInspector},ls_shop_productManagementApiInspector_apiPage;';
 
@@ -131,6 +131,14 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_filterForm_template'] = array
 	'options'                 => $this->getTemplateGroup('template_filterForm_')
 );
 	
+$GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_filterSummary_template'] = array (
+	'label'                   => &$GLOBALS['TL_LANG']['tl_module']['ls_shop_filterSummary_template'],
+	'default'                 => 'template_filterSummary_default',
+	'exclude'                 => true,
+	'inputType'               => 'select',
+	'options'                 => $this->getTemplateGroup('template_filterSummary_')
+);
+
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_cross_seller'] = array (
 	'exclude'		=> true,
 	'label'			=> &$GLOBALS['TL_LANG']['tl_module']['ls_shop_cross_seller'],

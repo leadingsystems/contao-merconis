@@ -1,0 +1,143 @@
+<?php
+$bln_attributesFilterCurrentlyAvailable = is_array($this->arr_filterAllFields['arr_attributes']) && count($this->arr_filterAllFields['arr_attributes']);
+$bln_poducerFilterCurrentlyAvailable = is_array($this->arr_filterAllFields['arr_producers']) && count($this->arr_filterAllFields['arr_producers']);
+$bln_priceFilterCurrentlyAvailable = (
+    is_array($this->arr_filterAllFields['arr_price'])
+    && (
+        (isset($this->arr_filterAllFields['arr_price']['low']) && $this->arr_filterAllFields['arr_price']['low'])
+        || (isset($this->arr_filterAllFields['arr_price']['high']) && $this->arr_filterAllFields['arr_price']['high'])
+    )
+);
+
+$bln_currentlyFilteringByAttributes = is_array($this->arr_filterSummary['arr_attributes']) && count($this->arr_filterSummary['arr_attributes']);
+$bln_currentlyFilteringByProducer = is_array($this->arr_filterSummary['arr_producers']) && count($this->arr_filterSummary['arr_producers']);
+$bln_currentlyFilteringByPrice = (
+    is_array($this->arr_filterSummary['arr_price'])
+    && (
+        (isset($this->arr_filterSummary['arr_price']['low']) && $this->arr_filterSummary['arr_price']['low'])
+        || (isset($this->arr_filterSummary['arr_price']['high']) && $this->arr_filterSummary['arr_price']['high'])
+    )
+);
+
+if (
+    $bln_attributesFilterCurrentlyAvailable
+    || $bln_poducerFilterCurrentlyAvailable
+    || $bln_priceFilterCurrentlyAvailable
+) {
+    ?>
+    <div class="filter-summary-container">
+        <ul class="filter-summary">
+            <?php
+            if ($bln_attributesFilterCurrentlyAvailable) {
+                foreach ($this->arr_filterAllFields['arr_attributes'] as $int_attributeId => $arr_filterAttribute) {
+                    ?>
+                    <li class="filter-criterion-attribute">
+                        <span class="filter-criterion-title off-canvas-filter-form-toggler mini-toggler"><?php echo $arr_filterAttribute['str_title']; ?></span>
+                        <?php
+                        if (isset($this->arr_filterSummary['arr_attributes'][$int_attributeId])) {
+                            if (is_array($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values'])) {
+                                ?>
+                                <ul class="filter-values">
+                                    <?php
+                                    $int_count = 0;
+                                    foreach ($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values'] as $str_filterValueTitle) {
+                                        $int_count++;
+                                        if ($int_count > 1) {
+                                            ?>
+                                            <li><?php echo $this->arr_filterSummary['arr_attributes'][$int_attributeId]['str_logicalOperator']; ?></li>
+                                            <?php
+                                        }
+                                        ?>
+                                        <li><span class="filter-criterion-value-title off-canvas-filter-form-toggler mini-toggler"><?php echo $str_filterValueTitle; ?></span></li>
+                                        <?php
+                                    }
+                                    ?>
+                                </ul>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </li>
+                    <?php
+                }
+            }
+
+            if ($bln_poducerFilterCurrentlyAvailable) {
+                ?>
+                <li class="filter-criterion-producer">
+                    <span class="filter-criterion-title off-canvas-filter-form-toggler mini-toggler">
+                        <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?>
+                        <?php
+                        $int_numAllProducers = count($this->arr_filterAllFields['arr_producers']);
+                        if (!$bln_currentlyFilteringByProducer) {
+                            echo ' (' . $int_numAllProducers . ')';
+                        } else {
+                            $int_numCurrentlySelectedProducers = count($this->arr_filterSummary['arr_producers']);
+                            $int_numRemainingProducerOptions = $int_numAllProducers - $int_numCurrentlySelectedProducers;
+                            if ($int_numRemainingProducerOptions > 0) {
+                                echo ' (+ ' . $int_numRemainingProducerOptions . ')';
+                            }
+                        }
+                        ?>
+                    </span>
+                    <ul class="filter-values">
+                        <?php
+                        if ($bln_currentlyFilteringByProducer) {
+                            $int_count = 0;
+                            foreach ($this->arr_filterSummary['arr_producers'] as $str_producerName) {
+                                $int_count++;
+                                if ($int_count > 1) {
+                                    ?>
+                                    <li><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or']; ?></li>
+                                    <?php
+                                }
+                                ?>
+                                <li><span class="filter-criterion-value-title off-canvas-filter-form-toggler mini-toggler"><?php echo $str_producerName; ?></span></li>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </ul>
+                </li>
+                <?php
+            }
+
+            if ($bln_priceFilterCurrentlyAvailable) {
+                ?>
+                <li class="filter-criterion-price">
+                    <span class="filter-criterion-title off-canvas-filter-form-toggler mini-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
+                    <ul class="filter-values">
+                        <?php
+                        if ($bln_currentlyFilteringByPrice) {
+                            if ($this->arr_filterSummary['arr_price']['low']) {
+                                ?>
+                                <li class="filter-price-from">
+                                    <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098']; ?>
+                                    <span class="filter-criterion-value-title off-canvas-filter-form-toggler mini-toggler">
+                                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arr_filterSummary['arr_price']['low']); ?>
+                                    </span>
+                                </li>
+                                <?php
+                            }
+                            if ($this->arr_filterSummary['arr_price']['high']) {
+                                ?>
+                                <li class="filter-price-to">
+                                    <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099']; ?>
+                                    <span class="filter-criterion-value-title off-canvas-filter-form-toggler mini-toggler">
+                                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arr_filterSummary['arr_price']['high']); ?>
+                                    </span>
+                                </li>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </ul>
+                </li>
+                <?php
+            }
+            ?>
+        </ul>
+    </div>
+    <?php
+}
+?>

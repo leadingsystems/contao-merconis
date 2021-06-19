@@ -2,13 +2,23 @@
 namespace Merconis\Core;
 
 class ls_shop_filterHelper {
-    public static function getFilterSummary() {
+    public static function getFilterSummary($objFEModule = null) {
+        if (!is_object($objFEModule)) {
+            return '';
+        }
+
         global $objPage;
 
         $arr_filterSummary = [
             'arr_attributes' => [],
             'arr_producers' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['producers'],
-            'arr_price' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['price']
+            'arr_price' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['price'],
+        ];
+
+        $arr_filterAllFields = [
+            'arr_attributes' => [],
+            'arr_producers' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'],
+            'arr_price' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'],
         ];
 
         if (is_array($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes'])) {
@@ -27,8 +37,25 @@ class ls_shop_filterHelper {
             }
         }
 
-        $obj_template = new \FrontendTemplate('template_filterSummary_default');
+        if (is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])) {
+            foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $int_filterAttributeId => $arr_filterValues) {
+                $str_filterAttributeName = ls_shop_languageHelper::getMultiLanguage($int_filterAttributeId, 'tl_ls_shop_attributes', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
+                $arr_filterAllFields['arr_attributes'][$int_filterAttributeId] = [
+                    'str_title' => $str_filterAttributeName,
+                    'arr_values' => [],
+                    'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId]]
+                ];
+
+                foreach ($arr_filterValues as $int_filterValueId) {
+                    $str_filterValueName = ls_shop_languageHelper::getMultiLanguage($int_filterValueId, 'tl_ls_shop_attribute_values', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
+                    $arr_filterAllFields['arr_attributes'][$int_filterAttributeId]['arr_values'][$int_filterValueId] = $str_filterValueName;
+                }
+            }
+        }
+
+        $obj_template = new \FrontendTemplate($objFEModule->ls_shop_filterSummary_template);
         $obj_template->arr_filterSummary = $arr_filterSummary;
+        $obj_template->arr_filterAllFields = $arr_filterAllFields;
         return $obj_template->parse();
     }
 
