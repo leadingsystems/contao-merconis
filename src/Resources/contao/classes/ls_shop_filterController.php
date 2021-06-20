@@ -240,6 +240,7 @@ class ls_shop_filterController
 							'str_label' => $arrFilterFieldInfo['title'],
 							'str_allowedRequestMethod' => 'post',
 							'arr_moreData' => array(
+							    'filterSectionId' => $arrFilterFieldInfo['dataSource'],
 								'arrOptions' => $arrOptions,
 								'sourceAttribute' => null,
 								'filterMode' => $arrFilterFieldInfo['filterMode'],
@@ -287,6 +288,7 @@ class ls_shop_filterController
 						'objWidget_priceHigh' => $objFlexWidget_priceHigh,
 						'arrFilterFieldInfo' => $arrFilterFieldInfo,
                         'arr_moreData' => array(
+                            'filterSectionId' => $arrFilterFieldInfo['dataSource'],
                             'startClosedIfNothingSelected' => isset($arrFilterFieldInfo['startClosedIfNothingSelected']) && $arrFilterFieldInfo['startClosedIfNothingSelected'] ? true : false
                         )
 					);
@@ -351,6 +353,7 @@ class ls_shop_filterController
 							'str_label' => $arrFilterFieldInfo['title'],
 							'str_allowedRequestMethod' => 'post',
 							'arr_moreData' => array(
+                                'filterSectionId' => $arrFilterFieldInfo['dataSource'] . '-' . $arrFilterFieldInfo['sourceAttribute'],
 								'arrOptions' => $arrOptions,
 								'sourceAttribute' => $arrFilterFieldInfo['sourceAttribute'],
 								'filterMode' => isset($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$arrFilterFieldInfo['sourceAttribute']]) ? $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$arrFilterFieldInfo['sourceAttribute']] : $arrFilterFieldInfo['filterMode'],

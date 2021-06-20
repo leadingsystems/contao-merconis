@@ -31,7 +31,7 @@ if (
             if ($bln_attributesFilterCurrentlyAvailable) {
                 foreach ($this->arr_filterAllFields['arr_attributes'] as $int_attributeId => $arr_filterAttribute) {
                     ?>
-                    <li class="filter-criterion-attribute">
+                    <li class="filter-criterion filter-criterion-attribute" data-lsjs-filter-section-id="attribute-<?php echo $int_attributeId; ?>">
                         <span class="filter-criterion-title off-canvas-filter-form-toggler-remote mini-toggler">
                             <?php echo $arr_filterAttribute['str_title']; ?>
                             <?php
@@ -78,7 +78,7 @@ if (
 
             if ($bln_poducerFilterCurrentlyAvailable) {
                 ?>
-                <li class="filter-criterion-producer">
+                <li class="filter-criterion filter-criterion-producer" data-lsjs-filter-section-id="producer">
                     <span class="filter-criterion-title off-canvas-filter-form-toggler-remote mini-toggler">
                         <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?>
                         <?php
@@ -118,7 +118,7 @@ if (
 
             if ($bln_priceFilterCurrentlyAvailable) {
                 ?>
-                <li class="filter-criterion-price">
+                <li class="filter-criterion filter-criterion-price" data-lsjs-filter-section-id="price">
                     <span class="filter-criterion-title off-canvas-filter-form-toggler-remote mini-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
                     <ul class="filter-values">
                         <?php
