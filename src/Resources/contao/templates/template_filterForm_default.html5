@@ -1,6 +1,6 @@
 <!-- indexer::stop -->
 <div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>">
-    <div class="off-canvas-filter-form-toggler main-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$this->str_htmlFilterSummary ? 'miscText097-03' : 'miscText097-02']; ?></div>
+    <div class="off-canvas-filter-form-toggler-remote main-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$this->str_htmlFilterSummary ? 'miscText097-03' : 'miscText097-02']; ?></div>
     <?php echo $this->str_htmlFilterSummary; ?>
     <div id="off-canvas-filter-form-container" class="oc-flex-default-container">
         <div id="off-canvas-filter-form-container-inside">

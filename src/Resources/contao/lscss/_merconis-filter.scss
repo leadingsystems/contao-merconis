@@ -42,7 +42,7 @@
   }
 }
 
-.off-canvas-filter-form-toggler {
+.off-canvas-filter-form-toggler-remote {
   cursor: pointer;
 
   &.main-toggler {
@@ -79,10 +79,6 @@
       font-weight: $ls-font-weight-bold;
     }
 
-    .off-canvas-filter-form-toggler-remote {
-      cursor: pointer;
-    }
-
     > li {
       margin-left: 2rem;
       border-left: 0.1rem solid $ls-color-grey;
@@ -110,6 +106,16 @@
 
 
 .template_filterForm_default {
+  form {
+    &.partial-display {
+      button {
+        &.resetFilter {
+          display: none;
+        }
+      }
+    }
+  }
+
   input,
   select {
     padding: 0.5rem !important;
@@ -268,6 +274,7 @@
   }
   .content {
     padding: 0.5rem;
+    padding-left: 3rem;
     display: block;
     position: relative;
   }
@@ -281,6 +288,11 @@
     display: none;
   }
 }
+
+.filter-section-hidden {
+  display: none;
+}
+
 @media only screen and(max-width:400px) {
   .template_filterForm_default {
     button {
