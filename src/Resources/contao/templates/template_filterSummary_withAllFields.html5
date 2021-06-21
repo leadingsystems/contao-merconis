@@ -33,21 +33,7 @@ if (
                     ?>
                     <li class="filter-criterion filter-criterion-attribute" data-lsjs-filter-section-id="attribute-<?php echo $int_attributeId; ?>">
                         <div class="off-canvas-filter-form-toggler-remote">
-                            <span class="filter-criterion-title">
-                                <?php echo $arr_filterAttribute['str_title']; ?>
-                                <?php
-                                $int_numAllAttributeValues = count($arr_filterAttribute['arr_values']);
-                                if (!isset($this->arr_filterSummary['arr_attributes'][$int_attributeId]) || !is_array($this->arr_filterSummary['arr_attributes'][$int_attributeId])) {
-                                    echo ' (' . $int_numAllAttributeValues . ')';
-                                } else {
-                                    $int_numCurrentlySelectedAttributeValues = count($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values']);
-                                    $int_numRemainingAttributeValues = $int_numAllAttributeValues - $int_numCurrentlySelectedAttributeValues;
-                                    if ($int_numRemainingAttributeValues > 0) {
-                                        echo ' (+ ' . $int_numRemainingAttributeValues . ')';
-                                    }
-                                }
-                                ?>
-                            </span>
+                            <span class="filter-criterion-title"><?php echo $arr_filterAttribute['str_title']; ?></span>
                             <?php
                             if (isset($this->arr_filterSummary['arr_attributes'][$int_attributeId])) {
                                 if (is_array($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values'])) {
@@ -82,21 +68,7 @@ if (
                 ?>
                 <li class="filter-criterion filter-criterion-producer" data-lsjs-filter-section-id="producer">
                     <div class="off-canvas-filter-form-toggler-remote">
-                        <span class="filter-criterion-title">
-                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?>
-                            <?php
-                            $int_numAllProducers = count($this->arr_filterAllFields['arr_producers']);
-                            if (!$bln_currentlyFilteringByProducer) {
-                                echo ' (' . $int_numAllProducers . ')';
-                            } else {
-                                $int_numCurrentlySelectedProducers = count($this->arr_filterSummary['arr_producers']);
-                                $int_numRemainingProducerOptions = $int_numAllProducers - $int_numCurrentlySelectedProducers;
-                                if ($int_numRemainingProducerOptions > 0) {
-                                    echo ' (+ ' . $int_numRemainingProducerOptions . ')';
-                                }
-                            }
-                            ?>
-                        </span>
+                        <span class="filter-criterion-title"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?></span>
                         <ul class="filter-values">
                             <?php
                             if ($bln_currentlyFilteringByProducer) {
