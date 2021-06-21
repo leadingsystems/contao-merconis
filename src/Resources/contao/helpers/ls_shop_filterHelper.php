@@ -608,7 +608,22 @@ class ls_shop_filterHelper {
 	}
 
 	public static function filterReload() {
-		\Controller::redirect(preg_replace('/(page_(?:crossSeller|standard).*?=)(.*?[0-9]*?)([^0-9]|&|$)/', '${1}1$3', \Environment::get('request')));
+	    $str_targetUrl = \Environment::get('request');
+
+	    /*
+	     * Remove a possibly existing cajaxCall parameter
+	     */
+        $str_targetUrl = preg_replace('/[&?]cajaxCall=[^&]*$/', '', $str_targetUrl);
+        $str_targetUrl = preg_replace('/([&?])cajaxCall=[^&]*&/', '$1', $str_targetUrl);
+
+	    /*
+	     * If a specific page is given in the url, replace it with page 1.
+	     * This is necessary because the filtered product list could be shorter and the currently selected page
+	     * might not exist anymore.
+	     */
+	    $str_targetUrl = preg_replace('/(page_(?:crossSeller|standard).*?=)(.*?[0-9]*?)([^0-9]|&|$)/', '${1}1$3', $str_targetUrl);
+
+		\Controller::redirect($str_targetUrl);
 	}
 
 	public static function resetFilter() {
