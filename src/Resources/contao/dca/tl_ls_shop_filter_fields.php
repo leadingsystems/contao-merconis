@@ -172,7 +172,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		),
 		
 		'templateToUse'				  => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode'],
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUse'],
 			'exclude'				  => true,
 			'inputType'               => 'select',
 			'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFilterFieldTemplates'),
