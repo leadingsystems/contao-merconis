@@ -5048,4 +5048,18 @@ class ls_shop_generalHelper
             $obj_automator->purgeInternalCache();
         }
     }
+
+    public static function removeGetParameterFromUrl($str_url, $str_parameterName) {
+        if (!$str_parameterName) {
+            return $str_url;
+        }
+
+        /*
+         * Remove a possibly existing cajaxCall parameter
+         */
+        $str_url = preg_replace('/[&?]' . preg_quote($str_parameterName, '/') . '=[^&]*$/', '', $str_url);
+        $str_url = preg_replace('/([&?])' . preg_quote($str_parameterName, '/') . '=[^&]*&/', '$1', $str_url);
+
+        return $str_url;
+    }
 }
