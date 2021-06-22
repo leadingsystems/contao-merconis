@@ -1,5 +1,5 @@
 <!-- indexer::stop -->
-<div id="merconis-product-list-reload-container-<?php echo $this->productListID; ?>">
+<div id="merconis-product-list-reload-container-<?php echo $this->productListID; ?>" class="<?php echo $this->blnUseFilter ? ' ajax-reload-by-filter' : ''; ?>">
     <?php if ($this->allowUserSorting || $this->pagination) { ?>
         <div class="pagination-and-sorting-container top">
             <?php if ($this->pagination) { ?>

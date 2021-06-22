@@ -1,5 +1,5 @@
 <!-- indexer::stop -->
-<div id="product-list-container" class="product-list-container ajax-reload-by-filter">
+<div class="product-list-container">
 	<?php echo $this->output; ?>
 </div>
 <!-- indexer::continue -->
