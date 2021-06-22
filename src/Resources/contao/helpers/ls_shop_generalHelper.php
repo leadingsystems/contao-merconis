@@ -5049,16 +5049,19 @@ class ls_shop_generalHelper
         }
     }
 
-    public static function removeGetParameterFromUrl($str_url, $str_parameterName) {
-        if (!$str_parameterName) {
+    public static function removeGetParametersFromUrl($str_url, $arr_parameterNames) {
+        if (!is_array($arr_parameterNames) && !$arr_parameterNames) {
             return $str_url;
         }
 
-        /*
-         * Remove a possibly existing cajaxCall parameter
-         */
-        $str_url = preg_replace('/[&?]' . preg_quote($str_parameterName, '/') . '=[^&]*$/', '', $str_url);
-        $str_url = preg_replace('/([&?])' . preg_quote($str_parameterName, '/') . '=[^&]*&/', '$1', $str_url);
+        if (!is_array($arr_parameterNames)) {
+            $arr_parameterNames = [$arr_parameterNames];
+        }
+
+        foreach ($arr_parameterNames as $str_parameterName) {
+            $str_url = preg_replace('/(&(?:amp;)?|\?)' . preg_quote($str_parameterName, '/') . '=[^&]*$/', '', $str_url);
+            $str_url = preg_replace('/(&(?:amp;)?|\?)' . preg_quote($str_parameterName, '/') . '=[^&]*&(amp;)?/', '$1', $str_url);
+        }
 
         return $str_url;
     }
