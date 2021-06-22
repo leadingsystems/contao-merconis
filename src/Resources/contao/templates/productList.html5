@@ -3,14 +3,25 @@
     <?php if ($this->allowUserSorting || $this->pagination) { ?>
         <div class="pagination-and-sorting-container top">
             <?php if ($this->pagination) { ?>
-                <div class="pagination-container" onclick="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
+                <div class="pagination-container top-pagination">
                     <?php echo $this->pagination; ?>
                 </div>
             <?php } ?>
 
             <?php if ($this->allowUserSorting) { ?>
                 <div class="user-sorting-form">
-                    <form action="<?php echo \Environment::get('request'); ?>" method="post" onsubmit="lsjs.scrollAssistant.__controller.getLSFEScrollOffset();">
+                    <form
+                        action="<?php echo Merconis\Core\ls_shop_generalHelper::removeGetParameterFromUrl(\Environment::get('request'), 'cajaxCall'); ?>"
+                        method="post"
+                        data-lsjs-component="cajaxCaller"
+                        data-lsjs-cajaxCallerOptions="
+                            {
+                                'obj_cajaxRequestData': {
+                                    'requestedElementID': 'merconis-product-list-reload-container'
+                                }
+                            }
+                        "
+                    >
                         <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
                         <input type="hidden" name="FORM_SUBMIT" value="userSorting">
                         <input type="hidden" name="identifyCorrespondingOutputDefinition" value="<?php echo $this->identifyCorrespondingOutputDefinition; ?>">
@@ -36,7 +47,7 @@
 
     <?php if ($this->pagination) { ?>
         <div class="pagination-and-sorting-container bottom">
-            <div class="pagination-container">
+            <div class="pagination-container bottom-pagination">
                 <?php echo $this->pagination; ?>
             </div>
         </div>
