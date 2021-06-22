@@ -239,8 +239,10 @@ class ls_shop_productList
 		$objTemplate->blnNotAllProductsMatchFilter = $objProductSearch->blnNotAllProductsMatch;
 		$objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;
 		$objTemplate->numProductsBeforeFilter = $objProductSearch->numProductsBeforeFilter;
-		
-		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, new \FrontendTemplate('merconisPagination'));
+
+		$obj_paginationTemplate = new \FrontendTemplate('merconisPagination');
+		$obj_paginationTemplate->productListID = $this->productListID;
+		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
 		$paginationHTML = $objPagination->generate(' ');
 				
 		$objTemplate->pagination = $paginationHTML;
@@ -292,6 +294,7 @@ class ls_shop_productList
 		}
 		
 		$objTemplate->products = $productOutput;
+		$objTemplate->productListID = $this->productListID;
 		
 		return $objTemplate->parse();
 	}

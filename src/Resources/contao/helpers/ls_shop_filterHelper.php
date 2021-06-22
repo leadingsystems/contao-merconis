@@ -613,7 +613,7 @@ class ls_shop_filterHelper {
 	    /*
 	     * Remove a possibly existing cajaxCall parameter
 	     */
-	    $str_targetUrl = ls_shop_generalHelper::removeGetParameterFromUrl($str_targetUrl, 'cajaxCall');
+	    $str_targetUrl = ls_shop_generalHelper::removeGetParametersFromUrl($str_targetUrl, 'cajaxCall');
 
 	    /*
 	     * If a specific page is given in the url, replace it with page 1.

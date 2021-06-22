@@ -1,5 +1,5 @@
 <!-- indexer::stop -->
-<div id="merconis-product-list-reload-container">
+<div id="merconis-product-list-reload-container-<?php echo $this->productListID; ?>">
     <?php if ($this->allowUserSorting || $this->pagination) { ?>
         <div class="pagination-and-sorting-container top">
             <?php if ($this->pagination) { ?>
@@ -11,13 +11,13 @@
             <?php if ($this->allowUserSorting) { ?>
                 <div class="user-sorting-form">
                     <form
-                        action="<?php echo Merconis\Core\ls_shop_generalHelper::removeGetParameterFromUrl(\Environment::get('request'), 'cajaxCall'); ?>"
+                        action="<?php echo Merconis\Core\ls_shop_generalHelper::removeGetParametersFromUrl(\Environment::get('request'), 'cajaxCall'); ?>"
                         method="post"
                         data-lsjs-component="cajaxCaller"
                         data-lsjs-cajaxCallerOptions="
                             {
                                 'obj_cajaxRequestData': {
-                                    'requestedElementID': 'merconis-product-list-reload-container'
+                                    'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
                                 }
                             }
                         "
