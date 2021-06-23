@@ -215,7 +215,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText147'] = 'Benachrichtigung bei Wie
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText148'] = 'Benachrichtigung bei Wiederverfügbarkeit wurde deaktiviert';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText149'] = 'Bitte melden Sie sich an, um eine Benachrichtigung bei Wiederverfügbarkeit anzufordern.';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'zur Übersicht';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'Zurück';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151'] = 'Wie möchten Sie bestellen?';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText152'] = 'LIEFERSCHEIN';
 

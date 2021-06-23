@@ -215,7 +215,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText147'] = 'Notification of renewed 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText148'] = 'Notification of renewed availability has been deactivated';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText149'] = 'Please log in to request a notification when the product is available again';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'to the overview';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'back';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151'] = 'How would you like to order?';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText152'] = 'DELIVERY NOTE';
 
