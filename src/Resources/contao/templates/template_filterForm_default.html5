@@ -1,7 +1,20 @@
 <!-- indexer::stop -->
+<?php
+$int_numFilterCriteriaCurrentlyUsed = count($this->arr_filterSummaryData['arr_filterSummary']['arr_attributes']) + count($this->arr_filterSummaryData['arr_filterSummary']['arr_producers']) + ($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['low'] || $this->arr_filterSummaryData['arr_filterSummary']['arr_price']['high'] ? 1 : 0);
+?>
 <div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>">
-    <div class="off-canvas-filter-form-toggler-remote main-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$this->str_htmlFilterSummary ? 'miscText097-03' : 'miscText097-02']; ?></div>
-    <?php echo $this->str_htmlFilterSummary; ?>
+    <div class="off-canvas-filter-form-toggler-remote main-toggler">
+        <span id="filter-headline" class="ajax-reload-by-filter">
+            <?php
+                if (!$int_numFilterCriteriaCurrentlyUsed) {
+                    echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'];
+                } else {
+                    echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03'], $int_numFilterCriteriaCurrentlyUsed);
+                }
+            ?>
+        </span>
+    </div>
+    <?php echo $this->str_filterSummaryHtml; ?>
     <div id="off-canvas-filter-form-container" class="oc-flex-default-container">
         <div id="off-canvas-filter-form-container-inside">
             <div class="off-canvas-filter-form-toggler close-button">&nbsp;</div>

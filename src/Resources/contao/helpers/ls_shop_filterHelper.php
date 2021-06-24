@@ -2,11 +2,7 @@
 namespace Merconis\Core;
 
 class ls_shop_filterHelper {
-    public static function getFilterSummary($objFEModule = null) {
-        if (!is_object($objFEModule)) {
-            return '';
-        }
-
+    public static function getFilterSummary() {
         global $objPage;
 
         $arr_filterSummary = [
@@ -53,9 +49,19 @@ class ls_shop_filterHelper {
             }
         }
 
+        return ['arr_filterSummary' => $arr_filterSummary, 'arr_filterAllFields' => $arr_filterAllFields];
+    }
+
+    public static function getFilterSummaryHtml($objFEModule = null) {
+        if (!is_object($objFEModule)) {
+            return '';
+        }
+
+        $arr_summaryData = self::getFilterSummary();
+
         $obj_template = new \FrontendTemplate($objFEModule->ls_shop_filterSummary_template);
-        $obj_template->arr_filterSummary = $arr_filterSummary;
-        $obj_template->arr_filterAllFields = $arr_filterAllFields;
+        $obj_template->arr_filterSummary = $arr_summaryData['arr_filterSummary'];
+        $obj_template->arr_filterAllFields = $arr_summaryData['arr_filterAllFields'];
         return $obj_template->parse();
     }
 

@@ -66,6 +66,10 @@
   overflow: hidden;
   margin-bottom: 2rem;
 
+  @include media-breakpoint-down(3, $grid-breakpoints-ls) {
+    display: none;
+  }
+
   .filter-summary {
     display: flex;
     flex-wrap: wrap;
@@ -81,6 +85,12 @@
       margin-bottom: 0.5rem;
       font-size: 80%;
       font-weight: $ls-font-weight-bold;
+
+      &::after {
+        @extend .fas;
+        content: fa-content($fa-var-chevron-circle-right);
+        margin-left: 1rem
+      }
     }
 
     > li {

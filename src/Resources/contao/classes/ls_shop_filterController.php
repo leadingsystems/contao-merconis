@@ -109,7 +109,8 @@ class ls_shop_filterController
 		 */
 		$obj_template = new \FrontendTemplate($objFEModule->ls_shop_filterForm_template);
 		$obj_template->request = \Environment::get('request');
-		$obj_template->str_htmlFilterSummary = trim(\Merconis\Core\ls_shop_filterHelper::getFilterSummary($objFEModule));
+		$obj_template->arr_filterSummaryData = \Merconis\Core\ls_shop_filterHelper::getFilterSummary();
+		$obj_template->str_filterSummaryHtml = trim(\Merconis\Core\ls_shop_filterHelper::getFilterSummaryHtml($objFEModule));
 
 		$arrHeadline = deserialize($objFEModule->headline);
 		$obj_template->headline = is_array($arrHeadline) ? $arrHeadline['value'] : $arrHeadline;

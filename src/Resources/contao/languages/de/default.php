@@ -151,8 +151,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText095'] = 'Status';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText096'] = 'Zahlung';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097'] = 'Filter anwenden';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'] = 'Produkte filtern';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03'] = 'Filter bearbeiten';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'] = 'Sie können diese Produktliste filtern!';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03'] = 'Sie filtern nach %s Merkmalen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098'] = 'ab';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099'] = 'bis';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100'] = 'Hersteller';
