@@ -83,8 +83,16 @@
     .filter-criterion-title {
       display: block;
       margin-bottom: 0.5rem;
-      font-size: 80%;
       font-weight: $ls-font-weight-bold;
+      font-size: 80%;
+
+      @include media-breakpoint-down(7, $grid-breakpoints-ls) {
+        font-size: 90%;
+      }
+
+      @include media-breakpoint-down(4, $grid-breakpoints-ls) {
+        font-size: 100%;
+      }
 
       &::after {
         @extend .fas;
