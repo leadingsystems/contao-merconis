@@ -75,6 +75,8 @@
     flex-wrap: wrap;
     list-style: none;
     margin-left: -2rem;
+    margin-right: -2rem;
+    margin-bottom: -0.1rem;
 
     .off-canvas-filter-form-toggler-remote {
       height: 100%;
@@ -85,6 +87,14 @@
       margin-bottom: 0.5rem;
       font-weight: $ls-font-weight-bold;
       font-size: 80%;
+
+      &:not(.currently-filtering) {
+        /*
+         * If we want to match the visual color appearance of the grey hairlines with this bold text, we have
+         * to darken the hairline's grey a little bit.
+         */
+        color: darken($ls-color-grey, 10%);
+      }
 
       @include media-breakpoint-down(7, $grid-breakpoints-ls) {
         font-size: 90%;
@@ -102,14 +112,29 @@
     }
 
     > li {
-      border-right: 0.1rem solid $ls-color-black;
+      border-right: 0.1rem solid $ls-color-grey;
       padding-right: 2rem;
+      width: 20%;
+      border-bottom: 0.1rem solid $ls-color-grey;
+
+      @include media-breakpoint-down(9, $grid-breakpoints-ls) {
+        width: 25%;
+      }
+
+      @include media-breakpoint-down(7, $grid-breakpoints-ls) {
+        width: 33.333%;
+      }
+
+      @include media-breakpoint-down(5, $grid-breakpoints-ls) {
+        width: 50%;
+      }
 
       .off-canvas-filter-form-toggler-remote {
         margin-left: -0.1rem;
         border-left: 0.1rem solid $ls-color-grey;
         padding-left: 2rem;
-        margin-bottom: 3rem;
+        margin-bottom: 1.5rem;
+        padding-top: 1.5rem;
 
         .filter-values {
           display: flex;
