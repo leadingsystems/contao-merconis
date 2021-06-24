@@ -5059,8 +5059,8 @@ class ls_shop_generalHelper
         }
 
         foreach ($arr_parameterNames as $str_parameterName) {
-            $str_url = preg_replace('/(&(?:amp;)?|\?)' . preg_quote($str_parameterName, '/') . '=[^&]*$/', '', $str_url);
-            $str_url = preg_replace('/(&(?:amp;)?|\?)' . preg_quote($str_parameterName, '/') . '=[^&]*&(amp;)?/', '$1', $str_url);
+            $str_url = preg_replace('/(&(?:amp;)?|\?)' . $str_parameterName . '=[^&]*$/', '', $str_url);
+            $str_url = preg_replace('/(&(?:amp;)?|\?)' . $str_parameterName . '=[^&]*&(amp;)?/', '$1', $str_url);
         }
 
         return $str_url;
