@@ -76,7 +76,7 @@
     list-style: none;
     margin-left: -2rem;
     margin-right: -2rem;
-    margin-bottom: -0.1rem;
+    margin-bottom: -1.1rem;
 
     .off-canvas-filter-form-toggler-remote {
       height: 100%;
@@ -112,10 +112,26 @@
     }
 
     > li {
-      border-right: 0.1rem solid $ls-color-grey;
-      padding-right: 2rem;
       width: 20%;
-      border-bottom: 0.1rem solid $ls-color-grey;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+
+      &::after {
+        content: "";
+        display: block;
+        width: calc(100% - 2rem);
+        border-bottom: 0.1rem solid #ccc;
+        position: absolute;
+        bottom: 0;
+        left: 1rem;
+      }
+
+      &:not(:only-child) {
+        .filter-criterion-attribute-container {
+          border-right: 0.1rem solid $ls-color-grey;
+        }
+      }
 
       @include media-breakpoint-down(9, $grid-breakpoints-ls) {
         width: 25%;
@@ -129,25 +145,31 @@
         width: 50%;
       }
 
-      .off-canvas-filter-form-toggler-remote {
-        margin-left: -0.1rem;
-        border-left: 0.1rem solid $ls-color-grey;
-        padding-left: 2rem;
-        margin-bottom: 1.5rem;
-        padding-top: 1.5rem;
+      .filter-criterion-attribute-container {
+        width: 100%;
+        height: 100%;
+        padding-right: 2rem;
 
-        .filter-values {
-          display: flex;
-          list-style: none;
-          flex-wrap: wrap;
+        .off-canvas-filter-form-toggler-remote {
+          margin-left: -0.1rem;
+          border-left: 0.1rem solid $ls-color-grey;
+          padding-left: 2rem;
+          margin-bottom: 1.5rem;
+          padding-top: 1.5rem;
 
-          .filter-criterion-value-title {
-            font-weight: $ls-font-weight-bold;
-          }
+          .filter-values {
+            display: flex;
+            list-style: none;
+            flex-wrap: wrap;
 
-          li {
-            &:not(:last-child) {
-              margin-right: 1rem;
+            .filter-criterion-value-title {
+              font-weight: $ls-font-weight-bold;
+            }
+
+            li {
+              &:not(:last-child) {
+                margin-right: 1rem;
+              }
             }
           }
         }
