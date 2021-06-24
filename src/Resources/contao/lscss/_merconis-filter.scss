@@ -74,7 +74,7 @@
     display: flex;
     flex-wrap: wrap;
     list-style: none;
-    margin-left: -4rem;
+    margin-left: -2rem;
 
     .off-canvas-filter-form-toggler-remote {
       height: 100%;
@@ -102,24 +102,28 @@
     }
 
     > li {
-      margin-left: 2rem;
-      border-left: 0.1rem solid $ls-color-grey;
-      padding-left: 2rem;
-      margin-bottom: 3rem;
-      max-width: 20rem;
+      border-right: 0.1rem solid $ls-color-black;
+      padding-right: 2rem;
 
-      .filter-values {
-        display: flex;
-        list-style: none;
-        flex-wrap: wrap;
+      .off-canvas-filter-form-toggler-remote {
+        margin-left: -0.1rem;
+        border-left: 0.1rem solid $ls-color-grey;
+        padding-left: 2rem;
+        margin-bottom: 3rem;
 
-        .filter-criterion-value-title {
-          font-weight: $ls-font-weight-bold;
-        }
+        .filter-values {
+          display: flex;
+          list-style: none;
+          flex-wrap: wrap;
 
-        li {
-          &:not(:last-child) {
-            margin-right: 1rem;
+          .filter-criterion-value-title {
+            font-weight: $ls-font-weight-bold;
+          }
+
+          li {
+            &:not(:last-child) {
+              margin-right: 1rem;
+            }
           }
         }
       }
