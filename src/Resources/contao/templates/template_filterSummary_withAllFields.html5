@@ -30,13 +30,14 @@ if (
             <?php
             if ($bln_attributesFilterCurrentlyAvailable) {
                 foreach ($this->arr_filterAllFields['arr_attributes'] as $int_attributeId => $arr_filterAttribute) {
+                    $bln_currentlyFilteringByThisAttribute = isset($this->arr_filterSummary['arr_attributes'][$int_attributeId]) && is_array($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values']);
                     ?>
                     <li class="filter-criterion filter-criterion-attribute" data-lsjs-filter-section-id="attribute-<?php echo $int_attributeId; ?>">
-                        <div class="off-canvas-filter-form-toggler-remote">
-                            <span class="filter-criterion-title"><?php echo $arr_filterAttribute['str_title']; ?></span>
-                            <?php
-                            if (isset($this->arr_filterSummary['arr_attributes'][$int_attributeId])) {
-                                if (is_array($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values'])) {
+                        <div class="filter-criterion-attribute-container">
+                            <div class="off-canvas-filter-form-toggler-remote">
+                                <span class="filter-criterion-title<?php echo $bln_currentlyFilteringByThisAttribute ? ' currently-filtering' : ''; ?>"><?php echo $arr_filterAttribute['str_title']; ?></span>
+                                <?php
+                                if ($bln_currentlyFilteringByThisAttribute) {
                                     ?>
                                     <div class="filter-values">
                                         <?php
@@ -60,8 +61,8 @@ if (
                                     </div>
                                     <?php
                                 }
-                            }
-                            ?>
+                                ?>
+                            </div>
                         </div>
                     </li>
                     <?php
@@ -71,29 +72,31 @@ if (
             if ($bln_poducerFilterCurrentlyAvailable) {
                 ?>
                 <li class="filter-criterion filter-criterion-producer" data-lsjs-filter-section-id="producer">
-                    <div class="off-canvas-filter-form-toggler-remote">
-                        <span class="filter-criterion-title"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?></span>
-                        <div class="filter-values">
-                            <?php
-                            if ($bln_currentlyFilteringByProducer) {
-                                $int_count = 0;
-                                $int_numValues = count($this->arr_filterSummary['arr_producers']);
-                                foreach ($this->arr_filterSummary['arr_producers'] as $str_producerName) {
-                                    $int_count++;
-                                    ?>
-                                    <?php
-                                    $str_stringAddition = '';
-                                    if ($int_numValues >= 3 && $int_count <= $int_numValues - 2) {
-                                        $str_stringAddition = ', ';
-                                    } else if ($int_count === $int_numValues - 1) {
-                                        $str_stringAddition = ' ' . $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or'] . ' ';
+                    <div class="filter-criterion-attribute-container">
+                        <div class="off-canvas-filter-form-toggler-remote">
+                            <span class="filter-criterion-title<?php echo $bln_currentlyFilteringByProducer ? ' currently-filtering' : ''; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?></span>
+                            <div class="filter-values">
+                                <?php
+                                if ($bln_currentlyFilteringByProducer) {
+                                    $int_count = 0;
+                                    $int_numValues = count($this->arr_filterSummary['arr_producers']);
+                                    foreach ($this->arr_filterSummary['arr_producers'] as $str_producerName) {
+                                        $int_count++;
+                                        ?>
+                                        <?php
+                                        $str_stringAddition = '';
+                                        if ($int_numValues >= 3 && $int_count <= $int_numValues - 2) {
+                                            $str_stringAddition = ', ';
+                                        } else if ($int_count === $int_numValues - 1) {
+                                            $str_stringAddition = ' ' . $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or'] . ' ';
+                                        }
+                                        ?>
+                                        <?php echo $str_producerName . $str_stringAddition; ?>
+                                        <?php
                                     }
-                                    ?>
-                                    <?php echo $str_producerName . $str_stringAddition; ?>
-                                    <?php
                                 }
-                            }
-                            ?>
+                                ?>
+                            </div>
                         </div>
                     </div>
                 </li>
@@ -103,29 +106,31 @@ if (
             if ($bln_priceFilterCurrentlyAvailable) {
                 ?>
                 <li class="filter-criterion filter-criterion-price" data-lsjs-filter-section-id="price">
-                    <div class="off-canvas-filter-form-toggler-remote">
-                        <span class="filter-criterion-title"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
-                        <div class="filter-values">
-                            <?php
-                            if ($bln_currentlyFilteringByPrice) {
-                                if ($this->arr_filterSummary['arr_price']['low']) {
-                                    ?>
-                                    <span class="filter-price-from">
-                                        <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098']; ?>
-                                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arr_filterSummary['arr_price']['low']); ?>
-                                    </span>
-                                    <?php
+                    <div class="filter-criterion-attribute-container">
+                        <div class="off-canvas-filter-form-toggler-remote">
+                            <span class="filter-criterion-title<?php echo $bln_currentlyFilteringByPrice ? ' currently-filtering' : ''; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
+                            <div class="filter-values">
+                                <?php
+                                if ($bln_currentlyFilteringByPrice) {
+                                    if ($this->arr_filterSummary['arr_price']['low']) {
+                                        ?>
+                                        <span class="filter-price-from">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098']; ?>
+                                            <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arr_filterSummary['arr_price']['low']); ?>
+                                        </span>
+                                        <?php
+                                    }
+                                    if ($this->arr_filterSummary['arr_price']['high']) {
+                                        ?>
+                                        <span class="filter-price-to">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099']; ?>
+                                            <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arr_filterSummary['arr_price']['high']); ?>
+                                        </span>
+                                        <?php
+                                    }
                                 }
-                                if ($this->arr_filterSummary['arr_price']['high']) {
-                                    ?>
-                                    <span class="filter-price-to">
-                                        <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099']; ?>
-                                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->arr_filterSummary['arr_price']['high']); ?>
-                                    </span>
-                                    <?php
-                                }
-                            }
-                            ?>
+                                ?>
+                            </div>
                         </div>
                     </div>
                 </li>
