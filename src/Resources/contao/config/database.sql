@@ -1102,7 +1102,8 @@ CREATE TABLE `tl_layout` (
   `ls_shop_useFilterInProductDetails` char(1) NOT NULL default '',
   `ls_shop_hideFilterFormInProductDetails` char(1) NOT NULL default '',
   `ls_shop_matchEstimatesMaxNumProducts` int(10) unsigned NOT NULL default '0',
-  `ls_shop_matchEstimatesMaxFilterValues` int(10) unsigned NOT NULL default '0'
+  `ls_shop_matchEstimatesMaxFilterValues` int(10) unsigned NOT NULL default '0',
+  `ls_shop_numFilterFieldsInSummary` smallint(5) unsigned NOT NULL default '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tl_user` (

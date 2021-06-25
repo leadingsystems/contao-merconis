@@ -1,4 +1,6 @@
 <?php
+$int_numFilterFieldsMax = $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'];
+
 if (
     $this->bln_attributesFilterCurrentlyAvailable
     || $this->bln_poducerFilterCurrentlyAvailable
@@ -10,6 +12,10 @@ if (
             <?php
             if ($this->bln_attributesFilterCurrentlyAvailable) {
                 foreach ($this->arr_filterAllFields['arr_attributes'] as $int_attributeId => $arr_filterAttribute) {
+                    if ($int_numFilterFieldsMax && $this->arr_filterFieldSortingNumbers['attribute_' . $int_attributeId] > $int_numFilterFieldsMax) {
+                        continue;
+                    }
+
                     $bln_currentlyFilteringByThisAttribute = isset($this->arr_filterSummary['arr_attributes'][$int_attributeId]) && is_array($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values']);
                     ?>
                     <li class="filter-criterion filter-criterion-attribute" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['attribute_' . $int_attributeId]; ?>" data-lsjs-filter-section-id="attribute-<?php echo $int_attributeId; ?>">
@@ -49,7 +55,13 @@ if (
                 }
             }
 
-            if ($this->bln_poducerFilterCurrentlyAvailable) {
+            if (
+                    $this->bln_poducerFilterCurrentlyAvailable
+                    && (
+                        !$int_numFilterFieldsMax
+                        || $this->arr_filterFieldSortingNumbers['producer'] <= $int_numFilterFieldsMax
+                    )
+            ) {
                 ?>
                 <li class="filter-criterion filter-criterion-producer" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['producer']; ?>" data-lsjs-filter-section-id="producer">
                     <div class="filter-criterion-attribute-container">
@@ -83,7 +95,13 @@ if (
                 <?php
             }
 
-            if ($this->bln_priceFilterCurrentlyAvailable) {
+            if (
+                    $this->bln_priceFilterCurrentlyAvailable
+                    && (
+                        !$int_numFilterFieldsMax
+                        || $this->arr_filterFieldSortingNumbers['price'] <= $int_numFilterFieldsMax
+                    )
+            ) {
                 ?>
                 <li class="filter-criterion filter-criterion-price" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['price']; ?>" data-lsjs-filter-section-id="price">
                     <div class="filter-criterion-attribute-container">

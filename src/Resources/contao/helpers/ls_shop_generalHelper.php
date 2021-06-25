@@ -4445,6 +4445,7 @@ class ls_shop_generalHelper
         $GLOBALS['merconis_globals']['layoutName'] = $objLayout->name;
         $GLOBALS['merconis_globals']['ls_shop_activateFilter'] = $objLayout->ls_shop_activateFilter;
         $GLOBALS['merconis_globals']['ls_shop_useFilterInStandardProductlist'] = $objLayout->ls_shop_useFilterInStandardProductlist;
+        $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = $objLayout->ls_shop_numFilterFieldsInSummary;
         $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] = $objLayout->ls_shop_useFilterMatchEstimates;
         $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxNumProducts'] = $objLayout->ls_shop_matchEstimatesMaxNumProducts;
         $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxFilterValues'] = $objLayout->ls_shop_matchEstimatesMaxFilterValues;
