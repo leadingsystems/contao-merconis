@@ -49,7 +49,82 @@ class ls_shop_filterHelper {
             }
         }
 
-        return ['arr_filterSummary' => $arr_filterSummary, 'arr_filterAllFields' => $arr_filterAllFields];
+        $bln_attributesFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_attributes']) && count($arr_filterAllFields['arr_attributes']);
+        $bln_poducerFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_producers']) && count($arr_filterAllFields['arr_producers']);
+        $bln_priceFilterCurrentlyAvailable = (
+            is_array($arr_filterAllFields['arr_price'])
+            && (
+                (isset($arr_filterAllFields['arr_price']['low']) && $arr_filterAllFields['arr_price']['low'])
+                || (isset($arr_filterAllFields['arr_price']['high']) && $arr_filterAllFields['arr_price']['high'])
+            )
+        );
+
+        $bln_currentlyFilteringByAttributes = is_array($arr_filterSummary['arr_attributes']) && count($arr_filterSummary['arr_attributes']);
+        $bln_currentlyFilteringByProducer = is_array($arr_filterSummary['arr_producers']) && count($arr_filterSummary['arr_producers']);
+        $bln_currentlyFilteringByPrice = (
+            is_array($arr_filterSummary['arr_price'])
+            && (
+                (isset($arr_filterSummary['arr_price']['low']) && $arr_filterSummary['arr_price']['low'])
+                || (isset($arr_filterSummary['arr_price']['high']) && $arr_filterSummary['arr_price']['high'])
+            )
+        );
+
+
+
+        /*
+         * Handle sorting by priority -->
+         */
+        $arr_filterFieldSortingNumbers = [];
+        $arr_filterFieldPriorities = [];
+
+        $obj_dbres_filterFieldPriorities = \Database::getInstance()
+            ->prepare("
+                SELECT  id,
+                        sourceAttribute,
+                        dataSource,
+                        priority
+                FROM    tl_ls_shop_filter_fields
+            ")
+            ->execute();
+
+        while ($obj_dbres_filterFieldPriorities->next()) {
+            $arr_filterFieldPriorities[$obj_dbres_filterFieldPriorities->dataSource . ($obj_dbres_filterFieldPriorities->dataSource === 'attribute' ? '_' . $obj_dbres_filterFieldPriorities->sourceAttribute : '')] = $obj_dbres_filterFieldPriorities->priority;
+        }
+
+        foreach (array_keys($arr_filterAllFields['arr_attributes']) as $int_filterAttributeId) {
+            $arr_filterFieldSortingNumbers['attribute_' . $int_filterAttributeId] = $arr_filterFieldPriorities['attribute_' . $int_filterAttributeId];
+        }
+
+        if ($bln_poducerFilterCurrentlyAvailable) {
+            $arr_filterFieldSortingNumbers['producer'] = $arr_filterFieldPriorities['producer'];
+        }
+
+        if ($bln_priceFilterCurrentlyAvailable) {
+            $arr_filterFieldSortingNumbers['price'] = $arr_filterFieldPriorities['price'];
+        }
+
+        arsort($arr_filterFieldSortingNumbers);
+
+        $int_countSorting = 0;
+        foreach (array_keys($arr_filterFieldSortingNumbers) as $str_filterFieldSortingNumbersKey) {
+            $int_countSorting++;
+            $arr_filterFieldSortingNumbers[$str_filterFieldSortingNumbersKey] = $int_countSorting;
+        }
+        /*
+         * <--
+         */
+
+        return [
+            'arr_filterSummary' => $arr_filterSummary,
+            'arr_filterAllFields' => $arr_filterAllFields,
+            'bln_attributesFilterCurrentlyAvailable' => $bln_attributesFilterCurrentlyAvailable,
+            'bln_poducerFilterCurrentlyAvailable' => $bln_poducerFilterCurrentlyAvailable,
+            'bln_priceFilterCurrentlyAvailable' => $bln_priceFilterCurrentlyAvailable,
+            'bln_currentlyFilteringByAttributes' => $bln_currentlyFilteringByAttributes,
+            'bln_currentlyFilteringByProducer' => $bln_currentlyFilteringByProducer,
+            'bln_currentlyFilteringByPrice' => $bln_currentlyFilteringByPrice,
+            'arr_filterFieldSortingNumbers' => $arr_filterFieldSortingNumbers
+        ];
     }
 
     public static function getFilterSummaryHtml($objFEModule = null) {
@@ -62,6 +137,13 @@ class ls_shop_filterHelper {
         $obj_template = new \FrontendTemplate($objFEModule->ls_shop_filterSummary_template);
         $obj_template->arr_filterSummary = $arr_summaryData['arr_filterSummary'];
         $obj_template->arr_filterAllFields = $arr_summaryData['arr_filterAllFields'];
+        $obj_template->bln_attributesFilterCurrentlyAvailable = $arr_summaryData['bln_attributesFilterCurrentlyAvailable'];
+        $obj_template->bln_poducerFilterCurrentlyAvailable = $arr_summaryData['bln_poducerFilterCurrentlyAvailable'];
+        $obj_template->bln_priceFilterCurrentlyAvailable = $arr_summaryData['bln_priceFilterCurrentlyAvailable'];
+        $obj_template->bln_currentlyFilteringByAttributes = $arr_summaryData['bln_currentlyFilteringByAttributes'];
+        $obj_template->bln_currentlyFilteringByProducer = $arr_summaryData['bln_currentlyFilteringByProducer'];
+        $obj_template->bln_currentlyFilteringByPrice = $arr_summaryData['bln_currentlyFilteringByPrice'];
+        $obj_template->arr_filterFieldSortingNumbers = $arr_summaryData['arr_filterFieldSortingNumbers'];
         return $obj_template->parse();
     }
 
