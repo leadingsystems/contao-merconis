@@ -44,17 +44,30 @@
 
 .off-canvas-filter-form-toggler-remote {
   cursor: pointer;
+}
 
-  &.main-toggler {
-    padding-bottom: 0.5rem;
-    border-bottom: 0.1rem solid $ls-color-grey;
-    margin-bottom: 1rem;
+#filter-headline-container {
+  padding-bottom: 0.5rem;
+  border-bottom: 0.1rem solid $ls-color-grey;
+  margin-bottom: 1rem;
+  @include clearfix;
+
+  .filter-headline {
+    float: left;
+    margin-top: 1rem;
 
     &::before {
       @extend .fas;
       content: fa-content($fa-var-filter);
       margin-right: 1rem;
     }
+  }
+
+  .all-filter-options {
+    float: right;
+    margin-top: 1.2rem;
+    margin-left: 2rem;
+    font-size: 80%;
   }
 }
 
@@ -82,32 +95,41 @@
       height: 100%;
     }
 
-    .filter-criterion-title {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: $ls-font-weight-bold;
-      font-size: 80%;
-
+    .filter-criterion {
       &:not(.currently-filtering) {
+        &:not(.show-even-unused) {
+          display: none;
+        }
+
         /*
          * If we want to match the visual color appearance of the grey hairlines with this bold text, we have
          * to darken the hairline's grey a little bit.
          */
-        color: darken($ls-color-grey, 10%);
+        .filter-criterion-title {
+          color: darken($ls-color-grey, 10%);
+        }
       }
 
-      @include media-breakpoint-down(7, $grid-breakpoints-ls) {
-        font-size: 90%;
-      }
+      .filter-criterion-title {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: $ls-font-weight-bold;
+        font-size: 80%;
 
-      @include media-breakpoint-down(4, $grid-breakpoints-ls) {
-        font-size: 100%;
-      }
 
-      &::after {
-        @extend .fas;
-        content: fa-content($fa-var-chevron-circle-right);
-        margin-left: 1rem
+        @include media-breakpoint-down(7, $grid-breakpoints-ls) {
+          font-size: 90%;
+        }
+
+        @include media-breakpoint-down(4, $grid-breakpoints-ls) {
+          font-size: 100%;
+        }
+
+        &::after {
+          @extend .fas;
+          content: fa-content($fa-var-chevron-circle-right);
+          margin-left: 1rem
+        }
       }
     }
 
@@ -217,14 +239,29 @@
 
 
 .template_filterForm_default {
-  form {
-    &.partial-display {
+  &:not(.partial-filter-form-display) {
+    .display-with-partial-filter-form {
+      display: none;
+    }
+  }
+
+  &.partial-filter-form-display {
+    .display-with-full-filter-form {
+      display: none;
+    }
+
+    form {
       button {
         &.resetFilter {
           display: none;
         }
       }
     }
+  }
+
+  h3 {
+    border-bottom: 0.1rem solid;
+    margin-bottom: 3rem;
   }
 
   input,

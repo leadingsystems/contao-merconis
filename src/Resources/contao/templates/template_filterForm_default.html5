@@ -1,10 +1,14 @@
 <!-- indexer::stop -->
 <?php
+$bln_moreFilterFieldsAvailableThanShownInSummary = $this->arr_filterSummaryData['int_numAvailableFilterFields'] > $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'];
 $int_numFilterCriteriaCurrentlyUsed = count($this->arr_filterSummaryData['arr_filterSummary']['arr_attributes']) + count($this->arr_filterSummaryData['arr_filterSummary']['arr_producers']) + ($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['low'] || $this->arr_filterSummaryData['arr_filterSummary']['arr_price']['high'] ? 1 : 0);
 ?>
-<div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>">
-    <div class="off-canvas-filter-form-toggler-remote main-toggler">
-        <span id="filter-headline" class="ajax-reload-by-filter">
+<div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?><?php echo $bln_moreFilterFieldsAvailableThanShownInSummary ? ' more-filter-fields-available' : '' ?>">
+    <div id="filter-headline-container" class="ajax-reload-by-filter">
+        <span class="all-filter-options off-canvas-filter-form-toggler-remote">
+            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-05']; ?>
+        </span>
+        <span class="filter-headline off-canvas-filter-form-toggler-remote">
             <?php
                 if (!$int_numFilterCriteriaCurrentlyUsed) {
                     echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'];
@@ -14,13 +18,14 @@ $int_numFilterCriteriaCurrentlyUsed = count($this->arr_filterSummaryData['arr_fi
             ?>
         </span>
     </div>
+
     <?php echo $this->str_filterSummaryHtml; ?>
+
     <div id="off-canvas-filter-form-container" class="oc-flex-default-container">
         <div id="off-canvas-filter-form-container-inside">
             <div class="off-canvas-filter-form-toggler close-button">&nbsp;</div>
-            <?php if ($this->headline) { ?>
-                <?php echo '<' . $this->hl . '>'; ?><?php echo $this->headline; ?><?php echo '</' . $this->hl . '>'; ?>
-            <?php } ?>
+            <h3 class="display-with-full-filter-form"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-05']; ?></h3>
+            <h3 class="display-with-partial-filter-form"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-06']; ?> <span class="placeholder-for-filter-field-name"></span></h3>
             <div class="filterContent">
             <?php
                 if (!$this->blnNothingToFilter) {

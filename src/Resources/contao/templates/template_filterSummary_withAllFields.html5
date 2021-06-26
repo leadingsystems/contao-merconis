@@ -12,16 +12,13 @@ if (
             <?php
             if ($this->bln_attributesFilterCurrentlyAvailable) {
                 foreach ($this->arr_filterAllFields['arr_attributes'] as $int_attributeId => $arr_filterAttribute) {
-                    if ($int_numFilterFieldsMax && $this->arr_filterFieldSortingNumbers['attribute_' . $int_attributeId] > $int_numFilterFieldsMax) {
-                        continue;
-                    }
-
+                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['attribute_' . $int_attributeId] <= $int_numFilterFieldsMax;
                     $bln_currentlyFilteringByThisAttribute = isset($this->arr_filterSummary['arr_attributes'][$int_attributeId]) && is_array($this->arr_filterSummary['arr_attributes'][$int_attributeId]['arr_values']);
                     ?>
-                    <li class="filter-criterion filter-criterion-attribute" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['attribute_' . $int_attributeId]; ?>" data-lsjs-filter-section-id="attribute-<?php echo $int_attributeId; ?>">
+                    <li class="filter-criterion filter-criterion-attribute<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $bln_currentlyFilteringByThisAttribute ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['attribute_' . $int_attributeId]; ?>" data-lsjs-filter-section-id="attribute-<?php echo $int_attributeId; ?>">
                         <div class="filter-criterion-attribute-container">
                             <div class="off-canvas-filter-form-toggler-remote">
-                                <span class="filter-criterion-title<?php echo $bln_currentlyFilteringByThisAttribute ? ' currently-filtering' : ''; ?>"><?php echo $arr_filterAttribute['str_title']; ?></span>
+                                <span class="filter-criterion-title"><?php echo $arr_filterAttribute['str_title']; ?></span>
                                 <?php
                                 if ($bln_currentlyFilteringByThisAttribute) {
                                     ?>
@@ -55,18 +52,13 @@ if (
                 }
             }
 
-            if (
-                    $this->bln_poducerFilterCurrentlyAvailable
-                    && (
-                        !$int_numFilterFieldsMax
-                        || $this->arr_filterFieldSortingNumbers['producer'] <= $int_numFilterFieldsMax
-                    )
-            ) {
+            if ($this->bln_poducerFilterCurrentlyAvailable) {
+                $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['producer'] <= $int_numFilterFieldsMax;
                 ?>
-                <li class="filter-criterion filter-criterion-producer" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['producer']; ?>" data-lsjs-filter-section-id="producer">
+                <li class="filter-criterion filter-criterion-producer<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $this->bln_currentlyFilteringByProducer ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['producer']; ?>" data-lsjs-filter-section-id="producer">
                     <div class="filter-criterion-attribute-container">
                         <div class="off-canvas-filter-form-toggler-remote">
-                            <span class="filter-criterion-title<?php echo $this->bln_currentlyFilteringByProducer ? ' currently-filtering' : ''; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?></span>
+                            <span class="filter-criterion-title"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?></span>
                             <div class="filter-values">
                                 <?php
                                 if ($this->bln_currentlyFilteringByProducer) {
@@ -95,18 +87,13 @@ if (
                 <?php
             }
 
-            if (
-                    $this->bln_priceFilterCurrentlyAvailable
-                    && (
-                        !$int_numFilterFieldsMax
-                        || $this->arr_filterFieldSortingNumbers['price'] <= $int_numFilterFieldsMax
-                    )
-            ) {
+            if ($this->bln_priceFilterCurrentlyAvailable) {
+                $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['price'] <= $int_numFilterFieldsMax;
                 ?>
-                <li class="filter-criterion filter-criterion-price" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['price']; ?>" data-lsjs-filter-section-id="price">
+                <li class="filter-criterion filter-criterion-price<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $this->bln_currentlyFilteringByPrice ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['price']; ?>" data-lsjs-filter-section-id="price">
                     <div class="filter-criterion-attribute-container">
                         <div class="off-canvas-filter-form-toggler-remote">
-                            <span class="filter-criterion-title<?php echo $this->bln_currentlyFilteringByPrice ? ' currently-filtering' : ''; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
+                            <span class="filter-criterion-title"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
                             <div class="filter-values">
                                 <?php
                                 if ($this->bln_currentlyFilteringByPrice) {

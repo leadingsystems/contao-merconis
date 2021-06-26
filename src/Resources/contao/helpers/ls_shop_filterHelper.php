@@ -117,6 +117,7 @@ class ls_shop_filterHelper {
         return [
             'arr_filterSummary' => $arr_filterSummary,
             'arr_filterAllFields' => $arr_filterAllFields,
+            'int_numAvailableFilterFields' => ($bln_poducerFilterCurrentlyAvailable ? 1 : 0) + ($bln_priceFilterCurrentlyAvailable ? 1 : 0) + count($arr_filterAllFields['arr_attributes']),
             'bln_attributesFilterCurrentlyAvailable' => $bln_attributesFilterCurrentlyAvailable,
             'bln_poducerFilterCurrentlyAvailable' => $bln_poducerFilterCurrentlyAvailable,
             'bln_priceFilterCurrentlyAvailable' => $bln_priceFilterCurrentlyAvailable,
@@ -137,6 +138,7 @@ class ls_shop_filterHelper {
         $obj_template = new \FrontendTemplate($objFEModule->ls_shop_filterSummary_template);
         $obj_template->arr_filterSummary = $arr_summaryData['arr_filterSummary'];
         $obj_template->arr_filterAllFields = $arr_summaryData['arr_filterAllFields'];
+        $obj_template->int_numAvailableFilterFields = $arr_summaryData['int_numAvailableFilterFields'];
         $obj_template->bln_attributesFilterCurrentlyAvailable = $arr_summaryData['bln_attributesFilterCurrentlyAvailable'];
         $obj_template->bln_poducerFilterCurrentlyAvailable = $arr_summaryData['bln_poducerFilterCurrentlyAvailable'];
         $obj_template->bln_priceFilterCurrentlyAvailable = $arr_summaryData['bln_priceFilterCurrentlyAvailable'];
