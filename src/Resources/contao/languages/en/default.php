@@ -171,6 +171,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText108'] = '%s of %s products are no
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText109'] = 'No selection';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110'] = 'Check/uncheck all';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110-1'] = 'Show more/less';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110-2'] = 'Remove selection';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText111'] = 'No variant of this product has the desired attributes.';
 

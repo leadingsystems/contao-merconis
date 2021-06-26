@@ -223,12 +223,6 @@ class ls_shop_filterController
 							'matchEstimates' => isset($_SESSION['lsShop']['filter']['matchEstimates']['producers'][$md5Value]) ? $_SESSION['lsShop']['filter']['matchEstimates']['producers'][$md5Value] : null
 						);
 					}
-
-					if ($arrFilterFieldInfo['filterFormFieldType'] == 'radio') {
-						$arrOptions[] = ls_shop_filterHelper::getResetOption($blnHasImportantOption || $arrFilterFieldInfo['numItemsInReducedMode']);
-					} else if ($arrFilterFieldInfo['filterFormFieldType'] == 'checkbox') {
-						$arrOptions[] = ls_shop_filterHelper::getCheckAllOption($blnHasImportantOption || $arrFilterFieldInfo['numItemsInReducedMode']);
-					}
 					/*
 					 * <- Create the options array for this filter field
 					 */
@@ -336,12 +330,6 @@ class ls_shop_filterController
 							'important' => (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue'] ? true : false),
 							'matchEstimates' => isset($_SESSION['lsShop']['filter']['matchEstimates']['attributeValues'][$arrFieldValue['filterValue']]) ? $_SESSION['lsShop']['filter']['matchEstimates']['attributeValues'][$arrFieldValue['filterValue']] : null
 						);
-					}
-
-					if ($arrFilterFieldInfo['filterFormFieldType'] == 'radio') {
-						$arrOptions[] = ls_shop_filterHelper::getResetOption($blnHasImportantOption || $arrFilterFieldInfo['numItemsInReducedMode']);
-					} else if ($arrFilterFieldInfo['filterFormFieldType'] == 'checkbox') {
-						$arrOptions[] = ls_shop_filterHelper::getCheckAllOption($blnHasImportantOption || $arrFilterFieldInfo['numItemsInReducedMode']);
 					}
 					/*
 					 * <- Create the options array for this filter field

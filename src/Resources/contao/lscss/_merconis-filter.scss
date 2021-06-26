@@ -372,39 +372,6 @@
     border-bottom: 0.1rem solid $ls-color-grey;
   }
 
-  &.has-check-all,
-  &.radio {
-    .filterOptionsWrapper {
-      position: relative;
-      padding-bottom: 4rem;
-
-      .checkAll,
-      .noSelection {
-        position: absolute;
-        left: 0;
-        bottom: 0;
-
-        input[type="checkbox"],
-        input[type="radio"] {
-          display: none;
-        }
-
-        label {
-          cursor: pointer;
-
-          &:hover {
-            color: $ls-color-black;
-          }
-
-          &::before {
-            @extend .fas;
-            content: fa-content($fa-var-check-circle);
-          }
-        }
-      }
-    }
-  }
-
   &.radio {
     .filterOptionsWrapper {
       .noSelection {
@@ -458,34 +425,66 @@
         opacity: 1;
         cursor: pointer;
         right: 1rem;
-        top: 0.6rem;
+        top: 1.8rem;
       }
     }
     &.lsUnfoldRunning .label:after {
       opacity: 0;
     }
   }
-  .showAndHideOptionsIcon {
+  .special-toggler-container {
     margin-top: 2rem;
-    margin-left: 2rem;
-    cursor: pointer;
-    display: inline-block;
-    &:after {
-      @extend .fas;
-      content: fa-content($fa-var-minus);
-      opacity: 1;
-      cursor: pointer;
+
+    > * {
+      display: inline-block;
+      margin-right: 2rem;
     }
-    &.hidden {
-      display: none;
-    }
-    &.currentlyHiding:after {
-      @extend .fas;
-      content: fa-content($fa-var-plus);
-      opacity: 1;
+
+    .show-more-less {
       cursor: pointer;
+
+      &.hidden {
+        display: none;
+      }
+      &:before {
+        @extend .fas;
+        margin-right: 1rem;
+      }
+      &.currentlyHiding:before {
+        content: fa-content($fa-var-plus);
+      }
+      &.currentlyShowing:before {
+        content: fa-content($fa-var-minus);
+      }
+    }
+
+    .check-all {
+      cursor: pointer;
+
+      &.hidden {
+        display: none;
+      }
+      &:before {
+        @extend .fas;
+        margin-right: 1rem;
+        content: fa-content($fa-var-check-circle);
+      }
+    }
+
+    .uncheck-radio {
+      cursor: pointer;
+
+      &.hidden {
+        display: none;
+      }
+      &:before {
+        @extend .fas;
+        margin-right: 1rem;
+        content: fa-content($fa-var-check-circle);
+      }
     }
   }
+
   .filterMode {
     margin-top: 2rem;
   }

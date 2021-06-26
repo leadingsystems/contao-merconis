@@ -679,24 +679,6 @@ class ls_shop_filterHelper {
 		ls_shop_filterHelper::adaptFilterCriteriaToCurrentFilterFormCriteria();
 	}
 
-	public static function getResetOption($blnImportant = false) {
-		return array(
-			'value' => '--reset--',
-			'label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText109'],
-			'class' => 'noSelection',
-			'important' => $blnImportant
-		);
-	}
-
-	public static function getCheckAllOption($blnImportant = false) {
-		return array(
-			'value' => '--checkall--',
-			'label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110'],
-			'class' => 'checkAll',
-			'important' => $blnImportant
-		);
-	}
-
 	public static function filterReload() {
 	    $str_targetUrl = \Environment::get('request');
 
