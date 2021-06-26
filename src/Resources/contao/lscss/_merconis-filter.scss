@@ -125,10 +125,10 @@
           font-size: 100%;
         }
 
-        &::after {
+        &::before {
           @extend .fas;
           content: fa-content($fa-var-chevron-circle-right);
-          margin-left: 1rem
+          margin-right: 1rem
         }
       }
     }
@@ -392,6 +392,10 @@
         label {
           cursor: pointer;
 
+          &:hover {
+            color: $ls-color-black;
+          }
+
           &::before {
             @extend .fas;
             content: fa-content($fa-var-check-circle);
@@ -463,6 +467,7 @@
   }
   .showAndHideOptionsIcon {
     margin-top: 2rem;
+    margin-left: 2rem;
     cursor: pointer;
     display: inline-block;
     &:after {
@@ -470,8 +475,6 @@
       content: fa-content($fa-var-minus);
       opacity: 1;
       cursor: pointer;
-      right: 0.1rem;
-      top: 0.6rem;
     }
     &.hidden {
       display: none;
@@ -481,16 +484,13 @@
       content: fa-content($fa-var-plus);
       opacity: 1;
       cursor: pointer;
-      right: 0.1rem;
-      top: 0.6rem;
     }
   }
   .filterMode {
     margin-top: 2rem;
   }
   .content {
-    padding: 0.5rem;
-    padding-left: 4rem;
+    padding: 0.5rem 0.5rem 2rem 4rem;
     display: block;
     position: relative;
   }
