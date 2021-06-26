@@ -382,6 +382,10 @@
     padding: 0.5rem 2.6rem 0.5rem 0.5rem;
     position: relative;
     cursor: pointer;
+
+    &.hide {
+      display: none;
+    }
   }
 
   &.useLsUnfold {
