@@ -274,6 +274,11 @@
           display: none;
         }
       }
+
+      .filterOptionsBox,
+      .filterPriceBox {
+        border: none;
+      }
     }
   }
 
@@ -331,6 +336,7 @@
     font-style: italic;
   }
   .checkAll {
+    margin-top: 2rem;
     color: $ls-color-grey;
     font-style: italic;
   }
@@ -416,6 +422,7 @@
     }
   }
   .showAndHideOptionsIcon {
+    margin-top: 2rem;
     cursor: pointer;
     display: inline-block;
     &:after {
@@ -437,6 +444,9 @@
       right: 0.1rem;
       top: 0.6rem;
     }
+  }
+  .filterMode {
+    margin-top: 2rem;
   }
   .content {
     padding: 0.5rem;
