@@ -62,33 +62,39 @@
             ?>
             <div data-lsjs-element="showMoreLess"class="show-more-less"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110-1']; ?></div>
         </div>
-		<div class="filterMode">
-			<?php
-				if ($this->arr_moreData['sourceAttribute'] !== null) {
-					if ($this->arr_moreData['makeFilterModeUserAdjustable']) {
-						?>
-						<label for="<?php echo $this->str_name.'_filterMode'; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterModeLabel']; ?></label>
-						<select id="<?php echo $this->str_name.'_filterMode'; ?>" name="filterModeForAttribute[<?php echo $this->arr_moreData['sourceAttribute']; ?>]">
-							<?php
-								if (isset($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']])) {
-									$bln_orIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'or';
-									$bln_andIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'and';
-								} else {
-									$bln_orIsSelected = $this->arr_moreData['filterMode'] === 'or';
-									$bln_andIsSelected = $this->arr_moreData['filterMode'] === 'and';
-								}
-							?>
-							<option value="or"<?php echo $bln_orIsSelected ? ' selected' : ''; ?>><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterMode']['or']; ?></option>
-							<option value="and"<?php echo $bln_andIsSelected ? ' selected' : ''; ?>><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterMode']['and']; ?></option>
-						</select>
-						<?php
-					} else {
-						?>
-						<input type="hidden" name="filterModeForAttribute[<?php echo $this->arr_moreData['sourceAttribute']; ?>]" value="<?php echo $this->arr_moreData['filterMode']; ?>" />
-						<?php
-					}
-				}
-			?>
-		</div>
+        <?php
+        if ($this->arr_moreData['filterFormFieldType'] !== 'radio') {
+            ?>
+            <div class="filterMode">
+                <?php
+                    if ($this->arr_moreData['sourceAttribute'] !== null) {
+                        if ($this->arr_moreData['makeFilterModeUserAdjustable']) {
+                            ?>
+                            <label for="<?php echo $this->str_name.'_filterMode'; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterModeLabel']; ?></label>
+                            <select id="<?php echo $this->str_name.'_filterMode'; ?>" name="filterModeForAttribute[<?php echo $this->arr_moreData['sourceAttribute']; ?>]">
+                                <?php
+                                    if (isset($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']])) {
+                                        $bln_orIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'or';
+                                        $bln_andIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'and';
+                                    } else {
+                                        $bln_orIsSelected = $this->arr_moreData['filterMode'] === 'or';
+                                        $bln_andIsSelected = $this->arr_moreData['filterMode'] === 'and';
+                                    }
+                                ?>
+                                <option value="or"<?php echo $bln_orIsSelected ? ' selected' : ''; ?>><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterMode']['or']; ?></option>
+                                <option value="and"<?php echo $bln_andIsSelected ? ' selected' : ''; ?>><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterMode']['and']; ?></option>
+                            </select>
+                            <?php
+                        } else {
+                            ?>
+                            <input type="hidden" name="filterModeForAttribute[<?php echo $this->arr_moreData['sourceAttribute']; ?>]" value="<?php echo $this->arr_moreData['filterMode']; ?>" />
+                            <?php
+                        }
+                    }
+                ?>
+            </div>
+            <?php
+        }
+        ?>
 	</div>
 </div>
