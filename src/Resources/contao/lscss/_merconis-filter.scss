@@ -133,7 +133,7 @@
       }
     }
 
-    > li {
+    .filter-criterion {
       width: 20%;
       padding-bottom: 1rem;
       margin-bottom: 1rem;
@@ -207,7 +207,19 @@
       .filter-criterion-attribute-container {
         width: 100%;
         height: 100%;
-        padding-right: 2rem;
+        padding-right: 0;
+
+        .reset-this-criterion {
+          position: absolute;
+          right: 2rem;
+          cursor: pointer;
+
+          &::after {
+            @extend .fas;
+            content: fa-content($fa-var-times);
+            color: darken($ls-color-grey, 10%);
+          }
+        }
 
         .off-canvas-filter-form-toggler-remote {
           margin-left: -0.1rem;
@@ -231,6 +243,12 @@
               }
             }
           }
+        }
+      }
+
+      &.currently-filtering {
+        .filter-criterion-attribute-container {
+          padding-right: 4rem;
         }
       }
     }

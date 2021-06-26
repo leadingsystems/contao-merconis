@@ -17,6 +17,13 @@ if (
                     ?>
                     <li class="filter-criterion filter-criterion-attribute<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $bln_currentlyFilteringByThisAttribute ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['attribute_' . $int_attributeId]; ?>" data-lsjs-filter-section-id="attribute-<?php echo $int_attributeId; ?>">
                         <div class="filter-criterion-attribute-container">
+                            <?php
+                            if ($bln_currentlyFilteringByThisAttribute) {
+                                ?>
+                                <div class="reset-this-criterion"></div>
+                                <?php
+                            }
+                            ?>
                             <div class="off-canvas-filter-form-toggler-remote">
                                 <span class="filter-criterion-title"><?php echo $arr_filterAttribute['str_title']; ?></span>
                                 <?php
@@ -57,6 +64,13 @@ if (
                 ?>
                 <li class="filter-criterion filter-criterion-producer<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $this->bln_currentlyFilteringByProducer ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['producer']; ?>" data-lsjs-filter-section-id="producer">
                     <div class="filter-criterion-attribute-container">
+                        <?php
+                        if ($this->bln_currentlyFilteringByProducer) {
+                            ?>
+                            <div class="reset-this-criterion"></div>
+                            <?php
+                        }
+                        ?>
                         <div class="off-canvas-filter-form-toggler-remote">
                             <span class="filter-criterion-title"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText100']; ?></span>
                             <div class="filter-values">
@@ -92,6 +106,13 @@ if (
                 ?>
                 <li class="filter-criterion filter-criterion-price<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $this->bln_currentlyFilteringByPrice ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['price']; ?>" data-lsjs-filter-section-id="price">
                     <div class="filter-criterion-attribute-container">
+                        <?php
+                        if ($this->bln_currentlyFilteringByPrice) {
+                            ?>
+                            <div class="reset-this-criterion"></div>
+                            <?php
+                        }
+                        ?>
                         <div class="off-canvas-filter-form-toggler-remote">
                             <span class="filter-criterion-title"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
                             <div class="filter-values">
