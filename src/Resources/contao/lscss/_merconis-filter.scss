@@ -372,22 +372,42 @@
     border-bottom: 0.1rem solid $ls-color-grey;
   }
 
-  &.has-check-all {
+  &.has-check-all,
+  &.radio {
     .filterOptionsWrapper {
       position: relative;
       padding-bottom: 4rem;
 
-      .checkAll {
+      .checkAll,
+      .noSelection {
         position: absolute;
         left: 0;
         bottom: 0;
 
-        input[type="checkbox"] {
+        input[type="checkbox"],
+        input[type="radio"] {
           display: none;
         }
 
         label {
           cursor: pointer;
+
+          &::before {
+            @extend .fas;
+            content: fa-content($fa-var-check-circle);
+          }
+        }
+      }
+    }
+  }
+
+  &.radio {
+    .filterOptionsWrapper {
+      .noSelection {
+        label {
+          &::before {
+            content: fa-content($fa-var-times);
+          }
         }
       }
     }
@@ -422,7 +442,7 @@
       opacity: 1;
       cursor: pointer;
       right: 1rem;
-      top: 0.6rem;
+      top: 1.8rem;
     }
 
     &.lsUnfoldOpen .label {
@@ -477,9 +497,9 @@
   &.closed .content {
     display: none;
   }
-  [data-lsjs-element="optionsBox_filterOption"] {
+  [data-lsjs-element="optionsBox_filterOption"]:not(.noSelection) {
     display: inline;
-    @include ls_checkboxToButton;
+    @include ls_checkboxAndRadioToButton;
 
     &.hidden {
       display: none;

@@ -150,7 +150,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText094'] = 'absteigend';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText095'] = 'Status';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText096'] = 'Zahlung';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097'] = 'Filter anwenden';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097'] = 'Anwenden';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'] = 'Sie können diese Produktliste filtern!';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03'] = 'Sie filtern nach %s Merkmalen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-04'] = 'Sie filtern nach %s Merkmal';
