@@ -498,7 +498,7 @@
     display: none;
   }
   [data-lsjs-element="optionsBox_filterOption"]:not(.noSelection) {
-    display: inline;
+    display: inline-block;
     @include ls_checkboxAndRadioToButton;
 
     &.hidden {
