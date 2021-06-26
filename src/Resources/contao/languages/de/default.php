@@ -170,7 +170,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107'] = 'Preis';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText108'] = '%s von %s Produkten werden aufgrund Ihrer Filter-Einstellungen nicht angezeigt.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText109'] = 'keine Auswahl';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110'] = 'Alle auswählen';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110'] = 'Alle an/aus';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText111'] = 'Keine Variante dieses Produkts hat die gewünschten Merkmale.';
 

@@ -335,11 +335,6 @@
     color: $ls-color-grey;
     font-style: italic;
   }
-  .checkAll {
-    margin-top: 2rem;
-    color: $ls-color-grey;
-    font-style: italic;
-  }
   .noSelection {
     color: $ls-color-grey;
     font-style: italic;
@@ -377,9 +372,30 @@
     border-bottom: 0.1rem solid $ls-color-grey;
   }
 
+  &.has-check-all {
+    .filterOptionsWrapper {
+      position: relative;
+      padding-bottom: 4rem;
+
+      .checkAll {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+
+        input[type="checkbox"] {
+          display: none;
+        }
+
+        label {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
   .label {
     margin: 0;
-    padding: 0.5rem 2.6rem 0.5rem 0.5rem;
+    padding: 2rem 2.6rem 1.5rem 0;
     position: relative;
     cursor: pointer;
 
@@ -454,18 +470,29 @@
   }
   .content {
     padding: 0.5rem;
-    padding-left: 3rem;
+    padding-left: 4rem;
     display: block;
     position: relative;
-  }
-  .checkAll {
-    display: none;
   }
   &.closed .content {
     display: none;
   }
-  .filterOption.hidden {
-    display: none;
+  [data-lsjs-element="optionsBox_filterOption"] {
+    display: inline;
+    @include ls_checkboxToButton;
+
+    &.hidden {
+      display: none;
+    }
+  }
+}
+
+.partial-filter-form-display {
+  .filterOptionsBox,
+  .filterPriceBox {
+    .content {
+      padding-left: 0;
+    }
   }
 }
 
