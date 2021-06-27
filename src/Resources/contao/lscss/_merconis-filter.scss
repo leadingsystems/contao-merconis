@@ -1,3 +1,60 @@
+@mixin ls_checkboxAndRadioToButton() {
+
+  label {
+    position: relative;
+    border: 0.1rem solid;
+    padding: 0 2rem;
+    cursor: pointer;
+    transition: padding 0.5s ease-in-out 0s, background-color 0.5s ease-in-out 0s, color 0.5s ease-in-out 0s;
+
+    &::before {
+      @extend .fas;
+      content: fa-content($fa-var-check);
+      position: absolute;
+      top: 50%;
+      left: 0.8rem;
+      transform: translate(0, -50%);
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out 0s;
+    }
+
+    .label-content {
+      padding: 1rem 0;
+      display: inline-block;
+    }
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    display: none;
+
+    &:checked {
+      + label {
+        color: $ls-color-white;
+        background-color: $ls-color-black;
+        padding: 0 1rem 0 3rem;
+        transition: padding 0.5s ease-in-out 0s, background-color 0.5s ease-in-out 0s, color 0.5s ease-in-out 0s;
+
+        &::before {
+          opacity: 1;
+          transition: opacity 0.5s ease-in-out 0.2s;
+        }
+      }
+    }
+  }
+
+  input[type="checkbox"]
+  &.checkAll {
+    label {
+      border: none;
+      margin: 0;
+      padding: 0;
+      background: none;
+      color: $ls-color-grey;
+    }
+  }
+}
+
 #off-canvas-filter-form-container {
   background-color: rgba($ls-color-black, 0.5);
 
@@ -332,12 +389,7 @@
     }
   }
   .noMatch {
-    color: $ls-color-grey;
-    font-style: italic;
-  }
-  .noSelection {
-    color: $ls-color-grey;
-    font-style: italic;
+    opacity: 0.2;
   }
   #priceLow {
     width: 10rem;
@@ -370,18 +422,6 @@
 
   &:not(:last-child) {
     border-bottom: 0.1rem solid $ls-color-grey;
-  }
-
-  &.radio {
-    .filterOptionsWrapper {
-      .noSelection {
-        label {
-          &::before {
-            content: fa-content($fa-var-times);
-          }
-        }
-      }
-    }
   }
 
   .label {
@@ -433,10 +473,9 @@
     }
   }
   .special-toggler-container {
-    margin-top: 2rem;
-
     > * {
       display: inline-block;
+      margin-top: 2rem;
       margin-right: 2rem;
     }
 
@@ -496,7 +535,7 @@
   &.closed .content {
     display: none;
   }
-  [data-lsjs-element="optionsBox_filterOption"]:not(.noSelection) {
+  [data-lsjs-element="optionsBox_filterOption"] {
     display: inline-block;
     @include ls_checkboxAndRadioToButton;
 
@@ -519,7 +558,7 @@
   display: none;
 }
 
-@media only screen and(max-width:400px) {
+@include media-breakpoint-down(4, $grid-breakpoints-ls) {
   .template_filterForm_default {
     button {
       &.submitFilter {
