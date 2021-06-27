@@ -5,7 +5,7 @@
     border: 0.1rem solid;
     padding: 0 2rem;
     cursor: pointer;
-    transition: padding 0.5s ease-in-out 0s, background-color 0.5s ease-in-out 0s, color 0.5s ease-in-out 0s;
+    transition: padding 0.2s ease-in-out 0s, background-color 0.2s ease-in-out 0s, color 0.2s ease-in-out 0s;
 
     &::before {
       @extend .fas;
@@ -33,11 +33,11 @@
         color: $ls-color-white;
         background-color: $ls-color-black;
         padding: 0 1rem 0 3rem;
-        transition: padding 0.5s ease-in-out 0s, background-color 0.5s ease-in-out 0s, color 0.5s ease-in-out 0s;
+        transition: padding 0.2s ease-in-out 0s, background-color 0.2s ease-in-out 0s, color 0.2s ease-in-out 0s;
 
         &::before {
           opacity: 1;
-          transition: opacity 0.5s ease-in-out 0.2s;
+          transition: opacity 0.2s ease-in-out 0.1s;
         }
       }
     }
