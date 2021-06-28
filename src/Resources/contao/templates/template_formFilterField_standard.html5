@@ -5,7 +5,7 @@
 	
 	$blnDetailMode = \Input::get('product') ? true : false;
 ?>
-<div data-lsjs-element="filterOptionsBox" data-lsjs-filter-section-id="<?php echo $this->arr_moreData['filterSectionId']; ?>" class="filter-form-field filterOptionsBox <?php echo $this->arr_moreData['filterFormFieldType']; ?><?php echo ($this->arr_moreData['alias'] != '') ? ' '.$this->arr_moreData['alias'] : ''; ?><?php echo ($this->arr_moreData['classForFilterFormField'] != '') ? ' '.$this->arr_moreData['classForFilterFormField'] : ''; ?><?php echo ($this->arr_moreData['startClosedIfNothingSelected']) ? ' startClosedIfNothingSelected' : ' startOpen'; ?>">
+<div data-lsjs-element="filterOptionsBox" data-lsjs-filter-section-id="<?php echo $this->arr_moreData['filterSectionId']; ?>" class="filter-form-field filterOptionsBox <?php echo $this->arr_moreData['filterFormFieldType']; ?><?php echo ($this->arr_moreData['alias'] != '') ? ' '.$this->arr_moreData['alias'] : ''; ?><?php echo ($this->arr_moreData['classForFilterFormField'] != '') ? ' '.$this->arr_moreData['classForFilterFormField'] : ''; ?>">
 	<input type="hidden" name="<?php echo $this->str_name; ?>" value="" />
 	
 	<div data-lsjs-element="optionsBox_label" class="label">

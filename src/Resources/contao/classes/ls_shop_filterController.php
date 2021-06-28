@@ -244,8 +244,7 @@ class ls_shop_filterController
 								'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
 								'classForFilterFormField' => isset($arrFilterFieldInfo['classForFilterFormField']) ? $arrFilterFieldInfo['classForFilterFormField'] : '',
 								'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
-								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox',
-								'startClosedIfNothingSelected' => isset($arrFilterFieldInfo['startClosedIfNothingSelected']) && $arrFilterFieldInfo['startClosedIfNothingSelected'] ? true : false
+								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
 							),
 							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['producers']) ? $_SESSION['lsShop']['filter']['criteria']['producers'] : ''
 						)
@@ -283,8 +282,7 @@ class ls_shop_filterController
 						'objWidget_priceHigh' => $objFlexWidget_priceHigh,
 						'arrFilterFieldInfo' => $arrFilterFieldInfo,
                         'arr_moreData' => array(
-                            'filterSectionId' => $arrFilterFieldInfo['dataSource'],
-                            'startClosedIfNothingSelected' => isset($arrFilterFieldInfo['startClosedIfNothingSelected']) && $arrFilterFieldInfo['startClosedIfNothingSelected'] ? true : false
+                            'filterSectionId' => $arrFilterFieldInfo['dataSource']
                         )
 					);
 					break;
@@ -351,8 +349,7 @@ class ls_shop_filterController
 								'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
 								'classForFilterFormField' => isset($arrFilterFieldInfo['classForFilterFormField']) ? $arrFilterFieldInfo['classForFilterFormField'] : '',
 								'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
-								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox',
-								'startClosedIfNothingSelected' => isset($arrFilterFieldInfo['startClosedIfNothingSelected']) && $arrFilterFieldInfo['startClosedIfNothingSelected'] ? true : false
+								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
 							),
 							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['attributes'][$arrFilterFieldInfo['sourceAttribute']]) ? $_SESSION['lsShop']['filter']['criteria']['attributes'][$arrFilterFieldInfo['sourceAttribute']] : ''
 						)

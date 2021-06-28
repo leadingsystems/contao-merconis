@@ -495,7 +495,6 @@ CREATE TABLE `tl_ls_shop_filter_fields` (
   `filterFormFieldType` varchar(255) NOT NULL default '',
   `dataSource` varchar(255) NOT NULL default '',
   `sourceAttribute` int(10) unsigned NOT NULL default '0',
-  `startClosedIfNothingSelected` char(1) NOT NULL default '',
   `published` char(1) NOT NULL default '',
   `filterMode` varchar(64) NOT NULL default '',
   `makeFilterModeUserAdjustable` char(1) NOT NULL default '',
