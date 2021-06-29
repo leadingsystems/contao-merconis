@@ -26,11 +26,11 @@ $int_numFilterCriteriaCurrentlyUsed = count($this->arr_filterSummaryData['arr_fi
             <div class="off-canvas-filter-form-toggler close-button">&nbsp;</div>
             <h3 class="display-with-full-filter-form"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-05']; ?></h3>
             <h3 class="display-with-partial-filter-form"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-06']; ?> <span class="placeholder-for-filter-field-name"></span></h3>
-            <div class="filterContent">
+            <div id="filter-content" class="filterContent ajax-reload-by-filter">
             <?php
                 if (!$this->blnNothingToFilter) {
                     ?>
-                        <form id="product-filter-form" action="<?php echo $this->request; ?>" class="tl_form ajax-reload-by-filter" method="post">
+                        <form id="product-filter-form" action="<?php echo $this->request; ?>" class="tl_form" method="post">
                             <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
                             <input type="hidden" name="FORM_SUBMIT" value="filterForm">
 
