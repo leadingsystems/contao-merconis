@@ -282,7 +282,9 @@ class ls_shop_filterController
 						'objWidget_priceHigh' => $objFlexWidget_priceHigh,
 						'arrFilterFieldInfo' => $arrFilterFieldInfo,
                         'arr_moreData' => array(
-                            'filterSectionId' => $arrFilterFieldInfo['dataSource']
+                            'filterSectionId' => $arrFilterFieldInfo['dataSource'],
+                            'minValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'],
+                            'maxValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']
                         )
 					);
 					break;
