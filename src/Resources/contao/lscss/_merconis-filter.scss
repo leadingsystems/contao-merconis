@@ -55,265 +55,352 @@
   }
 }
 
-#off-canvas-filter-form-container {
-  background-color: rgba($ls-color-black, 0.5);
-
-  @media only screen and (min-width: 420px) {
-    display: flex;
-  }
-
-  @media only screen and (max-width: 419px) {
-    padding: 0;
-  }
-}
-
-#off-canvas-filter-form-container-inside {
-  @include ls_narrowContentWrapper;
-  max-width: unset;
-  position: relative;
-  background-color: $ls-color-white;
-  padding: 5rem;
-  margin: auto;
-  line-height: normal;
-
-  @media only screen and (max-width: 419px) {
-    margin: 0;
-    width: 100%;
-    min-height: 100%;
-  }
-
-  .off-canvas-filter-form-toggler {
-    cursor: pointer;
-
-    &.close-button {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-
-      &::after {
-        @extend .fas;
-        content: fa-content($fa-var-window-close);
-        font-size: 2rem;
-      }
-    }
-  }
-}
-
-.off-canvas-filter-form-toggler-remote {
-  cursor: pointer;
-}
-
-#filter-headline-container {
-  padding-bottom: 0.5rem;
-  border-bottom: 0.1rem solid $ls-color-grey;
-  margin-bottom: 1rem;
-  @include clearfix;
-
-  .filter-headline {
-    float: left;
-    margin-top: 1rem;
-
-    &::before {
-      @extend .fas;
-      content: fa-content($fa-var-filter);
-      margin-right: 1rem;
-    }
-  }
-
-  .all-filter-options {
-    float: right;
-    margin-top: 1.2rem;
-    margin-left: 2rem;
-    font-size: 80%;
-  }
-}
-
-.filter-container {
+.template_filterForm_new {
   @include ls_contentWrapper;
-}
 
-.filter-summary-container {
-  overflow: hidden;
-  margin-bottom: 2rem;
+  #off-canvas-filter-form-container {
+    background-color: rgba($ls-color-black, 0.5);
 
-  @include media-breakpoint-down(3, $grid-breakpoints-ls) {
-    display: none;
+    @media only screen and (min-width: 420px) {
+      display: flex;
+    }
+
+    @media only screen and (max-width: 419px) {
+      padding: 0;
+    }
   }
 
-  .filter-summary {
-    display: flex;
-    flex-wrap: wrap;
-    list-style: none;
-    margin-left: -2rem;
-    margin-right: -2rem;
-    margin-bottom: -1.1rem;
+  #off-canvas-filter-form-container-inside {
+    @include ls_narrowContentWrapper;
+    max-width: unset;
+    position: relative;
+    background-color: $ls-color-white;
+    padding: 5rem;
+    margin: auto;
+    line-height: normal;
 
-    .off-canvas-filter-form-toggler-remote {
-      height: 100%;
+    @media only screen and (max-width: 419px) {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
     }
 
-    .filter-criterion {
-      &:not(.currently-filtering) {
-        &:not(.show-even-unused) {
-          display: none;
-        }
+    .off-canvas-filter-form-toggler {
+      cursor: pointer;
 
-        /*
-         * If we want to match the visual color appearance of the grey hairlines with this bold text, we have
-         * to darken the hairline's grey a little bit.
-         */
-        .filter-criterion-title {
-          color: darken($ls-color-grey, 10%);
-        }
-      }
-
-      .filter-criterion-title {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: $ls-font-weight-bold;
-        font-size: 80%;
-
-
-        @include media-breakpoint-down(7, $grid-breakpoints-ls) {
-          font-size: 90%;
-        }
-
-        @include media-breakpoint-down(4, $grid-breakpoints-ls) {
-          font-size: 100%;
-        }
-
-        &::before {
-          @extend .fas;
-          content: fa-content($fa-var-chevron-circle-right);
-          margin-right: 1rem
-        }
-      }
-    }
-
-    .filter-criterion {
-      width: 20%;
-      padding-bottom: 1rem;
-      margin-bottom: 1rem;
-      position: relative;
-
-      &::after {
-        content: "";
-        display: block;
-        width: calc(100% - 2rem);
-        border-bottom: 0.1rem solid #ccc;
+      &.close-button {
         position: absolute;
-        bottom: 0;
-        left: 1rem;
-      }
+        top: 1rem;
+        right: 1rem;
 
-      &:not(:only-child) {
-        .filter-criterion-attribute-container {
-          border-right: 0.1rem solid $ls-color-grey;
+        &::after {
+          @extend .fas;
+          content: fa-content($fa-var-window-close);
+          font-size: 2rem;
         }
       }
+    }
+  }
 
-      /*
-       * The display order of the product filter fields in the summary is not reflected by the elements' actual order in
-       * the DOM but is instead indicated by data attributes. Therefore we have to use flexbox order based on the data
-       * attribute. Since we don't expect more than 30 filter fields to be displayed in the summary, we only have
-       * the styles for 30 filter fields but of course could add more should it be necessary.
-       */
-      &[data-order-by-priority="1"] { order: 1; }
-      &[data-order-by-priority="2"] { order: 2; }
-      &[data-order-by-priority="3"] { order: 3; }
-      &[data-order-by-priority="4"] { order: 4; }
-      &[data-order-by-priority="5"] { order: 5; }
-      &[data-order-by-priority="6"] { order: 6; }
-      &[data-order-by-priority="7"] { order: 7; }
-      &[data-order-by-priority="8"] { order: 8; }
-      &[data-order-by-priority="9"] { order: 9; }
-      &[data-order-by-priority="10"] { order: 10; }
-      &[data-order-by-priority="11"] { order: 11; }
-      &[data-order-by-priority="12"] { order: 12; }
-      &[data-order-by-priority="13"] { order: 13; }
-      &[data-order-by-priority="14"] { order: 14; }
-      &[data-order-by-priority="15"] { order: 15; }
-      &[data-order-by-priority="16"] { order: 16; }
-      &[data-order-by-priority="17"] { order: 17; }
-      &[data-order-by-priority="18"] { order: 18; }
-      &[data-order-by-priority="19"] { order: 19; }
-      &[data-order-by-priority="20"] { order: 20; }
-      &[data-order-by-priority="21"] { order: 21; }
-      &[data-order-by-priority="22"] { order: 22; }
-      &[data-order-by-priority="23"] { order: 23; }
-      &[data-order-by-priority="24"] { order: 24; }
-      &[data-order-by-priority="25"] { order: 25; }
-      &[data-order-by-priority="26"] { order: 26; }
-      &[data-order-by-priority="27"] { order: 27; }
-      &[data-order-by-priority="28"] { order: 28; }
-      &[data-order-by-priority="29"] { order: 29; }
-      &[data-order-by-priority="30"] { order: 30; }
+  .off-canvas-filter-form-toggler-remote {
+    cursor: pointer;
+  }
 
-      @include media-breakpoint-down(9, $grid-breakpoints-ls) {
-        width: 25%;
+  #filter-headline-container {
+    padding-bottom: 0.5rem;
+    border-bottom: 0.1rem solid $ls-color-grey;
+    margin-bottom: 1rem;
+    @include clearfix;
+
+    .filter-headline {
+      float: left;
+      margin-top: 1rem;
+
+      &::before {
+        @extend .fas;
+        content: fa-content($fa-var-filter);
+        margin-right: 1rem;
       }
+    }
 
-      @include media-breakpoint-down(7, $grid-breakpoints-ls) {
-        width: 33.333%;
-      }
+    .all-filter-options {
+      float: right;
+      margin-top: 1.2rem;
+      margin-left: 2rem;
+      font-size: 80%;
+    }
+  }
 
-      @include media-breakpoint-down(5, $grid-breakpoints-ls) {
-        width: 50%;
-      }
+  .filter-summary-container {
+    overflow: hidden;
+    margin-bottom: 2rem;
 
-      .filter-criterion-attribute-container {
-        width: 100%;
+    @include media-breakpoint-down(3, $grid-breakpoints-ls) {
+      display: none;
+    }
+
+    .filter-summary {
+      display: flex;
+      flex-wrap: wrap;
+      list-style: none;
+      margin-left: -2rem;
+      margin-right: -2rem;
+      margin-bottom: -1.1rem;
+
+      .off-canvas-filter-form-toggler-remote {
         height: 100%;
-        padding-right: 0;
+      }
 
-        .reset-this-criterion {
-          position: absolute;
-          right: 2rem;
-          cursor: pointer;
+      .filter-criterion {
+        &:not(.currently-filtering) {
+          &:not(.show-even-unused) {
+            display: none;
+          }
 
-          &::after {
-            @extend .fas;
-            content: fa-content($fa-var-times);
+          /*
+           * If we want to match the visual color appearance of the grey hairlines with this bold text, we have
+           * to darken the hairline's grey a little bit.
+           */
+          .filter-criterion-title {
             color: darken($ls-color-grey, 10%);
           }
         }
 
-        .off-canvas-filter-form-toggler-remote {
-          margin-left: -0.1rem;
-          border-left: 0.1rem solid $ls-color-grey;
-          padding-left: 2rem;
-          margin-bottom: 1.5rem;
-          padding-top: 1.5rem;
+        .filter-criterion-title {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: $ls-font-weight-bold;
+          font-size: 80%;
 
-          .filter-values {
-            display: flex;
-            list-style: none;
-            flex-wrap: wrap;
 
-            .filter-criterion-value-title {
-              font-weight: $ls-font-weight-bold;
-            }
+          @include media-breakpoint-down(7, $grid-breakpoints-ls) {
+            font-size: 90%;
+          }
 
-            li {
-              &:not(:last-child) {
-                margin-right: 1rem;
-              }
-            }
+          @include media-breakpoint-down(4, $grid-breakpoints-ls) {
+            font-size: 100%;
+          }
+
+          &::before {
+            @extend .fas;
+            content: fa-content($fa-var-chevron-circle-right);
+            margin-right: 1rem
           }
         }
       }
 
-      &.currently-filtering {
+      .filter-criterion {
+        width: 20%;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        position: relative;
+
+        &::after {
+          content: "";
+          display: block;
+          width: calc(100% - 2rem);
+          border-bottom: 0.1rem solid #ccc;
+          position: absolute;
+          bottom: 0;
+          left: 1rem;
+        }
+
+        &:not(:only-child) {
+          .filter-criterion-attribute-container {
+            border-right: 0.1rem solid $ls-color-grey;
+          }
+        }
+
+        /*
+         * The display order of the product filter fields in the summary is not reflected by the elements' actual order in
+         * the DOM but is instead indicated by data attributes. Therefore we have to use flexbox order based on the data
+         * attribute. Since we don't expect more than 30 filter fields to be displayed in the summary, we only have
+         * the styles for 30 filter fields but of course could add more should it be necessary.
+         */
+        &[data-order-by-priority="1"] {
+          order: 1;
+        }
+
+        &[data-order-by-priority="2"] {
+          order: 2;
+        }
+
+        &[data-order-by-priority="3"] {
+          order: 3;
+        }
+
+        &[data-order-by-priority="4"] {
+          order: 4;
+        }
+
+        &[data-order-by-priority="5"] {
+          order: 5;
+        }
+
+        &[data-order-by-priority="6"] {
+          order: 6;
+        }
+
+        &[data-order-by-priority="7"] {
+          order: 7;
+        }
+
+        &[data-order-by-priority="8"] {
+          order: 8;
+        }
+
+        &[data-order-by-priority="9"] {
+          order: 9;
+        }
+
+        &[data-order-by-priority="10"] {
+          order: 10;
+        }
+
+        &[data-order-by-priority="11"] {
+          order: 11;
+        }
+
+        &[data-order-by-priority="12"] {
+          order: 12;
+        }
+
+        &[data-order-by-priority="13"] {
+          order: 13;
+        }
+
+        &[data-order-by-priority="14"] {
+          order: 14;
+        }
+
+        &[data-order-by-priority="15"] {
+          order: 15;
+        }
+
+        &[data-order-by-priority="16"] {
+          order: 16;
+        }
+
+        &[data-order-by-priority="17"] {
+          order: 17;
+        }
+
+        &[data-order-by-priority="18"] {
+          order: 18;
+        }
+
+        &[data-order-by-priority="19"] {
+          order: 19;
+        }
+
+        &[data-order-by-priority="20"] {
+          order: 20;
+        }
+
+        &[data-order-by-priority="21"] {
+          order: 21;
+        }
+
+        &[data-order-by-priority="22"] {
+          order: 22;
+        }
+
+        &[data-order-by-priority="23"] {
+          order: 23;
+        }
+
+        &[data-order-by-priority="24"] {
+          order: 24;
+        }
+
+        &[data-order-by-priority="25"] {
+          order: 25;
+        }
+
+        &[data-order-by-priority="26"] {
+          order: 26;
+        }
+
+        &[data-order-by-priority="27"] {
+          order: 27;
+        }
+
+        &[data-order-by-priority="28"] {
+          order: 28;
+        }
+
+        &[data-order-by-priority="29"] {
+          order: 29;
+        }
+
+        &[data-order-by-priority="30"] {
+          order: 30;
+        }
+
+        @include media-breakpoint-down(9, $grid-breakpoints-ls) {
+          width: 25%;
+        }
+
+        @include media-breakpoint-down(7, $grid-breakpoints-ls) {
+          width: 33.333%;
+        }
+
+        @include media-breakpoint-down(5, $grid-breakpoints-ls) {
+          width: 50%;
+        }
+
         .filter-criterion-attribute-container {
-          padding-right: 4rem;
+          width: 100%;
+          height: 100%;
+          padding-right: 0;
+
+          .reset-this-criterion {
+            position: absolute;
+            right: 2rem;
+            cursor: pointer;
+
+            &::after {
+              @extend .fas;
+              content: fa-content($fa-var-times);
+              color: darken($ls-color-grey, 10%);
+            }
+          }
+
+          .off-canvas-filter-form-toggler-remote {
+            margin-left: -0.1rem;
+            border-left: 0.1rem solid $ls-color-grey;
+            padding-left: 2rem;
+            margin-bottom: 1.5rem;
+            padding-top: 1.5rem;
+
+            .filter-values {
+              display: flex;
+              list-style: none;
+              flex-wrap: wrap;
+
+              .filter-criterion-value-title {
+                font-weight: $ls-font-weight-bold;
+              }
+
+              li {
+                &:not(:last-child) {
+                  margin-right: 1rem;
+                }
+              }
+            }
+          }
+        }
+
+        &.currently-filtering {
+          .filter-criterion-attribute-container {
+            padding-right: 4rem;
+          }
         }
       }
     }
   }
-}
 
 
-.template_filterForm_default {
   &:not(.partial-filter-form-display) {
     .display-with-partial-filter-form {
       display: none;
@@ -365,6 +452,7 @@
       cursor: pointer;
       margin-top: 0;
       margin-bottom: 0;
+
       &:after {
         position: absolute;
         font-size: 2.72rem;
@@ -372,6 +460,7 @@
         font-weight: bold;
       }
     }
+
     &.lsUnfoldClosed h2:after {
       @extend .fas;
       content: fa-content($fa-var-caret-down);
@@ -380,6 +469,7 @@
       right: 2.8rem;
       top: 0.5rem;
     }
+
     &.lsUnfoldOpen h2:after {
       @extend .fas;
       content: fa-content($fa-var-caret-up);
@@ -388,16 +478,20 @@
       right: 2.8rem;
       top: 0.5rem;
     }
+
     &.lsUnfoldRunning h2:after {
       opacity: 0;
     }
   }
+
   .noMatch {
     opacity: 0.2;
   }
+
   #priceLow {
     width: 10rem;
   }
+
   #priceHigh {
     width: 10rem;
   }
@@ -412,158 +506,171 @@
       float: left;
       margin-right: 1rem;
     }
+
     &.resetFilter {
       width: auto;
     }
   }
+
   &.nothingToFilter {
     display: none;
   }
-}
-.filterOptionsBox,
-.filterPriceBox {
-  margin-bottom: 0.5rem;
 
-  &:not(:last-child) {
-    border-bottom: 0.1rem solid $ls-color-grey;
-  }
+  .filterOptionsBox,
+  .filterPriceBox {
+    margin-bottom: 0.5rem;
 
-  .label {
-    margin: 0;
-    padding: 2rem 2.6rem 1.5rem 0;
-    position: relative;
-    cursor: pointer;
-
-    &.hide {
-      display: none;
+    &:not(:last-child) {
+      border-bottom: 0.1rem solid $ls-color-grey;
     }
-  }
 
-  &.useLsUnfold {
     .label {
+      margin: 0;
+      padding: 2rem 2.6rem 1.5rem 0;
+      position: relative;
       cursor: pointer;
-      &:after {
-        position: absolute;
-        right: 0.5rem;
-        top: 0;
-        font-size: 1.92rem;
-        transition: opacity 0.4s linear;
-        font-weight: bold;
+
+      &.hide {
+        display: none;
       }
     }
-    &.lsUnfoldClosed .label:after {
-      @extend .fas;
-      content: fa-content($fa-var-caret-down);
-      opacity: 1;
-      cursor: pointer;
-      right: 1rem;
-      top: 1.8rem;
-    }
 
-    &.lsUnfoldOpen .label {
-      font-weight: bold;
+    &.useLsUnfold {
+      .label {
+        cursor: pointer;
 
-      &:after {
+        &:after {
+          position: absolute;
+          right: 0.5rem;
+          top: 0;
+          font-size: 1.92rem;
+          transition: opacity 0.4s linear;
+          font-weight: bold;
+        }
+      }
+
+      &.lsUnfoldClosed .label:after {
         @extend .fas;
-        content: fa-content($fa-var-caret-up);
+        content: fa-content($fa-var-caret-down);
         opacity: 1;
         cursor: pointer;
         right: 1rem;
         top: 1.8rem;
       }
+
+      &.lsUnfoldOpen .label {
+        font-weight: bold;
+
+        &:after {
+          @extend .fas;
+          content: fa-content($fa-var-caret-up);
+          opacity: 1;
+          cursor: pointer;
+          right: 1rem;
+          top: 1.8rem;
+        }
+      }
+
+      &.lsUnfoldRunning .label:after {
+        opacity: 0;
+      }
     }
-    &.lsUnfoldRunning .label:after {
-      opacity: 0;
+
+    .special-toggler-container {
+      > * {
+        display: inline-block;
+        margin-top: 2rem;
+        margin-right: 2rem;
+      }
+
+      .show-more-less {
+        cursor: pointer;
+
+        &.hidden {
+          display: none;
+        }
+
+        &:before {
+          @extend .fas;
+          margin-right: 1rem;
+        }
+
+        &.currentlyHiding:before {
+          content: fa-content($fa-var-plus);
+        }
+
+        &.currentlyShowing:before {
+          content: fa-content($fa-var-minus);
+        }
+      }
+
+      .check-all {
+        cursor: pointer;
+
+        &.hidden {
+          display: none;
+        }
+
+        &:before {
+          @extend .fas;
+          margin-right: 1rem;
+          content: fa-content($fa-var-check-circle);
+        }
+      }
+
+      .uncheck-radio {
+        cursor: pointer;
+
+        &.hidden {
+          display: none;
+        }
+
+        &:before {
+          @extend .fas;
+          margin-right: 1rem;
+          content: fa-content($fa-var-check-circle);
+        }
+      }
     }
-  }
-  .special-toggler-container {
-    > * {
-      display: inline-block;
+
+    .filterMode {
       margin-top: 2rem;
-      margin-right: 2rem;
     }
 
-    .show-more-less {
-      cursor: pointer;
-
-      &.hidden {
-        display: none;
-      }
-      &:before {
-        @extend .fas;
-        margin-right: 1rem;
-      }
-      &.currentlyHiding:before {
-        content: fa-content($fa-var-plus);
-      }
-      &.currentlyShowing:before {
-        content: fa-content($fa-var-minus);
-      }
+    .content {
+      padding: 0.5rem 0.5rem 2rem 4rem;
+      display: block;
+      position: relative;
     }
 
-    .check-all {
-      cursor: pointer;
-
-      &.hidden {
-        display: none;
-      }
-      &:before {
-        @extend .fas;
-        margin-right: 1rem;
-        content: fa-content($fa-var-check-circle);
-      }
-    }
-
-    .uncheck-radio {
-      cursor: pointer;
-
-      &.hidden {
-        display: none;
-      }
-      &:before {
-        @extend .fas;
-        margin-right: 1rem;
-        content: fa-content($fa-var-check-circle);
-      }
-    }
-  }
-
-  .filterMode {
-    margin-top: 2rem;
-  }
-  .content {
-    padding: 0.5rem 0.5rem 2rem 4rem;
-    display: block;
-    position: relative;
-  }
-  &.closed .content {
-    display: none;
-  }
-  [data-lsjs-element="optionsBox_filterOption"] {
-    display: inline-block;
-    @include ls_checkboxAndRadioToButton;
-
-    &.hidden {
+    &.closed .content {
       display: none;
     }
-  }
-}
 
-.partial-filter-form-display {
-  .filterOptionsBox,
-  .filterPriceBox {
-    .content {
-      padding-left: 0;
+    [data-lsjs-element="optionsBox_filterOption"] {
+      display: inline-block;
+      @include ls_checkboxAndRadioToButton;
+
+      &.hidden {
+        display: none;
+      }
     }
   }
-}
 
-.filter-section-hidden {
-  display: none;
-}
+  .partial-filter-form-display {
+    .filterOptionsBox,
+    .filterPriceBox {
+      .content {
+        padding-left: 0;
+      }
+    }
+  }
 
-@include media-breakpoint-down(4, $grid-breakpoints-ls) {
-  .template_filterForm_default {
+  .filter-section-hidden {
+    display: none;
+  }
+
+  @include media-breakpoint-down(4, $grid-breakpoints-ls) {
     button {
       &.submitFilter {
         float: none;
@@ -571,6 +678,326 @@
         margin-right: 0;
         margin-top: 0.5rem;
       }
+
+      &.resetFilter {
+        float: none;
+        width: 100%;
+        margin-right: 0;
+        margin-top: 0.5rem;
+      }
+    }
+  }
+}
+
+.template_filterForm_default {
+  @include ls_contentWrapper;
+
+  #off-canvas-filter-form-container {
+    background-color: rgba($ls-color-black, 0.5);
+
+    @media only screen and (min-width: 420px) {
+      display: flex;
+    }
+
+    @media only screen and (max-width: 419px) {
+      padding: 0;
+    }
+  }
+
+  #off-canvas-filter-form-container-inside {
+    @include ls_narrowContentWrapper;
+    max-width: unset;
+    position: relative;
+    background-color: $ls-color-white;
+    padding: 5rem;
+    margin: auto;
+    line-height: normal;
+
+    @media only screen and (max-width: 419px) {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+    }
+
+    .off-canvas-filter-form-toggler {
+      cursor: pointer;
+
+      &.close-button {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+
+        &::after {
+          @extend .fas;
+          content: fa-content($fa-var-window-close);
+          font-size: 2rem;
+        }
+      }
+    }
+  }
+
+  .off-canvas-filter-form-toggler {
+    cursor: pointer;
+
+    &.main-toggler {
+      padding-bottom: 0.5rem;
+      border-bottom: 0.1rem solid $ls-color-grey;
+      margin-bottom: 1rem;
+
+      &::before {
+        @extend .fas;
+        content: fa-content($fa-var-filter);
+        margin-right: 1rem;
+      }
+    }
+  }
+
+  .filter-summary-container {
+    overflow: hidden;
+    margin-bottom: 2rem;
+
+    .filter-summary {
+      display: flex;
+      flex-wrap: wrap;
+      list-style: none;
+      margin-left: -4rem;
+
+      .filter-criterion-title {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 80%;
+        font-weight: $ls-font-weight-bold;
+      }
+
+      > li {
+        margin-left: 2rem;
+        border-left: 0.1rem solid $ls-color-grey;
+        padding-left: 2rem;
+        margin-bottom: 3rem;
+
+        .filter-values {
+          display: flex;
+          list-style: none;
+          flex-wrap: wrap;
+
+          .filter-criterion-value-title {
+            font-weight: $ls-font-weight-bold;
+          }
+
+          li {
+            &:not(:last-child) {
+              margin-right: 1rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  input,
+  select {
+    padding: 0.5rem !important;
+  }
+
+  .price-from,
+  .price-to {
+    .flexWidget {
+      display: inline-block;
+    }
+  }
+
+  &.useLsUnfold {
+    h2 {
+      cursor: pointer;
+      margin-top: 0;
+      margin-bottom: 0;
+
+      &:after {
+        position: absolute;
+        font-size: 2.72rem;
+        transition: opacity 0.4s linear;
+        font-weight: bold;
+      }
+    }
+
+    &.lsUnfoldClosed h2:after {
+      @extend .fas;
+      content: fa-content($fa-var-caret-down);
+      opacity: 1;
+      cursor: pointer;
+      right: 2.8rem;
+      top: 0.5rem;
+    }
+
+    &.lsUnfoldOpen h2:after {
+      @extend .fas;
+      content: fa-content($fa-var-caret-up);
+      opacity: 1;
+      cursor: pointer;
+      right: 2.8rem;
+      top: 0.5rem;
+    }
+
+    &.lsUnfoldRunning h2:after {
+      opacity: 0;
+    }
+  }
+
+  .noMatch {
+    color: $ls-color-grey;
+    font-style: italic;
+  }
+
+  .checkAll {
+    color: $ls-color-grey;
+    font-style: italic;
+  }
+
+  .noSelection {
+    color: $ls-color-grey;
+    font-style: italic;
+  }
+
+  #priceLow {
+    width: 10rem;
+  }
+
+  #priceHigh {
+    width: 10rem;
+  }
+
+  .filter-submit-box {
+    margin-top: 2rem;
+  }
+
+  button {
+    &.submitFilter {
+      width: auto;
+      float: left;
+      margin-right: 1rem;
+    }
+
+    &.resetFilter {
+      width: auto;
+    }
+  }
+
+  &.nothingToFilter {
+    display: none;
+  }
+
+  .filterOptionsBox,
+  .filterPriceBox {
+    margin-bottom: 0.5rem;
+
+    &:not(:last-child) {
+      border-bottom: 0.1rem solid $ls-color-grey;
+    }
+
+    .label {
+      margin: 0;
+      padding: 0.5rem 2.6rem 0.5rem 0.5rem;
+      position: relative;
+      cursor: pointer;
+    }
+
+    &.useLsUnfold {
+      .label {
+        cursor: pointer;
+
+        &:after {
+          position: absolute;
+          right: 0.5rem;
+          top: 0;
+          font-size: 1.92rem;
+          transition: opacity 0.4s linear;
+          font-weight: bold;
+        }
+      }
+
+      &.lsUnfoldClosed .label:after {
+        @extend .fas;
+        content: fa-content($fa-var-caret-down);
+        opacity: 1;
+        cursor: pointer;
+        right: 1rem;
+        top: 0.6rem;
+      }
+
+      &.lsUnfoldOpen .label {
+        font-weight: bold;
+
+        &:after {
+          @extend .fas;
+          content: fa-content($fa-var-caret-up);
+          opacity: 1;
+          cursor: pointer;
+          right: 1rem;
+          top: 0.6rem;
+        }
+      }
+
+      &.lsUnfoldRunning .label:after {
+        opacity: 0;
+      }
+    }
+
+    .showAndHideOptionsIcon {
+      cursor: pointer;
+      display: inline-block;
+
+      &:after {
+        @extend .fas;
+        content: fa-content($fa-var-minus);
+        opacity: 1;
+        cursor: pointer;
+        right: 0.1rem;
+        top: 0.6rem;
+      }
+
+      &.hidden {
+        display: none;
+      }
+
+      &.currentlyHiding:after {
+        @extend .fas;
+        content: fa-content($fa-var-plus);
+        opacity: 1;
+        cursor: pointer;
+        right: 0.1rem;
+        top: 0.6rem;
+      }
+    }
+
+    .content {
+      padding: 0.5rem;
+      display: block;
+      position: relative;
+    }
+
+    .checkAll {
+      display: none;
+    }
+
+    &.closed .content {
+      display: none;
+    }
+
+    .filterOption.hidden {
+      display: none;
+    }
+  }
+
+  @media only screen and(max-width: 400px) {
+    button {
+      &.submitFilter {
+        float: none;
+        width: 100%;
+        margin-right: 0;
+        margin-top: 0.5rem;
+      }
+
       &.resetFilter {
         float: none;
         width: 100%;
