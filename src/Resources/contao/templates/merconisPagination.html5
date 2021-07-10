@@ -1,18 +1,26 @@
-
+<?php
+$bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting']) && $GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting'];
+?>
 <!-- indexer::stop -->
 <nav class="merconis-pagination block" aria-label="<?= $this->pagination ?>">
     <a
         class="first <?php echo $this->hasPrevious ? 'possible' : ''; ?>"
         href="<?= Merconis\Core\ls_shop_generalHelper::removeGetParametersFromUrl($this->first['href'], ['cajaxCall', 'cajaxRequestData']) ?>"
         title="<?= $this->first['title'] ?>"
-        data-lsjs-component="cajaxCaller"
-        data-lsjs-cajaxCallerOptions="
-            {
-                'obj_cajaxRequestData': {
-                    'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+        <?php
+        if ($bln_useAjax) {
+            ?>
+            data-lsjs-component="cajaxCaller"
+            data-lsjs-cajaxCallerOptions="
+                {
+                    'obj_cajaxRequestData': {
+                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                    }
                 }
-            }
-        "
+            "
+            <?php
+        }
+        ?>
     >
         <span class="link-label"><?= $this->first['link'] ?></span>
     </a>
@@ -20,14 +28,20 @@
         class="previous <?php echo $this->hasPrevious ? 'possible' : ''; ?>"
         href="<?= Merconis\Core\ls_shop_generalHelper::removeGetParametersFromUrl($this->previous['href'], ['cajaxCall', 'cajaxRequestData']) ?>"
         title="<?= $this->previous['title'] ?>"
-        data-lsjs-component="cajaxCaller"
-        data-lsjs-cajaxCallerOptions="
-            {
-                'obj_cajaxRequestData': {
-                    'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+        <?php
+        if ($bln_useAjax) {
+            ?>
+            data-lsjs-component="cajaxCaller"
+            data-lsjs-cajaxCallerOptions="
+                {
+                    'obj_cajaxRequestData': {
+                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                    }
                 }
-            }
-        "
+            "
+            <?php
+        }
+        ?>
     >
         <span class="link-label"><?= $this->previous['link'] ?></span>
     </a>
@@ -36,14 +50,20 @@
         class="next <?php echo $this->hasNext ? 'possible' : ''; ?>"
         href="<?= Merconis\Core\ls_shop_generalHelper::removeGetParametersFromUrl($this->next['href'], ['cajaxCall', 'cajaxRequestData']) ?>"
         title="<?= $this->next['title'] ?>"
-        data-lsjs-component="cajaxCaller"
-        data-lsjs-cajaxCallerOptions="
-            {
-                'obj_cajaxRequestData': {
-                    'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+        <?php
+        if ($bln_useAjax) {
+            ?>
+            data-lsjs-component="cajaxCaller"
+            data-lsjs-cajaxCallerOptions="
+                {
+                    'obj_cajaxRequestData': {
+                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                    }
                 }
-            }
-        "
+            "
+            <?php
+        }
+        ?>
     >
         <span class="link-label"><?= $this->next['link'] ?></span>
     </a>
@@ -51,14 +71,20 @@
         class="last <?php echo $this->hasNext ? 'possible' : ''; ?>"
         href="<?= Merconis\Core\ls_shop_generalHelper::removeGetParametersFromUrl($this->last['href'], ['cajaxCall', 'cajaxRequestData']) ?>"
         title="<?= $this->last['title'] ?>"
-        data-lsjs-component="cajaxCaller"
-        data-lsjs-cajaxCallerOptions="
-            {
-                'obj_cajaxRequestData': {
-                    'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+        <?php
+        if ($bln_useAjax) {
+            ?>
+            data-lsjs-component="cajaxCaller"
+            data-lsjs-cajaxCallerOptions="
+                {
+                    'obj_cajaxRequestData': {
+                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                    }
                 }
-            }
-        "
+            "
+            <?php
+        }
+        ?>
     >
         <span class="link-label"><?= $this->last['link'] ?></span>
     </a>

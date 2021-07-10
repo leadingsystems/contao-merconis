@@ -22,6 +22,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_loginModuleID'] 			= array('Login module for use during completion of order');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_miniCartModuleID'] 		= array('Mini shopping cart module', 'Module to be updated via AJAX');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_useVATIDValidation']		= array('Use the online validation of the VATID');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_useAjaxForPaginationAndSorting'] = array('Use ajax for pagination and sorting', 'When displaying product lists, ajax technology is used to reload the product list when using pagination and sorting without having to reload the entire page');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_VATIDValidationSOAPOptions'] = array('Options for SOAP client', 'Please do not change the default settings unless you know exactly what you do. Faulty settings can cause the validation of the VAT ident number to slow down. Please consider that depending on your server configuration it is possible that the default settings are not ideal and can cause a validation slow down as well. In this case, please try to remove all option entries and check if the validation works without delay this way.');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_beOrderTemplateOverview'] = array('Backend template for order overview');

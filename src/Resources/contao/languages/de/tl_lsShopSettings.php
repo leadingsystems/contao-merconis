@@ -22,6 +22,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_loginModuleID'] 			= array('Login-Modul zur Verwendung beim Bestellabschluss');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_miniCartModuleID'] 		= array('Mini-Warenkorb-Modul', 'Das Modul, welches per AJAX aktualisiert werden soll');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_useVATIDValidation']		= array('Online-Prüfung der USt-IdNr. verwenden');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_useAjaxForPaginationAndSorting'] = array('Ajax für Paginierung und Sortierung verwenden', 'Bei der Darstellung von Produktlisten wird die Ajax-Technik verwendet, um die Produktliste bei der Verwendung der Paginierung und Sortierung nachzuladen, ohne dabei die gesamte Seite neu laden zu müssen');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_VATIDValidationSOAPOptions'] = array('Optionen für SOAP-Client', 'Bitte ändern Sie die Standardeinstellungen nur, wenn Sie genau wissen, was Sie tun. Fehlerhafte Einstellungen können dazu führen, dass die Validierung der USt-IdNr deutlich verzögert wird. Bitte beachten Sie, dass es abhängig von Ihrer Serverkonfiguration auch möglich ist, dass die Standardeinstellungen nicht optimal sind, und zu einer Verzögerung führen. Testen Sie in diesem Fall bitte, ob mit Ihrer Serverkonfiguration das Entfernen aller Options-Angaben eine Validierung ohne Verzögerung ermöglicht.');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_beOrderTemplateOverview'] = array('Backend-Template für Bestellübersicht');

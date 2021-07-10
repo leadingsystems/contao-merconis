@@ -29,7 +29,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		
 		{systemImages_legend},ls_shop_systemImages_videoDummyCover;
 		{pageSettings_legend},ls_shop_shippingInfoPages,ls_shop_cartPages,ls_shop_reviewPages,ls_shop_signUpPages,ls_shop_checkoutPaymentErrorPages,ls_shop_checkoutShippingErrorPages,ls_shop_checkoutFinishPages,ls_shop_paymentAfterCheckoutPages,ls_shop_afterCheckoutPages,ls_shop_ajaxPages,ls_shop_searchResultPages,ls_shop_myOrdersPages,ls_shop_myOrderDetailsPages;
-		{systemSettings_legend},ls_shop_loginModuleID,ls_shop_miniCartModuleID;
+		{systemSettings_legend},ls_shop_loginModuleID,ls_shop_miniCartModuleID,ls_shop_useAjaxForPaginationAndSorting;
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch,ls_shop_alwaysAddIdToAliasDuringProductImport;
 
 		{productSearchSettings_legend},
@@ -199,8 +199,15 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'inputType' => 'select',
 			'foreignKey' => 'tl_module.name'
 		),
-		
-		'ls_shop_output_definitionset' => array (
+
+        'ls_shop_useAjaxForPaginationAndSorting' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_useAjaxForPaginationAndSorting'],
+            'exclude'                 => true,
+            'inputType'               => 'checkbox',
+            'eval'                    => array('tl_class'=>'clr')
+        ),
+
+        'ls_shop_output_definitionset' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_output_definitionset'],
 			'default'				  => 0,
 			'exclude'                 => true,
@@ -480,7 +487,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true)
 		),
-		
+
 		'ls_shop_VATIDValidationSOAPOptions' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_VATIDValidationSOAPOptions'],
 			'exclude'                 => true,

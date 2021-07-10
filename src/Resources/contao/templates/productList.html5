@@ -1,3 +1,6 @@
+<?php
+$bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting']) && $GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting'];
+?>
 <!-- indexer::stop -->
 <div id="merconis-product-list-reload-container-<?php echo $this->productListID; ?>" class="<?php echo $this->blnUseFilter ? ' ajax-reload-by-filter' : ''; ?>">
     <?php if ($this->allowUserSorting || $this->pagination) { ?>
@@ -13,14 +16,20 @@
                     <form
                         action="<?php echo Merconis\Core\ls_shop_generalHelper::removeGetParametersFromUrl(\Environment::get('request'), 'cajaxCall'); ?>"
                         method="post"
-                        data-lsjs-component="cajaxCaller"
-                        data-lsjs-cajaxCallerOptions="
-                            {
-                                'obj_cajaxRequestData': {
-                                    'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                        <?php
+                        if ($bln_useAjax) {
+                            ?>
+                            data-lsjs-component="cajaxCaller"
+                            data-lsjs-cajaxCallerOptions="
+                                {
+                                    'obj_cajaxRequestData': {
+                                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                                    }
                                 }
-                            }
-                        "
+                            "
+                            <?php
+                        }
+                        ?>
                     >
                         <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
                         <input type="hidden" name="FORM_SUBMIT" value="userSorting">
