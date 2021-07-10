@@ -1,10 +1,7 @@
 <!-- indexer::stop -->
 <div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>">
-    <?php
-    $str_filterSummary = trim(\Merconis\Core\ls_shop_filterHelper::getFilterSummary());
-    ?>
     <div class="off-canvas-filter-form-toggler main-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$str_filterSummary ? 'miscText097-03' : 'miscText097-02']; ?></div>
-    <?php echo $str_filterSummary; ?>
+    <?php echo $this->str_filterSummaryHtml; ?>
     <div id="off-canvas-filter-form-container" class="oc-flex-default-container">
         <div id="off-canvas-filter-form-container-inside">
             <div class="off-canvas-filter-form-toggler close-button">&nbsp;</div>
