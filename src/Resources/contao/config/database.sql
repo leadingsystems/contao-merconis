@@ -498,7 +498,8 @@ CREATE TABLE `tl_ls_shop_filter_fields` (
   `published` char(1) NOT NULL default '',
   `filterMode` varchar(64) NOT NULL default '',
   `makeFilterModeUserAdjustable` char(1) NOT NULL default '',
-  `templateToUse` varchar(64) NOT NULL default 'template_formFilterField_standard'
+  `templateToUse` varchar(64) NOT NULL default 'template_formFilterField_standard',
+  `templateToUseForPriceField` varchar(64) NOT NULL default 'template_formPriceFilterField_standard'
   PRIMARY KEY  (`id`),
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

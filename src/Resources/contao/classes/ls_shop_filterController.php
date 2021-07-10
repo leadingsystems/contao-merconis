@@ -281,6 +281,7 @@ class ls_shop_filterController
 						'objWidget_priceLow' => $objFlexWidget_priceLow,
 						'objWidget_priceHigh' => $objFlexWidget_priceHigh,
 						'arrFilterFieldInfo' => $arrFilterFieldInfo,
+                        'str_template' => $arrFilterFieldInfo['templateToUseForPriceField'] ? $arrFilterFieldInfo['templateToUseForPriceField'] : 'template_formPriceFilterField_standard',
                         'arr_moreData' => array(
                             'filterSectionId' => $arrFilterFieldInfo['dataSource'],
                             'minValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'],
@@ -375,7 +376,7 @@ class ls_shop_filterController
 				/*
 				 * Price widget
 				 */
-				$obj_template_priceFilterField = new \FrontendTemplate('template_formPriceFilterField_standard');
+				$obj_template_priceFilterField = new \FrontendTemplate($objWidget_filterField['str_template']);
 				$obj_template_priceFilterField->objWidget_filterField = $objWidget_filterField;
 				$arrWidgets_filterFields[] = $obj_template_priceFilterField->parse();
 				continue;

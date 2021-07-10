@@ -15,6 +15,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode']							= array('Filter-Modus', 'Bestimmen Sie, mit welcher logischen Verknüpfung mehrere gewählte Filter-Optionen interpretiert werden.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['makeFilterModeUserAdjustable']			= array('Einstellung des Filter-Modus im Frontend ermöglichen');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUse']						= array('Template');
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForPriceField']           = array('Template');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['published']							= array('Aktiv');
 
 	/*
