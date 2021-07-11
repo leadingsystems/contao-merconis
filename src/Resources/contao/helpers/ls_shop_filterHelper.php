@@ -33,20 +33,42 @@ class ls_shop_filterHelper {
             }
         }
 
-        if (is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])) {
-            foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $int_filterAttributeId => $arr_filterValues) {
-                $str_filterAttributeName = ls_shop_languageHelper::getMultiLanguage($int_filterAttributeId, 'tl_ls_shop_attributes', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
-                $arr_filterAllFields['arr_attributes'][$int_filterAttributeId] = [
-                    'str_title' => $str_filterAttributeName,
-                    'arr_values' => [],
-                    'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId]]
-                ];
+        $arrFilterFieldInfos = ls_shop_filterHelper::getFilterFieldInfos();
 
-                foreach ($arr_filterValues as $int_filterValueId) {
-                    $str_filterValueName = ls_shop_languageHelper::getMultiLanguage($int_filterValueId, 'tl_ls_shop_attribute_values', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
-                    $arr_filterAllFields['arr_attributes'][$int_filterAttributeId]['arr_values'][$int_filterValueId] = $str_filterValueName;
-                }
+        foreach ($arrFilterFieldInfos as $filterFieldID => $arrFilterFieldInfo) {
+            if ($arrFilterFieldInfo['dataSource'] !== 'attribute') {
+                continue;
             }
+
+            /*
+             * If based on the current product list there are no attributes to be used as criteria in the filter form
+             * or no values for the current attribute, we don't create a summary item
+             */
+            if (
+                !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])
+                || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])
+                || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+                || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+                || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+            ) {
+                continue;
+            }
+
+            $int_filterAttributeId = $arrFilterFieldInfo['sourceAttribute'];
+            $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$int_filterAttributeId];
+
+            $str_filterAttributeName = ls_shop_languageHelper::getMultiLanguage($int_filterAttributeId, 'tl_ls_shop_attributes', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
+            $arr_filterAllFields['arr_attributes'][$int_filterAttributeId] = [
+                'str_title' => $str_filterAttributeName,
+                'arr_values' => [],
+                'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId]]
+            ];
+
+            foreach ($arr_filterValues as $int_filterValueId) {
+                $str_filterValueName = ls_shop_languageHelper::getMultiLanguage($int_filterValueId, 'tl_ls_shop_attribute_values', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
+                $arr_filterAllFields['arr_attributes'][$int_filterAttributeId]['arr_values'][$int_filterValueId] = $str_filterValueName;
+            }
+
         }
 
         $bln_attributesFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_attributes']) && count($arr_filterAllFields['arr_attributes']);
