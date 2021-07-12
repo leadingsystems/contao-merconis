@@ -2,7 +2,7 @@
 <div class="<?php echo $this->strTemplate ?>">
     <div id="checkoutStepPaymentAfterCheckout">
         <h3>
-            <i class="lsi lsi-wallet-01"></i>
+            <i class="fas fa-wallet"></i>
             <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText144']; ?>
         </h3>
 

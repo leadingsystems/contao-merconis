@@ -22,7 +22,7 @@ if ($this->allowCheckout == 'both') {
         data-misc-order-login-type="without-login"
     >
         <div id="checkoutStepOrderLoginType" class="<?php echo FE_USER_LOGGED_IN ? 'currently-logged-in' : 'currently-not-logged-in'; ?>">
-            <h3><i class="lsi lsi-location-02"></i>
+            <h3><i class="fas fa-user"></i>
                 <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151']; ?>
             </h3>
             <button data-lsjs-element="toggler" class="order-with-login"><span class="label">Mit Kundenkonto bestellen</span></button>
@@ -42,7 +42,7 @@ if ($this->allowCheckout == 'both') {
 if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
 	?>
         <div id="checkoutStepLogin">
-            <h3><i class="lsi lsi-person-02"></i>
+            <h3><i class="fas fa-sign-in-alt"></i>
                 <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText136']; ?>
             </h3>
             <div>
@@ -93,7 +93,7 @@ if ($this->allowCheckout == 'both') {
     data-misc-form-reviewer-toggler-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText138']; ?>"
 	data-lsjs-component="customerDataForm formReviewer"
 >
-	<h3><i class="lsi lsi-house-02"></i>
+	<h3><i class="fas fa-map-marker-alt"></i>
 		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText010']; ?>
 	</h3>
 

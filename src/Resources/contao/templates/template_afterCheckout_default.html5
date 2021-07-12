@@ -55,7 +55,7 @@
     ?>
 
     <div id="checkoutStepCustomerDataReview">
-        <h3><i class="lsi lsi-location-02"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData'][$this->arr_data['useDeviantShippingAddress'] ? 'billingAddress' : 'billingAndShippingAddress']; ?></h3>
+        <h3><i class="fas fa-map-marker-alt"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData'][$this->arr_data['useDeviantShippingAddress'] ? 'billingAddress' : 'billingAndShippingAddress']; ?></h3>
         <div class="content">
             <?php echo $this->arrOrder['personalDataReview_customerLanguage']; ?>
         </div>
@@ -64,7 +64,7 @@
     <?php // ########## PAYMENT ##########?>
     <?php if ($this->arrOrder['paymentDataReview']) { ?>
         <div id="checkoutStepPaymentDataReview">
-            <h3><i class="lsi lsi-wallet-01"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline']; ?> <?php echo $this->arrOrder['paymentMethod_title_customerLanguage']; ?></h3>
+            <h3><i class="fas fa-wallet"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline']; ?> <?php echo $this->arrOrder['paymentMethod_title_customerLanguage']; ?></h3>
             <div class="content">
                 <?php echo $this->arrOrder['paymentDataReview_customerLanguage']; ?>
             </div>
@@ -74,7 +74,7 @@
     <?php // ########## PAYMENT ##########?>
     <?php if ($this->arrOrder['shippingDataReview']) { ?>
         <div id="checkoutStepShippingDataReview">
-            <h3><i class="lsi lsi-delivery-03"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['shippingData']['headline']; ?> <?php echo $this->arrOrder['shippingMethod_title_customerLanguage']; ?></h3>
+            <h3><i class="fas fa-truck"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['shippingData']['headline']; ?> <?php echo $this->arrOrder['shippingMethod_title_customerLanguage']; ?></h3>
             <div class="content">
                 <?php echo $this->arrOrder['shippingDataReview_customerLanguage']; ?>
             </div>
