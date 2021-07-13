@@ -3377,6 +3377,19 @@ class ls_shop_generalHelper
         }
         $objForm->first();
 
+        $bln_validationResultFromHook = null;
+
+        if (isset($GLOBALS['MERCONIS_HOOKS']['validateCollectedFormData']) && is_array($GLOBALS['MERCONIS_HOOKS']['validateCollectedFormData'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['validateCollectedFormData'] as $mccb) {
+                $objMccb = \System::importStatic($mccb[0]);
+                $bln_validationResultFromHook = $objMccb->{$mccb[1]}($arrValidateData, $formID, $objForm->row());
+            }
+        }
+
+        if (is_bool($bln_validationResultFromHook)) {
+            return $bln_validationResultFromHook;
+        }
+
         /*
          * Durchlaufen der gesammelten Daten und Erstellen eines Widgets für jedes Feld
          */
