@@ -379,7 +379,7 @@ class ls_shop_productManagementApiHelper {
 		if (!isset($GLOBALS['merconis_globals']['pageAliases'])) {
 			$GLOBALS['merconis_globals']['pageAliases'] = array();
 
-			$arr_pages = self::getCategories($bln_considerOnlyPagesMarkedAsCategoriesForErp);
+			$arr_pages = self::getPages($bln_considerOnlyPagesMarkedAsCategoriesForErp);
 
             $GLOBALS['merconis_globals']['pageAliases'] = array_map(
                 function($arr_page) {
@@ -395,9 +395,9 @@ class ls_shop_productManagementApiHelper {
 
 
 
-    public static function getCategories($bln_considerOnlyPagesMarkedAsCategoriesForErp = false) {
-        if (!isset($GLOBALS['merconis_globals']['getCategories'])) {
-            $GLOBALS['merconis_globals']['getCategories'] = array();
+    public static function getPages($bln_considerOnlyPagesMarkedAsCategoriesForErp = false) {
+        if (!isset($GLOBALS['merconis_globals']['getPages'])) {
+            $GLOBALS['merconis_globals']['getPages'] = array();
 
             $obj_dbres_pages = \Database::getInstance()
                 ->prepare("
@@ -424,10 +424,10 @@ class ls_shop_productManagementApiHelper {
                     continue;
                 }
 
-                $GLOBALS['merconis_globals']['getCategories'][] = $obj_dbres_pages->row();
+                $GLOBALS['merconis_globals']['getPages'][] = $obj_dbres_pages->row();
             }
         }
-        return $GLOBALS['merconis_globals']['getCategories'];
+        return $GLOBALS['merconis_globals']['getPages'];
     }
 
 

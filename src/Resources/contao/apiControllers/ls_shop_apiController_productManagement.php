@@ -76,7 +76,7 @@ class ls_shop_apiController_productManagement
         $this->obj_apiReceiver->requireUser(['apiUser']);
 
         $this->obj_apiReceiver->success();
-        $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getCategories(true));
+        $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getPages(true));
     }
 
 
