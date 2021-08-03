@@ -825,11 +825,11 @@ class ls_shop_productManagementApiPreprocessor
 			'arr_fields' => array()
 		),
 
-        'apiResource_getCategorys' => array(
+        'apiResource_getCategories' => array(
             'arr_fields' => array()
         ),
 
-        'apiResource_deleteCategorys' => array(
+        'apiResource_deleteCategories' => array(
             'bln_expectsMultipleDataRows' => true,
             'str_httpRequestMethod' => 'post',
             'str_responseType' => 'json',
@@ -843,7 +843,7 @@ class ls_shop_productManagementApiPreprocessor
             )
         ),
 
-        'apiResource_writeCategorys' => array(
+        'apiResource_writeCategories' => array(
             'bln_expectsMultipleDataRows' => true,
             'str_httpRequestMethod' => 'post',
             'str_responseType' => 'json',

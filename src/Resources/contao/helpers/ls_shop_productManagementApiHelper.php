@@ -410,13 +410,13 @@ class ls_shop_productManagementApiHelper {
 
 
 
-    public static function getCategorys($bln_considerOnlyPagesMarkedAsCategoriesForErp = false) {
+    public static function getCategories($bln_considerOnlyPagesMarkedAsCategoriesForErp = false) {
 
         //19.01.2021, um diese Ressource allgemeingültig zu halten werden nicht nur die Felder geliefert, die für den
         // Connector notwendig sind, sondern alle die auch zukünftig gebraucht werden könnten (vorhanden aber auskommentiert).
-        //Funktionsname könnte auch noch in "getPages" oder "getPageCategorys" umbenannt werden, falls gewünscht
-        if (!isset($GLOBALS['merconis_globals']['pageCategorys'])) {
-            $GLOBALS['merconis_globals']['pageCategorys'] = array();
+        //Funktionsname könnte auch noch in "getPages" oder "getPageCategories" umbenannt werden, falls gewünscht
+        if (!isset($GLOBALS['merconis_globals']['getCategories'])) {
+            $GLOBALS['merconis_globals']['getCategories'] = array();
 
             $obj_dbres_pages = \Database::getInstance()
                 ->prepare("
@@ -448,7 +448,7 @@ class ls_shop_productManagementApiHelper {
 
                 if ($obj_rootPage->fallback) {
 
-                    $GLOBALS['merconis_globals']['pageCategorys'][] = array(
+                    $GLOBALS['merconis_globals']['getCategories'][] = array(
                         'id' => $obj_dbres_pages->id,
                         'pid' => $obj_dbres_pages->pid,
                         'sorting' => $obj_dbres_pages->sorting,
@@ -519,7 +519,7 @@ class ls_shop_productManagementApiHelper {
                 }
             }
         }
-        return $GLOBALS['merconis_globals']['pageCategorys'];
+        return $GLOBALS['merconis_globals']['getCategories'];
     }
 
 

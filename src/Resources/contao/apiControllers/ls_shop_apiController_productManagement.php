@@ -70,13 +70,13 @@ class ls_shop_apiController_productManagement
      * Allowed user types: apiUser
      */
 
-    protected function apiResource_getCategorys()
+    protected function apiResource_getCategories()
     {
         $this->obj_apiReceiver->requireScope(['FE']);
         $this->obj_apiReceiver->requireUser(['apiUser']);
 
         $this->obj_apiReceiver->success();
-        $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getCategorys(true));
+        $this->obj_apiReceiver->set_data(ls_shop_productManagementApiHelper::getCategories(true));
     }
 
 
@@ -88,7 +88,7 @@ class ls_shop_apiController_productManagement
      *
      * Allowed user types: apiUser
      */
-    protected function apiResource_writeCategorys()
+    protected function apiResource_writeCategories()
     {
         $this->obj_apiReceiver->requireScope(['FE']);
         $this->obj_apiReceiver->requireUser(['apiUser']);
@@ -135,7 +135,7 @@ class ls_shop_apiController_productManagement
      *
      * Allowed user types: apiUser
      */
-    protected function apiResource_deleteCategorys()
+    protected function apiResource_deleteCategories()
     {
         $this->obj_apiReceiver->requireScope(['FE']);
         $this->obj_apiReceiver->requireUser(['apiUser']);
