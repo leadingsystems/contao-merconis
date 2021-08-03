@@ -379,29 +379,14 @@ class ls_shop_productManagementApiHelper {
 		if (!isset($GLOBALS['merconis_globals']['pageAliases'])) {
 			$GLOBALS['merconis_globals']['pageAliases'] = array();
 
-			$obj_dbres_pages = \Database::getInstance()
-			->prepare("
-				SELECT		`id`,
-                            `alias`
-				FROM		`tl_page`
-				".($bln_considerOnlyPagesMarkedAsCategoriesForErp ? "WHERE       `ls_shop_useAsCategoryForErp` = '1'" : "")."
-			")
-			->execute();
+			$arr_pages = self::getCategories($bln_considerOnlyPagesMarkedAsCategoriesForErp);
 
-            while ($obj_dbres_pages->next()) {
-                // Check whether root page is fallback language or not and only then add the page to the pageAliases array
-                $obj_pageDetails = \PageModel::findWithDetails($obj_dbres_pages->id);
-                $obj_rootPage = \Database::getInstance()
-                    ->prepare("
-                        SELECT * FROM `tl_page` WHERE `id` = ?
-                    ")
-                    ->limit(1)
-                    ->execute($obj_pageDetails->rootId);
-
-                if ($obj_rootPage->fallback) {
-                    $GLOBALS['merconis_globals']['pageAliases'][] = $obj_dbres_pages->alias;
-                }
-            }
+            $GLOBALS['merconis_globals']['pageAliases'] = array_map(
+                function($arr_page) {
+                    return $arr_page['alias'];
+                },
+                $arr_pages
+            );
 		}
 		return $GLOBALS['merconis_globals']['pageAliases'];
 	}
@@ -411,27 +396,15 @@ class ls_shop_productManagementApiHelper {
 
 
     public static function getCategories($bln_considerOnlyPagesMarkedAsCategoriesForErp = false) {
-
-        //19.01.2021, um diese Ressource allgemeingültig zu halten werden nicht nur die Felder geliefert, die für den
-        // Connector notwendig sind, sondern alle die auch zukünftig gebraucht werden könnten (vorhanden aber auskommentiert).
-        //Funktionsname könnte auch noch in "getPages" oder "getPageCategories" umbenannt werden, falls gewünscht
         if (!isset($GLOBALS['merconis_globals']['getCategories'])) {
             $GLOBALS['merconis_globals']['getCategories'] = array();
 
             $obj_dbres_pages = \Database::getInstance()
                 ->prepare("
-				SELECT		id, pid, sorting, language, title, pageTitle, alias, description, published, type, 
-                    robots, redirect, jumpTo, redirectBack, url, target, dns, staticFiles, staticPlugins, favicon,
-                    robotsTxt, adminEmail, dateFormat, timeFormat, datimFormat, validAliasCharacters, createSitemap
-                    sitemapName, useSSL, autoforward, protected, groups, includeLayout, layout, includeCache, cache,
-                    alwaysLoadFromCache, clientCache, includeChmod, cuser, cgroup, chmod, noSearch, requireItem, cssClass,
-                    sitemap, hide, guests, tabindex, accesskey, start, stop, enforceTwoFactor, twoFactorJumpTo, 
-                    lsShopLayoutForDetailsView, lsShopIncludeLayoutforDetailsView, lsShopOutputDefinitionSet, 
-                    ls_shop_thousandsSeparator, ls_shop_decimalsSeparator, ls_shop_currencyBeforeValue, ls_shop_useAsCategoryForErp,
-                    ls_cnc_languageSelector_correspondingMainLanguagePage
-				FROM		`tl_page`
-				".($bln_considerOnlyPagesMarkedAsCategoriesForErp ? "WHERE       `ls_shop_useAsCategoryForErp` = '1'" : "")."
-			")
+                    SELECT		*
+                    FROM		`tl_page`
+                    ".($bln_considerOnlyPagesMarkedAsCategoriesForErp ? "WHERE       `ls_shop_useAsCategoryForErp` = '1'" : "")."
+                ")
                 ->execute();
 
             while ($obj_dbres_pages->next()) {
@@ -441,82 +414,17 @@ class ls_shop_productManagementApiHelper {
                 $obj_rootPage = \Database::getInstance()
                     ->prepare("
                         SELECT fallback 
-                        FROM `tl_page` WHERE `id` = ?
+                        FROM `tl_page`
+                        WHERE `id` = ?
                     ")
                     ->limit(1)
                     ->execute($obj_pageDetails->rootId);
 
-                if ($obj_rootPage->fallback) {
-
-                    $GLOBALS['merconis_globals']['getCategories'][] = array(
-                        'id' => $obj_dbres_pages->id,
-                        'pid' => $obj_dbres_pages->pid,
-                        'sorting' => $obj_dbres_pages->sorting,
-                        'language' => $obj_pageDetails->language,
-                        'title' => $obj_dbres_pages->title,
-                        'pageTitle' => $obj_dbres_pages->pageTitle,
-                        'alias' => $obj_dbres_pages->alias,
-                        'description' => $obj_dbres_pages->description,
-                        'published' => $obj_dbres_pages->published,
-                        'type' => $obj_dbres_pages->type,
-
-
-                        'robots' => $obj_dbres_pages->robots,
-                        'redirect' => $obj_dbres_pages->redirect,
-                        'jumpTo' => $obj_dbres_pages->jumpTo,
-                        'redirectBack' => $obj_dbres_pages->redirectBack,
-                        'url' => $obj_dbres_pages->url,
-                        'target' => $obj_dbres_pages->target,
-                        'dns' => $obj_dbres_pages->dns,
-                        'staticFiles' => $obj_dbres_pages->staticFiles,
-                        'staticPlugins' => $obj_dbres_pages->staticPlugins,
-                        'favicon' => $obj_dbres_pages->favicon,
-                        'robotsTxt' => $obj_dbres_pages->robotsTxt,
-                        'robotsTxt' => $obj_dbres_pages->robotsTxt,
-                        'adminEmail' => $obj_dbres_pages->adminEmail,
-                        'dateFormat' => $obj_dbres_pages->dateFormat,
-                        'timeFormat' => $obj_dbres_pages->timeFormat,
-                        'datimFormat' => $obj_dbres_pages->datimFormat,
-                        'validAliasCharacters' => $obj_dbres_pages->validAliasCharacters,
-                        'createSitemap' => $obj_dbres_pages->createSitemap,
-                        'sitemapName' => $obj_dbres_pages->sitemapName,
-                        'useSSL' => $obj_dbres_pages->useSSL,
-                        'autoforward' => $obj_dbres_pages->autoforward,
-                        'protected' => $obj_dbres_pages->protected,
-                        'groups' => $obj_dbres_pages->groups,
-                        'includeLayout' => $obj_dbres_pages->includeLayout,
-                        'layout' => $obj_dbres_pages->layout,
-                        'includeCache' => $obj_dbres_pages->includeCache,
-                        'cache' => $obj_dbres_pages->cache,
-                        'alwaysLoadFromCache' => $obj_dbres_pages->alwaysLoadFromCache,
-                        'clientCache' => $obj_dbres_pages->clientCache,
-                        'includeChmod' => $obj_dbres_pages->includeChmod,
-                        'cuser' => $obj_dbres_pages->cuser,
-                        'cgroup' => $obj_dbres_pages->cgroup,
-                        'chmod' => $obj_dbres_pages->chmod,
-                        'noSearch' => $obj_dbres_pages->noSearch,
-                        'requireItem' => $obj_dbres_pages->requireItem,
-                        'cssClass' => $obj_dbres_pages->cssClass,
-                        'sitemap' => $obj_dbres_pages->sitemap,
-                        'hide' => $obj_dbres_pages->hide,
-                        'guests' => $obj_dbres_pages->guests,
-                        'tabindex' => $obj_dbres_pages->tabindex,
-                        'accesskey' => $obj_dbres_pages->accesskey,
-                        'start' => $obj_dbres_pages->start,
-                        'stop' => $obj_dbres_pages->stop,
-                        'enforceTwoFactor' => $obj_dbres_pages->enforceTwoFactor,
-                        'twoFactorJumpTo' => $obj_dbres_pages->twoFactorJumpTo,
-                        'lsShopLayoutForDetailsView' => $obj_dbres_pages->lsShopLayoutForDetailsView,
-                        'lsShopIncludeLayoutforDetailsView' => $obj_dbres_pages->lsShopIncludeLayoutforDetailsView,
-                        'lsShopOutputDefinitionSet' => $obj_dbres_pages->lsShopOutputDefinitionSet,
-                        'ls_shop_thousandsSeparator' => $obj_dbres_pages->ls_shop_thousandsSeparator,
-                        'ls_shop_decimalsSeparator' => $obj_dbres_pages->ls_shop_decimalsSeparator,
-                        'ls_shop_currencyBeforeValue' => $obj_dbres_pages->ls_shop_currencyBeforeValue,
-                        'ls_shop_useAsCategoryForErp' => $obj_dbres_pages->ls_shop_useAsCategoryForErp,
-                        'ls_cnc_languageSelector_correspondingMainLanguagePage' => $obj_dbres_pages->ls_cnc_languageSelector_correspondingMainLanguagePage,
-
-                    );
+                if (!$obj_rootPage->fallback) {
+                    continue;
                 }
+
+                $GLOBALS['merconis_globals']['getCategories'][] = $obj_dbres_pages->row();
             }
         }
         return $GLOBALS['merconis_globals']['getCategories'];
