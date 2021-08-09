@@ -1865,7 +1865,7 @@ class ls_shop_productManagementApiHelper {
         //falls keine Parentid angegeben wurde, muss es die Wurzel-Seite sein. Wir holen die erste veröffentlichte
         if (!isset($GLOBALS['merconis_globals']['cache']['int_firstRootId'])) {
 
-            $col_rootPages = \PageModel::findPublishedRootPages();
+            $col_rootPages = \PageModel::findPublishedRootPages(['having' => "fallback=''"]);
 
             $GLOBALS['merconis_globals']['cache']['int_firstRootId'] = $col_rootPages[0]->id;
         }
