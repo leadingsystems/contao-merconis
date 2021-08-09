@@ -39,12 +39,23 @@ class ls_shop_apiController {
 	}
 	
 	/**
+	 * Returns the iso code of the main language
+	 */
+	protected function apiResource_getMainLanguageIso() {
+	    global $objPage;
+        $col_rootPages = \PageModel::findPublishedRootPages(['dns' => $objPage->domain, 'having' => "fallback='1'"]);
+		$this->obj_apiReceiver->success();
+		$this->obj_apiReceiver->set_data($col_rootPages[0]->language);
+	}
+	
+
+	/**
 	 * Returns product properties the same way as they would be available in a php
 	 * template file via $obj_product.
 	 * Add the parameter 'productId' to the resource to specify for which product
 	 * you are requesting the data.
 	 * Add the parameter 'properties' with a comma separated list of product properties to request.
-	 * 
+	 *
 	 * Please note that not every property can be json encoded and therefore not
 	 * every property can be read with an api call.
 	 */
@@ -54,34 +65,34 @@ class ls_shop_apiController {
 			$this->obj_apiReceiver->set_data('no productId given');
 			return;
 		}
-		
+
 		$arr_requestedProperties = array_map('trim', explode(',', \Input::get('properties')));
-		
+
 		if (!is_array($arr_requestedProperties) || !count($arr_requestedProperties)) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('no property or properties requested');
 			return;
 		}
-		
+
 		$obj_product = ls_shop_generalHelper::getObjProduct(\Input::get('productId'));
-		
+
 		$bln_useVariant = \Input::get('useVariant') ? true : false;
 		if ($bln_useVariant && !$obj_product->_variantIsSelected) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('variant property requested but no variant selected');
-			return;			
+			return;
 		}
-		
+
 		$arr_return = array();
-		
+
 		foreach ($arr_requestedProperties as $str_requestedProperty) {
 			$arr_return[$str_requestedProperty] = $bln_useVariant ? $obj_product->_selectedVariant->{$str_requestedProperty} : $obj_product->{$str_requestedProperty};
 		}
-		
+
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data($arr_return);
 	}
-	
+
 
 	
 	/**
