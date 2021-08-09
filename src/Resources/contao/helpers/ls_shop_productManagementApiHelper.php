@@ -401,7 +401,7 @@ class ls_shop_productManagementApiHelper {
 
             $obj_dbres_pages = \Database::getInstance()
                 ->prepare("
-                    SELECT		*
+                    SELECT		id
                     FROM		`tl_page`
                     ".($bln_considerOnlyPagesMarkedAsCategoriesForErp ? "WHERE       `ls_shop_useAsCategoryForErp` = '1'" : "")."
                 ")
@@ -424,7 +424,7 @@ class ls_shop_productManagementApiHelper {
                     continue;
                 }
 
-                $GLOBALS['merconis_globals']['getPages'][] = $obj_dbres_pages->row();
+                $GLOBALS['merconis_globals']['getPages'][] = $obj_pageDetails->row();
             }
         }
         return $GLOBALS['merconis_globals']['getPages'];
