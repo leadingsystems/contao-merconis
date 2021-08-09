@@ -1862,11 +1862,9 @@ class ls_shop_productManagementApiHelper {
 
         $int_lastInsertId = '';
 
-        //falls keine Parentid angegeben wurde, muss es die Wurzel-Seite sein. Wir holen die erste veröffentlichte
+        // If no parent id is given, we have to use the fallback language root page
         if (!isset($GLOBALS['merconis_globals']['cache']['int_firstRootId'])) {
-
-            $col_rootPages = \PageModel::findPublishedRootPages(['having' => "fallback=''"]);
-
+            $col_rootPages = \PageModel::findPublishedRootPages(['having' => "fallback='1'"]);
             $GLOBALS['merconis_globals']['cache']['int_firstRootId'] = $col_rootPages[0]->id;
         }
 
