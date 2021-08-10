@@ -50,6 +50,27 @@ class ls_shop_apiController {
 	
 
 	/**
+	 * Returns the iso code of the main language
+	 */
+	protected function apiResource_getActiveLanguagesIso() {
+	    global $objPage;
+        $col_rootPages = \PageModel::findPublishedRootPages(['dns' => $objPage->domain]);
+        $arr_languageIsoToName = \System::getLanguages();
+        $arr_languages = [];
+        foreach ($col_rootPages as $obj_pageModel) {
+            $arr_languages[] = [
+                'id' => $obj_pageModel->id, // since languages don't have IDs, we use the page id which comes as close as it gets
+                'languageIso' => $obj_pageModel->language,
+                'fallback' => (bool) $obj_pageModel->fallback,
+                'name' => $arr_languageIsoToName[$obj_pageModel->language]
+            ];
+        }
+		$this->obj_apiReceiver->success();
+		$this->obj_apiReceiver->set_data($arr_languages);
+	}
+
+
+	/**
 	 * Returns product properties the same way as they would be available in a php
 	 * template file via $obj_product.
 	 * Add the parameter 'productId' to the resource to specify for which product
