@@ -73,6 +73,8 @@ class ls_shop_cartX {
             }
 
 
+//            dump(self::$objInstance->calculation);
+
 			if (!isset($GLOBALS['merconis_globals']['merconisHookInitializeCartControllerAlreadyProcessed']) || !$GLOBALS['merconis_globals']['merconisHookInitializeCartControllerAlreadyProcessed']) {
 				$GLOBALS['merconis_globals']['merconisHookInitializeCartControllerAlreadyProcessed'] = true;
 				if (isset($GLOBALS['MERCONIS_HOOKS']['initializeCartController']) && is_array($GLOBALS['MERCONIS_HOOKS']['initializeCartController'])) {
