@@ -130,7 +130,13 @@ if (TL_MODE === 'BE') {
  * <-
  */
 
-$GLOBALS['TL_CRON']['daily'][] = array('Merconis\Core\ls_shop_generalHelper','sendRestockInfo');
+/*
+ * In this specific project, the daily cronjob failed to send the restock info for reasons yet unknwon while
+ * the minutely cronjob worked fine. This is strange, since the hooked function is exactly the same.
+ */
+$GLOBALS['TL_CRON']['minutely'][] = array('Merconis\Core\ls_shop_generalHelper','sendRestockInfo');
+//$GLOBALS['TL_CRON']['daily'][] = array('Merconis\Core\ls_shop_generalHelper','sendRestockInfo');
+
 $GLOBALS['TL_CRON']['daily'][] = array('Merconis\Core\ls_shop_generalHelper','sendMessagesOnStatusChangeCronDaily');
 $GLOBALS['TL_CRON']['hourly'][] = array('Merconis\Core\ls_shop_generalHelper','sendMessagesOnStatusChangeCronHourly');
 
