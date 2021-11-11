@@ -142,6 +142,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'inputType' => 'text',
 			'eval' => array(
 				'tl_class' => 'merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
 				'data-merconis-widget-options' => '
 					{
 						"arr_fields": [
