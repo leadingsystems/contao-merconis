@@ -263,6 +263,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
 			'eval'			=> array(
 				'rgxp' => 'numberWithDecimalsLeftAndRight',
 				'tl_class' => 'merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
 				'data-merconis-widget-options' => '
 					{
 						"arr_fields": [
@@ -288,6 +289,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
 			'eval'			=> array(
 				'rgxp' => 'numberWithDecimalsLeftAndRight',
 				'tl_class' => 'merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
 				'data-merconis-widget-options' => '
 					{
 						"arr_fields": [
