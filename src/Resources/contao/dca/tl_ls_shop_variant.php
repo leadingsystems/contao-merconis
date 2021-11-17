@@ -379,7 +379,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'default'                 => '',
 			'exclude' => true,
 			'inputType'               => 'text',
-			'eval'					  => array('tl_class' => 'merconis-component-autostart--merconisWidgetAttributesValues'),
+			'eval'					  => array('tl_class' => 'merconis-component-autostart--merconisWidgetAttributesValues', 'decodeEntities' => true),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_variant_controller', 'insertAttributeValueAllocationsInAllocationTable')
 			)
@@ -451,6 +451,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'eval'			=> array(
 				'rgxp' => 'numberWithDecimalsLeftAndRight',
 				'tl_class' => 'clr merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
 				'data-merconis-widget-options' => '
 					{
 						"arr_fields": [
@@ -574,6 +575,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'eval'			=> array(
 				'rgxp' => 'numberWithDecimalsLeftAndRight',
 				'tl_class' => 'clr merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
 				'data-merconis-widget-options' => '
 					{
 						"arr_fields": [
@@ -696,6 +698,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'eval'			=> array(
 				'rgxp' => 'numberWithDecimalsLeftAndRight',
 				'tl_class' => 'clr merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
 				'data-merconis-widget-options' => '
 					{
 						"arr_fields": [
@@ -818,6 +821,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'eval'			=> array(
 				'rgxp' => 'numberWithDecimalsLeftAndRight',
 				'tl_class' => 'clr merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
 				'data-merconis-widget-options' => '
 					{
 						"arr_fields": [
@@ -940,6 +944,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'eval'			=> array(
 				'rgxp' => 'numberWithDecimalsLeftAndRight',
 				'tl_class' => 'clr merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
 				'data-merconis-widget-options' => '
 					{
 						"arr_fields": [
@@ -1062,6 +1067,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'eval'			=> array(
 				'rgxp' => 'numberWithDecimalsLeftAndRight',
 				'tl_class' => 'clr merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
 				'data-merconis-widget-options' => '
 					{
 						"arr_fields": [
