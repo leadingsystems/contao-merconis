@@ -160,7 +160,12 @@ CREATE TABLE `tl_ls_shop_product` (
 	`configurator` int(10) unsigned NOT NULL default '0',
 	`flex_contents` mediumtext NULL,
 	`flex_contentsLanguageIndependent` mediumtext NULL,
-	`lsShopProductAttributesValues` text NULL
+	`lsShopProductAttributesValues` text NULL,
+    `searchVariantKeywords_de` mediumtext NULL,
+    `searchVariantDescriptions_de` mediumtext NULL,
+    `searchVariantTitles_de` mediumtext NULL,
+    `searchAttributeValuesVariants_de` mediumtext NULL,
+    `searchAttributeValues_de` mediumtext NULL,
 	PRIMARY KEY  (`id`),
 	KEY `lsShopProductCode` (`lsShopProductCode`),
 	KEY `alias` (`alias`)
@@ -279,7 +284,8 @@ CREATE TABLE `tl_ls_shop_variant` (
 	`lsShopVariantQuantityUnit` varchar(255) NOT NULL default '',
 	`lsShopVariantMengenvergleichUnit` varchar(255) NOT NULL default '',
 	`lsShopVariantMengenvergleichDivisor` decimal(12,6) NOT NULL default '0.000000',
-	`associatedProducts` blob NULL
+	`associatedProducts` blob NULL,
+    `keywords_de` mediumtext NULL,
 	PRIMARY KEY  (`id`),
 	KEY `lsShopVariantCode` (`lsShopVariantCode`),
 	KEY `alias` (`alias`)

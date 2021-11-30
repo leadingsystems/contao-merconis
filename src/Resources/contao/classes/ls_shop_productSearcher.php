@@ -381,6 +381,11 @@ class ls_shop_productSearcher
             case 'title':
             case 'keywords':
             case 'shortDescription':
+            case 'searchVariantKeywords':
+            case 'searchVariantDescriptions':
+            case 'searchVariantTitles':
+            case 'searchAttributeValuesVariants':
+            case 'searchAttributeValues':
             case 'description':
             case 'lsShopProductQuantityUnit':
             case 'lsShopProductMengenvergleichUnit':
@@ -417,6 +422,13 @@ class ls_shop_productSearcher
     }
 
     protected function ls_performSearch() {
+
+
+
+
+        echo "hi";
+
+
         /*
          * Set the current cache key because if ls_performSearch() is being executed, all
          * settings affecting the results have been set completely
@@ -554,6 +566,13 @@ class ls_shop_productSearcher
 
                     $addToSelectStatement = '';
 
+
+                case 'searchVariantKeywords':
+                case 'searchVariantDescriptions':
+                case 'searchVariantTitles':
+                case 'searchAttributeValuesVariants':
+                case 'searchAttributeValues':
+
                     if ($this->blnUsePriority()) {
                         $arr_searchResultWeighting = array(
                             'wholeSearchStringMatches' => array(
@@ -561,6 +580,11 @@ class ls_shop_productSearcher
                                     'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] ?: 300,
                                     'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] ?: 200,
                                     'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_shortDescription'] ?: 200,
+                                    'searchVariantKeywords' => 200,
+                                    'searchVariantDescriptions' => 200,
+                                    'searchVariantTitles' => 200,
+                                    'searchAttributeValuesVariants' => 200,
+                                    'searchAttributeValues' => 200,
                                     'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_description'] ?: 200,
                                     'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_productCode'] ?: 200,
                                     'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_producer'] ?: 200
@@ -569,6 +593,11 @@ class ls_shop_productSearcher
                                     'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_title'] ?: 30,
                                     'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_keywords'] ?: 20,
                                     'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_shortDescription'] ?: 20,
+                                    'searchVariantKeywords' => 20,
+                                    'searchVariantDescriptions' => 20,
+                                    'searchVariantTitles' => 20,
+                                    'searchAttributeValuesVariants' => 20,
+                                    'searchAttributeValues' => 20,
                                     'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_description'] ?: 20,
                                     'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_productCode'] ?: 20,
                                     'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_producer'] ?: 20
@@ -579,6 +608,11 @@ class ls_shop_productSearcher
                                     'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_title'] ?: 30,
                                     'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_keywords'] ?: 10,
                                     'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_shortDescription'] ?: 10,
+                                    'searchVariantKeywords' => 10,
+                                    'searchVariantDescriptions' => 10,
+                                    'searchVariantTitles' => 10,
+                                    'searchAttributeValuesVariants' => 10,
+                                    'searchAttributeValues' => 10,
                                     'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_description'] ?: 10,
                                     'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_productCode'] ?: 20,
                                     'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_producer'] ?: 20
@@ -587,6 +621,11 @@ class ls_shop_productSearcher
                                     'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_title'] ?: 3,
                                     'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_keywords'] ?: 1,
                                     'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_shortDescription'] ?: 1,
+                                    'searchVariantKeywords' => 1,
+                                    'searchVariantDescriptions' => 1,
+                                    'searchVariantTitles' => 1,
+                                    'searchAttributeValuesVariants' => 1,
+                                    'searchAttributeValues' => 1,
                                     'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_description'] ?: 1,
                                     'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_productCode'] ?: 2,
                                     'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer'] ?: 2
@@ -664,16 +703,69 @@ class ls_shop_productSearcher
                         array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
+                        //searchVariantKeywords
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantKeywords')." LIKE ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['searchVariantKeywords']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantKeywords')." = ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['searchVariantKeywords']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                        //searchVariantDescriptions
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantDescriptions')." LIKE ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['searchVariantDescriptions']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantDescriptions')." = ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['searchVariantDescriptions']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                        //searchVariantTitles
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantTitles')." LIKE ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['searchVariantTitles']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantTitles')." = ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['searchVariantTitles']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                        //searchAttributeValuesVariants
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchAttributeValuesVariants')." LIKE ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['searchAttributeValuesVariants']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchAttributeValuesVariants')." = ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['searchAttributeValuesVariants']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                        //searchAttributeValues
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchAttributeValues')." LIKE ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['searchAttributeValues']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchAttributeValues')." = ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['searchAttributeValues']." ELSE 0 END";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
 
 
                         $addToSelectStatement .= " + ";
                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                         $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('description')." LIKE ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['description']." ELSE 0 END
-						";
+                        ";
                         array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
-
-
 
 
                         $addToSelectStatement .= " + ";
@@ -724,6 +816,8 @@ class ls_shop_productSearcher
                         array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
                     }
 
+
+
                     if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
                         foreach ($arrCriterionValues as $criterionValue) {
                             if ($searchConditionPart) {
@@ -734,6 +828,11 @@ class ls_shop_productSearcher
 									".$this->getQualifiedFieldName('title')." LIKE ?
 								OR	".$this->getQualifiedFieldName('keywords')." LIKE ?
 								OR	".$this->getQualifiedFieldName('shortDescription')." LIKE ?
+								OR	".$this->getQualifiedFieldName('searchVariantKeywords')." LIKE ?
+								OR	".$this->getQualifiedFieldName('searchVariantDescriptions')." LIKE ?
+								OR	".$this->getQualifiedFieldName('searchVariantTitles')." LIKE ?
+								OR	".$this->getQualifiedFieldName('searchAttributeValuesVariants')." LIKE ?
+								OR	".$this->getQualifiedFieldName('searchAttributeValues')." LIKE ?
 								OR	".$this->getQualifiedFieldName('description')." LIKE ?
 								OR	".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ?
 								OR	".$this->getQualifiedFieldName('lsShopProductProducer')." LIKE ?
@@ -801,6 +900,61 @@ class ls_shop_productSearcher
                                 array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
+                                //searchVariantKeywords
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantKeywords')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['searchVariantKeywords']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantKeywords')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['searchVariantKeywords']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                //searchVariantDescriptions
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantDescriptions')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['searchVariantDescriptions']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantDescriptions')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['searchVariantDescriptions']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                //searchVariantTitles
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantTitles')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['searchVariantTitles']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchVariantTitles')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['searchVariantTitles']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                //searchAttributeValuesVariants
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchAttributeValuesVariants')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['searchAttributeValuesVariants']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchAttributeValuesVariants')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['searchAttributeValuesVariants']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                //searchAttributeValues
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchAttributeValues')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['searchAttributeValues']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('searchAttributeValues')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['searchAttributeValues']." ELSE 0 END";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
 
 
                                 $addToSelectStatement .= " + ";
@@ -861,6 +1015,11 @@ class ls_shop_productSearcher
                                 array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
                             }
 
+                            $searchConditionValues[] = '%%'.$criterionValue.'%';
+                            $searchConditionValues[] = '%%'.$criterionValue.'%';
+                            $searchConditionValues[] = '%%'.$criterionValue.'%';
+                            $searchConditionValues[] = '%%'.$criterionValue.'%';
+                            $searchConditionValues[] = '%%'.$criterionValue.'%';
                             $searchConditionValues[] = '%%'.$criterionValue.'%';
                             $searchConditionValues[] = '%%'.$criterionValue.'%';
                             $searchConditionValues[] = '%%'.$criterionValue.'%';
