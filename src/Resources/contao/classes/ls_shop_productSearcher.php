@@ -423,10 +423,117 @@ class ls_shop_productSearcher
 
     protected function ls_performSearch() {
 
+        //aktualisieren von Datenbank suchfelder anfang
+
+        $objProducts = \Database::getInstance()->prepare("
+			SELECT			id, lsShopProductAttributesValues
+			FROM			`tl_ls_shop_product`
+		");
+
+        $objProducts = $objProducts->execute();
+        $arrProducts = $objProducts->fetchAllAssoc();
+
+
+        //alle Varianten des Produktes
+        foreach ($arrProducts as $product){
+
+            $objProductVariants = \Database::getInstance()->prepare("
+			    SELECT			title_de, keywords_de, description_de, lsShopProductVariantAttributesValues
+			    FROM			`tl_ls_shop_variant`
+                WHERE pid=?
+		    ");
+
+            $objProductVariants = $objProductVariants->execute($product['id']);
+            $objProductVariants = $objProductVariants->fetchAllAssoc();
+
+            $variantTitle = "";
+            $variantKeywords = "";
+            $variantDescription = "";
+            $searchAttributeValuesVariants = "";
+
+            foreach ($objProductVariants as $variant){
+
+                if ($variant === array_key_first($objProductVariants)) {
+                    $variantTitle = $variant['title_de'];
+                    $variantKeywords = $variant['keywords_de'];
+                    $variantDescription = $variant['description_de'];
+                }else{
+                    $variantTitle = $variantTitle." ".$variant['title_de'];
+                    $variantKeywords = $variantKeywords." ".$variant['keywords_de'];
+                    $variantDescription = $variantDescription." ".$variant['keywords_de'];
+                }
+
+
+                $array = json_decode($variant['lsShopProductVariantAttributesValues']);
+
+                foreach ($array as $number){
+
+                    $objProducts = \Database::getInstance()->prepare("
+                        SELECT			title_de
+                        FROM			`tl_ls_shop_attributes`
+                        WHERE           id=?
+                    ")->execute($number[0]);
+                    $objProducts = $objProducts->fetchAllAssoc();
+
+                    $objProducts = \Database::getInstance()->prepare("
+                        SELECT			title_de
+                        FROM			`tl_ls_shop_attribute_values`
+                        WHERE           id=?
+                    ")->execute($number[1]);
+                    $objProducts = $objProducts->fetchAllAssoc();
+
+                    if ($number === array_key_first($array)) {
+                        $searchAttributeValuesVariants = $searchAttributeValuesVariants[0]['title_de'];
+                    }else{
+                        $searchAttributeValuesVariants = $searchAttributeValuesVariants." ".$objProducts[0]['title_de'];
+                    }
+                }
+            }
+
+            $array = json_decode($product['lsShopProductAttributesValues']);
+
+            $searchAttributeValues = "";
+
+            foreach ($array as $number){
+
+                $objProducts = \Database::getInstance()->prepare("
+                        SELECT			title_de
+                        FROM			`tl_ls_shop_attributes`
+                        WHERE           id=?
+                    ")->execute($number[0]);
+                $objProducts = $objProducts->fetchAllAssoc();
+
+                $objProducts = \Database::getInstance()->prepare("
+                        SELECT			title_de
+                        FROM			`tl_ls_shop_attribute_values`
+                        WHERE           id=?
+                    ")->execute($number[1]);
+                $objProducts = $objProducts->fetchAllAssoc();
+
+                if ($number === array_key_first($array)) {
+                    $searchAttributeValues = $searchAttributeValues[0]['title_de'];
+                }else{
+                    $searchAttributeValues = $searchAttributeValues." ".$objProducts[0]['title_de'];
+                }
+
+            }
+
+            \Database::getInstance()->prepare("
+                UPDATE `tl_ls_shop_product`
+                SET `searchVariantTitles_de` = ?,
+                    `searchVariantKeywords_de` = ?,
+                    `searchVariantDescriptions_de` = ?,
+                    `searchAttributeValuesVariants_de` = ?,
+                    `searchAttributeValues_de` = ?
+                WHERE id = ?;
+            ")->execute($variantTitle, $variantKeywords, $variantDescription, $searchAttributeValuesVariants, $searchAttributeValues, $product['id']);
+
+        }
+
+        //aktualisieren von Datenbank suchfelder ende
 
 
 
-        echo "hi";
 
 
         /*
