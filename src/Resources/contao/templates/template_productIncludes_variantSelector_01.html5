@@ -28,7 +28,7 @@
 		) {
 			if (\Input::post('json_attributeValueSelection')) {
                 $bln_calledFromLsjsVariantSelector = true;
-				$arrRequestedAttributeValues = json_decode(\Input::post('json_attributeValueSelection'), true);
+				$arrRequestedAttributeValues = json_decode(html_entity_decode(\Input::post('json_attributeValueSelection')), true);
 			} else {
 				$arrRequestedAttributeValues = array();
 				foreach ($attributeFormFields as $attributeID => $str_formField) {
