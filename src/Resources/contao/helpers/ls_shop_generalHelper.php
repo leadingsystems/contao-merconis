@@ -878,9 +878,9 @@ class ls_shop_generalHelper
      * und gibt dann den für den aktuellen Zeitpunkt gültigen Steuer-Prozentwert
      * zurück.
      */
-    public static function getCurrentTax($steuersatzID, $blnParseTaxRateValue = true)
+    public static function getCurrentTax($steuersatzID, $blnParseTaxRateValue = true, $bln_returnZeroWhenVATID = true, $bln_getTaxForShopCountry = false)
     {
-        $parameterHash = md5($steuersatzID . ($blnParseTaxRateValue ? 1 : 0) . ls_shop_generalHelper::getCustomerCountry());
+        $parameterHash = md5($steuersatzID . ($blnParseTaxRateValue ? 1 : 0) . ($bln_returnZeroWhenVATID ? 1 : 0) . ($bln_getTaxForShopCountry ? $GLOBALS['TL_CONFIG']['ls_shop_country'] : ls_shop_generalHelper::getCustomerCountry()));
         if (!isset($GLOBALS['merconis_globals']['getCurrentTax'][$parameterHash])) {
             if (!$steuersatzID) {
                 return 0;
@@ -890,8 +890,11 @@ class ls_shop_generalHelper
              * Sofern durch die angegebenen USt-IdNr. von Kunde und Betreiber die Umsatzsteuerfreiheit
              * gegeben ist, so wird ohne weitere Prüfung der Steuerzone oder des Zeitraums der Wert 0 zurückgegeben.
              */
-            if (ls_shop_generalHelper::checkVATID()) {
-                return 0;
+            if ($bln_returnZeroWhenVATID) {
+                if (ls_shop_generalHelper::checkVATID()) {
+                    return 0;
+                }
+
             }
 
             $currentSteuersatzInProzent = 0;
@@ -919,7 +922,7 @@ class ls_shop_generalHelper
                 foreach ($arrCountriesSteuerzone as $k => $v) {
                     $arrCountriesSteuerzone[$k] = strtolower($v);
                 }
-                if (in_array(ls_shop_generalHelper::getCustomerCountry(), $arrCountriesSteuerzone)) {
+                if (in_array(($bln_getTaxForShopCountry ? $GLOBALS['TL_CONFIG']['ls_shop_country'] : ls_shop_generalHelper::getCustomerCountry()), $arrCountriesSteuerzone)) {
                     $currentSteuersatzInProzent = $arrSteuerzonen[0];
                     $foundMatchingSteuerzone = true;
                 }
@@ -958,7 +961,8 @@ class ls_shop_generalHelper
      */
     public static function getDisplayPrice($price, $steuersatzIdProduct, $usePriceAdjustment = true)
     {
-        $steuersatz = ls_shop_generalHelper::getCurrentTax($steuersatzIdProduct);
+        $steuersatz = ls_shop_generalHelper::getCurrentTax($steuersatzIdProduct, true, false);
+        $steuersatzShopCountry = ls_shop_generalHelper::getCurrentTax($steuersatzIdProduct, true, false, true);
 
         /*
          * Durchführen der Preisanpassung (für Rabatte bei bestimmten User-Gruppen)
@@ -975,25 +979,32 @@ class ls_shop_generalHelper
          * und Ausgabe ($outputPriceType) unterscheidet, sodass eine Umrechnung nötig ist
          */
         $outputPriceType = ls_shop_generalHelper::getOutputPriceType();
-        if ($GLOBALS['TL_CONFIG']['ls_shop_priceType'] != $outputPriceType) {
-            switch ($GLOBALS['TL_CONFIG']['ls_shop_priceType']) {
-                case 'netto':
-                    /*
-                     * Preise sind netto hinterlegt und sollen brutto ausgegeben werden.
-                     * Daher wird die Umsatzsteuer hinzugerechnet
-                     */
-                    $price = ls_div(ls_mul($price, ls_add(100, $steuersatz)), 100);
-                    break;
+        if (!ls_shop_generalHelper::checkVATID() && $steuersatz > 0) {
+            if ($GLOBALS['TL_CONFIG']['ls_shop_priceType'] != $outputPriceType) {
+                switch ($GLOBALS['TL_CONFIG']['ls_shop_priceType']) {
+                    case 'netto':
+                        /*
+                         * Preise sind netto hinterlegt und sollen brutto ausgegeben werden.
+                         * Daher wird die Umsatzsteuer hinzugerechnet
+                         */
+                        $price = ls_div(ls_mul($price, ls_add(100, $steuersatz)), 100);
+                        break;
 
-                case 'brutto':
-                    /*
-                     * Preise sind brutto hinterlegt und sollen netto ausgegeben werden.
-                     * Daher wird die Umsatzsteuer herausgerechnet
-                     */
-                    $price = ls_mul(ls_div($price, ls_add(100, $steuersatz)), 100);
-                    break;
+                    case 'brutto':
+                        /*
+                         * Preise sind brutto hinterlegt und sollen netto ausgegeben werden.
+                         * Daher wird die Umsatzsteuer herausgerechnet
+                         */
+                        $price = ls_mul(ls_div($price, ls_add(100, $steuersatz)), 100);
+                        break;
+                }
+            }
+        } else {
+            if ($GLOBALS['TL_CONFIG']['ls_shop_priceType'] == 'brutto') {
+                $price = ls_mul(ls_div($price, ls_add(100, $steuersatz ?: $steuersatzShopCountry)), 100);
             }
         }
+
 
         /*
          * Der zurückzugebende Preis wird hier bereits auf die für die Anzeige benötigten
