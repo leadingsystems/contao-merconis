@@ -258,6 +258,46 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'search'		=> true
 		),
 
+        'searchVariantKeywords' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['searchVariantKeywords'],
+            'exclude' => true,
+            'inputType'               => 'textarea',
+            'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
+            'search'		=> true
+        ),
+
+        'searchVariantDescriptions' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['searchVariantDescriptions'],
+            'exclude' => true,
+            'inputType'               => 'textarea',
+            'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
+            'search'		=> true
+        ),
+
+        'searchVariantTitles' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['searchVariantTitles'],
+            'exclude' => true,
+            'inputType'               => 'textarea',
+            'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
+            'search'		=> true
+        ),
+
+        'searchAttributeValuesVariants' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['searchAttributeValuesVariants'],
+            'exclude' => true,
+            'inputType'               => 'textarea',
+            'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
+            'search'		=> true
+        ),
+
+        'searchAttributeValues' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['searchAttributeValues'],
+            'exclude' => true,
+            'inputType'               => 'textarea',
+            'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
+            'search'		=> true
+        ),
+
 		'keywords' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords'],
 			'exclude' => true,
