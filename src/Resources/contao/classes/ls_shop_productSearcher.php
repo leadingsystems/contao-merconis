@@ -446,34 +446,19 @@ class ls_shop_productSearcher
             $objProductVariants = $objProductVariants->execute($product['id']);
             $objProductVariants = $objProductVariants->fetchAllAssoc();
 
-            $variantTitle = "";
-            $variantKeywords = "";
-            $variantDescription = "";
-            $searchAttributeValuesVariants = "";
+
+            $arrSearchAttributeValuesVariants = array();
+
+            $variantTitle = implode(' ', array_unique(array_column($objProductVariants, 'title_de')));
+            $variantKeywords = implode(' ', array_unique(array_column($objProductVariants, 'keywords_de')));
+            $variantDescription = implode(' ', array_unique(array_column($objProductVariants, 'description_de')));
 
             foreach ($objProductVariants as $variant){
-
-                if ($variant === array_key_first($objProductVariants)) {
-                    $variantTitle = $variant['title_de'];
-                    $variantKeywords = $variant['keywords_de'];
-                    $variantDescription = $variant['description_de'];
-                }else{
-                    $variantTitle = $variantTitle." ".$variant['title_de'];
-                    $variantKeywords = $variantKeywords." ".$variant['keywords_de'];
-                    $variantDescription = $variantDescription." ".$variant['keywords_de'];
-                }
-
 
                 $array = json_decode($variant['lsShopProductVariantAttributesValues']);
 
                 foreach ($array as $number){
 
-                    $objProducts = \Database::getInstance()->prepare("
-                        SELECT			title_de
-                        FROM			`tl_ls_shop_attributes`
-                        WHERE           id=?
-                    ")->execute($number[0]);
-                    $objProducts = $objProducts->fetchAllAssoc();
 
                     $objProducts = \Database::getInstance()->prepare("
                         SELECT			title_de
@@ -482,26 +467,17 @@ class ls_shop_productSearcher
                     ")->execute($number[1]);
                     $objProducts = $objProducts->fetchAllAssoc();
 
-                    if ($number === array_key_first($array)) {
-                        $searchAttributeValuesVariants = $searchAttributeValuesVariants[0]['title_de'];
-                    }else{
-                        $searchAttributeValuesVariants = $searchAttributeValuesVariants." ".$objProducts[0]['title_de'];
-                    }
+                    array_push($arrSearchAttributeValuesVariants, $objProducts[0]['title_de']);
+
                 }
             }
+            $searchAttributeValuesVariants = implode(' ', array_unique($arrSearchAttributeValuesVariants));
 
             $array = json_decode($product['lsShopProductAttributesValues']);
 
             $searchAttributeValues = "";
 
             foreach ($array as $number){
-
-                $objProducts = \Database::getInstance()->prepare("
-                        SELECT			title_de
-                        FROM			`tl_ls_shop_attributes`
-                        WHERE           id=?
-                    ")->execute($number[0]);
-                $objProducts = $objProducts->fetchAllAssoc();
 
                 $objProducts = \Database::getInstance()->prepare("
                         SELECT			title_de
@@ -684,58 +660,58 @@ class ls_shop_productSearcher
                         $arr_searchResultWeighting = array(
                             'wholeSearchStringMatches' => array(
                                 'wholeFieldMatches' => array(
-                                    'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] ?: 300,
-                                    'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] ?: 200,
-                                    'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_shortDescription'] ?: 200,
-                                    'searchVariantKeywords' => 200,
-                                    'searchVariantDescriptions' => 200,
-                                    'searchVariantTitles' => 200,
-                                    'searchAttributeValuesVariants' => 200,
-                                    'searchAttributeValues' => 200,
-                                    'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_description'] ?: 200,
-                                    'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_productCode'] ?: 200,
-                                    'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_producer'] ?: 200
+                                    'title' =>                          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] ?: 300,
+                                    'keywords' =>                       $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] ?: 200,
+                                    'shortDescription' =>               $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_shortDescription'] ?: 200,
+                                    'searchVariantKeywords' =>          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchVariantKeywords'] ?: 200,
+                                    'searchVariantDescriptions' =>      $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchVariantDescriptions'] ?: 200,
+                                    'searchVariantTitles' =>            $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchVariantTitles'] ?: 200,
+                                    'searchAttributeValuesVariants' =>  $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchAttributeValuesVariants'] ?: 200,
+                                    'searchAttributeValues' =>          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchAttributeValues'] ?: 200,
+                                    'description' =>                    $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_description'] ?: 200,
+                                    'productCode' =>                    $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_productCode'] ?: 200,
+                                    'producer' =>                       $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_producer'] ?: 200
                                 ),
                                 'partOfFieldMatches' => array(
-                                    'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_title'] ?: 30,
-                                    'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_keywords'] ?: 20,
-                                    'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_shortDescription'] ?: 20,
-                                    'searchVariantKeywords' => 20,
-                                    'searchVariantDescriptions' => 20,
-                                    'searchVariantTitles' => 20,
-                                    'searchAttributeValuesVariants' => 20,
-                                    'searchAttributeValues' => 20,
-                                    'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_description'] ?: 20,
-                                    'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_productCode'] ?: 20,
-                                    'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_producer'] ?: 20
+                                    'title' =>                          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_title'] ?: 30,
+                                    'keywords' =>                       $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_keywords'] ?: 20,
+                                    'shortDescription' =>               $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_shortDescription'] ?: 20,
+                                    'searchVariantKeywords' =>          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchVariantKeywords'] ?: 20,
+                                    'searchVariantDescriptions' =>      $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchVariantDescriptions'] ?: 20,
+                                    'searchVariantTitles' =>            $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchVariantTitles'] ?: 20,
+                                    'searchAttributeValuesVariants' =>  $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchAttributeValuesVariants'] ?: 20,
+                                    'searchAttributeValues' =>          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchAttributeValues'] ?: 20,
+                                    'description' =>                    $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_description'] ?: 20,
+                                    'productCode' =>                    $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_productCode'] ?: 20,
+                                    'producer' =>                       $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_producer'] ?: 20
                                 )
                             ),
                             'partOfSearchStringMatches' => array(
                                 'wholeFieldMatches' => array(
-                                    'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_title'] ?: 30,
-                                    'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_keywords'] ?: 10,
-                                    'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_shortDescription'] ?: 10,
-                                    'searchVariantKeywords' => 10,
-                                    'searchVariantDescriptions' => 10,
-                                    'searchVariantTitles' => 10,
-                                    'searchAttributeValuesVariants' => 10,
-                                    'searchAttributeValues' => 10,
-                                    'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_description'] ?: 10,
-                                    'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_productCode'] ?: 20,
-                                    'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_producer'] ?: 20
+                                    'title' =>                          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_title'] ?: 30,
+                                    'keywords' =>                       $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_keywords'] ?: 10,
+                                    'shortDescription' =>               $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_shortDescription'] ?: 10,
+                                    'searchVariantKeywords' =>          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchVariantKeywords'] ?: 10,
+                                    'searchVariantDescriptions' =>      $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchVariantDescriptions'] ?: 10,
+                                    'searchVariantTitles' =>            $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchVariantTitles'] ?: 10,
+                                    'searchAttributeValuesVariants' =>  $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchAttributeValuesVariants'] ?: 10,
+                                    'searchAttributeValues' =>          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchAttributeValues'] ?: 10,
+                                    'description' =>                    $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_description'] ?: 10,
+                                    'productCode' =>                    $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_productCode'] ?: 20,
+                                    'producer' =>                       $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_producer'] ?: 20
                                 ),
                                 'partOfFieldMatches' => array(
-                                    'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_title'] ?: 3,
-                                    'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_keywords'] ?: 1,
-                                    'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_shortDescription'] ?: 1,
-                                    'searchVariantKeywords' => 1,
-                                    'searchVariantDescriptions' => 1,
-                                    'searchVariantTitles' => 1,
-                                    'searchAttributeValuesVariants' => 1,
-                                    'searchAttributeValues' => 1,
-                                    'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_description'] ?: 1,
-                                    'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_productCode'] ?: 2,
-                                    'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer'] ?: 2
+                                    'title' =>                          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_title'] ?: 3,
+                                    'keywords' =>                       $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_keywords'] ?: 1,
+                                    'shortDescription' =>               $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_shortDescription'] ?: 1,
+                                    'searchVariantKeywords' =>          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchVariantKeywords'] ?: 1,
+                                    'searchVariantDescriptions' =>      $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchVariantDescriptions'] ?: 1,
+                                    'searchVariantTitles' =>            $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchVariantTitles'] ?: 1,
+                                    'searchAttributeValuesVariants' =>  $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchAttributeValuesVariants'] ?: 1,
+                                    'searchAttributeValues' =>          $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchAttributeValues'] ?: 1,
+                                    'description' =>                    $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_description'] ?: 1,
+                                    'productCode' =>                    $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_productCode'] ?: 2,
+                                    'producer' =>                       $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer'] ?: 2
                                 )
                             )
                         );
