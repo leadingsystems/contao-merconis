@@ -100,6 +100,11 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] = array('Produktbezeichnung: Ganzer Suchtext entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] = array('Schlüsselwörter: Ganzer Suchtext entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_shortDescription'] = array('Kurzbeschreibung: Ganzer Suchtext entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchVariantKeywords'] = array('Suche-Varianten Schlüsselwörter: Ganzer Suchtext entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchVariantDescriptions'] = array('Suche-Varianten Beschreibung: Ganzer Suchtext entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchVariantTitles'] = array('Suche-Varianten Titel: Ganzer Suchtext entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchAttributeValuesVariants'] = array('Suche-Varianten Attribute: Ganzer Suchtext entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_searchAttributeValues'] = array('Suche-Attribute: Ganzer Suchtext entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_description'] = array('Beschreibung: Ganzer Suchtext entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_productCode'] = array('Artikelnummer: Ganzer Suchtext entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_producer'] = array('Hersteller: Ganzer Suchtext entspricht komplettem Feldwert');
@@ -107,6 +112,11 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_title'] = array('Produktbezeichnung: Ganzer Suchtext in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_keywords'] = array('Schlüsselwörter: Ganzer Suchtext in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_shortDescription'] = array('Kurzbeschreibung: Ganzer Suchtext in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchVariantKeywords'] = array('Suche-Varianten Schlüsselwörter: Ganzer Suchtext in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchVariantDescriptions'] = array('Suche-Varianten Beschreibung: Ganzer Suchtext in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchVariantTitles'] = array('Suche-Varianten Titel: Ganzer Suchtext in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchAttributeValuesVariants'] = array('Suche-Varianten Attribute: Ganzer Suchtext in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_searchAttributeValues'] = array('Suche-Attribute: Ganzer Suchtext in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_description'] = array('Beschreibung: Ganzer Suchtext in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_productCode'] = array('Artikelnummer: Ganzer Suchtext in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_producer'] = array('Hersteller: Ganzer Suchtext in Feldwert enthalten');
@@ -114,6 +124,11 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_title'] = array('Produktbezeichnung: Einzelner Suchbegriff entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_keywords'] = array('Schlüsselwörter: Einzelner Suchbegriff entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_shortDescription'] = array('Kurzbeschreibung: Einzelner Suchbegriff entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchVariantKeywords'] = array('Suche-Varianten Schlüsselwörter: Einzelner Suchbegriff entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchVariantDescriptions'] = array('Suche-Varianten Beschreibung: Einzelner Suchbegriff entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchVariantTitles'] = array('Suche-Varianten Titel: Einzelner Suchbegriff entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchAttributeValuesVariants'] = array('Suche-Varianten Attribute: Einzelner Suchbegriff entspricht komplettem Feldwert');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_searchAttributeValues'] = array('Suche-Attribute: Einzelner Suchbegriff entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_description'] = array('Beschreibung: Einzelner Suchbegriff entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_productCode'] = array('Artikelnummer: Einzelner Suchbegriff entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_producer'] = array('Hersteller: Einzelner Suchbegriff entspricht komplettem Feldwert');
@@ -121,6 +136,11 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_title'] = array('Produktbezeichnung: Einzelner Suchbegriff in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_keywords'] = array('Schlüsselwörter: Einzelner Suchbegriff in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_shortDescription'] = array('Kurzbeschreibung: Einzelner Suchbegriff in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchVariantKeywords'] = array('Suche-Varianten Schlüsselwörter: Einzelner Suchbegriff in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchVariantDescriptions'] = array('Suche-Varianten Beschreibung: Einzelner Suchbegriff in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchVariantTitles'] = array('Suche-Varianten Titel: Einzelner Suchbegriff in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchAttributeValuesVariants'] = array('Suche-Varianten Attribute: Einzelner Suchbegriff in Feldwert enthalten');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_searchAttributeValues'] = array('Suche-Attribute: Einzelner Suchbegriff in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_description'] = array('Beschreibung: Einzelner Suchbegriff in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_productCode'] = array('Artikelnummer: Einzelner Suchbegriff in Feldwert enthalten');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer'] = array('Hersteller: Einzelner Suchbegriff in Feldwert enthalten');
