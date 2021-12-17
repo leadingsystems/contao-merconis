@@ -1,6 +1,8 @@
 <?php
 
 namespace Merconis\Core;
+use Doctrine\DBAL\Exception\InvalidFieldNameException;
+use Http\Client\Exception;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 
 class ls_shop_productSearcher
@@ -421,95 +423,10 @@ class ls_shop_productSearcher
         return $blnValid;
     }
 
+
+
+
     protected function ls_performSearch() {
-
-        //aktualisieren von Datenbank suchfelder anfang
-
-        $objProducts = \Database::getInstance()->prepare("
-			SELECT			id, lsShopProductAttributesValues
-			FROM			`tl_ls_shop_product`
-		");
-
-        $objProducts = $objProducts->execute();
-        $arrProducts = $objProducts->fetchAllAssoc();
-
-
-        //alle Varianten des Produktes
-        foreach ($arrProducts as $product){
-
-            $objProductVariants = \Database::getInstance()->prepare("
-			    SELECT			title_de, keywords_de, description_de, lsShopProductVariantAttributesValues
-			    FROM			`tl_ls_shop_variant`
-                WHERE pid=?
-		    ");
-
-            $objProductVariants = $objProductVariants->execute($product['id']);
-            $objProductVariants = $objProductVariants->fetchAllAssoc();
-
-
-            $arrSearchAttributeValuesVariants = array();
-
-            $variantTitle = implode(' ', array_unique(array_column($objProductVariants, 'title_de')));
-            $variantKeywords = implode(' ', array_unique(array_column($objProductVariants, 'keywords_de')));
-            $variantDescription = implode(' ', array_unique(array_column($objProductVariants, 'description_de')));
-
-            foreach ($objProductVariants as $variant){
-
-                $array = json_decode($variant['lsShopProductVariantAttributesValues']);
-
-                foreach ($array as $number){
-
-
-                    $objProducts = \Database::getInstance()->prepare("
-                        SELECT			title_de
-                        FROM			`tl_ls_shop_attribute_values`
-                        WHERE           id=?
-                    ")->execute($number[1]);
-                    $objProducts = $objProducts->fetchAllAssoc();
-
-                    array_push($arrSearchAttributeValuesVariants, $objProducts[0]['title_de']);
-
-                }
-            }
-            $searchAttributeValuesVariants = implode(' ', array_unique($arrSearchAttributeValuesVariants));
-
-            $array = json_decode($product['lsShopProductAttributesValues']);
-
-            $searchAttributeValues = "";
-
-            foreach ($array as $number){
-
-                $objProducts = \Database::getInstance()->prepare("
-                        SELECT			title_de
-                        FROM			`tl_ls_shop_attribute_values`
-                        WHERE           id=?
-                    ")->execute($number[1]);
-                $objProducts = $objProducts->fetchAllAssoc();
-
-                if ($number === array_key_first($array)) {
-                    $searchAttributeValues = $searchAttributeValues[0]['title_de'];
-                }else{
-                    $searchAttributeValues = $searchAttributeValues." ".$objProducts[0]['title_de'];
-                }
-
-            }
-
-            \Database::getInstance()->prepare("
-                UPDATE `tl_ls_shop_product`
-                SET `searchVariantTitles_de` = ?,
-                    `searchVariantKeywords_de` = ?,
-                    `searchVariantDescriptions_de` = ?,
-                    `searchAttributeValuesVariants_de` = ?,
-                    `searchAttributeValues_de` = ?
-                WHERE id = ?;
-            ")->execute($variantTitle, $variantKeywords, $variantDescription, $searchAttributeValuesVariants, $searchAttributeValues, $product['id']);
-
-        }
-
-        //aktualisieren von Datenbank suchfelder ende
-
-
-
 
 
         /*
