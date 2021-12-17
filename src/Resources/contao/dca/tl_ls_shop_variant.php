@@ -308,7 +308,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true)
 		),
 
-        'keywords_de' => array(
+        'keywords' => array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['searchAttributeValues'],
             'exclude' => true,
             'inputType'               => 'textarea',
