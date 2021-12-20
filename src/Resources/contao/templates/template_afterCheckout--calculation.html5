@@ -27,7 +27,7 @@
                     }
                     ?>
                     <div class="field info">
-                        <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID)) . ' %'; ?></div>
+                        <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID), 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator'])).' %'; ?></div>
                         <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($arrTaxInfo['amountTaxedHerewith']); ?></div>
                     </div>
                     <?php
@@ -133,7 +133,7 @@
                     }
                     ?>
                     <div class="field info">
-                        <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID)).' %'; ?></div>
+                        <div class="field-label"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText027'], \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_generalHelper::getCurrentTax($taxClassID), 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator'])).' %'; ?></div>
                         <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($arrTaxInfo['amountTaxedHerewith']); ?></div>
                     </div>
                     <?php
