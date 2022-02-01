@@ -470,7 +470,7 @@ class ls_shop_productSearcher
         /* ############################
          * Erstellung der Where-Bedingungen
          */
-        if (!$this->bln_ignoreGroupRestrictions) {
+        if (!$this->bln_ignoreGroupRestrictions && TL_MODE === 'FE') {
             $searchCondition = "
                 (
                     `useGroupRestrictions` != '1'
