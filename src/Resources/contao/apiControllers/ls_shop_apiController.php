@@ -132,8 +132,9 @@ class ls_shop_apiController {
      * Please note that not every return value can be json encoded and therefore not
      * every return value can be successfully read with an api call.
      *
-     * 31.01.2022, alle Variablen mit der Methode (get/post) holen, mit der die erste Variable geholt worden ist und
-     *  Rückumwandlung von HTML-Entities
+     * 31.01.2022, 1. alle Variablen mit der Methode (get/post) holen, mit der die erste Variable geholt worden ist und
+     *  2. Rückumwandlung von HTML-Entities
+     *  3. parameters vor Übergabe an Methode in eigenes Array (da oberster Key verloren geht)
 	 */
 	protected function apiResource_callConfiguratorCustomLogicMethodForProduct() {
 
@@ -176,10 +177,10 @@ class ls_shop_apiController {
 
 
         //1. NUR DAS EINE ZEICHEN
-        $str_inputParameters = str_replace('&#125;','}', $str_inputParameters);
+        //$str_inputParameters = str_replace('&#125;','}', $str_inputParameters);
 
         //2. VOLLSTÄNDIG
-        //$str_inputParameters = html_entity_decode($str_inputParameters);
+        $str_inputParameters = html_entity_decode($str_inputParameters);
 
 
         $arr_parameters = json_decode($str_inputParameters, true);
@@ -203,7 +204,7 @@ class ls_shop_apiController {
         }
 
         //$var_return = call_user_func_array(array($obj_configurator->objCustomLogic, \Input::get('method')), $arr_parameters);
-        $var_return = call_user_func_array(array($obj_configurator->objCustomLogic, \Input::{$str_getOrPost}('method')), $arr_parameters);
+        $var_return = call_user_func_array(array($obj_configurator->objCustomLogic, \Input::{$str_getOrPost}('method')), array($arr_parameters));
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($var_return);
