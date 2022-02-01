@@ -1950,13 +1950,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
         foreach ($arrAllAttributesAndValues as $arrAttributeValue) {
             uasort($arrAllAttributesAndValues[$arrAttributeValue['attributeID']]['values'],
                 function (array $a, array $b) {
-                    if ($a['valueSorting'] < $b['valueSorting']) {
-                        return -1;
-                    } else if ($a['valueSorting'] > $b['valueSorting']) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
+                    return $a['valueSorting'] <=> $b['valueSorting'];
                 }
 
             );
