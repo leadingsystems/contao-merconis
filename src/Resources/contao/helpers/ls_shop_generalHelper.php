@@ -2001,7 +2001,8 @@ class ls_shop_generalHelper
                     'attributeAlias' => $productAttributes[$arrProductAttributeValue[0]]['alias'],
                     'valueID' => $arrProductAttributeValue[1],
                     'valueTitle' => $productAttributeValues[$arrProductAttributeValue[1]]['title'],
-                    'valueAlias' => $productAttributeValues[$arrProductAttributeValue[1]]['alias']
+                    'valueAlias' => $productAttributeValues[$arrProductAttributeValue[1]]['alias'],
+                    'valueSorting' => $productAttributeValues[$arrProductAttributeValue[1]]['sorting']
                 );
             }
         }
