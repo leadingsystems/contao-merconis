@@ -1488,6 +1488,28 @@ filter context, NULL will be returned.
 	public function __call($what, $args) {
 		switch ($what) {
 			/* ## START AUTO DOCUMENTATION METHODS PRODUCT ## */
+            case '_getProductImages':
+
+                //$gallery = $this->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
+                dump("hier");
+                if (!is_array($arrOverlays)) {
+                    $arrOverlays = array();
+                }
+                if ($this->_isNew) {
+                    if (!in_array('isNew', $arrOverlays)) {
+                        $arrOverlays[] = 'isNew';
+                    }
+                }
+                if ($this->_isOnSale) {
+                    if (!in_array('isOnSale', $arrOverlays)) {
+                        $arrOverlays[] = 'isOnSale';
+                    }
+                }
+                return new ls_shop_moreImagesGallery($mainImage, $moreImages, $currentProductVariantID, $moreImagesSortBy, $sizeMainImage, $sizeMoreImages, $moreImagesMargin, $imagesFullsize, $strTemplate, $additionalClass, $arrOverlays, $ls_imageLimit);
+
+                break;
+
+            //TODO remove createGallery
 			case '_createGallery'
 				/* ## DESCRIPTION:
 use like this:
@@ -1504,10 +1526,17 @@ array(), <span class="comment">// array containing names of additional overlay e
 );
 				 */
 				:
+
+                dump($this->_mainImageUnprocessed); //ausgewähltes main img link
+				dump($this->_moreImagesUnprocessed); //array mit lings für weite bilder oder videos usw
+				dump($this->ls_currentProductVariantID); //produkt id
+				dump($args);
+
 				$args = ls_shop_generalHelper::setArrayLength($args, 8);
 				$args[3] = is_array($args[3]) ? serialize($args[3]): $args[3];
 				$args[7] = is_array($args[7]) ? serialize($args[7]): $args[7];
 				return $this->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
+
 				break;
 
 			case '_selectVariant'

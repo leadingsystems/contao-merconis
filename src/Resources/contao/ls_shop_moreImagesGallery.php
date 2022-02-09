@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 class ls_shop_moreImagesGallery extends \Frontend {
 	protected $strTemplate = 'template_productGallery_01';
 	
@@ -22,6 +24,10 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	protected $ls_images = array(); // the array holding the processed images
 	
 	protected $sortingRandomizer = 0;
+
+
+	//ort für die processed images
+    protected $images = array();
 	
 	public function __construct($mainImage = false, $multiSRC = array(), $id = false, $ls_moreImagesSortBy = false, $ls_sizeMainImage = false, $ls_sizeMoreImages = false, $ls_moreImagesMargin = false, $ls_imagesFullsize = false, $strTemplate = '', $additionalClass = '', $arrOverlays = array(), $ls_imageLimit = 0) {
 		parent::__construct();
@@ -106,9 +112,12 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		$this->Template->additionalClass = $additionalClass;
 	}
 
+	public function getImages(){
+	    return $this->images;
+    }
+
 	public function parse() {
 		$arrImages = array();
-		
 		foreach ($this->ls_sizeMainImage as $k => $arrSizeMainImage) {
 			$arrSizeMoreImages = $this->ls_sizeMoreImages[$k];
 			
@@ -116,7 +125,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 			 * The function 'getProcessedImages()' uses the contao function 'addImageToTemplate()' which needs the
 			 * size arrays to be serialized.
 			 */
-			$arrImages[] = $this->lsShopGetProcessedImages(serialize($arrSizeMainImage), serialize($arrSizeMoreImages));
+			$this->images = $this->lsShopGetProcessedImages(serialize($arrSizeMainImage), serialize($arrSizeMoreImages));
 		}
 		
 		/*
@@ -127,9 +136,10 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		if (count($arrImages) == 1) {
 			$arrImages = $arrImages[0];
 		}
-		
-		$this->Template->images = $arrImages;
-		return $this->Template->parse();
+
+		return $this;
+		//$this->Template->images = $arrImages;
+		//return $this->Template->parse();
 	}
 	
 	public function imagesSortedAndWithVideoCovers() {
@@ -165,7 +175,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 				}
 			}
 		}
-				
+
 		/*
 		 * If a main image has been defined explicitly we remove it from the images array
 		 * temporarily because we don't want it to be sorted somewhere but to stay on top
@@ -224,62 +234,47 @@ class ls_shop_moreImagesGallery extends \Frontend {
 			$this->ls_images = array_slice($this->ls_images, 0, $this->ls_imageLimit);
 		}
 	}
-	
+
+	//TODO verarbeite Image
 	public function lsShopGetProcessedImages($sizeMainImage, $sizeMoreImages) {
 		$this->getImagesSortedAndWithVideoCovers();
-		
-		$mainImageSize = deserialize($sizeMainImage);
-		$intMaxWidth = $mainImageSize[0];
-		$strLightboxId = 'lightbox[lb' . $this->id . ']';
-		
+
 		$arrGalleryImages = array();
 		foreach ($this->ls_images as $imageKey => $imageValue) {
-			/*
-			 * Add the size array for the main image if the key is 0, because that's the main image.
-			 * If no main image has been given explicitly, the image on first position (which could even be
-			 * random based on the sorting) is still handled and displayed as the main image. 
-			 */ 
-			$this->ls_images[$imageKey]['size'] = $imageKey == 0 ? $sizeMainImage : $sizeMoreImages;
-			
-			// add the image margin
-			$this->ls_images[$imageKey]['imagemargin'] = $this->ls_moreImagesMargin;
-			
-			/*
-			 * Add the flag to indicate if the image should be displayed fullsize
-			 * FIXME: Maybe this should always be true if the image is a video because
-			 * otherwise the actual video would never be displayed but only the cover image?
-			 */
+
+
 			$this->ls_images[$imageKey]['fullsize'] =  $this->ls_imagesFullsize;
-			
+
 			$objCell = new \stdClass();
-			
+
 			/*
 			 * Add the image to the objCell standard object using the contao function
 			 */
-			$this->addImageToTemplate($objCell, $this->ls_images[$imageKey], $intMaxWidth, $strLightboxId);
-			
+			//$this->addImageToTemplate($objCell, $this->ls_images[$imageKey], $intMaxWidth, $strLightboxId);
+
+            $container = System::getContainer();
+            $projectDir = $container->getParameter('kernel.project_dir');
+
+            //Todo change Size
+            $size = array(800,533);
+
+            //dump($imageValue);
+            $picture = $container->get('contao.image.picture_factory')->create($projectDir . '/' . $imageValue['singleSRC'], $size);
+            $staticUrl = $container->get('contao.assets.files_context')->getStaticUrl();
+
+            $objCell->img =  $picture->getImg($projectDir, $staticUrl);
+
+            $objCell->href = $imageValue['singleSRC'];
+            $objCell->singleSRC = $objCell->img['src'];
 			/*
-			 * Override the href value if an originalSRC is given. This way a cover image can link to a video file.
-			 */
-			if ($imageValue['originalSRC']) {
-				$objCell->href = $imageValue['originalSRC'];
-			}
-			
-			/*
-			 * Set the singleSRC as the href if the addImageToTemplate function should not have set it (for whatever reason)
-			 */
-			if (!$objCell->href) {
-				$objCell->href = $imageValue['singleSRC'];
-			}
-			
-			/*
-			 * Set the overlay image array for this image
+			 * Set the overlay image array for this image -> onSale, new
 			 */
 			$objCell->arrOverlays = is_array($imageValue['arrOverlays']) ? $imageValue['arrOverlays'] : array();
 			
 			/*
 			 * Finally, add the image object to the gallery images array which will be returned
 			 */
+            dump($arrGalleryImages);
 			$arrGalleryImages[] = $objCell;
 		}
 		return $arrGalleryImages;

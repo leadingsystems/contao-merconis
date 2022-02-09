@@ -14,7 +14,8 @@ if ($obj_tmp_productOrVariant !== null) {
 	?>
 	<div class="galleryContainer lsNavtabGalleryProductDetails">
 		<?php
-		echo $obj_tmp_productOrVariant->_createGallery(
+        //$obj_tmp_productOrVariant->_getProductImages());
+        $objImages = $obj_tmp_productOrVariant->_createGallery(
 			false, // image sorting, possible values: 'name_asc', 'name_desc', 'date_asc', 'date_desc', 'meta', 'random' or false if the standard sorting should be used
 			array(
 				array(160, 160, 'box'),
@@ -29,7 +30,30 @@ if ($obj_tmp_productOrVariant !== null) {
 			'', // name of a gallery template file (optional, defaults to 'template_productGallery_01')
 			($this->objProduct->_isNew ? 'isNew' : '').($this->objProduct->_isNew && $this->objProduct->_isOnSale ? ' ' : '').($this->objProduct->_isOnSale ? 'isOnSale' : '') // additional class names
 		);
+
+        dump($objImages);
 		?>
+
+        <?php
+        dump($objImages->getImages());
+        foreach($objImages->getImages() as $image) {
+            dump($image); //$image->img['src']
+            ?>
+
+            <div class="imageContainer">
+                <?php if ($image->href) { ?>
+                    <a class="lsjs-image-zoomer lsjs-image-zoomer-applied" href="<?= $image->href ?>" title="">
+                        <img class="productImage" src="<?= $image->singleSRC ?>" alt="">
+                    </a>
+                <?php } else { ?>
+                    <img class="productImage" src="<?= $image->singleSRC ?>" alt="">
+                <?php } ?>
+            </div>
+            <?php
+        }
+
+        ?>
+
 	</div>
 	<?php
 }

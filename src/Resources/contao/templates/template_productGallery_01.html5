@@ -4,9 +4,12 @@ if (is_array($this->images[1])) {
         ?>
         <div class="imageContainer">
             <?php if ($image->href) { ?>
-                <a class="lsjs-image-zoomer" href="<?php echo $image->href; ?>"<?php echo str_replace('data-lightbox', 'data-lightbox-deactivated', $image->attributes); ?> title="<?php echo $image->alt; ?>"><img class="productImage<?php echo is_array($image->arrOverlays) && in_array('isVideo', $image->arrOverlays) ? ' isVideo' : ''; ?>" src="<?php echo $image->src; ?>"<?php echo $image->imgSize; ?> alt="<?php echo $image->alt; ?>" /></a>
+                <?php //TODO href einfügen ?>
+                <a class="lsjs-image-zoomer lsjs-image-zoomer-applied" href="files/merconisfiles/themes/theme10/productImages/bst-001-0_03.jpg" title="">
+                    <img class="productImage" src="assets/images/c/bst-001-0_03-eb375e99.jpg" width="800" height="533" alt="">
+                </a>
             <?php } else { ?>
-                <img class="productImage<?php echo is_array($image->arrOverlays) && in_array('isVideo', $image->arrOverlays) ? ' isVideo' : ''; ?>" src="<?php echo $image->src; ?>"<?php echo $image->imgSize; ?> alt="<?php echo $image->alt; ?>" />
+                <img class="productImage" src="assets/images/c/bst-001-0_03-eb375e99.jpg" width="800" height="533" alt="">
             <?php } ?>
         </div>
         <?php
