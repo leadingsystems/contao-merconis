@@ -1128,7 +1128,7 @@ array(), <span class="comment">// array containing names of additional overlay e
 				$args[3] = is_array($args[3]) ? serialize($args[3]): $args[3];
 				$args[7] = is_array($args[7]) ? serialize($args[7]): $args[7];
 
-
+                dump("_createGallery in variant");
 
 				return $this->_objParentProduct->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_productVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
 				break;

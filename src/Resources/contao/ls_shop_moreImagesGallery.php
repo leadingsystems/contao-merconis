@@ -19,7 +19,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	
 	protected $originalSRC = false;
 	
-	protected $arrOverlays = '';
+	protected $arrOverlays = array();
 	
 	protected $ls_images = array(); // the array holding the processed images
 	
@@ -29,8 +29,18 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	//ort für die processed images
     protected $images = array();
 	
-	public function __construct($mainImage = false, $multiSRC = array(), $id = false, $ls_moreImagesSortBy = false, $ls_sizeMainImage = false, $ls_sizeMoreImages = false, $ls_moreImagesMargin = false, $ls_imagesFullsize = false, $strTemplate = '', $additionalClass = '', $arrOverlays = array(), $ls_imageLimit = 0) {
+	public function __construct($mainImage = false, $multiSRC = array(), $id = false, $arrOverlays = array(), $product = false) {
 		parent::__construct();
+
+
+        if ($product->_isNew) {
+            $arrOverlays[] = 'isNew';
+
+        }
+        if ($product->_isOnSale) {
+            $arrOverlays[] = 'isOnSale';
+        }
+
 		if ($strTemplate) {
 			$this->strTemplate = $strTemplate;
 		}
