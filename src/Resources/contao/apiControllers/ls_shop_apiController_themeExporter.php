@@ -282,6 +282,8 @@ class ls_shop_apiController_themeExporter
             'tl_theme' => array(),
             'tl_news_archive' => array(),
             'tl_news' => array(),
+            'tl_image_size' => array(),
+            'tl_image_size_item' => array(),
         );
 
         foreach ($arrTables as $tableName => $v) {

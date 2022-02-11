@@ -450,6 +450,10 @@ class InstallerController extends \Controller {
 				WHERE		`alias` = ?
 			")
 				->limit(1)
+                /*
+                 * bug: there is no more alias with the entry 'merconis-root-page-main-language'
+                 * fallback will not be removed
+                 */
 				->execute('', 'merconis-root-page-main-language');
 		}
 	}
