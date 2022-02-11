@@ -256,34 +256,6 @@ class InstallerController extends \Controller {
 			}
 		}
 
-		/*
-		 * Check if there are alias conflicts in tl_page
-		 */
-		if (is_array($arrExportTables['tl_page'])) {
-//			$blnAliasConflictInTlPageDetected = false;
-//			foreach ($arrExportTables['tl_page'] as $row) {
-//				$objCheckTlPageRecordWithAlias = \Database::getInstance()->prepare("
-//					SELECT		*
-//					FROM		`tl_page`
-//					WHERE		`alias` = ?
-//				")
-//					->execute($row['alias']);
-//
-//				if ($objCheckTlPageRecordWithAlias->numRows) {
-//					$blnAliasConflictInTlPageDetected = true;
-//
-//					while ($objCheckTlPageRecordWithAlias->next()) {
-//						\System::log('MERCONIS INSTALLER: row in tl_page with id '.$objCheckTlPageRecordWithAlias->id.' already has the alias '.$row['alias'], 'MERCONIS INSTALLER', TL_MERCONIS_ERROR);
-//					}
-//				}
-//			}
-//
-//			if ($blnAliasConflictInTlPageDetected) {
-//				\System::log('MERCONIS INSTALLER: Installation impossible because of an alias conflict in tl_page.', 'MERCONIS INSTALLER', TL_MERCONIS_ERROR);
-//				$blnPossible = false;
-//			}
-		}
-
 		return $blnPossible;
 	}
 
@@ -849,12 +821,18 @@ class InstallerController extends \Controller {
 					 * Preserve all tl_page aliases from the lsShopImportTables, because the export ensures that a domain root entry exists.
 					 */
 					$preserveAlias = true;
-					$row['sorting'] = 9999998;
 				} else if (isset($row['alias']) && strpos($row['alias'], 'merconis') !== false) {
 				    /*
 				     * If the record has an alias containing the string "merconis", we preserve the alias
 				     */
                     $preserveAlias = true;
+                }
+
+                /*
+                 * check if an dns-entry is necessary.
+                 */
+                if(($tableName == 'tl_page') && ($row['type'] == 'root') && ($this->alreadyExistingRootPageID == 0)) {
+                    $row['dns'] = '';
                 }
 
                 $newID = $this->lsShopInsertData($tableName, $row, $preserveID, $preserveAlias);
@@ -1638,4 +1616,19 @@ class InstallerController extends \Controller {
 		}
 		return false;
 	}
+
+    protected function removing_dns($arrImport) {
+//        if($this->ls_getRootPageID() == 0) {
+        if(true) {
+            foreach ($arrImport as $tableName => $rows) {
+                foreach ($rows as $row) {
+                    if(($tableName == 'tl_page') && ($row['type'] == 'root')) {
+                        $row['dns'] == '';
+                        \LeadingSystems\Helpers\lsErrorLog('$arrImport', $arrImport , 'perm');
+                    }
+                }
+            }
+        }
+        return $arrImport;
+    }
 }
