@@ -14,15 +14,10 @@ dump($obj_tmp_productOrVariant);
 if ($obj_tmp_productOrVariant !== null) {
 	?>
 	<div class="galleryContainer lsNavtabGalleryProductDetails">
-		<?php
-
-        //create Gallery from Product Or Variant
-        $objImages = $obj_tmp_productOrVariant->_createGallery();
-
-		?>
 
         <?php
-        foreach($objImages->getImages() as $image) {
+        //create Gallery from Product Or Variant
+        foreach($obj_tmp_productOrVariant->_createGallery()->getImages() as $image) {
             ?>
             <div class="imageContainer">
                 <?php if ($image->href) { ?>
