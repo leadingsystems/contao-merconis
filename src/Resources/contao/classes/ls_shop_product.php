@@ -457,11 +457,13 @@ You can use the method "\Image::get" to get the image in the size you need: \Ima
 				 */
 				 :
                 $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
+				 dump("_mainImage");
                 $allImagesSortedAndWithVideoCovers = $objTmpGallery->imagesSortedAndWithVideoCovers();
                 return isset($allImagesSortedAndWithVideoCovers[0]) && $allImagesSortedAndWithVideoCovers[0] && isset($allImagesSortedAndWithVideoCovers[0]['singleSRC']) && $allImagesSortedAndWithVideoCovers[0]['singleSRC'] ? $allImagesSortedAndWithVideoCovers[0]['singleSRC'] : null;
 				break;
 
 			case '_hasMainImage':
+                dump("_hasMainImage");
 				return $this->_mainImage ? true : false;
 				break;
 
@@ -478,33 +480,36 @@ You can use the method "\Image::get" to get the image in the size you need: \Ima
 you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
+                dump("_moreImages");
 				if (!isset($GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID])) {
 					$arrMoreImages = array();
 					$objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
 					$allImagesSortedAndWithVideoCovers = $objTmpGallery->imagesSortedAndWithVideoCovers();
 					if (!is_array($allImagesSortedAndWithVideoCovers) || count($allImagesSortedAndWithVideoCovers) <= 1) {
+                        dump("123");
+                        dump($arrMoreImages);
 						return $arrMoreImages;
 					}
-
 					$allImagesSortedAndWithVideoCovers = array_slice($allImagesSortedAndWithVideoCovers, 1);
-
 					foreach ($allImagesSortedAndWithVideoCovers as $arrImageData) {
 						if (!isset($arrImageData['singleSRC']) || !$arrImageData['singleSRC']) {
 							continue;
 						}
 						$arrMoreImages[] = $arrImageData['singleSRC'];
 					}
-
 					$GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID] = $arrMoreImages;
 				}
 				return $GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID];
 				break;
 
 			case '_hasMoreImages':
+                dump("_hasMoreImages");
 				return is_array($this->_moreImages) && count($this->_moreImages) ? true : false;
 				break;
 
+
 			case '_hasImages':
+                //TODO remove maybe?
 				return $this->_hasMainImage || $this->_hasMoreImages;
 				break;
 
@@ -1488,6 +1493,7 @@ filter context, NULL will be returned.
 	public function __call($what, $args) {
 		switch ($what) {
 			/* ## START AUTO DOCUMENTATION METHODS PRODUCT ## */
+            /*
             case '_getProductImages':
 
                 //$gallery = $this->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
@@ -1507,7 +1513,7 @@ filter context, NULL will be returned.
                 }
                 return new ls_shop_moreImagesGallery($mainImage, $moreImages, $currentProductVariantID, $moreImagesSortBy, $sizeMainImage, $sizeMoreImages, $moreImagesMargin, $imagesFullsize, $strTemplate, $additionalClass, $arrOverlays, $ls_imageLimit);
 
-                break;
+                break;*/
 
             //TODO remove createGallery
 			case '_createGallery'
@@ -1526,24 +1532,18 @@ array(), <span class="comment">// array containing names of additional overlay e
 );
 				 */
 				:
-
+/*
                 dump($this->_mainImageUnprocessed); //ausgewähltes main img link
 				dump($this->_moreImagesUnprocessed); //array mit lings für weite bilder oder videos usw
 				dump($this->ls_currentProductVariantID); //produkt id
-				dump($args);
+				dump($args);*/
 
-				$args = ls_shop_generalHelper::setArrayLength($args, 8);
-				$args[3] = is_array($args[3]) ? serialize($args[3]): $args[3];
-				$args[7] = is_array($args[7]) ? serialize($args[7]): $args[7];
+				//$args = ls_shop_generalHelper::setArrayLength($args, 8);
+				//$args[3] = is_array($args[3]) ? serialize($args[3]): $args[3];
+				//$args[7] = is_array($args[7]) ? serialize($args[7]): $args[7];
 				//return $this->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
-
-
-
-
+                dump("create Gallery");
                 return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $arrOverlays, $this);
-
-
-
 
 				break;
 

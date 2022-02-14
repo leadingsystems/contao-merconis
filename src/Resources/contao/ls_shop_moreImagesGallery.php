@@ -7,6 +7,7 @@ use Contao\System;
 class ls_shop_moreImagesGallery extends \Frontend {
 	
 	protected $multiSRC = array();
+	protected $mainImageSRC = false;
 	
 	protected $mainImage = false;
 
@@ -32,7 +33,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	//ort für die processed images
     protected $images = array();
 	
-	public function __construct($mainImage = false, $multiSRC = array(), $id = false, $arrOverlays = array(), $product = false) {
+	public function __construct($mainImageSRC = false, $multiSRC = array(), $id = false, $arrOverlays = array(), $product = false) {
 		parent::__construct();
 
         if ($product->_isNew) {
@@ -56,7 +57,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		}
 
 		$this->multiSRC = $multiSRC;
-		$this->mainImage = $mainImage;
+		$this->mainImageSRC = $mainImageSRC;
 		
 		$this->ls_moreImagesSortBy = $GLOBALS['TL_CONFIG']['ls_shop_imageSortingStandardDirection'];
 		
@@ -82,6 +83,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
         //dump("main Image");
 		//dump($this->ls_sizeMainImage);
 
+
         $this->images = $this->lsShopGetProcessedImages();
 
         //dump($this->images);
@@ -103,13 +105,16 @@ class ls_shop_moreImagesGallery extends \Frontend {
         if ($this->mainImage) {
             array_insert($this->multiSRC, 0, $mainImage);
         }*/
+        dump("ls_shop_moreImagesGallery created");
+        dump($this->images);
 	}
 
 	public function getImages(){
 	    return $this->images;
     }
 
-	
+
+    //TODO remove function
 	public function imagesSortedAndWithVideoCovers() {
 		$this->getImagesSortedAndWithVideoCovers();
 		return $this->ls_images;
@@ -120,7 +125,8 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
             // Process single files
             if (is_file(TL_ROOT.'/'.$file)) {
-                $this->processSingleImage($file);
+
+                $this->ls_images[] = $this->processSingleImage($file);
             }
 
             // Process folders (not recursive, only the one given folder!)
@@ -129,7 +135,8 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
                 foreach ($subfiles as $subfile) {
                     $subfileName = $file . '/' . $subfile;
-                    $this->processSingleImage($subfileName);
+
+                    $this->ls_images[] = $this->processSingleImage($subfileName);
                 }
             }
         }
@@ -154,20 +161,19 @@ class ls_shop_moreImagesGallery extends \Frontend {
 			$this->process($file);
 		}
 
-		if($this->mainImage){
+
+
+		if($this->mainImageSRC){
 		    dump($this->mainImage);
-            $this->process($this->mainImage);
-        }else{
-            dump("2");
-            $this->process(\FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path);
+            $this->mainImage = $this->processSingleImage($this->mainImageSRC);
+        }else if(empty($this->multiSRC)){
+            dump("ls_shop_systemImages_noProductImage");
+            $this->mainImage = $this->processSingleImage(\FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path);
         }
 
-		/*
-		 * If a main image has been defined explicitly we remove it from the images array
-		 * temporarily because we don't want it to be sorted somewhere but to stay on top
-		 */
 
-        dump($this->mainImage);
+
+        //dump($this->mainImage);
 
 
         /*
@@ -217,24 +223,28 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * If we have an explicitly given main image and the temporarily saved main image from a few lines above
 		 * we insert this image in the first position of the image array
 		 */
+
+        $arrTemp = $this->ls_images;
+
+        //set mainImage to index 0 on this array
 		if ($this->mainImage) {
-			array_insert($this->ls_images, 0, array($this->mainImage));
+			array_insert($arrTemp, 0, array($this->mainImage));
 		}
 
 		if ($this->ls_imageLimit) {
-			$this->ls_images = array_slice($this->ls_images, 0, $this->ls_imageLimit);
+			$this->ls_images = array_slice($arrTemp, 0, $this->ls_imageLimit);
 		}
-        dump("ende");
-		dump($this->ls_images);
+
+		return($arrTemp);
 	}
 
 	//TODO verarbeite Image
 	public function lsShopGetProcessedImages() {
-        dump($this->ls_images);
+        //dump($this->ls_images);
 
-		$this->getImagesSortedAndWithVideoCovers();
+        $this->ls_images = $this->getImagesSortedAndWithVideoCovers();
 
-        dump($this->ls_images);
+        //dump($this->ls_images);
 		$arrGalleryImages = array();
 		foreach ($this->ls_images as $imageKey => $imageValue) {
 
@@ -274,8 +284,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
             //dump($arrGalleryImages);
 			$arrGalleryImages[] = $objCell;
 		}
-		dump("dumpGallery");
-		dump($arrGalleryImages);
+
 		return $arrGalleryImages;
 	}
 
@@ -341,7 +350,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * the image to the images array
 		 */
 		if ($objFile->isGdImage) {
-			$this->ls_images[isset($this->originalSRC) && $this->originalSRC ? $this->originalSRC : $file] = array (
+		    return array (
 				'name' => $objFile->basename,
 				'originalSRC' => $this->originalSRC,
 				'arrOverlays' => $arrOverlays,

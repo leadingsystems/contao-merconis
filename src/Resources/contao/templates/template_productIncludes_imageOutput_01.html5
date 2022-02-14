@@ -4,42 +4,26 @@
  * we use them to create the gallery. If not, we use the product's images.
  */
 $obj_tmp_productOrVariant = null;
-if ($this->objProduct->_variantIsSelected && $this->objProduct->_selectedVariant->_hasImages) {
+if ($this->objProduct->_variantIsSelected) {
 	$obj_tmp_productOrVariant = &$this->objProduct->_selectedVariant;
-} else if ($this->objProduct->_hasImages) {
+} else {
 	$obj_tmp_productOrVariant = &$this->objProduct;
 }
 
+dump($obj_tmp_productOrVariant);
 if ($obj_tmp_productOrVariant !== null) {
 	?>
 	<div class="galleryContainer lsNavtabGalleryProductDetails">
 		<?php
-        //$obj_tmp_productOrVariant->_getProductImages());
-        $objImages = $obj_tmp_productOrVariant->_createGallery(
-			false, // image sorting, possible values: 'name_asc', 'name_desc', 'date_asc', 'date_desc', 'meta', 'random' or false if the standard sorting should be used
-			array(
-				array(160, 160, 'box'),
-				array(800, 800, 'box')
-			), // sizes of the main image, has to be an array, key 0: width, key 1: height, key 2: scaling method (possible values: 'crop', 'proportional', 'box')
-			array(
-				array(160, 160, 'box'),
-				array(800, 800, 'box')
-			), // size of the other images, has to be an array, key 0: width, key 1: height, key 2: scaling method (possible values: 'crop', 'proportional', 'box')
-			array('bottom' => 0, 'left' => 0, 'right' => 0, 'top' => 0, 'unit' => 'px'), // margins for the images, has to be an array
-			1, // flag indicating whether to open the fullsize image as a lightbox, possible values 0 or 1
-			'', // name of a gallery template file (optional, defaults to 'template_productGallery_01')
-			($this->objProduct->_isNew ? 'isNew' : '').($this->objProduct->_isNew && $this->objProduct->_isOnSale ? ' ' : '').($this->objProduct->_isOnSale ? 'isOnSale' : '') // additional class names
-		);
 
-        dump($objImages);
+        //create Gallery from Product Or Variant
+        $objImages = $obj_tmp_productOrVariant->_createGallery();
+
 		?>
 
         <?php
-        dump($objImages->getImages());
         foreach($objImages->getImages() as $image) {
-            dump($image); //$image->img['src']
             ?>
-
             <div class="imageContainer">
                 <?php if ($image->href) { ?>
                     <a class="lsjs-image-zoomer lsjs-image-zoomer-applied" href="<?= $image->href ?>" title="">
