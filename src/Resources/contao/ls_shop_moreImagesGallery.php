@@ -5,24 +5,27 @@ namespace Merconis\Core;
 use Contao\System;
 
 class ls_shop_moreImagesGallery extends \Frontend {
-	protected $strTemplate = 'template_productGallery_01';
 	
 	protected $multiSRC = array();
 	
 	protected $mainImage = false;
-	
+
+	//TODO einfügen
 	protected $ls_imageLimit = 0;
-	
+
+	//id des products
 	protected $id = false;
 	
 	protected $arrImgSuffixes = array('jpg', 'jpeg', 'JPG', 'JPEG', 'gif', 'GIF', 'png', 'PNG');
 	
 	protected $originalSRC = false;
-	
+
+	//neu, onSale
 	protected $arrOverlays = array();
 	
 	protected $ls_images = array(); // the array holding the processed images
-	
+
+    //?
 	protected $sortingRandomizer = 0;
 
 
@@ -32,130 +35,105 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	public function __construct($mainImage = false, $multiSRC = array(), $id = false, $arrOverlays = array(), $product = false) {
 		parent::__construct();
 
-
         if ($product->_isNew) {
             $arrOverlays[] = 'isNew';
-
         }
         if ($product->_isOnSale) {
             $arrOverlays[] = 'isOnSale';
         }
 
-		if ($strTemplate) {
-			$this->strTemplate = $strTemplate;
-		}
-		
+        //dump($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']);
+        //dump(\FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path);
+/*
+        if($mainImage == false ){
+            $mainImage = \FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path;
+        }
+*/
+
+
 		if (!is_array($multiSRC)) {
 			$multiSRC = array();
 		}
+
 		$this->multiSRC = $multiSRC;
 		$this->mainImage = $mainImage;
-		$this->ls_imageLimit = $ls_imageLimit;
 		
-		$this->ls_moreImagesSortBy = $ls_moreImagesSortBy  ? $ls_moreImagesSortBy : $GLOBALS['TL_CONFIG']['ls_shop_imageSortingStandardDirection'];
+		$this->ls_moreImagesSortBy = $GLOBALS['TL_CONFIG']['ls_shop_imageSortingStandardDirection'];
 		
 		$this->sortingRandomizer = rand(0,99999);
 		
-		/* ###############################################
-		 * Deal with the requested image sizes. Multiple images for multiple sizes can be processed so the information about the requested
-		 * image sizes needs to be an array holding one or more arrays with the width, height and cropping mode.
-		 * 
-		 * example: array(array(50,50,'box'), array(200,200,'box))
-		 * 
-		 * 
-		 */
-		$this->ls_sizeMainImage = is_array($ls_sizeMainImage) && count($ls_sizeMainImage) ? $ls_sizeMainImage : array(200, 200, 'crop');
-		$this->ls_sizeMoreImages = is_array($ls_sizeMoreImages) && count($ls_sizeMoreImages) ? $ls_sizeMoreImages : array(95, 95, 'crop');
-		
-		/*
-		 * Check if the arrays don't have enough dimensions and if so, fix it
-		 */
-		if (!is_array($this->ls_sizeMainImage[0])) {
-			$this->ls_sizeMainImage = array($this->ls_sizeMainImage);
-		}
 
-		if (!is_array($this->ls_sizeMoreImages[0])) {
-			$this->ls_sizeMoreImages = array($this->ls_sizeMoreImages);
-		}
-		
-		/*
-		 * Make sure that both size arrays have the same number of elements and if not, fix it
-		 */
-		$numDiffElements = count($this->ls_sizeMainImage) - count($this->ls_sizeMoreImages);
-		if ($numDiffElements != 0) {
-			if ($numDiffElements < 0) {
-				$numDiffElements = $numDiffElements * -1;
-				
-				// $this->ls_sizeMainImage has less elements and needs to be extended, use the last element to fill the rest
-				$lastElement = $this->ls_sizeMainImage[count($this->ls_sizeMainImage) - 1];
-				for ($i = 1; $i <= $numDiffElements; $i++) {
-					$this->ls_sizeMainImage[] = $lastElement;
-				}
-			} else {
-				// $this->ls_sizeMoreImages has less elements and needs to be extended, use the last element to fill the rest
-				$lastElement = $this->ls_sizeMoreImages[count($this->ls_sizeMoreImages) - 1];
-				for ($i = 1; $i <= $numDiffElements; $i++) {
-					$this->ls_sizeMoreImages[] = $lastElement;
-				}
-			}
-		}
-		/*
-		 * ###############################################
-		 */
-		
-		
-		$this->ls_moreImagesMargin = $ls_moreImagesMargin !== false ? $ls_moreImagesMargin : serialize(array('bottom' => 5, 'left' => 5, 'right' => 5, 'top' => 5, 'unit' => 'px'));
-		$this->ls_imagesFullsize = $ls_imagesFullsize ? $ls_imagesFullsize : false;
-				
 		/*
 		 * Wurde ein Hauptbild übergeben, so wird es auf Index 0 des gesamten Bildarrays gesetzt,
 		 * da das erste Bild als Hauptbild anders dargestellt wird.
 		 */
+
+        /*
 		if ($this->mainImage) {
 			array_insert($this->multiSRC, 0, $mainImage);
-		}
+		}*/
+
 		$this->id = $id;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
 		$this->arrOverlays = $arrOverlays;
 		
 		$this->Template->images = array();
-		$this->Template->additionalClass = $additionalClass;
+
+        //dump("main Image");
+		//dump($this->ls_sizeMainImage);
+
+        $this->images = $this->lsShopGetProcessedImages();
+
+        //dump($this->images);
+
+        if(empty($this->images)){
+            //dump("wop");
+            //$this->mainImage = \FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path;
+            //dump($this->mainImage);
+        }
+        /*
+        foreach ($this->ls_sizeMainImage as $k => $arrSizeMainImage) {
+            //dump("in");
+            $arrSizeMoreImages = $this->ls_sizeMoreImages[$k];
+
+
+
+        }*/
+        /*
+        if ($this->mainImage) {
+            array_insert($this->multiSRC, 0, $mainImage);
+        }*/
 	}
 
 	public function getImages(){
 	    return $this->images;
     }
 
-	public function parse() {
-		$arrImages = array();
-		foreach ($this->ls_sizeMainImage as $k => $arrSizeMainImage) {
-			$arrSizeMoreImages = $this->ls_sizeMoreImages[$k];
-			
-			/*
-			 * The function 'getProcessedImages()' uses the contao function 'addImageToTemplate()' which needs the
-			 * size arrays to be serialized.
-			 */
-			$this->images = $this->lsShopGetProcessedImages(serialize($arrSizeMainImage), serialize($arrSizeMoreImages));
-		}
-		
-		/*
-		 * If $arrImages only contains one element which means that only one set of image sizes has been requested and processed
-		 * only this element will be delivered to the template. This way older gallery templates still get what they expect
-		 * and do not need to be modified.
-		 */
-		if (count($arrImages) == 1) {
-			$arrImages = $arrImages[0];
-		}
-
-		return $this;
-		//$this->Template->images = $arrImages;
-		//return $this->Template->parse();
-	}
 	
 	public function imagesSortedAndWithVideoCovers() {
 		$this->getImagesSortedAndWithVideoCovers();
 		return $this->ls_images;
 	}
+
+	protected function process($file){
+        if (@file_exists(TL_ROOT.'/'.$file)) {
+
+            // Process single files
+            if (is_file(TL_ROOT.'/'.$file)) {
+                $this->processSingleImage($file);
+            }
+
+            // Process folders (not recursive, only the one given folder!)
+            else {
+                $subfiles = scan(TL_ROOT.'/'.$file);
+
+                foreach ($subfiles as $subfile) {
+                    $subfileName = $file . '/' . $subfile;
+                    $this->processSingleImage($subfileName);
+                }
+            }
+        }
+    }
 	
 	protected function getImagesSortedAndWithVideoCovers() {
 		/*
@@ -163,37 +141,40 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * if multiple image sizes are requested.
 		 */
 		$this->ls_images = array();
-		
+
+
+        if(empty($this->multiSRC)){
+            //dump("ls_shop_systemImages_noProductImage");
+            //$this->mainImage = \FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path;
+            //array_insert($this->multiSRC, 0, $this->mainImage);
+        }
+
 		// Get all images
 		foreach ($this->multiSRC as $file) {
-			if (!@file_exists(TL_ROOT.'/'.$file)) {
-				continue;
-			}
-
-			// Process single files
-			if (is_file(TL_ROOT.'/'.$file)) {
-				$this->processSingleImage($file);
-			}
-
-			// Process folders (not recursive, only the one given folder!)
-			else {
-				$subfiles = scan(TL_ROOT.'/'.$file);
-
-				foreach ($subfiles as $subfile) {
-					$subfileName = $file . '/' . $subfile;
-					$this->processSingleImage($subfileName);
-				}
-			}
+			$this->process($file);
 		}
+
+		if($this->mainImage){
+		    dump($this->mainImage);
+            $this->process($this->mainImage);
+        }else{
+            dump("2");
+            $this->process(\FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path);
+        }
 
 		/*
 		 * If a main image has been defined explicitly we remove it from the images array
 		 * temporarily because we don't want it to be sorted somewhere but to stay on top
 		 */
+
+        dump($this->mainImage);
+
+
+        /*
 		if ($this->mainImage) {
 			$mainImageTemp = $this->ls_images[$this->mainImage];
 			unset($this->ls_images[$this->mainImage]);
-		}
+		}*/
 
 		// Sort array
 		switch ($this->ls_moreImagesSortBy) {
@@ -236,21 +217,27 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * If we have an explicitly given main image and the temporarily saved main image from a few lines above
 		 * we insert this image in the first position of the image array
 		 */
-		if ($this->mainImage && isset($mainImageTemp)) {
-			array_insert($this->ls_images, 0, array($mainImageTemp));
+		if ($this->mainImage) {
+			array_insert($this->ls_images, 0, array($this->mainImage));
 		}
 
 		if ($this->ls_imageLimit) {
 			$this->ls_images = array_slice($this->ls_images, 0, $this->ls_imageLimit);
 		}
+        dump("ende");
+		dump($this->ls_images);
 	}
 
 	//TODO verarbeite Image
-	public function lsShopGetProcessedImages($sizeMainImage, $sizeMoreImages) {
+	public function lsShopGetProcessedImages() {
+        dump($this->ls_images);
+
 		$this->getImagesSortedAndWithVideoCovers();
 
+        dump($this->ls_images);
 		$arrGalleryImages = array();
 		foreach ($this->ls_images as $imageKey => $imageValue) {
+
 
 
 			$this->ls_images[$imageKey]['fullsize'] =  $this->ls_imagesFullsize;
@@ -284,16 +271,19 @@ class ls_shop_moreImagesGallery extends \Frontend {
 			/*
 			 * Finally, add the image object to the gallery images array which will be returned
 			 */
-            dump($arrGalleryImages);
+            //dump($arrGalleryImages);
 			$arrGalleryImages[] = $objCell;
 		}
+		dump("dumpGallery");
+		dump($arrGalleryImages);
 		return $arrGalleryImages;
 	}
 
 	protected function processSingleImage($file) {
 		/** @var \PageModel $objPage */
 		global $objPage;
-		
+
+		/*
 		if (preg_match('/_cover/siU', $file)) {
 			return false;
 		}
@@ -301,10 +291,11 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		if (isset($this->ls_images[$file]) || !file_exists(TL_ROOT.'/'.$file)) {
 			return false;
 		}
-		
+
+
 		if (!is_file(TL_ROOT . '/' . $file)) {
 			return false;
-		}
+		}*/
 
 		$arrOverlays = $this->arrOverlays;
 		

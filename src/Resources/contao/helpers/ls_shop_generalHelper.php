@@ -2793,6 +2793,9 @@ class ls_shop_generalHelper
     {
         $globalCacheKey = sha1($productOrVariantCode . $mainImage . serialize($moreImages));
         if (!isset($GLOBALS['merconis_globals']['getAllProductImages'][$globalCacheKey])) {
+
+
+
             $standardImages = ls_shop_generalHelper::getImagesFromStandardFolder($obj_product, $productOrVariantCode);
             if (!is_array($moreImages)) {
                 $moreImages = deserialize($moreImages);
@@ -2832,6 +2835,7 @@ class ls_shop_generalHelper
 
             $GLOBALS['merconis_globals']['getAllProductImages'][$globalCacheKey] = $allImages;
         }
+
 
         return $GLOBALS['merconis_globals']['getAllProductImages'][$globalCacheKey];
     }

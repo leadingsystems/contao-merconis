@@ -1540,8 +1540,8 @@ array(), <span class="comment">// array containing names of additional overlay e
 
 
 
-                $objGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $arrOverlays, $this);
-                return $objGallery->parse();
+                return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $arrOverlays, $this);
+
 
 
 
