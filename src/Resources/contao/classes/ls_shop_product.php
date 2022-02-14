@@ -2064,27 +2064,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	}
 
 	/*
-	 * Funktion zum Erstellen der Produkt-Galerie
-	 */
-	public function ls_createGallery($mainImage, $moreImages, $currentProductVariantID, $moreImagesSortBy, $sizeMainImage, $sizeMoreImages, $moreImagesMargin, $imagesFullsize, $strTemplate, $additionalClass, $arrOverlays, $ls_imageLimit) {
-		if (!is_array($arrOverlays)) {
-			$arrOverlays = array();
-		}
-		if ($this->_isNew) {
-			if (!in_array('isNew', $arrOverlays)) {
-				$arrOverlays[] = 'isNew';
-			}
-		}
-		if ($this->_isOnSale) {
-			if (!in_array('isOnSale', $arrOverlays)) {
-				$arrOverlays[] = 'isOnSale';
-			}
-		}
-		$objGallery = new ls_shop_moreImagesGallery($mainImage, $moreImages, $currentProductVariantID, $moreImagesSortBy, $sizeMainImage, $sizeMoreImages, $moreImagesMargin, $imagesFullsize, $strTemplate, $additionalClass, $arrOverlays, $ls_imageLimit);
-		return $objGallery->parse();
-	}
-
-	/*
 	 * Diese Funktion verändert den in der DB eingetragenen Warenbestand des Produktes bzw. der Variante
 	 */
 	public function changeStock($quantity, $blnDoNotCalculate = false, $blnWriteLog = false) {

@@ -1123,6 +1123,10 @@ array(), <span class="comment">// array containing names of additional overlay e
 );
 				 */
 				:
+
+                return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_productVariantID, $arrOverlays, $this);
+
+				/*
 				$args = ls_shop_generalHelper::setArrayLength($args, 8);
 
 				$args[3] = is_array($args[3]) ? serialize($args[3]): $args[3];
@@ -1131,6 +1135,7 @@ array(), <span class="comment">// array containing names of additional overlay e
                 dump("_createGallery in variant");
 
 				return $this->_objParentProduct->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_productVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
+				*/
 				break;
 
 			case '_deliveryTimeMessageInCart'
