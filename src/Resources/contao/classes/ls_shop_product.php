@@ -1551,7 +1551,7 @@ array(), <span class="comment">// array containing names of additional overlay e
                 $args = ls_shop_generalHelper::setArrayLength($args, 1);
                 $ls_imageLimit = is_array($args[0]) ? serialize($args[0]): $args[0];
                 dump("create Gallery");
-                return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $arrOverlays, $this, $ls_imageLimit);
+                return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $arrOverlays, $this, $ls_imageLimit);
 
 				break;
 

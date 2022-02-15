@@ -1130,7 +1130,7 @@ array(), <span class="comment">// array containing names of additional overlay e
 				 */
 				:
 
-                return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_productVariantID, $arrOverlays, $this);
+                return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $arrOverlays, $this);
 
 				/*
 				$args = ls_shop_generalHelper::setArrayLength($args, 8);

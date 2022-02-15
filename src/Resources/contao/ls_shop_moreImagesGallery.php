@@ -14,9 +14,6 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
 	protected $ls_imageLimit = 0;
 
-
-	//id des products
-	protected $id = false;
 	
 	protected $arrImgSuffixes = array('jpg', 'jpeg', 'JPG', 'JPEG', 'gif', 'GIF', 'png', 'PNG');
 	
@@ -32,7 +29,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
 
 	
-	public function __construct($mainImageSRC = false, $multiSRC = array(), $id = false, $arrOverlays = array(), $product = false, $ls_imageLimit = 0) {
+	public function __construct($mainImageSRC = false, $multiSRC = array(), $arrOverlays = array(), $product = false, $ls_imageLimit = 0) {
 		parent::__construct();
 
         $this->ls_imageLimit = $ls_imageLimit;
@@ -56,8 +53,6 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		
 		$this->sortingRandomizer = rand(0,99999);
 
-
-		$this->id = $id;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
 		$this->arrOverlays = $arrOverlays;
 		
@@ -283,7 +278,6 @@ class ls_shop_moreImagesGallery extends \Frontend {
             $container = System::getContainer();
             $projectDir = $container->getParameter('kernel.project_dir');
 
-            //Todo change Size
             $size = array(800,533);
 
             //dump($imageValue);
