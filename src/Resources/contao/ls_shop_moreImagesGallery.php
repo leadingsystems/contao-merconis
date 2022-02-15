@@ -19,7 +19,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	
 	protected $originalSRC = false;
 
-	//neu, onSale
+	//new, onSale
 	protected $arrOverlays = array();
 	
 	protected $ls_images = array(); // the array holding the processed images
@@ -27,10 +27,15 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
 	protected $sortingRandomizer = 0;
 
+	protected $width;
+	protected $height;
 
 	
-	public function __construct($mainImageSRC = false, $multiSRC = array(), $arrOverlays = array(), $product = false, $ls_imageLimit = 0) {
+	public function __construct($mainImageSRC = false, $multiSRC = array(), $arrOverlays = array(), $product = false, $ls_imageLimit = 0, $width = 800, $height = 533) {
 		parent::__construct();
+
+		$this->height = $height;
+		$this->width = $width;
 
         $this->ls_imageLimit = $ls_imageLimit;
 
@@ -54,6 +59,11 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		$this->sortingRandomizer = rand(0,99999);
 
 		$this->Template = new \FrontendTemplate($this->strTemplate);
+
+		if(!is_array($arrOverlays)){
+            $arrOverlays = array();
+        }
+
 		$this->arrOverlays = $arrOverlays;
 		
 		$this->Template->images = array();
@@ -77,7 +87,17 @@ class ls_shop_moreImagesGallery extends \Frontend {
     //returns the MainImage
     public function getMainImage(){
 
-        //set mainImage to the first position of this array
+        if(!$this->mainImage){
+            if($this->mainImageSRC){
+                dump($this->mainImage);
+                $this->mainImage = $this->processSingleImage($this->mainImageSRC);
+            }else if(!empty($this->getMoreImages())){
+                $this->mainImage = $this->getMoreImages()[0];
+            }else{
+                dump("ls_shop_systemImages_noProductImage");
+                $this->mainImage = $this->processSingleImage(\FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path);
+            }
+        }
 
         return $this->mainImage;
     }
@@ -87,8 +107,8 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
         $arrImg = $this->ls_images;
 
-        if ($this->mainImage) {
-            array_insert($arrImg, 0, array($this->mainImage));
+        if ($this->getMainImage()) {
+            array_insert($arrImg, 0, array($this->getMainImage()));
         }
         if ($this->ls_imageLimit) {
             $arrImg = array_slice($arrImg, 0, $this->ls_imageLimit);
@@ -140,13 +160,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		}
 
 
-		if($this->mainImageSRC){
-		    dump($this->mainImage);
-            $this->mainImage = $this->processSingleImage($this->mainImageSRC);
-        }else if(empty($this->multiSRC)){
-            dump("ls_shop_systemImages_noProductImage");
-            $this->mainImage = $this->processSingleImage(\FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path);
-        }
+
 
 
 		// Sort array
@@ -278,7 +292,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
             $container = System::getContainer();
             $projectDir = $container->getParameter('kernel.project_dir');
 
-            $size = array(800,533);
+            $size = array($this->width, $this->height);
 
             //dump($imageValue);
             $picture = $container->get('contao.image.picture_factory')->create($projectDir . '/' . $objImage->singleSRC, $size);
