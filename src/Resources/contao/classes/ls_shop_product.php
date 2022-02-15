@@ -458,8 +458,10 @@ You can use the method "\Image::get" to get the image in the size you need: \Ima
 				 :
                 $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
 				 dump("_mainImage");
-                $allImagesSortedAndWithVideoCovers = $objTmpGallery->imagesSortedAndWithVideoCovers();
-                return isset($allImagesSortedAndWithVideoCovers[0]) && $allImagesSortedAndWithVideoCovers[0] && isset($allImagesSortedAndWithVideoCovers[0]['singleSRC']) && $allImagesSortedAndWithVideoCovers[0]['singleSRC'] ? $allImagesSortedAndWithVideoCovers[0]['singleSRC'] : null;
+				 dump($objTmpGallery->getMainImage()->singleSRC);
+				 return $objTmpGallery->getMainImage()->singleSRC;
+                //$allImagesSortedAndWithVideoCovers = $objTmpGallery->imagesSortedAndWithVideoCovers();
+                //return isset($allImagesSortedAndWithVideoCovers[0]) && $allImagesSortedAndWithVideoCovers[0] && isset($allImagesSortedAndWithVideoCovers[0]['singleSRC']) && $allImagesSortedAndWithVideoCovers[0]['singleSRC'] ? $allImagesSortedAndWithVideoCovers[0]['singleSRC'] : null;
 				break;
 
 			case '_hasMainImage':
@@ -481,6 +483,9 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				 */
 				 :
                 dump("_moreImages");
+                $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
+                return $objTmpGallery->getImages();
+                /*
 				if (!isset($GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID])) {
 					$arrMoreImages = array();
 					$objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
@@ -499,7 +504,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 					}
 					$GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID] = $arrMoreImages;
 				}
-				return $GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID];
+				return $GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID];*/
 				break;
 
 			case '_hasMoreImages':
@@ -1542,8 +1547,11 @@ array(), <span class="comment">// array containing names of additional overlay e
 				//$args[3] = is_array($args[3]) ? serialize($args[3]): $args[3];
 				//$args[7] = is_array($args[7]) ? serialize($args[7]): $args[7];
 				//return $this->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
+
+                $args = ls_shop_generalHelper::setArrayLength($args, 1);
+                $ls_imageLimit = is_array($args[0]) ? serialize($args[0]): $args[0];
                 dump("create Gallery");
-                return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $arrOverlays, $this);
+                return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $arrOverlays, $this, $ls_imageLimit);
 
 				break;
 

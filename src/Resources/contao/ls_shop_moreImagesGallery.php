@@ -11,8 +11,9 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	
 	protected $mainImage = false;
 
-	//TODO einfügen
+
 	protected $ls_imageLimit = 0;
+
 
 	//id des products
 	protected $id = false;
@@ -33,8 +34,10 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	//ort für die processed images
     protected $images = array();
 	
-	public function __construct($mainImageSRC = false, $multiSRC = array(), $id = false, $arrOverlays = array(), $product = false) {
+	public function __construct($mainImageSRC = false, $multiSRC = array(), $id = false, $arrOverlays = array(), $product = false, $ls_imageLimit = 0) {
 		parent::__construct();
+
+        $this->ls_imageLimit = $ls_imageLimit;
 
         if ($product->_isNew) {
             $arrOverlays[] = 'isNew';
@@ -42,14 +45,6 @@ class ls_shop_moreImagesGallery extends \Frontend {
         if ($product->_isOnSale) {
             $arrOverlays[] = 'isOnSale';
         }
-
-        //dump($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']);
-        //dump(\FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path);
-/*
-        if($mainImage == false ){
-            $mainImage = \FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path;
-        }
-*/
 
 
 		if (!is_array($multiSRC)) {
@@ -62,17 +57,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		$this->ls_moreImagesSortBy = $GLOBALS['TL_CONFIG']['ls_shop_imageSortingStandardDirection'];
 		
 		$this->sortingRandomizer = rand(0,99999);
-		
 
-		/*
-		 * Wurde ein Hauptbild übergeben, so wird es auf Index 0 des gesamten Bildarrays gesetzt,
-		 * da das erste Bild als Hauptbild anders dargestellt wird.
-		 */
-
-        /*
-		if ($this->mainImage) {
-			array_insert($this->multiSRC, 0, $mainImage);
-		}*/
 
 		$this->id = $id;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
@@ -80,45 +65,29 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		
 		$this->Template->images = array();
 
-        //dump("main Image");
-		//dump($this->ls_sizeMainImage);
-
 
         $this->images = $this->lsShopGetProcessedImages();
 
-        //dump($this->images);
-
-        if(empty($this->images)){
-            //dump("wop");
-            //$this->mainImage = \FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path;
-            //dump($this->mainImage);
-        }
-        /*
-        foreach ($this->ls_sizeMainImage as $k => $arrSizeMainImage) {
-            //dump("in");
-            $arrSizeMoreImages = $this->ls_sizeMoreImages[$k];
-
-
-
-        }*/
-        /*
-        if ($this->mainImage) {
-            array_insert($this->multiSRC, 0, $mainImage);
-        }*/
+/*
         dump("ls_shop_moreImagesGallery created");
-        dump($this->images);
+
+        dump("getMainImage");
+        dump($this->getMainImage());
+        dump("getImages");
+        dump($this->getImages());
+*/
+
 	}
+
+
+    public function getMainImage(){
+        return $this->images[0];
+    }
 
 	public function getImages(){
 	    return $this->images;
     }
 
-
-    //TODO remove function
-	public function imagesSortedAndWithVideoCovers() {
-		$this->getImagesSortedAndWithVideoCovers();
-		return $this->ls_images;
-	}
 
 	protected function process($file){
         if (@file_exists(TL_ROOT.'/'.$file)) {
@@ -142,19 +111,12 @@ class ls_shop_moreImagesGallery extends \Frontend {
         }
     }
 	
-	protected function getImagesSortedAndWithVideoCovers() {
+	protected function lsShopGetProcessedImages() {
 		/*
 		 * Reset the ls_images array because this function maybe called more than once
 		 * if multiple image sizes are requested.
 		 */
 		$this->ls_images = array();
-
-
-        if(empty($this->multiSRC)){
-            //dump("ls_shop_systemImages_noProductImage");
-            //$this->mainImage = \FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path;
-            //array_insert($this->multiSRC, 0, $this->mainImage);
-        }
 
 		// Get all images
 		foreach ($this->multiSRC as $file) {
@@ -172,15 +134,6 @@ class ls_shop_moreImagesGallery extends \Frontend {
         }
 
 
-
-        //dump($this->mainImage);
-
-
-        /*
-		if ($this->mainImage) {
-			$mainImageTemp = $this->ls_images[$this->mainImage];
-			unset($this->ls_images[$this->mainImage]);
-		}*/
 
 		// Sort array
 		switch ($this->ls_moreImagesSortBy) {
@@ -219,45 +172,21 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		}
 		$this->ls_images = array_values($this->ls_images);
 
-		/*
-		 * If we have an explicitly given main image and the temporarily saved main image from a few lines above
-		 * we insert this image in the first position of the image array
-		 */
 
-        $arrTemp = $this->ls_images;
+        //set mainImage to the first position of this array
 
-        //set mainImage to index 0 on this array
 		if ($this->mainImage) {
-			array_insert($arrTemp, 0, array($this->mainImage));
+			array_insert($this->ls_images, 0, array($this->mainImage));
 		}
 
 		if ($this->ls_imageLimit) {
-			$this->ls_images = array_slice($arrTemp, 0, $this->ls_imageLimit);
+            $this->ls_images = array_slice($this->ls_images, 0, $this->ls_imageLimit);
 		}
 
-		return($arrTemp);
-	}
 
-	//TODO verarbeite Image
-	public function lsShopGetProcessedImages() {
-        //dump($this->ls_images);
-
-        $this->ls_images = $this->getImagesSortedAndWithVideoCovers();
-
-        //dump($this->ls_images);
-		$arrGalleryImages = array();
-		foreach ($this->ls_images as $imageKey => $imageValue) {
-
-
-
-			$this->ls_images[$imageKey]['fullsize'] =  $this->ls_imagesFullsize;
-
-			$objCell = new \stdClass();
-
-			/*
-			 * Add the image to the objCell standard object using the contao function
-			 */
-			//$this->addImageToTemplate($objCell, $this->ls_images[$imageKey], $intMaxWidth, $strLightboxId);
+        $arrGalleryImages = array();
+		//create for each image a version with a new size
+        foreach ($this->ls_images as $imageKey => $imageValue) {
 
             $container = System::getContainer();
             $projectDir = $container->getParameter('kernel.project_dir');
@@ -266,27 +195,20 @@ class ls_shop_moreImagesGallery extends \Frontend {
             $size = array(800,533);
 
             //dump($imageValue);
-            $picture = $container->get('contao.image.picture_factory')->create($projectDir . '/' . $imageValue['singleSRC'], $size);
+            $picture = $container->get('contao.image.picture_factory')->create($projectDir . '/' . $imageValue->singleSRC, $size);
             $staticUrl = $container->get('contao.assets.files_context')->getStaticUrl();
 
-            $objCell->img =  $picture->getImg($projectDir, $staticUrl);
+            $imageValue->href =  $picture->getImg($projectDir, $staticUrl)['src'];
 
-            $objCell->href = $imageValue['singleSRC'];
-            $objCell->singleSRC = $objCell->img['src'];
-			/*
-			 * Set the overlay image array for this image -> onSale, new
-			 */
-			$objCell->arrOverlays = is_array($imageValue['arrOverlays']) ? $imageValue['arrOverlays'] : array();
-			
-			/*
-			 * Finally, add the image object to the gallery images array which will be returned
-			 */
-            //dump($arrGalleryImages);
-			$arrGalleryImages[] = $objCell;
-		}
+            $arrGalleryImages[] = $imageValue;
 
-		return $arrGalleryImages;
+        }
+
+        return $arrGalleryImages;
+
 	}
+
+
 
 	protected function processSingleImage($file) {
 		/** @var \PageModel $objPage */
@@ -350,17 +272,18 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * the image to the images array
 		 */
 		if ($objFile->isGdImage) {
-		    return array (
-				'name' => $objFile->basename,
-				'originalSRC' => $this->originalSRC,
-				'arrOverlays' => $arrOverlays,
-				'singleSRC' => $file,
-				'alt' => $arrMeta['title'],
-				'imageUrl' => $arrMeta['link'],
-				'caption' => $arrMeta['caption'],
-				'mtime' => $objFile->mtime,
-				'randomSortingValue' => md5($objFile->basename.$this->sortingRandomizer)
-			);
+            $objImage = new \stdClass();
+            $objImage->name = $objFile->basename;
+            $objImage->originalSRC = $this->originalSRC;
+            $objImage->arrOverlays = $arrOverlays;
+            $objImage->singleSRC = $file;
+            $objImage->alt = $arrMeta['title'];
+            $objImage->imageUrl = $arrMeta['link'];
+            $objImage->caption = $arrMeta['caption'];
+            $objImage->mtime = $objFile->mtime;
+            $objImage->randomSortingValue = md5($objFile->basename.$this->sortingRandomizer);
+            return $objImage;
+
 		}
 		
 		return true;

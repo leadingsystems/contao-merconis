@@ -284,9 +284,12 @@ You can use the method "getImage" to get the image in the size you need: \Image:
 				 */
 				 :
                 $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
+                return $objTmpGallery->getMainImage()->singleSRC;/*
+                $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
                 $allImagesSortedAndWithVideoCovers = $objTmpGallery->imagesSortedAndWithVideoCovers();
                 return isset($allImagesSortedAndWithVideoCovers[0]) && $allImagesSortedAndWithVideoCovers[0] && isset($allImagesSortedAndWithVideoCovers[0]['singleSRC']) && $allImagesSortedAndWithVideoCovers[0]['singleSRC'] ? $allImagesSortedAndWithVideoCovers[0]['singleSRC'] : null;
-				break;
+				*/
+                break;
 
 			case '_hasMainImage':
 				return $this->_mainImage ? true : false;
@@ -305,6 +308,9 @@ You can use the method "getImage" to get the image in the size you need: \Image:
 you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
+                $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
+                return $objTmpGallery->getImages();
+                /*
 				if (!isset($GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID])) {
 					$arrMoreImages = array();
 					$objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
@@ -324,7 +330,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 
 					$GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID] = $arrMoreImages;
 				}
-				return $GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID];
+				return $GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID];*/
 				break;
 
 			case '_hasMoreImages':
