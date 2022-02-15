@@ -90,26 +90,26 @@ class ls_shop_moreImagesGallery extends \Frontend {
     //returns All Images MainImage+MoreImages
 	public function getImages(){
 
-	    $tempArray = $this->ls_images;
+        $arrImg = $this->ls_images;
 
         if ($this->mainImage) {
-            array_insert($tempArray, 0, array($this->mainImage));
+            array_insert($arrImg, 0, array($this->mainImage));
         }
         if ($this->ls_imageLimit) {
-            $tempArray = array_slice($tempArray, 0, $this->ls_imageLimit);
+            $arrImg = array_slice($arrImg, 0, $this->ls_imageLimit);
         }
-	    return $tempArray;
+	    return $arrImg;
     }
 
     //returns MoreImages (without MainImage)
     public function getMoreImages(){
 
-        $tempArray = $this->ls_images;
+        $arrImg = $this->ls_images;
 
         if ($this->ls_imageLimit) {
-            $tempArray = array_slice($tempArray, 0, $this->ls_imageLimit);
+            $arrImg = array_slice($arrImg, 0, $this->ls_imageLimit);
         }
-        return $tempArray;
+        return $arrImg;
     }
 
 
