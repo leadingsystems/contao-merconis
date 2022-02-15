@@ -7,10 +7,10 @@ use Contao\System;
 class ls_shop_moreImagesGallery extends \Frontend {
 	
 	protected $multiSRC = array();
+
 	protected $mainImageSRC = false;
 	
 	protected $mainImage = false;
-
 
 	protected $ls_imageLimit = 0;
 
@@ -27,12 +27,10 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	
 	protected $ls_images = array(); // the array holding the processed images
 
-    //?
+
 	protected $sortingRandomizer = 0;
 
 
-	//ort für die processed images
-    protected $images = array();
 	
 	public function __construct($mainImageSRC = false, $multiSRC = array(), $id = false, $arrOverlays = array(), $product = false, $ls_imageLimit = 0) {
 		parent::__construct();
@@ -66,7 +64,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		$this->Template->images = array();
 
 
-        $this->images = $this->lsShopGetProcessedImages();
+        $this->ls_images = $this->lsShopGetProcessedImages();
 
 /*
         dump("ls_shop_moreImagesGallery created");
@@ -75,17 +73,43 @@ class ls_shop_moreImagesGallery extends \Frontend {
         dump($this->getMainImage());
         dump("getImages");
         dump($this->getImages());
+        dump("getImages");
+        dump($this->getMoreImages());
 */
 
 	}
 
-
+    //returns the MainImage
     public function getMainImage(){
-        return $this->images[0];
+
+        //set mainImage to the first position of this array
+
+        return $this->mainImage;
     }
 
+    //returns All Images MainImage+MoreImages
 	public function getImages(){
-	    return $this->images;
+
+	    $tempArray = $this->ls_images;
+
+        if ($this->mainImage) {
+            array_insert($tempArray, 0, array($this->mainImage));
+        }
+        if ($this->ls_imageLimit) {
+            $tempArray = array_slice($tempArray, 0, $this->ls_imageLimit);
+        }
+	    return $tempArray;
+    }
+
+    //returns MoreImages (without MainImage)
+    public function getMoreImages(){
+
+        $tempArray = $this->ls_images;
+
+        if ($this->ls_imageLimit) {
+            $tempArray = array_slice($tempArray, 0, $this->ls_imageLimit);
+        }
+        return $tempArray;
     }
 
 
@@ -112,17 +136,13 @@ class ls_shop_moreImagesGallery extends \Frontend {
     }
 	
 	protected function lsShopGetProcessedImages() {
-		/*
-		 * Reset the ls_images array because this function maybe called more than once
-		 * if multiple image sizes are requested.
-		 */
-		$this->ls_images = array();
+
 
 		// Get all images
 		foreach ($this->multiSRC as $file) {
 			$this->process($file);
+			dump($this->ls_images);
 		}
-
 
 
 		if($this->mainImageSRC){
@@ -134,77 +154,53 @@ class ls_shop_moreImagesGallery extends \Frontend {
         }
 
 
-
 		// Sort array
+
 		switch ($this->ls_moreImagesSortBy) {
 			default:
 			case 'name_asc':
-				uksort($this->ls_images, 'basename_natcasecmp');
+                uasort($this->ls_images, function($a, $b) {
+                    return strnatcasecmp($a->name, $b->name);
+                });
 				break;
 
 			case 'name_desc':
-				uksort($this->ls_images, 'basename_natcasercmp');
+                uasort($this->ls_images, function($a, $b) {
+                    return -strnatcasecmp($a->name, $b->name);
+                });
 				break;
 
 			case 'date_asc':
 				uasort($this->ls_images, function($a, $b) {
-					if ($a['mtime'] == $b['mtime']) {
+					if ($a->mtime == $b->mtime) {
 				        return 0;
 				    }
-				    return ($a['mtime'] < $b['mtime']) ? -1 : 1;
+				    return ($a->mtime < $b->mtime) ? -1 : 1;
 				});
 				break;
 
 			case 'date_desc':
 				uasort($this->ls_images, function($a, $b) {
-					if ($a['mtime'] == $b['mtime']) {
+					if ($a->mtime == $b->mtime) {
 				        return 0;
 				    }
-				    return ($a['mtime'] < $b['mtime']) ? 1 : -1;
+				    return ($a->mtime < $b->mtime) ? 1 : -1;
 				});
 				break;
 
 			case 'random':
 				uasort($this->ls_images, function($a, $b) {
-					return strcmp($a['randomSortingValue'], $b['randomSortingValue']);
+					return strcmp($a->randomSortingValue, $b->randomSortingValue);
 				});
 				break;
 		}
-		$this->ls_images = array_values($this->ls_images);
+		//$this->ls_images = array_values($this->ls_images);
 
 
-        //set mainImage to the first position of this array
-
-		if ($this->mainImage) {
-			array_insert($this->ls_images, 0, array($this->mainImage));
-		}
-
-		if ($this->ls_imageLimit) {
-            $this->ls_images = array_slice($this->ls_images, 0, $this->ls_imageLimit);
-		}
 
 
-        $arrGalleryImages = array();
-		//create for each image a version with a new size
-        foreach ($this->ls_images as $imageKey => $imageValue) {
 
-            $container = System::getContainer();
-            $projectDir = $container->getParameter('kernel.project_dir');
-
-            //Todo change Size
-            $size = array(800,533);
-
-            //dump($imageValue);
-            $picture = $container->get('contao.image.picture_factory')->create($projectDir . '/' . $imageValue->singleSRC, $size);
-            $staticUrl = $container->get('contao.assets.files_context')->getStaticUrl();
-
-            $imageValue->href =  $picture->getImg($projectDir, $staticUrl)['src'];
-
-            $arrGalleryImages[] = $imageValue;
-
-        }
-
-        return $arrGalleryImages;
+        return $this->ls_images;
 
 	}
 
@@ -282,6 +278,23 @@ class ls_shop_moreImagesGallery extends \Frontend {
             $objImage->caption = $arrMeta['caption'];
             $objImage->mtime = $objFile->mtime;
             $objImage->randomSortingValue = md5($objFile->basename.$this->sortingRandomizer);
+
+
+            $container = System::getContainer();
+            $projectDir = $container->getParameter('kernel.project_dir');
+
+            //Todo change Size
+            $size = array(800,533);
+
+            //dump($imageValue);
+            $picture = $container->get('contao.image.picture_factory')->create($projectDir . '/' . $objImage->singleSRC, $size);
+            $staticUrl = $container->get('contao.assets.files_context')->getStaticUrl();
+
+            $objImage->href =  $picture->getImg($projectDir, $staticUrl)['src'];
+
+            //$arrGalleryImages[] = $imageValue;
+
+
             return $objImage;
 
 		}
