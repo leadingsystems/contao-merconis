@@ -10,18 +10,14 @@ if ($this->objProduct->_variantIsSelected) {
 	$obj_tmp_productOrVariant = &$this->objProduct;
 }
 
-dump($obj_tmp_productOrVariant);
+
 if ($obj_tmp_productOrVariant !== null) {
 	?>
 	<div class="galleryContainer lsNavtabGalleryProductDetails">
 
         <?php
         //create Gallery from Product Or Variant
-        dump($obj_tmp_productOrVariant->_moreImages());
-        dump($obj_tmp_productOrVariant->getImageGallery()->getImages());
         foreach($obj_tmp_productOrVariant->_createGallery(0)->getImages() as $image) {
-            dump($image);
-            dump($image->href);
             ?>
             <div class="imageContainer">
                 <?php if ($image->singleSRC) { ?>
