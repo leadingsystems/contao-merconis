@@ -339,7 +339,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 			$objFileModel->first();
 			$arrMeta = $this->getMetaData($objFileModel->meta, $objPage->language);			
 		}
-		
+
 		/*
 		 * If we have a gd image (which should be the case for video covers too), we add
 		 * the image to the images array
@@ -350,7 +350,8 @@ class ls_shop_moreImagesGallery extends \Frontend {
 				'originalSRC' => $this->originalSRC,
 				'arrOverlays' => $arrOverlays,
 				'singleSRC' => $file,
-				'alt' => $arrMeta['title'],
+				'alt' => $arrMeta['alt'],
+                'title' => $arrMeta['title'],
 				'imageUrl' => $arrMeta['link'],
 				'caption' => $arrMeta['caption'],
 				'mtime' => $objFile->mtime,
