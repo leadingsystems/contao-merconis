@@ -472,7 +472,12 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'label'			=>	&$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_noProductImage'],
             'inputType'		=>	'fileTree',
             'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF'),
-
+            'save_callback' => array(
+                array('LeadingSystems\Helpers\ls_helpers_controller', 'idFromUuid')
+            ),
+            'load_callback' => array(
+                array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId')
+            )
         ),
 		
 		'ls_shop_autoSelectCheapestPossibleShippingAndPaymentMethods' => array(

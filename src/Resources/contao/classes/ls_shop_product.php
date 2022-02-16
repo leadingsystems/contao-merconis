@@ -41,6 +41,9 @@ class ls_shop_product
 
 	protected $ls_linkToProduct = '';
 
+	//Holds the imageGallery if created, created with getImageGallery()
+	protected $imageGallery = false;
+
 	public function __construct($intID = false, $configuratorHash = '') {
 		$this->ls_ID = $intID;
 
@@ -95,6 +98,8 @@ class ls_shop_product
 			}
 		}
 	}
+
+
 
 	/**-->
 	 * Diese Funktion erstellt eine automatische Dokumentation über die in Templates zu verwendenden Eigenschaften und Methoden
@@ -222,6 +227,14 @@ class ls_shop_product
 		ob_end_clean();
 		return $outputBuffer;
 	}
+
+	//create ImageGallery if it does not exist yet and returns it
+    public function getImageGallery($ls_imageLimit = 0) {
+	    if(!$this->imageGallery){
+            $this->imageGallery = new ls_shop_moreImagesGallery($this, $ls_imageLimit);
+        }
+        return $this->imageGallery;
+    }
 
 	/*
 	 * Getter-Funktion. Durch die Kommentare für AUTO DOCUMENTATION und DESCRIPTION können die
@@ -446,6 +459,7 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 returns the main image that has been selected explicitly or null if none has been selected
 				 */
 				 :
+                trigger_error('Case ' . $what . ' is deprecated use getImageGallery()->getMainImageUnprocessed() instead', E_USER_DEPRECATED);
 				return isset($this->mainData['lsShopProductMainImage']) && $this->mainData['lsShopProductMainImage'] ? ls_getFilePathFromVariableSources($this->mainData['lsShopProductMainImage']) : null;
 				break;
 
@@ -456,16 +470,12 @@ If a main image has been selected explicitly, it will always be returned here. O
 You can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
-                $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
-				 dump("_mainImage");
-				 dump($objTmpGallery->getMainImage()->singleSRC);
-				 return $objTmpGallery->getMainImage()->singleSRC;
-                //$allImagesSortedAndWithVideoCovers = $objTmpGallery->imagesSortedAndWithVideoCovers();
-                //return isset($allImagesSortedAndWithVideoCovers[0]) && $allImagesSortedAndWithVideoCovers[0] && isset($allImagesSortedAndWithVideoCovers[0]['singleSRC']) && $allImagesSortedAndWithVideoCovers[0]['singleSRC'] ? $allImagesSortedAndWithVideoCovers[0]['singleSRC'] : null;
-				break;
+                trigger_error('Case ' . $what . ' is deprecated use getImageGallery()->getMainImage() instead', E_USER_DEPRECATED);
+				 return $this->getImageGallery()->getMainImage()->singleSRC;
+				 break;
 
 			case '_hasMainImage':
-                dump("_hasMainImage");
+                trigger_error('Case ' . $what . ' is deprecated use getImageGallery()->hasMainImage() instead', E_USER_DEPRECATED);
 				return $this->_mainImage ? true : false;
 				break;
 
@@ -474,47 +484,22 @@ You can use the method "\Image::get" to get the image in the size you need: \Ima
 				 * Using null as the parameter for the main image results in getAllProductImages() returning
 				 * all images except for the main image which is exactly what we want here.
 				 <--*/
+                trigger_error('Case ' . $what . ' is deprecated use getImageGallery()->getMoreImagesUnprocessed() instead', E_USER_DEPRECATED);
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, null, $this->mainData['lsShopProductMoreImages']);
 				break;
 
-			case '_moreImages'
-				/* ## DESCRIPTION:
-you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
-				 */
-				 :
-                dump("_moreImages");
-                $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
-                return $objTmpGallery->getImages();
-                /*
-				if (!isset($GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID])) {
-					$arrMoreImages = array();
-					$objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
-					$allImagesSortedAndWithVideoCovers = $objTmpGallery->imagesSortedAndWithVideoCovers();
-					if (!is_array($allImagesSortedAndWithVideoCovers) || count($allImagesSortedAndWithVideoCovers) <= 1) {
-                        dump("123");
-                        dump($arrMoreImages);
-						return $arrMoreImages;
-					}
-					$allImagesSortedAndWithVideoCovers = array_slice($allImagesSortedAndWithVideoCovers, 1);
-					foreach ($allImagesSortedAndWithVideoCovers as $arrImageData) {
-						if (!isset($arrImageData['singleSRC']) || !$arrImageData['singleSRC']) {
-							continue;
-						}
-						$arrMoreImages[] = $arrImageData['singleSRC'];
-					}
-					$GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID] = $arrMoreImages;
-				}
-				return $GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID];*/
+			case '_moreImages':
+                trigger_error('Case ' . $what . ' is deprecated use getImageGallery()->getMoreImages() instead', E_USER_DEPRECATED);
+                return $this->getImageGallery()->getImages();
 				break;
 
 			case '_hasMoreImages':
-                dump("_hasMoreImages");
+                trigger_error('Case ' . $what . ' is deprecated use getImageGallery()->hasMoreImages() instead', E_USER_DEPRECATED);
 				return is_array($this->_moreImages) && count($this->_moreImages) ? true : false;
 				break;
 
-
 			case '_hasImages':
-                //TODO remove maybe?
+                trigger_error('Case ' . $what . ' is deprecated use getImageGallery()->hasImages() instead', E_USER_DEPRECATED);
 				return $this->_hasMainImage || $this->_hasMoreImages;
 				break;
 
@@ -1498,60 +1483,12 @@ filter context, NULL will be returned.
 	public function __call($what, $args) {
 		switch ($what) {
 			/* ## START AUTO DOCUMENTATION METHODS PRODUCT ## */
-            /*
-            case '_getProductImages':
 
-                //$gallery = $this->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
-                dump("hier");
-                if (!is_array($arrOverlays)) {
-                    $arrOverlays = array();
-                }
-                if ($this->_isNew) {
-                    if (!in_array('isNew', $arrOverlays)) {
-                        $arrOverlays[] = 'isNew';
-                    }
-                }
-                if ($this->_isOnSale) {
-                    if (!in_array('isOnSale', $arrOverlays)) {
-                        $arrOverlays[] = 'isOnSale';
-                    }
-                }
-                return new ls_shop_moreImagesGallery($mainImage, $moreImages, $currentProductVariantID, $moreImagesSortBy, $sizeMainImage, $sizeMoreImages, $moreImagesMargin, $imagesFullsize, $strTemplate, $additionalClass, $arrOverlays, $ls_imageLimit);
-
-                break;*/
-
-            //TODO remove createGallery
-			case '_createGallery'
-				/* ## DESCRIPTION:
-use like this:
-echo $this->objProduct->_createGallery(
-'name_asc', <span class="comment">// image sorting, possible values: 'name_asc', 'name_desc', 'date_asc', 'date_desc', 'random'</span>
-array(160, 160, 'box'), <span class="comment">// size of the main image, has to be an array, key 0: width, key 1: height, key 2: scaling method (possible values: 'crop', 'proportional', 'box')</span>
-array(75, 75, 'box'), <span class="comment">// size of the other images, has to be an array, key 0: width, key 1: height, key 2: scaling method (possible values: 'crop', 'proportional', 'box')</span>
-array('bottom' => 0, 'left' => 0, 'right' => 0, 'top' => 0, 'unit' => 'px'), <span class="comment">// margins for the images, has to be an array</span>
-1, <span class="comment">// flag indicating whether to open the fullsize image as a lightbox, possible values 0 or 1</span>
-'', <span class="comment">// name of a gallery template file (optional, defaults to 'template_productGallery_01)</span>
-'', <span class="comment">// additional class names that will be used in the template and are therfore available for styling purposes</span>
-array(), <span class="comment">// array containing names of additional overlay elements</span>
-0 <span class="comment">// number of images returend in the gallery or 0 to disable the limit and output all available images</span>
-);
-				 */
-				:
-/*
-                dump($this->_mainImageUnprocessed); //ausgewähltes main img link
-				dump($this->_moreImagesUnprocessed); //array mit lings für weite bilder oder videos usw
-				dump($this->ls_currentProductVariantID); //produkt id
-				dump($args);*/
-
-				//$args = ls_shop_generalHelper::setArrayLength($args, 8);
-				//$args[3] = is_array($args[3]) ? serialize($args[3]): $args[3];
-				//$args[7] = is_array($args[7]) ? serialize($args[7]): $args[7];
-				//return $this->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_currentProductVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
-
+			case '_createGallery':
+                trigger_error('Case ' . $what . ' is deprecated use getImageGallery() instead', E_USER_DEPRECATED);
                 $args = ls_shop_generalHelper::setArrayLength($args, 1);
                 $ls_imageLimit = is_array($args[0]) ? serialize($args[0]): $args[0];
-                dump("create Gallery");
-                return new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $arrOverlays, $this, $ls_imageLimit);
+                return $this->getImageGallery($ls_imageLimit);
 
 				break;
 

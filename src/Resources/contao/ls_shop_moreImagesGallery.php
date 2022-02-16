@@ -3,36 +3,38 @@
 namespace Merconis\Core;
 
 use Contao\System;
+use LeadingSystems\Helpers\ls_helpers_controller;
+use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_moreImagesGallery extends \Frontend {
-	
+
+    //src for unprocessed Images
+    protected $mainImageSRC = false;
 	protected $multiSRC = array();
 
-	protected $mainImageSRC = false;
-	
+    //processed Imaged
 	protected $mainImage = false;
+    protected $ls_images = array(); // the array holding the processed images
 
 	protected $ls_imageLimit = 0;
 
-	
 	protected $arrImgSuffixes = array('jpg', 'jpeg', 'JPG', 'JPEG', 'gif', 'GIF', 'png', 'PNG');
 	
 	protected $originalSRC = false;
 
 	//new, onSale
 	protected $arrOverlays = array();
-	
-	protected $ls_images = array(); // the array holding the processed images
-
 
 	protected $sortingRandomizer = 0;
 
 	protected $width;
 	protected $height;
 
-	
-	public function __construct($mainImageSRC = false, $multiSRC = array(), $arrOverlays = array(), $product = false, $ls_imageLimit = 0, $width = 800, $height = 533) {
+	public function __construct($product = false, $ls_imageLimit = 0, $width = 800, $height = 533) {
 		parent::__construct();
+
+        $mainImageSRC = isset($product->mainData['lsShopProductMainImage']) && $product->mainData['lsShopProductMainImage'] ? ls_getFilePathFromVariableSources($product->mainData['lsShopProductMainImage']) : null;
+        $multiSRC = ls_shop_generalHelper::getAllProductImages($product, $product->_code, null, $product->mainData['lsShopProductMoreImages']);
 
 		$this->height = $height;
 		$this->width = $width;
@@ -46,14 +48,13 @@ class ls_shop_moreImagesGallery extends \Frontend {
             $arrOverlays[] = 'isOnSale';
         }
 
-
 		if (!is_array($multiSRC)) {
 			$multiSRC = array();
 		}
 
 		$this->multiSRC = $multiSRC;
 		$this->mainImageSRC = $mainImageSRC;
-		
+
 		$this->ls_moreImagesSortBy = $GLOBALS['TL_CONFIG']['ls_shop_imageSortingStandardDirection'];
 		
 		$this->sortingRandomizer = rand(0,99999);
@@ -69,18 +70,8 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		$this->Template->images = array();
 
 
-        $this->ls_images = $this->lsShopGetProcessedImages();
+        $this->lsShopGetProcessedImages();
 
-/*
-        dump("ls_shop_moreImagesGallery created");
-
-        dump("getMainImage");
-        dump($this->getMainImage());
-        dump("getImages");
-        dump($this->getImages());
-        dump("getImages");
-        dump($this->getMoreImages());
-*/
 
 	}
 
@@ -89,13 +80,11 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
         if(!$this->mainImage){
             if($this->mainImageSRC){
-                dump($this->mainImage);
                 $this->mainImage = $this->processSingleImage($this->mainImageSRC);
             }else if(!empty($this->getMoreImages())){
                 $this->mainImage = $this->getMoreImages()[0];
             }else{
-                dump("ls_shop_systemImages_noProductImage");
-                $this->mainImage = $this->processSingleImage(\FilesModel::findByUuid($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])->path);
+                $this->mainImage = $this->processSingleImage(\FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
             }
         }
 
@@ -104,11 +93,9 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
     //returns All Images MainImage+MoreImages
 	public function getImages(){
-
         $arrImg = $this->ls_images;
-
-        if ($this->getMainImage()) {
-            array_insert($arrImg, 0, array($this->getMainImage()));
+        if (empty($this->hasMoreImages()) || !empty($this->mainImageSRC)) {
+            array_unshift($arrImg, $this->getMainImage());
         }
         if ($this->ls_imageLimit) {
             $arrImg = array_slice($arrImg, 0, $this->ls_imageLimit);
@@ -126,6 +113,36 @@ class ls_shop_moreImagesGallery extends \Frontend {
         }
         return $arrImg;
     }
+
+    public function hasMainImage(){
+        if($this->getMainImage()){
+            return true;
+        }
+        return false;
+    }
+
+    public function hasMoreImages(){
+        if($this->getMoreImages()){
+            return true;
+        }
+        return false;
+    }
+
+    public function hasImages(){
+	    if($this->getImages()){
+	        return true;
+        }
+	    return false;
+    }
+
+    public function getMainImageUnprocessed(){
+        return $this->mainImageSRC;
+    }
+
+    public function getMoreImagesUnprocessed(){
+        return $this->multiSRC;
+    }
+
 
 
 	protected function process($file){
@@ -152,19 +169,12 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	
 	protected function lsShopGetProcessedImages() {
 
-
 		// Get all images
 		foreach ($this->multiSRC as $file) {
-			$this->process($file);
-			dump($this->ls_images);
+            $this->ls_images[] = $this->processSingleImage($file);
 		}
 
-
-
-
-
 		// Sort array
-
 		switch ($this->ls_moreImagesSortBy) {
 			default:
 			case 'name_asc':
@@ -203,23 +213,14 @@ class ls_shop_moreImagesGallery extends \Frontend {
 				});
 				break;
 		}
-		//$this->ls_images = array_values($this->ls_images);
-
-
-
-
-
-        return $this->ls_images;
 
 	}
-
-
 
 	protected function processSingleImage($file) {
 		/** @var \PageModel $objPage */
 		global $objPage;
 
-		/*
+
 		if (preg_match('/_cover/siU', $file)) {
 			return false;
 		}
@@ -231,7 +232,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
 		if (!is_file(TL_ROOT . '/' . $file)) {
 			return false;
-		}*/
+		}
 
 		$arrOverlays = $this->arrOverlays;
 		
@@ -239,6 +240,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		
 		/*
 		 * If the image is not a gd image we assume that it's a video. This means that images of the following types
+		 * can be used and everything else is handled as if it was a video: 'gif', 'jpg', 'jpeg', 'png'. This approach
 		 * can be used and everything else is handled as if it was a video: 'gif', 'jpg', 'jpeg', 'png'. This approach
 		 * is not exactly clean but it should be okay for now.
 		 * 
@@ -276,6 +278,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * If we have a gd image (which should be the case for video covers too), we add
 		 * the image to the images array
 		 */
+
 		if ($objFile->isGdImage) {
             $objImage = new \stdClass();
             $objImage->name = $objFile->basename;
@@ -294,20 +297,17 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
             $size = array($this->width, $this->height);
 
-            //dump($imageValue);
+
             $picture = $container->get('contao.image.picture_factory')->create($projectDir . '/' . $objImage->singleSRC, $size);
             $staticUrl = $container->get('contao.assets.files_context')->getStaticUrl();
 
             $objImage->href =  $picture->getImg($projectDir, $staticUrl)['src'];
 
-            //$arrGalleryImages[] = $imageValue;
-
-
             return $objImage;
 
 		}
 		
-		return true;
+		return false;
 	}
 
 	/*
