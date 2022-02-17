@@ -27,17 +27,12 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
 	protected $sortingRandomizer = 0;
 
-	protected $width;
-	protected $height;
 
-	public function __construct($product = false, $ls_imageLimit = 0, $width = 800, $height = 533) {
+	public function __construct($product = false, $ls_imageLimit = 0) {
 		parent::__construct();
 
         $mainImageSRC = isset($product->mainData['lsShopProductMainImage']) && $product->mainData['lsShopProductMainImage'] ? ls_getFilePathFromVariableSources($product->mainData['lsShopProductMainImage']) : null;
         $multiSRC = ls_shop_generalHelper::getAllProductImages($product, $product->_code, null, $product->mainData['lsShopProductMoreImages']);
-
-		$this->height = $height;
-		$this->width = $width;
 
         $this->ls_imageLimit = $ls_imageLimit;
 
@@ -290,18 +285,6 @@ class ls_shop_moreImagesGallery extends \Frontend {
             $objImage->caption = $arrMeta['caption'];
             $objImage->mtime = $objFile->mtime;
             $objImage->randomSortingValue = md5($objFile->basename.$this->sortingRandomizer);
-
-
-            $container = System::getContainer();
-            $projectDir = $container->getParameter('kernel.project_dir');
-
-            $size = array($this->width, $this->height);
-
-
-            $picture = $container->get('contao.image.picture_factory')->create($projectDir . '/' . $objImage->singleSRC, $size);
-            $staticUrl = $container->get('contao.assets.files_context')->getStaticUrl();
-
-            $objImage->href =  $picture->getImg($projectDir, $staticUrl)['src'];
 
             return $objImage;
 
