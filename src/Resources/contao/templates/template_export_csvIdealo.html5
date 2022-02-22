@@ -1,5 +1,7 @@
 <?php
 /*
+ * Note that this template only covers the basic values and adjustments may need to be made for live operation.
+ *
  * Please use the following export settings in the contao backend:
  * - content type "text/csv"
  * - a filename like "idealo_{{date:Y-m-d_H-i-s}}.csv"
