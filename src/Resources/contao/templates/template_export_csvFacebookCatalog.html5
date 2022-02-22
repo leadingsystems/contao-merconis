@@ -4,7 +4,7 @@
  *
  * Please use the following export settings in the contao backend:
  * - content type "text/plain"
- * - a filename like "google_shopping_{{date:Y-m-d_H-i-s}}.txt"
+ * - a filename like "facebook_catalog_{{date:Y-m-d_H-i-s}}.txt"
  * - data source: "product search"
  * - make sure to check "create product objects"
  */
