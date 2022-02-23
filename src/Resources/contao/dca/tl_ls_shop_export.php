@@ -534,7 +534,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 			'exclude' => true,
 			'inputType' => 'select',
 			'foreignKey' => 'tl_member_group.name',
-			'eval' => array('tl_class'=>'w50', 'includeBlankOption' => true)
+			'eval' => array('tl_class'=>'w50', 'includeBlankOption' => true),
+            'save_callback' => array (
+                array('Merconis\Core\ls_shop_export_dc', 'emptyValueFix')
+            ),
 		),
 
 		'productDirectSelection' => array(
@@ -734,6 +737,13 @@ class ls_shop_export_dc extends \Backend {
 	public function __construct() {
 		parent::__construct();
 	}
+
+    public function emptyValueFix($varValue) {
+	    if(empty($varValue)){
+	        $varValue = 0;
+        }
+        return $varValue;
+    }
 
 	public function generateFeedName($varValue, \DataContainer $dc) {
 		$autoAlias = false;
