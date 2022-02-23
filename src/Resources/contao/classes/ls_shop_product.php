@@ -41,6 +41,9 @@ class ls_shop_product
 
 	protected $ls_linkToProduct = '';
 
+    //Holds the imageGallery if created, created with getImageGallery()
+    protected $imageGallery = false;
+
 	public function __construct($intID = false, $configuratorHash = '') {
 		$this->ls_ID = $intID;
 
@@ -222,6 +225,15 @@ class ls_shop_product
 		ob_end_clean();
 		return $outputBuffer;
 	}
+
+
+    //create ImageGallery if it does not exist yet and returns it
+    public function getImageGallery($ls_imageLimit = 0) {
+        if(!$this->imageGallery){
+            $this->imageGallery = new ls_shop_moreImagesGallery($this, $ls_imageLimit);
+        }
+        return $this->imageGallery;
+    }
 
 	/*
 	 * Getter-Funktion. Durch die Kommentare für AUTO DOCUMENTATION und DESCRIPTION können die
