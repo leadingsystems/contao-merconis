@@ -229,8 +229,10 @@ class ls_shop_product
 
     //create ImageGallery if it does not exist yet and returns it
     public function getImageGallery($ls_imageLimit = 0) {
+        dump("testetette");
         if(!$this->imageGallery){
-            $this->imageGallery = new ls_shop_moreImagesGallery($this, $ls_imageLimit);
+            dump("testetette");
+            $this->imageGallery = new productImageGallery($this, $ls_imageLimit);
         }
         return $this->imageGallery;
     }
