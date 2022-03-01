@@ -12,7 +12,7 @@ class productImageGallery extends \Frontend {
     protected $mainImageSRC = false;
     protected $multiSRC = array();
 
-    //processed Imaged
+    //processed Images
     protected $mainImage = false;
     protected $ls_images = array(); // the array holding the processed images
 
@@ -27,21 +27,28 @@ class productImageGallery extends \Frontend {
 
     protected $sortingRandomizer = 0;
 
+    protected $ls_moreImagesSortBy = '';
 
-    public function __construct($product = false, $ls_imageLimit = 0) {
+
+    public function __construct($obj_productOrVariant, $ls_moreImagesSortBy = false, $ls_imageLimit = 0) {
         parent::__construct();
 
-        dump("testetette");
+        if (!is_object($obj_productOrVariant)) {
+            return;
+        }
 
-        $mainImageSRC = isset($product->mainData['lsShopProductMainImage']) && $product->mainData['lsShopProductMainImage'] ? ls_getFilePathFromVariableSources($product->mainData['lsShopProductMainImage']) : null;
-        $multiSRC = ls_shop_generalHelper::getAllProductImages($product, $product->_code, null, $product->mainData['lsShopProductMoreImages']);
+        $str_mainImageKey = $obj_productOrVariant->_objectType === 'variant' ? 'lsShopProductVariantMainImage' : 'lsShopProductMainImage';
+        $str_moreImagesKey = $obj_productOrVariant->_objectType === 'variant' ? 'lsShopProductVariantMoreImages' : 'lsShopProductMoreImages';
+
+        $mainImageSRC = isset($obj_productOrVariant->mainData[$str_mainImageKey]) && $obj_productOrVariant->mainData[$str_mainImageKey] ? ls_getFilePathFromVariableSources($obj_productOrVariant->mainData[$str_mainImageKey]) : null;
+        $multiSRC = ls_shop_generalHelper::getAllProductImages($obj_productOrVariant, $obj_productOrVariant->_code, null, $obj_productOrVariant->mainData[$str_moreImagesKey]);
 
         $this->ls_imageLimit = $ls_imageLimit;
 
-        if ($product->_isNew) {
+        if ($obj_productOrVariant->_isNew) {
             $arrOverlays[] = 'isNew';
         }
-        if ($product->_isOnSale) {
+        if ($obj_productOrVariant->_isOnSale) {
             $arrOverlays[] = 'isOnSale';
         }
 
@@ -52,7 +59,7 @@ class productImageGallery extends \Frontend {
         $this->multiSRC = $multiSRC;
         $this->mainImageSRC = $mainImageSRC;
 
-        $this->ls_moreImagesSortBy = $GLOBALS['TL_CONFIG']['ls_shop_imageSortingStandardDirection'];
+        $this->ls_moreImagesSortBy = $ls_moreImagesSortBy  ? $ls_moreImagesSortBy : $GLOBALS['TL_CONFIG']['ls_shop_imageSortingStandardDirection'];
 
         $this->sortingRandomizer = rand(0,99999);
 
@@ -74,9 +81,6 @@ class productImageGallery extends \Frontend {
 
     //returns the MainImage
     public function getMainImage(){
-
-
-        dump($this->mainImage);
         if(!$this->mainImage){
             if($this->mainImageSRC){
                 $this->mainImage = $this->processSingleImage($this->mainImageSRC);
@@ -86,17 +90,13 @@ class productImageGallery extends \Frontend {
                 $this->mainImage = $this->processSingleImage(\FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
             }
         }
-        dump($this->mainImage);
         return $this->mainImage;
     }
 
     //returns All Images MainImage+MoreImages
     public function getImages(){
-
-        dump($this->mainImage);
-
         $arrImg = $this->ls_images;
-        if (empty($this->hasMoreImages()) || !empty($this->mainImageSRC)) {
+        if (!$this->hasMoreImages() || !empty($this->mainImageSRC)) {
             array_unshift($arrImg, $this->getMainImage());
         }
         if ($this->ls_imageLimit) {
@@ -346,4 +346,3 @@ class productImageGallery extends \Frontend {
         return new \File($coverFile, true);
     }
 }
-?>

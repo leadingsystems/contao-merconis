@@ -10,21 +10,20 @@ if ($this->objProduct->_variantIsSelected && $this->objProduct->_selectedVariant
 	$obj_tmp_productOrVariant = &$this->objProduct;
 }
 
-
- dump("test");
-
 if ($obj_tmp_productOrVariant !== null) {
-    dump("test2");
     ?>
-    <div class="galleryContainer lsNavtabGalleryProductDetails"> <?php
+    <div class="galleryContainer lsNavtabGalleryProductDetails">
+        <?php
         foreach($obj_tmp_productOrVariant->getImageGallery()->getImages() as $image) {
             ?>
             <div class="imageContainer">
-            <a class="lsjs-image-zoomer lsjs-image-zoomer-applied" href="<?= $image->singleSRC ?>" title="">
-                {{shopPicture::<?=$image->singleSRC?>?size=productView&class=productImage}}
-            </a>
-            </div><?php
-        } ?>
+                <a class="lsjs-image-zoomer lsjs-image-zoomer-applied" href="<?= $image->singleSRC ?>" title="">
+                    {{shopPicture::<?=$image->singleSRC?>?size=productView&class=productImage}}
+                </a>
+            </div>
+            <?php
+        }
+        ?>
     </div>
 
     <?php
