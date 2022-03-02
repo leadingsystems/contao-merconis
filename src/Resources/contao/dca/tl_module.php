@@ -25,35 +25,40 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productOverviewShowProductsFr
     'label'                   => &$GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewShowProductsFromSubordinatePages'],
     'exclude'                 => true,
     'inputType'               => 'checkbox',
-    'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true)
+    'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
+    'sql'                     => "char(1) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productOverviewConsiderUnpublishedPages'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewConsiderUnpublishedPages'],
     'exclude'                 => true,
     'inputType'               => 'checkbox',
-    'eval'                    => array('tl_class'=>'w50')
+    'eval'                    => array('tl_class'=>'w50'),
+    'sql'                     => "char(1) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productOverviewConsiderHiddenPages'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewConsiderHiddenPages'],
     'exclude'                 => true,
     'inputType'               => 'checkbox',
-    'eval'                    => array('tl_class'=>'w50')
+    'eval'                    => array('tl_class'=>'w50'),
+    'sql'                     => "char(1) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productOverviewStartLevel'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewStartLevel'],
     'exclude'                 => true,
     'inputType'               => 'text',
-    'eval'                    => array('maxlength'=>5, 'rgxp'=>'natural', 'tl_class'=>'w50')
+    'eval'                    => array('maxlength'=>5, 'rgxp'=>'natural', 'tl_class'=>'w50'),
+    'sql'                     => "smallint(5) unsigned NOT NULL default '0'"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productOverviewStopLevel'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewStopLevel'],
     'exclude'                 => true,
     'inputType'               => 'text',
-    'eval'                    => array('maxlength'=>5, 'rgxp'=>'natural', 'tl_class'=>'w50')
+    'eval'                    => array('maxlength'=>5, 'rgxp'=>'natural', 'tl_class'=>'w50'),
+    'sql'                     => "smallint(5) unsigned NOT NULL default '0'"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productManagementApiInspector_apiPage'] = array (
@@ -61,7 +66,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productManagementApiInspector
 	'exclude'                 => true,
 	'inputType'               => 'pageTree',
 	'foreignKey'              => 'tl_page.title',
-	'eval'                    => array('mandatory' => true, 'fieldType' => 'radio')
+	'eval'                    => array('mandatory' => true, 'fieldType' => 'radio'),
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_cart_template'] = array (
@@ -69,7 +75,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_cart_template'] = array (
 	'default'                 => 'template_cart_big',
 	'exclude'                 => true,
 	'inputType'               => 'select',
-	'options'                 => $this->getTemplateGroup('template_cart_')
+	'options'                 => $this->getTemplateGroup('template_cart_'),
+    'sql'                     => "varchar(64) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_orderReview_template'] = array (
@@ -77,7 +84,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_orderReview_template'] = arra
 	'default'                 => 'template_orderReview_default',
 	'exclude'                 => true,
 	'inputType'               => 'select',
-	'options'                 => $this->getTemplateGroup('template_orderReview_')
+	'options'                 => $this->getTemplateGroup('template_orderReview_'),
+    'sql'                     => "varchar(64) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_afterCheckout_template'] = array (
@@ -85,7 +93,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_afterCheckout_template'] = ar
 	'default'                 => 'template_afterCheckout_default',
 	'exclude'                 => true,
 	'inputType'               => 'select',
-	'options'                 => $this->getTemplateGroup('template_afterCheckout_')
+	'options'                 => $this->getTemplateGroup('template_afterCheckout_'),
+    'sql'                     => "varchar(64) NOT NULL default ''"
 );
 	
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_paymentAfterCheckout_template'] = array (
@@ -93,7 +102,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_paymentAfterCheckout_template
 	'default'                 => 'template_paymentAfterCheckout_default',
 	'exclude'                 => true,
 	'inputType'               => 'select',
-	'options'                 => $this->getTemplateGroup('template_paymentAfterCheckout_')
+	'options'                 => $this->getTemplateGroup('template_paymentAfterCheckout_'),
+    'sql'                     => "varchar(64) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_myOrders_template'] = array (
@@ -102,7 +112,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_myOrders_template'] = array (
 	'exclude'                 => true,
 	'inputType'               => 'select',
 	'options'                 => $this->getTemplateGroup('template_myOrders_'),
-	'eval'					  => array('tl_class' => 'clr')
+	'eval'					  => array('tl_class' => 'clr'),
+    'sql'                     => "varchar(64) NOT NULL default ''"
 );
 	
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_myOrders_sortingOptions'] = array (
@@ -112,7 +123,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_myOrders_sortingOptions'] = a
 	'inputType'               => 'checkboxWizard',
 	'options'                 => array('orderDateUnixTimestamp', 'orderNr', 'invoicedAmount', 'status01', 'status02', 'status03', 'status04', 'status05'),
 	'reference'				  => $GLOBALS['TL_LANG']['MSC']['ls_shop']['orderSortingOptions'],
-	'eval'					  => array('multiple' => true, 'tl_class' => 'clr')
+	'eval'					  => array('multiple' => true, 'tl_class' => 'clr'),
+    'sql'                     => "blob NULL"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_myOrderDetails_template'] = array (
@@ -120,7 +132,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_myOrderDetails_template'] = a
 	'default'                 => 'template_myOrders_default',
 	'exclude'                 => true,
 	'inputType'               => 'select',
-	'options'                 => $this->getTemplateGroup('template_myOrderDetails_')
+	'options'                 => $this->getTemplateGroup('template_myOrderDetails_'),
+    'sql'                     => "varchar(64) NOT NULL default ''"
 );
 	
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_filterForm_template'] = array (
@@ -128,7 +141,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_filterForm_template'] = array
 	'default'                 => 'template_filterForm_default',
 	'exclude'                 => true,
 	'inputType'               => 'select',
-	'options'                 => $this->getTemplateGroup('template_filterForm_')
+	'options'                 => $this->getTemplateGroup('template_filterForm_'),
+    'sql'                     => "varchar(64) NOT NULL default ''"
 );
 	
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_filterSummary_template'] = array (
@@ -136,7 +150,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_filterSummary_template'] = ar
 	'default'                 => 'template_filterSummary_default',
 	'exclude'                 => true,
 	'inputType'               => 'select',
-	'options'                 => $this->getTemplateGroup('template_filterSummary_')
+	'options'                 => $this->getTemplateGroup('template_filterSummary_'),
+    'sql'                     => "varchar(64) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_cross_seller'] = array (
@@ -144,7 +159,8 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_cross_seller'] = array (
 	'label'			=> &$GLOBALS['TL_LANG']['tl_module']['ls_shop_cross_seller'],
 	'inputType'		=> 'select',
 	'foreignKey'	=> 'tl_ls_shop_cross_seller.title',
-	'eval'			=> array('tl_class' => 'w50')
+	'eval'			=> array('tl_class' => 'w50'),
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productSearch_template'] = array (
@@ -153,14 +169,17 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productSearch_template'] = ar
 	'exclude'                 => true,
 	'inputType'               => 'select',
 	'options'                 => $this->getTemplateGroup('template_productSearch_'),
-	'eval'			=> array('tl_class' => 'w50')
+	'eval'			=> array('tl_class' => 'w50'),
+    'sql'                     => "varchar(64) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productSearch_minlengthInput'] = array (
 	'label' => &$GLOBALS['TL_LANG']['tl_module']['ls_shop_productSearch_minlengthInput'],
 	'exclude' => true,
 	'inputType' => 'text',
-	'eval' => array('rgxp' => 'digit', 'tl_class' => 'w50', 'mandatory' => true)
+	'eval' => array('rgxp' => 'digit', 'tl_class' => 'w50', 'mandatory' => true),
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 	
 ?>
+

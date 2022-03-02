@@ -20,7 +20,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 		),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -31,7 +40,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 			'panelLayout' => 'search,limit',
 			'headerFields' => array('title'),
 			'disableGrouping' => true,
-			'child_record_callback'   => array('Merconis\Core\ls_shop_attribute_values', 'listChildRecords')
+			'child_record_callback'   => array('Merconis\Core\ls_shop_attribute_values', 'listChildRecords'),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'global_operations' => array(
@@ -82,12 +92,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['title'],
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'maxlength'=>255),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'alias' => array (
@@ -98,24 +112,42 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 			'save_callback' => array (
 				array('Merconis\Core\ls_shop_attribute_values', 'generateAlias')
 			),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 		),
 		
 		'classForFilterFormField' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['classForFilterFormField'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('tl_class' => 'w50', 'maxlength'=>255)
+			'eval' => array('tl_class' => 'w50', 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'importantFieldValue' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['importantFieldValue'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50 m12')
+			'eval'                    => array('tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		)
 	)
 );
+
+
+$GLOBALS['TL_DCA']['tl_ls_shop_attribute_values']['fields']['tstamp'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
+    'exclude'                 => true,
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
+);
+
+$GLOBALS['TL_DCA']['tl_ls_shop_attribute_values']['fields']['pid'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['pid'],
+    'exclude'                 => true,
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
+);
+
+
 
 class ls_shop_attribute_values extends \Backend {
 	public function __construct() {

@@ -16,7 +16,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 		),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -95,12 +104,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
 		'title' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['title'],
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'maxlength'=>255),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'lsShopProductTemplate' => array(
@@ -118,13 +131,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'inputType' => 'select',
 			'options_callback'        => array('Merconis\Core\ls_shop_output_definitions','ls_getOverviewSortingOptions'),
 			'reference'				=> &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference'],
-			'eval'					=> array('helpwizard' => false)
+			'eval'					=> array('helpwizard' => false),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'lsShopProductOverviewSortingKeyOrAlias' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSortingKeyOrAlias'],			
-			'inputType' => 'text'
+			'inputType' => 'text',
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'lsShopProductOverviewUserSorting' => array(
@@ -133,7 +148,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'inputType' => 'select',
 			'options_callback'        => array('Merconis\Core\ls_shop_output_definitions','ls_getOverviewUserSortingOptions'),
 			'reference'				=> &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSorting']['reference'],
-			'eval'					=> array('helpwizard' => false)
+			'eval'					=> array('helpwizard' => false),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'lsShopProductOverviewUserSortingFields' => array(
@@ -245,13 +261,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 					}
 				'
 			),
+            'sql'                     => "text NULL"
 		),
 		
 		'lsShopProductOverviewPagination' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewPagination'],
 			'inputType' => 'text',
-			'eval' => array('mandatory' => true, 'rgxp' => 'digit', 'maxlength' => 3)
+			'eval' => array('mandatory' => true, 'rgxp' => 'digit', 'maxlength' => 3),
+            'sql'                     => "int(3) unsigned NOT NULL default '0'"
 		)
 	)
 );
@@ -263,6 +281,53 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOver
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSorting_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSorting'];
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields'];
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination'];
+
+
+
+$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['tstamp'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
+    'exclude'                 => true,
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
+);
+
+
+
+
+$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductTemplate_crossSeller'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['lsShopProductTemplate_crossSeller'],
+    'exclude'                 => true,
+    'sql'                     => "varchar(255) NOT NULL default ''"
+);
+
+$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewSorting_crossSeller'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['lsShopProductOverviewSorting_crossSeller'],
+    'exclude'                 => true,
+    'sql'                     => "varchar(255) NOT NULL default ''"
+);
+
+$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewSortingKeyOrAlias_crossSeller'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['lsShopProductOverviewSortingKeyOrAlias_crossSeller'],
+    'exclude'                 => true,
+    'sql'                     => "varchar(255) NOT NULL default ''"
+);
+
+$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSorting_crossSeller'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['lsShopProductOverviewUserSorting_crossSeller'],
+    'exclude'                 => true,
+    'sql'                     => "varchar(255) NOT NULL default ''"
+);
+
+$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields_crossSeller'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['lsShopProductOverviewUserSortingFields_crossSeller'],
+    'exclude'                 => true,
+    'sql'                     => "text NULL"
+);
+
+$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination_crossSeller'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['lsShopProductOverviewPagination_crossSeller'],
+    'exclude'                 => true,
+    'sql'                     => "int(3) unsigned NOT NULL default '0'"
+);
 
 
 

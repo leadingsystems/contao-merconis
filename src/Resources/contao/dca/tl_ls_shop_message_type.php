@@ -8,7 +8,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 		'ctable' => array('tl_ls_shop_message_model'),
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_ls_shop_message_type_controller', 'restartCounter')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -147,13 +156,17 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['title'],
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'maxlength'=>255),
 			'flag' => 11,
-			'search'		=> true
+			'search'		=> true,
+            'sql'                     => "char(255) NOT NULL default ''"
 		),
 		
 		'alias' => array (
@@ -166,7 +179,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 		),
 		
 		'useCounter' => array(
@@ -174,28 +188,32 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
-			'filter'				  => true
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'counter' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['counter'],
 			'inputType' => 'simpleOutput',
-			'eval' => array('tl_class'=>'w50')
+			'eval' => array('tl_class'=>'w50'),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'counterString' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['counterString'],
 			'inputType' => 'text',
-			'eval' => array('tl_class'=>'w50', 'maxlength'=>255)
+			'eval' => array('tl_class'=>'w50', 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'counterStart' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['counterStart'],
 			'inputType' => 'text',
-			'eval' => array('rgxp'=>'digit', 'nospace'=>true, 'tl_class'=>'w50', 'mandatory' => true)
+			'eval' => array('rgxp'=>'digit', 'nospace'=>true, 'tl_class'=>'w50', 'mandatory' => true),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'counterRestartCycle' => array(
@@ -204,14 +222,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'inputType'               => 'select',
 			'options'                 => array('never', 'year', 'month', 'week', 'day'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['counterRestartCycle']['options'],
-			'eval'                    => array('tl_class'=>'w50')
+			'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'counterRestartNow' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['counterRestartNow'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50 m12')
+			'eval'                    => array('tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'lastDispatchDateUnixTimestamp' => array(
@@ -221,7 +241,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
 			'load_callback' => array(
 				array('Merconis\Core\tl_ls_shop_message_type_controller', 'getLastDispatchDateUnixTimestamp')
-			)
+			),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'sendWhen' => array(
@@ -231,49 +252,56 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'options'				  => array('manual','onStatusChangeImmediately','onStatusChangeCronDaily','onStatusChangeCronHourly','asOrderConfirmation','asOrderNotice','onRestock'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['sendWhen']['options'],
 			'eval'					  => array('tl_class' => 'clr', 'submitOnChange' => true),
-			'filter'				  => true
+			'filter'				  => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'useStatusCorrelation01' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['useStatusCorrelation01'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true)
+			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'useStatusCorrelation02' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['useStatusCorrelation02'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true)
+			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'useStatusCorrelation03' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['useStatusCorrelation03'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true)
+			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'useStatusCorrelation04' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['useStatusCorrelation04'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true)
+			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'useStatusCorrelation05' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['useStatusCorrelation05'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true)
+			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'usePaymentStatusCorrelation' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['usePaymentStatusCorrelation'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true)
+			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'statusCorrelation01' => array(
@@ -282,7 +310,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'inputType'               => 'select',
 			'eval'					  => array('tl_class' => 'w50'),
 			'options_callback'		  => array('Merconis\Core\ls_shop_generalHelper', 'getStatusValues01AsOptions'),
-			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues']
+			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues'],
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'statusCorrelation02' => array(
@@ -291,7 +320,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'inputType'               => 'select',
 			'eval'					  => array('tl_class' => 'w50'),
 			'options_callback'		  => array('Merconis\Core\ls_shop_generalHelper', 'getStatusValues02AsOptions'),
-			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues']
+			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues'],
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'statusCorrelation03' => array(
@@ -300,7 +330,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'inputType'               => 'select',
 			'eval'					  => array('tl_class' => 'w50'),
 			'options_callback'		  => array('Merconis\Core\ls_shop_generalHelper', 'getStatusValues03AsOptions'),
-			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues']
+			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues'],
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'statusCorrelation04' => array(
@@ -309,7 +340,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'inputType'               => 'select',
 			'eval'					  => array('tl_class' => 'w50'),
 			'options_callback'		  => array('Merconis\Core\ls_shop_generalHelper', 'getStatusValues04AsOptions'),
-			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues']
+			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues'],
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'statusCorrelation05' => array(
@@ -318,7 +350,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'inputType'               => 'select',
 			'eval'					  => array('tl_class' => 'w50'),
 			'options_callback'		  => array('Merconis\Core\ls_shop_generalHelper', 'getStatusValues05AsOptions'),
-			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues']
+			'reference'               => &$GLOBALS['TL_LANG']['MSC']['ls_shop']['statusValues'],
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'paymentStatusCorrelation_paymentProvider' => array(
@@ -327,17 +360,33 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('payPalPlus', 'payone', 'saferpay', 'vrpay', 'sofortbanking'),
 			'eval'					  => array('tl_class' => 'w50'),
-			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['paymentStatusCorrelation_paymentProvider']['options']
+			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['paymentStatusCorrelation_paymentProvider']['options'],
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'paymentStatusCorrelation_statusValue' => array(
 			'label' =>  &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['paymentStatusCorrelation_statusValue'],
 			'exclude'                 => true,
 			'inputType'               => 'text',
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		)
 	)
 );
+
+$GLOBALS['TL_DCA']['tl_ls_shop_message_type']['fields']['pid'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['pid'],
+    'exclude'                 => true,
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
+);
+
+$GLOBALS['TL_DCA']['tl_ls_shop_message_type']['fields']['tstamp'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
+    'exclude'                 => true,
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
+);
+
+
 
 class tl_ls_shop_message_type_controller extends \Backend {
 

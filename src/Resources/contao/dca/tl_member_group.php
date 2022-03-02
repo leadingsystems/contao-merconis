@@ -31,7 +31,8 @@ namespace Merconis\Core;
 		'label' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopFormCustomerData'],
 		'inputType' => 'select',
 		'foreignKey' => 'tl_form.title',
-		'eval'		 =>	array('tl_class' => 'w50')
+		'eval'		 =>	array('tl_class' => 'w50'),
+        'sql'                     => "int(10) unsigned NOT NULL default '0'"
 	);
 		
 	$GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopFormConfirmOrder'] = array(
@@ -39,7 +40,8 @@ namespace Merconis\Core;
 		'label' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopFormConfirmOrder'],
 		'inputType' => 'select',
 		'foreignKey' => 'tl_form.title',
-		'eval'		 =>	array('tl_class' => 'w50')
+		'eval'		 =>	array('tl_class' => 'w50'),
+        'sql'                     => "int(10) unsigned NOT NULL default '0'"
 	);
 		
 	$GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopOutputPriceType'] = array(
@@ -48,27 +50,31 @@ namespace Merconis\Core;
 		'inputType' => 'select',
 		'options' => array('brutto', 'netto'),
 		'reference' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopOutputPriceType']['options'],
-		'eval' => array('helpwizard' => true, 'tl_class' => 'w50')
+		'eval' => array('helpwizard' => true, 'tl_class' => 'w50'),
+        'sql'                     => "varchar(32) NOT NULL default 'brutto'"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopMinimumOrderValue'] = array(
 		'exclude' => true,
 		'label' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopMinimumOrderValue'],
 		'inputType' => 'text',
-		'eval' => array('rgxp' => 'numberWithDecimals', 'mandatory' => true, 'tl_class' => 'w50')
+		'eval' => array('rgxp' => 'numberWithDecimals', 'mandatory' => true, 'tl_class' => 'w50'),
+        'sql'                     => "decimal(10,2) NOT NULL default '0.00'"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopMinimumOrderValueAddCouponToValueOfGoods'] = array(
 		'exclude' => true,
 		'label' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopMinimumOrderValueAddCouponToValueOfGoods'],
 		'inputType'               => 'checkbox',
-		'eval'					  =>	array('tl_class' => 'w50 m12')
+		'eval'					  =>	array('tl_class' => 'w50 m12'),
+        'sql'                     => "char(1) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopPriceAdjustment'] = array(
 		'exclude' => true,
 		'label' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopPriceAdjustment'],
 		'inputType' => 'text',
-		'eval' => array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true)
+		'eval' => array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+        'sql'                     => "decimal(10,2) NOT NULL default '0.00'"
 	);
 ?>

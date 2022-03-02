@@ -17,7 +17,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 		),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -81,6 +90,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['title'],
 			'exclude' => true,
@@ -88,7 +100,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'maxlength'=>255),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'alias' => array (
@@ -101,10 +114,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 			),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 		)
 	)
 );
+
+
+$GLOBALS['TL_DCA']['tl_ls_shop_attributes']['fields']['tstamp'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
+    'exclude'                 => true,
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
+);
+
+
 
 class ls_shop_attributes extends \Backend {
 	public function __construct() {

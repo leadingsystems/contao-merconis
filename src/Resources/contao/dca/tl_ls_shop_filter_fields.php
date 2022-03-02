@@ -17,7 +17,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -91,6 +100,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['title'],
 			'exclude' => true,
@@ -98,7 +110,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'maxlength'=>255),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'alias' => array (
@@ -111,7 +124,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 		),
 		
 		'dataSource' => array(
@@ -121,7 +135,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'inputType'               => 'select',
 			'options'                 => array('attribute', 'producer', 'price'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource']['options'],
-			'eval'					  => array('tl_class' => 'clr', 'helpwizard' => true, 'submitOnChange' => true)
+			'eval'					  => array('tl_class' => 'clr', 'helpwizard' => true, 'submitOnChange' => true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'sourceAttribute' => array(
@@ -129,21 +144,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['sourceAttribute'],
 			'inputType' => 'select',
 			'foreignKey' => 'tl_ls_shop_attributes.title',
-			'eval' => array('tl_class' => 'w50')
+			'eval' => array('tl_class' => 'w50'),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'numItemsInReducedMode' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['numItemsInReducedMode'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('rgxp' => 'digit', 'tl_class' => 'w50', 'mandatory' => true)
+			'eval' => array('rgxp' => 'digit', 'tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'classForFilterFormField' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['classForFilterFormField'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('tl_class' => 'w50', 'maxlength'=>255)
+			'eval' => array('tl_class' => 'w50', 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'filterFormFieldType' => array (
@@ -152,7 +170,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'inputType'               => 'select',
 			'options'                 => array('checkbox', 'radio'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterFormFieldType']['options'],
-			'eval'                    => array('tl_class'=>'w50')
+			'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'priority' => array (
@@ -161,7 +180,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'inputType' => 'text',
 			'eval' => array('rgxp' => 'digit', 'tl_class' => 'w50', 'mandatory' => true),
 			'sorting' => true,
-			'flag' => 12
+			'flag' => 12,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'templateToUse'				  => array(
@@ -169,7 +189,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'exclude'				  => true,
 			'inputType'               => 'select',
 			'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFilterFieldTemplates'),
-			'eval'                    => array('tl_class'=>'w50')
+			'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFilterField_standard'"
 		),
 		
 		'templateToUseForPriceField'  => array(
@@ -177,7 +198,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'exclude'				  => true,
 			'inputType'               => 'select',
 			'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getPriceFilterFieldTemplates'),
-			'eval'                    => array('tl_class'=>'w50')
+			'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formPriceFilterField_standard'"
 		),
 
 		'filterMode' => array(
@@ -186,24 +208,35 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'inputType'               => 'select',
 			'options'                 => array('or', 'and'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode']['options'],
-			'eval'                    => array('tl_class'=>'w50')
+			'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		),
 		
 		'makeFilterModeUserAdjustable' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['makeFilterModeUserAdjustable'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50 m12')
+			'eval'                    => array('tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'published' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['published'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50')
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		)
 	)
 );
+
+$GLOBALS['TL_DCA']['tl_ls_shop_filter_fields']['fields']['tstamp'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
+    'exclude'                 => true,
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
+);
+
+
 
 class ls_shop_filter_fields extends \Backend {
 	public function __construct() {

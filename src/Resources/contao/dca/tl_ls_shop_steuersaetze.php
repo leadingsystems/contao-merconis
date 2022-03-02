@@ -16,7 +16,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 		),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -75,12 +84,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
 		'title' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['title'],
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'maxlength'=>255),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'alias' => array (
@@ -91,7 +104,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'save_callback' => array (
 				array('Merconis\Core\ls_shop_steuersaetze', 'generateAlias')
 			),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 
 		),
 
@@ -121,7 +135,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			),
 			'save_callback' => array(
 				array('Merconis\Core\ls_shop_steuersaetze', 'checkIfWildcardsUsedAndAllowed')
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 		
 		'startPeriod1' => array(
@@ -135,7 +150,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['stopPeriod1'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard')
+			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+            'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 		
 		'steuerProzentPeriod2' => array(
@@ -164,24 +180,38 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			),
 			'save_callback' => array(
 				array('Merconis\Core\ls_shop_steuersaetze', 'checkIfWildcardsUsedAndAllowed')
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 		
 		'startPeriod2' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['startPeriod2'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard')
+			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+            'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 		
 		'stopPeriod2' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['stopPeriod2'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard')
+			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+            'sql'                     => "varchar(10) NOT NULL default ''"
 		)
 	)
 );
+
+
+$GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze']['fields']['tstamp'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
+    'exclude'                 => true,
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
+);
+
+
+
+
 
 class ls_shop_steuersaetze extends \Backend {
 	public function generateAlias($varValue, \DataContainer $dc) {

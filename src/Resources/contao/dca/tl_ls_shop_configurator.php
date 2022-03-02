@@ -16,7 +16,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 		),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -75,6 +84,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['title'],
 			'exclude' => true,
@@ -82,7 +94,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'maxlength'=>255),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'alias' => array (
@@ -95,7 +108,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 			),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 		),
 		
 		'form' => array(
@@ -103,28 +117,32 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 			'exclude' => true,
 			'inputType' => 'select',
 			'foreignKey' => 'tl_form.title',
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'startWithDataEntryMode' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['startWithDataEntryMode'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "char(1) NOT NULL default '1'"
 		),
 
 		'stayInDataEntryMode' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['stayInDataEntryMode'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'skipStandardFormValidation' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['skipStandardFormValidation'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'customLogicFile' => array(
@@ -141,10 +159,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 			'inputType'               => 'select',
 			'options'                 => $this->getTemplateGroup('template_configurator_'),
 			'eval'					  => array('tl_class' => 'w50'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		)
 	)
 );
+
+$GLOBALS['TL_DCA']['tl_ls_shop_configurator']['fields']['tstamp'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
+    'exclude'                 => true,
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
+);
+
+
+
 
 class ls_shop_configurator extends \Backend {
 	public function __construct() {

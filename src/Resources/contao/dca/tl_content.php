@@ -12,7 +12,8 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopCrossSeller'] = array(
 	'exclude'                 => true,
 	'inputType'		=> 'select',
 	'foreignKey'	=> 'tl_ls_shop_cross_seller.title',
-	'eval'			=> array('tl_class' => 'w50')
+	'eval'			=> array('tl_class' => 'w50'),
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
 
@@ -32,5 +33,6 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopOutputCondition'] = array(
 	'inputType'		=> 'select',
 	'options'		=> array('always', 'onlyInOverview', 'onlyInSingleview', 'onlyIfCartNotEmpty', 'onlyIfCartEmpty', 'onlyIfFeUserLoggedIn', 'onlyIfFeUserNotLoggedIn'),
 	'reference'			=> &$GLOBALS['TL_LANG']['tl_content']['lsShopOutputCondition']['options'],
-	'eval'			=> array('tl_class' => 'w50', 'helpwizard' => true)
+	'eval'			=> array('tl_class' => 'w50', 'helpwizard' => true),
+    'sql'                     => "varchar(32) NOT NULL default ''"
 );
