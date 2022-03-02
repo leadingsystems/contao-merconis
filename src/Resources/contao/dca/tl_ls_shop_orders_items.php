@@ -1,10 +1,13 @@
 <?php
 
+namespace Merconis\Core;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_orders_orders_items']['fields'] = array(
     'config' => array(
         'sql' => array
         (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
             'keys' => array
             (
                 'id' => 'primary'

@@ -17,6 +17,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 
 	),
 	
@@ -458,7 +467,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller']['fields']['tstamp'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
     'exclude'                 => true,
-    'sql'                     => "varchar(64) NOT NULL default ''"
+    'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
 
