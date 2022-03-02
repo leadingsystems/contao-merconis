@@ -40,8 +40,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 			'panelLayout' => 'search,limit',
 			'headerFields' => array('title'),
 			'disableGrouping' => true,
-			'child_record_callback'   => array('Merconis\Core\ls_shop_attribute_values', 'listChildRecords'),
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+			'child_record_callback'   => array('Merconis\Core\ls_shop_attribute_values', 'listChildRecords')
 		),
 		
 		'global_operations' => array(
@@ -95,6 +94,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+        'sorting' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'pid' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['title'],
 			'exclude' => true,
@@ -135,17 +144,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 );
 
 
-$GLOBALS['TL_DCA']['tl_ls_shop_attribute_values']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_attribute_values']['fields']['pid'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['pid'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
 
 

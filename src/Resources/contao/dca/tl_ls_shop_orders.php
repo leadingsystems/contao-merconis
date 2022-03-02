@@ -409,13 +409,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['orderDate'] = array (
     'sql'                     => "varchar(32) NOT NULL default ''"
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['costumerNr'] = array (
+$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['customerNr'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
     'exclude'                 => true,
     'sql'                     => "varchar(32) NOT NULL default ''"
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['costumerLanguage'] = array (
+$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['customerLanguage'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
     'exclude'                 => true,
     'sql'                     => "varchar(2) NOT NULL default ''"
@@ -427,7 +427,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['personalDataReview'] = array 
     'sql'                     => "blob NULL"
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['personalDataReview_costumerLanguage'] = array (
+$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['personalDataReview_customerLanguage'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
     'exclude'                 => true,
     'sql'                     => "blob NULL"
@@ -439,7 +439,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentDataReview'] = array (
     'sql'                     => "blob NULL"
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentDataReview_costumerLanguage'] = array (
+$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentDataReview_customerLanguage'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
     'exclude'                 => true,
     'sql'                     => "blob NULL"
@@ -451,7 +451,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingDataReview'] = array 
     'sql'                     => "blob NULL"
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingDataReview_costumerLanguage'] = array (
+
+$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingDataReview_customerLanguage'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
     'exclude'                 => true,
     'sql'                     => "blob NULL"

@@ -6,7 +6,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_restock_info_list'] = array(
         (
             'keys' => array
             (
-                'id' => 'primary',
                 'productvariantid' => 'index',
                 'variantid' => 'index',
                 'productid' => 'index',
@@ -15,9 +14,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_restock_info_list'] = array(
         )
     ),
     'fields' =>  array(
-        'id' => array (
-            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
-        ),
         'productVariantId' => array (
             'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['productVariantId'],
             'exclude'                 => true,

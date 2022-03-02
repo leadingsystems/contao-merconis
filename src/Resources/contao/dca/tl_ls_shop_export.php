@@ -18,7 +18,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
         'onrestore_callback' => array(
             array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
         ),
-
+        
     ),
 
     'list' => array(
@@ -792,15 +792,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
             'inputType' => 'text',
             'eval' => array('maxlength' => 255, 'tl_class' => 'w50'),
             'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+        'tstamp' => array(
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
         )
     )
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_export']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
+
 
 class ls_shop_export_dc extends \Backend {
     public function __construct() {

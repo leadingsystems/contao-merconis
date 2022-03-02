@@ -6,15 +6,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_allocation'] = array(
         (
             'keys' => array
             (
-                'id' => 'primary',
                 'pid' => 'index'
             )
         )
     ),
     'fields' =>  array(
-        'id' => array (
-            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
-        ),
         'pid' => array (
             'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['pid'],
             'exclude'                 => true,
