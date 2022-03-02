@@ -54,8 +54,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'panelLayout' => 'filter;sort,search,limit',
 			'headerFields'            => array('title', 'lsShopProductProducer'),
 			'disableGrouping'   => true,
-			'child_record_callback'   => array('Merconis\Core\tl_ls_shop_variant_controller', 'listVariants'),
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+			'child_record_callback'   => array('Merconis\Core\tl_ls_shop_variant_controller', 'listVariants')
 		),
 		
 		'global_operations' => array(
@@ -233,6 +232,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 	'fields' => array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
+        'sorting' => array(
+            'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['sorting'],
+            'exclude' => true,
+            'inputType'		=>	'text',
+            'eval'			=>	array('rgxp' => 'number', 'tl_class' => 'w50', 'mandatory' => true),
+            'sorting' => true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
         ),
 		'lsShopVariantCode' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantCode'],

@@ -374,7 +374,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'exclude' => true,
 			'inputType'		=>	'text',
 			'eval'			=>	array('rgxp' => 'number', 'tl_class' => 'w50', 'mandatory' => true),
-			'sorting' => true
+			'sorting' => true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		)
 	)
 );

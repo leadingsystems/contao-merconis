@@ -288,9 +288,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
                 array('LeadingSystems\Helpers\ls_helpers_controller', 'idFromUuid')
             ),
             'load_callback' => array(
-                array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId'),
-                'sql'                     => "int(10) unsigned NOT NULL default '0'"
-            )
+                array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId')
+            ),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
         ),
 
         'fileName' => array (
