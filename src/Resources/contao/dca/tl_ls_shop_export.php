@@ -18,7 +18,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
         'onrestore_callback' => array(
             array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
         ),
-        
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
     ),
 
     'list' => array(
@@ -304,7 +312,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
             'exclude' => true,
             'inputType'               => 'checkbox',
             'eval'                    => array('tl_class'=>'clr cbx'),
-            'sql'                     => " char(1) NOT NULL default ''"
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'dataSource' => array(
@@ -327,7 +335,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
             'options'                 => array(5, 10, 15, 30, 60, 120, 720, 1440, 2880, 10080, 20160, 40320, 525600, 9999999),
             'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_export']['changedWithinMinutes']['options'],
             'filter' => true,
-            'sql'                     => " int(10) unsigned NOT NULL default '0'"
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
         ),
 
 
@@ -699,7 +707,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
             'exclude' => true,
             'inputType'               => 'checkbox',
             'eval'					  => array('tl_class' => 'w50'),
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'searchSelectionProducer' => array(
@@ -707,7 +715,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
             'exclude' => true,
             'inputType' => 'text',
             'eval'					  => array('tl_class' => 'w50', 'maxlength' => 255),
-            'sql'                     => "char(1) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
 

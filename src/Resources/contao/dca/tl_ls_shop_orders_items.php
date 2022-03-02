@@ -2,7 +2,7 @@
 
 namespace Merconis\Core;
 
-$GLOBALS['TL_DCA']['tl_ls_shop_orders_orders_items']['fields'] = array(
+$GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
     'config' => array(
         'sql' => array
         (
@@ -21,7 +21,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders_orders_items']['fields'] = array(
         'pid' => array (
             'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['pid'],
             'exclude'                 => true,
-            'sql'                     => "int(10) unsigned NOT NULL default '0"
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
         ),
         'tstamp' => array (
             'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
