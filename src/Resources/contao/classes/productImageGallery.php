@@ -146,29 +146,6 @@ class productImageGallery extends \Frontend {
     }
 
 
-
-    protected function process($file){
-        if (@file_exists(TL_ROOT.'/'.$file)) {
-
-            // Process single files
-            if (is_file(TL_ROOT.'/'.$file)) {
-
-                $this->ls_images[] = $this->processSingleImage($file);
-            }
-
-            // Process folders (not recursive, only the one given folder!)
-            else {
-                $subfiles = scan(TL_ROOT.'/'.$file);
-
-                foreach ($subfiles as $subfile) {
-                    $subfileName = $file . '/' . $subfile;
-
-                    $this->ls_images[] = $this->processSingleImage($subfileName);
-                }
-            }
-        }
-    }
-
     protected function lsShopGetProcessedImages() {
 
         // Get all images

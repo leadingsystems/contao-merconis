@@ -303,7 +303,7 @@ You can use the method "getImage" to get the image in the size you need: \Image:
 				break;
 
 			case '_hasMainImage':
-                trigger_error('Case ' . $what . ' is deprecated use $obj_variant->getImageGallery()->getMainImage() instead', E_USER_DEPRECATED);
+                trigger_error('Case ' . $what . ' is deprecated use $obj_variant->getImageGallery()->hasMainImage() instead', E_USER_DEPRECATED);
 				return $this->_mainImage ? true : false;
 				break;
 

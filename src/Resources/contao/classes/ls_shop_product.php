@@ -477,7 +477,7 @@ You can use the method "\Image::get" to get the image in the size you need: \Ima
 				break;
 
 			case '_hasMainImage':
-                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMainImage() instead', E_USER_DEPRECATED);
+                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->hasMainImage() instead', E_USER_DEPRECATED);
 				return $this->_mainImage ? true : false;
 				break;
 

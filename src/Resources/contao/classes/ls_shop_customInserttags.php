@@ -151,6 +151,9 @@ class ls_shop_customInserttags
                                 if($result){
                                     //replace text with id
                                     $params = str_replace('size='.$value, 'size='.$result['id'], $params);
+                                }else{
+                                    //if no if can be found remove size
+                                    $params = str_replace('size='.$value, '', $params);
                                 }
                                 break;
                         }
