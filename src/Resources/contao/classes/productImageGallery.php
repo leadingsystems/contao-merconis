@@ -41,7 +41,12 @@ class productImageGallery extends \Frontend {
         $str_moreImagesKey = $obj_productOrVariant->_objectType === 'variant' ? 'lsShopProductVariantMoreImages' : 'lsShopProductMoreImages';
 
         $mainImageSRC = isset($obj_productOrVariant->mainData[$str_mainImageKey]) && $obj_productOrVariant->mainData[$str_mainImageKey] ? ls_getFilePathFromVariableSources($obj_productOrVariant->mainData[$str_mainImageKey]) : null;
+
+
+
         $multiSRC = ls_shop_generalHelper::getAllProductImages($obj_productOrVariant, $obj_productOrVariant->_code, null, $obj_productOrVariant->mainData[$str_moreImagesKey]);
+
+
 
         $this->ls_imageLimit = $ls_imageLimit;
 
@@ -150,6 +155,7 @@ class productImageGallery extends \Frontend {
 
         // Get all images
         foreach ($this->multiSRC as $file) {
+            dump($file);
             $this->ls_images[] = $this->processSingleImage($file);
         }
 
@@ -258,6 +264,8 @@ class productImageGallery extends \Frontend {
          * the image to the images array
          */
 
+
+
         if ($objFile->isGdImage) {
             $objImage = new \stdClass();
             $objImage->name = $objFile->basename;
@@ -269,7 +277,7 @@ class productImageGallery extends \Frontend {
             $objImage->caption = $arrMeta['caption'];
             $objImage->mtime = $objFile->mtime;
             $objImage->randomSortingValue = md5($objFile->basename.$this->sortingRandomizer);
-
+            dump($objImage);
             return $objImage;
 
         }
