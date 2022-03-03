@@ -48,6 +48,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_import'] = array(
 		'id' => array (
 			'sql'                     => "int(10) unsigned NOT NULL auto_increment"
 		),
+		'pid' => array (
+			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+		),
+		'tstamp' => array (
+			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+		),
 		'importInfo' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_import']['importInfo'],
 			'exclude' => true,
@@ -57,17 +63,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_import'] = array(
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_import']['fields']['pid'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['pid'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_import']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
 ?>
 

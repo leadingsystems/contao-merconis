@@ -95,6 +95,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+        'pid' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'sorting' => array(
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'filterValue' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_field_values']['filterValue'],
 			'exclude' => true,
@@ -137,19 +146,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values'] = array(
 
 
 
-$GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values']['fields']['pid'] = array (
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values']['fields']['tstamp'] = array (
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-
-
-$GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values']['fields']['sorting'] = array(
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
 
 

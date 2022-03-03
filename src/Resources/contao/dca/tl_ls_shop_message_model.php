@@ -102,6 +102,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+        'pid' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'member_group' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['member_group'],
 			'exclude' => true,
@@ -314,17 +320,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_message_model']['fields']['pid'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['pid'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_message_model']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
 
 

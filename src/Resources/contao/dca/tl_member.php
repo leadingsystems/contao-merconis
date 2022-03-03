@@ -123,14 +123,10 @@ namespace Merconis\Core;
 	);
 
 	$GLOBALS['TL_DCA']['tl_member']['fields']['state_alternative'] = array (
-        'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['state_alternative'],
-        'exclude'                 => true,
         'sql'                     => "varchar(64) NOT NULL default ''"
     );
 
 	$GLOBALS['TL_DCA']['tl_member']['fields']['merconis_favoriteProducts'] = array (
-        'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['merconis_favoriteProducts'],
-        'exclude'                 => true,
         'sql'                     => "blob NULL"
     );
 ?>

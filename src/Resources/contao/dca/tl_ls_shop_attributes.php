@@ -122,8 +122,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 
 
 $GLOBALS['TL_DCA']['tl_ls_shop_attributes']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 

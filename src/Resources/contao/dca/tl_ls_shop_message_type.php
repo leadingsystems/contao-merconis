@@ -159,6 +159,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+        'pid' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['title'],
 			'exclude' => true,
@@ -166,7 +172,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'eval' => array('mandatory' => true, 'tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'maxlength'=>255),
 			'flag' => 11,
 			'search'		=> true,
-            'sql'                     => "char(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'alias' => array (
@@ -374,17 +380,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_message_type']['fields']['pid'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['pid'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_message_type']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
 
 

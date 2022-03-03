@@ -72,8 +72,6 @@ namespace Merconis\Core;
 	);
 
     $GLOBALS['TL_DCA']['tl_layout']['fields']['lsShopOutputDefinitionSet'] = array (
-        'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['lsShopOutputDefinitionSet'],
-        'exclude'                 => true,
         'sql'                     => "int(10) unsigned NOT NULL default '0'"
     );
 

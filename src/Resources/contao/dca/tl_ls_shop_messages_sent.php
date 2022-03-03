@@ -72,6 +72,21 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+        'orderID' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'messageTypeID' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'messageModelID' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'bodyHTML' => array (
+            'sql'                     => "text NULL"
+        ),
+        'bodyRawtext' => array (
+            'sql'                     => "text NULL"
+        ),
 		'tstamp' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['tstamp'],
@@ -208,35 +223,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_messages_sent']['fields']['orderID'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['orderID'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_messages_sent']['fields']['messageTypeID'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['messageTypeID'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_messages_sent']['fields']['messageModelID'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['messageModelID'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_messages_sent']['fields']['bodyHTML'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['bodyHTML'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_messages_sent']['fields']['bodyRawtext'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['bodyRawtext'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
 
 
 class ls_shop_messages_sent extends \Backend {

@@ -387,358 +387,239 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             'eval' => array('maxlength'=>255),
             'filter' => true,
             'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'orderIdentificationHash' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'orderDate' => array (
+            'sql'                     => "varchar(32) NOT NULL default ''"
+        ),
+
+        'customerNr' => array (
+            'sql'                     => "varchar(32) NOT NULL default ''"
+        ),
+
+        'personalDataReview' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'personalDataReview_customerLanguage' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'paymentDataReview' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'paymentDataReview_customerLanguage' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'shippingDataReview' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+
+        'shippingDataReview_customerLanguage' =>array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'memberGroupInfo_id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'memberGroupInfo_name' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'currency' => array (
+            'sql'                     => "varchar(3) NOT NULL default ''"
+        ),
+
+        'weightUnit' => array (
+            'sql'                     => "varchar(10) NOT NULL default ''"
+        ),
+
+        'userOutputPriceType' => array (
+            'sql'                     => "varchar(10) NOT NULL default ''"
+        ),
+
+        'inputPriceType' => array (
+            'sql'                     => "varchar(10) NOT NULL default ''"
+        ),
+
+        'numDecimalsPrice' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'numDecimalsWeight' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'decimalsSeparator' => array (
+            'sql'                     => "varchar(1) NOT NULL default ''"
+        ),
+
+        'thousandsSeparator' => array (
+            'sql'                     => "varchar(1) NOT NULL default ''"
+        ),
+
+        'totalValueOfGoods' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'totalValueOfGoodsTaxedWith' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'noVATBecauseOfEnteredIDs' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'totalWeightOfGoods' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'couponsUsed' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'couponsTotalValue' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'paymentMethod_title' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'paymentMethod_title_customerLanguage' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'paymentMethod_infoAfterCheckout' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'paymentMethod_infoAfterCheckout_customerLanguage' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'paymentMethod_additionalInfo' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'paymentMethod_additionalInfo_customerLanguage' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'paymentMethod_id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'paymentMethod_alias' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'paymentMethod_feeInfo_customerLanguage' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'paymentMethod_amount' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'paymentMethod_amountTaxedWith' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'shippingMethod_title' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'shippingMethod_title_customerLanguage' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'shippingMethod_infoAfterCheckout' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'shippingMethod_infoAfterCheckout_customerLanguage' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'shippingMethod_additionalInfo' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'shippingMethod_additionalInfo_customerLanguage' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'shippingMethod_id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'shippingMethod_alias' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'shippingMethod_feeInfo_customerLanguage' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'shippingMethod_moduleReturnData' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'shippingMethod_amount' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'shippingMethod_amountTaxedWith' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'total' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'totalTaxedWith' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'taxTotal' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'tax' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'taxInclusive' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'invoicedAmountNet' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'miscData' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'status' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
         )
     )
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['orderIdentificationHash'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['orderDate'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(32) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['customerNr'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(32) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(2) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['personalDataReview'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['personalDataReview_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentDataReview'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentDataReview_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingDataReview'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingDataReview_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['memberGroupInfo_id'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['memberGroupInfo_name'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['currency'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(3) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['weightUnit'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(10) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['userOutputPriceType'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(10) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['inputPriceType'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(10) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['numDecimalsPrice'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['numDecimalsWeight'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['decimalsSeparator'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['thousandsSeparator'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['totalValueOfGoods'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['totalValueOfGoodsTaxedWith'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['noVATBecauseOfEnteredIDs'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "char(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['totalWeightOfGoods'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['couponsUsed'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['couponsTotalValue'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_title'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_title_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_infoAfterCheckout'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_infoAfterCheckout_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_additionalInfo'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_additionalInfo_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_id'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_alias'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_feeInfo_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_amount'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['paymentMethod_amountTaxedWith'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_title'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_title_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_infoAfterCheckout'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_infoAfterCheckout_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_additionalInfo'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_additionalInfo_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_id'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_alias'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_feeInfo_customerLanguage'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_moduleReturnData'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_amount'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['shippingMethod_amountTaxedWith'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['total'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['totalTaxedWith'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['taxTotal'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['tax'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['taxInclusive'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "char(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['invoicedAmountNet'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['miscData'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['status'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
 
 class ls_shop_orders extends \Backend {
     public function __construct() {

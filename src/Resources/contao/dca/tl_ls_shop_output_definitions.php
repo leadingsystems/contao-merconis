@@ -271,7 +271,34 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'rgxp' => 'digit', 'maxlength' => 3),
             'sql'                     => "int(3) unsigned NOT NULL default '0'"
-		)
+		),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'lsShopProductTemplate_crossSeller' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'lsShopProductOverviewSorting_crossSeller' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'lsShopProductOverviewSortingKeyOrAlias_crossSeller' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'lsShopProductOverviewUserSorting_crossSeller' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'lsShopProductOverviewUserSortingFields_crossSeller' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'lsShopProductOverviewPagination_crossSeller' => array (
+            'sql'                     => "int(3) unsigned NOT NULL default '0'"
+        ),
 	)
 );
 
@@ -285,33 +312,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOver
 
 
 
-$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['tstamp'] = array (
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductTemplate_crossSeller'] = array (
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewSorting_crossSeller'] = array (
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewSortingKeyOrAlias_crossSeller'] = array (
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSorting_crossSeller'] = array (
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields_crossSeller'] = array (
-    'sql'                     => "text NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination_crossSeller'] = array (
-    'sql'                     => "int(3) unsigned NOT NULL default '0'"
-);
 
 
 

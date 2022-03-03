@@ -257,9 +257,79 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 			'inputType' => 'text',
 			'eval' => array('tl_class' => 'w50', 'mandatory' => false),
             'sql'                     => "varchar(10) NOT NULL default ''"
-		)
-		
-		
+		),
+
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'productSelectionType' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'maxNumProducts' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'productDirectSelection' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'activateSearchSelectionNewProduct' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionNewProduct' => array (
+            'sql'                     => "varchar(64) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionSpecialPrice' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionSpecialPrice' => array (
+            'sql'                     => "varchar(64) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionCategory' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionCategory' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'activateSearchSelectionProducer' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionProducer' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionProductName' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionProductName' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionArticleNr' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionArticleNr' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionTags' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionTags' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
 		
 		/* *
 		,
@@ -470,115 +540,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['productSelectionType'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['productSelectionType'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['maxNumProducts'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['maxNumProducts'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['productDirectSelection'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['productDirectSelection'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['activateSearchSelectionNewProduct'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['activateSearchSelectionNewProduct'],
-    'exclude'                 => true,
-    'sql'                     => "char(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['searchSelectionNewProduct'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['searchSelectionNewProduct'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(64) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['activateSearchSelectionSpecialPrice'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['activateSearchSelectionSpecialPrice'],
-    'exclude'                 => true,
-    'sql'                     => "char(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['searchSelectionSpecialPrice'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['searchSelectionSpecialPrice'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(64) NOT NULL default ''"
-);
-
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['activateSearchSelectionCategory'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['activateSearchSelectionCategory'],
-    'exclude'                 => true,
-    'sql'                     => "char(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['searchSelectionCategory'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['searchSelectionCategory'],
-    'exclude'                 => true,
-    'sql'                     => "blob NULL"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['activateSearchSelectionProducer'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['activateSearchSelectionProducer'],
-    'exclude'                 => true,
-    'sql'                     => "char(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['searchSelectionProducer'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['searchSelectionProducer'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['activateSearchSelectionProductName'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['activateSearchSelectionProductName'],
-    'exclude'                 => true,
-    'sql'                     => "char(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['searchSelectionProductName'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['searchSelectionProductName'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['activateSearchSelectionArticleNr'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['activateSearchSelectionArticleNr'],
-    'exclude'                 => true,
-    'sql'                     => "char(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['searchSelectionArticleNr'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['searchSelectionArticleNr'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['activateSearchSelectionTags'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['activateSearchSelectionTags'],
-    'exclude'                 => true,
-    'sql'                     => "char(1) NOT NULL default ''"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_coupon']['fields']['searchSelectionTags'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['searchSelectionTags'],
-    'exclude'                 => true,
-    'sql'                     => "varchar(255) NOT NULL default ''"
-);
 
 
 

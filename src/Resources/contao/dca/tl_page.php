@@ -72,32 +72,22 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['lsShopLayoutForDetailsView'] = array (
 );
 
 $GLOBALS['TL_DCA']['tl_page']['fields']['lsShopOutputDefinitionSet'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_page']['lsShopOutputDefinitionSet'],
-    'exclude'                 => true,
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
 $GLOBALS['TL_DCA']['tl_page']['fields']['lsShopIncludeLayoutForDetailsView'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_page']['lsShopIncludeLayoutForDetailsView'],
-    'exclude'                 => true,
     'sql'                     => "char(1) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_page']['fields']['lsShopLayoutForDetailsView'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_page']['lsShopLayoutForDetailsView'],
-    'exclude'                 => true,
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
 $GLOBALS['TL_DCA']['tl_page']['fields']['ls_shop_currencyBeforeValue'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_page']['ls_shop_currencyBeforeValue'],
-    'exclude'                 => true,
     'sql'                     => "char(1) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_page']['fields']['ls_shop_decimalsSeparator'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_page']['ls_shop_decimalsSeparator'],
-    'exclude'                 => true,
     'sql'                     => "char(1) NOT NULL default ','"
 );
 

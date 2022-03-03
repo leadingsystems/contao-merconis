@@ -41,6 +41,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'keys' => array
             (
                 'id' => 'primary',
+                'alias' => 'index',
                 'lsshopvariantcode' => 'index'
             )
         )
@@ -1269,27 +1270,22 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'inputType'		=>	'ls_shop_productSelectionWizard',
 			'eval'			=> array('tl_class'=>'clr'),
             'sql'                     => "blob NULL"
-		)
+		),
+        'pid' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'lsShopVariantStock' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_variant']['fields']['pid'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['pid'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
 
-$GLOBALS['TL_DCA']['tl_ls_shop_variant']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-$GLOBALS['TL_DCA']['tl_ls_shop_variant']['fields']['lsShopVariantStock'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['lsShopVariantStock'],
-    'exclude'                 => true,
-    'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-);
 
 
 	

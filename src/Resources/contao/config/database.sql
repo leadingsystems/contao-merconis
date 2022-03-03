@@ -42,44 +42,35 @@ localconfig foreign key relations are also noted here although their parent tabl
 @localconfig.ls_shop_systemImages_videoDummyCover@tl_files.id=single@
 @localconfig.ls_shop_standardProductImageFolder@tl_files.id=single@
 @localconfig.ls_shop_standardProductImportFolder@tl_files.id=single@
-*/
 
-/*
+
 @tl_ls_shop_product.pages@tl_page.id=array@
 @tl_ls_shop_product.lsShopProductSteuersatz@tl_ls_shop_steuersaetze.id=single@
 @tl_ls_shop_product.lsShopProductRecommendedProducts@tl_ls_shop_product.id=array@
 @tl_ls_shop_product.associatedProducts@tl_ls_shop_product.id=array@
 @tl_ls_shop_product.lsShopProductDeliveryInfoSet@tl_ls_shop_delivery_info.id=single@
 @tl_ls_shop_product.configurator@tl_ls_shop_configurator.id=single@
-*/
 
 
-/*
 @tl_ls_shop_variant.pid@tl_ls_shop_product.id=single@
 @tl_ls_shop_variant.associatedProducts@tl_ls_shop_product.id=array@
 @tl_ls_shop_variant.lsShopVariantDeliveryInfoSet@tl_ls_shop_delivery_info.id=single@
 @tl_ls_shop_variant.configurator@tl_ls_shop_configurator.id=single@
-*/
 
-/*
+
 @tl_ls_shop_cross_seller.productDirectSelection@tl_ls_shop_product.id=array@
-*/
 
-/*
+
 @tl_ls_shop_coupon.allowedForGroups@tl_member_group.id=array@
 @tl_ls_shop_coupon.productDirectSelection@tl_ls_shop_product.id=array@
-*/
 
-/*
+
 @tl_ls_shop_export.productDirectSelection@tl_ls_shop_product.id=array@
-*/
 
-/*
+
 @tl_ls_shop_configurator.form@tl_form.id=single@
-*/
 
 
-/*
 @tl_ls_shop_payment_methods.formAdditionalData@tl_form.id=single@
 @tl_ls_shop_payment_methods.excludedGroups@tl_member_group.id=array@
 @tl_ls_shop_payment_methods.steuersatz@tl_ls_shop_steuersaetze.id=single@
@@ -88,44 +79,37 @@ localconfig foreign key relations are also noted here although their parent tabl
 @tl_ls_shop_payment_methods.paypalGiropaySuccessPages@tl_page.id=array@
 @tl_ls_shop_payment_methods.paypalGiropayCancelPages@tl_page.id=array@
 @tl_ls_shop_payment_methods.paypalBanktransferPendingPages@tl_page.id=array@
-*/
 
-/*
+
 @tl_ls_shop_shipping_methods.formAdditionalData@tl_form.id=single@
-*/
 
-/*
+
 @tl_ls_shop_message_model.pid@tl_ls_shop_message_type.id=single@
 @tl_ls_shop_message_model.member_group@tl_member_group.id=array@
-*/
 
-/*
+
 @tl_module.ls_shop_cross_seller@tl_ls_shop_cross_seller.id=single@
 @tl_module.jumpTo@tl_page.id=single@
 @tl_module.pages@tl_page.id=array@
 @tl_module.orderPages@tl_page.id=array@
 @tl_module.reg_jumpTo@tl_page.id=single@
 @tl_module.ls_shop_productManagementApiInspector_apiPage@tl_page.id=single@
-*/
 
-/*
+
 @tl_member_group.lsShopFormCustomerData@tl_form.id=single@
 @tl_member_group.lsShopFormConfirmOrder@tl_form.id=single@
 @tl_member_group.lsShopStandardPaymentMethod@tl_ls_shop_payment_methods.id=single@
 @tl_member_group.lsShopStandardShippingMethod@tl_ls_shop_shipping_methods.id=single@
-*/
 
-/*
+
 @tl_content.lsShopCrossSeller@tl_ls_shop_cross_seller.id=single@
-*/
 
-/*
+
 @tl_page.lsShopOutputDefinitionSet@tl_ls_shop_output_definitions.id=single@
 @tl_page.lsShopLayoutForDetailsView@tl_layout.id=single@
 @tl_page.pid@tl_page.id=single@
-*/
 
-/*
+
 @tl_layout.lsShopOutputDefinitionSet@tl_ls_shop_output_definitions.id=single@
 */
 

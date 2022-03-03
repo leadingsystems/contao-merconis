@@ -103,6 +103,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['title'],
 			'exclude' => true,
@@ -230,11 +233,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_filter_fields']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
+
 
 
 

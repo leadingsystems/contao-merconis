@@ -376,15 +376,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'eval'			=>	array('rgxp' => 'number', 'tl_class' => 'w50', 'mandatory' => true),
 			'sorting' => true,
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
-		)
+		),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        )
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods']['fields']['tstamp'] = array (
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['tstamp'],
-    'exclude'                 => true,
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
+
 
 
 
