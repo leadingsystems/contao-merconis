@@ -108,7 +108,55 @@
 			<div class="priceContainer">
 				<?php // ##### CURRENT PRICE ##### -> ?>
 					<span class="currentPrice<?php echo $this->objProduct->_isOnSale ? ' isOnSale' : ''; ?>">
-						<?php if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?>
+                        <?php
+
+                        $float_cheapestPrice = null;
+                        $str_cheapestPriceOutput = null;
+                        $str_minQuantityInfo = null;
+                        $bln_cheapestPriceComesFromScalePrices = false;
+
+                        if ($this->objProduct->_hasVariants) {
+                            foreach ($this->objProduct->_variants as $obj_variant){
+                                if (!is_array($obj_variant->_scalePricesOutputUnconfigured)) {
+                                    if (!$float_cheapestPrice || $obj_variant->_priceAfterTax < $float_cheapestPrice) {
+                                        $bln_cheapestPriceComesFromScalePrices = false;
+                                        $float_cheapestPrice = $obj_variant->_priceAfterTax;
+                                        $str_cheapestPriceOutput = null;
+                                        $str_minQuantityInfo = null;
+                                    }
+                                } else {
+                                    foreach ($obj_variant->_scalePricesOutputUnconfigured as $arr_scalePriceDetails) {
+                                        if (!$float_cheapestPrice || $arr_scalePriceDetails['priceUnconfiguredUnformatted'] < $float_cheapestPrice) {
+                                            $bln_cheapestPriceComesFromScalePrices = true;
+                                            $float_cheapestPrice = $arr_scalePriceDetails['priceUnconfiguredUnformatted'];
+                                            $str_cheapestPriceOutput = $arr_scalePriceDetails['priceUnconfigured'];
+                                            $str_minQuantityInfo = $arr_scalePriceDetails['minQuantity'];
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            if (is_array($this->objProduct->_scalePricesOutputUnconfigured)) {
+                                $bln_cheapestPriceComesFromScalePrices = true;
+                                foreach ($this->objProduct->_scalePricesOutputUnconfigured as $arr_scalePriceDetails) {
+                                    if (!$float_cheapestPrice || $arr_scalePriceDetails['priceUnconfiguredUnformatted'] < $float_cheapestPrice) {
+                                        $float_cheapestPrice = $arr_scalePriceDetails['priceUnconfiguredUnformatted'];
+                                        $str_cheapestPriceOutput = $arr_scalePriceDetails['priceUnconfigured'];
+                                        $str_minQuantityInfo = $arr_scalePriceDetails['minQuantity'];
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!$bln_cheapestPriceComesFromScalePrices) {
+                            // Standard-Ausgabe
+                            if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php }
+                        } else {
+                            ?>
+                            <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] ?> <?= $str_cheapestPriceOutput ?><span class="min-quantity-info"> (<?= $str_minQuantityInfo ?>)</span>
+                            <?php
+                        }
+                        ?>
 					</span>
 				<?php // <- ##### CURRENT PRICE ##### ?>
 

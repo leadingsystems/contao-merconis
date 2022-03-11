@@ -14,5 +14,9 @@
 
   .currentPrice {
     font-weight: $ls-font-weight-bold;
+
+    .min-quantity-info {
+      font-weight: normal;
+    }
   }
 }
