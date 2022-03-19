@@ -173,7 +173,7 @@ class ls_shop_productConfigurator {
 		}
 	}
 
-	public function __destruct() {
+	public function storeToSession() {
 		/*
 		 * Don't write anything to the session unless there has been post data received at least once
 		 */
