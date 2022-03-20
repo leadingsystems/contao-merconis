@@ -103,7 +103,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 			'exclude' => true,
 			'inputType' => 'select',
 			'foreignKey' => 'tl_form.title',
-			'filter' => true
+			'filter' => true,
+            'eval' => ['includeBlankOption' => true, 'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['form_blankOptionLabel']],
+            'save_callback' => array (
+                array('Merconis\Core\ls_shop_configurator', 'emptyValueFix')
+            )
 		),
 		
 		'startWithDataEntryMode' => array(
@@ -151,7 +155,14 @@ class ls_shop_configurator extends \Backend {
 		parent::__construct();
 	}
 
-	public function generateAlias($varValue, \DataContainer $dc) {
+    public function emptyValueFix($varValue) {
+        if(empty($varValue)){
+            $varValue = 0;
+        }
+        return $varValue;
+    }
+
+    public function generateAlias($varValue, \DataContainer $dc) {
 		$autoAlias = false;
 
 		$currentTitle = isset($dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()}) && $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} ? $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} : $dc->activeRecord->title;
