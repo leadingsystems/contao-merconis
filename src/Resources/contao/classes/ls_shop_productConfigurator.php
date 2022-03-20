@@ -112,7 +112,6 @@ class ls_shop_productConfigurator {
                     $this->arrData['skipStandardFormValidation'] = true;
                 }
 
-                \LeadingSystems\Helpers\lsErrorLog(__METHOD__ . ': LINE ' . __LINE__, $this->formID, 'perm', 'var_dump');
 				$this->strTemplate = $this->arrData['template'];
 				
 				/*
