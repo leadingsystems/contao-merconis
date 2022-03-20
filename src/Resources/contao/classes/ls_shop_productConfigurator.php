@@ -21,7 +21,9 @@ class ls_shop_productConfigurator {
 	public $arrReceivedPost = array();
 	
 	public $changeConfigurationUrl = '';
-	
+
+	public $bln_ignoreRequiredDataFields = false;
+
 	public $blnDataEntryMode = null;
 	
 	public $blnIsValid = true; // Standardmäßig gilt ein Konfigurator als valide, da ja noch nicht sicher ist, ob überhaupt ein tatsächlicher Konfigurator geladen wird.
@@ -436,6 +438,9 @@ class ls_shop_productConfigurator {
 	}
 
 	public function analyzeRequiredConfiguratorData() {
+	    if ($this->bln_ignoreRequiredDataFields) {
+	        return;
+        }
 		$this->arrReceivedPost = ls_shop_generalHelper::analyzeRequiredDataFields($this->formID, $this->arrReceivedPost, !$this->blnReceivedFormDataAtLeastOnce);
 	}
 
