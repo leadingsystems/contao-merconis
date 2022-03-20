@@ -105,6 +105,14 @@ class ls_shop_productConfigurator {
 				$objConfiguratorData->first();
 				$this->arrData = $objConfiguratorData->row();
 				$this->formID = $this->arrData['form'];
+
+				if (!$this->formID) {
+                    $this->arrData['startWithDataEntryMode'] = true;
+                    $this->arrData['stayInDataEntryMode'] = true;
+                    $this->arrData['skipStandardFormValidation'] = true;
+                }
+
+                \LeadingSystems\Helpers\lsErrorLog(__METHOD__ . ': LINE ' . __LINE__, $this->formID, 'perm', 'var_dump');
 				$this->strTemplate = $this->arrData['template'];
 				
 				/*
@@ -134,7 +142,7 @@ class ls_shop_productConfigurator {
 			 */
 			$this->blnDataEntryMode = isset($_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['blnDataEntryMode']) ? $_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['blnDataEntryMode'] : $this->blnDataEntryMode;
 			if ($this->blnDataEntryMode === null) {
-				$this->blnDataEntryMode = $objConfiguratorData->startWithDataEntryMode ? true : false;
+				$this->blnDataEntryMode = $this->arrData['startWithDataEntryMode'] ? true : false;
 			}
 			
 			
@@ -153,7 +161,7 @@ class ls_shop_productConfigurator {
 			 * In diesem Moment wird also der Datenerfassungsmodus abgeschaltet.
 			 */
 			if ($this->blnReceivedFormDataJustNow) {
-				$this->blnDataEntryMode = $objConfiguratorData->stayInDataEntryMode ? true : false;
+				$this->blnDataEntryMode = $this->arrData['stayInDataEntryMode'] ? true : false;
 				$this->saveBlnDataEntryMode();
 			}
 			
@@ -438,7 +446,7 @@ class ls_shop_productConfigurator {
 	}
 
 	public function analyzeRequiredConfiguratorData() {
-	    if ($this->bln_ignoreRequiredDataFields) {
+	    if (!$this->formID || $this->bln_ignoreRequiredDataFields) {
 	        return;
         }
 		$this->arrReceivedPost = ls_shop_generalHelper::analyzeRequiredDataFields($this->formID, $this->arrReceivedPost, !$this->blnReceivedFormDataAtLeastOnce);
@@ -548,7 +556,7 @@ class ls_shop_productConfigurator {
 			$cartRepresentation = $this->objCustomLogic->getRepresentationOfConfiguratorSettings();
 		}
 
-		if (!$cartRepresentation) {
+		if (!$cartRepresentation && $this->formID) {
             $arr_receivedPostForReview = ls_shop_generalHelper::getArrDataReview($this->arrReceivedPost);
             $arr_formFieldLabels = ls_shop_generalHelper::getFormFieldLabels($this->formID);
 
