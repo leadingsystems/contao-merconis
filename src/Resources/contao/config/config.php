@@ -109,6 +109,12 @@ $GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_genera
 $GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_cartHelper', 'initializeEmptyCart');
 
 /*
+ * Use the modifyFrontendPage hook to execute functionality that we would want to execute in destructor functions but
+ * can't because of symfony's custom session handling
+ */
+$GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
+
+/*
  * ->
  * Hooks to register API resources
  */
