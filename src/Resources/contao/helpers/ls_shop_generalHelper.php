@@ -2084,6 +2084,14 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['configuratorObjs'][$cacheKey];
     }
 
+    public static function storeConfiguratorDataToSession($var_buffer) {
+        foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
+            $obj_configurator->storeToSession();
+        }
+
+        return $var_buffer;
+    }
+
     /*
      * Diese Funktion erstellt die Versandkosten-Info
      */
