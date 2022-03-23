@@ -16,7 +16,17 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 		),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
+
 	),
 	
 	'list' => array(
@@ -117,12 +127,19 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['title'],
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'maxlength'=>255),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'text01' => array(
@@ -130,7 +147,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'exclude' => true,
 			'inputType'               => 'textarea',
 			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true),
-			'search' => true
+			'search' => true,
+            'sql'                     => "text NULL"
 		),
 		
 		'text02' => array(
@@ -138,7 +156,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'exclude' => true,
 			'inputType'               => 'textarea',
 			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true),
-			'search' => true
+			'search' => true,
+            'sql'                     => "text NULL"
 		),
 		
 		'template' => array (
@@ -148,14 +167,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'inputType'               => 'select',
 			'options'                 => $this->getTemplateGroup('template_crossSeller_'),
 			'filter' => true,
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		),
 		
 		'doNotUseCrossSellerOutputDefinitions' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['doNotUseCrossSellerOutputDefinitions'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50 m12')
+			'eval'					  => array('tl_class' => 'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'fallbackCrossSeller' => array (
@@ -173,21 +194,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'exclude' => true,
 			'inputType'               => 'textarea',
 			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true),
-			'search' => true
+			'search' => true,
+            'sql'                     => "text NULL"
 		),
 		
 		'canBeFiltered' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['canBeFiltered'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'published' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['published'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50')
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'productSelectionType' => array(
@@ -213,14 +237,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
             ),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['productSelectionType']['options'],
 			'eval'					  => array('helpwizard' => true, 'submitOnChange' => true),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'productDirectSelection' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['productDirectSelection'],
 			'exclude' => true,
 			'inputType'		=>	'ls_shop_productSelectionWizard',
-			'eval'			=> array('tl_class'=>'clr ls_beBlock')
+			'eval'			=> array('tl_class'=>'clr ls_beBlock'),
+            'sql'                     => "blob NULL"
 		),
 		
 		'maxNumProducts' => array(
@@ -228,14 +254,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'exclude' => true,
 			'inputType' => 'text',
 			'filter' => true,
-			'eval'					  => array('tl_class' => 'clr', 'mandatory' => true, 'rgxp'=>'digit')
+			'eval'					  => array('tl_class' => 'clr', 'mandatory' => true, 'rgxp'=>'digit'),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'noOutputIfMoreThanMaxResults' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['noOutputIfMoreThanMaxResults'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50 m12')
+			'eval'					  => array('tl_class' => 'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 
@@ -254,7 +282,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['activate'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'searchSelectionNewProduct' => array(
@@ -263,7 +292,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('new', 'notNew'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionNewProduct']['options'],
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		),
 
 
@@ -282,7 +312,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['activate'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'searchSelectionSpecialPrice' => array(
@@ -291,7 +322,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('specialPrice', 'noSpecialPrice'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionSpecialPrice']['options'],
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		),
 		
 		
@@ -309,14 +341,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 		'activateSearchSelectionCategory' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['activate'],
 			'exclude' => true,
-			'inputType'               => 'checkbox'
+			'inputType'               => 'checkbox',
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'searchSelectionCategory' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionCategory'],
 			'exclude' => true,
 			'inputType'               => 'pageTree',
-			'eval'                    => array('fieldType'=>'checkbox', 'multiple' => true)
+			'eval'                    => array('fieldType'=>'checkbox', 'multiple' => true),
+            'sql'                     => "blob NULL"
 		),
 		
 		
@@ -335,14 +369,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['activate'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'searchSelectionProducer' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionProducer'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval'					  => array('tl_class' => 'w50', 'maxlength' => 255)
+			'eval'					  => array('tl_class' => 'w50', 'maxlength' => 255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		
@@ -361,14 +397,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['activate'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'searchSelectionProductName' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionProductName'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
+			'eval' => array('maxlength' => 255, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		
@@ -387,14 +425,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['activate'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'searchSelectionArticleNr' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionArticleNr'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
+			'eval' => array('maxlength' => 255, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		
@@ -413,14 +453,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['activate'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
+			'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'searchSelectionTags' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionTags'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
+			'eval' => array('maxlength' => 255, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		)
 	)
 );
+
+
+
+

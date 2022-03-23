@@ -134,7 +134,7 @@ class ls_shop_languageHelper {
 					 * Remove the original field definition from the dca array, because only the generated
 					 * multilanguage fields are needed.
 					 */
-					unset($GLOBALS['TL_DCA'][$str_dcaName]['fields'][$str_fieldKey]);
+					//unset($GLOBALS['TL_DCA'][$str_dcaName]['fields'][$str_fieldKey]);
 
 					/*
 					 * The original fieldKey is used to group the newly created multilanguage field definitions

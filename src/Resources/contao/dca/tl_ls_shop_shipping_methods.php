@@ -7,7 +7,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 		'dataContainer' => 'Table',
 		'onload_callback' => array(
 			array('Merconis\Core\ls_shop_shipping_methods','modifyDCA')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -16,7 +25,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'flag' => 1,
 			'fields' => array('sorting', 'title'),
 			'disableGrouping' => true,
-			'panelLayout' => 'filter;search,limit'
+			'panelLayout' => 'filter;search,limit',
 		),
 		
 		'label' => array(
@@ -80,12 +89,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['title'],
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'maxlength'=>255),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'alias' => array (
@@ -98,14 +111,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 		),
 		
 		'description' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['description'],
 			'exclude' => true,
 			'inputType'               => 'textarea',
-			'eval'                    => array('allowHtml' => true, 'preserveTags' => true, 'tl_class' => 'clr', 'merconis_multilanguage' => true, 'merconis_multilanguage_topLinedGroup' => true)
+			'eval'                    => array('allowHtml' => true, 'preserveTags' => true, 'tl_class' => 'clr', 'merconis_multilanguage' => true, 'merconis_multilanguage_topLinedGroup' => true),
+            'sql'                     => "text NULL"
 		),
 		
 		'type' => array(
@@ -115,7 +130,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'options_callback' => array('Merconis\Core\ls_shop_shipping_methods', 'getShippingModulesAsOptions'),
 			'reference' => $GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['type']['options'],
 			'eval' => array('submitOnChange' => true, 'tl_class'=>'w50', 'helpwizard' => true),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varchar(255) NOT NULL default 'standard'"
 		),
 		
 		'formAdditionalData' => array(
@@ -134,7 +150,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'options' => array('none', 'main', 'max', 'min'),
 			'reference' => $GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['dynamicSteuersatzType']['options'],
 			'eval' => array('submitOnChange' => true, 'tl_class'=>'w50'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varchar(255) NOT NULL default 'none'"
 		),
 
 		'steuersatz' => array(
@@ -143,7 +160,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'inputType'		=> 'select',
 			'options_callback'	=> array('Merconis\Core\ls_shop_generalHelper','getSteuersatzOptions'),
 			'eval'			=> array('tl_class'=>'w50'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'excludedGroups' => array(
@@ -151,42 +169,48 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'exclude' => true,
 			'inputType' => 'checkboxWizard',
 			'foreignKey' => 'tl_member_group.name',
-			'eval' => array('tl_class'=>'clr','multiple'=>true)
+			'eval' => array('tl_class'=>'clr','multiple'=>true),
+            'sql'                     => "blob NULL"
 		),
 		
 		'weightLimitMin' => array(
 			'exclude'		=>	true,
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['weightLimitMin'],
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50')
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50'),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 		
 		'weightLimitMax' => array(
 			'exclude'		=>	true,
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['weightLimitMax'],
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50')
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50'),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 		
 		'priceLimitMin' => array(
 			'exclude'		=>	true,
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['priceLimitMin'],
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50')
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50'),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 		
 		'priceLimitMax' => array(
 			'exclude'		=>	true,
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['priceLimitMax'],
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50')
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50'),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 		
 		'priceLimitAddCouponToValueOfGoods' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['priceLimitAddCouponToValueOfGoods'],
 			'inputType'               => 'checkbox',
-			'eval'					  =>	array('tl_class' => 'clr m12')
+			'eval'					  =>	array('tl_class' => 'clr m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'countries' => array(
@@ -194,14 +218,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['countries'],
 			'inputType'		=>	'text',
 			'eval'			=>	array('tl_class' => 'w50'),
-			'search' => true
+			'search' => true,
+            'sql'                     => "text NULL"
 		),
 		
 		'countriesAsBlacklist' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['countriesAsBlacklist'],
 			'inputType'               => 'checkbox',
-			'eval'					  =>	array('tl_class' => 'w50')
+			'eval'					  =>	array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'feeType' => array(
@@ -211,35 +237,40 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'options' => array('none', 'fixed', 'percentaged', 'weight', 'price', 'weightAndPrice', 'formula'),
 			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['feeType']['options'],
 			'eval' => array('submitOnChange' => true, 'helpwizard' => true),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varchar(255) NOT NULL default 'none'"
 		),
 		
 		'feeValue' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['feeValue'],
 			'inputType' => 'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals')
+			'eval'			=>	array('rgxp' => 'numberWithDecimals'),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 		
 		'feeAddCouponToValueOfGoods' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['feeAddCouponToValueOfGoods'],
 			'inputType'               => 'checkbox',
-			'eval'					  =>	array('tl_class' => 'clr m12')
+			'eval'					  =>	array('tl_class' => 'clr m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'feeFormula' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['feeFormula'],
 			'inputType' => 'text',
-			'eval'			=>	array('rgxp' => 'feeFormula', 'tl_class'=>'long', 'decodeEntities' => true)
+			'eval'			=>	array('rgxp' => 'feeFormula', 'tl_class'=>'long', 'decodeEntities' => true),
+            'sql'                     => "text NULL"
 		),
 		
 		'feeFormulaResultConvertToDisplayPrice' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['feeFormulaResultConvertToDisplayPrice'],
 			'inputType'               => 'checkbox',
-			'eval'					  =>	array('tl_class' => 'w50')
+			'eval'					  =>	array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'feeWeightValues' => array(
@@ -265,7 +296,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 						"cssClass": ""
 					}
 				'
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 		
 		'feePriceValues' => array(
@@ -291,21 +323,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 						"cssClass": ""
 					}
 				'
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 		
 		'infoAfterCheckout' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['infoAfterCheckout'],
 			'exclude' => true,
 			'inputType'               => 'textarea',
-			'eval'                    => array('rte'=>'tinyMCE', 'tl_class' => 'clr', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true)
+			'eval'                    => array('rte'=>'tinyMCE', 'tl_class' => 'clr', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true),
+            'sql'                     => "text NULL"
 		),
 		
 		'additionalInfo' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['additionalInfo'],
 			'exclude' => true,
 			'inputType'               => 'textarea',
-			'eval'                    => array('rte'=>'tinyMCE', 'tl_class' => 'clr', 'merconis_multilanguage' => true)
+			'eval'                    => array('rte'=>'tinyMCE', 'tl_class' => 'clr', 'merconis_multilanguage' => true),
+            'sql'                     => "text NULL"
 		),
 		
 		'published' => array(
@@ -313,21 +348,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['published'],
 			'inputType'               => 'checkbox',
 			'eval'                    => array('doNotCopy'=>true),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'cssID' => array(
 			'exclude'		=>	true,
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['cssID'],
 			'inputType'		=>	'text',
-			'eval'			=>	array('tl_class' => 'w50')
+			'eval'			=>	array('tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'cssClass' => array(
 			'exclude'		=>	true,
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['cssClass'],
 			'inputType'		=>	'text',
-			'eval'			=>	array('tl_class' => 'w50')
+			'eval'			=>	array('tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'sorting' => array(
@@ -335,10 +373,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'exclude' => true,
 			'inputType'		=>	'text',
 			'eval'			=>	array('rgxp' => 'number', 'tl_class' => 'w50', 'mandatory' => true),
-			'sorting' => true
-		)
+			'sorting' => true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+		),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        )
 	)
 );
+
+
+
+
 
 class ls_shop_shipping_methods extends \Backend {
 	public function __construct() {

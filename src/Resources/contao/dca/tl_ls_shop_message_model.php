@@ -5,7 +5,16 @@ namespace Merconis\Core;
 $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	'config' => array(
 		'dataContainer' => 'Table',
-		'ptable' => 'tl_ls_shop_message_type'
+		'ptable' => 'tl_ls_shop_message_type',
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -90,19 +99,30 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
+        'pid' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'member_group' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['member_group'],
 			'exclude' => true,
 			'inputType' => 'checkboxWizard',
 			'foreignKey' => 'tl_member_group.name',
-			'eval' => array('tl_class'=>'clr','multiple'=>true)
+			'eval' => array('tl_class'=>'clr','multiple'=>true),
+            'sql'                     => "blob NULL"
 		),
 		
 		'senderAddress' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderAddress'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'rgxp' => 'email', 'maxlength'=>255)
+			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'rgxp' => 'email', 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'senderName' => array(
@@ -110,7 +130,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'tl_class'=>'w50', 'merconis_multilanguage' => true, 'maxlength'=>255),
-			'search'		=> true
+			'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'subject' => array(
@@ -118,7 +139,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'tl_class'=>'w50', 'merconis_multilanguage' => true, 'maxlength'=>255),
-			'search'		=> true
+			'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'sendToCustomerAddress1' => array(
@@ -127,7 +149,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'inputType'               => 'checkbox',
 			'default'				  => '1',
 			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
-			'filter'				  => true
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'customerDataType1' => array(
@@ -138,7 +161,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'eval'					  => array('tl_class' => 'w50'),
 			'options'				  => array('personalData', 'paymentData', 'shippingData'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType']['options'],
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'customerDataField1' => array(
@@ -147,7 +171,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'inputType' => 'text',
 			'default' => 'email',
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50'),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'sendToCustomerAddress2' => array(
@@ -155,7 +180,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
-			'filter'				  => true
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'customerDataType2' => array(
@@ -165,7 +191,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'eval'					  => array('tl_class' => 'w50'),
 			'options'				  => array('personalData', 'paymentData', 'shippingData'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType']['options'],
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'customerDataField2' => array(
@@ -173,7 +200,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50'),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'sendToSpecificAddress' => array(
@@ -181,7 +209,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
-			'filter'				  => true
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'specificAddress' => array(
@@ -189,7 +218,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'rgxp' => 'email', 'maxlength'=>255),
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'sendToMemberAddress' => array(
@@ -197,7 +227,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr'),
-			'filter'				  => true
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'useHTML' => array(
@@ -206,7 +237,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'inputType'               => 'checkbox',
 			'default'				  => '1',
 			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
-			'filter'				  => true
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'template_html' => array(
@@ -215,14 +247,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'inputType'               => 'select',
 			'options'                 => $this->getTemplateGroup('template_merconisMessageHTML_'),
 			'eval'					  => array('tl_class' => 'w50'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		),
 		
 		'content_html' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['content_html'],
 			'exclude' => true,
 			'inputType'               => 'textarea',
-			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true)
+			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true),
+            'sql'                     => "text NULL"
 		),
 		
 		'useRawtext' => array(
@@ -230,7 +264,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr topLinedGroup', 'submitOnChange' => true),
-			'filter'				  => true
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'template_rawtext' => array(
@@ -239,34 +274,39 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'inputType'               => 'select',
 			'options'                 => $this->getTemplateGroup('template_merconisMessageRawtext_'),
 			'eval'					  => array('tl_class' => 'w50'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		),
 		
 		'content_rawtext' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['content_rawtext'],
 			'exclude' => true,
 			'inputType'               => 'textarea',
-			'eval'                    => array('tl_class'=>'clr', 'merconis_multilanguage' => true)
+			'eval'                    => array('tl_class'=>'clr', 'merconis_multilanguage' => true),
+            'sql'                     => "text NULL"
 		),
 		
 		'attachments' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['attachments'],
 			'exclude' => true,
 			'inputType' => 'fileTree',
-			'eval' => array('multiple' => true, 'tl_class'=>'clr', 'files' => true, 'filesOnly' => true, 'fieldType' => 'checkbox', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true)
+			'eval' => array('multiple' => true, 'tl_class'=>'clr', 'files' => true, 'filesOnly' => true, 'fieldType' => 'checkbox', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true),
+            'sql'                     => "blob NULL"
 		),
 		
 		'dynamicAttachments' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['dynamicAttachments'],
 			'exclude' => true,
 			'inputType' => 'fileTree',
-			'eval' => array('multiple' => true, 'tl_class'=>'clr', 'files' => true, 'filesOnly' => true, 'extensions'=>'php', 'fieldType' => 'checkbox', 'merconis_multilanguage' => true)
+			'eval' => array('multiple' => true, 'tl_class'=>'clr', 'files' => true, 'filesOnly' => true, 'extensions'=>'php', 'fieldType' => 'checkbox', 'merconis_multilanguage' => true),
+            'sql'                     => "blob NULL"
 		),
 		'externalImages' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['externalImages'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50')
+			'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'published' => array(
@@ -274,10 +314,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'w50'),
-			'filter'				  => true
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		)
 	)
 );
+
+
+
+
 
 class tl_ls_shop_message_model_controller extends \Backend {
 

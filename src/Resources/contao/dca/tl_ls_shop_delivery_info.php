@@ -16,7 +16,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 		),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -74,6 +83,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['title'],
 			'exclude' => true,
@@ -81,7 +96,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'eval' => array('mandatory' => true, 'tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'maxlength'=>255),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
+			'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'alias' => array (
@@ -94,8 +110,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			),
 			'sorting' => true,
 			'flag' => 11,
-			'search' => true
-
+			'search' => true,
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 		),
 		
 		'useStock'	=> array(
@@ -103,7 +119,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class' => 'w50'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'allowOrdersWithInsufficientStock'	=> array(
@@ -111,7 +128,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class' => 'w50'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'alertWhenLowerThanMinimumStock'	=> array(
@@ -119,7 +137,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class' => 'w50'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 		
 		'minimumStock' => array(
@@ -127,7 +146,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('tl_class' => 'w50', 'mandatory' => true, 'rgxp' => 'digit'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'deliveryTimeDaysWithSufficientStock' => array(
@@ -135,14 +155,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('tl_class' => 'clr', 'mandatory' => true, 'rgxp' => 'digit'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'deliveryTimeMessageWithSufficientStock' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['deliveryTimeMessageWithSufficientStock'],
 			'exclude' => true,
 			'inputType'               => 'textarea',
-			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true)
+			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'deliveryTimeDaysWithInsufficientStock' => array(
@@ -150,17 +172,22 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'exclude' => true,
 			'inputType' => 'text',
 			'eval' => array('tl_class' => 'clr topLinedGroup', 'mandatory' => true, 'rgxp' => 'digit'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'deliveryTimeMessageWithInsufficientStock' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['deliveryTimeMessageWithInsufficientStock'],
 			'exclude' => true,
 			'inputType'               => 'textarea',
-			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true)
+			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		)
 	)
 );
+
+
+
 
 class ls_shop_delivery_info extends \Backend {
 	public function __construct() {
@@ -220,4 +247,3 @@ class ls_shop_delivery_info extends \Backend {
 		return $button;
 	}
 }
-?>

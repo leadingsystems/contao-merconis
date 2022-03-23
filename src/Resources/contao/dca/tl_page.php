@@ -10,6 +10,7 @@ $GLOBALS['TL_DCA']['tl_page']['palettes']['rootfallback'] = preg_replace('/(;\{c
 $GLOBALS['TL_DCA']['tl_page']['palettes']['regular'] = preg_replace('/(;\{cache_legend:.*\})/siU',';{lsShop_legend},lsShopOutputDefinitionSet,lsShopIncludeLayoutForDetailsView,ls_shop_useAsCategoryForErp\\1',$GLOBALS['TL_DCA']['tl_page']['palettes']['regular']);
 $GLOBALS['TL_DCA']['tl_page']['subpalettes']['lsShopIncludeLayoutForDetailsView'] = 'lsShopLayoutForDetailsView';
 
+
 // Definieren des Formularfeldes
 $GLOBALS['TL_DCA']['tl_page']['fields']['ls_shop_useAsCategoryForErp'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_page']['ls_shop_useAsCategoryForErp'],
@@ -23,21 +24,24 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['ls_shop_currencyBeforeValue'] = array(
 	'exclude' => true,
 	'label' => &$GLOBALS['TL_LANG']['tl_page']['ls_shop_currencyBeforeValue'],
 	'inputType' => 'checkbox',
-	'eval' => array('tl_class'=>'w50')
+	'eval' => array('tl_class'=>'w50'),
+    'sql'                     => "char(1) NOT NULL default ''"
 );
 		
 $GLOBALS['TL_DCA']['tl_page']['fields']['ls_shop_decimalsSeparator'] = array(
 	'exclude' => true,
 	'label' => &$GLOBALS['TL_LANG']['tl_page']['ls_shop_decimalsSeparator'],
 	'inputType' => 'text',
-	'eval' => array('mandatory' => true, 'maxlength' => 1, 'tl_class'=>'w50', 'decodeEntities' => true)
+	'eval' => array('mandatory' => true, 'maxlength' => 1, 'tl_class'=>'w50', 'decodeEntities' => true),
+    'sql'                     => "char(1) NOT NULL default ','"
 );
 		
 $GLOBALS['TL_DCA']['tl_page']['fields']['ls_shop_thousandsSeparator'] = array(
 	'exclude' => true,
 	'label' => &$GLOBALS['TL_LANG']['tl_page']['ls_shop_thousandsSeparator'],
 	'inputType' => 'text',
-	'eval' => array('maxlength' => 1, 'tl_class'=>'w50', 'decodeEntities' => true)
+	'eval' => array('maxlength' => 1, 'tl_class'=>'w50', 'decodeEntities' => true),
+    'sql'                     => "char(1) NOT NULL default ''"
 );
 
 $GLOBALS['TL_DCA']['tl_page']['fields']['lsShopOutputDefinitionSet'] = array (
@@ -69,3 +73,6 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['lsShopLayoutForDetailsView'] = array (
 	'sql'                     => "int(10) unsigned NOT NULL default '0'",
 	'relation'                => array('type'=>'hasOne', 'load'=>'lazy')
 );
+
+
+

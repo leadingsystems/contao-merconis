@@ -3,15 +3,24 @@
 namespace Merconis\Core;
 
 	$GLOBALS['TL_DCA']['tl_member']['palettes']['default'] = preg_replace('/(\{groups_legend\})/siU', '{lsShop_legend:hide},VATID,firstname_alternative,lastname_alternative,company_alternative,street_alternative,postal_alternative,city_alternative,country_alternative,phone_alternative,mobile_alternative,fax_alternative,email_alternative;$1', $GLOBALS['TL_DCA']['tl_member']['palettes']['default']);
-	
+
+	$GLOBALS['TL_DCA']['tl_member']['fields']['state_alternative'] = array (
+		'sql'                     => "varchar(64) NOT NULL default ''"
+	);
+
+	$GLOBALS['TL_DCA']['tl_member']['fields']['merconis_favoriteProducts'] = array (
+		'sql'                     => "blob NULL"
+	);
+
 	$GLOBALS['TL_DCA']['tl_member']['fields']['VATID'] = array(
 		'label'                   => &$GLOBALS['TL_LANG']['tl_member']['VATID'],
 		'exclude'                 => true,
 		'search'                  => true,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>255, 'rgxp'=>'merconisCheckVATID', 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'personal', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>255, 'rgxp'=>'merconisCheckVATID', 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'personal', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(255) NOT NULL default ''"
 	);
-	
+
 	$GLOBALS['TL_DCA']['tl_member']['fields']['firstname_alternative'] = array(
 		'label'                   => &$GLOBALS['TL_LANG']['tl_member']['firstname_alternative'],
 		'exclude'                 => true,
@@ -19,7 +28,8 @@ namespace Merconis\Core;
 		'sorting'                 => true,
 		'flag'                    => 1,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'personal', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'personal', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(255) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['lastname_alternative'] = array(
@@ -29,7 +39,8 @@ namespace Merconis\Core;
 		'sorting'                 => true,
 		'flag'                    => 1,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'personal', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'personal', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(255) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['company_alternative'] = array(
@@ -39,7 +50,8 @@ namespace Merconis\Core;
 		'sorting'                 => true,
 		'flag'                    => 1,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(255) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['street_alternative'] = array(
@@ -47,7 +59,8 @@ namespace Merconis\Core;
 		'exclude'                 => true,
 		'search'                  => true,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(255) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['postal_alternative'] = array(
@@ -55,7 +68,8 @@ namespace Merconis\Core;
 		'exclude'                 => true,
 		'search'                  => true,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>32, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>32, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(32) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['city_alternative'] = array(
@@ -65,7 +79,8 @@ namespace Merconis\Core;
 		'search'                  => true,
 		'sorting'                 => true,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>255, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(255) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['country_alternative'] = array(
@@ -75,7 +90,8 @@ namespace Merconis\Core;
 		'sorting'                 => true,
 		'inputType'               => 'select',
 		'options'                 => $this->getCountries(),
-		'eval'                    => array('includeBlankOption'=>true, 'chosen'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50')
+		'eval'                    => array('includeBlankOption'=>true, 'chosen'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(2) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['phone_alternative'] = array(
@@ -83,7 +99,8 @@ namespace Merconis\Core;
 		'exclude'                 => true,
 		'search'                  => true,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>64, 'rgxp'=>'phone', 'decodeEntities'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'contact', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>64, 'rgxp'=>'phone', 'decodeEntities'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'contact', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(64) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['mobile_alternative'] = array(
@@ -91,7 +108,8 @@ namespace Merconis\Core;
 		'exclude'                 => true,
 		'search'                  => true,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>64, 'rgxp'=>'phone', 'decodeEntities'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'contact', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>64, 'rgxp'=>'phone', 'decodeEntities'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'contact', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(64) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['fax_alternative'] = array(
@@ -99,7 +117,8 @@ namespace Merconis\Core;
 		'exclude'                 => true,
 		'search'                  => true,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>64, 'rgxp'=>'phone', 'decodeEntities'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'contact', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>64, 'rgxp'=>'phone', 'decodeEntities'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'contact', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(64) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['email_alternative'] = array(
@@ -107,6 +126,10 @@ namespace Merconis\Core;
 		'exclude'                 => true,
 		'search'                  => true,
 		'inputType'               => 'text',
-		'eval'                    => array('maxlength'=>255, 'rgxp'=>'email', 'unique'=>true, 'decodeEntities'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'contact', 'tl_class'=>'w50')
+		'eval'                    => array('maxlength'=>255, 'rgxp'=>'email', 'unique'=>true, 'decodeEntities'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'contact', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(255) NOT NULL default ''"
 	);
-?>
+
+
+
+
