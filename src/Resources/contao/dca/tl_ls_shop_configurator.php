@@ -87,6 +87,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+		'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['title'],
 			'exclude' => true,
@@ -165,11 +168,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_configurator']['fields']['tstamp'] = array (
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-
 
 
 class ls_shop_configurator extends \Backend {
@@ -218,4 +216,3 @@ class ls_shop_configurator extends \Backend {
 		return $button;
 	}
 }
-?>

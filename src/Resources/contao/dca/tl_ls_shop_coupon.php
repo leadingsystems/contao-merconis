@@ -128,6 +128,77 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'productSelectionType' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'maxNumProducts' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'productDirectSelection' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'activateSearchSelectionNewProduct' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionNewProduct' => array (
+            'sql'                     => "varchar(64) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionSpecialPrice' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionSpecialPrice' => array (
+            'sql'                     => "varchar(64) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionCategory' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionCategory' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'activateSearchSelectionProducer' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionProducer' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionProductName' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionProductName' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionArticleNr' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionArticleNr' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'activateSearchSelectionTags' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'searchSelectionTags' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['title'],
 			'exclude' => true,
@@ -259,77 +330,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
-        'tstamp' => array (
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
-        ),
 
-        'productSelectionType' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-
-        'maxNumProducts' => array (
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
-        ),
-
-        'productDirectSelection' => array (
-            'sql'                     => "blob NULL"
-        ),
-
-        'activateSearchSelectionNewProduct' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionNewProduct' => array (
-            'sql'                     => "varchar(64) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionSpecialPrice' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionSpecialPrice' => array (
-            'sql'                     => "varchar(64) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionCategory' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionCategory' => array (
-            'sql'                     => "blob NULL"
-        ),
-
-        'activateSearchSelectionProducer' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionProducer' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionProductName' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionProductName' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionArticleNr' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionArticleNr' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionTags' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionTags' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
 		
 		/* *
 		,
@@ -573,4 +574,3 @@ class tl_ls_shop_coupon_controller extends \Backend {
 		}
 	}
 }
-?>

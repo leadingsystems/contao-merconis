@@ -64,7 +64,3 @@ $GLOBALS['TL_DCA']['tl_ls_shop_import'] = array(
 );
 
 
-
-?>
-
-

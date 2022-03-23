@@ -180,6 +180,4 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_productSearch_minlengthInput'
 	'eval' => array('rgxp' => 'digit', 'tl_class' => 'w50', 'mandatory' => true),
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
-	
-?>
 

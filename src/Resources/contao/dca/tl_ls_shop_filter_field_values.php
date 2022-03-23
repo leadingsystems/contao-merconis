@@ -146,10 +146,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values'] = array(
 
 
 
-
-
-
-
 class ls_shop_filter_field_values extends \Backend {
 	public function __construct() {
 		parent::__construct();
@@ -183,4 +179,3 @@ class ls_shop_filter_field_values extends \Backend {
 		return $varValue;
 	}
 }
-?>

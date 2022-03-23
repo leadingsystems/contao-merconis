@@ -26,7 +26,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'fields' => array('sorting', 'title'),
 			'disableGrouping' => true,
 			'panelLayout' => 'filter;search,limit',
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'label' => array(

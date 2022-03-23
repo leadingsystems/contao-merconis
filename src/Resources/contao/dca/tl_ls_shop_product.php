@@ -243,6 +243,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'sql' => 'int(10) unsigned NOT NULL auto_increment'
 		),
 
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'lsShopProductStock' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'lsShopProductNumSales' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['title'],
 			'exclude' => true,
@@ -1244,8 +1256,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
 		),
 
-
-
 		'lsShopProductDeliveryInfoSet' => array(
 			'label'			=> &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductDeliveryInfoSet'],
 			'exclude' => true,
@@ -1279,18 +1289,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'options'                 => $this->getTemplateGroup('template_productDetails_'),
 			'eval'					  => array('tl_class' => 'w50', 'includeBlankOption' => true, 'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['blankOptionLabel']),
             'sql'                     => "varchar(64) NOT NULL default ''"
-		),
-        'tstamp' => array (
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
-        ),
-
-        'lsShopProductStock' => array (
-            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-        ),
-
-        'lsShopProductNumSales' => array (
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
-        ),
+		)
 	)
 );
 
