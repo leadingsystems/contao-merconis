@@ -19,7 +19,12 @@ class ls_shop_productConfigurator {
 	public $blnReceivedFormDataAtLeastOnce = false;
 	
 	public $arrReceivedPost = array();
-	
+
+	/*
+	 * This variable is meant for a customLogic file to store data if needed.
+	 */
+	public $arr_customLogicData = [];
+
 	public $changeConfigurationUrl = '';
 
 	public $bln_ignoreRequiredDataFields = false;
@@ -98,6 +103,7 @@ class ls_shop_productConfigurator {
 			 * Konfigurator-Zustand aus der Session einlesen, sofern in der Session schon vorhanden
 			 */
 			$this->arrReceivedPost = isset($_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['arrReceivedPost']) ? $_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['arrReceivedPost'] : $this->arrReceivedPost;
+			$this->arr_customLogicData = isset($_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['arr_customLogicData']) ? $_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['arr_customLogicData'] : $this->arr_customLogicData;
 			$this->strConfiguratorHash = isset($_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['strConfiguratorHash']) ? $_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['strConfiguratorHash'] : $this->strConfiguratorHash;
 			$this->blnReceivedFormDataAtLeastOnce = isset($_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataAtLeastOnce']) ? $_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataAtLeastOnce'] : $this->blnReceivedFormDataAtLeastOnce;
 
@@ -203,6 +209,7 @@ class ls_shop_productConfigurator {
 			$_SESSION['lsShop']['configurator'][$this->configuratorCacheKey] = array();
 		}
 		$_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['arrReceivedPost'] = $this->arrReceivedPost;
+		$_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['arr_customLogicData'] = $this->arr_customLogicData;
 		$_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['strConfiguratorHash'] = $this->strConfiguratorHash;
 		$_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataAtLeastOnce'] = $this->blnReceivedFormDataAtLeastOnce;
 	}
@@ -281,6 +288,7 @@ class ls_shop_productConfigurator {
 		
 		$template = new \FrontendTemplate($this->strTemplate);
 		$template->arrReceivedPost = $this->arrReceivedPost;
+		$template->arr_customLogicData = $this->arr_customLogicData;
 		$template->blnReceivedFormDataJustNow = $this->blnReceivedFormDataJustNow;
 
         // Hinterlegen der aktuellen Daten in einer globalen Transfervariablen, die in der Hook-Funktion "ls_shop_configuratorController::ls_shop_configuratorLoadFormField()" verwendet wird.
