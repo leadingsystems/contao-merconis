@@ -2084,12 +2084,18 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['configuratorObjs'][$cacheKey];
     }
 
-    public static function storeConfiguratorDataToSession($var_buffer) {
+    public static function storeConfiguratorDataToSession($var_arg) {
+        /** @var ls_shop_productConfigurator $obj_configurator */
         foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
             $obj_configurator->storeToSession();
         }
 
-        return $var_buffer;
+        /*
+         * Depending on whether this function is called by the modifyFrontendPage hook or the api's afterProcessingRequest
+         * hook, $var_arg might be an output buffer or an object. Since we don't have to do anything with either of both
+         * we simply return the unaltered argument with no questions asked.
+         */
+        return $var_arg;
     }
 
     /*

@@ -109,16 +109,18 @@ $GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_genera
 $GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_cartHelper', 'initializeEmptyCart');
 
 /*
- * Use the modifyFrontendPage hook to execute functionality that we would want to execute in destructor functions but
- * can't because of symfony's custom session handling
- */
-$GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
-
-/*
  * ->
  * Hooks to register API resources
  */
 $GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController', 'processRequest');
+
+/*
+ * Use the modifyFrontendPage hook and in case of an api request the hook $GLOBALS['LS_API_HOOKS']['afterProcessingRequest']
+ * to execute functionality that we would want to execute in destructor functions but can't because of symfony's
+ * custom session handling
+ */
+$GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
+$GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
 
 if (TL_MODE === 'FE') {
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_variantSelector', 'processRequest');
