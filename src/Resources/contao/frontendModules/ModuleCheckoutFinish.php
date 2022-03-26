@@ -316,8 +316,16 @@ class ModuleCheckoutFinish extends \Module {
 		/*
 		 * Ersetzen des Zähler-Platzhalters
 		 */
-		 $orderNr = preg_replace('/\{\{counter\}\}/siU', $nextCounter, $orderNr);
-		
+
+        //mit parameter
+        preg_match_all('/\{\{counter:(.*)\}\}/siU', $orderNr, $matches);
+        foreach ($matches[0] as $key => $match) {
+            $orderNr = preg_replace('/'.preg_quote($match).'/siU', str_pad($nextCounter, $matches[1][$key], "0", STR_PAD_LEFT), $orderNr);
+        }
+
+        //ohne parameter
+        $orderNr = preg_replace('/\{\{counter\}\}/siU', $nextCounter, $orderNr);
+
 		$this->orderNr = $orderNr;
 	}
 	

@@ -18,5 +18,7 @@ $GLOBALS['TL_DCA']['tl_article']['fields']['lsShopOutputCondition'] = array(
 	'inputType'		=> 'select',
 	'options'		=> array('always', 'onlyInOverview', 'onlyInSingleview', 'onlyIfCartNotEmpty', 'onlyIfCartEmpty', 'onlyIfFeUserLoggedIn', 'onlyIfFeUserNotLoggedIn'),
 	'reference'		=> &$GLOBALS['TL_LANG']['tl_article']['lsShopOutputCondition']['options'],
-	'eval'			=> array('tl_class' => 'w50', 'helpwizard' => true)
+	'eval'			=> array('tl_class' => 'w50', 'helpwizard' => true),
+    'sql'                     => "varchar(32) NOT NULL default ''"
 );
+

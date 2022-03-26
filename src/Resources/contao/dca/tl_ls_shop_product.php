@@ -19,7 +19,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		)
+		),
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary',
+                'alias' => 'index',
+                'lsshopproductcode' => 'index'
+            )
+        )
 	),
 
 	'list' => array(
@@ -232,6 +243,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'sql' => 'int(10) unsigned NOT NULL auto_increment'
 		),
 
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'lsShopProductStock' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
+        'lsShopProductNumSales' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['title'],
 			'exclude' => true,
@@ -239,7 +262,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'eval' => array('mandatory' => true, 'tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'decodeEntities' => true, 'maxlength'=>255),
 			'sorting' => true,
 			'flag' => 11,
-			'search'		=> true
+			'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'description' => array(
@@ -247,7 +271,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'textarea',
 			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
-			'search'		=> true
+			'search'		=> true,
+            'sql'                     => "text NULL"
 		),
 
 		'shortDescription' => array(
@@ -255,7 +280,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'textarea',
 			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
-			'search'		=> true
+			'search'		=> true,
+            'sql'                     => "text NULL"
 		),
 
 		'keywords' => array (
@@ -263,7 +289,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType' => 'textarea',
 			'eval' => array('style'=>'height:60px;', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
-			'search'		=> true
+			'search'		=> true,
+            'sql'                     => "text NULL"
 		),
 
         'pageTitle' => array(
@@ -273,7 +300,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'eval' => array('mandatory' => false, 'tl_class'=>'w50', 'merconis_multilanguage' => true, 'decodeEntities' => true, 'maxlength'=>255),
             'sorting' => true,
             'flag' => 11,
-            'search'		=> true
+            'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
         'pageDescription' => array (
@@ -281,7 +309,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'exclude' => true,
             'inputType' => 'textarea',
             'eval' => array('style'=>'height:60px;', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
-            'search'		=> true
+            'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
         'flex_contents' => array(
@@ -307,7 +336,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"cssClass": "key-value-widget"
 					}
 				'
-			)
+			),
+            'sql'                     => "mediumtext NULL"
 		),
 
 		'flex_contentsLanguageIndependent' => array(
@@ -332,7 +362,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"cssClass": "key-value-widget"
 					}
 				'
-			)
+			),
+            'sql'                     => "mediumtext NULL"
 		),
 
 		'lsShopProductCode' => array(
@@ -345,7 +376,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			),
 			'sorting' => true,
 			'flag' => 11,
-			'search'		=> true
+			'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'alias' => array (
@@ -363,7 +395,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'generateAlias')
-			)
+			),
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 
 		),
 
@@ -372,7 +405,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'lsShopProductIsNew' => array(
@@ -380,7 +414,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'lsShopProductIsOnSale' => array(
@@ -388,7 +423,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'sorting' => array(
@@ -396,7 +432,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'		=>	'text',
 			'eval'			=>	array('rgxp' => 'number', 'tl_class' => 'w50', 'mandatory' => true),
-			'sorting' => true
+			'sorting' => true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 
 		'configurator' => array(
@@ -417,7 +454,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'filter'		=> true,
 			'wizard' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'beValuePickerWizard')
-			)
+			),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'lsShopProductMengenvergleichUnit' => array(
@@ -427,7 +465,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'eval' => array('tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_picker_headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityComparisonUnitPickerHeadline'], 'decodeEntities' => true, 'maxlength' => 255),
 			'wizard' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'beValuePickerWizard')
-			)
+			),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'pages' => array(
@@ -437,7 +476,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'eval' => array('multiple' => true, 'fieldType' => 'checkbox', 'tl_class' => 'clr'),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'convertPageSelection')
-			)
+			),
+            'sql'                     => "blob NULL"
 		),
 
         'useGroupRestrictions' => array(
@@ -445,7 +485,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'exclude' => true,
             'inputType'               => 'checkbox',
             'eval'                    => array('submitOnChange' => true, 'doNotCopy'=>true, 'tl_class'=>'clr'),
-            'filter'		=> true
+            'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'allowedGroups' => array (
@@ -453,7 +494,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'exclude'                 => true,
             'inputType'               => 'checkbox',
             'foreignKey'              => 'tl_member_group.name',
-            'eval'                    => array('multiple'=>true)
+            'eval'                    => array('multiple'=>true),
+            'sql'                     => "blob NULL"
         ),
 
         'lsShopProductProducer' => array(
@@ -466,7 +508,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'search'		=> true,
 			'wizard' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'beValuePickerWizard')
-			)
+			),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'lsShopProductMainImage' => array(
@@ -481,7 +524,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductMoreImages'],
 			'exclude' => true,
 			'inputType'		=>	'fileTree',
-			'eval'			=> array('multiple' => true, 'fieldType'=>'checkbox', 'files'=>true, 'filesOnly' => true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF,flv,mp4,mp2,swf,mov,avi', 'tl_class'=>'clr')
+			'eval'			=> array('multiple' => true, 'fieldType'=>'checkbox', 'files'=>true, 'filesOnly' => true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF,flv,mp4,mp2,swf,mov,avi', 'tl_class'=>'clr'),
+            'sql'                     => "blob NULL"
 		),
 
 		'lsShopProductAttributesValues' => array (
@@ -492,7 +536,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'eval'					  => array('tl_class' => 'merconis-component-autostart--merconisWidgetAttributesValues', 'decodeEntities' => true),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'insertAttributeValueAllocationsInAllocationTable')
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 
 		'lsShopProductPrice' => array(
@@ -501,7 +546,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'		=>	'text',
 			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true),
 			'sorting' => true,
-			'flag' => 11
+			'flag' => 11,
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useScalePrice' => array(
@@ -509,7 +555,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceType' => array(
@@ -518,7 +565,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
+            'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
 
 		'scalePriceQuantityDetectionMethod' => array(
@@ -527,7 +575,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+            'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
 
 		'scalePriceQuantityDetectionAlwaysSeparateConfigurations' => array(
@@ -535,7 +584,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'w50 m12'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceKeyword' => array(
@@ -544,7 +594,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'		=>	'text',
 			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255),
 			'search'		=> true,
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'scalePrice' => array(
@@ -570,14 +621,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"cssClass": ""
 					}
 				'
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 
 		'lsShopProductPriceOld' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOld'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useOldPrice' => array(
@@ -585,7 +638,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'lsShopProductSteuersatz' => array(
@@ -594,28 +648,32 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'		=> 'select',
 			'options_callback'	=> array('Merconis\Core\ls_shop_generalHelper','getNonDynamicSteuersatzOptions'),
 			'eval'			=> array('tl_class' => 'w50'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "int(10) unsigned NOT NULL default '1'"
 		),
 
 		'lsShopProductWeight' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductWeight'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'lsShopProductQuantityDecimals' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductQuantityDecimals'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('rgxp'=>'digit', 'maxlength'=>1, 'tl_class' => 'w50', 'mandatory' => true)
+			'eval'			=> array('rgxp'=>'digit', 'maxlength'=>1, 'tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 
 		'lsShopProductMengenvergleichDivisor' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductMengenvergleichDivisor'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals','tl_class' => 'w50', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals','tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "decimal(12,6) NOT NULL default '0.000000'"
 		),
 
 		/*
@@ -626,7 +684,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('submitOnChange' => true, 'doNotCopy'=>true, 'tl_class'=>'clr'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'priceForGroups_1' => array (
@@ -634,21 +693,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'foreignKey'              => 'tl_member_group.name',
-			'eval'                    => array('mandatory'=>true, 'multiple'=>true)
+			'eval'                    => array('mandatory'=>true, 'multiple'=>true),
+            'sql'                     => "blob NULL"
 		),
 
 		'lsShopProductPrice_1' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useScalePrice_1' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useScalePrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12')
+			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceType_1' => array(
@@ -657,7 +719,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
+            'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
 
 		'scalePriceQuantityDetectionMethod_1' => array(
@@ -666,21 +729,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+            'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
 
 		'scalePriceQuantityDetectionAlwaysSeparateConfigurations_1' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceQuantityDetectionAlwaysSeparateConfigurations'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50 m12')
+			'eval'                    => array('tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceKeyword_1' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceKeyword'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255)
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'scalePrice_1' => array(
@@ -706,21 +772,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"cssClass": ""
 					}
 				'
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 
 		'lsShopProductPriceOld_1' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOld'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useOldPrice_1' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useOldPrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12')
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		/*
@@ -731,7 +800,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('submitOnChange' => true, 'doNotCopy'=>true, 'tl_class'=>'clr'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'priceForGroups_2' => array (
@@ -739,21 +809,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'foreignKey'              => 'tl_member_group.name',
-			'eval'                    => array('mandatory'=>true, 'multiple'=>true)
+			'eval'                    => array('mandatory'=>true, 'multiple'=>true),
+            'sql'                     => "blob NULL"
 		),
 
 		'lsShopProductPrice_2' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useScalePrice_2' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useScalePrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12')
+			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceType_2' => array(
@@ -762,7 +835,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
+            'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
 
 		'scalePriceQuantityDetectionMethod_2' => array(
@@ -771,21 +845,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+            'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
 
 		'scalePriceQuantityDetectionAlwaysSeparateConfigurations_2' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceQuantityDetectionAlwaysSeparateConfigurations'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50 m12')
+			'eval'                    => array('tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceKeyword_2' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceKeyword'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255)
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'scalePrice_2' => array(
@@ -811,21 +888,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"cssClass": ""
 					}
 				'
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 
 		'lsShopProductPriceOld_2' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOld'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useOldPrice_2' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useOldPrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12')
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		/*
@@ -836,7 +916,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('submitOnChange' => true, 'doNotCopy'=>true, 'tl_class'=>'clr'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'priceForGroups_3' => array (
@@ -844,21 +925,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'foreignKey'              => 'tl_member_group.name',
-			'eval'                    => array('mandatory'=>true, 'multiple'=>true)
+			'eval'                    => array('mandatory'=>true, 'multiple'=>true),
+            'sql'                     => "blob NULL"
 		),
 
 		'lsShopProductPrice_3' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useScalePrice_3' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useScalePrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12')
+			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceType_3' => array(
@@ -867,7 +951,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
+            'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
 
 		'scalePriceQuantityDetectionMethod_3' => array(
@@ -876,21 +961,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+            'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
 
 		'scalePriceQuantityDetectionAlwaysSeparateConfigurations_3' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceQuantityDetectionAlwaysSeparateConfigurations'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50 m12')
+			'eval'                    => array('tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceKeyword_3' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceKeyword'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255)
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'scalePrice_3' => array(
@@ -916,21 +1004,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"cssClass": ""
 					}
 				'
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 
 		'lsShopProductPriceOld_3' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOld'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useOldPrice_3' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useOldPrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12')
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		/*
@@ -941,7 +1032,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('submitOnChange' => true, 'doNotCopy'=>true, 'tl_class'=>'clr'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'priceForGroups_4' => array (
@@ -949,21 +1041,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'foreignKey'              => 'tl_member_group.name',
-			'eval'                    => array('mandatory'=>true, 'multiple'=>true)
+			'eval'                    => array('mandatory'=>true, 'multiple'=>true),
+            'sql'                     => "blob NULL"
 		),
 
 		'lsShopProductPrice_4' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useScalePrice_4' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useScalePrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12')
+			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceType_4' => array(
@@ -972,7 +1067,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
+            'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
 
 		'scalePriceQuantityDetectionMethod_4' => array(
@@ -981,21 +1077,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+            'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
 
 		'scalePriceQuantityDetectionAlwaysSeparateConfigurations_4' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceQuantityDetectionAlwaysSeparateConfigurations'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50 m12')
+			'eval'                    => array('tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceKeyword_4' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceKeyword'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255)
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'scalePrice_4' => array(
@@ -1021,21 +1120,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"cssClass": ""
 					}
 				'
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 
 		'lsShopProductPriceOld_4' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOld'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useOldPrice_4' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useOldPrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12')
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		/*
@@ -1046,7 +1148,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('submitOnChange' => true, 'doNotCopy'=>true, 'tl_class'=>'clr'),
-			'filter'		=> true
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'priceForGroups_5' => array (
@@ -1054,21 +1157,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'foreignKey'              => 'tl_member_group.name',
-			'eval'                    => array('mandatory'=>true, 'multiple'=>true)
+			'eval'                    => array('mandatory'=>true, 'multiple'=>true),
+            'sql'                     => "blob NULL"
 		),
 
 		'lsShopProductPrice_5' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useScalePrice_5' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useScalePrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12')
+			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceType_5' => array(
@@ -1077,7 +1183,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
+            'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
 
 		'scalePriceQuantityDetectionMethod_5' => array(
@@ -1086,21 +1193,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
-			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+            'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
 
 		'scalePriceQuantityDetectionAlwaysSeparateConfigurations_5' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceQuantityDetectionAlwaysSeparateConfigurations'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50 m12')
+			'eval'                    => array('tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'scalePriceKeyword_5' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['scalePriceKeyword'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255)
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'scalePrice_5' => array(
@@ -1126,24 +1236,25 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"cssClass": ""
 					}
 				'
-			)
+			),
+            'sql'                     => "text NULL"
 		),
 
 		'lsShopProductPriceOld_5' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOld'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true)
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
 		'useOldPrice_5' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['useOldPrice'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12')
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
-
-
 
 		'lsShopProductDeliveryInfoSet' => array(
 			'label'			=> &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductDeliveryInfoSet'],
@@ -1152,21 +1263,23 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'foreignKey'	=> 'tl_ls_shop_delivery_info.title',
 			'eval'			=> array('tl_class' => 'w50', 'includeBlankOption' => true),
 			'filter'		=> true,
-			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+			'sql'                     => "int(10) unsigned NOT NULL default '0'",
 		),
 
 		'lsShopProductRecommendedProducts' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts'],
 			'exclude' => true,
 			'inputType'		=>	'ls_shop_productSelectionWizard',
-			'eval'			=> array('tl_class'=>'clr')
+			'eval'			=> array('tl_class'=>'clr'),
+            'sql'                     => "blob NULL"
 		),
 
 		'associatedProducts' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts'],
 			'exclude' => true,
 			'inputType'		=>	'ls_shop_productSelectionWizard',
-			'eval'			=> array('tl_class'=>'clr')
+			'eval'			=> array('tl_class'=>'clr'),
+            'sql'                     => "blob NULL"
 		),
 
 		'lsShopProductDetailsTemplate' => array(
@@ -1174,10 +1287,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'                 => $this->getTemplateGroup('template_productDetails_'),
-			'eval'					  => array('tl_class' => 'w50', 'includeBlankOption' => true, 'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['blankOptionLabel'])
+			'eval'					  => array('tl_class' => 'w50', 'includeBlankOption' => true, 'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['blankOptionLabel']),
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		)
 	)
 );
+
+
+
+
+
 
 class tl_ls_shop_product_controller extends \Backend {
 

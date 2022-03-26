@@ -5,7 +5,16 @@ namespace Merconis\Core;
 $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 	'config' => array(
 		'dataContainer' => 'Table',
-		'closed' => true
+		'closed' => true,
+        'sql' => array
+        (
+            'engine' => 'MyISAM',
+            'charset' => 'COLLATE utf8_general_ci',
+            'keys' => array
+            (
+                'id' => 'primary'
+            )
+        )
 	),
 	
 	'list' => array(
@@ -60,6 +69,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 	),
 	
 	'fields' => array(
+        'id' => array (
+            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
+        'orderID' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'messageTypeID' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'messageModelID' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+        'bodyHTML' => array (
+            'sql'                     => "text NULL"
+        ),
+        'bodyRawtext' => array (
+            'sql'                     => "text NULL"
+        ),
 		'tstamp' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['tstamp'],
@@ -69,7 +96,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 				array('Merconis\Core\ls_shop_messages_sent', 'getDate')
 			),
 			'sorting' => true,
-			'flag' => 12
+			'flag' => 12,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 		
 		'messageTypeAlias' => array(
@@ -77,7 +105,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			'label' =>  &$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['messageTypeAlias'],
 			'inputType' => 'text',
 			'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
-			'filter' => true
+			'filter' => true,
+            'sql'                     => "varbinary(128) NOT NULL default ''"
 		),
 		
 		'orderNr' => array(
@@ -87,7 +116,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
 			'search' => true,
 			'sorting' => true,
-			'flag' => 12
+			'flag' => 12,
+            'sql'                     => "varchar(255) NULL"
 		),
 		
 		'counterNr' => array(
@@ -97,7 +127,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
 			'search' => true,
 			'sorting' => true,
-			'flag' => 12
+			'flag' => 12,
+            'sql'                     => "varchar(255) NULL"
 		),
 		
 		'senderName' => array(
@@ -107,7 +138,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
 			'search' => true,
 			'sorting' => true,
-			'flag' => 12
+			'flag' => 12,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'senderAddress' => array(
@@ -117,7 +149,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
 			'search' => true,
 			'sorting' => true,
-			'flag' => 12
+			'flag' => 12,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'receiverMainAddress' => array(
@@ -127,7 +160,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
 			'search' => true,
 			'sorting' => true,
-			'flag' => 12
+			'flag' => 12,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'receiverBccAddress' => array(
@@ -137,7 +171,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
 			'search' => true,
 			'sorting' => true,
-			'flag' => 12
+			'flag' => 12,
+            'sql'                     => "varchar(255) NULL"
 		),
 		
 		'subject' => array(
@@ -147,7 +182,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
 			'search' => true,
 			'sorting' => true,
-			'flag' => 12
+			'flag' => 12,
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
 		'messageRepresentation' => array(
@@ -170,7 +206,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 				'tl_class' => 'clr',
 				'ls_shop_generatedTemplate_template' => 'template_beMessageAttachmentRepresentation_default',
 			),
-			'inputType' => 'ls_shop_generatedTemplate'
+			'inputType' => 'ls_shop_generatedTemplate',
+            'sql'                     => "blob NULL"
 		),
 		
 		'attachmentPaths' => array(
@@ -180,10 +217,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 				'tl_class' => 'clr',
 				'ls_shop_generatedTemplate_template' => 'template_beMessageAttachmentRepresentation_default',
 			),
-			'inputType' => 'ls_shop_generatedTemplate'
+			'inputType' => 'ls_shop_generatedTemplate',
+            'sql'                     => "blob NULL"
 		)
 	)
 );
+
+
+
 
 class ls_shop_messages_sent extends \Backend {
 	public function __construct() {

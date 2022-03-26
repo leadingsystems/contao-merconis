@@ -511,7 +511,16 @@ class ls_shop_orderMessages
 		/*
 		 * Ersetzen des Zähler-Platzhalters
 		 */
-		 $counterNr = preg_replace('/\{\{counter\}\}/siU', $this->arrMessageTypes[$messageTypeID]['counter'], $counterNr);
+
+        //mit parameter
+        preg_match_all('/\{\{counter:(.*)\}\}/siU', $counterNr, $matches);
+        foreach ($matches[0] as $key => $match) {
+            $counterNr = preg_replace('/'.preg_quote($match).'/siU', str_pad($this->arrMessageTypes[$messageTypeID]['counter'], $matches[1][$key], "0", STR_PAD_LEFT), $counterNr);
+        }
+
+
+        //ohne parameter
+        $counterNr = preg_replace('/\{\{counter\}\}/siU', $this->arrMessageTypes[$messageTypeID]['counter'], $counterNr);
 		
 		$this->counterNr = $counterNr;
 	}
