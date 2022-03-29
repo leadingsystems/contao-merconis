@@ -122,8 +122,8 @@ class ls_shop_apiController {
 		$this->obj_apiReceiver->set_data($var_return);
 	}
 
-	/**
-	 * Calls a method of a product's configurator object.
+    /**
+     * Calls a method of a product's configurator object.
      * Add the parameter 'productId' to the resource to specify for which product
      * you are calling the configurator's custom logic method.
      * Add the parameter 'parameters' holding an array with the parameters to pass
@@ -131,27 +131,50 @@ class ls_shop_apiController {
      *
      * Please note that not every return value can be json encoded and therefore not
      * every return value can be successfully read with an api call.
-	 */
-	protected function apiResource_callConfiguratorCustomLogicMethodForProduct() {
-        if (!\Input::get('productId')) {
+     *
+     * 31.01.2022, 1. alle Variablen mit der Methode (get/post) holen, mit der die erste Variable geholt worden ist und
+     *  2. Rückumwandlung von HTML-Entities
+     */
+    protected function apiResource_callConfiguratorCustomLogicMethodForProduct() {
+
+        if (\Input::get('productId')) {
+
+            $int_productId = \Input::get('productId');
+            $str_getOrPost = 'get';                             //alle weiteren Zugriffe auf empfangene Daten mit der Methode
+        } else if (\Input::post('productId')) {
+
+            $int_productId = \Input::post('productId');
+            $str_getOrPost = 'post';                             //alle weiteren Zugriffe auf empfangene Daten mit der Methode
+        } else {
+
             $this->obj_apiReceiver->fail();
             $this->obj_apiReceiver->set_data('no productId given');
             return;
         }
 
-        if (!\Input::get('method')) {
+
+
+        $str_method = \Input::{$str_getOrPost}('method');
+
+        if (!$str_method) {
             $this->obj_apiReceiver->fail();
             $this->obj_apiReceiver->set_data('no method specified');
             return;
         }
 
-        $obj_productOrVariant = ls_shop_generalHelper::getObjProduct(\Input::get('productId'));
+        $obj_productOrVariant = ls_shop_generalHelper::getObjProduct($int_productId);
+
         if ($obj_productOrVariant->_variantIsSelected) {
             $obj_productOrVariant = $obj_productOrVariant->_selectedVariant;
         }
         $obj_configurator = $obj_productOrVariant->_objConfigurator;
 
-        $arr_parameters = json_decode(html_entity_decode(\Input::get('parameters')), true);
+        $str_inputParameters = \Input::{$str_getOrPost}('parameters');
+
+        $str_inputParameters = html_entity_decode($str_inputParameters);
+
+        $arr_parameters = json_decode($str_inputParameters, true);
+
 
         if (!is_array($arr_parameters)) {
             $arr_parameters = array();
@@ -163,13 +186,13 @@ class ls_shop_apiController {
             return;
         }
 
-        if (!method_exists($obj_configurator->objCustomLogic, \Input::get('method'))) {
+        if (!method_exists($obj_configurator->objCustomLogic, \Input::{$str_getOrPost}('method'))) {
             $this->obj_apiReceiver->success();
             $this->obj_apiReceiver->set_data('method does not exist in configurator custom logic object');
             return;
         }
 
-        $var_return = call_user_func_array(array($obj_configurator->objCustomLogic, \Input::get('method')), $arr_parameters);
+        $var_return = call_user_func_array(array($obj_configurator->objCustomLogic, \Input::{$str_getOrPost}('method')), $arr_parameters);
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($var_return);

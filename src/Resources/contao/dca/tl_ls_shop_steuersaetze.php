@@ -87,6 +87,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+		
 		'title' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['title'],
@@ -199,15 +204,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'inputType'               => 'text',
 			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
             'sql'                     => "varchar(10) NOT NULL default ''"
-		),
-        'tstamp' => array (
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
-        )
+		)
 	)
 );
-
-
-
 
 
 

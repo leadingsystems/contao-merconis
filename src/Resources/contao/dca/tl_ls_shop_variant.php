@@ -234,6 +234,19 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+
+        'pid' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'lsShopVariantStock' => array (
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ),
+
         'sorting' => array(
             'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['sorting'],
             'exclude' => true,
@@ -1218,16 +1231,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
-
-
-
-
-
-
-
-
-
-
 		
 		'lsShopVariantWeight' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantWeight'],
@@ -1270,18 +1273,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'inputType'		=>	'ls_shop_productSelectionWizard',
 			'eval'			=> array('tl_class'=>'clr'),
             'sql'                     => "blob NULL"
-		),
-        'pid' => array (
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
-        ),
-
-        'tstamp' => array (
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
-        ),
-
-        'lsShopVariantStock' => array (
-            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
-        ),
+		)
 	)
 );
 

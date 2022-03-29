@@ -93,6 +93,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+		'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['title'],
 			'exclude' => true,
@@ -118,11 +121,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
             'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 		)
 	)
-);
-
-
-$GLOBALS['TL_DCA']['tl_ls_shop_attributes']['fields']['tstamp'] = array (
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
 
@@ -173,4 +171,3 @@ class ls_shop_attributes extends \Backend {
 		return $button;
 	}
 }
-?>

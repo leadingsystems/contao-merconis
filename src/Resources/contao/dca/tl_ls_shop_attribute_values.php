@@ -146,8 +146,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 
 
 
-
-
 class ls_shop_attribute_values extends \Backend {
 	public function __construct() {
 		parent::__construct();

@@ -189,8 +189,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 
 
 
-
-
 class ls_shop_delivery_info extends \Backend {
 	public function __construct() {
 		parent::__construct();
@@ -249,4 +247,3 @@ class ls_shop_delivery_info extends \Backend {
 		return $button;
 	}
 }
-?>

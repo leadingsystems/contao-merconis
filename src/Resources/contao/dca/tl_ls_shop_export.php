@@ -146,6 +146,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
 
+        'tstamp' => array(
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
         'title' => array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_export']['title'],
             'exclude' => true,
@@ -800,9 +804,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
             'inputType' => 'text',
             'eval' => array('maxlength' => 255, 'tl_class' => 'w50'),
             'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-        'tstamp' => array(
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
         )
     )
 );

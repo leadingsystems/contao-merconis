@@ -21,7 +21,9 @@ class ls_shop_productConfigurator {
 	public $arrReceivedPost = array();
 	
 	public $changeConfigurationUrl = '';
-	
+
+	public $bln_ignoreRequiredDataFields = false;
+
 	public $blnDataEntryMode = null;
 	
 	public $blnIsValid = true; // Standardmäßig gilt ein Konfigurator als valide, da ja noch nicht sicher ist, ob überhaupt ein tatsächlicher Konfigurator geladen wird.
@@ -103,6 +105,13 @@ class ls_shop_productConfigurator {
 				$objConfiguratorData->first();
 				$this->arrData = $objConfiguratorData->row();
 				$this->formID = $this->arrData['form'];
+
+				if (!$this->formID) {
+                    $this->arrData['startWithDataEntryMode'] = true;
+                    $this->arrData['stayInDataEntryMode'] = true;
+                    $this->arrData['skipStandardFormValidation'] = true;
+                }
+
 				$this->strTemplate = $this->arrData['template'];
 				
 				/*
@@ -132,7 +141,7 @@ class ls_shop_productConfigurator {
 			 */
 			$this->blnDataEntryMode = isset($_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['blnDataEntryMode']) ? $_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['blnDataEntryMode'] : $this->blnDataEntryMode;
 			if ($this->blnDataEntryMode === null) {
-				$this->blnDataEntryMode = $objConfiguratorData->startWithDataEntryMode ? true : false;
+				$this->blnDataEntryMode = $this->arrData['startWithDataEntryMode'] ? true : false;
 			}
 			
 			
@@ -151,7 +160,7 @@ class ls_shop_productConfigurator {
 			 * In diesem Moment wird also der Datenerfassungsmodus abgeschaltet.
 			 */
 			if ($this->blnReceivedFormDataJustNow) {
-				$this->blnDataEntryMode = $objConfiguratorData->stayInDataEntryMode ? true : false;
+				$this->blnDataEntryMode = $this->arrData['stayInDataEntryMode'] ? true : false;
 				$this->saveBlnDataEntryMode();
 			}
 			
@@ -173,7 +182,7 @@ class ls_shop_productConfigurator {
 		}
 	}
 
-	public function __destruct() {
+	public function storeToSession() {
 		/*
 		 * Don't write anything to the session unless there has been post data received at least once
 		 */
@@ -436,6 +445,9 @@ class ls_shop_productConfigurator {
 	}
 
 	public function analyzeRequiredConfiguratorData() {
+	    if (!$this->formID || $this->bln_ignoreRequiredDataFields) {
+	        return;
+        }
 		$this->arrReceivedPost = ls_shop_generalHelper::analyzeRequiredDataFields($this->formID, $this->arrReceivedPost, !$this->blnReceivedFormDataAtLeastOnce);
 	}
 
@@ -543,7 +555,7 @@ class ls_shop_productConfigurator {
 			$cartRepresentation = $this->objCustomLogic->getRepresentationOfConfiguratorSettings();
 		}
 
-		if (!$cartRepresentation) {
+		if (!$cartRepresentation && $this->formID) {
             $arr_receivedPostForReview = ls_shop_generalHelper::getArrDataReview($this->arrReceivedPost);
             $arr_formFieldLabels = ls_shop_generalHelper::getFormFieldLabels($this->formID);
 

@@ -12,7 +12,11 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['stayInDataEntryMode']						= array('Im Datenerfassungsmodus bleiben', 'Mit dieser Einstellung bleibt der Konfigurator auch nach dem Abschicken des Formulars im Datenerfassungsmodus.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['skipStandardFormValidation']				= array('Keine Standard-Formular-Validierung', 'Mit dieser Einstellung wird auf standardmäßige Formular-Validierung verzichtet. Die Validierung der im Konfigurator erfassten Daten erfolgt dann ausschließlich über eine in der Verarbeitungslogik-Datei programmierte "customValidator"-Funktion. Ist eine solche Funktion nicht definiert, so gelten die erfassten Daten grundsätzlich als valide. Sinnvoll ist diese Einstellung, wenn Sie das Formular in der Verarbeitungslogik-Datei z. B. mittels der dort verfügbaren Formular-Hooks manipulieren und dadurch einen Zustand herbeiführen, indem die Standard-Formular-Validierung kein korrektes Ergebnis ermitteln kann.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['customLogicFile']							= array('Datei mit eigener Verarbeitungslogik', 'Bitte geben Sie hier bei Bedarf die Datei an, die das Programm mit Ihrer eigenen Verarbeitungslogik enthält.');
-	
+
+	/*
+	 * Misc
+	 */
+    $GLOBALS['TL_LANG']['tl_ls_shop_configurator']['form_blankOptionLabel']                     = 'Konfigurator ohne Contao-Formular nutzen (fortgeschritten)';
 
 	/*
 	 * Legends

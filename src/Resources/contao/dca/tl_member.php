@@ -3,7 +3,15 @@
 namespace Merconis\Core;
 
 	$GLOBALS['TL_DCA']['tl_member']['palettes']['default'] = preg_replace('/(\{groups_legend\})/siU', '{lsShop_legend:hide},VATID,firstname_alternative,lastname_alternative,company_alternative,street_alternative,postal_alternative,city_alternative,country_alternative,phone_alternative,mobile_alternative,fax_alternative,email_alternative;$1', $GLOBALS['TL_DCA']['tl_member']['palettes']['default']);
-	
+
+	$GLOBALS['TL_DCA']['tl_member']['fields']['state_alternative'] = array (
+		'sql'                     => "varchar(64) NOT NULL default ''"
+	);
+
+	$GLOBALS['TL_DCA']['tl_member']['fields']['merconis_favoriteProducts'] = array (
+		'sql'                     => "blob NULL"
+	);
+
 	$GLOBALS['TL_DCA']['tl_member']['fields']['VATID'] = array(
 		'label'                   => &$GLOBALS['TL_LANG']['tl_member']['VATID'],
 		'exclude'                 => true,
@@ -122,12 +130,6 @@ namespace Merconis\Core;
         'sql'                     => "varchar(255) NOT NULL default ''"
 	);
 
-	$GLOBALS['TL_DCA']['tl_member']['fields']['state_alternative'] = array (
-        'sql'                     => "varchar(64) NOT NULL default ''"
-    );
 
-	$GLOBALS['TL_DCA']['tl_member']['fields']['merconis_favoriteProducts'] = array (
-        'sql'                     => "blob NULL"
-    );
-?>
+
 

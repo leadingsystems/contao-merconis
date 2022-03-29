@@ -9,16 +9,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_lsShopSettings_controller', 'restartOrderNrCounter'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		),
-        'sql' => array
-        (
-            'engine' => 'MyISAM',
-            'charset' => 'utf8 COLLATE utf8_general_ci',
-            'keys' => array
-            (
-                'id' => 'primary'
-            )
-        )
+		)
 	),
 	
 	'palettes' => array(
@@ -83,9 +74,6 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	),
 	
 	'fields' => array(
-        'id' => array (
-            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
-        ),
 		'ls_shop_beOrderTemplateOverview' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_beOrderTemplateOverview'],

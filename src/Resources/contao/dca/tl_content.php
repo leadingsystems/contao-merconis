@@ -17,15 +17,8 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopCrossSeller'] = array(
 );
 
 
-/*
- * Conditional Output
- */
-foreach ($GLOBALS['TL_DCA']['tl_content']['palettes'] as $paletteName => $palette)  {
-	if ($paletteName == '__selector__') {
-		continue;
-	}
-	$GLOBALS['TL_DCA']['tl_content']['palettes'][$paletteName] .= ';{lsShopConditionalOutput_legend},lsShopOutputCondition';
-}
+$GLOBALS['TL_DCA']['tl_content']['config']['onload_callback'][] = array('Merconis\Core\tl_content', 'onloadCallback');
+
 			
 $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopOutputCondition'] = array(
 	'label'			=> &$GLOBALS['TL_LANG']['tl_content']['lsShopOutputCondition'],
@@ -36,3 +29,22 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopOutputCondition'] = array(
 	'eval'			=> array('tl_class' => 'w50', 'helpwizard' => true),
     'sql'                     => "varchar(32) NOT NULL default ''"
 );
+
+
+class tl_content extends \Backend
+{
+    
+    public function onloadCallback()
+    {
+        /*
+         * Conditional Output
+         */
+        foreach ($GLOBALS['TL_DCA']['tl_content']['palettes'] as $paletteName => $palette)  {
+            if ($paletteName == '__selector__') {
+                continue;
+            }
+            $GLOBALS['TL_DCA']['tl_content']['palettes'][$paletteName] .= ';{lsShopConditionalOutput_legend},lsShopOutputCondition';
+        }
+    }
+
+}

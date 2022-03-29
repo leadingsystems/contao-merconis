@@ -87,6 +87,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
+		'tstamp' => array (
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['title'],
 			'exclude' => true,
@@ -118,7 +121,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 			'inputType' => 'select',
 			'foreignKey' => 'tl_form.title',
 			'filter' => true,
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+      'sql'                     => "int(10) unsigned NOT NULL default '0'"
+      'eval' => ['includeBlankOption' => true, 'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['form_blankOptionLabel']]
 		),
 		
 		'startWithDataEntryMode' => array(
@@ -165,11 +169,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_configurator']['fields']['tstamp'] = array (
-    'sql'                     => "int(10) unsigned NOT NULL default '0'"
-);
-
-
 
 
 class ls_shop_configurator extends \Backend {
@@ -177,7 +176,7 @@ class ls_shop_configurator extends \Backend {
 		parent::__construct();
 	}
 
-	public function generateAlias($varValue, \DataContainer $dc) {
+    public function generateAlias($varValue, \DataContainer $dc) {
 		$autoAlias = false;
 
 		$currentTitle = isset($dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()}) && $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} ? $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} : $dc->activeRecord->title;
@@ -218,4 +217,3 @@ class ls_shop_configurator extends \Backend {
 		return $button;
 	}
 }
-?>

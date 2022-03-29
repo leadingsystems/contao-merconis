@@ -324,4 +324,3 @@ class ls_shop_filter_fields extends \Backend {
 		return $this->getTemplateGroup('template_formPriceFilterField_');
 	}
 }
-?>
