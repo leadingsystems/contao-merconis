@@ -20,7 +20,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
         'sql' => array
         (
             'engine' => 'MyISAM',
-            'charset' => 'COLLATE utf8_general_ci',
+            'charset' => 'utf8 COLLATE utf8_general_ci',
             'keys' => array
             (
                 'id' => 'primary'
@@ -121,8 +121,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
 			'inputType' => 'select',
 			'foreignKey' => 'tl_form.title',
 			'filter' => true,
-            'sql'                     => "int(10) unsigned NOT NULL default '0'",
-            'eval' => ['includeBlankOption' => true, 'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['form_blankOptionLabel']]
+      'sql'                     => "int(10) unsigned NOT NULL default '0'",
+      'eval' => ['includeBlankOption' => true, 'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['form_blankOptionLabel']]
 		),
 		
 		'startWithDataEntryMode' => array(
