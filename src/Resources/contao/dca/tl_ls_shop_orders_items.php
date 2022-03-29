@@ -7,7 +7,7 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
         'sql' => array
         (
             'engine' => 'MyISAM',
-            'charset' => 'COLLATE utf8_general_ci',
+            'charset' => 'utf8 COLLATE utf8_general_ci',
             'keys' => array
             (
                 'id' => 'primary'
