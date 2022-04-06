@@ -82,7 +82,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			useRawtext;
 			{attachments_legend},
 			attachments,
-			dynamicAttachments;
+			dynamicAttachments,
+			flex_parameters;
 			{expert_legend:hide},
 			externalImages;
 			{published_legend},
@@ -293,6 +294,32 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'eval' => array('multiple' => true, 'tl_class'=>'clr', 'files' => true, 'filesOnly' => true, 'fieldType' => 'checkbox', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true),
             'sql'                     => "blob NULL"
 		),
+
+        'flex_parameters' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval'                    => array(
+                'tl_class'=>'clr topLinedGroup merconis-component-autostart--merconisWidgetMultiText',
+                'decodeEntities' => true,
+                'data-merconis-widget-options' => '
+					{
+						"arr_fields": [
+							{
+								"type": "text",
+								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters_label01'].'"
+							},
+							{
+								"type": "textarea",
+								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters_label02'].'"
+							}
+						],
+						"cssClass": "key-value-widget"
+					}
+				'
+            ),
+            'sql'                     => "text NULL"
+        ),
 		
 		'dynamicAttachments' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['dynamicAttachments'],
