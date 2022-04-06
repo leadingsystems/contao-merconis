@@ -1,5 +1,13 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
+
+### 4.0.8.3 (2022-04-06)
+ * Fix a minor bug
+
+### 4.0.8.2 (2022-02-09)
+
+### 4.0.8.1 (2021-11-18)
+
 ### 4.0.8 (2020-05-27)
 
  * Add new hook "afterCustomerDataHasBeenPrefilledAfterLogin"
