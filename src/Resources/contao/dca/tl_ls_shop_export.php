@@ -299,7 +299,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 
 		'changedWithinMinutes' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_export']['changedWithinMinutes'],
-			'default'                 => 'directSelection',
+			'default'                 => 9999999,
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'                 => array(5, 10, 15, 30, 60, 120, 720, 1440, 2880, 10080, 20160, 40320, 525600, 9999999),
