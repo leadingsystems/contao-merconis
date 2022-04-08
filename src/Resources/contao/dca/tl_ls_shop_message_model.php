@@ -296,7 +296,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 		),
 
         'flex_parameters' => array(
-            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters'],
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters'],
             'exclude' => true,
             'inputType' => 'text',
             'eval'                    => array(
@@ -307,11 +307,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 						"arr_fields": [
 							{
 								"type": "text",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters_label01'].'"
+								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters_label01'].'"
 							},
 							{
 								"type": "textarea",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters_label02'].'"
+								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters_label02'].'"
 							}
 						],
 						"cssClass": "key-value-widget"
