@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_orderMessages
@@ -155,7 +156,7 @@ class ls_shop_orderMessages
 
 		return true;
 	}
-	
+
 	public function getMessageModels() {
 		$arrMessageModels = array();
 		
@@ -337,7 +338,7 @@ class ls_shop_orderMessages
 						 * and it has to return the file path of the saved file so that it can be attached to the email object
 						 * directly.
 						 */
-						$objDynamicAttachment = new $dynamicAttachmentClassName($this->arrOrder, $this->counterNr);
+						$objDynamicAttachment = new $dynamicAttachmentClassName($this->arrOrder, $this->counterNr, createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrMessageModel['flex_parameters'])), 2, 1));
 						$dynamicAttachmentSavedFilename = $objDynamicAttachment->parse();
 						
 						if ($dynamicAttachmentSavedFilename && file_exists(TL_ROOT.'/'.$dynamicAttachmentSavedFilename)) {

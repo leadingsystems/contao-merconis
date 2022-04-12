@@ -5,6 +5,10 @@
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['title']	= array('Designation');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['member_group']	= array('Member group');
+
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters']								= array('Flexible Content', 'You can add as many parameters as you like and they can be used in templates by referencing them with their keyword.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters_label01']						= 'Parameter key';
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters_label02']						= 'Parameter value';
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['useHTML']	= array('Use HTML content');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['template_html'] = array('Template for HTML mails');
