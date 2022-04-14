@@ -155,7 +155,6 @@ class productImageGallery extends \Frontend {
 
         // Get all images
         foreach ($this->multiSRC as $file) {
-            dump($file);
             $this->ls_images[] = $this->processSingleImage($file);
         }
 
@@ -277,7 +276,6 @@ class productImageGallery extends \Frontend {
             $objImage->caption = $arrMeta['caption'];
             $objImage->mtime = $objFile->mtime;
             $objImage->randomSortingValue = md5($objFile->basename.$this->sortingRandomizer);
-            dump($objImage);
             return $objImage;
 
         }
