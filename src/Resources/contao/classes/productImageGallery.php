@@ -198,6 +198,17 @@ class productImageGallery extends \Frontend {
                 break;
         }
 
+        //sort videos to end of image list
+        $videos = [];
+        for ($i = 0; count($this->ls_images) > $i; $i++) {
+            //test if video (originalSRC is false for all images)
+            if ($this->ls_images[$i]->originalSRC != false){
+                $videos[] = $this->ls_images[$i];
+                unset($this->ls_images[$i]);
+            }
+        }
+        $this->ls_images = array_merge($this->ls_images, $videos);
+
     }
 
     protected function processSingleImage($file) {
