@@ -6,7 +6,7 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['stringHavingPartsWit
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['numberWithDecimalsFE'] = 'Feld &quot;%s&quot; muss eine Zahl gr&ouml;&szlig;er 0 enthalten.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg1'] = 'Ihre Suche lieferte zu viele Treffer. Es werden Ihnen nur die ersten %s von %s Treffer angezeigt.';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg2'] = 'Bitte grenzen Sie Ihre Suche ein, da ansonsten zu viele Treffer gefunden w&uuml;rden.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg2'] = 'Bitte grenzen Sie Ihre Suche mit mehreren Suchbegriffen ein, da ansonsten zu viele Treffer gefunden w&uuml;rden. Z. B. &bdquo;Märklin Dampflok&ldquo;';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText001'] = 'inkl. MwSt.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText002'] = 'zzgl. %s MwSt.';
@@ -34,9 +34,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText017'] = 'Gesamtgewicht';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText018'] = 'Preis';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText019'] = 'Gewicht';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText020'] = 'Gesamtwarenwert';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText021'] = 'Zahlung per';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText021'] = 'Zahlungsoption:';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText021-2'] = 'empfohlene Zahlung per';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText022'] = 'Versand per';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText022'] = 'Versandoption:';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText022-2'] = 'empfohlener Versand per';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText023'] = 'Rechnungsbetrag';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText024'] = 'Sie haben den Mindestbestellwert von %s noch nicht erreicht.';
@@ -386,7 +386,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['shippingData']['fieldNames'] = array(
 	'dayTransporter' => 'Tag'
 );
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['finishOrderButtonLabel'] = 'Kaufen';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['finishOrderButtonLabel'] = 'zahlungspflichtig bestellen';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variantSelector']['nothingSelectedYet'] = 'Bitte wählen';
 
