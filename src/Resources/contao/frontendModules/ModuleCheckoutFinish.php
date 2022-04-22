@@ -118,7 +118,7 @@ class ModuleCheckoutFinish extends \Module {
 							UPDATE		`tl_ls_shop_coupon`
 							SET			`numAvailable` = `numAvailable` - 1
 							WHERE		`id` = ?
-								AND		`limitNumAvailable` = 1
+								AND		`limitNumAvailable` = '1'
 								AND		`numAvailable` > 0
 						")
 						->limit(1)
