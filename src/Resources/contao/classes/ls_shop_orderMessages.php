@@ -262,30 +262,6 @@ class ls_shop_orderMessages
 			// Dynamic PDF attachments
 			$arrTmpGeneratedDynamicAttachmentFiles = array();
 			if (is_array($arrMessageToSendAndSave['dynamicPdfAttachmentPaths']) && count($arrMessageToSendAndSave['dynamicPdfAttachmentPaths']) > 0) {
-				/*
-				 * This was the wrong place because here it would only affect dynamically
-				 * generated PDF attachments
-				 * 
-				 * $this->loadLanguageFile('default', $this->arrOrder['customerLanguage'], true);
-				 */
-
-				/*
-				 * Fix for the bug in contao 3.3.5 where path constants in contao's
-				 * tcpdf config file are wrong.
-				 * 
-				 * We simply define the constants with the correct values before requiring
-				 * the contao config file which can not override our correct values with it's
-				 * wrong ones.
-				 */
-				if (version_compare(VERSION . '.' . BUILD, '3.3.5', '==')) {
-					define('K_PATH_MAIN', TL_ROOT . '/vendor/tecnick.com/tcpdf/');
-					define('K_PATH_URL', \Environment::get('base') . 'vendor/tecnick.com/tcpdf/');
-				}
-				
-				require_once(TL_ROOT . '/system/config/tcpdf.php');
-				if (version_compare(VERSION . '.' . BUILD, '3.3.0', '<')) {
-					require_once(TL_ROOT . '/system/modules/core/vendor/tcpdf/tcpdf.php');
-				}
 
 				foreach ($arrMessageToSendAndSave['dynamicPdfAttachmentPaths'] as $strDynamicAttachmentFile) {
 					$strDynamicAttachmentFile = ls_getFilePathFromVariableSources($strDynamicAttachmentFile);
