@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
+use Contao\LayoutModel;
 use LeadingSystems\Helpers\FlexWidget;
 
 use function LeadingSystems\Helpers\ls_mul;
@@ -4081,47 +4083,22 @@ class ls_shop_generalHelper
      * In order to be able to switch the layout in product singleview, we
      * would like to use \PageRegular::getPageLayout() but unfortunately
      * we can't do this because it is protected. Therefore, this function here
-     * is a duplicate of the protected function. Maybe there are some parts that
-     * we don't necessarily need but as long as we can work with an identical
-     * duplicate of the original function, we appreciate it, because it keeps
-     * things simpler if Contao ever changes this function and we would need
-     * to follow the changes.
+     * is a duplicate of the protected function.
      */
     public static function merconis_getPageLayout($objPage)
     {
-        $blnMobile = ($objPage->mobileLayout && \Environment::get('agent')->mobile);
-
-        // Set the cookie
-        if (isset($_GET['toggle_view'])) {
-            if (\Input::get('toggle_view') == 'mobile') {
-                \System::setCookie('TL_VIEW', 'mobile', 0);
-            } else {
-                \System::setCookie('TL_VIEW', 'desktop', 0);
-            }
-
-            \Controller::redirect(\System::getReferer());
-        }
-
-        // Override the autodetected value
-        if (\Input::cookie('TL_VIEW') == 'mobile') {
-            $blnMobile = true;
-        } elseif (\Input::cookie('TL_VIEW') == 'desktop') {
-            $blnMobile = false;
-        }
-
-        $intId = ($blnMobile && $objPage->mobileLayout) ? $objPage->mobileLayout : $objPage->layout;
-        $objLayout = \LayoutModel::findByPk($intId);
+        $objLayout = LayoutModel::findByPk($objPage->layout);
 
         // Die if there is no layout
-        if (null === $objLayout) {
-            header('HTTP/1.1 501 Not Implemented');
-            \System::log('Could not find layout ID "' . $intId . '"', __METHOD__, TL_ERROR);
-            die_nicely('be_no_layout', 'No layout specified');
+        if (null === $objLayout)
+        {
+            \System::log('Could not find layout ID "' . $objPage->layout . '"', __METHOD__, TL_ERROR);
+
+            throw new NoLayoutSpecifiedException('No layout specified');
         }
 
         $objPage->hasJQuery = $objLayout->addJQuery;
         $objPage->hasMooTools = $objLayout->addMooTools;
-        $objPage->isMobile = $blnMobile;
 
         return $objLayout;
     }
@@ -4143,7 +4120,6 @@ class ls_shop_generalHelper
         }
 
         $int_layout = $objPage->lsShopIncludeLayoutForDetailsView ? $objPage->lsShopLayoutForDetailsView : false;
-        $int_layoutMobile = $objPage->lsShopIncludeLayoutForDetailsView ? $objPage->lsShopMobileLayoutForDetailsView : false;
 
         if ($objPage->type != 'root') {
             $int_pid = $objPage->pid;
@@ -4159,22 +4135,18 @@ class ls_shop_generalHelper
                         if ($int_layout === false) {
                             $int_layout = $objParentPage->lsShopLayoutForDetailsView;
                         }
-                        if ($int_layoutMobile === false) {
-                            $int_layoutMobile = $objParentPage->lsShopMobileLayoutForDetailsView;
-                        }
                     }
                 }
             }
         }
 
-        if ($int_layout === false && $int_layoutMobile === false) {
+        if ($int_layout === false) {
             /*
              * We don't have to consider different layouts
              */
             return;
         }
         $objPage->layout = $int_layout !== false ? $int_layout : $objPage->layout;
-        $objPage->mobileLayout = $int_layoutMobile !== false ? $int_layoutMobile : $objPage->mobileLayout;
 
         $objLayout = ls_shop_generalHelper::merconis_getPageLayout($objPage);
     }

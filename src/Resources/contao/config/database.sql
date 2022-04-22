@@ -11,7 +11,6 @@ relevant foreign key relations concerning tables which are not defined in this f
 @tl_page.jumpTo@tl_page.id=single@
 @tl_newsletter_channel.jumpTo@tl_page.id=single@
 @tl_page.layout@tl_layout.id=single@
-@tl_page.mobileLayout@tl_layout.id=single@
 @tl_page.groups@tl_member_group.id=array@
 @tl_layout.pid@tl_theme.id=single@
 @tl_module.pid@tl_theme.id=single@
@@ -1059,14 +1058,12 @@ CREATE TABLE `tl_content` (
 /*
 @tl_page.lsShopOutputDefinitionSet@tl_ls_shop_output_definitions.id=single@
 @tl_page.lsShopLayoutForDetailsView@tl_layout.id=single@
-@tl_page.lsShopMobileLayoutForDetailsView@tl_layout.id=single@
 @tl_page.pid@tl_page.id=single@
 */
 CREATE TABLE `tl_page` (
 	`lsShopOutputDefinitionSet` int(10) unsigned NOT NULL default '0',
 	`lsShopIncludeLayoutForDetailsView` char(1) NOT NULL default '',
 	`lsShopLayoutForDetailsView` int(10) unsigned NOT NULL default '0',
-	`lsShopMobileLayoutForDetailsView` int(10) unsigned NOT NULL default '0',
 	`ls_shop_currencyBeforeValue` char(1) NOT NULL default '',
 	`ls_shop_decimalsSeparator` char(1) NOT NULL default ',',
 	`ls_shop_thousandsSeparator` char(1) NOT NULL default '',
