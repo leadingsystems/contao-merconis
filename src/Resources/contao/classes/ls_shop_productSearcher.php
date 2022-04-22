@@ -1522,6 +1522,14 @@ class ls_shop_productSearcher
                     }
                     break;
 
+                case 'sorting':
+                    $sortingTypeFlag = SORT_NUMERIC;
+                    foreach ($arrProductsAfterFilter as $k => $arrProduct) {
+                        $arrOrder[$k] = $arrProduct[$sortingField['field']];
+                        $arr_tmpProductsToSort[$k] = $arrProduct;
+                    }
+                    break;
+
                 /*
                  * The default should work for all standard product fields,
                  * where the field value in the database is directly stored
