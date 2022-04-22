@@ -519,8 +519,8 @@ class ls_shop_productSearcher
                      * If the criterionValue is put in quotes it must not be splitted in separate
                      * criterionValues and the quotes must be removed
                      */
-                    if (preg_match('/^"(.*)"$/', $criterionValue)) {
-                        $criterionValue = preg_replace('/^"(.*)"$/', '\\1', $criterionValue);
+                    if (preg_match('/^&#34;(.*)&#34;$/', $criterionValue)) {
+                        $criterionValue = preg_replace('/^&#34;(.*)&#34;$/', '\\1', $criterionValue);
                         $arrCriterionValues = array($criterionValue);
                     } else {
                         $arrCriterionValues = explode(' ', $criterionValue);
@@ -531,7 +531,7 @@ class ls_shop_productSearcher
                             unset ($arrCriterionValues[$k]);
                             continue;
                         }
-                        $arrCriterionValues[$k] = preg_replace('/"/', '', $v);
+                        $arrCriterionValues[$k] = preg_replace('/&#34;/', '', $v);
                     }
 
                     /*
