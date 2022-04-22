@@ -3,8 +3,8 @@
 namespace LeadingSystems\MerconisBundle\Controller;
 
 use Doctrine\DBAL\Connection;
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Configures the bundle.
@@ -23,7 +23,7 @@ class ShowMailController
 	/**
 	 * Template engine.
 	 *
-	 * @var EngineInterface
+	 * @var \Twig\Environment
 	 */
 	private $engine;
 
@@ -31,9 +31,9 @@ class ShowMailController
 	 * ShowMailController constructor.
 	 *
 	 * @param Connection $connection
-	 * @param EngineInterface $engine
+	 * @param \Twig\Environment $engine
 	 */
-	public function __construct(Connection $connection, EngineInterface $engine)
+	public function __construct(Connection $connection, \Twig\Environment $engine)
 	{
 		$this->connection = $connection;
 		$this->engine = $engine;
@@ -62,9 +62,9 @@ class ShowMailController
 			}
 		}
 
-		return $this->engine->renderResponse(
+		return new Response($this->engine->render(
 			'@LeadingSystemsMerconis/backend/show_mail_html_body.html.twig',
 			['mailHTMLBody' => $htmlBody]
-		);
+        ));
 	}
 }

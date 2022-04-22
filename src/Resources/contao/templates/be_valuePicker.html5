@@ -39,7 +39,7 @@
 	</head>
 	<body class="__ua__ popup">
 
-		<div id="container">
+		<div id="container" style="overflow: visible;">
 			<div id="main">
 				<div class="be_valuePicker">
 					<select class="tl_chosen">

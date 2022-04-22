@@ -1,16 +1,19 @@
 services:
   merconis.controller.backend.product_search:
     class: LeadingSystems\MerconisBundle\Controller\ProductSearchController
+    public: true
     arguments:
       - "@contao.framework"
 
   merconis.controller.backend.pick_value:
     class: LeadingSystems\MerconisBundle\Controller\ValuePickerController
+    public: true
     arguments:
       - "@contao.framework"
 
   merconis.controller.backend.show_mail:
     class: LeadingSystems\MerconisBundle\Controller\ShowMailController
+    public: true
     arguments:
       - "@database_connection"
-      - "@templating"
+      - "@twig"
