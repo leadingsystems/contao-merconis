@@ -1035,7 +1035,7 @@ class ls_shop_languageHelper {
 		}
 
 		$arr_matches = array();
-		if (!preg_match('/(product\/)(.*?)(\/|\.)/', $arr_languageLink['href'], $arr_matches)) {
+		if (!preg_match('/(product\/)(.*?)(\/|\.|$)/', $arr_languageLink['href'], $arr_matches)) {
 			return $arr_languageLink;
 		}
 
@@ -1054,7 +1054,7 @@ class ls_shop_languageHelper {
 
 		$str_productAlias = ls_shop_languageHelper::translateProductAliasLanguage($str_productAlias, $str_sourceLanguage, $str_targetLanguage);
 
-		$arr_languageLink['href'] = preg_replace('/(product\/)(.*?)(\/|\.)/', $arr_matches[1].$str_productAlias.$arr_matches[3], $arr_languageLink['href']);
+		$arr_languageLink['href'] = preg_replace('/(product\/)(.*?)(\/|\.|$)/', $arr_matches[1].$str_productAlias.$arr_matches[3], $arr_languageLink['href']);
 
 		return $arr_languageLink;
 	}
@@ -1069,7 +1069,7 @@ class ls_shop_languageHelper {
 		}
 
 		$arr_matches = array();
-		if (!preg_match('/(selectVariant\/)(.*?)(\/|\.)/', $arr_languageLink['href'], $arr_matches)) {
+		if (!preg_match('/(selectVariant\/)(.*?)(\/|\.|$)/', $arr_languageLink['href'], $arr_matches)) {
 			return $arr_languageLink;
 		}
 
@@ -1088,7 +1088,7 @@ class ls_shop_languageHelper {
 
 		$str_variantAlias = ls_shop_languageHelper::translateVariantAliasLanguage($str_variantAlias, $str_sourceLanguage, $str_targetLanguage);
 
-		$arr_languageLink['href'] = preg_replace('/(selectVariant\/)(.*?)(\/|\.)/', $arr_matches[1].$str_variantAlias.$arr_matches[3], $arr_languageLink['href']);
+		$arr_languageLink['href'] = preg_replace('/(selectVariant\/)(.*?)(\/|\.|$)/', $arr_matches[1].$str_variantAlias.$arr_matches[3], $arr_languageLink['href']);
 
 		return $arr_languageLink;
 	}
