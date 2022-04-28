@@ -964,13 +964,13 @@ class ls_shop_productSearcher
 
                     //$searchCondition .= "	(".$searchConditionPart1.")";
 
-                    dump($searchCondition);
+                    //dump($searchCondition);
 
                     $searchCondition .= "	(".$searchConditionPart.")";
 
 
-                    dump($searchCondition);
-                    dump("-------------");
+                    //dump($searchCondition);
+                    //dump("-------------");
                     break;
 
                 default:
@@ -1173,13 +1173,13 @@ class ls_shop_productSearcher
 			".$orderStatement."
 		");
 
-        dump($objProductsComplete);
+        //dump($objProductsComplete);
 
         if (is_array($this->arrLimit) && isset($this->arrLimit['rows']) && isset($this->arrLimit['offset']) && $this->arrLimit['rows'] > 0) {
             $objProductsComplete = $objProductsComplete->limit($this->arrLimit['rows'], $this->arrLimit['offset']);
         }
-        dump("hier");
-        dump($searchConditionValues);
+        //dump("hier");
+        //dump($searchConditionValues);
         $objProductsComplete = $objProductsComplete->execute($searchConditionValues);
         dump($objProductsComplete);
 
@@ -1321,10 +1321,10 @@ class ls_shop_productSearcher
 			")
                 ->execute();
 
-            dump(array_keys($tmpArrProductsComplete));
-            dump($objVariants);
+            //dump(array_keys($tmpArrProductsComplete));
+            //dump($objVariants);
             $arrVariants = $objVariants->fetchAllAssoc();
-            dump($arrVariants);
+            //dump($arrVariants);
             /*
              * Walk through each variant record and merge duplicate records that occur
              * because of multiple references to the attribute value allocation table
@@ -1399,7 +1399,7 @@ class ls_shop_productSearcher
 
             $arrProductsComplete = $tmpArrProductsComplete;
 
-            dump($arrProductsComplete);
+            //dump($arrProductsComplete);
 
             /*
              * This hook is only meant to be called in a product list context and therefore
@@ -1487,7 +1487,7 @@ class ls_shop_productSearcher
 
             $this->arrProductResultsComplete = $arrProductIDsTempComplete;
         }
-        dump($this->arrProductResultsComplete);
+        //dump($this->arrProductResultsComplete);
     }
 
     protected function getProductResultsCurrentPage() {
