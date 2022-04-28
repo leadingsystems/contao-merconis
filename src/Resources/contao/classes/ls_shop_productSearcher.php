@@ -1181,7 +1181,7 @@ class ls_shop_productSearcher
         //dump("hier");
         //dump($searchConditionValues);
         $objProductsComplete = $objProductsComplete->execute($searchConditionValues);
-        dump($objProductsComplete);
+        //dump($objProductsComplete);
 
         /*
          * If we use the filter or the special price sorting or maybe for some other reasons,
@@ -1195,7 +1195,7 @@ class ls_shop_productSearcher
 
         $arrProductsComplete = $objProductsComplete->fetchAllAssoc();
 
-        dump($arrProductsComplete);
+        //dump($arrProductsComplete);
 
         /*
          * If we use the filter we had a left join in our database query which leads to a result set
