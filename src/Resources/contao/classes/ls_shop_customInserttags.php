@@ -131,6 +131,37 @@ class ls_shop_customInserttags
 				return \Input::get('calledBy') == 'searchResult' ? ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages') : \Controller::generateFrontendUrl($objPage->row());
 				break;
 
+            case 'Picture':
+
+                if (strpos($params, '?') !== false)
+                {
+                    $arrChunks = explode('?', urldecode($params), 2);
+                    $strSource = StringUtil::decodeEntities($arrChunks[1]);
+                    $strSource = str_replace('[&]', '&', $strSource);
+                    $arrParams = explode('&', $strSource);
+
+                    foreach ($arrParams as $strParam)
+                    {
+                        list($key, $value) = explode('=', $strParam);
+
+                        switch ($key)
+                        {
+                            case 'size':
+                                $result = \Database::getInstance()->prepare("SELECT id FROM tl_image_size WHERE merconis_alias=?")->execute($value)->fetchAssoc();
+                                if($result){
+                                    //replace text with id
+                                    $params = str_replace('size='.$value, 'size='.$result['id'], $params);
+                                }else{
+                                    //if no if can be found remove size
+                                    $params = str_replace('size='.$value, '', $params);
+                                }
+                                break;
+                        }
+                    }
+                }
+                return \Controller::replaceInsertTags( '{{picture::'.$params.'}}');
+                break;
+
 			case 'CrossSeller':
 				$arrParams = explode(',', $params);
 				$crossSellerID = trim($arrParams[0]);
