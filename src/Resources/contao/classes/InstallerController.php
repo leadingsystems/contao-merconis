@@ -1620,19 +1620,4 @@ class InstallerController extends \Controller {
 		}
 		return false;
 	}
-
-    protected function removing_dns($arrImport) {
-//        if($this->ls_getRootPageID() == 0) {
-        if(true) {
-            foreach ($arrImport as $tableName => $rows) {
-                foreach ($rows as $row) {
-                    if(($tableName == 'tl_page') && ($row['type'] == 'root')) {
-                        $row['dns'] == '';
-                        \LeadingSystems\Helpers\lsErrorLog('$arrImport', $arrImport , 'perm');
-                    }
-                }
-            }
-        }
-        return $arrImport;
-    }
 }
