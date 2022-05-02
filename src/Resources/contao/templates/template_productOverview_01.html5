@@ -182,6 +182,112 @@
 					<?php // <- ##### SHIPPING ##### ?>
 				<?php } // <----- NOT USED BY DEFAULT ----- ?>
 
+
+                <?php
+
+                if($this->objProduct->_searchDebug){
+                    $allSummen = [];
+                    $SummeComplete = 0;
+                    $SummeFactor = 0;
+                    //Wenn der Suchstring genau passt
+                    foreach ($this->objProduct->_searchDebug["searchFulltextEqual"] as $searchValue => $searchDebug){
+
+                        ?><table><?php
+                        $summePart = 0
+
+                        ?> <div> Fulltext search passt genau (<?= $searchValue ?>) </div><?php
+                        foreach ($searchDebug as $name => $value){
+
+                            $summePart += intval($value);
+
+                            ?><tr><?php
+                            ?> <td> <?= $name ?> </td><td> <?= $value ?> </td><?php
+                            ?></tr><?php
+                        }
+                        ?> <td> Summe </td><td> <?= $summePart ?> </td><?php
+                        array_push($allSummen, $summePart);
+                        ?></table><?php
+                        ?><br><?php
+                    }
+                    //Wenn der Suchstring zum teil passt
+                    foreach ($this->objProduct->_searchDebug["searchFulltext"] as $searchValue => $searchDebug){
+
+                        ?><table><?php
+                        $summePart = 0
+
+                        ?> <div> Fulltext search teile passen (<?= $searchValue ?>) </div><?php
+                        foreach ($searchDebug as $name => $value){
+
+                            $summePart += intval($value);
+
+                            ?><tr><?php
+                            ?> <td> <?= $name ?> </td><td> <?= $value ?> </td><?php
+                            ?></tr><?php
+                        }
+                        ?> <td> Summe </td><td> <?= $summePart ?> </td><?php
+                        array_push($allSummen, $summePart);
+                        ?></table><?php
+                        ?><br><?php
+                    }
+
+                    //Wenn besteimmte Teile passen
+                    foreach ($this->objProduct->_searchDebug["searchPart"] as $searchValue => $searchDebug){
+                        ?><table><?php
+                        $summePart = 0
+
+                        ?> <div> SearchPart seach (<?= $searchValue ?>)</div><?php
+                        foreach ($searchDebug as $searchField => $valueWordAndWordSame){
+
+                            //key => doesWordExistOneTime
+                            if($valueWordAndWordSame == 1){
+                                if(intval($valueWordAndWordSame) ){
+                                    $SummeFactor++;
+                                }
+
+                                ?><tr><?php
+                                ?> <td> <?= $searchField ?> </td><td> <?= $valueWordAndWordSame ?> </td><?php
+                                ?></tr><?php
+
+
+                            }else{
+                                $summePart += intval($valueWordAndWordSame["word"]);
+                                $summePart += intval($valueWordAndWordSame["wordSame"]);
+
+                                ?><tr><?php
+                                ?> <td> <?= $searchField ?> </td><td> <?= $valueWordAndWordSame["wordSame"]  ?> </td><?php
+                                ?></tr><?php
+
+                                ?><tr><?php
+                                ?> <td> <?= $searchField ?> (genau) </td><td> <?= $valueWordAndWordSame["wordSame"]  ?> </td><?php
+                                ?></tr><?php
+
+                            }
+
+                        }
+                        ?> <td> Summe </td><td> <?= $summePart ?> </td><?php
+
+                        array_push($allSummen, $summePart);
+                        ?></table><?php
+                        ?><br><?php
+                    }
+
+                    foreach ($allSummen as $key => $Summe){
+                        //test if first element if array or not
+                        if ($key === array_key_first($allSummen)) {
+                            echo "$Summe";
+                        }else{
+                            echo "+$Summe";
+                        }
+
+                        $SummeComplete += $Summe;
+                    }
+                    echo " = ".$SummeComplete;
+                    ?><br><?php
+                    echo"$SummeComplete * $SummeFactor(unterschiedliche Wörter) = ".($SummeComplete * $SummeFactor);
+                }
+                ?>
+
+
 				<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
 					<?php // ##### QUANTITY INPUT / PUT IN CART BUTTON ##### -> ?>
 						<?php if ($this->objProduct->_orderAllowed && $this->objProduct->_hasQuantityInput) { ?>

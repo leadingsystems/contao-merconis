@@ -33,6 +33,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch,ls_shop_alwaysAddIdToAliasDuringProductImport;
 
 		{productSearchSettings_legend},
+		    ls_shop_searchWeighting_debug,
 		    ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title,
 		    ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords,
 		    ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_shortDescription,
@@ -646,8 +647,12 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		),
 
 
-
-
+        'ls_shop_searchWeighting_debug' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'],
+            'inputType' => 'checkbox',
+            'eval' => array('tl_class'=>'w100')
+        ),
 
 		'ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title' => array(
             'exclude' => true,

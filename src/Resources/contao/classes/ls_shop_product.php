@@ -1476,6 +1476,11 @@ filter context, NULL will be returned.
 			case '_allImages':
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, $this->mainData['lsShopProductMainImage'], $this->mainData['lsShopProductMoreImages']);
 				break;
+            case '_searchDebug':
+                global $searchDebug;
+                //$this->ls_ID;
+                return $searchDebug[$this->ls_ID];
+                break;
 		}
 
 		return null;
