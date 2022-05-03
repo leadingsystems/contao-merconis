@@ -1477,9 +1477,7 @@ filter context, NULL will be returned.
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, $this->mainData['lsShopProductMainImage'], $this->mainData['lsShopProductMoreImages']);
 				break;
             case '_searchDebug':
-                global $searchDebug;
-                //$this->ls_ID;
-                return $searchDebug[$this->ls_ID];
+                return isset($GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID]) ? $GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID] : null;
                 break;
 		}
 
