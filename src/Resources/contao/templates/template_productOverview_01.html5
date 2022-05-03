@@ -254,7 +254,7 @@
                                 $summePart += intval($valueWordAndWordSame["wordSame"]);
 
                                 ?><tr><?php
-                                ?> <td> <?= $searchField ?> </td><td> <?= $valueWordAndWordSame["wordSame"]  ?> </td><?php
+                                ?> <td> <?= $searchField ?> </td><td> <?= $valueWordAndWordSame["word"]  ?> </td><?php
                                 ?></tr><?php
 
                                 ?><tr><?php
