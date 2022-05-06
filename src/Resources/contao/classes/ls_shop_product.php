@@ -1405,6 +1405,10 @@ filter context, NULL will be returned.
 			case '_allImages':
 				return ls_shop_generalHelper::getAllProductImages($this->_code, $this->mainData['lsShopProductMainImage'], $this->mainData['lsShopProductMoreImages']);
 				break;
+
+            case '_searchDebug':
+                return isset($GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID]) ? $GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID] : null;
+                break;
 		}
 
 		return null;

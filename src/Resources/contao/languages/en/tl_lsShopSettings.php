@@ -103,6 +103,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchCacheLifetimeSec'] = array('Lifetime of search caches in seconds');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_considerGroupPricesInFilterAndSorting'] = array('Consider group prices for filter and sorting','Please deactivate this option for performance reasons if you have not entered deviant group prices for any product or variant.');
 
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug Mode for search Weighting: If checked the search weighting will be displayed on the Website');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] = array('Product designation: Entire search text matches complete field value');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] = array('Keywords: Entire search text matches complete field value');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_shortDescription'] = array('Short description: Entire search text matches complete field value');
