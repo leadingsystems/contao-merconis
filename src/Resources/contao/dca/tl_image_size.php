@@ -40,22 +40,25 @@ class tl_image_size extends \Backend
 
     public function generateAlias($varValue, \Contao\DataContainer $dc)
     {
+        $autoAlias = false;
 
         //if empty alias set alias value to name value
-        if(empty($varValue)){
-            $varValue = $dc->activeRecord->name;
+        if ($varValue == '') {
+            $autoAlias = true;
+            $varValue = \System::getContainer()->get('contao.slug')->generate (
+                $dc->activeRecord->name, ['validChars' => 'a-zA-Z0-9','locale' => 'de','delimiter' => '-']
+            );
         }
 
-        //replace whitespace to underscore
-        $varValue = preg_replace('/\s+/', '_', $varValue);
+        $objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_image_size WHERE id=? OR merconis_alias=?")
+            ->execute($dc->id, $varValue);
 
-        $aliasExists = function (string $alias) use ($dc): bool {
-            return $this->Database->prepare("SELECT id FROM tl_image_size WHERE merconis_alias=? AND id!=?")->execute($alias, $dc->id)->numRows > 0;
-        };
-
-        //while alias Exist add _id
-        while($aliasExists($varValue)){
-            $varValue =  $varValue.'_'.$dc->activeRecord->id;
+        // Check whether the alias exists
+        if ($objAlias->numRows > 1) {
+            if (!$autoAlias) {
+                throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+            }
+            $varValue .= '-' . $dc->id;
         }
 
         return $varValue;
