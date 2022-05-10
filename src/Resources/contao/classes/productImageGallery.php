@@ -282,7 +282,8 @@ class productImageGallery extends \Frontend {
             $objImage->originalSRC = $this->originalSRC;
             $objImage->arrOverlays = $arrOverlays;
             $objImage->singleSRC = $file;
-            $objImage->alt = $arrMeta['title'];
+            $objImage->alt = $arrMeta['alt'];
+            $objImage->title = $arrMeta['title'];
             $objImage->imageUrl = $arrMeta['link'];
             $objImage->caption = $arrMeta['caption'];
             $objImage->mtime = $objFile->mtime;

@@ -409,7 +409,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline'] = 'Additional details for payment by';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['fieldNames'] = array(
-	'kontoinhaber' => 'Kontoinhaber',
+	'kontoinhaber' => 'Account holder',
 	'kontonummer' => 'Account number/IBAN',
 	'bankleitzahl' => 'BIN/BIC'
 );

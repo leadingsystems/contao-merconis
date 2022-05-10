@@ -30,7 +30,7 @@
 			<?php
 			if (\Merconis\Core\ls_shop_msg::checkMsg($this->str_selectWhat.'AdditionalDataSubmitted', $this->str_selectWhat.'AdditionalDataSubmitted')) {
 				?>
-				<p class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText120']; ?></p>
+				<p class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$this->str_selectWhat == 'payment' ? 'miscText120' : 'miscText119']; ?></p>
 				<?php
 			}
 			?>
