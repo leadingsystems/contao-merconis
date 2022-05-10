@@ -1660,15 +1660,7 @@ class ls_shop_productSearcher
 
         }
 
-        //sortiere $arrProductsComplete nach priority
-        usort($arrProductsComplete, function($a, $b)
-            {
-                if ($a == $b) {
-                    return 0;
-                }
-                return ($a["priority"] > $b["priority"]) ? -1 : 1;
-            }
-        );
+
 
 
         /*
