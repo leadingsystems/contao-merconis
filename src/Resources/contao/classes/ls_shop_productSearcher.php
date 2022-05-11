@@ -1625,17 +1625,6 @@ class ls_shop_productSearcher
 
         }
 
-        //sortiere $arrProductsComplete nach priority
-        usort($arrProductsComplete, function($a, $b)
-            {
-                if ($a == $b) {
-                    return 0;
-                }
-                return ($a["priority"] > $b["priority"]) ? -1 : 1;
-            }
-        );
-
-
         /*
          * If we use the filter we had a left join in our database query which leads to a result set
          * that has multiple entries for one product if there's more than one related row in the
