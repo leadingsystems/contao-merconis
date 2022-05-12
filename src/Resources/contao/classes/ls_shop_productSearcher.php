@@ -9,6 +9,8 @@ class ls_shop_productSearcher
     //boolean for search debug, can be set to true or false in the contao backend
     private $bln_searchWeighting_debug;
 
+    private $bln_AndSearch = true; //true if
+
     protected $bln_useGroupPrices = true;
     protected $bln_ignoreGroupRestrictions = true;
     protected $arr_groupSettingsForUser = null;
@@ -166,12 +168,12 @@ class ls_shop_productSearcher
      * Check whether there's an existing cache that can be used
      */
     protected function checkIfCacheCanBeUsed() {
-        if ($this->blnCacheCanBeUsed === null) {
+        if (false && $this->blnCacheCanBeUsed === null) {
             $this->getCache();
             $this->blnCacheCanBeUsed = $this->arrCache !== null;
         }
 
-        if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'])) {
+        if (false && isset($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'] as $mccb) {
                 $objMccb = \System::importStatic($mccb[0]);
                 $this->blnCacheCanBeUsed = $objMccb->{$mccb[1]}($this->str_productListID, $this->blnCacheCanBeUsed);
@@ -469,7 +471,7 @@ class ls_shop_productSearcher
         /*
          * Don't perform a new search if the cached result of the last search can be used
          */
-        if ($this->checkIfCacheCanBeUsed()) {
+        if (false && $this->checkIfCacheCanBeUsed()) {
             if ($this->blnUseFilter) {
                 /*
                  * Set this flag because the filter needs it to decide whether or not to display the filter form
@@ -1224,7 +1226,7 @@ class ls_shop_productSearcher
 
                                     if ($this->blnUsePriority()) {
                                         if ($firstTime) {
-                                            $addToSelectStatement .= " * ((( ";
+                                            $addToSelectStatement .= " as `priority`, ((( ";
                                             $firstTime = false;
                                         } else {
                                             $addToSelectStatement .= " + (( ";
@@ -1286,7 +1288,7 @@ class ls_shop_productSearcher
 
                         if ($this->blnUsePriority()) {
                             $addToSelectStatement .= ")";
-                            $addToSelectStatement .= " as `priority`";
+                            $addToSelectStatement .= " as `wordCount`";
                         }
                     }
 
@@ -1499,6 +1501,8 @@ class ls_shop_productSearcher
 
         $objProductsComplete = $objProductsComplete->execute($searchConditionValues);
 
+        dump($objProductsComplete);
+
         /*
          * If we use the filter or the special price sorting or maybe for some other reasons,
          * we requested more than just the id field, and those other
@@ -1511,10 +1515,11 @@ class ls_shop_productSearcher
 
         $arrProductsComplete = $objProductsComplete->fetchAllAssoc();
 
-
         if ($this->bln_searchWeighting_debug) {
-            $GLOBALS['merconis_globals']['searchDebug'] = [];
+
             $searchDebug = &$GLOBALS['merconis_globals']['searchDebug'];
+
+            $GLOBALS['merconis_globals']['searchDebug'] = [];
 
             for ($i = 0; $i < count($arrProductsComplete); $i++) {
                 if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
@@ -1627,6 +1632,9 @@ class ls_shop_productSearcher
 
                                 $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["doesWordExistOneTime"] = $arrProductsComplete[$i]["priority_" . $criterionValue];
 
+                                //count words for later use
+                                $arrProductsComplete[$i]["wordCount"] += $arrProductsComplete[$i]["priority_" . $criterionValue];
+
                                 if($arrProductsComplete[$i]["priority_" . $criterionValue] == 1){
                                     $factor++;
                                 }
@@ -1661,6 +1669,32 @@ class ls_shop_productSearcher
         }
 
 
+        //dump($arrProductsComplete);
+        if ($this->blnUsePriority()) {//TODO
+            $maxWordCount = 0;
+            //get the highes wordCount in the Product array
+            for ($i = 0; $i < count($arrProductsComplete); $i++) {
+                if($maxWordCount < $arrProductsComplete[$i]["wordCount"]){
+                    $maxWordCount = $arrProductsComplete[$i]["wordCount"];
+                }
+            }
+            dump($maxWordCount);
+
+            //remove all Products with a wordCount lower than the highest wordCount if $bln_AndSearch is true
+            //if $bln_AndSearch = false just multiple wordCount*Prio without removing
+            $anzahl = count($arrProductsComplete);
+            for ($i = 0; $i < $anzahl; $i++) {
+
+                if($arrProductsComplete[$i]["wordCount"] == $maxWordCount){
+                    $arrProductsComplete[$i]["priority"] = $arrProductsComplete[$i]["priority"]*$arrProductsComplete[$i]["wordCount"];
+                    unset($arrProductsComplete[$i]["wordCount"]);
+                }else{
+                    if($this->bln_AndSearch){
+                        unset($arrProductsComplete[$i]);
+                    }
+                }
+            }
+        }
 
 
         /*
@@ -1869,7 +1903,7 @@ class ls_shop_productSearcher
              * the hook since it wouldn't have any effect because the cached result would
              * always be returned.
              */
-            if ($this->str_productListID && !$this->checkIfCacheCanBeUsed()) {
+            if ( $this->str_productListID && !$this->checkIfCacheCanBeUsed()) {
                 if (isset($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'])) {
                     foreach ($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'] as $mccb) {
                         $objMccb = \System::importStatic($mccb[0]);
