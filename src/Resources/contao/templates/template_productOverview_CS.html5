@@ -11,7 +11,9 @@
 		<?php // ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### -> ?>
 			<div class="imageContainer">
 				<?php if ($this->objProduct->_hasMainImage) { ?>
-					<a class="productMainImage boxImage" href="<?php echo $this->objProduct->_linkToProduct; ?>" rel="<?php echo \Image::get($this->objProduct->_mainImage, 1000, 1000, 'box'); ?>"> <img src="<?php echo $this->getImage($this->objProduct->_mainImage, 800, 800, 'box'); ?>" alt="<?php echo $this->objProduct->_title; ?>" /></a>
+					<a class="productMainImage boxImage" href="<?php echo $this->objProduct->_linkToProduct; ?>">
+                        {{shopPicture::<?=$this->objProduct->getImageGallery()->getMainImage()->singleSRC?>?size=productOverview&class=productImage}}
+                    </a>
 
                     <?php echo $str_html_statusIcons ?: ''; ?>
 				<?php } ?>

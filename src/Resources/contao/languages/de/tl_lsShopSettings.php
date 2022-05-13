@@ -55,6 +55,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrderDetailsPages'] = array('Seite "Meine Bestellungen - Details"', 'Wählen Sie hier die Seite aus, in der das Modul "Meine Bestellungen - Details" eingebunden ist. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover']	= array('Default-Cover für Videos', 'Wählen Sie hier eine Grafik aus, die als Coverbild für Videos verwendet werden soll, wenn keine zum Video passende Cover-Grafik ermittelt werden kann.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_noProductImage']	= array('Standardbild für Produkte', 'Wählen Sie hier eine Grafik aus, die verwendet wird wenn kein Bild für ein Produkt ermittelt werden kann.');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_sizeMainImage']			= array('Produkt-Hauptbilder: Bildbreite und Bildhöhe', 'Bitte stellen Sie hier die Bildbreite und Bildhöhe für die Darstellung von Produkt-Hauptbildern ein.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_sizeMoreImages']			= array('Weitere Produkt-Bilder: Bildbreite und Bildhöhe', 'Bitte stellen Sie hier die Bildbreite und Bildhöhe für die Darstellung weiterer Produkt-Bilder ein.');

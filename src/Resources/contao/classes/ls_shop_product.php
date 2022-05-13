@@ -41,7 +41,10 @@ class ls_shop_product
 
 	protected $ls_linkToProduct = '';
 
-	public function __construct($intID = false, $configuratorHash = '') {
+    // Holds image galleries created with getImageGallery()
+    protected $arr_imageGalleries = [];
+
+    public function __construct($intID = false, $configuratorHash = '') {
 		$this->ls_ID = $intID;
 
 		$this->ls_productVariantID = $this->ls_ID.'-0';
@@ -222,6 +225,16 @@ class ls_shop_product
 		ob_end_clean();
 		return $outputBuffer;
 	}
+
+
+    // create ImageGallery if it does not exist yet and returns it
+    public function getImageGallery($ls_moreImagesSortBy = false, $ls_imageLimit = 0) {
+        $str_argHash = md5(implode('', func_get_args()));
+        if(!$this->arr_imageGalleries[$str_argHash]){
+            $this->arr_imageGalleries[$str_argHash] = new productImageGallery($this, $ls_moreImagesSortBy, $ls_imageLimit);
+        }
+        return $this->arr_imageGalleries[$str_argHash];
+    }
 
 	/*
 	 * Getter-Funktion. Durch die Kommentare für AUTO DOCUMENTATION und DESCRIPTION können die
@@ -446,6 +459,7 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 returns the main image that has been selected explicitly or null if none has been selected
 				 */
 				 :
+                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMainImage()->singleSRC instead', E_USER_DEPRECATED);
 				return isset($this->mainData['lsShopProductMainImage']) && $this->mainData['lsShopProductMainImage'] ? ls_getFilePathFromVariableSources($this->mainData['lsShopProductMainImage']) : null;
 				break;
 
@@ -456,12 +470,14 @@ If a main image has been selected explicitly, it will always be returned here. O
 You can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
+                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMainImage() instead', E_USER_DEPRECATED);
                 $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
                 $allImagesSortedAndWithVideoCovers = $objTmpGallery->imagesSortedAndWithVideoCovers();
                 return isset($allImagesSortedAndWithVideoCovers[0]) && $allImagesSortedAndWithVideoCovers[0] && isset($allImagesSortedAndWithVideoCovers[0]['singleSRC']) && $allImagesSortedAndWithVideoCovers[0]['singleSRC'] ? $allImagesSortedAndWithVideoCovers[0]['singleSRC'] : null;
 				break;
 
 			case '_hasMainImage':
+                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->hasMainImage() instead', E_USER_DEPRECATED);
 				return $this->_mainImage ? true : false;
 				break;
 
@@ -470,6 +486,7 @@ You can use the method "\Image::get" to get the image in the size you need: \Ima
 				 * Using null as the parameter for the main image results in getAllProductImages() returning
 				 * all images except for the main image which is exactly what we want here.
 				 <--*/
+                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMoreImagesUnprocessed() instead', E_USER_DEPRECATED);
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, null, $this->mainData['lsShopProductMoreImages']);
 				break;
 
@@ -478,6 +495,7 @@ You can use the method "\Image::get" to get the image in the size you need: \Ima
 you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
+                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMoreImages() instead', E_USER_DEPRECATED);
 				if (!isset($GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID])) {
 					$arrMoreImages = array();
 					$objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
@@ -501,10 +519,12 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				break;
 
 			case '_hasMoreImages':
+                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->hasMoreImages() instead', E_USER_DEPRECATED);
 				return is_array($this->_moreImages) && count($this->_moreImages) ? true : false;
 				break;
 
 			case '_hasImages':
+                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->hasImages() instead', E_USER_DEPRECATED);
 				return $this->_hasMainImage || $this->_hasMoreImages;
 				break;
 
@@ -1504,6 +1524,7 @@ array(), <span class="comment">// array containing names of additional overlay e
 );
 				 */
 				:
+                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery() instead', E_USER_DEPRECATED);
 				$args = ls_shop_generalHelper::setArrayLength($args, 8);
 				$args[3] = is_array($args[3]) ? serialize($args[3]): $args[3];
 				$args[7] = is_array($args[7]) ? serialize($args[7]): $args[7];

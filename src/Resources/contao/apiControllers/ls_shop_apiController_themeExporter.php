@@ -74,6 +74,7 @@ class ls_shop_apiController_themeExporter
 
         $this->getThemeSrcDir();
         $this->checkThemeFolderName();
+        $this->checkDNS();
         $this->getThemeTemplatesSrcDir();
         $this->checkThemeTemplatesFolderName();
 
@@ -133,6 +134,21 @@ class ls_shop_apiController_themeExporter
         $themeNamePattern = '/^theme[0-9]+$/';
         if (!preg_match($themeNamePattern, $this->themeSrcDirName)) {
             throw new \Exception(sprintf('The the theme folder to export (%s) is not named properly (%s)', $this->themeSrcDirName, $themeNamePattern));
+        }
+    }
+
+    protected function checkDNS()
+    {
+        $obj_dbres_rootDns = \Database::getInstance()->prepare("
+				SELECT		*
+				FROM		`tl_page`
+                WHERE       `type` = 'root'
+                    AND     `dns` = ''
+			")
+            ->execute();
+
+        if ($obj_dbres_rootDns->numRows) {
+            throw new \Exception('Domain entry/DNS in the root page is not set');
         }
     }
 
@@ -282,6 +298,8 @@ class ls_shop_apiController_themeExporter
             'tl_theme' => array(),
             'tl_news_archive' => array(),
             'tl_news' => array(),
+            'tl_image_size' => array(),
+            'tl_image_size_item' => array(),
         );
 
         foreach ($arrTables as $tableName => $v) {

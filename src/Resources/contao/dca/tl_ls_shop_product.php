@@ -516,7 +516,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductMainImage'],
 			'exclude' => true,
 			'inputType'		=>	'fileTree',
-			'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF', 'tl_class'=>'clr'),
+			'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF,mp4', 'tl_class'=>'clr'),
 			'sql'                     => "binary(16) NULL"
 		),
 

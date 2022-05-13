@@ -256,34 +256,6 @@ class InstallerController extends \Controller {
 			}
 		}
 
-		/*
-		 * Check if there are alias conflicts in tl_page
-		 */
-		if (is_array($arrExportTables['tl_page'])) {
-			$blnAliasConflictInTlPageDetected = false;
-			foreach ($arrExportTables['tl_page'] as $row) {
-				$objCheckTlPageRecordWithAlias = \Database::getInstance()->prepare("
-					SELECT		*
-					FROM		`tl_page`
-					WHERE		`alias` = ?
-				")
-					->execute($row['alias']);
-
-				if ($objCheckTlPageRecordWithAlias->numRows) {
-					$blnAliasConflictInTlPageDetected = true;
-
-					while ($objCheckTlPageRecordWithAlias->next()) {
-						\System::log('MERCONIS INSTALLER: row in tl_page with id '.$objCheckTlPageRecordWithAlias->id.' already has the alias '.$row['alias'], 'MERCONIS INSTALLER', TL_MERCONIS_ERROR);
-					}
-				}
-			}
-
-			if ($blnAliasConflictInTlPageDetected) {
-				\System::log('MERCONIS INSTALLER: Installation impossible because of an alias conflict in tl_page.', 'MERCONIS INSTALLER', TL_MERCONIS_ERROR);
-				$blnPossible = false;
-			}
-		}
-
 		return $blnPossible;
 	}
 
@@ -478,6 +450,10 @@ class InstallerController extends \Controller {
 				WHERE		`alias` = ?
 			")
 				->limit(1)
+                /*
+                 * bug: there is no more alias with the entry 'merconis-root-page-main-language'
+                 * fallback will not be removed
+                 */
 				->execute('', 'merconis-root-page-main-language');
 		}
 	}
@@ -844,27 +820,23 @@ class InstallerController extends \Controller {
 				if (preg_match('/^tl_ls_shop_/', $tableName)) {
 					$preserveID = true;
 					$preserveAlias = true;
-				} else if ($tableName == 'tl_page' && $row['alias'] == 'merconis-root-page-main-language') {
+				} else if ($tableName == 'tl_page') {
 					/*
-					 * Handelt es sich beim einzufügenden Datensatz um die Merconis main language root page,
-					 * so wird ihr Alias erhalten und ein möglichst hoher Sorting-Wert (abzgl. 1) gewählt, um sicherzustellen,
-					 * dass der Shop möglichst weit hinten eingehängt wird.
+					 * Preserve all tl_page aliases from the lsShopImportTables, because the export ensures that a domain root entry exists.
 					 */
 					$preserveAlias = true;
-					$row['sorting'] = 9999998;
-				} else if ($tableName == 'tl_page' && preg_match('/merconis-root-page-foreign-language/', $row['alias'])) {
-					/*
-					 * Handelt es sich beim einzufügenden Datensatz um die Merconis foreign language root page,
-					 * so wird ihr Alias erhalten und ein möglichst hoher Sorting-Wert gewählt, um sicherzustellen,
-					 * dass der Shop möglichst weit hinten eingehängt wird.
-					 */
-					$preserveAlias = true;
-					$row['sorting'] = 9999999;
 				} else if (isset($row['alias']) && strpos($row['alias'], 'merconis') !== false) {
 				    /*
 				     * If the record has an alias containing the string "merconis", we preserve the alias
 				     */
                     $preserveAlias = true;
+                }
+
+                /*
+                 * check if an dns-entry is necessary.
+                 */
+                if(($tableName == 'tl_page') && ($row['type'] == 'root') && ($this->alreadyExistingRootPageID == 0)) {
+                    $row['dns'] = '';
                 }
 
                 $newID = $this->lsShopInsertData($tableName, $row, $preserveID, $preserveAlias);

@@ -1,4 +1,8 @@
 <?php
+/*
+ * Template is deprecated (05.2022).
+ * Please use template_productIncludes_imageOutput_01.html5
+ */
 if (is_array($this->images[1])) {
     foreach($this->images[1] as $image) {
         ?>
