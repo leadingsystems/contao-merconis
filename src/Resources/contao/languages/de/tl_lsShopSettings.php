@@ -100,7 +100,7 @@
 
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'] = array('Und-Suche / Oder-Suche');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Deaktiviere Usersucheingabe für und/oder Suche');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Aktiviere Usereingabe für und/oder Suche');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug Modus für Such-Gewichtung: Wenn angeschaltet, wird in der Produktsuche die Gewichtung der Produkte ausgegeben');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] = array('Produktbezeichnung: Ganzer Suchtext entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] = array('Schlüsselwörter: Ganzer Suchtext entspricht komplettem Feldwert');

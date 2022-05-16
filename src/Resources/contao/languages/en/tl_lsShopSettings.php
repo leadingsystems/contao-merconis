@@ -98,7 +98,7 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_alwaysAddIdToAliasDuringProductImport'] = array('When importing products, always add ID to alias', 'With this setting, the uniqueness check of aliases is omitted during product import, thus achieving a significant performance advantage. Uniqueness is achieved by automatically appending the internal product ID to the alias.');
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'] = array('And-Search / Or-Suche');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Deactivate Usersearch input for and/or search');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Activate User input for and/or search');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug Modus for search Weighting: If checked the search weighting will be displayed on the Website');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] = array('Product designation: Entire search text matches complete field value');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] = array('Keywords: Entire search text matches complete field value');
