@@ -192,12 +192,15 @@ class ModuleProductSearch extends \Module {
 		if (\Input::post('FORM_SUBMIT') == 'merconisProductSearch') {
 			if (!$obj_flexWidget_input->bln_hasErrors) {
 				$_SESSION['lsShop']['productSearch'] = array(
-					'searchWord' => ls_shop_generalHelper::handleSearchWordMinLength($obj_flexWidget_input->getValue(), $this->ls_shop_productSearch_minlengthInput)
+					'searchWord' => ls_shop_generalHelper::handleSearchWordMinLength($obj_flexWidget_input->getValue(), $this->ls_shop_productSearch_minlengthInput),
+                    'searchType' => \Input::post('searchType')
 				);
+
 
 				$this->redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages', false));
 			}
 		}
+
 
 		$this->Template->str_widget_searchWord = $obj_flexWidget_input->getOutput();
 	}

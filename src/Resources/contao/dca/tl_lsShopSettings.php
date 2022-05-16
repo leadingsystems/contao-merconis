@@ -15,7 +15,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	'palettes' => array(
 		'__selector__' => array('ls_shop_useVATIDValidation'),
 		'default' => '
-		{basic_legend},ls_shop_serial,ls_shop_country,ls_shop_currency,ls_shop_currencyCode,ls_shop_numDecimals,ls_shop_priceRoundingFactor,ls_shop_priceType,ls_shop_numDecimalsWeight,ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_versandkostenType,ls_shop_autoSelectCheapestPossibleShippingAndPaymentMethods,ls_shop_useProductDescriptionAsSeoDescription,ls_shop_ownEmailAddress,ls_shop_output_definitionset,ls_shop_delivery_infoSet,ls_shop_productDetailsTemplate,ls_shop_standardProductImageFolder,ls_shop_standardProductImageDelimiter,ls_shop_imageSortingStandardDirection,ls_shop_beOrderTemplateOverview,ls_shop_beOrderTemplateDetails;
+		{basic_legend},ls_shop_serial,ls_shop_country,ls_shop_currency,ls_shop_currencyCode,ls_shop_numDecimals,ls_shop_priceRoundingFactor,ls_shop_priceType, ls_shop_numDecimalsWeight,ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_versandkostenType,ls_shop_autoSelectCheapestPossibleShippingAndPaymentMethods,ls_shop_useProductDescriptionAsSeoDescription,ls_shop_ownEmailAddress,ls_shop_output_definitionset,ls_shop_delivery_infoSet,ls_shop_productDetailsTemplate,ls_shop_standardProductImageFolder,ls_shop_standardProductImageDelimiter,ls_shop_imageSortingStandardDirection,ls_shop_beOrderTemplateOverview,ls_shop_beOrderTemplateDetails;
 		
 		{euSettings_legend},ls_shop_ownVATID,ls_shop_euCountrycodes,ls_shop_useVATIDValidation;
 
@@ -33,6 +33,8 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch,ls_shop_alwaysAddIdToAliasDuringProductImport;
 
 		{productSearchSettings_legend},
+		    ls_shop_userDecide_searchType,
+		    ls_shop_searchType,
 		    ls_shop_searchWeighting_debug,
 		    ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title,
 		    ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords,
@@ -646,12 +648,27 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'eval' => array('tl_class'=>'w50')
 		),
 
+        'ls_shop_searchType' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'],
+            'inputType' => 'select',
+            'options' => array('And-Search', 'Or-Search'),
+            'reference' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType']['options'],
+            'eval' => array('tl_class'=>'w50')
+        ),
+
+        'ls_shop_userDecide_searchType' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'],
+            'inputType' => 'checkbox',
+            'eval' => array('tl_class'=>'w100')
+        ),
 
         'ls_shop_searchWeighting_debug' => array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'],
             'inputType' => 'checkbox',
-            'eval' => array('tl_class'=>'w100')
+            'eval' => array('tl_class'=>'w50 m12')
         ),
 
 		'ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title' => array(

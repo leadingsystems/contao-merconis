@@ -9,7 +9,7 @@ class ls_shop_productSearcher
     //boolean for search debug, can be set to true or false in the contao backend
     private $bln_searchWeighting_debug;
 
-    private $bln_AndSearch = true; //true if
+    private $bln_andSearch;
 
     protected $bln_useGroupPrices = true;
     protected $bln_ignoreGroupRestrictions = true;
@@ -79,6 +79,7 @@ class ls_shop_productSearcher
         }
 
         $this->bln_searchWeighting_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug'];
+        $this->bln_andSearch = isset($GLOBALS['TL_CONFIG']['ls_shop_searchType']) ? $GLOBALS['TL_CONFIG']['ls_shop_searchType'] : false;
     }
 
     public function __destruct() {
@@ -467,6 +468,12 @@ class ls_shop_productSearcher
          * settings affecting the results have been set completely
          */
         $this->setCurrentCacheKey();
+
+        //get searchType and/or-search
+        if(isset($this->arrSearchCriteria["searchType"])){
+            $this->bln_andSearch = $this->arrSearchCriteria["searchType"];
+        }
+        unset($this->arrSearchCriteria["searchType"]);
 
         /*
          * Don't perform a new search if the cached result of the last search can be used
@@ -1110,20 +1117,17 @@ class ls_shop_productSearcher
 
                                 }
 
-                                dump($searchConditionValues);
                                 $searchConditionValues[] = '%%'.$criterionValue.'%';
                                 $searchConditionValues[] = '%%'.$criterionValue.'%';
                                 $searchConditionValues[] = '%%'.$criterionValue.'%';
                                 $searchConditionValues[] = '%%'.$criterionValue.'%';
                                 $searchConditionValues[] = $criterionValue.'%';
                                 $searchConditionValues[] = '%%'.$criterionValue.'%';
-                                dump($searchConditionValues);
 
                             }
                         }
                     }
 
-                    dump("unten");
                     if ($this->blnUsePriority()) {
                         if (!$this->bln_searchWeighting_debug) {
                             $addToSelectStatement .= ')';
@@ -1524,12 +1528,7 @@ class ls_shop_productSearcher
             $objProductsComplete = $objProductsComplete->limit($this->arrLimit['rows'], $this->arrLimit['offset']);
         }
 
-        //dump($objProductsComplete);
-        dump($searchConditionValues);
-
         $objProductsComplete = $objProductsComplete->execute($searchConditionValues);
-
-        dump($objProductsComplete);
 
         /*
          * If we use the filter or the special price sorting or maybe for some other reasons,
@@ -1697,11 +1696,6 @@ class ls_shop_productSearcher
 
         }
 
-
-
-        //dump($arrProductsComplete);
-        //dump($arrProductsComplete);
-
         //count different words
         $arr = [];
         foreach ($arrCriterionValues as $criterionValue) {
@@ -1709,25 +1703,15 @@ class ls_shop_productSearcher
         }
         $maxWordCount = count($arr);
 
-        /*
-        $maxWordCount = 0;
-        //get the highes wordCount in the Product array
-        for ($i = 0; $i < count($arrProductsComplete); $i++) {
-            if($maxWordCount < $arrProductsComplete[$i]["wordCount"]){
-                $maxWordCount = $arrProductsComplete[$i]["wordCount"];
-            }
-        }*/
-        dump($maxWordCount);
-
         //remove all Products with a wordCount lower than the highest wordCount if $bln_AndSearch is true
         //if $bln_AndSearch = false just multiple wordCount*Prio without removing
         $anzahl = count($arrProductsComplete);
         for ($i = 0; $i < $anzahl; $i++) {
 
             // if bln_AndSearch remove all that dont match all words
-            if($this->bln_AndSearch){
+            if($this->bln_andSearch == "And-Search"){
                 if($arrProductsComplete[$i]["wordCount"] != $maxWordCount) {
-                    //dump($arrProductsComplete[$i]);
+
                     unset($arrProductsComplete[$i]);
                 }
             }
@@ -1738,12 +1722,7 @@ class ls_shop_productSearcher
                 }
             }
             unset($arrProductsComplete[$i]["wordCount"]);
-
         }
-
-        //dump($arrProductsComplete);
-
-
 
         /*
          * If we use the filter we had a left join in our database query which leads to a result set
