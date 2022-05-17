@@ -3097,10 +3097,14 @@ class ls_shop_generalHelper
 
     public static function handleMandatoryOnCondition(\Widget $objWidget, $intId, $arrForm)
     {
+
+
         $obj_dbres_mandatoryOnConditionSettings = \Database::getInstance()
             ->prepare("
 					SELECT	`lsShop_mandatoryOnConditionField`,
-							`lsShop_mandatoryOnConditionValue`
+							`lsShop_mandatoryOnConditionValue`,
+					        `lsShop_mandatoryOnConditionField2`,
+							`lsShop_mandatoryOnConditionValue2`
 					FROM	`tl_form_field`
 					WHERE	`id` = ?
 				")
@@ -3111,11 +3115,23 @@ class ls_shop_generalHelper
 
         $obj_dbres_mandatoryOnConditionSettings->first();
 
+        dump($obj_dbres_mandatoryOnConditionSettings);
+
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField) {
+
             if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
             }
+
+        }
+        if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2) {
+
+            if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2) {
+                $objWidget->{'data-misc-required'} = $objWidget->mandatory;
+                $objWidget->mandatory = '';;
+            }
+
         }
 
         return $objWidget;
@@ -3434,8 +3450,12 @@ class ls_shop_generalHelper
              * -->
              * Consider the "mandatoryOnCondition" settings
              */
+            dump("test");
+
             if (
-                $arrFieldData['arrData']['lsShop_mandatoryOnConditionField']
+                $arrFieldData['arrData']['lsShop_mandatoryOnConditionField2']
+                && $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue2'] != $arrValidateData[ls_shop_generalHelper::getFormFieldNameForFormFieldId($arrFieldData['arrData']['lsShop_mandatoryOnConditionField2'])]['value']
+                && $arrFieldData['arrData']['lsShop_mandatoryOnConditionField']
                 && $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue'] != $arrValidateData[ls_shop_generalHelper::getFormFieldNameForFormFieldId($arrFieldData['arrData']['lsShop_mandatoryOnConditionField'])]['value']
             ) {
                 $arrFieldData['arrData']['mandatory'] = false;
