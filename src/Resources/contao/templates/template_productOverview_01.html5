@@ -200,6 +200,20 @@
 					<?php // <- ##### QUANTITY INPUT / PUT IN CART BUTTON ##### ?>
 				<?php } // <----- NOT USED BY DEFAULT ----- ?>
 			</div>
+
+            <?php // <- ##### WATCH LIST BUTTON ###### ?>
+            <div
+                    id="ajax-reload-by-putInWatchlist_<?php echo $this->objProduct->_productVariantID; ?>_1"
+                    class="ajax-reload-by-putInWatchlist_<?php echo $this->objProduct->_productVariantID; ?>"
+                    data-merconis-component="put-in-watchlist-form"
+                    data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
+                    data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
+            >
+                <div class="watchlistContainer <?php echo $this->objProduct->_isFavorite ? 'inMyWatchlist' : 'notInMyWatchlist'; ?>">
+                    <?php echo $this->objProduct->_favoritesForm; ?>
+                </div>
+            </div>
+            <?php // <- ##### WATCH LIST BUTTON ###### ?>
 		</div>
 	</div>
 </div>

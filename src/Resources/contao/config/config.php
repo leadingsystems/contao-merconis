@@ -244,7 +244,6 @@ $GLOBALS['FE_MOD']['ls_shop'] = array(
 	'ls_shop_myOrders' => 'Merconis\Core\ModuleMyOrders',
 	'ls_shop_myOrderDetails' => 'Merconis\Core\ModuleMyOrderDetails',
 	'ls_shop_filterForm' => 'Merconis\Core\ModuleFilterForm',
-	'ls_shop_ajaxGeneral' => 'Merconis\Core\ModuleAjaxGeneral',
 	'ls_shop_productManagementApiInspector' => 'Merconis\Core\ModuleProductManagementApiInspector'
 );
 
