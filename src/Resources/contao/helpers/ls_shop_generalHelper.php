@@ -3103,8 +3103,13 @@ class ls_shop_generalHelper
             ->prepare("
 					SELECT	`lsShop_mandatoryOnConditionField`,
 							`lsShop_mandatoryOnConditionValue`,
+					        `lsShop_mandatoryOnConditionBoolean`,
 					        `lsShop_mandatoryOnConditionField2`,
-							`lsShop_mandatoryOnConditionValue2`
+							`lsShop_mandatoryOnConditionValue2`,
+					        `lsShop_mandatoryOnConditionBoolean2`,
+					        `lsShop_ShowOnConditionField`,
+							`lsShop_ShowOnConditionValue`,
+					        `lsShop_ShowOnConditionBoolean`
 					FROM	`tl_form_field`
 					WHERE	`id` = ?
 				")
@@ -3115,12 +3120,20 @@ class ls_shop_generalHelper
 
         $obj_dbres_mandatoryOnConditionSettings->first();
 
+
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField) {
 
             if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
             }
+
+            $objWidget->{'data-required-field'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField);
+            $objWidget->{'data-required-value'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue;
+            if($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean){
+                $objWidget->{'data-required-boolean'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean;
+            }
+
 
         }
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2) {
@@ -3130,7 +3143,25 @@ class ls_shop_generalHelper
                 $objWidget->mandatory = '';
             }
 
+            $objWidget->{'data-required-field2'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2);
+            $objWidget->{'data-required-value2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2;
+            if($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2){
+                $objWidget->{'data-required-boolean2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2;
+            }
+
         }
+        if ($obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionField) {
+
+
+            $objWidget->{'data-showoncondition-field'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionField);
+            $objWidget->{'data-showoncondition-value'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionValue;
+            if($obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionBoolean){
+                $objWidget->{'data-showoncondition-boolean'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionBoolean;
+            }
+
+        }
+
+        $objWidget->{'data-lsjs-element'} = "formField";
 
         return $objWidget;
     }
