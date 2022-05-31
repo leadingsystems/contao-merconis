@@ -158,6 +158,14 @@
     }
   }
 
+  .favoriteSwitchBox {
+    .info-wrapper {
+      > input {
+        display: none;
+      }
+    }
+  }
+
   .lsjs-slider-applied {
     .navigation-dots-container {
       text-align: left;
