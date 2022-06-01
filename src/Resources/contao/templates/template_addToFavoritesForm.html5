@@ -22,12 +22,23 @@
 						<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
 						<input type="hidden" name="FORM_SUBMIT" value="<?php echo $this->str_formSubmitValue; ?>">
 						<input type="hidden" name="favoriteProductID" value="<?php echo $this->str_favoriteProductId; ?>">
-						<button type="submit" class="submit" name="favoriteAddOrRemoveSubmit"><?php echo !$this->bln_isFavorite ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText124'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText125']; ?></button>
+						<button type="submit" class="submit" name="favoriteAddOrRemoveSubmit"><span><?php echo !$this->bln_isFavorite ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText124'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText125']; ?></span></button>
 					</div>
 				</form>
 			<?php
 		} else {
-		    echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText128'];
+            ?>
+            <div class="feUserNotLoggedIn">
+                <label class="info-wrapper">
+                    <input type="checkbox">
+                    <i class="info-icon"></i>
+                    <span class="info-bg"></span>
+                    <span class="info-text">
+		            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText128']; ?>
+                    </span>
+                </label>
+            </div>
+            <?php
 		}
 	?>
 </div>
