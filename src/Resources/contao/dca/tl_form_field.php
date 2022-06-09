@@ -7,16 +7,15 @@ foreach ($GLOBALS['TL_DCA']['tl_form_field']['palettes'] as $k => $v) {
 		continue;
 	}
 
-	//dont show all fields in fieldset forms
-	if($k === "fieldsetStart" || $k === "fieldsetStop"){
-        $GLOBALS['TL_DCA']['tl_form_field']['palettes'][$k] = $v.';{lsShop_legend:hide},
+    /*
+     * only add the conditional "mandatory fields" to palettes which already include the regular "mandatory field"
+     */
+    $GLOBALS['TL_DCA']['tl_form_field']['palettes'][$k] = $v.';{lsShop_legend:hide},
+        ' . (strpos($GLOBALS['TL_DCA']['tl_form_field']['palettes'][$k], 'mandatory') !== false ? '
+            lsShop_mandatoryOnConditionField,lsShop_mandatoryOnConditionValue,lsShop_mandatoryOnConditionBoolean,
+            lsShop_mandatoryOnConditionField2,lsShop_mandatoryOnConditionValue2,lsShop_mandatoryOnConditionBoolean2,
+        ' : '') . '
         lsShop_ShowOnConditionField,lsShop_ShowOnConditionValue,lsShop_ShowOnConditionBoolean';
-    }else{
-        $GLOBALS['TL_DCA']['tl_form_field']['palettes'][$k] = $v.';{lsShop_legend:hide},
-        lsShop_mandatoryOnConditionField,lsShop_mandatoryOnConditionValue,lsShop_mandatoryOnConditionBoolean,
-        lsShop_mandatoryOnConditionField2,lsShop_mandatoryOnConditionValue2,lsShop_mandatoryOnConditionBoolean2,
-        lsShop_ShowOnConditionField,lsShop_ShowOnConditionValue,lsShop_ShowOnConditionBoolean';
-    }
 
 }
 
