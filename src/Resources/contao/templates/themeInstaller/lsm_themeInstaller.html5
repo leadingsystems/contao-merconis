@@ -37,7 +37,8 @@
         ?>
         <form action="contao?do=ls_shop_dashboard" method="post">
             <input type="hidden" name="FORM_SUBMIT" value="themeInstaller_beginSetup">
-            <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
+            <input type="hidden" name="REQUEST_TOKEN" value="<?= REQUEST_TOKEN ?>">
+            <input type="hidden" name="themeToInstall" value="<?= $this->arr_installedThemeExtensions[0] ?>">
 
             <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_010'], $this->arr_installedThemeExtensions[0]) ?></p>
 
