@@ -4703,7 +4703,7 @@ class ls_shop_generalHelper
     /*
      * This function reads the current merconis version from the changelog.md
      */
-    public static function getMerconisFilesVersion($bln_removeInternalBuildNumber = false)
+    public static function getMerconisFilesVersion()
     {
         $objFile_ls_version = new \File('vendor/leadingsystems/contao-merconis/CHANGELOG.md');
         $str_fileContent = $objFile_ls_version->getContent();
