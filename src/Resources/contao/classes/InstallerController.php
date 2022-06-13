@@ -377,11 +377,6 @@ class InstallerController extends \Controller {
 					$this->obj_config->update("\$GLOBALS['TL_CONFIG']['".$k."']", $v);
 				}
 
-				/*
-				 * Validate LaFP installation with checksum to prevent conflicts with already existing records
-				 */
-                eval('$u = '.pack('H*', '6465636865782874696d65282929').'; '.pack('H*', '24746869732d3e6f626a5f636f6e6669672d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b27222e7061636b2827482a272c2027366436353732363336663665363937333566373336353732373636393633363534653735366436323635373227292e22275d222c20737472746f757070657228737562737472286d6435282475292c20302c2033292e247529293b'));
-
 				\Controller::redirect('contao?do=ls_shop_dashboard&lsShopInstallationStep=3');
 				break;
 
