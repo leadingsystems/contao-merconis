@@ -98,7 +98,6 @@ class Installer
             <div class="ls_shop ls_shop_systemMessage shopInstalledCompletely">
                 <?php echo $urlToFrontendShopInstallation ? sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage07'], ls_shop_generalHelper::getMerconisFilesVersion(!\Input::get('showMerconisBuildNumber')), $urlToFrontendShopInstallation) : sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage08'], $obj_installerController->getMerconisFilesVersion(!\Input::get('showMerconisBuildNumber'))); ?>
                 <?php echo !$blnMerconisFallbackFlagSet ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage10'] : ''; ?>
-                <?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage23'], $GLOBALS['TL_CONFIG']['merconis_serviceNumber']); ?>
             </div>
             <?php
             return ob_get_clean();

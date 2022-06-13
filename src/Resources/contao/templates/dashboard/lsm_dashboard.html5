@@ -1,6 +1,4 @@
 <div class="contaoBeMainContainer">
-    <?php echo \Merconis\Core\ls_shop_generalHelper::getMerconisSystemMessages(); ?>
-
     <?php echo $this->str_themeInstallerOutput; ?>
 
     <div id="merconis-dashboard">
