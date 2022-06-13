@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\Util\SymlinkUtil;
+
 class ThemeInstaller
 {
     protected $obj_template = null;
@@ -62,6 +64,7 @@ class ThemeInstaller
             }
 
             $this->runSetup();
+            \Controller::reload();
         }
     }
 
@@ -100,7 +103,243 @@ class ThemeInstaller
     {
         $arr_exportTables = deserialize(file_get_contents(TL_ROOT . '/vendor/' . $this->arr_installedThemeExtensions[0] . '/src/Resources/theme/data/exportTables.dat'));
         $this->importTables($arr_exportTables);
+        $this->restoreForeignKeyRelations();
+        $this->updateInsertTagCorrelations__insert_module();
+        \Config::getInstance()->update("\$GLOBALS['TL_CONFIG']['ls_shop_installedCompletely']", true);
+        \System::log('MERCONIS INSTALLER: Setting installation complete flag in localconfig.php', 'MERCONIS INSTALLER', TL_MERCONIS_INSTALLER);
     }
+
+    /**
+     * This function searches insert tags that include modules and updates the module IDs specified there
+     * to yield valid references to the modules' new IDs after import.
+     */
+    private function updateInsertTagCorrelations__insert_module()
+    {
+        $str_pattern = '/(\{\{insert_module::)(.*)(\}\})/siU';
+
+        $arr_tablesToConsider = array('tl_module', 'tl_content');
+
+        foreach ($arr_tablesToConsider as $str_tableName) {
+            if (!isset($this->arr_mapOldIDToNewID[$str_tableName]) || !is_array($this->arr_mapOldIDToNewID[$str_tableName])) {
+                continue;
+            }
+
+            foreach ($this->arr_mapOldIDToNewID[$str_tableName] as $int_insertedElementId) {
+                $obj_dbres_recordsToHandle = \Database::getInstance()
+                    ->prepare("
+                        SELECT		*
+                        FROM		`" . $str_tableName . "`
+                        WHERE		`id` = ?
+                    ")
+                    ->limit(1)
+                    ->execute($int_insertedElementId);
+
+                $arr_currentRecordToHandle = $obj_dbres_recordsToHandle->first()->row();
+
+                $str_setStatement = '';
+                foreach ($arr_currentRecordToHandle as $str_fieldName => $str_value) {
+                    preg_match_all($str_pattern, $str_value, $arr_matches);
+                    if (is_array($arr_matches[2]) && count($arr_matches[2])) {
+                        foreach ($arr_matches[2] as $k => $int_oldModuleID) {
+                            $str_insertTagToReplace = '/\{\{insert_module::'.$int_oldModuleID.'\}\}/siU';
+
+                            /*
+                             * Get the new module id to replace the old one used in the original insert tag
+                             * and then place it in the replacement string.
+                             *
+                             * The usage of 'tl_module' here has nothing to do with the tables to consider
+                             * when looking for occurrences of insert tags to update! So even if we currently
+                             * handle insert tags in another table, we still have to get a new module ID for
+                             * an old one and find it in the mapping array for tl_module.
+                             */
+                            $str_insertTagNew = $arr_matches[1][$k].$this->arr_mapOldIDToNewID['tl_module'][$int_oldModuleID].$arr_matches[3][$k];
+
+                            $arr_currentRecordToHandle[$str_fieldName] = preg_replace($str_insertTagToReplace, $str_insertTagNew, $arr_currentRecordToHandle[$str_fieldName]);
+                        }
+                    }
+
+                    if ($str_setStatement) {
+                        $str_setStatement .= ",\r\n";
+                    }
+                    $str_setStatement .= "`".$str_fieldName."` = ?";
+                }
+
+                $arr_queryValues = $arr_currentRecordToHandle;
+                $arr_queryValues[] = $arr_currentRecordToHandle['id'];
+
+                \Database::getInstance()
+                    ->prepare("
+                        UPDATE		`" . $str_tableName . "`
+                        SET			" . $str_setStatement . "
+                        WHERE		`id` = ?
+                    ")
+                    ->limit(1)
+                    ->execute($arr_queryValues);
+            }
+        }
+    }
+
+    /**
+     * In this function, all newly inserted records are run through and checked to see if any ForeignKey relationships
+     * exist. If this is the case, these relationships are restored.
+     *
+     * FIXME: Attention, so far only IDs as foreignKey are supported here.
+     * It is possible that aliases will also be relevant as foreignKey!
+     */
+    private function restoreForeignKeyRelations() {
+        // get the foreignKey relations
+        $arr_relations = $this->getDatabaseRelations();
+
+        /*
+         * All relations are now processed individually. For each relation, all records to be corrected are read,
+         * i.e. the records that were newly inserted in the corresponding table. The newly inserted records are those
+         * that are contained in the array $this->arr_mapOldIDToNewID.
+         */
+        \LeadingSystems\Helpers\lsErrorLog('$this->arr_mapOldIDToNewID', $this->arr_mapOldIDToNewID, 'lslog_14');
+        foreach ($arr_relations as $arr_relation) {
+            \LeadingSystems\Helpers\lsErrorLog('$arr_relation', $arr_relation, 'lslog_14');
+
+            if ($arr_relation['pTable'] == 'localconfig') { // Es handelt sich um eine Relation zur localconfig
+                $str_oldForeignKey = $GLOBALS['TL_CONFIG'][$arr_relation['pField']];
+                $str_newForeignKey = $this->getNewForeignKey($arr_relation, $str_oldForeignKey);
+
+                /*
+                 * Eintragen des neuen foreignKey in localconfig
+                 */
+                \Config::getInstance()->update("\$GLOBALS['TL_CONFIG']['".$arr_relation['pField']."']", $str_newForeignKey);
+
+            } else { // It is a relation of two DB tables
+
+                // All newly inserted records of the current pTable are read out
+                if (is_array($this->arr_mapOldIDToNewID[$arr_relation['pTable']])) {
+                    foreach ($this->arr_mapOldIDToNewID[$arr_relation['pTable']] as $int_pTableRowId) {
+                        $obj_dbres_row = \Database::getInstance()
+                            ->prepare("
+                                SELECT		*
+                                FROM		`" . $arr_relation['pTable'] . "`
+                                WHERE		`id` = ?
+                            ")
+                            ->execute($int_pTableRowId);
+
+                        if (!$obj_dbres_row->numRows) {
+                            continue;
+                        }
+
+                        // Reading out the previously stored assignment
+                        $str_oldForeignKey = $obj_dbres_row->{$arr_relation['pField']};
+                        \LeadingSystems\Helpers\lsErrorLog('pTableRow', $obj_dbres_row->row(), 'lslog_14');
+                        \LeadingSystems\Helpers\lsErrorLog('$str_oldForeignKey', $str_oldForeignKey, 'lslog_14');
+
+                        $str_newForeignKey = $this->getNewForeignKey($arr_relation, $str_oldForeignKey);
+                        $str_newForeignKey = $str_newForeignKey ? $str_newForeignKey : 0;
+
+                        /*
+                         * Entering the new foreignKey
+                         */
+                        $obj_dbquery_update = \Database::getInstance()
+                            ->prepare("
+                                UPDATE		`" . $arr_relation['pTable'] . "`
+                                SET			`" . $arr_relation['pField'] . "` = ?
+                                WHERE		`id` = ?
+                            ")
+                            ->limit(1)
+                            ->execute($str_newForeignKey, $int_pTableRowId);
+                        \LeadingSystems\Helpers\lsErrorLog('$obj_dbquery_update->query:', $obj_dbquery_update->query, 'lslog_14');
+                    }
+                }
+            }
+        }
+    }
+
+    private function getNewForeignKey($arr_relation, $int_oldForeignKey)
+    {
+        switch ($arr_relation['relationType']) {
+            case 'single': // The ForeignKey is a single value
+                \LeadingSystems\Helpers\lsErrorLog('single!', '', 'lslog_14');
+                /*
+                 * Now it is determined which is the new foreignKey. For this we look in the array
+                 * $this->arr_mapOldIDToNewID in the key for the corresponding cTable (i.e. the linked table),
+                 * what the new foreignKey is to the old foreignKey.
+                 */
+                $int_newForeignKey = $this->arr_mapOldIDToNewID[$arr_relation['cTable']][$int_oldForeignKey];
+                \LeadingSystems\Helpers\lsErrorLog('$int_newForeignKey = $this->arr_mapOldIDToNewID['.$arr_relation['cTable'].']['.$int_oldForeignKey.'];', $int_newForeignKey, 'lslog_14');
+                break;
+
+            case 'array': // The ForeignKey is a (serialized) array
+                \LeadingSystems\Helpers\lsErrorLog('array!', '', 'lslog_14');
+                $arr_oldForeignKeys =  is_array($int_oldForeignKey) ? $int_oldForeignKey : deserialize($int_oldForeignKey);
+                $arr_newForeignKeys = array();
+                if (is_array($arr_oldForeignKeys)) {
+                    foreach ($arr_oldForeignKeys as $k => $int_oldForeignKey) {
+                        /*
+                         * Important: The determined foreignKey is explicitly stored as a string in the serialized array.
+                         * This is important for product page selection, because the quotes used when storing a value in
+                         * string form in the serialized array are important for recognizing product page assignments!
+                         */
+                        $arr_newForeignKeys[$k] = strval($this->arr_mapOldIDToNewID[$arr_relation['cTable']][$int_oldForeignKey]);
+
+                        \LeadingSystems\Helpers\lsErrorLog('$arr_newForeignKeys['.$k.'] = $this->arr_mapOldIDToNewID['.$arr_relation['cTable'].']['.$int_oldForeignKey.'];', $arr_newForeignKeys[$k], 'lslog_14');
+                    }
+                } else {
+                    \LeadingSystems\Helpers\lsErrorLog('old foreign key is not an array', $arr_relation, 'lslog_14');
+                    \LeadingSystems\Helpers\lsErrorLog('old foreign key: ', $arr_oldForeignKeys, 'lslog_14');
+                }
+                $int_newForeignKey = serialize($arr_newForeignKeys);
+                break;
+
+            case 'special': // Der ForeignKey ist in einem speziellen Format gespeichert, der gesondert gehandhabt werden muss
+                \LeadingSystems\Helpers\lsErrorLog('special!', '', 'lslog_14');
+                switch ($arr_relation['pTable']) {
+                    case 'tl_layout':
+                        switch ($arr_relation['pField']) {
+                            case 'modules':
+                                /*
+                                 * Special case: Module assignments in tl_layout are not a simple array. Instead, modules
+                                 * and their assignments to content areas are recorded in a complex way here. Accordingly,
+                                 * special handling is necessary to read out the old module IDs from the original
+                                 * foreignKey, determine the new module IDs, and recreate the correct foreignKey with
+                                 * the new module IDs.
+                                 */
+                                $arr_modulesInLayout = is_array($int_oldForeignKey) ? $int_oldForeignKey : deserialize($int_oldForeignKey);
+                                foreach ($arr_modulesInLayout as $k => $v) {
+                                    if (!$v['mod']) {
+                                        continue;
+                                    }
+                                    $int_oldForeignKey = $v['mod'];
+                                    $arr_modulesInLayout[$k]['mod'] = strval($this->arr_mapOldIDToNewID[$arr_relation['cTable']][$int_oldForeignKey]);
+                                }
+                                $int_newForeignKey = serialize($arr_modulesInLayout);
+                                break;
+                        }
+                        break;
+                }
+                break;
+
+            default:
+                throw new \Exception('unsupported relation type given');
+                break;
+        }
+        return $int_newForeignKey;
+    }
+
+    private function getDatabaseRelations()
+    {
+        $arr_relations = array();
+        $str_relationsFile = file_get_contents(TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/config/database.sql');
+        preg_match_all('/@(.*)\.(.*)@(.*)\.(.*)=(.*)@/', $str_relationsFile, $arr_matches);
+        foreach ($arr_matches[0] as $k => $v) {
+            $arr_relations[] = array(
+                'pTable' => $arr_matches[1][$k],
+                'pField' => $arr_matches[2][$k],
+                'cTable' => $arr_matches[3][$k],
+                'cField' => $arr_matches[4][$k],
+                'relationType' => $arr_matches[5][$k]
+            );
+        }
+        \LeadingSystems\Helpers\lsErrorLog('$arr_relations', $arr_relations, 'lslog_14');
+        return $arr_relations;
+    }
+
 
     private function importTables($arr_import)
     {
@@ -188,63 +427,65 @@ class ThemeInstaller
             throw new \Exception('target table does not exist ('.$str_targetTable.')');
         }
 
-        $setStatement = '';
+        $str_setStatement = '';
 
-        foreach ($arr_data as $fieldName => $value) {
+        foreach ($arr_data as $str_fieldName => $var_value) {
             /*
-             * Existiert das Feld in der Zieltabelle nicht, so wird das Feld nicht in das Insert-Statement aufgenommen.
-             * Sollen IDs nicht erhalten bleiben und handelt es sich um das ID-Feld, so wird es nicht in das Insert-Statement aufgenommen.
-             * Sollen Aliase nicht erhalten bleiben und handelt es sich um das Alias-Feld, so wird es nicht in das Insert-Statement aufgenommen.
+             * If the field does not exist in the target table, the field will not be included in the insert statement.
+             * If IDs are not to be retained and it is the ID field, it will not be included in the insert statement.
+             * If aliases are not to be preserved and it is the alias field, it will not be included in the insert statement.
              */
-            if (!\Database::getInstance()->fieldExists($fieldName, $str_targetTable) || (!$bln_preserveId && $fieldName == 'id') || (!$bln_preserveAlias && $fieldName == 'alias')) {
-                unset($arr_data[$fieldName]);
+            if (!\Database::getInstance()->fieldExists($str_fieldName, $str_targetTable) || (!$bln_preserveId && $str_fieldName == 'id') || (!$bln_preserveAlias && $str_fieldName == 'alias')) {
+                unset($arr_data[$str_fieldName]);
             } else {
-                if ($setStatement) {
-                    $setStatement .= ",\r\n";
+                if ($str_setStatement) {
+                    $str_setStatement .= ",\r\n";
                 }
-                $setStatement .= "`".$fieldName."` = ?";
+                $str_setStatement .= "`".$str_fieldName."` = ?";
             }
         }
 
-        $objQuery = \Database::getInstance()->prepare("
+        $obj_dbquery = \Database::getInstance()->prepare("
 			INSERT INTO `".$str_targetTable."`
-			SET		".$setStatement."
+			SET		".$str_setStatement."
 		")
             ->execute($arr_data);
 
-        $insertID = $objQuery->insertId;
+        $int_insertId = $obj_dbquery->insertId;
 
         /*
-         * Soll der Alias nicht erhalten bleiben und existiert das Alias-Feld in der Zieltabelle,
-         * so wird ein neuer Alias generiert, wobei bei Bedarf durch Anhängen der Datensatz-ID
-         * sichergestellt wird, dass der Alias unique ist.
+         * If the alias is not to be retained and the alias field exists in the target table, a new alias is generated,
+         * ensuring that the alias is unique by appending the record ID if required.
          */
         if (!$bln_preserveAlias && \Database::getInstance()->fieldExists('alias', $str_targetTable)) {
-            $alias = (isset($arr_data['title']) && $arr_data['title'] ? standardize(\StringUtil::restoreBasicEntities($arr_data['title'])) : 'record-'.$insertID);
+            $str_alias = (isset($arr_data['title']) && $arr_data['title'] ? standardize(\StringUtil::restoreBasicEntities($arr_data['title'])) : 'record-'.$int_insertId);
 
-            $alias = strlen($alias) > 100 ? substr($alias, 0, 100) : $alias;
+            $str_alias = strlen($str_alias) > 100 ? substr($str_alias, 0, 100) : $str_alias;
 
-            $objCheckAlias = \Database::getInstance()->prepare("
-				SELECT		`id`
-				FROM		`".$str_targetTable."`
-				WHERE		`alias` = ?
-			")
-                ->execute($alias);
-            if ($objCheckAlias->numRows) {
-                $alias = $alias.'-'.$insertID;
+            $obj_dbres_checkAlias = \Database::getInstance()
+                ->prepare("
+                    SELECT		`id`
+                    FROM		`".$str_targetTable."`
+                    WHERE		`alias` = ?
+                ")
+                ->execute($str_alias);
+
+            if ($obj_dbres_checkAlias->numRows) {
+                $str_alias = $str_alias.'-'.$int_insertId;
             }
 
-            $objUpdateAlias = \Database::getInstance()->prepare("
-				UPDATE		`".$str_targetTable."`
-				SET			`alias` = ?
-				WHERE		`id` = ?
-			")
+            \Database::getInstance()
+                ->prepare("
+                    UPDATE		`".$str_targetTable."`
+                    SET			`alias` = ?
+                    WHERE		`id` = ?
+                ")
                 ->limit(1)
-                ->execute($alias, $insertID);
+                ->execute($str_alias, $int_insertId);
         }
 
-        // Die ID, mit der der Datensatz eingefügt wurde, dient als Rückgabewert dieser Funktion
-        return $insertID;
+        // The ID with which the record was inserted serves as the return value of this function
+        return $int_insertId;
     }
 
     protected function getRootPageId() {
@@ -274,6 +515,14 @@ class ThemeInstaller
 
     private function generateSymlinks()
     {
+        $obj_folder = new \Contao\Folder('files/merconisfiles');
+        $obj_folder->unprotect;
+        try {
+            SymlinkUtil::symlink('vendor/' . $this->arr_installedThemeExtensions[0] . '/src/Resources/theme', $obj_folder->path . '/themes', TL_ROOT);
+        } catch (\Exception $e) {
+            \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
+        }
+
         $obj_automator = \Controller::importStatic('Contao\Automator', 'Automator');
         $obj_automator->generateSymlinks();
 
