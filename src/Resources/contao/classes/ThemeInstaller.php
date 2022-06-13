@@ -516,7 +516,7 @@ class ThemeInstaller
     private function generateSymlinks()
     {
         $obj_folder = new \Contao\Folder('files/merconisfiles');
-        $obj_folder->unprotect;
+        $obj_folder->unprotect();
         try {
             SymlinkUtil::symlink('vendor/' . $this->arr_installedThemeExtensions[0] . '/src/Resources/theme', $obj_folder->path . '/themes', TL_ROOT);
         } catch (\Exception $e) {
