@@ -15,7 +15,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	'palettes' => array(
 		'__selector__' => array('ls_shop_useVATIDValidation'),
 		'default' => '
-		{basic_legend},ls_shop_serial,ls_shop_country,ls_shop_currency,ls_shop_currencyCode,ls_shop_numDecimals,ls_shop_priceRoundingFactor,ls_shop_priceType,ls_shop_numDecimalsWeight,ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_versandkostenType,ls_shop_autoSelectCheapestPossibleShippingAndPaymentMethods,ls_shop_useProductDescriptionAsSeoDescription,ls_shop_ownEmailAddress,ls_shop_output_definitionset,ls_shop_delivery_infoSet,ls_shop_productDetailsTemplate,ls_shop_standardProductImageFolder,ls_shop_standardProductImageDelimiter,ls_shop_imageSortingStandardDirection,ls_shop_beOrderTemplateOverview,ls_shop_beOrderTemplateDetails;
+		{basic_legend},ls_shop_country,ls_shop_currency,ls_shop_currencyCode,ls_shop_numDecimals,ls_shop_priceRoundingFactor,ls_shop_priceType,ls_shop_numDecimalsWeight,ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_versandkostenType,ls_shop_autoSelectCheapestPossibleShippingAndPaymentMethods,ls_shop_useProductDescriptionAsSeoDescription,ls_shop_ownEmailAddress,ls_shop_output_definitionset,ls_shop_delivery_infoSet,ls_shop_productDetailsTemplate,ls_shop_standardProductImageFolder,ls_shop_standardProductImageDelimiter,ls_shop_imageSortingStandardDirection,ls_shop_beOrderTemplateOverview,ls_shop_beOrderTemplateDetails;
 		
 		{euSettings_legend},ls_shop_ownVATID,ls_shop_euCountrycodes,ls_shop_useVATIDValidation;
 
@@ -252,13 +252,6 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_euCountrycodes'],
 			'inputType' => 'text',
 			'eval' => array('tl_class'=>'w50')
-		),
-		
-		'ls_shop_serial' => array(
-			'exclude' => true,
-			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_serial'],
-			'inputType' => 'text',
-			'eval' => array('mandatory' => false, 'tl_class'=>'w50')
 		),
 		
 		'ls_shop_country' => array(
