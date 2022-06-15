@@ -540,9 +540,17 @@ class ThemeInstaller
         }
 
         try {
-            SymlinkUtil::symlink($this->getThemeResourcesFolder() . '/theme', $this->str_merconisfilesPath . '/theme', TL_ROOT);
+            SymlinkUtil::symlink($this->getThemeResourcesFolder() . '/theme/files', $this->getThemeFilesTargetPath(), TL_ROOT);
         } catch (\Exception $e) {
-            \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
+            \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink for theme files failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
+        }
+
+        if (file_exists(TL_ROOT. '/' . $this->getThemeTemplatesSourcePath())) {
+            try {
+                SymlinkUtil::symlink($this->getThemeTemplatesSourcePath(), $this->getThemeTemplatesTargetPath(), TL_ROOT);
+            } catch (\Exception $e) {
+                \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink for templates failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
+            }
         }
 
         $obj_automator = \Controller::importStatic('Contao\Automator', 'Automator');
@@ -557,12 +565,32 @@ class ThemeInstaller
         }
 
         \System::log(TL_MERCONIS_THEME_SETUP . ': Copying Merconis files to '.$this->str_merconisfilesPath, TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
-        $this->dirCopy($this->getThemeResourcesFolder() . '/theme', $this->str_merconisfilesPath . '/theme');
+        $this->dirCopy($this->getThemeResourcesFolder() . '/theme/files', $this->getThemeFilesTargetPath());
 
-        if (file_exists(TL_ROOT. '/' . $this->getThemeResourcesFolder() . '/contao/templates/merconis-theme') && !file_exists(TL_ROOT. '/templates/merconis-theme')) {
+        if (file_exists(TL_ROOT. '/' . $this->getThemeTemplatesSourcePath())) {
             \System::log(TL_MERCONIS_THEME_SETUP . ': Copying theme templates to templates folder', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
-            $this->dirCopy($this->getThemeResourcesFolder() . '/contao/templates/merconis-theme', 'templates/merconis-theme');
+            $this->dirCopy($this->getThemeTemplatesSourcePath(), $this->getThemeTemplatesTargetPath());
         }
+    }
+
+    private function getThemeFilesSourcePath()
+    {
+        return $this->getThemeResourcesFolder() . '/theme/files';
+    }
+
+    private function getThemeFilesTargetPath()
+    {
+        return $this->str_merconisfilesPath . '/theme';
+    }
+
+    private function getThemeTemplatesSourcePath()
+    {
+        return $this->getThemeResourcesFolder() . '/theme/templates';
+    }
+
+    private function getThemeTemplatesTargetPath()
+    {
+        return 'templates/merconis-theme';
     }
 
     public function parse()
