@@ -4,19 +4,14 @@ namespace Merconis\Core;
 
 class ls_shop_apiController_themeExporter
 {
-    protected $tmpExportDir = 'merconisTmpThemeExport';
-    protected $targetExportDir = 'merconisThemeExport';
+    protected $tmpExportDir = 'merconisTmpThemeExport/theme';
+    protected $targetExportDir = 'merconisThemeExport/theme';
 
-    protected $themeSrcParentDir = 'files/merconisfiles/themes';
-    protected $themeSrcDir = null;
-    protected $themeSrcDirName = null;
+    protected $themeSrcDir = 'files/merconisfiles/theme';
 
-    protected $themeTemplatesSrcParentDir = 'templates';
-    protected $themeTemplatesSrcDir = null;
-    protected $themeTemplatesSrcDirName = null;
+    protected $themeTemplatesSrcDir = 'templates/merconis-theme';
 
-    protected $exportZipFileName = '';
-    protected $exportHashFilename = 'hash.chk.dat';
+    protected $exportZipFileName = 'theme.zip';
 
     protected static $objInstance;
 
@@ -72,16 +67,7 @@ class ls_shop_apiController_themeExporter
         $this->obj_apiReceiver->requireScope(['BE']);
         $this->obj_apiReceiver->requireUser(['beUser']);
 
-        $this->getThemeSrcDir();
-        $this->checkThemeFolderName();
         $this->checkDNS();
-        $this->getThemeTemplatesSrcDir();
-        $this->checkThemeTemplatesFolderName();
-
-        /*
-         * Set the exportZipFileName
-         */
-        $this->exportZipFileName = $this->themeSrcDirName . '.chk.zip';
 
         /*
          * Make sure that there is an empty data folder in the source
@@ -89,52 +75,16 @@ class ls_shop_apiController_themeExporter
         $this->makeEmptyDataFolderInSrc();
 
         $this->createExportTmpFolder();
+        $this->createExportTargetFolder();
+
         $this->exportLocalconfig();
         $this->exportTables();
+
         $this->writeZipExportFile();
-        $this->createExportTargetFolder();
-        $this->moveFilesToExportTargetFolder();
         $this->deleteTmpExportDir();
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data('successfully exported to ' . $this->exportZipFileName);
-    }
-
-    protected function getThemeSrcDir()
-    {
-        $arrThemeFolders = array_diff(scandir(TL_ROOT . '/' . $this->themeSrcParentDir), array('.', '..'));
-
-        /*
-         * Remove elements that aren't directories
-         */
-        foreach ($arrThemeFolders as $k => $item) {
-            if (!is_dir(TL_ROOT . '/' . $this->themeSrcParentDir . '/' . $item)) {
-                unset ($arrThemeFolders[$k]);
-            }
-        }
-
-        if (count($arrThemeFolders) == 0) {
-            throw new \Exception('The theme source directory does not exist.');
-        }
-
-        if (count($arrThemeFolders) > 1) {
-            throw new \Exception('There is more than one theme source directory. Please make sure that there is only the one that should be used for the export.');
-        }
-
-        $this->themeSrcDir = count($arrThemeFolders) == 1 ? $this->themeSrcParentDir . '/' . current($arrThemeFolders) : null;
-
-        $this->themeSrcDirName = count($arrThemeFolders) == 1 ? current($arrThemeFolders) : null;
-    }
-
-    protected function checkThemeFolderName()
-    {
-        /*
-         * Check if the theme folder is named properly. This is important because the Merconis installer relies on it.
-         */
-        $themeNamePattern = '/^theme[0-9]+$/';
-        if (!preg_match($themeNamePattern, $this->themeSrcDirName)) {
-            throw new \Exception(sprintf('The the theme folder to export (%s) is not named properly (%s)', $this->themeSrcDirName, $themeNamePattern));
-        }
     }
 
     protected function checkDNS()
@@ -149,40 +99,6 @@ class ls_shop_apiController_themeExporter
 
         if ($obj_dbres_rootDns->numRows) {
             throw new \Exception('Domain entry/DNS in the root page is not set');
-        }
-    }
-
-    protected function getThemeTemplatesSrcDir()
-    {
-        $arrThemeTemplatesFolders = array_diff(scandir(TL_ROOT . '/' . $this->themeTemplatesSrcParentDir), array('.', '..'));
-
-        /*
-         * Remove elements that aren't directories
-         */
-        foreach ($arrThemeTemplatesFolders as $k => $item) {
-            if (!is_dir(TL_ROOT . '/' . $this->themeTemplatesSrcParentDir . '/' . $item)) {
-                unset ($arrThemeTemplatesFolders[$k]);
-            }
-        }
-
-        if (count($arrThemeTemplatesFolders) > 1) {
-            throw new \Exception('There is more than one theme templates directory. Please make sure that there is only the one that should be used for the export.');
-        }
-
-        if (count($arrThemeTemplatesFolders) == 1) {
-            $this->themeTemplatesSrcDir = $this->themeTemplatesSrcParentDir . '/' . current($arrThemeTemplatesFolders);
-            $this->themeTemplatesSrcDirName = current($arrThemeTemplatesFolders);
-        } else {
-            $this->themeTemplatesSrcDir = '';
-            $this->themeTemplatesSrcDirName = '';
-        }
-    }
-
-    protected function checkThemeTemplatesFolderName()
-    {
-        $expectedThemeTemplatesSrcDirName = 'merconisTemplates' . ucfirst($this->themeSrcDirName);
-        if ($this->themeTemplatesSrcDirName && $this->themeTemplatesSrcDirName != $expectedThemeTemplatesSrcDirName) {
-            throw new \Exception(sprintf('The templates folder (%s) does not have the expected name (%s)', $this->themeTemplatesSrcDirName, $expectedThemeTemplatesSrcDirName));
         }
     }
 
@@ -218,22 +134,24 @@ class ls_shop_apiController_themeExporter
         /*
          * Copy the theme folder to the tmp export directory
          */
-        $this->dirCopy($this->themeSrcDir, $this->tmpExportDir . '/' . $this->themeSrcDirName);
+        $this->dirCopy($this->themeSrcDir, $this->tmpExportDir);
 
         /*
          * Copy the theme's template folder if it exists
          */
-        if ($this->themeTemplatesSrcDir) {
-            $this->dirCopy($this->themeTemplatesSrcDir, $this->tmpExportDir . '/' . $this->themeSrcDirName . '/' . $this->themeTemplatesSrcDirName);
+        if (is_dir($this->themeTemplatesSrcDir)) {
+            $this->dirCopy($this->themeTemplatesSrcDir, $this->tmpExportDir . '/' . $this->themeTemplatesSrcDir);
         }
+    }
 
+    protected function createExportTargetFolder()
+    {
         /*
-         * Remove forbidden folders from tmp export directory
+         * Create a new and empty tmp export directory if there isn't one already
          */
-        if (is_dir(TL_ROOT . '/' . $this->tmpExportDir)) {
-            $this->rmdirRecursively(TL_ROOT . '/' . $this->tmpExportDir, 'doNotExport');
+        if (!is_dir(TL_ROOT . '/' . $this->targetExportDir)) {
+            mkdir(TL_ROOT . '/' . $this->targetExportDir);
         }
-
     }
 
     /**
@@ -251,7 +169,7 @@ class ls_shop_apiController_themeExporter
             }
         }
 
-        $objFile = new \File($this->tmpExportDir . '/' . $this->themeSrcDirName . '/data/exportLocalconfig.dat');
+        $objFile = new \File($this->tmpExportDir . '/data/exportLocalconfig.dat');
         $objFile->write(serialize($arrLocalconfigExport));
         $objFile->close();
     }
@@ -320,15 +238,15 @@ class ls_shop_apiController_themeExporter
             }
         }
 
-        $objFile = new \File($this->tmpExportDir . '/' . $this->themeSrcDirName . '/data/exportTables.dat');
+        $objFile = new \File($this->tmpExportDir . '/data/exportTables.dat');
         $objFile->write(serialize($arrTables));
         $objFile->close();
     }
 
     protected function writeZipExportFile()
     {
-        $objArchive = new \ZipWriter($this->tmpExportDir . '/' . $this->exportZipFileName);
-        $this->addFolderToArchive($objArchive, $this->tmpExportDir . '/' . $this->themeSrcDirName);
+        $objArchive = new \ZipWriter($this->targetExportDir . '/' . $this->exportZipFileName);
+        $this->addFolderToArchive($objArchive, $this->tmpExportDir);
         $objArchive->close();
     }
 
@@ -349,44 +267,6 @@ class ls_shop_apiController_themeExporter
                 $objArchive->addFile($strFolder . '/' . $strFile, $strTarget . '/' . $strFile);
             }
         }
-    }
-
-    protected function createExportTargetFolder()
-    {
-        /*
-         * Create a new and empty tmp export directory if there isn't one already
-         */
-        if (!is_dir(TL_ROOT . '/' . $this->targetExportDir)) {
-            mkdir(TL_ROOT . '/' . $this->targetExportDir);
-        }
-    }
-
-    protected function moveFilesToExportTargetFolder()
-    {
-        /*
-         * Move the export zip file
-         */
-        if (is_file(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName)) {
-            unlink(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName);
-        }
-        rename(TL_ROOT . '/' . $this->tmpExportDir . '/' . $this->exportZipFileName, TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName);
-        chmod(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName, 0755);
-
-        /*
-         * Copy the themeInfo.dat
-         */
-        if (is_file(TL_ROOT . '/' . $this->targetExportDir . '/themeInfo.chk.dat')) {
-            unlink(TL_ROOT . '/' . $this->targetExportDir . '/themeInfo.chk.dat');
-        }
-        copy(TL_ROOT . '/' . $this->tmpExportDir . '/' . $this->themeSrcDirName . '/themeInfo.dat', TL_ROOT . '/' . $this->targetExportDir . '/themeInfo.chk.dat');
-
-        /*
-         * Create the file holding the md5 hash of the export file
-         */
-        if (is_file(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportHashFilename)) {
-            unlink(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportHashFilename);
-        }
-        file_put_contents(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportHashFilename, md5_file(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName));
     }
 
     protected function deleteTmpExportDir()
