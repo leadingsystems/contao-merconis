@@ -90,7 +90,7 @@ class ThemeInstaller
          * Entering the basic settings in localconfig. In some cases, the values must be replaced with
          * the correct values (ID assignments) later in the setup process.
          */
-        $arr_exportLocalconfig = deserialize(file_get_contents(TL_ROOT . '/vendor/' . $this->arr_installedThemeExtensions[0] . '/src/Resources/theme/data/exportLocalconfig.dat'));
+        $arr_exportLocalconfig = deserialize(file_get_contents(TL_ROOT . '/' . $this->getThemeSetupDataPath() . '/exportLocalconfig.dat'));
 
         \System::log(TL_MERCONIS_THEME_SETUP . ': Inserting MERCONIS configuration values in localconfig.php', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
 
@@ -110,7 +110,7 @@ class ThemeInstaller
 
     private function writeDatabase()
     {
-        $arr_exportTables = deserialize(file_get_contents(TL_ROOT . '/vendor/' . $this->arr_installedThemeExtensions[0] . '/src/Resources/theme/data/exportTables.dat'));
+        $arr_exportTables = deserialize(file_get_contents(TL_ROOT . '/' . $this->getThemeSetupDataPath() . '/exportTables.dat'));
         $this->importTables($arr_exportTables);
         $this->restoreForeignKeyRelations();
         $this->updateInsertTagCorrelations__insert_module();
@@ -591,6 +591,11 @@ class ThemeInstaller
     private function getThemeTemplatesTargetPath()
     {
         return 'templates/merconis-theme';
+    }
+
+    private function getThemeSetupDataPath()
+    {
+        return $this->getThemeResourcesFolder() . '/theme/setup';
     }
 
     public function parse()
