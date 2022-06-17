@@ -1,0 +1,23 @@
+<?
+	/*
+	 * Defining some variables to use in this template. Of course, in reality
+	 * this does not make much sense because the template would be supplied dynamically
+	 * with the data to display.
+	 */
+	 var str_headline = 'A headline';
+	 var str_text1 = 'And a paragraph below.';
+	 var str_text2 = 'And another paragraph below.';
+?>
+<h1><?= str_headline =?></h1>
+<p><?= str_text1 =?></p>
+<?
+	if (str_text2) {
+		?>
+		<p><?= str_text2 =?></p>
+		<?
+	} else {
+		?>
+		<p>nix da!</p>
+		<?
+	}
+?>
