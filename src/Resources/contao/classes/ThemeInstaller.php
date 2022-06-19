@@ -105,6 +105,8 @@ class ThemeInstaller
 
             \Config::getInstance()->update("\$GLOBALS['TL_CONFIG']['".$k."']", $v);
         }
+        \Config::getInstance()->save();
+        \Config::getInstance()->preload();
 
     }
 
