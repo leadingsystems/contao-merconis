@@ -163,10 +163,12 @@ class ThemeInstaller
                              * handle insert tags in another table, we still have to get a new module ID for
                              * an old one and find it in the mapping array for tl_module.
                              */
-                            $str_insertTagNew = $arr_matches[1][$k].$this->arr_mapOldIDToNewID['tl_module'][$int_oldModuleID].$arr_matches[3][$k];
+                            $str_insertTagNew = $arr_matches[1][$k] . '--' . $this->arr_mapOldIDToNewID['tl_module'][$int_oldModuleID] . '--' . $arr_matches[3][$k];
 
                             $arr_currentRecordToHandle[$str_fieldName] = preg_replace($str_insertTagToReplace, $str_insertTagNew, $arr_currentRecordToHandle[$str_fieldName]);
                         }
+
+                        $arr_currentRecordToHandle[$str_fieldName] = preg_replace('/(\{\{insert_module::)(--)(.*)(--)(\}\})/siU', '$1$3$5', $arr_currentRecordToHandle[$str_fieldName]);
                     }
 
                     if ($str_setStatement) {
