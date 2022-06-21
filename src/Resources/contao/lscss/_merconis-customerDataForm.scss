@@ -1,12 +1,16 @@
-.customerDataFormApplied [data-lsjs-element="deviantShippingAddress"].hideDeviantShippingAddress {
+.conditionalFormApplied [data-lsjs-element="deviantShippingAddress"].hideDeviantShippingAddress {
   display: none;
 }
 
-.customerDataFormApplied label.mandatory::after {
+.conditionalFormApplied label.mandatory::after {
   content: "*";
   display: inline-block;
 }
 
-.customerDataFormApplied label.mandatory .mandatory {
+.conditionalFormApplied label.mandatory .mandatory {
   display: none;
+}
+
+.hideElement{
+  display:none !important;
 }
