@@ -3,7 +3,7 @@
  *
  * To activate this module, the following code has to be put in the app.js:
  *
-	 lsjs.__moduleHelpers.customerDataFormManager.start({
+	 lsjs.__moduleHelpers.conditionalFormManager.start({
 		 el_domReference: el_domReference
 	 });
  *
@@ -17,7 +17,7 @@
  * whether or not a checkbox, which indicates whether or not a deviant shipping address should be used, is activated.
  *
  * Add the following attribute to a DOM element to apply this module:
- * data-lsjs-component="customerDataForm"
+ * data-lsjs-component="conditionalForm"
  *
  * The customer data form has to have a checkbox field with the field name "useDeviantShippingAddress". This checkbox
  * is the one that this module checks when determining whether the deviant shipping address should be used or not.
@@ -71,7 +71,7 @@ var obj_classdef = {
 			el_container.addClass(this.__models.options.data.str_classToSetWhenModuleApplied);
 
 			lsjs.createModule({
-				__name: 'customerDataFormInstance',
+				__name: 'conditionalFormInstance',
 				__parentModule: this.__module,
 				__useLoadingIndicator: false,
 				__el_container: el_container
