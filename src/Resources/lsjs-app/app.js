@@ -216,7 +216,7 @@
 				 * <-
 				 */
 
-				lsjs.__moduleHelpers.customerDataFormManager.start({el_domReference: el_domReference});
+				lsjs.__moduleHelpers.conditionalFormManager.start({el_domReference: el_domReference});
 
 				lsjs.__moduleHelpers.formReviewerManager.start({el_domReference: el_domReference});
 

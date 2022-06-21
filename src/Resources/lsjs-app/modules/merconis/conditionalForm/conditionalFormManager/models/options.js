@@ -10,8 +10,8 @@ var obj_classdef_model = {
 		 */
 		this.data = {
 			el_domReference: null,
-			str_selector: '[data-lsjs-component~="customerDataForm"]', // the selector for the dom element to enrich,
-			str_classToSetWhenModuleApplied: 'customerDataFormApplied'
+			str_selector: '[data-lsjs-component~="conditionalForm"]', // the selector for the dom element to enrich,
+			str_classToSetWhenModuleApplied: 'conditionalFormApplied'
 		};
 	},
 	
