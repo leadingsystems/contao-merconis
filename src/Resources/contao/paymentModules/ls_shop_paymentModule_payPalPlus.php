@@ -560,9 +560,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
         }
 
 		$arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
-		$str_value =		$arrCheckoutFormFields[$str_fieldName.'_Alternative']['value']
-						?	$arrCheckoutFormFields[$str_fieldName.'_Alternative']['value']
-						:	$arrCheckoutFormFields[$str_fieldName]['value'];
+		$str_value = $arrCheckoutFormFields[$str_fieldName.(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] ? '_alternative' : '')]['value'];
 		
 		if (!$str_value) {
 			$str_value = null;
