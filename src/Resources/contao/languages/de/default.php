@@ -386,6 +386,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 	'postal' => 'PLZ',
 	'city' => 'Stadt',
 	'country' => 'Land',
+	'province_us' => 'Bundesstaat',
+	'province_ca' => 'Provinz',
 	'phone' => 'Tel.',
 	'email' => 'E-Mail',
 
@@ -399,6 +401,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 	'postal_alternative' => 'PLZ',
 	'city_alternative' => 'Stadt',
 	'country_alternative' => 'Land',
+	'province_us_alternative' => 'Bundesstaat',
+	'province_ca_alternative' => 'Provinz',
 
 	'notes' => 'Bemerkungen'
 );
