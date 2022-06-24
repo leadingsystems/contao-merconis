@@ -25,8 +25,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values'] = array(
 		),
         'sql' => array
         (
-            'engine' => 'MyISAM',
-            'charset' => 'utf8 COLLATE utf8_general_ci',
             'keys' => array
             (
                 'id' => 'primary'
@@ -122,7 +120,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values'] = array(
 				array('Merconis\Core\ls_shop_filter_field_values', 'generateAlias')
 			),
 			'search' => true,
-            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
+            'sql'                     => "varchar(128) COLLATION utf8_bin NOT NULL default ''"
 		),
 		
 		'classForFilterFormField' => array (

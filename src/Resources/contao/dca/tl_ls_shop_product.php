@@ -22,8 +22,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		),
         'sql' => array
         (
-            'engine' => 'MyISAM',
-            'charset' => 'utf8 COLLATE utf8_general_ci',
             'keys' => array
             (
                 'id' => 'primary',
@@ -396,7 +394,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'generateAlias')
 			),
-            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
+            'sql'                     => "varchar(128) COLLATION utf8_bin NOT NULL default ''"
 
 		),
 
