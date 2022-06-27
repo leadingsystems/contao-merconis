@@ -126,7 +126,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'sorting' => true,
 			'flag' => 11,
 			'search' => true,
-            'sql'                     => "varchar(128) COLLATION utf8_bin NOT NULL default ''"
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
 		),
 		
 		'dataSource' => array(

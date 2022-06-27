@@ -164,7 +164,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'sofortueberweisungConfigkey' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'sofortueberweisungUseCustomerProtection' => array (
@@ -172,11 +172,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'santanderWebQuickVendorNumber' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'santanderWebQuickVendorPassword' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'santanderWebQuickLiveMode' => array (
@@ -188,43 +188,43 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'santanderWebQuickFieldNameSalutation' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'santanderWebQuickFieldNameFirstName' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'santanderWebQuickFieldNameLastName' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'santanderWebQuickFieldNameEmailAddress' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'santanderWebQuickFieldNameStreet' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'santanderWebQuickFieldNameCity' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'santanderWebQuickFieldNameZipCode' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'santanderWebQuickFieldNameCountry' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_clientID' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_clientSecret' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_liveMode' => array (
@@ -232,51 +232,51 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'payPalPlus_logMode' => array (
-            'sql'                     => "varchar(256) NOT NULL default 'NONE'"
+            'sql'                     => "text NOT NULL default 'NONE'"
         ),
 
         'payPalPlus_shipToFieldNameFirstname' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_shipToFieldNameLastname' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_shipToFieldNameStreet' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_shipToFieldNameCity' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_shipToFieldNamePostal' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_shipToFieldNameState' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_shipToFieldNameCountryCode' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payPalPlus_shipToFieldNamePhone' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_subaccountId' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_portalId' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_key' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_liveMode' => array (
@@ -288,75 +288,75 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'payone_fieldNameFirstname' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameLastname' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameCompany' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameStreet' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameAddressaddition' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameZip' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameCity' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameCountry' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameEmail' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameTelephonenumber' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameBirthday' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNameGender' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'payone_fieldNamePersonalid' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'saferpay_username' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'saferpay_password' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'saferpay_customerId' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'saferpay_terminalId' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'saferpay_merchantEmail' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'saferpay_liveMode' => array (
@@ -376,19 +376,19 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'vrpay_userId' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'vrpay_password' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'vrpay_token' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'vrpay_entityId' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'vrpay_liveMode' => array (
@@ -408,27 +408,27 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'vrpay_fieldName_street1' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'vrpay_fieldName_city' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'vrpay_fieldName_postcode' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'vrpay_fieldName_country' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'vrpay_fieldName_givenName' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'vrpay_fieldName_surname' => array (
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'title' => array(
@@ -437,7 +437,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'inputType' => 'text',
             'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'maxlength'=>255),
             'search' => true,
-            'sql'                     => "varchar(256) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'alias' => array (
@@ -451,7 +451,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'sorting' => true,
             'flag' => 11,
             'search' => true,
-            'sql'                     => "varchar(128) COLLATION utf8_bin NOT NULL default ''"
+            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
         ),
 
         'description' => array (
@@ -470,7 +470,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'reference' => $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['type']['options'],
             'eval' => array('submitOnChange' => true, 'tl_class'=>'w50', 'helpwizard' => true),
             'filter' => true,
-            'sql'                     => "varchar(256) NOT NULL default 'standard'"
+            'sql'                     => "text NOT NULL default 'standard'"
         ),
 
         'formAdditionalData' => array(
@@ -490,7 +490,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'reference' => $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['dynamicSteuersatzType']['options'],
             'eval' => array('submitOnChange' => true, 'tl_class'=>'w50'),
             'filter' => true,
-            'sql'                     => "varchar(256) NOT NULL default 'none'"
+            'sql'                     => "text NOT NULL default 'none'"
         ),
 
         'steuersatz' => array(
@@ -585,7 +585,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['feeType']['options'],
             'eval' => array('submitOnChange' => true, 'helpwizard' => true),
             'filter' => true,
-            'sql'                     => "varchar(255) NOT NULL default 'none'"
+            'sql'                     => "text NOT NULL default 'none'"
         ),
 
         'feeValue' => array(
@@ -712,7 +712,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['cssID'],
             'inputType'		=>	'text',
             'eval'			=>	array('tl_class' => 'w50'),
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'cssClass' => array(
@@ -720,7 +720,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['cssClass'],
             'inputType'		=>	'text',
             'eval'			=>	array('tl_class' => 'w50'),
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
         ),
 
         'sorting' => array(
