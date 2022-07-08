@@ -96,43 +96,53 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'paypalAPIUsername' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalAPIPassword' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalAPISignature' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalShipToFieldNameFirstname' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalShipToFieldNameLastname' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalShipToFieldNameStreet' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalShipToFieldNameCity' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalShipToFieldNamePostal' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalShipToFieldNameState' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalShipToFieldNameCountryCode' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'paypalLiveMode' => array (
@@ -164,7 +174,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'sofortueberweisungConfigkey' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'sofortueberweisungUseCustomerProtection' => array (
@@ -172,11 +183,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'santanderWebQuickVendorNumber' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'santanderWebQuickVendorPassword' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'santanderWebQuickLiveMode' => array (
@@ -188,43 +201,53 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'santanderWebQuickFieldNameSalutation' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'santanderWebQuickFieldNameFirstName' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'santanderWebQuickFieldNameLastName' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'santanderWebQuickFieldNameEmailAddress' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'santanderWebQuickFieldNameStreet' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'santanderWebQuickFieldNameCity' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'santanderWebQuickFieldNameZipCode' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'santanderWebQuickFieldNameCountry' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_clientID' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_clientSecret' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_liveMode' => array (
@@ -232,51 +255,62 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'payPalPlus_logMode' => array (
-            'sql'                     => "text NOT NULL default 'NONE'"
+            'sql'                     => "varchar(255) NOT NULL default 'NONE'"
         ),
 
         'payPalPlus_shipToFieldNameFirstname' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_shipToFieldNameLastname' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_shipToFieldNameStreet' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_shipToFieldNameCity' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_shipToFieldNamePostal' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_shipToFieldNameState' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_shipToFieldNameCountryCode' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payPalPlus_shipToFieldNamePhone' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_subaccountId' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_portalId' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_key' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_liveMode' => array (
@@ -288,75 +322,93 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'payone_fieldNameFirstname' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameLastname' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameCompany' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameStreet' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameAddressaddition' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameZip' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameCity' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameCountry' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameEmail' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameTelephonenumber' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameBirthday' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNameGender' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'payone_fieldNamePersonalid' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'saferpay_username' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'saferpay_password' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'saferpay_customerId' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'saferpay_terminalId' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'saferpay_merchantEmail' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'saferpay_liveMode' => array (
@@ -376,19 +428,23 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'vrpay_userId' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'vrpay_password' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'vrpay_token' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'vrpay_entityId' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'vrpay_liveMode' => array (
@@ -408,27 +464,33 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         ),
 
         'vrpay_fieldName_street1' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'vrpay_fieldName_city' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'vrpay_fieldName_postcode' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'vrpay_fieldName_country' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'vrpay_fieldName_givenName' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'vrpay_fieldName_surname' => array (
-            'sql'                     => "text NOT NULL default ''"
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'title' => array(
@@ -437,7 +499,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'inputType' => 'text',
             'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'maxlength'=>255),
             'search' => true,
-            'sql'                     => "text NOT NULL default ''"
+            'sql'                     => "tinytext NULL"
         ),
 
         'alias' => array (
@@ -470,7 +532,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'reference' => $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['type']['options'],
             'eval' => array('submitOnChange' => true, 'tl_class'=>'w50', 'helpwizard' => true),
             'filter' => true,
-            'sql'                     => "text NOT NULL default 'standard'"
+            'sql'                     => "varchar(255) NOT NULL default 'standard'"
         ),
 
         'formAdditionalData' => array(
@@ -490,7 +552,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'reference' => $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['dynamicSteuersatzType']['options'],
             'eval' => array('submitOnChange' => true, 'tl_class'=>'w50'),
             'filter' => true,
-            'sql'                     => "text NOT NULL default 'none'"
+            'sql'                     => "varchar(255) NOT NULL default 'none'"
         ),
 
         'steuersatz' => array(
@@ -585,7 +647,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['feeType']['options'],
             'eval' => array('submitOnChange' => true, 'helpwizard' => true),
             'filter' => true,
-            'sql'                     => "text NOT NULL default 'none'"
+            'sql'                     => "varchar(255) NOT NULL default 'none'"
         ),
 
         'feeValue' => array(
@@ -711,16 +773,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'exclude'		=>	true,
             'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['cssID'],
             'inputType'		=>	'text',
-            'eval'			=>	array('tl_class' => 'w50'),
-            'sql'                     => "text NOT NULL default ''"
+            'eval'			=>	array('tl_class' => 'w50', 'maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'cssClass' => array(
             'exclude'		=>	true,
             'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['cssClass'],
             'inputType'		=>	'text',
-            'eval'			=>	array('tl_class' => 'w50'),
-            'sql'                     => "text NOT NULL default ''"
+            'eval'			=>	array('tl_class' => 'w50', 'maxlength' => 255),
+            'sql'                     => "tinytext NULL"
         ),
 
         'sorting' => array(
