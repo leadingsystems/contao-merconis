@@ -5,6 +5,7 @@ relevant foreign key relations concerning tables which are not defined in this f
 @tl_content.pid@tl_article.id=single@
 @tl_content.form@tl_form.id=single@
 @tl_content.module@tl_module.id=single@
+@tl_content.size@tl_image_size.id=array@
 @tl_form_field.pid@tl_form.id=single@
 @tl_layout.modules@tl_module.id=special@
 @tl_page.ls_cnc_languageSelector_correspondingMainLanguagePage@tl_page.id=single@
