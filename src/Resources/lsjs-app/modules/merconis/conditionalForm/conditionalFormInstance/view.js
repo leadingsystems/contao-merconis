@@ -24,8 +24,6 @@
 
 			this.getAllFormFields();
 
-			console.log("hallo")
-
 			Array.each(
 				self.els_allFormFields,
 				function(el_selected) {
