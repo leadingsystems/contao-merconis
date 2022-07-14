@@ -5108,4 +5108,11 @@ class ls_shop_generalHelper
 
         return $str_url;
     }
+
+    public static function getInstalledThemeExtensions() {
+        $str_composerLockContent = file_get_contents(TL_ROOT . '/composer.lock');
+        preg_match_all('/"name".*?:.*?"(.*\/merconis-theme.*)"/', $str_composerLockContent, $arr_matches);
+        $arr_installedThemeExtensions = $arr_matches[1];
+        return $arr_installedThemeExtensions;
+    }
 }

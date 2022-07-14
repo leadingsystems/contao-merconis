@@ -4,14 +4,9 @@ namespace Merconis\Core;
 
 class ls_shop_apiController_themeExporter
 {
-    protected $tmpExportDir = 'merconisTmpThemeExport/theme';
-    protected $targetExportDir = 'merconisThemeExport/theme';
-
-    protected $themeSrcDir = 'files/merconisfiles/theme';
-
-    protected $themeTemplatesSrcDir = 'templates/merconis-theme';
-
-    protected $exportZipFileName = 'theme.zip';
+    protected $str_dataExportPath = 'vendor/%s/src/Resources/theme/setup';
+    protected $str_localconfigExportFileName = 'exportLocalconfig.dat';
+    protected $str_tablesExportFileName = 'exportTables.dat';
 
     protected static $objInstance;
 
@@ -67,24 +62,19 @@ class ls_shop_apiController_themeExporter
         $this->obj_apiReceiver->requireScope(['BE']);
         $this->obj_apiReceiver->requireUser(['beUser']);
 
+        $arr_installedThemeExtensions = ls_shop_generalHelper::getInstalledThemeExtensions();
+        $this->str_dataExportPath = sprintf($this->str_dataExportPath, $arr_installedThemeExtensions[0]);
+        if (!is_dir(TL_ROOT . '/' . $this->str_dataExportPath)) {
+            throw new \Exception('Export directory does not exist: ' . $this->str_dataExportPath);
+        }
+
         $this->checkDNS();
-
-        /*
-         * Make sure that there is an empty data folder in the source
-         */
-        $this->makeEmptyDataFolderInSrc();
-
-        $this->createExportTmpFolder();
-        $this->createExportTargetFolder();
 
         $this->exportLocalconfig();
         $this->exportTables();
 
-        $this->writeZipExportFile();
-        $this->deleteTmpExportDir();
-
         $this->obj_apiReceiver->success();
-        $this->obj_apiReceiver->set_data('successfully exported to ' . $this->exportZipFileName);
+        $this->obj_apiReceiver->set_data('successfully exported to ' . $this->str_dataExportPath);
     }
 
     protected function checkDNS()
@@ -102,58 +92,6 @@ class ls_shop_apiController_themeExporter
         }
     }
 
-    protected function makeEmptyDataFolderInSrc()
-    {
-        $dataDir = TL_ROOT . '/' . $this->themeSrcDir . '/data';
-
-        // first remove a possibly already existing data dir
-        if (is_dir($dataDir)) {
-            $this->rmdirRecursively($dataDir);
-        } else if (is_file($dataDir)) {
-            unlink($dataDir);
-        }
-
-        // and then create a new empty one
-        mkdir($dataDir);
-    }
-
-    protected function createExportTmpFolder()
-    {
-        /*
-         * Remove a possibly existing old tmp export directory
-         */
-        if (is_dir(TL_ROOT . '/' . $this->tmpExportDir)) {
-            $this->rmdirRecursively(TL_ROOT . '/' . $this->tmpExportDir);
-        }
-
-        /*
-         * Create a new and empty tmp export directory
-         */
-        mkdir(TL_ROOT . '/' . $this->tmpExportDir);
-
-        /*
-         * Copy the theme folder to the tmp export directory
-         */
-        $this->dirCopy($this->themeSrcDir, $this->tmpExportDir);
-
-        /*
-         * Copy the theme's template folder if it exists
-         */
-        if (is_dir($this->themeTemplatesSrcDir)) {
-            $this->dirCopy($this->themeTemplatesSrcDir, $this->tmpExportDir . '/' . $this->themeTemplatesSrcDir);
-        }
-    }
-
-    protected function createExportTargetFolder()
-    {
-        /*
-         * Create a new and empty tmp export directory if there isn't one already
-         */
-        if (!is_dir(TL_ROOT . '/' . $this->targetExportDir)) {
-            mkdir(TL_ROOT . '/' . $this->targetExportDir);
-        }
-    }
-
     /**
      * Diese Funktion exportiert alle localconfig-Einträge, die mit dem Präfix
      * "ls_shop_" beginnen und speichert sie in die Export-Datei. Der Eintrag "ls_shop_installedCompletely"
@@ -162,6 +100,10 @@ class ls_shop_apiController_themeExporter
      */
     protected function exportLocalconfig()
     {
+        if (file_exists(TL_ROOT . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName)) {
+            unlink(TL_ROOT . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName);
+        }
+
         $arrLocalconfigExport = array();
         foreach ($GLOBALS['TL_CONFIG'] as $k => $v) {
             if (preg_match('/^ls_shop_/siU', $k) && $k != 'ls_shop_installedCompletely') {
@@ -169,7 +111,7 @@ class ls_shop_apiController_themeExporter
             }
         }
 
-        $objFile = new \File($this->tmpExportDir . '/data/exportLocalconfig.dat');
+        $objFile = new \File($this->str_dataExportPath . '/' . $this->str_localconfigExportFileName);
         $objFile->write(serialize($arrLocalconfigExport));
         $objFile->close();
     }
@@ -181,6 +123,10 @@ class ls_shop_apiController_themeExporter
      */
     protected function exportTables()
     {
+        if (file_exists(TL_ROOT . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName)) {
+            unlink(TL_ROOT . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName);
+        }
+
         $arrTables = array(
             'tl_article' => array(),
             'tl_content' => array(),
@@ -238,105 +184,8 @@ class ls_shop_apiController_themeExporter
             }
         }
 
-        $objFile = new \File($this->tmpExportDir . '/data/exportTables.dat');
+        $objFile = new \File($this->str_dataExportPath . '/' . $this->str_tablesExportFileName);
         $objFile->write(serialize($arrTables));
         $objFile->close();
-    }
-
-    protected function writeZipExportFile()
-    {
-        $objArchive = new \ZipWriter($this->targetExportDir . '/' . $this->exportZipFileName);
-        $this->addFolderToArchive($objArchive, $this->tmpExportDir);
-        $objArchive->close();
-    }
-
-    protected function addFolderToArchive(\ZipWriter $objArchive, $strFolder)
-    {
-        // Return if the folder does not exist
-        if (!is_dir(TL_ROOT . '/' . $strFolder)) {
-            return;
-        }
-
-        // Recursively add the files and subfolders
-        foreach (scan(TL_ROOT . '/' . $strFolder) as $strFile) {
-            if (is_dir(TL_ROOT . '/' . $strFolder . '/' . $strFile)) {
-                $this->addFolderToArchive($objArchive, $strFolder . '/' . $strFile);
-            } else {
-                $strTarget = preg_replace('/' . preg_quote($this->tmpExportDir, '/') . '/', '', $strFolder);
-                // Always store files in files and convert the directory upon import
-                $objArchive->addFile($strFolder . '/' . $strFile, $strTarget . '/' . $strFile);
-            }
-        }
-    }
-
-    protected function deleteTmpExportDir()
-    {
-        $this->rmdirRecursively(TL_ROOT . '/' . $this->tmpExportDir);
-    }
-
-    /*
-     * Do not use the contao file and folder classes because we copy
-     * files outside of the upload path and that causes problems with the
-     * DBAFS if we use the contao classes.
-     */
-    protected function dirCopy($src, $dest)
-    {
-        if (!file_exists(TL_ROOT . '/' . $src) || file_exists(TL_ROOT . '/' . $dest)) {
-            return;
-        }
-
-        if (is_file(TL_ROOT . '/' . $src)) {
-            copy(TL_ROOT . '/' . $src, TL_ROOT . '/' . $dest);
-            return;
-        }
-
-        if (is_dir(TL_ROOT . '/' . $src)) {
-            mkdir(TL_ROOT . '/' . $dest);
-            $sourceHandle = opendir(TL_ROOT . '/' . $src);
-            while ($file = readdir($sourceHandle)) {
-                if ($file == '.' || $file == '..') {
-                    continue;
-                }
-                $this->dirCopy($src . '/' . $file, $dest . '/' . $file);
-            }
-        }
-    }
-
-    protected function rmdirRecursively($dir = null, $str_dirNamePattern = null)
-    {
-        if (!$dir) {
-            return;
-        }
-
-        if (is_dir($dir)) {
-            if (
-                $str_dirNamePattern === null
-                || strpos($dir, $str_dirNamePattern) !== false
-            ) {
-                $bln_deleteThisDir = true;
-            } else {
-                $bln_deleteThisDir = false;
-            }
-
-            $objects = scandir($dir);
-
-            foreach ($objects as $object) {
-                if ($object == "." || $object == "..") {
-                    continue;
-                }
-
-                if (is_dir($dir . "/" . $object)) {
-                    $this->rmdirRecursively($dir . "/" . $object, $bln_deleteThisDir ? null : $str_dirNamePattern);
-                } else {
-                    if ($bln_deleteThisDir) {
-                        unlink($dir . "/" . $object);
-                    }
-                }
-            }
-
-            if ($bln_deleteThisDir) {
-                $var_deletedDir = rmdir($dir);
-            }
-        }
     }
 }

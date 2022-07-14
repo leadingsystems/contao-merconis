@@ -631,9 +631,7 @@ class ThemeInstaller
 
     private function getInstalledThemeExtensions()
     {
-        $str_composerLockContent = file_get_contents(TL_ROOT . '/composer.lock');
-        preg_match_all('/"name".*?:.*?"(.*\/merconis-theme.*)"/', $str_composerLockContent, $arr_matches);
-        $this->arr_installedThemeExtensions = $arr_matches[1];
+        $this->arr_installedThemeExtensions = ls_shop_generalHelper::getInstalledThemeExtensions();
     }
 
     private function dirCopy($str_src, $str_dest) {

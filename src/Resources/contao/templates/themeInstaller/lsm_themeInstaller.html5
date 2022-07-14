@@ -31,7 +31,7 @@
         <?php
     } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::FINISHED) {
         ?>
-            <?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_004'], Merconis\Core\ls_shop_generalHelper::getMerconisFilesVersion()) ?>
+            <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_004'] ?>
         <?php
     } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::READY_FOR_SETUP) {
         ?>
