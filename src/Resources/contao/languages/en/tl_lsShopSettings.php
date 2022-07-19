@@ -4,7 +4,6 @@
 	 * Fields
 	 */
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_country']					= array('Country in which the shop is run', 'Enter the two-digit country code (ISO-3166-1 coding list) of the country in which the shop is run here.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_serial']					= array('Serial number', 'Please enter the serial number here which you received when you purchased the software.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownVATID']				= array('Own VAT ident number', 'Should you have a VAT ident number, please enter it here.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_euCountrycodes']			= array('EU countries', 'Enter the two-digit country codes (ISO-3166-1 coding list) of the countries in the EU.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_currency']				= array('Currency', 'Please enter the currency here that shall be used everywhere in the shop.');

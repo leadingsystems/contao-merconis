@@ -1,5 +1,4 @@
 /*
-relevant foreign key relations concerning tables which are not defined in this file:
 
 @tl_article.pid@tl_page.id=single@
 @tl_content.pid@tl_article.id=single@
@@ -7,6 +6,9 @@ relevant foreign key relations concerning tables which are not defined in this f
 @tl_content.module@tl_module.id=single@
 @tl_content.size@tl_image_size.id=array@
 @tl_form_field.pid@tl_form.id=single@
+@tl_form_field.lsShop_mandatoryOnConditionField@tl_form_field.id=single@
+@tl_form_field.lsShop_mandatoryOnConditionField2@tl_form_field.id=single@
+@tl_form_field.lsShop_ShowOnConditionField@tl_form_field.id=single@
 @tl_layout.modules@tl_module.id=special@
 @tl_page.ls_cnc_languageSelector_correspondingMainLanguagePage@tl_page.id=single@
 @tl_page.jumpTo@tl_page.id=single@

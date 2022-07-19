@@ -226,11 +226,6 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText152'] = 'LIEFERSCHEIN';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'] = 'Werktage';
 
-
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'] = 'Sie können Merconis noch %s Tage kostenlos benutzen. Bitte erwerben Sie rechtzeitig eine Lizenz und tragen Sie die Lizenznummer in den Merconis-Grundeinstellungen ein, um Merconis auch nach dem kostenlosen Probezeitraum weiter nutzen zu können. Wenn Sie diese Meldung sehen, obwohl Sie eine Lizenznummer in den Grundeinstellungen eingetragen haben, prüfen Sie die Nummer bitte auf Korrektheit und kontaktieren Sie nötigenfalls den Merconis techSupport.';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodExpiredMessage'] = 'Bitte erwerben Sie eine Merconis-Lizenz, da Ihr Shop ansonsten nicht mehr für Ihre Kunden erreichbar ist.';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = 'ACHTUNG: Die Merconis-Servicenummer fehlt in Ihrer localconfig-Datei oder ist nicht korrekt. Ohne gültige Servicenummer ist der Betrieb von Merconis nicht möglich. Ihr Shop ist daher momentan für Ihre Kunden nicht erreichbar. Bitte wenden Sie sich an den Merconis techSupport, um dieses Problem zu beheben.';
-
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Weiter einkaufen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart'] = 'Warenkorb öffnen';
 
@@ -391,6 +386,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 	'postal' => 'PLZ',
 	'city' => 'Stadt',
 	'country' => 'Land',
+	'province_us' => 'Bundesstaat',
+	'province_ca' => 'Provinz',
 	'phone' => 'Tel.',
 	'email' => 'E-Mail',
 
@@ -404,6 +401,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 	'postal_alternative' => 'PLZ',
 	'city_alternative' => 'Stadt',
 	'country_alternative' => 'Land',
+	'province_us_alternative' => 'Bundesstaat',
+	'province_ca_alternative' => 'Provinz',
 
 	'notes' => 'Bemerkungen'
 );

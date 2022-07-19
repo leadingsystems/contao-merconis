@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 define('TL_MERCONIS_INSTALLER', 'MERCONIS INSTALLER');
+define('TL_MERCONIS_THEME_SETUP', 'MERCONIS THEME_SETUP');
 define('TL_MERCONIS_IMPORTER', 'MERCONIS IMPORTER');
 define('TL_MERCONIS_GENERAL', 'MERCONIS GENERAL');
 define('TL_MERCONIS_ERROR', 'MERCONIS ERROR');
@@ -57,7 +58,7 @@ if (TL_MODE == 'FE') {
  * Hooks for form validation
  */
 if (TL_MODE == 'FE') {
-	$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleMandatoryOnCondition');
+	$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
 }
 
 /*
@@ -253,5 +254,3 @@ $GLOBALS['FE_MOD']['ls_shop'] = array(
 $GLOBALS['TL_CTE']['lsShop']['lsShopCrossSellerCTE'] = 'Merconis\Core\ls_shop_cross_sellerCTE';
 
 $GLOBALS['TL_HOOKS']['getUserNavigation'][] = array('Merconis\Core\ls_shop_generalHelper', 'manipulateBackendNavigation');
-
-$GLOBALS['TL_HOOKS']['getSystemMessages'][] = array('Merconis\Core\ls_shop_generalHelper', 'getMerconisSystemMessages');
