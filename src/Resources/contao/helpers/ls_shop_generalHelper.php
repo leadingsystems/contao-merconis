@@ -3525,6 +3525,67 @@ class ls_shop_generalHelper
      */
     public static function analyzeRequiredDataFields($formID, $arrData = array(), $considerDefaultFormFieldValues = false)
     {
+        /*
+         * clear all invisable form fields
+         * 
+         */
+        $objFormFields = \Database::getInstance()->prepare("
+				SELECT		*
+				FROM		`tl_form_field`
+				ORDER BY	`sorting`
+			")
+            ->execute($formID);
+
+        if (!$objFormFields->numRows) {
+            return array();
+        }
+
+        $arr_formfieldData = $objFormFields->fetchAllAssoc();
+
+        $currentFormfield = null;
+
+        foreach ($arr_formfieldData as $formfield){
+
+            //neues Formfield
+            if($formfield['type'] == 'fieldsetStart'){
+                $currentFormfield = $formfield;
+            }
+
+            //ende des Formfields
+            if($formfield['type'] == 'fieldsetStop'){
+                $currentFormfield = null;
+            }
+
+            foreach ($arrData as $key=>$data){
+                if($formfield['id'] == $data['arrData']['id']) {
+                    foreach ($arrData as $data2) {
+
+                        if ($data['arrData']['lsShop_ShowOnConditionField'] == $data2['arrData']['id'] &&
+                            (
+                                $data['arrData']['lsShop_ShowOnConditionValue'] != $data2['value'] &&
+                                $data['arrData']['lsShop_ShowOnConditionBoolean'] == 0
+                                ||
+                                $data['arrData']['lsShop_ShowOnConditionValue'] == $data2['value'] &&
+                                $data['arrData']['lsShop_ShowOnConditionBoolean'] == 1
+                            )
+                            ||
+                            ($currentFormfield != null && $currentFormfield['lsShop_ShowOnConditionField'] == $data2['arrData']['id'] &&
+                                (
+                                    $currentFormfield['lsShop_ShowOnConditionValue'] != $data2['value'] &&
+                                    $currentFormfield['lsShop_ShowOnConditionBoolean'] == 0
+                                    ||
+                                    $currentFormfield['lsShop_ShowOnConditionValue'] == $data2['value'] &&
+                                    $currentFormfield['lsShop_ShowOnConditionBoolean'] == 1
+                                )
+                            )
+                        ) {
+                            $arrData[$key]['value'] = '';
+                        }
+                    }
+                }
+            }
+        }
+
         $objFormFields = \Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_form_field`
