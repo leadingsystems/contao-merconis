@@ -549,6 +549,12 @@ class ThemeInstaller
             \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink for theme files failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
         }
 
+        try {
+            SymlinkUtil::symlink($this->getThemeResourcesFolder() . '/theme/usercontent', $this->getThemeUsercontentTargetPath(), TL_ROOT);
+        } catch (\Exception $e) {
+            \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink for theme usercontent failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
+        }
+
         if (file_exists(TL_ROOT. '/' . $this->getThemeTemplatesSourcePath())) {
             try {
                 SymlinkUtil::symlink($this->getThemeTemplatesSourcePath(), $this->getThemeTemplatesTargetPath(), TL_ROOT);
@@ -571,6 +577,9 @@ class ThemeInstaller
         \System::log(TL_MERCONIS_THEME_SETUP . ': Copying Merconis files to '.$this->str_merconisfilesPath, TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
         $this->dirCopy($this->getThemeResourcesFolder() . '/theme/files', $this->getThemeFilesTargetPath());
 
+        \System::log(TL_MERCONIS_THEME_SETUP . ': Copying Merconis files to '.$this->str_merconisfilesPath, TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
+        $this->dirCopy($this->getThemeResourcesFolder() . '/theme/usercontent', $this->getThemeUsercontentTargetPath());
+
         if (file_exists(TL_ROOT. '/' . $this->getThemeTemplatesSourcePath())) {
             \System::log(TL_MERCONIS_THEME_SETUP . ': Copying theme templates to templates folder', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
             $this->dirCopy($this->getThemeTemplatesSourcePath(), $this->getThemeTemplatesTargetPath());
@@ -585,6 +594,11 @@ class ThemeInstaller
     private function getThemeFilesTargetPath()
     {
         return $this->str_merconisfilesPath . '/theme';
+    }
+
+    private function getThemeUsercontentTargetPath()
+    {
+        return $this->str_merconisfilesPath . '/usercontent';
     }
 
     private function getThemeTemplatesSourcePath()
