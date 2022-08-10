@@ -21,3 +21,7 @@
 	 * Legends
 	 */
 	$GLOBALS['TL_LANG']['tl_form_field']['lsShop_legend']			= 'Shop-Einstellungen';
+
+
+$GLOBALS['TL_LANG']['FFL']['htmlWrapperStart'] = array('HTML Umschlag Anfang');
+$GLOBALS['TL_LANG']['FFL']['htmlWrapperStop'] = array('HTML Umschlag Ende');
