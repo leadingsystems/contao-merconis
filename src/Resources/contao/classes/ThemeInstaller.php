@@ -543,29 +543,8 @@ class ThemeInstaller
             return;
         }
 
-        try {
-            SymlinkUtil::symlink($this->getThemeResourcesFolder() . '/theme/files', $this->getThemeFilesTargetPath(), TL_ROOT);
-        } catch (\Exception $e) {
-            \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink for theme files failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
-        }
-
-        try {
-            SymlinkUtil::symlink($this->getThemeResourcesFolder() . '/theme/usercontent', $this->getThemeUsercontentTargetPath(), TL_ROOT);
-        } catch (\Exception $e) {
-            \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink for theme usercontent failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
-        }
-
-        if (file_exists(TL_ROOT. '/' . $this->getThemeTemplatesSourcePath())) {
-            try {
-                SymlinkUtil::symlink($this->getThemeTemplatesSourcePath(), $this->getThemeTemplatesTargetPath(), TL_ROOT);
-            } catch (\Exception $e) {
-                \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink for templates failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
-            }
-        }
-
         $obj_automator = \Controller::importStatic('Contao\Automator', 'Automator');
         $obj_automator->generateSymlinks();
-
     }
 
     private function copyFiles()
