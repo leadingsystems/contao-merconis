@@ -263,8 +263,18 @@ class ls_shop_product
             case '_configuratorHash':
                 return $this->ls_configuratorHash;
 
+			case '_customizerLogicFile':
+				return ls_getFilePathFromVariableSources($this->mainData['customizerLogicFile']);
+				break;
+
+            case '_hasCustomizerLogicFile':
+                return $this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile);
+
             case '_customizer':
                 return $this->obj_customizer;
+
+            case '_hasCustomizer':
+                return is_object($this->obj_customizer);
 
 			case '_isPublished':
 				return $this->mainData['published'] ? true : false;
@@ -281,13 +291,6 @@ class ls_shop_product
 			case '_productVariantID':
 				return $this->ls_productVariantID;
 				break;
-
-			case '_customizerLogicFile':
-				return ls_getFilePathFromVariableSources($this->mainData['customizerLogicFile']);
-				break;
-
-            case '_hasCustomizerLogicFile':
-                return $this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile);
 
 			case '_configuratorID':
 				return $this->mainData['configurator'];
