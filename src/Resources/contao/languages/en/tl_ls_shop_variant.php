@@ -39,6 +39,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']					
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Settings on goods in stock/delivery time');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryTime']							= array('Delivery time');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator']										= array('Use configurator');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['customizerLogicFile']  							= array('Use customizer file');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['useOldPrice']										= array('Use old price');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents']										= array('Flexible variant information','You can add as many information as you like and you can use them in the templates as product properties by referencing them with their keyword.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent']					= array('Flexible variant information (language independent)','You can add as many information as you like and you can use them in the templates as product properties by referencing them with their keyword.');

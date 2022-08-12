@@ -21,6 +21,8 @@ class ls_shop_variant
 
 	public $ls_objConfigurator = null;
 
+    public $obj_customizer = null;
+
 	protected $ls_mainLanguageMode = false;
 	protected $ls_currentLanguage = null;
 
@@ -49,9 +51,14 @@ class ls_shop_variant
 
 		$this->ls_getData();
 
-//			For performance reasons configurator objects are not automatically instantiated in the __construct function
-//			$this->createObjConfigurator();
+        $this->createCustomizerObject();
 	}
+
+    protected function createCustomizerObject() {
+        if (!$this->_hasVariants) {
+            $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
+        }
+    }
 
 	public function createObjConfigurator() {
 		if ($this->ls_objConfigurator !== null) {
@@ -224,6 +231,12 @@ class ls_shop_variant
 				return $this->ls_objParentProduct;
 				break;
 
+            case '_configuratorHash':
+                return $this->ls_objParentProduct->ls_configuratorHash;
+
+            case '_customizer':
+                return $this->obj_customizer;
+
 			case '_isPublished':
 				return $this->mainData['published'] ? true : false;
 				break;
@@ -251,7 +264,14 @@ class ls_shop_variant
 				return $this->_objParentProduct->_title;
 				break;
 
-			case '_configuratorID':
+            case '_customizerLogicFile':
+                return ls_getFilePathFromVariableSources($this->mainData['customizerLogicFile']);
+                break;
+
+            case '_hasCustomizerLogicFile':
+                return $this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile);
+
+            case '_configuratorID':
 				return $this->mainData['configurator'] ? $this->mainData['configurator'] : $this->_objParentProduct->_configuratorID;
 				break;
 

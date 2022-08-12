@@ -2084,10 +2084,49 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['configuratorObjs'][$cacheKey];
     }
 
+    public static function getCustomizerObject(&$obj_product) {
+        if (!is_object($obj_product)) {
+            throw new \Exception('insufficient parameters given');
+        }
+
+        if (!$obj_product->_hasCustomizerLogicFile) {
+            return null;
+        }
+
+        $str_cacheKey = $obj_product->_customizerLogicFile . '_' . $obj_product->ls_productVariantID . ($obj_product->_configuratorHash ? '|' . $obj_product->_configuratorHash : '');
+
+        if (!isset($GLOBALS['merconis_globals']['customizerObjects'])) {
+            $GLOBALS['merconis_globals']['customizerObjects'] = [];
+        }
+
+        require_once(TL_ROOT ."/". $obj_product->_customizerLogicFile);
+        $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_product->_customizerLogicFile);
+
+        if (!isset($GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey]) || !is_object($GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey])) {
+            $GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey] = new $str_customLogicClassName($obj_product, $str_cacheKey);
+        }
+
+        return $GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey];
+    }
+
     public static function storeConfiguratorDataToSession($var_arg) {
         /** @var ls_shop_productConfigurator $obj_configurator */
         foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
             $obj_configurator->storeToSession();
+        }
+
+        /*
+         * Depending on whether this function is called by the modifyFrontendPage hook or the api's afterProcessingRequest
+         * hook, $var_arg might be an output buffer or an object. Since we don't have to do anything with either of both
+         * we simply return the unaltered argument with no questions asked.
+         */
+        return $var_arg;
+    }
+
+    public static function storeCustomizerDataToSession($var_arg) {
+        /** @var customizerLogicBase $obj_customizer */
+        foreach ($GLOBALS['merconis_globals']['customizerObjects'] as $obj_customizer) {
+            $obj_customizer->storeToSession();
         }
 
         /*
