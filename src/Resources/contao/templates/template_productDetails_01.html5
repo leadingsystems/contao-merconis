@@ -56,7 +56,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
     <div class="shop-product">
         <div class="wrapper-gallery">
-            <div class="wrapper-gallery-inside ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+            <div class="wrapper-gallery-inside ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                  id="ajaxReloadByVariantSelector_1_<?php echo $this->objProduct->_id; ?>">
 
                 <?php echo $str_html_statusIcons ?: ''; ?>
@@ -73,7 +73,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
             <h1 class="productTitle"><?php echo $this->objProduct->_title; ?></h1>
             <?php // <- ##### TITLE ###### ?>
 
-            <div class=" ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+            <div class=" ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                  id="ajaxReloadByVariantSelector_2_<?php echo $this->objProduct->_id; ?>">
                 <div>
                     <?php // ##### PRODUCER ###### -> ?>
@@ -118,7 +118,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
             </div>
 
 
-            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+            <div class="ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                  id="ajaxReloadByVariantSelector_3_<?php echo $this->objProduct->_id; ?>">
                 <div class="boxRight">
 
@@ -197,7 +197,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
             <?php // <- ##### WATCH LIST BUTTON ###### ?>
 
             <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
-            <div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>" id="ajaxReloadByVariantSelector_4_<?php echo $this->objProduct->_id; ?>">
+            <div class="ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>" id="ajaxReloadByVariantSelector_4_<?php echo $this->objProduct->_id; ?>">
                 <?php
                 if ($obj_tmp_productOrVariant->_stockIsInsufficient) {
                     ?>
@@ -218,9 +218,15 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // ##### DESCRIPTION ###### -> ?>
 
                 <div
-                    class="description ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+                    class="description ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                     id="ajaxReloadByVariantSelector_5_<?php echo $this->objProduct->_id; ?>"
                 >
+                    <?php
+                    if ($this->objProduct->_hasCustomizerLogicFile) {
+                        var_dump($this->objProduct->_customizer->getStoredData());
+                    }
+                    ?>
+
                     <p><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></p>
                 </div>
                 <?php // <- ##### DESCRIPTION ###### ?>
@@ -229,7 +235,6 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
                 <?php
                 if ($this->objProduct->_hasCustomizerLogicFile) {
-                    var_dump($this->objProduct->_customizer->getStoredData());
                     echo $this->objProduct->_customizer->getCustomizerInterface();
                 }
                 ?>
