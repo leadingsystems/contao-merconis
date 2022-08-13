@@ -230,6 +230,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php
                 if ($this->objProduct->_hasCustomizerLogicFile) {
                     var_dump($this->objProduct->_customizer->getStoredData());
+                    echo $this->objProduct->_customizer->getCustomizerInterface();
                 }
                 ?>
 
@@ -238,8 +239,6 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                         <div
                             class="configurator-container ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                             id="ajaxReloadByVariantSelector_6_<?php echo $this->objProduct->_id; ?>"
-                            data-merconis-component="configuratorNovus"
-                            data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
                         >
                             <?php echo $obj_tmp_productOrVariant->_configurator ? $obj_tmp_productOrVariant->_configurator : ''; ?>
                         </div>
