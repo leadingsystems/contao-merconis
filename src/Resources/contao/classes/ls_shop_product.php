@@ -1952,7 +1952,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		$objVariants = $objVariants->execute($this->ls_ID);
 
 		while ($objVariants->next()) {
-			$this->ls_variants[$objVariants->id] = new ls_shop_variant($objVariants->id, $this->ls_ID, $this->ls_data[ls_shop_languageHelper::getFallbackLanguage()], $this);
+			$this->ls_variants[$objVariants->id] = new ls_shop_variant($objVariants->id, $this->ls_ID, $this);
 		}
 	}
 

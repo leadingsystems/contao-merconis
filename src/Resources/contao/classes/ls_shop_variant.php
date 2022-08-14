@@ -42,7 +42,7 @@ class ls_shop_variant
     // Holds image galleries created with getImageGallery()
     protected $arr_imageGalleries = [];
 
-	public function __construct($intID = 0, $productID = 0, $arrProductData = array(), &$objParentProduct = null) {
+	public function __construct($intID = 0, $productID = 0, &$objParentProduct = null) {
 		$this->ls_ID = $intID;
 		$this->ls_productID = $productID;
 		$this->ls_productVariantID = $this->ls_productID.'-'.$this->ls_ID;
