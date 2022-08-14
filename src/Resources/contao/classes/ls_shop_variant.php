@@ -15,7 +15,11 @@ class ls_shop_variant
 	public $ls_productID = 0;
 	public $ls_productVariantID = 0;
 
-	public $ls_data = null;
+    private $arr_originalData = null;
+    public $arr_customizableData = null;
+	private $ls_data = null;
+    public $mainData = null;
+    public $currentLanguageData = null;
 
 	public $ls_objParentProduct = null;
 
@@ -24,7 +28,6 @@ class ls_shop_variant
     public $obj_customizer = null;
 
 	protected $ls_mainLanguageMode = false;
-	protected $ls_currentLanguage = null;
 
 	protected $blnAlreadyGeneratedScalePricesOutput = array(
 		'unconfigured' => false,
@@ -69,6 +72,8 @@ class ls_shop_variant
 
 	public function ls_setMainLanguageMode($bln) {
 		$this->ls_mainLanguageMode = $bln;
+
+        $this->setCurrentLanguageData();
 	}
 
 	/**-->
@@ -1104,20 +1109,6 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 
 			/* ## STOP AUTO DOCUMENTATION PROPERTIES VARIANT ## */
 
-			case 'mainData':
-				return $this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
-				break;
-
-			case 'currentLanguageData':
-				if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage)) {
-					return $this->mainData;
-				}
-
-				$languageToUse = $this->ls_currentLanguage ? $this->ls_currentLanguage : $objPage->language;
-
-				return isset($this->ls_data[$languageToUse]) ? $this->ls_data[$languageToUse] : $this->mainData;
-				break;
-
 			case '_priceType':
 				return $this->mainData['lsShopVariantPriceType'];
 				break;
@@ -1244,13 +1235,13 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	}
 
 	public function ls_getData() {
-		$this->ls_data = ls_shop_languageHelper::getMultiLanguage($this->ls_ID, 'tl_ls_shop_variant', 'all', 'all', true, false, true);
+		$this->arr_originalData = ls_shop_languageHelper::getMultiLanguage($this->ls_ID, 'tl_ls_shop_variant', 'all', 'all', true, false, true);
 
 		/*
 		 * Prepare group prices
 		 */
 		$arr_groupPrices = null;
-		foreach ($this->ls_data as $languageKey => $arrLanguageData) {
+		foreach ($this->arr_originalData as $languageKey => $arrLanguageData) {
 			/*
 			 * Since group prices are not language specific and therefore
 			 * are the same in every language data array, we only have to structure
@@ -1261,7 +1252,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 				$arr_groupPrices = ls_shop_generalHelper::getStructuredGroupPrices($arrLanguageData, 'variant');
 			}
 
-			$this->ls_data[$languageKey]['arr_groupPrices'] = $arr_groupPrices;
+			$this->arr_originalData[$languageKey]['arr_groupPrices'] = $arr_groupPrices;
 
 			/*
 			 * If group price settings exist for the current member group, we
@@ -1270,7 +1261,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			$arr_groupSettingsForUser = ls_shop_generalHelper::getGroupSettings4User();
 			if (isset($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']])) {
 				foreach ($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']] as $str_groupPriceKey => $str_groupPriceValue) {
-					$this->ls_data[$languageKey][$str_groupPriceKey] = $str_groupPriceValue;
+					$this->arr_originalData[$languageKey][$str_groupPriceKey] = $str_groupPriceValue;
 				}
 			}
 
@@ -1279,10 +1270,35 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'] as $mccb) {
 				$objMccb = \System::importStatic($mccb[0]);
-				$this->ls_data = $objMccb->{$mccb[1]}($this->ls_data, 'variant');
+				$this->arr_originalData = $objMccb->{$mccb[1]}($this->arr_originalData, 'variant');
 			}
 		}
+
+        $this->arr_customizableData = $this->arr_originalData;
+
+        $this->ls_data = &$this->arr_customizableData;
+
+        $this->mainData = &$this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
+        $this->setCurrentLanguageData();
 	}
+
+    private function setCurrentLanguageData() {
+        global $objPage;
+
+        if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage) || !isset($this->ls_data[$objPage->language])) {
+            $this->currentLanguageData = &$this->mainData;
+        } else {
+            $this->currentLanguageData = &$this->ls_data[$objPage->language];
+        }
+    }
+
+    public function useOriginalData() {
+        $this->ls_data = &$this->arr_originalData;
+    }
+
+    public function useCustomizableData() {
+        $this->ls_data = &$this->arr_customizableData;
+    }
 
 	public function calculateWeightRegardingWeightType() {
 		$weight = $this->mainData['lsShopVariantWeight'];
