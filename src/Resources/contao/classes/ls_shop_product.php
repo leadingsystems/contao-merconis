@@ -18,7 +18,11 @@ class ls_shop_product
 
 	public $ls_variants = array();
 
-	public $ls_data = null;
+	private $arr_originalData = null;
+	public $arr_customizableData = null;
+	private $ls_data = null;
+	public $mainData = null;
+	public $currentLanguageData = null;
 
 	private $ls_objConfigurator = null;
 
@@ -27,7 +31,6 @@ class ls_shop_product
 	public $ls_configuratorHash = '';
 
 	protected $ls_mainLanguageMode = false;
-	protected $ls_currentLanguage = null;
 
 	protected $blnAlreadyGeneratedScalePricesOutput = array(
 		'unconfigured' => false,
@@ -82,6 +85,8 @@ class ls_shop_product
 		}
 
 		$this->ls_mainLanguageMode = $bln;
+
+		$this->setCurrentLanguageData();
 	}
 
 	public function getLowestVariantPrice() {
@@ -1475,20 +1480,6 @@ filter context, NULL will be returned.
 				return $this->ls_data === null ? false : true;
 				break;
 
-			case 'mainData':
-				return $this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
-				break;
-
-			case 'currentLanguageData':
-				if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage)) {
-					return $this->mainData;
-				}
-
-				$languageToUse = $this->ls_currentLanguage ? $this->ls_currentLanguage : $objPage->language;
-
-				return isset($this->ls_data[$languageToUse]) ? $this->ls_data[$languageToUse] : $this->mainData;
-				break;
-
 			case '_steuersatz':
 				return $this->mainData['lsShopProductSteuersatz'];
 				break;
@@ -1886,11 +1877,11 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	}
 
 	public function ls_getData() {
-		$this->ls_data = ls_shop_languageHelper::getMultiLanguage($this->ls_ID, 'tl_ls_shop_product', 'all', 'all', true, false);
+		$this->arr_originalData = ls_shop_languageHelper::getMultiLanguage($this->ls_ID, 'tl_ls_shop_product', 'all', 'all', true, false);
 
-		if (is_array($this->ls_data)) {
-			foreach ($this->ls_data as $languageKey => $arrLanguageData) {
-				$this->ls_data[$languageKey]['lsShopProductDetailsTemplate'] = isset($this->ls_data[$languageKey]['lsShopProductDetailsTemplate']) && $this->ls_data[$languageKey]['lsShopProductDetailsTemplate'] ? $this->ls_data[$languageKey]['lsShopProductDetailsTemplate'] : $GLOBALS['TL_CONFIG']['ls_shop_productDetailsTemplate'];
+		if (is_array($this->arr_originalData)) {
+			foreach ($this->arr_originalData as $languageKey => $arrLanguageData) {
+				$this->arr_originalData[$languageKey]['lsShopProductDetailsTemplate'] = isset($this->arr_originalData[$languageKey]['lsShopProductDetailsTemplate']) && $this->arr_originalData[$languageKey]['lsShopProductDetailsTemplate'] ? $this->arr_originalData[$languageKey]['lsShopProductDetailsTemplate'] : $GLOBALS['TL_CONFIG']['ls_shop_productDetailsTemplate'];
 			}
 		}
 
@@ -1898,7 +1889,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		 * Prepare group prices
 		 */
 		$arr_groupPrices = null;
-		foreach ($this->ls_data as $languageKey => $arrLanguageData) {
+		foreach ($this->arr_originalData as $languageKey => $arrLanguageData) {
 			/*
 			 * Since group prices are not language specific and therefore
 			 * are the same in every language data array, we only have to structure
@@ -1909,7 +1900,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 				$arr_groupPrices = ls_shop_generalHelper::getStructuredGroupPrices($arrLanguageData, 'product');
 			}
 
-			$this->ls_data[$languageKey]['arr_groupPrices'] = $arr_groupPrices;
+			$this->arr_originalData[$languageKey]['arr_groupPrices'] = $arr_groupPrices;
 
 			/*
 			 * If group price settings exist for the current member group, we
@@ -1918,7 +1909,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			$arr_groupSettingsForUser = ls_shop_generalHelper::getGroupSettings4User();
 			if (isset($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']])) {
 				foreach ($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']] as $str_groupPriceKey => $str_groupPriceValue) {
-					$this->ls_data[$languageKey][$str_groupPriceKey] = $str_groupPriceValue;
+					$this->arr_originalData[$languageKey][$str_groupPriceKey] = $str_groupPriceValue;
 				}
 			}
 
@@ -1927,10 +1918,35 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'] as $mccb) {
 				$objMccb = \System::importStatic($mccb[0]);
-				$this->ls_data = $objMccb->{$mccb[1]}($this->ls_data, 'product');
+				$this->arr_originalData = $objMccb->{$mccb[1]}($this->arr_originalData, 'product');
 			}
 		}
+
+		$this->arr_customizableData = $this->arr_originalData;
+
+		$this->ls_data = &$this->arr_customizableData;
+
+		$this->mainData = &$this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
+		$this->setCurrentLanguageData();
 	}
+
+	private function setCurrentLanguageData() {
+	    global $objPage;
+
+        if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage) || !isset($this->ls_data[$objPage->language])) {
+            $this->currentLanguageData = &$this->mainData;
+        } else {
+            $this->currentLanguageData = &$this->ls_data[$objPage->language];
+        }
+    }
+
+	public function useOriginalData() {
+        $this->ls_data = &$this->arr_originalData;
+    }
+
+	public function useCustomizableData() {
+        $this->ls_data = &$this->arr_customizableData;
+    }
 
 	public function ls_getVariants() {
 		$objVariants = \Database::getInstance()->prepare("

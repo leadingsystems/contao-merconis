@@ -401,6 +401,13 @@ class ls_shop_generalHelper
             $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey]->ls_setVariantID($variantID);
         }
 
+        /*
+         * Always make the product object use the customizable data when it is being returned by this method.
+         * This way we make sure that if the product object is set to using original data e.g. in a
+         * product output template this will not affect other places where the product object is used.
+         */
+        $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey]->useCustomizableData();
+
         return $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey];
     }
 

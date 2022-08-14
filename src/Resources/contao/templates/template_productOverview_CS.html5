@@ -4,6 +4,8 @@
 	
 	global $objPage;
 
+    $this->objProduct->useOriginalData();
+
     $str_html_statusIcons = $this->objProduct->_useCustomTemplate('template_productIncludes_statusIcons_01');
 ?>
 <div class="shopProduct <?php echo $this->productTemplateType; ?> <?php echo $this->productTemplate; ?> <?php echo $this->productPositionsClassString; ?> block">
