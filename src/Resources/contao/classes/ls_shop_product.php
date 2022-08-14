@@ -84,14 +84,6 @@ class ls_shop_product
 		$this->ls_mainLanguageMode = $bln;
 	}
 
-	public function ls_setCurrentLanguage($language = null) {
-		if ($this->_variantIsSelected) {
-			$this->_selectedVariant->ls_setCurrentLanguage($language);
-		}
-
-		$this->ls_currentLanguage = $language && in_array($language, ls_shop_languageHelper::getAllLanguages()) ? $language : null;
-	}
-
 	public function getLowestVariantPrice() {
 		$lowestPriceBeforeTax = $this->_priceBeforeTax;
 		$lowestPriceOldBeforeTax = $this->_priceOldBeforeTax;

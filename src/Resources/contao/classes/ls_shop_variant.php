@@ -71,10 +71,6 @@ class ls_shop_variant
 		$this->ls_mainLanguageMode = $bln;
 	}
 
-	public function ls_setCurrentLanguage($language = null) {
-		$this->ls_currentLanguage = $language && in_array($language, ls_shop_languageHelper::getAllLanguages()) ? $language : null;
-	}
-
 	/**-->
 	 * Diese Funktion erstellt eine automatische Dokumentation über die in Templates zu verwendenden Eigenschaften und Methoden
 	 * des Varianten-Objektes und analysiert dafür die Methoden "__get()" und "__call()"
