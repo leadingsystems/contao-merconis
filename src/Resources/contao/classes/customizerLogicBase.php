@@ -7,7 +7,7 @@ abstract class customizerLogicBase {
     protected $str_cacheKey;
     protected $var_storage;
 
-    public function __construct(&$obj_productOrVariant, $str_cacheKey)
+    public function __construct($obj_productOrVariant, $str_cacheKey)
     {
         $this->obj_productOrVariant = $obj_productOrVariant;
         $this->str_cacheKey = $str_cacheKey;
