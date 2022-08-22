@@ -171,6 +171,9 @@ class ls_shop_cartHelper {
 	 * Die Funktion gibt ein Array mit Informationen über die gewünschte und tatsächlich hinzugefügte Menge zurück
 	 */
 	public static function addToCart($productVariantID, $quantity, $checkStock = true) {
+        /**
+         * @var ls_shop_product $objProduct
+         */
 		$objProduct = ls_shop_generalHelper::getObjProduct($productVariantID, __METHOD__);
 
 		$desiredQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
@@ -193,7 +196,11 @@ class ls_shop_cartHelper {
 
 			$_SESSION['lsShopCart']['items'][$objProduct->_cartKey] = $arrItemInfoToAddToCart;
 
-			$objProduct->saveConfiguratorForCurrentCartKey();
+			if ($objProduct->_hasCustomizer) {
+                $objProduct->saveCustomizerForCurrentCartKey();
+            } else if ($objProduct->_hasConfigurator) {
+                $objProduct->saveConfiguratorForCurrentCartKey();
+            }
 		}
 
 		/*

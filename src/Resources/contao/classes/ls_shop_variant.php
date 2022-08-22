@@ -25,6 +25,9 @@ class ls_shop_variant
 
 	public $ls_objConfigurator = null;
 
+    /**
+     * @var customizerLogicBase
+     */
     public $obj_customizer = null;
 
 	protected $ls_mainLanguageMode = false;
@@ -58,9 +61,7 @@ class ls_shop_variant
 	}
 
     protected function createCustomizerObject() {
-        if (!$this->_hasVariants) {
-            $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
-        }
+        $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
     }
 
 	public function createObjConfigurator() {

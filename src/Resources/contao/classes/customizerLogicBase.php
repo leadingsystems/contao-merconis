@@ -3,6 +3,9 @@
 namespace Merconis\Core;
 
 abstract class customizerLogicBase {
+    /**
+     * @var ls_shop_product
+     */
     protected $obj_productOrVariant;
     protected $str_storageKey;
     protected $obj_storage;
@@ -23,6 +26,10 @@ abstract class customizerLogicBase {
 
     public function storeToSession() {
         $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey] = serialize($this->obj_storage);
+    }
+
+    public function saveCustomizerForCurrentCartKey() {
+        $_SESSION['lsShop']['customizerStorage'][$this->obj_productOrVariant->_cartKey] = $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey];
     }
 
     public function getCustomizerHash() {

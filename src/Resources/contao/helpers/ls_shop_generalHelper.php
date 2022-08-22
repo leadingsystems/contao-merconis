@@ -2110,7 +2110,7 @@ class ls_shop_generalHelper
         $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_product->_customizerLogicFile);
 
         if (!isset($GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey]) || !is_object($GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey])) {
-            $GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey] = new $str_customLogicClassName($obj_product, $str_cacheKey);
+            $GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey] = new $str_customLogicClassName($obj_product, $obj_product->_configuratorHash);
         }
 
         return $GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey];
