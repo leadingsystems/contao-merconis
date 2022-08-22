@@ -1,0 +1,67 @@
+
+
+<?php //button div and render button ?>
+<div id="paypal-button-container"></div>
+<script>
+    console.log("test hier")
+
+    //--------------------------------
+
+    console.log("erstelle ding mit orderid")
+    console.log("<?= $orderId ?>")
+
+    //---------------------------------------
+
+    paypal.Buttons({
+        style: {
+            color: "gold",
+            layout: "horizontal",
+            height: 48,
+            tagline: false,
+            shape: "rect"
+        },
+        onClick: (data, actions) => {
+
+        },
+        createOrder: (data, actions) => {
+            return "<?= $orderId ?>"
+
+        },
+        onApprove: function(data, actions) {
+            // Authorize the transaction
+            actions.order.authorize().then(function(authorization) {
+
+                var authorizationID = authorization.purchase_units[0].payments.authorizations[0].id
+
+
+                alert('You have authorized this transaction. Order ID:  ' + data.orderID + ', Authorization ID: ' + authorizationID); // Optional message given to purchaser
+
+
+                return fetch('/paypal-transaction-complete', {
+                    method: 'post',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        orderID: data.orderID,
+                        authorizationID: authorizationID
+                    })
+                });
+            });
+        },/*
+        onApprove: async (data, actions) => {
+            console.log(actions)
+            //bestätige Order
+            const order = await actions.order.capture()
+            console.log(order)
+        },*/
+        onCancel: () => {
+            //cancel message
+        },
+        onError: (err) => {
+            //error message
+            console.log(err)
+        }
+
+    }).render('#paypal-button-container');
+</script>

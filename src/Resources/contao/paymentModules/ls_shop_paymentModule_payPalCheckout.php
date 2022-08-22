@@ -37,7 +37,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     );
 
     public function initialize($specializedManually = false) {
-
         //dump("initialize checkout");
 
     }
@@ -48,6 +47,30 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     }
 
     public function getCustomUserInterface() {
+        // 1. Server zu Server API-Request an PayPal zur Initiierung der Zahlung (Ergebnis: ID/Token der Zahlung von PayPal erhalten)
+        // 2. HTML-Code für das Interface erzeugen => Button zum Sprung zu PayPal (Hoffentlich Übergabe der ID möglich)
+        $orderId = $this->createOrder();
+        dump($orderId);
+
+
+        $itemlist = [];
+        //--------------------------------------------------------------------------
+        dump(\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended);
+        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
+            $objProduct = &$cartItem['objProduct'];
+
+            if ($objProduct->_variantIsSelected) {
+                $obj_tmp_productOrVariant = &$objProduct->_selectedVariant;
+            } else {
+                $obj_tmp_productOrVariant = &$objProduct;
+            }
+            dump($obj_tmp_productOrVariant);
+            $itemlist[] = $obj_tmp_productOrVariant;
+        }
+
+
+        return include('paypalCustomUserInterface.html5');
+
         //dump("getCustomUserInterface");
         if ($this->payPalPlus_check_paymentIsAuthorized()) {
             return $this->payPalPlus_showAuthorizationStatus();
@@ -57,6 +80,114 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             }
         }
     }
+
+    private function createOrder(){
+        //----------------------------------------------------------------------------
+        //get access_token
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v1/oauth2/token');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
+        curl_setopt($ch, CURLOPT_USERPWD, 'AXgG4daqFXsF-qxgCLwtNIP7k4ygJ65qy9vh2uy5Cxr_cY1G4MzMtD0RKE0sRf8sd_XIzuzlwswRUE-6' . ':' . 'ENUmeMWNz2-6JcOOAWiEggkBy32f2Ty5E9V5-F2i6rxDsC1JFMNLl9J8v7VsWN8YMvsaDjT8dYUhs84S');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
+
+        $headers = array();
+        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+        $access_token = json_decode($result)->access_token;
+
+
+        //----------------------------------------------------------------------------
+        // create order
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v2/checkout/orders'); ///7RF08345XE299394P
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
+
+        //$_POST = json_decode(file_get_contents("php://input"), true);
+        //$items = $_POST["items"];
+
+        $totalvalue = 0;
+        $itemlist = [];
+
+        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
+            $objProduct = &$cartItem['objProduct'];
+            $quantity = &$cartItem['quantity'];
+
+            if ($objProduct->_variantIsSelected) {
+                $obj_tmp_productOrVariant = &$objProduct->_selectedVariant;
+            } else {
+                $obj_tmp_productOrVariant = &$objProduct;
+            }
+
+
+            $price = 4;
+            $name = "Testobjekt";
+
+            $totalvalue =+ ($quantity * $price);
+
+            $itemlist[] = [
+                "name"=> $name,
+                "unit_amount"=> [
+                    "currency_code"=> "EUR",
+                    "value"=> $price
+                ],
+                "quantity"=> $quantity
+            ];
+        }
+
+
+
+
+
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
+            "intent" => "CAPTURE",
+            "purchase_units"=>  [
+                [
+                    "amount"=> [
+                        "currency_code"=> "EUR",
+                        "value"=>  $totalvalue,
+                        "breakdown"=> [
+                            "item_total"=> [
+                                "currency_code"=> "EUR",
+                                "value"=> $totalvalue
+                            ]
+                        ]
+                    ],
+                    "items" => $itemlist
+                ]
+            ]
+        ]));
+
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        $headers[] = 'Authorization: Bearer '.$access_token;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+
+        $orderId = json_decode($result)->id;
+
+        //output json string
+        return $orderId;
+    }
+
+
 
     public function checkoutFinishAllowed() {
         //dump("checkoutFinishAllowed");
