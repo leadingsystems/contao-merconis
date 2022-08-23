@@ -74,7 +74,7 @@ class ls_shop_variant
 	public function ls_setMainLanguageMode($bln) {
 		$this->ls_mainLanguageMode = $bln;
 
-        $this->setCurrentLanguageData();
+        $this->setDataReferences();
 	}
 
 	/**-->
@@ -1279,12 +1279,13 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
         $this->ls_data = &$this->arr_customizableData;
 
-        $this->mainData = &$this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
-        $this->setCurrentLanguageData();
+        $this->setDataReferences();
 	}
 
-    private function setCurrentLanguageData() {
+    private function setDataReferences() {
         global $objPage;
+
+        $this->mainData = &$this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
 
         if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage) || !isset($this->ls_data[$objPage->language])) {
             $this->currentLanguageData = &$this->mainData;
@@ -1295,10 +1296,12 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
     public function useOriginalData() {
         $this->ls_data = &$this->arr_originalData;
+        $this->setDataReferences();
     }
 
     public function useCustomizableData() {
         $this->ls_data = &$this->arr_customizableData;
+        $this->setDataReferences();
     }
 
 	public function calculateWeightRegardingWeightType() {
