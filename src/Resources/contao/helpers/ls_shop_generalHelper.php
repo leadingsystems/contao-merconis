@@ -2117,9 +2117,11 @@ class ls_shop_generalHelper
     }
 
     public static function storeConfiguratorDataToSession($var_arg) {
-        /** @var ls_shop_productConfigurator $obj_configurator */
-        foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
-            $obj_configurator->storeToSession();
+        if (isset($GLOBALS['merconis_globals']['configuratorObjs']) && is_array($GLOBALS['merconis_globals']['configuratorObjs'])) {
+            foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
+                /** @var ls_shop_productConfigurator $obj_configurator */
+                $obj_configurator->storeToSession();
+            }
         }
 
         /*
@@ -2131,9 +2133,11 @@ class ls_shop_generalHelper
     }
 
     public static function storeCustomizerDataToSession($var_arg) {
-        /** @var customizerLogicBase $obj_customizer */
-        foreach ($GLOBALS['merconis_globals']['customizerObjects'] as $obj_customizer) {
-            $obj_customizer->storeToSession();
+        if (isset($GLOBALS['merconis_globals']['customizerObjects']) && is_array($GLOBALS['merconis_globals']['customizerObjects'])) {
+            /** @var customizerLogicBase $obj_customizer */
+            foreach ($GLOBALS['merconis_globals']['customizerObjects'] as $obj_customizer) {
+                $obj_customizer->storeToSession();
+            }
         }
 
         /*
