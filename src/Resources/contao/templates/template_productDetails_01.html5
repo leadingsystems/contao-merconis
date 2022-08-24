@@ -70,7 +70,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
         <div class="wrapper-price-etc">
             <?php // ##### TITLE ###### -> ?>
-            <h1 class="productTitle ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?>" id="productTitle"><?php echo $this->objProduct->_title; ?></h1>
+            <h1 class="productTitle"><?php echo $this->objProduct->_title; ?></h1>
             <?php // <- ##### TITLE ###### ?>
 
             <div class=" ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
@@ -221,6 +221,12 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                     class="description ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                     id="ajaxReloadByVariantSelector_5_<?php echo $this->objProduct->_id; ?>"
                 >
+                    <?php
+                    if ($this->objProduct->_hasCustomizerLogicFile) {
+                        var_dump($this->objProduct->_customizer->getStoredData());
+                    }
+                    ?>
+
                     <p><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></p>
                 </div>
                 <?php // <- ##### DESCRIPTION ###### ?>
@@ -228,8 +234,8 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // ##### CONFIGURATOR ###### -> ?>
 
                 <?php
-                if ($obj_tmp_productOrVariant->_hasCustomizerLogicFile) {
-                    echo $obj_tmp_productOrVariant->_customizer->getCustomizerInterface();
+                if ($this->objProduct->_hasCustomizerLogicFile) {
+                    echo $this->objProduct->_customizer->getCustomizerInterface();
                 }
                 ?>
 
