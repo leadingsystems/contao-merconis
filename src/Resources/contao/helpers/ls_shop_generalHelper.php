@@ -2100,7 +2100,7 @@ class ls_shop_generalHelper
             return null;
         }
 
-        $str_cacheKey = $obj_product->_customizerLogicFile . '_' . $obj_product->ls_productVariantID . ($obj_product->_configuratorHash ? '|' . $obj_product->_configuratorHash : '');
+        $str_customizerObjectKey = $obj_product->_customizerLogicFile . '_' . $obj_product->ls_productVariantID . ($obj_product->_configuratorHash ? '|' . $obj_product->_configuratorHash : '');
 
         if (!isset($GLOBALS['merconis_globals']['customizerObjects'])) {
             $GLOBALS['merconis_globals']['customizerObjects'] = [];
@@ -2109,11 +2109,9 @@ class ls_shop_generalHelper
         require_once(TL_ROOT ."/". $obj_product->_customizerLogicFile);
         $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_product->_customizerLogicFile);
 
-        if (!isset($GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey]) || !is_object($GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey])) {
-            $GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey] = new $str_customLogicClassName($obj_product, $obj_product->_configuratorHash);
-        }
+        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_product, $obj_product->_configuratorHash);
 
-        return $GLOBALS['merconis_globals']['customizerObjects'][$str_cacheKey];
+        return $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
     }
 
     public static function storeConfiguratorDataToSession($var_arg) {
