@@ -2096,7 +2096,7 @@ class ls_shop_generalHelper
             throw new \Exception('insufficient parameters given');
         }
 
-        if (!$obj_product->_hasCustomizerLogicFile) {
+        if (!$obj_product->_hasCustomizerLogicFile || TL_MODE === 'BE') {
             return null;
         }
 

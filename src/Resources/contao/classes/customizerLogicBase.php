@@ -56,7 +56,7 @@ abstract class customizerLogicBase {
     public function getCustomizerInterface() {
         ob_start();
         ?>
-        <div data-merconis-component="customizerBasic" data-merconis-productVariantId="<?php echo $this->obj_productOrVariant->_productVariantID; ?>"></div>
+        <div data-merconis-component="customizerBasic" data-merconis-productVariantId="<?php echo $this->obj_productOrVariant->_productVariantID; ?>" data-merconis-targetUrl="<?php echo \Environment::get('request'); ?>"></div>
         <?php
         return ob_get_clean();
     }
@@ -69,7 +69,7 @@ class customizerStorage {
      * This class should take care of updating the customizer hash (unless it is fixed) when data is written.
      * Therefore we have set $var_data to private and need to create a convenient setter method!
      */
-    private $var_data = [];
+    private $var_data = null;
     private $str_customizerHash = '';
     private $bln_customizerHashFixed = false;
 

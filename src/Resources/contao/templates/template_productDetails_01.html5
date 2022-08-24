@@ -233,11 +233,18 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
                 <?php // ##### CONFIGURATOR ###### -> ?>
 
-                <?php
-                if ($this->objProduct->_hasCustomizerLogicFile) {
-                    echo $this->objProduct->_customizer->getCustomizerInterface();
-                }
-                ?>
+                    <div
+                            class="configurator-container ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+                            id="ajaxReloadByVariantSelector_8_<?php echo $this->objProduct->_id; ?>"
+                    >
+                        <?php
+                        if ($obj_tmp_productOrVariant->_hasCustomizerLogicFile) {
+                            ?>
+                            <?php echo $obj_tmp_productOrVariant->_customizer->getCustomizerInterface(); ?>
+                            <?php
+                        }
+                        ?>
+                    </div>
 
                 <?php if ($this->objProduct->_hasConfigurator) { ?>
                     <?php if (!$this->objProduct->_hasVariants || $this->objProduct->_variantIsSelected) { ?>
