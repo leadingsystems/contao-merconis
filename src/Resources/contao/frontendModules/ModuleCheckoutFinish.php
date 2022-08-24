@@ -562,7 +562,7 @@ class ModuleCheckoutFinish extends \Module {
 				'_productVariantID' => $blnIsVariant ? $objProduct->_selectedVariant->_productVariantID : $objProduct->_productVariantID, // no language
 				'_configuratorID' => $blnIsVariant ? $objProduct->_selectedVariant->_configuratorID : $objProduct->_configuratorID, // no language
 				'_hasConfigurator' => $objProduct->_hasConfigurator, // no language
-				'_cartKey' => $objProduct->_cartKey, // no language
+				'_cartKey' => $blnIsVariant ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey, // no language
 				'_productTitle' => $blnIsVariant ? $objProduct->_selectedVariant->_productTitle : $objProduct->_title, // shop language
 				'_title' => $blnIsVariant ? $objProduct->_selectedVariant->_title : $objProduct->_title, // shop language
 				'_hasTitle' => $blnIsVariant ? $objProduct->_selectedVariant->_hasTitle : $objProduct->_hasTitle, // no language

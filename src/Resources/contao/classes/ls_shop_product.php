@@ -331,24 +331,29 @@ class ls_shop_product
 			    if ($this->_hasCustomizer) {
                     $str_cartKey = $this->ls_productVariantID . '_' . $this->obj_customizer->getCustomizerHash();
                 } else if ($this->_hasConfigurator) {
-                    /*
-                     * If the product has not been configured yet, we use the default configuratorHash
-                     */
-                    if (!isset($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !is_array($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !in_array($this->ls_productVariantID, $_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
-                        $str_cartKey = $this->ls_productVariantID.'_'.ls_shop_generalHelper::getDefaultConfiguratorHash(!$this->ls_currentVariantID ? $this->_configuratorID : $this->ls_variants[$this->ls_currentVariantID]->_configuratorID);
-                    } else {
-                        !$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
-                        if (!$this->_variantIsSelected) {
-                            $str_cartKey = $this->ls_productVariantID.($this->ls_objConfigurator->configuratorHash ? '_'.$this->ls_objConfigurator->configuratorHash : '');
-                        } else {
-                            $str_cartKey = $this->_selectedVariant->ls_productVariantID.($this->_selectedVariant->ls_objConfigurator->configuratorHash ? '_'.$this->_selectedVariant->ls_objConfigurator->configuratorHash : '');
-                        }
-                    }
+			        $str_cartKey = $this->_configuratorCartKey;
                 }
 
 			    return $str_cartKey;
-
 				break;
+
+            case '_configuratorCartKey':
+                /*
+                 * If the product has not been configured yet, we use the default configuratorHash
+                 */
+                if (!isset($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !is_array($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !in_array($this->ls_productVariantID, $_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
+                    $str_cartKey = $this->ls_productVariantID.'_'.ls_shop_generalHelper::getDefaultConfiguratorHash(!$this->ls_currentVariantID ? $this->_configuratorID : $this->ls_variants[$this->ls_currentVariantID]->_configuratorID);
+                } else {
+                    !$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
+                    if (!$this->_variantIsSelected) {
+                        $str_cartKey = $this->ls_productVariantID.($this->ls_objConfigurator->configuratorHash ? '_'.$this->ls_objConfigurator->configuratorHash : '');
+                    } else {
+                        $str_cartKey = $this->_selectedVariant->ls_productVariantID.($this->_selectedVariant->ls_objConfigurator->configuratorHash ? '_'.$this->_selectedVariant->ls_objConfigurator->configuratorHash : '');
+                    }
+                }
+
+                return $str_cartKey;
+                break;
 
 			case '_configuratorRepresentation':
 				!$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();

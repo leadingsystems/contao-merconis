@@ -40,7 +40,6 @@ abstract class customizerLogicBase {
      * Called via API (callCustomizerMethodForProduct())
      */
     public function receiveFormData($var_formData) {
-        \LeadingSystems\Helpers\lsErrorLog('$var_formData', $var_formData, 'perm', 'var_dump');
         $this->obj_storage->writeData($var_formData);
     }
 

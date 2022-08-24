@@ -300,6 +300,18 @@ class ls_shop_variant
 				return $this->ls_objConfigurator->blnIsValid;
 				break;
 
+            case '_cartKey':
+                $str_cartKey = $this->ls_productVariantID;
+
+                if ($this->_hasCustomizer) {
+                    $str_cartKey = $this->ls_productVariantID . '_' . $this->obj_customizer->getCustomizerHash();
+                } else if ($this->_objParentProduct->_hasConfigurator) {
+                    $str_cartKey = $this->_objParentProduct->_configuratorCartKey;
+                }
+
+                return $str_cartKey;
+                break;
+
 			case '_configuratorInDataEntryMode':
 				$this->createObjConfigurator();
 				return $this->ls_objConfigurator->blnDataEntryMode;
