@@ -38,8 +38,55 @@ abstract class customizer {
         return $this->obj_storage->getHash();
     }
 
+    /*
+     * Invoked when the customizer is being instantiated. If the customizer needs to perform any initialization actions,
+     * this method is the right place for them.
+     */
     abstract function initialize();
 
+    /*
+     * Invoked when the customizer is being instantiated, directly after the initialize() method has been finished.
+     *
+     * In this method, product (or variant) data can be manipulated based on the current customization data. For example, the product
+     * price can be changed.
+     *
+     * The product data is accessible with
+     *      $this->obj_productOrVariant->mainData
+     * for everything that is not language specific
+     * and with
+     *      $this->obj_productOrVariant->currentLanguageData
+     * for language specific data.
+     *
+     * The data manipulation takes place before the product data is processed any further and therefore has the same
+     * effect as if the data would have been changed in the original product record.
+     *
+     * In most situations where a product is displayed, the manipulated product data should be displayed in order to
+     * show the product's current customization status. However, there are certain situations where the original product
+     * data must be displayed, e.g. in the product overview.
+     *
+     * By default, accessing product data with something like
+     *      echo $this->obj_productOrVariant->_priceAfterTaxFormatted;
+     * uses the manipulated product data.
+     *
+     * By calling
+     *      $this->obj_productOrVariant->useOriginalData();
+     * the product object can be switched to using the original data.
+     *
+     * With
+     *      $this->obj_productOrVariant->useCustomizableData();
+     * the product object can be switched back to using the possibly manipulated data.
+     *
+     * If the complete product output in a template should use the original data, it is not necessary to explicitly switch
+     * back to using the manipulated data because every time a product object is instantiated, it starts using the
+     * manipulated data.
+     *
+     * Please note: Some data fields' names are not the same in the product and variant record. For example, the product
+     * price field is named "lsShopProductPrice" whereas the variant price field is named "lsShopVariantPrice". In order
+     * to manipulate the correct value it is therefore necessary in certain situations to check whether the product/variant
+     * object is actually a product or a variant object:
+     *
+     *      $this->obj_productOrVariant->mainData[$this->obj_productOrVariant->_objectType === 'variant' ? 'lsShopVariantPrice' : 'lsShopProductPrice'] = 123.45;
+     */
     abstract function manipulateProductData();
 
     /*
