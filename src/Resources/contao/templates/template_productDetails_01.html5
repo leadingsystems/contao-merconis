@@ -228,6 +228,16 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                     ?>
 
                     <p><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></p>
+                    <?php
+                    if ($obj_tmp_productOrVariant->_hasCustomizerLogicFile) {
+                        ?>
+                        <div>
+                            <h3>Ihre Produkt-Einstellungen:</h3>
+                            <?php echo $obj_tmp_productOrVariant->_customizer->getSummary(); ?>
+                        </div>
+                        <?php
+                    }
+                    ?>
                 </div>
                 <?php // <- ##### DESCRIPTION ###### ?>
 
