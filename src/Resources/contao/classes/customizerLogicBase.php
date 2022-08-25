@@ -40,14 +40,14 @@ abstract class customizerLogicBase {
      * Called via API (callCustomizerMethodForProduct())
      */
     public function receiveFormData($var_formData) {
-        $this->obj_storage->writeData($var_formData);
+        $this->obj_storage->writeCustomizationData($var_formData);
     }
 
     /*
      * Called via API (callCustomizerMethodForProduct())
      */
     public function getStoredData() {
-        return $this->obj_storage->getData();
+        return $this->obj_storage->getCustomizationData();
     }
 
     /*
@@ -65,11 +65,8 @@ abstract class customizerLogicBase {
 }
 
 class customizerStorage {
-    /*
-     * This class should take care of updating the customizer hash (unless it is fixed) when data is written.
-     * Therefore we have set $var_data to private and need to create a convenient setter method!
-     */
-    private $var_data = null;
+    private $var_customizationData = null;
+    private $var_miscData = null;
     private $str_customizerHash = '';
     private $bln_customizerHashFixed = false;
 
@@ -81,13 +78,21 @@ class customizerStorage {
         }
     }
 
-    public function writeData($var_data) {
-        $this->var_data = $var_data;
+    public function writeCustomizationData($var_data) {
+        $this->var_customizationData = $var_data;
         $this->updateCustomizerHash();
     }
 
-    public function getData() {
-        return $this->var_data;
+    public function getCustomizationData() {
+        return $this->var_customizationData;
+    }
+
+    public function writeMiscData($var_data) {
+        $this->var_miscData = $var_data;
+    }
+
+    public function getMiscData() {
+        return $this->var_miscData;
     }
 
     public function getHash() {
@@ -112,6 +117,6 @@ class customizerStorage {
             return;
         }
 
-        $this->str_customizerHash = sha1(serialize($this->var_data));
+        $this->str_customizerHash = sha1(serialize($this->var_customizationData));
     }
 }
