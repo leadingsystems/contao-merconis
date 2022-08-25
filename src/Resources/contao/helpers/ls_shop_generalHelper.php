@@ -2132,7 +2132,7 @@ class ls_shop_generalHelper
 
     public static function storeCustomizerDataToSession($var_arg) {
         if (isset($GLOBALS['merconis_globals']['customizerObjects']) && is_array($GLOBALS['merconis_globals']['customizerObjects'])) {
-            /** @var customizerLogicBase $obj_customizer */
+            /** @var customizer $obj_customizer */
             foreach ($GLOBALS['merconis_globals']['customizerObjects'] as $obj_customizer) {
                 $obj_customizer->storeToSession();
             }

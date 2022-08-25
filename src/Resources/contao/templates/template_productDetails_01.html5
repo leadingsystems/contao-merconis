@@ -240,7 +240,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                         <?php
                         if ($obj_tmp_productOrVariant->_hasCustomizerLogicFile) {
                             ?>
-                            <?php echo $obj_tmp_productOrVariant->_customizer->getCustomizerInterface(); ?>
+                            <?php echo $obj_tmp_productOrVariant->_customizer->getUserInterface(); ?>
                             <?php
                         }
                         ?>

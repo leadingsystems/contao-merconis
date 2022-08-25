@@ -27,7 +27,7 @@ class ls_shop_product
 	private $ls_objConfigurator = null;
 
     /**
-     * @var customizerLogicBase
+     * @var customizer
      */
 	public $obj_customizer = null;
 
