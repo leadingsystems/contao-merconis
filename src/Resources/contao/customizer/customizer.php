@@ -92,7 +92,7 @@ abstract class customizer {
     /*
      * Should be called via API (callCustomizerMethodForProduct()) and handle receiving and storing user input
      */
-    abstract function receiveUserInput($var_formData);
+    abstract function receiveUserInput($var_userInput);
 
     /*
      * Should be called via API (callCustomizerMethodForProduct()) and return the stored customization data.
