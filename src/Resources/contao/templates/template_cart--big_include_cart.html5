@@ -137,6 +137,17 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                         </div>
                     <?php } ?>
 
+                    <?php
+                    if ($obj_tmp_productOrVariant->_hasCustomizerLogicFile) {
+                        ?>
+                        <div>
+                            <h3>Ihre Produkt-Einstellungen:</h3>
+                            <?php echo $obj_tmp_productOrVariant->_customizer->getSummary(); ?>
+                        </div>
+                        <?php
+                    }
+                    ?>
+
                     <?php if (!$bln_reviewMode) { ?>
                         <button data-lsjs-element="toggler" class="edit-item">Bearbeiten</button>
                     <?php } ?>
