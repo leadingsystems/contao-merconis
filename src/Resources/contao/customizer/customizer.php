@@ -95,6 +95,11 @@ abstract class customizer {
     abstract function receiveUserInput($var_userInput);
 
     /*
+     * Should be called from the method "receiveUserInput" in order to validate and sanitize the user input.
+     */
+    abstract function validateUserInput($var_userInput);
+
+    /*
      * Should be called via API (callCustomizerMethodForProduct()) and return the stored customization data.
      *
      * Customization data is data that represents the current customization. In a simple scenario the customization
