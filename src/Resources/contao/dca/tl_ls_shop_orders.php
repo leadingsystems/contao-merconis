@@ -351,6 +351,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
+        'payPalCheckout_orderId' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalCheckout_orderId'],
+            'inputType' => 'text',
+            'eval' => array('maxlength'=>255),
+            'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'payPalCheckout_currentStatus' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalCheckout_currentStatus'],
+            'inputType' => 'text',
+            'eval' => array('maxlength'=>255),
+            'filter' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
         'payone_currentStatus' => array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payone_currentStatus'],

@@ -28,140 +28,98 @@ use PayPal\Exception\PayPalConnectionException;
 class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standard {
     public $arrCurrentSettings = array();
 
-    protected $payPalPlus_obj_apiContext = null;
-
-    protected $payPalPlus_arr_returnUrls = array(
-        'return' => '',
-        'notAuthorized' => '',
-        'authorized' => ''
-    );
-
     public function initialize($specializedManually = false) {
-        //dump("initialize checkout");
+        if (!isset($_SESSION['lsShopPaymentProcess']['payPalCheckout']) || !is_array($_SESSION['lsShopPaymentProcess']['payPalCheckout'])) {
+            $this->payPalCheckout_resetSessionStatus();
+        }
 
+        $this->payPalCheckout_checkRelevantCalculationDataHash();
     }
 
     public function statusOkayToShowCustomUserInterface() {
-        //dump("statusOkayToShowCustomUserInterface");
         return ls_shop_cartX::getInstance()->calculation['invoicedAmount'] > 0 ? true : false;
     }
 
     public function getCustomUserInterface() {
-        // 1. Server zu Server API-Request an PayPal zur Initiierung der Zahlung (Ergebnis: ID/Token der Zahlung von PayPal erhalten)
-        // 2. HTML-Code für das Interface erzeugen => Button zum Sprung zu PayPal (Hoffentlich Übergabe der ID möglich)
-        $orderId = $this->createOrder();
-        dump($orderId);
 
-
-        $itemlist = [];
-        //--------------------------------------------------------------------------
-        dump(\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended);
-        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
-            $objProduct = &$cartItem['objProduct'];
-
-            if ($objProduct->_variantIsSelected) {
-                $obj_tmp_productOrVariant = &$objProduct->_selectedVariant;
-            } else {
-                $obj_tmp_productOrVariant = &$objProduct;
-            }
-            dump($obj_tmp_productOrVariant);
-            $itemlist[] = $obj_tmp_productOrVariant;
+        if (\Input::post('payPalCheckout_orderId') && \Input::post('payPalCheckout_authorizationId')) {
+            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'] = \Input::post('payPalCheckout_orderId');
+            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'] = \Input::post('payPalCheckout_authorizationId');
+            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorized'] = true;
+            \Controller::reload();
         }
 
-
-        return include('paypalCustomUserInterface.html5');
-
-        //dump("getCustomUserInterface");
-        if ($this->payPalPlus_check_paymentIsAuthorized()) {
-            return $this->payPalPlus_showAuthorizationStatus();
+        if ($this->payPalCheckout_check_paymentIsAuthorized()) {
+            return $this->payPalCheckout_showAuthorizationStatus();
         } else {
-            if ($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameCountryCode'])) {
-                return $this->payPalPlus_showPaymentWall();
-            }
+            return $this->payPalCheckout_showPaymentWall();
         }
     }
 
-    private function createOrder(){
-        //----------------------------------------------------------------------------
-        //get access_token
+    private function payPalCheckout_createOrder(){
+        $access_token = $this->payPalCheckout_getaccessToken();
+
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v1/oauth2/token');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
-        curl_setopt($ch, CURLOPT_USERPWD, 'AXgG4daqFXsF-qxgCLwtNIP7k4ygJ65qy9vh2uy5Cxr_cY1G4MzMtD0RKE0sRf8sd_XIzuzlwswRUE-6' . ':' . 'ENUmeMWNz2-6JcOOAWiEggkBy32f2Ty5E9V5-F2i6rxDsC1JFMNLl9J8v7VsWN8YMvsaDjT8dYUhs84S');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
-
-        $headers = array();
-        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        $result = curl_exec($ch);
-        if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
-        }
-        curl_close($ch);
-        $access_token = json_decode($result)->access_token;
-
-
-        //----------------------------------------------------------------------------
-        // create order
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v2/checkout/orders'); ///7RF08345XE299394P
+        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v2/checkout/orders');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
 
-        //$_POST = json_decode(file_get_contents("php://input"), true);
-        //$items = $_POST["items"];
-
         $totalvalue = 0;
         $itemlist = [];
 
-        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
-            $objProduct = &$cartItem['objProduct'];
-            $quantity = &$cartItem['quantity'];
+        $currency_code = $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'];
 
-            if ($objProduct->_variantIsSelected) {
-                $obj_tmp_productOrVariant = &$objProduct->_selectedVariant;
+        foreach (ls_shop_cartX::getInstance()->calculation['items'] as $arr_cartItem) {
+            $arr_cartItemExtended = ls_shop_cartX::getInstance()->itemsExtended[$arr_cartItem['productCartKey']];
+
+            $name = substr(\Controller::replaceInsertTags($arr_cartItemExtended['objProduct']->_title), 0, 127);
+            $description = $arr_cartItemExtended['objProduct']->_hasCode ? substr($arr_cartItemExtended['objProduct']->_code, 0, 127) : '';
+
+            if (intval($arr_cartItemExtended['quantity']) == $arr_cartItemExtended['quantity']) {
+                $quantity = $arr_cartItemExtended['quantity'];
+                $price = number_format($arr_cartItem['price'], 2, '.', '');
             } else {
-                $obj_tmp_productOrVariant = &$objProduct;
+                $quantity = 1;
+                $price = number_format($arr_cartItem['priceCumulative'], 2, '.', '');
+                $description = $description.' ('.$arr_cartItemExtended['quantity'].' '.$arr_cartItemExtended['objProduct']->_quantityUnit.' * '.$arr_cartItemExtended['objProduct']->_priceAfterTaxFormatted.')';
             }
-
-
-            $price = 4;
-            $name = "Testobjekt";
 
             $totalvalue =+ ($quantity * $price);
 
             $itemlist[] = [
                 "name"=> $name,
                 "unit_amount"=> [
-                    "currency_code"=> "EUR",
+                    "currency_code"=> $currency_code,
                     "value"=> $price
                 ],
-                "quantity"=> $quantity
+                "quantity"=> strval($quantity)
             ];
         }
 
+        $discount = 0;
 
-
-
-
+        //discount must be positiv not negativ thats why (-1)*
+        foreach (ls_shop_cartX::getInstance()->calculation['couponValues'] as $arr_couponValue) {
+            $discount = (-1)*number_format($arr_couponValue[0], 2, '.', '');
+        }
 
         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
-            "intent" => "CAPTURE",
-            "purchase_units"=>  [
+            "intent" => "AUTHORIZE",
+            "purchase_units" =>  [
                 [
                     "amount"=> [
-                        "currency_code"=> "EUR",
-                        "value"=>  $totalvalue,
+                        "currency_code"=> $currency_code,
+                        "value"=>  strval($totalvalue - $discount),
                         "breakdown"=> [
                             "item_total"=> [
-                                "currency_code"=> "EUR",
-                                "value"=> $totalvalue
+                                "currency_code"=> $currency_code,
+                                "value"=> strval($totalvalue)
+                            ],
+                            "discount"=> [
+                                "currency_code"=> $currency_code,
+                                "value"=> strval($discount)
                             ]
                         ]
                     ],
@@ -183,84 +141,110 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
         $orderId = json_decode($result)->id;
 
-        //output json string
         return $orderId;
     }
 
 
 
     public function checkoutFinishAllowed() {
-        //dump("checkoutFinishAllowed");
-        return $this->payPalPlus_check_paymentIsAuthorized();
+        return $this->payPalCheckout_check_paymentIsAuthorized();
     }
 
     public function statusOkayToRedirectToCheckoutFinish() {
-        //dump("statusOkayToRedirectToCheckoutFinish");
-        return $this->payPalPlus_check_paymentIsAuthorized();
+        return $this->payPalCheckout_check_paymentIsAuthorized();
+    }
+
+    private function payPalCheckout_getaccessToken(){
+
+        //$this->arrCurrentSettings['payPalCheckout_clientID'];
+        //get access_token
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v1/oauth2/token');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
+        curl_setopt($ch, CURLOPT_USERPWD, $this->arrCurrentSettings['payPalCheckout_clientID'] . ':' . $this->arrCurrentSettings['payPalCheckout_clientSecret']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
+
+        $headers = array();
+        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+        return json_decode($result)->access_token;
     }
 
     public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
-        //dump("afterCheckoutFinish");
         $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
 
-        $obj_payment = Payment::get($_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId'], $this->payPalPlus_obj_apiContext);
-        $obj_execute = new PaymentExecution();
-        $obj_execute->setPayerId($_SESSION['lsShopPaymentProcess']['payPalPlus']['PayerID']);
+        $access_token = $this->payPalCheckout_getaccessToken();
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v2/payments/authorizations/'. $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'] .'/capture');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
+
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        $headers[] = 'Authorization: Bearer '.$access_token;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+
+        $status = json_decode($result)->status;
 
         try {
-            $obj_payment->execute($obj_execute, $this->payPalPlus_obj_apiContext);
-            $this->payPalPlus_updateSaleDetailsInOrderRecord($orderIdInDb);
-            $this->payPalPlus_resetSessionStatus();
+
+            if($status == "COMPLETED"){
+                $this->payPalCheckout_updateSaleDetailsInOrderRecord($orderIdInDb);
+            }
+            $this->payPalCheckout_updateSaleDetailsInOrderRecord($orderIdInDb);
+            $this->payPalCheckout_resetSessionStatus();
+
         } catch (\Exception $e) {
-            /*
-             * Ideally, we could catch an exception if something goes wrong and
-             * then jump to the payment error page and not finish the order but
-             * unfortunately in this situation we have to either risk that the
-             * payment is executed and finishing the order could still fail
-             * (that's extremely bad) or to risk that the order is successfully
-             * finished and the payment fails. A failed payment isn't as bad as
-             * a failed order after a completed payment because if the merchant
-             * doesn't get his money he won't ship the goods but instead contact
-             * the buyer.
-             *
-             * Conclusion: We catch the exception only to log and silence it.
-             */
+
             $this->logPaymentError(__METHOD__, $e->getMessage(), json_encode($e->getData()));
 
             $paymentMethod_moduleReturnData = $this->get_paymentMethod_moduleReturnData_forOrderId($orderIdInDb);
             $paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus'] = 'Payment module error (see order details)';
             $paymentMethod_moduleReturnData['arr_saleDetails']['str_errorMsg'] = $e->getMessage().' ERROR DATA: '.json_encode($e->getData());
 
-            $this->payPalPlus_updateSaleDetailsInOrderRecord($orderIdInDb, $paymentMethod_moduleReturnData);
-            $this->payPalPlus_resetSessionStatus();
+            $this->payPalCheckout_resetSessionStatus();
         }
     }
 
     public function afterPaymentMethodSelection() {
-        //dump("afterPaymentMethodSelection");
-        $this->payPalPlus_resetSessionStatus();
+        $this->payPalCheckout_resetSessionStatus();
     }
 
     public function getPaymentInfo() {
-        //dump("getPaymentInfo");
+
         $arrPaymentInfo = array(
-            'str_paymentId' => $_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId'],
-            'arr_saleDetails' => array(
-                'str_saleId' => '',
-                'str_currentStatus' => '',
-                'str_errorMsg' => ''
-            )
+            'str_authorizationId' => $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'],
+            'str_orderId' => $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'],
         );
         return serialize($arrPaymentInfo);
     }
 
-    protected function payPalPlus_updateSaleDetailsInOrderRecord($int_orderIdInDb, $paymentMethod_moduleReturnData = null) {
-        //dump("payPalPlus_updateSaleDetailsInOrderRecord");
+    protected function payPalCheckout_updateSaleDetailsInOrderRecord($int_orderIdInDb, $paymentMethod_moduleReturnData = null) {
+
         if (!$int_orderIdInDb) {
             return;
         }
 
         if (!is_array($paymentMethod_moduleReturnData)) {
+
             $paymentMethod_moduleReturnData = $this->get_paymentMethod_moduleReturnData_forOrderId($int_orderIdInDb);
 
             if ($paymentMethod_moduleReturnData['arr_saleDetails']['str_errorMsg']) {
@@ -271,110 +255,105 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                  */
                 return $paymentMethod_moduleReturnData;
             }
-
-            $paymentMethod_moduleReturnData['arr_saleDetails'] = $this->payPalPlus_getSaleDetailsForPaymentId($paymentMethod_moduleReturnData['str_paymentId']);
+            $paymentMethod_moduleReturnData['arr_saleDetails'] = $this->payPalCheckout_getSaleDetailsForOrderId($paymentMethod_moduleReturnData['str_orderId']);
         }
 
-        /*
-         * Update the whole moduleReturnData ...
-         */
+
         $this->update_paymentMethod_moduleReturnData_inOrder($int_orderIdInDb, $paymentMethod_moduleReturnData);
 
-        /*
-         * ... and also update special payment data fields that are stored separately
-         * in the order record because they need to be usable for filtering/searching
-         * in the order overview
-         */
-        $this->update_fieldValue_inOrder($int_orderIdInDb, 'payPalPlus_saleId', $paymentMethod_moduleReturnData['arr_saleDetails']['str_saleId']);
-        $this->update_fieldValue_inOrder($int_orderIdInDb, 'payPalPlus_currentStatus', $paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']);
+        $this->update_fieldValue_inOrder($int_orderIdInDb, 'payPalCheckout_orderId', $paymentMethod_moduleReturnData['arr_saleDetails']['str_orderId']);
+        $this->update_fieldValue_inOrder($int_orderIdInDb, 'payPalCheckout_currentStatus', $paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']);
 
         return $paymentMethod_moduleReturnData;
     }
 
-    protected function payPalPlus_getSaleDetailsForPaymentId($str_paymentId) {
-        //dump("payPalPlus_getSaleDetailsForPaymentId");
+    protected function payPalCheckout_getSaleDetailsForOrderId($str_orderId) {
         $arr_saleDetails = array(
-            'str_saleId' => '',
+            'str_orderId' => '',
             'str_currentStatus' => ''
         );
 
-        if (!$str_paymentId) {
+        if (!$str_orderId) {
             return $arr_saleDetails;
         }
 
-        $obj_payment = Payment::get($str_paymentId, $this->payPalPlus_obj_apiContext);
+        //get order from paypa api
 
-        $obj_transactions = $obj_payment->getTransactions();
-        if (count($obj_transactions) != 1) {
-            /*
-             * Not exactly one transaction given
-             */
-            $arr_saleDetails['str_currentStatus'] = 'payment information could not be read correctly [ppp01]';
-            return $arr_saleDetails;
+        $access_token = $this->payPalCheckout_getaccessToken();
+
+
+        //----------------------------------------------------------------------------
+        // get order
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v2/checkout/orders/'.$str_orderId); ///7RF08345XE299394P
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
+
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        $headers[] = 'Authorization: Bearer '.$access_token;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
         }
-        $obj_transaction = reset($obj_transactions);
+        curl_close($ch);
 
-        $obj_relatedResources = $obj_transaction->getRelatedResources();
+        echo $result;
 
-        $obj_sale = null;
-        foreach ($obj_transaction->getRelatedResources() as $obj_relatedResource) {
-            $obj_sale = $obj_relatedResource->getSale();
-            if ($obj_sale !== null) {
-                break;
-            }
+        try{
+            $resultJson = json_decode($result);
+            $arr_saleDetails['str_currentStatus'] = $resultJson->status;
+            $arr_saleDetails['str_orderId'] = $resultJson->id;
+        }catch (\Exception $e) {
+            $arr_saleDetails['str_currentStatus'] = 'payment information could not be read correctly [ppc01]';
         }
-
-        if ($obj_sale === null) {
-            /*
-             * No sale transaction found
-             */
-            $arr_saleDetails['str_currentStatus'] = 'payment information could not be read correctly [ppp02]';
-            return $arr_saleDetails;
-        }
-
-        $arr_saleDetails['str_currentStatus'] = $obj_sale->getState();
-        $arr_saleDetails['str_saleId'] = $obj_sale->getId();
 
         return $arr_saleDetails;
     }
 
     public function showPaymentDetailsInBackendOrderDetailView($arrOrder = array(), $paymentMethod_moduleReturnData = '') {
-        //dump("showPaymentDetailsInBackendOrderDetailView");
+
         if (!count($arrOrder) || !$paymentMethod_moduleReturnData) {
             return null;
         }
 
         $outputValue = '';
-        $paymentMethod_moduleReturnData = $this->payPalPlus_updateSaleDetailsInOrderRecord($arrOrder['id']);
+        $paymentMethod_moduleReturnData = $this->payPalCheckout_updateSaleDetailsInOrderRecord($arrOrder['id']);
 
         ob_start();
+
         ?>
-        <div class="paymentDetails payPalPlus">
+
+        <div class="paymentDetails payPalCheckout">
             <h2>
                 <a href="https://www.paypal.com/" target="_blank">
                     <img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-150px.png" border="0" alt="PayPal Logo" />
                 </a>
-                <?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['headlineBackendDetailsInfo']; ?>
+                <?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['headlineBackendDetailsInfo']; ?>
             </h2>
             <div class="content">
                 <div class="details">
                     <div class="detailItem">
-                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['status']; ?>:</span>
+                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status']; ?>:</span>
                         <span class="value"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']); ?></span>
                     </div>
                     <?php
                     if ($paymentMethod_moduleReturnData['arr_saleDetails']['str_errorMsg']) {
                         ?>
                         <div class="detailItem">
-                            <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['errorMsgLabel']; ?>:</span>
+                            <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorMsgLabel']; ?>:</span>
                             <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_errorMsg']; ?></span>
                         </div>
                         <?php
                     }
                     ?>
                     <div class="detailItem">
-                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['saleTransactionCode']; ?>:</span>
-                        <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_saleId']; ?></span>
+                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId']; ?>:</span>
+                        <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_orderId']; ?></span>
                     </div>
                 </div>
             </div>
@@ -385,41 +364,42 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         return $outputValue;
     }
 
+
     public function showPaymentStatusInOverview($arrOrder = array(), $paymentMethod_moduleReturnData = '') {
-        //dump("showPaymentStatusInOverview");
+
         if (!count($arrOrder) || !$paymentMethod_moduleReturnData) {
             return null;
         }
 
-        if (\Input::get('payPalPlus_updateStatus') && \Input::get('payPalPlus_updateStatus') == $arrOrder['id']) {
-            $this->payPalPlus_updateSaleDetailsInOrderRecord($arrOrder['id']);
-            $this->redirect(ls_shop_generalHelper::getUrl(true, array('payPalPlus_updateStatus')));
+        if (\Input::get('payPalCheckout_updateStatus') && \Input::get('payPalCheckout_updateStatus') == $arrOrder['id']) {
+            $this->payPalCheckout_updateSaleDetailsInOrderRecord($arrOrder['id']);
+            $this->redirect(ls_shop_generalHelper::getUrl(true, array('payPalCheckout_updateStatus')));
         }
 
         $outputValue = '';
         $paymentMethod_moduleReturnData = deserialize($paymentMethod_moduleReturnData);
 
         $str_statusUpdateUrl = ls_shop_generalHelper::getUrl();
-        $str_statusUpdateUrl = $str_statusUpdateUrl.(strpos($str_statusUpdateUrl, '?') !== false ? '&' : '?').'payPalPlus_updateStatus='.$arrOrder['id'].'#payPalPlus_order'.$arrOrder['id'];
+        $str_statusUpdateUrl = $str_statusUpdateUrl.(strpos($str_statusUpdateUrl, '?') !== false ? '&' : '?').'payPalCheckout_updateStatus='.$arrOrder['id'].'#payPalCheckout_order'.$arrOrder['id'];
 
         ob_start();
         ?>
-        <div id="payPalPlus_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview payPalPlus <?php echo strtolower(preg_replace('/\s+/', '-', $arrLastStatus['statusValue'])); ?>">
+        <div id="payPalCheckout_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview payPalCheckout <?php echo strtolower(preg_replace('/\s+/', '-', $arrLastStatus['statusValue'])); ?>">
             <img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png" border="0" alt="PayPal Logo" />
             <div class="content">
                 <div class="details">
                     <div class="detailItem">
-                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['status']; ?>:</span>
+                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status']; ?>:</span>
                         <span class="value"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']); ?></span>
                     </div>
                     <div class="detailItem">
-                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['saleTransactionCode']; ?>:</span>
-                        <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_saleId']; ?></span>
+                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId']; ?>:</span>
+                        <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_orderId']; ?></span>
                     </div>
                 </div>
             </div>
             <div class="statusUpdate">
-                <a href="<?php echo $str_statusUpdateUrl; ?>"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['updateStatus']; ?></a>
+                <a href="<?php echo $str_statusUpdateUrl; ?>"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['updateStatus']; ?></a>
             </div>
         </div>
         <?php
@@ -434,8 +414,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
      * to the last one. If the calculation status differs, an already existing
      * pay pal authorization is obsolete.
      */
-    protected function payPalPlus_checkRelevantCalculationDataHash() {
-        //dump("payPalPlus_checkRelevantCalculationDataHash");
+    protected function payPalCheckout_checkRelevantCalculationDataHash() {
+
         $str_relevantCalculationDataHash = sha1(
             ls_shop_cartX::getInstance()->calculation['shippingFee'][0]
             .	ls_shop_cartX::getInstance()->calculation['paymentFee'][0]
@@ -450,11 +430,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
          * has not been stored in the session yet, we store it now.
          */
         if (
-            !$this->payPalPlus_check_paymentIsAuthorized()
-            ||	!isset($_SESSION['lsShopPaymentProcess']['payPalPlus']['relevantCalculationDataHash'])
-            ||	!$_SESSION['lsShopPaymentProcess']['payPalPlus']['relevantCalculationDataHash']
+            !$this->payPalCheckout_check_paymentIsAuthorized()
+            ||	!isset($_SESSION['lsShopPaymentProcess']['payPalCheckout']['relevantCalculationDataHash'])
+            ||	!$_SESSION['lsShopPaymentProcess']['payPalCheckout']['relevantCalculationDataHash']
         ) {
-            $_SESSION['lsShopPaymentProcess']['payPalPlus']['relevantCalculationDataHash'] = $str_relevantCalculationDataHash;
+            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['relevantCalculationDataHash'] = $str_relevantCalculationDataHash;
         }
 
         /*
@@ -462,231 +442,60 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
          * is stored in the session, we compare the hash to the current hash and
          * if it differs, we reset the payment status and display a message.
          */
-        else if ($_SESSION['lsShopPaymentProcess']['payPalPlus']['relevantCalculationDataHash'] != $str_relevantCalculationDataHash) {
-            $this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['authorizationObsolete']);
-            $this->payPalPlus_resetSessionStatus();
+        else if ($_SESSION['lsShopPaymentProcess']['payPalCheckout']['relevantCalculationDataHash'] != $str_relevantCalculationDataHash) {
+            $this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationObsolete']);
+            $this->payPalCheckout_resetSessionStatus();
         }
     }
 
-    protected function payPalPlus_check_paymentIsAuthorized() {
-        //dump("payPalPlus_check_paymentIsAuthorized");
+    protected function payPalCheckout_check_paymentIsAuthorized() {
+
         return (
-            isset($_SESSION['lsShopPaymentProcess']['payPalPlus']['authorized'])
-            &&	$_SESSION['lsShopPaymentProcess']['payPalPlus']['authorized']
-            &&	$_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId']
-            &&	$_SESSION['lsShopPaymentProcess']['payPalPlus']['PayerID']
+            isset($_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorized'])
+            &&	$_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorized']
+            &&	$_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId']
+            &&	$_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId']
         );
     }
 
-    protected function payPalPlus_showAuthorizationStatus() {
-        //dump("payPalPlus_showAuthorizationStatus");
-        $obj_template = new \FrontendTemplate('payPalPlusCustomUserInterface');
+    protected function payPalCheckout_showAuthorizationStatus() {
+        $obj_template = new \FrontendTemplate('payPalCheckoutCustomUserInterface');
         $obj_template->bln_paymentAuthorized = true;
         return $obj_template->parse();
     }
 
-    protected function payPalPlus_showPaymentWall() {
-        //dump("payPalPlus_showPaymentWall");
+    protected function payPalCheckout_showPaymentWall() {
         /** @var \PageModel $objPage */
         global $objPage;
 
-        $obj_template = new \FrontendTemplate('payPalCheckoutCustomUserInterface');
-        $obj_template->bln_paymentAuthorized = false;
+        $orderId = $this->payPalCheckout_createOrder();
 
-        $obj_template->str_mode = $this->arrCurrentSettings['payPalPlus_liveMode'] ? 'live' : 'sandbox';
+        $obj_template = new \FrontendTemplate('payPalCheckoutCustomUserInterface');
+        $obj_template->clientId = $this->arrCurrentSettings['payPalCheckout_clientID'];
+        $obj_template->bln_paymentAuthorized = false;
+        $obj_template->orderId = $orderId;
+
+        $obj_template->str_mode = $this->arrCurrentSettings['payPalCheckout_liveMode'] ? 'live' : 'sandbox';
 
         $obj_template->str_language = $objPage->language;
 
         return $obj_template->parse();
     }
 
-    protected function payPalPlus_createApiContext() {
-        //dump("payPalPlus_createApiContext");
-        if ($this->payPalPlus_obj_apiContext !== null) {
-            return;
-        }
-
-        $this->payPalPlus_obj_apiContext = new ApiContext(
-            new OAuthTokenCredential(
-                $this->arrCurrentSettings['payPalPlus_clientID'],
-                $this->arrCurrentSettings['payPalPlus_clientSecret']
-            )
-        );
-
-        $this->payPalPlus_obj_apiContext->setConfig(array(
-            'http.ConnectionTimeOut' => 30,
-            'http.Retry' => 1,
-            'mode' => $this->arrCurrentSettings['payPalPlus_liveMode'] ? 'live' : 'sandbox',
-            'log.LogEnabled' => $this->arrCurrentSettings['payPalPlus_logMode'] !== 'NONE',
-            'log.FileName' => TL_ROOT.'/system/logs/PayPal.log',
-            'log.LogLevel' => $this->arrCurrentSettings['payPalPlus_logMode']
-        ));
-
-    }
-
-    protected function payPalPlus_createPayment() {
-        //dump("payPalPlus_createPayment");
-        $str_approvalUrl = null;
-
-        $obj_redirectUrls = new RedirectUrls();
-        $obj_payer = new Payer();
-        $obj_details = new Details();
-        $obj_amount = new Amount();
-        $obj_transaction = new Transaction();
-        $obj_payment = new Payment();
-
-        $obj_redirectUrls
-            ->setReturnUrl($this->payPalPlus_arr_returnUrls['authorized'])
-            ->setCancelUrl($this->payPalPlus_arr_returnUrls['notAuthorized']);
-
-        $obj_payer->setPaymentMethod("paypal");
-
-        $obj_details
-            ->setShipping(ls_shop_cartX::getInstance()->calculation['shippingFee'][0])
-            ->setHandlingFee(ls_shop_cartX::getInstance()->calculation['paymentFee'][0])
-            ->setTax(ls_shop_cartX::getInstance()->calculation['taxInclusive'] ? '0.00' : number_format(ls_sub(ls_shop_cartX::getInstance()->calculation['invoicedAmount'], ls_shop_cartX::getInstance()->calculation['invoicedAmountNet']), 2, '.', ''))
-            ->setSubtotal(ls_shop_cartX::getInstance()->calculation['taxInclusive'] ? number_format(ls_sub(ls_sub(ls_shop_cartX::getInstance()->calculation['invoicedAmount'], ls_shop_cartX::getInstance()->calculation['shippingFee'][0]), ls_shop_cartX::getInstance()->calculation['paymentFee'][0]), 2, '.', '') : number_format(ls_sub(ls_sub(ls_shop_cartX::getInstance()->calculation['invoicedAmountNet'], ls_shop_cartX::getInstance()->calculation['shippingFee'][0]), ls_shop_cartX::getInstance()->calculation['paymentFee'][0]), 2, '.', ''));
-
-        $obj_amount
-            ->setCurrency($GLOBALS['TL_CONFIG']['ls_shop_currencyCode'])
-            ->setTotal(number_format(ls_shop_cartX::getInstance()->calculation['invoicedAmount'], 2, '.', ''))
-            ->setDetails($obj_details);
-
-        $obj_itemList = new ItemList();
-        foreach (ls_shop_cartX::getInstance()->calculation['items'] as $arr_cartItem) {
-            $arr_cartItemExtended = ls_shop_cartX::getInstance()->itemsExtended[$arr_cartItem['productCartKey']];
-            $obj_item = new Item();
-            $obj_item
-                ->setName(substr(\Controller::replaceInsertTags($arr_cartItemExtended['objProduct']->_title), 0, 127))
-                ->setDescription($arr_cartItemExtended['objProduct']->_hasCode ? substr($arr_cartItemExtended['objProduct']->_code, 0, 127) : '')
-                ->setCurrency($GLOBALS['TL_CONFIG']['ls_shop_currencyCode'])
-                /*
-                 * We would like to simply set the quantity and the (not
-                 * cumulative) item price but unfortunately there is problem
-                 * if the quantity is a decimal value because the item amounts
-                 * and the total don't add up in the end.
-                 *
-                 * Therefore we use the workaround a few lines below.
-                 */
-                /* *
-                ->setQuantity((float)$arr_cartItemExtended['quantity'])
-                ->setPrice(number_format($arr_cartItem['price'], 2, '.', ''))
-                /* */
-            ;
-
-            /*
-             * Workaround for the decimal quantity problem:
-             * If the quantity is an integer/not a decimal value, we set the
-             * quantity just as it is and also the non-cumulative item amount.
-             * But if the quantity is a decimal value, we set the quantity to 1
-             * and the item amount to the cumulative item amount. This means
-             * that we declare the whole cart position as one make-believe item.
-             * We note this in the description.
-             */
-            /* */
-            if (intval($arr_cartItemExtended['quantity']) == $arr_cartItemExtended['quantity']) {
-                $obj_item
-                    ->setQuantity($arr_cartItemExtended['quantity'])
-                    ->setPrice(number_format($arr_cartItem['price'], 2, '.', ''));
-            } else {
-                $obj_item
-                    ->setQuantity(1)
-                    ->setPrice(number_format($arr_cartItem['priceCumulative'], 2, '.', ''))
-                    ->setDescription($obj_item->getDescription().' ('.$arr_cartItemExtended['quantity'].' '.$arr_cartItemExtended['objProduct']->_quantityUnit.' * '.$arr_cartItemExtended['objProduct']->_priceAfterTaxFormatted.')');
-            }
-            /* */
-
-            $obj_itemList->addItem($obj_item);
-        }
-
-        foreach (ls_shop_cartX::getInstance()->calculation['couponValues'] as $arr_couponValue) {
-            $obj_itemCoupon = new Item();
-            $obj_itemCoupon
-                ->setName('COUPON')
-                ->setDescription('')
-                ->setCurrency($GLOBALS['TL_CONFIG']['ls_shop_currencyCode'])
-                ->setQuantity(1)
-                ->setPrice(number_format($arr_couponValue[0], 2, '.', ''));
-
-            $obj_itemList->addItem($obj_itemCoupon);
-        }
-
-        $obj_itemList->setShippingAddress($this->payPalPlus_createShippingAddress());
-
-        $obj_transaction
-            ->setAmount($obj_amount)
-            ->setItemList($obj_itemList)
-            ->setDescription('Purchase from '.date('Y-m-d, H:i'));
-
-        $obj_payment
-            ->setIntent('sale')
-            ->setPayer($obj_payer)
-            ->setTransactions(array($obj_transaction))
-            ->setRedirectUrls($obj_redirectUrls);
-
-        $obj_payment->create($this->payPalPlus_obj_apiContext);
-
-        foreach ($obj_payment->getLinks() as $obj_link) {
-            if ($obj_link->getRel() == 'approval_url') {
-                $str_approvalUrl = $obj_link->getHref();
-                break;
-            }
-        }
-
-        return $str_approvalUrl;
-    }
-
-    protected function payPalPlus_determineRedirectUrls() {
-        //dump("payPalPlus_determineRedirectUrls");
-        $this->payPalPlus_arr_returnUrls['return'] = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
-        $this->payPalPlus_arr_returnUrls['notAuthorized'] = $this->payPalPlus_arr_returnUrls['return'].(preg_match('/\?/', $this->payPalPlus_arr_returnUrls['return']) ? '&' : '?').'&approvedPayPalPlusPayment=no';
-        $this->payPalPlus_arr_returnUrls['authorized'] = $this->payPalPlus_arr_returnUrls['return'].(preg_match('/\?/', $this->payPalPlus_arr_returnUrls['return']) ? '&' : '?').'approvedPayPalPlusPayment=yes';
-    }
-
-    protected function payPalPlus_handleReturnUrlCall() {
-        //dump("payPalPlus_handleReturnUrlCall");
-        /*
-         * This is not a return url call, so don't do anything.
-         */
-        if (!\Input::get('approvedPayPalPlusPayment')) {
-            return;
-        }
-
-        /*
-         * Cancel url called, not authorized!
-         */
-        if (
-            !filter_var(\Input::get('approvedPayPalPlusPayment'), FILTER_VALIDATE_BOOLEAN)
-            ||	!\Input::get('paymentId')
-            ||	!\Input::get('PayerID')
-        ) {
-            $this->payPalPlus_resetSessionStatus();
-            $this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentNotAuthorized']);
-            $this->redirect($this->payPalPlus_arr_returnUrls['return'].'#checkoutStepPayment');
-        }
-
-        $_SESSION['lsShopPaymentProcess']['payPalPlus']['authorized'] = true;
-        $_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId'] = \Input::get('paymentId');
-        $_SESSION['lsShopPaymentProcess']['payPalPlus']['PayerID'] = \Input::get('PayerID');
-
-        $this->redirect($this->payPalPlus_arr_returnUrls['return'].'#checkoutStepPayment');
-    }
-
-    protected function payPalPlus_resetSessionStatus() {
-        //dump("payPalPlus_resetSessionStatus");
-        $_SESSION['lsShopPaymentProcess']['payPalPlus'] = array(
+    protected function payPalCheckout_resetSessionStatus() {
+        $_SESSION['lsShopPaymentProcess']['payPalCheckout'] = array(
             'authorized' => false,
-            'paymentId' => null,
-            'PayerID' => null,
+            'authorizationId' => null,
+            'orderId' => null,
             'relevantCalculationDataHash' => null
         );
     }
 
-    protected function payPalPlus_getShippingFieldValue($str_fieldName) {
-        //dump("payPalPlus_getShippingFieldValue");
+    protected function payPalCheckout_getShippingFieldValue($str_fieldName) {
+
         $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';
         if (preg_match($str_valueWildcardPattern, $str_fieldName, $arr_matches)) {
-            $str_fieldName = preg_replace($str_valueWildcardPattern, $this->payPalPlus_getShippingFieldValue($arr_matches[1]), $str_fieldName);
+            $str_fieldName = preg_replace($str_valueWildcardPattern, $this->payPalCheckout_getShippingFieldValue($arr_matches[1]), $str_fieldName);
         }
 
         $arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
@@ -699,37 +508,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         return $str_value;
     }
 
-    protected function payPalPlus_createShippingAddress() {
-        //dump("payPalPlus_createShippingAddress");
-        $obj_shippingAddress = new ShippingAddress();
 
-        $obj_shippingAddress->setRecipientName($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameFirstname']).' '.$this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameLastname']));
-
-        if ($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameStreet'])) {
-            $obj_shippingAddress->setLine1($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameStreet']));
-        }
-
-        if ($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameCity'])) {
-            $obj_shippingAddress->setCity($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameCity']));
-        }
-
-        if ($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameCountryCode'])) {
-            $obj_shippingAddress->setCountryCode(strtoupper($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameCountryCode'])));
-        }
-
-        if ($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNamePostal'])) {
-            $obj_shippingAddress->setPostalCode($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNamePostal']));
-        }
-
-        if ($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameState'])) {
-            $obj_shippingAddress->setState($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNameState']));
-        }
-
-        if ($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNamePhone'])) {
-            $obj_shippingAddress->setPhone($this->payPalPlus_getShippingFieldValue($this->arrCurrentSettings['payPalPlus_shipToFieldNamePhone']));
-        }
-
-        return $obj_shippingAddress;
-    }
 }
 ?>
