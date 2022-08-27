@@ -224,6 +224,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'back';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151'] = 'How would you like to order?';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText152'] = 'DELIVERY NOTE';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline'] = 'Product settings';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'] = 'working days';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'] = 'You can still use Merconis for %s days for free. Please purchase a license in time and enter the license number in the Merconis basic settings to continue using Merconis after the free trial period. If you see this message although you have entered a license number in the basic settings, please check the number for correctness and contact Merconis techSupport if necessary.';

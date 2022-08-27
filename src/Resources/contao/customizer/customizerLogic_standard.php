@@ -7,6 +7,7 @@ class customizerLogic_standard extends customizer {
 
     public function initialize()
     {
+        \System::loadLanguageFile('customizerLogic_standard');
     }
 
     public function manipulateProductData()
@@ -60,6 +61,11 @@ class customizerLogic_standard extends customizer {
     public function getSummaryForMerchant()
     {
         return $this->getSummaryForCart();
+    }
+
+    public function hasCustomization()
+    {
+        return !empty($this->getStoredCustomizationData());
     }
 
     protected function renderForSummary($arr_element) {

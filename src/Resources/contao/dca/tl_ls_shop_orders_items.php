@@ -101,6 +101,22 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
             'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
+        'customizer_hasCustomization' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'customizer_summary' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'customizer_summaryForCart' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'customizer_summaryForMerchant' => array (
+            'sql'                     => "blob NULL"
+        ),
+
         'extendedInfo' => array (
             'sql'                     => "blob NULL"
         )

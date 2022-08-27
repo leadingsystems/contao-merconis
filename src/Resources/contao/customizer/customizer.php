@@ -39,8 +39,8 @@ abstract class customizer {
     }
 
     /*
-     * Invoked when the customizer is being instantiated. If the customizer needs to perform any initialization actions,
-     * this method is the right place for them.
+     * Invoked when the customizer is being instantiated. If the customizer needs to perform any initialization actions
+     * (like loading language files), this method is the right place for them.
      */
     abstract function initialize();
 
@@ -121,6 +121,12 @@ abstract class customizer {
      * most likely be a container which will later be extended/enhanced by JavaScript.
      */
     abstract function getUserInterface();
+
+    /*
+     * Can be called to determine whether a product is customized or not. Must return true/false depending on whether
+     * or not customizationData exists.
+     */
+    abstract function hasCustomization();
 
     /*
      * Should be called from the product template and return the summary (most likely as html) of the current customization
