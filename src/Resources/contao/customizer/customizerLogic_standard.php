@@ -43,7 +43,7 @@ class customizerLogic_standard extends customizer {
     {
         ob_start();
         ?>
-        <div data-merconis-component="customizerBasic" data-merconis-productVariantId="<?php echo $this->obj_productOrVariant->_productVariantID; ?>" data-merconis-targetUrl="<?php echo \Environment::get('request'); ?>"></div>
+        <div data-merconis-component="customizerInterfaceStandard" data-merconis-productVariantId="<?php echo $this->obj_productOrVariant->_productVariantID; ?>" data-merconis-targetUrl="<?php echo \Environment::get('request'); ?>"></div>
         <?php
         return ob_get_clean();
     }
