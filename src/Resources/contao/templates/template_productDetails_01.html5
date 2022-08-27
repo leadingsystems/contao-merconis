@@ -218,18 +218,12 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // ##### DESCRIPTION ###### -> ?>
 
                 <div
-                    class="description ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
+                    class="description ajax-reload-by-customizer_<?php echo $this->objProduct->_productVariantID; ?> ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                     id="ajaxReloadByVariantSelector_5_<?php echo $this->objProduct->_id; ?>"
                 >
-                    <?php
-                    if ($this->objProduct->_hasCustomizerLogicFile) {
-                        var_dump($this->objProduct->_customizer->getStoredData());
-                    }
-                    ?>
-
                     <p><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></p>
                     <?php
-                    if ($obj_tmp_productOrVariant->_hasCustomizerLogic) {
+                    if ($obj_tmp_productOrVariant->_hasCustomizer) {
                         ?>
                         <div>
                             <h3>Ihre Produkt-Einstellungen:</h3>
