@@ -5,9 +5,17 @@ namespace Merconis\Core;
 class customizerLogic_standard extends customizer {
     protected $bln_showFieldsetsInSummary = true;
 
+    /*
+     * $arr_language will hold a reference to the language array.
+     * This allows customizer logic classes that extend customizerLogic_standard to use the original method "renderForSummary"
+     * and provide their own language array by just pointing the reference to the respective data source.
+     */
+    protected $arr_language = null;
+
     public function initialize()
     {
         \System::loadLanguageFile('customizerLogic_standard');
+        $this->arr_language = &$GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard'];
     }
 
     public function manipulateProductData()
@@ -90,7 +98,7 @@ class customizerLogic_standard extends customizer {
                 if ($this->bln_showFieldsetsInSummary) {
                     ?>
                     <fieldset>
-                        <legend><?php echo isset($GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fieldsets'][$arr_element['name']]['name']) ? $GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fieldsets'][$arr_element['name']]['name'] : $arr_element['name']; ?></legend>
+                        <legend><?php echo isset($this->arr_language['fieldsets'][$arr_element['name']]['name']) ? $this->arr_language['fieldsets'][$arr_element['name']]['name'] : $arr_element['name']; ?></legend>
                         <div class="elements">
                     <?php
                 }
@@ -115,9 +123,9 @@ class customizerLogic_standard extends customizer {
                 <div class="<?php echo $arr_element['type']; ?>">
                     <span class="label">
                         <?php
-                        if (isset($GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fields'][$arr_element['name']]['name'])) {
-                            if ($GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fields'][$arr_element['name']]['name'] !== '') {
-                                echo $GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fields'][$arr_element['name']]['name'] . ':';
+                        if (isset($this->arr_language['fields'][$arr_element['name']]['name'])) {
+                            if ($this->arr_language['fields'][$arr_element['name']]['name'] !== '') {
+                                echo $this->arr_language['fields'][$arr_element['name']]['name'] . ':';
                             }
                         } else {
                             echo $arr_element['name'] . ':';
@@ -136,9 +144,9 @@ class customizerLogic_standard extends customizer {
                 <div class="<?php echo $arr_element['type']; ?>">
                     <span class="label">
                         <?php
-                        if (isset($GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fields'][$arr_element['name']]['name'])) {
-                            if ($GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fields'][$arr_element['name']]['name'] !== '') {
-                                echo $GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fields'][$arr_element['name']]['name'] . ':';
+                        if (isset($this->arr_language['fields'][$arr_element['name']]['name'])) {
+                            if ($this->arr_language['fields'][$arr_element['name']]['name'] !== '') {
+                                echo $this->arr_language['fields'][$arr_element['name']]['name'] . ':';
                             }
                         } else {
                             echo $arr_element['name'] . ':';
@@ -149,11 +157,11 @@ class customizerLogic_standard extends customizer {
                         <?php
                         if (is_array($arr_element['value'])) {
                             if (!empty($arr_element['value'])) {
-                                echo implode(', ', array_map(function($str_value) use ($arr_element) { return $GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fields'][$arr_element['name']]['values'][$str_value] ?: $str_value; }, $arr_element['value']));
+                                echo implode(', ', array_map(function($str_value) use ($arr_element) { return $this->arr_language['fields'][$arr_element['name']]['values'][$str_value] ?: $str_value; }, $arr_element['value']));
                             }
                         } else {
                             if ($arr_element['value'] !== '') {
-                                echo isset($GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fields'][$arr_element['name']]['values'][$arr_element['value']]) ? $GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard']['fields'][$arr_element['name']]['values'][$arr_element['value']] : $arr_element['value'];
+                                echo isset($this->arr_language['fields'][$arr_element['name']]['values'][$arr_element['value']]) ? $this->arr_language['fields'][$arr_element['name']]['values'][$arr_element['value']] : $arr_element['value'];
                             }
                         }
                         ?>
