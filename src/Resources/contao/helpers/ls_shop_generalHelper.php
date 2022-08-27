@@ -2109,6 +2109,11 @@ class ls_shop_generalHelper
         require_once(TL_ROOT ."/". $obj_product->_customizerLogicFile);
         $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_product->_customizerLogicFile);
 
+        if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
+            \System::log('MERCONIS: Customizer logic file "' . $str_customLogicClassName . '" can not be used because it is does not extend "\Merconis\Core\customizer"', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+            return null;
+        }
+
         $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_product, $obj_product->_configuratorHash);
 
         return $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];

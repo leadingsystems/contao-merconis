@@ -138,7 +138,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                     <?php } ?>
 
                     <?php
-                    if ($obj_tmp_productOrVariant->_customizer->hasCustomization()) {
+                    if ($obj_tmp_productOrVariant->_hasCustomizer && $obj_tmp_productOrVariant->_customizer->hasCustomization()) {
                         ?>
                         <div>
                             <h5><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline']; ?></h5>

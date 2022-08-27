@@ -229,7 +229,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
                     <p><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></p>
                     <?php
-                    if ($obj_tmp_productOrVariant->_hasCustomizerLogicFile) {
+                    if ($obj_tmp_productOrVariant->_hasCustomizerLogic) {
                         ?>
                         <div>
                             <h3>Ihre Produkt-Einstellungen:</h3>
@@ -248,7 +248,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                             id="ajaxReloadByVariantSelector_8_<?php echo $this->objProduct->_id; ?>"
                     >
                         <?php
-                        if ($obj_tmp_productOrVariant->_hasCustomizerLogicFile) {
+                        if ($obj_tmp_productOrVariant->_hasCustomizer) {
                             ?>
                             <?php echo $obj_tmp_productOrVariant->_customizer->getUserInterface(); ?>
                             <?php
