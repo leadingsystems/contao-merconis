@@ -18,13 +18,22 @@ class ls_shop_product
 
 	public $ls_variants = array();
 
-	public $ls_data = null;
+	private $arr_originalData = null;
+	public $arr_customizableData = null;
+	private $ls_data = null;
+	public $mainData = null;
+	public $currentLanguageData = null;
 
 	private $ls_objConfigurator = null;
+
+    /**
+     * @var customizer
+     */
+	public $obj_customizer = null;
+
 	public $ls_configuratorHash = '';
 
 	protected $ls_mainLanguageMode = false;
-	protected $ls_currentLanguage = null;
 
 	protected $blnAlreadyGeneratedScalePricesOutput = array(
 		'unconfigured' => false,
@@ -55,11 +64,16 @@ class ls_shop_product
 
 		$this->ls_getData();
 
-//			For performance reasons configurator objects are not automatically instantiated in the __construct function
-//			$this->createObjConfigurator();
-
 		$this->ls_getVariants();
+
+		$this->createCustomizerObject();
 	}
+
+	protected function createCustomizerObject() {
+        if (!$this->_hasVariants) {
+            $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
+        }
+    }
 
 	protected function createObjConfigurator() {
 		if ($this->ls_objConfigurator !== null) {
@@ -74,14 +88,8 @@ class ls_shop_product
 		}
 
 		$this->ls_mainLanguageMode = $bln;
-	}
 
-	public function ls_setCurrentLanguage($language = null) {
-		if ($this->_variantIsSelected) {
-			$this->_selectedVariant->ls_setCurrentLanguage($language);
-		}
-
-		$this->ls_currentLanguage = $language && in_array($language, ls_shop_languageHelper::getAllLanguages()) ? $language : null;
+		$this->setDataReferences();
 	}
 
 	public function getLowestVariantPrice() {
@@ -252,6 +260,22 @@ class ls_shop_product
 			case '_objectType':
 				return 'product';
 
+            case '_configuratorHash':
+                return $this->ls_configuratorHash;
+
+			case '_customizerLogicFile':
+				return ls_getFilePathFromVariableSources($this->mainData['customizerLogicFile']);
+				break;
+
+            case '_hasCustomizerLogicFile':
+                return $this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile);
+
+            case '_customizer':
+                return $this->obj_customizer;
+
+            case '_hasCustomizer':
+                return is_object($this->obj_customizer);
+
 			case '_isPublished':
 				return $this->mainData['published'] ? true : false;
 				break;
@@ -302,20 +326,34 @@ class ls_shop_product
 				break;
 
 			case '_cartKey':
-				/*
-				 * If the product has not been configured yet, we use the default configuratorHash
-				 */
-				if (!isset($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !is_array($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !in_array($this->ls_productVariantID, $_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
-					return $this->ls_productVariantID.'_'.ls_shop_generalHelper::getDefaultConfiguratorHash(!$this->ls_currentVariantID ? $this->_configuratorID : $this->ls_variants[$this->ls_currentVariantID]->_configuratorID);
-				}
+			    $str_cartKey = $this->ls_productVariantID;
 
-				!$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
-				if (!$this->_variantIsSelected) {
-					return $this->ls_productVariantID.($this->ls_objConfigurator->configuratorHash ? '_'.$this->ls_objConfigurator->configuratorHash : '');
-				} else {
-					return $this->_selectedVariant->ls_productVariantID.($this->_selectedVariant->ls_objConfigurator->configuratorHash ? '_'.$this->_selectedVariant->ls_objConfigurator->configuratorHash : '');
-				}
+			    if ($this->_hasCustomizer) {
+                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->obj_customizer->getCustomizerHash() ?: 'no-customization');
+                } else if ($this->_hasConfigurator) {
+			        $str_cartKey = $this->_configuratorCartKey;
+                }
+
+			    return $str_cartKey;
 				break;
+
+            case '_configuratorCartKey':
+                /*
+                 * If the product has not been configured yet, we use the default configuratorHash
+                 */
+                if (!isset($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !is_array($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !in_array($this->ls_productVariantID, $_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
+                    $str_cartKey = $this->ls_productVariantID.'_'.ls_shop_generalHelper::getDefaultConfiguratorHash(!$this->ls_currentVariantID ? $this->_configuratorID : $this->ls_variants[$this->ls_currentVariantID]->_configuratorID);
+                } else {
+                    !$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
+                    if (!$this->_variantIsSelected) {
+                        $str_cartKey = $this->ls_productVariantID.($this->ls_objConfigurator->configuratorHash ? '_'.$this->ls_objConfigurator->configuratorHash : '');
+                    } else {
+                        $str_cartKey = $this->_selectedVariant->ls_productVariantID.($this->_selectedVariant->ls_objConfigurator->configuratorHash ? '_'.$this->_selectedVariant->ls_objConfigurator->configuratorHash : '');
+                    }
+                }
+
+                return $str_cartKey;
+                break;
 
 			case '_configuratorRepresentation':
 				!$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
@@ -1459,20 +1497,6 @@ filter context, NULL will be returned.
 				return $this->ls_data === null ? false : true;
 				break;
 
-			case 'mainData':
-				return $this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
-				break;
-
-			case 'currentLanguageData':
-				if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage)) {
-					return $this->mainData;
-				}
-
-				$languageToUse = $this->ls_currentLanguage ? $this->ls_currentLanguage : $objPage->language;
-
-				return isset($this->ls_data[$languageToUse]) ? $this->ls_data[$languageToUse] : $this->mainData;
-				break;
-
 			case '_steuersatz':
 				return $this->mainData['lsShopProductSteuersatz'];
 				break;
@@ -1862,6 +1886,14 @@ This method can be used to call a function hooked with the "callingHookedProduct
 				}
 				break;
 
+			case 'saveCustomizerForCurrentCartKey':
+				if (!$this->_variantIsSelected) {
+					$this->obj_customizer->saveCustomizerForCurrentCartKey();
+				} else if ($this->_variantIsSelected) {
+					$this->_selectedVariant->obj_customizer->saveCustomizerForCurrentCartKey();
+				}
+				break;
+
 			default:
 				return false;
 				break;
@@ -1870,11 +1902,11 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	}
 
 	public function ls_getData() {
-		$this->ls_data = ls_shop_languageHelper::getMultiLanguage($this->ls_ID, 'tl_ls_shop_product', 'all', 'all', true, false);
+		$this->arr_originalData = ls_shop_languageHelper::getMultiLanguage($this->ls_ID, 'tl_ls_shop_product', 'all', 'all', true, false);
 
-		if (is_array($this->ls_data)) {
-			foreach ($this->ls_data as $languageKey => $arrLanguageData) {
-				$this->ls_data[$languageKey]['lsShopProductDetailsTemplate'] = isset($this->ls_data[$languageKey]['lsShopProductDetailsTemplate']) && $this->ls_data[$languageKey]['lsShopProductDetailsTemplate'] ? $this->ls_data[$languageKey]['lsShopProductDetailsTemplate'] : $GLOBALS['TL_CONFIG']['ls_shop_productDetailsTemplate'];
+		if (is_array($this->arr_originalData)) {
+			foreach ($this->arr_originalData as $languageKey => $arrLanguageData) {
+				$this->arr_originalData[$languageKey]['lsShopProductDetailsTemplate'] = isset($this->arr_originalData[$languageKey]['lsShopProductDetailsTemplate']) && $this->arr_originalData[$languageKey]['lsShopProductDetailsTemplate'] ? $this->arr_originalData[$languageKey]['lsShopProductDetailsTemplate'] : $GLOBALS['TL_CONFIG']['ls_shop_productDetailsTemplate'];
 			}
 		}
 
@@ -1882,7 +1914,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		 * Prepare group prices
 		 */
 		$arr_groupPrices = null;
-		foreach ($this->ls_data as $languageKey => $arrLanguageData) {
+		foreach ($this->arr_originalData as $languageKey => $arrLanguageData) {
 			/*
 			 * Since group prices are not language specific and therefore
 			 * are the same in every language data array, we only have to structure
@@ -1893,7 +1925,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 				$arr_groupPrices = ls_shop_generalHelper::getStructuredGroupPrices($arrLanguageData, 'product');
 			}
 
-			$this->ls_data[$languageKey]['arr_groupPrices'] = $arr_groupPrices;
+			$this->arr_originalData[$languageKey]['arr_groupPrices'] = $arr_groupPrices;
 
 			/*
 			 * If group price settings exist for the current member group, we
@@ -1902,7 +1934,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			$arr_groupSettingsForUser = ls_shop_generalHelper::getGroupSettings4User();
 			if (isset($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']])) {
 				foreach ($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']] as $str_groupPriceKey => $str_groupPriceValue) {
-					$this->ls_data[$languageKey][$str_groupPriceKey] = $str_groupPriceValue;
+					$this->arr_originalData[$languageKey][$str_groupPriceKey] = $str_groupPriceValue;
 				}
 			}
 
@@ -1911,10 +1943,38 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'] as $mccb) {
 				$objMccb = \System::importStatic($mccb[0]);
-				$this->ls_data = $objMccb->{$mccb[1]}($this->ls_data, 'product');
+				$this->arr_originalData = $objMccb->{$mccb[1]}($this->arr_originalData, 'product');
 			}
 		}
+
+		$this->arr_customizableData = $this->arr_originalData;
+
+		$this->ls_data = &$this->arr_customizableData;
+
+		$this->setDataReferences();
 	}
+
+	private function setDataReferences() {
+        global $objPage;
+
+        $this->mainData = &$this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
+
+        if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage) || !isset($this->ls_data[$objPage->language])) {
+            $this->currentLanguageData = &$this->mainData;
+        } else {
+            $this->currentLanguageData = &$this->ls_data[$objPage->language];
+        }
+    }
+
+	public function useOriginalData() {
+        $this->ls_data = &$this->arr_originalData;
+        $this->setDataReferences();
+    }
+
+	public function useCustomizableData() {
+        $this->ls_data = &$this->arr_customizableData;
+        $this->setDataReferences();
+    }
 
 	public function ls_getVariants() {
 		$objVariants = \Database::getInstance()->prepare("
@@ -1928,7 +1988,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		$objVariants = $objVariants->execute($this->ls_ID);
 
 		while ($objVariants->next()) {
-			$this->ls_variants[$objVariants->id] = new ls_shop_variant($objVariants->id, $this->ls_ID, $this->ls_data[ls_shop_languageHelper::getFallbackLanguage()], $this);
+			$this->ls_variants[$objVariants->id] = new ls_shop_variant($objVariants->id, $this->ls_ID, $this);
 		}
 	}
 

@@ -54,6 +54,7 @@
     $GLOBALS['TL_LANG']['tl_ls_shop_product']['pageDescription']								=	array('Meta page description', 'Enter here the page description to be used on the product detail page in the search engine relevant meta element "description". Up to 255 characters are possible, a maximum of 160 is recommended. If you enter something here, this text will be used under all circumstances. If you leave the field empty, either the page description, which Contao regularly creates, or the normal product description can be used, depending on the basic settings.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['sorting']										=	array('Sorting number');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['configurator']									=	array('Use configurator');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['customizerLogicFile']							=	array('Use customizer file');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['useOldPrice']									=	array('Use old price');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents']									= 	array('Flexible product information','You can add as many information as you like and you can use them in the templates as product properties by referencing them with their keyword.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent']				= 	array('Flexible product information (language independent)','You can add as many information as you like and you can use them in the templates as product properties by referencing them with their keyword.');

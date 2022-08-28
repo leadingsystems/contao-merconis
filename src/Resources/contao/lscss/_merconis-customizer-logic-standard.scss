@@ -1,0 +1,28 @@
+.customizer-summary {
+  fieldset {
+    legend {
+      font-size: $ls_font-size-h2;
+    }
+    fieldset {
+      padding-left: 2rem;
+      legend {
+        font-size: $ls_font-size-h3;
+      }
+      fieldset {
+        legend {
+          font-size: $ls_font-size-h4;
+        }
+        fieldset {
+          legend {
+            font-size: $ls_font-size-h5;
+          }
+          fieldset {
+            legend {
+              font-size: $ls_font-size-h6;
+            }
+          }
+        }
+      }
+    }
+  }
+}
