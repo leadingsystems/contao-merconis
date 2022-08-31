@@ -117,6 +117,16 @@ $GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard'] = [
             'initialValue' => 'Für Dich!'
         ],
 
+        'number-of-prints' => [
+            'name' => 'Anzahl der Beschriftungen',
+            'initialValue' => '3'
+        ],
+
+        'color-of-print' => [
+            'name' => 'Farbe der Beschriftung',
+            'initialValue' => '#FF00FF'
+        ],
+
         'greeting-card-text' => [
             'name' => 'Text für Grußkarte',
             'initialValue' => 'Alles Gute zum Geburtstag und ein tolles neues Lebensjahr wünsche ich Dir!'
