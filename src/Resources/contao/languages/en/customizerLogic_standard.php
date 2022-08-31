@@ -117,6 +117,16 @@ $GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard'] = [
             'initialValue' => 'For you!'
         ],
 
+        'number-of-prints' => [
+            'name' => 'Number of prints',
+            'initialValue' => '3'
+        ],
+
+        'color-of-print' => [
+            'name' => 'Color of the inscription',
+            'initialValue' => '#FF00FF'
+        ],
+
         'greeting-card-text' => [
             'name' => 'Text for greeting card',
             'initialValue' => 'Happy birthday and I wish you a great new year!'

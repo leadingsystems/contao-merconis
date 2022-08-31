@@ -117,6 +117,17 @@ class customizerLogic_standard extends customizer {
                 break;
 
             case 'text':
+            case 'color':
+            case 'date':
+            case 'datetime-local':
+            case 'email':
+            case 'month':
+            case 'number':
+            case 'range':
+            case 'tel':
+            case 'time':
+            case 'url':
+            case 'week':
             case 'textarea':
                 ob_start();
                 ?>
