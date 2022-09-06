@@ -146,4 +146,11 @@ abstract class customizer {
      * paths to possibly uploaded files) should be included in this summary.
      */
     abstract function getSummaryForMerchant();
+
+    /*
+     * The return value of this function will be stored in the order record so that it can be used for anything that
+     * takes place after the order is finishe. Since the value is stored serialized, it can hold basically any value
+     * and will most likely hold an array with lots of different information.
+     */
+    abstract function getFlexData();
 }
