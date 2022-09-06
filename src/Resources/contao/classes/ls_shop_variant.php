@@ -296,8 +296,12 @@ class ls_shop_variant
 				break;
 
 			case '_orderAllowed':
-				$this->createObjConfigurator();
-				return $this->ls_objConfigurator->blnIsValid;
+                if ($this->_hasCustomizer) {
+                    return $this->obj_customizer->checkIfOrderIsAllowed();
+                } else {
+                    $this->createObjConfigurator();
+                    return $this->ls_objConfigurator->blnIsValid;
+                }
 				break;
 
             case '_cartKey':

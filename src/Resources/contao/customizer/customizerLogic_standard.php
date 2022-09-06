@@ -194,4 +194,9 @@ class customizerLogic_standard extends customizer {
             ]
         ];
     }
+
+    public function checkIfOrderIsAllowed()
+    {
+        return !is_null($this->getStoredCustomizationData());
+    }
 }
