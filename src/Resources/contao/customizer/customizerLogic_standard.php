@@ -183,4 +183,15 @@ class customizerLogic_standard extends customizer {
                 break;
         }
     }
+
+    public function getFlexData()
+    {
+        return [
+            'customization' => $this->getStoredCustomizationData(),
+            'otherStuff' => [
+                'what' => 'ever',
+                'or' => 123.45
+            ]
+        ];
+    }
 }

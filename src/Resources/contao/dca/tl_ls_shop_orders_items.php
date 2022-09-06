@@ -117,6 +117,10 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
             'sql'                     => "blob NULL"
         ),
 
+        'customizer_flexData' => array (
+            'sql'                     => "blob NULL"
+        ),
+
         'extendedInfo' => array (
             'sql'                     => "blob NULL"
         )

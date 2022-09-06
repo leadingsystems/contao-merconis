@@ -572,6 +572,7 @@ class ModuleCheckoutFinish extends \Module {
 				'summary' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getSummary() : '',
 				'summaryForCart' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getSummaryForCart() : '',
 				'summaryForMerchant' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getSummaryForMerchant() : '',
+				'flexData' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getFlexData() : '',
 			);
 			$arrItem['extendedInfo'] = array(
 				'_productVariantID' => $blnIsVariant ? $objProduct->_selectedVariant->_productVariantID : $objProduct->_productVariantID, // no language
@@ -912,6 +913,7 @@ class ModuleCheckoutFinish extends \Module {
 							`customizer_summary` = ?,
 							`customizer_summaryForCart` = ?,
 							`customizer_summaryForMerchant` = ?,
+							`customizer_flexData` = ?,
 							`extendedInfo` = ?
 			")
 			->execute(
@@ -941,6 +943,7 @@ class ModuleCheckoutFinish extends \Module {
 				$arrItem['customizer']['summary'],
 				$arrItem['customizer']['summaryForCart'],
 				$arrItem['customizer']['summaryForMerchant'],
+				$arrItem['customizer']['flexData'],
 				serialize($arrItem['extendedInfo'])
 			);			
 		}
