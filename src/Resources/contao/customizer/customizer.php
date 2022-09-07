@@ -153,4 +153,10 @@ abstract class customizer {
      * and will most likely hold an array with lots of different information.
      */
     abstract function getFlexData();
+
+    /*
+     * This function is called to check whether a product is in a state where it can be ordered and must return true to
+     * indicate that the product can be ordered or false if the product must not be ordered in its current state.
+     */
+    abstract function checkIfOrderIsAllowed();
 }
