@@ -565,8 +565,6 @@ class ModuleCheckoutFinish extends \Module {
 				'referenceNumber' => $objProduct->_hasConfigurator ? $objProduct->_configuratorReferenceNumber : '' // no language
 			);
 
-            \LeadingSystems\Helpers\lsErrorLog(__METHOD__ . ': LINE ' . __LINE__, $blnIsVariant ? $objProduct->_selectedVariant->_code : $objProduct->_code, 'perm', 'var_dump');
-
 			$arrItem['customizer'] = array(
 				'hasCustomization' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? '1' : '',
 				'summary' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getSummary() : '',
