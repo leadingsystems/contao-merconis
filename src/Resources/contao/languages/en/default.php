@@ -316,6 +316,7 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['payme
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentNotAuthorized'] = 'Your pay pal payment could not be authorized.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationObsolete'] = 'You have changed information which is relevant for payment. Should you have already authorized payment, it will not be valid any longer. Please repeat the authorization procedure.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['headlineBackendDetailsInfo'] = 'Information about the payment status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['removeAuthorized'] = 'Remove authorization';
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'] = 'The payment via "Online Bank Transfer." could not be finished successfully but we have received your order. Please contact us in order to resolve this issue and to agree upon an alternative payment option.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['confirmCheckoutMessage'] = 'After confirmation of the order you will be redirected to "Online Bank Transfer." where you can finish your payment.';

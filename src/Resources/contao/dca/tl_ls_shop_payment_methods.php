@@ -298,6 +298,64 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'sql'                     => "tinytext NULL"
         ),
 
+        'payPalCheckout_clientID' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
+        'payPalCheckout_clientSecret' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
+        'payPalCheckout_liveMode' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'payPalCheckout_logMode' => array (
+            'sql'                     => "varchar(255) NOT NULL default 'NONE'"
+        ),
+
+        'payPalCheckout_shipToFieldNameFirstname' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
+        'payPalCheckout_shipToFieldNameLastname' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
+        'payPalCheckout_shipToFieldNameStreet' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
+        'payPalCheckout_shipToFieldNameCity' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
+        'payPalCheckout_shipToFieldNamePostal' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
+        'payPalCheckout_shipToFieldNameState' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
+        'payPalCheckout_shipToFieldNameCountryCode' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
+        'payPalCheckout_shipToFieldNamePhone' => array (
+            'eval'                    =>	array('maxlength' => 255),
+            'sql'                     => "tinytext NULL"
+        ),
+
         'payone_subaccountId' => array (
             'eval'                    =>	array('maxlength' => 255),
             'sql'                     => "tinytext NULL"

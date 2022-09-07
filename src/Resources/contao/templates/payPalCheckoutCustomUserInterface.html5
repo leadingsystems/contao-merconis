@@ -1,13 +1,43 @@
 <?php
 if ($this->bln_paymentAuthorized) {
     ?>
-    <p><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentAuthorized']; ?></p>
+
+    <script type="application/javascript">
+        console.log("loading div2")
+        function reloadPaypalButton(){
+            console.log("loading div")
+            lsjs.loadingIndicator.__controller.show();
+
+            new Request.cajax({
+                url: document.location.href,
+                method: 'post',
+                noCache: true,
+                cajaxMode: 'updateCompletely',
+                data:	'cajaxRequestData[requestedElementClass]=paymentAndShippingOptionContainer,finishingOrderSubmitBox'
+                    + '&REQUEST_TOKEN=' + lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN
+                    + '&payPalCheckout_reset=' + true,
+                onComplete: function() {
+                    lsjs.loadingIndicator.__controller.hide();
+                },
+                onSuccess: function(els, str_html, str_script) {
+                    Browser.exec(str_script);
+                }
+
+            }).send();
+        }
+
+    </script>
+    <button class="button" onclick=reloadPaypalButton()><?= $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['removeAuthorized']; ?></button>
+
+
+    <p><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentAuthorized']; ?></p>
     <?php
 } else {
     ?>
-    <h3><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentWallHeadline']; ?></h3>
+    <h3><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentWallHeadline']; ?></h3>
     <div id="paypal-button-container"></div>
     <script type="application/javascript">
+        console.log("load Paypal button script")
         var myScript = Asset.javascript(
             'https://www.paypal.com/sdk/js?client-id=<?= $this->clientId ?>&currency=<?= $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'] ?>&intent=authorize&commit=false',
             {
@@ -42,6 +72,7 @@ if ($this->bln_paymentAuthorized) {
                                 console.log('Order ID:  ' + data.orderID);
                                 console.log('Authorization ID: ' + authorizationID);
 
+
                                 lsjs.loadingIndicator.__controller.show();
 
                                 new Request.cajax({
@@ -55,7 +86,11 @@ if ($this->bln_paymentAuthorized) {
                                         + '&payPalCheckout_authorizationId=' + authorizationID,
                                     onComplete: function() {
                                         lsjs.loadingIndicator.__controller.hide();
+                                    },
+                                    onSuccess: function(els, str_html, str_script) {
+                                        Browser.exec(str_script);
                                     }
+
                                 }).send();
                             });
                         },/*
@@ -69,6 +104,7 @@ if ($this->bln_paymentAuthorized) {
                             //cancel message
                         },
                         onError: (err) => {
+                            console.log(err)
                             //error message
                             console.log(err);
                         }

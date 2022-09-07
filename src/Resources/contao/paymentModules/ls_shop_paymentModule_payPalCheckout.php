@@ -1,31 +1,13 @@
 <?php
 
 namespace Merconis\Core;
-use function LeadingSystems\Helpers\ls_mul;
-use function LeadingSystems\Helpers\ls_div;
-use function LeadingSystems\Helpers\ls_add;
-use function LeadingSystems\Helpers\ls_sub;
-
-use PayPal\Rest\ApiContext;
-use PayPal\Auth\OAuthTokenCredential;
-use PayPal\Api\WebProfile;
-use PayPal\Api\Presentation;
-use PayPal\Api\Payment;
-use PayPal\Api\Amount;
-use PayPal\Api\Details;
-use PayPal\Api\Item;
-use PayPal\Api\ItemList;
-use PayPal\Api\Payer;
-use PayPal\Api\RedirectUrls;
-use PayPal\Api\Transaction;
-use PayPal\Api\PayerInfo;
-use PayPal\Api\ShippingAddress;
-use PayPal\Api\PatchRequest;
-use PayPal\Api\Patch;
-use PayPal\Api\PaymentExecution;
-use PayPal\Exception\PayPalConnectionException;
 
 class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standard {
+
+
+    const SANDBOX_URL = 'https://api-m.sandbox.paypal.com';
+    const LIVE_URL = 'https://api-m.paypal.com';
+
     public $arrCurrentSettings = array();
 
     public function initialize($specializedManually = false) {
@@ -41,6 +23,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     }
 
     public function getCustomUserInterface() {
+
+        if(\Input::post('payPalCheckout_reset')){
+            $this->payPalCheckout_resetSessionStatus();
+            \Controller::reload();
+        }
 
         if (\Input::post('payPalCheckout_orderId') && \Input::post('payPalCheckout_authorizationId')) {
             $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'] = \Input::post('payPalCheckout_orderId');
@@ -61,10 +48,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v2/checkout/orders');
+        curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/checkout/orders');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
 
         $totalvalue = 0;
         $itemlist = [];
@@ -105,8 +92,37 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $discount = (-1)*number_format($arr_couponValue[0], 2, '.', '');
         }
 
+
+        if ($this->payPalCheckout_getShippingFieldValue("firstname")) {
+            $firstname = $this->payPalCheckout_getShippingFieldValue("firstname");
+        }
+
+        if ($this->payPalCheckout_getShippingFieldValue("lastname")) {
+            $lastname = $this->payPalCheckout_getShippingFieldValue("lastname");
+        }
+
+        if ($this->payPalCheckout_getShippingFieldValue("street")) {
+            $street = $this->payPalCheckout_getShippingFieldValue("street");
+        }
+
+        if ($this->payPalCheckout_getShippingFieldValue("city")) {
+            $city = $this->payPalCheckout_getShippingFieldValue("city");
+        }
+
+        if ($this->payPalCheckout_getShippingFieldValue("country")) {
+            $countryCode = strtoupper($this->payPalCheckout_getShippingFieldValue("country"));
+        }
+
+        if ($this->payPalCheckout_getShippingFieldValue("postal")) {
+            $postalCode = $this->payPalCheckout_getShippingFieldValue("postal");
+        }
+
         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
             "intent" => "AUTHORIZE",
+                "application_context"=> [
+                    //"brand_name"=> 'myBrand',
+                    "shipping_preference"=> 'SET_PROVIDED_ADDRESS',
+            ],
             "purchase_units" =>  [
                 [
                     "amount"=> [
@@ -121,6 +137,18 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                                 "currency_code"=> $currency_code,
                                 "value"=> strval($discount)
                             ]
+                        ]
+                    ],
+
+                    "shipping"=>  [
+                        "name"=>  [
+                            "full_name"=>  $firstname.' '.$lastname
+                        ],
+                        "address"=>  [
+                            "address_line_1"=>  $street,
+                            "admin_area_2"=>  $city,
+                            "postal_code"=>  $postalCode,
+                            "country_code"=>  $countryCode,
                         ]
                     ],
                     "items" => $itemlist
@@ -156,16 +184,15 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
     private function payPalCheckout_getaccessToken(){
 
-        //$this->arrCurrentSettings['payPalCheckout_clientID'];
-        //get access_token
+
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v1/oauth2/token');
+        curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v1/oauth2/token');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
         curl_setopt($ch, CURLOPT_USERPWD, $this->arrCurrentSettings['payPalCheckout_clientID'] . ':' . $this->arrCurrentSettings['payPalCheckout_clientSecret']);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
 
         $headers = array();
         $headers[] = 'Content-Type: application/x-www-form-urlencoded';
@@ -180,20 +207,24 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     }
 
     public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
+
+
         $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
 
         $access_token = $this->payPalCheckout_getaccessToken();
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v2/payments/authorizations/'. $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'] .'/capture');
+        curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/payments/authorizations/'. $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'] .'/capture');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
+
 
         $headers = array();
         $headers[] = 'Content-Type: application/json';
         $headers[] = 'Authorization: Bearer '.$access_token;
+        $headers[] = 'PayPal-Mock-Response: {"mock_application_codes": "PAYER_CANNOT_PAY"}';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
@@ -201,20 +232,31 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
-
+        dump(json_decode($result));
+        dump(json_decode($result)->status);
         $status = json_decode($result)->status;
+
+
 
         try {
 
+
             if($status == "COMPLETED"){
+                dump("status completed");
                 $this->payPalCheckout_updateSaleDetailsInOrderRecord($orderIdInDb);
+                // write the success message to the special payment info
+                $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
             }
+            //egal ob es schief läuft oder nicht oder immer abspeichern
             $this->payPalCheckout_updateSaleDetailsInOrderRecord($orderIdInDb);
             $this->payPalCheckout_resetSessionStatus();
 
+            // write the error message to the special payment info -> order is completet but payment is incomplete
+            $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'];
+
         } catch (\Exception $e) {
 
-            $this->logPaymentError(__METHOD__, $e->getMessage(), json_encode($e->getData()));
+            $this->logPaymentError(__METHOD__, $e->getMessage());
 
             $paymentMethod_moduleReturnData = $this->get_paymentMethod_moduleReturnData_forOrderId($orderIdInDb);
             $paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus'] = 'Payment module error (see order details)';
@@ -277,19 +319,14 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             return $arr_saleDetails;
         }
 
-        //get order from paypa api
-
         $access_token = $this->payPalCheckout_getaccessToken();
 
-
-        //----------------------------------------------------------------------------
-        // get order
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, 'https://api-m.sandbox.paypal.com/v2/checkout/orders/'.$str_orderId); ///7RF08345XE299394P
+        curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/checkout/orders/'.$str_orderId);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl fix only for development !!
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
 
         $headers = array();
         $headers[] = 'Content-Type: application/json';
@@ -302,11 +339,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
         curl_close($ch);
 
-        echo $result;
 
         try{
             $resultJson = json_decode($result);
-            $arr_saleDetails['str_currentStatus'] = $resultJson->status;
+            $arr_saleDetails['str_currentStatus'] = $resultJson->purchase_units[0]->payments->authorizations[0]->status;
             $arr_saleDetails['str_orderId'] = $resultJson->id;
         }catch (\Exception $e) {
             $arr_saleDetails['str_currentStatus'] = 'payment information could not be read correctly [ppc01]';
@@ -314,6 +350,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
         return $arr_saleDetails;
     }
+
 
     public function showPaymentDetailsInBackendOrderDetailView($arrOrder = array(), $paymentMethod_moduleReturnData = '') {
 
@@ -384,7 +421,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
         ob_start();
         ?>
-        <div id="payPalCheckout_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview payPalCheckout <?php echo strtolower(preg_replace('/\s+/', '-', $arrLastStatus['statusValue'])); ?>">
+        <div id="payPalCheckout_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview payPalCheckout">
             <img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png" border="0" alt="PayPal Logo" />
             <div class="content">
                 <div class="details">
@@ -493,19 +530,13 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
     protected function payPalCheckout_getShippingFieldValue($str_fieldName) {
 
-        $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';
-        if (preg_match($str_valueWildcardPattern, $str_fieldName, $arr_matches)) {
-            $str_fieldName = preg_replace($str_valueWildcardPattern, $this->payPalCheckout_getShippingFieldValue($arr_matches[1]), $str_fieldName);
-        }
-
         $arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
-        $str_value = $arrCheckoutFormFields[$str_fieldName.(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] ? '_alternative' : '')]['value'];
 
-        if (!$str_value) {
-            $str_value = null;
+        if(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] == "1"){
+            $str_fieldName = $str_fieldName.'_alternative';
         }
 
-        return $str_value;
+        return $arrCheckoutFormFields[$str_fieldName]['value'];
     }
 
 
