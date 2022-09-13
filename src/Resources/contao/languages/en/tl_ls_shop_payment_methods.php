@@ -56,10 +56,18 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['paypalLiveMode']								= array('Live mode', 'Please activate this checkbox if your PayPal payment module shall go live. Please note that the API access data which you store in this payment module are different depending on whether the PayPal payment module is in live mode or sandbox mode. If this checkbox is not activated, the payment module will communicate with the PayPal sandbox, a test environment in which no real payments take place. The sandbox mode should be used for preliminary tests with this payment module on condition that real customers cannot use this payment option while the tests take place.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['paypalShowItems']								= array('Transfer single positions to PayPal', 'Activate this checkbox if you want information on single positions of the order to be transferred to PayPal.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['paypal_legend']								= 'PayPal settings';
-	
+
 	/*
-	 * PayPalPlus-Bezeichnungen
-	 */
+     * PayPalCheckout-Bezeichnungen
+     */
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payPalPlus_legend']                          = 'PayPal Checkout settings';
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payPalCheckout_clientID']                    = array('PayPal Checkout Client ID', 'Please enter the value here of which you learn when you have your API access data displayed in your PayPal account.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payPalCheckout_clientSecret']                = array('PayPal Checkout Client Secret', 'Please enter the value here of which you learn when you have your API access data displayed in your PayPal account.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payPalCheckout_liveMode']                    = array('Live mode', 'Please activate this checkbox if your PayPal payment module shall go live. Please note that the API access data which you store in this payment module are different depending on whether the PayPal payment module is in live mode or sandbox mode. If this checkbox is not activated, the payment module will communicate with the PayPal sandbox, a test environment in which no real payments take place. The sandbox mode should be used for preliminary tests with this payment module on condition that real customers cannot use this payment option while the tests take place.');
+
+    /*
+     * PayPalPlus-Bezeichnungen
+     */
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payPalPlus_legend']						= 'PayPal Plus settings';
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payPalPlus_clientID']							= array('PayPal Plus Client ID', 'Please enter the value here of which you learn when you have your API access data displayed in your PayPal account.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payPalPlus_clientSecret']						= array('PayPal Plus Client Secret', 'Please enter the value here of which you learn when you have your API access data displayed in your PayPal account.');
