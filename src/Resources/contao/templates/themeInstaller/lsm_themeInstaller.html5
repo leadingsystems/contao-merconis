@@ -47,7 +47,7 @@
                 <label>Kopien statt Symlinks erzeugen</label>
             </div>
             <div class="submit-button-box">
-                <button><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_009'] ?></button>
+                <button onclick="lsjs.loadingIndicator.__controller.show()"><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_009'] ?></button>
             </div>
         </form>
         <?php
