@@ -192,7 +192,10 @@ class ls_shop_customInserttags
             case 'ProductProperty':
                 $arr_params = explode(',', $params);
                 $str_productVariantId = trim($arr_params[0]);
-                $str_productVariantId = $this->convertTagToId($str_productVariantId);
+
+                //if no parameter exists search for productId
+                $what = ($arr_params[2] ? trim($arr_params[2]) : "productId");
+                $str_productVariantId = $this->convertTagToId($str_productVariantId, $what);
 
                 $str_propertyToUse = isset($arr_params[1]) && $arr_params[1] ? trim($arr_params[1]) : '';
 
@@ -205,10 +208,11 @@ class ls_shop_customInserttags
 		return false;
 	}
 
-    //converts tags like variantAlias_sideboard to 'productId'-'variantId'
-	private function convertTagToId($str_productVariantId){
+    //converts tags(ids, codes, alias) to 'productId'-'variantId'
+	private function convertTagToId($str_productTag, $what){
+
         //if current convert it to "productId-0"
-        if ($str_productVariantId === 'current') {
+        if ($str_productTag === 'current') {
             /*
              * Get product currently displayed in singleview if not productVariantId is given
              */
@@ -219,41 +223,36 @@ class ls_shop_customInserttags
             }
             $str_productVariantId = $int_productId.'-0';
         }
-        //if productAlias_ convert it to "productId-0"
-        $query = "productAlias_";
-        if(substr($str_productVariantId, 0, strlen($query)) === $query ){
-            $productAlias = substr($str_productVariantId, strlen($query));
-            $int_productId = ls_shop_generalHelper::getProductIdForAlias($productAlias);
+        if($what === "productId") {
+            $str_productVariantId = $str_productTag;
+        }
+        //if productAlias convert it to "productId-0"
+        if($what === "productAlias"){
+            $int_productId = ls_shop_generalHelper::getProductIdForAlias($str_productTag);
             if (!$int_productId) {
                 return '';
             }
             $str_productVariantId = $int_productId.'-0';
         }
-        //if productCode_ convert it to "productId-0"
-        $query = "productCode_";
-        if(substr($str_productVariantId, 0, strlen($query)) === $query ){
-            $productCode = substr($str_productVariantId, strlen($query));
-            $int_productId = ls_shop_generalHelper::getProductIdForCode($productCode);
+        //if productCode convert it to "productId-0"
+        if($what === "productCode" ){
+            $int_productId = ls_shop_generalHelper::getProductIdForCode($str_productTag);
             if (!$int_productId) {
                 return '';
             }
             $str_productVariantId = $int_productId.'-0';
         }
-        //if variantAlias_ convert it to "productId-variantId"
-        $query = "variantAlias_";
-        if(substr($str_productVariantId, 0, strlen($query)) === $query ){
-            $variantAlias = substr($str_productVariantId, strlen($query));
-            $int_variantId = ls_shop_generalHelper::getVariantIdForAlias($variantAlias);
+        //if variantAlias convert it to "productId-variantId"
+        if($what === "variantAlias"){
+            $int_variantId = ls_shop_generalHelper::getVariantIdForAlias($str_productTag);
             if (!$int_variantId) {
                 return '';
             }
             $str_productVariantId = ls_shop_generalHelper::getProductIdForVariantId($int_variantId).'-'.$int_variantId;
         }
-        //if variantCode_ convert it to "productId-variantId"
-        $query = "variantCode_";
-        if(substr($str_productVariantId, 0, strlen($query)) === $query ){
-            $variantCode = substr($str_productVariantId, strlen($query));
-            $int_variantId = ls_shop_generalHelper::getVariantIdForCode($variantCode);
+        //if variantCode convert it to "productId-variantId"
+        if($what === "variantCode"){
+            $int_variantId = ls_shop_generalHelper::getVariantIdForCode($str_productTag);
             if (!$int_variantId) {
                 return '';
             }
