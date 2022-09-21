@@ -870,7 +870,6 @@ class ls_shop_export_dc extends \Backend {
         if (is_array($arr_ajaxPage)) {
             $obj_targetPageCollection = \PageModel::findById($arr_ajaxPage['id']);
             $obj_template->str_ajaxUrl = $obj_targetPageCollection->getFrontendUrl('/resource/exportFeed').'?feedName='.$arr_row['feedName'].($arr_row['feedPassword'] ? '&pwd='.$arr_row['feedPassword'] : '');
-            dump($obj_template->str_ajaxUrl);
         } else {
             $obj_template->str_ajaxUrl = 'AJAX PAGE NOT FOUND';
         }
