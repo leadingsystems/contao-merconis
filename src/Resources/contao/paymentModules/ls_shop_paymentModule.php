@@ -265,6 +265,30 @@ namespace Merconis\Core;
 					'payPalCheckout_liveMode' => array(
 						'label' => '',
 						'inputType' => 'checkbox'
+					),
+					'payPalCheckout_shipToFieldNameFirstname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameLastname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameStreet' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameCity' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameCountryCode' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNamePostal' => array(
+						'label' => '',
+						'inputType' => 'text'
 					)
 				)
 			),

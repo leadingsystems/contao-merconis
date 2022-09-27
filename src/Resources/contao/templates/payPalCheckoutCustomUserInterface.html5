@@ -62,7 +62,6 @@ if ($this->bln_paymentAuthorized) {
                             return "<?= $this->orderId ?>";
                         },
                         onApprove: function(data, actions) {
-
                             //$_SESSION['lsShopPaymentProcess']['payPalPlus']['authorized'] = true; // ?
                             // Authorize the transaction
                             actions.order.authorize().then(function(authorization) {

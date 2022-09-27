@@ -93,28 +93,28 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
 
 
-        if ($this->payPalCheckout_getShippingFieldValue("firstname")) {
-            $firstname = $this->payPalCheckout_getShippingFieldValue("firstname");
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameFirstname'])) { //firstname
+            $firstname = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameFirstname']);
         }
 
-        if ($this->payPalCheckout_getShippingFieldValue("lastname")) {
-            $lastname = $this->payPalCheckout_getShippingFieldValue("lastname");
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameLastname'])) { //lastname
+            $lastname = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameLastname']);
         }
 
-        if ($this->payPalCheckout_getShippingFieldValue("street")) {
-            $street = $this->payPalCheckout_getShippingFieldValue("street");
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameStreet'])) { //street
+            $street = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameStreet']);
         }
 
-        if ($this->payPalCheckout_getShippingFieldValue("city")) {
-            $city = $this->payPalCheckout_getShippingFieldValue("city");
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCity'])) { //city
+            $city = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCity']);
         }
 
-        if ($this->payPalCheckout_getShippingFieldValue("country")) {
-            $countryCode = strtoupper($this->payPalCheckout_getShippingFieldValue("country"));
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCountryCode'])) { //country
+            $countryCode = strtoupper($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCountryCode']));
         }
 
-        if ($this->payPalCheckout_getShippingFieldValue("postal")) {
-            $postalCode = $this->payPalCheckout_getShippingFieldValue("postal");
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNamePostal'])) { //postal
+            $postalCode = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNamePostal']);
         }
 
         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
@@ -224,7 +224,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $headers = array();
         $headers[] = 'Content-Type: application/json';
         $headers[] = 'Authorization: Bearer '.$access_token;
-        $headers[] = 'PayPal-Mock-Response: {"mock_application_codes": "PAYER_CANNOT_PAY"}';
+        //$headers[] = 'PayPal-Mock-Response: {"mock_application_codes": "PAYER_CANNOT_PAY"}';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
@@ -240,19 +240,22 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
         try {
 
+            dump($status);
 
             if($status == "COMPLETED"){
                 dump("status completed");
                 $this->payPalCheckout_updateSaleDetailsInOrderRecord($orderIdInDb);
                 // write the success message to the special payment info
                 $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
+            }else{
+                // write the error message to the special payment info -> order is completet but payment is incomplete
+                $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'];
             }
             //egal ob es schief läuft oder nicht oder immer abspeichern
             $this->payPalCheckout_updateSaleDetailsInOrderRecord($orderIdInDb);
             $this->payPalCheckout_resetSessionStatus();
 
-            // write the error message to the special payment info -> order is completet but payment is incomplete
-            $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'];
+
 
         } catch (\Exception $e) {
 
