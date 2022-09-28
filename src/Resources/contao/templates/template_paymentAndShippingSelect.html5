@@ -57,7 +57,7 @@
 		$str_specificTargetUrl = \LeadingSystems\Helpers\addQueryParameters(array('selectPaymentOrShipping' => $this->str_selectWhat, 'id' => $int_optionId), $str_basicTargetUrl);
 		?>
 		<div
-			<?php echo $arr_option['cssID'] ? ' id="'.$arr_option['cssID'].'"' : ''; ?>
+			<?php echo $arr_option['cssID'] ? ' id="'.$arr_option['cssID'].'"' : ' id="selectPaymentOrShipping-'.$int_optionId.'"'; ?>
 			class="<?php echo $this->int_selectedOptionId == $int_optionId ? 'selected' : 'notSelected'; ?> paymentAndShippingOptionContainer<?php echo $arr_option['cssClass'] ? ' '.$arr_option['cssClass'] : ''; ?>"
 		>
 			<a
