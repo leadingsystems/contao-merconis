@@ -3,9 +3,7 @@ if ($this->bln_paymentAuthorized) {
     ?>
 
     <script type="application/javascript">
-        console.log("loading div2")
         function reloadPaypalButton(){
-            console.log("loading div")
             lsjs.loadingIndicator.__controller.show();
 
             new Request.cajax({
@@ -22,13 +20,11 @@ if ($this->bln_paymentAuthorized) {
                 onSuccess: function(els, str_html, str_script) {
                     Browser.exec(str_script);
                 }
-
             }).send();
         }
 
     </script>
     <button class="button" onclick=reloadPaypalButton()><?= $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['removeAuthorized']; ?></button>
-
 
     <p><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentAuthorized']; ?></p>
     <?php
@@ -37,16 +33,10 @@ if ($this->bln_paymentAuthorized) {
     <h3><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentWallHeadline']; ?></h3>
     <div id="paypal-button-container"></div>
     <script type="application/javascript">
-        console.log("load Paypal button script")
         var myScript = Asset.javascript(
             'https://www.paypal.com/sdk/js?client-id=<?= $this->clientId ?>&currency=<?= $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'] ?>&intent=authorize&commit=false',
             {
                 onLoad: function(){
-                    console.log( "<?= $this->clientId ?>");
-                    console.log("erstelle mit orderid");
-                    console.log("<?= $this->orderId ?>");
-                    //console.log(paypal);
-                    //---------------------------------------
                     paypal.Buttons({
                         style: {
                             color: "gold",
@@ -55,22 +45,14 @@ if ($this->bln_paymentAuthorized) {
                             tagline: false,
                             shape: "rect"
                         },
-                        onClick: (data, actions) => {
-
-                        },
                         createOrder: (data, actions) => {
                             return "<?= $this->orderId ?>";
                         },
                         onApprove: function(data, actions) {
-                            //$_SESSION['lsShopPaymentProcess']['payPalPlus']['authorized'] = true; // ?
                             // Authorize the transaction
                             actions.order.authorize().then(function(authorization) {
 
                                 var authorizationID = authorization.purchase_units[0].payments.authorizations[0].id
-
-                                console.log('Order ID:  ' + data.orderID);
-                                console.log('Authorization ID: ' + authorizationID);
-
 
                                 lsjs.loadingIndicator.__controller.show();
 
@@ -92,18 +74,11 @@ if ($this->bln_paymentAuthorized) {
 
                                 }).send();
                             });
-                        },/*
-                        onApprove: async (data, actions) => {
-                            console.log(actions)
-                            //bestätige Order
-                            const order = await actions.order.capture()
-                            console.log(order)
-                        },*/
+                        },
                         onCancel: () => {
                             //cancel message
                         },
                         onError: (err) => {
-                            console.log(err)
                             //error message
                             console.log(err);
                         }
