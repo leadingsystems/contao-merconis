@@ -232,19 +232,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
-        dump(json_decode($result));
-        dump(json_decode($result)->status);
         $status = json_decode($result)->status;
 
-
-
         try {
-
-            dump($status);
-
             if($status == "COMPLETED"){
-                dump("status completed");
-                $this->payPalCheckout_updateSaleDetailsInOrderRecord($orderIdInDb);
                 // write the success message to the special payment info
                 $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
             }else{
@@ -254,8 +245,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             //egal ob es schief läuft oder nicht oder immer abspeichern
             $this->payPalCheckout_updateSaleDetailsInOrderRecord($orderIdInDb);
             $this->payPalCheckout_resetSessionStatus();
-
-
 
         } catch (\Exception $e) {
 

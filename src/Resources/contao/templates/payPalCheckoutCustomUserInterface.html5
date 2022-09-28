@@ -13,7 +13,7 @@ if ($this->bln_paymentAuthorized) {
                 method: 'post',
                 noCache: true,
                 cajaxMode: 'updateCompletely',
-                data:	'cajaxRequestData[requestedElementClass]=paymentAndShippingOptionContainer,finishingOrderSubmitBox'
+                data:	'cajaxRequestData[requestedElementClass]=order-overview,finishingOrderSubmitBox' //paymentAndShippingOptionContainer
                     + '&REQUEST_TOKEN=' + lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN
                     + '&payPalCheckout_reset=' + true,
                 onComplete: function() {
@@ -79,7 +79,7 @@ if ($this->bln_paymentAuthorized) {
                                     method: 'post',
                                     noCache: true,
                                     cajaxMode: 'updateCompletely',
-                                    data:	'cajaxRequestData[requestedElementClass]=paymentAndShippingOptionContainer,finishingOrderSubmitBox'
+                                    data:	'cajaxRequestData[requestedElementClass]=order-overview,finishingOrderSubmitBox'
                                         + '&REQUEST_TOKEN=' + lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN
                                         + '&payPalCheckout_orderId=' + data.orderID
                                         + '&payPalCheckout_authorizationId=' + authorizationID,
