@@ -3605,15 +3605,19 @@ class ls_shop_generalHelper
                     //loop for every arrData and check if it is dependet to anything
                     foreach ($arrData as $formfieldDependentcy) {
 
+                        if($formfieldDependentcy['arrData']['type'] == 'checkbox' && $formfieldDependentcy['value'] == ""){
+                            $formfieldDependentcy['value'] = "0";
+                        }
+
                         if (
                             (   //check dependent to a formfield and if condition is met, if yes delete value
                                 $currentFormfield['arrData']['lsShop_ShowOnConditionField'] == $formfieldDependentcy['arrData']['id'] &&
                                 (
                                     $currentFormfield['arrData']['lsShop_ShowOnConditionValue'] != $formfieldDependentcy['value'] &&
-                                    $currentFormfield['arrData']['lsShop_ShowOnConditionBoolean'] == 0
+                                    $currentFormfield['arrData']['lsShop_ShowOnConditionBoolean'] == 1
                                     ||
                                     $currentFormfield['arrData']['lsShop_ShowOnConditionValue'] == $formfieldDependentcy['value'] &&
-                                    $currentFormfield['arrData']['lsShop_ShowOnConditionBoolean'] == 1
+                                    $currentFormfield['arrData']['lsShop_ShowOnConditionBoolean'] == 0
                                 )
                             )
                             ||
@@ -3621,10 +3625,10 @@ class ls_shop_generalHelper
                                 $currentFieldset != null && $currentFieldset['lsShop_ShowOnConditionField'] == $formfieldDependentcy['arrData']['id'] &&
                                 (
                                     $currentFieldset['lsShop_ShowOnConditionValue'] != $formfieldDependentcy['value'] &&
-                                    $currentFieldset['lsShop_ShowOnConditionBoolean'] == 0
+                                    $currentFieldset['lsShop_ShowOnConditionBoolean'] == 1
                                     ||
                                     $currentFieldset['lsShop_ShowOnConditionValue'] == $formfieldDependentcy['value'] &&
-                                    $currentFieldset['lsShop_ShowOnConditionBoolean'] == 1
+                                    $currentFieldset['lsShop_ShowOnConditionBoolean'] == 0
                                 )
                             )
                         ) {
