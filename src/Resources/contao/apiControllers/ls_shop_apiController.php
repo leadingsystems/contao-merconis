@@ -199,6 +199,70 @@ class ls_shop_apiController {
     }
 
     /**
+     * Calls a method of a product's customizer object.
+     * Add the parameter 'productId' to specify for which product you are calling the customizer's method.
+     * Add the parameter 'parameters' holding an array with the parameters to pass
+     * to the requested customizer method in the order required by the method.
+     *
+     * Please note that not every return value can be json encoded and therefore not
+     * every return value can be successfully read with an api call.
+     */
+    protected function apiResource_callCustomizerMethodForProduct() {
+
+        if (\Input::get('productId')) {
+            $int_productId = \Input::get('productId');
+            $str_getOrPost = 'get';                             // all further accesses to received data with this method
+        } else if (\Input::post('productId')) {
+            $int_productId = \Input::post('productId');
+            $str_getOrPost = 'post';                             // all further accesses to received data with this method
+        } else {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no productId given');
+            return;
+        }
+
+        $str_method = \Input::{$str_getOrPost}('method');
+
+        if (!$str_method) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no method specified');
+            return;
+        }
+
+        $obj_productOrVariant = ls_shop_generalHelper::getObjProduct($int_productId);
+
+        if ($obj_productOrVariant->_variantIsSelected) {
+            $obj_productOrVariant = $obj_productOrVariant->_selectedVariant;
+        }
+
+        if (!$obj_productOrVariant->_hasCustomizer){
+            $this->obj_apiReceiver->success();
+            $this->obj_apiReceiver->set_data('product has no customizer');
+            return;
+        }
+
+        $str_inputParameters = \Input::{$str_getOrPost}('parameters');
+        $str_inputParameters = html_entity_decode($str_inputParameters);
+        $arr_parameters = json_decode($str_inputParameters, true);
+
+
+        if (!is_array($arr_parameters)) {
+            $arr_parameters = [];
+        }
+
+        if (!method_exists($obj_productOrVariant->_customizer, \Input::{$str_getOrPost}('method'))) {
+            $this->obj_apiReceiver->success();
+            $this->obj_apiReceiver->set_data('method does not exist in customizer object');
+            return;
+        }
+
+        $var_return = call_user_func_array(array($obj_productOrVariant->_customizer, \Input::{$str_getOrPost}('method')), $arr_parameters);
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($var_return);
+    }
+
+    /**
      * Returns a specific merconis url
      */
     protected function apiResource_getMerconisPageUrl() {

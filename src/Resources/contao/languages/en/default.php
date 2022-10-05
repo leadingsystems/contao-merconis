@@ -224,6 +224,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'back';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151'] = 'How would you like to order?';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText152'] = 'DELIVERY NOTE';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline'] = 'Product settings';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'] = 'working days';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Continue shopping';
