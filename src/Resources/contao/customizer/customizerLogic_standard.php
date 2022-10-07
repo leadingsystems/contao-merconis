@@ -25,7 +25,7 @@ class customizerLogic_standard extends customizer {
     public function receiveUserInput($var_userInput)
     {
         $var_userInput = $this->validateUserInput($var_userInput);
-        $this->obj_storage->writeCustomizationData($var_userInput);
+        $this->obj_storage->var_customizationData = $var_userInput;
         return $this->getStoredCustomizationData();
     }
 
@@ -39,7 +39,7 @@ class customizerLogic_standard extends customizer {
 
     public function getStoredCustomizationData()
     {
-        return $this->obj_storage->getCustomizationData();
+        return $this->obj_storage->var_customizationData;
     }
 
     public function getStoredMiscData()
@@ -58,7 +58,7 @@ class customizerLogic_standard extends customizer {
 
     public function getSummary()
     {
-        return $this->renderForSummary($this->obj_storage->getCustomizationData());
+        return $this->renderForSummary($this->obj_storage->var_customizationData);
     }
 
     public function getSummaryForCart()
