@@ -117,6 +117,21 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $postalCode = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNamePostal']);
         }
 
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameState'])) { //state
+            $state = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameState']);
+        }
+
+        $arr_adress = [
+            "address_line_1"=>  $street,
+            "admin_area_2"=>  $city,
+            "postal_code"=>  $postalCode,
+            "country_code"=>  $countryCode,
+        ];
+        //add state if exist
+        if($state){
+            $arr_adress["admin_area_1"] = $state;
+        }
+
         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
             "intent" => "AUTHORIZE",
                 "application_context"=> [
@@ -144,12 +159,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                         "name"=>  [
                             "full_name"=>  $firstname.' '.$lastname
                         ],
-                        "address"=>  [
-                            "address_line_1"=>  $street,
-                            "admin_area_2"=>  $city,
-                            "postal_code"=>  $postalCode,
-                            "country_code"=>  $countryCode,
-                        ]
+                        "address"=> $arr_adress
                     ],
                     "items" => $itemlist
                 ]
@@ -521,6 +531,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     }
 
     protected function payPalCheckout_getShippingFieldValue($str_fieldName) {
+        $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';
+        if (preg_match($str_valueWildcardPattern, $str_fieldName, $arr_matches)) {
+            $str_fieldName = preg_replace($str_valueWildcardPattern, $this->payPalCheckout_getShippingFieldValue($arr_matches[1]), $str_fieldName);
+        }
 
         $arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
 

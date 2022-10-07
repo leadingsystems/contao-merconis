@@ -278,6 +278,10 @@ namespace Merconis\Core;
 						'label' => '',
 						'inputType' => 'text'
 					),
+					'payPalCheckout_shipToFieldNamePostal' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
 					'payPalCheckout_shipToFieldNameCity' => array(
 						'label' => '',
 						'inputType' => 'text'
@@ -286,7 +290,7 @@ namespace Merconis\Core;
 						'label' => '',
 						'inputType' => 'text'
 					),
-					'payPalCheckout_shipToFieldNamePostal' => array(
+					'payPalCheckout_shipToFieldNameState' => array(
 						'label' => '',
 						'inputType' => 'text'
 					)
