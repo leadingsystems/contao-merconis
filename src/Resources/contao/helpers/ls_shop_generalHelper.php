@@ -5045,8 +5045,8 @@ class ls_shop_generalHelper
                 SELECT      `id`
                 FROM        `tl_page`
                 WHERE       `".($int_currentLevel === 0 ? "id" : "pid")."` = ?
-                  ".($bln_considerUnpublishedPages ? "" : "AND       `published` = '1'")."
-                  ".($bln_considerHiddenPages ? "" : "AND       `hide` = ''")."
+                  ".($int_currentLevel === 0 || $bln_considerUnpublishedPages ? "" : "AND       `published` = '1'")."
+                  ".($int_currentLevel === 0 || $bln_considerHiddenPages ? "" : "AND       `hide` = ''")."
             ")
             ->execute(
                 $int_pageId
