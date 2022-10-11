@@ -16,7 +16,7 @@
   "license": "proprietary",
   "require": {
     "php": "^7.2",
-    "contao/core-bundle": "~4.9.0",
+    "contao/core-bundle": "~4.13.0",
     "leadingsystems/contao-helpers": "^2.0",
     "leadingsystems/contao-lsjs4c": "^3.0.0",
     "leadingsystems/contao-lscss4c": "^1.0.0",
@@ -45,7 +45,8 @@
     "contao-manager-plugin": "LeadingSystems\\MerconisBundle\\ContaoManager\\Plugin",
     "branch-alias": {
       "dev-master": "5.0.x-dev",
-      "dev-develop5": "5.0.x-dev"
+      "dev-develop5": "5.0.x-dev",
+      "fix-contao413": "5.0.x-dev"
     }
   }
 }
