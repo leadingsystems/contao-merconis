@@ -1,6 +1,8 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\PageModel;
+
 class ls_shop_languageHelper {
 	public static function getFallbackLanguage() {
 		self::determineExistingLanguages();
@@ -940,7 +942,8 @@ class ls_shop_languageHelper {
 
 			if ($objLanguagePage->numRows) {
 				$GLOBALS['merconis_globals'][$key.'Array'] = $objLanguagePage->row();
-				$GLOBALS['merconis_globals'][$key.'Url'] = \Controller::generateFrontendUrl($GLOBALS['merconis_globals'][$key.'Array']);
+                $pageModel = PageModel::findWithDetails($GLOBALS['merconis_globals'][$key.'Array']['id']);
+                $GLOBALS['merconis_globals'][$key.'Url'] = $pageModel->getFrontendUrl();
 			}
 
 			$GLOBALS['merconis_globals'][$key.'ID'] = $pageID;
