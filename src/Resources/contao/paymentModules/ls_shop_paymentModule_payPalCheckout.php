@@ -22,6 +22,17 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         return ls_shop_cartX::getInstance()->calculation['invoicedAmount'] > 0 ? true : false;
     }
 
+    private function writeLog($outputType, $output){
+
+        if($this->arrCurrentSettings['payPalCheckout_logMode'] !== 'NONE') {
+            $myfile = fopen(TL_ROOT . '/system/logs/paypalCheckout.log', "a");
+            fwrite($myfile, "[".date("d-m-Y h:i:sa")."] [".$outputType."] ".$output."\n");
+            fclose($myfile);
+        }
+        //$this->arrCurrentSettings['payPalCheckout_logMode']
+        //TL_ROOT.'/system/logs/PayPal.log',
+    }
+
     public function getCustomUserInterface() {
 
         if(\Input::post('payPalCheckout_reset')){
@@ -170,12 +181,17 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $headers[] = 'Content-Type: application/json';
         $headers[] = 'Authorization: Bearer '.$access_token;
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $result = curl_exec($ch);
+
+        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
+
+        $this->writeLog("Response", $result);
 
         $orderId = json_decode($result)->id;
 
@@ -208,11 +224,17 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $headers[] = 'Content-Type: application/x-www-form-urlencoded';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $result = curl_exec($ch);
+
+        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
+
+        $this->writeLog("Response", $result);
         return json_decode($result)->access_token;
     }
 
@@ -237,11 +259,17 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         //$headers[] = 'PayPal-Mock-Response: {"mock_application_codes": "PAYER_CANNOT_PAY"}';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $result = curl_exec($ch);
+
+        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
+
+        $this->writeLog("Response", $result);
         $status = json_decode($result)->status;
 
         try {
@@ -335,11 +363,17 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $headers[] = 'Authorization: Bearer '.$access_token;
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $result = curl_exec($ch);
+
+        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
+
+        $this->writeLog("Response", $result);
 
 
         try{

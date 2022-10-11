@@ -312,6 +312,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
         ),
 
+        'payPalCheckout_logMode' => array (
+            'sql'                     => "varchar(255) NOT NULL default 'NONE'"
+        ),
+
         'payPalCheckout_shipToFieldNameFirstname' => array (
             'eval'                    =>	array('maxlength' => 255),
             'sql'                     => "tinytext NULL"

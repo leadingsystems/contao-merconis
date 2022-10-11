@@ -266,6 +266,12 @@ namespace Merconis\Core;
 						'label' => '',
 						'inputType' => 'checkbox'
 					),
+					'payPalCheckout_logMode' => array(
+						'label' => '',
+						'inputType' => 'select',
+						'options' => array('NONE', 'INFO'),
+						'default' => 'NONE'
+					),
 					'payPalCheckout_shipToFieldNameFirstname' => array(
 						'label' => '',
 						'inputType' => 'text'
