@@ -500,10 +500,12 @@ class InstallerController extends \Controller {
                              * handle insert tags in another table, we still have to get a new module ID for
                              * an old one and find it in the mapping array for tl_module.
                              */
-                            $insertTagNew = $matches[1][$key].$this->arrMapOldIDToNewID['tl_module'][$oldModuleID].$matches[3][$key];
+                            $insertTagNew = $matches[1][$key] . '--' . $this->arr_mapOldIDToNewID['tl_module'][$oldModuleID] . '--' . $matches[3][$key];
 
                             $arr_currentRecordToHandle[$fieldName] = preg_replace($insertTagToReplace, $insertTagNew, $arr_currentRecordToHandle[$fieldName]);
                         }
+
+                        $arr_currentRecordToHandle[$fieldName] = preg_replace('/(\{\{insert_module::)(--)(.*)(--)(\}\})/siU', '$1$3$5', $arr_currentRecordToHandle[$fieldName]);
                     }
 
                     if ($setStatement) {
