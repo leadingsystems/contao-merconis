@@ -1,3 +1,16 @@
+.w33 {
+  width: calc(33% - 30px);
+  float: left;
+  min-height: 80px;
+}
+
+.w33-cbx-middle {
+  width: calc(33% - 30px);
+  float: left;
+  min-height: 55px;
+  margin-top: 25px;
+}
+
 #tl_navigation .group-merconis {
   background: url("/bundles/leadingsystemsmerconis/icons/be/default.svg") 3px 1px no-repeat;
 }

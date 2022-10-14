@@ -3148,12 +3148,19 @@ class ls_shop_generalHelper
         return $options;
     }
 
-    public static function handleMandatoryOnCondition(\Widget $objWidget, $intId, $arrForm)
+    public static function handleConditionalFormFields(\Widget $objWidget, $intId, $arrForm)
     {
         $obj_dbres_mandatoryOnConditionSettings = \Database::getInstance()
             ->prepare("
 					SELECT	`lsShop_mandatoryOnConditionField`,
-							`lsShop_mandatoryOnConditionValue`
+							`lsShop_mandatoryOnConditionValue`,
+					        `lsShop_mandatoryOnConditionBoolean`,
+					        `lsShop_mandatoryOnConditionField2`,
+							`lsShop_mandatoryOnConditionValue2`,
+					        `lsShop_mandatoryOnConditionBoolean2`,
+					        `lsShop_ShowOnConditionField`,
+							`lsShop_ShowOnConditionValue`,
+					        `lsShop_ShowOnConditionBoolean`
 					FROM	`tl_form_field`
 					WHERE	`id` = ?
 				")
@@ -3169,7 +3176,39 @@ class ls_shop_generalHelper
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
             }
+
+            $objWidget->{'data-required-field'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField);
+            $objWidget->{'data-required-value'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue;
+            if($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean){
+                $objWidget->{'data-required-boolean'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean;
+            }
+
+            $objWidget->{'data-required-field2'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2);
+            $objWidget->{'data-required-value2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2;
+            if($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2){
+                $objWidget->{'data-required-boolean2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2;
+            }
         }
+        if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2) {
+
+            if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2) {
+                $objWidget->{'data-misc-required'} = $objWidget->mandatory;
+                $objWidget->mandatory = '';
+            }
+        }
+
+        if ($obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionField) {
+
+
+            $objWidget->{'data-showoncondition-field'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionField);
+            $objWidget->{'data-showoncondition-value'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionValue;
+            if($obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionBoolean){
+                $objWidget->{'data-showoncondition-boolean'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionBoolean;
+            }
+
+        }
+
+        $objWidget->{'data-lsjs-element'} = "formField";
 
         return $objWidget;
     }
@@ -3490,6 +3529,8 @@ class ls_shop_generalHelper
             if (
                 $arrFieldData['arrData']['lsShop_mandatoryOnConditionField']
                 && $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue'] != $arrValidateData[ls_shop_generalHelper::getFormFieldNameForFormFieldId($arrFieldData['arrData']['lsShop_mandatoryOnConditionField'])]['value']
+                || $arrFieldData['arrData']['lsShop_mandatoryOnConditionField2']
+                && $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue2'] != $arrValidateData[ls_shop_generalHelper::getFormFieldNameForFormFieldId($arrFieldData['arrData']['lsShop_mandatoryOnConditionField2'])]['value']
             ) {
                 $arrFieldData['arrData']['mandatory'] = false;
             }
