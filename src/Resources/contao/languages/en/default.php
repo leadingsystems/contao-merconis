@@ -317,6 +317,13 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentNo
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['authorizationObsolete'] = 'You have changed information which is relevant for payment. Should you have already authorized payment, it will not be valid any longer. Please repeat the authorization procedure.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['headlineBackendDetailsInfo'] = 'Information about the payment status';
 
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentWallHeadline'] = 'Selection of the PayPal payment method';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentAuthorized'] = 'Your pay pal payment has been authorized. You can now finish your order.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentNotAuthorized'] = 'Your pay pal payment could not be authorized.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationObsolete'] = 'You have changed information which is relevant for payment. Should you have already authorized payment, it will not be valid any longer. Please repeat the authorization procedure.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['headlineBackendDetailsInfo'] = 'Information about the payment status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['removeAuthorized'] = 'Remove authorization';
+
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'] = 'The payment via "Online Bank Transfer." could not be finished successfully but we have received your order. Please contact us in order to resolve this issue and to agree upon an alternative payment option.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['confirmCheckoutMessage'] = 'After confirmation of the order you will be redirected to "Online Bank Transfer." where you can finish your payment.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['slogan'] = 'SOFORT Banking - Easy, Fast, Secure';
@@ -392,6 +399,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 	'postal' => 'Postal code',
 	'city' => 'City',
 	'country' => 'Country',
+	'province_us' => 'State',
+	'province_ca' => 'Province',
 	'phone' => 'Phone',
 	'email' => 'E-mail',
 
@@ -405,6 +414,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 	'postal_alternative' => 'Postal code',
 	'city_alternative' => 'City',
 	'country_alternative' => 'Country',
+	'province_us_alternative' => 'State',
+	'province_ca_alternative' => 'Province',
 
 	'notes' => 'Notes'
 );
@@ -597,6 +608,11 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['saleTrans
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['errorMsgLabel'] = 'Error message';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['status'] = 'Status';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['updateStatus'] = 'Update status';
+
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId'] = 'OrderId';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorMsgLabel'] = 'Error message';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status'] = 'Status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['updateStatus'] = 'Update status';
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentReason'] = 'Order no. %s';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['headlineBackendDetailsInfo'] = 'Information about the payment status';

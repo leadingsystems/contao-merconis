@@ -3183,11 +3183,7 @@ class ls_shop_generalHelper
                 $objWidget->{'data-required-boolean'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean;
             }
 
-            $objWidget->{'data-required-field2'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2);
-            $objWidget->{'data-required-value2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2;
-            if($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2){
-                $objWidget->{'data-required-boolean2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2;
-            }
+
         }
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2) {
 
@@ -3195,6 +3191,13 @@ class ls_shop_generalHelper
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
             }
+
+            $objWidget->{'data-required-field2'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2);
+            $objWidget->{'data-required-value2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2;
+            if($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2){
+                $objWidget->{'data-required-boolean2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2;
+            }
+
         }
 
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionField) {
