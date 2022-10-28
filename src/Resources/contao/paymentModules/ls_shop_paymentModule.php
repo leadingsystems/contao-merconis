@@ -249,6 +249,55 @@ namespace Merconis\Core;
 					)
 				)
 			),
+			'payPalCheckout' => array(
+				'typeCode' => 'payPalCheckout', // Dieser Wert muss dem Array-Key im $types-Array entsprechen, da er z. B. für die Legend-Bezeichnung, also als Array-Key, Verwendung findet
+				'title' => 'Paypal Checkout', // Der Title wird als Options-Name im Select-Feld (DCA) verwendet. Mit diesem Namen können im Options-Referenz-Sprach Array eine mehrsprachige Bezeichnung sowie eine Erklärung für den helpwizard hinterlegt werden
+				'className' => 'Merconis\Core\ls_shop_paymentModule_payPalCheckout',
+				'BE_formFields' => array(
+					'payPalCheckout_clientID' => array(
+						'label' => '', // Wird hier kein Label eingetragen, so wird automatisch ein Label-Verweis zur Sprachdatei mit dem Feldnamen (Array-Key) verwendet (Standard)
+						'inputType' => 'text'
+					),
+					'payPalCheckout_clientSecret' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_liveMode' => array(
+						'label' => '',
+						'inputType' => 'checkbox'
+					),
+					'payPalCheckout_logMode' => array(
+						'label' => '',
+						'inputType' => 'select',
+						'options' => array('NONE', 'INFO'),
+						'default' => 'NONE'
+					),
+					'payPalCheckout_shipToFieldNameFirstname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameLastname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameStreet' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNamePostal' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameCity' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameCountryCode' => array(
+						'label' => '',
+						'inputType' => 'text'
+					)
+				)
+			),
 			'payone' => array(
 				'typeCode' => 'payone',
 				'title' => 'PAYONE',
