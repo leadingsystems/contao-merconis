@@ -42,7 +42,7 @@ if ($this->bln_paymentAuthorized) {
                     paypal.Buttons({
                         style: {
                             color: "gold",
-                            layout: "horizontal",
+                            layout: "vertical",
                             height: 48,
                             tagline: false,
                             shape: "rect"
