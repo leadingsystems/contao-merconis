@@ -353,7 +353,7 @@ class ls_shop_productConfigurator {
 		);
 
 		foreach ($arr_configuratorFormHookNames as $arr_configuratorFormHookName) {
-			if (method_exists($this->objCustomLogic, $arr_configuratorFormHookName)) {
+			if ($this->objCustomLogic && method_exists($this->objCustomLogic, $arr_configuratorFormHookName)) {
 				$GLOBALS['TL_HOOKS'][str_replace('configuratorFormHook_', '', $arr_configuratorFormHookName)][] = array('Merconis\Core\ls_shop_configuratorController', $arr_configuratorFormHookName);
 			}
 		}
@@ -394,7 +394,7 @@ class ls_shop_productConfigurator {
 		 * Remove the hooked "configuratorFormHook_" methods from the TL_HOOKS array
 		 */
 		foreach ($arr_configuratorFormHookNames as $arr_configuratorFormHookName) {
-			if (method_exists($this->objCustomLogic, $arr_configuratorFormHookName)) {
+			if ($this->objCustomLogic && method_exists($this->objCustomLogic, $arr_configuratorFormHookName)) {
 				array_pop($GLOBALS['TL_HOOKS'][str_replace('configuratorFormHook_', '', $arr_configuratorFormHookName)]);
 			}
 		}
@@ -539,7 +539,7 @@ class ls_shop_productConfigurator {
 	public function getRepresentationOfConfiguratorSettings($blnReplaceInsertTags = true) {
 		$cartRepresentation = '';
 
-		if (method_exists($this->objCustomLogic, 'getRepresentationOfConfiguratorSettings')) {
+		if ($this->objCustomLogic && method_exists($this->objCustomLogic, 'getRepresentationOfConfiguratorSettings')) {
 			$cartRepresentation = $this->objCustomLogic->getRepresentationOfConfiguratorSettings();
 		}
 
@@ -552,7 +552,7 @@ class ls_shop_productConfigurator {
 	 * spezielle customFunction, so wird als Fallback die Funktion getRepresentationOfConfiguratorSettings() aufgerufen.
 	 */
 	public function getCartRepresentationOfConfiguratorSettings($blnReplaceInsertTags = true) {
-		if (method_exists($this->objCustomLogic, 'getCartRepresentationOfConfiguratorSettings')) {
+		if ($this->objCustomLogic && method_exists($this->objCustomLogic, 'getCartRepresentationOfConfiguratorSettings')) {
 			$cartRepresentation = $this->objCustomLogic->getCartRepresentationOfConfiguratorSettings();
 		} else {
 			$cartRepresentation = $this->getRepresentationOfConfiguratorSettings(false);
@@ -567,7 +567,7 @@ class ls_shop_productConfigurator {
 	 * spezielle customFunction, so wird als Fallback die Funktion getRepresentationOfConfiguratorSettings() aufgerufen.
 	 */
 	public function getMerchantRepresentationOfConfiguratorSettings($blnReplaceInsertTags = true) {
-		if (method_exists($this->objCustomLogic, 'getMerchantRepresentationOfConfiguratorSettings')) {
+		if ($this->objCustomLogic && method_exists($this->objCustomLogic, 'getMerchantRepresentationOfConfiguratorSettings')) {
 			$merchantRepresentation = $this->objCustomLogic->getMerchantRepresentationOfConfiguratorSettings();
 		} else {
 			$merchantRepresentation = $this->getRepresentationOfConfiguratorSettings(false);
@@ -583,7 +583,7 @@ class ls_shop_productConfigurator {
 	}
 	
 	public function getReferenceNumber() {
-		if (method_exists($this->objCustomLogic, 'getReferenceNumber')) {
+		if ($this->objCustomLogic && method_exists($this->objCustomLogic, 'getReferenceNumber')) {
 			$referenceNumber = $this->objCustomLogic->getReferenceNumber();
 		} else {
 			$referenceNumber = strtoupper(substr(sha1(serialize($this->arrReceivedPost).$this->productVariantID), 0, 8));
@@ -593,7 +593,7 @@ class ls_shop_productConfigurator {
 	}
 	
 	public function hasValue() {
-		if (method_exists($this->objCustomLogic, 'hasValue')) {
+		if ($this->objCustomLogic && method_exists($this->objCustomLogic, 'hasValue')) {
 			return $this->objCustomLogic->hasValue();
 		}
 
@@ -626,7 +626,7 @@ class ls_shop_productConfigurator {
 			return $priceModification;
 		}
 		
-		if (method_exists($this->objCustomLogic, 'getPriceModification')) {
+		if ($this->objCustomLogic && method_exists($this->objCustomLogic, 'getPriceModification')) {
 			$priceModification = $this->objCustomLogic->getPriceModification();
 		}
 
@@ -647,7 +647,7 @@ class ls_shop_productConfigurator {
 			return $priceModification;
 		}
 		
-		if (method_exists($this->objCustomLogic, 'getUnscaledPriceModification')) {
+		if ($this->objCustomLogic && method_exists($this->objCustomLogic, 'getUnscaledPriceModification')) {
 			$priceModification = $this->objCustomLogic->getUnscaledPriceModification();
 		}
 
@@ -668,7 +668,7 @@ class ls_shop_productConfigurator {
 			return $weightModification;
 		}
 		
-		if (method_exists($this->objCustomLogic, 'getWeightModification')) {
+		if ($this->objCustomLogic && method_exists($this->objCustomLogic, 'getWeightModification')) {
 			$weightModification = $this->objCustomLogic->getWeightModification();
 		}
 
@@ -690,7 +690,7 @@ class ls_shop_productConfigurator {
 			return $blnValid;
 		}
 		
-		if (method_exists($this->objCustomLogic, 'customValidator')) {
+		if ($this->objCustomLogic && method_exists($this->objCustomLogic, 'customValidator')) {
 			$arrCustomValidatorResult = $this->objCustomLogic->customValidator();
 			
 			if (isset($arrCustomValidatorResult['blnValid'])) {
