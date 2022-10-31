@@ -15,7 +15,7 @@
   "type": "contao-bundle",
   "license": "proprietary",
   "require": {
-    "php": "^7.2",
+    "php": "^7.0.0 || ^8.0.0",
     "contao/core-bundle": "~4.9.0",
     "leadingsystems/contao-helpers": "^2.0",
     "leadingsystems/contao-lsjs4c": "^2.0.2",
@@ -44,7 +44,7 @@
   "extra": {
     "contao-manager-plugin": "LeadingSystems\\MerconisBundle\\ContaoManager\\Plugin",
     "branch-alias": {
-      "dev-dev-for-c49": "4.0.x-dev"
+      "dev-feature-merconis4-php8": "4.0.x-dev"
     }
   }
 }
