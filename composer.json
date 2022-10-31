@@ -44,7 +44,6 @@
   "extra": {
     "contao-manager-plugin": "LeadingSystems\\MerconisBundle\\ContaoManager\\Plugin",
     "branch-alias": {
-      "dev-dev-for-c49": "4.0.x-dev",
       "dev-merconis4-php8": "4.0.x-dev"
     }
   }
