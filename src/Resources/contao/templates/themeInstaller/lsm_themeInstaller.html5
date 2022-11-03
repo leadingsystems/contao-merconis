@@ -42,10 +42,6 @@
 
             <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_010'], $this->arr_installedThemeExtensions[0]) ?></p>
 
-            <div class="setup-mode-switch">
-                <input type="checkbox" name="setupWithHardCopy" value="1">
-                <label>Kopien statt Symlinks erzeugen</label>
-            </div>
             <div class="submit-button-box">
                 <button><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_009'] ?></button>
             </div>
