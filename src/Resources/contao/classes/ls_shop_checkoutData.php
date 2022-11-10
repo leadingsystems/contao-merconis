@@ -705,7 +705,7 @@ class ls_shop_checkoutData {
 			&&	\Input::get('selectPaymentOrShipping') === $what
 			&&	\Input::get('id')
 		) {
-			$this->arrCheckoutData['selected'.ucfirst($what).'Method'] = \Input::get('id');
+			$this->arrCheckoutData['selected'.ucfirst($what).'Method'] = (int) \Input::get('id');
 			$this->arrCheckoutData['selected'.ucfirst($what).'MethodManually'] = true;
 
 			if ($what == 'payment') {
@@ -719,14 +719,14 @@ class ls_shop_checkoutData {
 				if (isset($GLOBALS['MERCONIS_HOOKS']['paymentOptionSelected']) && is_array($GLOBALS['MERCONIS_HOOKS']['paymentOptionSelected'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['paymentOptionSelected'] as $mccb) {
 						$objMccb = \System::importStatic($mccb[0]);
-						$objMccb->{$mccb[1]}(\Input::get('id'));
+						$objMccb->{$mccb[1]}((int) \Input::get('id'));
 					}
 				}
 			} else if ($what == 'shipping') {
 				if (isset($GLOBALS['MERCONIS_HOOKS']['shippingOptionSelected']) && is_array($GLOBALS['MERCONIS_HOOKS']['shippingOptionSelected'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['shippingOptionSelected'] as $mccb) {
 						$objMccb = \System::importStatic($mccb[0]);
-						$objMccb->{$mccb[1]}(\Input::get('id'));
+						$objMccb->{$mccb[1]}((int) \Input::get('id'));
 					}
 				}
 			}
