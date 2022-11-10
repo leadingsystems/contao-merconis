@@ -109,8 +109,8 @@ class ls_shop_apiController {
 		}
 		
 		$obj_product = ls_shop_generalHelper::getObjProduct(\Input::get('productId'));
-		
-		$arr_parameters = json_decode(\Input::get('parameters'), true);
+
+        $arr_parameters = json_decode(html_entity_decode(\Input::get('parameters')), true);
 		
 		if (!is_array($arr_parameters)) {
 			$arr_parameters = array();

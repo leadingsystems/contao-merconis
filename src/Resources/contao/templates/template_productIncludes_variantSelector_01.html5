@@ -25,7 +25,7 @@
 			||	\Input::post('FORM_SUBMIT') == 'variantSelectionForm_'.$this->objProduct->_productVariantID
 		) {
 			if (\Input::post('json_attributeValueSelection')) {
-				$arrRequestedAttributeValues = json_decode(\Input::post('json_attributeValueSelection'), true);
+                $arrRequestedAttributeValues = json_decode(html_entity_decode(\Input::post('json_attributeValueSelection')), true);
 			} else {
 				$arrRequestedAttributeValues = array();
 				foreach ($attributeFormFields as $attributeID => $str_formField) {
@@ -42,7 +42,7 @@
 		}
 		?>
 		<div
-			class="variantSelector"
+			class="variantSelector lsfwk-bdt lsfwk-bdb"
 			data-merconis-component="variantSelector"
 			data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
 			data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
@@ -53,7 +53,7 @@
 				<?php
 					if (isset($blnNoVariantFound) && $blnNoVariantFound) {
 						?>
-						<p class="error noVariantFound"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText111']; ?></p>
+						<p class="lsfwk-error noVariantFound"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText111']; ?></p>
 						<?php
 					}
 				?>
