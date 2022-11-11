@@ -639,6 +639,7 @@ CREATE TABLE `tl_ls_shop_payment_methods` (
   `payPalCheckout_shipToFieldNameStreet` varchar(255) NOT NULL default '',
   `payPalCheckout_shipToFieldNameCity` varchar(255) NOT NULL default '',
   `payPalCheckout_shipToFieldNamePostal` varchar(255) NOT NULL default '',
+  `payPalCheckout_shipToFieldNameCountryCode` varchar(255) NOT NULL default '',
   `payPalCheckout_shipToFieldNameState` varchar(255) NOT NULL default '',
   `payone_subaccountId` varchar(255) NOT NULL default '',
   `payone_portalId` varchar(255) NOT NULL default '',

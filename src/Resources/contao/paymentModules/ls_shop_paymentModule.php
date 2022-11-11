@@ -292,6 +292,10 @@ namespace Merconis\Core;
 						'label' => '',
 						'inputType' => 'text'
 					),
+					'payPalCheckout_shipToFieldNameState' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
 					'payPalCheckout_shipToFieldNameCountryCode' => array(
 						'label' => '',
 						'inputType' => 'text'
