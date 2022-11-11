@@ -39,7 +39,7 @@ class ls_shop_productManagementApiHelper {
 						continue;
 					}
 					$obj_dbres_page->first();
-					$arr_pageIDs[] = $obj_dbres_page->id;
+					$arr_pageIDs[] = (string) $obj_dbres_page->id;
 				}
 			}
 
