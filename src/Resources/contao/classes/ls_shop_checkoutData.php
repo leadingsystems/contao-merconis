@@ -462,7 +462,7 @@ class ls_shop_checkoutData {
 		 * so wird die gewählte Zahlungs- und Versand-Methode zurückgesetzt und der Login-Status in den Checkout-Data
 		 * auch zurückgesetzt
 		 */
-		if (FE_USER_LOGGED_IN) {
+		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$obj_user = \System::importStatic('FrontendUser');
 
 			if ($this->arrCheckoutData['loggedInData']['userID'] != $obj_user->id) {
