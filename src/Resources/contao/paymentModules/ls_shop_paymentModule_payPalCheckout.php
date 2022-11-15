@@ -1,6 +1,10 @@
 <?php
 
 namespace Merconis\Core;
+use function LeadingSystems\Helpers\ls_mul;
+use function LeadingSystems\Helpers\ls_div;
+use function LeadingSystems\Helpers\ls_add;
+use function LeadingSystems\Helpers\ls_sub;
 
 class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standard {
 
@@ -35,6 +39,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
     public function getCustomUserInterface() {
 
+
+
         if(\Input::post('payPalCheckout_reset')){
             $this->payPalCheckout_resetSessionStatus();
             \Controller::reload();
@@ -56,6 +62,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
     private function payPalCheckout_createOrder(){
         $access_token = $this->payPalCheckout_getaccessToken();
+
 
         $ch = curl_init();
 
@@ -143,6 +150,40 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $arr_adress["admin_area_1"] = $state;
         }
 
+        $this->writeLog("Testausgabe", json_encode([
+            "intent" => "AUTHORIZE",
+            "application_context"=> [
+                //"brand_name"=> 'myBrand',
+                "shipping_preference"=> 'SET_PROVIDED_ADDRESS',
+            ],
+            "purchase_units" =>  [
+                [
+                    "amount"=> [
+                        "currency_code"=> $currency_code,
+                        "value"=>  strval(ls_sub($totalvalue, $discount)),
+                        "breakdown"=> [
+                            "item_total"=> [
+                                "currency_code"=> $currency_code,
+                                "value"=> strval($totalvalue)
+                            ],
+                            "discount"=> [
+                                "currency_code"=> $currency_code,
+                                "value"=> strval($discount)
+                            ]
+                        ]
+                    ],
+
+                    "shipping"=>  [
+                        "name"=>  [
+                            "full_name"=>  $firstname.' '.$lastname
+                        ],
+                        "address"=> $arr_adress
+                    ],
+                    "items" => $itemlist
+                ]
+            ]
+        ]));
+
         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
             "intent" => "AUTHORIZE",
                 "application_context"=> [
@@ -153,7 +194,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                 [
                     "amount"=> [
                         "currency_code"=> $currency_code,
-                        "value"=>  strval($totalvalue - $discount),
+                        "value"=>  strval(ls_sub($totalvalue, $discount)),
                         "breakdown"=> [
                             "item_total"=> [
                                 "currency_code"=> $currency_code,
@@ -556,6 +597,36 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     }
 
     protected function payPalCheckout_resetSessionStatus() {
+
+        if($_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId']){
+            $access_token = $this->payPalCheckout_getaccessToken();
+            $authorizationID = $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'];
+
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/payments/authorizations/'.$authorizationID.'/void');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
+
+            $headers = array();
+            $headers[] = 'Content-Type: application/json';
+            $headers[] = 'Authorization: Bearer '.$access_token;
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+            $result = curl_exec($ch);
+
+            $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+
+            if (curl_errno($ch)) {
+                echo 'Error:' . curl_error($ch);
+            }
+            curl_close($ch);
+
+            $this->writeLog("Response", $result);
+        }
+
+
         $_SESSION['lsShopPaymentProcess']['payPalCheckout'] = array(
             'authorized' => false,
             'authorizationId' => null,

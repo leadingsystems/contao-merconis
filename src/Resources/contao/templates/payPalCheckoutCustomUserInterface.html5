@@ -3,6 +3,7 @@ if ($this->bln_paymentAuthorized) {
     ?>
 
     <script type="application/javascript">
+
         function reloadPaypalButton(){
             lsjs.loadingIndicator.__controller.show();
 
@@ -33,6 +34,7 @@ if ($this->bln_paymentAuthorized) {
     <h3><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentWallHeadline']; ?></h3>
     <div id="paypal-button-container"></div>
     <script type="application/javascript">
+
         var myScript = Asset.javascript(
             'https://www.paypal.com/sdk/js?client-id=<?= $this->clientId ?>&currency=<?= $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'] ?>&intent=authorize&commit=false',
             {
