@@ -57,7 +57,7 @@ class ShowMailController
 				->executeQuery('SELECT bodyHTML FROM tl_ls_shop_messages_sent WHERE id=:id', ['id' => $messageId]);
 
 			if ($statement->rowCount() === 1) {
-				$htmlBody = $statement->fetchColumn();
+				$htmlBody = $statement->fetchOne();
 				$htmlBody = preg_replace('/(<\/title>)/', '$1<base href="'. $request->getBaseUrl() .'" />', $htmlBody);
 			}
 		}

@@ -13,8 +13,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_import'] = array(
 		'dataContainer' => 'Table',
 		'sql' => array
 		(
-			'engine' => 'MyISAM',
-			'charset' => 'utf8 COLLATE utf8_general_ci',
 			'keys' => array
 			(
 				'id' => 'primary'

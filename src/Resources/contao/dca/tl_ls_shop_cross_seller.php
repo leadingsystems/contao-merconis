@@ -19,8 +19,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_cross_seller'] = array(
 		),
         'sql' => array
         (
-            'engine' => 'MyISAM',
-            'charset' => 'utf8 COLLATE utf8_general_ci',
             'keys' => array
             (
                 'id' => 'primary'
