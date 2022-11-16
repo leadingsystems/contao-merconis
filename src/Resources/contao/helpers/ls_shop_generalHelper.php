@@ -3148,7 +3148,7 @@ class ls_shop_generalHelper
         return $options;
     }
 
-    public static function handleMandatoryOnCondition(\Widget $objWidget, $intId, $arrForm)
+    public static function handleConditionalFormFields(\Widget $objWidget, $intId, $arrForm)
     {
 
 
