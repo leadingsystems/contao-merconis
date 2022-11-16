@@ -554,10 +554,13 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 	}
 	
 	protected function payPalPlus_getShippingFieldValue($str_fieldName) {
+	    $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';
+	    if (preg_match($str_valueWildcardPattern, $str_fieldName, $arr_matches)) {
+	        $str_fieldName = preg_replace($str_valueWildcardPattern, $this->payPalPlus_getShippingFieldValue($arr_matches[1]), $str_fieldName);
+        }
+
 		$arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
-		$str_value =		$arrCheckoutFormFields[$str_fieldName.'_Alternative']['value']
-						?	$arrCheckoutFormFields[$str_fieldName.'_Alternative']['value']
-						:	$arrCheckoutFormFields[$str_fieldName]['value'];
+		$str_value = $arrCheckoutFormFields[$str_fieldName.(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] ? '_alternative' : '')]['value'];
 		
 		if (!$str_value) {
 			$str_value = null;

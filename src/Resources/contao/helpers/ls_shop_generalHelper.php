@@ -3148,7 +3148,7 @@ class ls_shop_generalHelper
         return $options;
     }
 
-    public static function handleMandatoryOnCondition(\Widget $objWidget, $intId, $arrForm)
+    public static function handleConditionalFormFields(\Widget $objWidget, $intId, $arrForm)
     {
 
 
@@ -3604,6 +3604,17 @@ class ls_shop_generalHelper
 
         while ($objFormFields->next()) {
             $value = isset($tmpArrDataOld[$objFormFields->name]['value']) ? $tmpArrDataOld[$objFormFields->name]['value'] : '';
+
+            /*
+             * A field can not be a required field if it should not be shown considering the "lsShop_ShowOnConditionField"
+             */
+            if ($objFormFields->lsShop_ShowOnConditionField) {
+                if (
+                    (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value']) != $objFormFields->lsShop_ShowOnConditionValue
+                ) {
+                    continue;
+                }
+            }
 
             /*
              * Berücksichtigen der Feld-Default-Werte

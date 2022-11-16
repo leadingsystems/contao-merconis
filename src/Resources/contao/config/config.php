@@ -57,7 +57,7 @@ if (TL_MODE == 'FE') {
  * Hooks for form validation
  */
 if (TL_MODE == 'FE') {
-	$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleMandatoryOnCondition');
+	$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
 }
 
 /*
