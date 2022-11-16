@@ -71,7 +71,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
 
-        $totalvalue = 0;
         $itemlist = [];
 
         $currency_code = $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'];
@@ -91,13 +90,12 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                 $description = $description.' ('.$arr_cartItemExtended['quantity'].' '.$arr_cartItemExtended['objProduct']->_quantityUnit.' * '.$arr_cartItemExtended['objProduct']->_priceAfterTaxFormatted.')';
             }
 
-            $totalvalue =+ ($quantity * $price);
 
             $itemlist[] = [
                 "name"=> $name,
                 "unit_amount"=> [
                     "currency_code"=> $currency_code,
-                    "value"=> $price
+                    "value"=> number_format($price , 2, '.', '')
                 ],
                 "quantity"=> strval($quantity)
             ];
@@ -150,59 +148,25 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $arr_adress["admin_area_1"] = $state;
         }
 
-        $this->writeLog("Testausgabe", json_encode([
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
             "intent" => "AUTHORIZE",
             "application_context"=> [
-                //"brand_name"=> 'myBrand',
                 "shipping_preference"=> 'SET_PROVIDED_ADDRESS',
             ],
             "purchase_units" =>  [
                 [
                     "amount"=> [
                         "currency_code"=> $currency_code,
-                        "value"=>  strval(ls_sub($totalvalue, $discount)),
+                        "value"=>  number_format(ls_shop_cartX::getInstance()->calculation['invoicedAmount'], 2, '.', ''),
                         "breakdown"=> [
                             "item_total"=> [
                                 "currency_code"=> $currency_code,
-                                "value"=> strval($totalvalue)
+                                "value"=> number_format(ls_shop_cartX::getInstance()->calculation['totalValueOfGoods'][0], 2, '.', '')
                             ],
                             "discount"=> [
                                 "currency_code"=> $currency_code,
-                                "value"=> strval($discount)
-                            ]
-                        ]
-                    ],
-
-                    "shipping"=>  [
-                        "name"=>  [
-                            "full_name"=>  $firstname.' '.$lastname
-                        ],
-                        "address"=> $arr_adress
-                    ],
-                    "items" => $itemlist
-                ]
-            ]
-        ]));
-
-        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
-            "intent" => "AUTHORIZE",
-                "application_context"=> [
-                    //"brand_name"=> 'myBrand',
-                    "shipping_preference"=> 'SET_PROVIDED_ADDRESS',
-            ],
-            "purchase_units" =>  [
-                [
-                    "amount"=> [
-                        "currency_code"=> $currency_code,
-                        "value"=>  strval(ls_sub($totalvalue, $discount)),
-                        "breakdown"=> [
-                            "item_total"=> [
-                                "currency_code"=> $currency_code,
-                                "value"=> strval($totalvalue)
-                            ],
-                            "discount"=> [
-                                "currency_code"=> $currency_code,
-                                "value"=> strval($discount)
+                                "value"=> number_format(($discount), 2, '.', '')
                             ]
                         ]
                     ],
@@ -584,6 +548,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
         $orderId = $this->payPalCheckout_createOrder();
 
+        echo "hiiiiiiiii";
         $obj_template = new \FrontendTemplate('payPalCheckoutCustomUserInterface');
         $obj_template->clientId = $this->arrCurrentSettings['payPalCheckout_clientID'];
         $obj_template->bln_paymentAuthorized = false;
