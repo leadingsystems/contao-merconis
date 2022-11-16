@@ -105,8 +105,9 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
         //discount must be positiv not negativ thats why (-1)*
         foreach (ls_shop_cartX::getInstance()->calculation['couponValues'] as $arr_couponValue) {
-            $discount = (-1)*number_format($arr_couponValue[0], 2, '.', '');
+            $discount = ls_add($discount, $arr_couponValue[0]);
         }
+        $discount = number_format((-1)*$discount, 2, '.', '');
 
 
         if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameFirstname'])) { //firstname
@@ -166,7 +167,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                             ],
                             "discount"=> [
                                 "currency_code"=> $currency_code,
-                                "value"=> number_format(($discount), 2, '.', '')
+                                "value"=> $discount
                             ]
                         ]
                     ],
