@@ -22,8 +22,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		),
         'sql' => array
         (
-            'engine' => 'MyISAM',
-            'charset' => 'utf8 COLLATE utf8_general_ci',
             'keys' => array
             (
                 'id' => 'primary',
@@ -120,7 +118,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			lsShopProductIsOnSale'.(\Input::get('act') == 'editAll' ? '' : ',sorting').';
 			
 			{configurator_legend},
-			configurator;
+			configurator,
+			customizerLogicFile;
 			
 			{lsShopUnits_legend},
 			lsShopProductQuantityUnit,
@@ -445,6 +444,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'filter' => true,
 			'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
+
+        'customizerLogicFile' => array(
+            'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['customizerLogicFile'],
+            'exclude' => true,
+            'inputType'		=>	'fileTree',
+            'eval'			=> array('fieldType'=>'radio', 'files'=>true, 'filesOnly'=>true, 'extensions'=>'php', 'tl_class'=>'clr'),
+            'sql'                     => "binary(16) NULL"
+        ),
 
 		'lsShopProductQuantityUnit' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductQuantityUnit'],

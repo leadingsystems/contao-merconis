@@ -4,6 +4,8 @@
 	
 	global $objPage;
 
+    $this->objProduct->useOriginalData();
+
     $str_html_statusIcons = $this->objProduct->_useCustomTemplate('template_productIncludes_statusIcons_01');
     $str_html_addedToCartInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_addedToCartInfo_01');
 ?>

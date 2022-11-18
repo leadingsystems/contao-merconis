@@ -224,11 +224,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'back';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151'] = 'How would you like to order?';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText152'] = 'DELIVERY NOTE';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'] = 'working days';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline'] = 'Product settings';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'] = 'You can still use Merconis for %s days for free. Please purchase a license in time and enter the license number in the Merconis basic settings to continue using Merconis after the free trial period. If you see this message although you have entered a license number in the basic settings, please check the number for correctness and contact Merconis techSupport if necessary.';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodExpiredMessage'] = 'Please purchase a Merconis license, otherwise your shop will no longer be available for your customers.';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = 'ATTENTION: The Merconis service number is missing or incorrect in your localconfig file. Merconis cannot be operated without a valid service number. Your shop is therefore currently unavailable for your customers. Please contact Merconis techSupport to resolve this problem.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'] = 'working days';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Continue shopping';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart'] = 'open cart';
@@ -390,6 +388,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 	'postal' => 'Postal code',
 	'city' => 'City',
 	'country' => 'Country',
+	'province_us' => 'State',
+	'province_ca' => 'Province',
 	'phone' => 'Phone',
 	'email' => 'E-mail',
 
@@ -403,6 +403,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 	'postal_alternative' => 'Postal code',
 	'city_alternative' => 'City',
 	'country_alternative' => 'Country',
+	'province_us_alternative' => 'State',
+	'province_ca_alternative' => 'Province',
 
 	'notes' => 'Notes'
 );

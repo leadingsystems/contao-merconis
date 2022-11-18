@@ -171,7 +171,8 @@ class ModuleCheckoutFinish extends \Module {
 
 			unset($_SESSION['lsShopCart']);
 			unset($_SESSION['lsShop']['configurator']);
-			
+			unset($_SESSION['lsShop']['customizerStorage']);
+
 			$afterCheckoutUrl = ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages');
 			$afterCheckoutUrlWithOih = $afterCheckoutUrl.(preg_match('/\?/', $afterCheckoutUrl) ? '&' : '?').'oih='.$order['orderIdentificationHash'];
 			
@@ -545,7 +546,12 @@ class ModuleCheckoutFinish extends \Module {
 			$objProduct->ls_setMainLanguageMode(true);
 			
 			$blnIsVariant = $objProduct->_variantIsSelected;
-			
+			if ($blnIsVariant) {
+                $objProductOrVariant = &$objProduct->_selectedVariant;
+            } else {
+                $objProductOrVariant = &$objProduct;
+            }
+
 			$arrItem['isVariant'] = $blnIsVariant ? '1' : ''; // no language
 			$arrItem['artNr'] = $blnIsVariant ? $objProduct->_selectedVariant->_code : $objProduct->_code; // no language
 			$arrItem['productTitle'] = $objProduct->_title; // shop language
@@ -558,11 +564,19 @@ class ModuleCheckoutFinish extends \Module {
 				'hasValue' => $objProduct->_hasConfigurator ? $objProduct->_configuratorHasValue : '', // no language
 				'referenceNumber' => $objProduct->_hasConfigurator ? $objProduct->_configuratorReferenceNumber : '' // no language
 			);
+
+			$arrItem['customizer'] = array(
+				'hasCustomization' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? '1' : '',
+				'summary' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getSummary() : '',
+				'summaryForCart' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getSummaryForCart() : '',
+				'summaryForMerchant' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getSummaryForMerchant() : '',
+				'flexData' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getFlexData() : '',
+			);
 			$arrItem['extendedInfo'] = array(
 				'_productVariantID' => $blnIsVariant ? $objProduct->_selectedVariant->_productVariantID : $objProduct->_productVariantID, // no language
 				'_configuratorID' => $blnIsVariant ? $objProduct->_selectedVariant->_configuratorID : $objProduct->_configuratorID, // no language
 				'_hasConfigurator' => $objProduct->_hasConfigurator, // no language
-				'_cartKey' => $objProduct->_cartKey, // no language
+				'_cartKey' => $blnIsVariant ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey, // no language
 				'_productTitle' => $blnIsVariant ? $objProduct->_selectedVariant->_productTitle : $objProduct->_title, // shop language
 				'_title' => $blnIsVariant ? $objProduct->_selectedVariant->_title : $objProduct->_title, // shop language
 				'_hasTitle' => $blnIsVariant ? $objProduct->_selectedVariant->_hasTitle : $objProduct->_hasTitle, // no language
@@ -893,6 +907,11 @@ class ModuleCheckoutFinish extends \Module {
 							`configurator_cartRepresentation` = ?,
 							`configurator_hasValue` = ?,
 							`configurator_referenceNumber` = ?,
+							`customizer_hasCustomization` = ?,
+							`customizer_summary` = ?,
+							`customizer_summaryForCart` = ?,
+							`customizer_summaryForMerchant` = ?,
+							`customizer_flexData` = ?,
 							`extendedInfo` = ?
 			")
 			->execute(
@@ -918,6 +937,11 @@ class ModuleCheckoutFinish extends \Module {
 				$arrItem['configurator']['cartRepresentation'],
 				$arrItem['configurator']['hasValue'],
 				$arrItem['configurator']['referenceNumber'],
+				$arrItem['customizer']['hasCustomization'],
+				$arrItem['customizer']['summary'],
+				$arrItem['customizer']['summaryForCart'],
+				$arrItem['customizer']['summaryForMerchant'],
+				$arrItem['customizer']['flexData'],
 				serialize($arrItem['extendedInfo'])
 			);			
 		}

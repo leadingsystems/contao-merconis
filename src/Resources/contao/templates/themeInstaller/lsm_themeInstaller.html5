@@ -1,0 +1,52 @@
+<div class="ls_shop ls_shop_systemMessage">
+    <h2><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_001'] ?></h2>
+    <?php
+    if ($this->int_status === \Merconis\Core\themeInstallerStatus::MULTIPLE_THEME_EXTENSION_INSTALLED) {
+        ?>
+        <p><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_006'] ?></p>
+
+        <ul>
+            <?php
+            foreach ($this->arr_installedThemeExtensions as $str_extensionName) {
+                ?>
+                <li><?= $str_extensionName ?></li>
+                <?php
+            }
+            ?>
+        </ul>
+        <p></p>
+        <p><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_007'] ?></p>
+        <?php
+    } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::THEME_EXTENSION_NOT_INSTALLED) {
+        ?>
+        <p><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_008'] ?></p>
+        <?php
+    } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::NO_API_KEY) {
+        ?>
+        <p><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_002'] ?></p>
+        <?php
+    } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::DB_NOT_OK) {
+        ?>
+        <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_003'], 'contao/install') ?></p>
+        <?php
+    } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::FINISHED) {
+        ?>
+            <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_004'] ?>
+        <?php
+    } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::READY_FOR_SETUP) {
+        ?>
+        <form action="contao?do=ls_shop_dashboard" method="post">
+            <input type="hidden" name="FORM_SUBMIT" value="themeInstaller_beginSetup">
+            <input type="hidden" name="REQUEST_TOKEN" value="<?= REQUEST_TOKEN ?>">
+            <input type="hidden" name="themeToInstall" value="<?= $this->arr_installedThemeExtensions[0] ?>">
+
+            <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_010'], $this->arr_installedThemeExtensions[0]) ?></p>
+
+            <div class="submit-button-box">
+                <button><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_009'] ?></button>
+            </div>
+        </form>
+        <?php
+    }
+    ?>
+</div>

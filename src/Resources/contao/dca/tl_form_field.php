@@ -99,5 +99,10 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['lsShop_ShowOnConditionBoolean'] =
 $GLOBALS['TL_DCA']['tl_form_field']['fields']['rgxp']['options'][] = 'merconisCheckVATID';
 
 
+//add palettes for html Wrapper
+$GLOBALS['TL_DCA']['tl_form_field']['palettes']['htmlWrapperStart'] = $GLOBALS['TL_DCA']['tl_form_field']['palettes']['html'];
+$GLOBALS['TL_DCA']['tl_form_field']['palettes']['htmlWrapperStop'] = $GLOBALS['TL_DCA']['tl_form_field']['palettes']['html'];
+
+
 
 

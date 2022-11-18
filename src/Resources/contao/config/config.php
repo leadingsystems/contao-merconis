@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 define('TL_MERCONIS_INSTALLER', 'MERCONIS INSTALLER');
+define('TL_MERCONIS_THEME_SETUP', 'MERCONIS THEME_SETUP');
 define('TL_MERCONIS_IMPORTER', 'MERCONIS IMPORTER');
 define('TL_MERCONIS_GENERAL', 'MERCONIS GENERAL');
 define('TL_MERCONIS_ERROR', 'MERCONIS ERROR');
@@ -57,7 +58,7 @@ if (TL_MODE == 'FE') {
  * Hooks for form validation
  */
 if (TL_MODE == 'FE') {
-	$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleMandatoryOnCondition');
+	$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
 }
 
 /*
@@ -121,6 +122,9 @@ $GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\
  */
 $GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
 $GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
+
+$GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
+$GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
 
 if (TL_MODE === 'FE') {
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_variantSelector', 'processRequest');
@@ -254,4 +258,11 @@ $GLOBALS['TL_CTE']['lsShop']['lsShopCrossSellerCTE'] = 'Merconis\Core\ls_shop_cr
 
 $GLOBALS['TL_HOOKS']['getUserNavigation'][] = array('Merconis\Core\ls_shop_generalHelper', 'manipulateBackendNavigation');
 
-$GLOBALS['TL_HOOKS']['getSystemMessages'][] = array('Merconis\Core\ls_shop_generalHelper', 'getMerconisSystemMessages');
+
+//add Form Elements
+$GLOBALS['TL_FFL']['htmlWrapperStart'] = 'Merconis\Core\FormHtmlWrapperStart';
+$GLOBALS['TL_FFL']['htmlWrapperStop'] = 'Merconis\Core\FormHtmlWrapperStop';
+
+// add start/stop Wrapper to elements
+$GLOBALS['TL_WRAPPERS']['start'][] = 'htmlWrapperStart';
+$GLOBALS['TL_WRAPPERS']['stop'][] = 'htmlWrapperStop';

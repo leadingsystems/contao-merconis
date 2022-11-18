@@ -362,6 +362,23 @@ class ls_shop_generalHelper
         return $obj_dbres_variant->first()->id;
     }
 
+    public static function getProductIdForVariantId($variantId)
+    {
+        $obj_productId = \Database::getInstance()->prepare("
+				SELECT		`pid`
+				FROM		`tl_ls_shop_variant`
+				WHERE		`id` = ?
+			")
+            ->limit(1)
+            ->execute($variantId);
+
+        if ($obj_productId->numRows <= 0) {
+            return null;
+        }
+
+        return $obj_productId->first()->pid;
+    }
+
     /*
      * Gibt ein Produkt-Objekt zurück und sorgt dafür, dass für jedes Produkt nur ein Objekt existiert,
      * selbst wenn das Objekt mehrmals nacheinander benötigt wird. Diese Technik ermöglicht es, nach Belieben
@@ -400,6 +417,13 @@ class ls_shop_generalHelper
             $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey] = new ls_shop_product($productID, $configuratorHash, $refreshObject);
             $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey]->ls_setVariantID($variantID);
         }
+
+        /*
+         * Always make the product object use the customizable data when it is being returned by this method.
+         * This way we make sure that if the product object is set to using original data e.g. in a
+         * product output template this will not affect other places where the product object is used.
+         */
+        $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey]->useCustomizableData();
 
         return $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey];
     }
@@ -480,8 +504,6 @@ class ls_shop_generalHelper
             }
         }
 
-        ls_shop_generalHelper::LaFP();
-
         return $GLOBALS['merconis_globals']['groupInfo'];
     }
 
@@ -541,32 +563,6 @@ class ls_shop_generalHelper
         return ls_shop_checkoutData::getInstance()->cartIsValid
             && ls_shop_generalHelper::check_minimumOrderValueIsReached()
             && ls_shop_checkoutData::getInstance()->checkoutDataIsValid;
-    }
-
-    public static function LaFP()
-    {
-        if (!isset($GLOBALS['merconis_globals']['LaFP']['y2'])) {
-            $GLOBALS['merconis_globals']['LaFP']['y2'] = true;
-
-            eval (pack('H*', '696620282169737365742824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d29207c7c202124474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d207c7c20737472746f6c6f776572287375627374722824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d2c20302c2033292920213d20737562737472286d643528737472746f6c6f776572287375627374722824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d2c20332c207374726c656e2824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d29202d20332929292c302c332929207b205c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736e496e76616c6964275d222c2074727565293b205c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b2072657475726e3b207d'));
-
-            $arr_snp = null;
-            eval (pack('H*', '246172725f736e70203d202124474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d203f206e756c6c203a206578706c6f646528272d272c2024474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d293b'));
-            $str_hs = null;
-            $str_sn = null;
-
-            if (is_array($arr_snp)) {
-                $str_hs = array_pop($arr_snp);
-                $str_sn = implode('', $arr_snp);
-            }
-
-            if ($str_sn && substr(md5($str_sn), 0, 5) == $str_hs) {
-                eval (pack('H*', '6966202824474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d20213d20283939393939392929207b205c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c202839393939393929293b205c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b207d'));
-            } else {
-                eval (pack('H*', '2475745f4c614650203d20686578646563287375627374722824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d2c20332c207374726c656e2824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d29202d203329293b20247374725f646c203d20274234273b'));
-                eval (pack('H*', '5c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c20286365696c282868657864656328247374725f646c29202d202874696d652829202d202475745f4c61465029202f2028383634303029292929293b205c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b'));
-            }
-        }
     }
 
     /*
@@ -2084,10 +2080,56 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['configuratorObjs'][$cacheKey];
     }
 
+    public static function getCustomizerObject(&$obj_product) {
+        if (!is_object($obj_product)) {
+            throw new \Exception('insufficient parameters given');
+        }
+
+        if (!$obj_product->_hasCustomizerLogicFile || TL_MODE === 'BE') {
+            return null;
+        }
+
+        $str_customizerObjectKey = $obj_product->_customizerLogicFile . '_' . $obj_product->ls_productVariantID . ($obj_product->_configuratorHash ? '|' . $obj_product->_configuratorHash : '');
+
+        if (!isset($GLOBALS['merconis_globals']['customizerObjects'])) {
+            $GLOBALS['merconis_globals']['customizerObjects'] = [];
+        }
+
+        require_once(TL_ROOT ."/". $obj_product->_customizerLogicFile);
+        $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_product->_customizerLogicFile);
+
+        if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
+            \System::log('MERCONIS: Customizer logic file "' . $str_customLogicClassName . '" can not be used because it is does not extend "\Merconis\Core\customizer"', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+            return null;
+        }
+
+        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_product, $obj_product->_configuratorHash);
+
+        return $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
+    }
+
     public static function storeConfiguratorDataToSession($var_arg) {
-        /** @var ls_shop_productConfigurator $obj_configurator */
-        foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
-            $obj_configurator->storeToSession();
+        if (isset($GLOBALS['merconis_globals']['configuratorObjs']) && is_array($GLOBALS['merconis_globals']['configuratorObjs'])) {
+            foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
+                /** @var ls_shop_productConfigurator $obj_configurator */
+                $obj_configurator->storeToSession();
+            }
+        }
+
+        /*
+         * Depending on whether this function is called by the modifyFrontendPage hook or the api's afterProcessingRequest
+         * hook, $var_arg might be an output buffer or an object. Since we don't have to do anything with either of both
+         * we simply return the unaltered argument with no questions asked.
+         */
+        return $var_arg;
+    }
+
+    public static function storeCustomizerDataToSession($var_arg) {
+        if (isset($GLOBALS['merconis_globals']['customizerObjects']) && is_array($GLOBALS['merconis_globals']['customizerObjects'])) {
+            /** @var customizer $obj_customizer */
+            foreach ($GLOBALS['merconis_globals']['customizerObjects'] as $obj_customizer) {
+                $obj_customizer->storeToSession();
+            }
         }
 
         /*
@@ -3095,7 +3137,7 @@ class ls_shop_generalHelper
         return $options;
     }
 
-    public static function handleMandatoryOnCondition(\Widget $objWidget, $intId, $arrForm)
+    public static function handleConditionalFormFields(\Widget $objWidget, $intId, $arrForm)
     {
 
 
@@ -3551,6 +3593,17 @@ class ls_shop_generalHelper
 
         while ($objFormFields->next()) {
             $value = isset($tmpArrDataOld[$objFormFields->name]['value']) ? $tmpArrDataOld[$objFormFields->name]['value'] : '';
+
+            /*
+             * A field can not be a required field if it should not be shown considering the "lsShop_ShowOnConditionField"
+             */
+            if ($objFormFields->lsShop_ShowOnConditionField) {
+                if (
+                        (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value']) != $objFormFields->lsShop_ShowOnConditionValue
+                ) {
+                    continue;
+                }
+            }
 
             /*
              * Berücksichtigen der Feld-Default-Werte
@@ -4404,8 +4457,6 @@ class ls_shop_generalHelper
     public static function saveLastBackendDataChangeTimestamp()
     {
         \Config::getInstance()->update("\$GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']", time());
-
-        ls_shop_generalHelper::LaFP();
     }
 
     /*
@@ -4703,7 +4754,7 @@ class ls_shop_generalHelper
     /*
      * This function reads the current merconis version from the changelog.md
      */
-    public static function getMerconisFilesVersion($bln_removeInternalBuildNumber = false)
+    public static function getMerconisFilesVersion()
     {
         $objFile_ls_version = new \File('vendor/leadingsystems/contao-merconis/CHANGELOG.md');
         $str_fileContent = $objFile_ls_version->getContent();
@@ -4825,7 +4876,7 @@ class ls_shop_generalHelper
                             'reference' => $productVariantIDToPutInCart
                         ));
                     } else {
-                        $cartKeyToPutInCart = $obj_productOrVariant->_objectType === 'product' ? $obj_productOrVariant->_cartKey : $obj_productOrVariant->_objParentProduct->_cartKey;
+                        $cartKeyToPutInCart = $obj_productOrVariant->_cartKey;
 
                         /*--> Prüfen, ob das Produkt vorher schon im Warenkorb ist <--*/
                         $tmpBlnCartKeyAlreadyInCart = false;
@@ -5007,32 +5058,6 @@ class ls_shop_generalHelper
         return $arr_modules;
     }
 
-    public static function getMerconisSystemMessages()
-    {
-        ob_start();
-
-        if (isset($GLOBALS['TL_CONFIG']['merconis_snInvalid']) && $GLOBALS['TL_CONFIG']['merconis_snInvalid']) {
-            ?>
-            <h2 class="invalidServiceNumberMessage"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage']; ?></h2>
-            <?php
-        } else {
-            if (isset($GLOBALS['TL_CONFIG']['gracePeriodDaysLeft']) && $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'] != 999999) {
-                if ($GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'] > 0) {
-                    ?>
-                    <h2 class="gracePeriodMessage"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'], $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft']); ?></h2>
-                    <?php
-
-                } else {
-                    ?>
-                    <h2 class="gracePeriodExpiredMessage"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodExpiredMessage']; ?></h2>
-                    <?php
-                }
-            }
-        }
-
-        return ob_get_clean();
-    }
-
     public static function getSubPageIdsRecursively($int_pageId = 0, $bln_considerUnpublishedPages = false, $bln_considerHiddenPages = false, $int_currentLevel = 0) {
         $arr_pageIds = [];
 
@@ -5152,5 +5177,12 @@ class ls_shop_generalHelper
         }
 
         return $str_url;
+    }
+
+    public static function getInstalledThemeExtensions() {
+        $str_composerLockContent = file_get_contents(TL_ROOT . '/composer.lock');
+        preg_match_all('/"name".*?:.*?"(.*\/merconis-theme.*)"/', $str_composerLockContent, $arr_matches);
+        $arr_installedThemeExtensions = $arr_matches[1];
+        return $arr_installedThemeExtensions;
     }
 }

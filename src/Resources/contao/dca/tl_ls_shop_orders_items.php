@@ -6,8 +6,6 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
     'config' => array(
         'sql' => array
         (
-            'engine' => 'MyISAM',
-            'charset' => 'utf8 COLLATE utf8_general_ci',
             'keys' => array
             (
                 'id' => 'primary'
@@ -99,6 +97,26 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
 
         'configurator_referenceNumber' => array (
             'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'customizer_hasCustomization' => array (
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'customizer_summary' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'customizer_summaryForCart' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'customizer_summaryForMerchant' => array (
+            'sql'                     => "blob NULL"
+        ),
+
+        'customizer_flexData' => array (
+            'sql'                     => "blob NULL"
         ),
 
         'extendedInfo' => array (
