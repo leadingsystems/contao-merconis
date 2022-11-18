@@ -1,5 +1,10 @@
 <?php
 namespace Merconis\Core;
+use function LeadingSystems\Helpers\ls_mul;
+use function LeadingSystems\Helpers\ls_div;
+use function LeadingSystems\Helpers\ls_add;
+use function LeadingSystems\Helpers\ls_sub;
+
 class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standard {
     const SANDBOX_URL = 'https://api-m.sandbox.paypal.com';
     const LIVE_URL = 'https://api-m.paypal.com';
@@ -50,7 +55,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
-        $totalvalue = 0;
+
         $itemlist = [];
         $currency_code = $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'];
         foreach (ls_shop_cartX::getInstance()->calculation['items'] as $arr_cartItem) {
@@ -65,12 +70,13 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                 $price = number_format($arr_cartItem['priceCumulative'], 2, '.', '');
                 $description = $description.' ('.$arr_cartItemExtended['quantity'].' '.$arr_cartItemExtended['objProduct']->_quantityUnit.' * '.$arr_cartItemExtended['objProduct']->_priceAfterTaxFormatted.')';
             }
-            $totalvalue =+ ($quantity * $price);
+
+
             $itemlist[] = [
                 "name"=> $name,
                 "unit_amount"=> [
                     "currency_code"=> $currency_code,
-                    "value"=> $price
+                    "value"=> number_format($price , 2, '.', '')
                 ],
                 "quantity"=> strval($quantity)
             ];
@@ -78,8 +84,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $discount = 0;
         //discount must be positiv not negativ thats why (-1)*
         foreach (ls_shop_cartX::getInstance()->calculation['couponValues'] as $arr_couponValue) {
-            $discount = (-1)*number_format($arr_couponValue[0], 2, '.', '');
+            $discount = ls_add($discount, $arr_couponValue[0]);
         }
+        $discount = number_format((-1)*$discount, 2, '.', '');
+
+
         if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameFirstname'])) { //firstname
             $firstname = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameFirstname']);
         }
@@ -114,22 +123,21 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
             "intent" => "AUTHORIZE",
             "application_context"=> [
-                //"brand_name"=> 'myBrand',
                 "shipping_preference"=> 'SET_PROVIDED_ADDRESS',
             ],
             "purchase_units" =>  [
                 [
                     "amount"=> [
                         "currency_code"=> $currency_code,
-                        "value"=>  strval($totalvalue - $discount),
+                        "value"=>  number_format(ls_shop_cartX::getInstance()->calculation['invoicedAmount'], 2, '.', ''),
                         "breakdown"=> [
                             "item_total"=> [
                                 "currency_code"=> $currency_code,
-                                "value"=> strval($totalvalue)
+                                "value"=> number_format(ls_shop_cartX::getInstance()->calculation['totalValueOfGoods'][0], 2, '.', '')
                             ],
                             "discount"=> [
                                 "currency_code"=> $currency_code,
-                                "value"=> strval($discount)
+                                "value"=> $discount
                             ]
                         ]
                     ],
@@ -455,6 +463,36 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         return $obj_template->parse();
     }
     protected function payPalCheckout_resetSessionStatus() {
+
+        if($_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId']){
+            $access_token = $this->payPalCheckout_getaccessToken();
+            $authorizationID = $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'];
+
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/payments/authorizations/'.$authorizationID.'/void');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
+
+            $headers = array();
+            $headers[] = 'Content-Type: application/json';
+            $headers[] = 'Authorization: Bearer '.$access_token;
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+            $result = curl_exec($ch);
+
+            $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+
+            if (curl_errno($ch)) {
+                echo 'Error:' . curl_error($ch);
+            }
+            curl_close($ch);
+
+            $this->writeLog("Response", $result);
+        }
+
+
         $_SESSION['lsShopPaymentProcess']['payPalCheckout'] = array(
             'authorized' => false,
             'authorizationId' => null,
