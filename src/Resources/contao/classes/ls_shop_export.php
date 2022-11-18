@@ -647,7 +647,11 @@ class ls_shop_export
 		 * are much too inconvenient.
 		 */
 		$arr_productFieldNames = array_keys(array_shift(array_values($arr_productAndVariantData['arr_products'])));
-		$arr_variantFieldNames = array_keys(reset(array_shift(array_values($arr_productAndVariantData['arr_variants']))));
+        if (!empty($arr_productAndVariantData['arr_variants'])) {
+            $arr_variantFieldNames = array_keys(reset(array_shift(array_values($arr_productAndVariantData['arr_variants']))));
+        } else {
+            $arr_variantFieldNames = [];
+        }
 		$arr_fieldNamesInProductsAndVariants = array_intersect($arr_productFieldNames, $arr_variantFieldNames);
 		$arr_fieldNamesOnlyInProducts = array_diff($arr_productFieldNames, $arr_variantFieldNames);
 		$arr_fieldNamesOnlyInVariants = array_diff($arr_variantFieldNames, $arr_productFieldNames);
