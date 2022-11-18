@@ -458,7 +458,7 @@ class ls_shop_generalHelper
     {
         if (
             !is_object($obj_user)
-            && FE_USER_LOGGED_IN
+            && \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()
         ) {
             $obj_user = \System::importStatic('FrontendUser');
         }
