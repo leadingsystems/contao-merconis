@@ -1,3 +1,21 @@
+.customerDataFormApplied [data-lsjs-element="deviantShippingAddress"].hideDeviantShippingAddress {
+  display: none;
+}
+
+.customerDataFormApplied label.mandatory::after {
+  content: "*";
+  display: inline-block;
+}
+
+.customerDataFormApplied label.mandatory .mandatory {
+  display: none;
+}
+
+
+/*
+ * Adding the style for conditional form fields but still keeping the customerDataForm styles above because
+ * there might be situations (e. g. update scenarios) where they are still necessary
+ */
 .conditionalFormApplied [data-lsjs-element="deviantShippingAddress"].hideDeviantShippingAddress {
   display: none;
 }
