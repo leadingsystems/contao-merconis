@@ -49,6 +49,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
     }
     private function payPalCheckout_createOrder(){
+        if ($_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId']) {
+            return $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'];
+        }
+
         $access_token = $this->payPalCheckout_getaccessToken();
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/checkout/orders');
@@ -169,6 +173,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $this->writeLog("Response", $result);
 
         $orderId = json_decode($result)->id;
+
+        $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'] = $orderId;
 
         return $orderId;
     }
@@ -415,6 +421,13 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             .	ls_shop_cartX::getInstance()->calculation['invoicedAmount']
             .	ls_shop_cartX::getInstance()->calculation['invoicedAmountNet']
             .	$GLOBALS['TL_CONFIG']['ls_shop_currencyCode']
+            .   $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameFirstname'])
+            .   $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameLastname'])
+            .   $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameStreet'])
+            .   $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCity'])
+            .   $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCountryCode'])
+            .   $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNamePostal'])
+            .   $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameState'])
         );
         /*
          * If the payment has not been authorized yet or the relevantCalculationDataHash
