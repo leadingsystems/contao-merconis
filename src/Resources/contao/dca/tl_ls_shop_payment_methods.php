@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\Message;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
 	'config' => array(
 		'dataContainer' => 'Table',
@@ -414,6 +416,8 @@ class ls_shop_payment_methods extends \Backend {
 		$this->addBeFormFields($objPaymentMethod->type);
 
 		$this->addBeFormFieldSubpalettes($objPaymentMethod->type);
+
+        $this->showInfo($objPaymentMethod->type);
 	}
 
 	protected function addBeFormFields($str_paymentMethodType) {
@@ -490,4 +494,12 @@ class ls_shop_payment_methods extends \Backend {
 		
 		return $button;
 	}
+
+    public function showInfo($str_paymentMethodType) {
+        switch ($str_paymentMethodType) {
+            case 'payPalCheckout':
+                Message::addInfo($GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payPalCheckout_updateInfo']);
+                break;
+        }
+    }
 }
