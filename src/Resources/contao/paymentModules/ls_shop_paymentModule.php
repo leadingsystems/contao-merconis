@@ -249,6 +249,59 @@ namespace Merconis\Core;
 					)
 				)
 			),
+			'payPalCheckout' => array(
+				'typeCode' => 'payPalCheckout', // Dieser Wert muss dem Array-Key im $types-Array entsprechen, da er z. B. für die Legend-Bezeichnung, also als Array-Key, Verwendung findet
+				'title' => 'Paypal Checkout', // Der Title wird als Options-Name im Select-Feld (DCA) verwendet. Mit diesem Namen können im Options-Referenz-Sprach Array eine mehrsprachige Bezeichnung sowie eine Erklärung für den helpwizard hinterlegt werden
+				'className' => 'Merconis\Core\ls_shop_paymentModule_payPalCheckout',
+				'BE_formFields' => array(
+					'payPalCheckout_clientID' => array(
+						'label' => '', // Wird hier kein Label eingetragen, so wird automatisch ein Label-Verweis zur Sprachdatei mit dem Feldnamen (Array-Key) verwendet (Standard)
+						'inputType' => 'text'
+					),
+					'payPalCheckout_clientSecret' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_liveMode' => array(
+						'label' => '',
+						'inputType' => 'checkbox'
+					),
+					'payPalCheckout_logMode' => array(
+						'label' => '',
+						'inputType' => 'select',
+						'options' => array('NONE', 'INFO'),
+						'default' => 'NONE'
+					),
+					'payPalCheckout_shipToFieldNameFirstname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameLastname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameStreet' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNamePostal' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameCity' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameState' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameCountryCode' => array(
+						'label' => '',
+						'inputType' => 'text'
+					)
+				)
+			),
 			'payone' => array(
 				'typeCode' => 'payone',
 				'title' => 'PAYONE',
@@ -504,7 +557,7 @@ namespace Merconis\Core;
 				}
 			}
 			
-			if(FE_USER_LOGGED_IN) {
+			if(\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 				$this->import('FrontendUser', 'User');
 			}
 			parent::__construct();
@@ -566,13 +619,13 @@ namespace Merconis\Core;
 			
 			$this->import($this->types[$arrPaymentMethodInfo['type']]['className'], 'specialModule', $blnForceRefresh);
 			$this->specialModule->arrCurrentSettings = $this->arrCurrentSettings;
-			
+
 			$this->initialize($specializedManually);
 		}
 		
 		protected function initialize($specializedManually = false) {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($specializedManually);
 			} else {
 				return null;
@@ -593,7 +646,7 @@ namespace Merconis\Core;
 			## fixEndlessRecursionOnPaymentError begin ##
 			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
 			## fixEndlessRecursionOnPaymentError end ##
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($context, $errorInformation01, $errorInformation02, $errorInformation03);
 			} else {
 				return null;
@@ -605,7 +658,7 @@ namespace Merconis\Core;
 			## fixEndlessRecursionOnPaymentError begin ##
 			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
 			## fixEndlessRecursionOnPaymentError end ##
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($context, $errorInformation01, $errorInformation02, $errorInformation03);
 			} else {
 				return null;
@@ -614,7 +667,7 @@ namespace Merconis\Core;
 		
 		public function update_paymentMethod_moduleReturnData_inOrder($int_orderID = 0, $var_paymentMethod_moduleReturnData = '') {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($int_orderID, $var_paymentMethod_moduleReturnData);
 			} else {
 				return null;
@@ -623,7 +676,7 @@ namespace Merconis\Core;
 		
 		public function afterPaymentMethodSelection() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return null;
@@ -632,7 +685,7 @@ namespace Merconis\Core;
 				
 		public function afterPaymentMethodAdditionalDataConfirm() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return null;
@@ -641,7 +694,7 @@ namespace Merconis\Core;
 						
 		public function statusOkayToShowAdditionalDataForm() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return true;
@@ -650,7 +703,7 @@ namespace Merconis\Core;
 						
 		public function statusOkayToShowCustomUserInterface() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return true;
@@ -659,7 +712,7 @@ namespace Merconis\Core;
 				
 		public function statusOkayToRedirectToCheckoutFinish() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return true;
@@ -668,7 +721,7 @@ namespace Merconis\Core;
 				
 		public function beforeCheckoutFinish() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return null;
@@ -677,7 +730,7 @@ namespace Merconis\Core;
 				
 		public function checkoutFinishAllowed() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return true;
@@ -686,7 +739,7 @@ namespace Merconis\Core;
 				
 		public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($orderIdInDb, $order, $afterCheckoutUrl, $oix);
 			} else {
 				return null;
@@ -695,7 +748,7 @@ namespace Merconis\Core;
 		
 		public function check_usePaymentAfterCheckoutPage($orderIdInDb = 0, $order = array()) {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($orderIdInDb, $order);
 			} else {
 				return false;
@@ -704,7 +757,7 @@ namespace Merconis\Core;
 
 		public function onAfterCheckoutPage($order = array()) {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($order);
 			} else {
 				return null;
@@ -713,7 +766,7 @@ namespace Merconis\Core;
 				
 		public function onPaymentAfterCheckoutPage($order = array()) {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($order);
 			} else {
 				return null;
@@ -722,7 +775,7 @@ namespace Merconis\Core;
 
 		public function getPaymentInfo() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return null;
@@ -731,7 +784,7 @@ namespace Merconis\Core;
 				
 		public function getCustomUserInterface() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return null;
@@ -740,7 +793,7 @@ namespace Merconis\Core;
 		
 		public function getFormIDForAdditionalData($formID) {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($formID);
 			} else {
 				return 0;
@@ -749,7 +802,7 @@ namespace Merconis\Core;
 		
 		public function getPaymentMethodSuccessMessage() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return '';
@@ -758,7 +811,7 @@ namespace Merconis\Core;
 		
 		public function getPaymentMethodErrorMessage() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return '';
@@ -767,7 +820,7 @@ namespace Merconis\Core;
 		
 		public function showPaymentDetailsInBackendOrderDetailView($arrOrder = array(), $paymentMethod_moduleReturnData = '') {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($arrOrder, $paymentMethod_moduleReturnData);
 			} else {
 				return null;
@@ -776,7 +829,7 @@ namespace Merconis\Core;
 		
 		public function showPaymentStatusInOverview($arrOrder = array(), $paymentMethod_moduleReturnData = '') {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($arrOrder, $paymentMethod_moduleReturnData);
 			} else {
 				return null;
@@ -785,7 +838,7 @@ namespace Merconis\Core;
 		
 		public function determineOix() {
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
 			} else {
 				return null;
@@ -813,7 +866,7 @@ namespace Merconis\Core;
 			}
 			
 			$methodName = __FUNCTION__;
-			if (method_exists($this->specialModule, $methodName)) {
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($form);
 			} else {
 				return $form;
