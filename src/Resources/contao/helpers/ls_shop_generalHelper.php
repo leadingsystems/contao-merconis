@@ -3601,6 +3601,17 @@ class ls_shop_generalHelper
             $value = isset($tmpArrDataOld[$objFormFields->name]['value']) ? $tmpArrDataOld[$objFormFields->name]['value'] : '';
 
             /*
+             * A field can not be a required field if it should not be shown considering the "lsShop_ShowOnConditionField"
+             */
+            if ($objFormFields->lsShop_ShowOnConditionField) {
+                if (
+                    (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value']) != $objFormFields->lsShop_ShowOnConditionValue
+                ) {
+                    continue;
+                }
+            }
+
+            /*
              * Berücksichtigen der Feld-Default-Werte
              */
             if (!$value && $considerDefaultFormFieldValues) {
