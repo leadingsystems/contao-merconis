@@ -290,7 +290,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     protected function payPalCheckout_getSaleDetailsForOrderId($str_orderId) {
         $arr_saleDetails = array(
             'str_orderId' => '',
-            'str_currentStatus' => ''
+            'str_currentStatus' => '',
+            'str_authorizationId' => '',
+            'str_authorizationStatus' => '',
+            'str_captureId' => '',
+            'str_captureStatus' => ''
         );
         if (!$str_orderId) {
             return $arr_saleDetails;
@@ -321,8 +325,14 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
         try{
             $resultJson = json_decode($result);
-            $arr_saleDetails['str_currentStatus'] = $resultJson->purchase_units[0]->payments->authorizations[0]->status;
             $arr_saleDetails['str_orderId'] = $resultJson->id;
+            $arr_saleDetails['str_currentStatus'] = $resultJson->status;
+
+            $arr_saleDetails['str_authorizationId'] = $resultJson->purchase_units[0]->payments->authorizations[0]->id;
+            $arr_saleDetails['str_authorizationStatus'] = $resultJson->purchase_units[0]->payments->authorizations[0]->status;
+
+            $arr_saleDetails['str_captureId'] = $resultJson->purchase_units[0]->payments->captures[0]->id;
+            $arr_saleDetails['str_captureStatus'] = $resultJson->purchase_units[0]->payments->captures[0]->status;
         }catch (\Exception $e) {
             $arr_saleDetails['str_currentStatus'] = 'payment information could not be read correctly [ppc01]';
         }
@@ -345,23 +355,47 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             </h2>
             <div class="content">
                 <div class="details">
-                    <div class="detailItem">
-                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status']; ?>:</span>
-                        <span class="value"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']); ?></span>
-                    </div>
                     <?php
                     if ($paymentMethod_moduleReturnData['arr_saleDetails']['str_errorMsg']) {
                         ?>
-                        <div class="detailItem">
-                            <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorMsgLabel']; ?>:</span>
-                            <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_errorMsg']; ?></span>
+                        <div class="detailBlock">
+                            <div class="detailItem">
+                                <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorMsgLabel']; ?>:</span>
+                                <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_errorMsg']; ?></span>
+                            </div>
                         </div>
                         <?php
                     }
                     ?>
-                    <div class="detailItem">
-                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId']; ?>:</span>
-                        <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_orderId']; ?></span>
+                    <div class="detailBlock">
+                        <div class="detailItem">
+                            <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId']; ?>:</span>
+                            <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_orderId']; ?></span>
+                        </div>
+                        <div class="detailItem">
+                            <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status']; ?>:</span>
+                            <span class="value"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']); ?></span>
+                        </div>
+                    </div>
+                    <div class="detailBlock">
+                        <div class="detailItem">
+                            <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationId']; ?>:</span>
+                            <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_authorizationId']; ?></span>
+                        </div>
+                        <div class="detailItem">
+                            <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationStatus']; ?>:</span>
+                            <span class="value"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_authorizationStatus']); ?></span>
+                        </div>
+                    </div>
+                    <div class="detailBlock">
+                        <div class="detailItem">
+                            <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureId']; ?>:</span>
+                            <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureId']; ?></span>
+                        </div>
+                        <div class="detailItem">
+                            <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatus']; ?>:</span>
+                            <span class="value"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatus']); ?></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -390,11 +424,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                 <div class="details">
                     <div class="detailItem">
                         <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status']; ?>:</span>
-                        <span class="value"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']); ?></span>
+                        <span class="value"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatus'] ?: $paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']); ?></span>
                     </div>
                     <div class="detailItem">
-                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId']; ?>:</span>
-                        <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_orderId']; ?></span>
+                        <span class="label"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureId'] ? $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureId'] : $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId']; ?>:</span>
+                        <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureId'] ?: $paymentMethod_moduleReturnData['arr_saleDetails']['str_orderId']; ?></span>
                     </div>
                 </div>
             </div>
