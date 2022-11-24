@@ -35,7 +35,22 @@ class InstallerController extends \Controller {
 		'2.2.0 stable',
 		'2.2.1 stable',
 		'3.0.0 stable',
-		'4.0.0'
+		'4.0.0',
+		'4.0.1',
+		'4.0.2',
+		'4.0.3',
+		'4.0.4',
+		'4.0.5',
+		'4.0.6',
+		'4.0.7',
+		'4.0.8',
+		'4.0.9',
+		'4.0.10',
+		'4.0.11',
+		'4.0.12',
+		'4.0.13',
+		'4.0.14',
+		'4.0.15'
 	);
 	protected $arrUpdateStepsWithInstructions = array(
 // no instructions		'2_0_0_stable_2_0_1_stable',
@@ -54,6 +69,7 @@ class InstallerController extends \Controller {
 		'2_2_0_stable_2_2_1_stable',
 		'2_2_1_stable_3_0_0_stable',
 		'3_0_0_stable_4_0_0_stable',
+		'4_0_14_4_0_15',
 	);
 
 	protected $pathToThemePreviewImages = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes/theme%s/misc/previewImage.jpg';
