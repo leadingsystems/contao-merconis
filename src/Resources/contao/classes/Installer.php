@@ -143,10 +143,16 @@ class Installer
                                         <?php
                                         $arrConverterRoutineInfo = $obj_installerController->checkForNecessaryConverterRoutine($lastVersionInTrail, $strVersion);
                                         if ($obj_installerController->checkForNecessaryInstructions($lastVersionInTrail, $strVersion)) {
-                                            ?>
-                                            &nbsp;&nbsp;&nbsp;<a target="_blank"
-                                                                 href="http://www.merconis.com/tl_files/EigeneDateien/DokumenteUndSonstigeDateien/updateInstructions/index.htm#update_from_<?php echo preg_replace('/[.\s]/', '-', $lastVersionInTrail); ?>_to_<?php echo preg_replace('/[.\s]/', '-', $strVersion); ?>.htm"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage12']; ?></a>
-                                            <?php
+                                            if ($lastVersionInTrail == '4.0.14' && $strVersion == '4.0.15') {
+                                                ?>
+                                                <a target="_blank" href="https://www.merconis.com/techsupport/contao-handbuch-onlineshop-v4/merconis-einstellungen/zahlungsoptionen/paypal-checkout.html"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage12']; ?></a>
+                                                <?php
+                                            } else {
+                                                ?>
+                                                &nbsp;&nbsp;&nbsp;<a target="_blank"
+                                                                     href="http://www.merconis.com/tl_files/EigeneDateien/DokumenteUndSonstigeDateien/updateInstructions/index.htm#update_from_<?php echo preg_replace('/[.\s]/', '-', $lastVersionInTrail); ?>_to_<?php echo preg_replace('/[.\s]/', '-', $strVersion); ?>.htm"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage12']; ?></a>
+                                                <?php
+                                            }
                                         } else {
                                             if (!$arrConverterRoutineInfo['routineName']) {
                                                 ?>
