@@ -19,6 +19,7 @@ relevant foreign key relations concerning tables which are not defined in this f
 @tl_module.reg_groups@tl_member_group.id=array@
 @tl_module.news_archives@tl_news_archive.id=array@
 @tl_news.pid@tl_news_archive.id=single@
+@tl_news_archive.jumpTo@tl_page.id=single@
 @tl_image_size.pid@tl_theme.id=single@
 @tl_image_size_item.pid@tl_image_size.id=single@
 
