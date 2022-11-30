@@ -561,13 +561,13 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 
 		$arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
 		$str_value = $arrCheckoutFormFields[$str_fieldName.(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] ? '_alternative' : '')]['value'];
-		
+
 		if (!$str_value) {
 			$str_value = null;
 		}
 		
 		return $str_value;
-	}
+    }
 	
 	protected function payPalPlus_createShippingAddress() {
 		$obj_shippingAddress = new ShippingAddress();

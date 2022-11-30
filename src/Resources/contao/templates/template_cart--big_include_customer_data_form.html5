@@ -91,7 +91,7 @@ if ($this->allowCheckout == 'both') {
 	id="checkoutStepCustomerData"
 	data-misc-close-form-initially="<?php echo $this->arrRequiredCheckoutData['customerDataIsValid'] ? '1' : ''; ?>"
     data-misc-form-reviewer-toggler-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText138']; ?>"
-	data-lsjs-component="customerDataForm conditionalForm formReviewer"
+    data-lsjs-component="customerDataForm conditionalForm formReviewer"
 >
 	<h3><i class="fas fa-map-marker-alt"></i>
 		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText010']; ?>

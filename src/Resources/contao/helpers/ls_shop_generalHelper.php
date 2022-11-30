@@ -465,7 +465,7 @@ class ls_shop_generalHelper
     {
         if (
             !is_object($obj_user)
-            && FE_USER_LOGGED_IN
+            && \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()
         ) {
             $obj_user = \System::importStatic('FrontendUser');
         }
@@ -3150,8 +3150,6 @@ class ls_shop_generalHelper
 
     public static function handleConditionalFormFields(\Widget $objWidget, $intId, $arrForm)
     {
-
-
         $obj_dbres_mandatoryOnConditionSettings = \Database::getInstance()
             ->prepare("
 					SELECT	`lsShop_mandatoryOnConditionField`,
@@ -3173,9 +3171,7 @@ class ls_shop_generalHelper
 
         $obj_dbres_mandatoryOnConditionSettings->first();
 
-
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField) {
-
             if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
@@ -3203,6 +3199,7 @@ class ls_shop_generalHelper
             }
 
         }
+
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionField) {
 
 
@@ -3532,8 +3529,6 @@ class ls_shop_generalHelper
              * -->
              * Consider the "mandatoryOnCondition" settings
              */
-
-
             if (
                 $arrFieldData['arrData']['lsShop_mandatoryOnConditionField']
                 && $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue'] != $arrValidateData[ls_shop_generalHelper::getFormFieldNameForFormFieldId($arrFieldData['arrData']['lsShop_mandatoryOnConditionField'])]['value']
@@ -5105,8 +5100,8 @@ class ls_shop_generalHelper
                 SELECT      `id`
                 FROM        `tl_page`
                 WHERE       `".($int_currentLevel === 0 ? "id" : "pid")."` = ?
-                  ".($bln_considerUnpublishedPages ? "" : "AND       `published` = '1'")."
-                  ".($bln_considerHiddenPages ? "" : "AND       `hide` = ''")."
+                  ".($int_currentLevel === 0 || $bln_considerUnpublishedPages ? "" : "AND       `published` = '1'")."
+                  ".($int_currentLevel === 0 || $bln_considerHiddenPages ? "" : "AND       `hide` = ''")."
             ")
             ->execute(
                 $int_pageId
