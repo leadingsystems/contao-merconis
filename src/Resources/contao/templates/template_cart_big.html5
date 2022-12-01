@@ -14,13 +14,15 @@
             include(__DIR__.'/template_cart--big_include_payment_selection_form.html5');
 
             // ########## LINK TO REVIEW AND CONFIRMATION PAGE ##########
-            if (\Merconis\Core\ls_shop_generalHelper::check_finishingOrderIsAllowed()) {
-                ?>
-                <div class="submit-box">
-                    <a class="button" href="{{shopLink::reviewPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText033']; ?></a>
-                </div>
-                <?php
-            }
+            ?><div id="finishingOrderSubmitBox" class="finishingOrderSubmitBox"><?php
+                if (\Merconis\Core\ls_shop_generalHelper::check_finishingOrderIsAllowed()) {
+                    ?>
+                    <div class="submit-box">
+                        <a class="button" href="{{shopLink::reviewPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText033']; ?></a>
+                    </div>
+                    <?php
+                }
+            ?></div><?php
         }
         ?>
     </div>

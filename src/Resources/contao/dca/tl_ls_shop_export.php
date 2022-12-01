@@ -20,8 +20,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
         ),
         'sql' => array
         (
-            'engine' => 'MyISAM',
-            'charset' => 'utf8 COLLATE utf8_general_ci',
             'keys' => array
             (
                 'id' => 'primary'
@@ -870,7 +868,8 @@ class ls_shop_export_dc extends \Backend {
 
         $arr_ajaxPage = ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages', false, 'array');
         if (is_array($arr_ajaxPage)) {
-            $obj_template->str_ajaxUrl = \Environment::get('base').\Controller::generateFrontendUrl($arr_ajaxPage, '/resource/exportFeed').'?feedName='.$arr_row['feedName'].($arr_row['feedPassword'] ? '&pwd='.$arr_row['feedPassword'] : '');
+            $obj_targetPageCollection = \PageModel::findById($arr_ajaxPage['id']);
+            $obj_template->str_ajaxUrl = $obj_targetPageCollection->getFrontendUrl('/resource/exportFeed').'?feedName='.$arr_row['feedName'].($arr_row['feedPassword'] ? '&pwd='.$arr_row['feedPassword'] : '');
         } else {
             $obj_template->str_ajaxUrl = 'AJAX PAGE NOT FOUND';
         }

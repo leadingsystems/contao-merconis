@@ -19,6 +19,7 @@ relevant foreign key relations concerning tables which are not defined in this f
 @tl_module.reg_groups@tl_member_group.id=array@
 @tl_module.news_archives@tl_news_archive.id=array@
 @tl_news.pid@tl_news_archive.id=single@
+@tl_news_archive.jumpTo@tl_page.id=single@
 @tl_image_size.pid@tl_theme.id=single@
 @tl_image_size_item.pid@tl_image_size.id=single@
 
@@ -93,7 +94,6 @@ localconfig foreign key relations are also noted here although their parent tabl
 @tl_module.ls_shop_cross_seller@tl_ls_shop_cross_seller.id=single@
 @tl_module.jumpTo@tl_page.id=single@
 @tl_module.pages@tl_page.id=array@
-@tl_module.orderPages@tl_page.id=array@
 @tl_module.reg_jumpTo@tl_page.id=single@
 @tl_module.ls_shop_productManagementApiInspector_apiPage@tl_page.id=single@
 
