@@ -338,7 +338,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_variant_controller', 'generateAlias')
 			),
-            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
+            'sql'                     => "varchar(128) BINARY NOT NULL default ''"
 
 		),
 		
