@@ -96,10 +96,12 @@ class ls_shop_languageHelper {
 		/*
 		 * Do not process this function if the DCA name is on the list of DCAs not to process
 		 */
-		$arr_dcaNamesNotToProcess = explode(',', $GLOBALS['TL_CONFIG']['ls_shop_dcaNamesWithoutMultilanguageSupport']);
-		if (in_array($str_dcaName, $arr_dcaNamesNotToProcess)) {
-			return;
-		}
+		if ($GLOBALS['TL_CONFIG']['ls_shop_dcaNamesWithoutMultilanguageSupport'] ?? null) {
+            $arr_dcaNamesNotToProcess = explode(',', $GLOBALS['TL_CONFIG']['ls_shop_dcaNamesWithoutMultilanguageSupport']);
+            if (in_array($str_dcaName, $arr_dcaNamesNotToProcess)) {
+                return;
+            }
+        }
 
 		self::determineExistingLanguages(true);
 

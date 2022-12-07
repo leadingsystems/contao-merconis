@@ -4797,7 +4797,7 @@ class ls_shop_generalHelper
 
         if (in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
             define('BYPASS_TOKEN_CHECK', true);
-        } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist']) > 2) {
+        } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'] ?? '') > 2) {
             if (preg_match($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'], \Environment::get('request'))) {
                 define('BYPASS_TOKEN_CHECK', true);
             }
