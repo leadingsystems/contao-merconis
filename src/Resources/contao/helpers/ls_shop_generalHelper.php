@@ -663,7 +663,7 @@ class ls_shop_generalHelper
     {
         $numDecimals = $numDecimals ? $numDecimals : $GLOBALS['TL_CONFIG']['ls_shop_numDecimals'];
         $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? '');
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '');
         $currency = $currency ? $currency : $GLOBALS['TL_CONFIG']['ls_shop_currency'];
 
         return
@@ -689,8 +689,8 @@ class ls_shop_generalHelper
     public static function outputWeight($weight, $numDecimals = null, $decimalsSeparator = null, $thousandsSeparator = null, $weightUnit = null)
     {
         $numDecimals = $numDecimals ? $numDecimals : $GLOBALS['TL_CONFIG']['ls_shop_numDecimalsWeight'];
-        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'];
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ? $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '');
+        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '');
         $weightUnit = $weightUnit ? $weightUnit : $GLOBALS['TL_CONFIG']['ls_shop_weightUnit'];
 
         return number_format($weight, $numDecimals, $decimalsSeparator, $thousandsSeparator) . ' ' . $weightUnit;
@@ -704,7 +704,7 @@ class ls_shop_generalHelper
     public static function outputQuantity($quantity, $numDecimals = 2, $decimalsSeparator = null, $thousandsSeparator = null)
     {
         $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ? $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '');
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '');
 
         return number_format($quantity, $numDecimals, $decimalsSeparator, $thousandsSeparator);
     }
@@ -716,8 +716,8 @@ class ls_shop_generalHelper
      */
     public static function outputNumber($quantity, $numDecimals = 2, $decimalsSeparator = null, $thousandsSeparator = null)
     {
-        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'];
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'];
+        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '');
         return number_format($quantity, $numDecimals, $decimalsSeparator, $thousandsSeparator);
     }
 
