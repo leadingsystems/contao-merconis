@@ -558,7 +558,7 @@ class ls_shop_generalHelper
             eval (pack('H*', '696620282169737365742824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d29207c7c202124474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d207c7c20737472746f6c6f776572287375627374722824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d2c20302c2033292920213d20737562737472286d643528737472746f6c6f776572287375627374722824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d2c20332c207374726c656e2824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d29202d20332929292c302c332929207b205c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736e496e76616c6964275d222c2074727565293b205c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b2072657475726e3b207d'));
 
             $arr_snp = null;
-            eval (pack('H*', '246172725f736e70203d202124474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d203f206e756c6c203a206578706c6f646528272d272c2024474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d293b'));
+            @eval (pack('H*', '246172725f736e70203d202124474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d203f206e756c6c203a206578706c6f646528272d272c2024474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d293b'));
             $str_hs = null;
             $str_sn = null;
 
@@ -662,8 +662,8 @@ class ls_shop_generalHelper
     public static function outputPrice($price, $numDecimals = null, $decimalsSeparator = null, $thousandsSeparator = null, $currency = null)
     {
         $numDecimals = $numDecimals ? $numDecimals : $GLOBALS['TL_CONFIG']['ls_shop_numDecimals'];
-        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'];
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ? $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '');
+        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? '');
         $currency = $currency ? $currency : $GLOBALS['TL_CONFIG']['ls_shop_currency'];
 
         return
@@ -703,8 +703,8 @@ class ls_shop_generalHelper
      */
     public static function outputQuantity($quantity, $numDecimals = 2, $decimalsSeparator = null, $thousandsSeparator = null)
     {
-        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'];
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ? $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '');
+        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ? $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '');
 
         return number_format($quantity, $numDecimals, $decimalsSeparator, $thousandsSeparator);
     }
@@ -831,7 +831,7 @@ class ls_shop_generalHelper
      */
     public static function checkVATID()
     {
-        return $GLOBALS['TL_CONFIG']['ls_shop_ownVATID'] && ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData']['VATID']['value'] && $GLOBALS['TL_CONFIG']['ls_shop_country'] != ls_shop_generalHelper::getCustomerCountry();
+        return ($GLOBALS['TL_CONFIG']['ls_shop_ownVATID'] ?? null) && ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData']['VATID']['value'] && $GLOBALS['TL_CONFIG']['ls_shop_country'] != ls_shop_generalHelper::getCustomerCountry();
     }
 
     public static function parseSteuersatz($strSteuersatz = '')
@@ -1424,8 +1424,8 @@ class ls_shop_generalHelper
              * geprüft werden, ob auch dort $objPage nicht verfügbar ist. Es sollte dann noch sichergestellt werden, dass der Rückgabewert, den die alte getMultiLanguage-Funktion
              * bei Übergabe eines fehlerhaften Sprach-Werts geliefert hat, mit dem aktuellen Rückgabewert in diesem Fall identisch oder zumindest kompatibel ist.
              */
-            $methodInfo['title'] = ls_shop_languageHelper::getMultiLanguage($methodInfo['id'], "tl_ls_shop_" . $type . "_methods_languages", array('title'), array($objPage->language));
-            $methodInfo['description'] = ls_shop_languageHelper::getMultiLanguage($methodInfo['id'], "tl_ls_shop_" . $type . "_methods_languages", array('description'), array($objPage->language));
+            $methodInfo['title'] = ls_shop_languageHelper::getMultiLanguage($methodInfo['id'], "tl_ls_shop_" . $type . "_methods_languages", array('title'), array($objPage->language ?? null));
+            $methodInfo['description'] = ls_shop_languageHelper::getMultiLanguage($methodInfo['id'], "tl_ls_shop_" . $type . "_methods_languages", array('description'), array($objPage->language ?? null));
 
             /*
              * Get dynamically selected tax rates
@@ -1936,7 +1936,7 @@ class ls_shop_generalHelper
         /** @var \PageModel $objPage */
         global $objPage;
 
-        $str_languageToUse = $str_languageToUse ? $str_languageToUse : ($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
+        $str_languageToUse = $str_languageToUse ? $str_languageToUse : (($objPage->language ?? null) ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
 
         if (!isset($GLOBALS['merconis_globals']['productAttributes'][$str_languageToUse])) {
             $objAttributes = \Database::getInstance()->prepare("
@@ -1963,7 +1963,7 @@ class ls_shop_generalHelper
         /** @var \PageModel $objPage */
         global $objPage;
 
-        $str_languageToUse = $str_languageToUse ? $str_languageToUse : ($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
+        $str_languageToUse = $str_languageToUse ? $str_languageToUse : (($objPage->language ?? null) ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
 
         if ($blnUncached || !isset($GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse])) {
             $objAttributeValues = \Database::getInstance()->prepare("
@@ -2019,7 +2019,7 @@ class ls_shop_generalHelper
 
         if (is_array($arrProductAttributesValues)) {
             foreach ($arrProductAttributesValues as $arrProductAttributeValue) {
-                if (!$arrProductAttributeValue[0]) {
+                if (!$arrProductAttributeValue[0] || !isset($productAttributes[$arrProductAttributeValue[0]]) || !isset($productAttributeValues[$arrProductAttributeValue[1]])) {
                     continue;
                 }
                 if (!isset($attributesValuesProcessed[$arrProductAttributeValue[0]])) {
@@ -2215,7 +2215,7 @@ class ls_shop_generalHelper
         );
 
         if (!$pageID) {
-            $pageID = $objPage->id;
+            $pageID = $objPage->id ?? null;
         }
 
         if (!isset($GLOBALS['merconis_globals']['outputDefinitions'][$pageID])) {
@@ -2448,7 +2448,7 @@ class ls_shop_generalHelper
         }
         $deliveryInfoSet = $GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_03_' . $deliveryInfoSetID];
 
-        $arrDeliveryInfoSetMultilanguage = ls_shop_languageHelper::getMultiLanguage($deliveryInfoSetID, 'tl_ls_shop_delivery_info_languages', array('title', 'deliveryTimeMessageWithSufficientStock', 'deliveryTimeMessageWithInsufficientStock'), array($blnUseMainLanguage ? ls_shop_languageHelper::getFallbackLanguage() : $objPage->language));
+        $arrDeliveryInfoSetMultilanguage = ls_shop_languageHelper::getMultiLanguage($deliveryInfoSetID, 'tl_ls_shop_delivery_info_languages', array('title', 'deliveryTimeMessageWithSufficientStock', 'deliveryTimeMessageWithInsufficientStock'), array($blnUseMainLanguage ? ls_shop_languageHelper::getFallbackLanguage() : ($objPage->language ?? null)));
 
         $deliveryInfoSet[0]['title'] = $arrDeliveryInfoSetMultilanguage['title'];
         $deliveryInfoSet[0]['deliveryTimeMessageWithSufficientStock'] = $arrDeliveryInfoSetMultilanguage['deliveryTimeMessageWithSufficientStock'];
@@ -2689,9 +2689,9 @@ class ls_shop_generalHelper
         $arrData = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field];
 
         return sprintf('%s<div class="beWidgetSimpleHTMLOutput">%s</div>%s',
-            $arrData['eval']['outputBefore'],
-            $arrData['eval']['output'],
-            $arrData['eval']['outputAfter']);
+            $arrData['eval']['outputBefore'] ?? '',
+            $arrData['eval']['output'] ?? '',
+            $arrData['eval']['outputAfter'] ?? '');
     }
 
     public static function rawOutputForBackendDCA(\DataContainer $dc)
@@ -3719,11 +3719,11 @@ class ls_shop_generalHelper
     public static function getStatusValues()
     {
         $arrStatusValues = array(
-            'status01' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues01']),
-            'status02' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues02']),
-            'status03' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues03']),
-            'status04' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues04']),
-            'status05' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues05'])
+            'status01' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues01'] ?? ''),
+            'status02' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues02'] ?? ''),
+            'status03' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues03'] ?? ''),
+            'status04' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues04'] ?? ''),
+            'status05' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues05'] ?? '')
         );
         return $arrStatusValues;
     }

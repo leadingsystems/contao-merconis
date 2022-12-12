@@ -50,6 +50,10 @@ class productImageGallery extends \Frontend {
 
         $this->ls_imageLimit = $ls_imageLimit;
 
+        if(!is_array($arrOverlays ?? null)){
+            $arrOverlays = array();
+        }
+
         if ($obj_productOrVariant->_isNew) {
             $arrOverlays[] = 'isNew';
         }
@@ -69,10 +73,6 @@ class productImageGallery extends \Frontend {
         $this->sortingRandomizer = rand(0,99999);
 
         $this->Template = new \FrontendTemplate($this->strTemplate);
-
-        if(!is_array($arrOverlays)){
-            $arrOverlays = array();
-        }
 
         $this->arrOverlays = $arrOverlays;
 
@@ -282,10 +282,10 @@ class productImageGallery extends \Frontend {
             $objImage->originalSRC = $this->originalSRC;
             $objImage->arrOverlays = $arrOverlays;
             $objImage->singleSRC = $file;
-            $objImage->alt = $arrMeta['alt'];
-            $objImage->title = $arrMeta['title'];
-            $objImage->imageUrl = $arrMeta['link'];
-            $objImage->caption = $arrMeta['caption'];
+            $objImage->alt = $arrMeta['alt'] ?? '';
+            $objImage->title = $arrMeta['title'] ?? '';
+            $objImage->imageUrl = $arrMeta['link'] ?? '';
+            $objImage->caption = $arrMeta['caption'] ?? '';
             $objImage->mtime = $objFile->mtime;
             $objImage->randomSortingValue = md5($objFile->basename.$this->sortingRandomizer);
             return $objImage;

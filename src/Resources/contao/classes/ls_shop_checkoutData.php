@@ -74,7 +74,9 @@ class ls_shop_checkoutData {
 	protected function __construct() {
 		/** @var \PageModel $objPage */
 		global $objPage;
-		\System::loadLanguageFile('default', $objPage->language);
+		if (is_object($objPage)) {
+            \System::loadLanguageFile('default', $objPage->language);
+        }
 
 		// CheckoutData aus der Session einlesen, sofern in der Session schon vorhanden
 		$this->arrCheckoutData = isset($_SESSION['lsShop']['arrCheckoutData']) ? $_SESSION['lsShop']['arrCheckoutData'] : $this->arrCheckoutData;
@@ -287,7 +289,7 @@ class ls_shop_checkoutData {
 					break;
 			}
 		}
-		return $GLOBALS['merconis_globals']['checkoutData']['customPaymentOrShippingMethodUserInterface'][$what];
+		return $GLOBALS['merconis_globals']['checkoutData']['customPaymentOrShippingMethodUserInterface'][$what] ?? null;
 	}
 
 	private function getPaymentMethodMessages() {
@@ -1072,7 +1074,7 @@ class ls_shop_checkoutData {
 		 * Sofern die aktuell aufgerufene Seite die Warenkorb-Seite ist, findet eine Weiterleitung
 		 * auf die selbe Seite mit passendem Anchor statt.
 		 */
-		if ($objPage->id == ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id')) {
+		if (($objPage->id ?? null) == ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id')) {
 			\Controller::redirect(\Environment::get('request').'#customerData');
 		}
 	}

@@ -579,7 +579,7 @@ class ls_shop_cartHelper {
 	 * der Gutschein durch eine Wartezeit nicht mehr gültig oder verfügbar sein.
 	 */
 	public static function revalidateCouponsUsed() {
-		if (!is_array($_SESSION['lsShopCart']['couponsUsed'])) {
+		if (!is_array($_SESSION['lsShopCart']['couponsUsed'] ?? null)) {
 			return false;
 		}
 

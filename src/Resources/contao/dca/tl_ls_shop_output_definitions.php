@@ -192,97 +192,97 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 						"arr_fields": [
 							{
 								"type": "select",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSortingFields']['labels']['field1'].'",
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSortingFields']['labels']['field1'] ?? '').'",
 								"options": [
 									{
 										"value": "title_sortDir_ASC",
-										"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['title_sortDir_ASC'].'"
+										"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['title_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value": "title_sortDir_DESC",
-										"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['title_sortDir_DESC'].'"
+										"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['title_sortDir_DESC'] ?? '').'"
 									},									
 									{
 										"value" : "lsShopProductPrice_sortDir_ASC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductPrice_sortDir_ASC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductPrice_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value" : "lsShopProductPrice_sortDir_DESC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductPrice_sortDir_DESC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductPrice_sortDir_DESC'] ?? '').'"
 									},
 									{
 										"value" : "lsShopProductCode_sortDir_ASC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductCode_sortDir_ASC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductCode_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value" : "lsShopProductCode_sortDir_DESC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductCode_sortDir_DESC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductCode_sortDir_DESC'] ?? '').'"
 									},
 									{
 										"value" : "sorting_sortDir_ASC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['sorting_sortDir_ASC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['sorting_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value" : "sorting_sortDir_DESC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['sorting_sortDir_DESC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['sorting_sortDir_DESC'] ?? '').'"
 									},
 									{
 										"value" : "lsShopProductProducer_sortDir_ASC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductProducer_sortDir_ASC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductProducer_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value" : "lsShopProductProducer_sortDir_DESC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductProducer_sortDir_DESC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductProducer_sortDir_DESC'] ?? '').'"
 									},
 									{
 										"value" : "lsShopProductWeight_sortDir_ASC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductWeight_sortDir_ASC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductWeight_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value" : "lsShopProductWeight_sortDir_DESC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductWeight_sortDir_DESC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductWeight_sortDir_DESC'] ?? '').'"
 									},
 									{
 										"value" : "priority_sortDir_ASC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['priority_sortDir_ASC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['priority_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value" : "priority_sortDir_DESC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['priority_sortDir_DESC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['priority_sortDir_DESC'] ?? '').'"
 									},
 									{
 										"value" : "flex_contentsLanguageIndependentKEYORALIAS_sortDir_ASC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['flex_contentsLanguageIndependentKEYORALIAS_sortDir_ASC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['flex_contentsLanguageIndependentKEYORALIAS_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value" : "flex_contentsLanguageIndependentKEYORALIAS_sortDir_DESC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['flex_contentsLanguageIndependentKEYORALIAS_sortDir_DESC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['flex_contentsLanguageIndependentKEYORALIAS_sortDir_DESC'] ?? '').'"
 									},
 									{
 										"value" : "flex_contentsKEYORALIAS_sortDir_ASC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['flex_contentsKEYORALIAS_sortDir_ASC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['flex_contentsKEYORALIAS_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value" : "flex_contentsKEYORALIAS_sortDir_DESC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['flex_contentsKEYORALIAS_sortDir_DESC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['flex_contentsKEYORALIAS_sortDir_DESC'] ?? '').'"
 									},
 									{
 										"value" : "lsShopProductAttributesValuesKEYORALIAS_sortDir_ASC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductAttributesValuesKEYORALIAS_sortDir_ASC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductAttributesValuesKEYORALIAS_sortDir_ASC'] ?? '').'"
 									},
 									{
 										"value" : "lsShopProductAttributesValuesKEYORALIAS_sortDir_DESC",
-										"label" : "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductAttributesValuesKEYORALIAS_sortDir_DESC'].'"
+										"label" : "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']['lsShopProductAttributesValuesKEYORALIAS_sortDir_DESC'] ?? '').'"
 									}
 								]
 							},
 							{
 								"type": "text",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSortingFields']['labels']['field2'] .'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSortingFields']['labels']['field2'] ?? '') .'"
 							},
 							{
 								"type": "textarea",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSortingFields']['labels']['field3'] .'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSortingFields']['labels']['field3'] ?? '') .'"
 							}
 						],
 						"cssClass": "output-definition-user-sorting-fields-widget"
