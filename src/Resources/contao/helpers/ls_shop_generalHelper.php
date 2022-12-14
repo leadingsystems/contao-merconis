@@ -44,33 +44,35 @@ class ls_shop_generalHelper
         $arr_allocations = is_array($arr_allocations) ? $arr_allocations : json_decode($arr_allocations, true);
 
         $int_sortingKey = 0;
-        foreach ($arr_allocations as $arr_allocation) {
-            if (!isset($arr_allocation[0]) || !$arr_allocation[0] || !isset($arr_allocation[1]) || !$arr_allocation[1]) {
-                /*
-                 * Skip attribute value allocations if either the attribute or the value
-                 * is not defined (or both, of course)
-                 */
-                continue;
+        if (is_array($arr_allocations)) {
+            foreach ($arr_allocations as $arr_allocation) {
+                if (!isset($arr_allocation[0]) || !$arr_allocation[0] || !isset($arr_allocation[1]) || !$arr_allocation[1]) {
+                    /*
+                     * Skip attribute value allocations if either the attribute or the value
+                     * is not defined (or both, of course)
+                     */
+                    continue;
+                }
+
+                \Database::getInstance()
+                    ->prepare("
+                    INSERT INTO `tl_ls_shop_attribute_allocation`
+                    SET			`pid` = ?,
+                                `parentIsVariant` = ?,
+                                `attributeID` = ?,
+                                `attributeValueID` = ?,
+                                `sorting` = ?
+                ")
+                    ->execute(
+                        $int_parentId,
+                        ($bln_parentIsVariant ? '1' : '0'),
+                        $arr_allocation[0],
+                        $arr_allocation[1],
+                        $int_sortingKey
+                    );
+
+                $int_sortingKey++;
             }
-
-            \Database::getInstance()
-                ->prepare("
-				INSERT INTO `tl_ls_shop_attribute_allocation`
-				SET			`pid` = ?,
-							`parentIsVariant` = ?,
-							`attributeID` = ?,
-							`attributeValueID` = ?,
-							`sorting` = ?
-			")
-                ->execute(
-                    $int_parentId,
-                    ($bln_parentIsVariant ? '1' : '0'),
-                    $arr_allocation[0],
-                    $arr_allocation[1],
-                    $int_sortingKey
-                );
-
-            $int_sortingKey++;
         }
     }
 
@@ -1993,15 +1995,17 @@ class ls_shop_generalHelper
     public static function getProductAttributeValueIds($arr_productAttributesValues = array())
     {
         $arr_attributeValueIds = array();
-        foreach ($arr_productAttributesValues as $arr_attributeValuePair) {
-            if (!$arr_attributeValuePair[0]) {
-                continue;
-            }
+        if (is_array($arr_productAttributesValues)) {
+            foreach ($arr_productAttributesValues as $arr_attributeValuePair) {
+                if (!$arr_attributeValuePair[0]) {
+                    continue;
+                }
 
-            if (!isset($arr_attributeValueIds[$arr_attributeValuePair[0]])) {
-                $arr_attributeValueIds[$arr_attributeValuePair[0]] = array();
+                if (!isset($arr_attributeValueIds[$arr_attributeValuePair[0]])) {
+                    $arr_attributeValueIds[$arr_attributeValuePair[0]] = array();
+                }
+                $arr_attributeValueIds[$arr_attributeValuePair[0]][] = $arr_attributeValuePair[1];
             }
-            $arr_attributeValueIds[$arr_attributeValuePair[0]][] = $arr_attributeValuePair[1];
         }
         return $arr_attributeValueIds;
     }
@@ -2675,7 +2679,7 @@ class ls_shop_generalHelper
 
         if ($objCrossSellers->numRows) {
             while ($objCrossSellers->next()) {
-                if ($objCrossSellers->id == $arg1->activeRecord->id) {
+                if ($objCrossSellers->id == ($arg1->activeRecord->id ?? null)) {
                     continue;
                 }
                 $arrCrossSellerOptions[$objCrossSellers->id] = $objCrossSellers->title;

@@ -449,7 +449,7 @@ class ls_shop_shipping_methods extends \Backend {
 		/*
 		 * Einf�gen der BE_formFields in die Default-Palette
 		 */
-		$paletteInsertion = ';{'.$obj_shippingModule->types[$objShippingMethod->type]['typeCode'].'_legend},';
+		$paletteInsertion = ';{'.($obj_shippingModule->types[$objShippingMethod->type]['typeCode'] ?? null).'_legend},';
 		foreach ($obj_shippingModule->types[$objShippingMethod->type]['BE_formFields'] as $formFieldTitle => $formFieldInfo) {
 			$paletteInsertion .= $formFieldTitle.',';
 		}

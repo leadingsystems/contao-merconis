@@ -91,7 +91,7 @@ class productImageGallery extends \Frontend {
                 $this->mainImage = $this->processSingleImage($this->mainImageSRC);
             }else if(!empty($this->getMoreImages())){
                 $this->mainImage = $this->getMoreImages()[0];
-            }else{
+            }else if(isset($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])){
                 $this->mainImage = $this->processSingleImage(\FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
             }
         }
