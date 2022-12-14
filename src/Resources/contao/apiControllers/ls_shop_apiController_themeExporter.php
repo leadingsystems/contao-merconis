@@ -27,7 +27,7 @@ class ls_shop_apiController_themeExporter
     {
     }
 
-    final private function __clone()
+    private function __clone()
     {
     }
 
