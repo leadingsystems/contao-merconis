@@ -95,7 +95,7 @@
                 </div>
                 <div class="field info">
                     <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
-                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber($this->arrOrder['paymentMethod_amountTaxedWith'][1]['taxRate'], 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator']); ?> %</div>
+                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber($this->arrOrder['paymentMethod_amountTaxedWith'][key($this->arrOrder['paymentMethod_amountTaxedWith'])]['taxRate'], 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator']); ?> %</div>
                 </div>
             </div>
             <?php
@@ -112,7 +112,7 @@
                 </div>
                 <div class="field info">
                     <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
-                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber($this->arrOrder['shippingMethod_amountTaxedWith'][1]['taxRate'], 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator']); ?> %</div>
+                    <div class="field-content"><?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber($this->arrOrder['shippingMethod_amountTaxedWith'][key($this->arrOrder['shippingMethod_amountTaxedWith'])]['taxRate'], 2, $this->arrOrder['decimalsSeparator'], $this->arrOrder['thousandsSeparator']); ?> %</div>
                 </div>
             </div>
             <?php

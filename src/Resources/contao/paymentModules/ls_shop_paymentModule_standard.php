@@ -212,7 +212,7 @@ namespace Merconis\Core;
 
 			// Only show messages if the checkout page displaying the payment selection is currently opened.
 			if (
-					$objPage->id == ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id')
+					($objPage->id ?? null) == ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id')
 				&&	isset($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])
 			) {
 				if (!is_array($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])) {

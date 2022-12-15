@@ -512,7 +512,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['type'],
             'inputType' => 'select',
             'options_callback' => array('Merconis\Core\ls_shop_payment_methods', 'getPaymentModulesAsOptions'),
-            'reference' => $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['type']['options'],
+            'reference' => ($GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['type']['options'] ?? ''),
             'eval' => array('submitOnChange' => true, 'tl_class'=>'w50', 'helpwizard' => true),
             'filter' => true,
             'sql'                     => "text NOT NULL default 'standard'"
@@ -532,7 +532,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'label' =>  &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['dynamicSteuersatzType'],
             'inputType' => 'select',
             'options' => array('none', 'main', 'max', 'min'),
-            'reference' => $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['dynamicSteuersatzType']['options'],
+            'reference' => ($GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['dynamicSteuersatzType']['options'] ?? ''),
             'eval' => array('submitOnChange' => true, 'tl_class'=>'w50'),
             'filter' => true,
             'sql'                     => "text NOT NULL default 'none'"
