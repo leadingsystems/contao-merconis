@@ -2,16 +2,16 @@
 <div class="product-status-icon-wrapper">
     <?php if ($this->objProduct->_isNew) { ?>
         <div class="product-status-icon is-new">
-            <?php if (!$this->arr_args['bln_doNotlinkToProduct']) { ?><a href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php } ?>
+            <?php if (!($this->arr_args['bln_doNotlinkToProduct'] ?? null)) { ?><a href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php } ?>
                 <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['newLabel']; ?>
-            <?php if (!$this->arr_args['bln_doNotlinkToProduct']) { ?></a><?php } ?>
+            <?php if (!($this->arr_args['bln_doNotlinkToProduct'] ?? null)) { ?></a><?php } ?>
         </div>
     <?php } ?>
     <?php if ($this->objProduct->_isOnSale) { ?>
         <div class="product-status-icon is-on-sale">
-            <?php if (!$this->arr_args['bln_doNotlinkToProduct']) { ?><a href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php } ?>
+            <?php if (!($this->arr_args['bln_doNotlinkToProduct'] ?? false)) { ?><a href="<?php echo $this->objProduct->_linkToProduct; ?>"><?php } ?>
                 <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['saleLabel']; ?>
-            <?php if (!$this->arr_args['bln_doNotlinkToProduct']) { ?></a><?php } ?>
+            <?php if (!($this->arr_args['bln_doNotlinkToProduct'] ?? false)) { ?></a><?php } ?>
         </div>
     <?php } ?>
 </div>

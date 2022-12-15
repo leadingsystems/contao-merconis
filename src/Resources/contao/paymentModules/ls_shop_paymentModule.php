@@ -540,15 +540,15 @@ namespace Merconis\Core;
 		
 		
 		public function __construct() {
-			$this->types['payone']['BE_formFields']['payone_clearingtype']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_clearingtype']['options'];
+			$this->types['payone']['BE_formFields']['payone_clearingtype']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_clearingtype']['options'] ?? null;
 			
-			$this->types['saferpay']['BE_formFields']['saferpay_paymentMethods']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['saferpay_paymentMethods']['options'];
-			$this->types['saferpay']['BE_formFields']['saferpay_wallets']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['saferpay_wallets']['options'];
+			$this->types['saferpay']['BE_formFields']['saferpay_paymentMethods']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['saferpay_paymentMethods']['options'] ?? null;
+			$this->types['saferpay']['BE_formFields']['saferpay_wallets']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['saferpay_wallets']['options'] ?? null;
 
-			$this->types['vrpay']['BE_formFields']['vrpay_paymentInstrument']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_paymentInstrument']['options'];
-			$this->types['vrpay']['BE_formFields_subpalettes']['vrpay_paymentInstrument_creditcard']['fields']['vrpay_creditCardBrands']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_creditCardBrands']['options'];
+			$this->types['vrpay']['BE_formFields']['vrpay_paymentInstrument']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_paymentInstrument']['options'] ?? null;
+			$this->types['vrpay']['BE_formFields_subpalettes']['vrpay_paymentInstrument_creditcard']['fields']['vrpay_creditCardBrands']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_creditCardBrands']['options'] ?? null;
 
-			$this->types['vrpay']['BE_formFields']['vrpay_testMode']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_testMode']['options'];
+			$this->types['vrpay']['BE_formFields']['vrpay_testMode']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_testMode']['options'] ?? null;
 
 			if (isset($GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes'] as $mccb) {
@@ -608,7 +608,12 @@ namespace Merconis\Core;
 			 * z. B. einiges in der Programmdatei verändert hat und dieses paymentMethod nicht mehr verfügbar ist), so wird die Funktion abgebrochen
 			 * und false zurückgegeben
 			 */
-			if (!isset($this->types[$arrPaymentMethodInfo['type']]) || !is_array($this->types[$arrPaymentMethodInfo['type']])) {
+			if (!($str_paymentMethodType = $arrPaymentMethodInfo['type'] ?? null)) {
+				return false;
+			}
+
+
+			if (!is_array($this->types[$str_paymentMethodType] ?? null)) {
 				return false;
 			}
 			
@@ -617,7 +622,7 @@ namespace Merconis\Core;
 			 */
 			$this->arrCurrentSettings = $arrPaymentMethodInfo;
 			
-			$this->import($this->types[$arrPaymentMethodInfo['type']]['className'], 'specialModule', $blnForceRefresh);
+			$this->import($this->types[$str_paymentMethodType]['className'], 'specialModule', $blnForceRefresh);
 			$this->specialModule->arrCurrentSettings = $this->arrCurrentSettings;
 			
 			$this->initialize($specializedManually);

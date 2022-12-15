@@ -105,13 +105,13 @@ class ls_shop_beModule_productSearch extends \BackendModule
 		// Standardmäßig das Suchkriterium für published auf Wildcard setzen, damit der ProductSearcher auch unveröffentlichte Produkte findet
 		$objProductSearch->setSearchCriterion('published', '%');
 		
-		if (is_array($_SESSION['lsShop']['beModule_productSearch']['values'])) {
+		if (is_array($_SESSION['lsShop']['beModule_productSearch']['values'] ?? null)) {
 			foreach ($_SESSION['lsShop']['beModule_productSearch']['values'] as $searchCriteriaFieldName => $searchCriteriaValue) {
 				$objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
 			}
 		}
 
-		$objProductSearch->numPerPage = $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] ? $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] : $this->intDefaultNumPerPage;
+		$objProductSearch->numPerPage = ($_SESSION['lsShop']['beModule_productSearch']['numPerPage'] ?? null) ? $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] : $this->intDefaultNumPerPage;
 		$objProductSearch->currentPage = \Input::get('page') ? \Input::get('page') : 1;
 
 		if (is_array($_SESSION['lsShop']['beModule_productSearch']['sorting'])) {
@@ -133,7 +133,7 @@ class ls_shop_beModule_productSearch extends \BackendModule
 		$objWidgetNumPerPage = new \SelectMenu();
 		$objWidgetNumPerPage->name = 'numPerPage';
 		$objWidgetNumPerPage->options = array(array('label' => 1, 'value' => 1), array('label' => 2, 'value' => 2), array('label' => 3, 'value' => 3), array('label' => 10, 'value' => 10), array('label' => 20, 'value' => 20), array('label' => 50, 'value' => 50), array('label' => 100, 'value' => 100));
-		$objWidgetNumPerPage->value = $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] ? $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] : $this->intDefaultNumPerPage;
+		$objWidgetNumPerPage->value = ($_SESSION['lsShop']['beModule_productSearch']['numPerPage'] ?? null) ? $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] : $this->intDefaultNumPerPage;
 		$this->Template->fflNumPerPage = $objWidgetNumPerPage->generate();
 		
 		if (\Input::post('FORM_SUBMIT') == 'beModule_productSearch_numPerPage') {

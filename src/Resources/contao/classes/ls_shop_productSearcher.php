@@ -78,7 +78,7 @@ class ls_shop_productSearcher
     }
 
     protected function getCache() {
-        $this->arrCache = $_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey] ? $_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey] : null;
+        $this->arrCache = ($_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey] ?? null) ?: null;
     }
 
     protected function setCache() {
@@ -143,13 +143,13 @@ class ls_shop_productSearcher
             'arrSearchCriteria' => $this->arrSearchCriteria,
             'arrLimit' => $this->arrLimit,
             'filterCriteria' => $this->blnUseFilter ? $_SESSION['lsShop']['filter']['criteria'] : null,
-            'filterModeSettings' => $this->blnUseFilter ? $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] : null,
+            'filterModeSettings' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
             'language' => $this->searchLanguage,
             'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
             'checkVATID' => ls_shop_generalHelper::checkVATID(),
             'customerCountry' => ls_shop_generalHelper::getCustomerCountry(),
             'lastBackendDataChange' => isset($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']) ? $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] : 0,
-            'lastResetTimestamp' => $_SESSION['lsShop']['filter']['lastResetTimestamp'],
+            'lastResetTimestamp' => $_SESSION['lsShop']['filter']['lastResetTimestamp'] ?? null,
             'customerGroupId' => $this->arr_groupSettingsForUser['id']
         );
 
@@ -1066,7 +1066,7 @@ class ls_shop_productSearcher
          */
         $objProductsComplete = \Database::getInstance()->prepare("
 			SELECT			".$fieldSelectionPart."
-							".$addToSelectStatement."
+							".($addToSelectStatement ?? '')."
 			FROM			`tl_ls_shop_product`
 		".($this->blnUseFilter ? "
 			LEFT JOIN		`tl_ls_shop_attribute_allocation`

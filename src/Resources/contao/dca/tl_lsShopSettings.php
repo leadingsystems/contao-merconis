@@ -359,7 +359,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'exclude' => true,
 			'inputType' => 'select',
 			'options' => array('withLogin', 'withoutLogin', 'both'),
-			'reference' => $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_allowCheckout']['options'],
+			'reference' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_allowCheckout']['options'],
 			'eval' => array('helpwizard' => true, 'tl_class'=>'w50')
 		),
 		

@@ -8,11 +8,11 @@ use function LeadingSystems\Helpers\ls_sub;
 
 class ls_shop_cartHelper {
 	public static function initializeEmptyCart() {
-		if (!$_SESSION['lsShopCart'] || !is_array($_SESSION['lsShopCart'])) {
+	    if (!is_array($_SESSION['lsShopCart'] ?? null)) {
 			$_SESSION['lsShopCart'] = array();
 		}
 
-		if (!$_SESSION['lsShopCart']['items'] || !is_array($_SESSION['lsShopCart']['items'])) {
+		if (!is_array($_SESSION['lsShopCart']['items'] ?? null)) {
 			$_SESSION['lsShopCart']['items'] = array();
 		}
 	}
@@ -579,7 +579,7 @@ class ls_shop_cartHelper {
 	 * der Gutschein durch eine Wartezeit nicht mehr gültig oder verfügbar sein.
 	 */
 	public static function revalidateCouponsUsed() {
-		if (!is_array($_SESSION['lsShopCart']['couponsUsed'])) {
+		if (!is_array($_SESSION['lsShopCart']['couponsUsed'] ?? null)) {
 			return false;
 		}
 

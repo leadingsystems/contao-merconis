@@ -11,7 +11,7 @@ class ls_shop_apiControllerBackend
 
 	protected function __construct() {}
 
-	final private function __clone() {}
+	private function __clone() {}
 
 	public static function getInstance() {
 		if (!is_object(self::$objInstance))

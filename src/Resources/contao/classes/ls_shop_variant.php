@@ -207,7 +207,7 @@ class ls_shop_variant
     // create ImageGallery if it does not exist yet and returns it
     public function getImageGallery($ls_moreImagesSortBy = false, $ls_imageLimit = 0) {
 	    $str_argHash = md5(implode('', func_get_args()));
-        if(!$this->arr_imageGalleries[$str_argHash]){
+        if(!($this->arr_imageGalleries[$str_argHash] ?? null)){
             $this->arr_imageGalleries[$str_argHash] = new productImageGallery($this, $ls_moreImagesSortBy, $ls_imageLimit);
         }
         return $this->arr_imageGalleries[$str_argHash];
