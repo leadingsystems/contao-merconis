@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.0 (2023-01-10)
+ * Official release with some small adjustments
+
 ### 5.0.0 beta13 (2020-10-26)
  * Return null instead of an empty string in custom conditional insert tags
 
