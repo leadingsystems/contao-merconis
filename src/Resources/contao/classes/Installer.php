@@ -360,7 +360,7 @@ class Installer
                                 <?php
                             }
                             ?>
-                            <input type="submit" name="selectTheme"
+                            <input type="submit" name="selectTheme" onclick="lsjs.loadingIndicator.__controller.show()"
                                    value="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-07']; ?>">
                             <?php
                         } else {
