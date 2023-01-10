@@ -321,7 +321,13 @@ class Installer
                                     ?>
                                     <label <?php if ($arrTheme['compatibleWithContaoVersion'] && $arrTheme['compatibleWithMerconisVersion']) { ?>
                                             for="installer_selectedTheme<?php echo $arrTheme['id']; ?><?php } ?>">
+                                        <?php
+                                        if ($arrTheme['imgUrl']) {
+                                        ?>
                                         <span class="img"><img src="<?php echo $arrTheme['imgUrl']; ?>"></span>
+                                            <?php
+                                        }
+                                            ?>
                                         <span class="name"><?php echo $arrTheme['name'] . ' ' . $arrTheme['version']; ?></span>
                                         <span class="description"><?php echo $arrTheme['description']; ?></span>
                                         <?php
@@ -335,9 +341,13 @@ class Installer
                                             <span class="compatibilityIssue"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-11'], $arrTheme['merconisCompatibilityFrom'] == $arrTheme['merconisCompatibilityTo'] ? $arrTheme['merconisCompatibilityFrom'] : $arrTheme['merconisCompatibilityFrom'] . ' - ' . $arrTheme['merconisCompatibilityTo']); ?></span>
                                             <?php
                                         }
+                                        if($arrTheme['livePreviewUrl']) {
                                         ?>
                                         <span class="preview"><a target="_blank"
                                                                  href="<?php echo $arrTheme['livePreviewUrl']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-08']; ?></a></span>
+                                            <?php
+                                        }
+                                        ?>
                                     </label>
                                 </div>
                                 <?php
@@ -350,7 +360,7 @@ class Installer
                                 <?php
                             }
                             ?>
-                            <input type="submit" name="selectTheme"
+                            <input type="submit" name="selectTheme" onclick="lsjs.loadingIndicator.__controller.show()"
                                    value="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-07']; ?>">
                             <?php
                         } else {

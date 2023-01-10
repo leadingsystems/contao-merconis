@@ -24,6 +24,7 @@
     "leadingsystems/contao-cajax": "^2.0",
     "leadingsystems/merconis-languageselector": "^3.0",
     "leadingsystems/contao-datacollector": "^2.0",
+    "leadingsystems/lsce": "^1.0",
     "paypal/rest-api-sdk-php": "^1.13",
     "tecnickcom/tcpdf": "^6.2.22"
   },
