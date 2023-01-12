@@ -192,6 +192,16 @@ class ModuleCheckoutFinish extends \Module {
 			$bln_usePaymentAfterCheckoutPage = $obj_paymentModule->check_usePaymentAfterCheckoutPage($orderIdInDb, $order);
 			// ###################################################
 
+			if (isset($GLOBALS['MERCONIS_HOOKS']['afterCheckoutBeforeRedirect']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterCheckoutBeforeRedirect'])) {
+				foreach ($GLOBALS['MERCONIS_HOOKS']['afterCheckoutBeforeRedirect'] as $mccb) {
+				    $objMccb = \System::importStatic($mccb[0]);
+				    /*
+				     * We have to get the most up to date order record
+				     */
+				    $objMccb->{$mccb[1]}($orderIdInDb, ls_shop_generalHelper::getOrder($orderIdInDb));
+				}
+			}
+
 			if ($bln_usePaymentAfterCheckoutPage) {
 				$this->redirect($str_paymentAfterCheckoutUrlWithOih);
 			} else {
