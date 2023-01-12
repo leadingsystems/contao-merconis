@@ -43,7 +43,7 @@
             <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_010'], $this->arr_installedThemeExtensions[0]) ?></p>
 
             <div class="submit-button-box">
-                <button><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_009'] ?></button>
+                <button onclick="lsjs.loadingIndicator.__controller.show()"><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_009'] ?></button>
             </div>
         </form>
         <?php
