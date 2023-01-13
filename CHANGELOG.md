@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.1 (2023-01-13)
+ * Add new hook "afterCheckoutBeforeRedirect"
+
 ### 5.0.0 (2023-01-10)
  * Official release
 
