@@ -148,7 +148,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 			'inputType'               => 'select',
 			'options'                 => $this->getTemplateGroup('template_export_'),
 			'filter' => true,
-			'eval'					  => array('tl_class' => 'w50', 'includeBlankOption' => true)
+			'eval'					  => array('tl_class' => 'w50', 'includeBlankOption' => true),
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		),
 
         'customLogicFile' => array(
@@ -534,7 +535,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 			'exclude' => true,
 			'inputType' => 'select',
 			'foreignKey' => 'tl_member_group.name',
-			'eval' => array('tl_class'=>'w50', 'includeBlankOption' => true)
+			'eval' => array('tl_class'=>'w50', 'includeBlankOption' => true),
+            'sql' => "int(10) unsigned NOT NULL default '0'"
 		),
 
 		'productDirectSelection' => array(
