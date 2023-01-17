@@ -12,7 +12,7 @@ class ls_shop_apiController_exportBackend
 
 	protected function __construct() {}
 
-	final private function __clone()
+	private function __clone()
 	{
 	}
 

@@ -191,7 +191,7 @@ class ls_shop_filterHelper {
 					 * the product is a match for this attribute, otherwise it's
 					 * not and we return false.
 					 */
-					if ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$attributeID] === 'and') {
+					if (($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$attributeID] ?? null) === 'and') {
 						if (count(array_intersect($attributeValueIDs, $arrProductInfo['attributeValueIDs'])) !== count($attributeValueIDs)) {
 							$blnWholeProductCouldStillMatch = false;
 							break;
@@ -310,7 +310,7 @@ class ls_shop_filterHelper {
 							 * otherwise it's not and we return false.
 							 */
 
-							if ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$attributeID] === 'and') {
+							if (($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$attributeID] ?? null) === 'and') {
 								if (count(array_intersect($attributeValueIDs, $arrVariantInfo['mergedProductAndVariantAttributeValueIDs'])) !== count($attributeValueIDs)) {
 									$blnThisVariantCouldStillMatch = false;
 									break;

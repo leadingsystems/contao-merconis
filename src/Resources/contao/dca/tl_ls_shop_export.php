@@ -171,11 +171,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 						"arr_fields": [
 							{
 								"type": "text",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters_label01'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters_label01'] ?? '').'"
 							},
 							{
 								"type": "textarea",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters_label02'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['flex_parameters_label02'] ?? '').'"
 							}
 						],
 						"cssClass": "key-value-widget"
@@ -545,10 +545,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 		),
 
 
-		'groupStartSearchSelectionNewProduct' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionNewProduct'].'</h3>')
-		),
+        'groupStartSearchSelectionNewProduct' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionNewProduct'] ?? '').'</h3>')
+        ),
 
 		'groupStopSearchSelectionNewProduct' => array(
 			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
@@ -573,10 +573,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 
 
 
-		'groupStartSearchSelectionSpecialPrice' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionSpecialPrice'].'</h3>')
-		),
+        'groupStartSearchSelectionSpecialPrice' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionSpecialPrice'] ?? '').'</h3>')
+        ),
 
 		'groupStopSearchSelectionSpecialPrice' => array(
 			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
@@ -601,10 +601,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 
 
 
-		'groupStartSearchSelectionCategory' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionCategory'].'</h3><p>'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['subHeadlineSearchSelectionCategory'].'</p>')
-		),
+        'groupStartSearchSelectionCategory' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionCategory'] ?? '').'</h3><p>'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['subHeadlineSearchSelectionCategory'] ?? '').'</p>')
+        ),
 
 		'groupStopSearchSelectionCategory' => array(
 			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
@@ -626,10 +626,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 
 
 
-		'groupStartSearchSelectionProducer' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionProducer'].'</h3>')
-		),
+        'groupStartSearchSelectionProducer' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionProducer'] ?? '').'</h3>')
+        ),
 
 		'groupStopSearchSelectionProducer' => array(
 			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
@@ -652,10 +652,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 
 
 
-		'groupStartSearchSelectionProductName' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionProductName'].'</h3>')
-		),
+        'groupStartSearchSelectionProductName' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionProductName'] ?? '').'</h3>')
+        ),
 
 		'groupStopSearchSelectionProductName' => array(
 			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
@@ -678,10 +678,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 
 
 
-		'groupStartSearchSelectionArticleNr' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionArticleNr'].'</h3>')
-		),
+        'groupStartSearchSelectionArticleNr' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionArticleNr'] ?? '').'</h3>')
+        ),
 
 		'groupStopSearchSelectionArticleNr' => array(
 			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
@@ -704,10 +704,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 
 
 
-		'groupStartSearchSelectionTags' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionTags'].'</h3>')
-		),
+        'groupStartSearchSelectionTags' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.($GLOBALS['TL_LANG']['tl_ls_shop_export']['headlineSearchSelectionTags'] ?? '').'</h3>')
+        ),
 
 		'groupStopSearchSelectionTags' => array(
 			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
@@ -788,12 +788,13 @@ class ls_shop_export_dc extends \Backend {
 
 		$obj_template->arr_row = $arr_row;
 
-		$arr_ajaxPage = ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages', false, 'array');
-		if (is_array($arr_ajaxPage)) {
-			$obj_template->str_ajaxUrl = \Environment::get('base').\Controller::generateFrontendUrl($arr_ajaxPage, '/resource/exportFeed').'?feedName='.$arr_row['feedName'].($arr_row['feedPassword'] ? '&pwd='.$arr_row['feedPassword'] : '');
-		} else {
-			$obj_template->str_ajaxUrl = 'AJAX PAGE NOT FOUND';
-		}
+        $arr_ajaxPage = ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages', false, 'array');
+        if (is_array($arr_ajaxPage)) {
+            $obj_targetPageCollection = \PageModel::findById($arr_ajaxPage['id']);
+            $obj_template->str_ajaxUrl = $obj_targetPageCollection->getFrontendUrl('/resource/exportFeed').'?feedName='.$arr_row['feedName'].($arr_row['feedPassword'] ? '&pwd='.$arr_row['feedPassword'] : '');
+        } else {
+            $obj_template->str_ajaxUrl = 'AJAX PAGE NOT FOUND';
+        }
 
 		$arr_existingExportFiles = array();
 

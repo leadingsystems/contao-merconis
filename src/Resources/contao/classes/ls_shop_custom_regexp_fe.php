@@ -6,7 +6,7 @@ use function LeadingSystems\Helpers\createMultidimensionalArray;
 	class ls_shop_custom_regexp_fe
 	{
 		public function customRegexp($strRegexp, &$varValue, \Widget &$objWidget) {
-			$decimalsSeparator = $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ? $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] : '.';
+			$decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null) ?: '.';
 			switch($strRegexp) {
 				case 'merconisCheckVATID':
 					/*

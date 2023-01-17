@@ -680,7 +680,7 @@ Array. If the product has variants, this array contains all the variant objects.
 returns true/false, indicates whether a variant of this product has currently been selected
 				 */
 				:
-				return $this->ls_currentVariantID && is_object($this->ls_variants[$this->ls_currentVariantID]) ? true : false;
+				return $this->ls_currentVariantID && is_object($this->ls_variants[$this->ls_currentVariantID] ?? null) ? true : false;
 				break;
 
 			case '_selectedVariantID'
@@ -1624,10 +1624,12 @@ This method takes an array holding attribute ids as keys and attribute value ids
 This method takes an array holding attribute ids as keys and attribute value ids as values and returns the variant object of the matching variant (the first match if more than one variant matches) or null if no variant matches. If the provided array holds an empty value for an attribute, no variant will match.
 				 */
 				:
-				$args = ls_shop_generalHelper::setArrayLength($args, 1, array());
-				$arr_requestedAttributeValues = $args[0];
+//                @toDO check if fix is necessary for PHP8-Compatibility
+				$args = ls_shop_generalHelper::setArrayLength($args, 2);
+				$arr_requestedAttributeValues = is_array($args[0]) ? $args[0] : [];
+                $bln_returnFirstMatch = (bool) $args[1];
 
-				return $this->_getVariantsByAttributeValues($arr_requestedAttributeValues, true);
+				return $this->_getVariantsByAttributeValues($arr_requestedAttributeValues, $bln_returnFirstMatch);
 				break;
 
 			case '_getVariantsByAttributeValues'
@@ -1995,7 +1997,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	 * Diese Funktion verändert den in der DB eingetragenen Warenbestand des Produktes bzw. der Variante
 	 */
 	public function changeStock($quantity, $blnDoNotCalculate = false, $blnWriteLog = false) {
-		$quantity = number_format($quantity, $this->_quantityDecimals, '.', '');
+		$quantity = number_format((float) $quantity, $this->_quantityDecimals, '.', '');
 
 		if ($this->_variantIsSelected) {
 			return $this->_selectedVariant->changeStock($quantity, $blnDoNotCalculate, $blnWriteLog);

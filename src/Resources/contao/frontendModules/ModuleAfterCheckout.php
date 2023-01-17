@@ -85,6 +85,7 @@ class ModuleAfterCheckout extends \Module {
 		 * Get the order id from an oix if given as a get or post parameter
 		 */
 		$idFromOix = null;
+		$oix = null;
 		if ($str_oixFromCallback) {
 			$oix = $str_oixFromCallback;
 			$idFromOix = ls_shop_generalHelper::decodeOix($oix);

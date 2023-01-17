@@ -260,7 +260,8 @@ class ls_shop_productList
 					'arr_options' => $this->outputDefinition['overviewUserSortingFields']
 				),
 				'str_allowedRequestMethod' => 'post',
-				'var_value' => $_SESSION['lsShop']['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID] ? $_SESSION['lsShop']['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID] : $this->outputDefinition['overviewSorting']
+//                @toDO check if fix is necessary for PHP8-Compatibility
+				'var_value' => ($_SESSION['lsShop']['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID] ?? null) ?: $this->outputDefinition['overviewSorting']
 			)
 		);
 
