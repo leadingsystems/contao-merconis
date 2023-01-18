@@ -78,7 +78,6 @@ class ls_shop_productSearcher
     }
 
     protected function getCache() {
-//     @toDO check if fix is necessary for PHP8-Compatibility
         $this->arrCache = ($_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey] ?? null) ?: null;
     }
 

@@ -930,7 +930,7 @@ class ls_shop_generalHelper
             }
 
             if (!$foundMatchingSteuerzone) {
-                $currentSteuersatzInProzent = $currentSteuersatzInProzentFallback;
+                $currentSteuersatzInProzent = $currentSteuersatzInProzentFallback ?? null;
             }
 
             if ($blnParseTaxRateValue) {
@@ -1438,8 +1438,7 @@ class ls_shop_generalHelper
             }
             $totalValueOfCoupons = $totalValueOfCoupons ? $totalValueOfCoupons : 0;
 
-//            @toDo fix for PHP8
-            $shippingFee = $type == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+            $shippingFee = $type == 'shipping' ? 0 : ((ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ?? null) ?: 0);
 
             $totalValueOfGoodsPlusCoupons = ls_add($totalValueOfGoods, $totalValueOfCoupons);
             $totalValueOfGoodsPlusShipping = ls_add($totalValueOfGoods, $shippingFee);
@@ -1737,8 +1736,7 @@ class ls_shop_generalHelper
         }
         $totalValueOfCoupons = $totalValueOfCoupons ? $totalValueOfCoupons : 0;
 
-//        @toDo fix for PHP8
-        $shippingFee = $what == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+        $shippingFee = $what == 'shipping' ? 0 : ((ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ?? null) ?: 0);
 
         $totalValueOfGoodsPlusCoupons = ls_add($totalValueOfGoods, $totalValueOfCoupons);
         $totalValueOfGoodsPlusShipping = ls_add($totalValueOfGoods, $shippingFee);

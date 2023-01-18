@@ -8,12 +8,10 @@ use function LeadingSystems\Helpers\ls_sub;
 
 class ls_shop_cartHelper {
 	public static function initializeEmptyCart() {
-//        @toDO check if fix is necessary for PHP8-Compatibility
 	    if (!is_array($_SESSION['lsShopCart'] ?? null)) {
 			$_SESSION['lsShopCart'] = array();
 		}
 
-//        @toDO check if fix is necessary for PHP8-Compatibility
 		if (!is_array($_SESSION['lsShopCart']['items'] ?? null)) {
 			$_SESSION['lsShopCart']['items'] = array();
 		}
