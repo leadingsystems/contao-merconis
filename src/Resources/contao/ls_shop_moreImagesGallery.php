@@ -350,7 +350,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 				'originalSRC' => $this->originalSRC,
 				'arrOverlays' => $arrOverlays,
 				'singleSRC' => $file,
-				'alt' => ($arrMeta['alt'] ?: $arrMeta['title']) ?? '',
+				'alt' => ($arrMeta['alt'] ?? null) ?: ($arrMeta['title'] ?? null),
                 'title' => $arrMeta['title'] ?? '',
 				'imageUrl' => $arrMeta['link'] ?? '',
 				'caption' => $arrMeta['caption'] ?? '',
