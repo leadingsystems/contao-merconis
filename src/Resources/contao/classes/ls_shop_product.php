@@ -1624,12 +1624,10 @@ This method takes an array holding attribute ids as keys and attribute value ids
 This method takes an array holding attribute ids as keys and attribute value ids as values and returns the variant object of the matching variant (the first match if more than one variant matches) or null if no variant matches. If the provided array holds an empty value for an attribute, no variant will match.
 				 */
 				:
-//                @toDO check if fix is necessary for PHP8-Compatibility
-				$args = ls_shop_generalHelper::setArrayLength($args, 2);
-				$arr_requestedAttributeValues = is_array($args[0]) ? $args[0] : [];
-                $bln_returnFirstMatch = (bool) $args[1];
+				$args = ls_shop_generalHelper::setArrayLength($args, 1, array());
+				$arr_requestedAttributeValues = $args[0];
 
-				return $this->_getVariantsByAttributeValues($arr_requestedAttributeValues, $bln_returnFirstMatch);
+				return $this->_getVariantsByAttributeValues($arr_requestedAttributeValues, true);
 				break;
 
 			case '_getVariantsByAttributeValues'
