@@ -49,7 +49,7 @@ class ValuePickerController
 		$template->theme = Backend::getTheme();
 		$template->base = \Environment::get('base');
 		$template->language = $GLOBALS['TL_LANGUAGE'];
-		$template->title = $GLOBALS['TL_CONFIG']['websiteTitle'];
+		$template->title = $GLOBALS['TL_CONFIG']['websiteTitle'] ?? '';
 		$template->headline = \Input::get('pickerHeadline');
 		$template->charset = $GLOBALS['TL_CONFIG']['characterSet'];
 		$template->options = ls_shop_generalHelper::createValueList(\Input::get('requestedTable'),\Input::get('requestedValue'),\Input::get('requestedLanguage'));

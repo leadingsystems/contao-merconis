@@ -297,11 +297,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"arr_fields": [
 							{
 								"type": "text",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label01'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label01'] ?? '').'"
 							},
 							{
 								"type": "textarea",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label02'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label02'] ?? '').'"
 							}
 						],
 						"cssClass": "key-value-widget"

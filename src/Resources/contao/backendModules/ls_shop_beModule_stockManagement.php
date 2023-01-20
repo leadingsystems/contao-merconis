@@ -144,7 +144,7 @@ class ls_shop_beModule_stockManagement extends \BackendModule {
 		// Standardmäßig das Suchkriterium für published auf Wildcard setzen, damit der ProductSearcher auch unveröffentlichte Produkte findet
 		$objProductSearch->setSearchCriterion('published', '%');
 		
-		if (is_array($_SESSION['lsShop']['beModule_productSearch']['values'])) {
+		if (is_array($_SESSION['lsShop']['beModule_productSearch']['values'] ?? null)) {
 			foreach ($_SESSION['lsShop']['beModule_productSearch']['values'] as $searchCriteriaFieldName => $searchCriteriaValue) {
 				$objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
 			}
