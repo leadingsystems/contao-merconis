@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.2 (2023-01-20)
+ * Update the value picker template and make sure languages variables are available
+
 ### 5.0.1 (2023-01-13)
  * Add new hook "afterCheckoutBeforeRedirect"
 
