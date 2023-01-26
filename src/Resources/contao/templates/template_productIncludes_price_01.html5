@@ -215,7 +215,7 @@ if ($this->objProduct->_variantIsSelected) {
 
 	<div class="taxInfo"><?php echo $obj_tmp_productOrVariant->_taxInfo; ?></div>
 	<div class="shippingInfo"><?php echo $obj_tmp_productOrVariant->_shippingInfo; ?></div>
-	<?php if ($obj_tmp_productOrVariant->_objConfigurator->arrData['stayInDataEntryMode'] || !$obj_tmp_productOrVariant->_configuratorInDataEntryMode): ?>
+	<?php if (($obj_tmp_productOrVariant->_objConfigurator->arrData['stayInDataEntryMode'] ?? null) || !$obj_tmp_productOrVariant->_configuratorInDataEntryMode): ?>
 		<?php if ($obj_tmp_productOrVariant->_orderAllowed && $obj_tmp_productOrVariant->_hasQuantityInput): ?>
 			<?php echo $obj_tmp_productOrVariant->_quantityInput; ?>
 
