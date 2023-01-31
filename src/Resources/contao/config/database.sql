@@ -60,7 +60,7 @@ CREATE TABLE `tl_ls_shop_product` (
 	`sorting` int(10) unsigned NOT NULL default '0',
 	`tstamp` int(10) unsigned NOT NULL default '0',
 	`title` varchar(255) NOT NULL default '',
-	`alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+	`alias` varchar(128) BINARY NOT NULL default '',
 	`keywords` text NULL,
 	`pageTitle` varchar(255) NOT NULL default '',
 	`pageDescription` varchar(255) NOT NULL default '',
@@ -167,7 +167,7 @@ CREATE TABLE `tl_ls_shop_product` (
 	PRIMARY KEY  (`id`),
 	KEY `lsShopProductCode` (`lsShopProductCode`),
 	KEY `alias` (`alias`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_ls_shop_variant.pid@tl_ls_shop_product.id=single@
@@ -181,7 +181,7 @@ CREATE TABLE `tl_ls_shop_variant` (
 	`sorting` int(10) unsigned NOT NULL default '0',
 	`tstamp` int(10) unsigned NOT NULL default '0',
 	`title` varchar(255) NOT NULL default '',
-	`alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+	`alias` varchar(128) BINARY NOT NULL default '',
 	`shortDescription` text NULL,
 	`description` text NULL,
 	`published` char(1) NOT NULL default '',
@@ -286,14 +286,14 @@ CREATE TABLE `tl_ls_shop_variant` (
 	PRIMARY KEY  (`id`),
 	KEY `lsShopVariantCode` (`lsShopVariantCode`),
 	KEY `alias` (`alias`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 
 CREATE TABLE `tl_ls_shop_steuersaetze` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `tstamp` int(10) unsigned NOT NULL default '0',
   `title` varchar(255) NOT NULL default '',
-  `alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+  `alias` varchar(128) BINARY NOT NULL default '',
   `steuerProzentPeriod1` text NULL,
   `startPeriod1` varchar(10) NOT NULL default '',
   `stopPeriod1` varchar(10) NOT NULL default '',
@@ -301,7 +301,7 @@ CREATE TABLE `tl_ls_shop_steuersaetze` (
   `startPeriod2` varchar(10) NOT NULL default '',
   `stopPeriod2` varchar(10) NOT NULL default ''
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_ls_shop_cross_seller.productDirectSelection@tl_ls_shop_product.id=array@
@@ -337,7 +337,7 @@ CREATE TABLE `tl_ls_shop_cross_seller` (
 	`doNotUseCrossSellerOutputDefinitions` char(1) NOT NULL default '',
 	`published` char(1) NOT NULL default ''
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_ls_shop_coupon.allowedForGroups@tl_member_group.id=array@
@@ -379,7 +379,7 @@ CREATE TABLE `tl_ls_shop_coupon` (
 	`activateSearchSelectionTags` char(1) NOT NULL default '',
 	`searchSelectionTags` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_ls_shop_export.productDirectSelection@tl_ls_shop_product.id=array@
@@ -389,7 +389,7 @@ CREATE TABLE `tl_ls_shop_export` (
 	`tstamp` int(10) unsigned NOT NULL default '0',
 	`title` varchar(255) NOT NULL default '',
 	`template` varchar(64) NOT NULL default '',
-  `customLogicFile` binary(16) NULL,
+    `customLogicFile` binary(16) NULL,
 	`flex_parameters` text NULL,
 	`dataSource` varchar(255) NOT NULL default '',
 	`tableName` varchar(255) NOT NULL default '',
@@ -449,14 +449,14 @@ CREATE TABLE `tl_ls_shop_export` (
 	`filterByPaymentMethod` blob NULL,
 	`filterByShippingMethod` blob NULL,
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 /*
 @tl_ls_shop_configurator.form@tl_form.id=single@
 */
 CREATE TABLE `tl_ls_shop_configurator` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `tstamp` int(10) unsigned NOT NULL default '0',
-  `alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+  `alias` varchar(128) BINARY NOT NULL default '',
   `title` varchar(255) NOT NULL default '',
   `form` int(10) unsigned NOT NULL default '0',
   `template` varchar(64) NOT NULL default '',
@@ -465,32 +465,32 @@ CREATE TABLE `tl_ls_shop_configurator` (
   `skipStandardFormValidation` char(1) NOT NULL default '',
   `customLogicFile` binary(16) NULL
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_attributes` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `tstamp` int(10) unsigned NOT NULL default '0',
-  `alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+  `alias` varchar(128) BINARY NOT NULL default '',
   `title` varchar(255) NOT NULL default ''
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_attribute_values` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `pid` int(10) unsigned NOT NULL default '0',
   `tstamp` int(10) unsigned NOT NULL default '0',
   `sorting` int(10) unsigned NOT NULL default '0',
-  `alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+  `alias` varchar(128) BINARY NOT NULL default '',
   `title` varchar(255) NOT NULL default '',
   `classForFilterFormField` varchar(255) NOT NULL default '',
   `importantFieldValue` char(1) NOT NULL default ''
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_filter_fields` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `tstamp` int(10) unsigned NOT NULL default '0',
-  `alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+  `alias` varchar(128) BINARY NOT NULL default '',
   `priority` int(10) unsigned NOT NULL default '0',
   `title` varchar(255) NOT NULL default '',
   `numItemsInReducedMode` int(10) unsigned NOT NULL default '0',
@@ -505,19 +505,19 @@ CREATE TABLE `tl_ls_shop_filter_fields` (
   `makeFilterModeUserAdjustable` char(1) NOT NULL default '',
   `templateToUse` varchar(64) NOT NULL default 'template_formFilterField_standard'
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_filter_field_values` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `pid` int(10) unsigned NOT NULL default '0',
   `tstamp` int(10) unsigned NOT NULL default '0',
   `sorting` int(10) unsigned NOT NULL default '0',
-  `alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+  `alias` varchar(128) BINARY NOT NULL default '',
   `filterValue` varchar(255) NOT NULL default '',
   `classForFilterFormField` varchar(255) NOT NULL default '',
   `importantFieldValue` char(1) NOT NULL default ''
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_attribute_allocation` (
   `pid` int(10) unsigned NOT NULL default '0',
@@ -526,13 +526,13 @@ CREATE TABLE `tl_ls_shop_attribute_allocation` (
   `attributeValueID` int(10) unsigned NOT NULL default '0',
   `sorting` int(10) unsigned NOT NULL default '0'
   KEY `pid` (`pid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_delivery_info` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `tstamp` int(10) unsigned NOT NULL default '0',
   `title` varchar(255) NOT NULL default '',
-  `alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+  `alias` varchar(128) BINARY NOT NULL default '',
   `useStock` char(1) NOT NULL default '',
   `allowOrdersWithInsufficientStock` char(1) NOT NULL default '',
   `minimumStock` int(10) unsigned NOT NULL default '0',
@@ -542,7 +542,7 @@ CREATE TABLE `tl_ls_shop_delivery_info` (
   `deliveryTimeMessageWithInsufficientStock` varchar(255) NOT NULL default '',
   `deliveryTimeDaysWithInsufficientStock` int(10) unsigned NOT NULL default '0'
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_ls_shop_payment_methods.formAdditionalData@tl_form.id=single@
@@ -558,7 +558,7 @@ CREATE TABLE `tl_ls_shop_payment_methods` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `tstamp` int(10) unsigned NOT NULL default '0',
   `title` varchar(255) NOT NULL default '',
-  `alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+  `alias` varchar(128) BINARY NOT NULL default '',
   `sorting` int(10) unsigned NOT NULL default '0',
   `description` text NULL,
   `infoAfterCheckout` text NULL,
@@ -587,16 +587,16 @@ CREATE TABLE `tl_ls_shop_payment_methods` (
   `countries` text NULL,
   `cssID` varchar(255) NOT NULL default '',
   `cssClass` varchar(255) NOT NULL default '',
-  `paypalAPIUsername` varchar(255) NOT NULL default '',
-  `paypalAPIPassword` varchar(255) NOT NULL default '',
-  `paypalAPISignature` varchar(255) NOT NULL default '',
-  `paypalShipToFieldNameFirstname` varchar(255) NOT NULL default '',
-  `paypalShipToFieldNameLastname` varchar(255) NOT NULL default '',
-  `paypalShipToFieldNameStreet` varchar(255) NOT NULL default '',
-  `paypalShipToFieldNameCity` varchar(255) NOT NULL default '',
-  `paypalShipToFieldNamePostal` varchar(255) NOT NULL default '',
-  `paypalShipToFieldNameState` varchar(255) NOT NULL default '',
-  `paypalShipToFieldNameCountryCode` varchar(255) NOT NULL default '',
+  `paypalAPIUsername` text NOT NULL default '',
+  `paypalAPIPassword` text NOT NULL default '',
+  `paypalAPISignature` text NOT NULL default '',
+  `paypalShipToFieldNameFirstname` text NOT NULL default '',
+  `paypalShipToFieldNameLastname` text NOT NULL default '',
+  `paypalShipToFieldNameStreet` text NOT NULL default '',
+  `paypalShipToFieldNameCity` text NOT NULL default '',
+  `paypalShipToFieldNamePostal` text NOT NULL default '',
+  `paypalShipToFieldNameState` text NOT NULL default '',
+  `paypalShipToFieldNameCountryCode` text NOT NULL default '',
   `paypalLiveMode` char(1) NOT NULL default '',
   `paypalShowItems` char(1) NOT NULL default '',
   `paypalSecondForm` int(10) unsigned NOT NULL default '0',
@@ -604,86 +604,86 @@ CREATE TABLE `tl_ls_shop_payment_methods` (
   `paypalGiropaySuccessPages` blob NULL,
   `paypalGiropayCancelPages` blob NULL,
   `paypalBanktransferPendingPages` blob NULL,
-  `sofortueberweisungConfigkey` varchar(255) NOT NULL default '',
+  `sofortueberweisungConfigkey` text NOT NULL default '',
   `sofortueberweisungUseCustomerProtection` char(1) NOT NULL default '',
-  `santanderWebQuickVendorNumber` varchar(255) NOT NULL default '',
-  `santanderWebQuickVendorPassword` varchar(255) NOT NULL default '',
+  `santanderWebQuickVendorNumber` text NOT NULL default '',
+  `santanderWebQuickVendorPassword` text NOT NULL default '',
   `santanderWebQuickLiveMode` char(1) NOT NULL default '',
   `santanderWebQuickMinAge` int(10) unsigned NOT NULL default '18',
-  `santanderWebQuickFieldNameSalutation` varchar(255) NOT NULL default '',
-  `santanderWebQuickFieldNameFirstName` varchar(255) NOT NULL default '',
-  `santanderWebQuickFieldNameLastName` varchar(255) NOT NULL default '',
-  `santanderWebQuickFieldNameEmailAddress` varchar(255) NOT NULL default '',
-  `santanderWebQuickFieldNameStreet` varchar(255) NOT NULL default '',
-  `santanderWebQuickFieldNameCity` varchar(255) NOT NULL default '',
-  `santanderWebQuickFieldNameZipCode` varchar(255) NOT NULL default '',
-  `santanderWebQuickFieldNameCountry` varchar(255) NOT NULL default '',
-  `payPalPlus_clientID` varchar(255) NOT NULL default '',
-  `payPalPlus_clientSecret` varchar(255) NOT NULL default '',
+  `santanderWebQuickFieldNameSalutation` text NOT NULL default '',
+  `santanderWebQuickFieldNameFirstName` text NOT NULL default '',
+  `santanderWebQuickFieldNameLastName` text NOT NULL default '',
+  `santanderWebQuickFieldNameEmailAddress` text NOT NULL default '',
+  `santanderWebQuickFieldNameStreet` text NOT NULL default '',
+  `santanderWebQuickFieldNameCity` text NOT NULL default '',
+  `santanderWebQuickFieldNameZipCode` text NOT NULL default '',
+  `santanderWebQuickFieldNameCountry` text NOT NULL default '',
+  `payPalPlus_clientID` text NOT NULL default '',
+  `payPalPlus_clientSecret` text NOT NULL default '',
   `payPalPlus_liveMode` char(1) NOT NULL default '',
   `payPalPlus_logMode` varchar(255) NOT NULL default 'NONE',
-  `payPalPlus_shipToFieldNameFirstname` varchar(255) NOT NULL default '',
-  `payPalPlus_shipToFieldNameLastname` varchar(255) NOT NULL default '',
-  `payPalPlus_shipToFieldNameStreet` varchar(255) NOT NULL default '',
-  `payPalPlus_shipToFieldNameCity` varchar(255) NOT NULL default '',
-  `payPalPlus_shipToFieldNamePostal` varchar(255) NOT NULL default '',
-  `payPalPlus_shipToFieldNameState` varchar(255) NOT NULL default '',
-  `payPalPlus_shipToFieldNameCountryCode` varchar(255) NOT NULL default '',
-  `payPalPlus_shipToFieldNamePhone` varchar(255) NOT NULL default '',
-  `payPalCheckout_clientID` varchar(255) NOT NULL default '',
-  `payPalCheckout_clientSecret` varchar(255) NOT NULL default '',
+  `payPalPlus_shipToFieldNameFirstname` text NOT NULL default '',
+  `payPalPlus_shipToFieldNameLastname` text NOT NULL default '',
+  `payPalPlus_shipToFieldNameStreet` text NOT NULL default '',
+  `payPalPlus_shipToFieldNameCity` text NOT NULL default '',
+  `payPalPlus_shipToFieldNamePostal` text NOT NULL default '',
+  `payPalPlus_shipToFieldNameState` text NOT NULL default '',
+  `payPalPlus_shipToFieldNameCountryCode` text NOT NULL default '',
+  `payPalPlus_shipToFieldNamePhone` text NOT NULL default '',
+  `payPalCheckout_clientID` text NOT NULL default '',
+  `payPalCheckout_clientSecret` text NOT NULL default '',
   `payPalCheckout_liveMode` char(1) NOT NULL default '',
   `payPalCheckout_logMode` varchar(255) NOT NULL default 'NONE',
-  `payPalCheckout_shipToFieldNameFirstname` varchar(255) NOT NULL default '',
-  `payPalCheckout_shipToFieldNameLastname` varchar(255) NOT NULL default '',
-  `payPalCheckout_shipToFieldNameStreet` varchar(255) NOT NULL default '',
-  `payPalCheckout_shipToFieldNameCity` varchar(255) NOT NULL default '',
-  `payPalCheckout_shipToFieldNamePostal` varchar(255) NOT NULL default '',
-  `payPalCheckout_shipToFieldNameCountryCode` varchar(255) NOT NULL default '',
-  `payPalCheckout_shipToFieldNameState` varchar(255) NOT NULL default '',
-  `payone_subaccountId` varchar(255) NOT NULL default '',
-  `payone_portalId` varchar(255) NOT NULL default '',
-  `payone_key` varchar(255) NOT NULL default '',
+  `payPalCheckout_shipToFieldNameFirstname` text NOT NULL default '',
+  `payPalCheckout_shipToFieldNameLastname` text NOT NULL default '',
+  `payPalCheckout_shipToFieldNameStreet` text NOT NULL default '',
+  `payPalCheckout_shipToFieldNameCity` text NOT NULL default '',
+  `payPalCheckout_shipToFieldNamePostal` text NOT NULL default '',
+  `payPalCheckout_shipToFieldNameCountryCode` text NOT NULL default '',
+  `payPalCheckout_shipToFieldNameState` text NOT NULL default '',
+  `payone_subaccountId` text NOT NULL default '',
+  `payone_portalId` text NOT NULL default '',
+  `payone_key` text NOT NULL default '',
   `payone_liveMode` char(1) NOT NULL default '',
   `payone_clearingtype` varchar(16) NOT NULL default '',
-  `payone_fieldNameFirstname` varchar(255) NOT NULL default '',
-  `payone_fieldNameLastname` varchar(255) NOT NULL default '',
-  `payone_fieldNameCompany` varchar(255) NOT NULL default '',
-  `payone_fieldNameStreet` varchar(255) NOT NULL default '',
-  `payone_fieldNameAddressaddition` varchar(255) NOT NULL default '',
-  `payone_fieldNameZip` varchar(255) NOT NULL default '',
-  `payone_fieldNameCity` varchar(255) NOT NULL default '',
-  `payone_fieldNameCountry` varchar(255) NOT NULL default '',
-  `payone_fieldNameEmail` varchar(255) NOT NULL default '',
-  `payone_fieldNameTelephonenumber` varchar(255) NOT NULL default '',
-  `payone_fieldNameBirthday` varchar(255) NOT NULL default '',
-  `payone_fieldNameGender` varchar(255) NOT NULL default '',
-  `payone_fieldNamePersonalid` varchar(255) NOT NULL default '',
-  `saferpay_username` varchar(255) NOT NULL default '',
-  `saferpay_password` varchar(255) NOT NULL default '',
-  `saferpay_customerId` varchar(255) NOT NULL default '',
-  `saferpay_terminalId` varchar(255) NOT NULL default '',
-  `saferpay_merchantEmail` varchar(255) NOT NULL default '',
+  `payone_fieldNameFirstname` text NOT NULL default '',
+  `payone_fieldNameLastname` text NOT NULL default '',
+  `payone_fieldNameCompany` text NOT NULL default '',
+  `payone_fieldNameStreet` text NOT NULL default '',
+  `payone_fieldNameAddressaddition` text NOT NULL default '',
+  `payone_fieldNameZip` text NOT NULL default '',
+  `payone_fieldNameCity` text NOT NULL default '',
+  `payone_fieldNameCountry` text NOT NULL default '',
+  `payone_fieldNameEmail` text NOT NULL default '',
+  `payone_fieldNameTelephonenumber` text NOT NULL default '',
+  `payone_fieldNameBirthday` text NOT NULL default '',
+  `payone_fieldNameGender` text NOT NULL default '',
+  `payone_fieldNamePersonalid` text NOT NULL default '',
+  `saferpay_username` text NOT NULL default '',
+  `saferpay_password` text NOT NULL default '',
+  `saferpay_customerId` text NOT NULL default '',
+  `saferpay_terminalId` text NOT NULL default '',
+  `saferpay_merchantEmail` text NOT NULL default '',
   `saferpay_liveMode` char(1) NOT NULL default '',
   `saferpay_captureInstantly` char(1) NOT NULL default '',
   `saferpay_paymentMethods` blob NULL,
   `saferpay_wallets` blob NULL,
-  `vrpay_userId` varchar(255) NOT NULL default '',
-  `vrpay_password` varchar(255) NOT NULL default '',
-  `vrpay_token` varchar(255) NOT NULL default '',	
-  `vrpay_entityId` varchar(255) NOT NULL default '',
+  `vrpay_userId` text NOT NULL default '',
+  `vrpay_password` text NOT NULL default '',
+  `vrpay_token` text NOT NULL default '',
+  `vrpay_entityId` text NOT NULL default '',
   `vrpay_liveMode` char(1) NOT NULL default '',
   `vrpay_testMode` varchar(8) NOT NULL default '',
   `vrpay_paymentInstrument` varchar(32) NOT NULL default '',
   `vrpay_creditCardBrands` blob NULL,
-  `vrpay_fieldName_street1` varchar(255) NOT NULL default '',
-  `vrpay_fieldName_city` varchar(255) NOT NULL default '',
-  `vrpay_fieldName_postcode` varchar(255) NOT NULL default '',
-  `vrpay_fieldName_country` varchar(255) NOT NULL default '',
-  `vrpay_fieldName_givenName` varchar(255) NOT NULL default '',
-  `vrpay_fieldName_surname` varchar(255) NOT NULL default '',
+  `vrpay_fieldName_street1` text NOT NULL default '',
+  `vrpay_fieldName_city` text NOT NULL default '',
+  `vrpay_fieldName_postcode` text NOT NULL default '',
+  `vrpay_fieldName_country` text NOT NULL default '',
+  `vrpay_fieldName_givenName` text NOT NULL default '',
+  `vrpay_fieldName_surname` text NOT NULL default '',
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_orders` (
   `id` int(10) unsigned NOT NULL auto_increment,
@@ -777,7 +777,7 @@ CREATE TABLE `tl_ls_shop_orders` (
 
   `sofortbanking_currentStatus` varchar(255) NOT NULL default ''
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_orders_customer_data` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
@@ -787,7 +787,7 @@ CREATE TABLE `tl_ls_shop_orders_customer_data` (
   `fieldName` varchar(255) NOT NULL default '',
   `fieldValue` text NULL
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_orders_items` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
@@ -815,7 +815,7 @@ CREATE TABLE `tl_ls_shop_orders_items` (
   `configurator_referenceNumber` varchar(255) NOT NULL default '',
   `extendedInfo` blob NULL
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_output_definitions` (
   `id` int(10) unsigned NOT NULL auto_increment,
@@ -834,7 +834,7 @@ CREATE TABLE `tl_ls_shop_output_definitions` (
   `lsShopProductOverviewUserSortingFields_crossSeller` text NULL,
   `lsShopProductOverviewPagination_crossSeller` int(3) unsigned NOT NULL default '0'
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_ls_shop_shipping_methods.formAdditionalData@tl_form.id=single@
@@ -843,7 +843,7 @@ CREATE TABLE `tl_ls_shop_shipping_methods` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `tstamp` int(10) unsigned NOT NULL default '0',
   `title` varchar(255) NOT NULL default '',
-  `alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+  `alias` varchar(128) BINARY NOT NULL default '',
   `sorting` int(10) unsigned NOT NULL default '0',
   `description` text NULL,
   `infoAfterCheckout` text NULL,
@@ -871,7 +871,7 @@ CREATE TABLE `tl_ls_shop_shipping_methods` (
   `cssID` varchar(255) NOT NULL default '',
   `cssClass` varchar(255) NOT NULL default ''
   PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 
 
@@ -881,7 +881,7 @@ CREATE TABLE `tl_ls_shop_import` (
 	`tstamp` int(10) unsigned NOT NULL default '0'
 	`importInfo` varchar(255) NOT NULL default ''
 	PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 
 
@@ -894,7 +894,7 @@ CREATE TABLE `tl_ls_shop_import` (
 CREATE TABLE `tl_ls_shop_message_type` (
 	`id` int(10) unsigned NOT NULL auto_increment,
 	`pid` int(10) unsigned NOT NULL default '0',
-	`alias` varchar(128) COLLATE utf8_bin NOT NULL default '',
+	`alias` varchar(128) BINARY NOT NULL default '',
 	`tstamp` int(10) unsigned NOT NULL default '0',
 	`lastDispatchDateUnixTimestamp` int(10) unsigned NOT NULL default '0',
 	`useCounter` char(1) NOT NULL default '',
@@ -919,7 +919,7 @@ CREATE TABLE `tl_ls_shop_message_type` (
 	`paymentStatusCorrelation_statusValue` varchar(255) NOT NULL default '',
 	`title` varchar(255) NOT NULL default ''
 	PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_ls_shop_message_model.pid@tl_ls_shop_message_type.id=single@
@@ -952,7 +952,7 @@ CREATE TABLE `tl_ls_shop_message_model` (
 	`published` char(1) NOT NULL default '',
 	`externalImages` char(1) NOT NULL default ''
 	PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_messages_sent` (
 	`id` int(10) unsigned NOT NULL auto_increment,
@@ -976,7 +976,7 @@ CREATE TABLE `tl_ls_shop_messages_sent` (
 	`dynamicPdfAttachmentPaths` blob NULL,
 	`attachmentPaths` blob NULL
 	PRIMARY KEY  (`id`),
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_ls_shop_singular_storage` (
   `key` varchar(255) NOT NULL default '',
@@ -986,7 +986,7 @@ CREATE TABLE `tl_ls_shop_singular_storage` (
   `bln_value` char(1) NOT NULL default '',
   `arr_value` blob NULL
   PRIMARY KEY  (`key`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 
 
 
@@ -1023,7 +1023,7 @@ CREATE TABLE `tl_module` (
   `ls_shop_productOverviewConsiderHiddenPages` char(1) NOT NULL default '',
   `ls_shop_productOverviewStartLevel` smallint(5) unsigned NOT NULL default '0',
   `ls_shop_productOverviewStopLevel` smallint(5) unsigned NOT NULL default '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_member_group.lsShopFormCustomerData@tl_form.id=single@
@@ -1040,7 +1040,7 @@ CREATE TABLE `tl_member_group` (
   `lsShopFormConfirmOrder` int(10) unsigned NOT NULL default '0',
   `lsShopStandardPaymentMethod` int(10) unsigned NOT NULL default '0',
   `lsShopStandardShippingMethod` int(10) unsigned NOT NULL default '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_member` (
   `VATID` varchar(255) NOT NULL default '',
@@ -1057,12 +1057,12 @@ CREATE TABLE `tl_member` (
   `fax_alternative` varchar(64) NOT NULL default '',
   `email_alternative` varchar(255) NOT NULL default '',
   `merconis_favoriteProducts` blob NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_form_field` (
   `lsShop_mandatoryOnConditionField` int(10) unsigned NOT NULL default '0',
   `lsShop_mandatoryOnConditionValue` varchar(255) NOT NULL default '',
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_content.lsShopCrossSeller@tl_ls_shop_cross_seller.id=single@
@@ -1070,7 +1070,7 @@ CREATE TABLE `tl_form_field` (
 CREATE TABLE `tl_content` (
 	`lsShopCrossSeller` int(10) unsigned NOT NULL default '0',
 	`lsShopOutputCondition` varchar(32) NOT NULL default ''
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_page.lsShopOutputDefinitionSet@tl_ls_shop_output_definitions.id=single@
@@ -1085,7 +1085,7 @@ CREATE TABLE `tl_page` (
 	`ls_shop_decimalsSeparator` char(1) NOT NULL default ',',
 	`ls_shop_thousandsSeparator` char(1) NOT NULL default '',
   `ls_shop_useAsCategoryForErp` char(1) NOT NULL default ''
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 /*
 @tl_layout.lsShopOutputDefinitionSet@tl_ls_shop_output_definitions.id=single@
@@ -1099,9 +1099,9 @@ CREATE TABLE `tl_layout` (
   `ls_shop_hideFilterFormInProductDetails` char(1) NOT NULL default '',
   `ls_shop_matchEstimatesMaxNumProducts` int(10) unsigned NOT NULL default '0',
   `ls_shop_matchEstimatesMaxFilterValues` int(10) unsigned NOT NULL default '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tl_user` (
   `lsShopBeOrderTemplateOverview` varchar(64) NOT NULL default '',
   `lsShopBeOrderTemplateDetails` varchar(64) NOT NULL default ''
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM;

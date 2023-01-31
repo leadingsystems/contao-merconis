@@ -1404,7 +1404,11 @@ class ls_shop_importController
 			$_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'] = null;
 			return false;
 		}
-		
+
+		if (!isset($_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'])) {
+            $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] = 0;
+        }
+
 		$_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow']++;
 
 		if ($_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] == 1) {
@@ -1424,12 +1428,14 @@ class ls_shop_importController
 
 	protected function rowIsEmpty($row = array()) {
 		$empty = true;
-		foreach ($row as $value) {
-			if ($value) {
-				$empty = false;
-				break;
-			}
-		}
+		if (is_array($row)) {
+            foreach ($row as $value) {
+                if ($value) {
+                    $empty = false;
+                    break;
+                }
+            }
+        }
 		return $empty;
 	}
 

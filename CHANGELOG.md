@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 4.0.16 (2023-01-31)
+ * Establish compatibility with Contao 4.13
+
 ### 4.0.15 (2022-11-14)
  * Fix a search issue
 

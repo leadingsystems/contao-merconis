@@ -75,7 +75,8 @@ namespace Merconis\Core;
 		'sorting'                 => true,
 		'inputType'               => 'select',
 		'options'                 => $this->getCountries(),
-		'eval'                    => array('includeBlankOption'=>true, 'chosen'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50')
+		'eval'                    => array('includeBlankOption'=>true, 'chosen'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50'),
+        'sql'                     => "varchar(2) NOT NULL default ''"
 	);
 	
 	$GLOBALS['TL_DCA']['tl_member']['fields']['phone_alternative'] = array(

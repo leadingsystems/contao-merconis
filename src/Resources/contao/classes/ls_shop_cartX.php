@@ -41,7 +41,7 @@ class ls_shop_cartX {
 	/*
 	 * Prevent cloning of the object (Singleton)
 	 */
-	final private function __clone() {}
+	private function __clone() {}
 
 
 	/*

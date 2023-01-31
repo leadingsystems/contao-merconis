@@ -297,11 +297,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"arr_fields": [
 							{
 								"type": "text",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label01'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label01'] ?? '').'"
 							},
 							{
 								"type": "textarea",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label02'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label02'] ?? '').'"
 							}
 						],
 						"cssClass": "key-value-widget"
@@ -322,11 +322,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 						"arr_fields": [
 							{
 								"type": "text",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label01'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label01'] ?? '').'"
 							},
 							{
 								"type": "textarea",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label02'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label02'] ?? '').'"
 							}
 						],
 						"cssClass": "key-value-widget"
@@ -517,7 +517,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
 		),
 
@@ -526,7 +526,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
 		),
 
@@ -656,7 +656,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
 		),
 
@@ -665,7 +665,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
 		),
 
@@ -761,7 +761,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
 		),
 
@@ -770,7 +770,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
 		),
 
@@ -866,7 +866,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
 		),
 
@@ -875,7 +875,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
 		),
 
@@ -971,7 +971,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
 		),
 
@@ -980,7 +980,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
 		),
 
@@ -1076,7 +1076,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceType'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr')
 		),
 
@@ -1085,7 +1085,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => ($GLOBALS['TL_LANG']['tl_ls_shop_product']['options']['scalePriceQuantityDetectionMethod'] ?? ''),
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50')
 		),
 
@@ -1174,7 +1174,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'                 => $this->getTemplateGroup('template_productDetails_'),
-			'eval'					  => array('tl_class' => 'w50', 'includeBlankOption' => true, 'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['blankOptionLabel'])
+			'eval'					  => array('tl_class' => 'w50', 'includeBlankOption' => true, 'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['blankOptionLabel']),
+            'sql'                     => "varchar(64) NOT NULL default ''"
 		)
 	)
 );

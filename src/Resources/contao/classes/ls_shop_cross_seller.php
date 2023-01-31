@@ -372,7 +372,7 @@ class ls_shop_cross_seller
     protected function getCurrentProductInDetailMode() {
         /** @var \PageModel $objPage */
         global $objPage;
-        if (\Input::get('product') || $GLOBALS['merconis_globals']['str_currentProductAliasForCrossSeller']) {
+        if (\Input::get('product') || ($GLOBALS['merconis_globals']['str_currentProductAliasForCrossSeller'] ?? null)) {
             $objCurrentProduct = \Database::getInstance()->prepare("
 				SELECT			*
 				FROM			`tl_ls_shop_product`

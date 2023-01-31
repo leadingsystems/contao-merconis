@@ -397,11 +397,11 @@ class ModuleCheckoutFinish extends \Module {
 			'invoicedAmount' => ls_shop_cartX::getInstance()->calculation['invoicedAmount'], // no language
 			'invoicedAmountNet' => ls_shop_cartX::getInstance()->calculation['invoicedAmountNet'], // no language
 			'items' => array(), // no language
-			'status01' => $arrStatusValues['status01'][0] ? $arrStatusValues['status01'][0] : '', // no language
-			'status02' => $arrStatusValues['status02'][0] ? $arrStatusValues['status02'][0] : '', // no language
-			'status03' => $arrStatusValues['status03'][0] ? $arrStatusValues['status03'][0] : '', // no language
-			'status04' => $arrStatusValues['status04'][0] ? $arrStatusValues['status04'][0] : '', // no language
-			'status05' => $arrStatusValues['status05'][0] ? $arrStatusValues['status05'][0] : '' // no language
+			'status01' => ($arrStatusValues['status01'][0] ?? null) ? $arrStatusValues['status01'][0] : '', // no language
+			'status02' => ($arrStatusValues['status02'][0] ?? null) ? $arrStatusValues['status02'][0] : '', // no language
+			'status03' => ($arrStatusValues['status03'][0] ?? null) ? $arrStatusValues['status03'][0] : '', // no language
+			'status04' => ($arrStatusValues['status04'][0] ?? null) ? $arrStatusValues['status04'][0] : '', // no language
+			'status05' => ($arrStatusValues['status05'][0] ?? null) ? $arrStatusValues['status05'][0] : '' // no language
 		);
 		
 		$tmpObjPageLanguage = $objPage->language;
@@ -554,7 +554,7 @@ class ModuleCheckoutFinish extends \Module {
 				'_productVariantID' => $blnIsVariant ? $objProduct->_selectedVariant->_productVariantID : $objProduct->_productVariantID, // no language
 				'_configuratorID' => $blnIsVariant ? $objProduct->_selectedVariant->_configuratorID : $objProduct->_configuratorID, // no language
 				'_hasConfigurator' => $objProduct->_hasConfigurator, // no language
-				'_cartKey' => $objProduct->_cartKey, // no language
+				'_cartKey' => $blnIsVariant ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey, // no language
 				'_productTitle' => $blnIsVariant ? $objProduct->_selectedVariant->_productTitle : $objProduct->_title, // shop language
 				'_title' => $blnIsVariant ? $objProduct->_selectedVariant->_title : $objProduct->_title, // shop language
 				'_hasTitle' => $blnIsVariant ? $objProduct->_selectedVariant->_hasTitle : $objProduct->_hasTitle, // no language

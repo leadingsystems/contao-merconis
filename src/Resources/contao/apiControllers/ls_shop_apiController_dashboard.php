@@ -13,7 +13,7 @@ class ls_shop_apiController_dashboard
     {
     }
 
-    final private function __clone()
+    private function __clone()
     {
     }
 

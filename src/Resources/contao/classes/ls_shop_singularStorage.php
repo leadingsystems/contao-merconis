@@ -23,7 +23,7 @@ class ls_shop_singularStorage
     /*
      * Prevent cloning of the object (Singleton)
      */
-    final private function __clone()
+    private function __clone()
     {
     }
 

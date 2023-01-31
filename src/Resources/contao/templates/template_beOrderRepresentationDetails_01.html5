@@ -175,7 +175,7 @@
 			?>
 			
 			<tr class="strong paymentFeeLabel">
-				<td colspan="<?php echo $arrColspans['leftOfPrice']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText021'].' '.$this->value['paymentMethod_title'].($this->value['paymentMethod_feeInfo'] ? ' '.$this->value['paymentMethod_feeInfo'] : ''); ?>:</td>
+				<td colspan="<?php echo $arrColspans['leftOfPrice']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText021'].' '.$this->value['paymentMethod_title'].(($this->value['paymentMethod_feeInfo'] ?? null) ? ' '.$this->value['paymentMethod_feeInfo'] : ''); ?>:</td>
 				<td class="price paymentFee"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->value['paymentMethod_amount']); ?></td>
 				<?php if ($blnShowWeight) { ?>
 					<td></td>
@@ -186,7 +186,7 @@
 			</tr>
 			
 			<tr class="strong shippingFeeLabel">
-				<td colspan="<?php echo $arrColspans['leftOfPrice']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText022'].' '.$this->value['shippingMethod_title'].($this->value['shippingMethod_feeInfo'] ? ' '.$this->value['shippingMethod_feeInfo'] : ''); ?>:</td>
+				<td colspan="<?php echo $arrColspans['leftOfPrice']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText022'].' '.$this->value['shippingMethod_title'].(($this->value['shippingMethod_feeInfo'] ?? null) ? ' '.$this->value['shippingMethod_feeInfo'] : ''); ?>:</td>
 				<td class="price shippingFee"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($this->value['shippingMethod_amount']); ?></td>
 				<?php if ($blnShowWeight) { ?>
 					<td></td>

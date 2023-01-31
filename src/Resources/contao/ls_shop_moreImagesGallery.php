@@ -337,7 +337,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		$arrMeta = array();
 		if (is_object($objFileModel)) {
 			$objFileModel->first();
-			$arrMeta = $this->getMetaData($objFileModel->meta, $objPage->language);			
+			$arrMeta = $this->getMetaData($objFileModel->meta, $objPage->language ?? null);
 		}
 		
 		/*
@@ -350,9 +350,10 @@ class ls_shop_moreImagesGallery extends \Frontend {
 				'originalSRC' => $this->originalSRC,
 				'arrOverlays' => $arrOverlays,
 				'singleSRC' => $file,
-				'alt' => $arrMeta['title'],
-				'imageUrl' => $arrMeta['link'],
-				'caption' => $arrMeta['caption'],
+				'alt' => ($arrMeta['alt'] ?? null) ?: ($arrMeta['title'] ?? null),
+                'title' => $arrMeta['title'] ?? '',
+				'imageUrl' => $arrMeta['link'] ?? '',
+				'caption' => $arrMeta['caption'] ?? '',
 				'mtime' => $objFile->mtime,
 				'randomSortingValue' => md5($objFile->basename.$this->sortingRandomizer)
 			);
