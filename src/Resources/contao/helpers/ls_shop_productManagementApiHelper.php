@@ -84,6 +84,15 @@ class ls_shop_productManagementApiHelper {
 			return 0;
 		}
 
+		/*
+		 * If the given alias contains ".php" we assume that the value is not actually meant to be a configurator
+		 * alias but instead a customizer logic file path. Therefore we don't try to get a configurator id but
+		 * return 0 instantly.
+		 */
+        if (strpos($str_alias, '.php') !== false) {
+            return 0;
+        }
+
 		if (!isset($GLOBALS['merconis_globals']['getConfiguratorID'][$str_alias])) {
 			$obj_dbres_row = \Database::getInstance()
 			->prepare("
@@ -102,6 +111,25 @@ class ls_shop_productManagementApiHelper {
 
 		return $GLOBALS['merconis_globals']['getConfiguratorID'][$str_alias];
 	}
+
+    public static function getCustomizerLogicFileReference($str_filePath) {
+	    if (!$str_filePath) {
+	        return null;
+        }
+
+	    /*
+	     * If the given file path does not contain ".php" we assume that the value is not actually meant to be a file
+	     * path to a customizer logic file but instead it might be meant as a configurator alias. Therefore, we return
+	     * null.
+	     */
+        if (strpos($str_filePath, '.php') === false) {
+            return null;
+        }
+
+        $fileModel = \FilesModel::findByPath($str_filePath);
+        $fileReference = $fileModel->uuid;
+        return $fileReference;
+    }
 
 	/*
 	 * Diese Funktion liest anhand des Alias die ID aus und gibt diese zurück
