@@ -563,7 +563,15 @@ class ls_shop_importController
 		// Feldwerte, die nicht einfach direkt eingetragen werden können, sondern in irgendeiner Form übersetzt werden müssen, vorbereiten
 		$row['category'] = ls_shop_productManagementApiHelper::generatePageListFromCategoryValue($row['category']);
 		$row['taxclass'] = ls_shop_productManagementApiHelper::getTaxClassID($row['taxclass']);
-		$row['configurator'] = ls_shop_productManagementApiHelper::getConfiguratorID($row['configurator']);
+		$str_configuratorOrCustomizerValue = $row['configurator'];
+		$row['configurator'] = ls_shop_productManagementApiHelper::getConfiguratorID($str_configuratorOrCustomizerValue);
+
+		/*
+		 * The import file does not actually contain a field named "customizer". Instead, the value in the field "configurator"
+		 * can be interpreted as a reference to either a configurator or a customizer. The field "customizer" will
+		 * be created right here and, if the field "configurator" contains a reference to a customizer, filled accordingly.
+		 */
+        $row['customizer'] = ls_shop_productManagementApiHelper::getCustomizerLogicFileReference($str_configuratorOrCustomizerValue);
 		$row['settingsForStockAndDeliveryTime'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTime']);
 		$row['moreImages'] = ls_shop_productManagementApiHelper::prepareMoreImages($row['moreImages']);
 		$row['flex_contents'] = ls_shop_productManagementApiHelper::generateFlexContentsString($row);
@@ -658,6 +666,7 @@ class ls_shop_importController
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
 							`configurator` = ?,
+							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
 							`lsShopProductAttributesValues` = ?,
@@ -699,6 +708,7 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
+				$row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['propertiesAndValues'], // blob, translated, check unclear
@@ -787,6 +797,7 @@ class ls_shop_importController
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
 							`configurator` = ?,
+							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
 							`lsShopProductAttributesValues` = ?,
@@ -828,6 +839,7 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
+                $row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['propertiesAndValues'], // blob, translated, check unclear
@@ -947,7 +959,15 @@ class ls_shop_importController
 		
 		// Feldwerte, die nicht einfa#ch direkt eingetragen werden können, sondern in irgendeiner Form übersetzt werden müssen, vorbereiten
 		$row['settingsForStockAndDeliveryTime'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTime']);
-		$row['configurator'] = ls_shop_productManagementApiHelper::getConfiguratorID($row['configurator']);
+        $str_configuratorOrCustomizerValue = $row['configurator'];
+        $row['configurator'] = ls_shop_productManagementApiHelper::getConfiguratorID($str_configuratorOrCustomizerValue);
+
+        /*
+         * The import file does not actually contain a field named "customizer". Instead, the value in the field "configurator"
+         * can be interpreted as a reference to either a configurator or a customizer. The field "customizer" will
+         * be created right here and, if the field "configurator" contains a reference to a customizer, filled accordingly.
+         */
+        $row['customizer'] = ls_shop_productManagementApiHelper::getCustomizerLogicFileReference($str_configuratorOrCustomizerValue);
 		
 		$row['weightType'] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['weightType']];
 		$row['weightType'] = $row['weightType'] ? $row['weightType'] : '';
@@ -1038,6 +1058,7 @@ class ls_shop_importController
 							`lsShopProductVariantMoreImages` = ?,
 							`lsShopVariantDeliveryInfoSet` = ?,
 							`configurator` = ?,
+							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
 							`useScalePrice` = ?,
@@ -1073,6 +1094,7 @@ class ls_shop_importController
 				$row['moreImages'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
+                $row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['useScalePrice'] ? '1' : '', // 1 or ''
@@ -1156,6 +1178,7 @@ class ls_shop_importController
 							`lsShopProductVariantMoreImages` = ?,
 							`lsShopVariantDeliveryInfoSet` = ?,
 							`configurator` = ?,
+							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
 							`useScalePrice` = ?,
@@ -1192,6 +1215,7 @@ class ls_shop_importController
 				$row['moreImages'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
+                $row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['useScalePrice'] ? '1' : '', // 1 or ''
@@ -1405,6 +1429,9 @@ class ls_shop_importController
 			return false;
 		}
 		
+		if (!isset($_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'])) {
+            $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] = 0;
+        }
 		$_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow']++;
 
 		if ($_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] == 1) {
@@ -1424,12 +1451,14 @@ class ls_shop_importController
 
 	protected function rowIsEmpty($row = array()) {
 		$empty = true;
+		if (is_array($row)) {
 		foreach ($row as $value) {
 			if ($value) {
 				$empty = false;
 				break;
 			}
 		}
+        }
 		return $empty;
 	}
 
