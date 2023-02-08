@@ -43,6 +43,8 @@ class ValuePickerController
 
 		Backend::setStaticUrls();
 
+        \System::loadLanguageFile('default');
+
 		/** @var Adapter|Environment $environment */
 		$template = new \BackendTemplate('be_valuePicker');
 
