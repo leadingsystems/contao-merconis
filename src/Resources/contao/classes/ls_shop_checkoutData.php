@@ -423,6 +423,16 @@ class ls_shop_checkoutData {
 	 * Diese Funktion generiert und validiert dabei - sofern Daten gesendet wurden - die benötigten Formulare.
 	 */
 	private function getForms() {
+		/*
+		 * If forms are rendered in the context of the contao hook "postLogin", the objPage object might not be available but
+		 * if the form contains iflng insert tags, the language property of objPage must be available because otherwise an exception
+		 * would be thrown. To prevent this exception, we create a fallback dummy object for objPage.
+		 */
+		if (!isset($GLOBALS['objPage'])) {
+			$GLOBALS['objPage'] = new \stdClass();
+			$GLOBALS['objPage']->language = '';
+        	}
+		
 		$this->formCustomerData = \Controller::getForm($this->formCustomerDataID);
 
 		// ### paymentMethod callback ########################
