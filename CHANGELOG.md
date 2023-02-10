@@ -1,6 +1,12 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.4 (2023-02-10)
+ * Fix: language inserttag handling in checkout form
+
+### 5.0.3 (2023-02-06)
+ * MPM improvement: import of customizer
+
 ### 5.0.2 (2023-01-20)
  * Update the value picker template and make sure languages variables are available
 
