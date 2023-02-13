@@ -17,3 +17,10 @@ services:
     arguments:
       - "@database_connection"
       - "@twig"
+
+  merconis.listener.layout_options:
+    class: LeadingSystems\MerconisBundle\EventListener\LayoutOptionsListener
+    arguments:
+      - '@database_connection'
+    tags:
+      - { name: kernel.reset, method: reset }
