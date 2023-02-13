@@ -18,9 +18,10 @@ services:
       - "@database_connection"
       - "@twig"
 
-  merconis.listener.layout_options:
-    class: LeadingSystems\MerconisBundle\EventListener\LayoutOptionsListener
+
+  merconis.listener.data_container.layout_options:
+    class: Contao\CoreBundle\EventListener\DataContainer\LayoutOptionsListener
     arguments:
       - '@database_connection'
     tags:
-      - { name: kernel.reset, method: reset }
+      - { name: contao.callback, table: tl_page, target: fields.lsShopLayoutForDetailsView.options }
