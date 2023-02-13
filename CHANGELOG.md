@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.5 (2023-02-13)
+ * Fix: layoutcallback for product detail view layout
+
 ### 5.0.4 (2023-02-10)
  * Fix: language inserttag handling in checkout form
 
