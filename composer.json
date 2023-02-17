@@ -48,5 +48,13 @@
       "dev-master": "5.0.x-dev",
       "dev-develop-m5": "5.0.x-dev"
     }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "@php vendor/bin/contao-setup"
+    ],
+    "post-update-cmd": [
+      "@php vendor/bin/contao-setup"
+    ]
   }
 }

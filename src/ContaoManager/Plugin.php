@@ -32,7 +32,8 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
 						'LeadingSystems\ApiBundle\LeadingSystemsApiBundle',
 						'LeadingSystems\CajaxBundle\LeadingSystemsCajaxBundle',
 						'LeadingSystems\LanguageSelectorBundle\LeadingSystemsLanguageSelectorBundle',
-						'LeadingSystems\DataCollectorBundle\LeadingSystemsDataCollectorBundle'
+						'LeadingSystems\DataCollectorBundle\LeadingSystemsDataCollectorBundle',
+                        'MadeYourDay\RockSolidCustomElements\RockSolidCustomElementsBundle'
 					]
 				)
 				->setReplace(['zzz_merconis'])
