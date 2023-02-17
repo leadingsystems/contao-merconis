@@ -1,6 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.6 (2023-02-17)
+ * Fix: layoutcallback for product detail view layout
+ * remove Contao 4.9 compatibility
+
 ### 5.0.5 (2023-02-17)
 
 ### 5.0.4 (2023-02-10)
