@@ -33,7 +33,6 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
 						'LeadingSystems\CajaxBundle\LeadingSystemsCajaxBundle',
 						'LeadingSystems\LanguageSelectorBundle\LeadingSystemsLanguageSelectorBundle',
 						'LeadingSystems\DataCollectorBundle\LeadingSystemsDataCollectorBundle',
-                        'LeadingSystems\DataCollectorBundle\LeadingSystemsDataCollectorBundle',
                         'MadeYourDay\RockSolidCustomElements\RockSolidCustomElementsBundle'
 					]
 				)
