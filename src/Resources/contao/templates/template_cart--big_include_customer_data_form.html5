@@ -25,8 +25,8 @@ if ($this->allowCheckout == 'both') {
             <h3><i class="fas fa-user"></i>
                 <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151']; ?>
             </h3>
-            <button data-lsjs-element="toggler" class="order-with-login"><span class="label">Mit Kundenkonto bestellen</span></button>
-            <button data-lsjs-element="toggler" class="order-without-login"><span class="label">Als Gast bestellen</span></button>
+            <button data-lsjs-element="toggler" data-lsjs-statusToggler-toggle-fixed-value="with-login" class="order-with-login"><span class="label">Mit Kundenkonto bestellen</span></button>
+            <button data-lsjs-element="toggler" data-lsjs-statusToggler-toggle-fixed-value="without-login" class="order-without-login"><span class="label">Als Gast bestellen</span></button>
 
             <?php
             if (!FE_USER_LOGGED_IN) {
