@@ -101,7 +101,7 @@ class productImageGallery extends \Frontend {
     //returns All Images MainImage+MoreImages
     public function getImages(){
         $arrImg = $this->ls_images;
-        if (!$this->hasMoreImages() || !empty($this->mainImageSRC)) {
+        if (!$this->hasMoreImages() && !empty($this->mainImageSRC)) {
             array_unshift($arrImg, $this->getMainImage());
         }
         if ($this->ls_imageLimit) {
