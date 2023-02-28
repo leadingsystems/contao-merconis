@@ -1,6 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.7 (2023-02-28)
+ * Fix: use the main product image if no image is available for the product variant
+ * Improve login-switch in checkout
+
 ### 5.0.6 (2023-02-17)
  * Fix: layoutcallback for product detail view layout
  * remove Contao 4.9 compatibility
