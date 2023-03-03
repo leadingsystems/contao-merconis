@@ -98,9 +98,9 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ignoreGroupRestrictionsInSearch'] = array('Ignore group restrictions in search', 'If there are no products with group restrictions, it can improve search performance if this search criterion is completely ignored. If this setting is selected, but there are products with group restrictions, these products will be found but not displayed. Instead, gaps occur in the displayed product lists.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_alwaysAddIdToAliasDuringProductImport'] = array('When importing products, always add ID to alias', 'With this setting, the uniqueness check of aliases is omitted during product import, thus achieving a significant performance advantage. Uniqueness is achieved by automatically appending the internal product ID to the alias.');
 
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'] = array('And-Search / Or-Suche');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Activate User input for and/or search');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug Modus for search Weighting: If checked the search weighting will be displayed on the Website');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'] = array('Default query type for product search', 'Please select the query type. \'Match all words\', finds only products that contain all the searched terms. \'Match any word\', finds all products that contain one of the search terms.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Enable input field for and/or search', 'With this option you activate the input field for the query type in the product search.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug mode for product search hit weighting', 'Switches on the output of the weighting during the product search. This gives you feedback on how an individual search hit and its metadata were weighted during the search.');
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] = array('Product designation: Entire search text matches complete field value');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] = array('Keywords: Entire search text matches complete field value');
@@ -224,4 +224,8 @@
 		'withLogin' => array('With login', 'Select this option if you wish to enable only logged-in users to complete an order.'),
 		'withoutLogin' => array('Without login', 'Select this option if you wish to enable non-logged-in users to complete an order and if you also do not wish to offer the possibility to log in during the ordering process.'),
 		'both' => array('With and without login', 'Select this option if you wish to enable both logged-in and non-logged-in users to complete an order and if you wish to offer the possibility to log in during the ordering process.')
-	);	
+	);
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType']['options'] = array(
+        'And-Search' => 'Match all words',
+        'Or-Search' => 'Match any word'
+    );

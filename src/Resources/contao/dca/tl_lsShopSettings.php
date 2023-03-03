@@ -33,8 +33,8 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch,ls_shop_alwaysAddIdToAliasDuringProductImport;
 
 		{productSearchSettings_legend},
-		    ls_shop_userDecide_searchType,
 		    ls_shop_searchType,
+		    ls_shop_userDecide_searchType,
 		    ls_shop_searchWeighting_debug,
 		    ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title,
 		    ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords,
@@ -674,7 +674,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'],
             'inputType' => 'checkbox',
-            'eval' => array('tl_class'=>'w100')
+            'eval' => array('tl_class'=>'clr w50')
         ),
 
 
@@ -682,7 +682,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'],
             'inputType' => 'checkbox',
-            'eval' => array('tl_class'=>'w50 m12')
+            'eval' => array('tl_class'=>'w50')
         ),
 
 

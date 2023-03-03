@@ -1,5 +1,5 @@
 <!-- indexer::stop -->
-<div class="<?php echo $this->class; ?> <?php echo $this->strTemplate ?> ls_searchBox"<?= $this->cssID ?>>
+<div class="<?php echo $this->class; ?> <?php echo $this->strTemplate ?> ls_searchBox<?php echo (isset($GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']) && $GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']) ? ' ls_advanced-productSearch' : ' ls_simple-productSearch'; ?>"<?= $this->cssID ?>>
 	<form action="<?php echo $this->action; ?>" method="post">
 		<div class="formbody">
 			<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
@@ -16,10 +16,12 @@
                     $type = $GLOBALS['TL_CONFIG']['ls_shop_searchType'];
                 }
                 ?>
-                <select name="searchType">
-                    <option value="And-Search" <?= ($type == "And-Search") ? "selected" : "" ?> >Und Suche</option>
-                    <option value="Or-Search" <?= ($type == "Or-Search") ? "selected" : "" ?> >Oder Suche</option>
-                </select>
+                <div class="widget widget-select select">
+                    <select name="searchType">
+                        <option value="And-Search" <?= ($type == "And-Search") ? "selected" : "" ?> ><?= $GLOBALS['TL_LANG']['MOD']['ls_shop']['searchType']['options']['And-Search'] ?></option>
+                        <option value="Or-Search" <?= ($type == "Or-Search") ? "selected" : "" ?> ><?= $GLOBALS['TL_LANG']['MOD']['ls_shop']['searchType']['options']['Or-Search'] ?></option>
+                    </select>
+                </div>
                 <?php
             }
             ?>
