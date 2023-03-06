@@ -2095,30 +2095,30 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['configuratorObjs'][$cacheKey];
     }
 
-    public static function getCustomizerObject(&$obj_product) {
-        if (!is_object($obj_product)) {
+    public static function getCustomizerObject(&$obj_productOrVariant) {
+        if (!is_object($obj_productOrVariant)) {
             throw new \Exception('insufficient parameters given');
         }
 
-        if (!$obj_product->_hasCustomizerLogicFile || TL_MODE === 'BE') {
+        if (!$obj_productOrVariant->_hasCustomizerLogicFile || TL_MODE === 'BE') {
             return null;
         }
 
-        $str_customizerObjectKey = $obj_product->_customizerLogicFile . '_' . $obj_product->ls_productVariantID . ($obj_product->_configuratorHash ? '|' . $obj_product->_configuratorHash : '');
+        $str_customizerObjectKey = $obj_productOrVariant->_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
 
         if (!isset($GLOBALS['merconis_globals']['customizerObjects'])) {
             $GLOBALS['merconis_globals']['customizerObjects'] = [];
         }
 
-        require_once(TL_ROOT ."/". $obj_product->_customizerLogicFile);
-        $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_product->_customizerLogicFile);
+        require_once(TL_ROOT ."/". $obj_productOrVariant->_customizerLogicFile);
+        $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_productOrVariant->_customizerLogicFile);
 
         if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
             \System::log('MERCONIS: Customizer logic file "' . $str_customLogicClassName . '" can not be used because it is does not extend "\Merconis\Core\customizer"', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
             return null;
         }
 
-        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_product, $obj_product->_configuratorHash);
+        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_productOrVariant, $obj_productOrVariant->_configuratorHash);
 
         return $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
     }
