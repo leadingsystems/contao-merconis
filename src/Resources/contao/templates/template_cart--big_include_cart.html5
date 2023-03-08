@@ -119,6 +119,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                     }
                     ?>
 
+
                     <div class="title">
                         <?php if ($objProduct->_variantIsSelected) { ?>
                             <div class="product-title"><?php echo $obj_tmp_productOrVariant->_productTitle; ?>, <span class="variant-title"><?php echo $obj_tmp_productOrVariant->_title; ?></span></div>
@@ -137,6 +138,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                         </div>
                     <?php } ?>
                     xx1
+                    <?php dump($obj_tmp_productOrVariant) ?>
                     <?= $obj_tmp_productOrVariant->_hasCustomizer ? "true" : "false" ?>
                     <?= $obj_tmp_productOrVariant->_customizer->hasCustomization() ? "true" : "false"  ?>
                     <?php dump($obj_tmp_productOrVariant->_customizer) ?>

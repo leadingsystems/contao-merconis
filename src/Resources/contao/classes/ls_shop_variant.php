@@ -318,8 +318,19 @@ class ls_shop_variant
 				break;
 
             case '_cartKey':
+
                 $str_cartKey = $this->ls_productVariantID;
 
+                if ($this->_hasCustomizer) {
+                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
+                } else if ($this->_objParentProduct->_hasConfigurator) {
+                    $str_cartKey = $this->_objParentProduct->_configuratorCartKey;
+                }
+
+                return $str_cartKey;
+                break;
+
+                /*
                 if ($this->_hasCustomizer) {
 
                     //lsErrorLog('$this->_hasCustomizer', $this->_hasCustomizer, 'perm');
@@ -340,7 +351,7 @@ class ls_shop_variant
                 }
                 lsErrorLog('$str_cartKey[C]', $str_cartKey, 'perm');
                 return $str_cartKey;
-                break;
+                break;*/
 
 			case '_configuratorInDataEntryMode':
 				$this->createObjConfigurator();

@@ -2114,9 +2114,12 @@ class ls_shop_generalHelper
 
         $blnVarientWithoutCustomizerFile = false;
 
+        $obj_variant = $obj_productOrVariant;
+
         //if varient has no own customizer use the customizer from the parent product
         if ($obj_productOrVariant->_objectType == 'variant' && !$obj_productOrVariant->_hasCustomizerLogicFile) {
             $blnVarientWithoutCustomizerFile = true;
+
             $obj_productOrVariant = $obj_productOrVariant->_objParentProduct;
         }
 
@@ -2133,7 +2136,7 @@ class ls_shop_generalHelper
             return null;
         }
 
-        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_productOrVariant, $obj_productOrVariant->_configuratorHash);
+        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_variant, $obj_productOrVariant->_configuratorHash);
 
         //lsErrorLog('merconis_globals', array_keys($GLOBALS['merconis_globals']), 'perm');
         //lsErrorLog('merconis_globals', array_keys($GLOBALS['merconis_globals']['customizerObjects']), 'perm');

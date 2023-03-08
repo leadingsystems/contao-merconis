@@ -33,11 +33,13 @@ abstract class customizer {
     }
 
     public function saveCustomizerForCurrentCartKey() {
-        lsErrorLog('alt', $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey], 'perm');
-        lsErrorLog('$this->str_storageKey', $this->str_storageKey, 'perm');
+        //lsErrorLog('alt', $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey], 'perm');
+        //lsErrorLog('$this->str_storageKey', $this->str_storageKey, 'perm');
+        //lsErrorLog('$this->obj_productOrVariant->_cartKey', $this->obj_productOrVariant->_cartKey, 'perm');
 
-        lsErrorLog('$this->obj_productOrVariant->_cartKey', $this->obj_productOrVariant->_cartKey, 'perm');
         $_SESSION['lsShop']['customizerStorage'][$this->obj_productOrVariant->_cartKey] = $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey];
+        lsErrorLog('customizerStorage', $_SESSION['lsShop']['customizerStorage'], 'perm');
+        lsErrorLog('$str_storageKey', $this->str_storageKey, 'perm');
     }
 
     public function getCustomizerHash() {
