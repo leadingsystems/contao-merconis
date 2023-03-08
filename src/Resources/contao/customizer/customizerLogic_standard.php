@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use function LeadingSystems\Helpers\lsErrorLog;
+
 class customizerLogic_standard extends customizer {
     protected $bln_showFieldsetsInSummary = true;
 
@@ -24,8 +26,17 @@ class customizerLogic_standard extends customizer {
 
     public function receiveUserInput($var_userInput)
     {
+        //lsErrorLog('_objectType', $this->obj_productOrVariant->_objectType, 'perm');
+        //lsErrorLog('_hasCustomizer', $this->obj_productOrVariant->_hasCustomizer, 'perm');
+        //lsErrorLog('_hasCustomizerLogicFile', $this->obj_productOrVariant->_hasCustomizerLogicFile, 'perm');
+
+
         $var_userInput = $this->validateUserInput($var_userInput);
         $this->obj_storage->writeCustomizationData($var_userInput);
+        //lsErrorLog('$obj_productOrVariant', $this->obj_productOrVariant->ls_productVariantID, 'perm');
+        //lsErrorLog('$this->getStoredCustomizationData()', $this->getStoredCustomizationData(), 'perm');
+        //lsErrorLog('str_storageKey', $this->str_storageKey, 'perm');
+
         return $this->getStoredCustomizationData();
     }
 
@@ -73,6 +84,7 @@ class customizerLogic_standard extends customizer {
 
     public function hasCustomization()
     {
+        dump($this->getStoredCustomizationData());
         return !empty($this->getStoredCustomizationData());
     }
 

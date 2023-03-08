@@ -5,6 +5,7 @@ use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
 use function LeadingSystems\Helpers\ls_sub;
+use function LeadingSystems\Helpers\lsErrorLog;
 
 class ls_shop_cartHelper {
 	public static function initializeEmptyCart() {
@@ -174,6 +175,9 @@ class ls_shop_cartHelper {
         /**
          * @var ls_shop_product $objProduct
          */
+
+        //lsErrorLog('addToCart', "addToCart", 'perm');
+
 		$objProduct = ls_shop_generalHelper::getObjProduct($productVariantID, __METHOD__);
 
 		$desiredQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
@@ -196,11 +200,14 @@ class ls_shop_cartHelper {
 
 			$_SESSION['lsShopCart']['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey] = $arrItemInfoToAddToCart;
 
+            //lsErrorLog('lsShopCart', $_SESSION['lsShopCart']['items'], 'perm');
+
 			if ($objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_hasCustomizer : $objProduct->_hasCustomizer) {
                 $objProduct->saveCustomizerForCurrentCartKey();
             } else if ($objProduct->_hasConfigurator) {
                 $objProduct->saveConfiguratorForCurrentCartKey();
             }
+            //lsErrorLog('lsShopCart', $_SESSION['lsShopCart']['items'], 'perm');
 		}
 
 		/*

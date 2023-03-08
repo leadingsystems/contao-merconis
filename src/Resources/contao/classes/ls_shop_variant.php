@@ -245,34 +245,21 @@ class ls_shop_variant
                 return $this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile);
 
             case '_customizer':
-                lsErrorLog('ausgabe varient', is_object($this->obj_customizer), 'perm');
                 if(is_object($this->obj_customizer)){
                     return $this->obj_customizer;
                 }
-                lsErrorLog('ausgabe object', is_object($this->_objParentProduct->obj_customizer), 'perm');
                 if(is_object($this->_objParentProduct->obj_customizer)){
                     return $this->_objParentProduct->obj_customizer;
                 }
-                lsErrorLog('null ausgabe', !(!(null)), 'perm');
                 return null;
-                //lsErrorLog('$this->obj_customizer', $this->obj_customizer, 'perm');
-
 
             case '_hasCustomizer':
-                //lsErrorLog('$this->_objParentProduct', $this->_objParentProduct->ls_ID, 'perm');
-                //lsErrorLog('_hasCustomizer logic file', ls_shop_generalHelper::getCustomizerObject($this), 'perm');
-                //ls_shop_generalHelper::storeConfiguratorDataToSession("hi");
-
-                //lsErrorLog('_hasCustomizer varient', is_object($this->obj_customizer), 'perm');
                 if(is_object($this->obj_customizer)){
                     return is_object($this->obj_customizer);
                 }
-                //lsErrorLog('_hasCustomizer object', is_object($this->_objParentProduct->obj_customizer), 'perm');
-                //lsErrorLog('_hasCustomizer object', $this->_objParentProduct->obj_customizer, 'perm');
                 if(is_object($this->_objParentProduct->obj_customizer)){
                     return is_object($this->_objParentProduct->obj_customizer);
                 }
-                //lsErrorLog('_hasCustomizer null', null, 'perm');
                 return null;
 
 			case '_isPublished':
@@ -334,11 +321,24 @@ class ls_shop_variant
                 $str_cartKey = $this->ls_productVariantID;
 
                 if ($this->_hasCustomizer) {
-                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
+
+                    //lsErrorLog('$this->_hasCustomizer', $this->_hasCustomizer, 'perm');
+                    //lsErrorLog('$this->_hasCustomizerLogicFile', $this->_hasCustomizerLogicFile, 'perm');
+                     //_hasCustomizerLogicFile
+                    if($this->_hasCustomizerLogicFile){
+                        $str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
+                        lsErrorLog('$str_cartKey[A]', $str_cartKey, 'perm');
+                    }else{
+                        $str_cartKey = $this->_objParentProduct->ls_ID.'-0' . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
+                        lsErrorLog('$str_cartKey[B]', $str_cartKey, 'perm');
+                        //lsErrorLog('$this->_objParentProduct->ls_productVariantID',$this->_objParentProduct->ls_productVariantID, 'perm');
+                    }
+                    //lsErrorLog('$str_cartKey',$str_cartKey, 'perm');
+                    //$str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
                 } else if ($this->_objParentProduct->_hasConfigurator) {
                     $str_cartKey = $this->_objParentProduct->_configuratorCartKey;
                 }
-
+                lsErrorLog('$str_cartKey[C]', $str_cartKey, 'perm');
                 return $str_cartKey;
                 break;
 
