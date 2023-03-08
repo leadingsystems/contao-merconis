@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use function LeadingSystems\Helpers\lsErrorLog;
 
 abstract class customizer {
     /**
@@ -28,6 +29,7 @@ abstract class customizer {
 
     public function storeToSession() {
         $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey] = serialize($this->obj_storage);
+        //lsErrorLog('customizerStorage', $_SESSION['lsShop']['customizerStorage'], 'perm');
     }
 
     public function saveCustomizerForCurrentCartKey() {

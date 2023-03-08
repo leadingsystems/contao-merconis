@@ -8,6 +8,7 @@ use function LeadingSystems\Helpers\ls_sub;
 use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
+use function LeadingSystems\Helpers\lsErrorLog;
 
 class ls_shop_variant
 {
@@ -244,10 +245,35 @@ class ls_shop_variant
                 return $this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile);
 
             case '_customizer':
-                return $this->obj_customizer;
+                lsErrorLog('ausgabe varient', is_object($this->obj_customizer), 'perm');
+                if(is_object($this->obj_customizer)){
+                    return $this->obj_customizer;
+                }
+                lsErrorLog('ausgabe object', is_object($this->_objParentProduct->obj_customizer), 'perm');
+                if(is_object($this->_objParentProduct->obj_customizer)){
+                    return $this->_objParentProduct->obj_customizer;
+                }
+                lsErrorLog('null ausgabe', !(!(null)), 'perm');
+                return null;
+                //lsErrorLog('$this->obj_customizer', $this->obj_customizer, 'perm');
+
 
             case '_hasCustomizer':
-                return is_object($this->obj_customizer);
+                //lsErrorLog('$this->_objParentProduct', $this->_objParentProduct->ls_ID, 'perm');
+                //lsErrorLog('_hasCustomizer logic file', ls_shop_generalHelper::getCustomizerObject($this), 'perm');
+                //ls_shop_generalHelper::storeConfiguratorDataToSession("hi");
+
+                //lsErrorLog('_hasCustomizer varient', is_object($this->obj_customizer), 'perm');
+                if(is_object($this->obj_customizer)){
+                    return is_object($this->obj_customizer);
+                }
+                //lsErrorLog('_hasCustomizer object', is_object($this->_objParentProduct->obj_customizer), 'perm');
+                //lsErrorLog('_hasCustomizer object', $this->_objParentProduct->obj_customizer, 'perm');
+                if(is_object($this->_objParentProduct->obj_customizer)){
+                    return is_object($this->_objParentProduct->obj_customizer);
+                }
+                //lsErrorLog('_hasCustomizer null', null, 'perm');
+                return null;
 
 			case '_isPublished':
 				return $this->mainData['published'] ? true : false;
@@ -297,7 +323,7 @@ class ls_shop_variant
 
 			case '_orderAllowed':
                 if ($this->_hasCustomizer) {
-                    return $this->obj_customizer->checkIfOrderIsAllowed();
+                    return $this->_customizer->checkIfOrderIsAllowed();
                 } else {
                     $this->createObjConfigurator();
                     return $this->ls_objConfigurator->blnIsValid;
@@ -308,7 +334,7 @@ class ls_shop_variant
                 $str_cartKey = $this->ls_productVariantID;
 
                 if ($this->_hasCustomizer) {
-                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->obj_customizer->getCustomizerHash() ?: 'no-customization');
+                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
                 } else if ($this->_objParentProduct->_hasConfigurator) {
                     $str_cartKey = $this->_objParentProduct->_configuratorCartKey;
                 }

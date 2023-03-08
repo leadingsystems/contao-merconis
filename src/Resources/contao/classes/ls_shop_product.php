@@ -322,7 +322,7 @@ class ls_shop_product
 
 			case '_orderAllowed':
                 if ($this->_hasCustomizer) {
-                    return !$this->_variantIsSelected ? $this->obj_customizer->checkIfOrderIsAllowed() : $this->_selectedVariant->obj_customizer->checkIfOrderIsAllowed();
+                    return !$this->_variantIsSelected ? $this->obj_customizer->checkIfOrderIsAllowed() : $this->_selectedVariant->_customizer->checkIfOrderIsAllowed();
                 } else {
                     !$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
                     return !$this->_variantIsSelected ? $this->ls_objConfigurator->blnIsValid : $this->_selectedVariant->ls_objConfigurator->blnIsValid;
@@ -1895,7 +1895,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 				if (!$this->_variantIsSelected) {
 					$this->obj_customizer->saveCustomizerForCurrentCartKey();
 				} else if ($this->_variantIsSelected) {
-					$this->_selectedVariant->obj_customizer->saveCustomizerForCurrentCartKey();
+					$this->_selectedVariant->_customizer->saveCustomizerForCurrentCartKey();
 				}
 				break;
 
