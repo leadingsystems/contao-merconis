@@ -22,7 +22,6 @@ class customizerStorage {
     }
 
     public function getCustomizationData() {
-        //dump($this->var_customizationData);
         return $this->var_customizationData;
     }
 

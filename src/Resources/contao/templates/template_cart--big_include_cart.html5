@@ -137,18 +137,12 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                             <?php echo $objProduct->_configuratorCartRepresentation; ?>
                         </div>
                     <?php } ?>
-                    xx1
-                    <?php dump($obj_tmp_productOrVariant) ?>
-                    <?= $obj_tmp_productOrVariant->_hasCustomizer ? "true" : "false" ?>
-                    <?= $obj_tmp_productOrVariant->_customizer->hasCustomization() ? "true" : "false"  ?>
-                    <?php dump($obj_tmp_productOrVariant->_customizer) ?>
                     <?php
 
                     if ($obj_tmp_productOrVariant->_hasCustomizer && $obj_tmp_productOrVariant->_customizer->hasCustomization()) {
                         ?>
                         <div>
                             <h5><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline']; ?></h5>
-                            xx2
                             <?php echo $obj_tmp_productOrVariant->_customizer->getSummaryForCart(); ?>
                         </div>
                         <?php

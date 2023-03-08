@@ -200,14 +200,11 @@ class ls_shop_cartHelper {
 
 			$_SESSION['lsShopCart']['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey] = $arrItemInfoToAddToCart;
 
-            //lsErrorLog('lsShopCart', $_SESSION['lsShopCart']['items'], 'perm');
-
 			if ($objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_hasCustomizer : $objProduct->_hasCustomizer) {
                 $objProduct->saveCustomizerForCurrentCartKey();
             } else if ($objProduct->_hasConfigurator) {
                 $objProduct->saveConfiguratorForCurrentCartKey();
             }
-            //lsErrorLog('lsShopCart', $_SESSION['lsShopCart']['items'], 'perm');
 		}
 
 		/*

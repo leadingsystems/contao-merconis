@@ -2097,7 +2097,6 @@ class ls_shop_generalHelper
     }
 
     public static function getCustomizerObject(&$obj_productOrVariant) {
-        //lsErrorLog('$obj_product', $obj_product, 'perm');
 
         if (!is_object($obj_productOrVariant)) {
             throw new \Exception('insufficient parameters given');
@@ -2107,14 +2106,13 @@ class ls_shop_generalHelper
             return null;
         }
 
-
         if (!isset($GLOBALS['merconis_globals']['customizerObjects'])) {
             $GLOBALS['merconis_globals']['customizerObjects'] = [];
         }
 
         $blnVarientWithoutCustomizerFile = false;
 
-        $obj_variant = $obj_productOrVariant;
+        $obj_productOrVariantOriginalValue = $obj_productOrVariant;
 
         //if varient has no own customizer use the customizer from the parent product
         if ($obj_productOrVariant->_objectType == 'variant' && !$obj_productOrVariant->_hasCustomizerLogicFile) {
@@ -2122,10 +2120,11 @@ class ls_shop_generalHelper
 
             $obj_productOrVariant = $obj_productOrVariant->_objParentProduct;
         }
-
+        //return null because CustomizerLogicFile is not set for variant and product objekt
         if(!$obj_productOrVariant->_hasCustomizerLogicFile) {
             return null;
         }
+
         $str_customizerObjectKey = $obj_productOrVariant->_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
 
         require_once(TL_ROOT ."/". $obj_productOrVariant->_customizerLogicFile);
@@ -2136,18 +2135,14 @@ class ls_shop_generalHelper
             return null;
         }
 
-        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_variant, $obj_productOrVariant->_configuratorHash);
+        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_productOrVariantOriginalValue, $obj_productOrVariant->_configuratorHash);
 
-        //lsErrorLog('merconis_globals', array_keys($GLOBALS['merconis_globals']), 'perm');
-        //lsErrorLog('merconis_globals', array_keys($GLOBALS['merconis_globals']['customizerObjects']), 'perm');
-        //lsErrorLog('merconis_globals', $GLOBALS['merconis_globals']['customizerObjects'], 'perm');
-
+        //set obj_customizer of parent product object and return null because no customizer is set set for this variant object
         if($blnVarientWithoutCustomizerFile){
             $obj_productOrVariant->obj_customizer = $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
             return null;
         }
 
-        //$obj_product->_objParentProduct->obj_customizer = $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
         return $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
 
     }
