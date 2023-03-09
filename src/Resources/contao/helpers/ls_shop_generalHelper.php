@@ -2114,15 +2114,16 @@ class ls_shop_generalHelper
 
         $obj_productOrVariantOriginalValue = $obj_productOrVariant;
 
+        //return null because CustomizerLogicFile is not set for variant and product objekt
+        if(!$obj_productOrVariant->_hasCustomizerLogicFile) {
+            return null;
+        }
+
         //if varient has no own customizer use the customizer from the parent product
         if ($obj_productOrVariant->_objectType == 'variant' && !$obj_productOrVariant->_hasCustomizerLogicFile) {
             $blnVarientWithoutCustomizerFile = true;
 
             $obj_productOrVariant = $obj_productOrVariant->_objParentProduct;
-        }
-        //return null because CustomizerLogicFile is not set for variant and product objekt
-        if(!$obj_productOrVariant->_hasCustomizerLogicFile) {
-            return null;
         }
 
         $str_customizerObjectKey = $obj_productOrVariant->_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
@@ -2137,14 +2138,13 @@ class ls_shop_generalHelper
 
         $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_productOrVariantOriginalValue, $obj_productOrVariant->_configuratorHash);
 
-        //set obj_customizer of parent product object and return null because no customizer is set set for this variant object
+        //set obj_customizer of parent product object and return null because no customizer is set for this variant object
         if($blnVarientWithoutCustomizerFile){
             $obj_productOrVariant->obj_customizer = $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
             return null;
         }
 
         return $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
-
     }
 
     public static function storeConfiguratorDataToSession($var_arg) {
