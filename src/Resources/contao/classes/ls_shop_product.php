@@ -335,7 +335,6 @@ class ls_shop_product
 
 			    if ($this->_hasCustomizer) {
                     $str_cartKey = $this->ls_productVariantID . '_' . ($this->obj_customizer->getCustomizerHash() ?: 'no-customization');
-                    //$str_cartKey = $this->ls_ID.'-0' . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
                 } else if ($this->_hasConfigurator) {
 			        $str_cartKey = $this->_configuratorCartKey;
                 }

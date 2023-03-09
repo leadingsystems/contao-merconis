@@ -318,7 +318,6 @@ class ls_shop_variant
 				break;
 
             case '_cartKey':
-
                 $str_cartKey = $this->ls_productVariantID;
 
                 if ($this->_hasCustomizer) {
@@ -329,29 +328,6 @@ class ls_shop_variant
 
                 return $str_cartKey;
                 break;
-
-                /*
-                if ($this->_hasCustomizer) {
-
-                    //lsErrorLog('$this->_hasCustomizer', $this->_hasCustomizer, 'perm');
-                    //lsErrorLog('$this->_hasCustomizerLogicFile', $this->_hasCustomizerLogicFile, 'perm');
-                     //_hasCustomizerLogicFile
-                    if($this->_hasCustomizerLogicFile){
-                        $str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
-                        lsErrorLog('$str_cartKey[A]', $str_cartKey, 'perm');
-                    }else{
-                        $str_cartKey = $this->_objParentProduct->ls_ID.'-0' . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
-                        lsErrorLog('$str_cartKey[B]', $str_cartKey, 'perm');
-                        //lsErrorLog('$this->_objParentProduct->ls_productVariantID',$this->_objParentProduct->ls_productVariantID, 'perm');
-                    }
-                    //lsErrorLog('$str_cartKey',$str_cartKey, 'perm');
-                    //$str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
-                } else if ($this->_objParentProduct->_hasConfigurator) {
-                    $str_cartKey = $this->_objParentProduct->_configuratorCartKey;
-                }
-                lsErrorLog('$str_cartKey[C]', $str_cartKey, 'perm');
-                return $str_cartKey;
-                break;*/
 
 			case '_configuratorInDataEntryMode':
 				$this->createObjConfigurator();
