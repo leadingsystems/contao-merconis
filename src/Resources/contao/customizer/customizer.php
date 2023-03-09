@@ -31,8 +31,9 @@ abstract class customizer {
         $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey] = serialize($this->obj_storage);
     }
 
-    public function saveCustomizerForCurrentCartKey() {
-        $_SESSION['lsShop']['customizerStorage'][$this->obj_productOrVariant->_cartKey] = $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey];
+    public function saveCustomizerForCurrentCartKey($obj_productOrVariant) {
+
+        $_SESSION['lsShop']['customizerStorage'][$obj_productOrVariant->_cartKey] = $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey];
     }
 
     public function getCustomizerHash() {
@@ -121,7 +122,7 @@ abstract class customizer {
      * Should be called from the product template and return the html for the user interface. The html code will
      * most likely be a container which will later be extended/enhanced by JavaScript.
      */
-    abstract function getUserInterface();
+    abstract function getUserInterface($obj_productOrVariant);
 
     /*
      * Can be called to determine whether a product is customized or not. Must return true/false depending on whether

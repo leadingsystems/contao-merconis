@@ -47,11 +47,11 @@ class customizerLogic_standard extends customizer {
         return $this->obj_storage->getMiscData();
     }
 
-    public function getUserInterface()
+    public function getUserInterface($obj_productOrVariant)
     {
         ob_start();
         ?>
-        <div data-merconis-component="customizerInterfaceStandard" data-merconis-productVariantId="<?php echo $this->obj_productOrVariant->_productVariantID; ?>" data-merconis-targetUrl="<?php echo \Environment::get('request'); ?>"></div>
+        <div data-merconis-component="customizerInterfaceStandard" data-merconis-productVariantId="<?php echo $obj_productOrVariant->_productVariantID; ?>" data-merconis-targetUrl="<?php echo \Environment::get('request'); ?>"></div>
         <?php
         return ob_get_clean();
     }

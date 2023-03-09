@@ -1889,14 +1889,15 @@ This method can be used to call a function hooked with the "callingHookedProduct
 					$this->ls_objConfigurator->saveConfiguratorForCurrentCartKey();
 				} else if ($this->_variantIsSelected) {
 					$this->_selectedVariant->ls_objConfigurator->saveConfiguratorForCurrentCartKey();
+					$this->_selectedVariant->ls_objConfigurator->saveConfiguratorForCurrentCartKey();
 				}
 				break;
 
 			case 'saveCustomizerForCurrentCartKey':
 				if (!$this->_variantIsSelected) {
-					$this->obj_customizer->saveCustomizerForCurrentCartKey();
+					$this->obj_customizer->saveCustomizerForCurrentCartKey($this);
 				} else if ($this->_variantIsSelected) {
-					$this->_selectedVariant->_customizer->saveCustomizerForCurrentCartKey();
+					$this->_selectedVariant->_customizer->saveCustomizerForCurrentCartKey($this->_selectedVariant);
 				}
 				break;
 
