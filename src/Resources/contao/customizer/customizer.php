@@ -10,21 +10,18 @@ abstract class customizer {
     protected $str_storageKey;
     protected $obj_storage;
 
-    protected $bol_storageFromParent = false;
-    protected $str_storageKeyFromParent;
-
     public function __construct($obj_productOrVariant, $str_customizerHash, $obj_storageFromParent, $str_storageKeyFromParent)
     {
         $this->obj_productOrVariant = $obj_productOrVariant;
-        //13.03.2023, bei Varianten mit gemeinsamem Customizer kommt das (gemeinsame) Speicherobjekt (storage) und der Schlüssel (storageKeyFromParent) vom Parent
-        $this->str_storageKeyFromParent = $str_storageKeyFromParent;
-        $this->str_storageKey = $this->obj_productOrVariant->_productVariantID . ($str_customizerHash ? '_' . $str_customizerHash : '');
 
+        //13.03.2023, bei Varianten mit gemeinsamem Customizer kommt das (gemeinsame) Speicherobjekt (storage) und der Schlüssel (storageKeyFromParent) vom Parent
         if (is_object($obj_storageFromParent)) {
+
+            $this->str_storageKey = $str_storageKeyFromParent . ($str_customizerHash ? '_' . $str_customizerHash : '');
             $this->obj_storage = $obj_storageFromParent;
-            $this->bol_storageFromParent = true;
 
         } else {
+            $this->str_storageKey = $this->obj_productOrVariant->_productVariantID . ($str_customizerHash ? '_' . $str_customizerHash : '');
 
             if (isset($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey])) {
                 $this->obj_storage = unserialize($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey]);
@@ -39,9 +36,7 @@ abstract class customizer {
     }
 
     public function storeToSession() {
-        $str_storageKey = ($this->bol_storageFromParent) ? $this->str_storageKeyFromParent : $this->str_storageKey;
-        #$str_storageKey = ($this->str_storageKeyFromParent != '') ? $this->str_storageKeyFromParent : $this->str_storageKey;
-        $_SESSION['lsShop']['customizerStorage'][$str_storageKey] = serialize($this->obj_storage);
+        $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey] = serialize($this->obj_storage);
     }
 
     public function saveCustomizerForCurrentCartKey() {
