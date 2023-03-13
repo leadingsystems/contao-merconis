@@ -397,7 +397,10 @@ class ls_shop_cross_seller
         if (is_object($this->ls_currentProductInDetailMode)) {
             $arrProducts = deserialize($this->ls_currentProductInDetailMode->lsShopProductRecommendedProducts);
         }
-        if (count($arrProducts) == 1 && !$arrProducts[0]) {
+        if (
+            !is_array($arrProducts)
+            || (count($arrProducts) == 1 && !$arrProducts[0])
+        ) {
             $arrProducts = array();
         }
         return $arrProducts;
