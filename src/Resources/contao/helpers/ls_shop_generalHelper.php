@@ -14,6 +14,8 @@ use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalA
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
+use function LeadingSystems\Helpers\logge;
+
 class ls_shop_generalHelper
 {
     /*
@@ -2095,30 +2097,94 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['configuratorObjs'][$cacheKey];
     }
 
-    public static function getCustomizerObject(&$obj_productOrVariant) {
+    public static function getCustomizerObject($obj_productOrVariant) {
         if (!is_object($obj_productOrVariant)) {
             throw new \Exception('insufficient parameters given');
         }
 
-        if (!$obj_productOrVariant->_hasCustomizerLogicFile || TL_MODE === 'BE') {
+logge($obj_productOrVariant->_productVariantID);
+
+        if (TL_MODE === 'BE') {
             return null;
         }
 
-        $str_customizerObjectKey = $obj_productOrVariant->_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
+        //07.03.2023, CustomizerLogic-Datei vom Parent holen, falls die Variante keine eigene hat
+        $str_customizerLogicFile = '';
+        $obj_storageFromParent = null;
+        $bol_storageFromParent = false;
+
+        if ($obj_productOrVariant->_hasCustomizerLogicFile) {
+            $str_customizerLogicFile = $obj_productOrVariant->_customizerLogicFile;
+
+        } else {
+            if ($obj_productOrVariant->_objectType == 'variant') {
+                $str_customizerLogicFile = $obj_productOrVariant->_objParentProduct->_customizerLogicFile;
+                $bol_storageFromParent = true;
+
+            } else {
+                //Das übergebene Produkt- oder Variantenobjekt hat selbst keinen Customizer zugeordnet und es handelt
+                //sich auch nicht um eine Variante oder, falls es eine Variante ist, es ist auch dem Hauptprodukt
+                //kein Customizer zugeordnet.
+                return null;
+            }
+        }
+
+        #$str_customizerObjectKey = $obj_productOrVariant->_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
+        $str_customizerObjectKey = $str_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
+
+        if (!isset($GLOBALS['merconis_globals']['customizerObjectsMemory'])) {
+            $GLOBALS['merconis_globals']['customizerObjectsMemory'] = [];
+        }
+
+
+        if ($bol_storageFromParent) {
+
+            $str_storageKeyParent = $obj_productOrVariant->ls_productID . ($obj_productOrVariant->_configuratorHash ? '_' . $obj_productOrVariant->_configuratorHash : '');
+logge($str_storageKeyParent);
+
+#logge($_SESSION['lsShop']);
+
+            if (isset($GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent])) {
+logge(null, 'gemeinsames Objekt aus Globals holen');
+                $obj_storageFromParent = $GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent];
+
+            } else {
+
+                if (isset($_SESSION['lsShop']['customizerStorage'][$str_storageKeyParent])) {
+logge(null, 'StorageFromParent aus Session holen');
+                    $obj_storageFromParent = unserialize($_SESSION['lsShop']['customizerStorage'][$str_storageKeyParent]);
+
+                    //In die Globals für gemeinsame Speicherobjekte schreiben
+                    $GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent] = $obj_storageFromParent;
+
+                } else {
+logge(null, 'In die Globals für gemeinsame Speicherobjekte schreiben');
+                    $obj_storageFromParent = new customizerStorage($str_storageKeyParent);
+
+                    //In die Globals für gemeinsame Speicherobjekte schreiben
+                    $GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent] = $obj_storageFromParent;
+                }
+            }
+logge($obj_storageFromParent, 'im Spezialfall');
+        }
 
         if (!isset($GLOBALS['merconis_globals']['customizerObjects'])) {
             $GLOBALS['merconis_globals']['customizerObjects'] = [];
         }
 
-        require_once(TL_ROOT ."/". $obj_productOrVariant->_customizerLogicFile);
-        $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_productOrVariant->_customizerLogicFile);
+        #require_once(TL_ROOT ."/". $obj_productOrVariant->_customizerLogicFile);
+        require_once(TL_ROOT ."/". $str_customizerLogicFile);
+        #$str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_productOrVariant->_customizerLogicFile);
+        $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $str_customizerLogicFile);
 
         if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
             \System::log('MERCONIS: Customizer logic file "' . $str_customLogicClassName . '" can not be used because it is does not extend "\Merconis\Core\customizer"', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
             return null;
         }
 
-        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_productOrVariant, $obj_productOrVariant->_configuratorHash);
+        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] =
+            new $str_customLogicClassName($obj_productOrVariant, $obj_productOrVariant->_configuratorHash
+                , $obj_storageFromParent, $str_storageKeyParent);
 
         return $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
     }

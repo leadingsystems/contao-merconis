@@ -10,15 +10,27 @@ abstract class customizer {
     protected $str_storageKey;
     protected $obj_storage;
 
-    public function __construct($obj_productOrVariant, $str_customizerHash)
+    protected $bol_storageFromParent = false;
+    protected $str_storageKeyFromParent;
+
+    public function __construct($obj_productOrVariant, $str_customizerHash, $obj_storageFromParent, $str_storageKeyFromParent)
     {
         $this->obj_productOrVariant = $obj_productOrVariant;
+        //13.03.2023, bei Varianten mit gemeinsamem Customizer kommt das (gemeinsame) Speicherobjekt (storage) und der Schlüssel (storageKeyFromParent) vom Parent
+        $this->str_storageKeyFromParent = $str_storageKeyFromParent;
         $this->str_storageKey = $this->obj_productOrVariant->_productVariantID . ($str_customizerHash ? '_' . $str_customizerHash : '');
 
-        if (isset($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey])) {
-            $this->obj_storage = unserialize($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey]);
+        if (is_object($obj_storageFromParent)) {
+            $this->obj_storage = $obj_storageFromParent;
+            $this->bol_storageFromParent = true;
+
         } else {
-            $this->obj_storage = new customizerStorage($this->str_storageKey);
+
+            if (isset($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey])) {
+                $this->obj_storage = unserialize($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey]);
+            } else {
+                $this->obj_storage = new customizerStorage($this->str_storageKey);
+            }
         }
 
         $this->initialize();
@@ -27,7 +39,9 @@ abstract class customizer {
     }
 
     public function storeToSession() {
-        $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey] = serialize($this->obj_storage);
+        $str_storageKey = ($this->bol_storageFromParent) ? $this->str_storageKeyFromParent : $this->str_storageKey;
+        #$str_storageKey = ($this->str_storageKeyFromParent != '') ? $this->str_storageKeyFromParent : $this->str_storageKey;
+        $_SESSION['lsShop']['customizerStorage'][$str_storageKey] = serialize($this->obj_storage);
     }
 
     public function saveCustomizerForCurrentCartKey() {
