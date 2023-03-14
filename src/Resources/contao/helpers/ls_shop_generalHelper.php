@@ -2129,7 +2129,6 @@ logge($obj_productOrVariant->_productVariantID);
             }
         }
 
-        #$str_customizerObjectKey = $obj_productOrVariant->_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
         $str_customizerObjectKey = $str_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
 
         if (!isset($GLOBALS['merconis_globals']['customizerObjectsMemory'])) {
@@ -2140,41 +2139,32 @@ logge($obj_productOrVariant->_productVariantID);
         if ($bol_storageFromParent) {
 
             $str_storageKeyParent = $obj_productOrVariant->ls_productID . ($obj_productOrVariant->_configuratorHash ? '_' . $obj_productOrVariant->_configuratorHash : '');
-logge($str_storageKeyParent);
-
-#logge($_SESSION['lsShop']);
 
             if (isset($GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent])) {
-logge(null, 'gemeinsames Objekt aus Globals holen');
                 $obj_storageFromParent = $GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent];
 
             } else {
 
                 if (isset($_SESSION['lsShop']['customizerStorage'][$str_storageKeyParent])) {
-logge(null, 'StorageFromParent aus Session holen');
                     $obj_storageFromParent = unserialize($_SESSION['lsShop']['customizerStorage'][$str_storageKeyParent]);
 
                     //In die Globals für gemeinsame Speicherobjekte schreiben
                     $GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent] = $obj_storageFromParent;
 
                 } else {
-logge(null, 'In die Globals für gemeinsame Speicherobjekte schreiben');
                     $obj_storageFromParent = new customizerStorage($str_storageKeyParent);
 
                     //In die Globals für gemeinsame Speicherobjekte schreiben
                     $GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent] = $obj_storageFromParent;
                 }
             }
-logge($obj_storageFromParent, 'im Spezialfall');
         }
 
         if (!isset($GLOBALS['merconis_globals']['customizerObjects'])) {
             $GLOBALS['merconis_globals']['customizerObjects'] = [];
         }
 
-        #require_once(TL_ROOT ."/". $obj_productOrVariant->_customizerLogicFile);
         require_once(TL_ROOT ."/". $str_customizerLogicFile);
-        #$str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_productOrVariant->_customizerLogicFile);
         $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $str_customizerLogicFile);
 
         if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
