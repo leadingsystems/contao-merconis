@@ -17,7 +17,8 @@ abstract class customizer {
         //13.03.2023, bei Varianten mit gemeinsamem Customizer kommt das (gemeinsame) Speicherobjekt (storage) und der Schlüssel (storageKeyFromParent) vom Parent
         if (is_object($obj_storageFromParent)) {
 
-            $this->str_storageKey = $str_storageKeyFromParent . ($str_customizerHash ? '_' . $str_customizerHash : '');
+            #$this->str_storageKey = $str_storageKeyFromParent . ($str_customizerHash ? '_' . $str_customizerHash : '');
+            $this->str_storageKey = $str_storageKeyFromParent;
             $this->obj_storage = $obj_storageFromParent;
 
         } else {
