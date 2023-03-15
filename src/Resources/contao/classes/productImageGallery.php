@@ -50,6 +50,10 @@ class productImageGallery extends \Frontend {
 
         $this->ls_imageLimit = $ls_imageLimit;
 
+        if(!is_array($arrOverlays ?? null)){
+            $arrOverlays = array();
+        }
+
         if ($obj_productOrVariant->_isNew) {
             $arrOverlays[] = 'isNew';
         }
@@ -70,17 +74,30 @@ class productImageGallery extends \Frontend {
 
         $this->Template = new \FrontendTemplate($this->strTemplate);
 
-        if(!is_array($arrOverlays)){
-            $arrOverlays = array();
-        }
-
         $this->arrOverlays = $arrOverlays;
 
         $this->Template->images = array();
 
-
         $this->lsShopGetProcessedImages();
 
+        if(!$this->ls_images && !$this->mainImageSRC && $obj_productOrVariant->_objectType === 'variant'){
+            $str_mainImageKey = 'lsShopProductMainImage';
+
+            $mainImageSRC = isset($obj_productOrVariant->_objParentProduct->mainData[$str_mainImageKey]) && $obj_productOrVariant->_objParentProduct->mainData[$str_mainImageKey] ? ls_getFilePathFromVariableSources($obj_productOrVariant->_objParentProduct->mainData[$str_mainImageKey]) : null;
+
+            $this->mainImageSRC = $mainImageSRC;
+
+            $str_moreImagesKey = 'lsShopProductMoreImages';
+            $multiSRC = ls_shop_generalHelper::getAllProductImages($obj_productOrVariant->_objParentProduct, $obj_productOrVariant->_objParentProduct->_code, null, $obj_productOrVariant->_objParentProduct->mainData[$str_moreImagesKey]);
+
+            if (!is_array($multiSRC)) {
+                $multiSRC = array();
+            }
+
+            $this->multiSRC = $multiSRC;
+
+            $this->lsShopGetProcessedImages();
+        }
 
     }
 
@@ -91,7 +108,7 @@ class productImageGallery extends \Frontend {
                 $this->mainImage = $this->processSingleImage($this->mainImageSRC);
             }else if(!empty($this->getMoreImages())){
                 $this->mainImage = $this->getMoreImages()[0];
-            }else{
+            }else if(isset($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])){
                 $this->mainImage = $this->processSingleImage(\FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
             }
         }
@@ -101,9 +118,13 @@ class productImageGallery extends \Frontend {
     //returns All Images MainImage+MoreImages
     public function getImages(){
         $arrImg = $this->ls_images;
-        if (!$this->hasMoreImages() && !empty($this->mainImageSRC)) {
+        if ($this->hasMoreImages() && !empty($this->mainImageSRC)) {
             array_unshift($arrImg, $this->getMainImage());
         }
+        else if (!$this->hasMoreImages()) {
+            array_unshift($arrImg, $this->getMainImage());
+        }
+
         if ($this->ls_imageLimit) {
             $arrImg = array_slice($arrImg, 0, $this->ls_imageLimit);
         }
@@ -291,10 +312,10 @@ class productImageGallery extends \Frontend {
             $objImage->originalSRC = $this->originalSRC;
             $objImage->arrOverlays = $arrOverlays;
             $objImage->singleSRC = $file;
-            $objImage->alt = $arrMeta['alt'];
-            $objImage->title = $arrMeta['title'];
-            $objImage->imageUrl = $arrMeta['link'];
-            $objImage->caption = $arrMeta['caption'];
+            $objImage->alt = $arrMeta['alt'] ?? '';
+            $objImage->title = $arrMeta['title'] ?? '';
+            $objImage->imageUrl = $arrMeta['link'] ?? '';
+            $objImage->caption = $arrMeta['caption'] ?? '';
             $objImage->mtime = $objFile->mtime;
             $objImage->randomSortingValue = md5($objFile->basename.$this->sortingRandomizer);
             return $objImage;
