@@ -249,6 +249,59 @@ namespace Merconis\Core;
 					)
 				)
 			),
+			'payPalCheckout' => array(
+				'typeCode' => 'payPalCheckout', // Dieser Wert muss dem Array-Key im $types-Array entsprechen, da er z. B. für die Legend-Bezeichnung, also als Array-Key, Verwendung findet
+				'title' => 'Paypal Checkout', // Der Title wird als Options-Name im Select-Feld (DCA) verwendet. Mit diesem Namen können im Options-Referenz-Sprach Array eine mehrsprachige Bezeichnung sowie eine Erklärung für den helpwizard hinterlegt werden
+				'className' => 'Merconis\Core\ls_shop_paymentModule_payPalCheckout',
+				'BE_formFields' => array(
+					'payPalCheckout_clientID' => array(
+						'label' => '', // Wird hier kein Label eingetragen, so wird automatisch ein Label-Verweis zur Sprachdatei mit dem Feldnamen (Array-Key) verwendet (Standard)
+						'inputType' => 'text'
+					),
+					'payPalCheckout_clientSecret' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_liveMode' => array(
+						'label' => '',
+						'inputType' => 'checkbox'
+					),
+					'payPalCheckout_logMode' => array(
+						'label' => '',
+						'inputType' => 'select',
+						'options' => array('NONE', 'INFO'),
+						'default' => 'NONE'
+					),
+					'payPalCheckout_shipToFieldNameFirstname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameLastname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameStreet' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNamePostal' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameCity' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameCountryCode' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'payPalCheckout_shipToFieldNameState' => array(
+						'label' => '',
+						'inputType' => 'text'
+					)
+				)
+			),
 			'payone' => array(
 				'typeCode' => 'payone',
 				'title' => 'PAYONE',
@@ -487,15 +540,15 @@ namespace Merconis\Core;
 		
 		
 		public function __construct() {
-			$this->types['payone']['BE_formFields']['payone_clearingtype']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_clearingtype']['options'];
+			$this->types['payone']['BE_formFields']['payone_clearingtype']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_clearingtype']['options'] ?? null;
 			
-			$this->types['saferpay']['BE_formFields']['saferpay_paymentMethods']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['saferpay_paymentMethods']['options'];
-			$this->types['saferpay']['BE_formFields']['saferpay_wallets']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['saferpay_wallets']['options'];
+			$this->types['saferpay']['BE_formFields']['saferpay_paymentMethods']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['saferpay_paymentMethods']['options'] ?? null;
+			$this->types['saferpay']['BE_formFields']['saferpay_wallets']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['saferpay_wallets']['options'] ?? null;
 
-			$this->types['vrpay']['BE_formFields']['vrpay_paymentInstrument']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_paymentInstrument']['options'];
-			$this->types['vrpay']['BE_formFields_subpalettes']['vrpay_paymentInstrument_creditcard']['fields']['vrpay_creditCardBrands']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_creditCardBrands']['options'];
+			$this->types['vrpay']['BE_formFields']['vrpay_paymentInstrument']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_paymentInstrument']['options'] ?? null;
+			$this->types['vrpay']['BE_formFields_subpalettes']['vrpay_paymentInstrument_creditcard']['fields']['vrpay_creditCardBrands']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_creditCardBrands']['options'] ?? null;
 
-			$this->types['vrpay']['BE_formFields']['vrpay_testMode']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_testMode']['options'];
+			$this->types['vrpay']['BE_formFields']['vrpay_testMode']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['vrpay_testMode']['options'] ?? null;
 
 			if (isset($GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes'] as $mccb) {
@@ -555,16 +608,21 @@ namespace Merconis\Core;
 			 * z. B. einiges in der Programmdatei verändert hat und dieses paymentMethod nicht mehr verfügbar ist), so wird die Funktion abgebrochen
 			 * und false zurückgegeben
 			 */
-			if (!isset($this->types[$arrPaymentMethodInfo['type']]) || !is_array($this->types[$arrPaymentMethodInfo['type']])) {
+			if (!($str_paymentMethodType = $arrPaymentMethodInfo['type'] ?? null)) {
 				return false;
 			}
-			
+
+
+			if (!is_array($this->types[$str_paymentMethodType] ?? null)) {
+				return false;
+			}
+
 			/*
 			 * Wenn alles passt, werden die aktuellen Einstellungen der paymentMethod in diesem Objekt als currentSettings hinterlegt.
 			 */
 			$this->arrCurrentSettings = $arrPaymentMethodInfo;
 			
-			$this->import($this->types[$arrPaymentMethodInfo['type']]['className'], 'specialModule', $blnForceRefresh);
+			$this->import($this->types[$str_paymentMethodType]['className'], 'specialModule', $blnForceRefresh);
 			$this->specialModule->arrCurrentSettings = $this->arrCurrentSettings;
 			
 			$this->initialize($specializedManually);
