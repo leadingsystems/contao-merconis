@@ -44,33 +44,35 @@ class ls_shop_generalHelper
         $arr_allocations = is_array($arr_allocations) ? $arr_allocations : json_decode($arr_allocations, true);
 
         $int_sortingKey = 0;
-        foreach ($arr_allocations as $arr_allocation) {
-            if (!isset($arr_allocation[0]) || !$arr_allocation[0] || !isset($arr_allocation[1]) || !$arr_allocation[1]) {
-                /*
-                 * Skip attribute value allocations if either the attribute or the value
-                 * is not defined (or both, of course)
-                 */
-                continue;
+        if (is_array($arr_allocations)) {
+            foreach ($arr_allocations as $arr_allocation) {
+                if (!isset($arr_allocation[0]) || !$arr_allocation[0] || !isset($arr_allocation[1]) || !$arr_allocation[1]) {
+                    /*
+                     * Skip attribute value allocations if either the attribute or the value
+                     * is not defined (or both, of course)
+                     */
+                    continue;
+                }
+
+                \Database::getInstance()
+                    ->prepare("
+                    INSERT INTO `tl_ls_shop_attribute_allocation`
+                    SET			`pid` = ?,
+                                `parentIsVariant` = ?,
+                                `attributeID` = ?,
+                                `attributeValueID` = ?,
+                                `sorting` = ?
+                ")
+                    ->execute(
+                        $int_parentId,
+                        ($bln_parentIsVariant ? '1' : '0'),
+                        $arr_allocation[0],
+                        $arr_allocation[1],
+                        $int_sortingKey
+                    );
+
+                $int_sortingKey++;
             }
-
-            \Database::getInstance()
-                ->prepare("
-				INSERT INTO `tl_ls_shop_attribute_allocation`
-				SET			`pid` = ?,
-							`parentIsVariant` = ?,
-							`attributeID` = ?,
-							`attributeValueID` = ?,
-							`sorting` = ?
-			")
-                ->execute(
-                    $int_parentId,
-                    ($bln_parentIsVariant ? '1' : '0'),
-                    $arr_allocation[0],
-                    $arr_allocation[1],
-                    $int_sortingKey
-                );
-
-            $int_sortingKey++;
         }
     }
 
@@ -401,6 +403,13 @@ class ls_shop_generalHelper
             $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey]->ls_setVariantID($variantID);
         }
 
+        /*
+         * Always make the product object use the customizable data when it is being returned by this method.
+         * This way we make sure that if the product object is set to using original data e.g. in a
+         * product output template this will not affect other places where the product object is used.
+         */
+        $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey]->useCustomizableData();
+
         return $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey];
     }
 
@@ -458,7 +467,7 @@ class ls_shop_generalHelper
     {
         if (
             !is_object($obj_user)
-            && FE_USER_LOGGED_IN
+            && \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()
         ) {
             $obj_user = \System::importStatic('FrontendUser');
         }
@@ -627,8 +636,8 @@ class ls_shop_generalHelper
     public static function outputPrice($price, $numDecimals = null, $decimalsSeparator = null, $thousandsSeparator = null, $currency = null)
     {
         $numDecimals = $numDecimals ? $numDecimals : $GLOBALS['TL_CONFIG']['ls_shop_numDecimals'];
-        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'];
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ? $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '');
+        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '');
         $currency = $currency ? $currency : $GLOBALS['TL_CONFIG']['ls_shop_currency'];
 
         return
@@ -654,8 +663,8 @@ class ls_shop_generalHelper
     public static function outputWeight($weight, $numDecimals = null, $decimalsSeparator = null, $thousandsSeparator = null, $weightUnit = null)
     {
         $numDecimals = $numDecimals ? $numDecimals : $GLOBALS['TL_CONFIG']['ls_shop_numDecimalsWeight'];
-        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'];
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ? $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '');
+        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '');
         $weightUnit = $weightUnit ? $weightUnit : $GLOBALS['TL_CONFIG']['ls_shop_weightUnit'];
 
         return number_format($weight, $numDecimals, $decimalsSeparator, $thousandsSeparator) . ' ' . $weightUnit;
@@ -668,8 +677,8 @@ class ls_shop_generalHelper
      */
     public static function outputQuantity($quantity, $numDecimals = 2, $decimalsSeparator = null, $thousandsSeparator = null)
     {
-        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'];
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ? $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '');
+        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '');
 
         return number_format($quantity, $numDecimals, $decimalsSeparator, $thousandsSeparator);
     }
@@ -681,8 +690,8 @@ class ls_shop_generalHelper
      */
     public static function outputNumber($quantity, $numDecimals = 2, $decimalsSeparator = null, $thousandsSeparator = null)
     {
-        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'];
-        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'];
+        $decimalsSeparator = $decimalsSeparator ? $decimalsSeparator : ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null);
+        $thousandsSeparator = $thousandsSeparator ? $thousandsSeparator : (($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '');
         return number_format($quantity, $numDecimals, $decimalsSeparator, $thousandsSeparator);
     }
 
@@ -796,7 +805,7 @@ class ls_shop_generalHelper
      */
     public static function checkVATID()
     {
-        return $GLOBALS['TL_CONFIG']['ls_shop_ownVATID'] && ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData']['VATID']['value'] && $GLOBALS['TL_CONFIG']['ls_shop_country'] != ls_shop_generalHelper::getCustomerCountry();
+        return ($GLOBALS['TL_CONFIG']['ls_shop_ownVATID'] ?? null) && ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData']['VATID']['value'] && $GLOBALS['TL_CONFIG']['ls_shop_country'] != ls_shop_generalHelper::getCustomerCountry();
     }
 
     public static function parseSteuersatz($strSteuersatz = '')
@@ -1389,8 +1398,8 @@ class ls_shop_generalHelper
              * geprüft werden, ob auch dort $objPage nicht verfügbar ist. Es sollte dann noch sichergestellt werden, dass der Rückgabewert, den die alte getMultiLanguage-Funktion
              * bei Übergabe eines fehlerhaften Sprach-Werts geliefert hat, mit dem aktuellen Rückgabewert in diesem Fall identisch oder zumindest kompatibel ist.
              */
-            $methodInfo['title'] = ls_shop_languageHelper::getMultiLanguage($methodInfo['id'], "tl_ls_shop_" . $type . "_methods_languages", array('title'), array($objPage->language));
-            $methodInfo['description'] = ls_shop_languageHelper::getMultiLanguage($methodInfo['id'], "tl_ls_shop_" . $type . "_methods_languages", array('description'), array($objPage->language));
+            $methodInfo['title'] = ls_shop_languageHelper::getMultiLanguage($methodInfo['id'], "tl_ls_shop_" . $type . "_methods_languages", array('title'), array($objPage->language ?? null));
+            $methodInfo['description'] = ls_shop_languageHelper::getMultiLanguage($methodInfo['id'], "tl_ls_shop_" . $type . "_methods_languages", array('description'), array($objPage->language ?? null));
 
             /*
              * Get dynamically selected tax rates
@@ -1901,7 +1910,7 @@ class ls_shop_generalHelper
         /** @var \PageModel $objPage */
         global $objPage;
 
-        $str_languageToUse = $str_languageToUse ? $str_languageToUse : ($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
+        $str_languageToUse = $str_languageToUse ? $str_languageToUse : (($objPage->language ?? null) ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
 
         if (!isset($GLOBALS['merconis_globals']['productAttributes'][$str_languageToUse])) {
             $objAttributes = \Database::getInstance()->prepare("
@@ -1928,7 +1937,7 @@ class ls_shop_generalHelper
         /** @var \PageModel $objPage */
         global $objPage;
 
-        $str_languageToUse = $str_languageToUse ? $str_languageToUse : ($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
+        $str_languageToUse = $str_languageToUse ? $str_languageToUse : (($objPage->language ?? null) ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
 
         if ($blnUncached || !isset($GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse])) {
             $objAttributeValues = \Database::getInstance()->prepare("
@@ -1958,15 +1967,17 @@ class ls_shop_generalHelper
     public static function getProductAttributeValueIds($arr_productAttributesValues = array())
     {
         $arr_attributeValueIds = array();
-        foreach ($arr_productAttributesValues as $arr_attributeValuePair) {
-            if (!$arr_attributeValuePair[0]) {
-                continue;
-            }
+        if (is_array($arr_productAttributesValues)) {
+            foreach ($arr_productAttributesValues as $arr_attributeValuePair) {
+                if (!$arr_attributeValuePair[0]) {
+                    continue;
+                }
 
-            if (!isset($arr_attributeValueIds[$arr_attributeValuePair[0]])) {
-                $arr_attributeValueIds[$arr_attributeValuePair[0]] = array();
+                if (!isset($arr_attributeValueIds[$arr_attributeValuePair[0]])) {
+                    $arr_attributeValueIds[$arr_attributeValuePair[0]] = array();
+                }
+                $arr_attributeValueIds[$arr_attributeValuePair[0]][] = $arr_attributeValuePair[1];
             }
-            $arr_attributeValueIds[$arr_attributeValuePair[0]][] = $arr_attributeValuePair[1];
         }
         return $arr_attributeValueIds;
     }
@@ -1984,7 +1995,7 @@ class ls_shop_generalHelper
 
         if (is_array($arrProductAttributesValues)) {
             foreach ($arrProductAttributesValues as $arrProductAttributeValue) {
-                if (!$arrProductAttributeValue[0]) {
+                if (!$arrProductAttributeValue[0] || !isset($productAttributes[$arrProductAttributeValue[0]]) || !isset($productAttributeValues[$arrProductAttributeValue[1]])) {
                     continue;
                 }
                 if (!isset($attributesValuesProcessed[$arrProductAttributeValue[0]])) {
@@ -2057,9 +2068,11 @@ class ls_shop_generalHelper
     }
 
     public static function storeConfiguratorDataToSession($var_arg) {
-        /** @var ls_shop_productConfigurator $obj_configurator */
-        foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
-            $obj_configurator->storeToSession();
+        if (isset($GLOBALS['merconis_globals']['configuratorObjs']) && is_array($GLOBALS['merconis_globals']['configuratorObjs'])) {
+            foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
+                /** @var ls_shop_productConfigurator $obj_configurator */
+                $obj_configurator->storeToSession();
+            }
         }
 
         /*
@@ -2134,7 +2147,7 @@ class ls_shop_generalHelper
         );
 
         if (!$pageID) {
-            $pageID = $objPage->id;
+            $pageID = $objPage->id ?? null;
         }
 
         if (!isset($GLOBALS['merconis_globals']['outputDefinitions'][$pageID])) {
@@ -2367,7 +2380,7 @@ class ls_shop_generalHelper
         }
         $deliveryInfoSet = $GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_03_' . $deliveryInfoSetID];
 
-        $arrDeliveryInfoSetMultilanguage = ls_shop_languageHelper::getMultiLanguage($deliveryInfoSetID, 'tl_ls_shop_delivery_info_languages', array('title', 'deliveryTimeMessageWithSufficientStock', 'deliveryTimeMessageWithInsufficientStock'), array($blnUseMainLanguage ? ls_shop_languageHelper::getFallbackLanguage() : $objPage->language));
+        $arrDeliveryInfoSetMultilanguage = ls_shop_languageHelper::getMultiLanguage($deliveryInfoSetID, 'tl_ls_shop_delivery_info_languages', array('title', 'deliveryTimeMessageWithSufficientStock', 'deliveryTimeMessageWithInsufficientStock'), array($blnUseMainLanguage ? ls_shop_languageHelper::getFallbackLanguage() : ($objPage->language ?? null)));
 
         $deliveryInfoSet[0]['title'] = $arrDeliveryInfoSetMultilanguage['title'];
         $deliveryInfoSet[0]['deliveryTimeMessageWithSufficientStock'] = $arrDeliveryInfoSetMultilanguage['deliveryTimeMessageWithSufficientStock'];
@@ -2594,7 +2607,7 @@ class ls_shop_generalHelper
 
         if ($objCrossSellers->numRows) {
             while ($objCrossSellers->next()) {
-                if ($objCrossSellers->id == $arg1->activeRecord->id) {
+                if ($objCrossSellers->id == ($arg1->activeRecord->id ?? null)) {
                     continue;
                 }
                 $arrCrossSellerOptions[$objCrossSellers->id] = $objCrossSellers->title;
@@ -2608,9 +2621,9 @@ class ls_shop_generalHelper
         $arrData = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field];
 
         return sprintf('%s<div class="beWidgetSimpleHTMLOutput">%s</div>%s',
-            $arrData['eval']['outputBefore'],
-            $arrData['eval']['output'],
-            $arrData['eval']['outputAfter']);
+            $arrData['eval']['outputBefore'] ?? '',
+            $arrData['eval']['output'] ?? '',
+            $arrData['eval']['outputAfter'] ?? '');
     }
 
     public static function rawOutputForBackendDCA(\DataContainer $dc)
@@ -3069,8 +3082,6 @@ class ls_shop_generalHelper
 
     public static function handleConditionalFormFields(\Widget $objWidget, $intId, $arrForm)
     {
-
-
         $obj_dbres_mandatoryOnConditionSettings = \Database::getInstance()
             ->prepare("
 					SELECT	`lsShop_mandatoryOnConditionField`,
@@ -3092,9 +3103,7 @@ class ls_shop_generalHelper
 
         $obj_dbres_mandatoryOnConditionSettings->first();
 
-
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField) {
-
             if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
@@ -3451,8 +3460,6 @@ class ls_shop_generalHelper
              * -->
              * Consider the "mandatoryOnCondition" settings
              */
-
-
             if (
                 $arrFieldData['arrData']['lsShop_mandatoryOnConditionField']
                 && $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue'] != $arrValidateData[ls_shop_generalHelper::getFormFieldNameForFormFieldId($arrFieldData['arrData']['lsShop_mandatoryOnConditionField'])]['value']
@@ -3529,7 +3536,7 @@ class ls_shop_generalHelper
              */
             if ($objFormFields->lsShop_ShowOnConditionField) {
                 if (
-                        (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value']) != $objFormFields->lsShop_ShowOnConditionValue
+                    (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value']) != $objFormFields->lsShop_ShowOnConditionValue
                 ) {
                     continue;
                 }
@@ -3643,11 +3650,11 @@ class ls_shop_generalHelper
     public static function getStatusValues()
     {
         $arrStatusValues = array(
-            'status01' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues01']),
-            'status02' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues02']),
-            'status03' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues03']),
-            'status04' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues04']),
-            'status05' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues05'])
+            'status01' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues01'] ?? ''),
+            'status02' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues02'] ?? ''),
+            'status03' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues03'] ?? ''),
+            'status04' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues04'] ?? ''),
+            'status05' => ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $GLOBALS['TL_CONFIG']['ls_shop_orderStatusValues05'] ?? '')
         );
         return $arrStatusValues;
     }
@@ -4719,7 +4726,7 @@ class ls_shop_generalHelper
 
         if (in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
             define('BYPASS_TOKEN_CHECK', true);
-        } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist']) > 2) {
+        } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'] ?? '') > 2) {
             if (preg_match($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'], \Environment::get('request'))) {
                 define('BYPASS_TOKEN_CHECK', true);
             }

@@ -603,10 +603,14 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['errorMsgL
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['status'] = 'Status';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['updateStatus'] = 'Update status';
 
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId'] = 'OrderId';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId'] = 'Order ID';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorMsgLabel'] = 'Error message';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status'] = 'Status';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['updateStatus'] = 'Update status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationId'] = 'Authorization ID';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationStatus'] = 'Authorization status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureId'] = 'Capture ID';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatus'] = 'Capture status';
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentReason'] = 'Order no. %s';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['headlineBackendDetailsInfo'] = 'Information about the payment status';

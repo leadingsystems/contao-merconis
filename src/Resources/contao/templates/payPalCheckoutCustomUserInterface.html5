@@ -3,7 +3,6 @@ if ($this->bln_paymentAuthorized) {
     ?>
 
     <script type="application/javascript">
-
         function reloadPaypalButton(){
             lsjs.loadingIndicator.__controller.show();
 
@@ -12,7 +11,7 @@ if ($this->bln_paymentAuthorized) {
                 method: 'post',
                 noCache: true,
                 cajaxMode: 'updateCompletely',
-                data:	'cajaxRequestData[requestedElementClass]=paymentAndShippingOptionContainer,finishingOrderSubmitBox' //paymentAndShippingOptionContainer
+                data:	'cajaxRequestData[requestedElementClass]=checkoutStepPayment,finishingOrderSubmitBox'
                     + '&REQUEST_TOKEN=' + lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN
                     + '&payPalCheckout_reset=' + true,
                 onComplete: function() {
@@ -34,7 +33,6 @@ if ($this->bln_paymentAuthorized) {
     <h3><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentWallHeadline']; ?></h3>
     <div id="paypal-button-container"></div>
     <script type="application/javascript">
-
         var myScript = Asset.javascript(
             'https://www.paypal.com/sdk/js?client-id=<?= $this->clientId ?>&currency=<?= $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'] ?>&intent=authorize&commit=false',
             {
@@ -42,10 +40,12 @@ if ($this->bln_paymentAuthorized) {
                     paypal.Buttons({
                         style: {
                             color: "gold",
-                            layout: "horizontal",
+                            layout: "vertical",
                             height: 48,
                             tagline: false,
                             shape: "rect"
+                        },
+                        onClick: (data, actions) => {
                         },
                         createOrder: (data, actions) => {
                             return "<?= $this->orderId ?>";
@@ -53,7 +53,6 @@ if ($this->bln_paymentAuthorized) {
                         onApprove: function(data, actions) {
                             // Authorize the transaction
                             actions.order.authorize().then(function(authorization) {
-
                                 var authorizationID = authorization.purchase_units[0].payments.authorizations[0].id
 
                                 lsjs.loadingIndicator.__controller.show();
@@ -63,7 +62,7 @@ if ($this->bln_paymentAuthorized) {
                                     method: 'post',
                                     noCache: true,
                                     cajaxMode: 'updateCompletely',
-                                    data:	'cajaxRequestData[requestedElementClass]=paymentAndShippingOptionContainer,finishingOrderSubmitBox'
+                                    data:	'cajaxRequestData[requestedElementClass]=checkoutStepPayment,finishingOrderSubmitBox'
                                         + '&REQUEST_TOKEN=' + lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN
                                         + '&payPalCheckout_orderId=' + data.orderID
                                         + '&payPalCheckout_authorizationId=' + authorizationID,
@@ -84,7 +83,6 @@ if ($this->bln_paymentAuthorized) {
                             //error message
                             console.log(err);
                         }
-
                     }).render('#paypal-button-container');
                 }
             }
@@ -93,4 +91,3 @@ if ($this->bln_paymentAuthorized) {
     <?php
 }
 ?>
-
