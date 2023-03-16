@@ -1,54 +1,57 @@
 <!DOCTYPE html>
-<html lang="<?php echo $this -> language;?>">
-	<head>
-		<meta charset="<?php echo $this -> charset;?>">
-		<title>
-			<?php echo $this -> title;?> - Contao Open Source CMS <?php echo VERSION;?>
-		</title>
-		<base href="<?php echo $this -> base;?>">
-        <link rel="stylesheet" href="<?= TL_ASSETS_URL ?>system/themes/<?= $this->theme ?>/fonts.css">
-        <link rel="stylesheet" href="<?= TL_ASSETS_URL ?>assets/colorpicker/css/mooRainbow.min.css">
-        <link rel="stylesheet" href="<?= TL_ASSETS_URL ?>assets/chosen/css/chosen.min.css">
-        <link rel="stylesheet" href="<?= TL_ASSETS_URL ?>assets/simplemodal/css/simplemodal.min.css">
-        <link rel="stylesheet" href="<?= TL_ASSETS_URL ?>assets/datepicker/css/datepicker.min.css">
-        <link rel="stylesheet" href="<?= TL_ASSETS_URL ?>system/themes/<?= $this->theme ?>/basic.css">
-        <link rel="stylesheet" href="<?= TL_ASSETS_URL ?>system/themes/<?= $this->theme ?>/main.css">
-		<?= $this->stylesheets ?>
+<html lang="<?= $this->language ?>">
+<head>
 
-        <script><?= $this->getLocaleString() ?></script>
-        <script src="<?= TL_ASSETS_URL ?>assets/mootools/js/mootools.min.js"></script>
-        <script src="<?= TL_ASSETS_URL ?>assets/colorpicker/js/mooRainbow.min.js"></script>
-        <script src="<?= TL_ASSETS_URL ?>assets/chosen/js/chosen.min.js"></script>
-        <script src="<?= TL_ASSETS_URL ?>assets/simplemodal/js/simplemodal.min.js"></script>
-        <script src="<?= TL_ASSETS_URL ?>assets/datepicker/js/datepicker.min.js"></script>
-        <script src="<?= TL_ASSETS_URL ?>bundles/contaocore/mootao.min.js"></script>
-        <script src="<?= TL_ASSETS_URL ?>bundles/contaocore/core.min.js"></script>
-        <script src="<?= TL_ASSETS_URL ?>system/themes/<?= $this->theme ?>/hover.js"></script>
-        <script><?= $this->getDateString() ?></script>
-		<?= $this->javascripts ?>
+    <meta charset="<?= $this->charset ?>">
+    <title><?= $this->title ?> | <?= $this->host ?></title>
+    <base href="<?= $this->base ?>">
+    <meta name="generator" content="Contao Open Source CMS">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no">
+    <meta name="referrer" content="origin">
 
-		<script>
-			function setValue(v) {
-				parent.$(parent.Backend.currentId).value = v;
-				parent.$('simple-modal-overlay').fireEvent('click');
-			}
+    <link rel="stylesheet" href="<?php
+    $objCombiner = new Contao\Combiner();
+    $objCombiner->add('system/themes/'.$this->theme.'/fonts.min.css');
+    $objCombiner->add('system/themes/'.$this->theme.'/basic.min.css');
+    $objCombiner->add('system/themes/'.$this->theme.'/help.min.css');
+    $objCombiner->add('assets/chosen/css/chosen.min.css');
+    echo $objCombiner->getCombinedFile();
+    ?>">
+    <?= $this->stylesheets ?>
 
-			document.onLoad = self.focus();
-		</script>
-		<!--[if lt IE 9]><script src="<?php echo TL_PLUGINS_URL; ?>plugins/html5shim/html5-<?php echo HTML5SHIM; ?>.js"></script><![endif]-->
-	</head>
-	<body class="__ua__ popup">
+    <script><?= $this->getLocaleString() ?></script>
+    <script src="<?php
+    $objCombiner = new Contao\Combiner();
+    $objCombiner->add('assets/mootools/js/mootools.min.js');
+    $objCombiner->add('assets/chosen/js/chosen.min.js');
+    $objCombiner->add('bundles/contaocore/mootao.min.js');
+    $objCombiner->add('bundles/contaocore/core.min.js');
+    echo $objCombiner->getCombinedFile();
+    ?>"></script>
+    <script><?= $this->getDateString() ?></script>
+    <?= $this->javascripts ?>
 
-		<div id="container" style="overflow: visible;">
-			<div id="main">
-				<div class="be_valuePicker">
-					<select class="tl_chosen">
-						<option value="">-</option><?php echo $this->options; ?>
-					</select>
-					<input class="submit" type="submit" value="OK" onclick="setValue($$('select')[0].value)" />
-				</div>
-			</div>
-		</div>
+    <script>
+        function setValue(v) {
+            parent.$(parent.Backend.currentId).value = v;
+            parent.$('simple-modal-overlay').fireEvent('click');
+        }
 
-	</body>
+        document.onLoad = self.focus();
+    </script>
+</head>
+<body class="<?= $this->ua ?> popup">
+
+<div id="container">
+    <main id="main">
+        <div class="be_valuePicker" style="display: flex; justify-content: space-evenly;">
+            <select class="tl_chosen" style="width: calc(100% - 100px);">
+                <option value="">-</option><?php echo $this->options; ?>
+            </select>
+            <input class="submit" type="submit" value="OK" onclick="setValue($$('select')[0].value)" />
+        </div>
+    </main>
+</div>
+
+</body>
 </html>

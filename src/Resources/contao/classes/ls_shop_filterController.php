@@ -170,7 +170,7 @@ class ls_shop_filterController
 						!is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
 						|| !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
 					) {
-						continue;
+						continue 2;
 					}
 
 					/*
@@ -256,7 +256,7 @@ class ls_shop_filterController
 					 * Skip the price field if there are no different prices in the result that should be filtered
 					 */
 					if ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'] == $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
-						continue;
+						continue 2;
 					}
 
 					$objFlexWidget_priceLow = new FlexWidget(
@@ -302,7 +302,7 @@ class ls_shop_filterController
 						|| !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
 						|| !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
 					) {
-						continue;
+						continue 2;
 					}
 
 					/*

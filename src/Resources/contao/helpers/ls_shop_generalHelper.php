@@ -364,6 +364,23 @@ class ls_shop_generalHelper
         return $obj_dbres_variant->first()->id;
     }
 
+    public static function getProductIdForVariantId($variantId)
+    {
+        $obj_productId = \Database::getInstance()->prepare("
+				SELECT		`pid`
+				FROM		`tl_ls_shop_variant`
+				WHERE		`id` = ?
+			")
+            ->limit(1)
+            ->execute($variantId);
+
+        if ($obj_productId->numRows <= 0) {
+            return null;
+        }
+
+        return $obj_productId->first()->pid;
+    }
+
     /*
      * Gibt ein Produkt-Objekt zurück und sorgt dafür, dass für jedes Produkt nur ein Objekt existiert,
      * selbst wenn das Objekt mehrmals nacheinander benötigt wird. Diese Technik ermöglicht es, nach Belieben
@@ -2067,11 +2084,55 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['configuratorObjs'][$cacheKey];
     }
 
+    public static function getCustomizerObject(&$obj_product) {
+        if (!is_object($obj_product)) {
+            throw new \Exception('insufficient parameters given');
+        }
+
+        if (!$obj_product->_hasCustomizerLogicFile || TL_MODE === 'BE') {
+            return null;
+        }
+
+        $str_customizerObjectKey = $obj_product->_customizerLogicFile . '_' . $obj_product->ls_productVariantID . ($obj_product->_configuratorHash ? '|' . $obj_product->_configuratorHash : '');
+
+        if (!isset($GLOBALS['merconis_globals']['customizerObjects'])) {
+            $GLOBALS['merconis_globals']['customizerObjects'] = [];
+        }
+
+        require_once(TL_ROOT ."/". $obj_product->_customizerLogicFile);
+        $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_product->_customizerLogicFile);
+
+        if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
+            \System::log('MERCONIS: Customizer logic file "' . $str_customLogicClassName . '" can not be used because it is does not extend "\Merconis\Core\customizer"', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+            return null;
+        }
+
+        $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey] = new $str_customLogicClassName($obj_product, $obj_product->_configuratorHash);
+
+        return $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
+    }
+
     public static function storeConfiguratorDataToSession($var_arg) {
         if (isset($GLOBALS['merconis_globals']['configuratorObjs']) && is_array($GLOBALS['merconis_globals']['configuratorObjs'])) {
             foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
                 /** @var ls_shop_productConfigurator $obj_configurator */
                 $obj_configurator->storeToSession();
+            }
+        }
+
+        /*
+         * Depending on whether this function is called by the modifyFrontendPage hook or the api's afterProcessingRequest
+         * hook, $var_arg might be an output buffer or an object. Since we don't have to do anything with either of both
+         * we simply return the unaltered argument with no questions asked.
+         */
+        return $var_arg;
+    }
+
+    public static function storeCustomizerDataToSession($var_arg) {
+        if (isset($GLOBALS['merconis_globals']['customizerObjects']) && is_array($GLOBALS['merconis_globals']['customizerObjects'])) {
+            /** @var customizer $obj_customizer */
+            foreach ($GLOBALS['merconis_globals']['customizerObjects'] as $obj_customizer) {
+                $obj_customizer->storeToSession();
             }
         }
 
@@ -4813,7 +4874,7 @@ class ls_shop_generalHelper
                             'reference' => $productVariantIDToPutInCart
                         ));
                     } else {
-                        $cartKeyToPutInCart = $obj_productOrVariant->_objectType === 'product' ? $obj_productOrVariant->_cartKey : $obj_productOrVariant->_objParentProduct->_cartKey;
+                        $cartKeyToPutInCart = $obj_productOrVariant->_cartKey;
 
                         /*--> Prüfen, ob das Produkt vorher schon im Warenkorb ist <--*/
                         $tmpBlnCartKeyAlreadyInCart = false;

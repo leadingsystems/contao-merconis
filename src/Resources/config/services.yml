@@ -17,3 +17,10 @@ services:
     arguments:
       - "@database_connection"
       - "@twig"
+
+  merconis.listener.data_container.layout_options:
+    class: Contao\CoreBundle\EventListener\DataContainer\LayoutOptionsListener
+    arguments:
+      - '@database_connection'
+    tags:
+      - { name: contao.callback, table: tl_page, target: fields.lsShopLayoutForDetailsView.options }

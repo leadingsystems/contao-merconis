@@ -423,6 +423,16 @@ class ls_shop_checkoutData {
 	 * Diese Funktion generiert und validiert dabei - sofern Daten gesendet wurden - die benötigten Formulare.
 	 */
 	private function getForms() {
+		/*
+		 * If forms are rendered in the context of the contao hook "postLogin", the objPage object might not be available but
+		 * if the form contains iflng insert tags, the language property of objPage must be available because otherwise an exception
+		 * would be thrown. To prevent this exception, we create a fallback dummy object for objPage.
+		 */
+		if (!isset($GLOBALS['objPage'])) {
+			$GLOBALS['objPage'] = new \stdClass();
+			$GLOBALS['objPage']->language = '';
+        	}
+		
 		$this->formCustomerData = \Controller::getForm($this->formCustomerDataID);
 
 		// ### paymentMethod callback ########################
@@ -464,7 +474,7 @@ class ls_shop_checkoutData {
 		 * so wird die gewählte Zahlungs- und Versand-Methode zurückgesetzt und der Login-Status in den Checkout-Data
 		 * auch zurückgesetzt
 		 */
-		if (FE_USER_LOGGED_IN) {
+		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$obj_user = \System::importStatic('FrontendUser');
 
 			if ($this->arrCheckoutData['loggedInData']['userID'] != $obj_user->id) {
@@ -707,7 +717,7 @@ class ls_shop_checkoutData {
 			&&	\Input::get('selectPaymentOrShipping') === $what
 			&&	\Input::get('id')
 		) {
-			$this->arrCheckoutData['selected'.ucfirst($what).'Method'] = \Input::get('id');
+			$this->arrCheckoutData['selected'.ucfirst($what).'Method'] = (int) \Input::get('id');
 			$this->arrCheckoutData['selected'.ucfirst($what).'MethodManually'] = true;
 
 			if ($what == 'payment') {
@@ -721,14 +731,14 @@ class ls_shop_checkoutData {
 				if (isset($GLOBALS['MERCONIS_HOOKS']['paymentOptionSelected']) && is_array($GLOBALS['MERCONIS_HOOKS']['paymentOptionSelected'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['paymentOptionSelected'] as $mccb) {
 						$objMccb = \System::importStatic($mccb[0]);
-						$objMccb->{$mccb[1]}(\Input::get('id'));
+						$objMccb->{$mccb[1]}((int) \Input::get('id'));
 					}
 				}
 			} else if ($what == 'shipping') {
 				if (isset($GLOBALS['MERCONIS_HOOKS']['shippingOptionSelected']) && is_array($GLOBALS['MERCONIS_HOOKS']['shippingOptionSelected'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['shippingOptionSelected'] as $mccb) {
 						$objMccb = \System::importStatic($mccb[0]);
-						$objMccb->{$mccb[1]}(\Input::get('id'));
+						$objMccb->{$mccb[1]}((int) \Input::get('id'));
 					}
 				}
 			}

@@ -41,7 +41,6 @@
 		  echo $objCombiner->getCombinedFile();
 		?>"></script>
 		<?php echo $this->javascripts; ?>
-		<!--[if lt IE 9]><script src="<?php echo TL_PLUGINS_URL; ?>plugins/html5shim/html5-<?php echo HTML5SHIM; ?>.js"></script><![endif]-->
 		<?php echo $this->rteConfig; ?>
 		<script>
 		parent.REQUEST_TOKEN = '<?php echo REQUEST_TOKEN; ?>';

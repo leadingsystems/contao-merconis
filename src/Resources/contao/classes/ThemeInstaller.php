@@ -11,10 +11,6 @@ class ThemeInstaller
     private $int_status = themeInstallerStatus::UNKNOWN;
     private $arr_installedThemeExtensions = [];
 
-    private $str_merconisfilesPath = 'files/merconisfiles';
-
-    private $bln_setupWithHardCopy = false;
-
     /*
      * In this array the relation between original ID (Key) and new ID (Value) is established
      */
@@ -66,10 +62,6 @@ class ThemeInstaller
                 \Controller::reload();
             }
 
-            if (\Input::post('setupWithHardCopy')) {
-                $this->bln_setupWithHardCopy = true;
-            }
-
             $this->runSetup();
             \Controller::reload();
         }
@@ -79,9 +71,6 @@ class ThemeInstaller
     {
         $this->writeLocalconfig();
         $this->writeDatabase();
-        $this->createMerconisfilesFolder();
-        $this->generateSymlinks();
-        $this->copyFiles();
     }
 
     private function writeLocalconfig()
@@ -530,73 +519,6 @@ class ThemeInstaller
         return 'vendor/' . $this->arr_installedThemeExtensions[0] . '/src/Resources';
     }
 
-    private function createMerconisfilesFolder()
-    {
-        $obj_folder = new \Contao\Folder($this->str_merconisfilesPath);
-        $obj_folder->unprotect();
-    }
-
-
-    private function generateSymlinks()
-    {
-        if ($this->bln_setupWithHardCopy) {
-            return;
-        }
-
-        try {
-            SymlinkUtil::symlink($this->getThemeResourcesFolder() . '/theme/files', $this->getThemeFilesTargetPath(), TL_ROOT);
-        } catch (\Exception $e) {
-            \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink for theme files failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
-        }
-
-        if (file_exists(TL_ROOT. '/' . $this->getThemeTemplatesSourcePath())) {
-            try {
-                SymlinkUtil::symlink($this->getThemeTemplatesSourcePath(), $this->getThemeTemplatesTargetPath(), TL_ROOT);
-            } catch (\Exception $e) {
-                \System::log(TL_MERCONIS_THEME_SETUP . ': Creating symlink for templates failed with message "' . $e->getMessage() . '".', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
-            }
-        }
-
-        $obj_automator = \Controller::importStatic('Contao\Automator', 'Automator');
-        $obj_automator->generateSymlinks();
-
-    }
-
-    private function copyFiles()
-    {
-        if (!$this->bln_setupWithHardCopy) {
-            return;
-        }
-
-        \System::log(TL_MERCONIS_THEME_SETUP . ': Copying Merconis files to '.$this->str_merconisfilesPath, TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
-        $this->dirCopy($this->getThemeResourcesFolder() . '/theme/files', $this->getThemeFilesTargetPath());
-
-        if (file_exists(TL_ROOT. '/' . $this->getThemeTemplatesSourcePath())) {
-            \System::log(TL_MERCONIS_THEME_SETUP . ': Copying theme templates to templates folder', TL_MERCONIS_THEME_SETUP, TL_MERCONIS_THEME_SETUP);
-            $this->dirCopy($this->getThemeTemplatesSourcePath(), $this->getThemeTemplatesTargetPath());
-        }
-    }
-
-    private function getThemeFilesSourcePath()
-    {
-        return $this->getThemeResourcesFolder() . '/theme/files';
-    }
-
-    private function getThemeFilesTargetPath()
-    {
-        return $this->str_merconisfilesPath . '/theme';
-    }
-
-    private function getThemeTemplatesSourcePath()
-    {
-        return $this->getThemeResourcesFolder() . '/theme/templates';
-    }
-
-    private function getThemeTemplatesTargetPath()
-    {
-        return 'templates/merconis-theme';
-    }
-
     private function getThemeSetupDataPath()
     {
         return $this->getThemeResourcesFolder() . '/theme/setup';
@@ -632,29 +554,6 @@ class ThemeInstaller
     private function getInstalledThemeExtensions()
     {
         $this->arr_installedThemeExtensions = ls_shop_generalHelper::getInstalledThemeExtensions();
-    }
-
-    private function dirCopy($str_src, $str_dest) {
-        if (!file_exists(TL_ROOT.'/'.$str_src) || file_exists(TL_ROOT.'/'.$str_dest)) {
-            return;
-        }
-
-        if (is_file(TL_ROOT.'/'.$str_src)) {
-            $obj_file = new \File($str_src);
-            $obj_file->copyTo($str_dest);
-            return;
-        }
-
-        if (is_dir(TL_ROOT.'/'.$str_src)) {
-            $obj_newDir = new \Folder($str_dest);
-            $handle_source = opendir(TL_ROOT.'/'.$str_src);
-            while ($str_file = readdir($handle_source)) {
-                if ($str_file == '.' || $str_file == '..') {
-                    continue;
-                }
-                $this->dirCopy($str_src.'/'.$str_file, $str_dest.'/'.$str_file);
-            }
-        }
     }
 }
 
