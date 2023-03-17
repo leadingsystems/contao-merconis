@@ -238,7 +238,7 @@ class ls_shop_product
     // create ImageGallery if it does not exist yet and returns it
     public function getImageGallery($ls_moreImagesSortBy = false, $ls_imageLimit = 0) {
         $str_argHash = md5(implode('', func_get_args()));
-        if(!$this->arr_imageGalleries[$str_argHash]){
+        if(!($this->arr_imageGalleries[$str_argHash] ?? null)){
             $this->arr_imageGalleries[$str_argHash] = new productImageGallery($this, $ls_moreImagesSortBy, $ls_imageLimit);
         }
         return $this->arr_imageGalleries[$str_argHash];
@@ -740,7 +740,7 @@ Array. If the product has variants, this array contains all the variant objects.
 returns true/false, indicates whether a variant of this product has currently been selected
 				 */
 				:
-				return $this->ls_currentVariantID && is_object($this->ls_variants[$this->ls_currentVariantID]) ? true : false;
+				return $this->ls_currentVariantID && is_object($this->ls_variants[$this->ls_currentVariantID] ?? null) ? true : false;
 				break;
 
 			case '_selectedVariantID'
@@ -2137,7 +2137,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	 * Diese Funktion verändert den in der DB eingetragenen Warenbestand des Produktes bzw. der Variante
 	 */
 	public function changeStock($quantity, $blnDoNotCalculate = false, $blnWriteLog = false) {
-		$quantity = number_format($quantity, $this->_quantityDecimals, '.', '');
+		$quantity = number_format((float) $quantity, $this->_quantityDecimals, '.', '');
 
 		if ($this->_variantIsSelected) {
 			return $this->_selectedVariant->changeStock($quantity, $blnDoNotCalculate, $blnWriteLog);

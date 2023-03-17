@@ -338,7 +338,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_variant_controller', 'generateAlias')
 			),
-            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
+            'sql'                     => "varchar(128) BINARY NOT NULL default ''"
 
 		),
 		
@@ -371,11 +371,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 						"arr_fields": [
 							{
 								"type": "text",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label01'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label01'] ?? '').'"
 							},
 							{
 								"type": "textarea",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] ?? '').'"
 							}
 						],
 						"cssClass": "key-value-widget"
@@ -397,11 +397,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 						"arr_fields": [
 							{
 								"type": "text",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] ?? '').'"
 							},
 							{
 								"type": "textarea",
-								"label": "'.$GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'].'"
+								"label": "'.($GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] ?? '').'"
 							}
 						],
 						"cssClass": "key-value-widget"
@@ -452,7 +452,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -471,7 +471,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
             'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
@@ -481,7 +481,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
@@ -554,7 +554,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -593,7 +593,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -611,7 +611,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
             'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
@@ -621,7 +621,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
@@ -690,7 +690,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -729,7 +729,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -747,7 +747,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
             'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
@@ -757,7 +757,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
@@ -826,7 +826,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -865,7 +865,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType']?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -883,7 +883,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
             'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
@@ -893,7 +893,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
@@ -962,7 +962,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -1001,7 +1001,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -1019,7 +1019,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
             'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
@@ -1029,7 +1029,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
@@ -1098,7 +1098,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -1137,7 +1137,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -1155,7 +1155,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('scalePriceStandalone','scalePricePercentaged','scalePriceFixedAdjustment'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'clr'),
             'sql'                     => "varchar(255) NOT NULL default 'scalePriceStandalone'"
 		),
@@ -1165,7 +1165,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('separatedVariantsAndConfigurations','separatedVariants','separatedProducts','separatedScalePriceKeywords'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'separatedVariantsAndConfigurations'"
 		),
@@ -1234,7 +1234,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
@@ -1252,7 +1252,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
-			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantWeightType'],
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantWeightType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),

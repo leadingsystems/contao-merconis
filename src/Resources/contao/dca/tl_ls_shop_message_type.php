@@ -184,7 +184,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'sorting' => true,
 			'flag' => 11,
 			'search' => true,
-            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
+            'sql'                     => "varchar(128) BINARY NOT NULL default ''"
 		),
 		
 		'useCounter' => array(

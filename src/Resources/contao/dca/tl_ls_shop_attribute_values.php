@@ -120,7 +120,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 				array('Merconis\Core\ls_shop_attribute_values', 'generateAlias')
 			),
 			'search' => true,
-            'sql'                     => "varchar(128) COLLATE utf8_bin NOT NULL default ''"
+            'sql'                     => "varchar(128) BINARY NOT NULL default ''"
 		),
 		
 		'classForFilterFormField' => array (
