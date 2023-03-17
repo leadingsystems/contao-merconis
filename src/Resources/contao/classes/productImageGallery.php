@@ -176,7 +176,10 @@ class productImageGallery extends \Frontend {
 
         // Get all images
         foreach ($this->multiSRC as $file) {
-            $this->ls_images[] = $this->processSingleImage($file);
+            $newImageToAdd = $this->processSingleImage($file);
+            if($newImageToAdd){
+                $this->ls_images[] = $this->processSingleImage($file);
+            }
         }
 
         // Sort array
@@ -236,9 +239,14 @@ class productImageGallery extends \Frontend {
         /** @var \PageModel $objPage */
         global $objPage;
 
-
+        //check if _cover is in name
         if (preg_match('/_cover/siU', $file)) {
-            return false;
+            $parts = explode("_cover.", $file);
+            //check of there is a image for this cover or not, if not then this will be used as a normal product image
+            if (!preg_match('/\.mp4/siU', $file) && file_exists(TL_ROOT.'/'.$parts[0].".mp4")) {
+                return false;
+
+            }
         }
 
         if (isset($this->ls_images[$file]) || !file_exists(TL_ROOT.'/'.$file)) {
