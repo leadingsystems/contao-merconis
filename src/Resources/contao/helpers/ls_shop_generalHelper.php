@@ -3565,6 +3565,7 @@ class ls_shop_generalHelper
      */
     public static function analyzeRequiredDataFields($formID, $arrData = array(), $considerDefaultFormFieldValues = false)
     {
+
         $objFormFields = \Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_form_field`
