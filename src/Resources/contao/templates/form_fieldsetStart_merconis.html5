@@ -1,8 +1,8 @@
 <fieldset
-    <?=$this->arrAttributes['data-lsjs-element'] ? " data-lsjs-element=".$this->arrAttributes['data-lsjs-element'] : "" ?>
-    <?=$this->arrAttributes['data-showoncondition-field'] != "" ? " data-showoncondition-field=".$this->arrAttributes['data-showoncondition-field'] : "" ?>
-    <?=$this->arrAttributes['data-showoncondition-value'] != "" ? " data-showoncondition-value=".$this->arrAttributes['data-showoncondition-value'] : "" ?>
-    <?=$this->arrAttributes['data-showoncondition-boolean'] != "" ? " data-showoncondition-boolean=".$this->arrAttributes['data-showoncondition-boolean'] : "" ?>
+    <?= ($this->arrAttributes['data-lsjs-element'] ?? null) ? " data-lsjs-element=".$this->arrAttributes['data-lsjs-element'] : "" ?>
+    <?= ($this->arrAttributes['data-showoncondition-field'] ?? "") != "" ? " data-showoncondition-field=".$this->arrAttributes['data-showoncondition-field'] : "" ?>
+    <?= ($this->arrAttributes['data-showoncondition-value'] ?? "") != "" ? " data-showoncondition-value=".$this->arrAttributes['data-showoncondition-value'] : "" ?>
+    <?= ($this->arrAttributes['data-showoncondition-boolean'] ?? "") != "" ? " data-showoncondition-boolean=".$this->arrAttributes['data-showoncondition-boolean'] : "" ?>
     <?php if ($this->class): ?> class="<?= $this->class ?>"<?php endif; ?>>
 
     <?php if ($this->label): ?>

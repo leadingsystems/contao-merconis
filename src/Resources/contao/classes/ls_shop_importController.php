@@ -1452,12 +1452,12 @@ class ls_shop_importController
 	protected function rowIsEmpty($row = array()) {
 		$empty = true;
 		if (is_array($row)) {
-		foreach ($row as $value) {
-			if ($value) {
-				$empty = false;
-				break;
-			}
-		}
+            foreach ($row as $value) {
+                if ($value) {
+                    $empty = false;
+                    break;
+                }
+            }
         }
 		return $empty;
 	}

@@ -16,6 +16,10 @@ if ($obj_tmp_productOrVariant !== null) {
     <div class="galleryContainer lsNavtabGalleryProductDetails">
         <?php
         foreach($obj_tmp_productOrVariant->getImageGallery()->getImages() as $image) {
+            if (!is_object($image)) {
+                continue;
+            }
+
             ?>
             <div class="imageContainer">
                 <a target="<?= (empty($image->originalSRC)) ?  '' : '_blank' ?>" class="<?= (empty($image->originalSRC)) ?  'lsjs-image-zoomer' : '' ?>" href="<?= (empty($image->originalSRC)) ?  $image->singleSRC : $image->originalSRC ?>" title="<?php echo $image->title ?>">
