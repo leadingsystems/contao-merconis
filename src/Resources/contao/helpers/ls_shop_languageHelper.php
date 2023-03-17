@@ -96,10 +96,12 @@ class ls_shop_languageHelper {
 		/*
 		 * Do not process this function if the DCA name is on the list of DCAs not to process
 		 */
-		$arr_dcaNamesNotToProcess = explode(',', $GLOBALS['TL_CONFIG']['ls_shop_dcaNamesWithoutMultilanguageSupport']);
-		if (in_array($str_dcaName, $arr_dcaNamesNotToProcess)) {
-			return;
-		}
+		if ($GLOBALS['TL_CONFIG']['ls_shop_dcaNamesWithoutMultilanguageSupport'] ?? null) {
+            $arr_dcaNamesNotToProcess = explode(',', $GLOBALS['TL_CONFIG']['ls_shop_dcaNamesWithoutMultilanguageSupport']);
+            if (in_array($str_dcaName, $arr_dcaNamesNotToProcess)) {
+                return;
+            }
+        }
 
 		self::determineExistingLanguages(true);
 
@@ -169,7 +171,7 @@ class ls_shop_languageHelper {
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeCompleteField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
-							'eval'					  => array('output' => '<div class="ls_shop_multilanguage_fieldsWrapper clr'.(!isset($arr_fieldDefinition['eval']['merconis_multilanguage_noTopLinedGroup']) || !$arr_fieldDefinition['eval']['merconis_multilanguage_noTopLinedGroup'] ? ' topLinedGroup' : '').(isset($arr_fieldDefinition['eval']['merconis_multilanguage_wrapperClass']) && $arr_fieldDefinition['eval']['merconis_multilanguage_wrapperClass'] ? ' '.$arr_fieldDefinition['eval']['merconis_multilanguage_wrapperClass'] : '').'"><h3><label'.($bln_tmp_fieldIsMandatory ? ' class="mandatory"' : '').'>'.$arr_tmpFieldLabel[0].($bln_tmp_fieldIsMandatory ? ' <span class="mandatory">*</span>' : '').'</label></h3><div class="ls_shop_multi_language">')
+							'eval'					  => array('output' => '<div class="ls_shop_multilanguage_fieldsWrapper clr'.(!($arr_fieldDefinition['eval']['merconis_multilanguage_noTopLinedGroup'] ?? null) ? ' topLinedGroup' : '').(($arr_fieldDefinition['eval']['merconis_multilanguage_wrapperClass'] ?? null) ? ' '.$arr_fieldDefinition['eval']['merconis_multilanguage_wrapperClass'] : '').'"><h3><label'.(($bln_tmp_fieldIsMandatory ?? null) ? ' class="mandatory"' : '').'>'.($arr_tmpFieldLabel[0] ?? '').($bln_tmp_fieldIsMandatory ? ' <span class="mandatory">*</span>' : '').'</label></h3><div class="ls_shop_multi_language">')
 						);
 					}
 
@@ -243,7 +245,7 @@ class ls_shop_languageHelper {
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputAfterCompleteField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
-							'eval'					  => array('output' => '</div>'.($arr_tmpFieldLabel[1] ? '<p class="tl_help tl_tip">'.$arr_tmpFieldLabel[1].'</p>' : '').'</div>')
+							'eval'					  => array('output' => '</div>'.(($arr_tmpFieldLabel[1] ?? null) ? '<p class="tl_help tl_tip">'.$arr_tmpFieldLabel[1].'</p>' : '').'</div>')
 						);
 					}
 				}
@@ -268,6 +270,9 @@ class ls_shop_languageHelper {
 				$str_fieldLanguage = self::getLanguageFromMultilanguageFieldKey($str_newFieldKey);
 
 				// Adding classes to mark this field as multilanguage and to set the specific language
+                if (!($arr_newFieldDefinition['eval']['tl_class'] ?? null)) {
+                    $arr_newFieldDefinition['eval']['tl_class'] = '';
+                }
 				$arr_newFieldDefinition['eval']['tl_class'] .= ' merconis_multilanguage '.$str_fieldLanguage;
 
 				/*
@@ -369,7 +374,7 @@ class ls_shop_languageHelper {
 				}
 			}
 
-			if (is_array($GLOBALS['TL_DCA'][$str_dcaName]['subpalettes'])) {
+			if (is_array($GLOBALS['TL_DCA'][$str_dcaName]['subpalettes'] ?? null)) {
 				foreach ($GLOBALS['TL_DCA'][$str_dcaName]['subpalettes'] as $str_paletteKey => $str_palette) {
 					$GLOBALS['TL_DCA'][$str_dcaName]['subpalettes'][$str_paletteKey] = preg_replace('/\b'.preg_quote($str_fieldKey).'\b/', $str_paletteRepresentationOfNewFields, $str_palette);
 				}
@@ -929,7 +934,7 @@ class ls_shop_languageHelper {
 			 * Prüfen, ob es eine zur Sprache passende Seite gibt. Wenn ja,
 			 * die ID dieser Seite verwenden, falls nicht, Fallback-ID verwenden.
 			 */
-			if (isset($GLOBALS['TL_CONFIG'][$key][$objPage->language]) && $GLOBALS['TL_CONFIG'][$key][$objPage->language]) {
+			if ($GLOBALS['TL_CONFIG'][$key][$objPage->language ?? ''] ?? null) {
 				$pageID = $GLOBALS['TL_CONFIG'][$key][$objPage->language];
 			} else {
 				$pageID = $pageFallbackID;
@@ -942,10 +947,8 @@ class ls_shop_languageHelper {
 
 			if ($objLanguagePage->numRows) {
 				$GLOBALS['merconis_globals'][$key.'Array'] = $objLanguagePage->row();
-
-                $pageModule = PageModel::findWithDetails($GLOBALS['merconis_globals'][$key.'Array']['id']);
-                $GLOBALS['merconis_globals'][$key.'Url'] = $pageModule->getFrontendUrl();
-
+                $pageModel = PageModel::findWithDetails($GLOBALS['merconis_globals'][$key.'Array']['id']);
+                $GLOBALS['merconis_globals'][$key.'Url'] = $pageModel->getFrontendUrl();
 			}
 
 			$GLOBALS['merconis_globals'][$key.'ID'] = $pageID;

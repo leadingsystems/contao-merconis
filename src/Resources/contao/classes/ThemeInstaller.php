@@ -25,7 +25,7 @@ class ThemeInstaller
     /*
      * Prevent cloning of the object (Singleton)
      */
-    final private function __clone()
+    private function __clone()
     {
     }
 

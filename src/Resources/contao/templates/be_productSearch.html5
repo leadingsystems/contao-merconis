@@ -11,7 +11,9 @@
 		  if (version_compare(VERSION . '.' . BUILD, '3.3.0', '<')) {
 			  $objCombiner->add('assets/mootools/datepicker/'.DATEPICKER.'/dashboard.css');
 		  } else {
-			  $objCombiner->add('assets/mootools/datepicker/'. $GLOBALS['TL_ASSETS']['DATEPICKER'] .'/datepicker.css', $GLOBALS['TL_ASSETS']['DATEPICKER']);
+		      if (isset($GLOBALS['TL_ASSETS'])) {
+                  $objCombiner->add('assets/mootools/datepicker/' . $GLOBALS['TL_ASSETS']['DATEPICKER'] . '/datepicker.css', $GLOBALS['TL_ASSETS']['DATEPICKER']);
+              }
 		  }
 		  echo $objCombiner->getCombinedFile();
 		?>" media="all">
@@ -31,11 +33,13 @@
 			  $objCombiner->add('assets/contao/js/core.js');
 			  $objCombiner->add('assets/mootools/mootao/Mootao.js');
 		  } else {
-			  $objCombiner->add('assets/mootools/core/' . $GLOBALS['TL_ASSETS']['MOOTOOLS'] . '/mootools.js', $GLOBALS['TL_ASSETS']['MOOTOOLS']);
-			  $objCombiner->add('assets/mootools/core/' . $GLOBALS['TL_ASSETS']['MOOTOOLS'] . '/mootools-more.js', $GLOBALS['TL_ASSETS']['MOOTOOLS']);
-			  $objCombiner->add('assets/mootools/datepicker/'. $GLOBALS['TL_ASSETS']['DATEPICKER'] .'/datepicker.js', $GLOBALS['TL_ASSETS']['DATEPICKER']);
-			  $objCombiner->add('assets/mootools/mootao/Mootao.js');
-			  $objCombiner->add('assets/contao/js/core.js');
+             if (isset($GLOBALS['TL_ASSETS'])) {
+                $objCombiner->add('assets/mootools/core/' . $GLOBALS['TL_ASSETS']['MOOTOOLS'] . '/mootools.js', $GLOBALS['TL_ASSETS']['MOOTOOLS']);
+                $objCombiner->add('assets/mootools/core/' . $GLOBALS['TL_ASSETS']['MOOTOOLS'] . '/mootools-more.js', $GLOBALS['TL_ASSETS']['MOOTOOLS']);
+                $objCombiner->add('assets/mootools/datepicker/' . $GLOBALS['TL_ASSETS']['DATEPICKER'] . '/datepicker.js', $GLOBALS['TL_ASSETS']['DATEPICKER']);
+             }
+			 $objCombiner->add('assets/mootools/mootao/Mootao.js');
+			 $objCombiner->add('assets/contao/js/core.js');
 		  }
 		  $objCombiner->add('system/themes/'. $this->theme .'/hover.js');
 		  echo $objCombiner->getCombinedFile();

@@ -89,7 +89,7 @@ class ls_shop_checkoutData {
 	/**
 	 * Prevent cloning of the object (Singleton)
 	 */
-	final private function __clone() {}
+	private function __clone() {}
 
 	/**
 	 * Return the current object instance (Singleton)
