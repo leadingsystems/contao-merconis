@@ -309,6 +309,14 @@ class ls_shop_variant
 
                 if ($this->_hasCustomizer) {
                     $str_cartKey = $this->ls_productVariantID . '_' . ($this->obj_customizer->getCustomizerHash() ?: 'no-customization');
+
+                    //Im Spezialfall (Variante mit gemeinsamem Customizer) darf der _cartKey nicht 6571_17234_[HASH] lauten, sondern eher 6571_[HASH] - die Varianten-ID ist sicherlich falsch
+                    if (!($this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile))) {
+                        $str_cartKey = $this->ls_productID . '_' . ($this->obj_customizer->getCustomizerHash() ?: 'no-customization');
+                    } else {
+                        $str_cartKey = $this->ls_productVariantID . '_' . ($this->obj_customizer->getCustomizerHash() ?: 'no-customization');
+                    }
+
                 } else if ($this->_objParentProduct->_hasConfigurator) {
                     $str_cartKey = $this->_objParentProduct->_configuratorCartKey;
                 }
