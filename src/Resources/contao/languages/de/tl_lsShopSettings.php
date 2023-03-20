@@ -97,6 +97,10 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ignoreGroupRestrictionsInSearch'] = array('Gruppeneinschränkungen in Suche ignorieren', 'Gibt es keine Produkte mit Gruppeneinschränkungen, so kann es die Suchperformance verbessern, wenn dieses Suchkriterium vollständig ignoriert wird. Falls diese Einstellung gewählt wird, es aber doch Produkte mit Gruppeneinschränkungen gibt, so werden diese Produkte gefunden aber dennoch nicht dargestellt. Stattdessen entstehen Lücken in ausgegebenen Produktlisten.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_alwaysAddIdToAliasDuringProductImport'] = array('Bei Produkt-Import Alias immer mit ID ergänzen', 'Mit dieser Einstellung wird beim Produkt-Import auf die Eindeutigkeitsprüfung von Aliasen verzichtet und damit ein deutlicher Performance-Vorteil erreicht. Die Eindeutigkeit wird hierbei durch das automatische Anhängen der internen Produkt-ID an den Alias erreicht.');
 
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'] = array('Standard-Abfragetyp bei der Produktsuche', 'Bitte wählen Sie den Abfragetyp aus. \'Finde alle Wörter\', findet nur Produkte, die alle gesuchten Begriffe enthalten. \'Finde irgendein Wort\', findet alle Produkte, die einen der Suchbegriffe enthalten.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Aktiviere Eingabefeld für und/oder Suche', 'Mit dieser Option aktivieren Sie das Eingabefeld für den Abfragetyp bei der Produktsuche.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug Modus für die Treffer-Gewichtung bei Produktsuche', '<em>Ausgabe ist nur verfügbar, wenn als Backend-User eingeloggt</em>. Schaltet die Ausgabe der Gewichtung bei der Produktsuche ein. Sie erhalten so Rückmeldung wie ein einzelner Suchtreffer und dessen Metadaten bei der Suche gewichtet wurde.');
+
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] = array('Produktbezeichnung: Ganzer Suchtext entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] = array('Schlüsselwörter: Ganzer Suchtext entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_shortDescription'] = array('Kurzbeschreibung: Ganzer Suchtext entspricht komplettem Feldwert');
@@ -218,4 +222,8 @@
 		'withLogin' => array('Mit Login', 'Wählen Sie diese Option, wenn Sie den Abschluss der Bestellung nur für angemeldete Besucher ermöglichen wollen.'),
 		'withoutLogin' => array('Ohne Login', 'Wählen Sie diese Option, wenn Sie den Abschluss der Bestellung für nicht angemeldete Besucher ermöglichen und auch keine Login-Möglichkeit bei der Bestellung anbieten wollen.'),
 		'both' => array('Mit und ohne Login', 'Wählen Sie diese Option, wenn Sie den Abschluss der Bestellung für angemeldete und nicht angemeldete Besucher ermöglichen wollen und hierfür bei der Bestellung eine entsprechende Login-Möglichkeit angeboten werden soll.')
-	);	
+	);
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType']['options'] = array(
+        'And-Search' => 'Finde alle Wörter',
+        'Or-Search' => 'Finde irgendein Wort'
+    );
