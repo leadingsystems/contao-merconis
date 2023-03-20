@@ -78,7 +78,7 @@ class ls_shop_productSearcher
             ls_shop_filterController::getInstance()->processSentFilterSettings();
         }
 
-        $this->bln_searchWeighting_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug'];
+        $this->bln_searchWeighting_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug'] && \System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
         $this->bln_andSearch = isset($GLOBALS['TL_CONFIG']['ls_shop_searchType']) ? $GLOBALS['TL_CONFIG']['ls_shop_searchType'] : false;
     }
 
