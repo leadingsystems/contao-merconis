@@ -100,7 +100,7 @@
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'] = array('Standard-Abfragetyp bei der Produktsuche', 'Bitte wählen Sie den Abfragetyp aus. \'Finde alle Wörter\', findet nur Produkte, die alle gesuchten Begriffe enthalten. \'Finde irgendein Wort\', findet alle Produkte, die einen der Suchbegriffe enthalten.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Aktiviere Eingabefeld für und/oder Suche', 'Mit dieser Option aktivieren Sie das Eingabefeld für den Abfragetyp bei der Produktsuche.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug Modus für die Treffer-Gewichtung bei Produktsuche', 'Schaltet die Ausgabe der Gewichtung bei der Produktsuche ein. Sie erhalten so Rückmeldung wie ein einzelner Suchtreffer und dessen Metadaten bei der Suche gewichtet wurde.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug Modus für die Treffer-Gewichtung bei Produktsuche', '<em>Ausgabe ist nur verfügbar, wenn als Backend-User eingeloggt</em>. Schaltet die Ausgabe der Gewichtung bei der Produktsuche ein. Sie erhalten so Rückmeldung wie ein einzelner Suchtreffer und dessen Metadaten bei der Suche gewichtet wurde.');
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] = array('Produktbezeichnung: Ganzer Suchtext entspricht komplettem Feldwert');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] = array('Schlüsselwörter: Ganzer Suchtext entspricht komplettem Feldwert');

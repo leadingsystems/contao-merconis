@@ -674,7 +674,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'],
             'inputType' => 'checkbox',
-            'eval' => array('tl_class'=>'clr w50')
+            'eval' => array('tl_class'=>'clr w50 m12')
         ),
 
 
@@ -682,7 +682,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'],
             'inputType' => 'checkbox',
-            'eval' => array('tl_class'=>'w50')
+            'eval' => array('tl_class'=>'w50 m12')
         ),
 
 

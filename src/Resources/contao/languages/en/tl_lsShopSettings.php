@@ -100,7 +100,7 @@
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'] = array('Default query type for product search', 'Please select the query type. \'Match all words\', finds only products that contain all the searched terms. \'Match any word\', finds all products that contain one of the search terms.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Enable input field for and/or search', 'With this option you activate the input field for the query type in the product search.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug mode for product search hit weighting', 'Switches on the output of the weighting during the product search. This gives you feedback on how an individual search hit and its metadata were weighted during the search.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug mode for product search hit weighting', '<em>Output is only available when logged in as backend user.</em> Switches on the output of the weighting during the product search. This gives you feedback on how an individual search hit and its metadata were weighted during the search.');
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] = array('Product designation: Entire search text matches complete field value');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] = array('Keywords: Entire search text matches complete field value');
