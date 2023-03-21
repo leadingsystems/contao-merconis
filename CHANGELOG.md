@@ -1,6 +1,13 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.8 (2023-03-21)
+ * Fix product image gallery when images are assigned directly
+ * fix ls_getRecommendedProductsSelection() if ->lsShopProductRecommendedProducts == NULL
+ * Improve product search
+ * Webp support for product images
+ * Some fixes
+
 ### 5.0.7 (2023-02-28)
  * Fix: use the main product image if no image is available for the product variant
  * Improve login-switch in checkout
