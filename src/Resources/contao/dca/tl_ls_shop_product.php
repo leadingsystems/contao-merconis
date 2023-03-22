@@ -654,9 +654,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'		=> 'select',
 			'options_callback'	=> array('Merconis\Core\ls_shop_generalHelper','getNonDynamicSteuersatzOptions'),
-			'eval'			=> array('tl_class' => 'w50'),
+			'eval'			=> array('tl_class' => 'w50', 'includeBlankOption'=>true, 'mandatory' => true),
 			'filter'		=> true,
-            'sql'                     => "int(10) unsigned NOT NULL default '1'"
+            'sql'                     => "int(10) unsigned NULL"
 		),
 
 		'lsShopProductWeight' => array(
