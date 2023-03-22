@@ -78,10 +78,27 @@ class productImageGallery extends \Frontend {
 
         $this->Template->images = array();
 
-
         $this->lsShopGetProcessedImages();
 
+        if(!$this->ls_images && !$this->mainImageSRC && $obj_productOrVariant->_objectType === 'variant'){
+            $str_mainImageKey = 'lsShopProductMainImage';
 
+            $mainImageSRC = isset($obj_productOrVariant->_objParentProduct->mainData[$str_mainImageKey]) && $obj_productOrVariant->_objParentProduct->mainData[$str_mainImageKey] ? ls_getFilePathFromVariableSources($obj_productOrVariant->_objParentProduct->mainData[$str_mainImageKey]) : null;
+
+            $this->mainImageSRC = $mainImageSRC;
+
+            $str_moreImagesKey = 'lsShopProductMoreImages';
+            $multiSRC = ls_shop_generalHelper::getAllProductImages($obj_productOrVariant->_objParentProduct, $obj_productOrVariant->_objParentProduct->_code, null, $obj_productOrVariant->_objParentProduct->mainData[$str_moreImagesKey]);
+
+            if (!is_array($multiSRC)) {
+                $multiSRC = array();
+            }
+
+            $this->multiSRC = $multiSRC;
+
+            $this->lsShopGetProcessedImages();
+        }
+        
     }
 
     //returns the MainImage
@@ -101,9 +118,13 @@ class productImageGallery extends \Frontend {
     //returns All Images MainImage+MoreImages
     public function getImages(){
         $arrImg = $this->ls_images;
-        if (!$this->hasMoreImages() && !empty($this->mainImageSRC)) {
+        if ($this->hasMoreImages() && !empty($this->mainImageSRC)) {
             array_unshift($arrImg, $this->getMainImage());
         }
+        else if (!$this->hasMoreImages()) {
+            array_unshift($arrImg, $this->getMainImage());
+        }
+
         if ($this->ls_imageLimit) {
             $arrImg = array_slice($arrImg, 0, $this->ls_imageLimit);
         }
