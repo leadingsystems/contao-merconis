@@ -13,7 +13,6 @@ use function LeadingSystems\Helpers\ls_sub;
 use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
-use function LeadingSystems\Helpers\lsErrorLog;
 
 class ls_shop_generalHelper
 {

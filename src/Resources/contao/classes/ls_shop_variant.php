@@ -8,7 +8,6 @@ use function LeadingSystems\Helpers\ls_sub;
 use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
-use function LeadingSystems\Helpers\lsErrorLog;
 
 class ls_shop_variant
 {
@@ -248,19 +247,13 @@ class ls_shop_variant
                 if(is_object($this->obj_customizer)){
                     return $this->obj_customizer;
                 }
-                if(is_object($this->_objParentProduct->obj_customizer)){
-                    return $this->_objParentProduct->obj_customizer;
+                if(is_object($this->_objParentProduct->_customizer)){
+                    return $this->_objParentProduct->_customizer;
                 }
                 return null;
 
             case '_hasCustomizer':
-                if(is_object($this->obj_customizer)){
-                    return is_object($this->obj_customizer);
-                }
-                if(is_object($this->_objParentProduct->obj_customizer)){
-                    return is_object($this->_objParentProduct->obj_customizer);
-                }
-                return null;
+                return is_object($this->_customizer);
 
 			case '_isPublished':
 				return $this->mainData['published'] ? true : false;

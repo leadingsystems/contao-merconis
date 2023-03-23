@@ -1,7 +1,6 @@
 <?php
 
 namespace Merconis\Core;
-use function LeadingSystems\Helpers\lsErrorLog;
 
 abstract class customizer {
     /**
