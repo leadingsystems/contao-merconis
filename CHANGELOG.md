@@ -1,6 +1,7 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+
 ### 5.0.8 (2023-03-21)
  * Fix product image gallery when images are assigned directly
  * fix ls_getRecommendedProductsSelection() if ->lsShopProductRecommendedProducts == NULL
