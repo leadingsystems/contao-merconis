@@ -69,16 +69,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 	),
 	
 	'palettes' => array(
-/*
- * FIXME:
- * Die Produktauswahl ist schon vorbereitet, aktuell aber nicht aktiviert, da die Verarbeitung einer Produkt-Auswahl
- * noch nicht realisiert ist.
- */
-//		'__selector__' => array('productSelectionType'),
-		'__selector__' => array('limitNumAvailable'),
-// 		'default' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType',
-		'default' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,description,minimumOrderValue,allowedForGroups,start,stop;{numAvailable_legend},limitNumAvailable',
-/*		'noSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType',
+
+		'__selector__' => array('productSelectionType'),
+		'default' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,description,minimumOrderValue,allowedForGroups,start,stop;{numAvailable_legend},limitNumAvailable;{productSelectionType_legend},productSelectionType',
+		'noSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType',
 		'directSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType;{directSelection_legend},productDirectSelection',
 		'searchSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType;{searchSelection_legend},
 									groupStartSearchSelectionNewProduct,
@@ -115,7 +109,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 									activateSearchSelectionTags,
 									searchSelectionTags,
 									groupStopSearchSelectionTags'
- */
+
 	),
 	
 	'subpalettes' => array(
@@ -130,73 +124,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
         ),
 
-        'productSelectionType' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-
         'maxNumProducts' => array (
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
         ),
 
-        'productDirectSelection' => array (
-            'sql'                     => "blob NULL"
-        ),
-
-        'activateSearchSelectionNewProduct' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionNewProduct' => array (
-            'sql'                     => "varchar(64) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionSpecialPrice' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionSpecialPrice' => array (
-            'sql'                     => "varchar(64) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionCategory' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionCategory' => array (
-            'sql'                     => "blob NULL"
-        ),
-
-        'activateSearchSelectionProducer' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionProducer' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionProductName' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionProductName' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionArticleNr' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionArticleNr' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-
-        'activateSearchSelectionTags' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'searchSelectionTags' => array (
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
 		'title' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['title'],
 			'exclude' => true,
@@ -328,10 +259,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
-
-		
-		/* *
-		,
 		'productSelectionType' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productSelectionType'],
 			'default'                 => 'directSelection',
@@ -341,201 +268,185 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productSelectionType']['options'],
 			'eval'					  => array('helpwizard' => true, 'submitOnChange' => true)
 		),
-		
-		'productDirectSelection' => array(
-			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productDirectSelection'],
-			'exclude' => true,
-			'inputType'		=>	'ls_shop_productSelectionWizard',
-			'eval'			=> array('tl_class'=>'clr')
-		),
-		
 
-		
-		'groupStartSearchSelectionNewProduct' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionNewProduct'].'</h3>')
-		),
-		
-		'groupStopSearchSelectionNewProduct' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
-		),
-		
-		'activateSearchSelectionNewProduct' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
-			'exclude' => true,
-			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
-		),
-		
-		'searchSelectionNewProduct' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionNewProduct'],
-			'exclude' => true,
-			'inputType'               => 'select',
-			'options'				  => array('new', 'notNew'),
-			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionNewProduct']['options'],
-			'eval'					  => array('tl_class' => 'w50')
-		),
+        'productDirectSelection' => array(
+            'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productDirectSelection'],
+            'exclude' => true,
+            'inputType'		=>	'ls_shop_productSelectionWizard',
+            'eval'			=> array('tl_class'=>'clr')
+        ),
 
+        'groupStartSearchSelectionNewProduct' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionNewProduct'].'</h3>')
+        ),
 
-		
-		'groupStartSearchSelectionSpecialPrice' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionSpecialPrice'].'</h3>')
-		),
-		
-		'groupStopSearchSelectionSpecialPrice' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
-		),
-		
-		'activateSearchSelectionSpecialPrice' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
-			'exclude' => true,
-			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
-		),
-		
-		'searchSelectionSpecialPrice' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionSpecialPrice'],
-			'exclude' => true,
-			'inputType'               => 'select',
-			'options'				  => array('specialPrice', 'noSpecialPrice'),
-			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionSpecialPrice']['options'],
-			'eval'					  => array('tl_class' => 'w50')
-		),
-		
-		
-		
-		'groupStartSearchSelectionCategory' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionCategory'].'</h3><p>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['subHeadlineSearchSelectionCategory'].'</p>')
-		),
-		
-		'groupStopSearchSelectionCategory' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
-		),
-		
-		'activateSearchSelectionCategory' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
-			'exclude' => true,
-			'inputType'               => 'checkbox'
-		),
-		
-		'searchSelectionCategory' => array(
-			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionCategory'],
-			'exclude' => true,
-			'inputType'               => 'pageTree',
-			'eval'                    => array('fieldType'=>'checkbox'),
-		),
-		
-		
-		
-		'groupStartSearchSelectionProducer' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionProducer'].'</h3>')
-		),
-		
-		'groupStopSearchSelectionProducer' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
-		),
-		
-		'activateSearchSelectionProducer' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
-			'exclude' => true,
-			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
-		),
-		
-		'searchSelectionProducer' => array(
-			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionProducer'],
-			'exclude' => true,
-			'inputType' => 'text',
-			'eval' => array('maxlength' => 255),
-			'eval'					  => array('tl_class' => 'w50')
-		),
-		
-		
-		
-		'groupStartSearchSelectionProductName' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionProductName'].'</h3>')
-		),
-		
-		'groupStopSearchSelectionProductName' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
-		),
-		
-		'activateSearchSelectionProductName' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
-			'exclude' => true,
-			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
-		),
-		
-		'searchSelectionProductName' => array(
-			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionProductName'],
-			'exclude' => true,
-			'inputType' => 'text',
-			'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
-		),
-		
-		
-		
-		'groupStartSearchSelectionArticleNr' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionArticleNr'].'</h3>')
-		),
-		
-		'groupStopSearchSelectionArticleNr' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
-		),
-		
-		'activateSearchSelectionArticleNr' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
-			'exclude' => true,
-			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
-		),
-		
-		'searchSelectionArticleNr' => array(
-			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionArticleNr'],
-			'exclude' => true,
-			'inputType' => 'text',
-			'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
-		),
-		
-		
-		
-		'groupStartSearchSelectionTags' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionTags'].'</h3>')
-		),
-		
-		'groupStopSearchSelectionTags' => array(
-			'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
-			'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
-		),
-		
-		'activateSearchSelectionTags' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
-			'exclude' => true,
-			'inputType'               => 'checkbox',
-			'eval'					  => array('tl_class' => 'w50')
-		),
-		
-		'searchSelectionTags' => array(
-			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionTags'],
-			'exclude' => true,
-			'inputType' => 'text',
-			'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
-		)
-			
-		/* */
+        'groupStopSearchSelectionNewProduct' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
+        ),
+
+        'activateSearchSelectionNewProduct' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'					  => array('tl_class' => 'w50')
+        ),
+
+        'searchSelectionNewProduct' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionNewProduct'],
+            'exclude' => true,
+            'inputType'               => 'select',
+            'options'				  => array('new', 'notNew'),
+            'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionNewProduct']['options'],
+            'eval'					  => array('tl_class' => 'w50')
+        ),
+
+        'groupStartSearchSelectionSpecialPrice' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionSpecialPrice'].'</h3>')
+        ),
+
+        'groupStopSearchSelectionSpecialPrice' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
+        ),
+
+        'activateSearchSelectionSpecialPrice' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'					  => array('tl_class' => 'w50')
+        ),
+
+        'searchSelectionSpecialPrice' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionSpecialPrice'],
+            'exclude' => true,
+            'inputType'               => 'select',
+            'options'				  => array('specialPrice', 'noSpecialPrice'),
+            'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionSpecialPrice']['options'],
+            'eval'					  => array('tl_class' => 'w50')
+        ),
+
+        'groupStartSearchSelectionCategory' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionCategory'].'</h3><p>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['subHeadlineSearchSelectionCategory'].'</p>')
+        ),
+
+        'groupStopSearchSelectionCategory' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
+        ),
+
+        'activateSearchSelectionCategory' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
+            'exclude' => true,
+            'inputType'               => 'checkbox'
+        ),
+
+        'searchSelectionCategory' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionCategory'],
+            'exclude' => true,
+            'inputType'               => 'pageTree',
+            'eval'                    => array('fieldType'=>'checkbox'),
+        ),
+
+        'groupStartSearchSelectionProducer' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionProducer'].'</h3>')
+        ),
+
+        'groupStopSearchSelectionProducer' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
+        ),
+
+        'activateSearchSelectionProducer' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'					  => array('tl_class' => 'w50')
+        ),
+
+        'searchSelectionProducer' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionProducer'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('maxlength' => 255),
+            'eval'					  => array('tl_class' => 'w50')
+        ),
+
+        'groupStartSearchSelectionProductName' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionProductName'].'</h3>')
+        ),
+
+        'groupStopSearchSelectionProductName' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
+        ),
+
+        'activateSearchSelectionProductName' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'					  => array('tl_class' => 'w50')
+        ),
+
+        'searchSelectionProductName' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionProductName'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
+        ),
+
+        'groupStartSearchSelectionArticleNr' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionArticleNr'].'</h3>')
+        ),
+
+        'groupStopSearchSelectionArticleNr' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
+        ),
+
+        'activateSearchSelectionArticleNr' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'					  => array('tl_class' => 'w50')
+        ),
+
+        'searchSelectionArticleNr' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionArticleNr'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
+        ),
+
+        'groupStartSearchSelectionTags' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputBefore' => '<div class="ls_shop_beSubGroup"><div>', 'output' => '<h3>'.$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionTags'].'</h3>')
+        ),
+
+        'groupStopSearchSelectionTags' => array(
+            'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'simpleHTMLOutputForBE'),
+            'eval'					  => array('outputAfter' => '<div class="clearFloat"></div></div></div>')
+        ),
+
+        'activateSearchSelectionTags' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'					  => array('tl_class' => 'w50')
+        ),
+
+        'searchSelectionTags' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionTags'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
+        )
 	)
 );
 

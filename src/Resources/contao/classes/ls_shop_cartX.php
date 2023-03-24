@@ -273,7 +273,7 @@ class ls_shop_cartX {
 		$this->calculation['items'] = $this->getCalculatedItems();
 		$this->calculation['totalValueOfGoods'] = $this->getTotalValueOfGoods($this->calculation['items']);
 		$this->calculation['totalWeightOfGoods'] = $this->getTotalWeightOfGoods($this->calculation['items']);
-		$this->calculation['couponValues'] = $this->getCouponValues($this->calculation['totalValueOfGoods']);
+		$this->calculation['couponValues'] = $this->getCouponValues($this->getTotalValueOfGoodsForCoupon($this->calculation['items']));
 		$this->calculation['shippingFee'] = $this->getShippingFee();
 		$this->calculation['paymentFee'] = $this->getPaymentFee();
 		$this->calculation['total'] = $this->getTotal();
@@ -386,7 +386,6 @@ class ls_shop_cartX {
 				if ($sumOfSplitCouponParts != $couponValue) {
 					$arrCouponValues[$couponID][$tmpFirstTaxClassID] = $arrCouponValues[$couponID][$tmpFirstTaxClassID] + ($couponValue - $sumOfSplitCouponParts);
 				}
-				/* */
 			}			
 		}
 		return $arrCouponValues;
@@ -410,6 +409,44 @@ class ls_shop_cartX {
 		
 		return $arrTotalValueOfGoods;
 	}
+
+    protected function getTotalValueOfGoodsForCoupon($arrItems) {
+
+        ls_shop_cartHelper::revalidateCouponsUsed();
+        $this->getCouponsUsed();
+
+        $arrTotalValueOfGoods = array();
+
+        /*
+         * sum all cumulative item values without concerning about tax classes in array key 0
+         * and separated by tax classes in the array keys with the tax class ids
+         */
+        $arrTotalValueOfGoods[0] = 0;
+        foreach ($arrItems as $item) {
+            if(ls_shop_cartX::isCouponValidforProduct($item['productVariantID'], $this->couponsUsed[1])) {
+                $arrTotalValueOfGoods[0] = $arrTotalValueOfGoods[0] + $item['priceCumulative'];
+                if (!isset($arrTotalValueOfGoods[$item['taxClass']])) {
+                    $arrTotalValueOfGoods[$item['taxClass']] = 0;
+                }
+                $arrTotalValueOfGoods[$item['taxClass']] = $arrTotalValueOfGoods[$item['taxClass']] + $item['priceCumulative'];
+            }
+        }
+
+        return $arrTotalValueOfGoods;
+    }
+
+    public static function isCouponValidforProduct($variantId, $coupon) {
+
+        $result = explode("-", $variantId);
+        $productId = $result[0];
+
+        foreach ($coupon['useableProducts'] as $couponProductId) {
+            if($productId === $couponProductId){
+                return true;
+            }
+        }
+        return false;
+    }
 	
 	protected function getTotalWeightOfGoods($arrItems) {
 		$totalWeightOfGoods = 0;

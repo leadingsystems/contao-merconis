@@ -570,8 +570,94 @@ class ls_shop_cartHelper {
 		$couponInfo['extendedInfo'] = $objCoupon->row();
 		$couponInfo['extendedInfo']['discountOutput'] = '- '.($objCoupon->couponValueType == 'percentaged' ? $objCoupon->couponValue.' %' : ls_shop_generalHelper::outputPrice($objCoupon->couponValue));
 
+        switch ($couponInfo['extendedInfo']['productSelectionType']) {
+            case 'directSelection':
+
+                // $arrProducts available directly
+                $productDirectSelectionId = ls_shop_cartHelper::ls_getDirectSelection($couponInfo['extendedInfo']['productDirectSelection']);
+                $arrSearchCriteria = array('id' => $productDirectSelectionId[0]);
+                $objProductSearch = new ls_shop_productSearcher();
+
+                foreach ($arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
+                    $objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+                }
+                $objProductSearch->search();
+                $arrProducts = $objProductSearch->productResultsCurrentPage;
+                $couponInfo['useableProducts'] = $arrProducts;
+                break;
+            case 'searchSelection':
+                // search criteria available
+                $arrSearchCriteria = ls_shop_cartHelper::ls_getSearchSelection($couponInfo['extendedInfo']);
+                $objProductSearch = new ls_shop_productSearcher();
+
+                foreach ($arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
+                    $objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+                }
+                $objProductSearch->search();
+                $arrProducts = $objProductSearch->productResultsCurrentPage;
+                $couponInfo['useableProducts'] = $arrProducts;
+                break;
+        }
+
 		return $couponInfo;
 	}
+
+    public static function ls_getDirectSelection($productDirectSelection) {
+        $arrProducts = deserialize($productDirectSelection);
+        if (count($arrProducts) == 1 && !$arrProducts[0]) {
+            $arrProducts = array();
+        }
+        return $arrProducts;
+    }
+
+    public static function ls_getSearchSelection($couponInfo) {
+        /** @var \PageModel $objPage */
+        global $objPage;
+        /*
+         * Erstellung des Suchkriterien-Arrays für productSearcher
+         */
+        $arrSearchCriteria = array('published' => '1');
+
+        if ($couponInfo['activateSearchSelectionNewProduct']) {
+            $arrSearchCriteria['lsShopProductIsNew'] = $couponInfo['searchSelectionNewProduct'] == 'new' ? '1' : '';
+        }
+
+        if ($couponInfo['activateSearchSelectionSpecialPrice']) {
+            $arrSearchCriteria['lsShopProductIsOnSale'] = $couponInfo['searchSelectionSpecialPrice'] == 'specialPrice' ? '1' : '';
+        }
+
+        if ($couponInfo['activateSearchSelectionCategory']) {
+            $pageIDs = deserialize($couponInfo['searchSelectionCategory']);
+            if (!is_array($pageIDs)) {
+                $pageIDs = array();
+            }
+            if (!count($pageIDs)) {
+                $pageIDs = array(ls_shop_languageHelper::getMainlanguagePageIDForPageID($objPage->id));
+            }
+            $arrSearchCriteria['pages'] = $pageIDs;
+        }
+
+        if ($couponInfo['activateSearchSelectionProducer']) {
+            $arrSearchCriteria['lsShopProductProducer'] = $couponInfo['searchSelectionProducer'];
+        }
+
+        if ($couponInfo['activateSearchSelectionProductName']) {
+            $arrSearchCriteria['title'] = $couponInfo['searchSelectionProductName'];
+        }
+
+        if ($couponInfo['activateSearchSelectionArticleNr']) {
+            $arrSearchCriteria['lsShopProductCode'] = $couponInfo['searchSelectionArticleNr'];
+        }
+
+        if ($couponInfo['activateSearchSelectionTags']) {
+            $arrSearchCriteria['keywords'] = $couponInfo['searchSelectionTags'];
+        }
+        /*
+         * Ende Erstellung des Suchkriterien-Arrays für productSearcher
+         */
+
+        return $arrSearchCriteria;
+    }
 
 	/**
 	 * Diese Funktion prüft aktuell im Warenkorb hinterlegte Gutscheine daraufhin, ob sie
