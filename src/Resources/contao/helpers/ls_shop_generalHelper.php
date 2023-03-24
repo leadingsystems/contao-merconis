@@ -2138,7 +2138,8 @@ logge($obj_productOrVariant->_productVariantID);
 
         if ($bol_storageFromParent) {
 
-            $str_storageKeyParent = $obj_productOrVariant->ls_productID . ($obj_productOrVariant->_configuratorHash ? '_' . $obj_productOrVariant->_configuratorHash : '');
+        #$str_storageKeyParent = $obj_productOrVariant->ls_productID . ($obj_productOrVariant->_configuratorHash ? '_' . $obj_productOrVariant->_configuratorHash : '');
+        $str_storageKeyParent = $obj_productOrVariant->ls_productID;
 
             if (isset($GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent])) {
                 $obj_storageFromParent = $GLOBALS['merconis_globals']['customizerObjectsMemory'][$str_storageKeyParent];
