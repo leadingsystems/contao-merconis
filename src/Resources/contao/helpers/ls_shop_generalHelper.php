@@ -2647,7 +2647,13 @@ class ls_shop_generalHelper
                         if ($objPageForProduct->domain != '') {
                             $domain = (\Environment::get('ssl') ? 'https://' : 'http://') . $objPageForProduct->domain . TL_PATH . '/';
                         }
-                        $arrPages[] = $domain . \Controller::generateFrontendUrl($objPageForProduct->row(), '/product/' . $objProducts->{'alias_' . $objPageForProduct->language}, $objPageForProduct->language);
+
+                        $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
+                        if ($str_languageAlias == '') {
+                            continue;
+                        }
+
+                        $arrPages[] = $domain . \Controller::generateFrontendUrl($objPageForProduct->row(), '/product/' . $str_languageAlias, $objPageForProduct->language);
                     }
                 }
             }
