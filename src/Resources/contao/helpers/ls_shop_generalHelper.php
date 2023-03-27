@@ -2574,9 +2574,18 @@ class ls_shop_generalHelper
      */
     public static function getSearchablePages($arrPages, $intRoot = 0, $blnIsSitemap = false)
     {
+
+        //für jede verfügbare Sprache im Shop eine alias_[SprachKey] Spalte erzeugen
+        $arr_languageKeys = \Merconis\Core\ls_shop_languageHelper::getAllLanguages();
+
+        $str_columns = '`pages`, `alias`';
+        foreach ($arr_languageKeys as $str_languageKey) {
+            $str_columns .= ', `alias_'.$str_languageKey.'`';
+        }
+
         $objProducts = \Database::getInstance()
 		->prepare("
-			SELECT			`pages`, `alias`
+			SELECT			".$str_columns."			
 			FROM			`tl_ls_shop_product`
 			WHERE			`published` = 1
 		")
@@ -2627,7 +2636,13 @@ class ls_shop_generalHelper
                         if ($objPageForProduct->domain != '') {
                             $domain = (\Environment::get('ssl') ? 'https://' : 'http://') . $objPageForProduct->domain . TL_PATH . '/';
                         }
-                        $arrPages[] = $domain . \Controller::generateFrontendUrl($objPageForProduct->row(), '/product/' . $objProducts->alias, $objPageForProduct->language);
+
+                        $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
+                        if ($str_languageAlias == '') {
+                            continue;
+                        }
+
+                        $arrPages[] = $domain . \Controller::generateFrontendUrl($objPageForProduct->row(), '/product/' . $str_languageAlias, $objPageForProduct->language);
                     }
                 }
             }
