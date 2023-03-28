@@ -51,7 +51,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productSelectionType_legend']   = 'Type of product selection';
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['directSelection_legend']   = 'Simple product selection';
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelection_legend']   = 'Product selection due to detailed search';
-	
+    $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productWhitelist']   = 'Interprete Product selection as Whitelist';
+    $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['whitelistActivate']   = array('Whitelist', 'Selection for whitelist or blacklist');
+
 	/*
 	 * References
 	 */

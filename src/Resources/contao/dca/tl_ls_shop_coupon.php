@@ -73,8 +73,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 		'__selector__' => array('productSelectionType'),
 		'default' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,description,minimumOrderValue,allowedForGroups,start,stop;{numAvailable_legend},limitNumAvailable;{productSelectionType_legend},productSelectionType',
 		'noSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType',
-		'directSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType;{directSelection_legend},productDirectSelection',
-		'searchSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType;{searchSelection_legend},
+		'directSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType;{directSelection_legend},productWhitelist, minimumOrderValueforCoupon, productDirectSelection',
+		'searchSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,minimumOrderValue,allowedForGroups,start,stop;{productSelectionType_legend},productSelectionType;{searchSelection_legend},productWhitelist, minimumOrderValueforCoupon,
 									groupStartSearchSelectionNewProduct,
 									activateSearchSelectionNewProduct,
 									searchSelectionNewProduct,
@@ -147,6 +147,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 			'filter' => true,
             'sql'                     => "char(1) NOT NULL default ''"
 		),
+
+        'minimumOrderValueforCoupon' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['minimumOrderValueforCoupon'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'                    => array('tl_class' => 'clr'),
+            'filter' => true,
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'productWhitelist' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['whitelistActivate'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'                    => array('tl_class' => 'clr'),
+            'filter' => true,
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
 		
 		'productCode' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productCode'],
