@@ -484,10 +484,11 @@ class ls_shop_cartHelper {
 		if (!$GLOBALS['TL_CONFIG']['ls_shop_allowCouponCombinations']) {
 			if (is_array($_SESSION['lsShopCart']['couponsUsed'])) {
 				$arrCouponArrayKeys = array_keys($_SESSION['lsShopCart']['couponsUsed']);
+				/*
 				if (count($_SESSION['lsShopCart']['couponsUsed']) && $arrCouponArrayKeys[0] != $objCoupon->id) {
 					$arrErrors['onlyOneCouponAllowed'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text008'];
 					return $arrErrors;
-				}
+				}*/
 			}
 		}
 
@@ -507,8 +508,60 @@ class ls_shop_cartHelper {
 		/*
 		 * Prüfen, ob Mindestbestellwert erreicht
 		 */
+
+        //dump($objCoupon);
+        //dump(ls_shop_cartX::getInstance());
+        //dump(!ls_shop_generalHelper::check_minimumOrderValueIsReached($objCoupon->minimumOrderValue));
+        //dump(ls_shop_cartX::getInstance()->calculation["minimumOrderValueforCouponNotReached"]);
+
+
+        //dump(ls_shop_cartHelper::getCouponRepresentationForCart($objCoupon->id));
+        /*
+        $arrProducts = null;
+        dump($objCoupon);
+        switch ($objCoupon->productSelectionType) {
+            case 'directSelection':
+                dump("hi");
+                // $arrProducts available directly
+                $productDirectSelectionId = ls_shop_cartHelper::ls_getDirectSelection($objCoupon->productDirectSelection);
+                dump("hi2");
+                $arrSearchCriteria = array('id' => $productDirectSelectionId[0]);
+                $objProductSearch = new ls_shop_productSearcher();
+
+                foreach ($arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
+                    $objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+                }
+                $objProductSearch->search();
+                $arrProducts = $objProductSearch->productResultsCurrentPage;
+                //$couponInfo['useableProducts'] = $arrProducts;
+                break;
+            case 'searchSelection':
+                // search criteria available
+                $arrSearchCriteria = ls_shop_cartHelper::ls_getSearchSelection($objCoupon);
+                $objProductSearch = new ls_shop_productSearcher();
+
+                foreach ($arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
+                    $objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+                }
+                $objProductSearch->search();
+                $arrProducts = $objProductSearch->productResultsCurrentPage;
+                //$couponInfo['useableProducts'] = $arrProducts;
+                break;
+        }
+
+        dump($arrProducts);*/
+
+
 		if (!ls_shop_generalHelper::check_minimumOrderValueIsReached($objCoupon->minimumOrderValue)) {
 			$arrErrors['minimumOrderValueNotReached'] = sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text007'], ls_shop_generalHelper::outputPrice($objCoupon->minimumOrderValue));
+            //dump($arrErrors['minimumOrderValueNotReached']);
+		}
+
+
+		foreach(ls_shop_cartX::getInstance()->calculation["minimumOrderValueforCouponNotReached"] as $couponIdMinimumOrderValueNotReached){
+		    if($couponIdMinimumOrderValueNotReached === $objCoupon->id){
+		        $arrErrors['minimumOrderValueNotReached'] = sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text007'], ls_shop_generalHelper::outputPrice($objCoupon->minimumOrderValue));
+		    }
 		}
 
 		/*

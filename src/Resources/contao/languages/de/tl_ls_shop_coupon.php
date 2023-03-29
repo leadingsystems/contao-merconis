@@ -20,6 +20,10 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productDirectSelection']						= array('Produkt-Auswahl');
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productSelectionType']						= array('Art der Produkt-Auswahl');
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate']									= array('Verwenden', 'Aktivieren, um das Suchkriterium zu verwenden');
+    $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['whitelistActivate']                           = array('Whitelist', 'Produktauswahl als Whitelist interpretieren');
+    $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['minimumOrderValueforCouponActivate']          = array('Mindestbestellwert nur für ausgewählte Produkte', 'Aktivierte das sich der Mindestbestellwert nur auf ausgewählte Produkte bezieht');
+
+
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionNewProduct']					= array('Neues Produkt');
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionSpecialPrice']				= array('Sonderpreis');
@@ -51,6 +55,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productSelectionType_legend']   = 'Art der Produkt-Auswahl';
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['directSelection_legend']   = 'Einfache Produkt-Auswahl';
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelection_legend']   = 'Produkt-Auswahl aufgrund detaillierter Suche';
+    $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productWhitelist']   = 'Produktauswahl als Whitelist interpretieren';
+    $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['minimumOrderValueforCoupon']   = 'Mindestbestellwert nur für ausgewählte Produkte';
+
 	
 	/*
 	 * References
