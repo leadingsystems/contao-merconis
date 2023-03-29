@@ -558,10 +558,11 @@ class ls_shop_cartHelper {
 		}
 
 
-        if(ls_shop_cartX::getInstance()->calculation["minimumOrderValueforCouponNotReached"] ){
-            $arrErrors['minimumOrderValueNotReached'] = sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text007'], ls_shop_generalHelper::outputPrice($objCoupon->minimumOrderValue));
-            //dump($arrErrors['minimumOrderValueNotReached']);
-        }
+		foreach(ls_shop_cartX::getInstance()->calculation["minimumOrderValueforCouponNotReached"] as $couponIdMinimumOrderValueNotReached){
+		    if($couponIdMinimumOrderValueNotReached === $objCoupon->id){
+		        $arrErrors['minimumOrderValueNotReached'] = sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text007'], ls_shop_generalHelper::outputPrice($objCoupon->minimumOrderValue));
+		    }
+		}
 
 		/*
 		 * Prüfen, ob für Kundengruppe des aktuellen Users gültig

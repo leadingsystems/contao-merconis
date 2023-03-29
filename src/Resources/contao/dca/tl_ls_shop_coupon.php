@@ -149,7 +149,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 		),
 
         'minimumOrderValueforCoupon' => array(
-            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['minimumOrderValueforCoupon'],
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['minimumOrderValueforCouponActivate'],
             'exclude' => true,
             'inputType'               => 'checkbox',
             'eval'                    => array('tl_class' => 'clr'),

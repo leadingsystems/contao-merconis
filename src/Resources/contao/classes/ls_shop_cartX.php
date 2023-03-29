@@ -267,7 +267,7 @@ class ls_shop_cartX {
 			'taxInclusive' => null,
 			'invoicedAmount' => null,
 			'invoicedAmountNet' => null,
-            'minimumOrderValueforCouponNotReached' => false
+            'minimumOrderValueforCouponNotReached' => []
 		);
 		
 		// ###### ACHTUNG: REIHENFOLGE WICHTIG! ####################
@@ -337,6 +337,7 @@ class ls_shop_cartX {
         //ls_shop_cartHelper::revalidateCouponsUsed();
         $this->getCouponsUsed();
 
+        $arrCoupinMinimumOrderValueNotReached = [];
         $arrCouponValues = array();
         foreach ($this->couponsUsed as $couponID => $arrCouponInfo) {
             $couponValue = 0;
@@ -356,12 +357,11 @@ class ls_shop_cartX {
             //beim checken von order value sich nur auf producte beziehen wo das coupon anwendbar auf das Produkt ist
             if($arrCouponInfo['extendedInfo']['minimumOrderValueforCoupon'] === "1") {
                 if($arrTotalValueOfGoods[0] < $arrCouponInfo['extendedInfo']['minimumOrderValue']){
-                    //$this->calculation["minimumOrderValueforCouponNotReached"] = true;
-                    return true;
+                    array_push($arrCoupinMinimumOrderValueNotReached, $arrCouponInfo['extendedInfo']['id']);
                 }
             }
         }
-        return false;
+        return $arrCoupinMinimumOrderValueNotReached;
     }
 
 	protected function getCouponValues($arrItems) {
