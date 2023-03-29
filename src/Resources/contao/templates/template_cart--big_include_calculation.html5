@@ -78,7 +78,7 @@ $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
                     </div>
 
                     <?php
-
+                    if (!is_array(\Merconis\Core\ls_shop_cartX::getInstance()->couponsUsed) || !count(\Merconis\Core\ls_shop_cartX::getInstance()->couponsUsed)) {
                     ?>
                     <?php if (!$bln_reviewMode) { ?>
                         <div class="field hideWhenNotHighlighted">
@@ -104,7 +104,7 @@ $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
                             </div>
                         <?php } ?>
                         <?php
-
+                    } else {
                         foreach (\Merconis\Core\ls_shop_cartX::getInstance()->couponsUsed as $couponID => $arrCouponInfo) {
                             ?>
                             <div class="field hideWhenNotHighlighted info">
@@ -156,7 +156,7 @@ $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
                                 }
                             }
                         }
-
+                    }
                     ?>
                 </div>
                 <?php
