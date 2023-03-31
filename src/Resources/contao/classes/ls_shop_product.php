@@ -274,7 +274,7 @@ class ls_shop_product
                 return $this->obj_customizer;
 
             case '_hasCustomizer':
-                return is_object($this->obj_customizer);
+                return is_object($this->_customizer);
 
 			case '_isPublished':
 				return $this->mainData['published'] ? true : false;
@@ -322,7 +322,7 @@ class ls_shop_product
 
 			case '_orderAllowed':
                 if ($this->_hasCustomizer) {
-                    return !$this->_variantIsSelected ? $this->obj_customizer->checkIfOrderIsAllowed() : $this->_selectedVariant->obj_customizer->checkIfOrderIsAllowed();
+                    return !$this->_variantIsSelected ? $this->_customizer->checkIfOrderIsAllowed() : $this->_selectedVariant->_customizer->checkIfOrderIsAllowed();
                 } else {
                     !$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
                     return !$this->_variantIsSelected ? $this->ls_objConfigurator->blnIsValid : $this->_selectedVariant->ls_objConfigurator->blnIsValid;
@@ -334,7 +334,7 @@ class ls_shop_product
 			    $str_cartKey = $this->ls_productVariantID;
 
 			    if ($this->_hasCustomizer) {
-                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->obj_customizer->getCustomizerHash() ?: 'no-customization');
+                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
                 } else if ($this->_hasConfigurator) {
 			        $str_cartKey = $this->_configuratorCartKey;
                 }
@@ -1896,9 +1896,9 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 			case 'saveCustomizerForCurrentCartKey':
 				if (!$this->_variantIsSelected) {
-					$this->obj_customizer->saveCustomizerForCurrentCartKey();
+					$this->_customizer->saveCustomizerForCurrentCartKey();
 				} else if ($this->_variantIsSelected) {
-					$this->_selectedVariant->obj_customizer->saveCustomizerForCurrentCartKey();
+					$this->_selectedVariant->_customizer->saveCustomizerForCurrentCartKey();
 				}
 				break;
 

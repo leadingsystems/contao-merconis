@@ -244,10 +244,16 @@ class ls_shop_variant
                 return $this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile);
 
             case '_customizer':
-                return $this->obj_customizer;
+                if(is_object($this->obj_customizer)){
+                    return $this->obj_customizer;
+                }
+                if(is_object($this->_objParentProduct->_customizer)){
+                    return $this->_objParentProduct->_customizer;
+                }
+                return null;
 
             case '_hasCustomizer':
-                return is_object($this->obj_customizer);
+                return is_object($this->_customizer);
 
 			case '_isPublished':
 				return $this->mainData['published'] ? true : false;
@@ -297,7 +303,7 @@ class ls_shop_variant
 
 			case '_orderAllowed':
                 if ($this->_hasCustomizer) {
-                    return $this->obj_customizer->checkIfOrderIsAllowed();
+                    return $this->_customizer->checkIfOrderIsAllowed();
                 } else {
                     $this->createObjConfigurator();
                     return $this->ls_objConfigurator->blnIsValid;
@@ -308,7 +314,7 @@ class ls_shop_variant
                 $str_cartKey = $this->ls_productVariantID;
 
                 if ($this->_hasCustomizer) {
-                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->obj_customizer->getCustomizerHash() ?: 'no-customization');
+                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
                 } else if ($this->_objParentProduct->_hasConfigurator) {
                     $str_cartKey = $this->_objParentProduct->_configuratorCartKey;
                 }

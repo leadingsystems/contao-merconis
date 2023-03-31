@@ -119,8 +119,11 @@ abstract class customizer {
     /*
      * Should be called from the product template and return the html for the user interface. The html code will
      * most likely be a container which will later be extended/enhanced by JavaScript.
+     *
+     * use $obj_productOrVariant because the customizer will probably get overwritten if 2 or more variants
+     * use the same customizer so $this->obj_productOrVariant will be only the last variant
      */
-    abstract function getUserInterface();
+    abstract function getUserInterface($obj_productOrVariant);
 
     /*
      * Can be called to determine whether a product is customized or not. Must return true/false depending on whether
