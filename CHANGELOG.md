@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.9 (2023-03-31)
+ * Fix sitemal.xml (foreign language)
+ * Customizer improvement: More flexibility with variants
 
 ### 5.0.8 (2023-03-21)
  * Fix product image gallery when images are assigned directly
