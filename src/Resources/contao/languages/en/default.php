@@ -265,6 +265,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['linkShippingInfos'] = 'Click here
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['orderNr'] = 'Order number';
 
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['orderableFromMessage'] = 'Available for order from <span class="orderableFromDate">%s</span>.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderableUntilMessage'] = 'Available from <span class="orderableFromDate">%s</span>, pre-order now!';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderButtonText'] = 'Pre-order';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit'] = 'OK';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['VATValidationMessages']['noEUCountry'] = 'On the basis of the given VAT ident no. it was not possible to determine a valid EU country code';

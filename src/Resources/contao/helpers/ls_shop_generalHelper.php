@@ -4859,6 +4859,7 @@ class ls_shop_generalHelper
             $objQuantityInputTemplate->str_productVariantId = $productID . '-' . $variantID;
 
             $objQuantityInputTemplate->showInputQuantity = true;
+            $objQuantityInputTemplate->obj_productOrVariant = $obj_productOrVariant;
 
             /*-->
              * Erstellen des Quantity-Feldes
