@@ -166,10 +166,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			{lsShopPrice_5_legend},
 			useGroupPrices_5;
 
-			{lsShopStock_legend},
-			lsShopProductDeliveryInfoSet;
-			
-			{lsShopAvailability_legend},
+			{lsShopStockDeliveryTimeAndAvailability_legend},
+			lsShopProductDeliveryInfoSet,
 			availableFrom,
 			preorderingAllowed;
 			

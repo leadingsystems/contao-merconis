@@ -61,7 +61,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_2_legend']								= 'Devi
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_3_legend']								= 'Deviant prices for group no. 3';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_4_legend']								= 'Deviant prices for group no. 4';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_5_legend']								= 'Deviant prices for group no. 5';
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStock_legend']									= 'Goods in stock and delivery time';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStockDeliveryTimeAndAvailability_legend']									= 'Goods in stock, delivery time and availability';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator_legend']								= 'Configurator settings';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts_legend']							= 'Associated products';
 

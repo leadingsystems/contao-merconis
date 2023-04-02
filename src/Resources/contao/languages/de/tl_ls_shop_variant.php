@@ -61,7 +61,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_2_legend']								= 'Für
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_3_legend']								= 'Für Gruppe Nr. 3 abweichende Preisangaben';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_4_legend']								= 'Für Gruppe Nr. 4 abweichende Preisangaben';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_5_legend']								= 'Für Gruppe Nr. 5 abweichende Preisangaben';
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStock_legend']									= 'Lagerbestand und Lieferzeit';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStockDeliveryTimeAndAvailability_legend']									= 'Lagerbestand, Lieferzeit und Verfügbarkeit';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator_legend']								= 'Konfigurator-Einstellungen';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts_legend']							= 'Verbundene Produkte';
 
