@@ -1141,6 +1141,29 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 			case '_allImages':
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, $this->mainData['lsShopProductVariantMainImage'], $this->mainData['lsShopProductVariantMoreImages']);
 				break;
+
+            case '_availableFrom':
+                if (!$this->mainData['overrideAvailabilitySettingsOfParentProduct']) {
+                    return $this->_objParentProduct->_availableFrom;
+                }
+                return $this->mainData['availableFrom'] ?: null;
+                break;
+
+            case '_isAvailableBasedOnDate':
+                if (!$this->mainData['overrideAvailabilitySettingsOfParentProduct']) {
+                    return $this->_objParentProduct->_isAvailableBasedOnDate;
+                }
+                $bln_isAvailableBasedOnDate = is_null($this->_availableFrom) || time() >= $this->_availableFrom;
+                return $bln_isAvailableBasedOnDate;
+                break;
+
+            case '_isPreorderable':
+                if (!$this->mainData['overrideAvailabilitySettingsOfParentProduct']) {
+                    return $this->_objParentProduct->_isPreorderable;
+                }
+                $bln_isPreorderable = !$this->_isAvailableBasedOnDate && $this->mainData['preorderingAllowed'];
+                return $bln_isPreorderable;
+                break;
 		}
 
 		return null;

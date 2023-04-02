@@ -105,7 +105,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		)	
 	),
 	'palettes' => array(
-		'__selector__' => array('useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
+		'__selector__' => array('overrideAvailabilitySettingsOfParentProduct', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
 		'default' => '
 			{lsShopVariantCode_legend},
 			lsShopVariantCode;
@@ -163,7 +163,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			useGroupPrices_5;
 			
 			{lsShopStockDeliveryTimeAndAvailability_legend},
-			lsShopVariantDeliveryInfoSet;
+			lsShopVariantDeliveryInfoSet,
+			overrideAvailabilitySettingsOfParentProduct;
 			
 			{associatedProducts_legend},
 			associatedProducts;
@@ -171,6 +172,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 	),
 	
 	'subpalettes' => array(
+	    'overrideAvailabilitySettingsOfParentProduct' => '
+			availableFrom,
+			preorderingAllowed
+	    ',
+
 		'useGroupPrices_1' => '
 			priceForGroups_1,
 			lsShopVariantPrice_1,
@@ -1273,6 +1279,32 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'eval'			=> array('tl_class' => 'w50', 'includeBlankOption' => true),
 			'sql'                     => "int(10) unsigned NOT NULL default '0'",
 		),
+
+        'overrideAvailabilitySettingsOfParentProduct' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'                    => array('submitOnChange' => true, 'tl_class'=>'clr'),
+            'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'availableFrom' => array(
+            'exclude'                 => true,
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom'],
+            'inputType'               => 'text',
+            'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+            'sql'                     => "varchar(10) NOT NULL default ''"
+        ),
+
+        'preorderingAllowed' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['preorderingAllowed'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'                    => array('tl_class'=>'w50 m12'),
+            'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
 
 		'associatedProducts' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts'],
