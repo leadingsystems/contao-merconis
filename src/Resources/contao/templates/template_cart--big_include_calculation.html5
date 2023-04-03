@@ -131,6 +131,75 @@ $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
                                     <?php echo $arrCouponInfo['description']; ?>
                                 </div>
                             </div>
+                            <?php if(\Merconis\Core\ls_shop_cartX::getInstance()->bln_coupon_debug){ ?>
+
+                            <div>
+                                <style>
+                                    .debugTable {
+                                        border: 1px solid;
+                                    }
+                                    .debugTable th, td {
+                                        border: 1px solid;
+                                        padding: 4px;
+                                    }
+                                </style>
+                                <?php if($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged'){ ?>
+                                    <table class="debugTable">
+                                        <tr>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponName'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_productVariantID'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_valueOfGoods'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValue'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_discount'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_preis'] ?></th>
+                                        </tr>
+                                    <?php foreach (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['couponValuesDetails'] as $varientID => $arrCouponInfoDetails) { ?>
+                                        <?php foreach ($arrCouponInfoDetails as $couponIdDetails => $couponInfoDetails) { ?>
+                                            <?php if($couponIdDetails == $arrCouponInfo['extendedInfo']['id']){ ?>
+                                                <tr>
+                                                    <td><?= $couponInfoDetails["couponTitle"] ?> </td>
+                                                    <td>
+                                                        <?= \Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended[$couponInfoDetails["productVariantID"]]["objProduct"]->mainData["title"] ?>
+                                                        (<?= $couponInfoDetails["productVariantID"] ?>)
+                                                    </td>
+                                                    <td><?= \Merconis\Core\ls_shop_generalHelper::outputPrice($couponInfoDetails["valueOfGoods"]) ?> </td>
+                                                    <td><?= $couponInfoDetails["couponValue"] ?>%</td>
+                                                    <td><?= \Merconis\Core\ls_shop_generalHelper::outputPrice($couponInfoDetails["discount"]) ?> </td>
+                                                    <td><?= \Merconis\Core\ls_shop_generalHelper::outputPrice($couponInfoDetails["price"]) ?> </td>
+                                                </tr>
+                                            <?php } ?>
+                                        <?php } ?>
+                                    <?php } ?>
+                                    </table>
+                                <?php }else{ ?>
+                                    <table class="debugTable">
+                                        <tr>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponName'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_productVariantID'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_valueOfGoods'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValue'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValueLeft'] ?></th>
+                                            <th><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_preis'] ?></th>
+                                        </tr>
+                                        <?php foreach (\Merconis\Core\ls_shop_cartX::getInstance()->calculation['couponValuesDetails'] as $varientID => $arrCouponInfoDetails) { ?>
+                                            <?php foreach ($arrCouponInfoDetails as $couponIdDetails => $couponInfoDetails) { ?>
+                                                <?php if($couponIdDetails == $arrCouponInfo['extendedInfo']['id']){ ?>
+                                                    <tr>
+                                                        <td><?= $couponInfoDetails["couponTitle"] ?> </td>
+                                                        <td><?=  $couponInfoDetails["productVariantID"] ?></td>
+                                                        <td><?= \Merconis\Core\ls_shop_generalHelper::outputPrice($couponInfoDetails["valueOfGoods"]) ?> </td>
+                                                        <td><?= \Merconis\Core\ls_shop_generalHelper::outputPrice($couponInfoDetails["couponValue"]) ?> </td>
+                                                        <td><?= \Merconis\Core\ls_shop_generalHelper::outputPrice($couponInfoDetails["couponValueLeft"]) ?> </td>
+                                                        <td><?= \Merconis\Core\ls_shop_generalHelper::outputPrice($couponInfoDetails["price"]) ?> </td>
+                                                    </tr>
+                                                <?php } ?>
+                                            <?php } ?>
+                                        <?php } ?>
+                                    </table>
+                                <?php } ?>
+
+                            </div>
+                            <?php } ?>
                             <?php
                             foreach ($arrCouponInfo['errors'] as $errorCode => $errorText) {
                                 if ($errorText) {

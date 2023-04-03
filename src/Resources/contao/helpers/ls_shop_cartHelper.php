@@ -583,15 +583,18 @@ class ls_shop_cartHelper {
 
                 // $arrProducts available directly
                 $productDirectSelectionId = ls_shop_cartHelper::ls_getDirectSelection($couponInfo['extendedInfo']['productDirectSelection']);
-                $arrSearchCriteria = array('id' => $productDirectSelectionId[0]);
-                $objProductSearch = new ls_shop_productSearcher();
+                $arrResult = [];
 
-                foreach ($arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
-                    $objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+                foreach ($productDirectSelectionId as $productId) {
+
+                    $objProductSearch = new ls_shop_productSearcher();
+                    $objProductSearch->setSearchCriterion("id", $productId);
+                    $objProductSearch->search();
+                    $resultProductId = $objProductSearch->productResultsCurrentPage[0];
+                    array_push($arrResult, $resultProductId);
                 }
-                $objProductSearch->search();
-                $arrProducts = $objProductSearch->productResultsCurrentPage;
-                $couponInfo['useableProducts'] = $arrProducts;
+
+                $couponInfo['useableProducts'] = $arrResult;
                 break;
             case 'searchSelection':
                 // search criteria available

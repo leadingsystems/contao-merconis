@@ -275,6 +275,7 @@ class ls_shop_cartX {
 		$this->calculation['totalValueOfGoods'] = $this->getTotalValueOfGoods($this->calculation['items']);
 		$this->calculation['totalWeightOfGoods'] = $this->getTotalWeightOfGoods($this->calculation['items']);
         $this->calculation['minimumOrderValueforCouponNotReached'] = $this->testMinimumOrderValuesForCoupon($this->calculation['items']);
+        $this->calculation['couponValuesDetails'] = [];
 		$this->calculation['couponValues'] = $this->getCouponValues($this->calculation['items']);
 		$this->calculation['shippingFee'] = $this->getShippingFee();
 		$this->calculation['paymentFee'] = $this->getPaymentFee();
@@ -353,7 +354,6 @@ class ls_shop_cartX {
                     $arrTotalValueOfGoods[$item['taxClass']] = $arrTotalValueOfGoods[$item['taxClass']] + $item['priceCumulative'];
                 }
             }
-
             //beim checken von order value sich nur auf producte beziehen wo das coupon anwendbar auf das Produkt ist
             if($arrCouponInfo['extendedInfo']['minimumOrderValueforCoupon'] === "1") {
                 if($arrTotalValueOfGoods[0] < $arrCouponInfo['extendedInfo']['minimumOrderValue']){
@@ -375,6 +375,39 @@ class ls_shop_cartX {
 
             $arrTotalValueOfGoods = [];
 
+            $couponValueForDetails = ls_shop_generalHelper::ls_roundPrice(($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged' ? $arrTotalValueOfGoods[0] / 100 * $arrCouponInfo['extendedInfo']['couponValue'] : $arrCouponInfo['extendedInfo']['couponValue']));
+
+            $this->bln_coupon_debug = \System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
+
+            if($this->bln_coupon_debug) {
+                foreach ($arrItems as $item) {
+                    if (ls_shop_cartX::isCouponValidforProduct($item['productVariantID'], $arrCouponInfo)) {
+                        $arrDetails = [];
+                        if ($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged') {
+                            $arrDetails["couponTitle"] = $arrCouponInfo['title'];
+                            $arrDetails["productVariantID"] = $item['productVariantID'];
+                            $arrDetails["valueOfGoods"] = $item['priceCumulative'];
+                            $arrDetails["couponValue"] = $arrCouponInfo['extendedInfo']['couponValue'];
+                            $arrDetails["discount"] = ls_shop_generalHelper::ls_roundPrice($arrDetails["valueOfGoods"] / 100 * $arrCouponInfo['extendedInfo']['couponValue']);
+                            $arrDetails["price"] = $arrDetails["valueOfGoods"] - $arrDetails["discount"];
+                        } else {
+                            $arrDetails["couponTitle"] = $arrCouponInfo['title'];
+                            $arrDetails["productVariantID"] = $item['productVariantID'];
+                            $arrDetails["valueOfGoods"] = $item['priceCumulative'];
+                            $arrDetails["couponValue"] = $couponValueForDetails;
+                            $couponValueForDetails = $arrDetails["valueOfGoods"] - $arrDetails["couponValue"];
+                            $arrDetails["price"] = $couponValueForDetails < 0 ? 0 : $couponValueForDetails;
+                            $couponValueForDetails = $couponValueForDetails * -1 < 0 ? 0 : $couponValueForDetails * -1;
+
+                            $arrDetails["couponValueLeft"] = $couponValueForDetails;
+                        }
+
+
+                        $this->calculation['couponValuesDetails'][$item['productVariantID']][$arrCouponInfo['extendedInfo']['id']] = $arrDetails;
+
+                    }
+                }
+            }
             foreach ($arrItems as $item) {
                 if (ls_shop_cartX::isCouponValidforProduct($item['productVariantID'], $arrCouponInfo)) {
                     $arrTotalValueOfGoods[0] = $arrTotalValueOfGoods[0] + $item['priceCumulative'];
@@ -389,7 +422,6 @@ class ls_shop_cartX {
             if (!$arrCouponInfo['hasErrors']) {
                 // get the coupon value. if it is a percentaged coupon, get the amount
                 $couponValue = ls_shop_generalHelper::ls_roundPrice(($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged' ? $arrTotalValueOfGoods[0] / 100 * $arrCouponInfo['extendedInfo']['couponValue'] : $arrCouponInfo['extendedInfo']['couponValue']));
-
                 // if the coupon value is bigger than the total value of goods the coupon value will be set equal to the total value of goods
                 if ($couponValue > $arrTotalValueOfGoods[0]) {
                     $couponValue = $arrTotalValueOfGoods[0];
@@ -398,6 +430,7 @@ class ls_shop_cartX {
                 // negate the coupon value becuase it has to be a subtraction
                 $couponValue = $couponValue * -1;
             }
+
 
             $arrCouponValues[$couponID] = array(
                 0 => $couponValue
@@ -434,6 +467,7 @@ class ls_shop_cartX {
                 }
             }
 		}
+
 		return $arrCouponValues;
 	}
 
@@ -457,6 +491,7 @@ class ls_shop_cartX {
 	}
 
     public static function isCouponValidforProduct($variantId, $coupon) {
+
 
         $result = explode("-", $variantId);
         $productId = $result[0];
