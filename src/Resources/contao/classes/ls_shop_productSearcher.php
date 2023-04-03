@@ -1668,8 +1668,10 @@ class ls_shop_productSearcher
 
                     //count different words
                     $arr = [];
-                    foreach ($arrCriterionValues as $criterionValue) {
-                        $arr[$criterionValue] = 0;
+                    if (is_array($arrCriterionValues ?? null)) {
+                        foreach ($arrCriterionValues as $criterionValue) {
+                            $arr[$criterionValue] = 0;
+                        }
                     }
                     $maxWordCount = count($arr);
 
