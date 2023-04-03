@@ -172,9 +172,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 	),
 	
 	'subpalettes' => array(
-	    'overrideAvailabilitySettingsOfParentProduct' => '
+        'overrideAvailabilitySettingsOfParentProduct' => '
 			availableFrom,
-			preorderingAllowed
+			preorderingAllowed,
+			deliveryInfoSetToUseInPreorderPhase
 	    ',
 
 		'useGroupPrices_1' => '
@@ -1304,6 +1305,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'eval'                    => array('tl_class'=>'w50 m12'),
             'filter'		=> true,
             'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'deliveryInfoSetToUseInPreorderPhase' => array(
+            'label'			=> &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['deliveryInfoSetToUseInPreorderPhase'],
+            'exclude' => true,
+            'inputType'		=> 'select',
+            'foreignKey'	=> 'tl_ls_shop_delivery_info.title',
+            'eval'			=> array('tl_class' => 'w50', 'includeBlankOption' => true),
+            'filter'		=> true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'",
         ),
 
 		'associatedProducts' => array(

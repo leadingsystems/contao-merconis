@@ -40,6 +40,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						=
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Override availability and pre-order settings of the main product');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Available from');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['preorderingAllowed']				                =	array('Pre-orderable', 'If this option is enabled, the product can be pre-ordered if it is not yet available. Regardless of the stock handling setting assigned to the product, the stock level can run into the negative if the pre-order function is activated.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['deliveryInfoSetToUseInPreorderPhase']            =   array('Deviating settings on goods in stock/delivery time in pre-order phase');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryTime']							= array('Delivery time');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator']										= array('Use configurator');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['customizerLogicFile']  							= array('Use customizer file');

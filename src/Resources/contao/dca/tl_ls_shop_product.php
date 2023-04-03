@@ -96,7 +96,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		)
 	),
 	'palettes' => array(
-		'__selector__' => array('useGroupRestrictions', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
+		'__selector__' => array('preorderingAllowed', 'useGroupRestrictions', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
 		'default' => '
 			{lsShopTitleAndDescriptions_legend},
 			title,
@@ -187,6 +187,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 	 */
 
 	'subpalettes' => array(
+	    'preorderingAllowed' => '
+    	    deliveryInfoSetToUseInPreorderPhase
+	    ',
+
 	    'useGroupRestrictions' => '
 	        allowedGroups
 	    ',
@@ -1287,9 +1291,19 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['preorderingAllowed'],
             'exclude' => true,
             'inputType'               => 'checkbox',
-            'eval'                    => array('tl_class'=>'w50 m12'),
+            'eval'                    => array('submitOnChange' => true, 'tl_class'=>'w50 m12'),
             'filter'		=> true,
             'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'deliveryInfoSetToUseInPreorderPhase' => array(
+            'label'			=> &$GLOBALS['TL_LANG']['tl_ls_shop_product']['deliveryInfoSetToUseInPreorderPhase'],
+            'exclude' => true,
+            'inputType'		=> 'select',
+            'foreignKey'	=> 'tl_ls_shop_delivery_info.title',
+            'eval'			=> array('tl_class' => 'w50', 'includeBlankOption' => true),
+            'filter'		=> true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'",
         ),
 
 		'lsShopProductRecommendedProducts' => array(
