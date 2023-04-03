@@ -69,7 +69,8 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{ipWhitelist_legend},ls_shop_ipWhitelist,ls_shop_urlWhitelist;
 		{backendLsjs_legend},ls_shop_lsjsDebugMode,ls_shop_lsjsNoCacheMode,ls_shop_lsjsNoMinifierMode;
 		{backendLscss_legend},ls_shop_lscssFileToLoad,ls_shop_lscssDebugMode,ls_shop_lscssNoCacheMode,ls_shop_lscssNoMinifierMode;
-		{misc_legend},ls_shop_sortingCharacterTranslationTable,ls_shop_dcaNamesWithoutMultilanguageSupport'
+		{misc_legend},ls_shop_sortingCharacterTranslationTable,ls_shop_dcaNamesWithoutMultilanguageSupport;
+		{debug_menu},ls_shop_coupon_debug'
 	),
 
 	'subpalettes' => array(
@@ -967,7 +968,14 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dcaNamesWithoutMultilanguageSupport'],
 			'inputType' => 'text',
 			'eval' => array('tl_class'=>'w50')
-		)
+		),
+
+        'ls_shop_coupon_debug' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_coupon_debug'],
+            'inputType' => 'checkbox',
+            'eval' => array('tl_class'=>'w50 m12')
+        )
 	)
 );
 	

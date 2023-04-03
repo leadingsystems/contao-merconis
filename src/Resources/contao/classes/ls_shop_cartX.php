@@ -377,7 +377,7 @@ class ls_shop_cartX {
 
             $couponValueForDetails = ls_shop_generalHelper::ls_roundPrice(($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged' ? $arrTotalValueOfGoods[0] / 100 * $arrCouponInfo['extendedInfo']['couponValue'] : $arrCouponInfo['extendedInfo']['couponValue']));
 
-            $this->bln_coupon_debug = \System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
+            $this->bln_coupon_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_coupon_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_coupon_debug'] && \System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
 
             if($this->bln_coupon_debug) {
                 foreach ($arrItems as $item) {
