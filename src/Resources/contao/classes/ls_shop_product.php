@@ -2335,6 +2335,10 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	}
 
 	private function getDeliveryTimeMessage($float_requestedQuantity = 1) {
+        if (!$this->_isAvailableBasedOnDate && !$this->_isPreorderable) {
+            return $GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['deliveryTimeMessageWhenUnavailable'];
+        }
+
         $str_deliveryDate = date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->getDeliveryTimeDays($float_requestedQuantity));
         $str_deliveryTimeMessage = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock'];
         $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', $str_deliveryDate, $str_deliveryTimeMessage);
