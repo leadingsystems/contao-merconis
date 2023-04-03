@@ -638,13 +638,13 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				return ls_shop_generalHelper::getDeliveryInfo($this->ls_ID, 'variant', $this->ls_mainLanguageMode);
 				break;
 
-			case '_deliveryTimeMessage':
-				return $this->_stock > 0 || !$this->_useStock ? preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock']) : preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock']);
-				break;
+            case '_deliveryTimeMessage':
+                return $this->getDeliveryTimeMessage();
+                break;
 
-			case '_deliveryTimeDays':
-				return $this->_stock > 0 || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
-				break;
+            case '_deliveryTimeDays':
+                return $this->getDeliveryTimeDays();
+                break;
 
 			case '_associatedProducts':
 				return $this->mainData['associatedProducts'];
@@ -1200,15 +1200,15 @@ array(), <span class="comment">// array containing names of additional overlay e
 				return $this->_objParentProduct->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_productVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
 				break;
 
-			case '_deliveryTimeMessageInCart'
-				/* ## DESCRIPTION:
+            case '_deliveryTimeMessageInCart'
+                /* ## DESCRIPTION:
 This method can be used to get the delivery time message for this product regarding the quantity that is currently in the cart. It takes the required quantity as an argument and checks whether or not stock is sufficient.
-				 */
-				:
-				$args = ls_shop_generalHelper::setArrayLength($args, 1);
-				$requiredQuantity = $args[0];
-				return ls_sub($this->_stock, $requiredQuantity) >= 0 || !$this->_useStock ? preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock']) : preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock']);
-				break;
+                 */
+            :
+                $args = ls_shop_generalHelper::setArrayLength($args, 1);
+                $float_requiredQuantity = (float) $args[0];
+                return $this->getDeliveryTimeMessage($float_requiredQuantity);
+                break;
 
 			case '_flexContentExists'
 				/* ## DESCRIPTION:
@@ -1488,4 +1488,23 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 		return $this->scalePricesOutput[$mode];
 	}
+
+    private function getDeliveryTimeMessage($float_requestedQuantity = 1) {
+        $str_deliveryDate = date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->getDeliveryTimeDays($float_requestedQuantity));
+        $str_deliveryTimeMessage = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock'];
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', $str_deliveryDate, $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', $this->getDeliveryTimeDays($float_requestedQuantity), $str_deliveryTimeMessage);
+
+        return $str_deliveryTimeMessage;
+    }
+
+    private function getDeliveryTimeDays($float_requestedQuantity = 1) {
+        $int_deliveryTimeDays = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
+
+        if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
+            $int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+        }
+
+        return $int_deliveryTimeDays;
+    }
 }

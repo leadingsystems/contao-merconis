@@ -485,12 +485,12 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 				return $this->_deliveryInfo['allowOrdersWithInsufficientStock'];
 				break;
 
-			case '_deliveryTimeMessage':
-				return $this->_stock > 0 || !$this->_useStock ? preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock']) : preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock']);
-				break;
+            case '_deliveryTimeMessage':
+                return $this->getDeliveryTimeMessage();
+                break;
 
-			case '_deliveryTimeDays':
-				return $this->_stock > 0 || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
+            case '_deliveryTimeDays':
+                return $this->getDeliveryTimeDays();
 				break;
 
 			case '_associatedProducts':
@@ -1615,8 +1615,8 @@ This method can be used to get the delivery time message for this product regard
 				 */
 				:
 				$args = ls_shop_generalHelper::setArrayLength($args, 1);
-				$requiredQuantity = $args[0];
-				return ls_sub($this->_stock, $requiredQuantity) >= 0 || !$this->_useStock ? preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock']) : preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock']);
+				$float_requiredQuantity = (float) $args[0];
+				return $this->getDeliveryTimeMessage($float_requiredQuantity);
 				break;
 
 			case '_getNumMatchingVariantsByAttributeValues'
@@ -2333,4 +2333,23 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 		return $this->scalePricesOutput[$mode];
 	}
+
+	private function getDeliveryTimeMessage($float_requestedQuantity = 1) {
+        $str_deliveryDate = date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->getDeliveryTimeDays($float_requestedQuantity));
+        $str_deliveryTimeMessage = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock'];
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', $str_deliveryDate, $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', $this->getDeliveryTimeDays($float_requestedQuantity), $str_deliveryTimeMessage);
+
+        return $str_deliveryTimeMessage;
+    }
+
+	private function getDeliveryTimeDays($float_requestedQuantity = 1) {
+        $int_deliveryTimeDays = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
+
+        if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
+            $int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+        }
+
+        return $int_deliveryTimeDays;
+    }
 }
