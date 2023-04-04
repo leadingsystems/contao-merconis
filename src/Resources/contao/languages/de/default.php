@@ -228,7 +228,6 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline'] = 'Produ
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'] = 'Werktage';
 
-
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'] = 'Sie können Merconis noch %s Tage kostenlos benutzen. Bitte erwerben Sie rechtzeitig eine Lizenz und tragen Sie die Lizenznummer in den Merconis-Grundeinstellungen ein, um Merconis auch nach dem kostenlosen Probezeitraum weiter nutzen zu können. Wenn Sie diese Meldung sehen, obwohl Sie eine Lizenznummer in den Grundeinstellungen eingetragen haben, prüfen Sie die Nummer bitte auf Korrektheit und kontaktieren Sie nötigenfalls den Merconis techSupport.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodExpiredMessage'] = 'Bitte erwerben Sie eine Merconis-Lizenz, da Ihr Shop ansonsten nicht mehr für Ihre Kunden erreichbar ist.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = 'ACHTUNG: Die Merconis-Servicenummer fehlt in Ihrer localconfig-Datei oder ist nicht korrekt. Ohne gültige Servicenummer ist der Betrieb von Merconis nicht möglich. Ihr Shop ist daher momentan für Ihre Kunden nicht erreichbar. Bitte wenden Sie sich an den Merconis techSupport, um dieses Problem zu beheben.';
@@ -317,7 +316,6 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentAu
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentNotAuthorized'] = 'Ihre PayPal-Zahlung konnte nicht autorisiert werden.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['authorizationObsolete'] = 'Sie haben Änderungen an für die Zahlung relevanten Informationen vorgenommen. Eine eventuell bereits erfolgte Zahlungs-Autorisierung ist damit nicht länger gültig. Bitte wiederholen Sie die Autorisierung.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['headlineBackendDetailsInfo'] = 'Informationen zum Zahlungsstatus';
-
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'] = '<p class="error">Die Zahlung konnte nicht erfolgreich abgeschlossen werden, Ihre Bestellung haben wir aber entgegengenommen. Bitte kontaktieren Sie uns, um den Sachverhalt zu klären und eine alternative Möglichkeit der Zahlung zu vereinbaren.</p>';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'] = '<p class="success">Vielen Dank für Ihre Zahlung!</p>';
@@ -625,7 +623,6 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['autho
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationStatus'] = 'Authorization status';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureId'] = 'Capture ID';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatus'] = 'Capture status';
-
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentReason'] = 'Bestellung Nr. %s';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['headlineBackendDetailsInfo'] = 'Informationen zum Zahlungsstatus';

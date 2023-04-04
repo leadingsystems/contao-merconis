@@ -122,7 +122,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_myOrders_sortingOptions'] = a
 	'exclude'                 => true,
 	'inputType'               => 'checkboxWizard',
 	'options'                 => array('orderDateUnixTimestamp', 'orderNr', 'invoicedAmount', 'status01', 'status02', 'status03', 'status04', 'status05'),
-	'reference'				  => $GLOBALS['TL_LANG']['MSC']['ls_shop']['orderSortingOptions'],
+	'reference'				  => $GLOBALS['TL_LANG']['MSC']['ls_shop']['orderSortingOptions'] ?? null,
 	'eval'					  => array('multiple' => true, 'tl_class' => 'clr'),
     'sql'                     => "blob NULL"
 );
