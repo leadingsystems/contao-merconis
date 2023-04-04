@@ -1,6 +1,11 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.10 (2023-04-04)
+ * Fix message trigger
+ * Fix group prices
+ * Some fixes
+
 ### 5.0.9 (2023-03-31)
  * Fix sitemal.xml (foreign language)
  * Customizer improvement: More flexibility with variants

@@ -62,6 +62,7 @@
 	);
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['paymentStatusCorrelation_paymentProvider']['options'] = array(
+        'payPalCheckout' => 'PayPal Checkout',
 		'payPalPlus' => 'PayPalPlus',
 		'payone' => 'Payone',
 		'saferpay' => 'Saferpay',

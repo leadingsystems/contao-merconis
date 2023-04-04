@@ -88,7 +88,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['delete'],
 				'href'                => 'act=delete',
 				'icon'                => 'delete.gif',
-				'attributes'          => 'onclick="if (!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm'] . '\')) return false; Backend.getScrollOffset();"'
+				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
 			),
 			'toggle' => array (
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['toggle'],
@@ -295,7 +295,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantQuantityUnit'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'merconis_picker_headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityUnitPickerHeadline'], 'decodeEntities' => true, 'maxlength' => 255),
+			'eval' => array('tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'merconis_picker_headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityUnitPickerHeadline'] ?? '', 'decodeEntities' => true, 'maxlength' => 255),
 			'filter'		=> true,
 			'wizard' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'beValuePickerWizard')
@@ -307,7 +307,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantMengenvergleichUnit'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_picker_headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityComparisonUnitPickerHeadline'], 'decodeEntities' => true, 'maxlength' => 255),
+			'eval' => array('tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_picker_headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityComparisonUnitPickerHeadline'] ?? '', 'decodeEntities' => true, 'maxlength' => 255),
 			'wizard' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'beValuePickerWizard')
 			),

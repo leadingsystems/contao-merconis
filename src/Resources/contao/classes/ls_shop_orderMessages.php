@@ -62,8 +62,8 @@ class ls_shop_orderMessages
 		 * it's required to give a language would be the order notice because in this case a message to the shop admin in the shop language
 		 * should be sent from a frontend call regardless of what the current frontend language is.
 		 */
-		$this->ls_language = $language ? $language : (isset($objPage) && is_object($objPage) ? $objPage->language : (isset($this->arrOrder['customerLanguage']) && $this->arrOrder['customerLanguage'] ? $this->arrOrder['customerLanguage'] : $this->ls_language));
-		
+		$this->ls_language = $language ? $language : (isset($objPage) && is_object($objPage) && $objPage->language ? $objPage->language : (isset($this->arrOrder['customerLanguage']) && $this->arrOrder['customerLanguage'] ? $this->arrOrder['customerLanguage'] : $this->ls_language));
+
 		$this->getMessageModels();
 		
 		$this->getReceiverAddresses();
@@ -228,7 +228,7 @@ class ls_shop_orderMessages
 
 		$currentMessageTypeID = null;
 		$lastMessageTypeID = null;
-		
+
 		foreach ($this->arrMessageModels as $arrMessageModel) {
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage'])) {

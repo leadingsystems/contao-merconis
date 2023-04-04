@@ -1940,8 +1940,8 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			 * override the product's basic price settings with the group settings
 			 */
 			$arr_groupSettingsForUser = ls_shop_generalHelper::getGroupSettings4User();
-			if (isset($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']])) {
-				foreach ($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']] as $str_groupPriceKey => $str_groupPriceValue) {
+			if (isset($this->arr_originalData[$languageKey]['arr_groupPrices'][$arr_groupSettingsForUser['id']])) {
+				foreach ($this->arr_originalData[$languageKey]['arr_groupPrices'][$arr_groupSettingsForUser['id']] as $str_groupPriceKey => $str_groupPriceValue) {
 					$this->arr_originalData[$languageKey][$str_groupPriceKey] = $str_groupPriceValue;
 				}
 			}
