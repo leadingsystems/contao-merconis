@@ -21,6 +21,9 @@ class ls_shop_variant
     public $mainData = null;
     public $currentLanguageData = null;
 
+    /**
+     * @var ls_shop_product
+     */
 	public $ls_objParentProduct = null;
 
 	public $ls_objConfigurator = null;
@@ -635,7 +638,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				break;
 
 			case '_deliveryInfo':
-				return ls_shop_generalHelper::getDeliveryInfo($this->ls_ID, 'variant', $this->ls_mainLanguageMode);
+				return ls_shop_generalHelper::getDeliveryInfo($this->getDeliveryInfoSetID(), $this->ls_mainLanguageMode);
 				break;
 
             case '_deliveryTimeMessage':
@@ -1510,5 +1513,22 @@ This method can be used to call a function hooked with the "callingHookedProduct
         }
 
         return $int_deliveryTimeDays;
+    }
+
+    public function getDeliveryInfoSetID() {
+	    $int_deliveryInfoSetID = 0;
+
+        if ($this->_isPreorderable) {
+            if ($this->mainData['overrideAvailabilitySettingsOfParentProduct']) {
+                $int_deliveryInfoSetID = $this->mainData['deliveryInfoSetToUseInPreorderPhase'];
+            }
+            $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $this->ls_objParentProduct->mainData['deliveryInfoSetToUseInPreorderPhase'];
+        }
+
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $this->mainData['lsShopVariantDeliveryInfoSet'];
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $this->ls_objParentProduct->mainData['lsShopProductDeliveryInfoSet'];
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $GLOBALS['TL_CONFIG']['ls_shop_delivery_infoSet'];
+
+        return $int_deliveryInfoSetID;
     }
 }

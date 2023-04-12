@@ -449,7 +449,7 @@ class ls_shop_product
 				break;
 
 			case '_deliveryInfo':
-				return ls_shop_generalHelper::getDeliveryInfo($this->ls_ID, 'product', $this->ls_mainLanguageMode);
+				return ls_shop_generalHelper::getDeliveryInfo($this->getDeliveryInfoSetID(), $this->ls_mainLanguageMode);
 				break;
 
 			case '_recommendedProducts':
@@ -2355,5 +2355,18 @@ This method can be used to call a function hooked with the "callingHookedProduct
         }
 
         return $int_deliveryTimeDays;
+    }
+
+    public function getDeliveryInfoSetID() {
+        $int_deliveryInfoSetID = 0;
+
+        if ($this->_isPreorderable) {
+            $int_deliveryInfoSetID = $this->mainData['deliveryInfoSetToUseInPreorderPhase'];
+        }
+
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $this->mainData['lsShopProductDeliveryInfoSet'];
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $GLOBALS['TL_CONFIG']['ls_shop_delivery_infoSet'];
+
+        return $int_deliveryInfoSetID;
     }
 }
