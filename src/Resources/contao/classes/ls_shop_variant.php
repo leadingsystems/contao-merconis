@@ -1492,27 +1492,35 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		return $this->scalePricesOutput[$mode];
 	}
 
-    private function getDeliveryTimeMessage($float_requestedQuantity = 1) {
-        if (!$this->_isAvailableBasedOnDate && !$this->_isPreorderable) {
-            return $GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['deliveryTimeMessageWhenUnavailable'];
-        }
+	private function getDeliveryTimeMessage($float_requestedQuantity = 1) {
+        $GLOBALS['merconis_globals']['arr_dataForInsertTags'] = [
+            'obj_productOrVariant' => $this,
+            'float_requestedQuantity' => $float_requestedQuantity
+        ];
 
-        $str_deliveryDate = date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->getDeliveryTimeDays($float_requestedQuantity));
         $str_deliveryTimeMessage = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock'];
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', $str_deliveryDate, $str_deliveryTimeMessage);
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', $this->getDeliveryTimeDays($float_requestedQuantity), $str_deliveryTimeMessage);
+
+        /*
+         * Replacing the old placeholders with the new insert tags for backwards compatibility
+         */
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
+
+        $str_deliveryTimeMessage = \Controller::replaceInserttags($str_deliveryTimeMessage);
+
+        unset($GLOBALS['merconis_globals']['arr_dataForInsertTags']);
 
         return $str_deliveryTimeMessage;
     }
 
-    private function getDeliveryTimeDays($float_requestedQuantity = 1) {
+    public function getDeliveryTimeDays($float_requestedQuantity = 1) {
         $int_deliveryTimeDays = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
 
         if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
             $int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
         }
 
-        return $int_deliveryTimeDays;
+        return (int) $int_deliveryTimeDays;
     }
 
     public function getDeliveryInfoSetID() {

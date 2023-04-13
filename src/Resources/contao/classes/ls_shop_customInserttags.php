@@ -106,6 +106,126 @@ class ls_shop_customInserttags
                 return null;
                 break;
 
+            case 'IfAvailableBasedOnDate':
+                if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
+                    \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
+                    return '';
+                }
+
+                /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
+                $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
+
+
+                if (!$obj_productOrVariant->_isAvailableBasedOnDate) {
+                    for (; $_rit<$_cnt; $_rit+=2) {
+                        if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
+                            break;
+                        }
+                    }
+                }
+                unset($arrCache[$strTag]);
+                return null;
+                break;
+
+            case 'IfNotAvailableBasedOnDate':
+                if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
+                    \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
+                    return '';
+                }
+
+                /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
+                $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
+
+
+                if ($obj_productOrVariant->_isAvailableBasedOnDate) {
+                    for (; $_rit<$_cnt; $_rit+=2) {
+                        if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
+                            break;
+                        }
+                    }
+                }
+                unset($arrCache[$strTag]);
+                return null;
+                break;
+
+            case 'IfIsPreorderable':
+                if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
+                    \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
+                    return '';
+                }
+
+                /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
+                $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
+
+
+                if (!$obj_productOrVariant->_isPreorderable) {
+                    for (; $_rit<$_cnt; $_rit+=2) {
+                        if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
+                            break;
+                        }
+                    }
+                }
+                unset($arrCache[$strTag]);
+                return null;
+                break;
+
+            case 'IfIsNotPreorderable':
+                if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
+                    \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
+                    return '';
+                }
+
+                /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
+                $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
+
+
+                if ($obj_productOrVariant->_isPreorderable) {
+                    for (; $_rit<$_cnt; $_rit+=2) {
+                        if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
+                            break;
+                        }
+                    }
+                }
+                unset($arrCache[$strTag]);
+                return null;
+                break;
+
+            case 'DeliveryDate':
+                if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
+                    \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
+                    return '';
+                }
+
+                /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
+                $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
+                $str_deliveryDate = \Date::parse($objPage->dateFormat, time() + 86400 * $obj_productOrVariant->getDeliveryTimeDays($GLOBALS['merconis_globals']['arr_dataForInsertTags']['float_requestedQuantity']));
+                return $str_deliveryDate;
+                break;
+
+            case 'DeliveryTimeDays':
+                if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
+                    \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
+                    return '';
+                }
+
+                /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
+                $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
+                $int_deliveryTimeDays = $obj_productOrVariant->getDeliveryTimeDays($GLOBALS['merconis_globals']['arr_dataForInsertTags']['float_requestedQuantity']);
+                return $int_deliveryTimeDays;
+                break;
+
+            case 'AvailableFrom':
+                if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
+                    \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
+                    return '';
+                }
+
+                /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
+                $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
+                $str_availableFrom = \Date::parse($objPage->dateFormat, $obj_productOrVariant->_availableFrom);
+                return $str_availableFrom;
+                break;
+
             case 'CurrentLanguage':
                 global $objPage;
                 return $objPage->language;

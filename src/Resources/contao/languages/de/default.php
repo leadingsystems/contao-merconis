@@ -266,10 +266,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['linkShippingInfos'] = 'Klicken Si
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['orderNr'] = 'Bestellnummer';
 
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['orderableFromMessage'] = 'Bestellbar ab <span class="orderableFromDate">%s</span>';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderableUntilMessage'] = 'Verfügbar ab <span class="orderableFromDate">%s</span>, jetzt schon vorbestellbar!';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderButtonText'] = 'Vorbestellen';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['deliveryTimeMessageWhenUnavailable'] = 'Zurzeit nicht lieferbar';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit'] = 'OK';
 

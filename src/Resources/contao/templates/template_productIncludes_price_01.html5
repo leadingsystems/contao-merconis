@@ -233,13 +233,6 @@ if ($this->objProduct->_variantIsSelected) {
         <div class="shippingInfo"><?php echo $obj_tmp_productOrVariant->_shippingInfo; ?></div>
     </div>
 	<?php if (($obj_tmp_productOrVariant->_objConfigurator->arrData['stayInDataEntryMode'] ?? null) || !$obj_tmp_productOrVariant->_configuratorInDataEntryMode) { ?>
-        <?php
-        if ($obj_tmp_productOrVariant->_isPreorderable) {
-            echo sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderableUntilMessage'], \Date::parse($objPage->dateFormat, $obj_tmp_productOrVariant->_availableFrom));
-        } else if (!$obj_tmp_productOrVariant->_isAvailableBasedOnDate) {
-            echo sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['orderableFromMessage'], \Date::parse($objPage->dateFormat, $obj_tmp_productOrVariant->_availableFrom));
-        }
-        ?>
 		<?php
         if (
             (
