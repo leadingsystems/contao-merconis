@@ -1,6 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 4.0.19 (2023-04-13)
+ * Fix: Output sitemap.xml for foreign languages
+ * Fix: PayPal Checkout calculation
+
 ### 4.0.18 (2023-02-17)
  * Fix: layoutcallback for product detail view layout
  * remove Contao 4.9 compatibility
