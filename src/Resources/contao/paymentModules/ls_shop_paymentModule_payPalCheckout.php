@@ -21,6 +21,12 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
     private function writeLog($outputType, $output){
 
+        if (is_array($output) || is_object($output)) {
+            ob_start();
+            print_r($output);
+            $output = ob_get_clean();
+        }
+
         if($this->arrCurrentSettings['payPalCheckout_logMode'] !== 'NONE') {
             $myfile = fopen(TL_ROOT . '/system/logs/paypalCheckout.log', "a");
             fwrite($myfile, "[".date("d-m-Y h:i:sa")."] [".$outputType."] ".$output."\n");
@@ -124,7 +130,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         if($state){
             $arr_adress["admin_area_1"] = $state;
         }
-        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode([
+
+        $arr_requestBody = [
             "intent" => "AUTHORIZE",
             "application_context"=> [
                 "shipping_preference"=> 'SET_PROVIDED_ADDRESS',
@@ -142,6 +149,22 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                             "discount"=> [
                                 "currency_code"=> $currency_code,
                                 "value"=> $discount
+                            ],
+                            "shipping"=> [
+                                "currency_code"=> $currency_code,
+                                "value"=> number_format(ls_shop_cartX::getInstance()->calculation['shippingFee'][0] > 0 ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0, 2, '.', '')
+                            ],
+                            "shipping_discount"=> [
+                                "currency_code"=> $currency_code,
+                                "value"=>   number_format(
+                                                (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] < 0 ? abs(ls_shop_cartX::getInstance()->calculation['shippingFee'][0]) : 0)
+                                                + (ls_shop_cartX::getInstance()->calculation['paymentFee'][0] < 0 ? abs(ls_shop_cartX::getInstance()->calculation['paymentFee'][0]) : 0),
+                                                2, '.', ''
+                                            )
+                            ],
+                            "handling"=> [
+                                "currency_code"=> $currency_code,
+                                "value"=> number_format(ls_shop_cartX::getInstance()->calculation['paymentFee'][0] > 0 ? ls_shop_cartX::getInstance()->calculation['paymentFee'][0] : 0, 2, '.', '')
                             ]
                         ]
                     ],
@@ -154,7 +177,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                     "items" => $itemlist
                 ]
             ]
-        ]));
+        ];
+
+        $this->writeLog('Request Data', $arr_requestBody);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($arr_requestBody));
         $headers = array();
         $headers[] = 'Content-Type: application/json';
         $headers[] = 'Authorization: Bearer '.$access_token;
