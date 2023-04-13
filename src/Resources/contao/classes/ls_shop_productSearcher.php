@@ -1668,7 +1668,7 @@ class ls_shop_productSearcher
 
                     //count different words
                     $arr = [];
-                    foreach ($arrCriterionValues as $criterionValue) {
+                    foreach ($arrCriterionValues ?? [] as $criterionValue) {
                         $arr[$criterionValue] = 0;
                     }
                     $maxWordCount = count($arr);
@@ -1680,7 +1680,7 @@ class ls_shop_productSearcher
 
                         // if bln_AndSearch remove all that dont match all words
                         if($this->bln_andSearch == "And-Search"){
-                            if($arrProductsComplete[$i]["wordCount"] != $maxWordCount) {
+                            if(($arrProductsComplete[$i]["wordCount"] ?? null) != $maxWordCount) {
 
                                 unset($arrProductsComplete[$i]);
                             }
