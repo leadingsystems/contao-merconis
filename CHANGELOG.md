@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.11 (2023-04-13)
+ * Fix PayPal Checkout calculation
+
 ### 5.0.10 (2023-04-04)
  * Fix message trigger
  * Fix group prices
