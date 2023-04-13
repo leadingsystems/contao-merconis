@@ -2365,6 +2365,27 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['arrOutputDefinitionIDs'];
     }
 
+    public static function getDeliveryTimeMessage($obj_productOrVariant, $float_requestedQuantity = 1) {
+        $GLOBALS['merconis_globals']['arr_dataForInsertTags'] = [
+            'obj_productOrVariant' => $obj_productOrVariant,
+            'float_requestedQuantity' => $float_requestedQuantity
+        ];
+
+        $str_deliveryTimeMessage = $obj_productOrVariant->_stock >= $float_requestedQuantity || !$obj_productOrVariant->_useStock ? $obj_productOrVariant->_deliveryInfo['deliveryTimeMessageWithSufficientStock'] : $obj_productOrVariant->_deliveryInfo['deliveryTimeMessageWithInsufficientStock'];
+
+        /*
+         * Replacing the old placeholders with the new insert tags for backwards compatibility
+         */
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
+
+        $str_deliveryTimeMessage = \Controller::replaceInserttags($str_deliveryTimeMessage);
+
+        unset($GLOBALS['merconis_globals']['arr_dataForInsertTags']);
+
+        return $str_deliveryTimeMessage;
+    }
+
     public static function getDeliveryInfo($int_deliveryInfoSetID, $blnUseMainLanguage = false)
     {
         /** @var \PageModel $objPage */

@@ -2335,24 +2335,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	}
 
 	private function getDeliveryTimeMessage($float_requestedQuantity = 1) {
-        $GLOBALS['merconis_globals']['arr_dataForInsertTags'] = [
-            'obj_productOrVariant' => $this,
-            'float_requestedQuantity' => $float_requestedQuantity
-        ];
-
-        $str_deliveryTimeMessage = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock'];
-
-        /*
-         * Replacing the old placeholders with the new insert tags for backwards compatibility
-         */
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
-
-        $str_deliveryTimeMessage = \Controller::replaceInserttags($str_deliveryTimeMessage);
-
-        unset($GLOBALS['merconis_globals']['arr_dataForInsertTags']);
-
-        return $str_deliveryTimeMessage;
+	    return ls_shop_generalHelper::getDeliveryTimeMessage($this, $float_requestedQuantity);
     }
 
 	public function getDeliveryTimeDays($float_requestedQuantity = 1) {
