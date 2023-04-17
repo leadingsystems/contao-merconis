@@ -148,20 +148,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
 		),
 
-        'minimumOrderValueforCoupon' => array(
-            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['minimumOrderValueforCouponActivate'],
-            'exclude'                 => true,
-            'inputType'               => 'checkbox',
-            'eval'                    => array('tl_class' => 'clr'),
-            'filter'                  => true,
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
         'productWhitelist' => array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['whitelistActivate'],
             'exclude'                 => true,
             'inputType'               => 'checkbox',
-            'eval'                    => array('tl_class' => 'clr'),
+            'eval'                    => array('tl_class' => 'clr w50 cbx m12'),
+            'filter'                  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'minimumOrderValueforCoupon' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['minimumOrderValueforCouponActivate'],
+            'exclude'                 => true,
+            'inputType'               => 'checkbox',
+            'eval'                    => array('tl_class' => 'w50 cbx m12'),
             'filter'                  => true,
             'sql'                     => "char(1) NOT NULL default ''"
         ),
