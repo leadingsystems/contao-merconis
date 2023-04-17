@@ -284,14 +284,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 			'inputType'               => 'select',
 			'options'                 => array('noSelection', 'directSelection', 'searchSelection'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productSelectionType']['options'],
-			'eval'					  => array('helpwizard' => true, 'submitOnChange' => true)
+			'eval'					  => array('helpwizard' => true, 'submitOnChange' => true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
         'productDirectSelection' => array(
             'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productDirectSelection'],
             'exclude' => true,
             'inputType'		=>	'ls_shop_productSelectionWizard',
-            'eval'			=> array('tl_class'=>'clr')
+            'eval'			=> array('tl_class'=>'clr'),
+            'sql'                     => "blob NULL"
         ),
 
         'groupStartSearchSelectionNewProduct' => array(
@@ -308,7 +310,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
             'exclude' => true,
             'inputType'               => 'checkbox',
-            'eval'					  => array('tl_class' => 'w50')
+            'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'searchSelectionNewProduct' => array(
@@ -317,7 +320,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'inputType'               => 'select',
             'options'				  => array('new', 'notNew'),
             'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionNewProduct']['options'],
-            'eval'					  => array('tl_class' => 'w50')
+            'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "varchar(64) NOT NULL default ''"
         ),
 
         'groupStartSearchSelectionSpecialPrice' => array(
@@ -334,7 +338,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
             'exclude' => true,
             'inputType'               => 'checkbox',
-            'eval'					  => array('tl_class' => 'w50')
+            'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'searchSelectionSpecialPrice' => array(
@@ -343,7 +348,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'inputType'               => 'select',
             'options'				  => array('specialPrice', 'noSpecialPrice'),
             'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionSpecialPrice']['options'],
-            'eval'					  => array('tl_class' => 'w50')
+            'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "varchar(64) NOT NULL default ''"
         ),
 
         'groupStartSearchSelectionCategory' => array(
@@ -359,7 +365,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
         'activateSearchSelectionCategory' => array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
             'exclude' => true,
-            'inputType'               => 'checkbox'
+            'inputType'               => 'checkbox',
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'searchSelectionCategory' => array(
@@ -367,6 +374,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'exclude' => true,
             'inputType'               => 'pageTree',
             'eval'                    => array('fieldType'=>'checkbox'),
+            'sql'                     => "blob NULL"
         ),
 
         'groupStartSearchSelectionProducer' => array(
@@ -383,15 +391,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
             'exclude' => true,
             'inputType'               => 'checkbox',
-            'eval'					  => array('tl_class' => 'w50')
+            'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'searchSelectionProducer' => array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionProducer'],
             'exclude' => true,
             'inputType' => 'text',
-            'eval' => array('maxlength' => 255),
-            'eval'					  => array('tl_class' => 'w50')
+            'eval' => array('maxlength' => 255, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
         'groupStartSearchSelectionProductName' => array(
@@ -408,14 +417,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
             'exclude' => true,
             'inputType'               => 'checkbox',
-            'eval'					  => array('tl_class' => 'w50')
+            'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'searchSelectionProductName' => array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionProductName'],
             'exclude' => true,
             'inputType' => 'text',
-            'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
+            'eval' => array('maxlength' => 255, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
         'groupStartSearchSelectionArticleNr' => array(
@@ -432,14 +443,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
             'exclude' => true,
             'inputType'               => 'checkbox',
-            'eval'					  => array('tl_class' => 'w50')
+            'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'searchSelectionArticleNr' => array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionArticleNr'],
             'exclude' => true,
             'inputType' => 'text',
-            'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
+            'eval' => array('maxlength' => 255, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
         'groupStartSearchSelectionTags' => array(
@@ -456,14 +469,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['activate'],
             'exclude' => true,
             'inputType'               => 'checkbox',
-            'eval'					  => array('tl_class' => 'w50')
+            'eval'					  => array('tl_class' => 'w50'),
+            'sql'                     => "char(1) NOT NULL default ''"
         ),
 
         'searchSelectionTags' => array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionTags'],
             'exclude' => true,
             'inputType' => 'text',
-            'eval' => array('maxlength' => 255, 'tl_class' => 'w50')
+            'eval' => array('maxlength' => 255, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(255) NOT NULL default ''"
         )
 	)
 );
