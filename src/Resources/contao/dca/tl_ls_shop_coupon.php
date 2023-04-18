@@ -73,8 +73,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
         '__selector__' => array('limitNumAvailable','productSelectionType'),
 		'default' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,description,minimumOrderValue,allowedForGroups,start,stop;{numAvailable_legend},limitNumAvailable;{productSelectionType_legend},productSelectionType',
 		'noSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,description,minimumOrderValue,allowedForGroups,start,stop;{numAvailable_legend},limitNumAvailable;{productSelectionType_legend},productSelectionType',
-		'directSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,description,minimumOrderValue,allowedForGroups,start,stop;{numAvailable_legend},limitNumAvailable;{productSelectionType_legend},productSelectionType;{directSelection_legend},productWhitelist, minimumOrderValueforCoupon,productDirectSelection',
-		'searchSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,description,minimumOrderValue,allowedForGroups,start,stop;{numAvailable_legend},limitNumAvailable;{productSelectionType_legend},productSelectionType;{searchSelection_legend}productWhitelist, minimumOrderValueforCoupon,
+		'directSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,description,minimumOrderValue,allowedForGroups,start,stop;{numAvailable_legend},limitNumAvailable;{productSelectionType_legend},productSelectionType;{directSelection_legend},productBlacklist, minimumOrderValueforCoupon,productDirectSelection',
+		'searchSelection' => '{title_legend},title;{status_legend},published;{generalSettings_legend},productCode,couponCode,couponValueType,couponValue,description,minimumOrderValue,allowedForGroups,start,stop;{numAvailable_legend},limitNumAvailable;{productSelectionType_legend},productSelectionType;{searchSelection_legend},productBlacklist, minimumOrderValueforCoupon,
 									groupStartSearchSelectionNewProduct,
 									activateSearchSelectionNewProduct,
 									searchSelectionNewProduct,
@@ -148,8 +148,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
 		),
 
-        'productWhitelist' => array(
-            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['whitelistActivate'],
+        'productBlacklist' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['blacklistActivate'],
             'exclude'                 => true,
             'inputType'               => 'checkbox',
             'eval'                    => array('tl_class' => 'clr w50 cbx m12'),

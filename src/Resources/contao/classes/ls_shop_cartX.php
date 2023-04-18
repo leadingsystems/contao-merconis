@@ -496,7 +496,7 @@ class ls_shop_cartX {
         $result = explode("-", $variantId);
         $productId = $result[0];
 
-        if($coupon['extendedInfo']['productWhitelist'] === "1") {
+        if($coupon['extendedInfo']['productBlacklist'] !== "1") {
             foreach ($coupon['useableProducts'] as $couponProductId) {
                 if ($productId === $couponProductId) {
                     return true;

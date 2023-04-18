@@ -53,7 +53,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['directSelection_legend']   = 'Simple product selection';
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelection_legend']   = 'Product selection due to detailed search';
     $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['productWhitelist']   = 'Interprete Product selection as Whitelist';
-    $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['whitelistActivate']   = array('Exclude product(s)', 'Interpret product selection as a whitelist and thus exclude it for the coupon.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['blacklistActivate']   = array('Exclude product(s)', 'Interpret product selection as a blacklist and thus exclude it for the coupon.');
     $GLOBALS['TL_LANG']['tl_ls_shop_coupon']['minimumOrderValueforCoupon']   = 'minimum order value only for selected products';
 
 	/*
