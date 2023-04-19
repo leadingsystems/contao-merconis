@@ -148,6 +148,48 @@ class ls_shop_customInserttags
                 return null;
                 break;
 
+            case 'IfOrderAllowed':
+                if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
+                    \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
+                    return '';
+                }
+
+                /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
+                $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
+
+
+                if (!$obj_productOrVariant->_orderAllowed) {
+                    for (; $_rit<$_cnt; $_rit+=2) {
+                        if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
+                            break;
+                        }
+                    }
+                }
+                unset($arrCache[$strTag]);
+                return null;
+                break;
+
+            case 'IfOrderNotAllowed':
+                if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
+                    \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
+                    return '';
+                }
+
+                /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
+                $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
+
+
+                if ($obj_productOrVariant->_orderAllowed) {
+                    for (; $_rit<$_cnt; $_rit+=2) {
+                        if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
+                            break;
+                        }
+                    }
+                }
+                unset($arrCache[$strTag]);
+                return null;
+                break;
+
             case 'IfIsPreorderable':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
                     \System::log('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', 'MERCONIS INSERT TAGS', TL_MERCONIS_ERROR);
