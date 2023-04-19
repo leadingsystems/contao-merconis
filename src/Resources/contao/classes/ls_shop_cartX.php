@@ -492,7 +492,6 @@ class ls_shop_cartX {
 
     public static function isCouponValidforProduct($productVariantId, $coupon) {
 
-
         $result = explode("-", $productVariantId);
         $productId = $result[0];
 
