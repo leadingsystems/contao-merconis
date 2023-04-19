@@ -490,23 +490,23 @@ class ls_shop_cartX {
 		return $arrTotalValueOfGoods;
 	}
 
-    public static function isCouponValidforProduct($variantId, $coupon) {
+    public static function isCouponValidforProduct($productVariantId, $coupon) {
 
 
-        $result = explode("-", $variantId);
+        $result = explode("-", $productVariantId);
         $productId = $result[0];
 
         if($coupon['extendedInfo']['productSelectionType'] === 'directSelection' || $coupon['extendedInfo']['productSelectionType'] === 'searchSelection') {
             if($coupon['extendedInfo']['productBlacklist'] !== "1") {
                 foreach ($coupon['useableProducts'] as $couponProductId) {
-                    if ($productId === $couponProductId) {
+                    if ($productId == $couponProductId) {
                         return true;
                     }
                 }
                 return false;
             }
             foreach ($coupon['useableProducts'] as $couponProductId) {
-                if ($productId === $couponProductId) {
+                if ($productId == $couponProductId) {
                     return false;
                 }
             }
