@@ -299,12 +299,24 @@ class ls_shop_variant
 				break;
 
 			case '_orderAllowed':
+                $bln_orderAllowed = true;
+
                 if ($this->_hasCustomizer) {
-                    return $this->obj_customizer->checkIfOrderIsAllowed();
+                    if (!$this->obj_customizer->checkIfOrderIsAllowed()) {
+                        $bln_orderAllowed = false;
+                    }
                 } else {
                     $this->createObjConfigurator();
-                    return $this->ls_objConfigurator->blnIsValid;
+                    if (!$this->ls_objConfigurator->blnIsValid) {
+                        $bln_orderAllowed = false;
+                    }
                 }
+
+                if (!$this->_isAvailableBasedOnDate && !$this->_isPreorderable) {
+                    $bln_orderAllowed = false;
+                }
+
+                return $bln_orderAllowed;
 				break;
 
             case '_cartKey':

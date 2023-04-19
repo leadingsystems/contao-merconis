@@ -321,13 +321,28 @@ class ls_shop_product
 				break;
 
 			case '_orderAllowed':
-                if ($this->_hasCustomizer) {
-                    return !$this->_variantIsSelected ? $this->obj_customizer->checkIfOrderIsAllowed() : $this->_selectedVariant->obj_customizer->checkIfOrderIsAllowed();
-                } else {
-                    !$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
-                    return !$this->_variantIsSelected ? $this->ls_objConfigurator->blnIsValid : $this->_selectedVariant->ls_objConfigurator->blnIsValid;
+                if ($this->_variantIsSelected) {
+                    return $this->_selectedVariant->_orderAllowed;
                 }
 
+			    $bln_orderAllowed = true;
+
+                if ($this->_hasCustomizer) {
+                    if (!$this->obj_customizer->checkIfOrderIsAllowed()) {
+                        $bln_orderAllowed = false;
+                    }
+                } else {
+                    $this->createObjConfigurator();
+                    if (!$this->ls_objConfigurator->blnIsValid) {
+                        $bln_orderAllowed = false;
+                    }
+                }
+
+                if (!$this->_isAvailableBasedOnDate && !$this->_isPreorderable) {
+                    $bln_orderAllowed = false;
+                }
+
+                return $bln_orderAllowed;
 				break;
 
 			case '_cartKey':
