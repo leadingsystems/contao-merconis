@@ -224,12 +224,33 @@ class ls_shop_delivery_info extends \Backend {
 	 */
 	public function getDeleteButton($row, $href, $label, $title, $icon, $attributes) {
 		/*
-		 * Auslesen der Produkt-Artikel
+		 * Get all products and variants where the delivery record is used
 		 */
-		$objProducts = \Database::getInstance()->prepare("SELECT `id` FROM tl_ls_shop_product WHERE `lsShopProductDeliveryInfoSet` = ?")
-								  ->execute($row['id']);
-								  
-		if (!$objProducts->numRows && $GLOBALS['TL_CONFIG']['ls_shop_delivery_infoSet'] != $row['id']) {
+		$objProducts = \Database::getInstance()
+                            ->prepare("
+                                SELECT  `id`
+                                FROM    tl_ls_shop_product
+                                WHERE   `lsShopProductDeliveryInfoSet` = ?
+                                    OR  `deliveryInfoSetToUseInPreorderPhase` = ?
+                            ")
+                            ->execute(
+                                $row['id'],
+                                $row['id']
+                            );
+
+		$objVariants = \Database::getInstance()
+                            ->prepare("
+                                SELECT  `id`
+                                FROM    tl_ls_shop_variant
+                                WHERE   `lsShopVariantDeliveryInfoSet` = ?
+                                    OR  `deliveryInfoSetToUseInPreorderPhase` = ?
+                            ")
+                            ->execute(
+                                $row['id'],
+                                $row['id']
+                            );
+
+		if (!$objProducts->numRows && !$objVariants->numRows && $GLOBALS['TL_CONFIG']['ls_shop_delivery_infoSet'] != $row['id']) {
 			/*
 			 * Wenn das deliveryInfoSet bei keinem Produkt verwendet wird,
 			 * darf gelöscht werden.
