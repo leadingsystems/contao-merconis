@@ -373,7 +373,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionCategory'],
             'exclude'                 => true,
             'inputType'               => 'pageTree',
-            'eval'                    => array('fieldType'=>'checkbox'),
+            'eval'                    => array('fieldType'=>'checkbox', 'multiple' => true),
             'sql'                     => "blob NULL"
         ),
 
