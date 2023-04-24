@@ -918,35 +918,11 @@ class ls_shop_generalHelper
 
             $timestampToday = mktime(0, 0, 0, date("m", time()), date("d", time()), date("Y", time()));
             $arrCurrentSteuersatzPeriod = array();
-
-            //check if today is in Period1 timezone and if end is open check if today is in Period2 timezone and the other way around
-            if (
-                    $objSteuersatz->startPeriod1 <= $timestampToday && ($objSteuersatz->stopPeriod1 == "" || $timestampToday <= $objSteuersatz->stopPeriod1) &&
-                    (
-                            !( $objSteuersatz->stopPeriod1 == "" && $objSteuersatz->startPeriod2 <= $timestampToday && $timestampToday <= $objSteuersatz->stopPeriod2)
-                    )
-            )
-            {
+            if ((!$objSteuersatz->startPeriod1 || $objSteuersatz->startPeriod1 <= $timestampToday) && (!$objSteuersatz->stopPeriod1 || $timestampToday <= $objSteuersatz->stopPeriod1)) {
                 $arrCurrentSteuersatzPeriod = createOneDimensionalArrayFromTwoDimensionalArray(json_decode($objSteuersatz->steuerProzentPeriod1));
-
-            } else if (
-                    $objSteuersatz->startPeriod2 <= $timestampToday && ($objSteuersatz->stopPeriod2 == "" || $timestampToday <= $objSteuersatz->stopPeriod2) &&
-                    (
-                            !( $objSteuersatz->stopPeriod2 == "" && $objSteuersatz->startPeriod1 <= $timestampToday && $timestampToday <= $objSteuersatz->stopPeriod1)
-                    )
-            )
-            {
+            } else if ((!$objSteuersatz->startPeriod2 || $objSteuersatz->startPeriod2 <= $timestampToday) && (!$objSteuersatz->stopPeriod2 || $timestampToday <= $objSteuersatz->stopPeriod2)) {
                 $arrCurrentSteuersatzPeriod = createOneDimensionalArrayFromTwoDimensionalArray(json_decode($objSteuersatz->steuerProzentPeriod2));
             }
-
-
-            /*
-            if ($objSteuersatz->startPeriod1 <= $timestampToday && ($objSteuersatz->stopPeriod1 == "" || $timestampToday <= $objSteuersatz->stopPeriod1)) {
-
-                $arrCurrentSteuersatzPeriod = createOneDimensionalArrayFromTwoDimensionalArray(json_decode($objSteuersatz->steuerProzentPeriod1));
-            } else if ($objSteuersatz->startPeriod2 <= $timestampToday && ($objSteuersatz->stopPeriod2 == "" || $timestampToday <= $objSteuersatz->stopPeriod2)) {
-                $arrCurrentSteuersatzPeriod = createOneDimensionalArrayFromTwoDimensionalArray(json_decode($objSteuersatz->steuerProzentPeriod2));
-            }*/
             $arrCurrentSteuersatzPeriod = createMultidimensionalArray($arrCurrentSteuersatzPeriod, 2, 0);
 
             $foundMatchingSteuerzone = false;
@@ -977,7 +953,8 @@ class ls_shop_generalHelper
             if ($blnParseTaxRateValue) {
                 $currentSteuersatzInProzent = ls_shop_generalHelper::parseSteuersatz($currentSteuersatzInProzent);
             }
-            $GLOBALS['merconis_globals']['getCurrentTax'][$parameterHash] = $currentSteuersatzInProzent;
+
+            $GLOBALS['merconis_globals']['getCurrentTax'][$parameterHash] = $currentSteuersatzInProzent ?: 0;
         }
 
         return $GLOBALS['merconis_globals']['getCurrentTax'][$parameterHash];
