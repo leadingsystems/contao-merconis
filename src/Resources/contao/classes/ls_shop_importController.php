@@ -574,6 +574,7 @@ class ls_shop_importController
         $row['customizer'] = ls_shop_productManagementApiHelper::getCustomizerLogicFileReference($str_configuratorOrCustomizerValue);
 
 		$row['settingsForStockAndDeliveryTime'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTime']);
+		$row['settingsForStockAndDeliveryTimeInPreorderPhase'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTimeInPreorderPhase']);
 		$row['moreImages'] = ls_shop_productManagementApiHelper::prepareMoreImages($row['moreImages']);
 		$row['flex_contents'] = ls_shop_productManagementApiHelper::generateFlexContentsString($row);
 		$row['flex_contentsLanguageIndependent'] = ls_shop_productManagementApiHelper::generateFlexContentsStringLanguageIndependent($row);
@@ -665,6 +666,7 @@ class ls_shop_importController
 							`lsShopProductIsOnSale` = ?,
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
+							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
@@ -707,6 +709,7 @@ class ls_shop_importController
 				$row['onSale'] ? '1' : '', // 1 or ''
 				$row['recommendedProducts'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
 				$row['customizer'] ?: null, // binary file reference, empty = null
@@ -796,6 +799,7 @@ class ls_shop_importController
 							`lsShopProductIsOnSale` = ?,
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
+							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
@@ -838,6 +842,7 @@ class ls_shop_importController
 				$row['onSale'] ? '1' : '', // 1 or ''
 				$row['recommendedProducts'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
@@ -960,6 +965,7 @@ class ls_shop_importController
 		
 		// Feldwerte, die nicht einfa#ch direkt eingetragen werden können, sondern in irgendeiner Form übersetzt werden müssen, vorbereiten
 		$row['settingsForStockAndDeliveryTime'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTime']);
+		$row['settingsForStockAndDeliveryTimeInPreorderPhase'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTimeInPreorderPhase']);
         $str_configuratorOrCustomizerValue = $row['configurator'];
         $row['configurator'] = ls_shop_productManagementApiHelper::getConfiguratorID($str_configuratorOrCustomizerValue);
 
@@ -1058,6 +1064,7 @@ class ls_shop_importController
 							`lsShopProductVariantMainImage` = ?,
 							`lsShopProductVariantMoreImages` = ?,
 							`lsShopVariantDeliveryInfoSet` = ?,
+							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
@@ -1094,6 +1101,7 @@ class ls_shop_importController
 				$row['image'], // binary(16), translated, check unclear
 				$row['moreImages'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
@@ -1178,6 +1186,7 @@ class ls_shop_importController
 							`lsShopProductVariantMainImage` = ?,
 							`lsShopProductVariantMoreImages` = ?,
 							`lsShopVariantDeliveryInfoSet` = ?,
+							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
@@ -1215,6 +1224,7 @@ class ls_shop_importController
 				$row['image'], // binary(16), translated, check unclear
 				$row['moreImages'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
@@ -1728,7 +1738,10 @@ class ls_shop_importController
 				if ($row['type'] != 'product' && $row['type'] != 'variant') {
 					break;
 				}
-				if ($row['settingsForStockAndDeliveryTime'] && !in_array($row['settingsForStockAndDeliveryTime'], ls_shop_productManagementApiHelper::getDeliveryInfoTypeAliases())) {
+				if (
+				    $row['settingsForStockAndDeliveryTime'] && !in_array($row['settingsForStockAndDeliveryTime'], ls_shop_productManagementApiHelper::getDeliveryInfoTypeAliases())
+                    || $row['settingsForStockAndDeliveryTimeInPreorderPhase'] && !in_array($row['settingsForStockAndDeliveryTimeInPreorderPhase'], ls_shop_productManagementApiHelper::getDeliveryInfoTypeAliases())
+                ) {
 					return true;
 				}
 				break;
