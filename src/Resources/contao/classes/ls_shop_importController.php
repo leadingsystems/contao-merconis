@@ -1056,6 +1056,7 @@ class ls_shop_importController
 							`lsShopVariantPriceOld` = ?,
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
+							`overrideAvailabilitySettingsOfParentProduct` = ?,
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
 							`lsShopVariantQuantityUnit` = ?,
@@ -1093,6 +1094,7 @@ class ls_shop_importController
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['weightType'], // String, maxlength 255
 				$row['unit'], // String, maxlength 255
@@ -1178,6 +1180,7 @@ class ls_shop_importController
 							`lsShopVariantPriceOld` = ?,
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
+							`overrideAvailabilitySettingsOfParentProduct` = ?,
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
 							`lsShopVariantQuantityUnit` = ?,
@@ -1216,6 +1219,7 @@ class ls_shop_importController
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['weightType'], // String, maxlength 255
 				$row['unit'], // String, maxlength 255
