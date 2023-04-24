@@ -907,9 +907,9 @@ class ls_shop_generalHelper
 
             $timestampToday = mktime(0, 0, 0, date("m", time()), date("d", time()), date("Y", time()));
             $arrCurrentSteuersatzPeriod = array();
-            if ($objSteuersatz->startPeriod1 <= $timestampToday && $timestampToday <= $objSteuersatz->stopPeriod1) {
+            if ((!$objSteuersatz->startPeriod1 || $objSteuersatz->startPeriod1 <= $timestampToday) && (!$objSteuersatz->stopPeriod1 || $timestampToday <= $objSteuersatz->stopPeriod1)) {
                 $arrCurrentSteuersatzPeriod = createOneDimensionalArrayFromTwoDimensionalArray(json_decode($objSteuersatz->steuerProzentPeriod1));
-            } else if ($objSteuersatz->startPeriod2 <= $timestampToday && $timestampToday <= $objSteuersatz->stopPeriod2) {
+            } else if ((!$objSteuersatz->startPeriod2 || $objSteuersatz->startPeriod2 <= $timestampToday) && (!$objSteuersatz->stopPeriod2 || $timestampToday <= $objSteuersatz->stopPeriod2)) {
                 $arrCurrentSteuersatzPeriod = createOneDimensionalArrayFromTwoDimensionalArray(json_decode($objSteuersatz->steuerProzentPeriod2));
             }
             $arrCurrentSteuersatzPeriod = createMultidimensionalArray($arrCurrentSteuersatzPeriod, 2, 0);
@@ -943,7 +943,7 @@ class ls_shop_generalHelper
                 $currentSteuersatzInProzent = ls_shop_generalHelper::parseSteuersatz($currentSteuersatzInProzent);
             }
 
-            $GLOBALS['merconis_globals']['getCurrentTax'][$parameterHash] = $currentSteuersatzInProzent;
+            $GLOBALS['merconis_globals']['getCurrentTax'][$parameterHash] = $currentSteuersatzInProzent ?: 0;
         }
 
         return $GLOBALS['merconis_globals']['getCurrentTax'][$parameterHash];
@@ -3636,7 +3636,7 @@ class ls_shop_generalHelper
              */
             if ($objFormFields->lsShop_ShowOnConditionField) {
                 if (
-                    (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value']) != $objFormFields->lsShop_ShowOnConditionValue
+                    (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value'] ?? null) != $objFormFields->lsShop_ShowOnConditionValue
                 ) {
                     continue;
                 }
