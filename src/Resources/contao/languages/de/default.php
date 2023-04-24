@@ -584,6 +584,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'missingFlexContentFieldsLanguageIndependent' => 'In der Import-Datei sind nicht alle Spalten enthalten, die in den MERCONIS-Grundeinstellungen für die flexiblen Produktinformationen (sprachunabhängig) angegeben sind',
 
 	'valueInvalid_name' => 'Feldwert für "name" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
+	'valueInvalid_availableFrom' => 'Feldwert für "availableFrom" ist nicht entweder ein gültiges Datum (YYYY-MM-DD) oder leer: Zeile(n) Nr. %s',
 	'variantValueInvalid_name' => 'Feldwert für "name" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'valueInvalid_sorting' => 'Feldwert für "sorting" ist ungültig (muss ein Integer sein): Zeile(n) Nr. %s',
 	'variantValueInvalid_sorting' => 'Feldwert für "sorting" ist ungültig (muss ein Integer sein): Zeile(n) Nr. %s',

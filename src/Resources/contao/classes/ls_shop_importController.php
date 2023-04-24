@@ -310,6 +310,7 @@ class ls_shop_importController
 			'missingFlexContentFieldsLanguageIndependent' => false,
 			
 			'valueInvalid_name' => false,
+			'valueInvalid_availableFrom' => false,
 			'valueInvalid_sorting' => false,
 			'valueInvalid_price' => false,
 			'valueInvalid_oldPrice' => false,
@@ -575,6 +576,7 @@ class ls_shop_importController
 
 		$row['settingsForStockAndDeliveryTime'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTime']);
 		$row['settingsForStockAndDeliveryTimeInPreorderPhase'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTimeInPreorderPhase']);
+		$row['availableFrom'] = !$row['availableFrom'] ? '' : strtotime($row['availableFrom']);
 		$row['moreImages'] = ls_shop_productManagementApiHelper::prepareMoreImages($row['moreImages']);
 		$row['flex_contents'] = ls_shop_productManagementApiHelper::generateFlexContentsString($row);
 		$row['flex_contentsLanguageIndependent'] = ls_shop_productManagementApiHelper::generateFlexContentsStringLanguageIndependent($row);
@@ -653,6 +655,7 @@ class ls_shop_importController
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
 							`lsShopProductWeight` = ?,
 							`lsShopProductSteuersatz` = ?,
@@ -697,6 +700,7 @@ class ls_shop_importController
 				$row['price'] ? $row['price'] : 0, // decimal, empty = 0
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+                $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['taxclass'] ? $row['taxclass'] : 0, // int, empty = 0
@@ -788,6 +792,7 @@ class ls_shop_importController
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
 							`lsShopProductWeight` = ?,
 							`lsShopProductSteuersatz` = ?,
@@ -832,6 +837,7 @@ class ls_shop_importController
 				$row['price'] ? $row['price'] : 0, // decimal, empty = 0
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+                $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['taxclass'] ? $row['taxclass'] : 0, // int, empty = 0
@@ -970,6 +976,7 @@ class ls_shop_importController
 		// Feldwerte, die nicht einfa#ch direkt eingetragen werden können, sondern in irgendeiner Form übersetzt werden müssen, vorbereiten
 		$row['settingsForStockAndDeliveryTime'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTime']);
 		$row['settingsForStockAndDeliveryTimeInPreorderPhase'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTimeInPreorderPhase']);
+        $row['availableFrom'] = !$row['availableFrom'] ? '' : strtotime($row['availableFrom']);
         $str_configuratorOrCustomizerValue = $row['configurator'];
         $row['configurator'] = ls_shop_productManagementApiHelper::getConfiguratorID($str_configuratorOrCustomizerValue);
 
@@ -1061,6 +1068,7 @@ class ls_shop_importController
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
 							`overrideAvailabilitySettingsOfParentProduct` = ?,
+							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
@@ -1100,6 +1108,7 @@ class ls_shop_importController
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
 				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
+                $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['weightType'], // String, maxlength 255
@@ -1187,6 +1196,7 @@ class ls_shop_importController
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
 							`overrideAvailabilitySettingsOfParentProduct` = ?,
+							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
@@ -1227,6 +1237,7 @@ class ls_shop_importController
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
 				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
+                $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['weightType'], // String, maxlength 255
@@ -1793,6 +1804,24 @@ class ls_shop_importController
 				
 				return strlen($row['name']) > 255;
 				break;
+
+            case 'valueInvalid_availableFrom':
+                if ($row['delete']) {
+                    break;
+                }
+
+                if (!$row['availableFrom']) {
+                    return false;
+                }
+
+                $arr_dateParts = explode('-', $row['availableFrom']);
+                if (count($arr_dateParts) === 3 && checkdate($arr_dateParts[1], $arr_dateParts[2], $arr_dateParts[0])) {
+                    return false; // valid date
+                } else {
+                    return true; // invalid date
+                }
+                break;
+
 
 			case 'valueInvalid_sorting':
 				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
