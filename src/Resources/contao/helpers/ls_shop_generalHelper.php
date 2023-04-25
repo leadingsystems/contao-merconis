@@ -3636,7 +3636,7 @@ class ls_shop_generalHelper
              */
             if ($objFormFields->lsShop_ShowOnConditionField) {
                 if (
-                    (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value']) != $objFormFields->lsShop_ShowOnConditionValue
+                    (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value'] ?? null) != $objFormFields->lsShop_ShowOnConditionValue
                 ) {
                     continue;
                 }
