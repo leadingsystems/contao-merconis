@@ -497,16 +497,17 @@ class ls_shop_cartX {
         $productId = $result[0];
 
         if($coupon['extendedInfo']['productSelectionType'] === 'directSelection' || $coupon['extendedInfo']['productSelectionType'] === 'searchSelection') {
-            if($coupon['extendedInfo']['productBlacklist'] !== "1") {
+
+            if($coupon['extendedInfo']['productBlacklist'] !== "1") { //blacklist nicht gesetzt
                 foreach ($coupon['useableProducts'] as $couponProductId) {
-                    if ($productId === $couponProductId) {
+                    if ($productId == $couponProductId) {
                         return true;
                     }
                 }
                 return false;
             }
             foreach ($coupon['useableProducts'] as $couponProductId) {
-                if ($productId === $couponProductId) {
+                if ($productId == $couponProductId) {
                     return false;
                 }
             }
