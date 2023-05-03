@@ -359,6 +359,12 @@ $ls-product-list-field-space: 2%;
       margin-bottom: 1rem;
     }
 
+    &.notSelectable {
+      pointer-events: none;
+      cursor: default;
+      background-color: #eeeeee;
+    }
+
     > a {
       display: flex;
 

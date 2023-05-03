@@ -164,7 +164,8 @@ class ModuleCart extends \Module {
 			'checkoutDataErrors' => ls_shop_checkoutData::getInstance()->validationErrors,
 			'checkoutDataIsValid' => ls_shop_checkoutData::getInstance()->checkoutDataIsValid,
 			'customerDataIsValid' => ls_shop_checkoutData::getInstance()->customerDataIsValid,
-		
+
+            'countNotSelectable' => ls_shop_checkoutData::getInstance()->arrCheckoutData['countNotSelectable'],
 			'paymentMethodDataIsValid' => ls_shop_checkoutData::getInstance()->paymentMethodDataIsValid,
 			'noPaymentMethodSelected' => ls_shop_checkoutData::getInstance()->noPaymentMethodSelected,
 			'noPaymentMethodCouldBeDetermined' => ls_shop_checkoutData::getInstance()->noPaymentMethodCouldBeDetermined,
