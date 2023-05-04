@@ -274,7 +274,7 @@ class ls_shop_product
                 return $this->obj_customizer;
 
             case '_hasCustomizer':
-                return is_object($this->obj_customizer);
+                return is_object($this->_customizer);
 
 			case '_isPublished':
 				return $this->mainData['published'] ? true : false;
@@ -328,7 +328,7 @@ class ls_shop_product
 			    $bln_orderAllowed = true;
 
                 if ($this->_hasCustomizer) {
-                    if (!$this->obj_customizer->checkIfOrderIsAllowed()) {
+                    if (!$this->_customizer->checkIfOrderIsAllowed()) {
                         $bln_orderAllowed = false;
                     }
                 } else {
@@ -349,7 +349,7 @@ class ls_shop_product
 			    $str_cartKey = $this->ls_productVariantID;
 
 			    if ($this->_hasCustomizer) {
-                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->obj_customizer->getCustomizerHash() ?: 'no-customization');
+                    $str_cartKey = $this->ls_productVariantID . '_' . ($this->_customizer->getCustomizerHash() ?: 'no-customization');
                 } else if ($this->_hasConfigurator) {
 			        $str_cartKey = $this->_configuratorCartKey;
                 }
@@ -1926,9 +1926,9 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 			case 'saveCustomizerForCurrentCartKey':
 				if (!$this->_variantIsSelected) {
-					$this->obj_customizer->saveCustomizerForCurrentCartKey();
+					$this->_customizer->saveCustomizerForCurrentCartKey();
 				} else if ($this->_variantIsSelected) {
-					$this->_selectedVariant->obj_customizer->saveCustomizerForCurrentCartKey();
+					$this->_selectedVariant->_customizer->saveCustomizerForCurrentCartKey();
 				}
 				break;
 
@@ -1970,8 +1970,8 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			 * override the product's basic price settings with the group settings
 			 */
 			$arr_groupSettingsForUser = ls_shop_generalHelper::getGroupSettings4User();
-			if (isset($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']])) {
-				foreach ($this->mainData['arr_groupPrices'][$arr_groupSettingsForUser['id']] as $str_groupPriceKey => $str_groupPriceValue) {
+			if (isset($this->arr_originalData[$languageKey]['arr_groupPrices'][$arr_groupSettingsForUser['id']])) {
+				foreach ($this->arr_originalData[$languageKey]['arr_groupPrices'][$arr_groupSettingsForUser['id']] as $str_groupPriceKey => $str_groupPriceValue) {
 					$this->arr_originalData[$languageKey][$str_groupPriceKey] = $str_groupPriceValue;
 				}
 			}

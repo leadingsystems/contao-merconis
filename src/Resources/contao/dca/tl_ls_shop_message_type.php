@@ -65,7 +65,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['delete'],
 				'href'                => 'act=delete',
 				'icon'                => 'delete.gif',
-				'attributes'          => 'onclick="if (!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm'] . '\')) return false; Backend.getScrollOffset();"'
+				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['show'],
@@ -362,7 +362,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'label' =>  &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['paymentStatusCorrelation_paymentProvider'],
 			'exclude'                 => true,
 			'inputType'               => 'select',
-			'options'				  => array('payPalPlus', 'payone', 'saferpay', 'vrpay', 'sofortbanking'),
+			'options'				  => array('payPalCheckout','payPalPlus', 'payone', 'saferpay', 'vrpay', 'sofortbanking'),
 			'eval'					  => array('tl_class' => 'w50'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['paymentStatusCorrelation_paymentProvider']['options'],
             'sql'                     => "varchar(255) NOT NULL default ''"

@@ -574,6 +574,8 @@ class ls_shop_productSearcher
                     break;
 
                 case 'fulltext':
+                    $addToSelectStatementConditionValuesArrayInsertPosition = 0;
+                        
                     /*
                      * If the criterionValue is put in quotes it must not be splitted in separate
                      * criterionValues and the quotes must be removed
@@ -657,7 +659,6 @@ class ls_shop_productSearcher
                          * for these replacement values are the first wildcards in the query
                          */
 
-                        $addToSelectStatementConditionValuesArrayInsertPosition = 0;
                         if ($this->bln_searchWeighting_debug) {
 
 
@@ -751,7 +752,6 @@ class ls_shop_productSearcher
                         } else {
                             $addToSelectStatement = ', ';
                             $addToSelectStatement .= '( ';
-                            $addToSelectStatementConditionValuesArrayInsertPosition = 0;
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END
 						";
@@ -1668,8 +1668,10 @@ class ls_shop_productSearcher
 
                     //count different words
                     $arr = [];
-                    foreach ($arrCriterionValues ?? [] as $criterionValue) {
-                        $arr[$criterionValue] = 0;
+                    if (is_array($arrCriterionValues ?? null)) {
+                        foreach ($arrCriterionValues as $criterionValue) {
+                            $arr[$criterionValue] = 0;
+                        }
                     }
                     $maxWordCount = count($arr);
 

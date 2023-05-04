@@ -1,6 +1,21 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.12 (2023-04-27)
+ * Fix search behaviour when priority is not used
+ * Improve insert tag "shopPicture"
+
+### 5.0.11 (2023-04-13)
+ * Fix PayPal Checkout calculation
+
+### 5.0.10 (2023-04-04)
+ * Fix message trigger
+ * Fix group prices
+ * Some fixes
+
+### 5.0.9 (2023-03-31)
+ * Fix sitemal.xml (foreign language)
+ * Customizer improvement: More flexibility with variants
 
 ### 5.0.8 (2023-03-21)
  * Fix product image gallery when images are assigned directly
