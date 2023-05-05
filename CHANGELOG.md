@@ -1,6 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.13 (2023-05-05)
+ * Add pre-order
+ * Correctly use language variables for previously hardcoded texts
+
 ### 5.0.12 (2023-04-27)
  * Fix search behaviour when priority is not used
  * Improve insert tag "shopPicture"
