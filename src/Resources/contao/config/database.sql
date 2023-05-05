@@ -56,12 +56,14 @@ localconfig foreign key relations are also noted here although their parent tabl
 @tl_ls_shop_product.lsShopProductRecommendedProducts@tl_ls_shop_product.id=array@
 @tl_ls_shop_product.associatedProducts@tl_ls_shop_product.id=array@
 @tl_ls_shop_product.lsShopProductDeliveryInfoSet@tl_ls_shop_delivery_info.id=single@
+@tl_ls_shop_product.deliveryInfoSetToUseInPreorderPhase@tl_ls_shop_delivery_info.id=single@
 @tl_ls_shop_product.configurator@tl_ls_shop_configurator.id=single@
 
 
 @tl_ls_shop_variant.pid@tl_ls_shop_product.id=single@
 @tl_ls_shop_variant.associatedProducts@tl_ls_shop_product.id=array@
 @tl_ls_shop_variant.lsShopVariantDeliveryInfoSet@tl_ls_shop_delivery_info.id=single@
+@tl_ls_shop_variant.deliveryInfoSetToUseInPreorderPhase@tl_ls_shop_delivery_info.id=single@
 @tl_ls_shop_variant.configurator@tl_ls_shop_configurator.id=single@
 
 

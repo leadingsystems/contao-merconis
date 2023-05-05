@@ -310,6 +310,7 @@ class ls_shop_importController
 			'missingFlexContentFieldsLanguageIndependent' => false,
 			
 			'valueInvalid_name' => false,
+			'valueInvalid_availableFrom' => false,
 			'valueInvalid_sorting' => false,
 			'valueInvalid_price' => false,
 			'valueInvalid_oldPrice' => false,
@@ -573,6 +574,8 @@ class ls_shop_importController
 		 */
         $row['customizer'] = ls_shop_productManagementApiHelper::getCustomizerLogicFileReference($str_configuratorOrCustomizerValue);
 		$row['settingsForStockAndDeliveryTime'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTime']);
+		$row['settingsForStockAndDeliveryTimeInPreorderPhase'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTimeInPreorderPhase']);
+		$row['availableFrom'] = !$row['availableFrom'] ? '' : strtotime($row['availableFrom']);
 		$row['moreImages'] = ls_shop_productManagementApiHelper::prepareMoreImages($row['moreImages']);
 		$row['flex_contents'] = ls_shop_productManagementApiHelper::generateFlexContentsString($row);
 		$row['flex_contentsLanguageIndependent'] = ls_shop_productManagementApiHelper::generateFlexContentsStringLanguageIndependent($row);
@@ -651,6 +654,8 @@ class ls_shop_importController
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`availableFrom` = ?,
+							`preorderingAllowed` = ?,
 							`lsShopProductWeight` = ?,
 							`lsShopProductSteuersatz` = ?,
 							`lsShopProductQuantityUnit` = ?,
@@ -664,6 +669,7 @@ class ls_shop_importController
 							`lsShopProductIsOnSale` = ?,
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
+							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
@@ -693,6 +699,8 @@ class ls_shop_importController
 				$row['price'] ? $row['price'] : 0, // decimal, empty = 0
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+                $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
+				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['taxclass'] ? $row['taxclass'] : 0, // int, empty = 0
 				$row['unit'], // String, maxlength 255
@@ -706,6 +714,7 @@ class ls_shop_importController
 				$row['onSale'] ? '1' : '', // 1 or ''
 				$row['recommendedProducts'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
 				$row['customizer'] ?: null, // binary file reference, empty = null
@@ -782,6 +791,8 @@ class ls_shop_importController
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`availableFrom` = ?,
+							`preorderingAllowed` = ?,
 							`lsShopProductWeight` = ?,
 							`lsShopProductSteuersatz` = ?,
 							`lsShopProductQuantityUnit` = ?,
@@ -795,6 +806,7 @@ class ls_shop_importController
 							`lsShopProductIsOnSale` = ?,
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
+							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
@@ -824,6 +836,8 @@ class ls_shop_importController
 				$row['price'] ? $row['price'] : 0, // decimal, empty = 0
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+                $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
+				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['taxclass'] ? $row['taxclass'] : 0, // int, empty = 0
 				$row['unit'], // String, maxlength 255
@@ -837,6 +851,7 @@ class ls_shop_importController
 				$row['onSale'] ? '1' : '', // 1 or ''
 				$row['recommendedProducts'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
@@ -959,6 +974,8 @@ class ls_shop_importController
 		
 		// Feldwerte, die nicht einfa#ch direkt eingetragen werden können, sondern in irgendeiner Form übersetzt werden müssen, vorbereiten
 		$row['settingsForStockAndDeliveryTime'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTime']);
+		$row['settingsForStockAndDeliveryTimeInPreorderPhase'] = ls_shop_productManagementApiHelper::getDeliveryInfoSetID($row['settingsForStockAndDeliveryTimeInPreorderPhase']);
+        $row['availableFrom'] = !$row['availableFrom'] ? '' : strtotime($row['availableFrom']);
         $str_configuratorOrCustomizerValue = $row['configurator'];
         $row['configurator'] = ls_shop_productManagementApiHelper::getConfiguratorID($str_configuratorOrCustomizerValue);
 
@@ -1049,6 +1066,9 @@ class ls_shop_importController
 							`lsShopVariantPriceOld` = ?,
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
+							`overrideAvailabilitySettingsOfParentProduct` = ?,
+							`availableFrom` = ?,
+							`preorderingAllowed` = ?,
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
 							`lsShopVariantQuantityUnit` = ?,
@@ -1057,6 +1077,7 @@ class ls_shop_importController
 							`lsShopProductVariantMainImage` = ?,
 							`lsShopProductVariantMoreImages` = ?,
 							`lsShopVariantDeliveryInfoSet` = ?,
+							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
@@ -1085,6 +1106,9 @@ class ls_shop_importController
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
+                $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
+				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['weightType'], // String, maxlength 255
 				$row['unit'], // String, maxlength 255
@@ -1093,6 +1117,7 @@ class ls_shop_importController
 				$row['image'], // binary(16), translated, check unclear
 				$row['moreImages'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
@@ -1169,6 +1194,9 @@ class ls_shop_importController
 							`lsShopVariantPriceOld` = ?,
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
+							`overrideAvailabilitySettingsOfParentProduct` = ?,
+							`availableFrom` = ?,
+							`preorderingAllowed` = ?,
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
 							`lsShopVariantQuantityUnit` = ?,
@@ -1177,6 +1205,7 @@ class ls_shop_importController
 							`lsShopProductVariantMainImage` = ?,
 							`lsShopProductVariantMoreImages` = ?,
 							`lsShopVariantDeliveryInfoSet` = ?,
+							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
@@ -1206,6 +1235,9 @@ class ls_shop_importController
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
+                $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
+				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['weightType'], // String, maxlength 255
 				$row['unit'], // String, maxlength 255
@@ -1214,6 +1246,7 @@ class ls_shop_importController
 				$row['image'], // binary(16), translated, check unclear
 				$row['moreImages'], // blob, translated, check unclear
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
@@ -1726,7 +1759,10 @@ class ls_shop_importController
 				if ($row['type'] != 'product' && $row['type'] != 'variant') {
 					break;
 				}
-				if ($row['settingsForStockAndDeliveryTime'] && !in_array($row['settingsForStockAndDeliveryTime'], ls_shop_productManagementApiHelper::getDeliveryInfoTypeAliases())) {
+				if (
+				    $row['settingsForStockAndDeliveryTime'] && !in_array($row['settingsForStockAndDeliveryTime'], ls_shop_productManagementApiHelper::getDeliveryInfoTypeAliases())
+                    || $row['settingsForStockAndDeliveryTimeInPreorderPhase'] && !in_array($row['settingsForStockAndDeliveryTimeInPreorderPhase'], ls_shop_productManagementApiHelper::getDeliveryInfoTypeAliases())
+                ) {
 					return true;
 				}
 				break;
@@ -1766,6 +1802,24 @@ class ls_shop_importController
 				
 				return strlen($row['name']) > 255;
 				break;
+
+            case 'valueInvalid_availableFrom':
+                if ($row['delete']) {
+                    break;
+                }
+
+                if (!$row['availableFrom']) {
+                    return false;
+                }
+
+                $arr_dateParts = explode('-', $row['availableFrom']);
+                if (count($arr_dateParts) === 3 && checkdate($arr_dateParts[1], $arr_dateParts[2], $arr_dateParts[0])) {
+                    return false; // valid date
+                } else {
+                    return true; // invalid date
+                }
+                break;
+
 
 			case 'valueInvalid_sorting':
 				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
