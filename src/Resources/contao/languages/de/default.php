@@ -223,6 +223,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText149'] = 'Bitte melden Sie sich an
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'Zurück';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151'] = 'Wie möchten Sie bestellen?';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText152'] = 'LIEFERSCHEIN';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText153'] = 'Mit Kundenkonto bestellen';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText154'] = 'Als Gast bestellen';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText155'] = 'Bearbeiten';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline'] = 'Produkt-Einstellungen';
 
