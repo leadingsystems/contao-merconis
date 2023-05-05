@@ -1682,7 +1682,7 @@ class ls_shop_productSearcher
 
                         // if bln_AndSearch remove all that dont match all words
                         if($this->bln_andSearch == "And-Search"){
-                            if($arrProductsComplete[$i]["wordCount"] != $maxWordCount) {
+                            if(($arrProductsComplete[$i]["wordCount"] ?? null) != $maxWordCount) {
 
                                 unset($arrProductsComplete[$i]);
                             }

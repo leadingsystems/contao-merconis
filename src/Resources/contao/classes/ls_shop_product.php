@@ -321,13 +321,28 @@ class ls_shop_product
 				break;
 
 			case '_orderAllowed':
-                if ($this->_hasCustomizer) {
-                    return !$this->_variantIsSelected ? $this->_customizer->checkIfOrderIsAllowed() : $this->_selectedVariant->_customizer->checkIfOrderIsAllowed();
-                } else {
-                    !$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
-                    return !$this->_variantIsSelected ? $this->ls_objConfigurator->blnIsValid : $this->_selectedVariant->ls_objConfigurator->blnIsValid;
+                if ($this->_variantIsSelected) {
+                    return $this->_selectedVariant->_orderAllowed;
                 }
 
+			    $bln_orderAllowed = true;
+
+                if ($this->_hasCustomizer) {
+                    if (!$this->_customizer->checkIfOrderIsAllowed()) {
+                        $bln_orderAllowed = false;
+                    }
+                } else {
+                    $this->createObjConfigurator();
+                    if (!$this->ls_objConfigurator->blnIsValid) {
+                        $bln_orderAllowed = false;
+                    }
+                }
+
+                if (!$this->_isAvailableBasedOnDate && !$this->_isPreorderable) {
+                    $bln_orderAllowed = false;
+                }
+
+                return $bln_orderAllowed;
 				break;
 
 			case '_cartKey':
@@ -449,7 +464,7 @@ class ls_shop_product
 				break;
 
 			case '_deliveryInfo':
-				return ls_shop_generalHelper::getDeliveryInfo($this->ls_ID, 'product', $this->ls_mainLanguageMode);
+				return ls_shop_generalHelper::getDeliveryInfo($this->getDeliveryInfoSetID(), $this->ls_mainLanguageMode);
 				break;
 
 			case '_recommendedProducts':
@@ -485,12 +500,12 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 				return $this->_deliveryInfo['allowOrdersWithInsufficientStock'];
 				break;
 
-			case '_deliveryTimeMessage':
-				return $this->_stock > 0 || !$this->_useStock ? preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock']) : preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock']);
-				break;
+            case '_deliveryTimeMessage':
+                return $this->getDeliveryTimeMessage();
+                break;
 
-			case '_deliveryTimeDays':
-				return $this->_stock > 0 || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
+            case '_deliveryTimeDays':
+                return $this->getDeliveryTimeDays();
 				break;
 
 			case '_associatedProducts':
@@ -1525,6 +1540,21 @@ filter context, NULL will be returned.
 			case '_allImages':
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, $this->mainData['lsShopProductMainImage'], $this->mainData['lsShopProductMoreImages']);
 				break;
+
+            case '_availableFrom':
+                return $this->mainData['availableFrom'] ?: null;
+                break;
+
+            case '_isAvailableBasedOnDate':
+                $bln_isAvailableBasedOnDate = is_null($this->_availableFrom) || time() >= $this->_availableFrom;
+                return $bln_isAvailableBasedOnDate;
+                break;
+
+            case '_isPreorderable':
+                $bln_isPreorderable = !$this->_isAvailableBasedOnDate && $this->mainData['preorderingAllowed'];
+                return $bln_isPreorderable;
+                break;
+
             case '_searchDebug':
                 return isset($GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID]) ? $GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID] : null;
                 break;
@@ -1600,8 +1630,8 @@ This method can be used to get the delivery time message for this product regard
 				 */
 				:
 				$args = ls_shop_generalHelper::setArrayLength($args, 1);
-				$requiredQuantity = $args[0];
-				return ls_sub($this->_stock, $requiredQuantity) >= 0 || !$this->_useStock ? preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock']) : preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock']);
+				$float_requiredQuantity = (float) $args[0];
+				return $this->getDeliveryTimeMessage($float_requiredQuantity);
 				break;
 
 			case '_getNumMatchingVariantsByAttributeValues'
@@ -2318,4 +2348,31 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 		return $this->scalePricesOutput[$mode];
 	}
+
+	private function getDeliveryTimeMessage($float_requestedQuantity = 1) {
+	    return ls_shop_generalHelper::getDeliveryTimeMessage($this, $float_requestedQuantity);
+    }
+
+	public function getDeliveryTimeDays($float_requestedQuantity = 1) {
+        $int_deliveryTimeDays = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
+
+        if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
+            $int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+        }
+
+        return (int) $int_deliveryTimeDays;
+    }
+
+    public function getDeliveryInfoSetID() {
+        $int_deliveryInfoSetID = 0;
+
+        if ($this->_isPreorderable) {
+            $int_deliveryInfoSetID = $this->mainData['deliveryInfoSetToUseInPreorderPhase'];
+        }
+
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $this->mainData['lsShopProductDeliveryInfoSet'];
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $GLOBALS['TL_CONFIG']['ls_shop_delivery_infoSet'];
+
+        return $int_deliveryInfoSetID;
+    }
 }
