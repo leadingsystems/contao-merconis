@@ -45,6 +45,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductIsNew']								=	array('New product');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductIsOnSale']							=	array('Special offer');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductDeliveryInfoSet']					=	array('Settings on goods in stock/delivery time');
+    $GLOBALS['TL_LANG']['tl_ls_shop_product']['availableFrom']				                	=	array('Available from');
+    $GLOBALS['TL_LANG']['tl_ls_shop_product']['preorderingAllowed']				                =	array('Pre-orderable', 'If this option is enabled, the product can be pre-ordered if it is not yet available. Regardless of the stock handling setting assigned to the product, the stock level can run into the negative if the pre-order function is activated.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_product']['deliveryInfoSetToUseInPreorderPhase']            =   array('Stock/delivery time in pre-order phase', 'Define here different settings of stock and delivery conditions in the pre-order phase.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductDeliveryTime']						=	array('Delivery time');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts']				=	array('Recommended products', 'Select products here that can be displayed in a corresponding CrossSeller.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts']								=	array('Associated products', 'Select products here that you want to associate with this product with regard to implementing individual functions.');
@@ -79,7 +82,7 @@
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopPrice_3_legend']							= 'Deviant prices for group no. 3';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopPrice_4_legend']							= 'Deviant prices for group no. 4';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopPrice_5_legend']							= 'Deviant prices for group no. 5';
-	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopStock_legend']							= 'Goods in stock and delivery time';
+	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopStockDeliveryTimeAndAvailability_legend']							= 'Goods in stock, delivery time and availability';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopRecommendedProducts_legend']				= 'Recommended products';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts_legend']						= 'Associated products';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopTemplate_legend']							= 'Display template';

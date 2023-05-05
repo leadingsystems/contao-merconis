@@ -2388,99 +2388,56 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['arrOutputDefinitionIDs'];
     }
 
-    /*
-     * Diese Funktion gibt die Einstellungen des für die übergebene Variante oder das übergebene Produkt
-     * passenden deliveryInfoSets zurück, also alle Informationen zum Handling von Lagerbestand
-     * und Lieferzeit.
-     *
-     * Ist der Variante oder dem Produkt kein spzielles deliveryInfoSet hinterlegt, so wird das entsprechende
-     * deliveryInfoSet der nächst höheren Instanz (Variante->Produkt->Shop-Grundeinstellungen) zurückgegeben
-     */
-    public static function getDeliveryInfo($id = 0, $type = 'product', $blnUseMainLanguage = false)
+    public static function getDeliveryTimeMessage($obj_productOrVariant, $float_requestedQuantity = 1) {
+        $GLOBALS['merconis_globals']['arr_dataForInsertTags'] = [
+            'obj_productOrVariant' => $obj_productOrVariant,
+            'float_requestedQuantity' => $float_requestedQuantity
+        ];
+
+        $str_deliveryTimeMessage = $obj_productOrVariant->_stock >= $float_requestedQuantity || !$obj_productOrVariant->_useStock ? $obj_productOrVariant->_deliveryInfo['deliveryTimeMessageWithSufficientStock'] : $obj_productOrVariant->_deliveryInfo['deliveryTimeMessageWithInsufficientStock'];
+
+        /*
+         * Replacing the old placeholders with the new insert tags for backwards compatibility
+         */
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
+
+        $str_deliveryTimeMessage = \Controller::replaceInserttags($str_deliveryTimeMessage);
+
+        unset($GLOBALS['merconis_globals']['arr_dataForInsertTags']);
+
+        return $str_deliveryTimeMessage;
+    }
+
+    public static function getDeliveryInfo($int_deliveryInfoSetID, $blnUseMainLanguage = false)
     {
         /** @var \PageModel $objPage */
         global $objPage;
 
-        if (!$id) {
+        if (!$int_deliveryInfoSetID) {
             return false;
         }
 
-        $deliveryInfoSetID = false;
+        $objDeliveryInfoSet = \Database::getInstance()->prepare("
+                SELECT			*
+                FROM			`tl_ls_shop_delivery_info`
+                WHERE			`id` = ?
+            ")
+            ->execute($int_deliveryInfoSetID);
 
-        /*
-         * Soll die DeliveryInfo für eine Variante zurückgegeben werden, so wird zunächst ausgelesen,
-         * was der Variante selbst hinterlegt ist. Ist ihr kein deliverySet explizit hinterlegt,
-         * so wird $id auf die übergeordnete Produkt-ID (pid) gesetzt, um das Auslesen der entsprechenden
-         * Information für das Produkt zu ermöglichen
-         */
-        if ($type == 'variant') {
-            if (!isset($GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_01_' . $id]) || !$GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_01_' . $id]) {
-                $objData = \Database::getInstance()->prepare("
-						SELECT		`lsShopVariantDeliveryInfoSet`,
-									`pid`
-						FROM		`tl_ls_shop_variant`
-						WHERE		`id` = ?
-					")
-                    ->execute($id);
-                $GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_01_' . $id] = $objData->numRows ? $objData->first()->lsShopVariantDeliveryInfoSet : false;
-            }
-            $deliveryInfoSetID = $GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_01_' . $id];
-            if (!$deliveryInfoSetID) {
-                $id = $objData->pid;
-            }
+        if (!$objDeliveryInfoSet->numRows) {
+            return false;
         }
 
-        /*
-         * Soll die DeliveryInfo für ein Produkt zurückgegeben werden oder ist zumindest bislang
-         * noch keine deliveryInfoSetID für die Variante ermittelt worden, so wird diese Information
-         * nun für das Produkt ausgelesen
-         */
-        if ($type == 'product' || !$deliveryInfoSetID) {
-            if (!isset($GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_02_' . $id]) || !$GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_02_' . $id]) {
-                $objData = \Database::getInstance()->prepare("
-						SELECT		`lsShopProductDeliveryInfoSet`
-						FROM		`tl_ls_shop_product`
-						WHERE		`id` = ?
-					")
-                    ->execute($id);
-                $GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_02_' . $id] = $objData->numRows ? $objData->first()->lsShopProductDeliveryInfoSet : false;
-            }
-            $deliveryInfoSetID = $GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_02_' . $id];
-        }
+        $deliveryInfoSet = $objDeliveryInfoSet->row();
 
-        /*
-         * Konnte bislang weder für die Variante noch für das Produkt eine deliveryInfoSetID ermittelt
-         * werden, so wird die Grundeinstellung verwendet.
-         */
-        if (!$deliveryInfoSetID) {
-            $deliveryInfoSetID = $GLOBALS['TL_CONFIG']['ls_shop_delivery_infoSet'];
-        }
+        $arrDeliveryInfoSetMultilanguage = ls_shop_languageHelper::getMultiLanguage($int_deliveryInfoSetID, 'tl_ls_shop_delivery_info_languages', array('title', 'deliveryTimeMessageWithSufficientStock', 'deliveryTimeMessageWithInsufficientStock'), array($blnUseMainLanguage ? ls_shop_languageHelper::getFallbackLanguage() : ($objPage->language ?? null)));
 
-        /*
-         * Der Datensatz zur ermittelten deliveryInfoSetID wird nun ausgelesen und zurückgegeben
-         */
-        if (!isset($GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_03_' . $deliveryInfoSetID]) || !$GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_03_' . $deliveryInfoSetID]) {
-            $objDeliveryInfoSet = \Database::getInstance()->prepare("
-					SELECT			*
-					FROM			`tl_ls_shop_delivery_info`
-					WHERE			`id` = ?
-				")
-                ->execute($deliveryInfoSetID);
+        $deliveryInfoSet['title'] = $arrDeliveryInfoSetMultilanguage['title'];
+        $deliveryInfoSet['deliveryTimeMessageWithSufficientStock'] = $arrDeliveryInfoSetMultilanguage['deliveryTimeMessageWithSufficientStock'];
+        $deliveryInfoSet['deliveryTimeMessageWithInsufficientStock'] = $arrDeliveryInfoSetMultilanguage['deliveryTimeMessageWithInsufficientStock'];
 
-            if (!$objDeliveryInfoSet->numRows) {
-                return false;
-            }
-
-            $GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_03_' . $deliveryInfoSetID] = $objDeliveryInfoSet->fetchAllAssoc();
-        }
-        $deliveryInfoSet = $GLOBALS['merconis_globals']['DBResults']['getDeliveryInfo_03_' . $deliveryInfoSetID];
-
-        $arrDeliveryInfoSetMultilanguage = ls_shop_languageHelper::getMultiLanguage($deliveryInfoSetID, 'tl_ls_shop_delivery_info_languages', array('title', 'deliveryTimeMessageWithSufficientStock', 'deliveryTimeMessageWithInsufficientStock'), array($blnUseMainLanguage ? ls_shop_languageHelper::getFallbackLanguage() : ($objPage->language ?? null)));
-
-        $deliveryInfoSet[0]['title'] = $arrDeliveryInfoSetMultilanguage['title'];
-        $deliveryInfoSet[0]['deliveryTimeMessageWithSufficientStock'] = $arrDeliveryInfoSetMultilanguage['deliveryTimeMessageWithSufficientStock'];
-        $deliveryInfoSet[0]['deliveryTimeMessageWithInsufficientStock'] = $arrDeliveryInfoSetMultilanguage['deliveryTimeMessageWithInsufficientStock'];
-        return $deliveryInfoSet[0];
+        return $deliveryInfoSet;
     }
 
     public static function sendRestockInfo() {
@@ -4882,6 +4839,7 @@ class ls_shop_generalHelper
             $objQuantityInputTemplate->str_productVariantId = $productID . '-' . $variantID;
 
             $objQuantityInputTemplate->showInputQuantity = true;
+            $objQuantityInputTemplate->obj_productOrVariant = $obj_productOrVariant;
 
             /*-->
              * Erstellen des Quantity-Feldes

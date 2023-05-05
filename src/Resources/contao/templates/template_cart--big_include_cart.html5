@@ -148,8 +148,12 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                     }
                     ?>
 
+                    <div class="deliveryTimeMessage">
+                        <?php echo $obj_tmp_productOrVariant->_deliveryTimeMessageInCart($cartItem['quantity']); ?>
+                    </div>
+
                     <?php if (!$bln_reviewMode) { ?>
-                        <button data-lsjs-element="toggler" class="edit-item">Bearbeiten</button>
+                        <button data-lsjs-element="toggler" class="edit-item"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText155']; ?></button>
                     <?php } ?>
                 </div>
 

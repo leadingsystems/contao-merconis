@@ -223,6 +223,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText149'] = 'Bitte melden Sie sich an
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'Zurück';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151'] = 'Wie möchten Sie bestellen?';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText152'] = 'LIEFERSCHEIN';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText153'] = 'Mit Kundenkonto bestellen';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText154'] = 'Als Gast bestellen';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText155'] = 'Bearbeiten';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline'] = 'Produkt-Einstellungen';
 
@@ -264,6 +267,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['linkPaymentInfos'] = 'Klicken Sie
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['linkShippingInfos'] = 'Klicken Sie hier für weitere, wichtige Infos zur Lieferung';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['orderNr'] = 'Bestellnummer';
+
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderButtonText'] = 'Vorbestellen';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit'] = 'OK';
 
@@ -580,6 +585,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'missingFlexContentFieldsLanguageIndependent' => 'In der Import-Datei sind nicht alle Spalten enthalten, die in den MERCONIS-Grundeinstellungen für die flexiblen Produktinformationen (sprachunabhängig) angegeben sind',
 
 	'valueInvalid_name' => 'Feldwert für "name" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
+	'valueInvalid_availableFrom' => 'Feldwert für "availableFrom" ist nicht entweder ein gültiges Datum (YYYY-MM-DD) oder leer: Zeile(n) Nr. %s',
 	'variantValueInvalid_name' => 'Feldwert für "name" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'valueInvalid_sorting' => 'Feldwert für "sorting" ist ungültig (muss ein Integer sein): Zeile(n) Nr. %s',
 	'variantValueInvalid_sorting' => 'Feldwert für "sorting" ist ungültig (muss ein Integer sein): Zeile(n) Nr. %s',

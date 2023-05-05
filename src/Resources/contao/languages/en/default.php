@@ -223,6 +223,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText149'] = 'Please log in to request
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText150'] = 'back';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151'] = 'How would you like to order?';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText152'] = 'DELIVERY NOTE';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText153'] = 'Order with customer account';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText154'] = 'Order as guest';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText155'] = 'Edit';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline'] = 'Product settings';
 
@@ -264,6 +267,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['linkPaymentInfos'] = 'Click here 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['linkShippingInfos'] = 'Click here for further important information on shipping.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['orderNr'] = 'Order number';
+
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderButtonText'] = 'Pre-order';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit'] = 'OK';
 
@@ -580,6 +585,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'missingFlexContentFieldsLanguageIndependent' => 'Not all flexible product information columns (language independent) defined in the MERCONIS settings exist in the import file.',
 
 	'valueInvalid_name' => 'Field value for "name" is invalid (max. 255 characters are allowed): Line(s) no. %s',
+	'valueInvalid_availableFrom' => 'Field value for "availableFrom" is not either a valid date (YYYY-MM-DD) or empty: Line(s) No. %s',
 	'variantValueInvalid_name' => 'Field value for "name" is invalid (max. 255 characters are allowed): Line(s) no. %s',
 	'valueInvalid_sorting' => 'Field value for "sorting" is invalid (must be an integer value): Line(s) no. %s',
 	'variantValueInvalid_sorting' => 'Field value for "sorting" is invalid (must be an integer value): Line(s) no. %s',
