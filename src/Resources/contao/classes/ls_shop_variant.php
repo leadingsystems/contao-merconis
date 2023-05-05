@@ -21,6 +21,9 @@ class ls_shop_variant
     public $mainData = null;
     public $currentLanguageData = null;
 
+    /**
+     * @var ls_shop_product
+     */
 	public $ls_objParentProduct = null;
 
 	public $ls_objConfigurator = null;
@@ -302,12 +305,24 @@ class ls_shop_variant
 				break;
 
 			case '_orderAllowed':
+                $bln_orderAllowed = true;
+
                 if ($this->_hasCustomizer) {
-                    return $this->_customizer->checkIfOrderIsAllowed();
+                    if (!$this->_customizer->checkIfOrderIsAllowed()) {
+                        $bln_orderAllowed = false;
+                    }
                 } else {
                     $this->createObjConfigurator();
-                    return $this->ls_objConfigurator->blnIsValid;
+                    if (!$this->ls_objConfigurator->blnIsValid) {
+                        $bln_orderAllowed = false;
+                    }
                 }
+
+                if (!$this->_isAvailableBasedOnDate && !$this->_isPreorderable) {
+                    $bln_orderAllowed = false;
+                }
+
+                return $bln_orderAllowed;
 				break;
 
             case '_cartKey':
@@ -641,16 +656,16 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				break;
 
 			case '_deliveryInfo':
-				return ls_shop_generalHelper::getDeliveryInfo($this->ls_ID, 'variant', $this->ls_mainLanguageMode);
+				return ls_shop_generalHelper::getDeliveryInfo($this->getDeliveryInfoSetID(), $this->ls_mainLanguageMode);
 				break;
 
-			case '_deliveryTimeMessage':
-				return $this->_stock > 0 || !$this->_useStock ? preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock']) : preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock']);
-				break;
+            case '_deliveryTimeMessage':
+                return $this->getDeliveryTimeMessage();
+                break;
 
-			case '_deliveryTimeDays':
-				return $this->_stock > 0 || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
-				break;
+            case '_deliveryTimeDays':
+                return $this->getDeliveryTimeDays();
+                break;
 
 			case '_associatedProducts':
 				return $this->mainData['associatedProducts'];
@@ -1147,6 +1162,29 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 			case '_allImages':
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, $this->mainData['lsShopProductVariantMainImage'], $this->mainData['lsShopProductVariantMoreImages']);
 				break;
+
+            case '_availableFrom':
+                if (!$this->mainData['overrideAvailabilitySettingsOfParentProduct']) {
+                    return $this->_objParentProduct->_availableFrom;
+                }
+                return $this->mainData['availableFrom'] ?: null;
+                break;
+
+            case '_isAvailableBasedOnDate':
+                if (!$this->mainData['overrideAvailabilitySettingsOfParentProduct']) {
+                    return $this->_objParentProduct->_isAvailableBasedOnDate;
+                }
+                $bln_isAvailableBasedOnDate = is_null($this->_availableFrom) || time() >= $this->_availableFrom;
+                return $bln_isAvailableBasedOnDate;
+                break;
+
+            case '_isPreorderable':
+                if (!$this->mainData['overrideAvailabilitySettingsOfParentProduct']) {
+                    return $this->_objParentProduct->_isPreorderable;
+                }
+                $bln_isPreorderable = !$this->_isAvailableBasedOnDate && $this->mainData['preorderingAllowed'];
+                return $bln_isPreorderable;
+                break;
 		}
 
 		return null;
@@ -1183,15 +1221,15 @@ array(), <span class="comment">// array containing names of additional overlay e
 				return $this->_objParentProduct->ls_createGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, $this->ls_productVariantID, $args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
 				break;
 
-			case '_deliveryTimeMessageInCart'
-				/* ## DESCRIPTION:
+            case '_deliveryTimeMessageInCart'
+                /* ## DESCRIPTION:
 This method can be used to get the delivery time message for this product regarding the quantity that is currently in the cart. It takes the required quantity as an argument and checks whether or not stock is sufficient.
-				 */
-				:
-				$args = ls_shop_generalHelper::setArrayLength($args, 1);
-				$requiredQuantity = $args[0];
-				return ls_sub($this->_stock, $requiredQuantity) >= 0 || !$this->_useStock ? preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithSufficientStock']) : preg_replace('/\{\{deliveryDate\}\}/siU', date($GLOBALS['TL_CONFIG']['dateFormat'], time() + 86400 * $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock']), $this->_deliveryInfo['deliveryTimeMessageWithInsufficientStock']);
-				break;
+                 */
+            :
+                $args = ls_shop_generalHelper::setArrayLength($args, 1);
+                $float_requiredQuantity = (float) $args[0];
+                return $this->getDeliveryTimeMessage($float_requiredQuantity);
+                break;
 
 			case '_flexContentExists'
 				/* ## DESCRIPTION:
@@ -1471,4 +1509,35 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 		return $this->scalePricesOutput[$mode];
 	}
+
+    private function getDeliveryTimeMessage($float_requestedQuantity = 1) {
+        return ls_shop_generalHelper::getDeliveryTimeMessage($this, $float_requestedQuantity);
+    }
+
+    public function getDeliveryTimeDays($float_requestedQuantity = 1) {
+        $int_deliveryTimeDays = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
+
+        if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
+            $int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+        }
+
+        return (int) $int_deliveryTimeDays;
+    }
+
+    public function getDeliveryInfoSetID() {
+	    $int_deliveryInfoSetID = 0;
+
+        if ($this->_isPreorderable) {
+            if ($this->mainData['overrideAvailabilitySettingsOfParentProduct']) {
+                $int_deliveryInfoSetID = $this->mainData['deliveryInfoSetToUseInPreorderPhase'];
+            }
+            $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $this->ls_objParentProduct->mainData['deliveryInfoSetToUseInPreorderPhase'];
+        }
+
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $this->mainData['lsShopVariantDeliveryInfoSet'];
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $this->ls_objParentProduct->mainData['lsShopProductDeliveryInfoSet'];
+        $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $GLOBALS['TL_CONFIG']['ls_shop_delivery_infoSet'];
+
+        return $int_deliveryInfoSetID;
+    }
 }

@@ -166,8 +166,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			{lsShopPrice_5_legend},
 			useGroupPrices_5;
 
-			{lsShopStock_legend},
-			lsShopProductDeliveryInfoSet;
+			{lsShopStockDeliveryTimeAndAvailability_legend},
+			lsShopProductDeliveryInfoSet,
+			availableFrom,
+			preorderingAllowed,
+			deliveryInfoSetToUseInPreorderPhase;
 			
 			{lsShopRecommendedProducts_legend},
 			lsShopProductRecommendedProducts;
@@ -1272,6 +1275,33 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'filter'		=> true,
 			'sql'                     => "int(10) unsigned NOT NULL default '0'",
 		),
+
+        'availableFrom' => array(
+            'exclude'                 => true,
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['availableFrom'],
+            'inputType'               => 'text',
+            'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard clr'),
+            'sql'                     => "varchar(10) NOT NULL default ''"
+        ),
+
+        'preorderingAllowed' => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['preorderingAllowed'],
+            'exclude' => true,
+            'inputType'               => 'checkbox',
+            'eval'                    => array('tl_class'=>'w50 m12'),
+            'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
+        ),
+
+        'deliveryInfoSetToUseInPreorderPhase' => array(
+            'label'			=> &$GLOBALS['TL_LANG']['tl_ls_shop_product']['deliveryInfoSetToUseInPreorderPhase'],
+            'exclude' => true,
+            'inputType'		=> 'select',
+            'foreignKey'	=> 'tl_ls_shop_delivery_info.title',
+            'eval'			=> array('tl_class' => 'w50', 'includeBlankOption' => true),
+            'filter'		=> true,
+            'sql'                     => "int(10) unsigned NOT NULL default '0'",
+        ),
 
 		'lsShopProductRecommendedProducts' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts'],
