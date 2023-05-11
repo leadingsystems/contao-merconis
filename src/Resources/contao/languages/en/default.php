@@ -684,6 +684,14 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['st
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['statusTitles'][13] = 'Accepted temporarily';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['statusTitles']['unknown'] = 'unknown Status/current request is being processed';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponName'] = 'Coupon Name';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_productVariantID'] = 'Product Name (product variant ID)';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_valueOfGoods'] = 'Value of goods';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValue'] = 'coupon value';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValueLeft'] = 'Coupon value after Discount value for this product';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_preis'] = 'New value of goods after discount';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_discount'] = 'Discount';
+
 /*
  * <- Backend
  */		

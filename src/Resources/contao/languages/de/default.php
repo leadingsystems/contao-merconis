@@ -684,6 +684,15 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['st
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['statusTitles'][13] = 'Vorläufig genehmigt';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['statusTitles']['unknown'] = 'unbekannter Status/aktuelle Aktion wird verarbeitet';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponName'] = 'Coupon Name';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_productVariantID'] = 'Produkt Name (Produkt Varianten ID)';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_valueOfGoods'] = 'Warenwert';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValue'] = 'Gutscheinwert';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValueLeft'] = 'Gutscheinwert nach Benutzung für das Product';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_preis'] = 'Neuer Warenwert mit Gutscheinanwendung';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_discount'] = 'Rabatt';
+
+
 /*
  * <- Backend
  */		
