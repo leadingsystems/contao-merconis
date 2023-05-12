@@ -146,9 +146,12 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssNoCacheMode'] = array('Caching deaktivieren');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssNoMinifierMode'] = array('Komprimierung deaktivieren');
 
-	/*
-	 * Legends
-	 */
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_coupon_debug'] = array('Debug Modus für Coupon', 'Schaltet die Debug anzeige im Frontend an');
+
+
+    /*
+     * Legends
+     */
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['basic_legend']   = 'Grundlegende Angaben';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['euSettings_legend'] = 'Einstellungen bzgl. der Europäischen Union';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['userSettings_legend']   = 'Benutzerbezogene Einstellungen';
@@ -174,6 +177,9 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['backendLscss_legend'] = 'Einstellungen für LSCSS im Backend';
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Erweiterte Einstellungen';
+
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menü';
+
 
 	/*
 	 * References
@@ -228,3 +234,5 @@
         'And-Search' => 'Finde alle Wörter',
         'Or-Search' => 'Finde irgendein Wort'
     );
+
+

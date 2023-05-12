@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.14 (2023-05-12)
+ * Improve coupon: Can be restricted to individual product groups or products
+
 ### 5.0.13 (2023-05-05)
  * Add pre-order
  * Correctly use language variables for previously hardcoded texts

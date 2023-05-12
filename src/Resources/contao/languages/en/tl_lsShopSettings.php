@@ -146,6 +146,8 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssNoCacheMode'] = array('Deactivate caching');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssNoMinifierMode'] = array('Deactivate minification');
 
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_coupon_debug'] = array('Debug mode for coupon', 'Activate the debug mode for the Frontend');
+
 	/*
 	 * Legends
 	 */
@@ -176,6 +178,8 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['backendLscss_legend'] = 'Settings for LSCSS in the backend';
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Advanced settings';
+
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menu';
 	
 	/*
 	 * References
