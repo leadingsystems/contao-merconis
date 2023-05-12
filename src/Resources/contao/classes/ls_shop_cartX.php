@@ -266,14 +266,17 @@ class ls_shop_cartX {
 			 */
 			'taxInclusive' => null,
 			'invoicedAmount' => null,
-			'invoicedAmountNet' => null
+			'invoicedAmountNet' => null,
+            'minimumOrderValueforCouponNotReached' => []
 		);
 		
 		// ###### ACHTUNG: REIHENFOLGE WICHTIG! ####################
 		$this->calculation['items'] = $this->getCalculatedItems();
 		$this->calculation['totalValueOfGoods'] = $this->getTotalValueOfGoods($this->calculation['items']);
 		$this->calculation['totalWeightOfGoods'] = $this->getTotalWeightOfGoods($this->calculation['items']);
-		$this->calculation['couponValues'] = $this->getCouponValues($this->calculation['totalValueOfGoods']);
+        $this->calculation['minimumOrderValueforCouponNotReached'] = $this->testMinimumOrderValuesForCoupon($this->calculation['items']);
+        $this->calculation['couponValuesDetails'] = [];
+		$this->calculation['couponValues'] = $this->getCouponValues($this->calculation['items']);
 		$this->calculation['shippingFee'] = $this->getShippingFee();
 		$this->calculation['paymentFee'] = $this->getPaymentFee();
 		$this->calculation['total'] = $this->getTotal();
@@ -330,65 +333,141 @@ class ls_shop_cartX {
 		}		
 		return $arrFee;
 	}
-	
-	protected function getCouponValues($arrTotalValueOfGoods) {
+
+	protected function testMinimumOrderValuesForCoupon($arrItems){
+        //ls_shop_cartHelper::revalidateCouponsUsed();
+        $this->getCouponsUsed();
+
+        $arrCoupinMinimumOrderValueNotReached = [];
+        $arrCouponValues = array();
+        foreach ($this->couponsUsed as $couponID => $arrCouponInfo) {
+            $couponValue = 0;
+
+            $arrTotalValueOfGoods = [];
+
+            foreach ($arrItems as $item) {
+                if (ls_shop_cartX::isCouponValidforProduct($item['productVariantID'], $arrCouponInfo)) {
+                    $arrTotalValueOfGoods[0] = $arrTotalValueOfGoods[0] + $item['priceCumulative'];
+                    if (!isset($arrTotalValueOfGoods[$item['taxClass']])) {
+                        $arrTotalValueOfGoods[$item['taxClass']] = 0;
+                    }
+                    $arrTotalValueOfGoods[$item['taxClass']] = $arrTotalValueOfGoods[$item['taxClass']] + $item['priceCumulative'];
+                }
+            }
+            //beim checken von order value sich nur auf producte beziehen wo das coupon anwendbar auf das Produkt ist
+            if($arrCouponInfo['extendedInfo']['minimumOrderValueforCoupon'] === "1") {
+                if($arrTotalValueOfGoods[0] < $arrCouponInfo['extendedInfo']['minimumOrderValue']){
+                    array_push($arrCoupinMinimumOrderValueNotReached, $arrCouponInfo['extendedInfo']['id']);
+                }
+            }
+        }
+        return $arrCoupinMinimumOrderValueNotReached;
+    }
+
+	protected function getCouponValues($arrItems) {
+
 		ls_shop_cartHelper::revalidateCouponsUsed();
 		$this->getCouponsUsed();
 
 		$arrCouponValues = array();
 		foreach ($this->couponsUsed as $couponID => $arrCouponInfo) {
 			$couponValue = 0;
-			
-			// only if the coupon doesn't have any errors the coupon value is determined, otherwise it has to be 0
-			if (!$arrCouponInfo['hasErrors']) {
-				// get the coupon value. if it is a percentaged coupon, get the amount 
-				$couponValue = ls_shop_generalHelper::ls_roundPrice(($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged' ? $arrTotalValueOfGoods[0] / 100 * $arrCouponInfo['extendedInfo']['couponValue'] : $arrCouponInfo['extendedInfo']['couponValue']));
-				
-				// if the coupon value is bigger than the total value of goods the coupon value will be set equal to the total value of goods
-				if ($couponValue > $arrTotalValueOfGoods[0]) {
-					$couponValue = $arrTotalValueOfGoods[0];
-				}
-				
-				// negate the coupon value becuase it has to be a subtraction
-				$couponValue = $couponValue * -1;
-			}
-			
-			$arrCouponValues[$couponID] = array(
-				0 => $couponValue
-			);
-			
-			// the coupon value will only be split in the tax class parts if it is unequal to 0
-			if ($couponValue != 0) {
-				foreach ($arrTotalValueOfGoods as $taxClassID => $value) {
-					if ($taxClassID == 0) {
-						continue;
-					}
-					$arrCouponValues[$couponID][$taxClassID] = ls_shop_generalHelper::ls_roundPrice($value / $arrTotalValueOfGoods[0] * $couponValue);
-				}
-				
-				/*
-				 * Check whether the sum of the split coupon values equals the original coupon value.
-				 * If not, get the difference and add it to one of the split parts (simply the next best).
-				 * This procedure is needed to make sure that the sum of the parts always adds up even
-				 * if there are rounding inaccuracies.
-				 */
-				$sumOfSplitCouponParts = 0;
-				$tmpFirstTaxClassID = 0;
-				foreach ($arrCouponValues[$couponID] as $taxClassID => $value) {
-					if ($taxClassID == 0) {
-						continue;
-					}
-					if (!$tmpFirstTaxClassID) {
-						$tmpFirstTaxClassID = $taxClassID;
-					}
-					$sumOfSplitCouponParts = $sumOfSplitCouponParts + $value;
-				}
-				if ($sumOfSplitCouponParts != $couponValue) {
-					$arrCouponValues[$couponID][$tmpFirstTaxClassID] = $arrCouponValues[$couponID][$tmpFirstTaxClassID] + ($couponValue - $sumOfSplitCouponParts);
-				}
-				/* */
-			}			
+
+            $arrTotalValueOfGoods = [];
+
+            $couponValueForDetails = ls_shop_generalHelper::ls_roundPrice(($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged' ? $arrTotalValueOfGoods[0] / 100 * $arrCouponInfo['extendedInfo']['couponValue'] : $arrCouponInfo['extendedInfo']['couponValue']));
+
+            $this->bln_coupon_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_coupon_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_coupon_debug'] && \System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
+
+            if($this->bln_coupon_debug) {
+                foreach ($arrItems as $item) {
+                    if (ls_shop_cartX::isCouponValidforProduct($item['productVariantID'], $arrCouponInfo)) {
+                        $arrDetails = [];
+                        if ($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged') {
+                            $arrDetails["couponTitle"] = $arrCouponInfo['title'];
+                            $arrDetails["productVariantID"] = $item['productVariantID'];
+                            $arrDetails["valueOfGoods"] = $item['priceCumulative'];
+                            $arrDetails["couponValue"] = $arrCouponInfo['extendedInfo']['couponValue'];
+                            $arrDetails["discount"] = ls_shop_generalHelper::ls_roundPrice($arrDetails["valueOfGoods"] / 100 * $arrCouponInfo['extendedInfo']['couponValue']);
+                            $arrDetails["price"] = $arrDetails["valueOfGoods"] - $arrDetails["discount"];
+                        } else {
+                            $arrDetails["couponTitle"] = $arrCouponInfo['title'];
+                            $arrDetails["productVariantID"] = $item['productVariantID'];
+                            $arrDetails["valueOfGoods"] = $item['priceCumulative'];
+                            $arrDetails["couponValue"] = $couponValueForDetails;
+                            $couponValueForDetails = $arrDetails["valueOfGoods"] - $arrDetails["couponValue"];
+                            $arrDetails["price"] = $couponValueForDetails < 0 ? 0 : $couponValueForDetails;
+                            $couponValueForDetails = $couponValueForDetails * -1 < 0 ? 0 : $couponValueForDetails * -1;
+
+                            $arrDetails["couponValueLeft"] = $couponValueForDetails;
+                        }
+
+
+                        $this->calculation['couponValuesDetails'][$item['productVariantID']][$arrCouponInfo['extendedInfo']['id']] = $arrDetails;
+
+                    }
+                }
+            }
+            foreach ($arrItems as $item) {
+                if (ls_shop_cartX::isCouponValidforProduct($item['productVariantID'], $arrCouponInfo)) {
+                    $arrTotalValueOfGoods[0] = $arrTotalValueOfGoods[0] + $item['priceCumulative'];
+                    if (!isset($arrTotalValueOfGoods[$item['taxClass']])) {
+                        $arrTotalValueOfGoods[$item['taxClass']] = 0;
+                    }
+                    $arrTotalValueOfGoods[$item['taxClass']] = $arrTotalValueOfGoods[$item['taxClass']] + $item['priceCumulative'];
+                }
+            }
+
+            // only if the coupon doesn't have any errors the coupon value is determined, otherwise it has to be 0
+            if (!$arrCouponInfo['hasErrors']) {
+                // get the coupon value. if it is a percentaged coupon, get the amount
+                $couponValue = ls_shop_generalHelper::ls_roundPrice(($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged' ? $arrTotalValueOfGoods[0] / 100 * $arrCouponInfo['extendedInfo']['couponValue'] : $arrCouponInfo['extendedInfo']['couponValue']));
+                // if the coupon value is bigger than the total value of goods the coupon value will be set equal to the total value of goods
+                if ($couponValue > $arrTotalValueOfGoods[0]) {
+                    $couponValue = $arrTotalValueOfGoods[0];
+                }
+
+                // negate the coupon value becuase it has to be a subtraction
+                $couponValue = $couponValue * -1;
+            }
+
+
+            $arrCouponValues[$couponID] = array(
+                0 => $couponValue
+            );
+
+            // the coupon value will only be split in the tax class parts if it is unequal to 0
+            if ($couponValue != 0) {
+                foreach ($arrTotalValueOfGoods as $taxClassID => $value) {
+                    if ($taxClassID == 0) {
+                            continue;
+                    }
+                    $arrCouponValues[$couponID][$taxClassID] = ls_shop_generalHelper::ls_roundPrice($value / $arrTotalValueOfGoods[0] * $couponValue);
+                }
+
+                /*
+                 * Check whether the sum of the split coupon values equals the original coupon value.
+                 * If not, get the difference and add it to one of the split parts (simply the next best).
+                 * This procedure is needed to make sure that the sum of the parts always adds up even
+                 * if there are rounding inaccuracies.
+                 */
+                $sumOfSplitCouponParts = 0;
+                $tmpFirstTaxClassID = 0;
+                foreach ($arrCouponValues[$couponID] as $taxClassID => $value) {
+                    if ($taxClassID == 0) {
+                        continue;
+                    }
+                    if (!$tmpFirstTaxClassID) {
+                        $tmpFirstTaxClassID = $taxClassID;
+                    }
+                    $sumOfSplitCouponParts = $sumOfSplitCouponParts + $value;
+                }
+                if ($sumOfSplitCouponParts != $couponValue) {
+                    $arrCouponValues[$couponID][$tmpFirstTaxClassID] = $arrCouponValues[$couponID][$tmpFirstTaxClassID] + ($couponValue - $sumOfSplitCouponParts);
+                }
+            }
 		}
+
 		return $arrCouponValues;
 	}
 
@@ -410,7 +489,32 @@ class ls_shop_cartX {
 		
 		return $arrTotalValueOfGoods;
 	}
-	
+
+    public static function isCouponValidforProduct($productVariantId, $coupon) {
+
+        $result = explode("-", $productVariantId);
+        $productId = $result[0];
+
+        if($coupon['extendedInfo']['productSelectionType'] === 'directSelection' || $coupon['extendedInfo']['productSelectionType'] === 'searchSelection') {
+
+            if($coupon['extendedInfo']['productBlacklist'] !== "1") { //blacklist nicht gesetzt
+                foreach ($coupon['useableProducts'] as $couponProductId) {
+                    if ($productId == $couponProductId) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            foreach ($coupon['useableProducts'] as $couponProductId) {
+                if ($productId == $couponProductId) {
+                    return false;
+                }
+            }
+        }
+        return true;
+
+    }
+
 	protected function getTotalWeightOfGoods($arrItems) {
 		$totalWeightOfGoods = 0;
 		foreach ($arrItems as $item) {

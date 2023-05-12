@@ -484,6 +484,7 @@ class ls_shop_cartHelper {
 		if (!$GLOBALS['TL_CONFIG']['ls_shop_allowCouponCombinations']) {
 			if (is_array($_SESSION['lsShopCart']['couponsUsed'])) {
 				$arrCouponArrayKeys = array_keys($_SESSION['lsShopCart']['couponsUsed']);
+
 				if (count($_SESSION['lsShopCart']['couponsUsed']) && $arrCouponArrayKeys[0] != $objCoupon->id) {
 					$arrErrors['onlyOneCouponAllowed'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text008'];
 					return $arrErrors;
@@ -509,6 +510,12 @@ class ls_shop_cartHelper {
 		 */
 		if (!ls_shop_generalHelper::check_minimumOrderValueIsReached($objCoupon->minimumOrderValue)) {
 			$arrErrors['minimumOrderValueNotReached'] = sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text007'], ls_shop_generalHelper::outputPrice($objCoupon->minimumOrderValue));
+		}
+
+		foreach(ls_shop_cartX::getInstance()->calculation["minimumOrderValueforCouponNotReached"] as $couponIdMinimumOrderValueNotReached){
+		    if($couponIdMinimumOrderValueNotReached === $objCoupon->id){
+		        $arrErrors['minimumOrderValueNotReached'] = sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text007'], ls_shop_generalHelper::outputPrice($objCoupon->minimumOrderValue));
+		    }
 		}
 
 		/*
@@ -570,8 +577,97 @@ class ls_shop_cartHelper {
 		$couponInfo['extendedInfo'] = $objCoupon->row();
 		$couponInfo['extendedInfo']['discountOutput'] = '- '.($objCoupon->couponValueType == 'percentaged' ? $objCoupon->couponValue.' %' : ls_shop_generalHelper::outputPrice($objCoupon->couponValue));
 
+        switch ($couponInfo['extendedInfo']['productSelectionType']) {
+            case 'directSelection':
+
+                // $arrProducts available directly
+                $productDirectSelectionId = ls_shop_cartHelper::ls_getDirectSelection($couponInfo['extendedInfo']['productDirectSelection']);
+                $arrResult = [];
+
+                foreach ($productDirectSelectionId as $productId) {
+
+                    $objProductSearch = new ls_shop_productSearcher();
+                    $objProductSearch->setSearchCriterion("id", $productId);
+                    $objProductSearch->search();
+                    $resultProductId = $objProductSearch->productResultsCurrentPage[0];
+                    array_push($arrResult, $resultProductId);
+                }
+
+                $couponInfo['useableProducts'] = $arrResult;
+                break;
+            case 'searchSelection':
+                // search criteria available
+                $arrSearchCriteria = ls_shop_cartHelper::ls_getSearchSelection($couponInfo['extendedInfo']);
+                $objProductSearch = new ls_shop_productSearcher();
+
+                foreach ($arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
+                    $objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+                }
+                $objProductSearch->search();
+                $arrProducts = $objProductSearch->productResultsCurrentPage;
+                $couponInfo['useableProducts'] = $arrProducts;
+                break;
+        }
+
 		return $couponInfo;
 	}
+
+    public static function ls_getDirectSelection($productDirectSelection) {
+        $arrProducts = deserialize($productDirectSelection);
+        if (count($arrProducts) == 1 && !$arrProducts[0]) {
+            $arrProducts = array();
+        }
+        return $arrProducts;
+    }
+
+    public static function ls_getSearchSelection($couponInfo) {
+        /** @var \PageModel $objPage */
+        global $objPage;
+        /*
+         * Erstellung des Suchkriterien-Arrays für productSearcher
+         */
+        $arrSearchCriteria = array('published' => '1');
+
+        if ($couponInfo['activateSearchSelectionNewProduct']) {
+            $arrSearchCriteria['lsShopProductIsNew'] = $couponInfo['searchSelectionNewProduct'] == 'new' ? '1' : '';
+        }
+
+        if ($couponInfo['activateSearchSelectionSpecialPrice']) {
+            $arrSearchCriteria['lsShopProductIsOnSale'] = $couponInfo['searchSelectionSpecialPrice'] == 'specialPrice' ? '1' : '';
+        }
+
+        if ($couponInfo['activateSearchSelectionCategory']) {
+            $pageIDs = deserialize($couponInfo['searchSelectionCategory']);
+            if (!is_array($pageIDs)) {
+                $pageIDs = array();
+            }
+            if (!count($pageIDs)) {
+                $pageIDs = array(ls_shop_languageHelper::getMainlanguagePageIDForPageID($objPage->id));
+            }
+            $arrSearchCriteria['pages'] = $pageIDs;
+        }
+
+        if ($couponInfo['activateSearchSelectionProducer']) {
+            $arrSearchCriteria['lsShopProductProducer'] = $couponInfo['searchSelectionProducer'];
+        }
+
+        if ($couponInfo['activateSearchSelectionProductName']) {
+            $arrSearchCriteria['title'] = $couponInfo['searchSelectionProductName'];
+        }
+
+        if ($couponInfo['activateSearchSelectionArticleNr']) {
+            $arrSearchCriteria['lsShopProductCode'] = $couponInfo['searchSelectionArticleNr'];
+        }
+
+        if ($couponInfo['activateSearchSelectionTags']) {
+            $arrSearchCriteria['keywords'] = $couponInfo['searchSelectionTags'];
+        }
+        /*
+         * Ende Erstellung des Suchkriterien-Arrays für productSearcher
+         */
+
+        return $arrSearchCriteria;
+    }
 
 	/**
 	 * Diese Funktion prüft aktuell im Warenkorb hinterlegte Gutscheine daraufhin, ob sie
