@@ -734,6 +734,22 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['province_us'] = array(
 	'WY' => 'Wyoming'
 );
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['province_ca'] = array(
+	'AB' => 'Alberta',
+	'BC' => 'British Columbia',
+	'MB' => 'Manitoba',
+	'NB' => 'New Brunswick',
+	'NL' => 'Neufundland und Labrador',
+	'NS' => 'Nova Scotia',
+	'NT' => 'Nordwest-Territorien',
+	'NU' => 'Nunavut',
+	'ON' => 'Ontario',
+	'PE' => 'Prince Edward Island',
+	'QC' => 'Québec',
+	'SK' => 'Saskatchewan',
+	'YT' => 'Yukon'
+);
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline'] = 'Zusätzliche Angaben zur Zahlung per';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['fieldNames'] = array(
 	'kontoinhaber' => 'Kontoinhaber',
