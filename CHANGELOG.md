@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.15 (2023-05-26)
+ * Add language variables: countries, province_us, province_ca and province_it
+
 ### 5.0.14 (2023-05-12)
  * Improve coupon: Can be restricted to individual product groups or products
 
