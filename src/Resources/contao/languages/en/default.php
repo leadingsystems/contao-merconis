@@ -227,6 +227,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText153'] = 'Order with customer acco
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText154'] = 'Order as guest';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText155'] = 'Edit';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText156'] = 'Send message';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline'] = 'Product settings';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'] = 'working days';
@@ -309,6 +311,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['checkoutFlow']['shippingAndPaymentSelecti
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['checkoutFlow']['paymentSelection'] = 'Payment';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['checkoutFlow']['review'] = 'Review &amp; Confirmation';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentMethods']['paypal']['goTo'] = 'Go on to PayPal';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentMethods']['paypal']['changeSettings'] = 'Change PayPal settings for this payment';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentMethods']['paypal']['finishPayment'] = 'Visit PayPal to finish payment';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['successfullyAuthorized'] = 'You have successfully authorized payment via PayPal.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['authorizationObsolete'] = 'You have changed information which is relevant for payment via PayPal. Should you have already authorized payment via Paypal, it will not be valid any longer. Please repeat the authorization procedure.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['authorizationCancelled'] = 'You have aborted the PayPal payment authorization procedure.';
