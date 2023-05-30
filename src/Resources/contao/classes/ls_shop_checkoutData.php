@@ -769,8 +769,6 @@ class ls_shop_checkoutData {
             $this->arrCheckoutData['selected'.ucfirst($what).'Method'] = "";
         }
 
-		//dump($this->arrCheckoutData['selected'.ucfirst($what).'Method']);
-
 		$obj_templateForPaymentOrShippingSelection = new \FrontendTemplate('template_paymentAndShippingSelect');
 		$obj_templateForPaymentOrShippingSelection->arr_availableOptions = ls_shop_generalHelper::getPaymentOrShippingMethods($what);
 		$obj_templateForPaymentOrShippingSelection->int_selectedOptionId = $this->arrCheckoutData['selected'.ucfirst($what).'Method'];
