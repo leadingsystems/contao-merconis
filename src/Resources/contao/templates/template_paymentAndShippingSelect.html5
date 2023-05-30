@@ -73,7 +73,7 @@
 					<img class="" src="files/merconisfiles/themes/theme10/images/shippingPaymentOptions/<?php echo $arr_option['cssID'] ?>.png">
 				</div>
 				<div class="shipping-payment-info">
-					<p class="title"><?php echo $arr_option['title'] ?> <?php if($arr_option['notSelectable'] != 1){ ?> <span class="feePrice.<?= (!$arr_option['feePrice'] ? ' free' : '') ?>.'"> (<?=\Merconis\Core\ls_shop_generalHelper::outputPrice($arr_option['feePrice'])?>)</span> <?php } ?></p>
+					<p class="title"><?php echo $arr_option['title'] ?> <?php if($arr_option['notSelectable'] != 1){ ?> <span class="feePrice<?= (!$arr_option['feePrice'] ? ' free' : '') ?>"> (<?=\Merconis\Core\ls_shop_generalHelper::outputPrice($arr_option['feePrice'])?>)</span> <?php } ?></p>
 					<p class="description "><?php echo $arr_option['description']; ?></p>
 				</div>
             <?= $arr_option['notSelectable'] == 1 ? "</div>" : "</a>"?>

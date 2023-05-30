@@ -348,8 +348,8 @@ $ls-product-list-field-space: 2%;
 
   .paymentAndShippingOptionContainer {
     margin-top: $grid-gutter-width-super-small;
-    padding: $grid-gutter-width-super-small;
     border: 0.1rem solid $ls-color-grey;
+    @include make-container($grid-gutter-width-super-small);
 
     &.selected {
       border: 0.2rem solid $ls-color-black;
@@ -365,18 +365,42 @@ $ls-product-list-field-space: 2%;
       background-color: #eeeeee;
     }
 
-    > a {
-      display: flex;
+    > a, > div {
+      @include make-row($grid-gutter-width-super-small);
+      padding: $grid-gutter-width-super-small 0;
+
+      &.formReviewerApplied {
+        display: block;
+        padding: $grid-gutter-width-super-small;
+      }
 
       .shipping-payment-image {
-        margin-right: 1rem;
+        @include make-col-ready($grid-gutter-width-small);
+        @include make-col(3);
+
+        @include media-breakpoint-down(5,$grid-breakpoints-ls) {
+          @include make-col(12);
+
+          margin-right: 0;
+          margin-bottom: 1rem;
+        }
       }
 
       .shipping-payment-info {
+        @include make-col-ready($grid-gutter-width-small);
+        @include make-col(9);
         .title {
           font-weight: $ls-font-weight-bold;
         }
+
+        @include media-breakpoint-down(5,$grid-breakpoints-ls){
+          @include make-col(12);
+        }
       }
+    }
+
+    > div[data-misc-close-form-initially="1"] {
+      padding: 0;
     }
   }
 
