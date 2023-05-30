@@ -26,7 +26,7 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['lsShop_mandatoryOnConditionField'
 	'exclude' => true,
 	'inputType'		=> 'select',
 	'options_callback'	=> array('Merconis\Core\ls_shop_generalHelper', 'getOtherFieldsInFormAsOptions'),
-	'eval'			=> array('tl_class' => 'w33'),
+	'eval'			=> array('includeBlankOption' => true, 'tl_class' => 'w33'),
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
@@ -51,7 +51,7 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['lsShop_mandatoryOnConditionField2
     'exclude' => true,
     'inputType'		=> 'select',
     'options_callback'	=> array('Merconis\Core\ls_shop_generalHelper', 'getOtherFieldsInFormAsOptions'),
-    'eval'			=> array('tl_class' => 'w33'),
+    'eval'			=> array('includeBlankOption' => true, 'tl_class' => 'w33'),
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
@@ -76,7 +76,7 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['lsShop_ShowOnConditionField'] = a
     'exclude' => true,
     'inputType'		=> 'select',
     'options_callback'	=> array('Merconis\Core\ls_shop_generalHelper', 'getOtherFieldsInFormAsOptions'),
-    'eval'			=> array('tl_class' => 'w33'),
+    'eval'			=> array('includeBlankOption' => true, 'tl_class' => 'w33'),
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
