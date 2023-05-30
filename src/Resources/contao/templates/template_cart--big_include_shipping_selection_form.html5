@@ -14,19 +14,20 @@
 		<?php } ?>
 	</h3>
 
-    <?php if (!$this->arrRequiredCheckoutData['shippingMethodDataIsValid'] && $this->arrRequiredCheckoutData['customerDataIsValid']) { ?>
-        <div class="checkout-validation-error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText036-001']; ?></div>
-    <?php } ?>
+    <?php if(!$this->arrRequiredCheckoutData['countNotSelectable']){
+        if (!$this->arrRequiredCheckoutData['shippingMethodDataIsValid'] && $this->arrRequiredCheckoutData['customerDataIsValid']) { ?>
+            <div class="checkout-validation-error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText036-001']; ?></div>
+    <?php }} ?>
 
     <?php
-        if ($this->arrRequiredCheckoutData['customerDataIsValid']) {
-            ?>
-                <?php echo $this->arrRequiredCheckoutData['formShippingMethodRadio']; ?>
-            <?php
-        } else {
-            ?>
-            <div class="checkout-validation-error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText032']; ?></div>
-            <?php
-        }
+    if ($this->arrRequiredCheckoutData['customerDataIsValid']) {
+        ?>
+        <?php echo $this->arrRequiredCheckoutData['formShippingMethodRadio']; ?>
+        <?php
+    } else {
+        ?>
+        <div class="checkout-validation-error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText032']; ?></div>
+        <?php
+    }
     ?>
 </div>

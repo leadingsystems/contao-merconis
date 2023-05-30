@@ -73,7 +73,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 	
 	'palettes' => array(
 		'__selector__' => array('dynamicSteuersatzType','feeType'),
-		'default' => '{title_legend},title,alias,description;{type_legend},type,formAdditionalData;{steuersatz_legend},dynamicSteuersatzType;{excludedGroups_legend},excludedGroups;{weightLimit_legend},weightLimitMin,weightLimitMax;{priceLimit_legend},priceLimitMin,priceLimitMax,priceLimitAddCouponToValueOfGoods;{countryLimit_legend},countries,countriesAsBlacklist;{fee_legend},feeType;{afterCheckout_legend},infoAfterCheckout,additionalInfo;{published_legend},published;{misc_legend},cssID,cssClass,sorting'
+		'default' => '{title_legend},title,alias,description;{type_legend},type,formAdditionalData, notSelectable;{steuersatz_legend},dynamicSteuersatzType;{excludedGroups_legend},excludedGroups;{weightLimit_legend},weightLimitMin,weightLimitMax;{priceLimit_legend},priceLimitMin,priceLimitMax,priceLimitAddCouponToValueOfGoods;{countryLimit_legend},countries,countriesAsBlacklist;{fee_legend},feeType;{afterCheckout_legend},infoAfterCheckout,additionalInfo;{published_legend},published;{misc_legend},cssID,cssClass,sorting'
 	),
 	
 	'subpalettes' => array(
@@ -376,6 +376,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 		),
         'tstamp' => array (
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
+
+        'notSelectable' => array(
+            'exclude'                 => true,
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['notSelectable'],
+            'inputType'               => 'checkbox',
+            'eval'					  =>	array('tl_class' => 'clr m12'),
+            'sql'                     => "char(1) NOT NULL default ''"
         )
 	)
 );
