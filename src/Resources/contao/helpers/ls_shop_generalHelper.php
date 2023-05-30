@@ -1873,9 +1873,7 @@ class ls_shop_generalHelper
 
     public static function getOtherFieldsInFormAsOptions(\DataContainer $dc)
     {
-        $arr_formFieldsAsOptions = array(
-            0 => '-'
-        );
+        $arr_formFieldsAsOptions = [];
 
         $obj_dbres_fieldsInForm = \Database::getInstance()
             ->prepare("
