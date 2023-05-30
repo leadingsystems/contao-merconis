@@ -54,9 +54,11 @@
 		?>
 		<div
 			<?php echo $arr_option['cssID'] ? ' id="'.$arr_option['cssID'].'"' : ''; ?>
-			class="<?php echo $this->int_selectedOptionId == $int_optionId ? 'selected' : 'notSelected'; ?> paymentAndShippingOptionContainer<?php echo $arr_option['cssClass'] ? ' '.$arr_option['cssClass'] : ''; ?>"
+			class="<?php echo $this->int_selectedOptionId == $int_optionId ? 'selected' : 'notSelected'; ?> <?php echo $arr_option['notSelectable'] != 1 ? '' : 'notSelectable'; ?> paymentAndShippingOptionContainer<?php echo $arr_option['cssClass'] ? ' '.$arr_option['cssClass'] : ''; ?>"
 		>
-			<a
+
+
+            <?= $arr_option['notSelectable'] == 1 ? "<div" : "<a"?>
 				href="<?php echo $str_specificTargetUrl; ?>"
 				data-lsjs-component="cajaxCaller"
 				data-lsjs-cajaxCallerOptions="
@@ -71,10 +73,10 @@
 					<img class="" src="files/merconisfiles/themes/theme10/images/shippingPaymentOptions/<?php echo $arr_option['cssID'] ?>.png">
 				</div>
 				<div class="shipping-payment-info">
-					<p class="title"><?php echo $arr_option['title'].'<span class="feePrice'.(!$arr_option['feePrice'] ? ' free' : '').'"> ('.\Merconis\Core\ls_shop_generalHelper::outputPrice($arr_option['feePrice']).')</span>'; ?></p>
+					<p class="title"><?php echo $arr_option['title'] ?> <?php if($arr_option['notSelectable'] != 1){ ?> <span class="feePrice<?= (!$arr_option['feePrice'] ? ' free' : '') ?>"> (<?=\Merconis\Core\ls_shop_generalHelper::outputPrice($arr_option['feePrice'])?>)</span> <?php } ?></p>
 					<p class="description "><?php echo $arr_option['description']; ?></p>
 				</div>
-			</a>
+            <?= $arr_option['notSelectable'] == 1 ? "</div>" : "</a>"?>
 
 			<?php
 				if ($this->int_selectedOptionId == $int_optionId) {

@@ -1829,12 +1829,44 @@ class ls_shop_generalHelper
             if (!ls_shop_generalHelper::checkIfPaymentOrShippingMethodIsAllowed($tmpMethodInfo, $type)) {
                 continue;
             }
-            if (!is_array($cheapestMethod) || $cheapestMethod['feePrice'] > $tmpMethodInfo['feePrice']) {
-                $cheapestMethod = $tmpMethodInfo;
+            if($tmpMethodInfo["notSelectable"] != 1){
+                if (!is_array($cheapestMethod) || $cheapestMethod['feePrice'] > $tmpMethodInfo['feePrice']) {
+                    $cheapestMethod = $tmpMethodInfo;
+                }
             }
         }
 
         return $cheapestMethod['id'];
+    }
+
+
+    public static function checkSelectableStatus()
+    {
+
+        $type = 'shipping';
+
+        $methodTable = 'tl_ls_shop_shipping_methods';
+
+        $objMethods = \Database::getInstance()->prepare("
+				SELECT		*
+				FROM		`" . $methodTable . "`
+				WHERE		`published` = '1'
+				ORDER BY	`sorting` ASC
+			")
+            ->execute();
+
+        while ($objMethods->next()) {
+            $tmpMethodInfo = ls_shop_generalHelper::getPaymentAndShippingMethodInfo($objMethods->id, $type);
+            if (!ls_shop_generalHelper::checkIfPaymentOrShippingMethodIsAllowed($tmpMethodInfo, $type)) {
+                continue;
+            }
+            //min 1 hat nicht das attribute "notSelectable" und ist valid
+            if($tmpMethodInfo["notSelectable"] != 1){
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /*
@@ -1884,9 +1916,7 @@ class ls_shop_generalHelper
 
     public static function getOtherFieldsInFormAsOptions(\DataContainer $dc)
     {
-        $arr_formFieldsAsOptions = array(
-            0 => '-'
-        );
+        $arr_formFieldsAsOptions = [];
 
         $obj_dbres_fieldsInForm = \Database::getInstance()
             ->prepare("

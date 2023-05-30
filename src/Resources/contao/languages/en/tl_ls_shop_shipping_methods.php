@@ -30,6 +30,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['countriesAsBlacklist']						= array('Interpret country selection as a blacklist');
 	$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['cssID']										= array('CSS ID');
 	$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['cssClass']									= array('CSS class');
+    $GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['notSelectable']									= array('Not Selectable');
 	
 	/*
 	 * Legends
