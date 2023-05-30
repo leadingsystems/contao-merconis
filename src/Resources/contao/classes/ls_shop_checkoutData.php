@@ -24,7 +24,8 @@ class ls_shop_checkoutData {
 		'blnPaymentMethodDataIsValid' => false,
 		'blnShippingMethodDataIsValid' => false,
 		'blnLoginStatusIsValid' => false,
-		'blnCartIsValid' => false
+		'blnCartIsValid' => false,
+        'onlyNotSelectable' => false
 	);
 	
 	private $blnCheckoutDataIsValid = false;
@@ -199,7 +200,11 @@ class ls_shop_checkoutData {
 			case 'customerDataIsValid':
 				return $this->arrValidation['blnCustomerDataIsValid'];
 				break;
-				
+
+            case 'onlyNotSelectable':
+                return $this->arrValidation['onlyNotSelectable'];
+                break;
+
 			case 'paymentMethodDataIsValid':
 				return $this->arrValidation['blnPaymentMethodDataIsValid'];
 				break;
@@ -750,6 +755,21 @@ class ls_shop_checkoutData {
 			\Controller::redirect(\LeadingSystems\Helpers\getUrlWithoutParameters(array('selectPaymentOrShipping', 'id')));
 		}
 
+        $objMethod = \Database::getInstance()->prepare("
+			SELECT		*
+			FROM		`tl_ls_shop_shipping_methods`
+			WHERE		`id` = ?
+		")
+            ->execute($this->arrCheckoutData['selected'.ucfirst($what).'Method']);
+
+        $first = $objMethod->fetchAssoc();
+
+        if($first['notSelectable'] == 1){
+            $this->arrCheckoutData['selected'.ucfirst($what).'Method'] = "";
+        }
+
+		//dump($this->arrCheckoutData['selected'.ucfirst($what).'Method']);
+
 		$obj_templateForPaymentOrShippingSelection = new \FrontendTemplate('template_paymentAndShippingSelect');
 		$obj_templateForPaymentOrShippingSelection->arr_availableOptions = ls_shop_generalHelper::getPaymentOrShippingMethods($what);
 		$obj_templateForPaymentOrShippingSelection->int_selectedOptionId = $this->arrCheckoutData['selected'.ucfirst($what).'Method'];
@@ -771,7 +791,8 @@ class ls_shop_checkoutData {
 			'blnLoginStatusIsValid' => $this->validateLoginStatus(),
 			'blnCartIsValid' => $this->validateCartStatus()
 		);
-			
+        $this->checkSelectableStatus();
+
 		$this->blnCheckoutDataIsValid =
 				$this->arrValidation['blnCustomerDataIsValid']
 			&&	$this->arrValidation['blnPaymentMethodDataIsValid']
@@ -822,7 +843,11 @@ class ls_shop_checkoutData {
 	private function validateCustomerData() {
 		return ls_shop_generalHelper::validateCollectedFormData($this->arrCheckoutData['arrCustomerData'], $this->formCustomerDataID);
 	}
-	
+
+    private function checkSelectableStatus() {
+        $this->arrCheckoutData['countNotSelectable'] = ls_shop_generalHelper::checkSelectableStatus();
+    }
+
 	/*
 	 * This function checks whether or not a payment or shipping method should be preselected and if
 	 * no payment or shipping function has been selected yet, selects it.
@@ -941,13 +966,27 @@ class ls_shop_checkoutData {
 			throw new \Exception('insufficient parameters given');
 		}
 
-		/*
-		 * Wenn keine Zahlungs- bzw. Versandmethode gewählt ist, ist der Zustand auf jeden Fall NICHT valide
-		 */
-		if (!$this->arrCheckoutData['selected'.ucfirst($what).'Method']) {
-			$blnIsValid = false;
-			return $blnIsValid;
-		} else {
+        /*
+         * Wenn keine Zahlungs- bzw. Versandmethode gewählt ist, ist der Zustand auf jeden Fall NICHT valide
+         */
+        if (!$this->arrCheckoutData['selected'.ucfirst($what).'Method']) {
+            $blnIsValid = false;
+            return $blnIsValid;
+        } else {
+
+            $objMethod = \Database::getInstance()->prepare("
+            SELECT		*
+            FROM		`tl_ls_shop_shipping_methods`
+            WHERE		`id` = ?
+            ")
+            ->execute($this->arrCheckoutData['selected'.ucfirst($what).'Method']);
+
+            $first = $objMethod->fetchAssoc();
+
+            if($first['notSelectable'] == 1){
+                return false;
+            }
+
 			switch($what) {
 				case 'payment':
 					if (!ls_shop_generalHelper::checkIfPaymentMethodIsAllowed($this->arrCheckoutData['selectedPaymentMethod'])) {
