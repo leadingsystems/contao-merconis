@@ -1,6 +1,11 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.16 (2023-05-30)
+ * Add noshipping option
+ * Fix blank option on ShowOnConditionField
+ * Improve styling issues
+
 ### 5.0.15 (2023-05-26)
  * Add language variables: countries, province_us, province_ca and province_it
 
