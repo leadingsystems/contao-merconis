@@ -824,7 +824,7 @@ class ls_shop_checkoutData {
 				break;
 				
 			case 'withLogin':
-				if (FE_USER_LOGGED_IN) {
+				if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 					return true;
 				} else {
 					return false;
