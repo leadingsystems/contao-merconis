@@ -8,7 +8,7 @@ class ModuleMyOrders extends \Module {
 	protected $strDefaultSortingDirection = 'DESC';
 	
 	public function generate() {
-		if (FE_USER_LOGGED_IN) {
+		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		if (TL_MODE == 'BE') {
@@ -27,7 +27,7 @@ class ModuleMyOrders extends \Module {
 		/*
 		 * Get the user's order from the database
 		 */
-		if (!FE_USER_LOGGED_IN || !$this->User->id) {
+		if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() || !$this->User->id) {
 			return;
 		}
 				
