@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 4.0.20 (2023-07-19)
+ * Fix: Login bug
+
 ### 4.0.19 (2023-04-13)
  * Fix: Output sitemap.xml for foreign languages
  * Fix: PayPal Checkout calculation
