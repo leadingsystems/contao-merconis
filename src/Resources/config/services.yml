@@ -1,4 +1,15 @@
 services:
+
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  merconis.eventlistener.loginlistener:
+    class: LeadingSystems\MerconisBundle\EventListener\LoginListener
+    tags:
+      - { name: kernel.event_listener, event: security.interactive_login }
+
   merconis.controller.backend.product_search:
     class: LeadingSystems\MerconisBundle\Controller\ProductSearchController
     public: true

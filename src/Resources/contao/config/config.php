@@ -49,7 +49,6 @@ if (TL_MODE == 'FE') {
 if (TL_MODE == 'FE') {
 	$GLOBALS['TL_HOOKS']['processFormData'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_processFormData');
 	$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_loadFormField');
-	$GLOBALS['TL_HOOKS']['postLogin'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_postLogin');
 }
 
 
