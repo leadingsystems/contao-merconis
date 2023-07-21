@@ -1,6 +1,12 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.18 (2023-07-21)
+ * Fix PayPal Checkout calculation (tax)
+
+### 5.0.17 (2023-07-14)
+ * Fix frontend login
+
 ### 5.0.16 (2023-05-30)
  * Add noshipping option
  * Fix blank option on ShowOnConditionField
