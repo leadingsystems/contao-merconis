@@ -146,6 +146,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                                 "currency_code"=> $currency_code,
                                 "value"=> number_format(ls_shop_cartX::getInstance()->calculation['totalValueOfGoods'][0], 2, '.', '')
                             ],
+                            "tax_total"=> [
+                                "currency_code"=> $currency_code,
+                                "value"=> ls_shop_cartX::getInstance()->calculation['taxInclusive'] ? '0.00' : number_format(ls_sub(ls_shop_cartX::getInstance()->calculation['invoicedAmount'], ls_shop_cartX::getInstance()->calculation['invoicedAmountNet']), 2, '.', '')
+                            ],
                             "discount"=> [
                                 "currency_code"=> $currency_code,
                                 "value"=> $discount
