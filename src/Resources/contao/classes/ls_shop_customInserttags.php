@@ -17,7 +17,7 @@ class ls_shop_customInserttags
 
 		switch ($tag) {
             case 'IfFeUserLoggedIn':
-                if (!FE_USER_LOGGED_IN) {
+                if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     for (; $_rit<$_cnt; $_rit+=2) {
                         if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
                             break;
@@ -29,7 +29,7 @@ class ls_shop_customInserttags
                 break;
 
             case 'IfFeUserNotLoggedIn':
-                if (FE_USER_LOGGED_IN) {
+                if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     for (; $_rit<$_cnt; $_rit+=2) {
                         if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
                             break;
