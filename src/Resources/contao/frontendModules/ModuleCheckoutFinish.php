@@ -11,7 +11,7 @@ class ModuleCheckoutFinish extends \Module {
 	private $orderNr = null;
 	
 	public function generate() {
-		if (FE_USER_LOGGED_IN) {
+		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		
@@ -437,7 +437,7 @@ class ModuleCheckoutFinish extends \Module {
 			'orderNr' => $this->orderNr, // no language
 			'orderDateUnixTimestamp' => time(), // no language
 			'orderDate' => date("Y-m-d H:i:s"), // no language
-			'customerNr' => FE_USER_LOGGED_IN ? $this->User->id : 0, // no language
+			'customerNr' => \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() ? $this->User->id : 0, // no language
 			'customerLanguage' => $objPage->language, // no language
 			'customerInfo' => array(
 				'personalData' => $this->createShopLanguageArray(ls_shop_checkoutData::getInstance()->arrCustomerDataReview), // shop language
