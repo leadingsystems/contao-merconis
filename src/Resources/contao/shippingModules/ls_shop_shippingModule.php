@@ -6,7 +6,7 @@ namespace Merconis\Core;
 	 * Diese Klasse stellt die Versandmodule bereit. Die Einstellungen für ein Versandmodul werden in $this->types definiert
 	 * und dann automatisch verarbeitet, z. B. für die Anpassung des DCA in tl_ls_shop_shipping_methods.
 	 * 
-	 * Wichtig: type "standard" muss AUF JEDEN FALL so drin sein, da dies in der SQL-Definition als Standard f�r type eingetragen wird.
+	 * Wichtig: type "standard" muss AUF JEDEN FALL so drin sein, da dies in der SQL-Definition als Standard für type eingetragen wird.
 	 * 
 	 * Zu beachten:
 	 * Die Definition der Backend-Form-Fields (BE_formFields) funktioniert exakt so wie in der DCA-Definition. Das Array
@@ -48,7 +48,7 @@ namespace Merconis\Core;
 		
 		
 		public function __construct() {
-			if(FE_USER_LOGGED_IN) {
+			if(\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 				$this->import('FrontendUser', 'User');
 			}
 			parent::__construct();

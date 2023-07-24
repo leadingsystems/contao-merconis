@@ -4,7 +4,7 @@ namespace Merconis\Core;
 
 class ModuleMyOrderDetails extends \Module {
 	public function generate() {
-		if (FE_USER_LOGGED_IN) {
+		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		if (TL_MODE == 'BE') {
@@ -19,7 +19,7 @@ class ModuleMyOrderDetails extends \Module {
 		$this->strTemplate = $this->ls_shop_myOrderDetails_template;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
 
-		if (!FE_USER_LOGGED_IN || !$this->User->id) {
+		if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() || !$this->User->id) {
 			return;
 		}
 				

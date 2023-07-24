@@ -477,7 +477,7 @@ class ls_shop_generalHelper
      * wird die Info der Standardgruppe zurückgegeben.
      *
      * Diese Funktion kann mit einem explizit übergebenen User-Objekt aufgerufen werden, was
-     * in einem postLogin-Hook nötig ist, da FE_USER_LOGGED_IN zu diesem Zeitpunkt noch
+     * in einem postLogin-Hook nötig ist, da \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() zu diesem Zeitpunkt noch
      * nicht gesetzt und möglicherweise auch das User-Objekt noch nicht verfügbar ist.
      */
     public static function getGroupSettings4User($bln_forceRefresh = false, $obj_user = null)
@@ -2796,14 +2796,14 @@ class ls_shop_generalHelper
                 break;
 
             case 'onlyIfFeUserLoggedIn':
-                if (!FE_USER_LOGGED_IN) {
+                if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     $obj_article->published = false;
                     return;
                 }
                 break;
 
             case 'onlyIfFeUserNotLoggedIn':
-                if (FE_USER_LOGGED_IN) {
+                if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     $obj_article->published = false;
                     return;
                 }

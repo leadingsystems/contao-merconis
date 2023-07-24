@@ -11,7 +11,7 @@ class ModuleProductSearch extends \Module {
 	public $arrLiveHitFields = array();
 	
 	public function generate() {
-		if (FE_USER_LOGGED_IN) {
+		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		
@@ -196,11 +196,9 @@ class ModuleProductSearch extends \Module {
                     'searchType' => \Input::post('searchType')
 				);
 
-
 				$this->redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages', false));
 			}
 		}
-
 
 		$this->Template->str_widget_searchWord = $obj_flexWidget_input->getOutput();
 	}
