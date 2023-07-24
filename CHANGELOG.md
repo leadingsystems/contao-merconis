@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.19 (not yet released: 2023-07-??)
+ * remove deprecated FE_USER_LOGGED_IN
+
 ### 5.0.18 (2023-07-21)
  * Fix PayPal Checkout calculation (tax)
 
