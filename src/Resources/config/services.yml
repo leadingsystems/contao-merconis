@@ -10,6 +10,11 @@ services:
     tags:
       - { name: kernel.event_listener, event: security.interactive_login }
 
+  merconis.eventlistener.sitemaplistener:
+    class: LeadingSystems\MerconisBundle\EventListener\SitemapListener
+    tags:
+      - { name: kernel.event_listener, event: contao.sitemap }
+
   merconis.controller.backend.product_search:
     class: LeadingSystems\MerconisBundle\Controller\ProductSearchController
     public: true

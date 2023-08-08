@@ -71,11 +71,6 @@ $GLOBALS['TL_HOOKS']['executePostActions'][] = array('Merconis\Core\ls_shop_ajax
 $GLOBALS['TL_HOOKS']['replaceInsertTags'][] = array('Merconis\Core\ls_shop_customInserttags', 'customInserttags');
 
 /*
- * Hook für Suchindex
- */
-$GLOBALS['TL_HOOKS']['getSearchablePages'][] = array('Merconis\Core\ls_shop_generalHelper', 'getSearchablePages');
-
-/*
  * Hook für bedingte CTE-Ausgabe
  */
 $GLOBALS['TL_HOOKS']['getContentElement'][] = array('Merconis\Core\ls_shop_generalHelper', 'conditionalCTEOutput');
