@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\System;
 
 class Installer
 {
@@ -299,7 +300,7 @@ class Installer
                     </div>
                     <form action="contao?do=ls_shop_dashboard&lsShopInstallationStep=2" method="post">
                         <input type="hidden" name="FORM_SUBMIT" value="installer_themeSelection">
-                        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
+                        <input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>">
 
                         <?php
                         if (is_array($obj_installerController->availableThemes) && count($obj_installerController->availableThemes)) {
