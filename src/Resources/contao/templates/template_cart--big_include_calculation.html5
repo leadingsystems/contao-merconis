@@ -95,7 +95,7 @@ $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
                                        }
                                          "
                                     >
-                                        <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+                                        <input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>" />
                                         <input name="FORM_SUBMIT" value="useCouponSubmit" type="hidden">
                                         <?php echo $this->fflInputCoupon; ?>
                                         <button type="submit" title="<?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text002']; ?>"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text002']; ?></button>

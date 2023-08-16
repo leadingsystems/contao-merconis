@@ -73,7 +73,7 @@
 			data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
 		>
 			<form action="<?php echo \Environment::get('request'); ?>" class="tl_form" method="post">
-				<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+				<input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>">
 				<input type="hidden" name="FORM_SUBMIT" value="variantSelectionForm_<?php echo $this->objProduct->_id; ?>">
 				<?php
 					if (isset($blnNoVariantFound) && $blnNoVariantFound) {

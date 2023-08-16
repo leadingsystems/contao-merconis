@@ -47,7 +47,7 @@
 		<?php echo $this->javascripts; ?>
 		<?php echo $this->rteConfig; ?>
 		<script>
-		parent.REQUEST_TOKEN = '<?php echo REQUEST_TOKEN; ?>';
+		parent.REQUEST_TOKEN = '<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>';
 		</script>
 	</head>
 	<body class="__ua__ popup">
