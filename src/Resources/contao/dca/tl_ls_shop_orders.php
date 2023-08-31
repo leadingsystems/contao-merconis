@@ -2,9 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
     'config' => array(
-        'dataContainer' => 'Table',
+        'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
         'closed' => true,
         'onsubmit_callback' => array (
             array('Merconis\Core\ls_shop_orders', 'sendMessagesOnStatusChange')
@@ -23,9 +27,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
 
     'list' => array(
         'sorting' => array(
-            'mode' => 2,
+            'mode' => DataContainer::MODE_SORTABLE,
             'fields' => array('orderDate'),
-            'flag' => 1,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'disableGrouping' => true,
             'panelLayout' => 'filter;sort,search,limit'
         ),

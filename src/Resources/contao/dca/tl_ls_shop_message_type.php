@@ -2,9 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
 		'ctable' => array('tl_ls_shop_message_model'),
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_ls_shop_message_type_controller', 'restartCounter')
@@ -20,9 +24,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 	
 	'list' => array(
 		'sorting' => array(
-			'mode' => 1,
+			'mode' => DataContainer::MODE_SORTED,
 			'fields' => array('title'),
-			'flag' => 1,
+			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
 			'disableGrouping' => true,
 			'panelLayout' => 'filter;sort,search,limit'
 		),

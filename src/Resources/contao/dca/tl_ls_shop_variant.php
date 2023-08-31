@@ -2,9 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
 		'ptable' => 'tl_ls_shop_product',
 		'doNotCopyRecords' => true,
 		'oncopy_callback' => array (
@@ -48,7 +52,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 	'list' => array(
 	
 		'sorting' => array(
-			'mode' => 4,
+			'mode' => DataContainer::MODE_PARENT,
 			'fields' => array('sorting'),
 			'panelLayout' => 'filter;sort,search,limit',
 			'headerFields'            => array('title', 'lsShopProductProducer'),
