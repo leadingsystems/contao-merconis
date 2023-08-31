@@ -5097,7 +5097,7 @@ class ls_shop_generalHelper
             return $str_content;
         }
 
-	$webDir = StringUtil::stripRootDir(System::getContainer()->getParameter('contao.web_dir'));
+        $webDir = StringUtil::stripRootDir(System::getContainer()->getParameter('contao.web_dir'));
 	    
         ob_start();
         ?>
