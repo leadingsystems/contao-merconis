@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 4.0.22 (2023-09-01)
+ * Fix: Static path for lsjs to dynamic path
+
 ### 4.0.21 (2023-07-19)
  * Fix: PayPal Checkout calculation (tax)
 
