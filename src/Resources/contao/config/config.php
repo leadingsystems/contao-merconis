@@ -2,6 +2,9 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+use Contao\System;
+
 define('TL_MERCONIS_INSTALLER', 'MERCONIS INSTALLER');
 define('TL_MERCONIS_IMPORTER', 'MERCONIS IMPORTER');
 define('TL_MERCONIS_GENERAL', 'MERCONIS GENERAL');
@@ -30,8 +33,9 @@ if (TL_MODE === 'BE') {
 		</script>
 	";
 
-	$GLOBALS['TL_JAVASCRIPT'][] = 'assets/lsjs/core/appBinder/binder.php?output=js&pathToApp='.urldecode('_dup4_/web/bundles/leadingsystemsmerconis/js/lsjs/backend/app').'&includeCore=no&includeCoreModules=no'.($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');
-	$GLOBALS['TL_CSS'][] = 'assets/lsjs/core/appBinder/binder.php?output=css&pathToApp='.urldecode('_dup4_/web/bundles/leadingsystemsmerconis/js/lsjs/backend/app').'&includeCore=no&includeCoreModules=no'.($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');
+    $webDir = StringUtil::stripRootDir(System::getContainer()->getParameter('contao.web_dir'));
+	$GLOBALS['TL_JAVASCRIPT'][] = 'assets/lsjs/core/appBinder/binder.php?output=js&pathToApp='.urldecode('_dup4_/'.$webDir.'/bundles/leadingsystemsmerconis/js/lsjs/backend/app').'&includeCore=no&includeCoreModules=no'.($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');
+	$GLOBALS['TL_CSS'][] = 'assets/lsjs/core/appBinder/binder.php?output=css&pathToApp='.urldecode('_dup4_/'.$webDir.'/bundles/leadingsystemsmerconis/js/lsjs/backend/app').'&includeCore=no&includeCoreModules=no'.($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');
 }
 
 if (TL_MODE == 'FE') {
