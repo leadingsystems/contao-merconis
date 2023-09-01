@@ -4,6 +4,8 @@ namespace Merconis\Core;
 
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
 use Contao\LayoutModel;
+use Contao\StringUtil;
+use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
 use function LeadingSystems\Helpers\ls_mul;
@@ -460,7 +462,7 @@ class ls_shop_generalHelper
      * wird die Info der Standardgruppe zurückgegeben.
      *
      * Diese Funktion kann mit einem explizit übergebenen User-Objekt aufgerufen werden, was
-     * in einem postLogin-Hook nötig ist, da FE_USER_LOGGED_IN zu diesem Zeitpunkt noch
+     * in einem postLogin-Hook nötig ist, da \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() zu diesem Zeitpunkt noch
      * nicht gesetzt und möglicherweise auch das User-Objekt noch nicht verfügbar ist.
      */
     public static function getGroupSettings4User($bln_forceRefresh = false, $obj_user = null)
@@ -2589,87 +2591,6 @@ class ls_shop_generalHelper
         }
     }
 
-    /*
-     * Diese Funktion wird beim Aufbauen des Suchindex aufgerufen und ergänzt das übergebene Array der in den Index aufzunehmenden Seiten/URLs
-     * um die ebenfalls aufzunehmenden Produkt-Seiten/-URLs.
-     */
-    public static function getSearchablePages($arrPages, $intRoot = 0, $blnIsSitemap = false)
-    {
-
-        //für jede verfügbare Sprache im Shop eine alias_[SprachKey] Spalte erzeugen
-        $arr_languageKeys = \Merconis\Core\ls_shop_languageHelper::getAllLanguages();
-
-        $str_columns = '`pages`, `alias`';
-        foreach ($arr_languageKeys as $str_languageKey) {
-            $str_columns .= ', `alias_'.$str_languageKey.'`';
-        }
-
-        $objProducts = \Database::getInstance()
-		->prepare("
-			SELECT			".$str_columns."			
-			FROM			`tl_ls_shop_product`
-			WHERE			`published` = 1
-		")
-            	->limit(10000)
-            	->execute();
-
-        while ($objProducts->next()) {
-            $whereConditionPages = '';
-            $whereConditionValues = array();
-
-            $objProducts->pages = deserialize($objProducts->pages);
-            if (!is_array($objProducts->pages) || !count($objProducts->pages)) {
-                continue;
-            }
-            foreach ($objProducts->pages as $page) {
-                if ($whereConditionPages) {
-                    $whereConditionPages .= ' OR ';
-                }
-                $whereConditionPages .= "`id` = ?";
-                $whereConditionValues[] = $page;
-            }
-            if (!$whereConditionPages || !count($whereConditionValues)) {
-                continue;
-            }
-
-            $time = time();
-            $objPagesForProduct = \Database::getInstance()->prepare("
-					SELECT			id,
-									alias
-					FROM 			tl_page
-					WHERE			(" . $whereConditionPages . ")
-						AND			(start = '' OR start < " . $time . ")
-						AND			(stop = '' OR stop > " . $time . ")
-						AND			published = 1
-						AND			noSearch != 1" . ($blnIsSitemap ? " AND sitemap!='map_never'" : "")
-            )
-                ->execute($whereConditionValues);
-
-            // Determine domain
-            if (!$objPagesForProduct->numRows) {
-                continue;
-            } else {
-                while ($objPagesForProduct->next()) {
-                    $domain = \Environment::get('base');
-                    $arrLanguagePages = ls_shop_languageHelper::getLanguagePages($objPagesForProduct->id);
-                    foreach ($arrLanguagePages as $languagePageInfo) {
-                        $objPageForProduct = \PageModel::findWithDetails($languagePageInfo['id']);
-                        if ($objPageForProduct->domain != '') {
-                            $domain = (\Environment::get('ssl') ? 'https://' : 'http://') . $objPageForProduct->domain . TL_PATH . '/';
-                        }
-
-                        $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
-                        if ($str_languageAlias == '') {
-                            continue;
-                        }
-
-                        $arrPages[] = $domain . \Controller::generateFrontendUrl($objPageForProduct->row(), '/product/' . $str_languageAlias, $objPageForProduct->language);
-                    }
-                }
-            }
-        }
-        return $arrPages;
-    }
 
     public static function addToLastSeenProducts($productID)
     {
@@ -2807,14 +2728,14 @@ class ls_shop_generalHelper
                 break;
 
             case 'onlyIfFeUserLoggedIn':
-                if (!FE_USER_LOGGED_IN) {
+                if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     $obj_article->published = false;
                     return;
                 }
                 break;
 
             case 'onlyIfFeUserNotLoggedIn':
-                if (FE_USER_LOGGED_IN) {
+                if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     $obj_article->published = false;
                     return;
                 }
@@ -2863,13 +2784,13 @@ class ls_shop_generalHelper
                 break;
 
             case 'onlyIfFeUserLoggedIn':
-                if (!FE_USER_LOGGED_IN) {
+                if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     return '';
                 }
                 break;
 
             case 'onlyIfFeUserNotLoggedIn':
-                if (FE_USER_LOGGED_IN) {
+                if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     return '';
                 }
                 break;
@@ -5176,9 +5097,11 @@ class ls_shop_generalHelper
             return $str_content;
         }
 
+        $webDir = StringUtil::stripRootDir(System::getContainer()->getParameter('contao.web_dir'));
+	    
         ob_start();
         ?>
-        <script src="assets/lsjs/core/appBinder/binder.php?output=js&pathToApp=<?php echo urldecode('_dup4_/web/bundles/leadingsystemsmerconis/js/lsjs/backend/app'); ?>&includeCore=no&includeCoreModules=no<?php echo ($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');?>"></script>
+        <script src="assets/lsjs/core/appBinder/binder.php?output=js&pathToApp=<?php echo urldecode('_dup4_/'.$webDir.'/bundles/leadingsystemsmerconis/js/lsjs/backend/app'); ?>&includeCore=no&includeCoreModules=no<?php echo ($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');?>"></script>
         <script type="text/javascript">
             window.addEvent('domready', function () {
                 if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {

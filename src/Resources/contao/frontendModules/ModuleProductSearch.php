@@ -11,7 +11,7 @@ class ModuleProductSearch extends \Module {
 	public $arrLiveHitFields = array();
 	
 	public function generate() {
-		if (FE_USER_LOGGED_IN) {
+		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		

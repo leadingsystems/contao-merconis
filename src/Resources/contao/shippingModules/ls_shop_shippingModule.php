@@ -48,7 +48,7 @@ namespace Merconis\Core;
 		
 		
 		public function __construct() {
-			if(FE_USER_LOGGED_IN) {
+			if(\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 				$this->import('FrontendUser', 'User');
 			}
 			parent::__construct();
