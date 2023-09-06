@@ -8,9 +8,12 @@ namespace Merconis\Core;
  * module callback!
  */
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_import'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
 		'sql' => array
 		(
 			'keys' => array
@@ -22,9 +25,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_import'] = array(
 	
 	'list' => array(
 		'sorting' => array(
-			'mode' => 1,
+			'mode' => DataContainer::MODE_SORTED,
 			'fields' => array('importInfo'),
-			'flag' => 1,
+			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
 			'panelLayout' => 'filter;sort,search,limit'
 		),
 		

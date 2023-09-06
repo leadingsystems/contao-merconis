@@ -2,9 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
 		'ctable' => array('tl_ls_shop_variant'),
 		'oncopy_callback' => array (
 			array('Merconis\Core\ls_shop_generalHelper', 'attributeValueAllocationCopy'),
@@ -33,9 +37,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 
 	'list' => array(
 		'sorting' => array(
-			'mode' => 2,
+			'mode' => DataContainer::MODE_SORTABLE,
 			'fields' => array('id'),
-			'flag' => 11,
+			'flag' => DataContainer::SORT_ASC,
 			'panelLayout' => 'filter;sort,search,limit'
 		),
 
