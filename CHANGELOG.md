@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 4.0.23 (2023-09-06)
+ * Fix: mediabox
+
 ### 4.0.22 (2023-09-01)
  * Fix: Static path for lsjs to dynamic path
 
