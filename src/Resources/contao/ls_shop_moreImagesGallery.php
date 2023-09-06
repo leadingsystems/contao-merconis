@@ -230,7 +230,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		
 		$mainImageSize = deserialize($sizeMainImage);
 		$intMaxWidth = $mainImageSize[0];
-		$strLightboxId = 'lightbox[lb' . $this->id . ']';
+		$strLightboxId = 'lb' . $this->id;
 		
 		$arrGalleryImages = array();
 		foreach ($this->ls_images as $imageKey => $imageValue) {
