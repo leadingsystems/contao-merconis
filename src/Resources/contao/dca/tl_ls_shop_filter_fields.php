@@ -2,9 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
 		'ctable' => array('tl_ls_shop_filter_field_values'),
 		'onsubmit_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -29,8 +33,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 	
 	'list' => array(
 		'sorting' => array(
-			'mode' => 2,
-			'flag' => 1,
+			'mode' => DataContainer::MODE_SORTABLE,
+			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
 			'fields' => array('title'),
 			'disableGrouping' => true,
 			'panelLayout' => 'sort,search,limit'			

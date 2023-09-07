@@ -2,9 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
 		'ptable' => 'tl_ls_shop_message_type',
         'sql' => array
         (
@@ -18,7 +22,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	'list' => array(
 	
 		'sorting' => array(
-			'mode' => 4,
+			'mode' => DataContainer::MODE_PARENT,
 			'fields' => array('subject'),
 			'panelLayout' => 'filter;sort,search,limit',
 			'headerFields'            => array('title'),
