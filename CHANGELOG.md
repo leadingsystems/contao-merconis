@@ -1,7 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.0.19 (not yet released: 2023-09-01)
+### 5.0.20 (not yet released: 2023-09-07)
+ * add enableVersioning
+
+### 5.0.19 (2023-09-01)
  * remove deprecated FE_USER_LOGGED_IN
  * add loginListener & sitemapListener, remove old hook
  * fix static path for lsjs to dynamic path
