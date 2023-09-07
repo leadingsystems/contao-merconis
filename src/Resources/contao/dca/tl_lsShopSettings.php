@@ -2,9 +2,11 @@
 
 namespace Merconis\Core;
 
+use Contao\DC_File;
+
 $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	'config' => array(
-		'dataContainer' => 'File',
+		'dataContainer' => DC_File::class,
 		'closed' => true,
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_lsShopSettings_controller', 'restartOrderNrCounter'),
