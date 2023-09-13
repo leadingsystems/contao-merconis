@@ -8,6 +8,7 @@ use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
+use LeadingSystems\Lsjs4c\binderController;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -5098,10 +5099,15 @@ class ls_shop_generalHelper
         }
 
         $webDir = StringUtil::stripRootDir(System::getContainer()->getParameter('contao.web_dir'));
-	    
+
+        $obj_lsjs_appBinderCore = new binderController(false, false,false,true,true,   $webDir."/bundles/leadingsystemsmerconis/js/lsjs/backend/app", "");
+        $jsFilepathCore = $obj_lsjs_appBinderCore->outputJS();
+
+        $GLOBALS['TL_JAVASCRIPT'][] = $jsFilepathCore;
+
         ob_start();
         ?>
-        <script src="assets/lsjs/core/appBinder/binder.php?output=js&pathToApp=<?php echo urldecode('_dup4_/'.$webDir.'/bundles/leadingsystemsmerconis/js/lsjs/backend/app'); ?>&includeCore=no&includeCoreModules=no<?php echo ($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');?>"></script>
+        <script src="<?= $jsFilepathCore ?>"></script>
         <script type="text/javascript">
             window.addEvent('domready', function () {
                 if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {
