@@ -5103,8 +5103,6 @@ class ls_shop_generalHelper
         $obj_lsjs_appBinderCore = new binderController(false, false,false,true,true,   $webDir."/bundles/leadingsystemsmerconis/js/lsjs/backend/app", "");
         $jsFilepathCore = $obj_lsjs_appBinderCore->outputJS();
 
-        $GLOBALS['TL_JAVASCRIPT'][] = $jsFilepathCore;
-
         ob_start();
         ?>
         <script src="<?= $jsFilepathCore ?>"></script>
