@@ -78,9 +78,6 @@ class ModuleProductSingleview extends \Module {
             }
         }
 
-		if ($objProduct->_hasKeywords != '') {
-			$GLOBALS['TL_KEYWORDS'] .= (strlen($GLOBALS['TL_KEYWORDS']) ? ', ' : '').$objProduct->_keywords;
-		}
 		/*
 		 * Ende Produktspezifische Anpassung von Seitentitel und Keywords
 		 */
