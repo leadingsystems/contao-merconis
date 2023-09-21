@@ -5098,10 +5098,25 @@ class ls_shop_generalHelper
         }
 
         $webDir = StringUtil::stripRootDir(System::getContainer()->getParameter('contao.web_dir'));
-	    
+
+        require_once(System::getContainer()->getParameter('kernel.project_dir')."/assets/lsjs/core/appBinder/binderController.php");
+
+        $arr_config = [
+            "pathToApp" => urldecode('_dup4_/'.$webDir.'/bundles/leadingsystemsmerconis/js/lsjs/backend/app'),
+            "includeCore" => 'no',
+            "includeCoreModules" => 'no',
+            "debug" => ($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '1' : ''),
+            "no-cache" => ($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '1' : ''),
+            "no-minifier" => ($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '1' : ''),
+        ];
+
+        $binderController = new \lsjs_binderController($arr_config);
+        $str_output = "/assets/lsjs/core/appBinder/".$binderController->outputJS();
+        $GLOBALS['TL_JAVASCRIPT'][] = $str_output;
+
         ob_start();
         ?>
-        <script src="assets/lsjs/core/appBinder/binder.php?output=js&pathToApp=<?php echo urldecode('_dup4_/'.$webDir.'/bundles/leadingsystemsmerconis/js/lsjs/backend/app'); ?>&includeCore=no&includeCoreModules=no<?php echo ($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');?>"></script>
+        <script src="<?=$str_output?>"></script>
         <script type="text/javascript">
             window.addEvent('domready', function () {
                 if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {
