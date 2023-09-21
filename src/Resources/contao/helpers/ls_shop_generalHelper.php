@@ -5111,7 +5111,7 @@ class ls_shop_generalHelper
         ];
 
         $binderController = new \lsjs_binderController($arr_config);
-        $str_output = "/assets/lsjs/core/appBinder/".$binderController->outputJS();
+        $str_output = "/assets/lsjs/core/appBinder/".$binderController->getJS();
         $GLOBALS['TL_JAVASCRIPT'][] = $str_output;
 
         ob_start();
