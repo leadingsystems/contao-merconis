@@ -89,7 +89,11 @@ namespace Merconis\Core;
 		'filter'                  => true,
 		'sorting'                 => true,
 		'inputType'               => 'select',
-		'options'                 => $this->getCountries(),
+		'options_callback' => static function ()
+	        {
+	            $countries = System::getContainer()->get('contao.intl.countries')->getCountries();
+	            return array_combine(array_map('strtolower', array_keys($countries)), $countries);
+	        },
 		'eval'                    => array('includeBlankOption'=>true, 'chosen'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50'),
         'sql'                     => "varchar(2) NOT NULL default ''"
 	);
