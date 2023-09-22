@@ -58,7 +58,7 @@ class ModuleProductSingleview extends \Module {
 		$objProduct = ls_shop_generalHelper::getObjProduct($int_productId, __METHOD__);
 		
 		/*
-		 * Produktspezifische Anpassung von Seitentitel und Keywords
+		 * Product-specific customization of page title and description
 		 */
 		// Overwrite the page title
         if ($objProduct->_hasPageTitle) {
@@ -77,13 +77,10 @@ class ModuleProductSingleview extends \Module {
                 $objPage->description = ($objProduct->_shortDescription || $objProduct->_description) ? substr(strip_insert_tags(strip_tags($objProduct->_shortDescription ? $objProduct->_shortDescription : $objProduct->_description)), 0, 350) : $objPage->description;
             }
         }
-
 		/*
-		 * Ende Produktspezifische Anpassung von Seitentitel und Keywords
+		 * End: Product-specific customization of page title and description
 		 */
-		 		
 
-		
 		$this->Template = new \FrontendTemplate('productSingleview');
 		
 		$objProductOutput = new ls_shop_productOutput($int_productId, 'singleview');
