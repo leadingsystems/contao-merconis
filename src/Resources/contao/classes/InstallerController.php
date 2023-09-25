@@ -667,9 +667,9 @@ class InstallerController extends \Controller {
 		 * Datensätze ausgelesen, also die Datensätze, die in der entsprechenden Tabelle neu eingefügt wurden.
 		 * Die neu eingefügten Datensätze, sind jene, die im Array $this->arrMapOldIDToNewID enthalten sind.
 		 */
-		\LeadingSystems\Helpers\lsErrorLog('$this->arrMapOldIDToNewID', $this->arrMapOldIDToNewID, 'lslog_14');
+		\LeadingSystems\Helpers\lsDebugLog('$this->arrMapOldIDToNewID', $this->arrMapOldIDToNewID, 'lslog_14');
 		foreach ($arrRelations as $relation) {
-			\LeadingSystems\Helpers\lsErrorLog('$relation', $relation, 'lslog_14');
+			\LeadingSystems\Helpers\lsDebugLog('$relation', $relation, 'lslog_14');
 
 			if ($relation['pTable'] == 'localconfig') { // Es handelt sich um eine Relation zur localconfig
 				$oldForeignKey = $GLOBALS['TL_CONFIG'][$relation['pField']];
@@ -698,8 +698,8 @@ class InstallerController extends \Controller {
 
 						// Auslesen der bislang hinterlegten Zuordnung
 						$oldForeignKey = $objRow->{$relation['pField']};
-						\LeadingSystems\Helpers\lsErrorLog('pTableRow', $objRow->row(), 'lslog_14');
-						\LeadingSystems\Helpers\lsErrorLog('$oldForeignKey', $oldForeignKey, 'lslog_14');
+						\LeadingSystems\Helpers\lsDebugLog('pTableRow', $objRow->row(), 'lslog_14');
+						\LeadingSystems\Helpers\lsDebugLog('$oldForeignKey', $oldForeignKey, 'lslog_14');
 
 						$newForeignKey = $this->getNewForeignKey($relation, $oldForeignKey);
 						$newForeignKey = $newForeignKey ? $newForeignKey : 0;
@@ -714,7 +714,7 @@ class InstallerController extends \Controller {
 						")
 							->limit(1)
 							->execute($newForeignKey, $pTableRowID);
-						\LeadingSystems\Helpers\lsErrorLog('$objUpdate->query:', $objUpdate->query, 'lslog_14');
+						\LeadingSystems\Helpers\lsDebugLog('$objUpdate->query:', $objUpdate->query, 'lslog_14');
 					}
 				}
 			}
@@ -724,18 +724,18 @@ class InstallerController extends \Controller {
 	protected function getNewForeignKey($relation, $oldForeignKey) {
 		switch ($relation['relationType']) {
 			case 'single': // Der ForeignKey ist ein einzelner Wert
-				\LeadingSystems\Helpers\lsErrorLog('single!', '', 'lslog_14');
+				\LeadingSystems\Helpers\lsDebugLog('single!', '', 'lslog_14');
 				/*
 				 * Nun wird ermittelt, welches der neue foreignKey ist. Hierfür wird im Array $this->arrMapOldIDToNewID
 				 * im Key für die entsprechende cTable (also die verknüpfte Tabelle) nachgeschaut, was der neue foreignKey
 				 * zum alten foreignKey ist
 				 */
 				$newForeignKey = $this->arrMapOldIDToNewID[$relation['cTable']][$oldForeignKey];
-				\LeadingSystems\Helpers\lsErrorLog('$newForeignKey = $this->arrMapOldIDToNewID['.$relation['cTable'].']['.$oldForeignKey.'];', $newForeignKey, 'lslog_14');
+				\LeadingSystems\Helpers\lsDebugLog('$newForeignKey = $this->arrMapOldIDToNewID['.$relation['cTable'].']['.$oldForeignKey.'];', $newForeignKey, 'lslog_14');
 				break;
 
 			case 'array': // Der ForeignKey ist ein (serialisiertes) Array
-				\LeadingSystems\Helpers\lsErrorLog('array!', '', 'lslog_14');
+				\LeadingSystems\Helpers\lsDebugLog('array!', '', 'lslog_14');
 				$arrOldForeignKeys =  is_array($oldForeignKey) ? $oldForeignKey : deserialize($oldForeignKey);
 				$arrNewForeignKeys = array();
 				if (is_array($arrOldForeignKeys)) {
@@ -747,17 +747,17 @@ class InstallerController extends \Controller {
 						 */
 						$arrNewForeignKeys[$key] = strval($this->arrMapOldIDToNewID[$relation['cTable']][$oldForeignKey]);
 
-						\LeadingSystems\Helpers\lsErrorLog('$arrNewForeignKeys['.$key.'] = $this->arrMapOldIDToNewID['.$relation['cTable'].']['.$oldForeignKey.'];', $arrNewForeignKeys[$key], 'lslog_14');
+						\LeadingSystems\Helpers\lsDebugLog('$arrNewForeignKeys['.$key.'] = $this->arrMapOldIDToNewID['.$relation['cTable'].']['.$oldForeignKey.'];', $arrNewForeignKeys[$key], 'lslog_14');
 					}
 				} else {
-					\LeadingSystems\Helpers\lsErrorLog('old foreign key is not an array', $relation, 'lslog_14');
-					\LeadingSystems\Helpers\lsErrorLog('old foreign key: ', $arrOldForeignKeys, 'lslog_14');
+					\LeadingSystems\Helpers\lsDebugLog('old foreign key is not an array', $relation, 'lslog_14');
+					\LeadingSystems\Helpers\lsDebugLog('old foreign key: ', $arrOldForeignKeys, 'lslog_14');
 				}
 				$newForeignKey = serialize($arrNewForeignKeys);
 				break;
 
 			case 'special': // Der ForeignKey ist in einem speziellen Format gespeichert, der gesondert gehandhabt werden muss
-				\LeadingSystems\Helpers\lsErrorLog('special!', '', 'lslog_14');
+				\LeadingSystems\Helpers\lsDebugLog('special!', '', 'lslog_14');
 				switch ($relation['pTable']) {
 					case 'tl_layout':
 						switch ($relation['pField']) {
@@ -950,7 +950,7 @@ class InstallerController extends \Controller {
 				'relationType' => $matches[5][$k]
 			);
 		}
-        \LeadingSystems\Helpers\lsErrorLog('$arrRelations', $arrRelations, 'lslog_14');
+        \LeadingSystems\Helpers\lsDebugLog('$arrRelations', $arrRelations, 'lslog_14');
 		return $arrRelations;
 	}
 
