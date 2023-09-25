@@ -4,6 +4,7 @@
  * This template is most likely being included in another template file.
  * If you duplicate this template, please make sure to adjust the include paths in the other file.
  */
+
 ?>
 
 <div id="checkoutStepShipping">

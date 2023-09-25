@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 class ls_shop_productOutput
 {
 	public $ls_template = '';
@@ -52,7 +54,7 @@ class ls_shop_productOutput
 	}
 
 	protected function handlePersistentVariantSelection() {
-		if (TL_MODE !== 'FE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			return;
 		}
 
@@ -119,7 +121,7 @@ class ls_shop_productOutput
 	}
 	
 	public function parseOutput() {
-        if (TL_MODE === 'FE' && $this->ls_objProduct->_useGroupRestrictions) {
+        if (System::getContainer()->get('merconis.routing.scope')->isFrontend() && $this->ls_objProduct->_useGroupRestrictions) {
             $arr_groupSettings = ls_shop_generalHelper::getGroupSettings4User();
             if (!in_array($arr_groupSettings['id'], $this->ls_objProduct->_allowedGroups)) {
                 /*

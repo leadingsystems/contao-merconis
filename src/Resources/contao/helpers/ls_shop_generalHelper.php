@@ -4,8 +4,8 @@ namespace Merconis\Core;
 
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
 use Contao\LayoutModel;
-use LeadingSystems\Helpers\FlexWidget;
 use Contao\System;
+use LeadingSystems\Helpers\FlexWidget;
 
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -230,12 +230,12 @@ class ls_shop_generalHelper
 
         $str_pathToStandardProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']);
 
-        if (!file_exists(TL_ROOT . '/' . $str_pathToStandardProductImageFolder)) {
+        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder)) {
             error_log("the standard folder for product images possibly doesn't exist.");
             return $arr_productImages;
         }
 
-        $arr_tmpImageFiles = scandir(TL_ROOT . '/' . $str_pathToStandardProductImageFolder);
+        $arr_tmpImageFiles = scandir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder);
 
         if (is_array($arr_tmpImageFiles)) {
             foreach ($arr_tmpImageFiles as $str_imageFile) {
@@ -2132,7 +2132,7 @@ class ls_shop_generalHelper
             throw new \Exception('insufficient parameters given');
         }
 
-        if (TL_MODE === 'BE') {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
             return null;
         }
 
@@ -2158,7 +2158,7 @@ class ls_shop_generalHelper
 
         $str_customizerObjectKey = $obj_productOrVariant->_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
 
-        require_once(TL_ROOT ."/". $obj_productOrVariant->_customizerLogicFile);
+        require_once(System::getContainer()->getParameter('kernel.project_dir') ."/". $obj_productOrVariant->_customizerLogicFile);
         $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_productOrVariant->_customizerLogicFile);
 
         if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
@@ -2590,87 +2590,6 @@ class ls_shop_generalHelper
         }
     }
 
-    /*
-     * Diese Funktion wird beim Aufbauen des Suchindex aufgerufen und ergänzt das übergebene Array der in den Index aufzunehmenden Seiten/URLs
-     * um die ebenfalls aufzunehmenden Produkt-Seiten/-URLs.
-     */
-    public static function getSearchablePages($arrPages, $intRoot = 0, $blnIsSitemap = false)
-    {
-
-        //für jede verfügbare Sprache im Shop eine alias_[SprachKey] Spalte erzeugen
-        $arr_languageKeys = \Merconis\Core\ls_shop_languageHelper::getAllLanguages();
-
-        $str_columns = '`pages`, `alias`';
-        foreach ($arr_languageKeys as $str_languageKey) {
-            $str_columns .= ', `alias_'.$str_languageKey.'`';
-        }
-
-        $objProducts = \Database::getInstance()
-		->prepare("
-			SELECT			".$str_columns."			
-			FROM			`tl_ls_shop_product`
-			WHERE			`published` = 1
-		")
-            	->limit(10000)
-            	->execute();
-
-        while ($objProducts->next()) {
-            $whereConditionPages = '';
-            $whereConditionValues = array();
-
-            $objProducts->pages = deserialize($objProducts->pages);
-            if (!is_array($objProducts->pages) || !count($objProducts->pages)) {
-                continue;
-            }
-            foreach ($objProducts->pages as $page) {
-                if ($whereConditionPages) {
-                    $whereConditionPages .= ' OR ';
-                }
-                $whereConditionPages .= "`id` = ?";
-                $whereConditionValues[] = $page;
-            }
-            if (!$whereConditionPages || !count($whereConditionValues)) {
-                continue;
-            }
-
-            $time = time();
-            $objPagesForProduct = \Database::getInstance()->prepare("
-					SELECT			id,
-									alias
-					FROM 			tl_page
-					WHERE			(" . $whereConditionPages . ")
-						AND			(start = '' OR start < " . $time . ")
-						AND			(stop = '' OR stop > " . $time . ")
-						AND			published = 1
-						AND			noSearch != 1" . ($blnIsSitemap ? " AND sitemap!='map_never'" : "")
-            )
-                ->execute($whereConditionValues);
-
-            // Determine domain
-            if (!$objPagesForProduct->numRows) {
-                continue;
-            } else {
-                while ($objPagesForProduct->next()) {
-                    $domain = \Environment::get('base');
-                    $arrLanguagePages = ls_shop_languageHelper::getLanguagePages($objPagesForProduct->id);
-                    foreach ($arrLanguagePages as $languagePageInfo) {
-                        $objPageForProduct = \PageModel::findWithDetails($languagePageInfo['id']);
-                        if ($objPageForProduct->domain != '') {
-                            $domain = (\Environment::get('ssl') ? 'https://' : 'http://') . $objPageForProduct->domain . TL_PATH . '/';
-                        }
-
-                        $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
-                        if ($str_languageAlias == '') {
-                            continue;
-                        }
-
-                        $arrPages[] = $domain . \Controller::generateFrontendUrl($objPageForProduct->row(), '/product/' . $str_languageAlias, $objPageForProduct->language);
-                    }
-                }
-            }
-        }
-        return $arrPages;
-    }
 
     public static function addToLastSeenProducts($productID)
     {
@@ -2830,7 +2749,7 @@ class ls_shop_generalHelper
      */
     public static function conditionalCTEOutput($objElement, $strBuffer)
     {
-        if (TL_MODE == 'BE' || !$objElement->lsShopOutputCondition) {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend() || !$objElement->lsShopOutputCondition) {
             return $strBuffer;
         }
 
@@ -3501,7 +3420,7 @@ class ls_shop_generalHelper
      */
     public static function validateCollectedFormData($arrValidateData, $formID)
     {
-        if (TL_MODE == 'BE') {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
             return true;
         }
 
@@ -4642,15 +4561,15 @@ class ls_shop_generalHelper
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
     {
         $themesPath = 'files/merconisfiles/themes';
-        if (!file_exists(TL_ROOT . '/' . $themesPath) || !is_dir(TL_ROOT . '/' . $themesPath)) {
+        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath) || !is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath)) {
             return;
         }
-        $themeFolders = array_diff(scandir(TL_ROOT . '/' . $themesPath), array('.', '..'));
+        $themeFolders = array_diff(scandir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath), array('.', '..'));
         if (is_array($themeFolders)) {
             foreach ($themeFolders as $themeFolder) {
                 $languageFileToLoad = $themesPath . '/' . $themeFolder . '/languages/' . $language . '/' . $filename . '.php';
-                if (file_exists(TL_ROOT . '/' . $languageFileToLoad)) {
-                    include(TL_ROOT . '/' . $languageFileToLoad);
+                if (file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad)) {
+                    include(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad);
                 }
             }
         }
@@ -5221,7 +5140,7 @@ class ls_shop_generalHelper
          * they should be.
          */
         return;
-        if (is_dir(TL_ROOT . '/var/cache/prod/contao/dca')) {
+        if (is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/var/cache/prod/contao/dca')) {
             $obj_automator = \System::importStatic('Automator');
             $obj_automator->purgeInternalCache();
         }
