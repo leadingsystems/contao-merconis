@@ -157,7 +157,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
 			// Process folders (not recursive, only the one given folder!)
 			else {
-				$subfiles = scan(TL_ROOT.'/'.$file);
+				$subfiles = \Contao\Folder::scan(TL_ROOT.'/'.$file);
 
 				foreach ($subfiles as $subfile) {
 					$subfileName = $file . '/' . $subfile;

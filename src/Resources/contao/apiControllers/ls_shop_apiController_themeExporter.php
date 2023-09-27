@@ -340,7 +340,7 @@ class ls_shop_apiController_themeExporter
         }
 
         // Recursively add the files and subfolders
-        foreach (scan(TL_ROOT . '/' . $strFolder) as $strFile) {
+        foreach (\Contao\Folder::scan(TL_ROOT . '/' . $strFolder) as $strFile) {
             if (is_dir(TL_ROOT . '/' . $strFolder . '/' . $strFile)) {
                 $this->addFolderToArchive($objArchive, $strFolder . '/' . $strFile);
             } else {
