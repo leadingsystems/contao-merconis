@@ -955,7 +955,7 @@ class ls_shop_payment_methods extends \Backend {
         $arr_methodIDsCurrentlyUsed = ls_shop_generalHelper::getPaymentOrShippingMethodsUsedInOrders('payment');
 
         if (!in_array($row['id'], $arr_methodIDsCurrentlyUsed)) {
-            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
         } else {
             $button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
         }

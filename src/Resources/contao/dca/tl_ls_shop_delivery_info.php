@@ -259,7 +259,7 @@ class ls_shop_delivery_info extends \Backend {
 			 * Wenn das deliveryInfoSet bei keinem Produkt verwendet wird,
 			 * darf gelöscht werden.
 			 */
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			/*
 			 * Wird das deliveryInfoSet bei Produkten verwendet,

@@ -1448,7 +1448,7 @@ class tl_ls_shop_variant_controller extends \Backend {
 			$icon = 'invisible.gif';
 		}		
 
-		return '<a href="'.$this->addToUrl($href).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+		return '<a href="'.$this->addToUrl($href).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 	}
 
 	public function toggleVisibility($intId, $blnVisible) {

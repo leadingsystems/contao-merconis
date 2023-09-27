@@ -271,7 +271,7 @@ class ls_shop_filter_fields extends \Backend {
 	
 	public function getEditButton($row, $href, $label, $title, $icon, $attributes) {
 		if ($row['dataSource'] == 'producer') {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
 		}
@@ -295,7 +295,7 @@ class ls_shop_filter_fields extends \Backend {
 			$icon = 'invisible.gif';
 		}		
 
-		return '<a href="'.$this->addToUrl($href).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+		return '<a href="'.$this->addToUrl($href).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 	}
 
 	public function toggleVisibility($intId, $blnVisible) {

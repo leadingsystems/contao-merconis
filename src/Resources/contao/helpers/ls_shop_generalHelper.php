@@ -2667,7 +2667,7 @@ class ls_shop_generalHelper
         $headline = isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline']) ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline'] : '';
         $requestedTable = $dc->table;
         $requestedValue = $dc->field;
-        return ' ' . \Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.gif', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="vertical-align:top;cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . specialchars($headline) . '\')"');
+        return ' ' . \Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.gif', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="vertical-align:top;cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . \Contao\StringUtil::specialchars($headline) . '\')"');
     }
 
     public static function createValueList($requestedTable = false, $requestedValue = false, $requestedLanguage = false)
@@ -2688,7 +2688,7 @@ class ls_shop_generalHelper
 
         $strOptions = '';
         while ($objValues->next()) {
-            $strOptions .= sprintf('<option value="%s"%s>%s</option>', specialchars($objValues->{$requestedValue}), (($objValues->{$requestedValue} == \Input::get('value')) ? ' selected="selected"' : ''), specialchars($objValues->{$requestedValue}));
+            $strOptions .= sprintf('<option value="%s"%s>%s</option>', \Contao\StringUtil::specialchars($objValues->{$requestedValue}), (($objValues->{$requestedValue} == \Input::get('value')) ? ' selected="selected"' : ''), \Contao\StringUtil::specialchars($objValues->{$requestedValue}));
         }
         return $strOptions;
     }

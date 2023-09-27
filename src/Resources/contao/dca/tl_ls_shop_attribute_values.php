@@ -190,7 +190,7 @@ class ls_shop_attribute_values extends \Backend {
 		$attributesAndValuesCurrentlyInUse = ls_shop_generalHelper::getAttributesAndValuesCurrentlyInUse();
 		
 		if (!in_array($row['id'], $attributesAndValuesCurrentlyInUse['arrValueIDs'])) {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
 		}

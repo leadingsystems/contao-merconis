@@ -378,7 +378,7 @@ class ls_shop_output_definitions extends \Backend {
 	 */
 	public function getDeleteButton($row, $href, $label, $title, $icon, $attributes) {
 		if (!in_array($row['id'], ls_shop_generalHelper::getOutputDefinitionsCurrentlyInUse())) {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
 		}

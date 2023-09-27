@@ -249,7 +249,7 @@ class ls_shop_steuersaetze extends \Backend {
 			/*
 			 * The tax rate can be deleted if it is not in use with any product
 			 */
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			/*
 			 * The tax rate must not be deleted if it is in use with at least one product
