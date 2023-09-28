@@ -179,6 +179,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		switch ($this->ls_moreImagesSortBy) {
 			default:
 			case 'name_asc':
+			    //@TODO: Deprecated to be removed in Contao 5.0.
 				uksort($this->ls_images, 'basename_natcasecmp');
 				break;
 
