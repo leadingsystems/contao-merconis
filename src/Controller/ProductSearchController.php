@@ -71,7 +71,7 @@ class ProductSearchController extends \Backend
 		$this->Template->pageOffset = \Input::cookie('BE_PAGE_OFFSET');
 		$this->Template->error = (\Input::get('act') == 'error') ? $GLOBALS['TL_LANG']['ERR']['general'] : '';
 		$this->Template->skipNavigation = $GLOBALS['TL_LANG']['MSC']['skipNavigation'];
-		$this->Template->request = ampersand(\Environment::get('request'));
+		$this->Template->request = \Contao\StringUtil::ampersand(\Environment::get('request'));
 		$this->Template->top = $GLOBALS['TL_LANG']['MSC']['backToTop'];
 
 		return $this->Template->getResponse();

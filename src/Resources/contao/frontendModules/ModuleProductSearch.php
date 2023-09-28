@@ -170,7 +170,7 @@ class ModuleProductSearch extends \Module {
 		$this->strTemplate = $this->ls_shop_productSearch_template;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
 		
-		$this->Template->action = ampersand(\Environment::get('request'));
+		$this->Template->action = \Contao\StringUtil::ampersand(\Environment::get('request'));
 		$this->Template->blnUseLiveHits = isset($this->arrLiveHitFields) && is_array($this->arrLiveHitFields) && count($this->arrLiveHitFields);
 
 		$obj_flexWidget_input = new FlexWidget(

@@ -54,7 +54,7 @@ class ls_shop_import extends \BackendModule {
 			}
 		}
 		
-		$this->Template->request = ampersand(\Environment::get('request'), true);
+		$this->Template->request = \Contao\StringUtil::ampersand(\Environment::get('request'), true);
 		$this->Template->ffl_importFileUpload = $objFfl_importFileUpload->generateMarkup();
 		$this->Template->arrCurrentlyExistingImportFileInfo = $_SESSION['lsShop']['importFileInfo'];
 		$this->Template->messages = \Message::generate(false, true);

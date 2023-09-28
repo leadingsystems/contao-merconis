@@ -101,7 +101,7 @@ class ModuleMyOrders extends \Module {
 
 		$objPagination = new \Pagination($objOrdersAll->numRows, $_SESSION['lsShop']['myOrders']['numPerPage'], 7, 'page', new \FrontendTemplate('merconisPagination'));
 		$this->Template->pagination = $objPagination->generate();
-		$this->Template->request = ampersand(\Environment::get('request'), true);
+		$this->Template->request = \Contao\StringUtil::ampersand(\Environment::get('request'), true);
 		
 		$currentPageOffset = \Input::get('page') ? \Input::get('page') - 1 : 0;
 		

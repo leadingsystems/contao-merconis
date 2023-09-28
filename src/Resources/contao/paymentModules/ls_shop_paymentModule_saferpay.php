@@ -132,7 +132,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			$arr_currentStatus = $arr_statusAllEntries[0];
 			
 			if (\Input::get('saferpay_cancel') == $arr_order['id']) {
-				$str_request = ampersand(\Environment::get('request'), true);
+				$str_request = \Contao\StringUtil::ampersand(\Environment::get('request'), true);
 				$str_request = preg_replace('/&amp;saferpay_cancel=[0-9]*/', '', $str_request);
 				
 				try {
@@ -167,7 +167,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			}
 			
 			if (\Input::get('saferpay_capture') == $arr_order['id']) {
-				$str_request = ampersand(\Environment::get('request'), true);
+				$str_request = \Contao\StringUtil::ampersand(\Environment::get('request'), true);
 				$str_request = preg_replace('/&amp;saferpay_capture=[0-9]*/', '', $str_request);
 				
 				try {
@@ -228,7 +228,7 @@ use function LeadingSystems\Helpers\ls_sub;
 									isset($arr_paymentMethod_moduleReturnData['str_transactionId']) && $arr_paymentMethod_moduleReturnData['str_transactionId']
 								&&	$arr_currentStatus['str_statusValue'] === 'AUTHORIZED'
 							) {
-								$str_request = ampersand(\Environment::get('request'), true);
+								$str_request = \Contao\StringUtil::ampersand(\Environment::get('request'), true);
 								$str_request .= '&saferpay_capture='.$arr_order['id'];
 								?>
 								<a onclick="Backend.getScrollOffset();" href="<?php echo $str_request; ?>">
@@ -244,7 +244,7 @@ use function LeadingSystems\Helpers\ls_sub;
 									isset($arr_paymentMethod_moduleReturnData['str_transactionId']) && $arr_paymentMethod_moduleReturnData['str_transactionId']
 								&&	($arr_currentStatus['str_statusValue'] === 'AUTHORIZED' || $arr_currentStatus['str_statusValue'] === 'CAPTURED')
 							) {
-								$str_request = ampersand(\Environment::get('request'), true);
+								$str_request = \Contao\StringUtil::ampersand(\Environment::get('request'), true);
 								$str_request .= '&saferpay_cancel='.$arr_order['id'];
 								?>
 								<a onclick="Backend.getScrollOffset();" href="<?php echo $str_request; ?>">
