@@ -43,7 +43,7 @@ class SitemapListener
             $whereConditionPages = '';
             $whereConditionValues = array();
 
-            $objProducts->pages = deserialize($objProducts->pages);
+            $objProducts->pages = \Contao\StringUtil::deserialize($objProducts->pages);
             if (!is_array($objProducts->pages) || !count($objProducts->pages)) {
                 continue;
             }

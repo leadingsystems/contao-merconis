@@ -1486,7 +1486,7 @@ class tl_ls_shop_product_controller extends \Backend {
 	 */
 	public function convertPageSelection($value) {
 		if (!is_array($value)) {
-			$value = deserialize($value, true);
+			$value = \Contao\StringUtil::deserialize($value, true);
 		}
 
 		$arrPageSelection = array();

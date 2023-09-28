@@ -362,7 +362,7 @@ class tl_ls_shop_message_model_controller extends \Backend {
 	
 	public function listChildRecords($arrRow) {
 		if (!is_array($arrRow['member_group'])) {
-			$arrRow['member_group'] = deserialize($arrRow['member_group'], true);
+			$arrRow['member_group'] = \Contao\StringUtil::deserialize($arrRow['member_group'], true);
 		}
 		
 		$memberGroupName = '';

@@ -264,7 +264,7 @@ class ls_shop_cross_seller
         }
 
         if ($this->ls_details['activateSearchSelectionCategory']) {
-            $pageIDs = deserialize($this->ls_details['searchSelectionCategory']);
+            $pageIDs = \Contao\StringUtil::deserialize($this->ls_details['searchSelectionCategory']);
             if (!is_array($pageIDs)) {
                 $pageIDs = array();
             }
@@ -340,7 +340,7 @@ class ls_shop_cross_seller
     }
 
     protected function ls_getDirectSelection() {
-        $arrProducts = deserialize($this->ls_details['productDirectSelection']);
+        $arrProducts = \Contao\StringUtil::deserialize($this->ls_details['productDirectSelection']);
         if (count($arrProducts) == 1 && !$arrProducts[0]) {
             $arrProducts = array();
         }
@@ -369,7 +369,7 @@ class ls_shop_cross_seller
     protected function ls_getFavoritesSelection() {
         $obj_user = \System::importStatic('FrontendUser');
         $strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
-        $arrFavorites = $strFavorites ? deserialize($strFavorites) : array();
+        $arrFavorites = $strFavorites ? \Contao\StringUtil::deserialize($strFavorites) : array();
         $arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
         $arrFavorites = ls_shop_generalHelper::ls_array_unique($arrFavorites);
         return $arrFavorites;
@@ -396,7 +396,7 @@ class ls_shop_cross_seller
     protected function ls_getRecommendedProductsSelection() {
         $arrProducts = array();
         if (is_object($this->ls_currentProductInDetailMode)) {
-            $arrProducts = deserialize($this->ls_currentProductInDetailMode->lsShopProductRecommendedProducts);
+            $arrProducts = \Contao\StringUtil::deserialize($this->ls_currentProductInDetailMode->lsShopProductRecommendedProducts);
         }
         if (
             !is_array($arrProducts)

@@ -112,7 +112,7 @@ class ls_shop_filterController
 		$obj_template->arr_filterSummaryData = \Merconis\Core\ls_shop_filterHelper::getFilterSummary();
 		$obj_template->str_filterSummaryHtml = trim(\Merconis\Core\ls_shop_filterHelper::getFilterSummaryHtml($objFEModule));
 
-		$arrHeadline = deserialize($objFEModule->headline);
+		$arrHeadline = \Contao\StringUtil::deserialize($objFEModule->headline);
 		$obj_template->headline = is_array($arrHeadline) ? $arrHeadline['value'] : $arrHeadline;
 		$obj_template->hl = is_array($arrHeadline) ? $arrHeadline['unit'] : 'h1';
 

@@ -122,7 +122,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			
 			$str_outputValue = '';
 			
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = \Contao\StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 			
 			/*
 			 * The newest status is the last in the array but we want to display
@@ -286,7 +286,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			}
 			
 			$str_outputValue = '';
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = \Contao\StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 			
 			$arr_statusAllEntries = array_reverse($arr_paymentMethod_moduleReturnData['arr_status']);
 			$arr_currentStatus = $arr_statusAllEntries[0];
@@ -516,9 +516,9 @@ use function LeadingSystems\Helpers\ls_sub;
 					'LanguageCode' => $arr_order['customerLanguage']
 				),
 
-				'PaymentMethods' => deserialize($this->arrCurrentSettings['saferpay_paymentMethods'], true),
+				'PaymentMethods' => \Contao\StringUtil::deserialize($this->arrCurrentSettings['saferpay_paymentMethods'], true),
 
-				'Wallets' => deserialize($this->arrCurrentSettings['saferpay_wallets'], true),
+				'Wallets' => \Contao\StringUtil::deserialize($this->arrCurrentSettings['saferpay_wallets'], true),
 
 				'ReturnUrls' => array(
 					'Success' => $afterCheckoutUrl.'&saferpay_action=success',

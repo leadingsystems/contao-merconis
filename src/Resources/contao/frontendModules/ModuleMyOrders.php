@@ -49,7 +49,7 @@ class ModuleMyOrders extends \Module {
 		
 		
 		if (!is_array($this->ls_shop_myOrders_sortingOptions)) {
-			$this->ls_shop_myOrders_sortingOptions = deserialize($this->ls_shop_myOrders_sortingOptions, true);
+			$this->ls_shop_myOrders_sortingOptions = \Contao\StringUtil::deserialize($this->ls_shop_myOrders_sortingOptions, true);
 		}
 		
 		if (!is_array($this->ls_shop_myOrders_sortingOptions) || !count($this->ls_shop_myOrders_sortingOptions)) {

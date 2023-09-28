@@ -553,7 +553,7 @@ class ls_shop_productManagementApiHelper {
 		->execute();
 
 		while ($obj_dbres_prodResults->next()) {
-			$arr_recommendedProducts = deserialize($obj_dbres_prodResults->lsShopProductRecommendedProducts);
+			$arr_recommendedProducts = \Contao\StringUtil::deserialize($obj_dbres_prodResults->lsShopProductRecommendedProducts);
 			$arr_recommendedProductIDs = array();
 
 			/*

@@ -307,8 +307,8 @@ class ls_shop_orderMessages
 				'subject' => html_entity_decode($this->ls_replaceWildcards(\Controller::replaceInsertTags($arrMessageModel['multilanguage']['subject']))),
 				'bodyHTML' => $arrMessageModel['useHTML'] ? $objTemplate_emailHTML->parse() : '',
 				'bodyRawtext' => $arrMessageModel['useRawtext'] ? $objTemplate_rawtext->parse() : '',
-				'dynamicPdfAttachmentPaths' => deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),
-				'attachmentPaths' => deserialize($arrMessageModel['multilanguage']['attachments'])
+				'dynamicPdfAttachmentPaths' => \Contao\StringUtil::deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),
+				'attachmentPaths' => \Contao\StringUtil::deserialize($arrMessageModel['multilanguage']['attachments'])
 			);
 				
 			$objEmail = new \Email();

@@ -257,7 +257,7 @@ namespace Merconis\Core;
 			}
 			
 			$outputValue = '';
-			$paymentMethod_moduleReturnData = deserialize($paymentMethod_moduleReturnData);
+			$paymentMethod_moduleReturnData = \Contao\StringUtil::deserialize($paymentMethod_moduleReturnData);
 			
 			if (\Input::get('santanderWebQuick_cancel') && \Input::get('santanderWebQuick_cancel') == $arrOrder['id']) {
 				$obj_cancelContractRequest = new santanderWebQuick_cancelContract();

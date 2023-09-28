@@ -147,7 +147,7 @@ class ls_shop_singularStorage
 
         if ($var_result !== null) {
             if ($str_type === 'arr' && !is_array($var_result)) {
-                $var_result = deserialize($var_result);
+                $var_result = \Contao\StringUtil::deserialize($var_result);
             } else if ($str_type === 'bln') {
                 $var_result = $var_result ? true : false;
             }

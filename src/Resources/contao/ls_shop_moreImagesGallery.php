@@ -228,7 +228,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	public function lsShopGetProcessedImages($sizeMainImage, $sizeMoreImages) {
 		$this->getImagesSortedAndWithVideoCovers();
 		
-		$mainImageSize = deserialize($sizeMainImage);
+		$mainImageSize = \Contao\StringUtil::deserialize($sizeMainImage);
 		$intMaxWidth = $mainImageSize[0];
 		$strLightboxId = 'lightbox[lb' . $this->id . ']';
 		

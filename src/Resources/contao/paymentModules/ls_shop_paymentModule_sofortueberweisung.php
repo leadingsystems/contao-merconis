@@ -158,7 +158,7 @@ namespace Merconis\Core;
 			 * The payment information is stored serialized in the order's paymentMethod_moduleReturnData field
 			 * and we retrieve the information here
 			 */
-			$arrPaymentInfo = deserialize($arrOrder['paymentMethod_moduleReturnData']);
+			$arrPaymentInfo = \Contao\StringUtil::deserialize($arrOrder['paymentMethod_moduleReturnData']);
 			
 			if ($arrPaymentInfo['transactionID'] == 'unknown') {
 				// If the transaction id is still unknown we overwrite it with the transaction id that should be available by now
@@ -302,7 +302,7 @@ namespace Merconis\Core;
 			}
 			
 			$outputValue = '';
-			$paymentMethod_moduleReturnData = deserialize($paymentMethod_moduleReturnData);
+			$paymentMethod_moduleReturnData = \Contao\StringUtil::deserialize($paymentMethod_moduleReturnData);
 			ob_start();
 			?>
 			<div class="paymentDetails sofortbanking">
@@ -435,7 +435,7 @@ namespace Merconis\Core;
 			}
 			
 			$outputValue = '';
-			$paymentMethod_moduleReturnData = deserialize($paymentMethod_moduleReturnData);
+			$paymentMethod_moduleReturnData = \Contao\StringUtil::deserialize($paymentMethod_moduleReturnData);
 			
 			$arrLastStatus = $paymentMethod_moduleReturnData['status'][count($paymentMethod_moduleReturnData['status']) - 1];
 			

@@ -1728,7 +1728,7 @@ class ls_shop_generalHelper
          * Ist die Methode für die aktuelle Gruppe nicht erlaubt? False!
          */
         if ($method['excludedGroups']) {
-            $excludedGroups = deserialize($method['excludedGroups']);
+            $excludedGroups = \Contao\StringUtil::deserialize($method['excludedGroups']);
             if (in_array($groupInfo['id'], $excludedGroups)) {
                 return false;
             }
@@ -2812,7 +2812,7 @@ class ls_shop_generalHelper
         if (!isset($GLOBALS['merconis_globals']['getAllProductImages'][$globalCacheKey])) {
             $standardImages = ls_shop_generalHelper::getImagesFromStandardFolder($obj_product, $productOrVariantCode);
             if (!is_array($moreImages)) {
-                $moreImages = deserialize($moreImages);
+                $moreImages = \Contao\StringUtil::deserialize($moreImages);
                 if (!is_array($moreImages)) {
                     $moreImages = array();
                 }
@@ -2930,7 +2930,7 @@ class ls_shop_generalHelper
 
             if ($objVariants->numRows) {
                 while ($objVariants->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(deserialize($objVariants->lsShopProductVariantAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(\Contao\StringUtil::deserialize($objVariants->lsShopProductVariantAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
@@ -2954,7 +2954,7 @@ class ls_shop_generalHelper
 
             if ($objProducts->numRows) {
                 while ($objProducts->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(deserialize($objProducts->lsShopProductAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(\Contao\StringUtil::deserialize($objProducts->lsShopProductAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
@@ -3249,7 +3249,7 @@ class ls_shop_generalHelper
                 case 'select':
                 case 'radio':
                     if (!$bln_getOnlyOriginalOptionValues) {
-                        $tmpArrOptions = deserialize($fieldInfo['arrData']['options']);
+                        $tmpArrOptions = \Contao\StringUtil::deserialize($fieldInfo['arrData']['options']);
                         foreach ($tmpArrOptions as $arrOption) {
                             if ($arrOption['value'] == $fieldInfo['value']) {
                                 $fieldInfo['value'] = $arrOption['label'];
@@ -3268,7 +3268,7 @@ class ls_shop_generalHelper
                 case 'checkbox':
                     $quoteStart = '';
                     $quoteEnd = '';
-                    $tmpArrOptions = deserialize($fieldInfo['arrData']['options']);
+                    $tmpArrOptions = \Contao\StringUtil::deserialize($fieldInfo['arrData']['options']);
 
                     if (!is_array($fieldInfo['value'])) {
                         $fieldInfo['value'] = array($fieldInfo['value']);
@@ -3567,7 +3567,7 @@ class ls_shop_generalHelper
             if (!$value && $considerDefaultFormFieldValues) {
                 switch ($objFormFields->type) {
                     case 'select':
-                        $arrOptions = deserialize($objFormFields->options);
+                        $arrOptions = \Contao\StringUtil::deserialize($objFormFields->options);
                         foreach ($arrOptions as $option) {
                             if ($option['default']) {
                                 if ($objFormFields->multiple) {
@@ -3583,7 +3583,7 @@ class ls_shop_generalHelper
                         break;
 
                     case 'radio':
-                        $arrOptions = deserialize($objFormFields->options);
+                        $arrOptions = \Contao\StringUtil::deserialize($objFormFields->options);
                         foreach ($arrOptions as $option) {
                             if ($option['default']) {
                                 $value = $option['value'];
@@ -3592,7 +3592,7 @@ class ls_shop_generalHelper
                         break;
 
                     case 'checkbox':
-                        $arrOptions = deserialize($objFormFields->options);
+                        $arrOptions = \Contao\StringUtil::deserialize($objFormFields->options);
                         foreach ($arrOptions as $option) {
                             if ($option['default']) {
                                 if (!is_array($value)) {
@@ -3772,7 +3772,7 @@ class ls_shop_generalHelper
         global $objPage;
 
         if (!is_array($arrOrder['miscData'])) {
-            $arrOrder['miscData'] = deserialize($arrOrder['miscData'], true);
+            $arrOrder['miscData'] = \Contao\StringUtil::deserialize($arrOrder['miscData'], true);
         }
 
         /*
@@ -3913,12 +3913,12 @@ class ls_shop_generalHelper
 
             $arrOrder = $objOrder->first()->row();
 
-            $arrOrder['totalValueOfGoodsTaxedWith'] = deserialize($arrOrder['totalValueOfGoodsTaxedWith']);
-            $arrOrder['couponsUsed'] = deserialize($arrOrder['couponsUsed']);
-            $arrOrder['paymentMethod_amountTaxedWith'] = deserialize($arrOrder['paymentMethod_amountTaxedWith']);
-            $arrOrder['shippingMethod_amountTaxedWith'] = deserialize($arrOrder['shippingMethod_amountTaxedWith']);
-            $arrOrder['totalTaxedWith'] = deserialize($arrOrder['totalTaxedWith']);
-            $arrOrder['tax'] = deserialize($arrOrder['tax']);
+            $arrOrder['totalValueOfGoodsTaxedWith'] = \Contao\StringUtil::deserialize($arrOrder['totalValueOfGoodsTaxedWith']);
+            $arrOrder['couponsUsed'] = \Contao\StringUtil::deserialize($arrOrder['couponsUsed']);
+            $arrOrder['paymentMethod_amountTaxedWith'] = \Contao\StringUtil::deserialize($arrOrder['paymentMethod_amountTaxedWith']);
+            $arrOrder['shippingMethod_amountTaxedWith'] = \Contao\StringUtil::deserialize($arrOrder['shippingMethod_amountTaxedWith']);
+            $arrOrder['totalTaxedWith'] = \Contao\StringUtil::deserialize($arrOrder['totalTaxedWith']);
+            $arrOrder['tax'] = \Contao\StringUtil::deserialize($arrOrder['tax']);
 
             $arrOrder['customerData'] = array();
 
@@ -3944,7 +3944,7 @@ class ls_shop_generalHelper
 
             while ($objItems->next()) {
                 $arrOrder['items'][$objItems->itemPosition] = $objItems->row();
-                $arrOrder['items'][$objItems->itemPosition]['extendedInfo'] = deserialize($arrOrder['items'][$objItems->itemPosition]['extendedInfo']);
+                $arrOrder['items'][$objItems->itemPosition]['extendedInfo'] = \Contao\StringUtil::deserialize($arrOrder['items'][$objItems->itemPosition]['extendedInfo']);
             }
 
 
@@ -4549,7 +4549,7 @@ class ls_shop_generalHelper
         $GLOBALS['merconis_globals']['ls_shop_hideFilterFormInProductDetails'] = $objLayout->ls_shop_hideFilterFormInProductDetails;
 
         $arr_themeData = ls_shop_generalHelper::ls_shop_getThemeDataForID($objLayout->pid);
-        $GLOBALS['merconis_globals']['contaoThemeFolders'] = isset($arr_themeData) ? deserialize($arr_themeData['folders'], true) : array();
+        $GLOBALS['merconis_globals']['contaoThemeFolders'] = isset($arr_themeData) ? \Contao\StringUtil::deserialize($arr_themeData['folders'], true) : array();
 
         $GLOBALS['merconis_globals']['int_rootPageId'] = $objPage->rootId;
         $arr_pageData = ls_shop_generalHelper::ls_shop_getPageDataForID($objPage->rootId);
@@ -4665,7 +4665,7 @@ class ls_shop_generalHelper
                 continue;
             }
 
-            $arr_validGroups = deserialize($arr_productData['priceForGroups_' . $i], true);
+            $arr_validGroups = \Contao\StringUtil::deserialize($arr_productData['priceForGroups_' . $i], true);
             if (!count($arr_validGroups)) {
                 /*
                  * Skip this price group if it is not assigned to any
@@ -4956,7 +4956,7 @@ class ls_shop_generalHelper
             && \Input::post('favoriteProductID') == $obj_product->_id
         ) {
             $strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
-            $arrFavorites = $strFavorites ? deserialize($strFavorites) : array();
+            $arrFavorites = $strFavorites ? \Contao\StringUtil::deserialize($strFavorites) : array();
             $arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
 
             if (!$obj_product->_isFavorite) {

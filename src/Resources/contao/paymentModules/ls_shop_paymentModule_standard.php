@@ -68,7 +68,7 @@ namespace Merconis\Core;
 				return null;
 			}
 			
-			return deserialize($obj_dbres_moduleReturnData->first()->paymentMethod_moduleReturnData);
+			return \Contao\StringUtil::deserialize($obj_dbres_moduleReturnData->first()->paymentMethod_moduleReturnData);
 		}
 		
 		public function update_paymentMethod_moduleReturnData_inOrder($int_orderID = 0, $var_paymentMethod_moduleReturnData = '') {

@@ -56,7 +56,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			}
 			
 			$str_outputValue = '';
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = \Contao\StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 			
 			/*
 			 * The newest status is the last in the array but we want to display
@@ -234,7 +234,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			}
 			
 			$str_outputValue = '';
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = \Contao\StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 			
 			$arr_statusAllEntries = array_reverse($arr_paymentMethod_moduleReturnData['arr_status']);
 			$arr_currentStatus = $arr_statusAllEntries[0];

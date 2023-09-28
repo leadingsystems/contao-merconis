@@ -262,7 +262,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 		}
 
 		$outputValue = '';
-		$paymentMethod_moduleReturnData = deserialize($paymentMethod_moduleReturnData);
+		$paymentMethod_moduleReturnData = \Contao\StringUtil::deserialize($paymentMethod_moduleReturnData);
 
 		$str_statusUpdateUrl = ls_shop_generalHelper::getUrl();
 		$str_statusUpdateUrl = $str_statusUpdateUrl.(strpos($str_statusUpdateUrl, '?') !== false ? '&' : '?').'payPalPlus_updateStatus='.$arrOrder['id'].'#payPalPlus_order'.$arrOrder['id'];

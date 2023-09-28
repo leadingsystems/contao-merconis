@@ -156,7 +156,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			
 			$outputValue = '';
 			
-			$varValue = deserialize($paymentMethod_moduleReturnData);
+			$varValue = \Contao\StringUtil::deserialize($paymentMethod_moduleReturnData);
 			ob_start();
 			echo '<div class="payPalInfo">';
 			if (is_array($varValue)) {
@@ -273,9 +273,9 @@ use function LeadingSystems\Helpers\ls_sub;
 		protected function paypal_createSetExpressCheckoutNVP() {
 			$cancelUrl = $this->returnUrl.(preg_match('/\?/', $this->returnUrl) ? '&' : '?').'cancelPaypal=1';
 			
-			$giropaysuccesUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropaySuccessPages', deserialize($this->arrCurrentSettings['paypalGiropaySuccessPages']));
-			$giropaycancelUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropayCancelPages', deserialize($this->arrCurrentSettings['paypalGiropayCancelPages']));
-			$banktxnpendingUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('banktransferPendingPages', deserialize($this->arrCurrentSettings['paypalBanktransferPendingPages']));
+			$giropaysuccesUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropaySuccessPages', \Contao\StringUtil::deserialize($this->arrCurrentSettings['paypalGiropaySuccessPages']));
+			$giropaycancelUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropayCancelPages', \Contao\StringUtil::deserialize($this->arrCurrentSettings['paypalGiropayCancelPages']));
+			$banktxnpendingUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('banktransferPendingPages', \Contao\StringUtil::deserialize($this->arrCurrentSettings['paypalBanktransferPendingPages']));
 
 			/*
 			 * Hinzufügen der allgemeinen Bestellinformationen zum NVP-Array

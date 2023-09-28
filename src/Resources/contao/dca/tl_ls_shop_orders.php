@@ -693,7 +693,7 @@ class ls_shop_orders extends \Backend {
         if (!is_null($paymentModuleOutput)) {
             $outputValue = $paymentModuleOutput;
         } else {
-            $varValue = deserialize($varValue);
+            $varValue = \Contao\StringUtil::deserialize($varValue);
             ob_start();
             echo '<pre>';
             if (is_array($varValue)) {
