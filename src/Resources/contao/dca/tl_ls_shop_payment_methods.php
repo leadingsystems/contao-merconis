@@ -927,7 +927,7 @@ class ls_shop_payment_methods extends \Backend {
         /*
          * Insert the fields into the fields array of this DCA definition
          */
-        array_insert($GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields'], 0, $arr_fields);
+        \Contao\ArrayUtil::arrayInsert($GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields'], 0, $arr_fields);
 
         /*
          * Assign the standard label

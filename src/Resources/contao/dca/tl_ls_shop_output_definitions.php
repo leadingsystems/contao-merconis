@@ -327,7 +327,7 @@ class ls_shop_output_definitions extends \Backend {
 
 	public function ls_getTemplateOptions() {
 		$arrOptions = $this->getTemplateGroup('template_productOverview_');
-		array_insert($arrOptions, 0, array('template_productOverview_useDetailsTemplate' => 'template_productOverview_useDetailsTemplate'));
+		\Contao\ArrayUtil::arrayInsert($arrOptions, 0, array('template_productOverview_useDetailsTemplate' => 'template_productOverview_useDetailsTemplate'));
 		return $arrOptions;
 	}
 	

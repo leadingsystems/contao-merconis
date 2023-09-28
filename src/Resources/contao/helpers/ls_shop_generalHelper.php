@@ -2598,7 +2598,7 @@ class ls_shop_generalHelper
             $_SESSION['lsShop']['lastSeenProducts'] = array();
         }
 
-        array_insert($_SESSION['lsShop']['lastSeenProducts'], 0, array($productID));
+        \Contao\ArrayUtil::arrayInsert($_SESSION['lsShop']['lastSeenProducts'], 0, array($productID));
     }
 
     /*
