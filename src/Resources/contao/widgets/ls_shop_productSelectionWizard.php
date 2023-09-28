@@ -68,7 +68,8 @@ class ls_shop_productSelectionWizard extends \Widget {
 					$this->varValue = array_move_down($this->varValue, \Input::get('cid'));
 					break;
 
-				case 'delete':
+                case 'delete':
+                    //TODO: Deprecated since Contao 4.3, to be removed in Contao 5.0.
 					$this->varValue = array_delete($this->varValue, \Input::get('cid'));
 					break;
 			}
