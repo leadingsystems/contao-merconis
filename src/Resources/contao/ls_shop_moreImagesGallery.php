@@ -183,6 +183,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 				break;
 
 			case 'name_desc':
+			    //@TODO: Deprecated to be removed in Contao 5.0.
 				uksort($this->ls_images, 'basename_natcasercmp');
 				break;
 
