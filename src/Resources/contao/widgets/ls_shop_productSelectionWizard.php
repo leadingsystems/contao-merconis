@@ -57,6 +57,7 @@ class ls_shop_productSelectionWizard extends \Widget {
 		if (\Input::get($strCommand) && is_numeric(\Input::get('cid')) && \Input::get('id') == $this->currentRecord) {
 			switch (\Input::get($strCommand)) {
 				case 'copy':
+				    //@TODO: Deprecated since Contao 4.3, to be removed in Contao 5.0.
 					$this->varValue = array_duplicate($this->varValue, \Input::get('cid'));
 					break;
 
