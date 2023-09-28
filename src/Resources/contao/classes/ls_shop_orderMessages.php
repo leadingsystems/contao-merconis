@@ -377,7 +377,7 @@ class ls_shop_orderMessages
 				$objEmail->sendTo($arrMessageToSendAndSave['receiverMainAddress']);
 				\System::log('MERCONIS: message sent for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'], 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
 			} catch (\Exception $e) {
-				\System::log('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.standardize($e->getMessage()).')', 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
+				\System::log('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.\Contao\StringUtil::standardize($e->getMessage()).')', 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
 			}
 			
 			$this->writeDispatchDate($currentMessageTypeID);

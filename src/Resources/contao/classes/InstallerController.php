@@ -910,7 +910,7 @@ class InstallerController extends \Controller {
 		 * sichergestellt wird, dass der Alias unique ist.
 		 */
 		if (!$preserveAlias && \Database::getInstance()->fieldExists('alias', $targetTable)) {
-			$alias = (isset($arrData['title']) && $arrData['title'] ? standardize(\StringUtil::restoreBasicEntities($arrData['title'])) : 'record-'.$insertID);
+			$alias = (isset($arrData['title']) && $arrData['title'] ? \Contao\StringUtil::standardize(\StringUtil::restoreBasicEntities($arrData['title'])) : 'record-'.$insertID);
 
 			$alias = strlen($alias) > 100 ? substr($alias, 0, 100) : $alias;
 

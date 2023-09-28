@@ -96,7 +96,7 @@ namespace Merconis\Core;
 				 * We can't use the order no because it doesn't exist yet
 				 * since the order isn't finished yet.
 				 */
-				'str_orderID' => substr(standardize($arrCheckoutFormFields[$this->arrCurrentSettings['santanderWebQuickFieldNameFirstName']]['value'] ?: $arrPaymentMethodAdditionalDataFormFields[$this->arrCurrentSettings['santanderWebQuickFieldNameFirstName']]['value']), 0,20).'_'.time(),
+				'str_orderID' => substr(\Contao\StringUtil::standardize($arrCheckoutFormFields[$this->arrCurrentSettings['santanderWebQuickFieldNameFirstName']]['value'] ?: $arrPaymentMethodAdditionalDataFormFields[$this->arrCurrentSettings['santanderWebQuickFieldNameFirstName']]['value']), 0,20).'_'.time(),
 
 				/*
 				 * The birthday values that we need to collect before we
