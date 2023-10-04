@@ -59,12 +59,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['edit'],
 				'href'                => 'act=edit',
-				'icon'                => 'edit.gif'
+				'icon'                => 'edit.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['delete'],

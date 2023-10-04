@@ -49,19 +49,19 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['edit'],
 				'href'                => 'act=edit',
-				'icon'                => 'edit.gif'
+				'icon'                => 'edit.svg'
 			),
 			'copy' => array
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_shipping_methods','getDeleteButton')
 			),
@@ -69,7 +69,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
 		
 		)	

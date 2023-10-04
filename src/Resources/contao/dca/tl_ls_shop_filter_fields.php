@@ -59,35 +59,35 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit'],
 				'href'                => 'table=tl_ls_shop_filter_field_values',
-				'icon'                => 'edit.gif',
+				'icon'                => 'edit.svg',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_filter_fields','getEditButton')
 			),
 			'editheader' => array (
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['editheader'],
 				'href'                => 'act=edit',
-				'icon'                => 'header.gif'
+				'icon'                => 'header.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
 			),
 			'toggle' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['toggle'],
-				'icon'                => 'visible.gif',
+				'icon'                => 'visible.svg',
 				'attributes'          => 'onclick="Backend.getScrollOffset(); return AjaxRequest.toggleVisibility(this,%s)"',
 				'button_callback'     => array('Merconis\Core\ls_shop_filter_fields', 'toggleIcon')
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
 		
 		)	
