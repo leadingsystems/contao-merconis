@@ -182,7 +182,7 @@ class ls_shop_languageHelper {
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeMainLanguageField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
-							'eval'					  => array('output' => '<div class="languageWidgetContainer mainLanguage '.self::getFallbackLanguage().($str_tmpFieldClass ? ' '.$str_tmpFieldClass : '').'"><div class="languageIcon '.self::getFallbackLanguage().' mainLanguage" style="background-image: url(bundles/leadingsystemsmerconis/images/languages/'.self::getFallbackLanguage().'.gif);"></div>')
+							'eval'					  => array('output' => '<div class="languageWidgetContainer mainLanguage '.self::getFallbackLanguage().($str_tmpFieldClass ? ' '.$str_tmpFieldClass : '').'"><div class="languageIcon '.self::getFallbackLanguage().' mainLanguage" style="background-image: url(bundles/leadingsystemsmerconis/images/languages/'.self::getFallbackLanguage().'.svg);"></div>')
 						);
 					}
 
@@ -217,7 +217,7 @@ class ls_shop_languageHelper {
 						) {
 							$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeForeignLanguageField-'.$str_language] = array(
 								'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
-								'eval'					  => array('output' => '<div class="languageWidgetContainer '.$str_language.($str_tmpFieldClass ? ' '.$str_tmpFieldClass : '').'"><div class="languageIcon '.$str_language.'" style="background-image: url(bundles/leadingsystemsmerconis/images/languages/'.$str_language.'.gif);"></div>')
+								'eval'					  => array('output' => '<div class="languageWidgetContainer '.$str_language.($str_tmpFieldClass ? ' '.$str_tmpFieldClass : '').'"><div class="languageIcon '.$str_language.'" style="background-image: url(bundles/leadingsystemsmerconis/images/languages/'.$str_language.'.svg);"></div>')
 							);
 						}
 

@@ -69,14 +69,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_output_definitions','getDeleteButton')
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
 		
 		)	

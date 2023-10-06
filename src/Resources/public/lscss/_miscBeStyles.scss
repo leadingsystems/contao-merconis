@@ -1102,7 +1102,7 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
 
 #shopImport #lockOverlay .message.inProcess {
   font-weight: bold;
-  background-image: url("/bundles/leadingsystemsmerconis/images/inProcess.gif");
+  background-image: url("/bundles/leadingsystemsmerconis/images/inProcess.svg");
   background-repeat: no-repeat;
   background-position: 650px center;
   background-color: rgba(230,230,230,0.45);
@@ -1131,7 +1131,7 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
 
 #shopImport #lockOverlay .message .numRecordsProcessed .processing {
   font-weight: bold;
-  background-image: url("/bundles/leadingsystemsmerconis/images/inProcess.gif");
+  background-image: url("/bundles/leadingsystemsmerconis/images/inProcess.svg");
   background-repeat: no-repeat;
   background-position: 650px center;
   background-color: rgba(230,230,230,0.45);
@@ -1145,7 +1145,7 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
 }
 
 #shopImport #lockOverlay .message .interrupted .numRecordsProcessed .processing {
-  background-image: url("/bundles/leadingsystemsmerconis/images/inProcess_interrupted.gif");
+  background-image: url("/bundles/leadingsystemsmerconis/images/inProcess_interrupted.svg");
   background-repeat: no-repeat;
   background-position: 650px center;
 }
@@ -1993,7 +1993,7 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
 .exportOverviewItem [data-lsjs-element="btn_deleteFile"] {
   background-color: transparent;
   border: none;
-  background-image: url("/bundles/leadingsystemsmerconis/images/icons/delete.gif");
+  background-image: url("/bundles/leadingsystemsmerconis/images/icons/delete.svg");
   background-repeat: no-repeat;
   background-position: center;
   width: 16px;
