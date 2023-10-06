@@ -292,7 +292,7 @@ class ls_shop_filter_fields extends \Backend {
 		$href .= '&amp;tid='.$row['id'].'&amp;state='.($row['published'] ? '' : 1);
 
 		if (!$row['published']) {
-			$icon = 'invisible.gif';
+			$icon = 'invisible.svg';
 		}		
 
 		return '<a href="'.$this->addToUrl($href).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
