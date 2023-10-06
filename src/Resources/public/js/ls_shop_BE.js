@@ -193,12 +193,14 @@ var ls_shop_backend = {
 		if (item) {
 			if (item.getStyle('display') == 'none') {
 				item.setStyle('display', 'inline');
-				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
+				//@TODO check if change from gif to svg is ok
+				image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
 				$(el).title = CONTAO_COLLAPSE;
 				new Request.Contao({field:el}).post({'action':'toggleLsShopMainLanguagePagetree', 'id':id, 'state':1, 'REQUEST_TOKEN':REQUEST_TOKEN});
 			} else {
 				item.setStyle('display', 'none');
-				image.src = image.src.replace('folMinus.gif', 'folPlus.gif');
+				//@TODO check if change from gif to svg is ok
+				image.src = image.src.replace('folMinus.svg', 'folPlus.svg');
 				$(el).title = CONTAO_EXPAND;
 				new Request.Contao({field:el}).post({'action':'toggleLsShopMainLanguagePagetree', 'id':id, 'state':0, 'REQUEST_TOKEN':REQUEST_TOKEN});
 			}
@@ -225,7 +227,8 @@ var ls_shop_backend = {
 
 				li.inject($(el).getParent('li'), 'after');
 				$(el).title = CONTAO_COLLAPSE;
-				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
+				//@TODO check if change from gif to svg is ok
+				image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
 				AjaxRequest.hideBox();
 
 				// HOOK
