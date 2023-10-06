@@ -99,7 +99,7 @@ class ls_shop_productSelectionWizard extends \Widget {
 			// Add buttons
 			$return .= '<div class="listWizardButtons">';
 			foreach ($arrButtons as $button) {
-				$return .= '<a href="'.$this->addToUrl('&amp;'.$strCommand.'='.$button.'&amp;cid='.$i.'&amp;id='.$this->currentRecord).'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['lw_'.$button]).'" onclick="ls_shop_backend.listWizard(this,\''.$button.'\',\'ctrl_'.$this->strId.'\'); return false">'.\Image::getHtml($button.'.gif', $GLOBALS['TL_LANG']['MSC']['lw_'.$button], 'class="tl_listwizard_img"').'</a> ';
+				$return .= '<a href="'.$this->addToUrl('&amp;'.$strCommand.'='.$button.'&amp;cid='.$i.'&amp;id='.$this->currentRecord).'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['lw_'.$button]).'" onclick="ls_shop_backend.listWizard(this,\''.$button.'\',\'ctrl_'.$this->strId.'\'); return false">'.\Image::getHtml($button.'.svg', $GLOBALS['TL_LANG']['MSC']['lw_'.$button], 'class="tl_listwizard_img"').'</a> ';
 			}
 			$return .= '</div>';
 
