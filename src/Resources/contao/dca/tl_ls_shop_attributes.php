@@ -167,7 +167,7 @@ class ls_shop_attributes extends \Backend {
 		if (!in_array($row['id'], $attributesAndValuesCurrentlyInUse['arrAttributeIDs'])) {
 			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
-			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 		
 		return $button;

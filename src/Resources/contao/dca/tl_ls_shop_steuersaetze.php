@@ -254,7 +254,7 @@ class ls_shop_steuersaetze extends \Backend {
 			/*
 			 * The tax rate must not be deleted if it is in use with at least one product
 			 */
-			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 		return $button;
 	}

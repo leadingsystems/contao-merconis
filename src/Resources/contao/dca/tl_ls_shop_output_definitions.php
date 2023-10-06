@@ -380,7 +380,7 @@ class ls_shop_output_definitions extends \Backend {
 		if (!in_array($row['id'], ls_shop_generalHelper::getOutputDefinitionsCurrentlyInUse())) {
 			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
-			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 		
 		return $button;

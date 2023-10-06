@@ -265,7 +265,7 @@ class ls_shop_delivery_info extends \Backend {
 			 * Wird das deliveryInfoSet bei Produkten verwendet,
 			 * so darf es nicht gelöscht werden
 			 */
-			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 		return $button;
 	}

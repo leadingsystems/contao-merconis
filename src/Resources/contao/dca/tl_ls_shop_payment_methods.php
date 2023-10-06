@@ -957,7 +957,7 @@ class ls_shop_payment_methods extends \Backend {
         if (!in_array($row['id'], $arr_methodIDsCurrentlyUsed)) {
             $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
         } else {
-            $button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+            $button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
         }
 
         return $button;
