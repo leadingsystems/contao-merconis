@@ -2,7 +2,7 @@
 <div class="<?php echo $this->class; ?> <?php echo $this->strTemplate ?> ls_searchBox<?php echo (isset($GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']) && $GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']) ? ' ls_advanced-productSearch' : ' ls_simple-productSearch'; ?>"<?= $this->cssID ?>>
 	<form action="<?php echo $this->action; ?>" method="post">
 		<div class="formbody">
-			<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+			<input type="hidden" name="REQUEST_TOKEN" value="<?php echo $this->strRequestToken ?>" />
 			<input type="hidden" name="FORM_SUBMIT" value="merconisProductSearch">
 			<?php echo $this->str_widget_searchWord; ?>
 			<button type="submit" class="submit no-button"></button>

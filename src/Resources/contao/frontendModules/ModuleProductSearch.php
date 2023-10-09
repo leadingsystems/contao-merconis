@@ -169,6 +169,7 @@ class ModuleProductSearch extends \Module {
 	public function compile() {
 		$this->strTemplate = $this->ls_shop_productSearch_template;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
+        $this->Template->strRequestToken  = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 		
 		$this->Template->action = ampersand(\Environment::get('request'));
 		$this->Template->blnUseLiveHits = isset($this->arrLiveHitFields) && is_array($this->arrLiveHitFields) && count($this->arrLiveHitFields);

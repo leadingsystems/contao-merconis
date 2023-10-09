@@ -232,9 +232,10 @@ class ls_shop_productList
 		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$objProductSearch->blnNotAllProductsMatch)) {
 			return '';
 		}
-		
+
 		$objTemplate = new \FrontendTemplate('productList');
-		
+
+		$objTemplate->strRequestToken  = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 		$objTemplate->blnUseFilter = $this->blnUseFilter;
 		$objTemplate->blnNotAllProductsMatchFilter = $objProductSearch->blnNotAllProductsMatch;
 		$objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;

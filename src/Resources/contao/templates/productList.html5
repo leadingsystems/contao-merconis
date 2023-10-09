@@ -31,7 +31,7 @@ $bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorti
                         }
                         ?>
                     >
-                        <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+                        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo $this->strRequestToken ?>" />
                         <input type="hidden" name="FORM_SUBMIT" value="userSorting">
                         <input type="hidden" name="identifyCorrespondingOutputDefinition" value="<?php echo $this->identifyCorrespondingOutputDefinition; ?>">
                         <div class="sorting-field"><?php echo $this->fflSorting; ?></div>

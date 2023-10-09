@@ -2,7 +2,7 @@
 <div class="add-to-cart-container<?php echo $this->showInputQuantity ? '' : ' empty'; ?>">
 	<?php if ($this->showInputQuantity): ?>
 		<form class="add-to-cart" action="<?php echo ampersand(\Environment::get('request')); ?>" method="post" enctype="application/x-www-form-urlencoded">
-            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+            <input type="hidden" name="REQUEST_TOKEN" value="<?php echo $this->strRequestToken ?>">
             <input type="hidden" name="FORM_SUBMIT" value="<?php echo $this->str_formSubmitValue; ?>">
             <input type="hidden" name="productVariantID" value="<?php echo $this->str_productVariantId; ?>">
 

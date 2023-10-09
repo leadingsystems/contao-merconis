@@ -4785,6 +4785,7 @@ class ls_shop_generalHelper
         $quantityInput = '';
         if ($obj_productOrVariant->_objectType === 'variant' || !$obj_productOrVariant->_hasVariants) {
             $objQuantityInputTemplate = new \FrontendTemplate('quantityInput');
+            $objQuantityInputTemplate->strRequestToken  = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
             $str_formSubmitValue = 'product_form_' . $productID . '-' . $variantID;
             $objQuantityInputTemplate->str_formSubmitValue = $str_formSubmitValue;
             $objQuantityInputTemplate->str_productVariantId = $productID . '-' . $variantID;
