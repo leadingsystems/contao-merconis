@@ -2667,7 +2667,7 @@ class ls_shop_generalHelper
         $headline = isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline']) ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline'] : '';
         $requestedTable = $dc->table;
         $requestedValue = $dc->field;
-        return ' ' . \Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.svg', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="vertical-align:top;cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . specialchars($headline) . '\')"');
+        return ' ' . \Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.gif', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="vertical-align:top;cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . specialchars($headline) . '\')"');
     }
 
     public static function createValueList($requestedTable = false, $requestedValue = false, $requestedLanguage = false)

@@ -420,7 +420,7 @@ class dynamicAttachment_invoice_01 extends \Controller {
 		/* #################################################
 		 * Background image
 		 */
-		$bgImage = TL_ROOT.'/'.(version_compare(VERSION, '3.0', '>=') ? 'files' : 'tl_files').'/merconisfiles/dynamicAttachmentFiles/images/invoice_background_01.svg';
+		$bgImage = TL_ROOT.'/'.(version_compare(VERSION, '3.0', '>=') ? 'files' : 'tl_files').'/merconisfiles/dynamicAttachmentFiles/images/invoice_background_01.gif';
 		$this->pdf->Image($bgImage, -0.07, 0, 210.15, 297.01, '', '', '', false, 300, '', false, false, 0);
 		/*
 		 * #################################################
