@@ -84,6 +84,7 @@ class ModuleCart extends \Module {
 		$this->Template->allowCheckout = $GLOBALS['TL_CONFIG']['ls_shop_allowCheckout'];
 		
 		$this->Template->noVATBecauseOfEnteredIDs = ls_shop_generalHelper::checkVATID();
+		$this->Template->strRequestToken  = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 		
 		/*
 		 * Gutschein-Handling

@@ -4949,6 +4949,7 @@ class ls_shop_generalHelper
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;
         $objTemplate->str_favoriteProductId = $obj_product->_id;
         $objTemplate->bln_isFavorite = $obj_product->_isFavorite;
+        $objTemplate->strRequestToken  = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 
         if (
             \Input::post('FORM_SUBMIT')

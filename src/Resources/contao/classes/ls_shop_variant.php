@@ -1266,6 +1266,7 @@ This method takes the name of a template file as an argument and returns the ren
                 $obj_template = new \FrontendTemplate($str_template);
                 $obj_template->objVariant = $this;
                 $obj_template->arr_args = is_array($args[1]) ? $args[1] : [$args[1]];
+                $obj_template->strRequestToken  = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
                 return $obj_template->parse();
 
 			case '_hookedFunction'

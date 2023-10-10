@@ -23,6 +23,7 @@ class ModuleMyOrders extends \Module {
 		$this->strTemplate = $this->ls_shop_myOrders_template;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
 		$this->Template->arrOrders = array();
+        $this->Template->strRequestToken  = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 		
 		/*
 		 * Get the user's order from the database

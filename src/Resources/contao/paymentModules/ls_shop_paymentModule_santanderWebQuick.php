@@ -133,6 +133,7 @@ namespace Merconis\Core;
 		
 		public function getCustomUserInterface() {
 			$obj_template = new \FrontendTemplate('santanderWebQuickCustomUserInterface');
+			$obj_template->strRequestToken  = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 
 			$arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
 			$arrPaymentMethodAdditionalDataFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrPaymentMethodAdditionalData'];

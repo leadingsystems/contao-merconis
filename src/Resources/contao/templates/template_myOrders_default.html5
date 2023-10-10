@@ -3,7 +3,7 @@
     <?php if ($this->useSortingWidget) { ?>
         <form action="<?php echo $this->request; ?>" class="tl_form sortingForm" method="post">
             <input type="hidden" name="FORM_SUBMIT" value="myOrders_numPerPage">
-            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+            <input type="hidden" name="REQUEST_TOKEN" value="<?php echo $this->strRequestToken ?>">
 
             <?php echo $this->fflSorting; ?> <?php echo $this->fflSortingDirection; ?>
             <?php
