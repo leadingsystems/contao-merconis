@@ -4746,10 +4746,10 @@ class ls_shop_generalHelper
         $arr_allowedIpAddresses = array_map('trim', explode(',', $GLOBALS['TL_CONFIG']['ls_shop_ipWhitelist']));
 
         if (!isset($_SERVER['REMOTE_ADDR']) || in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
-            define('BYPASS_TOKEN_CHECK', true);
+//@TODO Add a replacement for the deprecated constant 'BYPASS_TOKEN_CHECK'
         } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'] ?? '') > 2) {
             if (preg_match($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'], \Environment::get('request'))) {
-                define('BYPASS_TOKEN_CHECK', true);
+
             }
         }
     }
