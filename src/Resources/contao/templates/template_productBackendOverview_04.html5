@@ -38,7 +38,7 @@
 		</form>
 	</td>
 </tr>
-test5
+
 <?php
 	if ($this->objProduct->_hasVariants) {
 		foreach ($this->objProduct->_variants as $variant) {

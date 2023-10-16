@@ -54,7 +54,7 @@ class ls_shop_productOutput
 	}
 
 	protected function handlePersistentVariantSelection() {
-		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
+		if (!System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
 			return;
 		}
 

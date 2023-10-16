@@ -23,13 +23,23 @@ class Scope {
         return $this->scopeMatcher->isFrontendRequest($this->requestStack->getCurrentRequest());
     }
 
-    public function getTLMode() {
-        if($this->isBackend()){
+    public function getTLMode()
+    {
+        if(!$this->requestStack->getCurrentRequest())
+        {
+            return '';
+        }
+
+        if($this->isBackend())
+        {
             return 'BE';
         }
-        if($this->isFrontend()){
+
+        if($this->isFrontend())
+        {
             return 'FE';
         }
-        return "";
+
+        return '';
     }
 }

@@ -955,7 +955,7 @@ class ls_shop_checkoutData {
 		$this->writeCheckoutDataToSession();
 
 		if ($blnReloadRequired) {
-			if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
+			if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 				if (!\Environment::get('isAjaxRequest')) {
 					\Controller::reload();
 				}
@@ -993,7 +993,7 @@ class ls_shop_checkoutData {
 				case 'payment':
 					if (!ls_shop_generalHelper::checkIfPaymentMethodIsAllowed($this->arrCheckoutData['selectedPaymentMethod'])) {
 						$this->arrCheckoutData['selectedPaymentMethod'] = '';
-						if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
+						if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 							if (!\Environment::get('isAjaxRequest')) {
 								$this->writeCheckoutDataToSession();
 								\Controller::reload();
@@ -1005,7 +1005,7 @@ class ls_shop_checkoutData {
 				case 'shipping':
 					if (!ls_shop_generalHelper::checkIfShippingMethodIsAllowed($this->arrCheckoutData['selectedShippingMethod'])) {
 						$this->arrCheckoutData['selectedShippingMethod'] = '';
-						if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
+						if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 							if (!\Environment::get('isAjaxRequest')) {
 								$this->writeCheckoutDataToSession();
 								\Controller::reload();
