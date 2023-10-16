@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
 use Contao\LayoutModel;
+use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
@@ -4744,7 +4745,7 @@ class ls_shop_generalHelper
 
         $arr_allowedIpAddresses = array_map('trim', explode(',', $GLOBALS['TL_CONFIG']['ls_shop_ipWhitelist']));
 
-        if (in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
+        if (!isset($_SERVER['REMOTE_ADDR']) || in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
             define('BYPASS_TOKEN_CHECK', true);
         } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'] ?? '') > 2) {
             if (preg_match($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'], \Environment::get('request'))) {
@@ -5096,9 +5097,11 @@ class ls_shop_generalHelper
             return $str_content;
         }
 
+        $webDir = StringUtil::stripRootDir(System::getContainer()->getParameter('contao.web_dir'));
+	    
         ob_start();
         ?>
-        <script src="assets/lsjs/core/appBinder/binder.php?output=js&pathToApp=<?php echo urldecode('_dup4_/web/bundles/leadingsystemsmerconis/js/lsjs/backend/app'); ?>&includeCore=no&includeCoreModules=no<?php echo ($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');?>"></script>
+        <script src="assets/lsjs/core/appBinder/binder.php?output=js&pathToApp=<?php echo urldecode('_dup4_/'.$webDir.'/bundles/leadingsystemsmerconis/js/lsjs/backend/app'); ?>&includeCore=no&includeCoreModules=no<?php echo ($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');?>"></script>
         <script type="text/javascript">
             window.addEvent('domready', function () {
                 if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {
