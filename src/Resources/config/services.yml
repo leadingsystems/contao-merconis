@@ -3,10 +3,11 @@ services:
   _defaults:
     autowire: true
     autoconfigure: true
-    public: true
+    public: false
 
   merconis.routing.scope:
     class: LeadingSystems\MerconisBundle\Services\Scope
+    public: true
 
   merconis.controller.backend.product_search:
     class: LeadingSystems\MerconisBundle\Controller\ProductSearchController
