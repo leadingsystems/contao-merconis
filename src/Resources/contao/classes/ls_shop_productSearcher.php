@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\System;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 
 class ls_shop_productSearcher
@@ -353,7 +354,7 @@ class ls_shop_productSearcher
         $this->searchLanguage = ls_shop_languageHelper::getFallbackLanguage();
 
         // Use the language of the current page if we have a fronted call
-        if (TL_MODE == 'FE') {
+        if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
             /** @var \PageModel $objPage */
             global $objPage;
             $this->searchLanguage = $objPage->language;
@@ -521,7 +522,7 @@ class ls_shop_productSearcher
         /* ############################
          * Erstellung der Where-Bedingungen
          */
-        if (!$this->bln_ignoreGroupRestrictions && TL_MODE === 'FE') {
+        if (!$this->bln_ignoreGroupRestrictions && System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
             $searchCondition = "
                 (
                     `useGroupRestrictions` != '1'
