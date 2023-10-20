@@ -3652,7 +3652,7 @@ class ls_shop_generalHelper
                 if (isset($GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) && $GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) {
                 ?>
                 if (lsjs.__appHelpers.merconisApp !== undefined && lsjs.__appHelpers.merconisApp !== null) {
-                    lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN = '<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>';
+                    lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN = '<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.str_ajaxUrl = '<?php echo $str_ajaxUrl; ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.int_minicartID = '<?php echo $int_minicartID; ?>';
                     lsjs.__appHelpers.merconisApp.start();
@@ -5105,7 +5105,7 @@ class ls_shop_generalHelper
         <script type="text/javascript">
             window.addEvent('domready', function () {
                 if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {
-                    lsjs.__appHelpers.merconisBackendApp.obj_config.REQUEST_TOKEN = '<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>';
+                    lsjs.__appHelpers.merconisBackendApp.obj_config.REQUEST_TOKEN = '<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>';
                     lsjs.__appHelpers.merconisBackendApp.obj_config.API_KEY = '<?php echo $GLOBALS['TL_CONFIG']['ls_api_key']; ?>';
                     lsjs.__appHelpers.merconisBackendApp.start();
                 }

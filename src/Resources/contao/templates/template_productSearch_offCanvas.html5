@@ -2,7 +2,7 @@
 <div class="<?php echo $this->class; ?> <?php echo $this->strTemplate ?> ls_searchBox off-canvas"<?= $this->cssID ?>>
 	<form action="<?php echo $this->action; ?>" method="post">
 		<div class="formbody<?php echo $this->blnUseLiveHits ? ' liveHits' : ''; ?>">
-			<input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>" />
+			<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
 			<input type="hidden" name="FORM_SUBMIT" value="merconisProductSearch">
 			<?php echo $this->str_widget_searchWord; ?>
 			<button type="submit" class="submit no-button"></button>

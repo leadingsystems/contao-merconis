@@ -30,7 +30,7 @@
 			}
 		?>
 		<form action="<?php echo $this->action; ?>" method="post" onsubmit="Backend.getScrollOffset()">
-			<input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>" />
+			<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
 			<input type="hidden" name="FORM_SUBMIT" value="changeStock" />
 			<input type="hidden" name="productVariantID" value="<?php echo $this->objProduct->ls_productVariantID; ?>" />
 			<input type="text" name="changeStockQuantity" value="" />

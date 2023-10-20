@@ -2,7 +2,7 @@
 	<div class="searchForm">
 		<form action="<?php echo $this->request; ?>" class="tl_form" method="post">
 			<input type="hidden" name="FORM_SUBMIT" value="beModule_productSearch">
-			<input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>">
+			<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
 			<div class="widgetContainer title left">
 				<?php echo $this->widgets['title']['widget']; ?>
 			</div>
@@ -29,7 +29,7 @@
 			<div class="setNumPerPage" style="position: absolute; top: -5px; right: 0px;">
 				<form action="<?php echo $this->request; ?>" class="tl_form" method="post">
 					<input type="hidden" name="FORM_SUBMIT" value="beModule_productSearch_numPerPage">
-					<input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>">
+					<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
 					<?php echo $GLOBALS['TL_LANG']['be_stockManagement']['text009']; ?>: <?php echo $this->fflNumPerPage; ?>
 					<input type="submit" name="submitNumPerPage" id="submitNumPerPage" class="tl_submit" value="<?php echo $GLOBALS['TL_LANG']['be_stockManagement']['text010']; ?>">
 				</form>

@@ -19,7 +19,7 @@
 			?>
 				<form action="<?php echo ampersand(\Environment::get('request')); ?>" method="post" enctype="application/x-www-form-urlencoded">
 					<div>
-						<input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>" />
+						<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
 						<input type="hidden" name="FORM_SUBMIT" value="<?php echo $this->str_formSubmitValue; ?>">
 						<input type="hidden" name="favoriteProductID" value="<?php echo $this->str_favoriteProductId; ?>">
 						<button type="submit" class="submit" name="favoriteAddOrRemoveSubmit"><span><?php echo !$this->bln_isFavorite ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText124'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText125']; ?></span></button>

@@ -199,7 +199,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                                                  }
                                                  "
                             >
-                                <input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>" />
+                                <input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
                                 <input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
                                 <input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
                                 <?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
@@ -218,7 +218,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                                                  }
                                                  "
                             >
-                                <input type="hidden" name="REQUEST_TOKEN" value="<?=System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue()?>" />
+                                <input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
                                 <input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
                                 <input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
                                 <button type="submit" name="submitDelete" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button>
