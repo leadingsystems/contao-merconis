@@ -5,6 +5,15 @@ services:
     autoconfigure: true
     public: false
 
+  LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
+    arguments:
+      - '@contao.framework'
+      - '@contao.routing.scope_matcher'
+      - '%contao.web_dir%'
+      - '%kernel.project_dir%'
+    tags:
+      - { name: 'kernel.event_subscriber' }
+
   merconis.eventlistener.loginlistener:
     class: LeadingSystems\MerconisBundle\EventListener\LoginListener
     tags:
