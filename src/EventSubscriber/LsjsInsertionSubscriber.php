@@ -36,7 +36,6 @@ class LsjsInsertionSubscriber implements EventSubscriberInterface
                 "includeCore" => 'no',
                 "includeCoreModules" => 'no',
                 "debug" => (Config::get('ls_shop_lsjsDebugMode') ? '1' : ''),
-                "no-cache" => (Config::get('ls_shop_lsjsNoCacheMode') ? '1' : ''),
                 "no-minifier" => (Config::get('ls_shop_lsjsNoMinifierMode') ? '1' : ''),
             ];
 
