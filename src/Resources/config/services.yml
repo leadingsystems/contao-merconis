@@ -14,6 +14,11 @@ services:
     tags:
       - { name: 'kernel.event_subscriber' }
 
+
+  LeadingSystems\MerconisBundle\EventListener\GetPageLayoutListener:
+    tags:
+      - { name: contao.hook, hook: getPageLayout, method: getLayoutSettingsForGlobalUse }
+
   merconis.eventlistener.loginlistener:
     class: LeadingSystems\MerconisBundle\EventListener\LoginListener
     tags:

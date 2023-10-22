@@ -4535,30 +4535,6 @@ class ls_shop_generalHelper
         return $arr_pageData;
     }
 
-    public static function merconis_getLayoutSettingsForGlobalUse(\PageModel $objPage, \LayoutModel $objLayout, \PageRegular $objPageRegular)
-    {
-        $GLOBALS['merconis_globals']['layoutID'] = $objLayout->id;
-        $GLOBALS['merconis_globals']['layoutName'] = $objLayout->name;
-        $GLOBALS['merconis_globals']['ls_shop_activateFilter'] = $objLayout->ls_shop_activateFilter;
-        $GLOBALS['merconis_globals']['ls_shop_useFilterInStandardProductlist'] = $objLayout->ls_shop_useFilterInStandardProductlist;
-        $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = $objLayout->ls_shop_numFilterFieldsInSummary;
-        $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] = $objLayout->ls_shop_useFilterMatchEstimates;
-        $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxNumProducts'] = $objLayout->ls_shop_matchEstimatesMaxNumProducts;
-        $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxFilterValues'] = $objLayout->ls_shop_matchEstimatesMaxFilterValues;
-        $GLOBALS['merconis_globals']['ls_shop_useFilterInProductDetails'] = $objLayout->ls_shop_useFilterInProductDetails;
-        $GLOBALS['merconis_globals']['ls_shop_hideFilterFormInProductDetails'] = $objLayout->ls_shop_hideFilterFormInProductDetails;
-
-        $arr_themeData = ls_shop_generalHelper::ls_shop_getThemeDataForID($objLayout->pid);
-        $GLOBALS['merconis_globals']['contaoThemeFolders'] = isset($arr_themeData) ? deserialize($arr_themeData['folders'], true) : array();
-
-        $GLOBALS['merconis_globals']['int_rootPageId'] = $objPage->rootId;
-        $arr_pageData = ls_shop_generalHelper::ls_shop_getPageDataForID($objPage->rootId);
-
-        $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = $arr_pageData['ls_shop_decimalsSeparator'];
-        $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] = $arr_pageData['ls_shop_thousandsSeparator'];
-        $GLOBALS['merconis_globals']['ls_shop_currencyBeforeValue'] = $arr_pageData['ls_shop_currencyBeforeValue'];
-    }
-
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
     {
         $themesPath = 'files/merconisfiles/themes';

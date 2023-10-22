@@ -23,10 +23,6 @@ if (TL_MODE === 'BE') {
 
 if (TL_MODE == 'FE') {
 	$GLOBALS['TL_HOOKS']['getPageLayout'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_switchTemplateInDetailsViewIfNecessary');
-	/*
-	 * Hook for writing the layout's filter settings into the global variables for later use
-	 */
-	$GLOBALS['TL_HOOKS']['getPageLayout'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getLayoutSettingsForGlobalUse');
 }
 
 /*
