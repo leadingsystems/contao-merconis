@@ -33,4 +33,51 @@ class GetPageLayoutListener
         $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] = $arr_pageData['ls_shop_thousandsSeparator'];
         $GLOBALS['merconis_globals']['ls_shop_currencyBeforeValue'] = $arr_pageData['ls_shop_currencyBeforeValue'];
     }
+
+    /*
+     * This function checks if we are on a product detail page and if we are,
+     * it checks if the page has different layout settings for the details view
+     * and if it has, it overwrites the page's regular layout settings
+     */
+    public function switchTemplateInDetailsViewIfNecessary(PageModel &$pageModel, LayoutModel &$layout, PageRegular $pageRegular): void
+    {
+        if (!\Input::get('product')) {
+            /*
+             * We don't have to deal with different layouts because we are
+             * not on a product details page
+             */
+            return;
+        }
+
+        $int_layout = $pageModel->lsShopIncludeLayoutForDetailsView ? $pageModel->lsShopLayoutForDetailsView : false;
+
+        if ($pageModel->type != 'root') {
+            $int_pid = $pageModel->pid;
+            $str_type = $pageModel->type;
+            $objParentPage = \PageModel::findParentsById($int_pid);
+
+            if ($objParentPage !== null) {
+                while ($int_pid > 0 && $str_type != 'root' && $objParentPage->next()) {
+                    $int_pid = $objParentPage->pid;
+                    $str_type = $objParentPage->type;
+
+                    if ($objParentPage->lsShopIncludeLayoutForDetailsView) {
+                        if ($int_layout === false) {
+                            $int_layout = $objParentPage->lsShopLayoutForDetailsView;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($int_layout === false) {
+            /*
+             * We don't have to consider different layouts
+             */
+            return;
+        }
+        $pageModel->layout = $int_layout !== false ? $int_layout : $pageModel->layout;
+
+        $layout = ls_shop_generalHelper::merconis_getPageLayout($pageModel);
+    }
 }

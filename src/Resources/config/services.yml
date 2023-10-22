@@ -17,6 +17,7 @@ services:
 
   LeadingSystems\MerconisBundle\EventListener\GetPageLayoutListener:
     tags:
+      - { name: contao.hook, hook: getPageLayout, method: switchTemplateInDetailsViewIfNecessary }
       - { name: contao.hook, hook: getPageLayout, method: getLayoutSettingsForGlobalUse }
 
   merconis.eventlistener.loginlistener:

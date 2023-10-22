@@ -21,10 +21,6 @@ if (TL_MODE === 'BE') {
     $GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getBackendLsjs');
 }
 
-if (TL_MODE == 'FE') {
-	$GLOBALS['TL_HOOKS']['getPageLayout'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_switchTemplateInDetailsViewIfNecessary');
-}
-
 /*
  * Hook for loading the themes' language files
  */

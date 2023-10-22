@@ -4441,54 +4441,6 @@ class ls_shop_generalHelper
         return $objLayout;
     }
 
-    /*
-     * This function checks if we are on a product detail page and if we are,
-     * it checks if the page has different layout settings for the details view
-     * and if it has, it overwrites the page's regular layout settings
-     */
-    public static function ls_shop_switchTemplateInDetailsViewIfNecessary(\PageModel &$objPage, \LayoutModel &$objLayout, \PageRegular $objPageRegular)
-    {
-
-        if (!\Input::get('product')) {
-            /*
-             * We don't have to deal with different layouts because we are
-             * not on a product details page
-             */
-            return;
-        }
-
-        $int_layout = $objPage->lsShopIncludeLayoutForDetailsView ? $objPage->lsShopLayoutForDetailsView : false;
-
-        if ($objPage->type != 'root') {
-            $int_pid = $objPage->pid;
-            $str_type = $objPage->type;
-            $objParentPage = \PageModel::findParentsById($int_pid);
-
-            if ($objParentPage !== null) {
-                while ($int_pid > 0 && $str_type != 'root' && $objParentPage->next()) {
-                    $int_pid = $objParentPage->pid;
-                    $str_type = $objParentPage->type;
-
-                    if ($objParentPage->lsShopIncludeLayoutForDetailsView) {
-                        if ($int_layout === false) {
-                            $int_layout = $objParentPage->lsShopLayoutForDetailsView;
-                        }
-                    }
-                }
-            }
-        }
-
-        if ($int_layout === false) {
-            /*
-             * We don't have to consider different layouts
-             */
-            return;
-        }
-        $objPage->layout = $int_layout !== false ? $int_layout : $objPage->layout;
-
-        $objLayout = ls_shop_generalHelper::merconis_getPageLayout($objPage);
-    }
-
     public static function ls_shop_getThemeDataForID($int_themeID = null)
     {
         $arr_themeData = array();
