@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\Folder;
+
 class ls_shop_moreImagesGallery extends \Frontend {
 	protected $strTemplate = 'template_productGallery_01';
 	
@@ -157,7 +159,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
 			// Process folders (not recursive, only the one given folder!)
 			else {
-				$subfiles = \Contao\Folder::scan(TL_ROOT.'/'.$file);
+				$subfiles = Folder::scan(TL_ROOT.'/'.$file);
 
 				foreach ($subfiles as $subfile) {
 					$subfileName = $file . '/' . $subfile;
