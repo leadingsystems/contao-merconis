@@ -14,10 +14,13 @@ global $objPage;
  * Important: You can deactivate variant preselection by removing the following lines of code entirely.
  * Apart from that, please do not change the following lines of code unless you know exactly what you're doing!
  */
-if (!($_SESSION['merconis']['tmp']['variantSelector']['bln_preventVariantPreselection'] ?? false)) {
+
+$session = \Contao\System::getContainer()->get('merconis.session')->getSession();
+
+if (!($session->get('merconis-tmp-variantSelector-bln_preventVariantPreselection', false))) {
     $this->objProduct->_preselectVariantIfPossible();
 } else {
-    unset($_SESSION['merconis']['tmp']['variantSelector']['bln_preventVariantPreselection']);
+    $session->remove('merconis-tmp-variantSelector-bln_preventVariantPreselection');
 }
  /*
  * ######################################################################################################

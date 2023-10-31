@@ -9,6 +9,10 @@ services:
     class: LeadingSystems\MerconisBundle\Services\Scope
     public: true
 
+  merconis.session:
+    class: LeadingSystems\MerconisBundle\Services\Session
+    public: true
+
   merconis.eventlistener.loginlistener:
     class: LeadingSystems\MerconisBundle\EventListener\LoginListener
     tags:
