@@ -80,7 +80,7 @@ class ls_shop_cartX {
 				if (isset($GLOBALS['MERCONIS_HOOKS']['initializeCartController']) && is_array($GLOBALS['MERCONIS_HOOKS']['initializeCartController'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['initializeCartController'] as $mccb) {
 						$objMccb = System::importStatic($mccb[0]);
-						$objMccb->{$mccb[1]}($_SESSION['lsShopCart'], self::$objInstance->itemsExtended, self::$objInstance->calculation);
+						$objMccb->{$mccb[1]}(System::getContainer()->get('merconis.session')->getSession()->get('lsShopCart', []), self::$objInstance->itemsExtended, self::$objInstance->calculation);
 					}
 				}
 			}
@@ -95,7 +95,9 @@ class ls_shop_cartX {
 	 * information at any time
 	 */
 	public function getCartFromSession() {
-		$this->items = $_SESSION['lsShopCart']['items'];
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShopCart =  $session->get('lsShopCart', []);
+		$this->items = $arrLsShopCart['items'];
 		
 		if (isset($this->items) && is_array($this->items)) {
 			foreach ($this->items as $productCartKey => $arrCartItem) {
@@ -123,11 +125,15 @@ class ls_shop_cartX {
 		 * Update the cart items stored in the session to make sure that the
 		 * session holds the correct scalePriceKeywords as well.
 		 */
-		$_SESSION['lsShopCart']['items'] = $this->items;
+        $arrLsShopCart['items'] = $this->items;
+        $session->set('lsShopCart', $arrLsShopCart);
 	}
 	
 	protected function getCouponsUsed() {
-		$this->couponsUsed = isset($_SESSION['lsShopCart']['couponsUsed']) && is_array($_SESSION['lsShopCart']['couponsUsed']) ? $_SESSION['lsShopCart']['couponsUsed'] : array();
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShopCart =  $session->get('lsShopCart', []);
+
+		$this->couponsUsed = isset($arrLsShopCart['couponsUsed']) && is_array($arrLsShopCart['couponsUsed']) ? $arrLsShopCart['couponsUsed'] : array();
 	}
 
 	public function __get($what) {

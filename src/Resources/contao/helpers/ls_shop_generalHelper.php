@@ -1384,12 +1384,18 @@ class ls_shop_generalHelper
                      * The cart key automatically separates products, variants and even configurations.
                      * If we can't find a cart item with this exact cart key, it's quantity must be 0.
                      */
-                    $scalePriceQuantity = key_exists($cartKey, $_SESSION['lsShopCart']['items']) ? $_SESSION['lsShopCart']['items'][$cartKey]['quantity'] : 0;
+                    $session = \System::getContainer()->get('merconis.session')->getSession();
+                    $arrLsShopCart =  $session->get('lsShopCart', []);
+
+                    $scalePriceQuantity = key_exists($cartKey, $arrLsShopCart['items']) ? $arrLsShopCart['items'][$cartKey]['quantity'] : 0;
                     break;
 
                 case 'separatedVariants':
+                    $session = \System::getContainer()->get('merconis.session')->getSession();
+                    $arrLsShopCart =  $session->get('lsShopCart', []);
+
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
-                    foreach ($_SESSION['lsShopCart']['items'] as $itemCartKey => $arrItemInfo) {
+                    foreach ($arrLsShopCart['items'] as $itemCartKey => $arrItemInfo) {
                         $arrSplitItemCartKey = ls_shop_generalHelper::splitProductVariantID($itemCartKey);
                         if (
                             $arrSplitCartKey['productID'] == $arrSplitItemCartKey['productID']
@@ -1404,8 +1410,11 @@ class ls_shop_generalHelper
                     break;
 
                 case 'separatedProducts':
+                    $session = \System::getContainer()->get('merconis.session')->getSession();
+                    $arrLsShopCart =  $session->get('lsShopCart', []);
+
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
-                    foreach ($_SESSION['lsShopCart']['items'] as $itemCartKey => $arrItemInfo) {
+                    foreach ($arrLsShopCart['items'] as $itemCartKey => $arrItemInfo) {
                         $arrSplitItemCartKey = ls_shop_generalHelper::splitProductVariantID($itemCartKey);
                         if ($arrSplitCartKey['productID'] == $arrSplitItemCartKey['productID']) {
                             if ($obj_productOrVariant->_scalePriceQuantityDetectionAlwaysSeparateConfigurations && $arrSplitCartKey['configuratorHash'] != $arrSplitItemCartKey['configuratorHash']) {
@@ -1417,8 +1426,11 @@ class ls_shop_generalHelper
                     break;
 
                 case 'separatedScalePriceKeywords':
+                    $session = \System::getContainer()->get('merconis.session')->getSession();
+                    $arrLsShopCart =  $session->get('lsShopCart', []);
+
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
-                    foreach ($_SESSION['lsShopCart']['items'] as $itemCartKey => $arrItemInfo) {
+                    foreach ($arrLsShopCart['items'] as $itemCartKey => $arrItemInfo) {
                         $arrSplitItemCartKey = ls_shop_generalHelper::splitProductVariantID($itemCartKey);
                         if ($obj_productOrVariant->_scalePriceKeyword == $arrItemInfo['scalePriceKeyword']) {
                             if ($obj_productOrVariant->_scalePriceQuantityDetectionAlwaysSeparateConfigurations && $arrSplitCartKey['configuratorHash'] != $arrSplitItemCartKey['configuratorHash']) {
@@ -4790,9 +4802,12 @@ class ls_shop_generalHelper
                     } else {
                         $cartKeyToPutInCart = $obj_productOrVariant->_cartKey;
 
+                        $session = \System::getContainer()->get('merconis.session')->getSession();
+                        $arrLsShopCart =  $session->get('lsShopCart', []);
+
                         /*--> Prüfen, ob das Produkt vorher schon im Warenkorb ist <--*/
                         $tmpBlnCartKeyAlreadyInCart = false;
-                        if (isset($_SESSION['lsShopCart']['items'][$cartKeyToPutInCart])) {
+                        if (isset($arrLsShopCart['items'][$cartKeyToPutInCart])) {
                             $tmpBlnCartKeyAlreadyInCart = true;
                         }
 
