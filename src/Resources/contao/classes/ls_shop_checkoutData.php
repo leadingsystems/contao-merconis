@@ -806,7 +806,10 @@ class ls_shop_checkoutData {
 	 * Prüfen, ob der Warenkorb-Zustand valide ist.
 	 */
 	private function validateCartStatus() {
-		if (!isset($_SESSION['lsShopCart']['items']) || !is_array($_SESSION['lsShopCart']['items']) || !count($_SESSION['lsShopCart']['items'])) {
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShopCart =  $session->get('lsShopCart', []);
+
+		if (!isset($arrLsShopCart['items']) || !is_array($arrLsShopCart['items']) || !count($arrLsShopCart['items'])) {
 			return false;
 		}
 		return ls_shop_cartHelper::validateOrderPermissionOfCartPositions();
@@ -884,7 +887,10 @@ class ls_shop_checkoutData {
 		 * ls_shop_cartX because loading ls_shop_cartX would be too much overhead and could probably cause problems
 		 * and to just make this simple check, we just don't need it.
 		 */
-		if (!isset($_SESSION['lsShopCart']['items']) || !count($_SESSION['lsShopCart']['items'])) {
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShopCart =  $session->get('lsShopCart', []);
+
+		if (!isset($arrLsShopCart['items']) || !count($arrLsShopCart['items'])) {
 			$this->writeCheckoutDataToSession();
 			return;
 		}
