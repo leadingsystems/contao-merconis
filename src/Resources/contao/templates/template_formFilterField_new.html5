@@ -1,12 +1,16 @@
 <?php
 
 use Contao\Input;
+use Contao\System;
 
-	if (!isset($GLOBALS['merconis_globals']['formFieldUniqueIDCounter'])) {
+if (!isset($GLOBALS['merconis_globals']['formFieldUniqueIDCounter'])) {
 		$GLOBALS['merconis_globals']['formFieldUniqueIDCounter'] = 0;
 	}
 	
 	$blnDetailMode = Input::get('product') ? true : false;
+
+    $session = System::getContainer()->get('merconis.session')->getSession();
+    $arrLsShop =  $session->get('lsShop', []);
 ?>
 <div data-lsjs-element="filterOptionsBox" data-lsjs-filter-section-id="<?php echo $this->arr_moreData['filterSectionId']; ?>" class="filter-form-field filterOptionsBox <?php echo $this->arr_moreData['filterFormFieldType']; ?><?php echo ($this->arr_moreData['alias'] != '') ? ' '.$this->arr_moreData['alias'] : ''; ?><?php echo ($this->arr_moreData['classForFilterFormField'] != '') ? ' '.$this->arr_moreData['classForFilterFormField'] : ''; ?>">
 	<input type="hidden" name="<?php echo $this->str_name; ?>" value="" />
@@ -22,7 +26,7 @@ use Contao\Input;
 					$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']++;
 					$count++;
 					?>
-					<div data-lsjs-element="optionsBox_filterOption" class="filterOption <?php echo isset($arrOption['class']) && $arrOption['class'] ? ' '.$arrOption['class'] : ''; ?><?php echo $count <= $this->arr_moreData['numItemsInReducedMode'] || $arrOption['important'] ? ' important' : ''; ?><?php echo isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) && $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] && !$_SESSION['lsShop']['filter']['noMatchEstimatesDetermined'] && (($blnDetailMode && $arrOption['matchEstimates']['variants'] == 0) || (!$blnDetailMode && $arrOption['matchEstimates']['products'] == 0)) ? ' noMatch' : ''; ?>">
+					<div data-lsjs-element="optionsBox_filterOption" class="filterOption <?php echo isset($arrOption['class']) && $arrOption['class'] ? ' '.$arrOption['class'] : ''; ?><?php echo $count <= $this->arr_moreData['numItemsInReducedMode'] || $arrOption['important'] ? ' important' : ''; ?><?php echo isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) && $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] && !$arrLsShop['filter']['noMatchEstimatesDetermined'] && (($blnDetailMode && $arrOption['matchEstimates']['variants'] == 0) || (!$blnDetailMode && $arrOption['matchEstimates']['products'] == 0)) ? ' noMatch' : ''; ?>">
 						<input type="<?php echo $this->arr_moreData['filterFormFieldType']; ?>" name="<?php echo $this->str_name.((count($this->arr_moreData['arrOptions']) > 1) ? '[]' : ''); ?>" id="opt_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" class="<?php echo $this->arr_moreData['filterFormFieldType']; ?> opt_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" value="<?php echo $arrOption['value']; ?>"<?php echo (is_array($this->var_value) && in_array($arrOption['value'], $this->var_value)) || $this->var_value == $arrOption['value'] ? ' checked' : '' ?> />
 						<label id="lbl_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" class="lbl_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" for="opt_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>">
                             <span class="label-content">
@@ -80,9 +84,9 @@ use Contao\Input;
                             <label for="<?php echo $this->str_name.'_filterMode'; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterModeLabel']; ?></label>
                             <select id="<?php echo $this->str_name.'_filterMode'; ?>" name="filterModeForAttribute[<?php echo $this->arr_moreData['sourceAttribute']; ?>]">
                                 <?php
-                                    if (isset($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']])) {
-                                        $bln_orIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'or';
-                                        $bln_andIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'and';
+                                    if (isset($arrLsShop['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']])) {
+                                        $bln_orIsSelected = $arrLsShop['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'or';
+                                        $bln_andIsSelected = $arrLsShop['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'and';
                                     } else {
                                         $bln_orIsSelected = $this->arr_moreData['filterMode'] === 'or';
                                         $bln_andIsSelected = $this->arr_moreData['filterMode'] === 'and';

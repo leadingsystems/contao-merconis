@@ -15,8 +15,11 @@ abstract class customizer {
         $this->obj_productOrVariant = $obj_productOrVariant;
         $this->str_storageKey = $this->obj_productOrVariant->_productVariantID . ($str_customizerHash ? '_' . $str_customizerHash : '');
 
-        if (isset($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey])) {
-            $this->obj_storage = unserialize($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey]);
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+
+        if (isset($arrLsShop['customizerStorage'][$this->str_storageKey])) {
+            $this->obj_storage = unserialize($arrLsShop['customizerStorage'][$this->str_storageKey]);
         } else {
             $this->obj_storage = new customizerStorage($this->str_storageKey);
         }
@@ -27,11 +30,17 @@ abstract class customizer {
     }
 
     public function storeToSession() {
-        $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey] = serialize($this->obj_storage);
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+        $arrLsShop['customizerStorage'][$this->str_storageKey] = serialize($this->obj_storage);
+        $session->set('lsShop', $arrLsShop);
     }
 
     public function saveCustomizerForCurrentCartKey() {
-        $_SESSION['lsShop']['customizerStorage'][$this->obj_productOrVariant->_cartKey] = $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey];
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+        $arrLsShop['customizerStorage'][$this->obj_productOrVariant->_cartKey] = $arrLsShop['customizerStorage'][$this->str_storageKey];
+        $session->set('lsShop', $arrLsShop);
     }
 
     public function getCustomizerHash() {

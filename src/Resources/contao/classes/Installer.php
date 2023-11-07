@@ -268,6 +268,9 @@ class Installer
             return ob_get_clean();
         }
 
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+
         if ($arrInstallationStatus['wholeDBOkay']) {
             ob_start();
             ?>
@@ -275,33 +278,35 @@ class Installer
                 <?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-06'], 'contao?do=ls_shop_dashboard&lsShopInstallationStep=2'); ?>
 
                 <?php
-                if ($_SESSION['lsShop']['selectedThemeCanNotBeInstalled']) {
-                    unset($_SESSION['lsShop']['selectedThemeCanNotBeInstalled']);
+                if ($arrLsShop['selectedThemeCanNotBeInstalled']) {
+                    unset($arrLsShop['selectedThemeCanNotBeInstalled']);
                     ?>
                     <div class="shopErrorMsg"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-12']; ?></div>
                     <?php
                 }
 
-                if ($_SESSION['lsShop']['noThemeSelected']) {
-                    unset($_SESSION['lsShop']['noThemeSelected']);
+                if ($arrLsShop['noThemeSelected']) {
+                    unset($arrLsShop['noThemeSelected']);
                     ?>
                     <div class="shopErrorMsg"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-13']; ?></div>
                     <?php
                 }
 
                 if (Input::get('switchThemeSource')) {
-                    $_SESSION['lsShop']['themeSource'] = Input::get('switchThemeSource');
+                    $arrLsShop['themeSource'] = Input::get('switchThemeSource');
+                    $session->set('lsShop', $arrLsShop);
                     Controller::redirect('contao?do=ls_shop_dashboard');
                 }
+                $session->set('lsShop', $arrLsShop);
                 ?>
 
                 <div class="merconisThemeSourceSwitch">
                     <div class="switch">
                         <a onclick="this.blur();"
-                           class="<?php echo !isset($_SESSION['lsShop']['themeSource']) || $_SESSION['lsShop']['themeSource'] == 'repository' ? 'active' : 'inactive'; ?>"
+                           class="<?php echo !isset($arrLsShop['themeSource']) || $arrLsShop['themeSource'] == 'repository' ? 'active' : 'inactive'; ?>"
                            href="contao?do=ls_shop_dashboard&switchThemeSource=repository"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-15']; ?></a>
                         <a onclick="this.blur();"
-                           class="<?php echo isset($_SESSION['lsShop']['themeSource']) && $_SESSION['lsShop']['themeSource'] == 'local' ? 'active' : 'inactive'; ?>"
+                           class="<?php echo isset($arrLsShop['themeSource']) && $arrLsShop['themeSource'] == 'local' ? 'active' : 'inactive'; ?>"
                            href="contao?do=ls_shop_dashboard&switchThemeSource=local"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-14']; ?></a>
                     </div>
                     <form action="contao?do=ls_shop_dashboard&lsShopInstallationStep=2" method="post">
@@ -361,7 +366,7 @@ class Installer
                             }
                             ?>
                             <?php
-                            if (isset($_SESSION['lsShop']['themeSource']) && $_SESSION['lsShop']['themeSource'] == 'repository') {
+                            if (isset($arrLsShop['themeSource']) && $arrLsShop['themeSource'] == 'repository') {
                                 ?>
                                 <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-19']; ?></p>
                                 <?php
@@ -374,8 +379,8 @@ class Installer
                             ?>
                             <div class="shopErrorMsg">
                                 <?php
-                                if (isset($_SESSION['lsShop']['themeSource']) && $_SESSION['lsShop']['themeSource'] == 'repository') {
-                                    echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-16'], isset($_SESSION['lsShop']['themeRepositoryError']) && $_SESSION['lsShop']['themeRepositoryError'] ? ' (' . $_SESSION['lsShop']['themeRepositoryError'] . ')' : '');
+                                if (isset($arrLsShop['themeSource']) && $arrLsShop['themeSource'] == 'repository') {
+                                    echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-16'], isset($arrLsShop['themeRepositoryError']) && $arrLsShop['themeRepositoryError'] ? ' (' . $arrLsShop['themeRepositoryError'] . ')' : '');
                                 } else {
                                     echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-09'];
                                 }

@@ -91,12 +91,18 @@ class ls_shop_checkoutData {
         }
 
 		// CheckoutData aus der Session einlesen, sofern in der Session schon vorhanden
-		$this->arrCheckoutData = isset($_SESSION['lsShop']['arrCheckoutData']) ? $_SESSION['lsShop']['arrCheckoutData'] : $this->arrCheckoutData;
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+
+		$this->arrCheckoutData = isset($arrLsShop['arrCheckoutData']) ? $arrLsShop['arrCheckoutData'] : $this->arrCheckoutData;
 	}
 	
 	public function writeCheckoutDataToSession() {
 		// CheckoutData in die Session schreiben
-		$_SESSION['lsShop']['arrCheckoutData'] = $this->arrCheckoutData;
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+        $arrLsShop['arrCheckoutData'] = $this->arrCheckoutData;
+        $session->set('lsShop', $arrLsShop);
 	}
 
 
@@ -911,7 +917,7 @@ class ls_shop_checkoutData {
 		 * if a payment or shipping error occured earlier. This way we prevent the endless recursion that would
 		 * take place if the method that just threw the error would be selected again instantly.
 		 */
-		if (isset($_SESSION['lsShop']['blnPaymentOrShippingErrorOccured']) && $_SESSION['lsShop']['blnPaymentOrShippingErrorOccured']) {
+		if (isset($arrLsShopCart['blnPaymentOrShippingErrorOccured']) && $arrLsShopCart['blnPaymentOrShippingErrorOccured']) {
 			$this->writeCheckoutDataToSession();
 			return;
 		}

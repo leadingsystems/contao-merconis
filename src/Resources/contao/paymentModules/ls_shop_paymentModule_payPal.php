@@ -53,21 +53,25 @@ use function LeadingSystems\Helpers\ls_sub;
 		}
 
 		public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
-			$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session = \System::getContainer()->get('merconis.session')->getSession();
+            $arrLsShop =  $session->get('lsShop', []);
+
+            $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
 			
 			###
 			$this->paypal_doExpressCheckoutPayment($order);
 			###
 			
 			if (!$_SESSION['lsShopPaymentProcess']['paypal']['finishedSuccessfully']) {
-				$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentErrorAfterFinishedOrder'];
+                $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentErrorAfterFinishedOrder'];
 			} else {
 				if ($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['REDIRECTREQUIRED']) {
 					$giropayRedirectionForm = $this->getForm($this->arrCurrentSettings['paypalGiropayRedirectForm']);
 					$giropayRedirectionForm = preg_replace('/(<form.*action=")(.*)(")/siU', '\\1'.$this->redirectToGiropay.'&token='.$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN'].'\\3', $giropayRedirectionForm);
-					$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $giropayRedirectionForm;
+                    $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $giropayRedirectionForm;
 				}
 			}
+            $session->set('lsShop', $arrLsShop);
 
 			/*
 			 * Nach abgeschlossener Bestellung wird das Array mit Informationen über den Status der PayPal-Zahlung zurückgesetzt, um zu verhindern, dass bei einer weiteren Bestellung versucht wird, die alte Autorisierung weiter zu benutzen.
