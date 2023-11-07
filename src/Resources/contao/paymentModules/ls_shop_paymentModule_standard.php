@@ -187,7 +187,10 @@ namespace Merconis\Core;
 		}
 				
 		public function afterCheckoutFinish() {
-			$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session = \System::getContainer()->get('merconis.session')->getSession();
+            $arrLsShop =  $session->get('lsShop', []);
+            $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session->set('lsShop', $arrLsShop);
 		}
 
 		public function check_usePaymentAfterCheckoutPage() {

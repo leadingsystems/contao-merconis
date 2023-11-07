@@ -174,6 +174,9 @@ class ModuleProductSearch extends \Module {
 		$this->Template->action = ampersand(\Environment::get('request'));
 		$this->Template->blnUseLiveHits = isset($this->arrLiveHitFields) && is_array($this->arrLiveHitFields) && count($this->arrLiveHitFields);
 
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+
 		$obj_flexWidget_input = new FlexWidget(
 			array(
 				'str_uniqueName' => 'merconis_searchWord',
@@ -186,17 +189,17 @@ class ModuleProductSearch extends \Module {
 						'str_methodName' => 'searchWordMinLength'
 					)
 				),
-				'var_value' => isset($_SESSION['lsShop']['productSearch']['searchWord']) ? $_SESSION['lsShop']['productSearch']['searchWord'] : ''
+				'var_value' => isset($arrLsShop['productSearch']['searchWord']) ? $arrLsShop['productSearch']['searchWord'] : ''
 			)
 		);
 
 		if (\Input::post('FORM_SUBMIT') == 'merconisProductSearch') {
 			if (!$obj_flexWidget_input->bln_hasErrors) {
-				$_SESSION['lsShop']['productSearch'] = array(
+                $arrLsShop['productSearch'] = array(
                     'searchWord' => ls_shop_generalHelper::handleSearchWordMinLength($obj_flexWidget_input->getValue(), $this->ls_shop_productSearch_minlengthInput),
                     'searchType' => \Input::post('searchType')
                 );
-
+                $session->set('lsShop', $arrLsShop);
 				$this->redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages', false));
 			}
 		}
