@@ -267,8 +267,11 @@ use function LeadingSystems\Helpers\ls_sub;
 				switch ($str_p1action) {
 					case 'aborted':
 						// write the error message to the special payment info and update the payment status in the order record
-						$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentErrorAfterFinishedOrder'];
-						
+                        $session = \System::getContainer()->get('merconis.session')->getSession();
+                        $arrLsShop =  $session->get('lsShop', []);
+                        $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentErrorAfterFinishedOrder'];
+                        $session->set('lsShop', $arrLsShop);
+
 						$arr_moduleReturnData = $this->get_paymentMethod_moduleReturnData_forOrderId($arr_order['id']);
 						$arr_moduleReturnData['arr_status'][] = array(
 							'str_statusValue' => 'ABORTED',
@@ -288,7 +291,10 @@ use function LeadingSystems\Helpers\ls_sub;
 					
 					case 'success':
 						// write the success message to the special payment info
-						$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentSuccessAfterFinishedOrder'];
+                        $session = \System::getContainer()->get('merconis.session')->getSession();
+                        $arrLsShop =  $session->get('lsShop', []);
+                        $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentSuccessAfterFinishedOrder'];
+                        $session->set('lsShop', $arrLsShop);
 						break;
 					
 					case 'notification':
@@ -347,13 +353,21 @@ use function LeadingSystems\Helpers\ls_sub;
 		 * After the checkout the payone payment is processed.
 		 */
 		public function afterCheckoutFinish($int_orderIdInDb = 0, $arr_order = array(), $afterCheckoutUrl = '', $oix = '') {
+
 			// Reset the special payment info
-			$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session = \System::getContainer()->get('merconis.session')->getSession();
+            $arrLsShop =  $session->get('lsShop', []);
+            $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session->set('lsShop', $arrLsShop);
 			
 			// if there are insufficient parameters the payment execution is aborted
 			if (!$int_orderIdInDb || !is_array($arr_order) || !count($arr_order)) {
 				// write an error message to the special payment info and log the error
-				$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentErrorAfterFinishedOrder'];
+                $session = \System::getContainer()->get('merconis.session')->getSession();
+                $arrLsShop =  $session->get('lsShop', []);
+                $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentErrorAfterFinishedOrder'];
+                $session->set('lsShop', $arrLsShop);
+
 				$this->logPaymentError(__METHOD__, 'insufficient parameters given');
 				return;
 			}

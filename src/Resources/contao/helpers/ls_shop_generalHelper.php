@@ -1273,19 +1273,21 @@ class ls_shop_generalHelper
      */
     public static function getVATIDValidationResult($VATID = false)
     {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
         if (
             !$VATID
-            || !isset($_SESSION['lsShop']['checkedVATID'][$VATID])
-            || !is_array($_SESSION['lsShop']['checkedVATID'][$VATID])
-            || !isset($_SESSION['lsShop']['checkedVATID'][$VATID]['valid'])
-            || $_SESSION['lsShop']['checkedVATID'][$VATID]['valid'] === null
+            || !isset($arrLsShop['checkedVATID'][$VATID])
+            || !is_array($arrLsShop['checkedVATID'][$VATID])
+            || !isset($arrLsShop['checkedVATID'][$VATID]['valid'])
+            || $arrLsShop['checkedVATID'][$VATID]['valid'] === null
         ) {
             return 'VALIDATION IMPOSSIBLE';
-        } else if (!$_SESSION['lsShop']['checkedVATID'][$VATID]['valid']) {
+        } else if (!$arrLsShop['checkedVATID'][$VATID]['valid']) {
             return 'NOT VALID';
         }
 
-        return 'VALID, Name: ' . ($_SESSION['lsShop']['checkedVATID'][$VATID]['arrDetails']->name ? preg_replace('/\n/', ' ', $_SESSION['lsShop']['checkedVATID'][$VATID]['arrDetails']->name) : 'unknown') . ', Address: ' . ($_SESSION['lsShop']['checkedVATID'][$VATID]['arrDetails']->address ? preg_replace('/\n/', ' ', $_SESSION['lsShop']['checkedVATID'][$VATID]['arrDetails']->address) : 'unknown');
+        return 'VALID, Name: ' . ($arrLsShop['checkedVATID'][$VATID]['arrDetails']->name ? preg_replace('/\n/', ' ', $arrLsShop['checkedVATID'][$VATID]['arrDetails']->name) : 'unknown') . ', Address: ' . ($arrLsShop['checkedVATID'][$VATID]['arrDetails']->address ? preg_replace('/\n/', ' ', $arrLsShop['checkedVATID'][$VATID]['arrDetails']->address) : 'unknown');
     }
 
     public static function calculateScaledPrice($price, $obj_productOrVariant)
@@ -1350,8 +1352,11 @@ class ls_shop_generalHelper
              * If we don't have a configurator hash yet, we look if there's a configurator entry in the session
              * for the product's or variant's productVariantID, and if there is one, we use its configurator hash.
              */
-            if (isset($_SESSION['lsShop']['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'])) {
-                $configuratorHash = $_SESSION['lsShop']['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'];
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $arrLsShop =  $session->get('lsShop', []);
+
+            if (isset($arrLsShop ['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'])) {
+                $configuratorHash = $arrLsShop ['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'];
             } /*
 			 * If we did not find a configurator hash in the session, we generate the default configurator hash.
 			 */
@@ -1384,14 +1389,14 @@ class ls_shop_generalHelper
                      * The cart key automatically separates products, variants and even configurations.
                      * If we can't find a cart item with this exact cart key, it's quantity must be 0.
                      */
-                    $session = \System::getContainer()->get('merconis.session')->getSession();
+                    $session = System::getContainer()->get('merconis.session')->getSession();
                     $arrLsShopCart =  $session->get('lsShopCart', []);
 
                     $scalePriceQuantity = key_exists($cartKey, $arrLsShopCart['items']) ? $arrLsShopCart['items'][$cartKey]['quantity'] : 0;
                     break;
 
                 case 'separatedVariants':
-                    $session = \System::getContainer()->get('merconis.session')->getSession();
+                    $session = System::getContainer()->get('merconis.session')->getSession();
                     $arrLsShopCart =  $session->get('lsShopCart', []);
 
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
@@ -1410,7 +1415,7 @@ class ls_shop_generalHelper
                     break;
 
                 case 'separatedProducts':
-                    $session = \System::getContainer()->get('merconis.session')->getSession();
+                    $session = System::getContainer()->get('merconis.session')->getSession();
                     $arrLsShopCart =  $session->get('lsShopCart', []);
 
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
@@ -1426,7 +1431,7 @@ class ls_shop_generalHelper
                     break;
 
                 case 'separatedScalePriceKeywords':
-                    $session = \System::getContainer()->get('merconis.session')->getSession();
+                    $session = System::getContainer()->get('merconis.session')->getSession();
                     $arrLsShopCart =  $session->get('lsShopCart', []);
 
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
@@ -2656,11 +2661,16 @@ class ls_shop_generalHelper
 
     public static function addToLastSeenProducts($productID)
     {
-        if (!isset($_SESSION['lsShop']['lastSeenProducts'])) {
-            $_SESSION['lsShop']['lastSeenProducts'] = array();
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+
+        if (!isset($arrLsShop['lastSeenProducts'])) {
+            $arrLsShop['lastSeenProducts'] = array();
         }
 
-        ArrayUtil::arrayInsert($_SESSION['lsShop']['lastSeenProducts'], 0, array($productID));
+        ArrayUtil::arrayInsert($arrLsShop['lastSeenProducts'], 0, array($productID));
+
+        $session->set('lsShop', $arrLsShop);
     }
 
     /*
@@ -4495,6 +4505,9 @@ class ls_shop_generalHelper
         // Die if there is no layout
         if (null === $objLayout)
         {
+            /*
+             * @toDo Fix undefined constant TL_ERROR
+             */
             System::getContainer()->get('monolog.logger.contao')->info(
                 'Could not find layout ID "' . $objPage->layout . '"',
                 ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]
@@ -4802,7 +4815,7 @@ class ls_shop_generalHelper
                     } else {
                         $cartKeyToPutInCart = $obj_productOrVariant->_cartKey;
 
-                        $session = \System::getContainer()->get('merconis.session')->getSession();
+                        $session = System::getContainer()->get('merconis.session')->getSession();
                         $arrLsShopCart =  $session->get('lsShopCart', []);
 
                         /*--> Prüfen, ob das Produkt vorher schon im Warenkorb ist <--*/

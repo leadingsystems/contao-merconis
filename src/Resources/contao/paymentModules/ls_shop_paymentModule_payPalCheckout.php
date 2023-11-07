@@ -246,7 +246,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     }
 
     public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
-        $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+        $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+
+
         $access_token = $this->payPalCheckout_getaccessToken();
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/payments/authorizations/'. $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'] .'/capture');
@@ -275,10 +279,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         try {
             if($status == "COMPLETED"){
                 // write the success message to the special payment info
-                $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
+                $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
             }else{
                 // write the error message to the special payment info -> order is completet but payment is incomplete
-                $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'];
+                $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'];
             }
             //egal ob es schief läuft oder nicht oder immer abspeichern
             $this->payPalCheckout_updateSaleDetailsInOrderRecord($orderIdInDb);
@@ -290,6 +294,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $paymentMethod_moduleReturnData['arr_saleDetails']['str_errorMsg'] = $e->getMessage().' ERROR DATA: '.json_encode($e->getData());
             $this->payPalCheckout_resetSessionStatus(false);
         }
+        $session->set('lsShop', $arrLsShop);
     }
     public function afterPaymentMethodSelection() {
         $this->payPalCheckout_resetSessionStatus();

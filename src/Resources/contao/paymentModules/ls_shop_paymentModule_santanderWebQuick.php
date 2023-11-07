@@ -246,8 +246,10 @@ namespace Merconis\Core;
 		}
 		
 		public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
-			$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
-			
+            $session = \System::getContainer()->get('merconis.session')->getSession();
+            $arrLsShop =  $session->get('lsShop', []);
+            $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session->set('lsShop', $arrLsShop);
 			/*
 			 * after finishing the order we reset the payment module's session
 			 * data to prevent the financing application from being canceled

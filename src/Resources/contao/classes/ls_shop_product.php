@@ -370,7 +370,10 @@ class ls_shop_product
                 /*
                  * If the product has not been configured yet, we use the default configuratorHash
                  */
-                if (!isset($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !is_array($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !in_array($this->ls_productVariantID, $_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
+                $session = \System::getContainer()->get('merconis.session')->getSession();
+                $arrLsShopCart =  $session->get('lsShopCart', []);
+
+                if (!isset($arrLsShopCart['productVariantIDsAlreadyConfigured']) || !is_array($arrLsShopCart['productVariantIDsAlreadyConfigured']) || !in_array($this->ls_productVariantID, $arrLsShopCart['productVariantIDsAlreadyConfigured'])) {
                     $str_cartKey = $this->ls_productVariantID.'_'.ls_shop_generalHelper::getDefaultConfiguratorHash(!$this->ls_currentVariantID ? $this->_configuratorID : $this->ls_variants[$this->ls_currentVariantID]->_configuratorID);
                 } else {
                     !$this->_variantIsSelected ? $this->createObjConfigurator() : $this->_selectedVariant->createObjConfigurator();
@@ -1521,7 +1524,10 @@ filter context, NULL will be returned.
 				 *
 				 */
 				:
-				return isset($_SESSION['lsShop']['filter']['matchedProducts'][$this->_id]) ? $_SESSION['lsShop']['filter']['matchedProducts'][$this->_id] : null;
+                $session = \System::getContainer()->get('merconis.session')->getSession();
+                $arrLsShopCart =  $session->get('lsShopCart', []);
+
+				return isset($arrLsShopCart['filter']['matchedProducts'][$this->_id]) ? $arrLsShopCart['filter']['matchedProducts'][$this->_id] : null;
 				break;
 
 
