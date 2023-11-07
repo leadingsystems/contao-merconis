@@ -56,7 +56,12 @@ class ls_shop_import extends \BackendModule {
 		
 		$this->Template->request = ampersand(\Environment::get('request'), true);
 		$this->Template->ffl_importFileUpload = $objFfl_importFileUpload->generateMarkup();
-		$this->Template->arrCurrentlyExistingImportFileInfo = $_SESSION['lsShop']['importFileInfo'];
+
+        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $arrLsShop =  $session->get('lsShop', []);
+		$this->Template->arrCurrentlyExistingImportFileInfo = $arrLsShop['importFileInfo'];
+        $session->set('lsShop', $arrLsShop);
+
 		$this->Template->messages = \Message::generate(false, true);
 	}
 }

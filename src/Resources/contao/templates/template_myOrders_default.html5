@@ -1,4 +1,8 @@
 <!-- indexer::stop -->
+<?php
+$session = \System::getContainer()->get('merconis.session')->getSession();
+$arrLsShop =  $session->get('lsShop', []);
+?>
 <div class="<?php echo $this->strTemplate ?>">
     <?php if ($this->useSortingWidget) { ?>
         <form action="<?php echo $this->request; ?>" class="tl_form sortingForm" method="post">
@@ -13,7 +17,7 @@
                 <?php
                 foreach ($arr_numPerPageOptions as $int_numPerPageOption) {
                     ?>
-                    <option <?php echo $_SESSION['lsShop']['myOrders']['numPerPage'] == $int_numPerPageOption ? 'selected' : ''; ?> value="<?php echo $int_numPerPageOption; ?>"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText091'], $int_numPerPageOption); ?></option>
+                    <option <?php echo $arrLsShop['myOrders']['numPerPage'] == $int_numPerPageOption ? 'selected' : ''; ?> value="<?php echo $int_numPerPageOption; ?>"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText091'], $int_numPerPageOption); ?></option>
                     <?php
                 }
                 ?>
