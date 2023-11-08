@@ -2,11 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 class ModuleFilterForm extends \Module
 {
 	public function generate()
 	{
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$objTemplate = new \BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS filter form ###';
 			return $objTemplate->parse();

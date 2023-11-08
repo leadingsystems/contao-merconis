@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -15,7 +16,7 @@ class ModuleCheckoutFinish extends \Module {
 			$this->import('FrontendUser', 'User');
 		}
 		
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$objTemplate = new \BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS - Bestellabschluss ###';
 			return $objTemplate->parse();

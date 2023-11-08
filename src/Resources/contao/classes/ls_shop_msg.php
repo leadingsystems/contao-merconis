@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 class ls_shop_msg {
 
 	/**
@@ -13,19 +15,22 @@ class ls_shop_msg {
 	 * ausgeliefert) wurde.
 	 */
 	public static function decreaseLifetime() {
-		if (isset($_SESSION['lsShop']) && isset($_SESSION['lsShop']['ls_shop_msg']) && isset($_SESSION['lsShop']['ls_shop_msg'][TL_MODE])) {
-			foreach ($_SESSION['lsShop']['ls_shop_msg'][TL_MODE] as $class => $arrClassMsgs) {
-				foreach ($_SESSION['lsShop']['ls_shop_msg'][TL_MODE][$class] as $reference => $arrMsg) {
-					if ($_SESSION['lsShop']['ls_shop_msg'][TL_MODE][$class][$reference]->killManually) {
+
+	    $tl_mode = System::getContainer()->get('merconis.routing.scope')->getTLMode();
+
+		if (isset($_SESSION['lsShop']) && isset($_SESSION['lsShop']['ls_shop_msg']) && isset($_SESSION['lsShop']['ls_shop_msg'][$tl_mode])) {
+			foreach ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode] as $class => $arrClassMsgs) {
+				foreach ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class] as $reference => $arrMsg) {
+					if ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class][$reference]->killManually) {
 						continue;
 					}
-					$_SESSION['lsShop']['ls_shop_msg'][TL_MODE][$class][$reference]->lifetime--;
-					if ($_SESSION['lsShop']['ls_shop_msg'][TL_MODE][$class][$reference]->lifetime < 1) {
-						unset ($_SESSION['lsShop']['ls_shop_msg'][TL_MODE][$class][$reference]);
+					$_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class][$reference]->lifetime--;
+					if ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class][$reference]->lifetime < 1) {
+						unset ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class][$reference]);
 					}
 				}
-				if (!count($_SESSION['lsShop']['ls_shop_msg'][TL_MODE][$class])) {
-					unset ($_SESSION['lsShop']['ls_shop_msg'][TL_MODE][$class]);
+				if (!count($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class])) {
+					unset ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class]);
 				}
 			}
 		}

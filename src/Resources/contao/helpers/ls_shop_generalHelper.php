@@ -231,12 +231,12 @@ class ls_shop_generalHelper
 
         $str_pathToStandardProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']);
 
-        if (!file_exists(TL_ROOT . '/' . $str_pathToStandardProductImageFolder)) {
+        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder)) {
             error_log("the standard folder for product images possibly doesn't exist.");
             return $arr_productImages;
         }
 
-        $arr_tmpImageFiles = scandir(TL_ROOT . '/' . $str_pathToStandardProductImageFolder);
+        $arr_tmpImageFiles = scandir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder);
 
         if (is_array($arr_tmpImageFiles)) {
             foreach ($arr_tmpImageFiles as $str_imageFile) {
@@ -2133,7 +2133,7 @@ class ls_shop_generalHelper
             throw new \Exception('insufficient parameters given');
         }
 
-        if (TL_MODE === 'BE') {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
             return null;
         }
 
@@ -2159,7 +2159,7 @@ class ls_shop_generalHelper
 
         $str_customizerObjectKey = $obj_productOrVariant->_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
 
-        require_once(TL_ROOT ."/". $obj_productOrVariant->_customizerLogicFile);
+        require_once(System::getContainer()->getParameter('kernel.project_dir') ."/". $obj_productOrVariant->_customizerLogicFile);
         $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_productOrVariant->_customizerLogicFile);
 
         if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
@@ -2750,7 +2750,7 @@ class ls_shop_generalHelper
      */
     public static function conditionalCTEOutput($objElement, $strBuffer)
     {
-        if (TL_MODE == 'BE' || !$objElement->lsShopOutputCondition) {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend() || !$objElement->lsShopOutputCondition) {
             return $strBuffer;
         }
 
@@ -3421,7 +3421,7 @@ class ls_shop_generalHelper
      */
     public static function validateCollectedFormData($arrValidateData, $formID)
     {
-        if (TL_MODE == 'BE') {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
             return true;
         }
 
@@ -3652,7 +3652,7 @@ class ls_shop_generalHelper
                 if (isset($GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) && $GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) {
                 ?>
                 if (lsjs.__appHelpers.merconisApp !== undefined && lsjs.__appHelpers.merconisApp !== null) {
-                    lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN = '<?php echo REQUEST_TOKEN; ?>';
+                    lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN = '<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.str_ajaxUrl = '<?php echo $str_ajaxUrl; ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.int_minicartID = '<?php echo $int_minicartID; ?>';
                     lsjs.__appHelpers.merconisApp.start();
@@ -4490,15 +4490,15 @@ class ls_shop_generalHelper
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
     {
         $themesPath = 'files/merconisfiles/themes';
-        if (!file_exists(TL_ROOT . '/' . $themesPath) || !is_dir(TL_ROOT . '/' . $themesPath)) {
+        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath) || !is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath)) {
             return;
         }
-        $themeFolders = array_diff(scandir(TL_ROOT . '/' . $themesPath), array('.', '..'));
+        $themeFolders = array_diff(scandir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath), array('.', '..'));
         if (is_array($themeFolders)) {
             foreach ($themeFolders as $themeFolder) {
                 $languageFileToLoad = $themesPath . '/' . $themeFolder . '/languages/' . $language . '/' . $filename . '.php';
-                if (file_exists(TL_ROOT . '/' . $languageFileToLoad)) {
-                    include(TL_ROOT . '/' . $languageFileToLoad);
+                if (file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad)) {
+                    include(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad);
                 }
             }
         }
@@ -4673,7 +4673,7 @@ class ls_shop_generalHelper
 
         $arr_allowedIpAddresses = array_map('trim', explode(',', $GLOBALS['TL_CONFIG']['ls_shop_ipWhitelist']));
 
-        if (in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
+        if (!isset($_SERVER['REMOTE_ADDR']) || in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
             define('BYPASS_TOKEN_CHECK', true);
         } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'] ?? '') > 2) {
             if (preg_match($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'], \Environment::get('request'))) {
@@ -5030,7 +5030,7 @@ class ls_shop_generalHelper
         <script type="text/javascript">
             window.addEvent('domready', function () {
                 if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {
-                    lsjs.__appHelpers.merconisBackendApp.obj_config.REQUEST_TOKEN = '<?php echo \RequestToken::get(); ?>';
+                    lsjs.__appHelpers.merconisBackendApp.obj_config.REQUEST_TOKEN = '<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>';
                     lsjs.__appHelpers.merconisBackendApp.obj_config.API_KEY = '<?php echo $GLOBALS['TL_CONFIG']['ls_api_key']; ?>';
                     lsjs.__appHelpers.merconisBackendApp.start();
                 }
@@ -5068,7 +5068,7 @@ class ls_shop_generalHelper
          * they should be.
          */
         return;
-        if (is_dir(TL_ROOT . '/var/cache/prod/contao/dca')) {
+        if (is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/var/cache/prod/contao/dca')) {
             $obj_automator = \System::importStatic('Automator');
             $obj_automator->purgeInternalCache();
         }
