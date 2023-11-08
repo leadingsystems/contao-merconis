@@ -33,7 +33,7 @@ use Contao\System;
 	 * das dem TypeCode entspricht. Variablen, die rein in den Funktionen Verwendung finden, benötigen kein solches Prefix.
 	 * 
 	 * Session-Variablen, die nur für die Interna/Abwicklung einer einzelnen Zahlungsmethode nötig sind, 
-	 * werden wie folgt benannt: z. B. $_SESSION['lsShopPaymentProcess']['paypal']['xyz']
+	 * werden wie folgt benannt: z. B. $arrSessionlsShopPaymentProcess['paypal']['xyz']
 	 * Auf den Key, der dem TypeCode entspricht, ist besonders zu achten!
 	 *
 	 */

@@ -16,11 +16,13 @@ global $objPage;
  */
 
 $session = \Contao\System::getContainer()->get('merconis.session')->getSession();
+$session_merconis = $session->get('merconis', false);
 
-if (!($session->get('merconis-tmp-variantSelector-bln_preventVariantPreselection', false))) {
+if (!($session_merconis['tmp']['variantSelector']['bln_preventVariantPreselection'] ?? false)) {
     $this->objProduct->_preselectVariantIfPossible();
 } else {
-    $session->remove('merconis-tmp-variantSelector-bln_preventVariantPreselection');
+    unset($session_merconis['merconis']['tmp']['variantSelector']['bln_preventVariantPreselection']);
+    $session->set('merconis', $session_merconis);
 }
  /*
  * ######################################################################################################
