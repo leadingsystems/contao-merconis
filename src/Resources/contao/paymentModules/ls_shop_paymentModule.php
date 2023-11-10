@@ -650,9 +650,9 @@ namespace Merconis\Core;
 			$methodName = __FUNCTION__;
 			## fixEndlessRecursionOnPaymentError begin ##
 			$session = \System::getContainer()->get('merconis.session')->getSession();
-			$arrLsShop =  $session->get('lsShop', []);
-			$arrLsShop['blnPaymentOrShippingErrorOccured'] = true;
-			$session->set('lsShop', $arrLsShop);
+			$session_lsShopCart =  $session->get('lsShop', []);
+			$session_lsShopCart['blnPaymentOrShippingErrorOccured'] = true;
+			$session->set('lsShop', $session_lsShopCart);
 			## fixEndlessRecursionOnPaymentError end ##
 			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($context, $errorInformation01, $errorInformation02, $errorInformation03);
@@ -665,9 +665,9 @@ namespace Merconis\Core;
 			$methodName = __FUNCTION__;
 			## fixEndlessRecursionOnPaymentError begin ##
 			$session = \System::getContainer()->get('merconis.session')->getSession();
-			$arrLsShop =  $session->get('lsShop', []);
-			$arrLsShop['blnPaymentOrShippingErrorOccured'] = true;
-			$session->set('lsShop', $arrLsShop);
+			$session_lsShopCart =  $session->get('lsShop', []);
+			$session_lsShopCart['blnPaymentOrShippingErrorOccured'] = true;
+			$session->set('lsShop', $session_lsShopCart);
 			## fixEndlessRecursionOnPaymentError end ##
 			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($context, $errorInformation01, $errorInformation02, $errorInformation03);

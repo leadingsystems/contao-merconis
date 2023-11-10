@@ -101,14 +101,14 @@ class ls_shop_productConfigurator {
 
 
             $session = \System::getContainer()->get('merconis.session')->getSession();
-            $arrLsShop =  $session->get('lsShop', []);
+            $session_lsShopCart =  $session->get('lsShop', []);
 			/*
 			 * Konfigurator-Zustand aus der Session einlesen, sofern in der Session schon vorhanden
 			 */
-			$this->arrReceivedPost = isset($arrLsShop['configurator'][$this->configuratorCacheKey]['arrReceivedPost']) ? $arrLsShop['configurator'][$this->configuratorCacheKey]['arrReceivedPost'] : $this->arrReceivedPost;
-			$this->arr_customLogicData = isset($arrLsShop['configurator'][$this->configuratorCacheKey]['arr_customLogicData']) ? $arrLsShop['configurator'][$this->configuratorCacheKey]['arr_customLogicData'] : $this->arr_customLogicData;
-			$this->strConfiguratorHash = isset($arrLsShop['configurator'][$this->configuratorCacheKey]['strConfiguratorHash']) ? $arrLsShop['configurator'][$this->configuratorCacheKey]['strConfiguratorHash'] : $this->strConfiguratorHash;
-			$this->blnReceivedFormDataAtLeastOnce = isset($arrLsShop['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataAtLeastOnce']) ? $arrLsShop['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataAtLeastOnce'] : $this->blnReceivedFormDataAtLeastOnce;
+			$this->arrReceivedPost = isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['arrReceivedPost']) ? $session_lsShopCart['configurator'][$this->configuratorCacheKey]['arrReceivedPost'] : $this->arrReceivedPost;
+			$this->arr_customLogicData = isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['arr_customLogicData']) ? $session_lsShopCart['configurator'][$this->configuratorCacheKey]['arr_customLogicData'] : $this->arr_customLogicData;
+			$this->strConfiguratorHash = isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['strConfiguratorHash']) ? $session_lsShopCart['configurator'][$this->configuratorCacheKey]['strConfiguratorHash'] : $this->strConfiguratorHash;
+			$this->blnReceivedFormDataAtLeastOnce = isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataAtLeastOnce']) ? $session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataAtLeastOnce'] : $this->blnReceivedFormDataAtLeastOnce;
 
 			if ($objConfiguratorData->numRows) {
 				$objConfiguratorData->first();
@@ -143,22 +143,22 @@ class ls_shop_productConfigurator {
 					$this->objCustomLogic = new $customLogicClassName($this);
 				}
 			}
-						
+
 			/*
 			 * Ob sich der Konfigurator im Datenerfassungsmodus befindet oder nicht, wird aus der Session eingelesen, sofern die Information dort vorhanden ist.
 			 * Ist die Information dort nicht vorhanden, so wird der Datenerfassungsmodus abhängig von der im Backend für diesen Konfigurator definierten Starteinstellung gesetzt.
 			 */
-			$this->blnDataEntryMode = isset($arrLsShop['configurator'][$this->configuratorCacheKey]['blnDataEntryMode']) ? $arrLsShop['configurator'][$this->configuratorCacheKey]['blnDataEntryMode'] : $this->blnDataEntryMode;
+			$this->blnDataEntryMode = isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnDataEntryMode']) ? $session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnDataEntryMode'] : $this->blnDataEntryMode;
 			if ($this->blnDataEntryMode === null) {
 				$this->blnDataEntryMode = $this->arrData['startWithDataEntryMode'] ? true : false;
 			}
 			
 			
 			// Die in der Session gespeicherte Information, ob gerade eben Daten empfangen wurden, wird in das Objekt eingelesen, in der Session dann aber sofort zurückgesetzt, da dieser Zustand natürlich nicht über mehrere Seitenaufrufe bestehen bleiben soll.
-			$this->blnReceivedFormDataJustNow = isset($arrLsShop['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow']) ? $arrLsShop['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow'] : $this->blnReceivedFormDataJustNow;
-			if (isset($arrLsShop['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow'])) {
-                $arrLsShop['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow'] = false;
-                $session->set('lsShop', $arrLsShop);
+			$this->blnReceivedFormDataJustNow = isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow']) ? $session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow'] : $this->blnReceivedFormDataJustNow;
+			if (isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow'])) {
+                $session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow'] = false;
+                $session->set('lsShop', $session_lsShopCart);
 			}
 			
 			if ($this->blnReceivedFormDataJustNow) {
@@ -201,34 +201,34 @@ class ls_shop_productConfigurator {
 		}
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
+        $session_lsShopCart =  $session->get('lsShop', []);
 		
 		/*
 		 * Konfigurator-Zustand in Session schreiben, es sei denn "blnReceivedFormDataJustNow" ist true. In diesem Fall wurden 
 		 * gerade die neu empfangenen Daten von der Hook-Funktion "ls_shop_configuratorController::ls_shop_configuratorProcessFormData()" in die Session geschrieben
 		 * und die dürfen natürlich jetzt nicht durch die alten Daten der Konfigurator-Instanz überschrieben werden.
 		 */
-		if (isset($arrLsShop['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow']) && $arrLsShop['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow']) {
+		if (isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow']) && $session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataJustNow']) {
 			return;
 		}
 		
-		if (!isset($arrLsShop['configurator'][$this->configuratorCacheKey])) {
-            $arrLsShop['configurator'][$this->configuratorCacheKey] = array();
+		if (!isset($session_lsShopCart['configurator'][$this->configuratorCacheKey])) {
+            $session_lsShopCart['configurator'][$this->configuratorCacheKey] = array();
 		}
-        $arrLsShop['configurator'][$this->configuratorCacheKey]['arrReceivedPost'] = $this->arrReceivedPost;
-        $arrLsShop['configurator'][$this->configuratorCacheKey]['arr_customLogicData'] = $this->arr_customLogicData;
-        $arrLsShop['configurator'][$this->configuratorCacheKey]['strConfiguratorHash'] = $this->strConfiguratorHash;
-        $arrLsShop['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataAtLeastOnce'] = $this->blnReceivedFormDataAtLeastOnce;
+        $session_lsShopCart['configurator'][$this->configuratorCacheKey]['arrReceivedPost'] = $this->arrReceivedPost;
+        $session_lsShopCart['configurator'][$this->configuratorCacheKey]['arr_customLogicData'] = $this->arr_customLogicData;
+        $session_lsShopCart['configurator'][$this->configuratorCacheKey]['strConfiguratorHash'] = $this->strConfiguratorHash;
+        $session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnReceivedFormDataAtLeastOnce'] = $this->blnReceivedFormDataAtLeastOnce;
 
-        $session->set('lsShop', $arrLsShop);
+        $session->set('lsShop', $session_lsShopCart);
 	}
 
 	public function saveBlnDataEntryMode() {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
-        $arrLsShop['configurator'][$this->configuratorCacheKey]['blnDataEntryMode'] = $this->blnDataEntryMode;
+        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShopCart['configurator'][$this->configuratorCacheKey]['blnDataEntryMode'] = $this->blnDataEntryMode;
 
-        $session->set('lsShop', $arrLsShop);
+        $session->set('lsShop', $session_lsShopCart);
 	}
 	
 	public function updateConfiguratorHash() {
@@ -291,7 +291,7 @@ class ls_shop_productConfigurator {
 		}
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
+        $session_lsShopCart =  $session->get('lsShop', []);
 		
 		/*
 		 * Wurde dieses Objekt bereits geparsed, so wird es nicht erneut geparsed, um eine mehrfache Verarbeitung desselben
@@ -311,18 +311,18 @@ class ls_shop_productConfigurator {
         if ($this->arrData['stayInDataEntryMode']) {
             $GLOBALS['merconis_globals']['configurator']['currentArrReceivedPost'] = $this->arrReceivedPost;
         } else {
-            $GLOBALS['merconis_globals']['configurator']['currentArrReceivedPost'] = isset($arrLsShop['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration']) ? $arrLsShop['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration'] : ($this->blnReceivedFormDataAtLeastOnce ? $this->arrReceivedPost : null);
+            $GLOBALS['merconis_globals']['configurator']['currentArrReceivedPost'] = isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration']) ? $session_lsShopCart['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration'] : ($this->blnReceivedFormDataAtLeastOnce ? $this->arrReceivedPost : null);
         }
 
 		/*
 		 * Entfernen der nur temporär gemerkten "LastReceivedPost"-Daten, sofern vorhanden. Diese dienten nur dazu, nach dem Zurücksetzen der empfangenen Konfigurator-Daten
 		 * und nach dem darauffolgenden Reload das Formular mit den zuletzt vorhandenen Daten zu befüllen.
 		 */
-		if (isset($arrLsShop['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration'])) {
-			unset($arrLsShop['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration']);
+		if (isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration'])) {
+			unset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration']);
 		}
 
-        $session->set('lsShop', $arrLsShop);
+        $session->set('lsShop', $session_lsShopCart);
 
 
 
@@ -506,7 +506,7 @@ class ls_shop_productConfigurator {
 		$this->changeConfigurationUrl = \Environment::get('request').(preg_match('/\?/', \Environment::get('request')) ? '&' : '?').'changeConfiguration='.$this->configuratorCacheKey.'#'.$this->arrProductOrVariantData['anchor'];
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
+        $session_lsShopCart =  $session->get('lsShop', []);
 
 		/*
 		 * Liegt eine Änderungsanforderung vor, so wird diese zunächst in die Session geschrieben und die Seite ohne den GET-Parameter erneut aufgerufen.
@@ -516,8 +516,8 @@ class ls_shop_productConfigurator {
 				\Input::get('changeConfiguration') && \Input::get('changeConfiguration') == $this->configuratorCacheKey
 			||	\Input::post('changeConfiguration') && \Input::post('changeConfiguration') == $this->configuratorCacheKey
 		) {
-            $arrLsShop['configurator'][$this->configuratorCacheKey]['changeConfiguration'] = true;
-            $session->set('lsShop', $arrLsShop);
+            $session_lsShopCart['configurator'][$this->configuratorCacheKey]['changeConfiguration'] = true;
+            $session->set('lsShop', $session_lsShopCart);
 			\Controller::redirect(preg_replace('/(\?|&)changeConfiguration='.$this->configuratorCacheKey.'/', '', \Environment::get('request')).'#'.$this->arrProductOrVariantData['anchor']);
 		}
 		
@@ -525,11 +525,11 @@ class ls_shop_productConfigurator {
 		 * Liegt eine Änderungsanforderung bereits in der Session vor, so wird sie ausgeführt und
 		 * in der Session verworfen
 		 */
-		if (isset($arrLsShop['configurator'][$this->configuratorCacheKey]['changeConfiguration']) && $arrLsShop['configurator'][$this->configuratorCacheKey]['changeConfiguration']) {
-			unset($arrLsShop['configurator'][$this->configuratorCacheKey]['changeConfiguration']);
+		if (isset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['changeConfiguration']) && $session_lsShopCart['configurator'][$this->configuratorCacheKey]['changeConfiguration']) {
+			unset($session_lsShopCart['configurator'][$this->configuratorCacheKey]['changeConfiguration']);
 
-            $arrLsShop['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration'] = $this->arrReceivedPost;
-            $session->set('lsShop', $arrLsShop);
+            $session_lsShopCart['configurator'][$this->configuratorCacheKey]['tmpLastReceivedPostForFormPrefillAfterChangeConfiguration'] = $this->arrReceivedPost;
+            $session->set('lsShop', $session_lsShopCart);
 			/*
 			 * Hier ist nicht klar, ob es eher sinnvoll oder eher unsinnig ist, die bereits empfangenen Daten zu verwerfen.
 			 * Werden sie verworfen, so sind nach einem Klick auf "Produktdefinition ändern" die Daten verloren, wenn nicht
@@ -571,9 +571,9 @@ class ls_shop_productConfigurator {
 	
 	public function saveConfiguratorForCurrentCartKey() {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
-        $arrLsShop['configurator'][$this->createCacheKey(true)] = $arrLsShop['configurator'][$this->configuratorCacheKey];
-        $session->set('lsShop', $arrLsShop);
+        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShopCart['configurator'][$this->createCacheKey(true)] = $session_lsShopCart['configurator'][$this->configuratorCacheKey];
+        $session->set('lsShop', $session_lsShopCart);
 	}
 	
 	/*

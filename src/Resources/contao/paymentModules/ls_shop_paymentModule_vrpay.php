@@ -313,9 +313,9 @@ namespace Merconis\Core;
 					$this->update_fieldValue_inOrder($arr_order['id'], 'vrpay_currentStatus', 'ABORTED');
 
                     $session = \System::getContainer()->get('merconis.session')->getSession();
-                    $arrLsShop =  $session->get('lsShop', []);
-                    $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
-                    $session->set('lsShop', $arrLsShop);
+                    $session_lsShopCart =  $session->get('lsShop', []);
+                    $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
+                    $session->set('lsShop', $session_lsShopCart);
 
 					/*
 					 * redirect in order to get rid of the "aborted" value for
@@ -355,16 +355,16 @@ namespace Merconis\Core;
 						switch ($arr_resultCodeGroupInfo['groupStatus']) {
 							case 'SUCCESS':
                                 $session = \System::getContainer()->get('merconis.session')->getSession();
-                                $arrLsShop =  $session->get('lsShop', []);
-                                $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentSuccessAfterFinishedOrder'];
-                                $session->set('lsShop', $arrLsShop);
+                                $session_lsShopCart =  $session->get('lsShop', []);
+                                $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentSuccessAfterFinishedOrder'];
+                                $session->set('lsShop', $session_lsShopCart);
 								break;
 
 							default:
                                 $session = \System::getContainer()->get('merconis.session')->getSession();
-                                $arrLsShop =  $session->get('lsShop', []);
-                                $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
-                                $session->set('lsShop', $arrLsShop);
+                                $session_lsShopCart =  $session->get('lsShop', []);
+                                $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
+                                $session->set('lsShop', $session_lsShopCart);
 								break;
 						}
 

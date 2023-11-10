@@ -12,9 +12,9 @@ namespace Merconis\Core;
 			 */
 
             $session = \System::getContainer()->get('merconis.session')->getSession();
-            $arrLsShop =  $session->get('lsShop', []);
-            $arrLsShop['blnPaymentOrShippingErrorOccured'] = true;
-            $session->set('lsShop', $arrLsShop);
+            $session_lsShopCart =  $session->get('lsShop', []);
+            $session_lsShopCart['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShopCart);
 			## fixEndlessRecursionOnPaymentError end ##
 
 			error_log('Payment error in payment method "'.$this->arrCurrentSettings['title'].'" (type: '.$this->arrCurrentSettings['type'].') in context "'.$context.'"');
@@ -127,9 +127,9 @@ namespace Merconis\Core;
 			 * in ls_shop_paymentModule is skipped and therefore can not set this flag itself.
 			 */
             $session = \System::getContainer()->get('merconis.session')->getSession();
-            $arrLsShop =  $session->get('lsShop', []);
-            $arrLsShop['blnPaymentOrShippingErrorOccured'] = true;
-            $session->set('lsShop', $arrLsShop);
+            $session_lsShopCart =  $session->get('lsShop', []);
+            $session_lsShopCart['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShopCart);
 			## fixEndlessRecursionOnPaymentError end ##
 			
 			$this->logPaymentError($context, $errorInformation01, $errorInformation02, $errorInformation03);
@@ -151,6 +151,9 @@ namespace Merconis\Core;
 			) {
 				$this->redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutPaymentErrorPages'));
 			} else {
+                //$session = \System::getContainer()->get('cajax.session')->getSession();
+                //$session_lsCajax =  $session->get('lsCajax', []);
+
                 if (!\Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
                     $this->reload();
                 }
@@ -188,9 +191,9 @@ namespace Merconis\Core;
 				
 		public function afterCheckoutFinish() {
             $session = \System::getContainer()->get('merconis.session')->getSession();
-            $arrLsShop =  $session->get('lsShop', []);
-            $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
-            $session->set('lsShop', $arrLsShop);
+            $session_lsShopCart =  $session->get('lsShop', []);
+            $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session->set('lsShop', $session_lsShopCart);
 		}
 
 		public function check_usePaymentAfterCheckoutPage() {
