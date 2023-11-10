@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
     'config' => array(
@@ -955,7 +956,7 @@ class ls_shop_payment_methods extends \Backend {
         $arr_methodIDsCurrentlyUsed = ls_shop_generalHelper::getPaymentOrShippingMethodsUsedInOrders('payment');
 
         if (!in_array($row['id'], $arr_methodIDsCurrentlyUsed)) {
-            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
         } else {
             $button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
         }

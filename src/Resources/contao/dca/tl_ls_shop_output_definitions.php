@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 	'config' => array(
@@ -29,7 +30,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
             )
         )
 	),
-	
+
 	'list' => array(
 		'sorting' => array(
 			'mode' => DataContainer::MODE_SORTED,
@@ -37,14 +38,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'fields' => array('title'),
 			'disableGrouping' => true,
 			'panelLayout' => 'search,limit'
-			
+
 		),
-		
+
 		'label' => array(
 			'fields' => array('title'),
 			'format' => '%s'
 		),
-		
+
 		'global_operations' => array(
 			'all' => array
 			(
@@ -54,7 +55,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
 			)
 		),
-		
+
 		'operations' => array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['edit'],
@@ -78,10 +79,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 				'href'                => 'act=show',
 				'icon'                => 'show.gif'
 			)
-		
-		)	
+
+		)
 	),
-	
+
 	'palettes' => array(
 		'default' => '
 			{title_legend},
@@ -104,7 +105,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			lsShopProductOverviewPagination_crossSeller
 		'
 	),
-	
+
 	'fields' => array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
@@ -146,7 +147,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'search' => true,
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'lsShopProductTemplate' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductTemplate'],
@@ -156,7 +157,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'eval'					=> array('helpwizard' => true),
             'sql'                   => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'lsShopProductOverviewSorting' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting'],
@@ -166,14 +167,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'eval'					=> array('helpwizard' => false),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'lsShopProductOverviewSortingKeyOrAlias' => array(
 			'exclude' => true,
-			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSortingKeyOrAlias'],			
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSortingKeyOrAlias'],
 			'inputType' => 'text',
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'lsShopProductOverviewUserSorting' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSorting'],
@@ -183,7 +184,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			'eval'					=> array('helpwizard' => false),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'lsShopProductOverviewUserSortingFields' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSortingFields'],
@@ -295,7 +296,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 			),
             'sql'                     => "text NULL"
 		),
-		
+
 		'lsShopProductOverviewPagination' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewPagination'],
@@ -306,19 +307,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 	)
 );
 
-
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductTemplate_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductTemplate'];
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewSorting_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewSorting'];
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewSortingKeyOrAlias_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewSortingKeyOrAlias'];
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSorting_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSorting'];
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields'];
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination'];
-
-
-
-
-
-
 
 class ls_shop_output_definitions extends \Backend {
 	public function __construct() {
@@ -330,47 +324,47 @@ class ls_shop_output_definitions extends \Backend {
 		\Contao\ArrayUtil::arrayInsert($arrOptions, 0, array('template_productOverview_useDetailsTemplate' => 'template_productOverview_useDetailsTemplate'));
 		return $arrOptions;
 	}
-	
+
 	public function ls_getOverviewSortingOptions() {
 		$arrOptions = array(
 			'title_sortDir_ASC',
 			'title_sortDir_DESC',
-			
+
 			'lsShopProductPrice_sortDir_ASC',
 			'lsShopProductPrice_sortDir_DESC',
-	
+
 			'lsShopProductCode_sortDir_ASC',
 			'lsShopProductCode_sortDir_DESC',
-			
+
 			'sorting_sortDir_ASC',
 			'sorting_sortDir_DESC',
-			
+
 			'lsShopProductProducer_sortDir_ASC',
 			'lsShopProductProducer_sortDir_DESC',
-			
+
 			'lsShopProductWeight_sortDir_ASC',
 			'lsShopProductWeight_sortDir_DESC',
-			
+
 			'priority_sortDir_ASC',
 			'priority_sortDir_DESC',
-			
+
 			'flex_contentsLanguageIndependentKEYORALIAS_sortDir_ASC',
 			'flex_contentsLanguageIndependentKEYORALIAS_sortDir_DESC',
-			
+
 			'flex_contentsKEYORALIAS_sortDir_ASC',
 			'flex_contentsKEYORALIAS_sortDir_DESC',
-			
+
 			'lsShopProductAttributesValuesKEYORALIAS_sortDir_ASC',
 			'lsShopProductAttributesValuesKEYORALIAS_sortDir_DESC'
 		);
 		return $arrOptions;
 	}
-	
+
 	public function ls_getOverviewUserSortingOptions() {
 		$arrOptions = array('yes', 'no');
 		return $arrOptions;
 	}
-	
+
 	/*
 	 * Diese Funktion prüft, ob der Datensatz irgendwo im Shop verwendet wird und gibt nur dann
 	 * den funktionsfähigen Löschen-Button zurück, wenn der Datensatz nicht verwendet wird und
@@ -378,11 +372,11 @@ class ls_shop_output_definitions extends \Backend {
 	 */
 	public function getDeleteButton($row, $href, $label, $title, $icon, $attributes) {
 		if (!in_array($row['id'], ls_shop_generalHelper::getOutputDefinitionsCurrentlyInUse())) {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
 		}
-		
+
 		return $button;
 	}
 }

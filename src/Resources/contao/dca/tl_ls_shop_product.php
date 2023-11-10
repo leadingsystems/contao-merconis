@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 	'config' => array(
@@ -1357,7 +1358,7 @@ class tl_ls_shop_product_controller extends \Backend {
 		 * The alias is a multilanguage field so we have to determine its language
 		 * first in order to be able to create an auto alias from the corresponding
 		 * title field.
-		 * 
+		 *
 		 * If we can't find an underscore in the field name, we can't figure out
 		 * the language and we probably don't deal with the expected field, so
 		 * we return the field value unaltered.
@@ -1407,7 +1408,7 @@ class tl_ls_shop_product_controller extends \Backend {
 			/*
 			 * If we don't create an auto alias, we throw an exception, which
 			 * in this case displays an error message for this field.
-			 * 
+			 *
 			 * If we create an auto alias, we add the record id to the alias
 			 * to make it unique. When doing that, we have to make sure that
 			 * the created alias still isn't longer than 128 characters.
@@ -1451,7 +1452,7 @@ class tl_ls_shop_product_controller extends \Backend {
 			$icon = 'invisible.gif';
 		}
 
-		return '<a href="'.$this->addToUrl($href).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 	}
 
 	public function toggleVisibility($intId, $blnVisible) {
@@ -1486,7 +1487,7 @@ class tl_ls_shop_product_controller extends \Backend {
 	 */
 	public function convertPageSelection($value) {
 		if (!is_array($value)) {
-			$value = \Contao\StringUtil::deserialize($value, true);
+			$value = StringUtil::deserialize($value, true);
 		}
 
 		$arrPageSelection = array();

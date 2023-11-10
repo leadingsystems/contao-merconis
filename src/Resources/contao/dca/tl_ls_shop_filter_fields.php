@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 	'config' => array(
@@ -30,21 +31,21 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             )
         )
 	),
-	
+
 	'list' => array(
 		'sorting' => array(
 			'mode' => DataContainer::MODE_SORTABLE,
 			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
 			'fields' => array('title'),
 			'disableGrouping' => true,
-			'panelLayout' => 'sort,search,limit'			
+			'panelLayout' => 'sort,search,limit'
 		),
-		
+
 		'label' => array(
 			'fields' => array('title', 'alias'),
 			'format' => '<strong>%s</strong> <span style="font-style: italic;">(Alias: %s)</span>'
 		),
-		
+
 		'global_operations' => array(
 			'all' => array
 			(
@@ -54,7 +55,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
 			)
 		),
-		
+
 		'operations' => array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit'],
@@ -89,10 +90,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 				'href'                => 'act=show',
 				'icon'                => 'show.gif'
 			)
-		
-		)	
+
+		)
 	),
-	
+
 	'palettes' => array(
 		'__selector__' => array('dataSource'),
 		'default' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority;{published_legend},published;',
@@ -100,7 +101,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		'producer' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{published_legend},published;',
 		'price' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},classForFilterFormField,priority,templateToUseForPriceField;{published_legend},published;'
 	),
-	
+
 	'fields' => array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
@@ -118,7 +119,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'search' => true,
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'alias' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['alias'],
 			'exclude' => true,
@@ -132,7 +133,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'search' => true,
             'sql'                     => "varchar(128) BINARY NOT NULL default ''"
 		),
-		
+
 		'dataSource' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource'],
 			'default'                 => 'attribute',
@@ -143,7 +144,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval'					  => array('tl_class' => 'clr', 'helpwizard' => true, 'submitOnChange' => true),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'sourceAttribute' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['sourceAttribute'],
@@ -152,7 +153,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval' => array('tl_class' => 'w50'),
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
-		
+
 		'numItemsInReducedMode' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['numItemsInReducedMode'],
 			'exclude' => true,
@@ -160,7 +161,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval' => array('rgxp' => 'digit', 'tl_class' => 'w50', 'mandatory' => true),
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
-		
+
 		'classForFilterFormField' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['classForFilterFormField'],
 			'exclude' => true,
@@ -168,7 +169,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval' => array('tl_class' => 'w50', 'maxlength'=>255),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'filterFormFieldType' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterFormFieldType'],
 			'exclude' => true,
@@ -178,7 +179,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval'                    => array('tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'priority' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['priority'],
 			'exclude' => true,
@@ -188,7 +189,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'flag' => 12,
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
-		
+
 		'templateToUse'				  => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUse'],
 			'exclude'				  => true,
@@ -197,7 +198,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval'                    => array('tl_class'=>'w50'),
             'sql'                     => "varchar(64) NOT NULL default 'template_formFilterField_standard'"
 		),
-		
+
 		'templateToUseForPriceField'  => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForPriceField'],
 			'exclude'				  => true,
@@ -216,7 +217,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval'                    => array('tl_class'=>'w50'),
             'sql'                     => "varchar(64) NOT NULL default ''"
 		),
-		
+
 		'makeFilterModeUserAdjustable' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['makeFilterModeUserAdjustable'],
 			'exclude'                 => true,
@@ -234,10 +235,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		)
 	)
 );
-
-
-
-
 
 class ls_shop_filter_fields extends \Backend {
 	public function __construct() {
@@ -268,17 +265,17 @@ class ls_shop_filter_fields extends \Backend {
 
 		return $varValue;
 	}
-	
+
 	public function getEditButton($row, $href, $label, $title, $icon, $attributes) {
 		if ($row['dataSource'] == 'producer') {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
 		}
-		
+
 		return $button;
 	}
-	
+
 	public function toggleIcon($row, $href, $label, $title, $icon, $attributes) {
 		if (strlen(\Input::get('tid'))) {
 			$this->toggleVisibility(\Input::get('tid'), (\Input::get('state') == 1));
@@ -293,9 +290,9 @@ class ls_shop_filter_fields extends \Backend {
 
 		if (!$row['published']) {
 			$icon = 'invisible.gif';
-		}		
+		}
 
-		return '<a href="'.$this->addToUrl($href).'" title="'.\Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 	}
 
 	public function toggleVisibility($intId, $blnVisible) {
@@ -303,7 +300,7 @@ class ls_shop_filter_fields extends \Backend {
 			\System::log('Not enough permissions to publish/unpublish filter field ID "'.$intId.'"', 'tl_ls_shop_filter_fields toggleVisibility', TL_ERROR);
 			$this->redirect('contao/main.php?act=error');
 		}
-		
+
 		ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
 
 		if (is_array($GLOBALS['TL_DCA']['tl_ls_shop_filter_fields']['fields']['published']['save_callback'])) {
@@ -317,7 +314,7 @@ class ls_shop_filter_fields extends \Backend {
 		\Database::getInstance()->prepare("UPDATE tl_ls_shop_filter_fields SET tstamp=". time() .", published='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
 					   ->execute($intId);
 	}
-	
+
 	public function getFilterFieldTemplates() {
 		return $this->getTemplateGroup('template_formFilterField_');
 	}
