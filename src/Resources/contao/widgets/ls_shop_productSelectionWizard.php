@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+
 class ls_shop_productSelectionWizard extends \Widget {
 
 	/**
@@ -96,14 +98,14 @@ class ls_shop_productSelectionWizard extends \Widget {
 		for ($i = 0; $i < count($this->varValue); $i++) {
 			$objWidget = new ls_shop_productSelection();
 			$objWidget->name = $this->strId.'[]';
-			$objWidget->value = \Contao\StringUtil::specialchars($this->varValue[$i]);
+			$objWidget->value = StringUtil::specialchars($this->varValue[$i]);
 			$return .= '
 	<li>'.$objWidget->generate();
 
 			// Add buttons
 			$return .= '<div class="listWizardButtons">';
 			foreach ($arrButtons as $button) {
-				$return .= '<a href="'.$this->addToUrl('&amp;'.$strCommand.'='.$button.'&amp;cid='.$i.'&amp;id='.$this->currentRecord).'" title="'.\Contao\StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['lw_'.$button]).'" onclick="ls_shop_backend.listWizard(this,\''.$button.'\',\'ctrl_'.$this->strId.'\'); return false">'.\Image::getHtml($button.'.gif', $GLOBALS['TL_LANG']['MSC']['lw_'.$button], 'class="tl_listwizard_img"').'</a> ';
+				$return .= '<a href="'.$this->addToUrl('&amp;'.$strCommand.'='.$button.'&amp;cid='.$i.'&amp;id='.$this->currentRecord).'" title="'.StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['lw_'.$button]).'" onclick="ls_shop_backend.listWizard(this,\''.$button.'\',\'ctrl_'.$this->strId.'\'); return false">'.\Image::getHtml($button.'.gif', $GLOBALS['TL_LANG']['MSC']['lw_'.$button], 'class="tl_listwizard_img"').'</a> ';
 			}
 			$return .= '</div>';
 
