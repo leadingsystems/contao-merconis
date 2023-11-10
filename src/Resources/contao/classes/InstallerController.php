@@ -78,9 +78,9 @@ class InstallerController extends Controller {
 
 		if (Input::get('merconisThemeRepositoryMode')) {
             $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrLsShop =  $session->get('lsShop', []);
-            $arrLsShop['merconisThemeRepositoryMode'] = Input::get('merconisThemeRepositoryMode');
-            $session->set('lsShop', $arrLsShop);
+            $session_lsShopCart =  $session->get('lsShop', []);
+            $session_lsShopCart['merconisThemeRepositoryMode'] = Input::get('merconisThemeRepositoryMode');
+            $session->set('lsShop', $session_lsShopCart);
 		}
 	}
 
@@ -176,24 +176,24 @@ class InstallerController extends Controller {
         $blnPossible = true;
 
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
+        $session_lsShopCart =  $session->get('lsShop', []);
 		/*
 		 * Check if the theme has been selected correctly
 		 */
 		if (
-			!$arrLsShop['installer_selectedTheme']['id']
-			||	!$arrLsShop['installer_selectedTheme']['srcPath']
-			||	!is_dir(System::getContainer()->getParameter('kernel.project_dir').'/'.$arrLsShop['installer_selectedTheme']['srcPath'])
-			||	!$arrLsShop['installer_selectedTheme']['srcPathTemplates']
+			!$session_lsShopCart['installer_selectedTheme']['id']
+			||	!$session_lsShopCart['installer_selectedTheme']['srcPath']
+			||	!is_dir(System::getContainer()->getParameter('kernel.project_dir').'/'.$session_lsShopCart['installer_selectedTheme']['srcPath'])
+			||	!$session_lsShopCart['installer_selectedTheme']['srcPathTemplates']
 		) {
             System::getContainer()->get('monolog.logger.contao')->info(
 			    "MERCONIS INSTALLER: The theme has not been selected correctly. Please try again and contact the MERCONIS support if it still does not work.
 			    ||
-                \$arrLsShop['installer_selectedTheme']['id'] is \"".$arrLsShop['installer_selectedTheme']['id']."\"
+                \$session_lsShopCart['installer_selectedTheme']['id'] is \"".$session_lsShopCart['installer_selectedTheme']['id']."\"
                 ||
-                \$arrLsShop['installer_selectedTheme']['srcPath'] is \"".$arrLsShop['installer_selectedTheme']['srcPath']."\" (".(is_dir(TL_ROOT.'/'.$arrLsShop['installer_selectedTheme']['srcPath']) ? 'exists' : 'does not exist').")
+                \$session_lsShopCart['installer_selectedTheme']['srcPath'] is \"".$session_lsShopCart['installer_selectedTheme']['srcPath']."\" (".(is_dir(TL_ROOT.'/'.$session_lsShopCart['installer_selectedTheme']['srcPath']) ? 'exists' : 'does not exist').")
                 ||
-                \$arrLsShop['installer_selectedTheme']['srcPathTemplates'] is \"".$arrLsShop['installer_selectedTheme']['srcPathTemplates']."\"
+                \$session_lsShopCart['installer_selectedTheme']['srcPathTemplates'] is \"".$session_lsShopCart['installer_selectedTheme']['srcPathTemplates']."\"
 			    ", ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 			$blnPossible = false;
 		}
@@ -209,11 +209,11 @@ class InstallerController extends Controller {
 		/*
 		 * Check if the data files are okay
 		 */
-        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$arrLsShop['installer_selectedTheme']['srcPathExportTablesDat'])) {
+		if (!file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$session_lsShopCart['installer_selectedTheme']['srcPathExportTablesDat'])) {
             System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportTables.dat" not found. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
-            $blnPossible = false;
+			$blnPossible = false;
 		} else {
-			$arrExportTables = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$arrLsShop['installer_selectedTheme']['srcPathExportTablesDat']));
+			$arrExportTables = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$session_lsShopCart['installer_selectedTheme']['srcPathExportTablesDat']));
 
 			if (!is_array($arrExportTables)) {
                 System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportTables.dat" is corrupt. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
@@ -222,11 +222,11 @@ class InstallerController extends Controller {
 		}
 
 
-		if (!file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$arrLsShop['installer_selectedTheme']['srcPathExportLocalconfigDat'])) {
+		if (!file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$session_lsShopCart['installer_selectedTheme']['srcPathExportLocalconfigDat'])) {
             System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportLocalconfig.dat" not found. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 			$blnPossible = false;
 		} else {
-			$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$arrLsShop['installer_selectedTheme']['srcPathExportLocalconfigDat']));
+			$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$session_lsShopCart['installer_selectedTheme']['srcPathExportLocalconfigDat']));
 
 			if (!is_array($arrExportLocalconfig)) {
                 System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportLocalconfig.dat" is corrupt. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
@@ -316,38 +316,38 @@ class InstallerController extends Controller {
                 ls_shop_generalHelper::purgeContaoCache();
 
                 $session = System::getContainer()->get('merconis.session')->getSession();
-                $arrLsShop =  $session->get('lsShop', []);
+                $session_lsShopCart =  $session->get('lsShop', []);
 
-				if (Input::post('FORM_SUBMIT') && Input::post('FORM_SUBMIT') == 'installer_themeSelection') {
+				if (Input::post('FORM_SUBMIT') && \Input::post('FORM_SUBMIT') == 'installer_themeSelection') {
 					if (!Input::post('installer_selectedTheme')) {
-                        $arrLsShop['noThemeSelected'] = true;
+                        $session_lsShopCart['noThemeSelected'] = true;
 						Controller::redirect('contao?do=ls_shop_dashboard');
 					}
 
 					$arrThemeIDAndVersion = explode('|', Input::post('installer_selectedTheme'));
 
-                    $arrLsShop['installer_selectedTheme']['id'] = $arrThemeIDAndVersion[0];
-                    $arrLsShop['installer_selectedTheme']['version'] = $arrThemeIDAndVersion[1];
-                    $arrLsShop['installer_selectedTheme']['srcPath'] = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes/theme'.$arrLsShop['installer_selectedTheme']['id'];
-                    $arrLsShop['installer_selectedTheme']['templateFolderName'] = 'merconisTemplatesTheme'.$arrLsShop['installer_selectedTheme']['id'];
-                    $arrLsShop['installer_selectedTheme']['srcPathTemplates'] = $arrLsShop['installer_selectedTheme']['srcPath'].'/'.$arrLsShop['installer_selectedTheme']['templateFolderName'];
-                    $arrLsShop['installer_selectedTheme']['srcPathExportTablesDat'] = $arrLsShop['installer_selectedTheme']['srcPath'].'/data/exportTables.dat';
-					$arrLsShop['installer_selectedTheme']['srcPathExportLocalconfigDat'] = $arrLsShop['installer_selectedTheme']['srcPath'].'/data/exportLocalconfig.dat';
+                    $session_lsShopCart['installer_selectedTheme']['id'] = $arrThemeIDAndVersion[0];
+                    $session_lsShopCart['installer_selectedTheme']['version'] = $arrThemeIDAndVersion[1];
+                    $session_lsShopCart['installer_selectedTheme']['srcPath'] = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes/theme'.$session_lsShopCart['installer_selectedTheme']['id'];
+                    $session_lsShopCart['installer_selectedTheme']['templateFolderName'] = 'merconisTemplatesTheme'.$session_lsShopCart['installer_selectedTheme']['id'];
+                    $session_lsShopCart['installer_selectedTheme']['srcPathTemplates'] = $session_lsShopCart['installer_selectedTheme']['srcPath'].'/'.$session_lsShopCart['installer_selectedTheme']['templateFolderName'];
+                    $session_lsShopCart['installer_selectedTheme']['srcPathExportTablesDat'] = $session_lsShopCart['installer_selectedTheme']['srcPath'].'/data/exportTables.dat';
+                    $session_lsShopCart['installer_selectedTheme']['srcPathExportLocalconfigDat'] = $session_lsShopCart['installer_selectedTheme']['srcPath'].'/data/exportLocalconfig.dat';
 				}
 
 				/*
 				 * Download the theme if we are in repository mode
 				 */
-				if (!isset($arrLsShop['themeSource']) || $arrLsShop['themeSource'] == 'repository') {
+				if (!isset($session_lsShopCart['themeSource']) || $session_lsShopCart['themeSource'] == 'repository') {
 					$this->downloadThemeFromRepository();
 				}
 
-				if (isset($arrLsShop['installer_selectedTheme'])) {
+				if (isset($session_lsShopCart['installer_selectedTheme'])) {
 					if (!$this->checkIfThemeCanBeInstalled()) {
-                        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Installation not possible with theme '.$_SESSION['lsShop']['installer_selectedTheme']['id'], ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
-						unset($arrLsShop['installer_selectedTheme']);
-                        $arrLsShop['selectedThemeCanNotBeInstalled'] = true;
-                        $session->set('lsShop', $arrLsShop);
+                        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Installation not possible with theme '.$session_lsShopCart['installer_selectedTheme']['id'], ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+						unset($session_lsShopCart['installer_selectedTheme']);
+                        $session_lsShopCart['selectedThemeCanNotBeInstalled'] = true;
+                        $session->set('lsShop', $session_lsShopCart);
 						Controller::redirect('contao?do=ls_shop_dashboard');
 					}
 				}
@@ -355,9 +355,9 @@ class InstallerController extends Controller {
 				/*
 				 * Kopieren der Theme-Templates
 				 */
-				if (file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$arrLsShop['installer_selectedTheme']['srcPathTemplates']) && !file_exists(System::getContainer()->getParameter('kernel.project_dir').'/templates/'.$arrLsShop['installer_selectedTheme']['templateFolderName'])) {
+				if (file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$session_lsShopCart['installer_selectedTheme']['srcPathTemplates']) && !file_exists(System::getContainer()->getParameter('kernel.project_dir').'/templates/'.$session_lsShopCart['installer_selectedTheme']['templateFolderName'])) {
                     System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Copying theme templates to templates folder', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
-					$this->dirCopy($arrLsShop['installer_selectedTheme']['srcPathTemplates'], 'templates/'.$arrLsShop['installer_selectedTheme']['templateFolderName']);
+					$this->dirCopy($session_lsShopCart['installer_selectedTheme']['srcPathTemplates'], 'templates/'.$session_lsShopCart['installer_selectedTheme']['templateFolderName']);
 				} else {
                     System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Not copying theme templates to templates folder', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 				}
@@ -366,7 +366,7 @@ class InstallerController extends Controller {
 				 * Eintragen der Grundeinstellungen in localconfig. Teilweise müssen die Werte später
 				 * im Installationsprozess noch durch die richtigen Werte (ID-Zuordnungen) ersetzt werden.
 				 */
-				$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$arrLsShop['installer_selectedTheme']['srcPathExportLocalconfigDat']));
+				$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$session_lsShopCart['installer_selectedTheme']['srcPathExportLocalconfigDat']));
 
                 System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Inserting MERCONIS configuration values in localconfig.php', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
@@ -396,7 +396,7 @@ class InstallerController extends Controller {
 				 */
                 eval('$u = '.pack('H*', '6465636865782874696d65282929').'; '.pack('H*', '24746869732d3e6f626a5f636f6e6669672d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b27222e7061636b2827482a272c2027366436353732363336663665363937333566373336353732373636393633363534653735366436323635373227292e22275d222c20737472746f757070657228737562737472286d6435282475292c20302c2033292e247529293b'));
 
-                $session->set('lsShop', $arrLsShop);
+                $session->set('lsShop', $session_lsShopCart);
 				Controller::redirect('contao?do=ls_shop_dashboard&lsShopInstallationStep=3');
 				break;
 
@@ -406,9 +406,9 @@ class InstallerController extends Controller {
                 ls_shop_generalHelper::purgeContaoCache();
 
                 $session = System::getContainer()->get('merconis.session')->getSession();
-                $arrLsShop =  $session->get('lsShop', []);
+                $session_lsShopCart =  $session->get('lsShop', []);
 
-				$arrExportTables = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$arrLsShop['installer_selectedTheme']['srcPathExportTablesDat']));
+				$arrExportTables = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$session_lsShopCart['installer_selectedTheme']['srcPathExportTablesDat']));
 
 				$this->lsShopImportTables($arrExportTables);
 
@@ -556,11 +556,11 @@ class InstallerController extends Controller {
 
 	protected function deleteUnnecessaryThemeFiles() {
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
+        $session_lsShopCart =  $session->get('lsShop', []);
 
-        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Deleting unnecessary theme files for theme '.$_SESSION['lsShop']['installer_selectedTheme']['id'], ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Deleting unnecessary theme files for theme '.$session_lsShopCart['installer_selectedTheme']['id'], ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
-		if (!isset($arrLsShop['installer_selectedTheme']['id']) || !$arrLsShop['installer_selectedTheme']['id']) {
+		if (!isset($session_lsShopCart['installer_selectedTheme']['id']) || !$session_lsShopCart['installer_selectedTheme']['id']) {
 			return;
 		}
 
@@ -577,7 +577,7 @@ class InstallerController extends Controller {
 					continue;
 				}
 
-				if ($themeFolder != 'theme'.$arrLsShop['installer_selectedTheme']['id']) {
+				if ($themeFolder != 'theme'.$session_lsShopCart['installer_selectedTheme']['id']) {
 					$this->rmdirRecursively(System::getContainer()->getParameter('kernel.project_dir').'/files/merconisfiles/themes/'.$themeFolder);
 				}
 			}
@@ -589,7 +589,7 @@ class InstallerController extends Controller {
 		 * to the contao templates folder and it might be irritating if it still existed in
 		 * the theme folder
 		 */
-		$unnecessaryTemplatesFolder = System::getContainer()->getParameter('kernel.project_dir').'/files/merconisfiles/themes/theme'.$arrLsShop['installer_selectedTheme']['id'].'/'.$arrLsShop['installer_selectedTheme']['templateFolderName'];
+		$unnecessaryTemplatesFolder = System::getContainer()->getParameter('kernel.project_dir').'/files/merconisfiles/themes/theme'.$session_lsShopCart['installer_selectedTheme']['id'].'/'.$session_lsShopCart['installer_selectedTheme']['templateFolderName'];
 		if (file_exists($unnecessaryTemplatesFolder) && is_dir($unnecessaryTemplatesFolder)) {
 			$this->rmdirRecursively($unnecessaryTemplatesFolder);
 		}
@@ -980,9 +980,9 @@ class InstallerController extends Controller {
 		 * Get the hash from the repository
 		 */
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
+        $session_lsShopCart =  $session->get('lsShop', []);
 
-		$url = 'http://themerepository.merconis.com/theme'.$arrLsShop['installer_selectedTheme']['id'].'/'.$arrLsShop['installer_selectedTheme']['version'].'/merconisThemeExport/hash'.($arrLsShop['merconisThemeRepositoryMode'] ? '.'.$arrLsShop['merconisThemeRepositoryMode'] : '').'.dat';
+		$url = 'http://themerepository.merconis.com/theme'.$session_lsShopCart['installer_selectedTheme']['id'].'/'.$session_lsShopCart['installer_selectedTheme']['version'].'/merconisThemeExport/hash'.($session_lsShopCart['merconisThemeRepositoryMode'] ? '.'.$session_lsShopCart['merconisThemeRepositoryMode'] : '').'.dat';
 
 		$curl = curl_init($url);
 		curl_setopt($curl, CURLOPT_FRESH_CONNECT, 1);
@@ -1001,11 +1001,11 @@ class InstallerController extends Controller {
             mkdir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $zipTargetPath);
         }
 
-        $zipTargetFilename = $zipTargetPath.'/theme'.$arrLsShop['installer_selectedTheme']['id'].'.zip';
+        $zipTargetFilename = $zipTargetPath.'/theme'.$session_lsShopCart['installer_selectedTheme']['id'].'.zip';
 		$unzipTargetPath = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes';
-		$unzipTargetFoldername = $unzipTargetPath.'/theme'.$arrLsShop['installer_selectedTheme']['id'];
+		$unzipTargetFoldername = $unzipTargetPath.'/theme'.$session_lsShopCart['installer_selectedTheme']['id'];
 
-		$downloadUrl = 'http://themerepository.merconis.com/theme'.$arrLsShop['installer_selectedTheme']['id'].'/'.$arrLsShop['installer_selectedTheme']['version'].'/merconisThemeExport/theme'.$arrLsShop['installer_selectedTheme']['id'].($arrLsShop['merconisThemeRepositoryMode'] ? '.'.$arrLsShop['merconisThemeRepositoryMode'] : '').'.zip';
+		$downloadUrl = 'http://themerepository.merconis.com/theme'.$session_lsShopCart['installer_selectedTheme']['id'].'/'.$session_lsShopCart['installer_selectedTheme']['version'].'/merconisThemeExport/theme'.$session_lsShopCart['installer_selectedTheme']['id'].($session_lsShopCart['merconisThemeRepositoryMode'] ? '.'.$session_lsShopCart['merconisThemeRepositoryMode'] : '').'.zip';
 
 		$fp = fopen(System::getContainer()->getParameter('kernel.project_dir').'/'.$zipTargetFilename, 'w+');
 		$curl = curl_init($downloadUrl);
@@ -1156,9 +1156,9 @@ class InstallerController extends Controller {
 					 * Override the preview image with the local resource if the current source is local
 					 */
                     $session = System::getContainer()->get('merconis.session')->getSession();
-                    $arrLsShop =  $session->get('lsShop', []);
+                    $session_lsShopCart =  $session->get('lsShop', []);
 
-					if (isset($arrLsShop['themeSource']) && $arrLsShop['themeSource'] == 'local') {
+					if (isset($session_lsShopCart['themeSource']) && $session_lsShopCart['themeSource'] == 'local') {
 						$arrThemeInfo['imgUrl'] = sprintf($this->pathToThemePreviewImages, $arrThemeInfo['id']);
 					}
 
@@ -1210,14 +1210,14 @@ class InstallerController extends Controller {
 
 	protected function loadThemeInfoFromThemeRepository() {
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
+        $session_lsShopCart =  $session->get('lsShop', []);
 
 		if (!function_exists('curl_init')) {
-            $arrLsShop['themeRepositoryError'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-17'];
+            $session_lsShopCart['themeRepositoryError'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-17'];
 			return false;
 		}
 
-		$url = 'http://themerepository.merconis.com/getThemeInfos.php'.(isset($arrLsShop['merconisThemeRepositoryMode']) && $arrLsShop['merconisThemeRepositoryMode'] ? '?mode='.$arrLsShop['merconisThemeRepositoryMode'] : '');
+		$url = 'http://themerepository.merconis.com/getThemeInfos.php'.(isset($session_lsShopCart['merconisThemeRepositoryMode']) && $session_lsShopCart['merconisThemeRepositoryMode'] ? '?mode='.$session_lsShopCart['merconisThemeRepositoryMode'] : '');
 
 		$curl = curl_init($url);
 		curl_setopt($curl, CURLOPT_FRESH_CONNECT, 1);
@@ -1228,8 +1228,8 @@ class InstallerController extends Controller {
 		curl_close($curl);
 
 		if (!$strThemeInfos) {
-            $arrLsShop['themeRepositoryError'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-18'];
-            $session->set('lsShop', $arrLsShop);
+            $session_lsShopCart['themeRepositoryError'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage01-18'];
+            $session->set('lsShop', $session_lsShopCart);
 			return false;
 		}
 
@@ -1248,7 +1248,7 @@ class InstallerController extends Controller {
 		 * Get the theme infos from the merconis theme repository if this is the currently selected source
 		 */
 		// Use the repository as the theme source if it has been selected or if no source has been selected yet
-		if (!isset($arrLsShop['themeSource']) || $arrLsShop['themeSource'] == 'repository') {
+		if (!isset($session_lsShopCart['themeSource']) || $session_lsShopCart['themeSource'] == 'repository') {
 			$arrThemeInfos = $this->loadThemeInfoFromThemeRepository();
 			return $arrThemeInfos;
 		}

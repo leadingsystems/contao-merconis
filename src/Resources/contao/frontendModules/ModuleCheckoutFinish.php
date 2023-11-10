@@ -177,22 +177,22 @@ class ModuleCheckoutFinish extends Module {
 
 
 			$session = \System::getContainer()->get('merconis.session')->getSession();
-			$arrLsShopCart =  $session->remove('lsShopCart');
+			$session_lsShopCart =  $session->remove('lsShopCart');
 
 			$session = \System::getContainer()->get('merconis.session')->getSession();
-			$arrLsShop =  $session->get('lsShop', []);
+			$session_lsShopCart =  $session->get('lsShop', []);
 
-			unset($arrLsShop['configurator']);
-			unset($arrLsShop['customizerStorage']);
+			unset($session_lsShopCart['configurator']);
+			unset($session_lsShopCart['customizerStorage']);
 
 			$afterCheckoutUrl = ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages');
 			$afterCheckoutUrlWithOih = $afterCheckoutUrl.(preg_match('/\?/', $afterCheckoutUrl) ? '&' : '?').'oih='.$order['orderIdentificationHash'];
 			
 			// Saving the oix for the oih in the session to verify that this session is the one that can display the order on the after checkout page
 			$oix = ls_shop_generalHelper::encodeOix($orderIdInDb);
-			$arrLsShop['oix2oih'][$oix] = $order['orderIdentificationHash'];
+			$session_lsShopCart['oix2oih'][$oix] = $order['orderIdentificationHash'];
 
-			$session->set('lsShop', $arrLsShop);
+			$session->set('lsShop', $session_lsShopCart);
 
 			// ### paymentMethod callback ########################
 			$obj_paymentModule->afterCheckoutFinish($orderIdInDb, $order, $afterCheckoutUrl, $oix);

@@ -58,9 +58,9 @@ use function LeadingSystems\Helpers\ls_sub;
 
 		public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
             $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrLsShop =  $session->get('lsShop', []);
+            $session_lsShopCart =  $session->get('lsShop', []);
 
-            $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
 			
 			###
 			$this->paypal_doExpressCheckoutPayment($order);
@@ -70,15 +70,15 @@ use function LeadingSystems\Helpers\ls_sub;
             $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
 
 			if (!$arrSessionlsShopPaymentProcess['paypal']['finishedSuccessfully']) {
-                $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentErrorAfterFinishedOrder'];
+                $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentErrorAfterFinishedOrder'];
 			} else {
 				if ($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['REDIRECTREQUIRED']) {
 					$giropayRedirectionForm = $this->getForm($this->arrCurrentSettings['paypalGiropayRedirectForm']);
 					$giropayRedirectionForm = preg_replace('/(<form.*action=")(.*)(")/siU', '\\1'.$this->redirectToGiropay.'&token='.$arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN'].'\\3', $giropayRedirectionForm);
-                    $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $giropayRedirectionForm;
+                    $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = $giropayRedirectionForm;
 				}
 			}
-            $session->set('lsShop', $arrLsShop);
+            $session->set('lsShop', $session_lsShopCart);
 
 			/*
 			 * Nach abgeschlossener Bestellung wird das Array mit Informationen über den Status der PayPal-Zahlung zurückgesetzt, um zu verhindern, dass bei einer weiteren Bestellung versucht wird, die alte Autorisierung weiter zu benutzen.

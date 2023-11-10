@@ -96,8 +96,8 @@ class ls_shop_cartX {
 	 */
 	public function getCartFromSession() {
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShopCart =  $session->get('lsShopCart', []);
-		$this->items = $arrLsShopCart['items'];
+        $session_lsShopCart =  $session->get('lsShopCart', []);
+		$this->items = $session_lsShopCart['items'];
 		
 		if (isset($this->items) && is_array($this->items)) {
 			foreach ($this->items as $productCartKey => $arrCartItem) {
@@ -125,15 +125,15 @@ class ls_shop_cartX {
 		 * Update the cart items stored in the session to make sure that the
 		 * session holds the correct scalePriceKeywords as well.
 		 */
-        $arrLsShopCart['items'] = $this->items;
-        $session->set('lsShopCart', $arrLsShopCart);
+        $session_lsShopCart['items'] = $this->items;
+        $session->set('lsShopCart', $session_lsShopCart);
 	}
 	
 	protected function getCouponsUsed() {
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShopCart =  $session->get('lsShopCart', []);
+        $session_lsShopCart =  $session->get('lsShopCart', []);
 
-		$this->couponsUsed = isset($arrLsShopCart['couponsUsed']) && is_array($arrLsShopCart['couponsUsed']) ? $arrLsShopCart['couponsUsed'] : array();
+		$this->couponsUsed = isset($session_lsShopCart['couponsUsed']) && is_array($session_lsShopCart['couponsUsed']) ? $session_lsShopCart['couponsUsed'] : array();
 	}
 
 	public function __get($what) {

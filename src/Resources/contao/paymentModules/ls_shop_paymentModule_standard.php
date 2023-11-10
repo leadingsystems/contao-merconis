@@ -19,10 +19,10 @@ namespace Merconis\Core;
 			 * in ls_shop_paymentModule is skipped and therefore can not set this flag itself.
 			 */
 
-            $session = \System::getContainer()->get('merconis.session')->getSession();
-            $arrLsShop =  $session->get('lsShop', []);
-            $arrLsShop['blnPaymentOrShippingErrorOccured'] = true;
-            $session->set('lsShop', $arrLsShop);
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShopCart =  $session->get('lsShop', []);
+            $session_lsShopCart['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShopCart);
 			## fixEndlessRecursionOnPaymentError end ##
 
 			error_log('Payment error in payment method "'.$this->arrCurrentSettings['title'].'" (type: '.$this->arrCurrentSettings['type'].') in context "'.$context.'"');
@@ -137,10 +137,10 @@ namespace Merconis\Core;
 			 * that this function is being called directly from a payment module itself which means that the general redirectToErrorPage function
 			 * in ls_shop_paymentModule is skipped and therefore can not set this flag itself.
 			 */
-            $session = \System::getContainer()->get('merconis.session')->getSession();
-            $arrLsShop =  $session->get('lsShop', []);
-            $arrLsShop['blnPaymentOrShippingErrorOccured'] = true;
-            $session->set('lsShop', $arrLsShop);
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShopCart =  $session->get('lsShop', []);
+            $session_lsShopCart['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShopCart);
 			## fixEndlessRecursionOnPaymentError end ##
 			
 			$this->logPaymentError($context, $errorInformation01, $errorInformation02, $errorInformation03);
@@ -198,10 +198,10 @@ namespace Merconis\Core;
 		}
 				
 		public function afterCheckoutFinish() {
-            $session = \System::getContainer()->get('merconis.session')->getSession();
-            $arrLsShop =  $session->get('lsShop', []);
-            $arrLsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
-            $session->set('lsShop', $arrLsShop);
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShopCart =  $session->get('lsShop', []);
+            $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session->set('lsShop', $session_lsShopCart);
 		}
 
 		public function check_usePaymentAfterCheckoutPage() {
@@ -231,7 +231,7 @@ namespace Merconis\Core;
 			global $objPage;
 			$msg = '';
 
-            $session = \System::getContainer()->get('merconis.session')->getSession();
+            $session = System::getContainer()->get('merconis.session')->getSession();
             $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
 
 			// Only show messages if the checkout page displaying the payment selection is currently opened.
@@ -267,7 +267,7 @@ namespace Merconis\Core;
 			if (!$msg) {
 				return;
 			}
-            $session = \System::getContainer()->get('merconis.session')->getSession();
+            $session = System::getContainer()->get('merconis.session')->getSession();
             $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
 			
 			// Ist eine Fehlermeldung bereits enthalten, so wird sie nicht erneut hinzugefügt, da doppelte Meldungen sinnlos sind

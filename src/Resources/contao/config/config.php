@@ -2,9 +2,6 @@
 
 namespace Merconis\Core;
 
-use Contao\Input;
-use Contao\System;
-
 define('TL_MERCONIS_INSTALLER', 'MERCONIS INSTALLER');
 define('TL_MERCONIS_IMPORTER', 'MERCONIS IMPORTER');
 define('TL_MERCONIS_GENERAL', 'MERCONIS GENERAL');

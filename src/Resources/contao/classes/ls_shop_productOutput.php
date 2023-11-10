@@ -61,25 +61,25 @@ class ls_shop_productOutput
 		}
 
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrLsShop =  $session->get('lsShop', []);
+        $session_lsShopCart =  $session->get('lsShop', []);
 
-		if (!isset($arrLsShop['persistentVariantSelection']) || !is_array($arrLsShop['persistentVariantSelection'])) {
-            $arrLsShop['persistentVariantSelection'] = array();
+		if (!isset($session_lsShopCart['persistentVariantSelection']) || !is_array($session_lsShopCart['persistentVariantSelection'])) {
+            $session_lsShopCart['persistentVariantSelection'] = array();
 		}
 
 		if (
 			Input::get('selectVariantPersistently')
 			&&	$this->ls_objProduct->_selectVariant(Input::get('selectVariantPersistently'))
 		) {
-            $arrLsShop['persistentVariantSelection'][$this->ls_productID] = Input::get('selectVariantPersistently');
+            $session_lsShopCart['persistentVariantSelection'][$this->ls_productID] = Input::get('selectVariantPersistently');
 		}
 		else if (
-			isset($arrLsShop['persistentVariantSelection'][$this->ls_productID]) && $arrLsShop['persistentVariantSelection'][$this->ls_productID]
+			isset($session_lsShopCart['persistentVariantSelection'][$this->ls_productID]) && $session_lsShopCart['persistentVariantSelection'][$this->ls_productID]
 		) {
-			$this->ls_objProduct->_selectVariant($arrLsShop['persistentVariantSelection'][$this->ls_productID]);
+			$this->ls_objProduct->_selectVariant($session_lsShopCart['persistentVariantSelection'][$this->ls_productID]);
 		}
 
-        $session->set('lsShop', $arrLsShop);
+        $session->set('lsShop', $session_lsShopCart);
 	}
 
 	protected function prepareTemplate() {
