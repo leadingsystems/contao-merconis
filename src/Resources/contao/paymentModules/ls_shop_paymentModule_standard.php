@@ -162,7 +162,10 @@ namespace Merconis\Core;
 			) {
 				$this->redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutPaymentErrorPages'));
 			} else {
-                if (!Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
+                $session = System::getContainer()->get('cajax.session')->getSession();
+                $session_lsCajax =  $session->get('lsCajax', []);
+
+                if (!Environment::get('isAjaxRequest') && $session_lsCajax['requestData'] === null) {
                     $this->reload();
                 }
 			}
