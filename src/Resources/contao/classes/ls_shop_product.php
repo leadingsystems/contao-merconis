@@ -1,6 +1,7 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -724,7 +725,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 Returns an Array containing the pages which the product is assigned to
 				 */
 				:
-				$arr_pages = \Contao\StringUtil::deserialize($this->mainData['pages']);
+				$arr_pages = StringUtil::deserialize($this->mainData['pages']);
 
 				$arr_pagesForDomain = array();
 				foreach ($arr_pages as $int_pageID) {
@@ -826,7 +827,7 @@ returns the id of the variant that has currently been selected
 			case '_isFavorite':
 				$obj_user = \System::importStatic('FrontendUser');
 				$strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
-				$arrFavorites = $strFavorites ? \Contao\StringUtil::deserialize($strFavorites) : array();
+				$arrFavorites = $strFavorites ? StringUtil::deserialize($strFavorites) : array();
 				$arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
 
 				return in_array($this->_id, $arrFavorites);

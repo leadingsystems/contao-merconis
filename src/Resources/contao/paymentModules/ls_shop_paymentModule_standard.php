@@ -2,7 +2,9 @@
 
 namespace Merconis\Core;
 
-	class ls_shop_paymentModule_standard extends \Controller {
+	use Contao\StringUtil;
+
+    class ls_shop_paymentModule_standard extends \Controller {
 		public function logPaymentError($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '', $bln_resetSelectedPaymentMethod = true) {
 			## fixEndlessRecursionOnPaymentError begin ##
 			/*
@@ -68,7 +70,7 @@ namespace Merconis\Core;
 				return null;
 			}
 			
-			return \Contao\StringUtil::deserialize($obj_dbres_moduleReturnData->first()->paymentMethod_moduleReturnData);
+			return StringUtil::deserialize($obj_dbres_moduleReturnData->first()->paymentMethod_moduleReturnData);
 		}
 		
 		public function update_paymentMethod_moduleReturnData_inOrder($int_orderID = 0, $var_paymentMethod_moduleReturnData = '') {

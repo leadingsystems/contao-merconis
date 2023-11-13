@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	'config' => array(
@@ -362,7 +363,7 @@ class tl_ls_shop_message_model_controller extends \Backend {
 	
 	public function listChildRecords($arrRow) {
 		if (!is_array($arrRow['member_group'])) {
-			$arrRow['member_group'] = \Contao\StringUtil::deserialize($arrRow['member_group'], true);
+			$arrRow['member_group'] = StringUtil::deserialize($arrRow['member_group'], true);
 		}
 		
 		$memberGroupName = '';

@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\Folder;
+use Contao\StringUtil;
 
 class ls_shop_moreImagesGallery extends \Frontend {
 	protected $strTemplate = 'template_productGallery_01';
@@ -232,7 +233,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	public function lsShopGetProcessedImages($sizeMainImage, $sizeMoreImages) {
 		$this->getImagesSortedAndWithVideoCovers();
 		
-		$mainImageSize = \Contao\StringUtil::deserialize($sizeMainImage);
+		$mainImageSize = StringUtil::deserialize($sizeMainImage);
 		$intMaxWidth = $mainImageSize[0];
 		$strLightboxId = 'lightbox[lb' . $this->id . ']';
 		

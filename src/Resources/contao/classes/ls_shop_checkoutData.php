@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+
 class ls_shop_checkoutData {
 	public $arrCheckoutData = array(
 		'arrCustomerData' => array(),
@@ -1136,7 +1138,7 @@ class ls_shop_checkoutData {
 	 */
 	private function checkIfValueAllowed($fieldValue, $arrFieldInfo) {
 		if ($arrFieldInfo['arrData']['type'] == 'select' || $arrFieldInfo['arrData']['type'] == 'radio') {
-			$arrOptions = \Contao\StringUtil::deserialize($arrFieldInfo['arrData']['options']);
+			$arrOptions = StringUtil::deserialize($arrFieldInfo['arrData']['options']);
 			if (!is_array($arrOptions) || !count($arrOptions)) {
 				return false;
 			}

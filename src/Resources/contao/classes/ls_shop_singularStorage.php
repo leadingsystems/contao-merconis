@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+
 class ls_shop_singularStorage
 {
     protected $arr_allowedTypes = array(
@@ -147,7 +149,7 @@ class ls_shop_singularStorage
 
         if ($var_result !== null) {
             if ($str_type === 'arr' && !is_array($var_result)) {
-                $var_result = \Contao\StringUtil::deserialize($var_result);
+                $var_result = StringUtil::deserialize($var_result);
             } else if ($str_type === 'bln') {
                 $var_result = $var_result ? true : false;
             }

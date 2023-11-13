@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+
 class ModuleMyOrders extends \Module {
 	protected $intDefaultNumPerPage = 10;
 	protected $strDefaultSorting = 'orderDateUnixTimestamp';
@@ -49,7 +51,7 @@ class ModuleMyOrders extends \Module {
 		
 		
 		if (!is_array($this->ls_shop_myOrders_sortingOptions)) {
-			$this->ls_shop_myOrders_sortingOptions = \Contao\StringUtil::deserialize($this->ls_shop_myOrders_sortingOptions, true);
+			$this->ls_shop_myOrders_sortingOptions = StringUtil::deserialize($this->ls_shop_myOrders_sortingOptions, true);
 		}
 		
 		if (!is_array($this->ls_shop_myOrders_sortingOptions) || !count($this->ls_shop_myOrders_sortingOptions)) {
@@ -101,7 +103,7 @@ class ModuleMyOrders extends \Module {
 
 		$objPagination = new \Pagination($objOrdersAll->numRows, $_SESSION['lsShop']['myOrders']['numPerPage'], 7, 'page', new \FrontendTemplate('merconisPagination'));
 		$this->Template->pagination = $objPagination->generate();
-		$this->Template->request = \Contao\StringUtil::ampersand(\Environment::get('request'), true);
+		$this->Template->request = StringUtil::ampersand(\Environment::get('request'), true);
 		
 		$currentPageOffset = \Input::get('page') ? \Input::get('page') - 1 : 0;
 		
