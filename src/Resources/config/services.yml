@@ -5,12 +5,12 @@ services:
     autoconfigure: true
     public: false
 
-  merconis.routing.scope:
-    class: LeadingSystems\MerconisBundle\Services\Scope
-    public: true
-
   merconis.session:
     class: LeadingSystems\MerconisBundle\Services\Session
+    public: true
+
+  merconis.routing.scope:
+    class: LeadingSystems\MerconisBundle\Services\Scope
     public: true
 
   merconis.eventlistener.kernellistener:

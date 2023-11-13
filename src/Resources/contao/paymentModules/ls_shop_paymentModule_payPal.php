@@ -210,11 +210,11 @@ use function LeadingSystems\Helpers\ls_sub;
 			if (!ls_shop_generalHelper::checkIfPaymentMethodIsAllowed(ls_shop_checkoutData::getInstance()->arrCheckoutData['selectedPaymentMethod'])) {
 				ls_shop_checkoutData::getInstance()->resetSelectedPaymentMethod();
 
-                //$session = \System::getContainer()->get('cajax.session')->getSession();
-                //$session_lsCajax =  $session->get('lsCajax', []);
+                $session = \System::getContainer()->get('cajax.session')->getSession();
+                $session_lsCajax =  $session->get('lsCajax', []);
 
 
-                if (!\Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
+                if (!\Environment::get('isAjaxRequest') && $session_lsCajax['requestData'] === null) {
                     $this->reload();
                 }
 			}
