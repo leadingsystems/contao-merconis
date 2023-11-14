@@ -5,6 +5,7 @@ Leading Systems Contao Merconis bundle changelog
  * add enableVersioning
  * replace TL_CRON with service contao.cronjob 
  * remove deprecated constants
+ * remove deprecated functions
 
 ### 5.0.19 (2023-09-01)
  * remove deprecated FE_USER_LOGGED_IN
