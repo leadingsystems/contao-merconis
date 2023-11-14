@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\ArrayUtil;
 use Contao\Folder;
 use Contao\StringUtil;
 
@@ -99,7 +100,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * da das erste Bild als Hauptbild anders dargestellt wird.
 		 */
 		if ($this->mainImage) {
-			\Contao\ArrayUtil::arrayInsert($this->multiSRC, 0, $mainImage);
+			ArrayUtil::arrayInsert($this->multiSRC, 0, $mainImage);
 		}
 		$this->id = $id;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
@@ -222,7 +223,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * we insert this image in the first position of the image array
 		 */
 		if ($this->mainImage && isset($mainImageTemp)) {
-			\Contao\ArrayUtil::arrayInsert($this->ls_images, 0, array($mainImageTemp));
+			ArrayUtil::arrayInsert($this->ls_images, 0, array($mainImageTemp));
 		}
 
 		if ($this->ls_imageLimit) {

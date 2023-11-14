@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+
 class ls_shop_beModule_stockManagement extends \BackendModule {
 	protected $strTemplate = 'beModule_stockManagement';
 	protected $intDefaultNumPerPage = 10;
@@ -12,7 +14,7 @@ class ls_shop_beModule_stockManagement extends \BackendModule {
 		$this->loadLanguageFile('tl_ls_shop_product');
 		$this->loadLanguageFile('be_stockManagement');
 
-		$this->Template->request = \Contao\StringUtil::ampersand(\Environment::get('request'), true);
+		$this->Template->request = StringUtil::ampersand(\Environment::get('request'), true);
 
 		$objWidgets = array();
 		$widgets = array();

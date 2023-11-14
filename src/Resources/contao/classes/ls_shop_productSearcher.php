@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\ArrayUtil;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 
 class ls_shop_productSearcher
@@ -669,84 +670,84 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('title') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['title'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['keywords'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['keywords'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['description'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('description') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['description'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['productCode'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['productCode'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['producer'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                             $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['producer'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "`,
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                         } else {
@@ -755,7 +756,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatement .= " + ";
@@ -763,7 +764,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['title'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatement .= " + ";
@@ -771,7 +772,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['keywords'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatement .= " + ";
@@ -779,7 +780,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['keywords'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatement .= " + ";
@@ -787,7 +788,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['shortDescription'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatement .= " + ";
@@ -795,7 +796,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['shortDescription'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatement .= " + ";
@@ -803,7 +804,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['description'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatement .= " + ";
@@ -811,7 +812,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['description'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatement .= " + ";
@@ -819,7 +820,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['productCode'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
 
 
                             $addToSelectStatement .= " + ";
@@ -827,7 +828,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['productCode'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
 
                             $addToSelectStatement .= " + ";
@@ -835,7 +836,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['producer'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                             $addToSelectStatement .= " + ";
@@ -843,7 +844,7 @@ class ls_shop_productSearcher
 
                             $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['producer'] . " ELSE 0 END
 						";
-                            \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
                         }
                     }
 
@@ -875,98 +876,75 @@ class ls_shop_productSearcher
 
 
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
-                                        //$addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END) as `priority_word_".$this->getQualifiedFieldName('title').",`
-
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['title'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['keywords'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['description'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
 
-
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-
-                                        //$addToSelectStatement .= " + ";
                                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['producer'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue . "`,
                                     ";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
                                     } else {
                                         $addToSelectStatement .= " + ";
@@ -974,117 +952,84 @@ class ls_shop_productSearcher
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('title')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('title')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['title']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('keywords')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('keywords')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['keywords']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('shortDescription')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('shortDescription')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['shortDescription']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('description')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('description')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['description']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue.'%'));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue.'%'));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductProducer')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer']." ELSE 0 END
 								";
-                                \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
-
-
-
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductProducer')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['producer']." ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
                                     }
 
                                 }
@@ -1146,7 +1091,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1154,7 +1099,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1162,7 +1107,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1170,7 +1115,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1178,7 +1123,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1186,7 +1131,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
                                         $addToSelectStatement .= " ) > 0)";
 
 
@@ -1236,7 +1181,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1244,7 +1189,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1252,7 +1197,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1260,7 +1205,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1268,7 +1213,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
 
 
                                         $addToSelectStatement .= " + ";
@@ -1276,7 +1221,7 @@ class ls_shop_productSearcher
 
                                         $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer'] : "1") . " ELSE 0 END
 								";
-                                        \Contao\ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
                                         $addToSelectStatement .= " ) > 0)";
 
 
@@ -1284,11 +1229,8 @@ class ls_shop_productSearcher
                                 }
                             }
 
-
-                            //if ($this->blnUsePriority()) {
                             $addToSelectStatement .= ")";
                             $addToSelectStatement .= " as `wordCount`";
-                            //}
                         }
 
                     $searchCondition .= "	(".$searchConditionPart.")";

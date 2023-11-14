@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\ArrayUtil;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\StringUtil;
@@ -321,7 +322,7 @@ class ls_shop_output_definitions extends \Backend {
 
 	public function ls_getTemplateOptions() {
 		$arrOptions = $this->getTemplateGroup('template_productOverview_');
-		\Contao\ArrayUtil::arrayInsert($arrOptions, 0, array('template_productOverview_useDetailsTemplate' => 'template_productOverview_useDetailsTemplate'));
+		ArrayUtil::arrayInsert($arrOptions, 0, array('template_productOverview_useDetailsTemplate' => 'template_productOverview_useDetailsTemplate'));
 		return $arrOptions;
 	}
 

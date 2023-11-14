@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\ArrayUtil;
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
 use Contao\LayoutModel;
 use Contao\StringUtil;
@@ -2598,7 +2599,7 @@ class ls_shop_generalHelper
             $_SESSION['lsShop']['lastSeenProducts'] = array();
         }
 
-        \Contao\ArrayUtil::arrayInsert($_SESSION['lsShop']['lastSeenProducts'], 0, array($productID));
+        ArrayUtil::arrayInsert($_SESSION['lsShop']['lastSeenProducts'], 0, array($productID));
     }
 
     /*

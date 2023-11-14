@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\ArrayUtil;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\StringUtil;
@@ -450,7 +451,7 @@ class ls_shop_shipping_methods extends \Backend {
 		/*
 		 * Einf�gen der BE_formFields in das Fields-Array dieser DCA-Definition
 		 */
-		\Contao\ArrayUtil::arrayInsert($GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods']['fields'], 0, $obj_shippingModule->types[$objShippingMethod->type]['BE_formFields']);
+		ArrayUtil::arrayInsert($GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods']['fields'], 0, $obj_shippingModule->types[$objShippingMethod->type]['BE_formFields']);
 
 		/*
 		 * Hinterlegen der Standard-Labels, sofern keine speziell im Zahlungsmodul hinterlegt wurden
