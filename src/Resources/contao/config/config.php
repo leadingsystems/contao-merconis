@@ -136,10 +136,6 @@ if (TL_MODE === 'BE') {
  * <-
  */
 
-$GLOBALS['TL_CRON']['daily'][] = array('Merconis\Core\ls_shop_generalHelper','sendRestockInfo');
-$GLOBALS['TL_CRON']['daily'][] = array('Merconis\Core\ls_shop_generalHelper','sendMessagesOnStatusChangeCronDaily');
-$GLOBALS['TL_CRON']['hourly'][] = array('Merconis\Core\ls_shop_generalHelper','sendMessagesOnStatusChangeCronHourly');
-
 if (TL_MODE == 'BE') {
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_shop_BE.js';
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_x_controller.js';

@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\StringUtil;
+use Contao\System;
 
 class ls_shop_cross_seller
 {
@@ -24,7 +25,7 @@ class ls_shop_cross_seller
              * Do not throw an exception in backend mode because in this case it would not be possible
              * to select another/correct CrossSeller id for a CrossSeller CTE.
              */
-            if (TL_MODE == 'BE') {
+            if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
                 \System::log('MERCONIS: Trying to show a CrossSeller without given id', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
                 return;
             }

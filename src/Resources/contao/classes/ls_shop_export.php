@@ -1,7 +1,10 @@
 <?php
 
 namespace Merconis\Core;
+
 use Contao\StringUtil;
+use Contao\System;
+
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -26,7 +29,7 @@ class ls_shop_export
 			 * Do not throw an exception in backend mode because in this case it would not be possible
 			 * to select another/correct export id for an export CTE.
 			 */
-			if (TL_MODE == 'BE') {
+			if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 				return;
 			}
 			
@@ -718,7 +721,7 @@ class ls_shop_export
 
 	protected function getSegmentationToken()
 	{
-		if (TL_MODE === 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$obj_user = \System::importStatic('BackendUser');
 		} else {
 			$obj_user = \System::importStatic('FrontendUser');
@@ -736,7 +739,7 @@ class ls_shop_export
 		 * and the user's id as the segmentation token
 		 */
 		if ($obj_user->id !== null) {
-			return TL_MODE . '_' . $obj_user->id;
+			return System::getContainer()->get('merconis.routing.scope')->getTLMode() . '_' . $obj_user->id;
 		}
 
 		/*

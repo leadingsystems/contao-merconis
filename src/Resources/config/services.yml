@@ -5,6 +5,10 @@ services:
     autoconfigure: true
     public: false
 
+  merconis.routing.scope:
+    class: LeadingSystems\MerconisBundle\Services\Scope
+    public: true
+
   merconis.eventlistener.loginlistener:
     class: LeadingSystems\MerconisBundle\EventListener\LoginListener
     tags:
@@ -40,3 +44,13 @@ services:
       - '@database_connection'
     tags:
       - { name: contao.callback, table: tl_page, target: fields.lsShopLayoutForDetailsView.options }
+
+  merconis.cron.hourly:
+    class: LeadingSystems\MerconisBundle\Cronjob\Hourly
+    tags:
+      - { name: contao.cronjob, interval: hourly }
+
+  merconis.cron.daily:
+    class: LeadingSystems\MerconisBundle\Cronjob\Daily
+    tags:
+      - { name: contao.cronjob, interval: daily }

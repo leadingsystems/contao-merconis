@@ -19,7 +19,7 @@
 			?>
 				<form action="<?php echo \Contao\StringUtil::ampersand(\Environment::get('request')); ?>" method="post" enctype="application/x-www-form-urlencoded">
 					<div>
-						<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}" />
+						<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
 						<input type="hidden" name="FORM_SUBMIT" value="<?php echo $this->str_formSubmitValue; ?>">
 						<input type="hidden" name="restockInfoListProductID" value="<?php echo $this->str_restockInfoListProductId; ?>">
 						<button type="submit" class="submit" name="restockInfoListAddOrRemoveSubmit"><?php echo !$this->bln_isOnRestockInfoList ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText145'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText146']; ?></button>

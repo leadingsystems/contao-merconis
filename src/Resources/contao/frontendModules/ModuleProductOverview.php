@@ -2,9 +2,11 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 class ModuleProductOverview extends \Module {
 	public function generate() {
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$objTemplate = new \BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS ProductOverview ###';
 			return $objTemplate->parse();

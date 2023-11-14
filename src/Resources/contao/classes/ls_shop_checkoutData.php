@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\StringUtil;
+use Contao\System;
 
 class ls_shop_checkoutData {
 	public $arrCheckoutData = array(
@@ -475,7 +476,7 @@ class ls_shop_checkoutData {
 	}
 
 	private function getLoginData() {
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			return;
 		}
 		/*
@@ -955,7 +956,7 @@ class ls_shop_checkoutData {
 		$this->writeCheckoutDataToSession();
 
 		if ($blnReloadRequired) {
-			if (TL_MODE != 'BE') {
+			if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 				if (!\Environment::get('isAjaxRequest')) {
 					\Controller::reload();
 				}
@@ -993,7 +994,7 @@ class ls_shop_checkoutData {
 				case 'payment':
 					if (!ls_shop_generalHelper::checkIfPaymentMethodIsAllowed($this->arrCheckoutData['selectedPaymentMethod'])) {
 						$this->arrCheckoutData['selectedPaymentMethod'] = '';
-						if (TL_MODE != 'BE') {
+						if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 							if (!\Environment::get('isAjaxRequest')) {
 								$this->writeCheckoutDataToSession();
 								\Controller::reload();
@@ -1005,7 +1006,7 @@ class ls_shop_checkoutData {
 				case 'shipping':
 					if (!ls_shop_generalHelper::checkIfShippingMethodIsAllowed($this->arrCheckoutData['selectedShippingMethod'])) {
 						$this->arrCheckoutData['selectedShippingMethod'] = '';
-						if (TL_MODE != 'BE') {
+						if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 							if (!\Environment::get('isAjaxRequest')) {
 								$this->writeCheckoutDataToSession();
 								\Controller::reload();

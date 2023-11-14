@@ -2,6 +2,8 @@
 namespace Merconis\Core;
 
 use Contao\StringUtil;
+use Contao\System;
+
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -2020,7 +2022,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			SELECT		`id`
 			FROM		`tl_ls_shop_variant`
 			WHERE		`pid` = ?
-				".(TL_MODE == 'BE' && (strpos(\Environment::get('request'), 'tl_ls_shop_variant') !== false || strpos(\Environment::get('request'), 'ls_shop_stockManagement') !== false) ? "" : "AND		`published` = '1'")."
+				".(System::getContainer()->get('merconis.routing.scope')->isBackend() && (strpos(\Environment::get('request'), 'tl_ls_shop_variant') !== false || strpos(\Environment::get('request'), 'ls_shop_stockManagement') !== false) ? "" : "AND		`published` = '1'")."
 			ORDER BY	`sorting` ASC
 		");
 
