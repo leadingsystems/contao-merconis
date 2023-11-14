@@ -2,6 +2,10 @@
 
 namespace Merconis\Core;
 
+use Contao\ArrayUtil;
+use Contao\Folder;
+use Contao\StringUtil;
+
 class ls_shop_moreImagesGallery extends \Frontend {
 	protected $strTemplate = 'template_productGallery_01';
 	
@@ -96,7 +100,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * da das erste Bild als Hauptbild anders dargestellt wird.
 		 */
 		if ($this->mainImage) {
-			array_insert($this->multiSRC, 0, $mainImage);
+			ArrayUtil::arrayInsert($this->multiSRC, 0, $mainImage);
 		}
 		$this->id = $id;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
@@ -157,7 +161,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
 			// Process folders (not recursive, only the one given folder!)
 			else {
-				$subfiles = scan(TL_ROOT.'/'.$file);
+				$subfiles = Folder::scan(TL_ROOT.'/'.$file);
 
 				foreach ($subfiles as $subfile) {
 					$subfileName = $file . '/' . $subfile;
@@ -179,10 +183,12 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		switch ($this->ls_moreImagesSortBy) {
 			default:
 			case 'name_asc':
+			    //@TODO: Deprecated to be removed in Contao 5.0.
 				uksort($this->ls_images, 'basename_natcasecmp');
 				break;
 
 			case 'name_desc':
+			    //@TODO: Deprecated to be removed in Contao 5.0.
 				uksort($this->ls_images, 'basename_natcasercmp');
 				break;
 
@@ -217,7 +223,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		 * we insert this image in the first position of the image array
 		 */
 		if ($this->mainImage && isset($mainImageTemp)) {
-			array_insert($this->ls_images, 0, array($mainImageTemp));
+			ArrayUtil::arrayInsert($this->ls_images, 0, array($mainImageTemp));
 		}
 
 		if ($this->ls_imageLimit) {
@@ -228,7 +234,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 	public function lsShopGetProcessedImages($sizeMainImage, $sizeMoreImages) {
 		$this->getImagesSortedAndWithVideoCovers();
 		
-		$mainImageSize = deserialize($sizeMainImage);
+		$mainImageSize = StringUtil::deserialize($sizeMainImage);
 		$intMaxWidth = $mainImageSize[0];
 		$strLightboxId = 'lightbox[lb' . $this->id . ']';
 		

@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\StringUtil;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -307,8 +308,8 @@ class ls_shop_orderMessages
 				'subject' => html_entity_decode($this->ls_replaceWildcards(\Controller::replaceInsertTags($arrMessageModel['multilanguage']['subject']))),
 				'bodyHTML' => $arrMessageModel['useHTML'] ? $objTemplate_emailHTML->parse() : '',
 				'bodyRawtext' => $arrMessageModel['useRawtext'] ? $objTemplate_rawtext->parse() : '',
-				'dynamicPdfAttachmentPaths' => deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),
-				'attachmentPaths' => deserialize($arrMessageModel['multilanguage']['attachments'])
+				'dynamicPdfAttachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),
+				'attachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['attachments'])
 			);
 				
 			$objEmail = new \Email();
@@ -377,7 +378,7 @@ class ls_shop_orderMessages
 				$objEmail->sendTo($arrMessageToSendAndSave['receiverMainAddress']);
 				\System::log('MERCONIS: message sent for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'], 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
 			} catch (\Exception $e) {
-				\System::log('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.standardize($e->getMessage()).')', 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
+				\System::log('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.StringUtil::standardize($e->getMessage()).')', 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
 			}
 			
 			$this->writeDispatchDate($currentMessageTypeID);
