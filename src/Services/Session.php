@@ -19,13 +19,6 @@ class Session {
         $request = $this->requestStack->getCurrentRequest();
         $session = $request->getSession();
 
-        $myfile = fopen("SessionMerconis.txt", "w") or die("Unable to open file!");
-        $txt = "John Doe\n";
-        fwrite($myfile, $txt);
-        $txt = "Jane Doe\n";
-        fwrite($myfile, $txt);
-        fclose($myfile);
-
         return $session;
     }
 
