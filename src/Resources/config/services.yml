@@ -5,6 +5,10 @@ services:
     autoconfigure: true
     public: false
 
+  merconis.routing.scope:
+    class: LeadingSystems\MerconisBundle\Services\Scope
+    public: true
+
   merconis.eventlistener.loginlistener:
     class: LeadingSystems\MerconisBundle\EventListener\LoginListener
     tags:

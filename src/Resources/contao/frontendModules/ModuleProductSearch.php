@@ -1,6 +1,9 @@
 <?php
 
 namespace Merconis\Core;
+
+use Contao\StringUtil;
+use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
 /**
@@ -40,7 +43,7 @@ class ModuleProductSearch extends \Module {
 			exit; // IMPORTANT, otherwise the whole page content would be rendered and returned as the ajax response
 		}
 		
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$objTemplate = new \BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS ProductSearch ###';
 			return $objTemplate->parse();
@@ -170,7 +173,7 @@ class ModuleProductSearch extends \Module {
 		$this->strTemplate = $this->ls_shop_productSearch_template;
 		$this->Template = new \FrontendTemplate($this->strTemplate);
 		
-		$this->Template->action = ampersand(\Environment::get('request'));
+		$this->Template->action = StringUtil::ampersand(\Environment::get('request'));
 		$this->Template->blnUseLiveHits = isset($this->arrLiveHitFields) && is_array($this->arrLiveHitFields) && count($this->arrLiveHitFields);
 
 		$obj_flexWidget_input = new FlexWidget(

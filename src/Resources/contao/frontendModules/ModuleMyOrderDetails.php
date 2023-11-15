@@ -2,12 +2,14 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 class ModuleMyOrderDetails extends \Module {
 	public function generate() {
 		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$objTemplate = new \BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS My order details ###';
 			return $objTemplate->parse();
