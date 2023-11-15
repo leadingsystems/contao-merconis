@@ -149,7 +149,7 @@ class ls_shop_productConfigurator {
 					$this->objCustomLogic = new $customLogicClassName($this);
 				}
 			}
-						
+
 			/*
 			 * Ob sich der Konfigurator im Datenerfassungsmodus befindet oder nicht, wird aus der Session eingelesen, sofern die Information dort vorhanden ist.
 			 * Ist die Information dort nicht vorhanden, so wird der Datenerfassungsmodus abhängig von der im Backend für diesen Konfigurator definierten Starteinstellung gesetzt.
@@ -454,7 +454,14 @@ class ls_shop_productConfigurator {
 		 * Dies ist wichtig, da die Hook-Funktion "ls_shop_configuratorController::ls_shop_configuratorProcessFormData()" nur so in der Lage ist,
 		 * die empfangenen Daten der richtigen Konfigurator-Instanz zuzuweisen.
 		 */
-		$form = preg_replace('/(<form.*>)/', '\\1'."\r\n".'<div><input type="hidden" name="configurator_productVariantID" value="'.$this->configuratorCacheKey.'" /></div>', $form);
+
+        if(VERSION && BUILD && version_compare(VERSION . '.' . BUILD, '4.13.0', '>')){
+            //$form = preg_replace('/(<form.*>)/', '\\1'."\r\n".'<div><input type="hidden" name="configurator_productVariantID" value="'.$this->configuratorCacheKey.'" /></div>', $form);
+        }else{
+            //$form = preg_replace('/(name="configurator_productVariantID")/', '\\1'."\r\n".' value="'.$this->configuratorCacheKey.'"', $form);
+        }
+        $form = preg_replace('/(name="configurator_productVariantID")/', '\\1'."\r\n".' value="'.$this->configuratorCacheKey.'"', $form);
+
 		$form = preg_replace('/(<form.*action=")(.*)(")/siU', '\\1'.Environment::get('request').'#'.$this->arrProductOrVariantData['anchor'].'\\3', $form);
 		$template->form = $form;
 
