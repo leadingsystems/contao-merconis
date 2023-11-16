@@ -184,12 +184,16 @@ class ls_shop_moreImagesGallery extends \Frontend {
 			default:
 			case 'name_asc':
 			    //@TODO: Deprecated to be removed in Contao 5.0.
-				uksort($this->ls_images, 'basename_natcasecmp');
+				uksort($this->ls_images, static function ($a, $b): int {
+                    return strnatcasecmp(basename($a), basename($b));
+				});
 				break;
 
 			case 'name_desc':
 			    //@TODO: Deprecated to be removed in Contao 5.0.
-				uksort($this->ls_images, 'basename_natcasercmp');
+				uksort($this->ls_images, static function ($a, $b): int {
+                    return -strnatcasecmp(basename($a), basename($b));
+				});
 				break;
 
 			case 'date_asc':
@@ -216,6 +220,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 				});
 				break;
 		}
+lsDebugLog($this->ls_images, 'Die Liste NACH der Sortierung');
 		$this->ls_images = array_values($this->ls_images);
 
 		/*
