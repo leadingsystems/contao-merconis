@@ -220,7 +220,6 @@ class ls_shop_moreImagesGallery extends \Frontend {
 				});
 				break;
 		}
-lsDebugLog($this->ls_images, 'Die Liste NACH der Sortierung');
 		$this->ls_images = array_values($this->ls_images);
 
 		/*
