@@ -82,11 +82,11 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 	
 	public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
         $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
 
-        $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
-        $session->set('lsShop', $session_lsShopCart);
+        $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+        $session->set('lsShop', $session_lsShop);
 		
 		$obj_payment = Payment::get($arrSessionlsShopPaymentProcess['payPalPlus']['paymentId'], $this->payPalPlus_obj_apiContext);
 		$obj_execute = new PaymentExecution();

@@ -20,7 +20,7 @@ class ls_shop_configuratorController
 		$GLOBALS['merconis_globals']['configurator']['currentlySubmittedFormID'] = $arrForm['id'];
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
 		// Keine Formular-Verarbeitung, die den Konfigurator etwas angeht, also Abbruch!
 		if (!isset($arrSubmitted['configurator_productVariantID']) || !$arrSubmitted['configurator_productVariantID']) {
@@ -32,25 +32,25 @@ class ls_shop_configuratorController
 		/*
 		 * Memorize the product variant id in the array of product variant ids for which the configurator has already been used
 		 */
-		if (!isset($session_lsShopCart['productVariantIDsAlreadyConfigured']) || !is_array($session_lsShopCart['productVariantIDsAlreadyConfigured'])) {
-            $session_lsShopCart['productVariantIDsAlreadyConfigured'] = array();
+		if (!isset($session_lsShop['productVariantIDsAlreadyConfigured']) || !is_array($session_lsShop['productVariantIDsAlreadyConfigured'])) {
+            $session_lsShop['productVariantIDsAlreadyConfigured'] = array();
 		}
-		if (!in_array($arrSubmitted['configurator_productVariantID'], $session_lsShopCart['productVariantIDsAlreadyConfigured'])) {
-            $session_lsShopCart['productVariantIDsAlreadyConfigured'][] = $arrSubmitted['configurator_productVariantID'];
+		if (!in_array($arrSubmitted['configurator_productVariantID'], $session_lsShop['productVariantIDsAlreadyConfigured'])) {
+            $session_lsShop['productVariantIDsAlreadyConfigured'][] = $arrSubmitted['configurator_productVariantID'];
 		}
 		
 		// Wenn das Configurator-Session-Array noch keinen Key für die aktuell zu verarbeitende configurator-ProduktVarianten-ID enthält, so wird er erstellt
-		if (!isset($session_lsShopCart['configurator'][$arrSubmitted['configurator_productVariantID']])) {
-            $session_lsShopCart['configurator'][$arrSubmitted['configurator_productVariantID']] = array();
+		if (!isset($session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']])) {
+            $session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']] = array();
 		}
 		
 		// Setzen des Flags, das für die Konfigurator-Klasse kennzeichnet, dass zugehörige Daten empfangen wurden
-        $session_lsShopCart['configurator'][$arrSubmitted['configurator_productVariantID']]['blnReceivedFormDataJustNow'] = true;
+        $session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']]['blnReceivedFormDataJustNow'] = true;
 		
 
 		
 		// Das Received-Post-Array wird zunächst geleert ...
-        $session_lsShopCart['configurator'][$arrSubmitted['configurator_productVariantID']]['arrReceivedPost'] = array();
+        $session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']]['arrReceivedPost'] = array();
 		
 		// ... dann werden die Datenbankfelder für das aktuelle Formular ausgelesen ...
 		$objFormFields = Database::getInstance()->prepare("
@@ -71,10 +71,10 @@ class ls_shop_configuratorController
 		// ... dann Durchlaufen der ermittelten Formularfelder ...
 		while ($objFormFields->next()) {
 			// ... und für jedes ermittelte Formularfeld einen Eintrag im Received-Post-Array machen, welches die Feldinformationen sowie als Value den per Post übergebenen Wert enthält.
-            $session_lsShopCart['configurator'][$arrSubmitted['configurator_productVariantID']]['arrReceivedPost'][$objFormFields->name] = array(
+            $session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']]['arrReceivedPost'][$objFormFields->name] = array(
 				'name' => $objFormFields->name,
 				'arrData' => $objFormFields->row(),
-				'value' => $arrSubmitted[$objFormFields->name] ? $arrSubmitted[$objFormFields->name] : ''
+				'value' => $arrSubmitted[$objFormFields->name] /*? $arrSubmitted[$objFormFields->name] : ''*/
 			);
 		}
 		
@@ -88,8 +88,19 @@ class ls_shop_configuratorController
 		/*
 		 * Generate the configuratorHash and write it to the session
 		 */
-        $session_lsShopCart['configurator'][$arrSubmitted['configurator_productVariantID']]['strConfiguratorHash'] = sha1(serialize($session_lsShopCart['configurator'][$arrSubmitted['configurator_productVariantID']]['arrReceivedPost']));
-        $session->set('lsShop', $session_lsShopCart);
+        $session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']]['strConfiguratorHash'] = sha1(serialize($session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']]['arrReceivedPost']));
+
+        $myfile = fopen("ausgabe beim eintragen der daten.txt", "w") or die("Unable to open file!");
+
+        fwrite($myfile, "\n");
+        fwrite($myfile,  json_encode( $session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']]['arrReceivedPost']));
+        fwrite($myfile, "\n");
+        fwrite($myfile,  "------------");
+
+        fclose($myfile);
+
+
+        $session->set('lsShop', $session_lsShop);
 	}
 	
 	/*

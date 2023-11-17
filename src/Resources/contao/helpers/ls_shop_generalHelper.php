@@ -1274,20 +1274,20 @@ class ls_shop_generalHelper
     public static function getVATIDValidationResult($VATID = false)
     {
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
         if (
             !$VATID
-            || !isset($session_lsShopCart['checkedVATID'][$VATID])
-            || !is_array($session_lsShopCart['checkedVATID'][$VATID])
-            || !isset($session_lsShopCart['checkedVATID'][$VATID]['valid'])
-            || $session_lsShopCart['checkedVATID'][$VATID]['valid'] === null
+            || !isset($session_lsShop['checkedVATID'][$VATID])
+            || !is_array($session_lsShop['checkedVATID'][$VATID])
+            || !isset($session_lsShop['checkedVATID'][$VATID]['valid'])
+            || $session_lsShop['checkedVATID'][$VATID]['valid'] === null
         ) {
             return 'VALIDATION IMPOSSIBLE';
-        } else if (!$session_lsShopCart['checkedVATID'][$VATID]['valid']) {
+        } else if (!$session_lsShop['checkedVATID'][$VATID]['valid']) {
             return 'NOT VALID';
         }
 
-        return 'VALID, Name: ' . ($session_lsShopCart['checkedVATID'][$VATID]['arrDetails']->name ? preg_replace('/\n/', ' ', $session_lsShopCart['checkedVATID'][$VATID]['arrDetails']->name) : 'unknown') . ', Address: ' . ($session_lsShopCart['checkedVATID'][$VATID]['arrDetails']->address ? preg_replace('/\n/', ' ', $session_lsShopCart['checkedVATID'][$VATID]['arrDetails']->address) : 'unknown');
+        return 'VALID, Name: ' . ($session_lsShop['checkedVATID'][$VATID]['arrDetails']->name ? preg_replace('/\n/', ' ', $session_lsShop['checkedVATID'][$VATID]['arrDetails']->name) : 'unknown') . ', Address: ' . ($session_lsShop['checkedVATID'][$VATID]['arrDetails']->address ? preg_replace('/\n/', ' ', $session_lsShop['checkedVATID'][$VATID]['arrDetails']->address) : 'unknown');
     }
 
     public static function calculateScaledPrice($price, $obj_productOrVariant)
@@ -1353,10 +1353,10 @@ class ls_shop_generalHelper
              * for the product's or variant's productVariantID, and if there is one, we use its configurator hash.
              */
             $session = System::getContainer()->get('merconis.session')->getSession();
-            $session_lsShopCart =  $session->get('lsShop', []);
+            $session_lsShop =  $session->get('lsShop', []);
 
-            if (isset($session_lsShopCart ['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'])) {
-                $configuratorHash = $session_lsShopCart ['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'];
+            if (isset($session_lsShop ['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'])) {
+                $configuratorHash = $session_lsShop ['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'];
             } /*
 			 * If we did not find a configurator hash in the session, we generate the default configurator hash.
 			 */
@@ -2662,15 +2662,15 @@ class ls_shop_generalHelper
     public static function addToLastSeenProducts($productID)
     {
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-        if (!isset($session_lsShopCart['lastSeenProducts'])) {
-            $session_lsShopCart['lastSeenProducts'] = array();
+        if (!isset($session_lsShop['lastSeenProducts'])) {
+            $session_lsShop['lastSeenProducts'] = array();
         }
 
-        ArrayUtil::arrayInsert($session_lsShopCart['lastSeenProducts'], 0, array($productID));
+        array_insert($session_lsShop['lastSeenProducts'], 0, array($productID));
 
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
     }
 
     /*

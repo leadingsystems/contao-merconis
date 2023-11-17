@@ -1104,10 +1104,10 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 				 */
 				:
                 $session = \System::getContainer()->get('merconis.session')->getSession();
-                $session_lsShopCart =  $session->get('lsShop', []);
+                $session_lsShop =  $session->get('lsShop', []);
 
-				if (isset($session_lsShopCart['filter']['matchedVariants'][$this->_id])) {
-					return $session_lsShopCart['filter']['matchedVariants'][$this->_id];
+				if (isset($session_lsShop['filter']['matchedVariants'][$this->_id])) {
+					return $session_lsShop['filter']['matchedVariants'][$this->_id];
 				} else {
 					switch ($this->_objParentProduct->_filterMatch) {
 						case 'complete':
