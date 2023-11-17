@@ -6,27 +6,27 @@ class ls_shop_filterHelper {
         global $objPage;
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
         $arr_filterSummary = [
             'arr_attributes' => [],
-            'arr_producers' => $session_lsShopCart['filter']['criteriaToActuallyFilterWith']['producers'] ?? null,
-            'arr_price' => $session_lsShopCart['filter']['criteriaToActuallyFilterWith']['price'] ?? null,
+            'arr_producers' => $session_lsShop['filter']['criteriaToActuallyFilterWith']['producers'] ?? null,
+            'arr_price' => $session_lsShop['filter']['criteriaToActuallyFilterWith']['price'] ?? null,
         ];
 
         $arr_filterAllFields = [
             'arr_attributes' => [],
-            'arr_producers' => $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['producers'],
-            'arr_price' => $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['price'],
+            'arr_producers' => $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers'],
+            'arr_price' => $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['price'],
         ];
 
-        if (is_array($session_lsShopCart['filter']['criteriaToActuallyFilterWith']['attributes'] ?? null)) {
-            foreach ($session_lsShopCart['filter']['criteriaToActuallyFilterWith']['attributes'] as $int_filterAttributeId => $arr_filterValues) {
+        if (is_array($session_lsShop['filter']['criteriaToActuallyFilterWith']['attributes'] ?? null)) {
+            foreach ($session_lsShop['filter']['criteriaToActuallyFilterWith']['attributes'] as $int_filterAttributeId => $arr_filterValues) {
                 $str_filterAttributeName = ls_shop_languageHelper::getMultiLanguage($int_filterAttributeId, 'tl_ls_shop_attributes', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
                 $arr_filterSummary['arr_attributes'][$int_filterAttributeId] = [
                     'str_title' => $str_filterAttributeName,
                     'arr_values' => [],
-                    'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$session_lsShopCart['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId]]
+                    'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$session_lsShop['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId]]
                 ];
 
                 foreach ($arr_filterValues as $int_filterValueId) {
@@ -48,23 +48,23 @@ class ls_shop_filterHelper {
              * or no values for the current attribute, we don't create a summary item
              */
             if (
-                !is_array($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'])
-                || !count($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'])
-                || !isset($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
-                || !is_array($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
-                || !count($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+                !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'])
+                || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'])
+                || !isset($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+                || !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+                || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
             ) {
                 continue;
             }
 
             $int_filterAttributeId = $arrFilterFieldInfo['sourceAttribute'];
-            $arr_filterValues = $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'][$int_filterAttributeId];
+            $arr_filterValues = $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$int_filterAttributeId];
 
             $str_filterAttributeName = ls_shop_languageHelper::getMultiLanguage($int_filterAttributeId, 'tl_ls_shop_attributes', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
             $arr_filterAllFields['arr_attributes'][$int_filterAttributeId] = [
                 'str_title' => $str_filterAttributeName,
                 'arr_values' => [],
-                'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$session_lsShopCart['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId] ?? null] ?? null
+                'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$session_lsShop['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId] ?? null] ?? null
             ];
 
             foreach ($arr_filterValues as $int_filterValueId) {
@@ -176,9 +176,9 @@ class ls_shop_filterHelper {
 
 	public static function createEmptyFilterSession() {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-        $session_lsShopCart['filter'] = array(
+        $session_lsShop['filter'] = array(
 			'criteria' => array(
 				'attributes' => array(),
 				'price' => array(
@@ -204,7 +204,7 @@ class ls_shop_filterHelper {
 			'lastResetTimestamp' => time(),
 			'noMatchEstimatesDetermined' => false
 		);
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function getFilterFieldValues($arrFilterFieldInfo = null) {
@@ -272,9 +272,9 @@ class ls_shop_filterHelper {
 
 	public static function resetCriteriaToUseInFilterForm() {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-        $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm'] = array(
+        $session_lsShop['filter']['arrCriteriaToUseInFilterForm'] = array(
 			'attributes' => array(),
 			'price' => array(
 				'low' => null,
@@ -282,33 +282,33 @@ class ls_shop_filterHelper {
 			),
 			'producers' => array()
 		);
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function addPriceToCriteriaUsedInFilterForm($price, $where = 'arrCriteriaToUseInFilterForm') {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-		if ($session_lsShopCart['filter'][$where]['price']['low'] === null || $price < $session_lsShopCart['filter'][$where]['price']['low']) {
-            $session_lsShopCart['filter'][$where]['price']['low'] = $price;
+		if ($session_lsShop['filter'][$where]['price']['low'] === null || $price < $session_lsShop['filter'][$where]['price']['low']) {
+            $session_lsShop['filter'][$where]['price']['low'] = $price;
 		}
-		if ($session_lsShopCart['filter'][$where]['price']['high'] === null || $price > $session_lsShopCart['filter'][$where]['price']['high']) {
-            $session_lsShopCart['filter'][$where]['price']['high'] = $price;
+		if ($session_lsShop['filter'][$where]['price']['high'] === null || $price > $session_lsShop['filter'][$where]['price']['high']) {
+            $session_lsShop['filter'][$where]['price']['high'] = $price;
 		}
 
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function addProducerToCriteriaUsedInFilterForm($strProducer = '', $where = 'arrCriteriaToUseInFilterForm') {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-		if (!$strProducer || in_array($strProducer, $session_lsShopCart['filter'][$where]['producers'])) {
+		if (!$strProducer || in_array($strProducer, $session_lsShop['filter'][$where]['producers'])) {
 			return;
 		}
 
-        $session_lsShopCart['filter'][$where]['producers'][] = $strProducer;
-        $session->set('lsShop', $session_lsShopCart);
+        $session_lsShop['filter'][$where]['producers'][] = $strProducer;
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function addAttributeValueToCriteriaUsedInFilterForm($attributeID = null, $varAttributeValueID = null, $where = 'arrCriteriaToUseInFilterForm') {
@@ -324,17 +324,17 @@ class ls_shop_filterHelper {
 		}
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-		if (!isset($session_lsShopCart['filter'][$where]['attributes'][$attributeID])) {
-            $session_lsShopCart['filter'][$where]['attributes'][$attributeID] = array();
+		if (!isset($session_lsShop['filter'][$where]['attributes'][$attributeID])) {
+            $session_lsShop['filter'][$where]['attributes'][$attributeID] = array();
 		}
 
-		if (!in_array($varAttributeValueID, $session_lsShopCart['filter'][$where]['attributes'][$attributeID])) {
-            $session_lsShopCart['filter'][$where]['attributes'][$attributeID][] = $varAttributeValueID;
+		if (!in_array($varAttributeValueID, $session_lsShop['filter'][$where]['attributes'][$attributeID])) {
+            $session_lsShop['filter'][$where]['attributes'][$attributeID][] = $varAttributeValueID;
 		}
 
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	/*
@@ -349,10 +349,10 @@ class ls_shop_filterHelper {
 	 */
 	public static function checkIfProductMatchesFilter($arrProductInfo = null, $arrCriteriaToFilterWith = null, $blnStoreProductAndVariantMatchesInSession = true, &$numVariantMatches = 0) {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
 		if (!$arrCriteriaToFilterWith) {
-			$arrCriteriaToFilterWith = $session_lsShopCart['filter']['criteriaToActuallyFilterWith'];
+			$arrCriteriaToFilterWith = $session_lsShop['filter']['criteriaToActuallyFilterWith'];
 		}
 
 		$blnWholeProductCouldStillMatch = true;
@@ -388,7 +388,7 @@ class ls_shop_filterHelper {
 					 * the product is a match for this attribute, otherwise it's
 					 * not and we return false.
 					 */
-					if (($session_lsShopCart['filter']['filterModeSettingsByAttributes'][$attributeID] ?? null) === 'and') {
+					if (($session_lsShop['filter']['filterModeSettingsByAttributes'][$attributeID] ?? null) === 'and') {
 						if (count(array_intersect($attributeValueIDs, $arrProductInfo['attributeValueIDs'])) !== count($attributeValueIDs)) {
 							$blnWholeProductCouldStillMatch = false;
 							break;
@@ -461,8 +461,8 @@ class ls_shop_filterHelper {
 			 */
 			$numVariantMatches += count ($arrProductInfo['variants']);
 			if ($blnStoreProductAndVariantMatchesInSession) {
-                $session_lsShopCart['filter']['matchedProducts'][$arrProductInfo['id']] = 'complete';
-                $session->set('lsShop', $session_lsShopCart);
+                $session_lsShop['filter']['matchedProducts'][$arrProductInfo['id']] = 'complete';
+                $session->set('lsShop', $session_lsShop);
 			}
 			return true;
 		} else if ($blnVariantsCouldStillMatch) {
@@ -508,7 +508,7 @@ class ls_shop_filterHelper {
 							 * otherwise it's not and we return false.
 							 */
 
-							if (($session_lsShopCart['filter']['filterModeSettingsByAttributes'][$attributeID] ?? null) === 'and') {
+							if (($session_lsShop['filter']['filterModeSettingsByAttributes'][$attributeID] ?? null) === 'and') {
 								if (count(array_intersect($attributeValueIDs, $arrVariantInfo['mergedProductAndVariantAttributeValueIDs'])) !== count($attributeValueIDs)) {
 									$blnThisVariantCouldStillMatch = false;
 									break;
@@ -549,15 +549,15 @@ class ls_shop_filterHelper {
 					$numVariantMatches++;
 
 					if ($blnStoreProductAndVariantMatchesInSession) {
-                        $session_lsShopCart['filter']['matchedVariants'][$arrVariantInfo['id']] = true;
-                        $session->set('lsShop', $session_lsShopCart);
+                        $session_lsShop['filter']['matchedVariants'][$arrVariantInfo['id']] = true;
+                        $session->set('lsShop', $session_lsShop);
 					}
 					$blnPartialMatchForProductConfirmed = true;
 					$numMatchingVariants++;
 				} else {
 					if ($blnStoreProductAndVariantMatchesInSession) {
-                        $session_lsShopCart['filter']['matchedVariants'][$arrVariantInfo['id']] = false;
-                        $session->set('lsShop', $session_lsShopCart);
+                        $session_lsShop['filter']['matchedVariants'][$arrVariantInfo['id']] = false;
+                        $session->set('lsShop', $session_lsShop);
 					}
 				}
 			}
@@ -570,8 +570,8 @@ class ls_shop_filterHelper {
 			 */
 			if (!$blnPartialMatchForProductConfirmed) {
 				if ($blnStoreProductAndVariantMatchesInSession) {
-                    $session_lsShopCart['filter']['matchedProducts'][$arrProductInfo['id']] = 'none';
-                    $session->set('lsShop', $session_lsShopCart);
+                    $session_lsShop['filter']['matchedProducts'][$arrProductInfo['id']] = 'none';
+                    $session->set('lsShop', $session_lsShop);
 				}
 				return false;
 			} else {
@@ -585,13 +585,13 @@ class ls_shop_filterHelper {
 				 */
 				if ($numMatchingVariants < count($arrProductInfo['variants'])) {
 					if ($blnStoreProductAndVariantMatchesInSession) {
-                        $session_lsShopCart['filter']['matchedProducts'][$arrProductInfo['id']] = 'partial';
-                        $session->set('lsShop', $session_lsShopCart);
+                        $session_lsShop['filter']['matchedProducts'][$arrProductInfo['id']] = 'partial';
+                        $session->set('lsShop', $session_lsShop);
 					}
 				} else {
 					if ($blnStoreProductAndVariantMatchesInSession) {
-                        $session_lsShopCart['filter']['matchedProducts'][$arrProductInfo['id']] = 'complete';
-                        $session->set('lsShop', $session_lsShopCart);
+                        $session_lsShop['filter']['matchedProducts'][$arrProductInfo['id']] = 'complete';
+                        $session->set('lsShop', $session_lsShop);
 					}
 				}
 				return true;
@@ -603,8 +603,8 @@ class ls_shop_filterHelper {
 			 * we can only return false here and filter out the whole product
 			 */
 			if ($blnStoreProductAndVariantMatchesInSession) {
-                $session_lsShopCart['filter']['matchedProducts'][$arrProductInfo['id']] = 'none';
-                $session->set('lsShop', $session_lsShopCart);
+                $session_lsShop['filter']['matchedProducts'][$arrProductInfo['id']] = 'none';
+                $session->set('lsShop', $session_lsShop);
 			}
 			return false;
 		}
@@ -612,12 +612,12 @@ class ls_shop_filterHelper {
 
 	public static function resetMatchedProductsAndVariants() {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-        $session_lsShopCart['filter']['matchedProducts'] = array();
-        $session_lsShopCart['filter']['matchedVariants'] = array();
+        $session_lsShop['filter']['matchedProducts'] = array();
+        $session_lsShop['filter']['matchedVariants'] = array();
 
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function adaptFilterCriteriaToCurrentFilterFormCriteria() {
@@ -629,44 +629,44 @@ class ls_shop_filterHelper {
 		ls_shop_filterHelper::resetMatchedProductsAndVariants();
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
 		/*
 		 * Get the attributes that are actually relevant for the current filtering process
 		 *
 		 */
-        $session_lsShopCart['filter']['criteriaToActuallyFilterWith'] = $session_lsShopCart['filter']['criteria'];
+        $session_lsShop['filter']['criteriaToActuallyFilterWith'] = $session_lsShop['filter']['criteria'];
 
 		/*
 		 * Walk through each attribute in the filter
 		 */
-		foreach ($session_lsShopCart['filter']['criteriaToActuallyFilterWith']['attributes'] as $attributeID => $arrAttributeValues) {
+		foreach ($session_lsShop['filter']['criteriaToActuallyFilterWith']['attributes'] as $attributeID => $arrAttributeValues) {
 			/*
 			 * Check for each attributeID if it is part of the criteria to use in the filter form
 			 */
-			if (!isset($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'][$attributeID])) {
+			if (!isset($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$attributeID])) {
 				/*
 				 * and if it's not, remove the entire attribute
 				 */
-				unset ($session_lsShopCart['filter']['criteriaToActuallyFilterWith']['attributes'][$attributeID]);
+				unset ($session_lsShop['filter']['criteriaToActuallyFilterWith']['attributes'][$attributeID]);
 			} else {
 				/*
 				 * and if it is, we walk through each attributeValue and check if it exists in
 				 * the criteria to use in the filter form.
 				 */
 				foreach ($arrAttributeValues as $k => $attributeValueID) {
-					if (!in_array($attributeValueID, $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'][$attributeID])) {
+					if (!in_array($attributeValueID, $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$attributeID])) {
 						// and if it's not...
-						if (count($session_lsShopCart['filter']['criteriaToActuallyFilterWith']['attributes'][$attributeID]) > 1) {
+						if (count($session_lsShop['filter']['criteriaToActuallyFilterWith']['attributes'][$attributeID]) > 1) {
 							/*
 							 * we have to remove the attributeValue from the filter
 							 */
-							unset ($session_lsShopCart['filter']['criteriaToActuallyFilterWith']['attributes'][$attributeID][$k]);
+							unset ($session_lsShop['filter']['criteriaToActuallyFilterWith']['attributes'][$attributeID][$k]);
 						} else {
 							/*
 							 * or we have to remove the entire attribute because this was it's only attributeValue in the filter
 							 */
-							unset ($session_lsShopCart['filter']['criteriaToActuallyFilterWith']['attributes'][$attributeID]);
+							unset ($session_lsShop['filter']['criteriaToActuallyFilterWith']['attributes'][$attributeID]);
 						}
 					}
 				}
@@ -676,22 +676,22 @@ class ls_shop_filterHelper {
 		/*
 		 * Reset the producers that are no longer available in the filter form
 		 */
-		foreach ($session_lsShopCart['filter']['criteriaToActuallyFilterWith']['producers'] as $k => $producer) {
-			if (!in_array($producer, $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['producers'])) {
-				unset ($session_lsShopCart['filter']['criteriaToActuallyFilterWith']['producers'][$k]);
+		foreach ($session_lsShop['filter']['criteriaToActuallyFilterWith']['producers'] as $k => $producer) {
+			if (!in_array($producer, $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers'])) {
+				unset ($session_lsShop['filter']['criteriaToActuallyFilterWith']['producers'][$k]);
 			}
 		};
 
 		/*
 		 * Reset the price range if it is no longer in the filter form
 		 */
-		if ($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['price']['low'] == $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
-            $session_lsShopCart['filter']['criteriaToActuallyFilterWith']['price'] = array(
+		if ($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['price']['low'] == $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
+            $session_lsShop['filter']['criteriaToActuallyFilterWith']['price'] = array(
 				'low' => null,
 				'high' => null
 			);
 		}
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function setCriteriaToUseInFilterForm($arrProductsComplete = array()) {
@@ -730,18 +730,18 @@ class ls_shop_filterHelper {
 		 * is only one possible value and producers if there is only one possible producer
 		 */
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-		foreach ($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $attributeID => $arrAttributeValueIDs) {
+		foreach ($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $attributeID => $arrAttributeValueIDs) {
 			if (count($arrAttributeValueIDs) < 2) {
-				unset($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'][$attributeID]);
+				unset($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$attributeID]);
 			}
 		}
 
-		if (count($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['producers']) < 2) {
-            $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['producers'] = array();
+		if (count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers']) < 2) {
+            $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers'] = array();
 		}
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 		/*
 		 * #######################################
 		 */
@@ -774,20 +774,20 @@ class ls_shop_filterHelper {
 
 	public static function handleFilterModeSettings() {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-		if (!isset($session_lsShopCart['filter']['filterModeSettingsByAttributes'])) {
-            $session_lsShopCart['filter']['filterModeSettingsByAttributes'] = array();
+		if (!isset($session_lsShop['filter']['filterModeSettingsByAttributes'])) {
+            $session_lsShop['filter']['filterModeSettingsByAttributes'] = array();
 		}
 
 		$arr_filterModeInput = \Input::post('filterModeForAttribute');
 
 		if (is_array($arr_filterModeInput)) {
 			foreach ($arr_filterModeInput as $var_attribute => $str_filterMode) {
-                $session_lsShopCart['filter']['filterModeSettingsByAttributes'][$var_attribute] = $str_filterMode;
+                $session_lsShop['filter']['filterModeSettingsByAttributes'][$var_attribute] = $str_filterMode;
 			}
 		}
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function setFilter($what = '', $varValue) {
@@ -796,7 +796,7 @@ class ls_shop_filterHelper {
 		}
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
 		/*
 		 * If the filter settings get altered, we have to reset the matchedProducts
@@ -808,7 +808,7 @@ class ls_shop_filterHelper {
 		switch ($what) {
 			case 'attributes':
 				if (!$varValue['value']) {
-					unset($session_lsShopCart['filter']['criteria']['attributes'][$varValue['attributeID']]);
+					unset($session_lsShop['filter']['criteria']['attributes'][$varValue['attributeID']]);
 				} else {
 					$varValue['value'] = is_array($varValue['value']) ? $varValue['value'] : array($varValue['value']);
 
@@ -817,10 +817,10 @@ class ls_shop_filterHelper {
 					 * because they weren't even part of the filter form should be added. The reason is, that we don't want filter criteria
 					 * to be reset by submitting a filter form if the user didn't intentionally uncheck them.
 					 */
-					if (isset($session_lsShopCart['filter']['criteria']['attributes'][$varValue['attributeID']]) && is_array($session_lsShopCart['filter']['criteria']['attributes'][$varValue['attributeID']])) {
-						foreach ($session_lsShopCart['filter']['criteria']['attributes'][$varValue['attributeID']] as $attributeValueIDCurrentlyInFilter) {
+					if (isset($session_lsShop['filter']['criteria']['attributes'][$varValue['attributeID']]) && is_array($session_lsShop['filter']['criteria']['attributes'][$varValue['attributeID']])) {
+						foreach ($session_lsShop['filter']['criteria']['attributes'][$varValue['attributeID']] as $attributeValueIDCurrentlyInFilter) {
 							if (
-								!in_array($attributeValueIDCurrentlyInFilter, $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'][$varValue['attributeID']])
+								!in_array($attributeValueIDCurrentlyInFilter, $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$varValue['attributeID']])
 								&&	!in_array($attributeValueIDCurrentlyInFilter, $varValue['value'])
 							) {
 								$varValue['value'][] = $attributeValueIDCurrentlyInFilter;
@@ -835,22 +835,22 @@ class ls_shop_filterHelper {
 					}
 
 					if (!count($varValue['value'])) {
-						unset($session_lsShopCart['filter']['criteria']['attributes'][$varValue['attributeID']]);
+						unset($session_lsShop['filter']['criteria']['attributes'][$varValue['attributeID']]);
 						break;
 					}
 
-                    $session_lsShopCart['filter']['criteria']['attributes'][$varValue['attributeID']] = $varValue['value'];
+                    $session_lsShop['filter']['criteria']['attributes'][$varValue['attributeID']] = $varValue['value'];
 				}
 				break;
 
 			case 'price':
-                $session_lsShopCart['filter']['criteria']['price']['low'] = $varValue['low'];
-                $session_lsShopCart['filter']['criteria']['price']['high'] = $varValue['high'];
+                $session_lsShop['filter']['criteria']['price']['low'] = $varValue['low'];
+                $session_lsShop['filter']['criteria']['price']['high'] = $varValue['high'];
 				break;
 
 			case 'producers':
 				if (!$varValue) {
-                    $session_lsShopCart['filter']['criteria']['producers'] = array();
+                    $session_lsShop['filter']['criteria']['producers'] = array();
 				} else {
 					$varValue = is_array($varValue) ? $varValue : array($varValue);
 
@@ -859,9 +859,9 @@ class ls_shop_filterHelper {
 					 * because they weren't even part of the filter form should be added. The reason is, that we don't want filter criteria
 					 * to be reset by submitting a filter form if the user didn't intentionally uncheck them.
 					 */
-					foreach ($session_lsShopCart['filter']['criteria']['producers'] as $producerCurrentlyInFilter) {
+					foreach ($session_lsShop['filter']['criteria']['producers'] as $producerCurrentlyInFilter) {
 						if (
-							!in_array($producerCurrentlyInFilter, $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['producers'])
+							!in_array($producerCurrentlyInFilter, $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers'])
 							&&	!in_array($producerCurrentlyInFilter, $varValue)
 						) {
 							$varValue[] = $producerCurrentlyInFilter;
@@ -874,11 +874,11 @@ class ls_shop_filterHelper {
 						}
 					}
 
-                    $session_lsShopCart['filter']['criteria']['producers'] = $varValue;
+                    $session_lsShop['filter']['criteria']['producers'] = $varValue;
 				}
 				break;
 		}
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function getMatchesInProductResultSet($arrProductsResultSet = array(), $arrCriteriaToFilterWith = null, $blnStoreProductAndVariantMatchesInSession = true) {
@@ -909,39 +909,39 @@ class ls_shop_filterHelper {
 	 */
 	public static function getEstimatedMatchNumbers($arrProductsResultSet = array()) {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-        $session_lsShopCart['filter']['matchEstimates']['attributeValues'] = array();
-        $session_lsShopCart['filter']['matchEstimates']['producers'] = array();
+        $session_lsShop['filter']['matchEstimates']['attributeValues'] = array();
+        $session_lsShop['filter']['matchEstimates']['producers'] = array();
 		if (!isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) || !$GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) {
-            $session->set('lsShop', $session_lsShopCart);
+            $session->set('lsShop', $session_lsShop);
 			return;
 		}
 
-        $session_lsShopCart['filter']['noMatchEstimatesDetermined'] = false;
+        $session_lsShop['filter']['noMatchEstimatesDetermined'] = false;
 		if (
 			isset($GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxNumProducts'])
 			&&	$GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxNumProducts'] > 0
 			&& count($arrProductsResultSet) > $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxNumProducts']
 		) {
-            $session_lsShopCart['filter']['noMatchEstimatesDetermined'] = true;
-            $session->set('lsShop', $session_lsShopCart);
+            $session_lsShop['filter']['noMatchEstimatesDetermined'] = true;
+            $session->set('lsShop', $session_lsShop);
 			return;
 		}
 
 		$numFilterValuesToDetermineEstimatesFor = 0;
-		foreach ($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $arrAttributeValues) {
+		foreach ($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $arrAttributeValues) {
 			$numFilterValuesToDetermineEstimatesFor += count($arrAttributeValues);
 		}
-		$numFilterValuesToDetermineEstimatesFor += count($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['producers']);
+		$numFilterValuesToDetermineEstimatesFor += count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers']);
 
 		if (
 			isset($GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxFilterValues'])
 			&&	$GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxFilterValues'] > 0
 			&& $numFilterValuesToDetermineEstimatesFor > $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxFilterValues']
 		) {
-            $session_lsShopCart['filter']['noMatchEstimatesDetermined'] = true;
-            $session->set('lsShop', $session_lsShopCart);
+            $session_lsShop['filter']['noMatchEstimatesDetermined'] = true;
+            $session->set('lsShop', $session_lsShop);
 			return;
 		}
 
@@ -952,8 +952,8 @@ class ls_shop_filterHelper {
 		 * Walk through all attributes used in the filter form and create an array with filter criteria that does not
 		 * include the current attribute
 		 */
-		foreach ($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $attributeID => $arrAttributeValues) {
-			$tmpCriteriaToFilterWith = $session_lsShopCart['filter']['criteriaToActuallyFilterWith'];
+		foreach ($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $attributeID => $arrAttributeValues) {
+			$tmpCriteriaToFilterWith = $session_lsShop['filter']['criteriaToActuallyFilterWith'];
 
 			/*
 			 * Remove the current attribute from the criteria array
@@ -978,7 +978,7 @@ class ls_shop_filterHelper {
 				/*
 				 * Storing the number of matches
 				 */
-                $session_lsShopCart['filter']['matchEstimates']['attributeValues'][$attributeValueID] = array(
+                $session_lsShop['filter']['matchEstimates']['attributeValues'][$attributeValueID] = array(
 					'products' => $arrFilterMatches['numMatching'],
 					'variants' => $arrFilterMatches['numVariantsMatching']
 				);
@@ -988,7 +988,7 @@ class ls_shop_filterHelper {
 		/*
 		 * Getting the estimates for the producers
 		 */
-		$tmpCriteriaToFilterWith = $session_lsShopCart['filter']['criteriaToActuallyFilterWith'];
+		$tmpCriteriaToFilterWith = $session_lsShop['filter']['criteriaToActuallyFilterWith'];
 
 		/*
 		 * Remove the producers from the criteria array
@@ -999,7 +999,7 @@ class ls_shop_filterHelper {
 		 * Walk through all the producers and create a temporary filter criteria array in which the current
 		 * producer is added
 		 */
-		foreach ($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']['producers'] as $producerValue) {
+		foreach ($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers'] as $producerValue) {
 			$tmpCriteriaToFilterWithPlusCurrentValue = $tmpCriteriaToFilterWith;
 			$tmpCriteriaToFilterWithPlusCurrentValue['producers'] = array($producerValue);
 
@@ -1011,11 +1011,11 @@ class ls_shop_filterHelper {
 			/*
 			 * Storing the number of matches
 			 */
-            $session_lsShopCart['filter']['matchEstimates']['producers'][md5($producerValue)] = array(
+            $session_lsShop['filter']['matchEstimates']['producers'][md5($producerValue)] = array(
 				'products' => $arrFilterMatches['numMatching'],
 				'variants' => $arrFilterMatches['numVariantsMatching']
 			);
 		}
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
 	}
 }

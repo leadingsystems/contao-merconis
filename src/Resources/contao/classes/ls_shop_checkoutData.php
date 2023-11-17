@@ -83,17 +83,17 @@ class ls_shop_checkoutData {
 
 		// CheckoutData aus der Session einlesen, sofern in der Session schon vorhanden
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-		$this->arrCheckoutData = isset($session_lsShopCart['arrCheckoutData']) ? $session_lsShopCart['arrCheckoutData'] : $this->arrCheckoutData;
+		$this->arrCheckoutData = isset($session_lsShop['arrCheckoutData']) ? $session_lsShop['arrCheckoutData'] : $this->arrCheckoutData;
 	}
 	
 	public function writeCheckoutDataToSession() {
 		// CheckoutData in die Session schreiben
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
-        $session_lsShopCart['arrCheckoutData'] = $this->arrCheckoutData;
-        $session->set('lsShop', $session_lsShopCart);
+        $session_lsShop =  $session->get('lsShop', []);
+        $session_lsShop['arrCheckoutData'] = $this->arrCheckoutData;
+        $session->set('lsShop', $session_lsShop);
 	}
 
 
@@ -813,9 +813,9 @@ class ls_shop_checkoutData {
 	 */
 	private function validateCartStatus() {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
+        $session_lsShop =  $session->get('lsShopCart', []);
 
-		if (!isset($session_lsShopCart['items']) || !is_array($session_lsShopCart['items']) || !count($session_lsShopCart['items'])) {
+		if (!isset($session_lsShop['items']) || !is_array($session_lsShop['items']) || !count($session_lsShop['items'])) {
 			return false;
 		}
 		return ls_shop_cartHelper::validateOrderPermissionOfCartPositions();
@@ -908,7 +908,7 @@ class ls_shop_checkoutData {
 		 * if a payment or shipping error occured earlier. This way we prevent the endless recursion that would
 		 * take place if the method that just threw the error would be selected again instantly.
 		 */
-		if (isset($session_lsShopCart['blnPaymentOrShippingErrorOccured']) && $session_lsShopCart['blnPaymentOrShippingErrorOccured']) {
+		if (isset($session_lsShop['blnPaymentOrShippingErrorOccured']) && $session_lsShop['blnPaymentOrShippingErrorOccured']) {
 			$this->writeCheckoutDataToSession();
 			return;
 		}

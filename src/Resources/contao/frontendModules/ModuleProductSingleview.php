@@ -50,10 +50,10 @@ class ModuleProductSingleview extends \Module {
 				$objProductSearch->search();
 			} else {
                 $session = \System::getContainer()->get('merconis.session')->getSession();
-                $session_lsShopCart =  $session->get('lsShop', []);
-				unset($session_lsShopCart['filter']['matchedProducts']);
-				unset($session_lsShopCart['filter']['matchedVariants']);
-                $session->set('lsShop', $session_lsShopCart);
+                $session_lsShop =  $session->get('lsShop', []);
+				unset($session_lsShop['filter']['matchedProducts']);
+				unset($session_lsShop['filter']['matchedVariants']);
+                $session->set('lsShop', $session_lsShop);
 			}
 		}
 		/*

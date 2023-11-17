@@ -132,15 +132,15 @@ class ls_shop_productList
 	public function parseOutput() {
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
 		// Verarbeiten einer übergebenen Sortiervorgabe (User-Sortierung)
 		if (
 				\Input::post('FORM_SUBMIT') && \Input::post('FORM_SUBMIT') == 'userSorting'
 			&&	\Input::post('identifyCorrespondingOutputDefinition') == $this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID
 		) {
-            $session_lsShopCart['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID] = html_entity_decode(\Input::post('userSortingSelection'));
-            $session->set('lsShop', $session_lsShopCart);
+            $session_lsShop['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID] = html_entity_decode(\Input::post('userSortingSelection'));
+            $session->set('lsShop', $session_lsShop);
 			\Controller::redirect(\Environment::get('request'));
 		}
 
@@ -166,8 +166,8 @@ class ls_shop_productList
 		$objProductSearch->currentPage = $this->currentPage;
 
 		$sortingDefinition = $this->outputDefinition['overviewSorting'];
-		if ($this->outputDefinition['overviewUserSorting'] == 'yes' && isset($session_lsShopCart['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID])) {
-			$sortingDefinition = $session_lsShopCart['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID];
+		if ($this->outputDefinition['overviewUserSorting'] == 'yes' && isset($session_lsShop['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID])) {
+			$sortingDefinition = $session_lsShop['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID];
 		}
 			
 		$sortingField = 'title';
@@ -267,7 +267,7 @@ class ls_shop_productList
 					'arr_options' => $this->outputDefinition['overviewUserSortingFields']
 				),
 				'str_allowedRequestMethod' => 'post',
-				'var_value' => ($session_lsShopCart['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID] ?? null) ?: $this->outputDefinition['overviewSorting']
+				'var_value' => ($session_lsShop['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID] ?? null) ?: $this->outputDefinition['overviewSorting']
 			)
 		);
 

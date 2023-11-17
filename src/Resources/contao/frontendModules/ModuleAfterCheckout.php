@@ -105,10 +105,10 @@ class ModuleAfterCheckout extends \Module {
 		$oih = null;
 
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
-		if (isset($session_lsShopCart['oix2oih'][$oix]) && $session_lsShopCart['oix2oih'][$oix]) {
-			$oih = $session_lsShopCart['oix2oih'][$oix];
+		if (isset($session_lsShop['oix2oih'][$oix]) && $session_lsShop['oix2oih'][$oix]) {
+			$oih = $session_lsShop['oix2oih'][$oix];
 		} else if (\Input::get('oih')) {
 			$oih = \Input::get('oih');
 		} else if (\Input::post('oih')) {
@@ -145,12 +145,12 @@ class ModuleAfterCheckout extends \Module {
 			$this->Template = new \FrontendTemplate($this->strTemplate);
 			
 			$this->Template->arrOrder = $arrOrder;
-			$this->Template->specialInfoForPaymentMethod = isset($session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish']) ? $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] : '';
-			$this->Template->specialInfoForShippingMethod = isset($session_lsShopCart['specialInfoForShippingMethodAfterCheckoutFinish']) ? $session_lsShopCart['specialInfoForShippingMethodAfterCheckoutFinish'] : '';
+			$this->Template->specialInfoForPaymentMethod = isset($session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish']) ? $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] : '';
+			$this->Template->specialInfoForShippingMethod = isset($session_lsShop['specialInfoForShippingMethodAfterCheckoutFinish']) ? $session_lsShop['specialInfoForShippingMethodAfterCheckoutFinish'] : '';
 			
 			/*
-			$this->Template->infoForPaymentMethod = trim(ls_shop_languageHelper::getMultiLanguage($session_lsShopCart['finishedOrder']['selectedPaymentMethod'], 'tl_ls_shop_payment_methods_languages', array('infoAfterCheckout'), array($objPage->language)));
-			$this->Template->infoForShippingMethod = trim(ls_shop_languageHelper::getMultiLanguage($session_lsShopCart['finishedOrder']['selectedShippingMethod'], 'tl_ls_shop_shipping_methods_languages', array('infoAfterCheckout'), array($objPage->language)));
+			$this->Template->infoForPaymentMethod = trim(ls_shop_languageHelper::getMultiLanguage($session_lsShop['finishedOrder']['selectedPaymentMethod'], 'tl_ls_shop_payment_methods_languages', array('infoAfterCheckout'), array($objPage->language)));
+			$this->Template->infoForShippingMethod = trim(ls_shop_languageHelper::getMultiLanguage($session_lsShop['finishedOrder']['selectedShippingMethod'], 'tl_ls_shop_shipping_methods_languages', array('infoAfterCheckout'), array($objPage->language)));
 			 *
 			 */
 			

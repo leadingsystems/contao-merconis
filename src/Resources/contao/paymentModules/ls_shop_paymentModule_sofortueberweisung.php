@@ -21,17 +21,17 @@ namespace Merconis\Core;
 		 */
 		public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
             $session = \System::getContainer()->get('merconis.session')->getSession();
-            $session_lsShopCart =  $session->get('lsShop', []);
+            $session_lsShop =  $session->get('lsShop', []);
 
 			// Reset the special payment info
-            $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
-            $session->set('lsShop', $session_lsShopCart);
+            $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session->set('lsShop', $session_lsShop);
 			
 			// if there are insufficient parameters the payment execution is aborted
 			if (!$orderIdInDb || !is_array($order) || !count($order)) {
 				// write an error message to the special payment info and log the error
-                $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'];
-                $session->set('lsShop', $session_lsShopCart);
+                $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'];
+                $session->set('lsShop', $session_lsShop);
 				$this->logPaymentError('ls_shop_paymentModule_sofortueberweisung::afterCheckoutFinish()', 'insufficient parameters given');
 				return;
 			}
@@ -70,8 +70,8 @@ namespace Merconis\Core;
 			
 			if($Sofortueberweisung->isError()) {
 				// the sofortueberweisung API didn't accept the data therefore we write an error message to the special payment info and log the error
-                $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'];
-                $session->set('lsShop', $session_lsShopCart);
+                $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'];
+                $session->set('lsShop', $session_lsShop);
 				$sofortueberweisungError = $Sofortueberweisung->getError();
 				$this->logPaymentError('ls_shop_paymentModule_sofortueberweisung::afterCheckoutFinish()', $sofortueberweisungError);
 				return;
@@ -260,11 +260,11 @@ namespace Merconis\Core;
 				switch (\Input::get('sue')) {
 					case 'aborted':
                         $session = \System::getContainer()->get('merconis.session')->getSession();
-                        $session_lsShopCart =  $session->get('lsShop', []);
+                        $session_lsShop =  $session->get('lsShop', []);
 
 						// write the error message to the special payment info and update the payment status in the order record
-                        $session_lsShopCart['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'];
-                        $session->set('lsShop', $session_lsShopCart);
+                        $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'];
+                        $session->set('lsShop', $session_lsShop);
 
 						$this->updatePaymentInfo($order['id'], array(
 							'statusValue' => 'ABORTED',

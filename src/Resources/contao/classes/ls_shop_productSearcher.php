@@ -88,8 +88,8 @@ class ls_shop_productSearcher
 
     protected function getCache() {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
-        $this->arrCache = ($session_lsShopCart['caches']['ls_shop_productSearcher'][$this->strCacheKey] ?? null) ?: null;
+        $session_lsShop =  $session->get('lsShop', []);
+        $this->arrCache = ($session_lsShop['caches']['ls_shop_productSearcher'][$this->strCacheKey] ?? null) ?: null;
     }
 
     protected function setCache() {
@@ -103,8 +103,8 @@ class ls_shop_productSearcher
              * a new result to cache now
              */
             $session = \System::getContainer()->get('merconis.session')->getSession();
-            $session_lsShopCart =  $session->get('lsShop', []);
-            $session_lsShopCart['caches']['ls_shop_productSearcher'][$this->strCacheKey] = array(
+            $session_lsShop =  $session->get('lsShop', []);
+            $session_lsShop['caches']['ls_shop_productSearcher'][$this->strCacheKey] = array(
                 'tstamp' => time(),
                 'productResultsComplete' => $this->productResultsComplete,
                 'numResultsComplete' => $this->numResultsComplete,
@@ -113,19 +113,19 @@ class ls_shop_productSearcher
                 'numProductsBeforeFilter' => $this->numProductsBeforeFilter,
                 'blnUseFilter' => $this->blnUseFilter,
                 'criteriaToUseInFilterFormHasBeenSet' => isset($GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet']) && $GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'],
-                'arrCriteriaToUseInFilterForm' => $this->blnUseFilter && isset($session_lsShopCart['filter']['arrCriteriaToUseInFilterForm']) ? $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm'] : null,
-                'criteriaToActuallyFilterWith' => $this->blnUseFilter && isset($session_lsShopCart['filter']['criteriaToActuallyFilterWith']) ? $session_lsShopCart['filter']['criteriaToActuallyFilterWith'] : null,
-                'matchedProducts' => $this->blnUseFilter && isset($session_lsShopCart['filter']['matchedProducts']) ? $session_lsShopCart['filter']['matchedProducts'] : null,
-                'matchedVariants' => $this->blnUseFilter && isset($session_lsShopCart['filter']['matchedVariants']) ? $session_lsShopCart['filter']['matchedVariants'] : null,
-                'matchEstimates' => $this->blnUseFilter && isset($session_lsShopCart['filter']['matchEstimates']) ? $session_lsShopCart['filter']['matchEstimates'] : null
+                'arrCriteriaToUseInFilterForm' => $this->blnUseFilter && isset($session_lsShop['filter']['arrCriteriaToUseInFilterForm']) ? $session_lsShop['filter']['arrCriteriaToUseInFilterForm'] : null,
+                'criteriaToActuallyFilterWith' => $this->blnUseFilter && isset($session_lsShop['filter']['criteriaToActuallyFilterWith']) ? $session_lsShop['filter']['criteriaToActuallyFilterWith'] : null,
+                'matchedProducts' => $this->blnUseFilter && isset($session_lsShop['filter']['matchedProducts']) ? $session_lsShop['filter']['matchedProducts'] : null,
+                'matchedVariants' => $this->blnUseFilter && isset($session_lsShop['filter']['matchedVariants']) ? $session_lsShop['filter']['matchedVariants'] : null,
+                'matchEstimates' => $this->blnUseFilter && isset($session_lsShop['filter']['matchEstimates']) ? $session_lsShop['filter']['matchEstimates'] : null
             );
         } else {
             /*
              * If the cache has been used this time we don't set it completely because it can not have
              * changed but we have to update the timestamp to increase it's lifetime
              */
-            if (isset($session_lsShopCart['caches']['ls_shop_productSearcher'][$this->strCacheKey])) {
-                $session_lsShopCart['caches']['ls_shop_productSearcher'][$this->strCacheKey]['tstamp'] = time();
+            if (isset($session_lsShop['caches']['ls_shop_productSearcher'][$this->strCacheKey])) {
+                $session_lsShop['caches']['ls_shop_productSearcher'][$this->strCacheKey]['tstamp'] = time();
             }
         }
 
@@ -133,24 +133,24 @@ class ls_shop_productSearcher
          * Determine whether there are caches that need to be removed
          */
         // Remove the oldest cache which automatically must be the one on first position in the array
-        if (count($session_lsShopCart['caches']['ls_shop_productSearcher']) > $this->maxNumParallelCaches) {
-            reset($session_lsShopCart['caches']['ls_shop_productSearcher']);
-            unset($session_lsShopCart['caches']['ls_shop_productSearcher'][key($session_lsShopCart['caches']['ls_shop_productSearcher'])]);
+        if (count($session_lsShop['caches']['ls_shop_productSearcher']) > $this->maxNumParallelCaches) {
+            reset($session_lsShop['caches']['ls_shop_productSearcher']);
+            unset($session_lsShop['caches']['ls_shop_productSearcher'][key($session_lsShop['caches']['ls_shop_productSearcher'])]);
         }
 
         if ($this->cacheLifetimeSec > 0) {
-            foreach($session_lsShopCart['caches']['ls_shop_productSearcher'] as $k => $v) {
+            foreach($session_lsShop['caches']['ls_shop_productSearcher'] as $k => $v) {
                 if ($v['tstamp'] < time() - $this->cacheLifetimeSec) {
-                    unset($session_lsShopCart['caches']['ls_shop_productSearcher'][$k]);
+                    unset($session_lsShop['caches']['ls_shop_productSearcher'][$k]);
                 }
             }
         }
-        $session->set('lsShop', $session_lsShopCart);
+        $session->set('lsShop', $session_lsShop);
     }
 
     protected function setCurrentCacheKey() {
         $session = \System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShop', []);
+        $session_lsShop =  $session->get('lsShop', []);
 
         $arrSettings = array(
             'emptyFieldMatchesPerDefault' => $this->blnEmptyFieldMatchesPerDefault,
@@ -159,14 +159,14 @@ class ls_shop_productSearcher
             'arrRequestFields' => $this->arrRequestFields,
             'arrSearchCriteria' => $this->arrSearchCriteria,
             'arrLimit' => $this->arrLimit,
-            'filterCriteria' => $this->blnUseFilter ? $session_lsShopCart['filter']['criteria'] : null,
-            'filterModeSettings' => $this->blnUseFilter ? ($session_lsShopCart['filter']['filterModeSettingsByAttributes'] ?? null) : null,
+            'filterCriteria' => $this->blnUseFilter ? $session_lsShop['filter']['criteria'] : null,
+            'filterModeSettings' => $this->blnUseFilter ? ($session_lsShop['filter']['filterModeSettingsByAttributes'] ?? null) : null,
             'language' => $this->searchLanguage,
             'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
             'checkVATID' => ls_shop_generalHelper::checkVATID(),
             'customerCountry' => ls_shop_generalHelper::getCustomerCountry(),
             'lastBackendDataChange' => isset($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']) ? $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] : 0,
-            'lastResetTimestamp' => $session_lsShopCart['filter']['lastResetTimestamp'] ?? null,
+            'lastResetTimestamp' => $session_lsShop['filter']['lastResetTimestamp'] ?? null,
             'customerGroupId' => $this->arr_groupSettingsForUser['id']
         );
 
@@ -489,7 +489,7 @@ class ls_shop_productSearcher
         if (false && $this->checkIfCacheCanBeUsed()) {
             if ($this->blnUseFilter) {
                 $session = \System::getContainer()->get('merconis.session')->getSession();
-                $session_lsShopCart =  $session->get('lsShop', []);
+                $session_lsShop =  $session->get('lsShop', []);
                 /*
                  * Set this flag because the filter needs it to decide whether or not to display the filter form
                  */
@@ -501,25 +501,25 @@ class ls_shop_productSearcher
                  * If we use a cached search result, we set some (most) filter values to the cached values
                  */
                 if ($this->arrCache['arrCriteriaToUseInFilterForm']) {
-                    $session_lsShopCart['filter']['arrCriteriaToUseInFilterForm'] = $this->arrCache['arrCriteriaToUseInFilterForm'];
+                    $session_lsShop['filter']['arrCriteriaToUseInFilterForm'] = $this->arrCache['arrCriteriaToUseInFilterForm'];
                 }
 
                 if ($this->arrCache['criteriaToActuallyFilterWith']) {
-                    $session_lsShopCart['filter']['criteriaToActuallyFilterWith'] = $this->arrCache['criteriaToActuallyFilterWith'];
+                    $session_lsShop['filter']['criteriaToActuallyFilterWith'] = $this->arrCache['criteriaToActuallyFilterWith'];
                 }
 
                 if ($this->arrCache['matchedProducts']) {
-                    $session_lsShopCart['filter']['matchedProducts'] = $this->arrCache['matchedProducts'];
+                    $session_lsShop['filter']['matchedProducts'] = $this->arrCache['matchedProducts'];
                 }
 
                 if ($this->arrCache['matchedVariants']) {
-                    $session_lsShopCart['filter']['matchedVariants'] = $this->arrCache['matchedVariants'];
+                    $session_lsShop['filter']['matchedVariants'] = $this->arrCache['matchedVariants'];
                 }
 
                 if ($this->arrCache['matchEstimates']) {
-                    $session_lsShopCart['filter']['matchEstimates'] = $this->arrCache['matchEstimates'];
+                    $session_lsShop['filter']['matchEstimates'] = $this->arrCache['matchEstimates'];
                 }
-                $session->set('lsShop', $session_lsShopCart);
+                $session->set('lsShop', $session_lsShop);
             }
             return;
         }

@@ -2,7 +2,7 @@
 	// use this to show the available output options:
 	// echo $this->objProduct->_outputOptions;
     $session = \System::getContainer()->get('merconis.session')->getSession();
-$session_lsShopCart =  $session->get('lsShop', []);
+$session_lsShop =  $session->get('lsShop', []);
 ?>
 <tr class="space">
 	<td colspan="6">&nbsp;</td>
@@ -24,11 +24,11 @@ $session_lsShopCart =  $session->get('lsShop', []);
 				<p class="error"><?php echo $GLOBALS['merconis_globals']['stockManagement']['errorMsg'][$this->objProduct->ls_productVariantID]; ?></p>
 				<?php
 			}
-			if (isset($session_lsShopCart['stockManagement']['successMsg'][$this->objProduct->ls_productVariantID])) {
+			if (isset($session_lsShop['stockManagement']['successMsg'][$this->objProduct->ls_productVariantID])) {
 				?>
-				<p class="success"><?php echo $session_lsShopCart['stockManagement']['successMsg'][$this->objProduct->ls_productVariantID]; ?></p>
+				<p class="success"><?php echo $session_lsShop['stockManagement']['successMsg'][$this->objProduct->ls_productVariantID]; ?></p>
 				<?php
-				unset($session_lsShopCart['stockManagement']['successMsg'][$this->objProduct->ls_productVariantID]);
+				unset($session_lsShop['stockManagement']['successMsg'][$this->objProduct->ls_productVariantID]);
 			}
 		?>
 		<form action="<?php echo $this->action; ?>" method="post" onsubmit="Backend.getScrollOffset()">
@@ -62,11 +62,11 @@ $session_lsShopCart =  $session->get('lsShop', []);
 								<p class="error"><?php echo $GLOBALS['merconis_globals']['stockManagement']['errorMsg'][$variant->ls_productVariantID]; ?></p>
 								<?php
 							}
-							if (isset($session_lsShopCart['stockManagement']['successMsg'][$variant->ls_productVariantID])) {
+							if (isset($session_lsShop['stockManagement']['successMsg'][$variant->ls_productVariantID])) {
 								?>
-								<p class="success"><?php echo $session_lsShopCart['stockManagement']['successMsg'][$variant->ls_productVariantID]; ?></p>
+								<p class="success"><?php echo $session_lsShop['stockManagement']['successMsg'][$variant->ls_productVariantID]; ?></p>
 								<?php
-								unset($session_lsShopCart['stockManagement']['successMsg'][$variant->ls_productVariantID]);
+								unset($session_lsShop['stockManagement']['successMsg'][$variant->ls_productVariantID]);
 							}
 						?>
 						<form action="<?php echo $this->action; ?>" method="post" onsubmit="Backend.getScrollOffset()">
@@ -81,5 +81,5 @@ $session_lsShopCart =  $session->get('lsShop', []);
 			<?php
 		}
 	}
-    $session->set('lsShop', $session_lsShopCart);
+    $session->set('lsShop', $session_lsShop);
 ?>
