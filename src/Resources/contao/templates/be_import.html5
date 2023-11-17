@@ -4,13 +4,13 @@
 		<h2><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText01']; ?></h2>
 		
 		<?php echo $this->messages ? $this->messages : '' ?>
-		
+
 		<div class="infoGroup">
 			<?php if ($this->arrCurrentlyExistingImportFileInfo === null || !is_array($this->arrCurrentlyExistingImportFileInfo)) { ?>
 				<p class="shopWarningMsg"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText02']; ?></p>
 				<form action="<?php echo $this->request; ?>" class="tl_form" method="post" enctype="multipart/form-data">
 					<input type="hidden" name="FORM_SUBMIT" value="beModule_importUploadFile">
-					<input type="hidden" name="REQUEST_TOKEN" value="<?php echo \RequestToken::get(); ?>">
+					<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
 					
 					<input class="tl_upload_field" type="file" name="files[]">
 					<input type="submit" name="submit" value="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText03']; ?>" />

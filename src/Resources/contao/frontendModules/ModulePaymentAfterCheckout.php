@@ -2,13 +2,15 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 class ModulePaymentAfterCheckout extends \Module {
 	public function generate() {
 		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$obj_template = new \BackendTemplate('be_wildcard');
 			$obj_template->wildcard = '### MERCONIS - Kasse - Bezahlung nach Checkout ###';
 			return $obj_template->parse();
