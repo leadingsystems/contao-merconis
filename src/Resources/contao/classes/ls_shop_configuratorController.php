@@ -3,12 +3,41 @@
 namespace Merconis\Core;
 
 use Contao\Database;
+use Contao\Form;
 use Contao\FormModel;
+use Contao\FormFieldModel;
 use Contao\System;
 use Contao\Widget;
 
 class ls_shop_configuratorController
 {
+
+    public function compileFormFields(array $fields, string $formId, Form $form)
+    {
+        //remove auto_form_ prefix
+        $formId = intval(explode("auto_form_",$formId)[1]);
+
+        $objFormFields = \Database::getInstance()->prepare("
+			SELECT  	*
+			FROM		`tl_ls_shop_configurator`
+			WHERE		`form` = ?
+		")->execute($formId);
+
+        $result = $objFormFields->fetchAssoc();
+
+        //check of this form is from a shop configurator
+        if($result){
+            //add hidden field for configurator_productVariantID, productVariantID gets added later
+            $fields["configurator_productVariantID"] = new FormFieldModel([
+                "id" => -1,
+                "type" => "hidden",
+                "name" => "configurator_productVariantID",
+            ]);
+        }
+
+        return $fields;
+    }
+
 	/*
 	 * Diese Funktion wird durch einen Hook nach der Verarbeitung von Formulardaten aufgerufen und sofort wieder abgebrochen,
 	 * wenn kein POST-Key "configurator_productVariantID" vorliegt. (es würde sich dann
@@ -27,8 +56,8 @@ class ls_shop_configuratorController
 			return;
 		}
 
-        
-		
+
+
 		/*
 		 * Memorize the product variant id in the array of product variant ids for which the configurator has already been used
 		 */
@@ -89,16 +118,6 @@ class ls_shop_configuratorController
 		 * Generate the configuratorHash and write it to the session
 		 */
         $session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']]['strConfiguratorHash'] = sha1(serialize($session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']]['arrReceivedPost']));
-
-        $myfile = fopen("ausgabe beim eintragen der daten.txt", "w") or die("Unable to open file!");
-
-        fwrite($myfile, "\n");
-        fwrite($myfile,  json_encode( $session_lsShop['configurator'][$arrSubmitted['configurator_productVariantID']]['arrReceivedPost']));
-        fwrite($myfile, "\n");
-        fwrite($myfile,  "------------");
-
-        fclose($myfile);
-
 
         $session->set('lsShop', $session_lsShop);
 	}

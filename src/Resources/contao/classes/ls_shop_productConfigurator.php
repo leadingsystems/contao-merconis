@@ -456,11 +456,6 @@ class ls_shop_productConfigurator {
 		 * die empfangenen Daten der richtigen Konfigurator-Instanz zuzuweisen.
 		 */
 
-        if(VERSION && BUILD && version_compare(VERSION . '.' . BUILD, '4.13.0', '>')){
-            //$form = preg_replace('/(<form.*>)/', '\\1'."\r\n".'<div><input type="hidden" name="configurator_productVariantID" value="'.$this->configuratorCacheKey.'" /></div>', $form);
-        }else{
-            //$form = preg_replace('/(name="configurator_productVariantID")/', '\\1'."\r\n".' value="'.$this->configuratorCacheKey.'"', $form);
-        }
         $form = preg_replace('/(name="configurator_productVariantID")/', '\\1'."\r\n".' value="'.$this->configuratorCacheKey.'"', $form);
 
 		$form = preg_replace('/(<form.*action=")(.*)(")/siU', '\\1'.Environment::get('request').'#'.$this->arrProductOrVariantData['anchor'].'\\3', $form);

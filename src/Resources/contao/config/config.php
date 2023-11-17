@@ -52,6 +52,13 @@ if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
 }
 
 /*
+ * Hook for adding hidden field for product-variant
+ */
+if (TL_MODE == 'FE') {
+    $GLOBALS['TL_HOOKS']['compileFormFields'][] = array('Merconis\Core\ls_shop_configuratorController', 'compileFormFields');
+}
+
+/*
  * Hooks für Ajax
  */
 $GLOBALS['TL_HOOKS']['executePreActions'][] = array('Merconis\Core\ls_shop_ajaxController', 'executePreActions');
