@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -262,7 +263,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 		}
 
 		$outputValue = '';
-		$paymentMethod_moduleReturnData = deserialize($paymentMethod_moduleReturnData);
+		$paymentMethod_moduleReturnData = StringUtil::deserialize($paymentMethod_moduleReturnData);
 
 		$str_statusUpdateUrl = ls_shop_generalHelper::getUrl();
 		$str_statusUpdateUrl = $str_statusUpdateUrl.(strpos($str_statusUpdateUrl, '?') !== false ? '&' : '?').'payPalPlus_updateStatus='.$arrOrder['id'].'#payPalPlus_order'.$arrOrder['id'];
@@ -561,13 +562,13 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 
 		$arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
 		$str_value = $arrCheckoutFormFields[$str_fieldName.(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] ? '_alternative' : '')]['value'];
-		
+
 		if (!$str_value) {
 			$str_value = null;
 		}
 		
 		return $str_value;
-	}
+    }
 	
 	protected function payPalPlus_createShippingAddress() {
 		$obj_shippingAddress = new ShippingAddress();

@@ -2,8 +2,10 @@
 
 namespace Merconis\Core;
 
+use Contao\ArrayUtil;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
     'config' => array(
@@ -297,11 +299,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         'payPalCheckout_clientID' => array (
             'sql'                     => "text NULL"
         ),
-
         'payPalCheckout_clientSecret' => array (
             'sql'                     => "text NULL"
         ),
-
         'payPalCheckout_liveMode' => array (
             'sql'                     => "char(1) NOT NULL default ''"
         ),
@@ -314,32 +314,26 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
         ),
-
         'payPalCheckout_shipToFieldNameLastname' => array (
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
         ),
-
         'payPalCheckout_shipToFieldNameStreet' => array (
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
         ),
-
         'payPalCheckout_shipToFieldNameCity' => array (
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
         ),
-
         'payPalCheckout_shipToFieldNamePostal' => array (
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
         ),
-
         'payPalCheckout_shipToFieldNameState' => array (
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
         ),
-
         'payPalCheckout_shipToFieldNameCountryCode' => array (
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
@@ -935,7 +929,7 @@ class ls_shop_payment_methods extends \Backend {
         /*
          * Insert the fields into the fields array of this DCA definition
          */
-        array_insert($GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields'], 0, $arr_fields);
+        ArrayUtil::arrayInsert($GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields'], 0, $arr_fields);
 
         /*
          * Assign the standard label
@@ -963,7 +957,7 @@ class ls_shop_payment_methods extends \Backend {
         $arr_methodIDsCurrentlyUsed = ls_shop_generalHelper::getPaymentOrShippingMethodsUsedInOrders('payment');
 
         if (!in_array($row['id'], $arr_methodIDsCurrentlyUsed)) {
-            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
         } else {
             $button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
         }

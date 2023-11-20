@@ -2,7 +2,9 @@
 
 namespace Merconis\Core;
 
-	class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
+	use Contao\StringUtil;
+
+class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 		public $arrCurrentSettings = array();
 		
 		protected $arr_vrpay_apiUrls = array(
@@ -203,7 +205,7 @@ namespace Merconis\Core;
 
 			$str_outputValue = '';
 
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 
 			/*
 			 * The newest status is the last in the array but we want to display
@@ -271,7 +273,7 @@ namespace Merconis\Core;
 			}
 
 			$str_outputValue = '';
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 
 			$arr_statusAllEntries = array_reverse($arr_paymentMethod_moduleReturnData['arr_status']);
 			$arr_currentStatus = $arr_statusAllEntries[0];
@@ -377,11 +379,11 @@ namespace Merconis\Core;
 		public function onPaymentAfterCheckoutPage($arr_order = array()) {
 			/** @var \PageModel $objPage */
 			global $objPage;
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_order['paymentMethod_moduleReturnData']);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_order['paymentMethod_moduleReturnData']);
 
 			switch($this->arrCurrentSettings['vrpay_paymentInstrument']) {
 				case 'creditcard':
-					$arr_paymentBrands = deserialize($this->arrCurrentSettings['vrpay_creditCardBrands']);
+					$arr_paymentBrands = StringUtil::deserialize($this->arrCurrentSettings['vrpay_creditCardBrands']);
 					break;
 
 				case 'giropay':
@@ -597,14 +599,14 @@ namespace Merconis\Core;
 			}
 		}
 
-	protected function vrpay_getShippingFieldValue($str_fieldName) {
-	    $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';
-	    if (preg_match($str_valueWildcardPattern, $str_fieldName, $arr_matches)) {
-	        $str_fieldName = preg_replace($str_valueWildcardPattern, $this->vrpay_getShippingFieldValue($arr_matches[1]), $str_fieldName);
-        }
+		protected function vrpay_getShippingFieldValue($str_fieldName) {
+            $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';
+            if (preg_match($str_valueWildcardPattern, $str_fieldName, $arr_matches)) {
+                $str_fieldName = preg_replace($str_valueWildcardPattern, $this->vrpay_getShippingFieldValue($arr_matches[1]), $str_fieldName);
+            }
 
 			$arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
-		$str_value = $arrCheckoutFormFields[$str_fieldName.(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] ? '_alternative' : '')]['value'];
+            $str_value = $arrCheckoutFormFields[$str_fieldName.(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] ? '_alternative' : '')]['value'];
 
 			if (!$str_value) {
 				$str_value = null;

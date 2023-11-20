@@ -1,7 +1,7 @@
 <div class="messagesSentAttachments">
 <?php
 	if (!is_array($this->value)) {
-		$this->value = deserialize($this->value);
+		$this->value = \Contao\StringUtil::deserialize($this->value);
 	}
 	
 	if (is_array($this->value)) {

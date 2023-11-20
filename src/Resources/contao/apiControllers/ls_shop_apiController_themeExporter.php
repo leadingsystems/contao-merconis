@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 class ls_shop_apiController_themeExporter
 {
     protected $str_dataExportPath = 'vendor/%s/src/Resources/theme/setup';
@@ -64,7 +66,7 @@ class ls_shop_apiController_themeExporter
 
         $arr_installedThemeExtensions = ls_shop_generalHelper::getInstalledThemeExtensions();
         $this->str_dataExportPath = sprintf($this->str_dataExportPath, $arr_installedThemeExtensions[0]);
-        if (!is_dir(TL_ROOT . '/' . $this->str_dataExportPath)) {
+        if (!is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $this->str_dataExportPath)) {
             throw new \Exception('Export directory does not exist: ' . $this->str_dataExportPath);
         }
 
@@ -100,8 +102,9 @@ class ls_shop_apiController_themeExporter
      */
     protected function exportLocalconfig()
     {
-        if (file_exists(TL_ROOT . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName)) {
-            unlink(TL_ROOT . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName);
+        $rootDir = System::getContainer()->getParameter('kernel.project_dir');
+        if (file_exists($rootDir . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName)) {
+            unlink($rootDir . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName);
         }
 
         $arrLocalconfigExport = array();
@@ -123,8 +126,9 @@ class ls_shop_apiController_themeExporter
      */
     protected function exportTables()
     {
-        if (file_exists(TL_ROOT . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName)) {
-            unlink(TL_ROOT . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName);
+        $rootDir = System::getContainer()->getParameter('kernel.project_dir');
+        if (file_exists($rootDir . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName)) {
+            unlink($rootDir . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName);
         }
 
         $arrTables = array(
