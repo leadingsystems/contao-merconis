@@ -2,6 +2,7 @@
 namespace Merconis\Core;
 
 use Contao\PageModel;
+use Contao\StringUtil;
 
 class ls_shop_languageHelper {
 	public static function getFallbackLanguage() {
@@ -870,7 +871,7 @@ class ls_shop_languageHelper {
 		global $objPage;
 
 		if (!is_array($GLOBALS['TL_CONFIG'][$key])) {
-			$languagePages = deserialize($GLOBALS['TL_CONFIG'][$key]);
+			$languagePages = StringUtil::deserialize($GLOBALS['TL_CONFIG'][$key]);
 			$GLOBALS['TL_CONFIG'][$key] = array();
 			if (is_array($languagePages)) {
 				foreach ($languagePages as $languagePageID) {

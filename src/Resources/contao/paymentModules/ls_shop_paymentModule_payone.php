@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -56,7 +57,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			}
 			
 			$str_outputValue = '';
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 			
 			/*
 			 * The newest status is the last in the array but we want to display
@@ -234,7 +235,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			}
 			
 			$str_outputValue = '';
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 			
 			$arr_statusAllEntries = array_reverse($arr_paymentMethod_moduleReturnData['arr_status']);
 			$arr_currentStatus = $arr_statusAllEntries[0];
@@ -640,18 +641,18 @@ use function LeadingSystems\Helpers\ls_sub;
 			return $str_value;
 		}
 
-	protected function payone_getShippingFieldValue($str_fieldName) {
-	    $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';
-	    if (preg_match($str_valueWildcardPattern, $str_fieldName, $arr_matches)) {
-	        $str_fieldName = preg_replace($str_valueWildcardPattern, $this->payone_getShippingFieldValue($arr_matches[1]), $str_fieldName);
-        }
+		protected function payone_getShippingFieldValue($str_fieldName) {
+            $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';
+            if (preg_match($str_valueWildcardPattern, $str_fieldName, $arr_matches)) {
+                $str_fieldName = preg_replace($str_valueWildcardPattern, $this->payone_getShippingFieldValue($arr_matches[1]), $str_fieldName);
+            }
 
-		$arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
-		$str_value = $arrCheckoutFormFields[$str_fieldName.(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] ? '_alternative' : '')]['value'];
+            $arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
+            $str_value = $arrCheckoutFormFields[$str_fieldName.(isset($arrCheckoutFormFields['useDeviantShippingAddress']['value']) && $arrCheckoutFormFields['useDeviantShippingAddress']['value'] ? '_alternative' : '')]['value'];
 
-		if (!$str_value) {
-			$str_value = null;
-		}
+            if (!$str_value) {
+                $str_value = null;
+            }
 
 			return $str_value;
 		}

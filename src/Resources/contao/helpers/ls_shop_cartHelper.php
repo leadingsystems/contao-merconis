@@ -1,6 +1,7 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -522,7 +523,7 @@ class ls_shop_cartHelper {
 		 * Prüfen, ob für Kundengruppe des aktuellen Users gültig
 		 */
 		$groupInfo = ls_shop_generalHelper::getGroupSettings4User();
-		if (!in_array($groupInfo['id'], deserialize($objCoupon->allowedForGroups))) {
+		if (!in_array($groupInfo['id'], StringUtil::deserialize($objCoupon->allowedForGroups))) {
 			$arrErrors['minimumOrderValueNotReached'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text009'];
 		}
 
@@ -613,7 +614,7 @@ class ls_shop_cartHelper {
 	}
 
     public static function ls_getDirectSelection($productDirectSelection) {
-        $arrProducts = deserialize($productDirectSelection);
+        $arrProducts = StringUtil::deserialize($productDirectSelection);
         if (count($arrProducts) == 1 && !$arrProducts[0]) {
             $arrProducts = array();
         }
@@ -637,7 +638,7 @@ class ls_shop_cartHelper {
         }
 
         if ($couponInfo['activateSearchSelectionCategory']) {
-            $pageIDs = deserialize($couponInfo['searchSelectionCategory']);
+            $pageIDs = StringUtil::deserialize($couponInfo['searchSelectionCategory']);
             if (!is_array($pageIDs)) {
                 $pageIDs = array();
             }
