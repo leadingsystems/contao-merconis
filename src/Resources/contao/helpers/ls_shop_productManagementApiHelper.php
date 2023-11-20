@@ -1,5 +1,6 @@
 <?php
 namespace Merconis\Core;
+use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_productManagementApiHelper {
@@ -553,7 +554,7 @@ class ls_shop_productManagementApiHelper {
 		->execute();
 
 		while ($obj_dbres_prodResults->next()) {
-			$arr_recommendedProducts = deserialize($obj_dbres_prodResults->lsShopProductRecommendedProducts);
+			$arr_recommendedProducts = StringUtil::deserialize($obj_dbres_prodResults->lsShopProductRecommendedProducts);
 			$arr_recommendedProductIDs = array();
 
 			/*

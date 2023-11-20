@@ -31,7 +31,7 @@ $int_numFilterCriteriaCurrentlyUsed = count(($this->arr_filterSummaryData['arr_f
                 if (!$this->blnNothingToFilter) {
                     ?>
                         <form id="product-filter-form" action="<?php echo $this->request; ?>" class="tl_form" method="post">
-                            <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+                            <input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
                             <input type="hidden" name="FORM_SUBMIT" value="filterForm">
 
                             <?php

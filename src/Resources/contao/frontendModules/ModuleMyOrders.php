@@ -2,6 +2,9 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+use Contao\System;
+
 class ModuleMyOrders extends \Module {
 	protected $intDefaultNumPerPage = 10;
 	protected $strDefaultSorting = 'orderDateUnixTimestamp';
@@ -11,7 +14,7 @@ class ModuleMyOrders extends \Module {
 		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$objTemplate = new \BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS My Orders ###';
 			return $objTemplate->parse();
@@ -49,7 +52,7 @@ class ModuleMyOrders extends \Module {
 		
 		
 		if (!is_array($this->ls_shop_myOrders_sortingOptions)) {
-			$this->ls_shop_myOrders_sortingOptions = deserialize($this->ls_shop_myOrders_sortingOptions, true);
+			$this->ls_shop_myOrders_sortingOptions = StringUtil::deserialize($this->ls_shop_myOrders_sortingOptions, true);
 		}
 		
 		if (!is_array($this->ls_shop_myOrders_sortingOptions) || !count($this->ls_shop_myOrders_sortingOptions)) {
@@ -101,7 +104,7 @@ class ModuleMyOrders extends \Module {
 
 		$objPagination = new \Pagination($objOrdersAll->numRows, $_SESSION['lsShop']['myOrders']['numPerPage'], 7, 'page', new \FrontendTemplate('merconisPagination'));
 		$this->Template->pagination = $objPagination->generate();
-		$this->Template->request = ampersand(\Environment::get('request'), true);
+		$this->Template->request = StringUtil::ampersand(\Environment::get('request'), true);
 		
 		$currentPageOffset = \Input::get('page') ? \Input::get('page') - 1 : 0;
 		

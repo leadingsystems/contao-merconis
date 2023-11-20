@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 	'config' => array(
@@ -145,9 +146,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 	)
 );
 
-
-
-
 class ls_shop_attribute_values extends \Backend {
 	public function __construct() {
 		parent::__construct();
@@ -190,7 +188,7 @@ class ls_shop_attribute_values extends \Backend {
 		$attributesAndValuesCurrentlyInUse = ls_shop_generalHelper::getAttributesAndValuesCurrentlyInUse();
 		
 		if (!in_array($row['id'], $attributesAndValuesCurrentlyInUse['arrValueIDs'])) {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}

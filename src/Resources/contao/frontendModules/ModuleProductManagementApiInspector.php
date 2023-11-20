@@ -2,11 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 class ModuleProductManagementApiInspector extends \Module {
 	public $strTemplate = 'template_productManagementApiInspector';
 
 	public function generate() {
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$objTemplate = new \BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS product management API inspector ###';
 			return $objTemplate->parse();

@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\ArrayUtil;
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
 use Contao\LayoutModel;
 use Contao\StringUtil;
@@ -231,12 +232,12 @@ class ls_shop_generalHelper
 
         $str_pathToStandardProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']);
 
-        if (!file_exists(TL_ROOT . '/' . $str_pathToStandardProductImageFolder)) {
+        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder)) {
             error_log("the standard folder for product images possibly doesn't exist.");
             return $arr_productImages;
         }
 
-        $arr_tmpImageFiles = scandir(TL_ROOT . '/' . $str_pathToStandardProductImageFolder);
+        $arr_tmpImageFiles = scandir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder);
 
         if (is_array($arr_tmpImageFiles)) {
             foreach ($arr_tmpImageFiles as $str_imageFile) {
@@ -1728,7 +1729,7 @@ class ls_shop_generalHelper
          * Ist die Methode für die aktuelle Gruppe nicht erlaubt? False!
          */
         if ($method['excludedGroups']) {
-            $excludedGroups = deserialize($method['excludedGroups']);
+            $excludedGroups = StringUtil::deserialize($method['excludedGroups']);
             if (in_array($groupInfo['id'], $excludedGroups)) {
                 return false;
             }
@@ -2133,7 +2134,7 @@ class ls_shop_generalHelper
             throw new \Exception('insufficient parameters given');
         }
 
-        if (TL_MODE === 'BE') {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
             return null;
         }
 
@@ -2159,7 +2160,7 @@ class ls_shop_generalHelper
 
         $str_customizerObjectKey = $obj_productOrVariant->_customizerLogicFile . '_' . $obj_productOrVariant->ls_productVariantID . ($obj_productOrVariant->_configuratorHash ? '|' . $obj_productOrVariant->_configuratorHash : '');
 
-        require_once(TL_ROOT ."/". $obj_productOrVariant->_customizerLogicFile);
+        require_once(System::getContainer()->getParameter('kernel.project_dir') ."/". $obj_productOrVariant->_customizerLogicFile);
         $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_productOrVariant->_customizerLogicFile);
 
         if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
@@ -2598,7 +2599,7 @@ class ls_shop_generalHelper
             $_SESSION['lsShop']['lastSeenProducts'] = array();
         }
 
-        array_insert($_SESSION['lsShop']['lastSeenProducts'], 0, array($productID));
+        ArrayUtil::arrayInsert($_SESSION['lsShop']['lastSeenProducts'], 0, array($productID));
     }
 
     /*
@@ -2667,7 +2668,7 @@ class ls_shop_generalHelper
         $headline = isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline']) ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline'] : '';
         $requestedTable = $dc->table;
         $requestedValue = $dc->field;
-        return ' ' . \Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.gif', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="vertical-align:top;cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . specialchars($headline) . '\')"');
+        return ' ' . \Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.gif', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="vertical-align:top;cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . StringUtil::specialchars($headline) . '\')"');
     }
 
     public static function createValueList($requestedTable = false, $requestedValue = false, $requestedLanguage = false)
@@ -2688,7 +2689,7 @@ class ls_shop_generalHelper
 
         $strOptions = '';
         while ($objValues->next()) {
-            $strOptions .= sprintf('<option value="%s"%s>%s</option>', specialchars($objValues->{$requestedValue}), (($objValues->{$requestedValue} == \Input::get('value')) ? ' selected="selected"' : ''), specialchars($objValues->{$requestedValue}));
+            $strOptions .= sprintf('<option value="%s"%s>%s</option>', StringUtil::specialchars($objValues->{$requestedValue}), (($objValues->{$requestedValue} == \Input::get('value')) ? ' selected="selected"' : ''), StringUtil::specialchars($objValues->{$requestedValue}));
         }
         return $strOptions;
     }
@@ -2750,7 +2751,7 @@ class ls_shop_generalHelper
      */
     public static function conditionalCTEOutput($objElement, $strBuffer)
     {
-        if (TL_MODE == 'BE' || !$objElement->lsShopOutputCondition) {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend() || !$objElement->lsShopOutputCondition) {
             return $strBuffer;
         }
 
@@ -2812,7 +2813,7 @@ class ls_shop_generalHelper
         if (!isset($GLOBALS['merconis_globals']['getAllProductImages'][$globalCacheKey])) {
             $standardImages = ls_shop_generalHelper::getImagesFromStandardFolder($obj_product, $productOrVariantCode);
             if (!is_array($moreImages)) {
-                $moreImages = deserialize($moreImages);
+                $moreImages = StringUtil::deserialize($moreImages);
                 if (!is_array($moreImages)) {
                     $moreImages = array();
                 }
@@ -2930,7 +2931,7 @@ class ls_shop_generalHelper
 
             if ($objVariants->numRows) {
                 while ($objVariants->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(deserialize($objVariants->lsShopProductVariantAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(StringUtil::deserialize($objVariants->lsShopProductVariantAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
@@ -2954,7 +2955,7 @@ class ls_shop_generalHelper
 
             if ($objProducts->numRows) {
                 while ($objProducts->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(deserialize($objProducts->lsShopProductAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(StringUtil::deserialize($objProducts->lsShopProductAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
@@ -3249,7 +3250,7 @@ class ls_shop_generalHelper
                 case 'select':
                 case 'radio':
                     if (!$bln_getOnlyOriginalOptionValues) {
-                        $tmpArrOptions = deserialize($fieldInfo['arrData']['options']);
+                        $tmpArrOptions = StringUtil::deserialize($fieldInfo['arrData']['options']);
                         foreach ($tmpArrOptions as $arrOption) {
                             if ($arrOption['value'] == $fieldInfo['value']) {
                                 $fieldInfo['value'] = $arrOption['label'];
@@ -3268,7 +3269,7 @@ class ls_shop_generalHelper
                 case 'checkbox':
                     $quoteStart = '';
                     $quoteEnd = '';
-                    $tmpArrOptions = deserialize($fieldInfo['arrData']['options']);
+                    $tmpArrOptions = StringUtil::deserialize($fieldInfo['arrData']['options']);
 
                     if (!is_array($fieldInfo['value'])) {
                         $fieldInfo['value'] = array($fieldInfo['value']);
@@ -3421,7 +3422,7 @@ class ls_shop_generalHelper
      */
     public static function validateCollectedFormData($arrValidateData, $formID)
     {
-        if (TL_MODE == 'BE') {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
             return true;
         }
 
@@ -3567,7 +3568,7 @@ class ls_shop_generalHelper
             if (!$value && $considerDefaultFormFieldValues) {
                 switch ($objFormFields->type) {
                     case 'select':
-                        $arrOptions = deserialize($objFormFields->options);
+                        $arrOptions = StringUtil::deserialize($objFormFields->options);
                         foreach ($arrOptions as $option) {
                             if ($option['default']) {
                                 if ($objFormFields->multiple) {
@@ -3583,7 +3584,7 @@ class ls_shop_generalHelper
                         break;
 
                     case 'radio':
-                        $arrOptions = deserialize($objFormFields->options);
+                        $arrOptions = StringUtil::deserialize($objFormFields->options);
                         foreach ($arrOptions as $option) {
                             if ($option['default']) {
                                 $value = $option['value'];
@@ -3592,7 +3593,7 @@ class ls_shop_generalHelper
                         break;
 
                     case 'checkbox':
-                        $arrOptions = deserialize($objFormFields->options);
+                        $arrOptions = StringUtil::deserialize($objFormFields->options);
                         foreach ($arrOptions as $option) {
                             if ($option['default']) {
                                 if (!is_array($value)) {
@@ -3652,7 +3653,7 @@ class ls_shop_generalHelper
                 if (isset($GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) && $GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) {
                 ?>
                 if (lsjs.__appHelpers.merconisApp !== undefined && lsjs.__appHelpers.merconisApp !== null) {
-                    lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN = '<?php echo REQUEST_TOKEN; ?>';
+                    lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN = '<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.str_ajaxUrl = '<?php echo $str_ajaxUrl; ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.int_minicartID = '<?php echo $int_minicartID; ?>';
                     lsjs.__appHelpers.merconisApp.start();
@@ -3772,7 +3773,7 @@ class ls_shop_generalHelper
         global $objPage;
 
         if (!is_array($arrOrder['miscData'])) {
-            $arrOrder['miscData'] = deserialize($arrOrder['miscData'], true);
+            $arrOrder['miscData'] = StringUtil::deserialize($arrOrder['miscData'], true);
         }
 
         /*
@@ -3913,12 +3914,12 @@ class ls_shop_generalHelper
 
             $arrOrder = $objOrder->first()->row();
 
-            $arrOrder['totalValueOfGoodsTaxedWith'] = deserialize($arrOrder['totalValueOfGoodsTaxedWith']);
-            $arrOrder['couponsUsed'] = deserialize($arrOrder['couponsUsed']);
-            $arrOrder['paymentMethod_amountTaxedWith'] = deserialize($arrOrder['paymentMethod_amountTaxedWith']);
-            $arrOrder['shippingMethod_amountTaxedWith'] = deserialize($arrOrder['shippingMethod_amountTaxedWith']);
-            $arrOrder['totalTaxedWith'] = deserialize($arrOrder['totalTaxedWith']);
-            $arrOrder['tax'] = deserialize($arrOrder['tax']);
+            $arrOrder['totalValueOfGoodsTaxedWith'] = StringUtil::deserialize($arrOrder['totalValueOfGoodsTaxedWith']);
+            $arrOrder['couponsUsed'] = StringUtil::deserialize($arrOrder['couponsUsed']);
+            $arrOrder['paymentMethod_amountTaxedWith'] = StringUtil::deserialize($arrOrder['paymentMethod_amountTaxedWith']);
+            $arrOrder['shippingMethod_amountTaxedWith'] = StringUtil::deserialize($arrOrder['shippingMethod_amountTaxedWith']);
+            $arrOrder['totalTaxedWith'] = StringUtil::deserialize($arrOrder['totalTaxedWith']);
+            $arrOrder['tax'] = StringUtil::deserialize($arrOrder['tax']);
 
             $arrOrder['customerData'] = array();
 
@@ -3944,7 +3945,7 @@ class ls_shop_generalHelper
 
             while ($objItems->next()) {
                 $arrOrder['items'][$objItems->itemPosition] = $objItems->row();
-                $arrOrder['items'][$objItems->itemPosition]['extendedInfo'] = deserialize($arrOrder['items'][$objItems->itemPosition]['extendedInfo']);
+                $arrOrder['items'][$objItems->itemPosition]['extendedInfo'] = StringUtil::deserialize($arrOrder['items'][$objItems->itemPosition]['extendedInfo']);
             }
 
 
@@ -4549,7 +4550,7 @@ class ls_shop_generalHelper
         $GLOBALS['merconis_globals']['ls_shop_hideFilterFormInProductDetails'] = $objLayout->ls_shop_hideFilterFormInProductDetails;
 
         $arr_themeData = ls_shop_generalHelper::ls_shop_getThemeDataForID($objLayout->pid);
-        $GLOBALS['merconis_globals']['contaoThemeFolders'] = isset($arr_themeData) ? deserialize($arr_themeData['folders'], true) : array();
+        $GLOBALS['merconis_globals']['contaoThemeFolders'] = isset($arr_themeData) ? StringUtil::deserialize($arr_themeData['folders'], true) : array();
 
         $GLOBALS['merconis_globals']['int_rootPageId'] = $objPage->rootId;
         $arr_pageData = ls_shop_generalHelper::ls_shop_getPageDataForID($objPage->rootId);
@@ -4562,15 +4563,15 @@ class ls_shop_generalHelper
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
     {
         $themesPath = 'files/merconisfiles/themes';
-        if (!file_exists(TL_ROOT . '/' . $themesPath) || !is_dir(TL_ROOT . '/' . $themesPath)) {
+        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath) || !is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath)) {
             return;
         }
-        $themeFolders = array_diff(scandir(TL_ROOT . '/' . $themesPath), array('.', '..'));
+        $themeFolders = array_diff(scandir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath), array('.', '..'));
         if (is_array($themeFolders)) {
             foreach ($themeFolders as $themeFolder) {
                 $languageFileToLoad = $themesPath . '/' . $themeFolder . '/languages/' . $language . '/' . $filename . '.php';
-                if (file_exists(TL_ROOT . '/' . $languageFileToLoad)) {
-                    include(TL_ROOT . '/' . $languageFileToLoad);
+                if (file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad)) {
+                    include(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad);
                 }
             }
         }
@@ -4665,7 +4666,7 @@ class ls_shop_generalHelper
                 continue;
             }
 
-            $arr_validGroups = deserialize($arr_productData['priceForGroups_' . $i], true);
+            $arr_validGroups = StringUtil::deserialize($arr_productData['priceForGroups_' . $i], true);
             if (!count($arr_validGroups)) {
                 /*
                  * Skip this price group if it is not assigned to any
@@ -4956,7 +4957,7 @@ class ls_shop_generalHelper
             && \Input::post('favoriteProductID') == $obj_product->_id
         ) {
             $strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
-            $arrFavorites = $strFavorites ? deserialize($strFavorites) : array();
+            $arrFavorites = $strFavorites ? StringUtil::deserialize($strFavorites) : array();
             $arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
 
             if (!$obj_product->_isFavorite) {
@@ -5105,7 +5106,7 @@ class ls_shop_generalHelper
         <script type="text/javascript">
             window.addEvent('domready', function () {
                 if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {
-                    lsjs.__appHelpers.merconisBackendApp.obj_config.REQUEST_TOKEN = '<?php echo \RequestToken::get(); ?>';
+                    lsjs.__appHelpers.merconisBackendApp.obj_config.REQUEST_TOKEN = '<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>';
                     lsjs.__appHelpers.merconisBackendApp.obj_config.API_KEY = '<?php echo $GLOBALS['TL_CONFIG']['ls_api_key']; ?>';
                     lsjs.__appHelpers.merconisBackendApp.start();
                 }
@@ -5143,7 +5144,7 @@ class ls_shop_generalHelper
          * they should be.
          */
         return;
-        if (is_dir(TL_ROOT . '/var/cache/prod/contao/dca')) {
+        if (is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/var/cache/prod/contao/dca')) {
             $obj_automator = \System::importStatic('Automator');
             $obj_automator->purgeInternalCache();
         }

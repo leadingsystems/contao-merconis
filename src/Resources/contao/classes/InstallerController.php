@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+
 class InstallerController extends \Controller {
 	protected $obj_config = null;
 	/*
@@ -199,7 +201,7 @@ class InstallerController extends \Controller {
 			\System::log('MERCONIS INSTALLER: File "exportTables.dat" not found. Installation impossible.', 'MERCONIS INSTALLER', TL_MERCONIS_ERROR);
 			$blnPossible = false;
 		} else {
-			$arrExportTables = deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat']));
+			$arrExportTables = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat']));
 
 			if (!is_array($arrExportTables)) {
 				\System::log('MERCONIS INSTALLER: File "exportTables.dat" is corrupt. Installation impossible.', 'MERCONIS INSTALLER', TL_MERCONIS_ERROR);
@@ -212,7 +214,7 @@ class InstallerController extends \Controller {
 			\System::log('MERCONIS INSTALLER: File "exportLocalconfig.dat" not found. Installation impossible.', 'MERCONIS INSTALLER', TL_MERCONIS_ERROR);
 			$blnPossible = false;
 		} else {
-			$arrExportLocalconfig = deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
+			$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
 
 			if (!is_array($arrExportLocalconfig)) {
 				\System::log('MERCONIS INSTALLER: File "exportLocalconfig.dat" is corrupt. Installation impossible.', 'MERCONIS INSTALLER', TL_MERCONIS_ERROR);
@@ -352,7 +354,7 @@ class InstallerController extends \Controller {
 				 * Eintragen der Grundeinstellungen in localconfig. Teilweise müssen die Werte später
 				 * im Installationsprozess noch durch die richtigen Werte (ID-Zuordnungen) ersetzt werden.
 				 */
-				$arrExportLocalconfig = deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
+				$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
 
 				\System::log('MERCONIS INSTALLER: Inserting MERCONIS configuration values in localconfig.php', 'MERCONIS INSTALLER', TL_MERCONIS_INSTALLER);
 
@@ -390,7 +392,7 @@ class InstallerController extends \Controller {
 
                 ls_shop_generalHelper::purgeContaoCache();
 
-				$arrExportTables = deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat']));
+				$arrExportTables = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat']));
 
 				$this->lsShopImportTables($arrExportTables);
 
@@ -736,7 +738,7 @@ class InstallerController extends \Controller {
 
 			case 'array': // Der ForeignKey ist ein (serialisiertes) Array
 				\LeadingSystems\Helpers\lsErrorLog('array!', '', 'lslog_14');
-				$arrOldForeignKeys =  is_array($oldForeignKey) ? $oldForeignKey : deserialize($oldForeignKey);
+				$arrOldForeignKeys =  is_array($oldForeignKey) ? $oldForeignKey : StringUtil::deserialize($oldForeignKey);
 				$arrNewForeignKeys = array();
 				if (is_array($arrOldForeignKeys)) {
 					foreach ($arrOldForeignKeys as $key => $oldForeignKey) {
@@ -768,7 +770,7 @@ class InstallerController extends \Controller {
 								 * ursprünglichen foreignKey auszulesen, die neuen Modul-IDs zu ermitteln und den korrekten foreignKey mit den neuen
 								 * Modul-IDs wieder zu erstellen.
 								 */
-								$arrModulesInLayout = is_array($oldForeignKey) ? $oldForeignKey : deserialize($oldForeignKey);
+								$arrModulesInLayout = is_array($oldForeignKey) ? $oldForeignKey : StringUtil::deserialize($oldForeignKey);
 								foreach ($arrModulesInLayout as $k => $v) {
 									if (!$v['mod']) {
 										continue;
@@ -910,7 +912,7 @@ class InstallerController extends \Controller {
 		 * sichergestellt wird, dass der Alias unique ist.
 		 */
 		if (!$preserveAlias && \Database::getInstance()->fieldExists('alias', $targetTable)) {
-			$alias = (isset($arrData['title']) && $arrData['title'] ? standardize(\StringUtil::restoreBasicEntities($arrData['title'])) : 'record-'.$insertID);
+			$alias = (isset($arrData['title']) && $arrData['title'] ? StringUtil::standardize(\StringUtil::restoreBasicEntities($arrData['title'])) : 'record-'.$insertID);
 
 			$alias = strlen($alias) > 100 ? substr($alias, 0, 100) : $alias;
 
@@ -1356,7 +1358,7 @@ class InstallerController extends \Controller {
 			 * If this array doesn't exist or it is invalid in the localconfig, we create a default update status array.
 			 */
 			if (isset($GLOBALS['TL_CONFIG']['ls_shop_updateStatus'])) {
-				$GLOBALS['merconis_globals']['update']['arrUpdateStatus'] = deserialize($GLOBALS['TL_CONFIG']['ls_shop_updateStatus'], true);
+				$GLOBALS['merconis_globals']['update']['arrUpdateStatus'] = StringUtil::deserialize($GLOBALS['TL_CONFIG']['ls_shop_updateStatus'], true);
 			}
 
 			if (

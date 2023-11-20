@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
     'config' => array(
@@ -693,7 +694,7 @@ class ls_shop_orders extends \Backend {
         if (!is_null($paymentModuleOutput)) {
             $outputValue = $paymentModuleOutput;
         } else {
-            $varValue = deserialize($varValue);
+            $varValue = StringUtil::deserialize($varValue);
             ob_start();
             echo '<pre>';
             if (is_array($varValue)) {
