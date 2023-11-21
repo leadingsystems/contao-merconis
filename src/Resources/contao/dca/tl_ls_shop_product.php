@@ -77,25 +77,25 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
 			),
 			'toggle' => array
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['toggle'],
-				'icon'                => 'visible.gif',
+				'icon'                => 'visible.svg',
 				'attributes'          => 'onclick="Backend.getScrollOffset(); return AjaxRequest.toggleVisibility(this,%s)"',
 				'button_callback'     => array('Merconis\Core\tl_ls_shop_product_controller', 'toggleIcon')
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
 
 		)
@@ -1449,7 +1449,7 @@ class tl_ls_shop_product_controller extends \Backend {
 		$href .= '&amp;tid='.$row['id'].'&amp;state='.($row['published'] ? '' : 1);
 
 		if (!$row['published']) {
-			$icon = 'invisible.gif';
+			$icon = 'invisible.svg';
 		}
 
 		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';

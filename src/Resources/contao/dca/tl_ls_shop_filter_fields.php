@@ -60,35 +60,35 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit'],
 				'href'                => 'table=tl_ls_shop_filter_field_values',
-				'icon'                => 'edit.gif',
+				'icon'                => 'edit.svg',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_filter_fields','getEditButton')
 			),
 			'editheader' => array (
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['editheader'],
 				'href'                => 'act=edit',
-				'icon'                => 'header.gif'
+				'icon'                => 'header.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
 			),
 			'toggle' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['toggle'],
-				'icon'                => 'visible.gif',
+				'icon'                => 'visible.svg',
 				'attributes'          => 'onclick="Backend.getScrollOffset(); return AjaxRequest.toggleVisibility(this,%s)"',
 				'button_callback'     => array('Merconis\Core\ls_shop_filter_fields', 'toggleIcon')
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
 
 		)
@@ -270,7 +270,7 @@ class ls_shop_filter_fields extends \Backend {
 		if ($row['dataSource'] == 'producer') {
 			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
-			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 
 		return $button;
@@ -289,7 +289,7 @@ class ls_shop_filter_fields extends \Backend {
 		$href .= '&amp;tid='.$row['id'].'&amp;state='.($row['published'] ? '' : 1);
 
 		if (!$row['published']) {
-			$icon = 'invisible.gif';
+			$icon = 'invisible.svg';
 		}
 
 		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';

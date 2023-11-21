@@ -51,30 +51,30 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['edit'],
 				'href'                => 'table=tl_ls_shop_message_model',
-				'icon'                => 'edit.gif',
+				'icon'                => 'edit.svg',
 				'attributes'          => 'class="contextmenu"'
 			),
 			'editheader' => array
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['editheader'],
 				'href'                => 'act=edit',
-				'icon'                => 'header.gif'
+				'icon'                => 'header.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
 		
 		)
