@@ -29,64 +29,64 @@ $GLOBALS['TL_DCA']['tl_ls_shop_configurator'] = array(
                 'id' => 'primary'
             )
         )
-    ),
-
-    'list' => array(
-        'sorting' => array(
-            'mode' => DataContainer::MODE_SORTABLE,
-            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
-            'fields' => array('title'),
-            'disableGrouping' => true,
-            'panelLayout' => 'filter;sort,search,limit'
-        ),
-
-        'label' => array(
-            'fields' => array('title', 'alias'),
-            'format' => '<strong>%s</strong> <span style="font-style: italic;">(Alias: %s)</span>'
-        ),
-
-        'global_operations' => array(
-            'all' => array
-            (
-                'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
-                'href'                => 'act=select',
-                'class'               => 'header_edit_all',
-                'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
-            )
-        ),
-
-        'operations' => array(
-            'edit' => array(
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['edit'],
-                'href'                => 'act=edit',
-                'icon'                => 'edit.gif'
-            ),
-            'copy' => array(
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['copy'],
-                'href'                => 'act=copy',
-                'icon'                => 'copy.gif'
-            ),
-            'delete' => array(
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['delete'],
-                'href'                => 'act=delete',
-                'icon'                => 'delete.gif',
-                'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
-                'button_callback'	=>	array('Merconis\Core\ls_shop_configurator','getDeleteButton')
-            ),
-            'show' => array(
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['show'],
-                'href'                => 'act=show',
-                'icon'                => 'show.gif'
-            )
-
-        )
-    ),
-
-    'palettes' => array(
-        'default' => '{title_legend},title,alias;{form_legend},form,startWithDataEntryMode,stayInDataEntryMode,skipStandardFormValidation;{customLogic_legend},customLogicFile;{template_legend},template;'
-    ),
-
-    'fields' => array(
+	),
+	
+	'list' => array(
+		'sorting' => array(
+			'mode' => DataContainer::MODE_SORTABLE,
+			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
+			'fields' => array('title'),
+			'disableGrouping' => true,
+			'panelLayout' => 'filter;sort,search,limit'
+		),
+		
+		'label' => array(
+			'fields' => array('title', 'alias'),
+			'format' => '<strong>%s</strong> <span style="font-style: italic;">(Alias: %s)</span>'
+		),
+		
+		'global_operations' => array(
+			'all' => array
+			(
+				'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
+				'href'                => 'act=select',
+				'class'               => 'header_edit_all',
+				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
+			)
+		),
+		
+		'operations' => array(
+			'edit' => array(
+				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['edit'],
+				'href'                => 'act=edit',
+				'icon'                => 'edit.svg'
+			),
+			'copy' => array(
+				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['copy'],
+				'href'                => 'act=copy',
+				'icon'                => 'copy.svg'
+			),
+			'delete' => array(
+				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['delete'],
+				'href'                => 'act=delete',
+				'icon'                => 'delete.svg',
+				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
+				'button_callback'	=>	array('Merconis\Core\ls_shop_configurator','getDeleteButton')
+			),
+			'show' => array(
+				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_configurator']['show'],
+				'href'                => 'act=show',
+				'icon'                => 'show.svg'
+			)
+		
+		)	
+	),
+	
+	'palettes' => array(
+		'default' => '{title_legend},title,alias;{form_legend},form,startWithDataEntryMode,stayInDataEntryMode,skipStandardFormValidation;{customLogic_legend},customLogicFile;{template_legend},template;'
+	),
+	
+	'fields' => array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
         ),
