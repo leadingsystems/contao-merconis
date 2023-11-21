@@ -1053,7 +1053,7 @@ class ModuleCheckoutFinish extends \Module {
 		$objPage->language = ls_shop_languageHelper::getFallbackLanguage();
 
 		foreach ($arr_data as $k => $v) {
-			$arr_data[$k] = \System::getContainer()->get('contao.insert_tag.parser')->replaceInline($v, false);
+			$arr_data[$k] = \System::getContainer()->get('contao.insert_tag.parser')->replaceInline($v);
 		}
 
 		$objPage->language = $tmpObjPageLanguage;
@@ -1067,7 +1067,7 @@ class ModuleCheckoutFinish extends \Module {
 		}
 
 		foreach ($arr_data as $k => $v) {
-			$arr_data[$k] = \System::getContainer()->get('contao.insert_tag.parser')->replaceInline($v, false);
+			$arr_data[$k] = \System::getContainer()->get('contao.insert_tag.parser')->replaceInline($v);
 		}
 
 		return $arr_data;
