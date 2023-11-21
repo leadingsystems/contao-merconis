@@ -2435,7 +2435,7 @@ class ls_shop_generalHelper
         $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
         $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
 
-        $str_deliveryTimeMessage = \Controller::replaceInserttags($str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = \System::getContainer()->get('contao.insert_tag.parser')->replace($str_deliveryTimeMessage);
 
         unset($GLOBALS['merconis_globals']['arr_dataForInsertTags']);
 

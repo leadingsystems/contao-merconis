@@ -276,9 +276,9 @@ class ls_shop_orderMessages
 			if ($arrMessageModel['useHTML']) {
 				$objTemplate_emailHTML = new \FrontendTemplate($arrMessageModel['template_html']);
 				if (version_compare(VERSION . '.' . BUILD, '3.3.0', '<')) {
-					$objTemplate_emailHTML->content = \Controller::replaceInsertTags($this->ls_replaceWildcards(\Controller::replaceInsertTags($arrMessageModel['multilanguage']['content_html'])));
+					$objTemplate_emailHTML->content = \System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(\System::getContainer()->get('contao.insert_tag.parser')->replace));
 				} else {
-					$objTemplate_emailHTML->content = \Controller::replaceInsertTags($this->ls_replaceWildcards(\StringUtil::insertTagToSrc(\Controller::replaceInsertTags($arrMessageModel['multilanguage']['content_html']))));
+					$objTemplate_emailHTML->content = \System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(\StringUtil::insertTagToSrc(\System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html']))));
 				}
 				$objTemplate_emailHTML->arrOrder = $this->arrOrder;
 				$objTemplate_emailHTML->arrMessageModel = $arrMessageModel;
@@ -287,7 +287,7 @@ class ls_shop_orderMessages
 			
 			if ($arrMessageModel['useRawtext']) {
 				$objTemplate_rawtext = new \FrontendTemplate($arrMessageModel['template_rawtext']);
-				$objTemplate_rawtext->content = \Controller::replaceInsertTags($this->ls_replaceWildcards(\Controller::replaceInsertTags($arrMessageModel['multilanguage']['content_rawtext'])));
+				$objTemplate_rawtext->content = \System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(\System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_rawtext'])));
 				$objTemplate_rawtext->arrOrder = $this->arrOrder;
 				$objTemplate_rawtext->arrMessageModel = $arrMessageModel;
 				$objTemplate_rawtext->counterNr = $this->counterNr;
@@ -305,7 +305,7 @@ class ls_shop_orderMessages
 				'senderAddress' => $arrMessageModel['senderAddress'],
 				'receiverMainAddress' => $arrReceiverAddresses['main'],
 				'receiverBccAddress' => $arrReceiverAddresses['bcc'],
-				'subject' => html_entity_decode($this->ls_replaceWildcards(\Controller::replaceInsertTags($arrMessageModel['multilanguage']['subject']))),
+				'subject' => html_entity_decode($this->ls_replaceWildcards(\System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['subject']))),
 				'bodyHTML' => $arrMessageModel['useHTML'] ? $objTemplate_emailHTML->parse() : '',
 				'bodyRawtext' => $arrMessageModel['useRawtext'] ? $objTemplate_rawtext->parse() : '',
 				'dynamicPdfAttachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),

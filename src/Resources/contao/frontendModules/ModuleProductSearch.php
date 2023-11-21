@@ -152,7 +152,7 @@ class ModuleProductSearch extends \Module {
 									break;
 									
 								default:
-									$arrHit[$liveHitField] = \Controller::replaceInsertTags($objProduct->{$liveHitField});
+									$arrHit[$liveHitField] = \System::getContainer()->get('contao.insert_tag.parser')->replace($objProduct->{$liveHitField});
 									break;
 							}
 						}

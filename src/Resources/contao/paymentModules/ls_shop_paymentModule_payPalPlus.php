@@ -432,7 +432,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 			$arr_cartItemExtended = ls_shop_cartX::getInstance()->itemsExtended[$arr_cartItem['productCartKey']];
 			$obj_item = new Item();
 			$obj_item
-				->setName(substr(\Controller::replaceInsertTags($arr_cartItemExtended['objProduct']->_title), 0, 127))
+				->setName(substr(\System::getContainer()->get('contao.insert_tag.parser')->replace($arr_cartItemExtended['objProduct']->_title), 0, 127))
 				->setDescription($arr_cartItemExtended['objProduct']->_hasCode ? substr($arr_cartItemExtended['objProduct']->_code, 0, 127) : '')
 				->setCurrency($GLOBALS['TL_CONFIG']['ls_shop_currencyCode'])
 				/*

@@ -324,7 +324,7 @@ class ls_shop_customInserttags
                         }
                     }
                 }
-                return \Controller::replaceInsertTags( '{{picture::'.$params.'}}');
+                return \System::getContainer()->get('contao.insert_tag.parser')->replace('{{picture::'.$params.'}}');
                 break;
 
 			case 'CrossSeller':
@@ -362,7 +362,7 @@ class ls_shop_customInserttags
                 $objProductOutput = new ls_shop_productOutput($str_productVariantId, 'overview', $str_templateToUse);
                 $str_productOutput = $objProductOutput->parseOutput();
 
-                return \Controller::replaceInsertTags($str_productOutput);
+                return \System::getContainer()->get('contao.insert_tag.parser')->replace($str_productOutput);
                 break;
 
             case 'ProductProperty':
@@ -385,7 +385,7 @@ class ls_shop_customInserttags
 
                 $obj_product = ls_shop_generalHelper::getObjProduct($str_productVariantId, __METHOD__);
 
-                return \Controller::replaceInsertTags($obj_product->{$str_propertyToUse});
+                return \System::getContainer()->get('contao.insert_tag.parser')->replace($obj_product->{$str_propertyToUse});
                 break;
 		}
 

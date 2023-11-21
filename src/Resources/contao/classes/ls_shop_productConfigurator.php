@@ -573,7 +573,7 @@ class ls_shop_productConfigurator {
             $cartRepresentation = $obj_template_defaultConfiguratorRepresentation->parse();
         }
 
-		return $blnReplaceInsertTags ? \Controller::replaceInsertTags($cartRepresentation) : $cartRepresentation;
+		return $blnReplaceInsertTags ? \System::getContainer()->get('contao.insert_tag.parser')->replace($cartRepresentation) : $cartRepresentation;
 	}
 	
 	/*
@@ -588,7 +588,7 @@ class ls_shop_productConfigurator {
 			$cartRepresentation = $this->getRepresentationOfConfiguratorSettings(false);
 		}
 		
-		return $blnReplaceInsertTags ? \Controller::replaceInsertTags($cartRepresentation) : $cartRepresentation;
+		return $blnReplaceInsertTags ? \System::getContainer()->get('contao.insert_tag.parser')->replace($cartRepresentation) : $cartRepresentation;
 	}
 	
 	/*
@@ -609,7 +609,7 @@ class ls_shop_productConfigurator {
 		 * $objPage->language if we are okay with this kind of intervention. Currently, we are not using this technique
 		 * because we haven't thought it through yet.
 		 */
-		return $blnReplaceInsertTags ? \Controller::replaceInsertTags($merchantRepresentation) : $merchantRepresentation;
+		return $blnReplaceInsertTags ? \System::getContainer()->get('contao.insert_tag.parser')->replace($merchantRepresentation) : $merchantRepresentation;
 	}
 	
 	public function getReferenceNumber() {
