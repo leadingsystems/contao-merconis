@@ -178,13 +178,12 @@ var classdef_ls_x_controller = {
 			
 			var el_datepickerBox = new Element('div.ls_x_datepickerBox');
 			el_datepickerBox.wraps(el_input);
-			//@TODO please check if change from gif to svg is ok
 			el_datepickerBox.adopt(
 				new Element('img.toggler')
 					.setProperties({
 						'width': 20,
 						'height': 20,
-						'src': 'assets/mootools/datepicker/2.0.0/icon.svg'
+						'src': 'assets/datepicker/images/icon.svg'
 					})
 					.setStyles({
 						'vertical-align': '-6px',

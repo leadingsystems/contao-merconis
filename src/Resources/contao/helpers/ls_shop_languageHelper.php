@@ -183,7 +183,7 @@ class ls_shop_languageHelper {
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeMainLanguageField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
-							'eval'					  => array('output' => '<div class="languageWidgetContainer mainLanguage '.self::getFallbackLanguage().($str_tmpFieldClass ? ' '.$str_tmpFieldClass : '').'"><div class="languageIcon '.self::getFallbackLanguage().' mainLanguage" style="background-image: url(bundles/leadingsystemsmerconis/images/languages/'.self::getFallbackLanguage().'.svg);"></div>')
+							'eval'					  => array('output' => '<div class="languageWidgetContainer mainLanguage '.self::getFallbackLanguage().($str_tmpFieldClass ? ' '.$str_tmpFieldClass : '').'"><div class="languageIcon '.self::getFallbackLanguage().' mainLanguage" style="background-image: url(bundles/leadingsystemsmerconis/images/languages/'.self::getFallbackLanguage().'.gif);"></div>')
 						);
 					}
 
