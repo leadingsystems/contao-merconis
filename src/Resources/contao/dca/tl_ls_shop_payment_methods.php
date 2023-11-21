@@ -51,19 +51,19 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['edit'],
                 'href'                => 'act=edit',
-                'icon'                => 'edit.gif'
+                'icon'                => 'edit.svg'
             ),
             'copy' => array
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['copy'],
                 'href'                => 'act=copy',
-                'icon'                => 'copy.gif'
+                'icon'                => 'copy.svg'
             ),
             'delete' => array
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['delete'],
                 'href'                => 'act=delete',
-                'icon'                => 'delete.gif',
+                'icon'                => 'delete.svg',
                 'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
                 'button_callback'	=>	array('Merconis\Core\ls_shop_payment_methods','getDeleteButton')
             ),
@@ -71,7 +71,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['show'],
                 'href'                => 'act=show',
-                'icon'                => 'show.gif'
+                'icon'                => 'show.svg'
             )
 
         )
@@ -959,7 +959,7 @@ class ls_shop_payment_methods extends \Backend {
         if (!in_array($row['id'], $arr_methodIDsCurrentlyUsed)) {
             $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
         } else {
-            $button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+            $button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
         }
 
         return $button;
