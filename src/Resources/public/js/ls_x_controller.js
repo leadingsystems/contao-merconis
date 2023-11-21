@@ -183,7 +183,7 @@ var classdef_ls_x_controller = {
 					.setProperties({
 						'width': 20,
 						'height': 20,
-						'src': 'assets/mootools/datepicker/2.0.0/icon.gif'
+						'src': 'assets/datepicker/images/icon.svg'
 					})
 					.setStyles({
 						'vertical-align': '-6px',

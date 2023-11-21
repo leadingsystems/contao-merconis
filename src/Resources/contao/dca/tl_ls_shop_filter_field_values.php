@@ -59,29 +59,29 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values'] = array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_field_values']['edit'],
 				'href'                => 'act=edit',
-				'icon'                => 'edit.gif'
+				'icon'                => 'edit.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_field_values']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'cut' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_field_values']['cut'],
 				'href'                => 'act=paste&amp;mode=cut',
-				'icon'                => 'cut.gif',
+				'icon'                => 'cut.svg',
 				'attributes'          => 'onclick="Backend.getScrollOffset()"'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_field_values']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_field_values']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
 		
 		)	
