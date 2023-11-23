@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\StringUtil;
 use Contao\System;
 
@@ -23,7 +24,7 @@ class ls_shop_export
 		$this->getExportRecordForIdentificationToken($var_identificationToken, $str_identificationTokenFieldName);
 
 		if (!count($this->arr_exportRecord)) {
-			\System::log('MERCONIS: Trying to show an export but could not find an export record for the given identification token "'.$var_identificationToken.'" in identification token field "'.$str_identificationTokenFieldName.'".', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Trying to show an export but could not find an export record for the given identification token "'.$var_identificationToken.'" in identification token field "'.$str_identificationTokenFieldName.'".', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 
 			/*
 			 * Do not throw an exception in backend mode because in this case it would not be possible

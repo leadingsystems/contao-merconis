@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\StringUtil;
@@ -297,7 +298,10 @@ class ls_shop_filter_fields extends \Backend {
 
 	public function toggleVisibility($intId, $blnVisible) {
 		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_filter_fields::published', 'alexf')) {
-			\System::log('Not enough permissions to publish/unpublish filter field ID "'.$intId.'"', 'tl_ls_shop_filter_fields toggleVisibility', TL_ERROR);
+            \System::getContainer()->get('monolog.logger.contao')->info(
+                'Not enough permissions to publish/unpublish filter field ID "'.$intId.'"',
+                ['contao' => new ContaoContext('tl_ls_shop_filter_fields toggleVisibility', TL_ERROR)]
+            );
 			$this->redirect('contao/main.php?act=error');
 		}
 

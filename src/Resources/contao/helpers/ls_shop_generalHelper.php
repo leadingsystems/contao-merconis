@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\ArrayUtil;
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\LayoutModel;
 use Contao\StringUtil;
 use Contao\System;
@@ -2164,7 +2165,10 @@ class ls_shop_generalHelper
         $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_productOrVariant->_customizerLogicFile);
 
         if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
-            \System::log('MERCONIS: Customizer logic file "' . $str_customLogicClassName . '" can not be used because it is does not extend "\Merconis\Core\customizer"', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+            \System::getContainer()->get('monolog.logger.contao')->info(
+                'MERCONIS: Customizer logic file "' . $str_customLogicClassName . '" can not be used because it is does not extend "\Merconis\Core\customizer"',
+                ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
+            );
             return null;
         }
 
@@ -2569,7 +2573,10 @@ class ls_shop_generalHelper
 
             if (!\Validator::isEmail(\Idna::encodeEmail($GLOBALS['TL_CONFIG']['ls_shop_ownEmailAddress']))) {
                 // log an error if the address is invalid
-                \System::log('MERCONIS: Stock notification could not be sent because address "' . $GLOBALS['TL_CONFIG']['ls_shop_ownEmailAddress'] . '" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+                \System::getContainer()->get('monolog.logger.contao')->info(
+                    'MERCONIS: Stock notification could not be sent because address "' . $GLOBALS['TL_CONFIG']['ls_shop_ownEmailAddress'] . '" is invalid',
+                    ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
+                );
                 return;
             }
 
@@ -3879,7 +3886,10 @@ class ls_shop_generalHelper
                 $objWildcardTemplate->arrOrder = $arrOrder;
                 $wildcardTemplateReplacement = $objWildcardTemplate->parse();
             } catch (\Exception $e) {
-                \System::log('MERCONIS: Template "' . $strTemplate . '" does not exist (at least not in the required output format "' . (isset($objPage) && is_object($objPage) ? $objPage->outputFormat : 'html5'), 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+                \System::getContainer()->get('monolog.logger.contao')->info(
+                    'MERCONIS: Template "' . $strTemplate . '" does not exist (at least not in the required output format "' . (isset($objPage) && is_object($objPage) ? $objPage->outputFormat : 'html5'),
+                    ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
+                );
             }
 
             $text = preg_replace('/(&#35;&#35;template::' . $strTemplate . '&#35;&#35;)|(##template::' . $strTemplate . '##)/siU', $wildcardTemplateReplacement, $text);
@@ -4431,7 +4441,10 @@ class ls_shop_generalHelper
         // Die if there is no layout
         if (null === $objLayout)
         {
-            \System::log('Could not find layout ID "' . $objPage->layout . '"', __METHOD__, TL_ERROR);
+            \System::getContainer()->get('monolog.logger.contao')->info(
+                'Could not find layout ID "' . $objPage->layout . '"',
+                ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]
+            );
 
             throw new NoLayoutSpecifiedException('No layout specified');
         }

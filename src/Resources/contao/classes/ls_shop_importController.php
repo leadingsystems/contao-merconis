@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_importController
@@ -169,7 +170,7 @@ class ls_shop_importController
 		
 		if ($_SESSION['lsShop']['importFileInfo']['hasError']) {
 			foreach ($_SESSION['lsShop']['importFileInfo']['arrMessages'] as $message) {
-				\System::log('MERCONIS IMPORTER: '.$message, 'MERCONIS IMPORTER', TL_MERCONIS_IMPORTER);
+                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS IMPORTER: '.$message, ['contao' => new ContaoContext('MERCONIS IMPORTER', TL_MERCONIS_IMPORTER)]);
 			}
 			$_SESSION['lsShop']['importFileInfo']['status'] = 'notOk';
 			return false;

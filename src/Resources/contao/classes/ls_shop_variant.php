@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -1399,7 +1400,10 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		}
 
 		if ($blnWriteLog) {
-			\System::log('MERCONIS: Changed stock for product variant with Item no. '.$this->_code.' (ID '.$this->ls_ID.') from '.ls_shop_generalHelper::outputQuantity($this->_stock, $this->_quantityDecimals).' '.$this->_quantityUnit.' to '.ls_shop_generalHelper::outputQuantity($newStock, $this->_quantityDecimals).' '.$this->_quantityUnit, 'MERCONIS STOCK MANAGEMENT', TL_MERCONIS_STOCK_MANAGEMENT);
+            \System::getContainer()->get('monolog.logger.contao')->info(
+                'MERCONIS: Changed stock for product variant with Item no. '.$this->_code.' (ID '.$this->ls_ID.') from '.ls_shop_generalHelper::outputQuantity($this->_stock, $this->_quantityDecimals).' '.$this->_quantityUnit.' to '.ls_shop_generalHelper::outputQuantity($newStock, $this->_quantityDecimals).' '.$this->_quantityUnit,
+                ['contao' => new ContaoContext('MERCONIS STOCK MANAGEMENT', TL_MERCONIS_STOCK_MANAGEMENT)]
+            );
 		}
 
 		$objQuery = \Database::getInstance()->prepare("

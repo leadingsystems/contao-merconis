@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 
 	class ls_shop_custom_regexp_fe
@@ -118,7 +119,7 @@ use function LeadingSystems\Helpers\createMultidimensionalArray;
 										'vatNumber' => $customerVATNumber
 									));
 								} catch (\Exception $e) {
-									\System::log('MERCONIS: Checking a VATID failed. SOAP exception faultcode: "'.$e->faultcode.'", SOAP exception message: "'.$e->faultstring.'"', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+                                    \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Checking a VATID failed. SOAP exception faultcode: "'.$e->faultcode.'", SOAP exception message: "'.$e->faultstring.'"', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 									$result = null; // result null indicates that the validation was not possible which means that the given VATID could be valid but that is unknown
 								}
 							}

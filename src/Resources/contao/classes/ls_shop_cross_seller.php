@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\StringUtil;
 use Contao\System;
 
@@ -26,7 +27,7 @@ class ls_shop_cross_seller
              * to select another/correct CrossSeller id for a CrossSeller CTE.
              */
             if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-                \System::log('MERCONIS: Trying to show a CrossSeller without given id', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Trying to show a CrossSeller without given id', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
                 return;
             }
 

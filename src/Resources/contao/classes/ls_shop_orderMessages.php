@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\StringUtil;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
@@ -254,13 +255,13 @@ class ls_shop_orderMessages
 			
 			if (!\Validator::isEmail(\Idna::encodeEmail($arrMessageModel['senderAddress']))) {
 				// log an error if the sender address is invalid and then skip this message model
-				\System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because sender address "'.$arrMessageModel['senderAddress'].'" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because sender address "'.$arrMessageModel['senderAddress'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 				continue;
 			}
 			
 			if (!$arrMessageModel['useHTML'] && !$arrMessageModel['useRawtext']) {
 				// log an error if neither useHTML nor useRawtext is checked and then skip this message model
-				\System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because neither the usage of HTML nor the usage of rawtext is selected', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because neither the usage of HTML nor the usage of rawtext is selected', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 				continue;
 			}
 						
@@ -376,9 +377,10 @@ class ls_shop_orderMessages
 			
 			try {
 				$objEmail->sendTo($arrMessageToSendAndSave['receiverMainAddress']);
-				\System::log('MERCONIS: message sent for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'], 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
+                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message sent for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'], ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
+
 			} catch (\Exception $e) {
-				\System::log('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.StringUtil::standardize($e->getMessage()).')', 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
+                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.StringUtil::standardize($e->getMessage()).')', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
 			}
 			
 			$this->writeDispatchDate($currentMessageTypeID);
@@ -581,13 +583,14 @@ class ls_shop_orderMessages
 		
 		if ($arrReceiverAddresses['main'] && !\Validator::isEmail(\Idna::encodeEmail($arrReceiverAddresses['main']))) {
 			// log an error if the address is invalid
-			\System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because main receiver address "'.$arrReceiverAddresses['main'].'" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because main receiver address "'.$arrReceiverAddresses['main'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+
 			$blnAddressInvalid = true;
 		}
 		
 		if ($arrReceiverAddresses['bcc'] && !\Validator::isEmail(\Idna::encodeEmail($arrReceiverAddresses['bcc']))) {
 			// log an error if the address is invalid
-			\System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because BCC receiver address "'.$arrReceiverAddresses['bcc'].'" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because BCC receiver address "'.$arrReceiverAddresses['bcc'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 			$blnAddressInvalid = true;
 		}
 		
