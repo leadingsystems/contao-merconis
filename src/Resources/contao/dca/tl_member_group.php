@@ -4,7 +4,7 @@ namespace Merconis\Core;
 
 $GLOBALS['TL_DCA']['tl_member_group']['config']['onsubmit_callback'][] = array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp');
 $GLOBALS['TL_DCA']['tl_member_group']['config']['ondelete_callback'][] = array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp');
-$GLOBALS['TL_DCA']['tl_member_group']['config']['onrestore_callback'][] = array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp');
+$GLOBALS['TL_DCA']['tl_member_group']['config']['onrestore_version_callback'][] = array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp');
 
 $GLOBALS['TL_DCA']['tl_member_group']['palettes']['default'] = preg_replace('/,redirect;/siU', ',redirect;{lsShop_legend:hide},lsShopOutputPriceType, lsShopPriceAdjustment, lsShopMinimumOrderValue, lsShopMinimumOrderValueAddCouponToValueOfGoods, lsShopFormCustomerData, lsShopFormConfirmOrder, lsShopEmailText01, lsShopEmailText02, lsShopAttachments, lsShopStandardPaymentMethod, lsShopStandardShippingMethod;', $GLOBALS['TL_DCA']['tl_member_group']['palettes']['default']);
 
