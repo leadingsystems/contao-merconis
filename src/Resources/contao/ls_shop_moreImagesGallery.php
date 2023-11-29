@@ -183,14 +183,12 @@ class ls_shop_moreImagesGallery extends \Frontend {
 		switch ($this->ls_moreImagesSortBy) {
 			default:
 			case 'name_asc':
-			    //@TODO: Deprecated to be removed in Contao 5.0.
 				uksort($this->ls_images, static function ($a, $b): int {
                     return strnatcasecmp(basename($a), basename($b));
 				});
 				break;
 
 			case 'name_desc':
-			    //@TODO: Deprecated to be removed in Contao 5.0.
 				uksort($this->ls_images, static function ($a, $b): int {
                     return -strnatcasecmp(basename($a), basename($b));
 				});
