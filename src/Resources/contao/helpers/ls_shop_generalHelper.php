@@ -257,7 +257,7 @@ class ls_shop_generalHelper
 
                     if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct'])) {
                         foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct'] as $mccb) {
-                            $objMccb = \System::importStatic($mccb[0]);
+                            $objMccb = System::importStatic($mccb[0]);
                             $bln_imageBelongsToProduct = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $str_imageFile, $str_filenameWithoutSuffix);
                         }
                         if (!$bln_imageBelongsToProduct) {
@@ -471,9 +471,9 @@ class ls_shop_generalHelper
     {
         if (
             !is_object($obj_user)
-            && \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()
+            && System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()
         ) {
-            $obj_user = \System::importStatic('FrontendUser');
+            $obj_user = System::importStatic('FrontendUser');
         }
 
         if (!isset($GLOBALS['merconis_globals']['groupInfo']) || $bln_forceRefresh) {
@@ -487,7 +487,7 @@ class ls_shop_generalHelper
 
             if (isset($GLOBALS['MERCONIS_HOOKS']['getGroupSettingsForUser']) && is_array($GLOBALS['MERCONIS_HOOKS']['getGroupSettingsForUser'])) {
                 foreach ($GLOBALS['MERCONIS_HOOKS']['getGroupSettingsForUser'] as $mccb) {
-                    $objMccb = \System::importStatic($mccb[0]);
+                    $objMccb = System::importStatic($mccb[0]);
                     $GLOBALS['merconis_globals']['groupInfo'] = $objMccb->{$mccb[1]}($GLOBALS['merconis_globals']['groupInfo']);
                 }
             }
@@ -868,7 +868,7 @@ class ls_shop_generalHelper
              */
             if (isset($GLOBALS['MERCONIS_HOOKS']['customTaxRateCalculation']) && is_array($GLOBALS['MERCONIS_HOOKS']['customTaxRateCalculation'])) {
                 foreach ($GLOBALS['MERCONIS_HOOKS']['customTaxRateCalculation'] as $mccb) {
-                    $objMccb = \System::importStatic($mccb[0]);
+                    $objMccb = System::importStatic($mccb[0]);
                     $steuersatz = $objMccb->{$mccb[1]}($customTaxRateCalculationWildcard);
                     if ($steuersatz !== null && $steuersatz !== false) {
                         break;
@@ -1260,7 +1260,7 @@ class ls_shop_generalHelper
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['calculateScaledPrice']) && is_array($GLOBALS['MERCONIS_HOOKS']['calculateScaledPrice'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['calculateScaledPrice'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 $calculatedScaledPrice = $objMccb->{$mccb[1]}($obj_productOrVariant);
             }
         } else {
@@ -1332,7 +1332,7 @@ class ls_shop_generalHelper
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['getScalePriceQuantity']) && is_array($GLOBALS['MERCONIS_HOOKS']['getScalePriceQuantity'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['getScalePriceQuantity'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 $scalePriceQuantity = $objMccb->{$mccb[1]}($obj_productOrVariant, $type, $cartKey);
             }
         } else {
@@ -1678,7 +1678,7 @@ class ls_shop_generalHelper
 
             if (isset($GLOBALS['MERCONIS_HOOKS']['modifyPaymentOrShippingMethodInfo']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyPaymentOrShippingMethodInfo'])) {
                 foreach ($GLOBALS['MERCONIS_HOOKS']['modifyPaymentOrShippingMethodInfo'] as $mccb) {
-                    $objMccb = \System::importStatic($mccb[0]);
+                    $objMccb = System::importStatic($mccb[0]);
                     $methodInfo = $objMccb->{$mccb[1]}($methodInfo, $type);
                 }
             }
@@ -1796,7 +1796,7 @@ class ls_shop_generalHelper
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfPaymentOrShippingMethodIsAllowed']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfPaymentOrShippingMethodIsAllowed'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfPaymentOrShippingMethodIsAllowed'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 if ($objMccb->{$mccb[1]}($method, $what) === false) {
                     return false;
                 }
@@ -2165,7 +2165,7 @@ class ls_shop_generalHelper
         $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $obj_productOrVariant->_customizerLogicFile);
 
         if (!is_subclass_of($str_customLogicClassName, '\Merconis\Core\customizer')) {
-            \System::getContainer()->get('monolog.logger.contao')->info(
+            System::getContainer()->get('monolog.logger.contao')->info(
                 'MERCONIS: Customizer logic file "' . $str_customLogicClassName . '" can not be used because it is does not extend "\Merconis\Core\customizer"',
                 ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
             );
@@ -2439,7 +2439,7 @@ class ls_shop_generalHelper
         $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
         $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
 
-        $str_deliveryTimeMessage = \Controller::replaceInserttags($str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = System::getContainer()->get('contao.insert_tag.parser')->replace($str_deliveryTimeMessage);
 
         unset($GLOBALS['merconis_globals']['arr_dataForInsertTags']);
 
@@ -2573,7 +2573,7 @@ class ls_shop_generalHelper
 
             if (!\Validator::isEmail(\Idna::encodeEmail($GLOBALS['TL_CONFIG']['ls_shop_ownEmailAddress']))) {
                 // log an error if the address is invalid
-                \System::getContainer()->get('monolog.logger.contao')->info(
+                System::getContainer()->get('monolog.logger.contao')->info(
                     'MERCONIS: Stock notification could not be sent because address "' . $GLOBALS['TL_CONFIG']['ls_shop_ownEmailAddress'] . '" is invalid',
                     ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
                 );
@@ -2736,14 +2736,14 @@ class ls_shop_generalHelper
                 break;
 
             case 'onlyIfFeUserLoggedIn':
-                if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+                if (!System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     $obj_article->published = false;
                     return;
                 }
                 break;
 
             case 'onlyIfFeUserNotLoggedIn':
-                if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+                if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     $obj_article->published = false;
                     return;
                 }
@@ -2792,13 +2792,13 @@ class ls_shop_generalHelper
                 break;
 
             case 'onlyIfFeUserLoggedIn':
-                if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+                if (!System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     return '';
                 }
                 break;
 
             case 'onlyIfFeUserNotLoggedIn':
-                if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+                if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     return '';
                 }
                 break;
@@ -3062,7 +3062,7 @@ class ls_shop_generalHelper
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['sortPaymentOrShippingMethods']) && is_array($GLOBALS['MERCONIS_HOOKS']['sortPaymentOrShippingMethods'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['sortPaymentOrShippingMethods'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 $arrMethods = $objMccb->{$mccb[1]}($arrMethods, $what);
             }
         }
@@ -3243,7 +3243,7 @@ class ls_shop_generalHelper
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['modifyDataReviewInput']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyDataReviewInput'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['modifyDataReviewInput'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 $arrInput = $objMccb->{$mccb[1]}($arrInput);
             }
         }
@@ -3321,7 +3321,7 @@ class ls_shop_generalHelper
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['modifyDataReviewOutput']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyDataReviewOutput'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['modifyDataReviewOutput'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 $arrOutput = $objMccb->{$mccb[1]}($arrOutput);
             }
         }
@@ -3459,7 +3459,7 @@ class ls_shop_generalHelper
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['validateCollectedFormData']) && is_array($GLOBALS['MERCONIS_HOOKS']['validateCollectedFormData'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['validateCollectedFormData'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 $bln_validationResultFromHook = $objMccb->{$mccb[1]}($arrValidateData, $formID, $objForm->row());
             }
         }
@@ -3886,7 +3886,7 @@ class ls_shop_generalHelper
                 $objWildcardTemplate->arrOrder = $arrOrder;
                 $wildcardTemplateReplacement = $objWildcardTemplate->parse();
             } catch (\Exception $e) {
-                \System::getContainer()->get('monolog.logger.contao')->info(
+                System::getContainer()->get('monolog.logger.contao')->info(
                     'MERCONIS: Template "' . $strTemplate . '" does not exist (at least not in the required output format "' . (isset($objPage) && is_object($objPage) ? $objPage->outputFormat : 'html5'),
                     ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
                 );
@@ -4441,11 +4441,10 @@ class ls_shop_generalHelper
         // Die if there is no layout
         if (null === $objLayout)
         {
-            \System::getContainer()->get('monolog.logger.contao')->info(
+            System::getContainer()->get('monolog.logger.contao')->info(
                 'Could not find layout ID "' . $objPage->layout . '"',
                 ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]
             );
-
             throw new NoLayoutSpecifiedException('No layout specified');
         }
 
@@ -4883,7 +4882,7 @@ class ls_shop_generalHelper
         /** @var \PageModel $objPage */
         global $objPage;
 
-        $obj_user = \System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('FrontendUser');
         $objTemplate = new \FrontendTemplate('template_addToRestockInfoListForm');
         $str_formSubmitValue = 'restockInfoListProduct_form_' . $obj_product->_productVariantID;
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;
@@ -4956,7 +4955,7 @@ class ls_shop_generalHelper
 
     public static function getFavoritesForm($obj_product)
     {
-        $obj_user = \System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('FrontendUser');
         $objTemplate = new \FrontendTemplate('template_addToFavoritesForm');
         $str_formSubmitValue = 'favoriteProduct_form_' . $obj_product->_id;
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;
@@ -5015,7 +5014,7 @@ class ls_shop_generalHelper
 
     public function manipulateBackendNavigation($arr_modules, $blnShowAll)
     {
-        \System::loadLanguageFile('lsm_installer');
+        System::loadLanguageFile('lsm_installer');
 
         if (
             !isset($GLOBALS['TL_CONFIG']['ls_shop_installedCompletely'])
@@ -5158,7 +5157,7 @@ class ls_shop_generalHelper
          */
         return;
         if (is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/var/cache/prod/contao/dca')) {
-            $obj_automator = \System::importStatic('Automator');
+            $obj_automator = System::importStatic('Automator');
             $obj_automator->purgeInternalCache();
         }
     }

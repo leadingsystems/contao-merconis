@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\StringUtil;
+use Contao\System;
 
 class ls_shop_customInserttags
 {
@@ -18,7 +19,7 @@ class ls_shop_customInserttags
 
 		switch ($tag) {
             case 'IfFeUserLoggedIn':
-                if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+                if (!System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     for (; $_rit<$_cnt; $_rit+=2) {
                         if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
                             break;
@@ -30,7 +31,7 @@ class ls_shop_customInserttags
                 break;
 
             case 'IfFeUserNotLoggedIn':
-                if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+                if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                     for (; $_rit<$_cnt; $_rit+=2) {
                         if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
                             break;
@@ -109,7 +110,7 @@ class ls_shop_customInserttags
 
             case 'IfAvailableBasedOnDate':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
                     return '';
                 }
 
@@ -130,7 +131,7 @@ class ls_shop_customInserttags
 
             case 'IfNotAvailableBasedOnDate':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
                     return '';
                 }
 
@@ -151,7 +152,7 @@ class ls_shop_customInserttags
 
             case 'IfOrderAllowed':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
                     return '';
                 }
 
@@ -172,7 +173,7 @@ class ls_shop_customInserttags
 
             case 'IfOrderNotAllowed':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
                     return '';
                 }
 
@@ -193,7 +194,7 @@ class ls_shop_customInserttags
 
             case 'IfIsPreorderable':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
                     return '';
                 }
 
@@ -214,7 +215,7 @@ class ls_shop_customInserttags
 
             case 'IfIsNotPreorderable':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
                     return '';
                 }
 
@@ -235,7 +236,7 @@ class ls_shop_customInserttags
 
             case 'DeliveryDate':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
                     return '';
                 }
 
@@ -247,7 +248,7 @@ class ls_shop_customInserttags
 
             case 'DeliveryTimeDays':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
                     return '';
                 }
 
@@ -259,7 +260,7 @@ class ls_shop_customInserttags
 
             case 'AvailableFrom':
                 if (!is_array($GLOBALS['merconis_globals']['arr_dataForInsertTags'] ?? null)) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('Trying to render insert tag "' . $strTag . '" in wrong context. Its usage is only supported in delivery time messages.', ['contao' => new ContaoContext('MERCONIS INSERT TAGS', TL_MERCONIS_ERROR)]);
                     return '';
                 }
 
@@ -325,7 +326,7 @@ class ls_shop_customInserttags
                         }
                     }
                 }
-                return \Controller::replaceInsertTags( '{{picture::'.$params.'}}');
+                return System::getContainer()->get('contao.insert_tag.parser')->replace('{{picture::'.$params.'}}');
                 break;
 
 			case 'CrossSeller':
@@ -386,7 +387,7 @@ class ls_shop_customInserttags
 
                 $obj_product = ls_shop_generalHelper::getObjProduct($str_productVariantId, __METHOD__);
 
-                return \Controller::replaceInsertTags($obj_product->{$str_propertyToUse});
+                return System::getContainer()->get('contao.insert_tag.parser')->replace($obj_product->{$str_propertyToUse});
                 break;
 		}
 

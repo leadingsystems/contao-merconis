@@ -50,7 +50,7 @@
       <?php endif; ?>
 
       <?php if ($option['type'] == 'option'): ?>
-        <span><input type="checkbox" name="<?= $option['name'] ?>" id="opt_<?= $option['id'] ?>_<?php echo $GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" class="checkbox" value="<?= $option['value'] ?>"<?= $option['checked'] ?><?= $option['attributes'] ?>> <label id="lbl_<?= $option['id'] ?>_<?php echo $GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" for="opt_<?= $option['id'] ?>_<?php echo $GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>"><?= $option['label'] ?></label></span>
+        <span><input type="hidden" name="<?= $option['name'] ?>" value=""><input type="checkbox" name="<?= $option['name'] ?>" id="opt_<?= $option['id'] ?>_<?php echo $GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" class="checkbox" value="<?= $option['value'] ?>"<?= $option['checked'] ?><?= $option['attributes'] ?>><label id="lbl_<?= $option['id'] ?>_<?php echo $GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" for="opt_<?= $option['id'] ?>_<?php echo $GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>"><?= $option['label'] ?></label></span>
       <?php endif; ?>
 
       <?php if ($option['type'] == 'group_end'): ?>
