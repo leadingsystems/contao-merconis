@@ -12,7 +12,7 @@ class ModuleCheckoutFinish extends \Module {
 	private $orderNr = null;
 	
 	public function generate() {
-		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		
@@ -155,7 +155,7 @@ class ModuleCheckoutFinish extends \Module {
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['afterCheckout']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterCheckout'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['afterCheckout'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$objMccb->{$mccb[1]}($orderIdInDb, $order);
 				}
 			}
@@ -195,7 +195,7 @@ class ModuleCheckoutFinish extends \Module {
 
 			if (isset($GLOBALS['MERCONIS_HOOKS']['afterCheckoutBeforeRedirect']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterCheckoutBeforeRedirect'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['afterCheckoutBeforeRedirect'] as $mccb) {
-				    $objMccb = \System::importStatic($mccb[0]);
+				    $objMccb = System::importStatic($mccb[0]);
 				    /*
 				     * We have to get the most up to date order record
 				     */
@@ -438,23 +438,23 @@ class ModuleCheckoutFinish extends \Module {
 			'orderNr' => $this->orderNr, // no language
 			'orderDateUnixTimestamp' => time(), // no language
 			'orderDate' => date("Y-m-d H:i:s"), // no language
-			'customerNr' => \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() ? $this->User->id : 0, // no language
+			'customerNr' => System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() ? $this->User->id : 0, // no language
 			'customerLanguage' => $objPage->language, // no language
 			'customerInfo' => array(
 				'personalData' => $this->createShopLanguageArray(ls_shop_checkoutData::getInstance()->arrCustomerDataReview), // shop language
 				'personalData_originalOptionValues' => ls_shop_checkoutData::getInstance()->arrCustomerDataReviewOnlyOriginalOptionValues, // no language
 				'personalData_customerLanguage' => $this->createCustomerLanguageArray(ls_shop_checkoutData::getInstance()->arrCustomerDataReview), // customer language
-				'personalDataReview_customerLanguage' => \Controller::replaceInsertTags(ls_shop_checkoutData::getInstance()->customerDataReview), // customer language
+				'personalDataReview_customerLanguage' => System::getContainer()->get('contao.insert_tag.parser')->replace(ls_shop_checkoutData::getInstance()->customerDataReview), // customer language
 
 				'paymentData' => $this->createShopLanguageArray(ls_shop_checkoutData::getInstance()->arrPaymentMethodAdditionalDataReview), // shop language
 				'paymentData_originalOptionValues' => ls_shop_checkoutData::getInstance()->arrPaymentMethodAdditionalDataReviewOnlyOriginalOptionValues, // no language
 				'paymentData_customerLanguage' => $this->createCustomerLanguageArray(ls_shop_checkoutData::getInstance()->arrPaymentMethodAdditionalDataReview), // shop language
-				'paymentDataReview_customerLanguage' => \Controller::replaceInsertTags(ls_shop_checkoutData::getInstance()->paymentMethodAdditionalDataReview), // customer language
+				'paymentDataReview_customerLanguage' => System::getContainer()->get('contao.insert_tag.parser')->replace(ls_shop_checkoutData::getInstance()->paymentMethodAdditionalDataReview), // customer language
 
 				'shippingData' => $this->createShopLanguageArray(ls_shop_checkoutData::getInstance()->arrShippingMethodAdditionalDataReview), // shop language
 				'shippingData_originalOptionValues' => ls_shop_checkoutData::getInstance()->arrShippingMethodAdditionalDataReviewOnlyOriginalOptionValues, // no language
 				'shippingData_customerLanguage' => $this->createCustomerLanguageArray(ls_shop_checkoutData::getInstance()->arrShippingMethodAdditionalDataReview), // shop language
-				'shippingDataReview_customerLanguage' => \Controller::replaceInsertTags(ls_shop_checkoutData::getInstance()->shippingMethodAdditionalDataReview), // customer language
+				'shippingDataReview_customerLanguage' => System::getContainer()->get('contao.insert_tag.parser')->replace(ls_shop_checkoutData::getInstance()->shippingMethodAdditionalDataReview), // customer language
 
 				'memberGroupInfo' => array(
 					'id' => $customerGroupInfo['id'], // no language
@@ -478,7 +478,7 @@ class ModuleCheckoutFinish extends \Module {
 				'host' => \Environment::get('host'),
 				'domain' => ($objPage->rootUseSSL ? 'https://' : 'http://') . ($objPage->domain ?: \Environment::get('host')) . TL_PATH . '/',
 				'languageUsedOnCheckout' => $objPage->language,
-				'ipAnonymized' => \System::anonymizeIp(\Environment::get('ip'))
+				'ipAnonymized' => System::anonymizeIp(\Environment::get('ip'))
 			),
 			
 			'totalValueOfGoods' => ls_shop_cartX::getInstance()->calculation['totalValueOfGoods'][0], // no language
@@ -508,9 +508,9 @@ class ModuleCheckoutFinish extends \Module {
 		$tmpObjPageLanguage = $objPage->language;
 		$objPage->language = ls_shop_languageHelper::getFallbackLanguage();
 		
-		$arrOrder['customerInfo']['personalDataReview'] = \Controller::replaceInsertTags(ls_shop_checkoutData::getInstance()->customerDataReview); // shop language
-		$arrOrder['customerInfo']['paymentDataReview'] = \Controller::replaceInsertTags(ls_shop_checkoutData::getInstance()->paymentMethodAdditionalDataReview); // shop language
-		$arrOrder['customerInfo']['shippingDataReview'] = \Controller::replaceInsertTags(ls_shop_checkoutData::getInstance()->shippingMethodAdditionalDataReview); // shop language
+		$arrOrder['customerInfo']['personalDataReview'] = System::getContainer()->get('contao.insert_tag.parser')->replace(ls_shop_checkoutData::getInstance()->customerDataReview); // shop language
+		$arrOrder['customerInfo']['paymentDataReview'] = System::getContainer()->get('contao.insert_tag.parser')->replace(ls_shop_checkoutData::getInstance()->paymentMethodAdditionalDataReview); // shop language
+		$arrOrder['customerInfo']['shippingDataReview'] = System::getContainer()->get('contao.insert_tag.parser')->replace(ls_shop_checkoutData::getInstance()->shippingMethodAdditionalDataReview); // shop language
 		
 		$objPage->language = $tmpObjPageLanguage;
 		
@@ -747,7 +747,7 @@ class ModuleCheckoutFinish extends \Module {
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder']) && is_array($GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$arrItem = $objMccb->{$mccb[1]}($arrItem, $objProduct);
 				}
 			}
@@ -757,7 +757,7 @@ class ModuleCheckoutFinish extends \Module {
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore']) && is_array($GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$arrOrder = $objMccb->{$mccb[1]}($arrOrder);
 			}
 		}
@@ -1053,7 +1053,7 @@ class ModuleCheckoutFinish extends \Module {
 		$objPage->language = ls_shop_languageHelper::getFallbackLanguage();
 
 		foreach ($arr_data as $k => $v) {
-			$arr_data[$k] = \Controller::replaceInsertTags($v, false);
+			$arr_data[$k] = System::getContainer()->get('contao.insert_tag.parser')->replaceInline($v);
 		}
 
 		$objPage->language = $tmpObjPageLanguage;
@@ -1067,7 +1067,7 @@ class ModuleCheckoutFinish extends \Module {
 		}
 
 		foreach ($arr_data as $k => $v) {
-			$arr_data[$k] = \Controller::replaceInsertTags($v, false);
+			$arr_data[$k] = System::getContainer()->get('contao.insert_tag.parser')->replaceInline($v);
 		}
 
 		return $arr_data;
