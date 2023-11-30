@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 	use Contao\CoreBundle\Monolog\ContaoContext;
     use Contao\StringUtil;
+    use Contao\System;
 
     class ls_shop_paymentModule_standard extends \Controller {
 		public function logPaymentError($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '', $bln_resetSelectedPaymentMethod = true) {
@@ -48,7 +49,7 @@ namespace Merconis\Core;
 			$outputBuffer = ob_get_contents();
 			ob_end_clean();
 
-            \System::getContainer()->get('monolog.logger.contao')->info(
+            System::getContainer()->get('monolog.logger.contao')->info(
                 'MERCONIS: Payment error in payment method "'.$this->arrCurrentSettings['title'].'" (type: '.$this->arrCurrentSettings['type'].') in context "'.$context.'"'."\r\n\r\n".$outputBuffer,
                 ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
             );

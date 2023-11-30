@@ -828,7 +828,7 @@ returns the id of the variant that has currently been selected
 				break;
 
 			case '_isFavorite':
-				$obj_user = \System::importStatic('FrontendUser');
+				$obj_user = System::importStatic('FrontendUser');
 				$strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
 				$arrFavorites = $strFavorites ? StringUtil::deserialize($strFavorites) : array();
 				$arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
@@ -841,7 +841,7 @@ returns the id of the variant that has currently been selected
 				break;
 
 			case '_isOnRestockInfoList':
-				$obj_user = \System::importStatic('FrontendUser');
+				$obj_user = System::importStatic('FrontendUser');
 
                 $obj_dbres_restockInfoListRecord = \Database::getInstance()
                     ->prepare("
@@ -989,7 +989,7 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 
                 if (isset($GLOBALS['MERCONIS_HOOKS']['getProductData_priceCheapestVariantBeforeTax']) && is_array($GLOBALS['MERCONIS_HOOKS']['getProductData_priceCheapestVariantBeforeTax'])) {
                     foreach ($GLOBALS['MERCONIS_HOOKS']['getProductData_priceCheapestVariantBeforeTax'] as $mccb) {
-                        $objMccb = \System::importStatic($mccb[0]);
+                        $objMccb = System::importStatic($mccb[0]);
                         $float_lowestPriceBeforeTaxFromHook = $objMccb->{$mccb[1]}($this);
                     }
                 }
@@ -1022,7 +1022,7 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 
 			    if (isset($GLOBALS['MERCONIS_HOOKS']['getProductData_unscaledPriceCheapestVariantBeforeTax']) && is_array($GLOBALS['MERCONIS_HOOKS']['getProductData_unscaledPriceCheapestVariantBeforeTax'])) {
                     foreach ($GLOBALS['MERCONIS_HOOKS']['getProductData_unscaledPriceCheapestVariantBeforeTax'] as $mccb) {
-                        $objMccb = \System::importStatic($mccb[0]);
+                        $objMccb = System::importStatic($mccb[0]);
                         $float_lowestPriceBeforeTaxFromHook = $objMccb->{$mccb[1]}($this);
                     }
                 }
@@ -1910,7 +1910,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 				if (isset($GLOBALS['MERCONIS_HOOKS']['callingHookedProductOrVariantFunction']) && is_array($GLOBALS['MERCONIS_HOOKS']['callingHookedProductOrVariantFunction'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['callingHookedProductOrVariantFunction'] as $mccb) {
-						$objMccb = \System::importStatic($mccb[0]);
+						$objMccb = System::importStatic($mccb[0]);
 						$var_return = $objMccb->{$mccb[1]}($this, 'product', $args[0]);
 					}
 				}
@@ -1984,7 +1984,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$this->arr_originalData = $objMccb->{$mccb[1]}($this->arr_originalData, 'product');
 			}
 		}
@@ -2191,7 +2191,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			}
 
 			if ($blnWriteLog) {
-                \System::getContainer()->get('monolog.logger.contao')->info(
+                System::getContainer()->get('monolog.logger.contao')->info(
                         'MERCONIS: Changed stock for product with Item no. '.$this->_code.' (ID '.$this->ls_ID.') from '.ls_shop_generalHelper::outputQuantity($this->_stock, $this->_quantityDecimals).' '.$this->_quantityUnit.' to '.ls_shop_generalHelper::outputQuantity($newStock, $this->_quantityDecimals).' '.$this->_quantityUnit,
                         ['contao' => new ContaoContext('MERCONIS STOCK MANAGEMENT', TL_MERCONIS_STOCK_MANAGEMENT)]
                 );

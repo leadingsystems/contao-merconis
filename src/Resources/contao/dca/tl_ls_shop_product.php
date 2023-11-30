@@ -6,6 +6,7 @@ use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\StringUtil;
+use Contao\System;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 	'config' => array(
@@ -1458,7 +1459,7 @@ class tl_ls_shop_product_controller extends \Backend {
 
 	public function toggleVisibility($intId, $blnVisible) {
 		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_product::published', 'alexf')) {
-            \System::getContainer()->get('monolog.logger.contao')->info(
+            System::getContainer()->get('monolog.logger.contao')->info(
                 'Not enough permissions to publish/unpublish product ID "'.$intId.'"',
                 ['contao' => new ContaoContext('tl_ls_shop_product toggleVisibility', TL_ERROR)]
             );

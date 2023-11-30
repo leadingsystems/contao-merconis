@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\StringUtil;
+use Contao\System;
 
 class InstallerController extends \Controller {
 	protected $obj_config = null;
@@ -154,14 +155,14 @@ class InstallerController extends \Controller {
 	 * check it's going to perform, an error message will be displayed to the user.
 	 */
 	protected function checkIfInstallationPossible() {
-//      \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Check if installation is possible', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+//        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Check if installation is possible', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 		$blnPossible = true;
 
 		return $blnPossible;
 	}
 
 	protected function checkIfThemeCanBeInstalled() {
-        \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Check if theme can be installed', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Check if theme can be installed', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
         $blnPossible = true;
 
 		/*
@@ -173,7 +174,7 @@ class InstallerController extends \Controller {
 			||	!is_dir(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPath'])
 			||	!$_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates']
 		) {
-            \System::getContainer()->get('monolog.logger.contao')->info(
+            System::getContainer()->get('monolog.logger.contao')->info(
 			    "MERCONIS INSTALLER: The theme has not been selected correctly. Please try again and contact the MERCONIS support if it still does not work.
 			    ||
                 \$_SESSION['lsShop']['installer_selectedTheme']['id'] is \"".$_SESSION['lsShop']['installer_selectedTheme']['id']."\"
@@ -197,26 +198,26 @@ class InstallerController extends \Controller {
 		 * Check if the data files are okay
 		 */
 		if (!file_exists(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat'])) {
-            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportTables.dat" not found. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportTables.dat" not found. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 			$blnPossible = false;
 		} else {
 			$arrExportTables = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat']));
 
 			if (!is_array($arrExportTables)) {
-                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportTables.dat" is corrupt. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportTables.dat" is corrupt. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 				$blnPossible = false;
 			}
 		}
 
 
 		if (!file_exists(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat'])) {
-            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportLocalconfig.dat" not found. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportLocalconfig.dat" not found. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 			$blnPossible = false;
 		} else {
 			$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
 
 			if (!is_array($arrExportLocalconfig)) {
-                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportLocalconfig.dat" is corrupt. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportLocalconfig.dat" is corrupt. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 				$blnPossible = false;
 			}
 		}
@@ -246,13 +247,13 @@ class InstallerController extends \Controller {
 					$blnUuidConflictInTlFilesDetected = true;
 
 					while ($objCheckTlFilesRecordWithUUID->next()) {
-                        \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: row in tl_files with id '.$objCheckTlFilesRecordWithUUID->id.' (path: '.$objCheckTlFilesRecordWithUUID->path.') already has the UUID '.\StringUtil::binToUuid($row['uuid']), ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+                        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: row in tl_files with id '.$objCheckTlFilesRecordWithUUID->id.' (path: '.$objCheckTlFilesRecordWithUUID->path.') already has the UUID '.StringUtil::binToUuid($row['uuid']), ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 					}
 				}
 			}
 
 			if ($blnUuidConflictInTlFilesDetected) {
-                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Installation impossible because of a uuid conflict in tl_files.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Installation impossible because of a uuid conflict in tl_files.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 				$blnPossible = false;
 			}
 		}
@@ -328,7 +329,7 @@ class InstallerController extends \Controller {
 
 				if (isset($_SESSION['lsShop']['installer_selectedTheme'])) {
 					if (!$this->checkIfThemeCanBeInstalled()) {
-                        \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Installation not possible with theme '.$_SESSION['lsShop']['installer_selectedTheme']['id'], ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+                        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Installation not possible with theme '.$_SESSION['lsShop']['installer_selectedTheme']['id'], ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 
 						unset($_SESSION['lsShop']['installer_selectedTheme']);
 						$_SESSION['lsShop']['selectedThemeCanNotBeInstalled'] = true;
@@ -340,10 +341,10 @@ class InstallerController extends \Controller {
 				 * Kopieren der Theme-Templates
 				 */
 				if (file_exists(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates']) && !file_exists(TL_ROOT.'/templates/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'])) {
-                    \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Copying theme templates to templates folder', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Copying theme templates to templates folder', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 					$this->dirCopy($_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates'], 'templates/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName']);
 				} else {
-                    \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Not copying theme templates to templates folder', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+                    System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Not copying theme templates to templates folder', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 				}
 
 				/*
@@ -352,7 +353,7 @@ class InstallerController extends \Controller {
 				 */
 				$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
 
-                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Inserting MERCONIS configuration values in localconfig.php', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Inserting MERCONIS configuration values in localconfig.php', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
 				foreach ($arrExportLocalconfig as $k => $v) {
 					/*
@@ -414,7 +415,7 @@ class InstallerController extends \Controller {
 
 				$this->obj_config->update("\$GLOBALS['TL_CONFIG']['ls_shop_installedCompletely']", true);
 
-                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Setting installation complete flag in localconfig.php', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Setting installation complete flag in localconfig.php', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
                 $this->Automator->generateSymlinks();
 
@@ -529,13 +530,13 @@ class InstallerController extends \Controller {
 
 	protected function copyFiles() {
 		$targetPath = 'files/merconisfiles';
-        \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Copying Merconis files to '.$targetPath, ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Copying Merconis files to '.$targetPath, ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 		$this->dirCopy('vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles', $targetPath);
 		$this->rmdirRecursively(TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources');
 	}
 
 	protected function deleteUnnecessaryThemeFiles() {
-        \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Deleting unnecessary theme files for theme '.$_SESSION['lsShop']['installer_selectedTheme']['id'], ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Deleting unnecessary theme files for theme '.$_SESSION['lsShop']['installer_selectedTheme']['id'], ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
 		if (!isset($_SESSION['lsShop']['installer_selectedTheme']['id']) || !$_SESSION['lsShop']['installer_selectedTheme']['id']) {
 			return;
@@ -626,7 +627,7 @@ class InstallerController extends \Controller {
 	 */
 	protected function moveMerconisInstallerRedirectionsPage() {
 		if ($this->alreadyExistingRootPageID) {
-            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: moving MERCONIS redirection page in already existing root page with id '.$this->alreadyExistingRootPageID, ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: moving MERCONIS redirection page in already existing root page with id '.$this->alreadyExistingRootPageID, ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
 			\Database::getInstance()->prepare("
 				UPDATE		`tl_page`
@@ -637,7 +638,7 @@ class InstallerController extends \Controller {
 				->limit(1)
 				->execute($this->alreadyExistingRootPageID, 9999999, 'merconis-installer-redirection');
 		} else {
-            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Removing MERCONIS redirection page because it is is not required in this installation', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Removing MERCONIS redirection page because it is is not required in this installation', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
 			\Database::getInstance()->prepare("
 				DELETE FROM	`tl_page`
@@ -796,7 +797,7 @@ class InstallerController extends \Controller {
 		// Festhalten der ID der bereits vor dem Datenimport existierenden Root-Page
 		$this->alreadyExistingRootPageID = $this->ls_getRootPageID();
 
-        \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Importing tables ', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+        System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Importing tables ', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
 		/*
 		 * Make sure that 'tl_page' is the first element in the array because it is important that
@@ -845,7 +846,7 @@ class InstallerController extends \Controller {
 				$this->arrMapOldIDToNewID[$tableName][$row['id']] = $newID;
 			}
 
-            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Importing '.count($rows).' rows into '.$tableName."\r\n (ID: ".$detailsAboutImportedRows.")", ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Importing '.count($rows).' rows into '.$tableName."\r\n (ID: ".$detailsAboutImportedRows.")", ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
 			if ($tableName == 'tl_page') {
 				/*
@@ -908,7 +909,7 @@ class InstallerController extends \Controller {
 		 * sichergestellt wird, dass der Alias unique ist.
 		 */
 		if (!$preserveAlias && \Database::getInstance()->fieldExists('alias', $targetTable)) {
-			$alias = (isset($arrData['title']) && $arrData['title'] ? StringUtil::standardize(\StringUtil::restoreBasicEntities($arrData['title'])) : 'record-'.$insertID);
+			$alias = (isset($arrData['title']) && $arrData['title'] ? StringUtil::standardize(StringUtil::restoreBasicEntities($arrData['title'])) : 'record-'.$insertID);
 
 			$alias = strlen($alias) > 100 ? substr($alias, 0, 100) : $alias;
 
@@ -966,7 +967,7 @@ class InstallerController extends \Controller {
 		$downloadFileHash = curl_exec($curl);
 		curl_close($curl);
 		if (!$downloadFileHash) {
-            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Hash could not be retrieved', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Hash could not be retrieved', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 		}
 
 		$zipTargetPath = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes';
@@ -1023,10 +1024,10 @@ class InstallerController extends \Controller {
 				}
 				unset($objArchive);
 			} catch (\Exception $e) {
-                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Downloaded theme archive invalid ('.TL_ROOT.'/'.$zipTargetFilename.')', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Downloaded theme archive invalid ('.TL_ROOT.'/'.$zipTargetFilename.')', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 			}
 		} else {
-            \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Downloaded theme archive has a wrong hash ('.TL_ROOT.'/'.$zipTargetFilename.')', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Downloaded theme archive has a wrong hash ('.TL_ROOT.'/'.$zipTargetFilename.')', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 		}
 
 		// delete the downloaded zip file

@@ -27,7 +27,7 @@ class ls_shop_cross_seller
              * to select another/correct CrossSeller id for a CrossSeller CTE.
              */
             if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-                \System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Trying to show a CrossSeller without given id', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Trying to show a CrossSeller without given id', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
                 return;
             }
 
@@ -356,7 +356,7 @@ class ls_shop_cross_seller
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['crossSellerHookSelection']) && is_array($GLOBALS['MERCONIS_HOOKS']['crossSellerHookSelection'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['crossSellerHookSelection'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 $arr_products = $objMccb->{$mccb[1]}($GLOBALS['lsShopProductViewContext'], $this->ls_currentProductInDetailMode);
             }
         }
@@ -371,7 +371,7 @@ class ls_shop_cross_seller
     }
 
     protected function ls_getFavoritesSelection() {
-        $obj_user = \System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('FrontendUser');
         $strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
         $arrFavorites = $strFavorites ? StringUtil::deserialize($strFavorites) : array();
         $arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
@@ -380,7 +380,7 @@ class ls_shop_cross_seller
     }
 
     protected function ls_getRestockInfoListSelection() {
-        $obj_user = \System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('FrontendUser');
 
         $obj_dbres_restockInfoListRecords = \Database::getInstance()
             ->prepare("

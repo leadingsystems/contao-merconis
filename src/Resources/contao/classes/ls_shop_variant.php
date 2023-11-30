@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -1281,7 +1282,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 				if (isset($GLOBALS['MERCONIS_HOOKS']['callingHookedProductOrVariantFunction']) && is_array($GLOBALS['MERCONIS_HOOKS']['callingHookedProductOrVariantFunction'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['callingHookedProductOrVariantFunction'] as $mccb) {
-						$objMccb = \System::importStatic($mccb[0]);
+						$objMccb = System::importStatic($mccb[0]);
 						$var_return = $objMccb->{$mccb[1]}($this, 'variant', $args[0]);
 					}
 				}
@@ -1331,7 +1332,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateProductOrVariantData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$this->arr_originalData = $objMccb->{$mccb[1]}($this->arr_originalData, 'variant');
 			}
 		}
@@ -1400,7 +1401,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		}
 
 		if ($blnWriteLog) {
-            \System::getContainer()->get('monolog.logger.contao')->info(
+            System::getContainer()->get('monolog.logger.contao')->info(
                 'MERCONIS: Changed stock for product variant with Item no. '.$this->_code.' (ID '.$this->ls_ID.') from '.ls_shop_generalHelper::outputQuantity($this->_stock, $this->_quantityDecimals).' '.$this->_quantityUnit.' to '.ls_shop_generalHelper::outputQuantity($newStock, $this->_quantityDecimals).' '.$this->_quantityUnit,
                 ['contao' => new ContaoContext('MERCONIS STOCK MANAGEMENT', TL_MERCONIS_STOCK_MANAGEMENT)]
             );

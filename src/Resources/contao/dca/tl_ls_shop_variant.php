@@ -6,6 +6,7 @@ use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\StringUtil;
+use Contao\System;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 	'config' => array(
@@ -1456,7 +1457,7 @@ class tl_ls_shop_variant_controller extends \Backend {
 	public function toggleVisibility($intId, $blnVisible) {
 		// Check permissions to publish
 		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_variant::published', 'alexf')) {
-            \System::getContainer()->get('monolog.logger.contao')->info(
+            System::getContainer()->get('monolog.logger.contao')->info(
                 'Not enough permissions to publish/unpublish variant ID "'.$intId.'"',
                 ['contao' => new ContaoContext('tl_ls_shop_variant toggleVisibility', TL_ERROR)]
             );
