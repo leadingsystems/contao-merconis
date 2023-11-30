@@ -1,6 +1,8 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_importController
@@ -169,7 +171,7 @@ class ls_shop_importController
 		
 		if ($_SESSION['lsShop']['importFileInfo']['hasError']) {
 			foreach ($_SESSION['lsShop']['importFileInfo']['arrMessages'] as $message) {
-				\System::log('MERCONIS IMPORTER: '.$message, 'MERCONIS IMPORTER', TL_MERCONIS_IMPORTER);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS IMPORTER: '.$message, ['contao' => new ContaoContext('MERCONIS IMPORTER', TL_MERCONIS_IMPORTER)]);
 			}
 			$_SESSION['lsShop']['importFileInfo']['status'] = 'notOk';
 			return false;
@@ -395,7 +397,7 @@ class ls_shop_importController
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_begin']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_begin'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['import_begin'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$objMccb->{$mccb[1]}();
 				}
 			}
@@ -426,7 +428,7 @@ class ls_shop_importController
 					
 					if (isset($GLOBALS['MERCONIS_HOOKS']['import_finished']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_finished'])) {
 						foreach ($GLOBALS['MERCONIS_HOOKS']['import_finished'] as $mccb) {
-							$objMccb = \System::importStatic($mccb[0]);
+							$objMccb = System::importStatic($mccb[0]);
 							$objMccb->{$mccb[1]}();
 						}
 					}
@@ -509,7 +511,7 @@ class ls_shop_importController
 	protected function processProductData($row) {
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$row = $objMccb->{$mccb[1]}($row);
 			}
 		}
@@ -630,7 +632,7 @@ class ls_shop_importController
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingProductData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingProductData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$row = $objMccb->{$mccb[1]}($row, $alreadyExistsAsID);
 			}
 		}
@@ -762,7 +764,7 @@ class ls_shop_importController
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$objMccb->{$mccb[1]}($alreadyExistsAsID);
 				}
 			}
@@ -899,7 +901,7 @@ class ls_shop_importController
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$objMccb->{$mccb[1]}($newProductID);
 				}
 			}
@@ -919,7 +921,7 @@ class ls_shop_importController
 		
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingVariantData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingVariantData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$row = $objMccb->{$mccb[1]}($row);
 			}
 		}
@@ -1041,7 +1043,7 @@ class ls_shop_importController
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingVariantData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingVariantData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$row = $objMccb->{$mccb[1]}($row, $alreadyExistsAsID, $parentProductID);
 			}
 		}
@@ -1163,7 +1165,7 @@ class ls_shop_importController
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingVariantData'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingVariantData'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$objMccb->{$mccb[1]}($alreadyExistsAsID);
 				}
 			}
@@ -1292,7 +1294,7 @@ class ls_shop_importController
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingVariantData'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingVariantData'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$objMccb->{$mccb[1]}($newVariantID);
 				}
 			}
@@ -1312,7 +1314,7 @@ class ls_shop_importController
 		
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductLanguageData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductLanguageData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductLanguageData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$row = $objMccb->{$mccb[1]}($row);
 			}
 		}
@@ -1339,7 +1341,7 @@ class ls_shop_importController
 	
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingProductLanguageData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingProductLanguageData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingProductLanguageData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$row = $objMccb->{$mccb[1]}($row, $parentProductID);
 			}
 		}
@@ -1357,7 +1359,7 @@ class ls_shop_importController
 			
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterWritingProductLanguageData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterWritingProductLanguageData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterWritingProductLanguageData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$objMccb->{$mccb[1]}($parentProductID);
 			}
 		}
@@ -1374,7 +1376,7 @@ class ls_shop_importController
 		
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingVariantLanguageData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingVariantLanguageData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingVariantLanguageData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$row = $objMccb->{$mccb[1]}($row);
 			}
 		}
@@ -1401,7 +1403,7 @@ class ls_shop_importController
 	
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingVariantLanguageData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingVariantLanguageData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeWritingVariantLanguageData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$row = $objMccb->{$mccb[1]}($row, $parentProductID);
 			}
 		}
@@ -1419,7 +1421,7 @@ class ls_shop_importController
 			
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterWritingVariantLanguageData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterWritingVariantLanguageData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterWritingVariantLanguageData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$objMccb->{$mccb[1]}($parentProductID);
 			}
 		}

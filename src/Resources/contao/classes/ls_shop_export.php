@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\StringUtil;
 use Contao\System;
 
@@ -23,7 +24,7 @@ class ls_shop_export
 		$this->getExportRecordForIdentificationToken($var_identificationToken, $str_identificationTokenFieldName);
 
 		if (!count($this->arr_exportRecord)) {
-			\System::log('MERCONIS: Trying to show an export but could not find an export record for the given identification token "'.$var_identificationToken.'" in identification token field "'.$str_identificationTokenFieldName.'".', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Trying to show an export but could not find an export record for the given identification token "'.$var_identificationToken.'" in identification token field "'.$str_identificationTokenFieldName.'".', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 
 			/*
 			 * Do not throw an exception in backend mode because in this case it would not be possible
@@ -89,7 +90,7 @@ class ls_shop_export
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['exporter_parseExport']) && is_array($GLOBALS['MERCONIS_HOOKS']['exporter_parseExport'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['exporter_parseExport'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$str_output = $objMccb->{$mccb[1]}($this);
 			}
 		}
@@ -205,7 +206,7 @@ class ls_shop_export
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['exporter_manipulateData']) && is_array($GLOBALS['MERCONIS_HOOKS']['exporter_manipulateData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['exporter_manipulateData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$arr_data = $objMccb->{$mccb[1]}($arr_data, $this);
 			}
 		}
@@ -419,7 +420,7 @@ class ls_shop_export
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['exporter_getTableData']) && is_array($GLOBALS['MERCONIS_HOOKS']['exporter_getTableData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['exporter_getTableData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$arr_data = $objMccb->{$mccb[1]}($this);
 			}
 		}
@@ -477,7 +478,7 @@ class ls_shop_export
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['exporter_getProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['exporter_getProductData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['exporter_getProductData'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$arr_data = $objMccb->{$mccb[1]}($this);
 			}
 		}
@@ -516,7 +517,7 @@ class ls_shop_export
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['exporter_manipulateProductSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['exporter_manipulateProductSearch'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['exporter_manipulateProductSearch'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$objMccb->{$mccb[1]}($obj_productSearch, $arr_searchCriteria);
 			}
 		}
@@ -722,9 +723,9 @@ class ls_shop_export
 	protected function getSegmentationToken()
 	{
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$obj_user = \System::importStatic('BackendUser');
+			$obj_user = System::importStatic('BackendUser');
 		} else {
-			$obj_user = \System::importStatic('FrontendUser');
+			$obj_user = System::importStatic('FrontendUser');
 		}
 
 		/*
