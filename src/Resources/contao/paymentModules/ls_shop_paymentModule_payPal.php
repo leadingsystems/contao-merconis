@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 use Contao\StringUtil;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -349,7 +350,7 @@ use function LeadingSystems\Helpers\ls_sub;
 					
 					$itemAmount = ls_add($itemAmount, $cartItem['priceCumulative']);
 
-					$arrNVP['L_PAYMENTREQUEST_0_NAME'.$itemCount] = substr(\System::getContainer()->get('contao.insert_tag.parser')->replace($cartItemExtended['objProduct']->_title), 0, 127);
+					$arrNVP['L_PAYMENTREQUEST_0_NAME'.$itemCount] = substr(System::getContainer()->get('contao.insert_tag.parser')->replace($cartItemExtended['objProduct']->_title), 0, 127);
 					$arrNVP['L_PAYMENTREQUEST_0_DESC'.$itemCount] = $cartItemExtended['objProduct']->_hasCode ? substr($cartItemExtended['objProduct']->_code, 0, 127) : '';
 					
 					/*

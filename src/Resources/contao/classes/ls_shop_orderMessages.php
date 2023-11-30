@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 use Contao\StringUtil;
+use Contao\System;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -205,8 +206,8 @@ class ls_shop_orderMessages
                     continue;
                 }
 
-                $arr_messageModelMemberGroups = \StringUtil::deserialize($objMessageModels->member_group, true);
-                $arr_memberGroups = \StringUtil::deserialize($this->arr_memberData['groups'], true);
+                $arr_messageModelMemberGroups = StringUtil::deserialize($objMessageModels->member_group, true);
+                $arr_memberGroups = StringUtil::deserialize($this->arr_memberData['groups'], true);
                 $arr_memberGroupIntersection = array_intersect($arr_messageModelMemberGroups, $arr_memberGroups);
 
                 if (!count($arr_memberGroupIntersection)) {
@@ -225,7 +226,7 @@ class ls_shop_orderMessages
 		if (!is_array($this->arrMessageModels)) {
 			return false;
 		}
-		\System::loadLanguageFile('default', $this->arrOrder['customerLanguage'], true);
+		System::loadLanguageFile('default', $this->arrOrder['customerLanguage'], true);
 
 		$currentMessageTypeID = null;
 		$lastMessageTypeID = null;
@@ -234,7 +235,7 @@ class ls_shop_orderMessages
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$arrMessageModel = $calculatedScaledPrice = $objMccb->{$mccb[1]}($arrMessageModel, $this->arrOrder);
 					
 					if (!is_array($arrMessageModel)) {
@@ -254,13 +255,13 @@ class ls_shop_orderMessages
 			
 			if (!\Validator::isEmail(\Idna::encodeEmail($arrMessageModel['senderAddress']))) {
 				// log an error if the sender address is invalid and then skip this message model
-				\System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because sender address "'.$arrMessageModel['senderAddress'].'" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+				System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because sender address "'.$arrMessageModel['senderAddress'].'" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
 				continue;
 			}
 			
 			if (!$arrMessageModel['useHTML'] && !$arrMessageModel['useRawtext']) {
 				// log an error if neither useHTML nor useRawtext is checked and then skip this message model
-				\System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because neither the usage of HTML nor the usage of rawtext is selected', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+				System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because neither the usage of HTML nor the usage of rawtext is selected', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
 				continue;
 			}
 						
@@ -276,9 +277,9 @@ class ls_shop_orderMessages
 			if ($arrMessageModel['useHTML']) {
 				$objTemplate_emailHTML = new \FrontendTemplate($arrMessageModel['template_html']);
 				if (version_compare(VERSION . '.' . BUILD, '3.3.0', '<')) {
-					$objTemplate_emailHTML->content = \System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(\System::getContainer()->get('contao.insert_tag.parser')->replace));
+					$objTemplate_emailHTML->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html'])));
 				} else {
-					$objTemplate_emailHTML->content = \System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(\StringUtil::insertTagToSrc(\System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html']))));
+					$objTemplate_emailHTML->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(StringUtil::insertTagToSrc(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html']))));
 				}
 				$objTemplate_emailHTML->arrOrder = $this->arrOrder;
 				$objTemplate_emailHTML->arrMessageModel = $arrMessageModel;
@@ -287,7 +288,7 @@ class ls_shop_orderMessages
 			
 			if ($arrMessageModel['useRawtext']) {
 				$objTemplate_rawtext = new \FrontendTemplate($arrMessageModel['template_rawtext']);
-				$objTemplate_rawtext->content = \System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(\System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_rawtext'])));
+				$objTemplate_rawtext->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_rawtext'])));
 				$objTemplate_rawtext->arrOrder = $this->arrOrder;
 				$objTemplate_rawtext->arrMessageModel = $arrMessageModel;
 				$objTemplate_rawtext->counterNr = $this->counterNr;
@@ -305,7 +306,7 @@ class ls_shop_orderMessages
 				'senderAddress' => $arrMessageModel['senderAddress'],
 				'receiverMainAddress' => $arrReceiverAddresses['main'],
 				'receiverBccAddress' => $arrReceiverAddresses['bcc'],
-				'subject' => html_entity_decode($this->ls_replaceWildcards(\System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['subject']))),
+				'subject' => html_entity_decode($this->ls_replaceWildcards(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['subject']))),
 				'bodyHTML' => $arrMessageModel['useHTML'] ? $objTemplate_emailHTML->parse() : '',
 				'bodyRawtext' => $arrMessageModel['useRawtext'] ? $objTemplate_rawtext->parse() : '',
 				'dynamicPdfAttachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),
@@ -376,16 +377,16 @@ class ls_shop_orderMessages
 			
 			try {
 				$objEmail->sendTo($arrMessageToSendAndSave['receiverMainAddress']);
-				\System::log('MERCONIS: message sent for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'], 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
+				System::log('MERCONIS: message sent for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'], 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
 			} catch (\Exception $e) {
-				\System::log('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.StringUtil::standardize($e->getMessage()).')', 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
+				System::log('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.StringUtil::standardize($e->getMessage()).')', 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
 			}
 			
 			$this->writeDispatchDate($currentMessageTypeID);
 			
 			$this->saveSentMessage($arrMessageToSendAndSave);
 		}
-		\System::loadLanguageFile('default', $GLOBALS['TL_LANGUAGE'], true);
+		System::loadLanguageFile('default', $GLOBALS['TL_LANGUAGE'], true);
 	}
 
 	protected function saveSentMessage($arrMessageToSave) {
@@ -581,13 +582,13 @@ class ls_shop_orderMessages
 		
 		if ($arrReceiverAddresses['main'] && !\Validator::isEmail(\Idna::encodeEmail($arrReceiverAddresses['main']))) {
 			// log an error if the address is invalid
-			\System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because main receiver address "'.$arrReceiverAddresses['main'].'" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+			System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because main receiver address "'.$arrReceiverAddresses['main'].'" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
 			$blnAddressInvalid = true;
 		}
 		
 		if ($arrReceiverAddresses['bcc'] && !\Validator::isEmail(\Idna::encodeEmail($arrReceiverAddresses['bcc']))) {
 			// log an error if the address is invalid
-			\System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because BCC receiver address "'.$arrReceiverAddresses['bcc'].'" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
+			System::log('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because BCC receiver address "'.$arrReceiverAddresses['bcc'].'" is invalid', 'MERCONIS MESSAGES', TL_MERCONIS_ERROR);
 			$blnAddressInvalid = true;
 		}
 		

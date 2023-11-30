@@ -1,6 +1,7 @@
 <?php
 namespace Merconis\Core;
 use Contao\StringUtil;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -71,7 +72,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $currency_code = $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'];
         foreach (ls_shop_cartX::getInstance()->calculation['items'] as $arr_cartItem) {
             $arr_cartItemExtended = ls_shop_cartX::getInstance()->itemsExtended[$arr_cartItem['productCartKey']];
-            $name = substr(\System::getContainer()->get('contao.insert_tag.parser')->replace($arr_cartItemExtended['objProduct']->_title), 0, 127);
+            $name = substr(System::getContainer()->get('contao.insert_tag.parser')->replace($arr_cartItemExtended['objProduct']->_title), 0, 127);
             $description = $arr_cartItemExtended['objProduct']->_hasCode ? substr($arr_cartItemExtended['objProduct']->_code, 0, 127) : '';
             if (intval($arr_cartItemExtended['quantity']) == $arr_cartItemExtended['quantity']) {
                 $quantity = $arr_cartItemExtended['quantity'];

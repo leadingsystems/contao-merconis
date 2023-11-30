@@ -14,7 +14,7 @@ class ModuleProductSearch extends \Module {
 	public $arrLiveHitFields = array();
 	
 	public function generate() {
-		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		
@@ -83,7 +83,7 @@ class ModuleProductSearch extends \Module {
 					
 					if (isset($GLOBALS['MERCONIS_HOOKS']['beforeAjaxSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeAjaxSearch'])) {
 						foreach ($GLOBALS['MERCONIS_HOOKS']['beforeAjaxSearch'] as $mccb) {
-							$objMccb = \System::importStatic($mccb[0]);
+							$objMccb = System::importStatic($mccb[0]);
 							$arrSearchCriteria = $objMccb->{$mccb[1]}($arrSearchCriteria);
 						}
 					}
@@ -108,7 +108,7 @@ class ModuleProductSearch extends \Module {
 					
 					if (isset($GLOBALS['MERCONIS_HOOKS']['afterAjaxSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterAjaxSearch'])) {
 						foreach ($GLOBALS['MERCONIS_HOOKS']['afterAjaxSearch'] as $mccb) {
-							$objMccb = \System::importStatic($mccb[0]);
+							$objMccb = System::importStatic($mccb[0]);
 							$arrProducts = $objMccb->{$mccb[1]}($arrSearchCriteria, $arrProducts);
 						}
 					}
@@ -152,7 +152,7 @@ class ModuleProductSearch extends \Module {
 									break;
 									
 								default:
-									$arrHit[$liveHitField] = \System::getContainer()->get('contao.insert_tag.parser')->replace($objProduct->{$liveHitField});
+									$arrHit[$liveHitField] = System::getContainer()->get('contao.insert_tag.parser')->replace($objProduct->{$liveHitField});
 									break;
 							}
 						}
