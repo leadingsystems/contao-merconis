@@ -55,36 +55,6 @@ class ls_shop_productSelectionWizard extends \Widget {
 		$arrButtons = array('copy', 'up', 'down', 'delete');
 		$strCommand = 'cmd_' . $this->strField;
 
-		// Change the order
-		if (\Input::get($strCommand) && is_numeric(\Input::get('cid')) && \Input::get('id') == $this->currentRecord) {
-			switch (\Input::get($strCommand)) {
-				case 'copy':
-				    //@TODO: Deprecated since Contao 4.3, to be removed in Contao 5.0.
-					$this->varValue = array_duplicate($this->varValue, \Input::get('cid'));
-					break;
-
-				case 'up':
-				    //@TODO: Deprecated since Contao 4.3, to be removed in Contao 5.0.
-					$this->varValue = array_move_up($this->varValue, \Input::get('cid'));
-					break;
-
-				case 'down':
-				    //@TODO: Deprecated since Contao 4.3, to be removed in Contao 5.0.
-					$this->varValue = array_move_down($this->varValue, \Input::get('cid'));
-					break;
-
-                case 'delete':
-                    //@TODO: Deprecated since Contao 4.3, to be removed in Contao 5.0.
-					$this->varValue = array_delete($this->varValue, \Input::get('cid'));
-					break;
-			}
-
-			\Database::getInstance()->prepare("UPDATE " . $this->strTable . " SET " . $this->strField . "=? WHERE id=?")
-						   ->execute(serialize($this->varValue), $this->currentRecord);
-
-			$this->redirect(preg_replace('/&(amp;)?cid=[^&]*/i', '', preg_replace('/&(amp;)?' . preg_quote($strCommand, '/') . '=[^&]*/i', '', \Environment::get('request'))));
-		}
-
 		// Make sure there is at least an empty array
 		if (!is_array($this->varValue) || empty($this->varValue)) {
 			$this->varValue = array('');
