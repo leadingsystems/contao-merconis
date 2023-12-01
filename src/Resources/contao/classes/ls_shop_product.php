@@ -1088,6 +1088,57 @@ returns the product price or the cheapest variant price.
                 }
 				break;
 
+            case '_scaledOrVariantsPriceMinimum'
+                /* ## DESCRIPTION:
+                 * The logic that previously ran in 2 templates has been moved here
+                 * The cheapest variant or scale price is determined (for the entire product) - especially for the output
+                 * in the product overview
+                 * All variants are looped through - if available - and then all scaled prices - if available.
+                 */
+                :
+
+                $float_cheapestPrice = null;
+                $str_cheapestPriceOutput = null;
+                $str_minQuantityInfo = null;
+                $bln_cheapestPriceComesFromScalePrices = false;
+
+                /*  Determines the min price of the scale prices
+                 */
+                $fnMinScalePrice = function($obj_productOrVariant)
+                    use (&$float_cheapestPrice, &$str_cheapestPriceOutput, &$str_minQuantityInfo, &$bln_cheapestPriceComesFromScalePrices)
+                {
+                    $bln_cheapestPriceComesFromScalePrices = true;
+
+                    foreach ($obj_productOrVariant as $arr_scalePriceDetails) {
+                        if (!$float_cheapestPrice || $arr_scalePriceDetails['priceUnconfiguredUnformatted'] < $float_cheapestPrice) {
+                            $float_cheapestPrice = $arr_scalePriceDetails['priceUnconfiguredUnformatted'];
+                            $str_cheapestPriceOutput = $arr_scalePriceDetails['priceUnconfigured'];
+                            $str_minQuantityInfo = $arr_scalePriceDetails['minQuantity'];
+                        }
+                    }
+                };
+
+                if ($this->_hasVariants) {
+                    foreach ($this->_variants as $obj_variant){
+                        if (is_array($obj_variant->_scalePricesOutputUnconfigured)) {
+                            $fnMinScalePrice($obj_variant->_scalePricesOutputUnconfigured);
+
+                        } else {
+                            if (!$float_cheapestPrice || $obj_variant->_priceAfterTax < $float_cheapestPrice) {
+                                $float_cheapestPrice = $obj_variant->_priceAfterTax;
+                                $str_cheapestPriceOutput = ls_shop_generalHelper::outputPrice($float_cheapestPrice);
+                            }
+                        }
+                    }
+                } else {
+                    if (is_array($this->_scalePricesOutputUnconfigured)) {
+                        $fnMinScalePrice($this->_scalePricesOutputUnconfigured);
+                    }
+                }
+
+                return array($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo);
+                break;
+
 			case '_priceMinimumAfterTax':
 				return ls_shop_generalHelper::getDisplayPrice($this->_priceMinimumBeforeTax, $this->_steuersatz);
 				break;
