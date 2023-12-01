@@ -1076,9 +1076,16 @@ returns the product price or the cheapest variant price.
 			case '_unscaledPriceMinimumBeforeTax'
 				/* ## DESCRIPTION:
 returns the product price or the cheapest variant price.
+				If there is only one variant, the min-variant price is always used. If there is no variant or more than
+				one variant, the 'unscaledCheckForDifferentPrices' runs (which does not detect any price difference for
+				a variant and therefore returns the main product price)
 				 */
 				:
-				return !$this->_unscaledPricesAreDifferent ? $this->_unscaledPriceBeforeTax : $this->_unscaledPriceCheapestVariantBeforeTax;
+                if (count($this->_variants) == 1) {
+                    return $this->_unscaledPriceCheapestVariantBeforeTax;
+                } else {
+                    return !$this->_unscaledPricesAreDifferent ? $this->_unscaledPriceBeforeTax : $this->_unscaledPriceCheapestVariantBeforeTax;
+                }
 				break;
 
 			case '_priceMinimumAfterTax':
