@@ -1,7 +1,10 @@
 <?php
 
 namespace Merconis\Core;
+
+use Contao\StringUtil;
 use Contao\System;
+
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -233,7 +236,7 @@ class ls_shop_export
 
 		for ($i = 1; $i <= 5; $i++) {
 			if ($this->arr_exportRecord['activateFilterByStatus'.str_pad($i, 2, 0, STR_PAD_LEFT)]) {
-				$arr_statusValuesToFilterBy = deserialize($this->arr_exportRecord['filterByStatus'.str_pad($i, 2, 0, STR_PAD_LEFT)], true);
+				$arr_statusValuesToFilterBy = StringUtil::deserialize($this->arr_exportRecord['filterByStatus'.str_pad($i, 2, 0, STR_PAD_LEFT)], true);
 
 				if (is_array($arr_statusValuesToFilterBy) && count($arr_statusValuesToFilterBy)) {
 					$str_additionalWhereClauseFilterByStatus = "";
@@ -251,7 +254,7 @@ class ls_shop_export
 
 
 		if ($this->arr_exportRecord['activateFilterByShippingMethod']) {
-			$arr_shippingMethodsToFilterBy = deserialize($this->arr_exportRecord['filterByShippingMethod'], true);
+			$arr_shippingMethodsToFilterBy = StringUtil::deserialize($this->arr_exportRecord['filterByShippingMethod'], true);
 
 			if (is_array($arr_shippingMethodsToFilterBy) && count($arr_shippingMethodsToFilterBy)) {
 				$str_additionalWhereClauseFilterByShipping = "";
@@ -267,7 +270,7 @@ class ls_shop_export
 		}
 
 		if ($this->arr_exportRecord['activateFilterByPaymentMethod']) {
-			$arr_paymentMethodsToFilterBy = deserialize($this->arr_exportRecord['filterByPaymentMethod'], true);
+			$arr_paymentMethodsToFilterBy = StringUtil::deserialize($this->arr_exportRecord['filterByPaymentMethod'], true);
 
 			if (is_array($arr_paymentMethodsToFilterBy) && count($arr_paymentMethodsToFilterBy)) {
 				$str_additionalWhereClauseFilterByPayment = "";
@@ -340,17 +343,17 @@ class ls_shop_export
 			/*
 			 * Translate stuff that needs to be translated
 			 */
-			$arr_orderRecord['totalValueOfGoodsTaxedWith'] = deserialize($arr_orderRecord['totalValueOfGoodsTaxedWith']);
-			$arr_orderRecord['paymentMethod_amountTaxedWith'] = deserialize($arr_orderRecord['paymentMethod_amountTaxedWith']);
-			$arr_orderRecord['shippingMethod_amountTaxedWith'] = deserialize($arr_orderRecord['shippingMethod_amountTaxedWith']);
-			$arr_orderRecord['totalTaxedWith'] = deserialize($arr_orderRecord['totalTaxedWith']);
-			$arr_orderRecord['tax'] = deserialize($arr_orderRecord['tax']);
-			$arr_orderRecord['miscData'] = deserialize($arr_orderRecord['miscData']);
+			$arr_orderRecord['totalValueOfGoodsTaxedWith'] = StringUtil::deserialize($arr_orderRecord['totalValueOfGoodsTaxedWith']);
+			$arr_orderRecord['paymentMethod_amountTaxedWith'] = StringUtil::deserialize($arr_orderRecord['paymentMethod_amountTaxedWith']);
+			$arr_orderRecord['shippingMethod_amountTaxedWith'] = StringUtil::deserialize($arr_orderRecord['shippingMethod_amountTaxedWith']);
+			$arr_orderRecord['totalTaxedWith'] = StringUtil::deserialize($arr_orderRecord['totalTaxedWith']);
+			$arr_orderRecord['tax'] = StringUtil::deserialize($arr_orderRecord['tax']);
+			$arr_orderRecord['miscData'] = StringUtil::deserialize($arr_orderRecord['miscData']);
 
 			foreach ($arr_orderItems as $int_orderItemKey => $arr_orderItem) {
 				$arr_orderItems[$int_orderItemKey]['configurator_merchantRepresentation'] = trim($arr_orderItems[$int_orderItemKey]['configurator_merchantRepresentation']);
 				$arr_orderItems[$int_orderItemKey]['configurator_cartRepresentation'] = trim($arr_orderItems[$int_orderItemKey]['configurator_cartRepresentation']);
-				$arr_orderItems[$int_orderItemKey]['extendedInfo'] = deserialize($arr_orderItems[$int_orderItemKey]['extendedInfo']);
+				$arr_orderItems[$int_orderItemKey]['extendedInfo'] = StringUtil::deserialize($arr_orderItems[$int_orderItemKey]['extendedInfo']);
 			}
 
 
@@ -601,7 +604,7 @@ class ls_shop_export
 		}
 
 		if ($this->arr_exportRecord['activateSearchSelectionCategory']) {
-			$pageIDs = deserialize($this->arr_exportRecord['searchSelectionCategory']);
+			$pageIDs = StringUtil::deserialize($this->arr_exportRecord['searchSelectionCategory']);
 			if (!is_array($pageIDs)) {
 				$pageIDs = array();
 			}
@@ -634,7 +637,7 @@ class ls_shop_export
 	}
 
 	public function ls_getDirectSelection() {
-		$arr_products = deserialize($this->arr_exportRecord['productDirectSelection']);
+		$arr_products = StringUtil::deserialize($this->arr_exportRecord['productDirectSelection']);
 		if (count($arr_products) == 1 && !$arr_products[0]) {
 			$arr_products = array();
 		}

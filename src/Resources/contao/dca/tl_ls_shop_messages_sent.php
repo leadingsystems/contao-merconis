@@ -41,7 +41,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['edit'],
 				'href'                => 'act=edit',
-				'icon'                => 'edit.gif'
+				'icon'                => 'edit.svg'
 			)
 		
 		)	

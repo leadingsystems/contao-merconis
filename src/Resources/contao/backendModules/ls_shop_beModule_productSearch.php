@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+
 class ls_shop_beModule_productSearch extends \BackendModule
 {
 	protected $strTemplate = 'beModule_productSearch';
@@ -12,7 +14,7 @@ class ls_shop_beModule_productSearch extends \BackendModule
 	protected function compile() {
 		\System::loadLanguageFile('be_productSearch');
 		\System::loadLanguageFile('tl_ls_shop_product');
-		$this->Template->request = ampersand(\Environment::get('request'), true);
+		$this->Template->request = StringUtil::ampersand(\Environment::get('request'), true);
 
 		$objWidgets = array();
 		$widgets = array();

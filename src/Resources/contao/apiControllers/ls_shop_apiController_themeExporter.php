@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\Folder;
+
 class ls_shop_apiController_themeExporter
 {
     protected $tmpExportDir = 'merconisTmpThemeExport';
@@ -340,7 +342,7 @@ class ls_shop_apiController_themeExporter
         }
 
         // Recursively add the files and subfolders
-        foreach (scan(TL_ROOT . '/' . $strFolder) as $strFile) {
+        foreach (Folder::scan(TL_ROOT . '/' . $strFolder) as $strFile) {
             if (is_dir(TL_ROOT . '/' . $strFolder . '/' . $strFile)) {
                 $this->addFolderToArchive($objArchive, $strFolder . '/' . $strFile);
             } else {

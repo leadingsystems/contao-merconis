@@ -2,7 +2,9 @@
 
 namespace Merconis\Core;
 
-	class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
+	use Contao\StringUtil;
+
+class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 		public $arrCurrentSettings = array();
 		
 		protected $arr_vrpay_apiUrls = array(
@@ -203,7 +205,7 @@ namespace Merconis\Core;
 
 			$str_outputValue = '';
 
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 
 			/*
 			 * The newest status is the last in the array but we want to display
@@ -271,7 +273,7 @@ namespace Merconis\Core;
 			}
 
 			$str_outputValue = '';
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 
 			$arr_statusAllEntries = array_reverse($arr_paymentMethod_moduleReturnData['arr_status']);
 			$arr_currentStatus = $arr_statusAllEntries[0];
@@ -377,11 +379,11 @@ namespace Merconis\Core;
 		public function onPaymentAfterCheckoutPage($arr_order = array()) {
 			/** @var \PageModel $objPage */
 			global $objPage;
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_order['paymentMethod_moduleReturnData']);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_order['paymentMethod_moduleReturnData']);
 
 			switch($this->arrCurrentSettings['vrpay_paymentInstrument']) {
 				case 'creditcard':
-					$arr_paymentBrands = deserialize($this->arrCurrentSettings['vrpay_creditCardBrands']);
+					$arr_paymentBrands = StringUtil::deserialize($this->arrCurrentSettings['vrpay_creditCardBrands']);
 					break;
 
 				case 'giropay':

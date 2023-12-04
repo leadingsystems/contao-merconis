@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
     'config' => array(
@@ -55,13 +56,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['edit'],
                 'href'                => 'act=edit',
-                'icon'                => 'edit.gif'
+                'icon'                => 'edit.svg'
             ),
             'delete' => array
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['delete'],
                 'href'                => 'act=delete',
-                'icon'                => 'delete.gif',
+                'icon'                => 'delete.svg',
                 'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
             )
 
@@ -693,7 +694,7 @@ class ls_shop_orders extends \Backend {
         if (!is_null($paymentModuleOutput)) {
             $outputValue = $paymentModuleOutput;
         } else {
-            $varValue = deserialize($varValue);
+            $varValue = StringUtil::deserialize($varValue);
             ob_start();
             echo '<pre>';
             if (is_array($varValue)) {

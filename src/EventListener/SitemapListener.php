@@ -6,6 +6,7 @@ namespace LeadingSystems\MerconisBundle\EventListener;
 use Contao\CoreBundle\Event\ContaoCoreEvents;
 use Contao\CoreBundle\Event\SitemapEvent;
 use Contao\CoreBundle\ServiceAnnotation\Page;
+use Contao\StringUtil;
 use Contao\System;
 use Merconis\Core\ls_shop_languageHelper;
 
@@ -43,7 +44,7 @@ class SitemapListener
             $whereConditionPages = '';
             $whereConditionValues = array();
 
-            $objProducts->pages = deserialize($objProducts->pages);
+            $objProducts->pages = StringUtil::deserialize($objProducts->pages);
             if (!is_array($objProducts->pages) || !count($objProducts->pages)) {
                 continue;
             }

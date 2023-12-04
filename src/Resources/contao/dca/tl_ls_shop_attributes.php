@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 	'config' => array(
@@ -30,21 +31,21 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
             )
         )
 	),
-	
+
 	'list' => array(
 		'sorting' => array(
 			'mode' => DataContainer::MODE_SORTABLE,
 			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
 			'fields' => array('title'),
 			'disableGrouping' => true,
-			'panelLayout' => 'sort,search,limit'			
+			'panelLayout' => 'sort,search,limit'
 		),
-		
+
 		'label' => array(
 			'fields' => array('title', 'alias'),
 			'format' => '<strong>%s</strong> <span style="font-style: italic;">(Alias: %s)</span>'
 		),
-		
+
 		'global_operations' => array(
 			'all' => array
 			(
@@ -54,43 +55,43 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
 			)
 		),
-		
+
 		'operations' => array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['edit'],
 				'href'                => 'table=tl_ls_shop_attribute_values',
-				'icon'                => 'edit.gif'
+				'icon'                => 'edit.svg'
 			),
 			'editheader' => array (
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['editheader'],
 				'href'                => 'act=edit',
-				'icon'                => 'header.gif'
+				'icon'                => 'header.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_attributes','getDeleteButton')
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
-		
-		)	
+
+		)
 	),
-	
+
 	'palettes' => array(
 		'default' => '{title_legend},title,alias;'
 	),
-	
+
 	'fields' => array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
@@ -108,7 +109,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 			'search' => true,
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'alias' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['alias'],
 			'exclude' => true,
@@ -124,8 +125,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 		)
 	)
 );
-
-
 
 class ls_shop_attributes extends \Backend {
 	public function __construct() {
@@ -163,13 +162,13 @@ class ls_shop_attributes extends \Backend {
 	 */
 	public function getDeleteButton($row, $href, $label, $title, $icon, $attributes) {
 		$attributesAndValuesCurrentlyInUse = ls_shop_generalHelper::getAttributesAndValuesCurrentlyInUse();
-		
+
 		if (!in_array($row['id'], $attributesAndValuesCurrentlyInUse['arrAttributeIDs'])) {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
-			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
-		
+
 		return $button;
 	}
 }

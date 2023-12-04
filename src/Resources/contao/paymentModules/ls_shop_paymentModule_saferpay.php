@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -122,7 +123,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			
 			$str_outputValue = '';
 			
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 			
 			/*
 			 * The newest status is the last in the array but we want to display
@@ -132,7 +133,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			$arr_currentStatus = $arr_statusAllEntries[0];
 			
 			if (\Input::get('saferpay_cancel') == $arr_order['id']) {
-				$str_request = ampersand(\Environment::get('request'), true);
+				$str_request = StringUtil::ampersand(\Environment::get('request'), true);
 				$str_request = preg_replace('/&amp;saferpay_cancel=[0-9]*/', '', $str_request);
 				
 				try {
@@ -167,7 +168,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			}
 			
 			if (\Input::get('saferpay_capture') == $arr_order['id']) {
-				$str_request = ampersand(\Environment::get('request'), true);
+				$str_request = StringUtil::ampersand(\Environment::get('request'), true);
 				$str_request = preg_replace('/&amp;saferpay_capture=[0-9]*/', '', $str_request);
 				
 				try {
@@ -228,7 +229,7 @@ use function LeadingSystems\Helpers\ls_sub;
 									isset($arr_paymentMethod_moduleReturnData['str_transactionId']) && $arr_paymentMethod_moduleReturnData['str_transactionId']
 								&&	$arr_currentStatus['str_statusValue'] === 'AUTHORIZED'
 							) {
-								$str_request = ampersand(\Environment::get('request'), true);
+								$str_request = StringUtil::ampersand(\Environment::get('request'), true);
 								$str_request .= '&saferpay_capture='.$arr_order['id'];
 								?>
 								<a onclick="Backend.getScrollOffset();" href="<?php echo $str_request; ?>">
@@ -244,7 +245,7 @@ use function LeadingSystems\Helpers\ls_sub;
 									isset($arr_paymentMethod_moduleReturnData['str_transactionId']) && $arr_paymentMethod_moduleReturnData['str_transactionId']
 								&&	($arr_currentStatus['str_statusValue'] === 'AUTHORIZED' || $arr_currentStatus['str_statusValue'] === 'CAPTURED')
 							) {
-								$str_request = ampersand(\Environment::get('request'), true);
+								$str_request = StringUtil::ampersand(\Environment::get('request'), true);
 								$str_request .= '&saferpay_cancel='.$arr_order['id'];
 								?>
 								<a onclick="Backend.getScrollOffset();" href="<?php echo $str_request; ?>">
@@ -286,7 +287,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			}
 			
 			$str_outputValue = '';
-			$arr_paymentMethod_moduleReturnData = deserialize($arr_paymentMethod_moduleReturnData);
+			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_paymentMethod_moduleReturnData);
 			
 			$arr_statusAllEntries = array_reverse($arr_paymentMethod_moduleReturnData['arr_status']);
 			$arr_currentStatus = $arr_statusAllEntries[0];
@@ -516,9 +517,9 @@ use function LeadingSystems\Helpers\ls_sub;
 					'LanguageCode' => $arr_order['customerLanguage']
 				),
 
-				'PaymentMethods' => deserialize($this->arrCurrentSettings['saferpay_paymentMethods'], true),
+				'PaymentMethods' => StringUtil::deserialize($this->arrCurrentSettings['saferpay_paymentMethods'], true),
 
-				'Wallets' => deserialize($this->arrCurrentSettings['saferpay_wallets'], true),
+				'Wallets' => StringUtil::deserialize($this->arrCurrentSettings['saferpay_wallets'], true),
 
 				'ReturnUrls' => array(
 					'Success' => $afterCheckoutUrl.'&saferpay_action=success',
