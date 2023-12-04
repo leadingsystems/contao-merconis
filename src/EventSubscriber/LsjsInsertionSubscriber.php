@@ -7,6 +7,7 @@ namespace LeadingSystems\MerconisBundle\EventSubscriber;
 use Contao\Config;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Routing\ScopeMatcher;
+use Contao\CoreBundle\Security\Authentication\Token\TokenChecker;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
 
@@ -16,18 +17,20 @@ class LsjsInsertionSubscriber implements EventSubscriberInterface
     private ContaoFramework $framework;
     private string $webDir;
     private string $projectDir;
+    private TokenChecker $tokenChecker;
 
-    public function __construct(ContaoFramework $framework, ScopeMatcher $scopeMatcher, string $webDir, string $projectDir)
+    public function __construct(ContaoFramework $framework, ScopeMatcher $scopeMatcher, TokenChecker $tokenChecker, string $webDir, string $projectDir)
     {
         $this->framework = $framework;
         $this->scopeMatcher = $scopeMatcher;
         $this->webDir = $webDir;
         $this->projectDir = $projectDir;
+        $this->tokenChecker = $tokenChecker;
     }
 
     public function onKernelControllerArguments(ControllerArgumentsEvent $event)
     {
-        if ($this->scopeMatcher->isBackendMainRequest($event)) {
+        if ($this->scopeMatcher->isBackendMainRequest($event) && $this->tokenChecker->hasBackendUser()) {
             require_once($this->projectDir . '/assets/lsjs/core/appBinder/binderController.php');
 
             $arr_config = [

@@ -13,6 +13,7 @@ services:
     arguments:
       - '@contao.framework'
       - '@contao.routing.scope_matcher'
+      - '@contao.security.token_checker'
       - '%contao.web_dir%'
       - '%kernel.project_dir%'
     tags:
