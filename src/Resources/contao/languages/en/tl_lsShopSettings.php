@@ -138,7 +138,6 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dcaNamesWithoutMultilanguageSupport'] = array('DCAs to skip in multilanguage initialization', 'Comma-separated list of DCA names to skip in the multilanguage initialization.');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsDebugMode'] = array('Debug mode');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoCacheMode'] = array('Deactivate caching');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoMinifierMode'] = array('Deactivate minification');
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssFileToLoad'] = array('SCSS file to load', 'By default, an SCSS file supplied by Merconis is used and no other file need/should be selected here. A different selection is only necessary if, for example, additional/changed styles are to be used due to own extensions. Attention: If you select your own SCSS file, the file supplied by Merconis by default will no longer be loaded. It is therefore advisable to create your own file as a copy of the original Merconis file and then add/change it.');
