@@ -4454,54 +4454,6 @@ class ls_shop_generalHelper
         return $objLayout;
     }
 
-    /*
-     * This function checks if we are on a product detail page and if we are,
-     * it checks if the page has different layout settings for the details view
-     * and if it has, it overwrites the page's regular layout settings
-     */
-    public static function ls_shop_switchTemplateInDetailsViewIfNecessary(\PageModel &$objPage, \LayoutModel &$objLayout, \PageRegular $objPageRegular)
-    {
-
-        if (!\Input::get('product')) {
-            /*
-             * We don't have to deal with different layouts because we are
-             * not on a product details page
-             */
-            return;
-        }
-
-        $int_layout = $objPage->lsShopIncludeLayoutForDetailsView ? $objPage->lsShopLayoutForDetailsView : false;
-
-        if ($objPage->type != 'root') {
-            $int_pid = $objPage->pid;
-            $str_type = $objPage->type;
-            $objParentPage = \PageModel::findParentsById($int_pid);
-
-            if ($objParentPage !== null) {
-                while ($int_pid > 0 && $str_type != 'root' && $objParentPage->next()) {
-                    $int_pid = $objParentPage->pid;
-                    $str_type = $objParentPage->type;
-
-                    if ($objParentPage->lsShopIncludeLayoutForDetailsView) {
-                        if ($int_layout === false) {
-                            $int_layout = $objParentPage->lsShopLayoutForDetailsView;
-                        }
-                    }
-                }
-            }
-        }
-
-        if ($int_layout === false) {
-            /*
-             * We don't have to consider different layouts
-             */
-            return;
-        }
-        $objPage->layout = $int_layout !== false ? $int_layout : $objPage->layout;
-
-        $objLayout = ls_shop_generalHelper::merconis_getPageLayout($objPage);
-    }
-
     public static function ls_shop_getThemeDataForID($int_themeID = null)
     {
         $arr_themeData = array();
@@ -4546,30 +4498,6 @@ class ls_shop_generalHelper
         }
 
         return $arr_pageData;
-    }
-
-    public static function merconis_getLayoutSettingsForGlobalUse(\PageModel $objPage, \LayoutModel $objLayout, \PageRegular $objPageRegular)
-    {
-        $GLOBALS['merconis_globals']['layoutID'] = $objLayout->id;
-        $GLOBALS['merconis_globals']['layoutName'] = $objLayout->name;
-        $GLOBALS['merconis_globals']['ls_shop_activateFilter'] = $objLayout->ls_shop_activateFilter;
-        $GLOBALS['merconis_globals']['ls_shop_useFilterInStandardProductlist'] = $objLayout->ls_shop_useFilterInStandardProductlist;
-        $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = $objLayout->ls_shop_numFilterFieldsInSummary;
-        $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] = $objLayout->ls_shop_useFilterMatchEstimates;
-        $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxNumProducts'] = $objLayout->ls_shop_matchEstimatesMaxNumProducts;
-        $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxFilterValues'] = $objLayout->ls_shop_matchEstimatesMaxFilterValues;
-        $GLOBALS['merconis_globals']['ls_shop_useFilterInProductDetails'] = $objLayout->ls_shop_useFilterInProductDetails;
-        $GLOBALS['merconis_globals']['ls_shop_hideFilterFormInProductDetails'] = $objLayout->ls_shop_hideFilterFormInProductDetails;
-
-        $arr_themeData = ls_shop_generalHelper::ls_shop_getThemeDataForID($objLayout->pid);
-        $GLOBALS['merconis_globals']['contaoThemeFolders'] = isset($arr_themeData) ? StringUtil::deserialize($arr_themeData['folders'], true) : array();
-
-        $GLOBALS['merconis_globals']['int_rootPageId'] = $objPage->rootId;
-        $arr_pageData = ls_shop_generalHelper::ls_shop_getPageDataForID($objPage->rootId);
-
-        $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = $arr_pageData['ls_shop_decimalsSeparator'];
-        $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] = $arr_pageData['ls_shop_thousandsSeparator'];
-        $GLOBALS['merconis_globals']['ls_shop_currencyBeforeValue'] = $arr_pageData['ls_shop_currencyBeforeValue'];
     }
 
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
@@ -5110,11 +5038,8 @@ class ls_shop_generalHelper
             return $str_content;
         }
 
-        $webDir = StringUtil::stripRootDir(System::getContainer()->getParameter('contao.web_dir'));
-	    
         ob_start();
         ?>
-        <script src="assets/lsjs/core/appBinder/binder.php?output=js&pathToApp=<?php echo urldecode('_dup4_/'.$webDir.'/bundles/leadingsystemsmerconis/js/lsjs/backend/app'); ?>&includeCore=no&includeCoreModules=no<?php echo ($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');?>"></script>
         <script type="text/javascript">
             window.addEvent('domready', function () {
                 if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {

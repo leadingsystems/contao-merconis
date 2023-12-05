@@ -138,7 +138,6 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dcaNamesWithoutMultilanguageSupport'] = array('Bei Mehrsprachinitialisierung auszulassende DCAs', 'Kommagetrennte Liste von DCA-Namen, die bei der Mehrsprachinitialisierung übersprungen werden sollen.');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsDebugMode'] = array('Debug-Modus');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoCacheMode'] = array('Caching deaktivieren');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoMinifierMode'] = array('Komprimierung deaktivieren');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssFileToLoad'] = array('Zu ladende SCSS-Datei', 'Standardmäßig wird eine von Merconis mitgelieferte SCSS-Datei verwendet und es muss/soll hier keine andere Datei ausgewählt werden. Eine abweichende Auswahl ist nur nötig, wenn z. B. aufgrund eigener Erweiterungen zusätzliche/geänderte Styles eingesetzt werden sollen. Achtung: Durch die Auswahl einer eigenen SCSS-Datei wird die von Merconis standardmäßig mitgelieferte Datei nicht mehr geladen. Es ist daher sinnvoll, die eigene Datei als Kopie der Merconis-Original-Datei zu erstellen und dann zu ergänzen/ändern.');
