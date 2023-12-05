@@ -114,11 +114,6 @@
 					<span class="currentPrice<?php echo $this->objProduct->_isOnSale ? ' isOnSale' : ''; ?>">
                         <?php
 
-                        $float_cheapestPrice = null;
-                        $str_cheapestPriceOutput = null;
-                        $str_minQuantityInfo = null;
-                        $bln_cheapestPriceComesFromScalePrices = false;
-
                         list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo) = $this->objProduct->_scaledOrVariantsPriceMinimum;
 
                         if (!$bln_cheapestPriceComesFromScalePrices) {
