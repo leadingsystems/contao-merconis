@@ -1102,27 +1102,10 @@ returns the product price or the cheapest variant price.
                 $str_minQuantityInfo = null;
                 $bln_cheapestPriceComesFromScalePrices = false;
 
-                /*  Determines the min price of the scale prices
-                 */
-                $fnMinScalePrice = function($obj_productOrVariant)
-                    use (&$float_cheapestPrice, &$str_cheapestPriceOutput, &$str_minQuantityInfo, &$bln_cheapestPriceComesFromScalePrices)
-                {
-                    $bln_cheapestPriceComesFromScalePrices = true;
-
-                    foreach ($obj_productOrVariant as $arr_scalePriceDetails) {
-                        if (!$float_cheapestPrice || $arr_scalePriceDetails['priceUnconfiguredUnformatted'] < $float_cheapestPrice) {
-                            $float_cheapestPrice = $arr_scalePriceDetails['priceUnconfiguredUnformatted'];
-                            $str_cheapestPriceOutput = $arr_scalePriceDetails['priceUnconfigured'];
-                            $str_minQuantityInfo = $arr_scalePriceDetails['minQuantity'];
-                        }
-                    }
-                };
-
                 if ($this->_hasVariants) {
                     foreach ($this->_variants as $obj_variant){
                         if (is_array($obj_variant->_scalePricesOutputUnconfigured)) {
-                            $fnMinScalePrice($obj_variant->_scalePricesOutputUnconfigured);
-
+                            $this->getMinScalePrice($obj_variant->_scalePricesOutputUnconfigured,$float_cheapestPrice, $str_cheapestPriceOutput, $str_minQuantityInfo, $bln_cheapestPriceComesFromScalePrices);
                         } else {
                             if (!$float_cheapestPrice || $obj_variant->_priceAfterTax < $float_cheapestPrice) {
                                 $float_cheapestPrice = $obj_variant->_priceAfterTax;
@@ -1132,7 +1115,7 @@ returns the product price or the cheapest variant price.
                     }
                 } else {
                     if (is_array($this->_scalePricesOutputUnconfigured)) {
-                        $fnMinScalePrice($this->_scalePricesOutputUnconfigured);
+                        $this->getMinScalePrice($this->_scalePricesOutputUnconfigured,$float_cheapestPrice, $str_cheapestPriceOutput, $str_minQuantityInfo, $bln_cheapestPriceComesFromScalePrices);
                     }
                 }
 
@@ -1623,6 +1606,30 @@ filter context, NULL will be returned.
 
 		return null;
 	}
+
+    /*  Determines the min price of the scale prices
+     *  Because the function can be called for all variants of a product, some arguments are passed byref and thus retain their values
+     *
+     *  @param      $arr_scalePriceDetailsAll               array, list of scale-prices
+     *  @param      $float_cheapestPrice                    float, byref min-price to compare
+     *  @param      $str_cheapestPriceOutput                string, byref min-price as string
+     *  @param      $str_minQuantityInfo                    string, byref, min-quantity from which the price applies
+     *  @param      $bln_cheapestPriceComesFromScalePrices  boolean, byref, flag for output control in template
+     *  @return     null
+     */
+    private function getMinScalePrice($arr_scalePriceDetailsAll, &$float_cheapestPrice, &$str_cheapestPriceOutput, &$str_minQuantityInfo, &$bln_cheapestPriceComesFromScalePrices)
+    {
+        $bln_cheapestPriceComesFromScalePrices = true;
+
+        foreach ($arr_scalePriceDetailsAll as $arr_scalePriceDetails) {
+            if (!$float_cheapestPrice || $arr_scalePriceDetails['priceUnconfiguredUnformatted'] < $float_cheapestPrice) {
+                $float_cheapestPrice = $arr_scalePriceDetails['priceUnconfiguredUnformatted'];
+                $str_cheapestPriceOutput = $arr_scalePriceDetails['priceUnconfigured'];
+                $str_minQuantityInfo = $arr_scalePriceDetails['minQuantity'];
+            }
+        }
+    }
+
 
 	/*
 	 * Getter- (bzw. Caller-)Funktion. Durch die Kommentare für AUTO DOCUMENTATION und DESCRIPTION können die
