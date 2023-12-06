@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\System;
 
 	/* ##########################################################################
 	 * # START HERE!                                                            #
@@ -72,7 +73,7 @@ class dynamicAttachment_invoice_01 extends \Controller {
 			$this->filename = preg_replace('/^tl_files/', 'files', $this->filename);
 		}
 
-		if (file_exists(TL_ROOT.'/'.$this->filename)) {
+		if (file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$this->filename)) {
 			// insert a unique string right before the last dot in the filename if the filename without it already exists
 			$this->filename = preg_replace('/(\.[^.]*$)/', '_'.sha1(time().rand(0,99999)).'$1', $this->filename);
 		}
@@ -405,7 +406,7 @@ class dynamicAttachment_invoice_01 extends \Controller {
 		 * Close and output the PDF document
 		 */
 		$this->pdf->lastPage();
-		$this->pdf->Output(TL_ROOT.'/'.$this->filename, 'F');
+		$this->pdf->Output(System::getContainer()->getParameter('kernel.project_dir').'/'.$this->filename, 'F');
 
 		return $this->filename;
 	}
@@ -420,7 +421,7 @@ class dynamicAttachment_invoice_01 extends \Controller {
 		/* #################################################
 		 * Background image
 		 */
-		$bgImage = TL_ROOT.'/'.(version_compare(VERSION, '3.0', '>=') ? 'files' : 'tl_files').'/merconisfiles/dynamicAttachmentFiles/images/invoice_background_01.gif';
+		$bgImage = System::getContainer()->getParameter('kernel.project_dir').'/'.(version_compare(VERSION, '3.0', '>=') ? 'files' : 'tl_files').'/merconisfiles/dynamicAttachmentFiles/images/invoice_background_01.gif';
 		$this->pdf->Image($bgImage, -0.07, 0, 210.15, 297.01, '', '', '', false, 300, '', false, false, 0);
 		/*
 		 * #################################################

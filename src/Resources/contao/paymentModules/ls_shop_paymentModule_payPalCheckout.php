@@ -30,12 +30,12 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
 
         if($this->arrCurrentSettings['payPalCheckout_logMode'] !== 'NONE') {
-            $myfile = fopen(TL_ROOT . '/system/logs/paypalCheckout.log', "a");
+            $myfile = fopen(System::getContainer()->getParameter('kernel.project_dir') . '/system/logs/paypalCheckout.log', "a");
             fwrite($myfile, "[".date("d-m-Y h:i:sa")."] [".$outputType."] ".$output."\n");
             fclose($myfile);
         }
         //$this->arrCurrentSettings['payPalCheckout_logMode']
-        //TL_ROOT.'/system/logs/PayPal.log',
+        //System::getContainer()->getParameter('kernel.project_dir').'/system/logs/PayPal.log',
     }
 
     public function getCustomUserInterface() {

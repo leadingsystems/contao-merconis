@@ -171,7 +171,7 @@ class InstallerController extends \Controller {
 		if (
 			!$_SESSION['lsShop']['installer_selectedTheme']['id']
 			||	!$_SESSION['lsShop']['installer_selectedTheme']['srcPath']
-			||	!is_dir(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPath'])
+			||	!is_dir(System::getContainer()->getParameter('kernel.project_dir').'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPath'])
 			||	!$_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates']
 		) {
             System::getContainer()->get('monolog.logger.contao')->info(
@@ -179,7 +179,7 @@ class InstallerController extends \Controller {
 			    ||
                 \$_SESSION['lsShop']['installer_selectedTheme']['id'] is \"".$_SESSION['lsShop']['installer_selectedTheme']['id']."\"
                 ||
-                \$_SESSION['lsShop']['installer_selectedTheme']['srcPath'] is \"".$_SESSION['lsShop']['installer_selectedTheme']['srcPath']."\" (".(is_dir(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPath']) ? 'exists' : 'does not exist').")
+                \$_SESSION['lsShop']['installer_selectedTheme']['srcPath'] is \"".$_SESSION['lsShop']['installer_selectedTheme']['srcPath']."\" (".(is_dir(System::getContainer()->getParameter('kernel.project_dir').'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPath']) ? 'exists' : 'does not exist').")
                 ||
                 \$_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates'] is \"".$_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates']."\"
 			    ", ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
@@ -197,11 +197,11 @@ class InstallerController extends \Controller {
 		/*
 		 * Check if the data files are okay
 		 */
-		if (!file_exists(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat'])) {
+		if (!file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat'])) {
             System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportTables.dat" not found. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 			$blnPossible = false;
 		} else {
-			$arrExportTables = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat']));
+			$arrExportTables = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat']));
 
 			if (!is_array($arrExportTables)) {
                 System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportTables.dat" is corrupt. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
@@ -210,11 +210,11 @@ class InstallerController extends \Controller {
 		}
 
 
-		if (!file_exists(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat'])) {
+		if (!file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat'])) {
             System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportLocalconfig.dat" not found. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 			$blnPossible = false;
 		} else {
-			$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
+			$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
 
 			if (!is_array($arrExportLocalconfig)) {
                 System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: File "exportLocalconfig.dat" is corrupt. Installation impossible.', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
@@ -340,7 +340,7 @@ class InstallerController extends \Controller {
 				/*
 				 * Kopieren der Theme-Templates
 				 */
-				if (file_exists(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates']) && !file_exists(TL_ROOT.'/templates/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'])) {
+				if (file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates']) && !file_exists(System::getContainer()->getParameter('kernel.project_dir').'/templates/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'])) {
                     System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Copying theme templates to templates folder', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 					$this->dirCopy($_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates'], 'templates/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName']);
 				} else {
@@ -351,7 +351,7 @@ class InstallerController extends \Controller {
 				 * Eintragen der Grundeinstellungen in localconfig. Teilweise müssen die Werte später
 				 * im Installationsprozess noch durch die richtigen Werte (ID-Zuordnungen) ersetzt werden.
 				 */
-				$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
+				$arrExportLocalconfig = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat']));
 
                 System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Inserting MERCONIS configuration values in localconfig.php', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
@@ -389,7 +389,7 @@ class InstallerController extends \Controller {
 
                 ls_shop_generalHelper::purgeContaoCache();
 
-				$arrExportTables = StringUtil::deserialize(file_get_contents(TL_ROOT.'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat']));
+				$arrExportTables = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/'.$_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat']));
 
 				$this->lsShopImportTables($arrExportTables);
 
@@ -532,7 +532,7 @@ class InstallerController extends \Controller {
 		$targetPath = 'files/merconisfiles';
         System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Copying Merconis files to '.$targetPath, ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 		$this->dirCopy('vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles', $targetPath);
-		$this->rmdirRecursively(TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources');
+		$this->rmdirRecursively(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources');
 	}
 
 	protected function deleteUnnecessaryThemeFiles() {
@@ -547,7 +547,7 @@ class InstallerController extends \Controller {
 		 * Delete theme folders that do not belong to the selected and installed theme. For example, if a theme other
 		 * than basic has been installed, the basic theme folder must be deleted.
 		 */
-		$arrThemes = scandir(TL_ROOT.'/files/merconisfiles/themes');
+		$arrThemes = scandir(System::getContainer()->getParameter('kernel.project_dir').'/files/merconisfiles/themes');
 
 		if (is_array($arrThemes)) {
 			foreach($arrThemes as $themeFolder) {
@@ -556,7 +556,7 @@ class InstallerController extends \Controller {
 				}
 
 				if ($themeFolder != 'theme'.$_SESSION['lsShop']['installer_selectedTheme']['id']) {
-					$this->rmdirRecursively(TL_ROOT.'/files/merconisfiles/themes/'.$themeFolder);
+					$this->rmdirRecursively(System::getContainer()->getParameter('kernel.project_dir').'/files/merconisfiles/themes/'.$themeFolder);
 				}
 			}
 		}
@@ -567,7 +567,7 @@ class InstallerController extends \Controller {
 		 * to the contao templates folder and it might be irritating if it still existed in
 		 * the theme folder
 		 */
-		$unnecessaryTemplatesFolder = TL_ROOT.'/files/merconisfiles/themes/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'];
+		$unnecessaryTemplatesFolder = System::getContainer()->getParameter('kernel.project_dir').'/files/merconisfiles/themes/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'];
 		if (file_exists($unnecessaryTemplatesFolder) && is_dir($unnecessaryTemplatesFolder)) {
 			$this->rmdirRecursively($unnecessaryTemplatesFolder);
 		}
@@ -598,19 +598,19 @@ class InstallerController extends \Controller {
 	}
 
 	protected function dirCopy($src, $dest) {
-		if (!file_exists(TL_ROOT.'/'.$src) || file_exists(TL_ROOT.'/'.$dest)) {
+		if (!file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$src) || file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$dest)) {
 			return false;
 		}
 
-		if (is_file(TL_ROOT.'/'.$src)) {
+		if (is_file(System::getContainer()->getParameter('kernel.project_dir').'/'.$src)) {
 			$objFile = new \File($src);
 			$objFile->copyTo($dest);
 			return;
 		}
 
-		if (is_dir(TL_ROOT.'/'.$src)) {
+		if (is_dir(System::getContainer()->getParameter('kernel.project_dir').'/'.$src)) {
 			$objNewDir = new \Folder($dest);
-			$sourceHandle = opendir(TL_ROOT.'/'.$src);
+			$sourceHandle = opendir(System::getContainer()->getParameter('kernel.project_dir').'/'.$src);
 			while ($file = readdir($sourceHandle)) {
 				if ($file == '.' || $file == '..') {
 					continue;
@@ -938,7 +938,7 @@ class InstallerController extends \Controller {
 
 	protected function lsShopGetDatabaseRelations() {
 		$arrRelations = array();
-		$strDatabaseFile = file_get_contents(TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/config/database.sql');
+		$strDatabaseFile = file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/config/database.sql');
 		preg_match_all('/@(.*)\.(.*)@(.*)\.(.*)=(.*)@/', $strDatabaseFile, $matches);
 		foreach ($matches[0] as $k => $v) {
 			$arrRelations[] = array(
@@ -972,8 +972,8 @@ class InstallerController extends \Controller {
 
 		$zipTargetPath = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes';
 
-        if (!is_dir(TL_ROOT . '/' . $zipTargetPath)) {
-            mkdir(TL_ROOT . '/' . $zipTargetPath);
+        if (!is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $zipTargetPath)) {
+            mkdir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $zipTargetPath);
         }
 
         $zipTargetFilename = $zipTargetPath.'/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'.zip';
@@ -982,7 +982,7 @@ class InstallerController extends \Controller {
 
 		$downloadUrl = 'http://themerepository.merconis.com/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['version'].'/merconisThemeExport/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].($_SESSION['lsShop']['merconisThemeRepositoryMode'] ? '.'.$_SESSION['lsShop']['merconisThemeRepositoryMode'] : '').'.zip';
 
-		$fp = fopen(TL_ROOT.'/'.$zipTargetFilename, 'w+');
+		$fp = fopen(System::getContainer()->getParameter('kernel.project_dir').'/'.$zipTargetFilename, 'w+');
 		$curl = curl_init($downloadUrl);
 		curl_setopt($curl, CURLOPT_FRESH_CONNECT, 1);
 		curl_setopt($curl, CURLOPT_FORBID_REUSE, 1);
@@ -1011,11 +1011,11 @@ class InstallerController extends \Controller {
 		fclose($fp);
 
 		// If the target folder already exists, delete it!
-		if (is_dir(TL_ROOT.'/'.$unzipTargetFoldername)) {
-			$this->rmdirRecursively(TL_ROOT.'/'.$unzipTargetFoldername);
+		if (is_dir(System::getContainer()->getParameter('kernel.project_dir').'/'.$unzipTargetFoldername)) {
+			$this->rmdirRecursively(System::getContainer()->getParameter('kernel.project_dir').'/'.$unzipTargetFoldername);
 		}
 
-		if ($downloadFileHash == md5_file(TL_ROOT.'/'.$zipTargetFilename)) {
+		if ($downloadFileHash == md5_file(System::getContainer()->getParameter('kernel.project_dir').'/'.$zipTargetFilename)) {
 			// unzip
 			try {
 				$objArchive = new \ZipReader($zipTargetFilename);
@@ -1024,14 +1024,14 @@ class InstallerController extends \Controller {
 				}
 				unset($objArchive);
 			} catch (\Exception $e) {
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Downloaded theme archive invalid ('.TL_ROOT.'/'.$zipTargetFilename.')', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Downloaded theme archive invalid ('.System::getContainer()->getParameter('kernel.project_dir').'/'.$zipTargetFilename.')', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 			}
 		} else {
-            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Downloaded theme archive has a wrong hash ('.TL_ROOT.'/'.$zipTargetFilename.')', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Downloaded theme archive has a wrong hash ('.System::getContainer()->getParameter('kernel.project_dir').'/'.$zipTargetFilename.')', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_ERROR)]);
 		}
 
 		// delete the downloaded zip file
-		unlink(TL_ROOT.'/'.$zipTargetFilename);
+		unlink(System::getContainer()->getParameter('kernel.project_dir').'/'.$zipTargetFilename);
 	}
 
 	protected function getAvailableThemes() {
@@ -1226,7 +1226,7 @@ class InstallerController extends \Controller {
 		 */
 		$arrThemeInfos = array();
 
-		$themeFolderPath = TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes';
+		$themeFolderPath = System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes';
 		if (!is_dir($themeFolderPath)) {
 		    mkdir($themeFolderPath);
         }

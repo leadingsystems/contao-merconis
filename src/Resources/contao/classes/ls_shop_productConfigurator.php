@@ -128,8 +128,8 @@ class ls_shop_productConfigurator {
 				
 				$pathToCustomLogicFile = ls_getFilePathFromVariableSources($objConfiguratorData->customLogicFile);
 				
-				if ($pathToCustomLogicFile && file_exists(TL_ROOT."/".$pathToCustomLogicFile) && is_file(TL_ROOT."/".$pathToCustomLogicFile)) {
-					require_once(TL_ROOT."/".$pathToCustomLogicFile);
+				if ($pathToCustomLogicFile && file_exists(System::getContainer()->getParameter('kernel.project_dir')."/".$pathToCustomLogicFile) && is_file(System::getContainer()->getParameter('kernel.project_dir')."/".$pathToCustomLogicFile)) {
+					require_once(System::getContainer()->getParameter('kernel.project_dir')."/".$pathToCustomLogicFile);
 					$customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $pathToCustomLogicFile);
 					$this->customLogicClassName = $customLogicClassName;
 

@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
+use Contao\System;
 
 class ls_shop_apiController_exportBackend
 {
@@ -104,7 +105,7 @@ class ls_shop_apiController_exportBackend
 		$str_pathToFileExportFolder = ls_getFilePathFromVariableSources($obj_dbres_export->folder);
 
 		$str_filePath = $str_pathToFileExportFolder.'/'.$str_fileName;
-		$str_fullFilePath = TL_ROOT.'/'.$str_filePath;
+		$str_fullFilePath = System::getContainer()->getParameter('kernel.project_dir').'/'.$str_filePath;
 
 		$handle_fileCsv = fopen($str_fullFilePath, $obj_dbres_export->appendToFile ? 'ab' : 'wb');
 
@@ -170,7 +171,7 @@ class ls_shop_apiController_exportBackend
 		$str_pathToFileExportFolder = ls_getFilePathFromVariableSources($obj_dbres_export->folder);
 
 		$str_filePath = $str_pathToFileExportFolder.'/'.$str_fileName;
-		$str_fullFilePath = TL_ROOT.'/'.$str_filePath;
+		$str_fullFilePath = System::getContainer()->getParameter('kernel.project_dir').'/'.$str_filePath;
 
 		if (unlink($str_fullFilePath) !== false) {
 			$this->obj_apiReceiver->success();

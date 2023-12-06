@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 	use Contao\StringUtil;
+    use Contao\System;
 
     class ls_shop_paymentModule_sofortueberweisung extends ls_shop_paymentModule_standard {
 		public $arrCurrentSettings = array();
@@ -13,9 +14,9 @@ namespace Merconis\Core;
 			/*
 			 * Including the sofortueberweisung SDK classes
 			 */
-			require_once(TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/payment/sofortLibSofortueberweisung.inc.php');
-			require_once(TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/core/sofortLibNotification.inc.php');
-			require_once(TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/core/sofortLibTransactionData.inc.php');
+			require_once(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/payment/sofortLibSofortueberweisung.inc.php');
+			require_once(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/core/sofortLibNotification.inc.php');
+			require_once(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/core/sofortLibTransactionData.inc.php');
 		}
 		
 		/*

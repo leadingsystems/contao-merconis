@@ -330,8 +330,8 @@ class ls_shop_orderMessages
 					 * Use the possibly given dynamicAttachmentFile(s) to create a pdf file
 					 * and use this file as attachments
 					 */
-					if (file_exists(TL_ROOT.'/'.$strDynamicAttachmentFile)) {
-						require_once(TL_ROOT.'/'.$strDynamicAttachmentFile);
+					if (file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$strDynamicAttachmentFile)) {
+						require_once(System::getContainer()->getParameter('kernel.project_dir').'/'.$strDynamicAttachmentFile);
 
 						// The class name of the dynamicAttachmentFile must match it's filename without the suffix
 						$dynamicAttachmentClassName = 'Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $strDynamicAttachmentFile);
@@ -344,8 +344,8 @@ class ls_shop_orderMessages
 						$objDynamicAttachment = new $dynamicAttachmentClassName($this->arrOrder, $this->counterNr, createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrMessageModel['flex_parameters'])), 2, 1));
 						$dynamicAttachmentSavedFilename = $objDynamicAttachment->parse();
 						
-						if ($dynamicAttachmentSavedFilename && file_exists(TL_ROOT.'/'.$dynamicAttachmentSavedFilename)) {
-							$objEmail->attachFile(TL_ROOT.'/'.$dynamicAttachmentSavedFilename);
+						if ($dynamicAttachmentSavedFilename && file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$dynamicAttachmentSavedFilename)) {
+							$objEmail->attachFile(System::getContainer()->getParameter('kernel.project_dir').'/'.$dynamicAttachmentSavedFilename);
 							$arrTmpGeneratedDynamicAttachmentFiles[] = $dynamicAttachmentSavedFilename;
 						}
 					}
@@ -358,8 +358,8 @@ class ls_shop_orderMessages
 			if (is_array($arrMessageToSendAndSave['attachmentPaths']) && count($arrMessageToSendAndSave['attachmentPaths']) > 0) {
 				foreach ($arrMessageToSendAndSave['attachmentPaths'] as $strAttachment) {
 					$strAttachment = ls_getFilePathFromVariableSources($strAttachment);
-					if ($strAttachment && file_exists(TL_ROOT.'/'.$strAttachment)) {
-						$objEmail->attachFile(TL_ROOT . '/' . $strAttachment);
+					if ($strAttachment && file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$strAttachment)) {
+						$objEmail->attachFile(System::getContainer()->getParameter('kernel.project_dir') . '/' . $strAttachment);
 					}
 				}
 			}

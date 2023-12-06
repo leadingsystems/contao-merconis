@@ -121,7 +121,7 @@ class ls_shop_importController
 			'lastFilePointerPosition' => 0
 		);
 		
-		$importFolder = TL_ROOT.'/'.ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']);
+		$importFolder = System::getContainer()->getParameter('kernel.project_dir').'/'.ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']);
 		$files = scandir($importFolder);
 		
 		// If exactly one file exists (which must be the case), $files counts 3 because of the pseudo files "." und ".."
@@ -136,7 +136,7 @@ class ls_shop_importController
 		$objFile = new \File(ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']).'/'.$file);
 		
 		$arrImportFileInfo['name'] = $objFile->name;
-		$arrImportFileInfo['fullFilename'] = TL_ROOT.'/'.ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']).'/'.$file;
+		$arrImportFileInfo['fullFilename'] = System::getContainer()->getParameter('kernel.project_dir').'/'.ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']).'/'.$file;
 		$arrImportFileInfo['date'] = \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $objFile->mtime);
 		
 		$arrImportFileInfo['sizeBytes'] = $objFile->size;

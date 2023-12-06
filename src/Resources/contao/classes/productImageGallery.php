@@ -243,18 +243,18 @@ class productImageGallery extends \Frontend {
         if (preg_match('/_cover/siU', $file)) {
             $parts = explode("_cover.", $file);
             //check of there is a image for this cover or not, if not then this will be used as a normal product image
-            if (!preg_match('/\.mp4/siU', $file) && file_exists(TL_ROOT.'/'.$parts[0].".mp4")) {
+            if (!preg_match('/\.mp4/siU', $file) && file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$parts[0].".mp4")) {
                 return false;
 
             }
         }
 
-        if (isset($this->ls_images[$file]) || !file_exists(TL_ROOT.'/'.$file)) {
+        if (isset($this->ls_images[$file]) || !file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$file)) {
             return false;
         }
 
 
-        if (!is_file(TL_ROOT . '/' . $file)) {
+        if (!is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $file)) {
             return false;
         }
 
@@ -344,7 +344,7 @@ class productImageGallery extends \Frontend {
          */
         foreach ($this->arrImgSuffixes as $suffix) {
             $coverFilename2 = $coverFilename.'.'.$suffix;
-            if (is_file(TL_ROOT . '/' . $coverFilename2)) {
+            if (is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $coverFilename2)) {
                 /*
                  * If we have a match, that's our cover filename, so we break the loop and use this value
                  */

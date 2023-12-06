@@ -3,6 +3,7 @@ namespace Merconis\Core;
 
 use Contao\PageModel;
 use Contao\StringUtil;
+use Contao\System;
 
 class ls_shop_languageHelper {
 	public static function getFallbackLanguage() {
@@ -585,7 +586,7 @@ class ls_shop_languageHelper {
 		/*
 		 * Load all DCA definitions
 		 */
-		$str_pathToMerconisDCA = TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/dca';
+		$str_pathToMerconisDCA = System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/dca';
 		$arr_dcaFiles = scandir($str_pathToMerconisDCA);
 		foreach ($arr_dcaFiles as $str_filename) {
 			if ($str_filename == '.' || $str_filename == '..') {

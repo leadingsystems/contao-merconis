@@ -5,6 +5,7 @@ namespace Merconis\Core;
 use Contao\ArrayUtil;
 use Contao\Folder;
 use Contao\StringUtil;
+use Contao\System;
 
 class ls_shop_moreImagesGallery extends \Frontend {
     protected $strTemplate = 'template_productGallery_01';
@@ -150,18 +151,18 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
         // Get all images
         foreach ($this->multiSRC as $file) {
-            if (!@file_exists(TL_ROOT.'/'.$file)) {
+            if (!@file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$file)) {
                 continue;
             }
 
             // Process single files
-            if (is_file(TL_ROOT.'/'.$file)) {
+            if (is_file(System::getContainer()->getParameter('kernel.project_dir').'/'.$file)) {
                 $this->processSingleImage($file);
             }
 
             // Process folders (not recursive, only the one given folder!)
             else {
-                $subfiles = Folder::scan(TL_ROOT.'/'.$file);
+                $subfiles = Folder::scan(System::getContainer()->getParameter('kernel.project_dir').'/'.$file);
 
                 foreach ($subfiles as $subfile) {
                     $subfileName = $file . '/' . $subfile;
@@ -301,11 +302,11 @@ class ls_shop_moreImagesGallery extends \Frontend {
             return false;
         }
 
-        if (isset($this->ls_images[$file]) || !file_exists(TL_ROOT.'/'.$file)) {
+        if (isset($this->ls_images[$file]) || !file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$file)) {
             return false;
         }
 
-        if (!is_file(TL_ROOT . '/' . $file)) {
+        if (!is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $file)) {
             return false;
         }
 
@@ -390,7 +391,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
          */
         foreach ($this->arrImgSuffixes as $suffix) {
             $coverFilename2 = $coverFilename.'.'.$suffix;
-            if (is_file(TL_ROOT . '/' . $coverFilename2)) {
+            if (is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $coverFilename2)) {
                 /*
                  * If we have a match, that's our cover filename, so we break the loop and use this value
                  */
