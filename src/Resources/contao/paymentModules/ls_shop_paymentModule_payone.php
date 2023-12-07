@@ -261,6 +261,15 @@ use function LeadingSystems\Helpers\ls_sub;
 		 */
 		public function onAfterCheckoutPage($arr_order = array()) {
 			$str_p1action = \Input::get('p1action') ? \Input::get('p1action') : (\Input::post('p1action') ? \Input::post('p1action') : '');
+
+            if (!$str_p1action) {
+                //NO action by Payone -> is there the GET parameter callbackPaymentMethodId ?
+                if (\Input::get('callbackPaymentMethodId')) {
+                    //Set action manually, because it is certain that it is a notification call from Payone
+                    $str_p1action = 'notification';
+                }
+            }
+
 			if ($str_p1action) {
 				switch ($str_p1action) {
 					case 'aborted':
