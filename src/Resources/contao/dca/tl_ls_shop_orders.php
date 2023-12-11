@@ -2,9 +2,14 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+use Contao\StringUtil;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
     'config' => array(
-        'dataContainer' => 'Table',
+        'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
         'closed' => true,
         'onsubmit_callback' => array (
             array('Merconis\Core\ls_shop_orders', 'sendMessagesOnStatusChange')
@@ -23,9 +28,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
 
     'list' => array(
         'sorting' => array(
-            'mode' => 2,
+            'mode' => DataContainer::MODE_SORTABLE,
             'fields' => array('orderDate'),
-            'flag' => 1,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'disableGrouping' => true,
             'panelLayout' => 'filter;sort,search,limit'
         ),
@@ -51,13 +56,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['edit'],
                 'href'                => 'act=edit',
-                'icon'                => 'edit.gif'
+                'icon'                => 'edit.svg'
             ),
             'delete' => array
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['delete'],
                 'href'                => 'act=delete',
-                'icon'                => 'delete.gif',
+                'icon'                => 'delete.svg',
                 'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
             )
 
@@ -689,7 +694,7 @@ class ls_shop_orders extends \Backend {
         if (!is_null($paymentModuleOutput)) {
             $outputValue = $paymentModuleOutput;
         } else {
-            $varValue = deserialize($varValue);
+            $varValue = StringUtil::deserialize($varValue);
             ob_start();
             echo '<pre>';
             if (is_array($varValue)) {

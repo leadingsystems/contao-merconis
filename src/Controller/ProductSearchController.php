@@ -5,6 +5,7 @@ namespace LeadingSystems\MerconisBundle\Controller;
 use Contao\Ajax;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\Input;
+use Contao\StringUtil;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -71,7 +72,7 @@ class ProductSearchController extends \Backend
 		$this->Template->pageOffset = \Input::cookie('BE_PAGE_OFFSET');
 		$this->Template->error = (\Input::get('act') == 'error') ? $GLOBALS['TL_LANG']['ERR']['general'] : '';
 		$this->Template->skipNavigation = $GLOBALS['TL_LANG']['MSC']['skipNavigation'];
-		$this->Template->request = ampersand(\Environment::get('request'));
+		$this->Template->request = StringUtil::ampersand(\Environment::get('request'));
 		$this->Template->top = $GLOBALS['TL_LANG']['MSC']['backToTop'];
 
 		return $this->Template->getResponse();

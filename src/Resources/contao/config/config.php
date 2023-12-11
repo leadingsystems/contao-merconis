@@ -21,14 +21,6 @@ if (TL_MODE === 'BE') {
     $GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getBackendLsjs');
 }
 
-if (TL_MODE == 'FE') {
-	$GLOBALS['TL_HOOKS']['getPageLayout'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_switchTemplateInDetailsViewIfNecessary');
-	/*
-	 * Hook for writing the layout's filter settings into the global variables for later use
-	 */
-	$GLOBALS['TL_HOOKS']['getPageLayout'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getLayoutSettingsForGlobalUse');
-}
-
 /*
  * Hook for loading the themes' language files
  */
@@ -136,16 +128,12 @@ if (TL_MODE === 'BE') {
  * <-
  */
 
-$GLOBALS['TL_CRON']['daily'][] = array('Merconis\Core\ls_shop_generalHelper','sendRestockInfo');
-$GLOBALS['TL_CRON']['daily'][] = array('Merconis\Core\ls_shop_generalHelper','sendMessagesOnStatusChangeCronDaily');
-$GLOBALS['TL_CRON']['hourly'][] = array('Merconis\Core\ls_shop_generalHelper','sendMessagesOnStatusChangeCronHourly');
-
 if (TL_MODE == 'BE') {
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_shop_BE.js';
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_x_controller.js';
 }
 
-array_insert($GLOBALS['BE_MOD'], 0, array(
+\Contao\ArrayUtil::arrayInsert($GLOBALS['BE_MOD'], 0, array(
 	'merconis' => array(
 		'ls_shop_dashboard' => array(
 			'callback' => 'Merconis\Core\dashboard'

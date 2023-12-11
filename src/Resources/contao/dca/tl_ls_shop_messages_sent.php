@@ -2,9 +2,12 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
 		'closed' => true,
         'sql' => array
         (
@@ -17,9 +20,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 	
 	'list' => array(
 		'sorting' => array(
-			'mode' => 2,
+			'mode' => DataContainer::MODE_SORTABLE,
 			'fields' => array('tstamp'),
-			'flag' => 1,
+			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
 			'disableGrouping' => true,
 			'panelLayout' => 'filter;sort,search,limit'
 		),
@@ -38,7 +41,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['edit'],
 				'href'                => 'act=edit',
-				'icon'                => 'edit.gif'
+				'icon'                => 'edit.svg'
 			)
 		
 		)	

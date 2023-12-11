@@ -2,9 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
 		'ctable' => array('tl_ls_shop_message_model'),
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_ls_shop_message_type_controller', 'restartCounter')
@@ -20,9 +24,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 	
 	'list' => array(
 		'sorting' => array(
-			'mode' => 1,
+			'mode' => DataContainer::MODE_SORTED,
 			'fields' => array('title'),
-			'flag' => 1,
+			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
 			'disableGrouping' => true,
 			'panelLayout' => 'filter;sort,search,limit'
 		),
@@ -47,30 +51,30 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['edit'],
 				'href'                => 'table=tl_ls_shop_message_model',
-				'icon'                => 'edit.gif',
+				'icon'                => 'edit.svg',
 				'attributes'          => 'class="contextmenu"'
 			),
 			'editheader' => array
 			(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['editheader'],
 				'href'                => 'act=edit',
-				'icon'                => 'header.gif'
+				'icon'                => 'header.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
 		
 		)

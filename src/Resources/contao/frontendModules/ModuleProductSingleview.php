@@ -2,9 +2,12 @@
 
 namespace Merconis\Core;
 
+use Contao\StringUtil;
+use Contao\System;
+
 class ModuleProductSingleview extends \Module {
 	public function generate() {
-		if (TL_MODE == 'BE') {
+		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$objTemplate = new \BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS ProductSingleview ###';
 			return $objTemplate->parse();
@@ -58,13 +61,13 @@ class ModuleProductSingleview extends \Module {
 		$objProduct = ls_shop_generalHelper::getObjProduct($int_productId, __METHOD__);
 		
 		/*
-		 * Produktspezifische Anpassung von Seitentitel und Keywords
+		 * Product-specific customization of page title and description
 		 */
 		// Overwrite the page title
         if ($objProduct->_hasPageTitle) {
             $objPage->pageTitle = $objProduct->_pageTitle;
         } else {
-            $objPage->pageTitle = strip_insert_tags($objProduct->_title) . ' - ' . ($objPage->pageTitle ? $objPage->pageTitle : $objPage->title);
+            $objPage->pageTitle = StringUtil::stripInsertTags($objProduct->_title) . ' - ' . ($objPage->pageTitle ? $objPage->pageTitle : $objPage->title);
         }
 
         if ($objProduct->_hasPageDescription) {
@@ -74,19 +77,13 @@ class ModuleProductSingleview extends \Module {
                 isset($GLOBALS['TL_CONFIG']['ls_shop_useProductDescriptionAsSeoDescription'])
                 && $GLOBALS['TL_CONFIG']['ls_shop_useProductDescriptionAsSeoDescription']
             ) {
-                $objPage->description = ($objProduct->_shortDescription || $objProduct->_description) ? substr(strip_insert_tags(strip_tags($objProduct->_shortDescription ? $objProduct->_shortDescription : $objProduct->_description)), 0, 350) : $objPage->description;
+                $objPage->description = ($objProduct->_shortDescription || $objProduct->_description) ? substr(StringUtil::stripInsertTags(strip_tags($objProduct->_shortDescription ? $objProduct->_shortDescription : $objProduct->_description)), 0, 350) : $objPage->description;
             }
         }
-
-		if ($objProduct->_hasKeywords != '') {
-			$GLOBALS['TL_KEYWORDS'] .= (strlen($GLOBALS['TL_KEYWORDS']) ? ', ' : '').$objProduct->_keywords;
-		}
 		/*
-		 * Ende Produktspezifische Anpassung von Seitentitel und Keywords
+		 * End: Product-specific customization of page title and description
 		 */
-		 		
 
-		
 		$this->Template = new \FrontendTemplate('productSingleview');
 		
 		$objProductOutput = new ls_shop_productOutput($int_productId, 'singleview');

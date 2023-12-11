@@ -10,7 +10,7 @@
 				foreach ($this->objProduct->_attributes as $arr_valuesForAttribute) {
 					if (is_array($arr_valuesForAttribute[0])) {
 						?>
-						<div class="attributeInfo <?php echo standardize($arr_valuesForAttribute[0]['attributeTitle']); ?>">
+						<div class="attributeInfo <?php echo \Contao\StringUtil::standardize($arr_valuesForAttribute[0]['attributeTitle']); ?>">
 							<span class="attributeTitle"><?php echo $arr_valuesForAttribute[0]['attributeTitle']; ?>:</span>
 							<div class="attributeValue">
 								<?php
@@ -18,7 +18,7 @@
 										if ($int_attributeValueKey > 0) {
 											echo ', ';
 										}
-										?><span class="singleAttributeValue <?php echo standardize($arr_valueForAttribute['valueTitle']); ?>"><?php echo $arr_valueForAttribute['valueTitle']; ?></span><?php
+										?><span class="singleAttributeValue <?php echo \Contao\StringUtil::standardize($arr_valueForAttribute['valueTitle']); ?>"><?php echo $arr_valueForAttribute['valueTitle']; ?></span><?php
 									}
 								?>
 							</div>
@@ -46,7 +46,7 @@
 				foreach ($this->objProduct->_selectedVariant->_attributes as $arr_valuesForAttribute) {
 					if (is_array($arr_valuesForAttribute[0])) {
 						?>
-						<div class="attributeInfo <?php echo standardize($arr_valuesForAttribute[0]['attributeTitle']); ?>">
+						<div class="attributeInfo <?php echo \Contao\StringUtil::standardize($arr_valuesForAttribute[0]['attributeTitle']); ?>">
 							<span class="attributeTitle"><?php echo $arr_valuesForAttribute[0]['attributeTitle']; ?>:</span>
 							<div class="attributeValue">
 								<?php
@@ -54,7 +54,7 @@
 										if ($int_attributeValueKey > 0) {
 											echo ', ';
 										}
-										?><span class="singleAttributeValue <?php echo standardize($arr_valueForAttribute['valueTitle']); ?>"><?php echo $arr_valueForAttribute['valueTitle']; ?></span><?php
+										?><span class="singleAttributeValue <?php echo \Contao\StringUtil::standardize($arr_valueForAttribute['valueTitle']); ?>"><?php echo $arr_valueForAttribute['valueTitle']; ?></span><?php
 									}
 								?>
 							</div>

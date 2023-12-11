@@ -2,9 +2,14 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+use Contao\StringUtil;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
 		'ptable' => 'tl_ls_shop_message_type',
         'sql' => array
         (
@@ -18,7 +23,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	'list' => array(
 	
 		'sorting' => array(
-			'mode' => 4,
+			'mode' => DataContainer::MODE_PARENT,
 			'fields' => array('subject'),
 			'panelLayout' => 'filter;sort,search,limit',
 			'headerFields'            => array('title'),
@@ -40,23 +45,23 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['edit'],
 				'href'                => 'act=edit',
-				'icon'                => 'edit.gif'
+				'icon'                => 'edit.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
 		
 		)
@@ -358,7 +363,7 @@ class tl_ls_shop_message_model_controller extends \Backend {
 	
 	public function listChildRecords($arrRow) {
 		if (!is_array($arrRow['member_group'])) {
-			$arrRow['member_group'] = deserialize($arrRow['member_group'], true);
+			$arrRow['member_group'] = StringUtil::deserialize($arrRow['member_group'], true);
 		}
 		
 		$memberGroupName = '';

@@ -2,9 +2,15 @@
 
 namespace Merconis\Core;
 
+use Contao\ArrayUtil;
+use Contao\DataContainer;
+use Contao\DC_Table;
+use Contao\StringUtil;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
     'config' => array(
-        'dataContainer' => 'Table',
+        'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
         'onload_callback' => array(
             array('Merconis\Core\ls_shop_payment_methods','modifyDCA')
         ),
@@ -19,8 +25,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
 
     'list' => array(
         'sorting' => array(
-            'mode' => 1,
-            'flag' => 1,
+            'mode' => DataContainer::MODE_SORTED,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'fields' => array('sorting', 'title'),
             'disableGrouping' => true,
             'panelLayout' => 'filter;search,limit'
@@ -45,19 +51,19 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['edit'],
                 'href'                => 'act=edit',
-                'icon'                => 'edit.gif'
+                'icon'                => 'edit.svg'
             ),
             'copy' => array
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['copy'],
                 'href'                => 'act=copy',
-                'icon'                => 'copy.gif'
+                'icon'                => 'copy.svg'
             ),
             'delete' => array
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['delete'],
                 'href'                => 'act=delete',
-                'icon'                => 'delete.gif',
+                'icon'                => 'delete.svg',
                 'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
                 'button_callback'	=>	array('Merconis\Core\ls_shop_payment_methods','getDeleteButton')
             ),
@@ -65,7 +71,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             (
                 'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['show'],
                 'href'                => 'act=show',
-                'icon'                => 'show.gif'
+                'icon'                => 'show.svg'
             )
 
         )
@@ -923,7 +929,7 @@ class ls_shop_payment_methods extends \Backend {
         /*
          * Insert the fields into the fields array of this DCA definition
          */
-        array_insert($GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields'], 0, $arr_fields);
+        ArrayUtil::arrayInsert($GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields'], 0, $arr_fields);
 
         /*
          * Assign the standard label
@@ -951,9 +957,9 @@ class ls_shop_payment_methods extends \Backend {
         $arr_methodIDsCurrentlyUsed = ls_shop_generalHelper::getPaymentOrShippingMethodsUsedInOrders('payment');
 
         if (!in_array($row['id'], $arr_methodIDsCurrentlyUsed)) {
-            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
         } else {
-            $button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+            $button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
         }
 
         return $button;

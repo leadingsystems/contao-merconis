@@ -2,9 +2,14 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+use Contao\StringUtil;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
 		'onsubmit_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
@@ -25,21 +30,21 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
             )
         )
 	),
-	
+
 	'list' => array(
 		'sorting' => array(
-			'mode' => 1,
-			'flag' => 1,
+			'mode' => DataContainer::MODE_SORTED,
+			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
 			'fields' => array('title'),
 			'disableGrouping' => true,
 			'panelLayout' => 'search,limit'
 		),
-		
+
 		'label' => array(
 			'fields' => array('title', 'alias'),
 			'format' => '<strong>%s</strong> <span style="font-style: italic;">(Alias: %s)</span>'
 		),
-		
+
 		'global_operations' => array(
 			'all' => array
 			(
@@ -49,38 +54,38 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
 			)
 		),
-		
+
 		'operations' => array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['edit'],
 				'href'                => 'act=edit',
-				'icon'                => 'edit.gif'
+				'icon'                => 'edit.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_steuersaetze','getDeleteButton')
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
-		
-		)	
+
+		)
 	),
-	
+
 	'palettes' => array(
 		'default' => '{title_legend},title,alias;{steuerPeriod1_legend},steuerProzentPeriod1,startPeriod1,stopPeriod1;{steuerPeriod2_legend},steuerProzentPeriod2,startPeriod2,stopPeriod2'
 	),
-	
+
 	'fields' => array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
@@ -89,7 +94,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
         'tstamp' => array (
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
         ),
-		
+
 		'title' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['title'],
@@ -98,7 +103,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'search' => true,
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'alias' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['alias'],
 			'exclude' => true,
@@ -141,7 +146,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			),
             'sql'                     => "text NULL"
 		),
-		
+
 		'startPeriod1' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['startPeriod1'],
@@ -149,7 +154,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
-		
+
 		'stopPeriod1' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['stopPeriod1'],
@@ -157,7 +162,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
-		
+
 		'steuerProzentPeriod2' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['steuerProzentPeriod2'],
@@ -187,7 +192,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			),
             'sql'                     => "text NULL"
 		),
-		
+
 		'startPeriod2' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['startPeriod2'],
@@ -195,7 +200,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
-		
+
 		'stopPeriod2' => array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['stopPeriod2'],
@@ -240,21 +245,21 @@ class ls_shop_steuersaetze extends \Backend {
 		 */
 		$objProducts = \Database::getInstance()->prepare("SELECT `id` FROM tl_ls_shop_product WHERE `lsShopProductSteuersatz` = ?")
 								  ->execute($row['id']);
-								  
+
 		if (!$objProducts->numRows) {
 			/*
 			 * The tax rate can be deleted if it is not in use with any product
 			 */
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			/*
 			 * The tax rate must not be deleted if it is in use with at least one product
 			 */
-			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 		return $button;
 	}
-	
+
 	/*
 	 * In order to understand what this function is all about, take a look at ls_shop_generalHelper::parseSteuersatz(),
 	 * $GLOBALS['MERCONIS_HOOKS']['customTaxRateCalculation'] and the comments for this hook!
@@ -270,7 +275,7 @@ class ls_shop_steuersaetze extends \Backend {
 			WHERE	`lsShopProductSteuersatz` = ?
 		")
 		->execute($dc->id);
-								  
+
 		if (!$objProducts->numRows) {
 			// return the value without further checks if the tax class is not used with at least one product
 			return $varValue;

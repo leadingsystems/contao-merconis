@@ -2,9 +2,14 @@
 
 namespace Merconis\Core;
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+use Contao\StringUtil;
+
 $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 	'config' => array(
-		'dataContainer' => 'Table',
+		'dataContainer' => DC_Table::class,
+        'enableVersioning' => true,
 		'onsubmit_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
@@ -25,21 +30,21 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
             )
         )
 	),
-	
+
 	'list' => array(
 		'sorting' => array(
-			'mode' => 2,
-			'flag' => 1,
+			'mode' => DataContainer::MODE_SORTABLE,
+			'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
 			'fields' => array('title'),
 			'disableGrouping' => true,
 			'panelLayout' => 'filter;sort,search,limit'
 		),
-		
+
 		'label' => array(
 			'fields' => array('title', 'alias'),
 			'format' => '<strong>%s</strong> <span style="font-style: italic;">(Alias: %s)</span>'
 		),
-		
+
 		'global_operations' => array(
 			'all' => array
 			(
@@ -49,37 +54,37 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
 			)
 		),
-		
+
 		'operations' => array(
 			'edit' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['edit'],
 				'href'                => 'act=edit',
-				'icon'                => 'edit.gif'
+				'icon'                => 'edit.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['copy'],
 				'href'                => 'act=copy',
-				'icon'                => 'copy.gif'
+				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['delete'],
 				'href'                => 'act=delete',
-				'icon'                => 'delete.gif',
+				'icon'                => 'delete.svg',
 				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_delivery_info','getDeleteButton')
 			),
 			'show' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['show'],
 				'href'                => 'act=show',
-				'icon'                => 'show.gif'
+				'icon'                => 'show.svg'
 			)
-		
-		)	
+
+		)
 	),
 	'palettes' => array(
 		'default' => '{title_legend},title,alias;{stockSettings_legend},useStock,allowOrdersWithInsufficientStock,alertWhenLowerThanMinimumStock,minimumStock;{deliveryTime_legend},deliveryTimeDaysWithSufficientStock,deliveryTimeMessageWithSufficientStock,deliveryTimeDaysWithInsufficientStock,deliveryTimeMessageWithInsufficientStock'
 	),
-	
+
 	'fields' => array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
@@ -97,7 +102,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'search' => true,
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
 		'alias' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['alias'],
 			'exclude' => true,
@@ -111,7 +116,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'search' => true,
             'sql'                     => "varchar(128) BINARY NOT NULL default ''"
 		),
-		
+
 		'useStock'	=> array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['useStock'],
 			'exclude' => true,
@@ -120,7 +125,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'filter' => true,
             'sql'                     => "char(1) NOT NULL default ''"
 		),
-		
+
 		'allowOrdersWithInsufficientStock'	=> array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['allowOrdersWithInsufficientStock'],
 			'exclude' => true,
@@ -129,7 +134,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'filter' => true,
             'sql'                     => "char(1) NOT NULL default ''"
 		),
-		
+
 		'alertWhenLowerThanMinimumStock'	=> array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['alertWhenLowerThanMinimumStock'],
 			'exclude' => true,
@@ -138,7 +143,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'filter' => true,
             'sql'                     => "char(1) NOT NULL default ''"
 		),
-		
+
 		'minimumStock' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['minimumStock'],
 			'exclude' => true,
@@ -147,7 +152,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'filter' => true,
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
-		
+
 		'deliveryTimeDaysWithSufficientStock' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['deliveryTimeDaysWithSufficientStock'],
 			'exclude' => true,
@@ -156,7 +161,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'filter' => true,
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
-		
+
 		'deliveryTimeMessageWithSufficientStock' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['deliveryTimeMessageWithSufficientStock'],
 			'exclude' => true,
@@ -164,7 +169,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'eval'                    => array('allowHtml'=>true, 'class'=>'monospace', 'rte'=>'ace|html',  'tl_class'=>'clr', 'merconis_multilanguage' => true),
             'sql'                     => "text NULL"
 		),
-		
+
 		'deliveryTimeDaysWithInsufficientStock' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['deliveryTimeDaysWithInsufficientStock'],
 			'exclude' => true,
@@ -173,7 +178,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 			'filter' => true,
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
-		
+
 		'deliveryTimeMessageWithInsufficientStock' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_delivery_info']['deliveryTimeMessageWithInsufficientStock'],
 			'exclude' => true,
@@ -184,9 +189,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 	)
 );
 
-
-
-
 class ls_shop_delivery_info extends \Backend {
 	public function __construct() {
 		parent::__construct();
@@ -194,7 +196,7 @@ class ls_shop_delivery_info extends \Backend {
 
 	public function generateAlias($varValue, \DataContainer $dc) {
 		$autoAlias = false;
-		
+
 		$currentTitle = isset($dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()}) && $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} ? $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} : $dc->activeRecord->title;
 
 		// Generate an alias if there is none
@@ -255,13 +257,13 @@ class ls_shop_delivery_info extends \Backend {
 			 * Wenn das deliveryInfoSet bei keinem Produkt verwendet wird,
 			 * darf gelöscht werden.
 			 */
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
 			/*
 			 * Wird das deliveryInfoSet bei Produkten verwendet,
 			 * so darf es nicht gelöscht werden
 			 */
-			$button = \Image::getHtml(preg_replace('/\.gif$/i', '_.gif', $icon)).' ';
+			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 		return $button;
 	}
