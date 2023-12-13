@@ -26,35 +26,35 @@
 	);
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewSorting']['reference']		= array(
-		'title_sortDir_ASC' => array('by name in ascending order'),
-		'title_sortDir_DESC' => array('by name in descending order'),
+		'title_sortDir_ASC' => 'by name in ascending order',
+		'title_sortDir_DESC' => 'by name in descending order',
 		
-		'lsShopProductPrice_sortDir_ASC' => array('by price in ascending order'),
-		'lsShopProductPrice_sortDir_DESC' => array('by price in descending order'),
+		'lsShopProductPrice_sortDir_ASC' => 'by price in ascending order',
+		'lsShopProductPrice_sortDir_DESC' => 'by price in descending order',
 
-		'lsShopProductCode_sortDir_ASC' => array('by product code in ascending order'),
-		'lsShopProductCode_sortDir_DESC' => array('by product code in descending order'),
+		'lsShopProductCode_sortDir_ASC' => 'by product code in ascending order',
+		'lsShopProductCode_sortDir_DESC' => 'by product code in descending order',
 		
-		'sorting_sortDir_ASC' => array('by sorting number in ascending order'),
-		'sorting_sortDir_DESC' => array('by sorting number in descending order'),
+		'sorting_sortDir_ASC' => 'by sorting number in ascending order',
+		'sorting_sortDir_DESC' => 'by sorting number in descending order',
 		
-		'lsShopProductProducer_sortDir_ASC' => array('by producer in ascending order'),
-		'lsShopProductProducer_sortDir_DESC' => array('by producer in descending order'),
+		'lsShopProductProducer_sortDir_ASC' => 'by producer in ascending order',
+		'lsShopProductProducer_sortDir_DESC' => 'by producer in descending order',
 		
-		'lsShopProductWeight_sortDir_ASC' => array('by weight in ascending order'),
-		'lsShopProductWeight_sortDir_DESC' => array('by weight in descending order'),
+		'lsShopProductWeight_sortDir_ASC' => 'by weight in ascending order',
+		'lsShopProductWeight_sortDir_DESC' => 'by weight in descending order',
 		
-		'priority_sortDir_ASC' => array('priority in ascending order (only available for product search results)'),
-		'priority_sortDir_DESC' => array('priority in descending order (only available for product search results)'),
+		'priority_sortDir_ASC' => 'priority in ascending order (only available for product search results)',
+		'priority_sortDir_DESC' => 'priority in descending order (only available for product search results)',
 		
-		'flex_contentsLanguageIndependentKEYORALIAS_sortDir_ASC' => array('FlexContent (monolingual) in ascending order'),
-		'flex_contentsLanguageIndependentKEYORALIAS_sortDir_DESC' => array('FlexContent (monolingual) in descending order'),
+		'flex_contentsLanguageIndependentKEYORALIAS_sortDir_ASC' => 'FlexContent (monolingual) in ascending order',
+		'flex_contentsLanguageIndependentKEYORALIAS_sortDir_DESC' => 'FlexContent (monolingual) in descending order',
 
-		'flex_contentsKEYORALIAS_sortDir_ASC' => array('FlexContent (multilingual) in ascending order'),
-		'flex_contentsKEYORALIAS_sortDir_DESC' => array('FlexContent (multilingual) in descending order'),
+		'flex_contentsKEYORALIAS_sortDir_ASC' => 'FlexContent (multilingual) in ascending order',
+		'flex_contentsKEYORALIAS_sortDir_DESC' => 'FlexContent (multilingual) in descending order',
 
-		'lsShopProductAttributesValuesKEYORALIAS_sortDir_ASC' => array('Attribute in ascending order'),
-		'lsShopProductAttributesValuesKEYORALIAS_sortDir_DESC' => array('Attribute in descending order')
+		'lsShopProductAttributesValuesKEYORALIAS_sortDir_ASC' => 'Attribute in ascending order',
+		'lsShopProductAttributesValuesKEYORALIAS_sortDir_DESC' => 'Attribute in descending order'
 	);
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['lsShopProductOverviewUserSorting']['reference']		= array(
