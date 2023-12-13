@@ -368,6 +368,23 @@ class ls_shop_generalHelper
         return $obj_dbres_variant->first()->id;
     }
 
+    public static function getProductIdForVariantId($variantId)
+    {
+        $obj_productId = \Database::getInstance()->prepare("
+				SELECT		`pid`
+				FROM		`tl_ls_shop_variant`
+				WHERE		`id` = ?
+			")
+            ->limit(1)
+            ->execute($variantId);
+
+        if ($obj_productId->numRows <= 0) {
+            return null;
+        }
+
+        return $obj_productId->first()->pid;
+    }
+
     /*
      * Gibt ein Produkt-Objekt zurück und sorgt dafür, dass für jedes Produkt nur ein Objekt existiert,
      * selbst wenn das Objekt mehrmals nacheinander benötigt wird. Diese Technik ermöglicht es, nach Belieben
