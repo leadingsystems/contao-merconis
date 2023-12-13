@@ -16,9 +16,9 @@
   "license": "proprietary",
   "require": {
     "php": "^7.4 || ^8.0",
-    "contao/core-bundle": "^4.13",
+    "contao/core-bundle": "^4.13 || ^5.0",
     "leadingsystems/contao-helpers": "^2.0",
-    "leadingsystems/contao-lsjs4c": "^3.0.0",
+    "leadingsystems/contao-lsjs4c": "^3.0.2",
     "leadingsystems/contao-lscss4c": "^1.0.0",
     "leadingsystems/contao-api": "^2.0.2",
     "leadingsystems/contao-cajax": "^2.0",
