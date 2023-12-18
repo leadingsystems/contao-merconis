@@ -4,6 +4,7 @@ namespace Merconis\Core;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
+use Contao\System;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
     'config' => array(
@@ -866,8 +867,9 @@ class ls_shop_export_dc extends \Backend {
 
     public function createLabel($arr_row, $str_label) {
         $obj_template = new \BackendTemplate('template_beExport');
-
         $obj_template->arr_row = $arr_row;
+
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
 
         $arr_ajaxPage = ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages', false, 'array');
         if (is_array($arr_ajaxPage)) {
@@ -882,8 +884,8 @@ class ls_shop_export_dc extends \Backend {
         if ($arr_row['fileExportActive'] && $arr_row['fileName'] && $arr_row['folder']) {
             $str_pathToFileExportFolder = ls_getFilePathFromVariableSources($arr_row['folder']);
 
-            if (file_exists(TL_ROOT.'/'.$str_pathToFileExportFolder)) {
-                foreach (scandir(TL_ROOT.'/'.$str_pathToFileExportFolder) as $str_fileName) {
+            if (file_exists($str_projectDir.'/'.$str_pathToFileExportFolder)) {
+                foreach (scandir($str_projectDir.'/'.$str_pathToFileExportFolder) as $str_fileName) {
                     if (
                         $str_fileName == '.'
                         ||	$str_fileName == '..'
@@ -910,8 +912,8 @@ class ls_shop_export_dc extends \Backend {
                     $arr_existingExportFiles[] = array(
                         'fileName' => $str_fileName,
                         'url' => \Environment::get('base').$str_pathToFileExportFolder.'/'.$str_fileName,
-                        'dateTime' => date($GLOBALS['TL_CONFIG']['datimFormat'], filemtime(TL_ROOT.'/'.$str_pathToFileExportFolder.'/'.$str_fileName)),
-                        'fileSize' => \Controller::getReadableSize(filesize(TL_ROOT.'/'.$str_pathToFileExportFolder.'/'.$str_fileName))
+                        'dateTime' => date($GLOBALS['TL_CONFIG']['datimFormat'], filemtime($str_projectDir.'/'.$str_pathToFileExportFolder.'/'.$str_fileName)),
+                        'fileSize' => \Controller::getReadableSize(filesize($str_projectDir.'/'.$str_pathToFileExportFolder.'/'.$str_fileName))
                     );
                 }
             }

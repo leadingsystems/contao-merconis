@@ -395,7 +395,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 			'http.Retry' => 1,
 			'mode' => $this->arrCurrentSettings['payPalPlus_liveMode'] ? 'live' : 'sandbox',
 			'log.LogEnabled' => $this->arrCurrentSettings['payPalPlus_logMode'] !== 'NONE',
-			'log.FileName' => TL_ROOT.'/system/logs/PayPal.log',
+			'log.FileName' => System::getContainer()->getParameter('kernel.project_dir').'/system/logs/PayPal.log',
 			'log.LogLevel' => $this->arrCurrentSettings['payPalPlus_logMode']
         ));
 

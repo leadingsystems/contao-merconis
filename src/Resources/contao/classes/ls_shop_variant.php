@@ -87,7 +87,7 @@ class ls_shop_variant
 	 * des Varianten-Objektes und analysiert dafür die Methoden "__get()" und "__call()"
 	 <--*/
 	protected function ls_outputOptions() {
-		$fileContent = file_get_contents(TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/ls_shop_variant.php');
+		$fileContent = file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/ls_shop_variant.php');
 
 		/*-->
 		 * Properties
@@ -246,7 +246,7 @@ class ls_shop_variant
                 break;
 
             case '_hasCustomizerLogicFile':
-                return $this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile);
+                return $this->_customizerLogicFile && is_file(System::getContainer()->getParameter('kernel.project_dir')."/".$this->_customizerLogicFile);
 
             case '_customizer':
                 if(is_object($this->obj_customizer)){

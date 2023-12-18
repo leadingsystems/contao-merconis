@@ -192,10 +192,11 @@ class ls_shop_export
         /*
          * Use a customLogic file if one exists
          */
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
         $str_pathToCustomLogicFile = ls_getFilePathFromVariableSources($this->arr_exportRecord['customLogicFile']);
 
-        if ($str_pathToCustomLogicFile && file_exists(TL_ROOT."/".$str_pathToCustomLogicFile) && is_file(TL_ROOT."/".$str_pathToCustomLogicFile)) {
-            require_once(TL_ROOT."/".$str_pathToCustomLogicFile);
+        if ($str_pathToCustomLogicFile && file_exists($str_projectDir."/".$str_pathToCustomLogicFile) && is_file($str_projectDir."/".$str_pathToCustomLogicFile)) {
+            require_once($str_projectDir."/".$str_pathToCustomLogicFile);
             $str_customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $str_pathToCustomLogicFile);
 
             $obj_customLogic = new $str_customLogicClassName($this);

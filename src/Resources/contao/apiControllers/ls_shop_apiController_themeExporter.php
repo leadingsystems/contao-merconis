@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\Folder;
+use Contao\System;
 
 class ls_shop_apiController_themeExporter
 {
@@ -104,13 +105,14 @@ class ls_shop_apiController_themeExporter
 
     protected function getThemeSrcDir()
     {
-        $arrThemeFolders = array_diff(scandir(TL_ROOT . '/' . $this->themeSrcParentDir), array('.', '..'));
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+        $arrThemeFolders = array_diff(scandir($str_projectDir . '/' . $this->themeSrcParentDir), array('.', '..'));
 
         /*
          * Remove elements that aren't directories
          */
         foreach ($arrThemeFolders as $k => $item) {
-            if (!is_dir(TL_ROOT . '/' . $this->themeSrcParentDir . '/' . $item)) {
+            if (!is_dir($str_projectDir . '/' . $this->themeSrcParentDir . '/' . $item)) {
                 unset ($arrThemeFolders[$k]);
             }
         }
@@ -156,13 +158,14 @@ class ls_shop_apiController_themeExporter
 
     protected function getThemeTemplatesSrcDir()
     {
-        $arrThemeTemplatesFolders = array_diff(scandir(TL_ROOT . '/' . $this->themeTemplatesSrcParentDir), array('.', '..'));
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+        $arrThemeTemplatesFolders = array_diff(scandir($str_projectDir . '/' . $this->themeTemplatesSrcParentDir), array('.', '..'));
 
         /*
          * Remove elements that aren't directories
          */
         foreach ($arrThemeTemplatesFolders as $k => $item) {
-            if (!is_dir(TL_ROOT . '/' . $this->themeTemplatesSrcParentDir . '/' . $item)) {
+            if (!is_dir($str_projectDir . '/' . $this->themeTemplatesSrcParentDir . '/' . $item)) {
                 unset ($arrThemeTemplatesFolders[$k]);
             }
         }
@@ -190,7 +193,7 @@ class ls_shop_apiController_themeExporter
 
     protected function makeEmptyDataFolderInSrc()
     {
-        $dataDir = TL_ROOT . '/' . $this->themeSrcDir . '/data';
+        $dataDir = System::getContainer()->getParameter('kernel.project_dir') . '/' . $this->themeSrcDir . '/data';
 
         // first remove a possibly already existing data dir
         if (is_dir($dataDir)) {
@@ -205,17 +208,18 @@ class ls_shop_apiController_themeExporter
 
     protected function createExportTmpFolder()
     {
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
         /*
          * Remove a possibly existing old tmp export directory
          */
-        if (is_dir(TL_ROOT . '/' . $this->tmpExportDir)) {
-            $this->rmdirRecursively(TL_ROOT . '/' . $this->tmpExportDir);
+        if (is_dir($str_projectDir . '/' . $this->tmpExportDir)) {
+            $this->rmdirRecursively($str_projectDir . '/' . $this->tmpExportDir);
         }
 
         /*
          * Create a new and empty tmp export directory
          */
-        mkdir(TL_ROOT . '/' . $this->tmpExportDir);
+        mkdir($str_projectDir . '/' . $this->tmpExportDir);
 
         /*
          * Copy the theme folder to the tmp export directory
@@ -232,8 +236,8 @@ class ls_shop_apiController_themeExporter
         /*
          * Remove forbidden folders from tmp export directory
          */
-        if (is_dir(TL_ROOT . '/' . $this->tmpExportDir)) {
-            $this->rmdirRecursively(TL_ROOT . '/' . $this->tmpExportDir, 'doNotExport');
+        if (is_dir($str_projectDir . '/' . $this->tmpExportDir)) {
+            $this->rmdirRecursively($str_projectDir . '/' . $this->tmpExportDir, 'doNotExport');
         }
 
     }
@@ -336,14 +340,15 @@ class ls_shop_apiController_themeExporter
 
     protected function addFolderToArchive(\ZipWriter $objArchive, $strFolder)
     {
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
         // Return if the folder does not exist
-        if (!is_dir(TL_ROOT . '/' . $strFolder)) {
+        if (!is_dir($str_projectDir . '/' . $strFolder)) {
             return;
         }
 
         // Recursively add the files and subfolders
-        foreach (Folder::scan(TL_ROOT . '/' . $strFolder) as $strFile) {
-            if (is_dir(TL_ROOT . '/' . $strFolder . '/' . $strFile)) {
+        foreach (Folder::scan($str_projectDir . '/' . $strFolder) as $strFile) {
+            if (is_dir($str_projectDir . '/' . $strFolder . '/' . $strFile)) {
                 $this->addFolderToArchive($objArchive, $strFolder . '/' . $strFile);
             } else {
                 $strTarget = preg_replace('/' . preg_quote($this->tmpExportDir, '/') . '/', '', $strFolder);
@@ -355,45 +360,47 @@ class ls_shop_apiController_themeExporter
 
     protected function createExportTargetFolder()
     {
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
         /*
          * Create a new and empty tmp export directory if there isn't one already
          */
-        if (!is_dir(TL_ROOT . '/' . $this->targetExportDir)) {
-            mkdir(TL_ROOT . '/' . $this->targetExportDir);
+        if (!is_dir($str_projectDir . '/' . $this->targetExportDir)) {
+            mkdir($str_projectDir . '/' . $this->targetExportDir);
         }
     }
 
     protected function moveFilesToExportTargetFolder()
     {
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
         /*
          * Move the export zip file
          */
-        if (is_file(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName)) {
-            unlink(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName);
+        if (is_file($str_projectDir . '/' . $this->targetExportDir . '/' . $this->exportZipFileName)) {
+            unlink($str_projectDir . '/' . $this->targetExportDir . '/' . $this->exportZipFileName);
         }
-        rename(TL_ROOT . '/' . $this->tmpExportDir . '/' . $this->exportZipFileName, TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName);
-        chmod(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName, 0755);
+        rename($str_projectDir . '/' . $this->tmpExportDir . '/' . $this->exportZipFileName, $str_projectDir . '/' . $this->targetExportDir . '/' . $this->exportZipFileName);
+        chmod($str_projectDir . '/' . $this->targetExportDir . '/' . $this->exportZipFileName, 0755);
 
         /*
          * Copy the themeInfo.dat
          */
-        if (is_file(TL_ROOT . '/' . $this->targetExportDir . '/themeInfo.chk.dat')) {
-            unlink(TL_ROOT . '/' . $this->targetExportDir . '/themeInfo.chk.dat');
+        if (is_file($str_projectDir . '/' . $this->targetExportDir . '/themeInfo.chk.dat')) {
+            unlink($str_projectDir . '/' . $this->targetExportDir . '/themeInfo.chk.dat');
         }
-        copy(TL_ROOT . '/' . $this->tmpExportDir . '/' . $this->themeSrcDirName . '/themeInfo.dat', TL_ROOT . '/' . $this->targetExportDir . '/themeInfo.chk.dat');
+        copy($str_projectDir . '/' . $this->tmpExportDir . '/' . $this->themeSrcDirName . '/themeInfo.dat', $str_projectDir . '/' . $this->targetExportDir . '/themeInfo.chk.dat');
 
         /*
          * Create the file holding the md5 hash of the export file
          */
-        if (is_file(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportHashFilename)) {
-            unlink(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportHashFilename);
+        if (is_file($str_projectDir . '/' . $this->targetExportDir . '/' . $this->exportHashFilename)) {
+            unlink($str_projectDir . '/' . $this->targetExportDir . '/' . $this->exportHashFilename);
         }
-        file_put_contents(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportHashFilename, md5_file(TL_ROOT . '/' . $this->targetExportDir . '/' . $this->exportZipFileName));
+        file_put_contents($str_projectDir . '/' . $this->targetExportDir . '/' . $this->exportHashFilename, md5_file($str_projectDir . '/' . $this->targetExportDir . '/' . $this->exportZipFileName));
     }
 
     protected function deleteTmpExportDir()
     {
-        $this->rmdirRecursively(TL_ROOT . '/' . $this->tmpExportDir);
+        $this->rmdirRecursively(System::getContainer()->getParameter('kernel.project_dir') . '/' . $this->tmpExportDir);
     }
 
     /*
@@ -403,18 +410,19 @@ class ls_shop_apiController_themeExporter
      */
     protected function dirCopy($src, $dest)
     {
-        if (!file_exists(TL_ROOT . '/' . $src) || file_exists(TL_ROOT . '/' . $dest)) {
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+        if (!file_exists($str_projectDir . '/' . $src) || file_exists($str_projectDir . '/' . $dest)) {
             return;
         }
 
-        if (is_file(TL_ROOT . '/' . $src)) {
-            copy(TL_ROOT . '/' . $src, TL_ROOT . '/' . $dest);
+        if (is_file($str_projectDir . '/' . $src)) {
+            copy($str_projectDir . '/' . $src, $str_projectDir . '/' . $dest);
             return;
         }
 
-        if (is_dir(TL_ROOT . '/' . $src)) {
-            mkdir(TL_ROOT . '/' . $dest);
-            $sourceHandle = opendir(TL_ROOT . '/' . $src);
+        if (is_dir($str_projectDir . '/' . $src)) {
+            mkdir($str_projectDir . '/' . $dest);
+            $sourceHandle = opendir($str_projectDir . '/' . $src);
             while ($file = readdir($sourceHandle)) {
                 if ($file == '.' || $file == '..') {
                     continue;
