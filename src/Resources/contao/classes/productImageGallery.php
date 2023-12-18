@@ -238,23 +238,24 @@ class productImageGallery extends \Frontend {
     protected function processSingleImage($file) {
         /** @var \PageModel $objPage */
         global $objPage;
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
 
         //check if _cover is in name
         if (preg_match('/_cover/siU', $file)) {
             $parts = explode("_cover.", $file);
             //check of there is a image for this cover or not, if not then this will be used as a normal product image
-            if (!preg_match('/\.mp4/siU', $file) && file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$parts[0].".mp4")) {
+            if (!preg_match('/\.mp4/siU', $file) && file_exists($str_projectDir.'/'.$parts[0].".mp4")) {
                 return false;
 
             }
         }
 
-        if (isset($this->ls_images[$file]) || !file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$file)) {
+        if (isset($this->ls_images[$file]) || !file_exists($str_projectDir.'/'.$file)) {
             return false;
         }
 
 
-        if (!is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $file)) {
+        if (!is_file($str_projectDir . '/' . $file)) {
             return false;
         }
 

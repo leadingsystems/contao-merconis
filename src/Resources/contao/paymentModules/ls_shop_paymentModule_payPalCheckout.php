@@ -34,8 +34,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             fwrite($myfile, "[".date("d-m-Y h:i:sa")."] [".$outputType."] ".$output."\n");
             fclose($myfile);
         }
-        //$this->arrCurrentSettings['payPalCheckout_logMode']
-        //System::getContainer()->getParameter('kernel.project_dir').'/system/logs/PayPal.log',
     }
 
     public function getCustomUserInterface() {

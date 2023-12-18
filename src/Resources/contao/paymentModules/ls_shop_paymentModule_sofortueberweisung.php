@@ -10,13 +10,15 @@ namespace Merconis\Core;
 		
 		protected $transactionID = '';
 		
-		public function initialize() {
+		public function initialize()
+        {
+            $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
 			/*
 			 * Including the sofortueberweisung SDK classes
 			 */
-			require_once(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/payment/sofortLibSofortueberweisung.inc.php');
-			require_once(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/core/sofortLibNotification.inc.php');
-			require_once(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/core/sofortLibTransactionData.inc.php');
+			require_once($str_projectDir.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/payment/sofortLibSofortueberweisung.inc.php');
+			require_once($str_projectDir.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/core/sofortLibNotification.inc.php');
+			require_once($str_projectDir.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/vendor/sofortueberweisung/sdk/core/sofortLibTransactionData.inc.php');
 		}
 		
 		/*

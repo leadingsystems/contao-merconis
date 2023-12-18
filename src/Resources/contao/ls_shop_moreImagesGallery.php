@@ -149,20 +149,22 @@ class ls_shop_moreImagesGallery extends \Frontend {
          */
         $this->ls_images = array();
 
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+
         // Get all images
         foreach ($this->multiSRC as $file) {
-            if (!@file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$file)) {
+            if (!@file_exists($str_projectDir.'/'.$file)) {
                 continue;
             }
 
             // Process single files
-            if (is_file(System::getContainer()->getParameter('kernel.project_dir').'/'.$file)) {
+            if (is_file($str_projectDir.'/'.$file)) {
                 $this->processSingleImage($file);
             }
 
             // Process folders (not recursive, only the one given folder!)
             else {
-                $subfiles = Folder::scan(System::getContainer()->getParameter('kernel.project_dir').'/'.$file);
+                $subfiles = Folder::scan($str_projectDir.'/'.$file);
 
                 foreach ($subfiles as $subfile) {
                     $subfileName = $file . '/' . $subfile;
@@ -298,15 +300,17 @@ class ls_shop_moreImagesGallery extends \Frontend {
         /** @var \PageModel $objPage */
         global $objPage;
 
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+
         if (preg_match('/_cover/siU', $file)) {
             return false;
         }
 
-        if (isset($this->ls_images[$file]) || !file_exists(System::getContainer()->getParameter('kernel.project_dir').'/'.$file)) {
+        if (isset($this->ls_images[$file]) || !file_exists($str_projectDir.'/'.$file)) {
             return false;
         }
 
-        if (!is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $file)) {
+        if (!is_file($str_projectDir . '/' . $file)) {
             return false;
         }
 

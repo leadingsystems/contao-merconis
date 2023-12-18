@@ -125,11 +125,12 @@ class ls_shop_productConfigurator {
 				 * Einbinden einer eventuell vorhandenen PHP-Datei mit der customLogic
 				 * und Erstellen des customLogic-Objektes
 				 */
-				
+
+                $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
 				$pathToCustomLogicFile = ls_getFilePathFromVariableSources($objConfiguratorData->customLogicFile);
 				
-				if ($pathToCustomLogicFile && file_exists(System::getContainer()->getParameter('kernel.project_dir')."/".$pathToCustomLogicFile) && is_file(System::getContainer()->getParameter('kernel.project_dir')."/".$pathToCustomLogicFile)) {
-					require_once(System::getContainer()->getParameter('kernel.project_dir')."/".$pathToCustomLogicFile);
+				if ($pathToCustomLogicFile && file_exists($str_projectDir."/".$pathToCustomLogicFile) && is_file($str_projectDir."/".$pathToCustomLogicFile)) {
+					require_once($str_projectDir."/".$pathToCustomLogicFile);
 					$customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $pathToCustomLogicFile);
 					$this->customLogicClassName = $customLogicClassName;
 
