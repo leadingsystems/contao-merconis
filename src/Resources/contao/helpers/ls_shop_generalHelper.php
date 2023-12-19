@@ -4129,7 +4129,7 @@ class ls_shop_generalHelper
      */
     public static function removeFieldsForEditAll($strDCAName)
     {
-        if (TL_MODE == 'BE' && \Input::get('act') != 'editAll' && \Input::get('act') != 'overrideAll') {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend() && \Input::get('act') != 'editAll' && \Input::get('act') != 'overrideAll') {
             /*
              * Don't do anything if we're not in editAll or overrideAll mode
              */

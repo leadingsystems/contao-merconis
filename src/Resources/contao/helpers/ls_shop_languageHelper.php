@@ -167,7 +167,7 @@ class ls_shop_languageHelper {
 					 * menu where the fields to edit are selected.
 					 */
 					if (
-							TL_MODE == 'BE'
+                        System::getContainer()->get('merconis.routing.scope')->isBackend()
 						&&	\Input::get('act') != 'editAll'
 						&&	\Input::get('act') != 'overrideAll'
 					) {
@@ -178,7 +178,7 @@ class ls_shop_languageHelper {
 					}
 
 					if (
-							TL_MODE == 'BE'
+                        System::getContainer()->get('merconis.routing.scope')->isBackend()
 						&&	\Input::get('act') != 'editAll'
 						&&	\Input::get('act') != 'overrideAll'
 					) {
@@ -194,7 +194,7 @@ class ls_shop_languageHelper {
 					$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_'.self::getFallbackLanguage()] = $arr_fieldDefinition;
 
 					if (
-							TL_MODE == 'BE'
+                        System::getContainer()->get('merconis.routing.scope')->isBackend()
 						&&	\Input::get('act') != 'editAll'
 						&&	\Input::get('act') != 'overrideAll'
 					) {
@@ -213,7 +213,7 @@ class ls_shop_languageHelper {
 						}
 
 						if (
-								TL_MODE == 'BE'
+                            System::getContainer()->get('merconis.routing.scope')->isBackend()
 							&&	\Input::get('act') != 'editAll'
 							&&	\Input::get('act') != 'overrideAll'
 						) {
@@ -229,7 +229,7 @@ class ls_shop_languageHelper {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_'.$str_language] = $arr_fieldDefinition;
 
 						if (
-								TL_MODE == 'BE'
+                            System::getContainer()->get('merconis.routing.scope')->isBackend()
 							&&	\Input::get('act') != 'editAll'
 							&&	\Input::get('act') != 'overrideAll'
 						) {
@@ -241,7 +241,7 @@ class ls_shop_languageHelper {
 					}
 
 					if (
-							TL_MODE == 'BE'
+                        System::getContainer()->get('merconis.routing.scope')->isBackend()
 						&&	\Input::get('act') != 'editAll'
 						&&	\Input::get('act') != 'overrideAll'
 					) {

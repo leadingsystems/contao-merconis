@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
+
 define('TL_MERCONIS_INSTALLER', 'MERCONIS INSTALLER');
 define('TL_MERCONIS_IMPORTER', 'MERCONIS IMPORTER');
 define('TL_MERCONIS_GENERAL', 'MERCONIS GENERAL');
@@ -17,11 +19,11 @@ $GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_
 /*
  * Include the lsjs app for the merconis backend
  */
-if (TL_MODE === 'BE') {
+if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
     $GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getBackendLsjs');
 }
 
-if (TL_MODE == 'FE') {
+if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
 	$GLOBALS['TL_HOOKS']['getPageLayout'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_switchTemplateInDetailsViewIfNecessary');
 	/*
 	 * Hook for writing the layout's filter settings into the global variables for later use
@@ -32,21 +34,21 @@ if (TL_MODE == 'FE') {
 /*
  * Hook for loading the themes' language files
  */
-if (TL_MODE == 'FE') {
+if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
 	$GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_loadThemeLanguageFiles');
 }
 
 /*
  * Hook zur Ermittlung und Bereitstellung der AJAX-URL
  */
-if (TL_MODE == 'FE') {
+if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
 	$GLOBALS['TL_HOOKS']['generatePage'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_provideInfosForJS');
 }
 
 /*
  * Hooks für checkoutData
  */
-if (TL_MODE == 'FE') {
+if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
 	$GLOBALS['TL_HOOKS']['processFormData'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_processFormData');
 	$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_loadFormField');
 }
@@ -55,7 +57,7 @@ if (TL_MODE == 'FE') {
 /*
  * Hooks for form validation
  */
-if (TL_MODE == 'FE') {
+if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
     $GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
 }
 
@@ -119,14 +121,14 @@ $GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_s
 $GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
 $GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
 
-if (TL_MODE === 'FE') {
+if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_variantSelector', 'processRequest');
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_exportFrontend', 'processRequest');
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_productManagement', 'processRequest');
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_cart', 'processRequest');
 }
 
-if (TL_MODE === 'BE') {
+if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_exportBackend', 'processRequest');
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiControllerBackend', 'processRequest');
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_dashboard', 'processRequest');
@@ -136,7 +138,7 @@ if (TL_MODE === 'BE') {
  * <-
  */
 
-if (TL_MODE == 'BE') {
+if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_shop_BE.js';
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_x_controller.js';
 }
