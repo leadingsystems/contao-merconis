@@ -4665,36 +4665,6 @@ class ls_shop_generalHelper
         return $str_merconisVersion;
     }
 
-    /*
-     * This function is called by contao's "initializeSystem" hook and its
-     * purpose is to bypass the referer token check under certain circumstances.
-     * For example in case of a status push by payone, post data is sent to
-     * contao/merconis without a proper request_token. This call would fail
-     * unless we make an exception. Contao has a built in referer whitelist
-     * which unfortunately can only be used with domain names. There can be
-     * situations in which we need a whitelist using IP addresses. In fact
-     * that's the case with the payone status pushes.
-     */
-    public static function bypassRefererCheckIfNecessary()
-    {
-        if (
-            !isset($GLOBALS['TL_CONFIG']['ls_shop_ipWhitelist'])
-            && !isset($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'])
-        ) {
-            return;
-        }
-
-        $arr_allowedIpAddresses = array_map('trim', explode(',', $GLOBALS['TL_CONFIG']['ls_shop_ipWhitelist']));
-
-        if (!isset($_SERVER['REMOTE_ADDR']) || in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
-            define('BYPASS_TOKEN_CHECK', true);
-        } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'] ?? '') > 2) {
-            if (preg_match($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'], \Environment::get('request'))) {
-                define('BYPASS_TOKEN_CHECK', true);
-            }
-        }
-    }
-
     public static function ls_roundPrice($a = 0, $b = false)
     {
         if ($GLOBALS['TL_CONFIG']['ls_shop_priceRoundingFactor'] && $GLOBALS['TL_CONFIG']['ls_shop_priceRoundingFactor'] != 100) {
