@@ -11,8 +11,14 @@ services:
 
   merconis.helpers.general:
     class: LeadingSystems\MerconisBundle\Helpers\GeneralHelper
+    arguments:
+      - '@merconis.helpers.ip_checker'
     public: true
     
+  merconis.helpers.ip_checker:
+    class: LeadingSystems\MerconisBundle\Helpers\IpChecker
+    public: true
+
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
       - '@contao.framework'
