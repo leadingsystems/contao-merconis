@@ -7,8 +7,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 
 class Scope {
-    private $requestStack;
-    private $scopeMatcher;
+    private RequestStack $requestStack;
+    private ScopeMatcher $scopeMatcher;
 
     public function __construct(RequestStack $requestStack, ScopeMatcher $scopeMatcher) {
         $this->requestStack = $requestStack;
