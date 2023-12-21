@@ -2,8 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\BackendTemplate;
+use Contao\Database;
 use Contao\DataContainer;
+use Contao\Date;
 use Contao\DC_Table;
+use Contao\Input;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
@@ -642,20 +647,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
 
 
 
-class ls_shop_orders extends \Backend {
+class ls_shop_orders extends Backend {
     public function __construct() {
         $this->import('BackendUser', 'User');
         parent::__construct();
     }
 
     public function createLabel($row, $label) {
-        if (\Input::get('orderID') && \Input::get('messageTypeID')) {
-            $objOrderMessages = new ls_shop_orderMessages(\Input::get('orderID'), \Input::get('messageTypeID'), 'id');
+        if (Input::get('orderID') && Input::get('messageTypeID')) {
+            $objOrderMessages = new ls_shop_orderMessages(Input::get('orderID'), Input::get('messageTypeID'), 'id');
             $objOrderMessages->sendMessages();
             $this->redirect($this->getReferer());
         }
 
-        $objTemplate = new \BackendTemplate($this->User->lsShopBeOrderTemplateOverview ? $this->User->lsShopBeOrderTemplateOverview : $GLOBALS['TL_CONFIG']['ls_shop_beOrderTemplateOverview']);
+        $objTemplate = new BackendTemplate($this->User->lsShopBeOrderTemplateOverview ? $this->User->lsShopBeOrderTemplateOverview : $GLOBALS['TL_CONFIG']['ls_shop_beOrderTemplateOverview']);
         $arrOrder = ls_shop_generalHelper::getOrder($row['id']);
         $objTemplate->arrOrder = $arrOrder;
         $objTemplate->arrMessageTypes = ls_shop_generalHelper::getMessageTypesForOrderOverview($arrOrder);
@@ -676,7 +681,7 @@ class ls_shop_orders extends \Backend {
      * and if the payment module returns something other than null, it's return value will be displayed. If the payment
      * module doesn't care about the output it returns null and this function will return a standard output.
      */
-    public function get_paymentMethod_moduleReturnData($varValue, \DataContainer $dc) {
+    public function get_paymentMethod_moduleReturnData($varValue, DataContainer $dc) {
         $arrOrder = ls_shop_generalHelper::getOrder($dc->id);
 
         // ### paymentMethod callback ########################
@@ -709,20 +714,20 @@ class ls_shop_orders extends \Backend {
         return $outputValue;
     }
 
-    public function getOrderRepresentationValue($varValue, \DataContainer $dc) {
+    public function getOrderRepresentationValue($varValue, DataContainer $dc) {
         return ls_shop_generalHelper::getOrder($dc->id);
     }
 
-    public function getOrderDate($varValue, \DataContainer $dc) {
-        return \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $varValue);
+    public function getOrderDate($varValue, DataContainer $dc) {
+        return Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $varValue);
     }
 
-    public function getLanguageName($varValue, \DataContainer $dc) {
+    public function getLanguageName($varValue, DataContainer $dc) {
         $this->loadLanguageFile('languages');
         return $GLOBALS['TL_LANG']['LNG'][$varValue];
     }
 
-    public function getInvoicedAmount($varValue, \DataContainer $dc) {
+    public function getInvoicedAmount($varValue, DataContainer $dc) {
         return ls_shop_generalHelper::outputPrice($varValue);
     }
 
@@ -732,7 +737,7 @@ class ls_shop_orders extends \Backend {
     }
 
     public function deleteOrderMessages($dc) {
-        \Database::getInstance()->prepare("
+        Database::getInstance()->prepare("
 			DELETE FROM	`tl_ls_shop_messages_sent`
 			WHERE		`orderID` = ?
 		")

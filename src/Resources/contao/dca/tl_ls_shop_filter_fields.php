@@ -2,9 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Image;
+use Contao\Input;
 use Contao\StringUtil;
 use Contao\System;
 
@@ -238,13 +242,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 	)
 );
 
-class ls_shop_filter_fields extends \Backend {
+class ls_shop_filter_fields extends Backend {
 	public function __construct() {
 		parent::__construct();
 		$this->import('BackendUser', 'User');
 	}
 
-	public function generateAlias($varValue, \DataContainer $dc) {
+	public function generateAlias($varValue, DataContainer $dc) {
 		$autoAlias = false;
 
 		$currentTitle = isset($dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()}) && $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} ? $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} : $dc->activeRecord->title;
@@ -252,9 +256,9 @@ class ls_shop_filter_fields extends \Backend {
 		// Generate an alias if there is none
 		if ($varValue == '') {
 			$autoAlias = true;
-			$varValue = \StringUtil::generateAlias($currentTitle);
+			$varValue = StringUtil::generateAlias($currentTitle);
 		}
-		$objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_filter_fields WHERE id=? OR alias=?")
+		$objAlias = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_filter_fields WHERE id=? OR alias=?")
 								   ->execute($dc->id, $varValue);
 
 		// Check whether the alias exists
@@ -272,15 +276,15 @@ class ls_shop_filter_fields extends \Backend {
 		if ($row['dataSource'] == 'producer') {
 			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
 		} else {
-			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+			$button = Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 
 		return $button;
 	}
 
 	public function toggleIcon($row, $href, $label, $title, $icon, $attributes) {
-		if (strlen(\Input::get('tid'))) {
-			$this->toggleVisibility(\Input::get('tid'), (\Input::get('state') == 1));
+		if (strlen(Input::get('tid'))) {
+			$this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1));
 			$this->redirect($this->getReferer());
 		}
 
@@ -294,13 +298,16 @@ class ls_shop_filter_fields extends \Backend {
 			$icon = 'invisible.svg';
 		}
 
-		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
 	}
 
 	public function toggleVisibility($intId, $blnVisible) {
 		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_filter_fields::published', 'alexf')) {
             System::getContainer()->get('monolog.logger.contao')->info(
                 'Not enough permissions to publish/unpublish filter field ID "'.$intId.'"',
+                /*
+                 * @toDo check constant TL_ERROR
+                 */
                 ['contao' => new ContaoContext('tl_ls_shop_filter_fields toggleVisibility', TL_ERROR)]
             );
 			$this->redirect('contao/main.php?act=error');
@@ -316,7 +323,7 @@ class ls_shop_filter_fields extends \Backend {
 		}
 
 		// Update the database
-		\Database::getInstance()->prepare("UPDATE tl_ls_shop_filter_fields SET tstamp=". time() .", published='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
+		Database::getInstance()->prepare("UPDATE tl_ls_shop_filter_fields SET tstamp=". time() .", published='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
 					   ->execute($intId);
 	}
 

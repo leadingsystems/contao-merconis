@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\Services;
 
 use Contao\CoreBundle\Routing\ScopeMatcher;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 
@@ -16,11 +17,19 @@ class Scope {
     }
 
     public function isBackend() {
-        return $this->scopeMatcher->isBackendRequest($this->requestStack->getCurrentRequest());
+        /*
+         * @toDo check change
+         * old: return $this->scopeMatcher->isBackendRequest($this->requestStack->getCurrentRequest());
+         */
+        return $this->scopeMatcher->isBackendRequest($this->requestStack->getCurrentRequest() ?? Request::create(''));
     }
 
     public function isFrontend() {
-        return $this->scopeMatcher->isFrontendRequest($this->requestStack->getCurrentRequest());
+        /*
+         * @toDo check change
+         * old: return $this->scopeMatcher->isFrontendRequest($this->requestStack->getCurrentRequest());
+         */
+        return $this->scopeMatcher->isFrontendRequest($this->requestStack->getCurrentRequest() ?? Request::create(''));
     }
 
     public function getTLMode()

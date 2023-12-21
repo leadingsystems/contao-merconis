@@ -4,6 +4,10 @@ namespace Merconis\Core;
 
 
 // Anpassung der Palette
+use Contao\Backend;
+use Contao\Database;
+use Contao\System;
+
 $GLOBALS['TL_DCA']['tl_image_size']['palettes']['default'] = str_replace
 (
     'name,',
@@ -31,7 +35,7 @@ $GLOBALS['TL_DCA']['tl_image_size']['fields']['merconis_alias'] = array
 
 
 
-class tl_image_size extends \Backend
+class tl_image_size extends Backend
 {
     public function __construct()
     {
@@ -45,12 +49,12 @@ class tl_image_size extends \Backend
         //if empty alias set alias value to name value
         if ($varValue == '') {
             $autoAlias = true;
-            $varValue = \System::getContainer()->get('contao.slug')->generate (
+            $varValue = System::getContainer()->get('contao.slug')->generate (
                 $dc->activeRecord->name, ['validChars' => 'a-zA-Z0-9','locale' => 'de','delimiter' => '-']
             );
         }
 
-        $objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_image_size WHERE id=? OR merconis_alias=?")
+        $objAlias = Database::getInstance()->prepare("SELECT id FROM tl_image_size WHERE id=? OR merconis_alias=?")
             ->execute($dc->id, $varValue);
 
         // Check whether the alias exists

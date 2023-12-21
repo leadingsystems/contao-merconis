@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
 use Contao\DC_File;
 
 $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
@@ -974,7 +975,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	)
 );
 	
-class tl_lsShopSettings_controller extends \Backend {
+class tl_lsShopSettings_controller extends Backend {
 	public function __construct() {
 		parent::__construct();
 	}
@@ -997,6 +998,9 @@ class tl_lsShopSettings_controller extends \Backend {
 	}
 
 	public function ls_escapeBackslash($value = '') {
+        /*
+         * @toDo if constant VERSION and BUILD is available
+         */
 		if (version_compare(VERSION . '.' . BUILD, '3.2.9', '>=')) {
 			return $value;
 		}
@@ -1004,6 +1008,9 @@ class tl_lsShopSettings_controller extends \Backend {
 	}
 
 	public function ls_unescapeBackslash($value = '') {
+        /*
+         * @toDo if constant VERSION and BUILD is available
+         */
 		if (version_compare(VERSION . '.' . BUILD, '3.2.9', '>=')) {
 			return $value;
 		}

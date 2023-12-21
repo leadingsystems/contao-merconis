@@ -3,8 +3,10 @@
 namespace Merconis\Core;
 
 use Contao\ArrayUtil;
+use Contao\Backend;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Image;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
@@ -315,18 +317,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOver
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields'];
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination'];
 
-class ls_shop_output_definitions extends \Backend {
+class ls_shop_output_definitions extends Backend {
 	public function __construct() {
 		parent::__construct();
 	}
 
-	public function ls_getTemplateOptions() {
+	public function ls_getTemplateOptions(): array
+    {
 		$arrOptions = $this->getTemplateGroup('template_productOverview_');
 		ArrayUtil::arrayInsert($arrOptions, 0, array('template_productOverview_useDetailsTemplate' => 'template_productOverview_useDetailsTemplate'));
 		return $arrOptions;
 	}
 
-	public function ls_getOverviewSortingOptions() {
+	public function ls_getOverviewSortingOptions(): array
+    {
 		$arrOptions = array(
 			'title_sortDir_ASC',
 			'title_sortDir_DESC',
@@ -361,7 +365,8 @@ class ls_shop_output_definitions extends \Backend {
 		return $arrOptions;
 	}
 
-	public function ls_getOverviewUserSortingOptions() {
+	public function ls_getOverviewUserSortingOptions(): array
+    {
 		$arrOptions = array('yes', 'no');
 		return $arrOptions;
 	}
@@ -371,11 +376,12 @@ class ls_shop_output_definitions extends \Backend {
 	 * den funktionsfähigen Löschen-Button zurück, wenn der Datensatz nicht verwendet wird und
 	 * daher bedenkenlos gelöscht werden kann.
 	 */
-	public function getDeleteButton($row, $href, $label, $title, $icon, $attributes) {
+	public function getDeleteButton($row, $href, $label, $title, $icon, $attributes): string
+    {
 		if (!in_array($row['id'], ls_shop_generalHelper::getOutputDefinitionsCurrentlyInUse())) {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
 		} else {
-			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+			$button = Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 
 		return $button;

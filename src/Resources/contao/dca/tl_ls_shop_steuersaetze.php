@@ -2,8 +2,11 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Image;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
@@ -151,7 +154,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['startPeriod1'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+			'eval'                    => array
+            (
+                'rgxp'=>'date',
+                /*
+                 * @toDo check if 'datepicker'=>true works
+                 */
+//                'datepicker'=>$this->getDatePickerString(),
+                'tl_class'=>'w50 wizard'
+            ),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
@@ -159,7 +170,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['stopPeriod1'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+			'eval'                    => array
+            (
+                'rgxp'=>'date',
+                /*
+                 * @toDo check if 'datepicker'=>true works
+                 */
+//                'datepicker'=>$this->getDatePickerString(),
+                'tl_class'=>'w50 wizard'
+            ),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
@@ -197,7 +216,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['startPeriod2'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+			'eval'                    => array
+            (
+                'rgxp'=>'date',
+                /*
+                 * @toDo check if 'datepicker'=>true works
+                 */
+//                'datepicker'=>$this->getDatePickerString(),
+                'tl_class'=>'w50 wizard'
+            ),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
@@ -205,7 +232,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['stopPeriod2'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+			'eval'                    => array
+            (
+                'rgxp'=>'date',
+                /*
+                 * @toDo check if 'datepicker'=>true works
+                 */
+//                'datepicker'=>$this->getDatePickerString(),
+                'tl_class'=>'w50 wizard'
+            ),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		)
 	)
@@ -215,17 +250,17 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 
 
 
-class ls_shop_steuersaetze extends \Backend {
-	public function generateAlias($varValue, \DataContainer $dc) {
+class ls_shop_steuersaetze extends Backend {
+	public function generateAlias($varValue, DataContainer $dc) {
 		$autoAlias = false;
 
 		// Generate an alias if there is none
 		if ($varValue == '') {
 			$autoAlias = true;
-			$varValue = \StringUtil::generateAlias($dc->activeRecord->title);
+			$varValue = StringUtil::generateAlias($dc->activeRecord->title);
 		}
 
-		$objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_steuersaetze WHERE id=? OR alias=?")
+		$objAlias = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_steuersaetze WHERE id=? OR alias=?")
 								   ->execute($dc->id, $varValue);
 
 		// Check whether the alias exists
@@ -243,19 +278,19 @@ class ls_shop_steuersaetze extends \Backend {
 		/*
 		 * Auslesen der Produkte
 		 */
-		$objProducts = \Database::getInstance()->prepare("SELECT `id` FROM tl_ls_shop_product WHERE `lsShopProductSteuersatz` = ?")
+		$objProducts = Database::getInstance()->prepare("SELECT `id` FROM tl_ls_shop_product WHERE `lsShopProductSteuersatz` = ?")
 								  ->execute($row['id']);
 
 		if (!$objProducts->numRows) {
 			/*
 			 * The tax rate can be deleted if it is not in use with any product
 			 */
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
 		} else {
 			/*
 			 * The tax rate must not be deleted if it is in use with at least one product
 			 */
-			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+			$button = Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 		return $button;
 	}
@@ -268,8 +303,8 @@ class ls_shop_steuersaetze extends \Backend {
 	 * is it checks if a wildcard is used as a tax value because that is not allowed
 	 * for tax classes used with products.
 	 */
-	public function checkIfWildcardsUsedAndAllowed($varValue, \DataContainer $dc) {
-		$objProducts = \Database::getInstance()->prepare("
+	public function checkIfWildcardsUsedAndAllowed($varValue, DataContainer $dc) {
+		$objProducts = Database::getInstance()->prepare("
 			SELECT	`id`
 			FROM	`tl_ls_shop_product`
 			WHERE	`lsShopProductSteuersatz` = ?

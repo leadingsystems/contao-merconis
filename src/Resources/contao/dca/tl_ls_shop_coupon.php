@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
 
@@ -491,7 +493,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 
 
 
-class tl_ls_shop_coupon_controller extends \Backend {
+class tl_ls_shop_coupon_controller extends Backend {
 
 	public function __construct() {
 		parent::__construct();
@@ -505,7 +507,7 @@ class tl_ls_shop_coupon_controller extends \Backend {
 	 */
 	public function changeNumAvailable($dc) {
 		if ($dc->activeRecord->limitNumAvailable && $dc->activeRecord->changeNumAvailable !== '') {
-			$obj_dbquery = \Database::getInstance()->prepare("
+			$obj_dbquery = Database::getInstance()->prepare("
 				UPDATE	`tl_ls_shop_coupon`
 				SET		`numAvailable` = ".(
 						strpos($dc->activeRecord->changeNumAvailable, '+') === false && strpos($dc->activeRecord->changeNumAvailable, '-') === false

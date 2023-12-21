@@ -5,6 +5,9 @@ namespace Merconis\Core;
 /*
  * CrossSeller
  */
+
+use Contao\Backend;
+
 $GLOBALS['TL_DCA']['tl_content']['palettes']['lsShopCrossSellerCTE'] = '{type_legend},type;{lsShopCrossSeller_legend},lsShopCrossSeller;{expert_legend:hide},cssID';
 
 $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopCrossSeller'] = array(
@@ -31,7 +34,7 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopOutputCondition'] = array(
 );
 
 
-class tl_content extends \Backend
+class tl_content extends Backend
 {
     
     public function onloadCallback()
