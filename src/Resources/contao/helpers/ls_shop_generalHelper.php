@@ -16,6 +16,10 @@ use Contao\DC_Table;
 use Contao\Email;
 use Contao\Environment;
 use Contao\File;
+use Contao\FormCheckbox;
+use Contao\FormRadio;
+use Contao\FormSelect;
+use Contao\FormText;
 use Contao\FrontendTemplate;
 use Contao\Idna;
 use Contao\Image;
@@ -634,9 +638,23 @@ class ls_shop_generalHelper
         $fieldName = $objWidget->name;
         $fieldPrefilledValue = array_key_exists($fieldName, $arrDataToPrefillWith) ? $arrDataToPrefillWith[$fieldName]['value'] : '';
 
-        if ($objWidget instanceof \FormTextField) {
+        if
+        (
+                /*
+                 * Renamed: FormTextField to FormText
+                 * @toDo check funktion
+                 */
+                $objWidget instanceof FormText
+        ) {
             $objWidget->value = $fieldPrefilledValue;
-        } else if ($objWidget instanceof \FormSelectMenu) {
+        } else if
+        (
+                /*
+                 * Renamed: FormSelectMenu to FormSelect
+                 * @toDo check funktion
+                 */
+                $objWidget instanceof FormSelect
+        ) {
             /*
              * Handelt es sich beim Widget um ein Select-Feld, so
              * kann nicht einfach ein Value gesetzt werden. Es muss
@@ -654,7 +672,14 @@ class ls_shop_generalHelper
             }
             $objWidget->options = $options;
 
-        } else if ($objWidget instanceof \FormCheckBox) {
+        } else if
+        (
+                /*
+                 * Renamed: FormCheckBox to FormCheckbox
+                 * @toDo check funktion
+                 */
+                $objWidget instanceof FormCheckbox
+        ) {
             /*
              * Handelt es sich beim Widget um ein Checkbox-Feld, so
              * kann nicht einfach ein Value gesetzt werden. Es muss
@@ -673,7 +698,13 @@ class ls_shop_generalHelper
                 $options[$key] = $option;
             }
             $objWidget->options = $options;
-        } else if ($objWidget instanceof \FormRadioButton) {
+        } else if (
+                /*
+                 * Renamed: FormRadioButton to FormRadio
+                 * @toDo check funktion
+                 */
+                $objWidget instanceof FormRadio
+        ) {
             /*
              * Handelt es sich beim Widget um ein RadioButton-Feld, so
              * kann nicht einfach ein Value gesetzt werden. Es muss
