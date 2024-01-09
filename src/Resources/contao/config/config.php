@@ -107,7 +107,6 @@ $GLOBALS['LS_LANGUAGESELECTOR_HOOKS']['modifyLanguageLinks'][] = array('Merconis
  * Hook to allow payment provider callbacks to work
  */
 $GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_generalHelper', 'bypassRefererCheckIfNecessary');
-//$GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_cartHelper', 'initializeEmptyCart');
 
 /*
  * ->
