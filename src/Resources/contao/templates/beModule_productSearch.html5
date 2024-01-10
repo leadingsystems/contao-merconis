@@ -1,3 +1,8 @@
+<?php
+use Contao\System;
+
+?>
+
 <div class="beModule_productSearch">
 	<div class="searchForm">
 

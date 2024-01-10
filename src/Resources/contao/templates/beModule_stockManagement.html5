@@ -1,3 +1,7 @@
+<?php
+use Contao\System;
+?>
+
 <div class="beModule_productSearch beModule_stockManagement">
 	<div class="searchForm">
 		<form action="<?php echo $this->request; ?>" class="tl_form" method="post">

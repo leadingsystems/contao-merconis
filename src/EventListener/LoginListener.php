@@ -3,6 +3,7 @@
 
 namespace LeadingSystems\MerconisBundle\EventListener;
 
+use Contao\FrontendUser;
 use Merconis\Core\ls_shop_checkoutData;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -24,7 +25,7 @@ class LoginListener implements AuthenticationSuccessHandlerInterface
     {
         $user = $token->getUser();
 
-        if ($user instanceof \FrontendUser) {
+        if ($user instanceof FrontendUser) {
             ls_shop_checkoutData::getInstance()->ls_shop_postLogin($user);
         }
 

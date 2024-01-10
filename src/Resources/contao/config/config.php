@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\Input;
+
 define('TL_MERCONIS_INSTALLER', 'MERCONIS INSTALLER');
 define('TL_MERCONIS_IMPORTER', 'MERCONIS IMPORTER');
 define('TL_MERCONIS_GENERAL', 'MERCONIS GENERAL');
@@ -78,7 +80,7 @@ $GLOBALS['TL_HOOKS']['outputFrontendTemplate'][] = array('Merconis\Core\ls_shop_
 /*
  * Hook for the multiLanguage DCA manipulation
  */
-if (\Input::get('do') != 'themes' || \Input::get('key') != 'importTheme') {
+if (Input::get('do') != 'themes' || Input::get('key') != 'importTheme') {
 	$GLOBALS['TL_HOOKS']['loadDataContainer'][] = array('Merconis\Core\ls_shop_languageHelper', 'createMultiLanguageDCAFields');
 }
 $GLOBALS['TL_HOOKS']['loadDataContainer'][] = array('Merconis\Core\ls_shop_generalHelper', 'removeFieldsForEditAll');

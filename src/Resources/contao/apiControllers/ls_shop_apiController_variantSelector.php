@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\Input;
+
 class ls_shop_apiController_variantSelector
 {
 	protected static $objInstance;
@@ -45,13 +47,13 @@ class ls_shop_apiController_variantSelector
 	 * you are requesting the data.
 	 */
 	protected function apiResource_variantSelector_getInitialData() {
-		if (!\Input::get('productVariantId')) {
+		if (!Input::get('productVariantId')) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('no productVariantId given');
 			return;
 		}
 		
-		$obj_product = ls_shop_generalHelper::getObjProduct(\Input::get('productVariantId'));
+		$obj_product = ls_shop_generalHelper::getObjProduct(Input::get('productVariantId'));
 		
 		$arr_selectedAttributeValues = $obj_product->_variantIsSelected ? $obj_product->_selectedVariant->_attributeValueIds : $obj_product->_attributeValueIds;
 		

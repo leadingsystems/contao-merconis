@@ -2,7 +2,10 @@
 
 namespace Merconis\Core;
 
+use Contao\Database;
+use Contao\File;
 use Contao\Folder;
+use Contao\ZipWriter;
 
 class ls_shop_apiController_themeExporter
 {
@@ -141,7 +144,7 @@ class ls_shop_apiController_themeExporter
 
     protected function checkDNS()
     {
-        $obj_dbres_rootDns = \Database::getInstance()->prepare("
+        $obj_dbres_rootDns = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_page`
                 WHERE       `type` = 'root'
@@ -253,7 +256,7 @@ class ls_shop_apiController_themeExporter
             }
         }
 
-        $objFile = new \File($this->tmpExportDir . '/' . $this->themeSrcDirName . '/data/exportLocalconfig.dat');
+        $objFile = new File($this->tmpExportDir . '/' . $this->themeSrcDirName . '/data/exportLocalconfig.dat');
         $objFile->write(serialize($arrLocalconfigExport));
         $objFile->close();
     }
@@ -305,7 +308,7 @@ class ls_shop_apiController_themeExporter
         );
 
         foreach ($arrTables as $tableName => $v) {
-            $objQuery = \Database::getInstance()->prepare("
+            $objQuery = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`" . $tableName . "`
 			")
@@ -322,19 +325,19 @@ class ls_shop_apiController_themeExporter
             }
         }
 
-        $objFile = new \File($this->tmpExportDir . '/' . $this->themeSrcDirName . '/data/exportTables.dat');
+        $objFile = new File($this->tmpExportDir . '/' . $this->themeSrcDirName . '/data/exportTables.dat');
         $objFile->write(serialize($arrTables));
         $objFile->close();
     }
 
     protected function writeZipExportFile()
     {
-        $objArchive = new \ZipWriter($this->tmpExportDir . '/' . $this->exportZipFileName);
+        $objArchive = new ZipWriter($this->tmpExportDir . '/' . $this->exportZipFileName);
         $this->addFolderToArchive($objArchive, $this->tmpExportDir . '/' . $this->themeSrcDirName);
         $objArchive->close();
     }
 
-    protected function addFolderToArchive(\ZipWriter $objArchive, $strFolder)
+    protected function addFolderToArchive(ZipWriter $objArchive, $strFolder)
     {
         // Return if the folder does not exist
         if (!is_dir(TL_ROOT . '/' . $strFolder)) {

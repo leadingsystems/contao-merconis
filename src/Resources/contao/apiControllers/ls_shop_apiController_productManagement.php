@@ -1,6 +1,9 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Controller;
+use Contao\Dbafs;
+use Contao\File;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_apiController_productManagement
@@ -168,7 +171,7 @@ class ls_shop_apiController_productManagement
 		$this->obj_apiReceiver->requireUser(['apiUser']);
 
 		$this->obj_apiReceiver->success();
-		$this->obj_apiReceiver->set_data(array_keys(\Controller::getTemplateGroup('template_productDetails_')));
+		$this->obj_apiReceiver->set_data(array_keys(Controller::getTemplateGroup('template_productDetails_')));
 	}
 
 	/**
@@ -233,7 +236,7 @@ class ls_shop_apiController_productManagement
 		$this->obj_apiReceiver->requireScope(['FE']);
 		$this->obj_apiReceiver->requireUser(['apiUser']);
 
-        \Dbafs::syncFiles();
+        Dbafs::syncFiles();
 
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data(true);
@@ -300,7 +303,7 @@ class ls_shop_apiController_productManagement
 			return;
 		}
 
-		$obj_file = new \File($str_filePath, true);
+		$obj_file = new File($str_filePath, true);
 
 		$this->obj_apiReceiver->set_httpResponseCode(200);
 

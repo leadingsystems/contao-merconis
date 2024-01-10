@@ -2,9 +2,14 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendModule;
+use Contao\Environment;
+use Contao\Input;
 use Contao\StringUtil;
+use Contao\System;
+use Contao\TextField;
 
-class ls_shop_beModule_productSearch extends \BackendModule
+class ls_shop_beModule_productSearch extends BackendModule
 {
 	protected $strTemplate = 'beModule_productSearch';
 	protected $intDefaultNumPerPage = 10;
@@ -12,9 +17,9 @@ class ls_shop_beModule_productSearch extends \BackendModule
 	protected $arrFieldsToShow = array('id','lsShopProductCode','title','published');
 
 	protected function compile() {
-		\System::loadLanguageFile('be_productSearch');
-		\System::loadLanguageFile('tl_ls_shop_product');
-		$this->Template->request = StringUtil::ampersand(\Environment::get('request'), true);
+		System::loadLanguageFile('be_productSearch');
+		System::loadLanguageFile('tl_ls_shop_product');
+		$this->Template->request = StringUtil::ampersand(Environment::get('request'), true);
 
 		$objWidgets = array();
 		$widgets = array();
@@ -23,11 +28,11 @@ class ls_shop_beModule_productSearch extends \BackendModule
 		 * Erzeugen der Widgets für die Suchfelder
 		 * sowie Verarbeitung evtl. übergebener Werte
 		 */
-		$objWidgets['title'] = new \TextField();
+		$objWidgets['title'] = new TextField();
 		$objWidgets['title']->label = $GLOBALS['TL_LANG']['tl_ls_shop_product']['title'][0];
 		$objWidgets['title']->id = 'title';
 		$objWidgets['title']->name = 'title';
-		$objWidgets['title']->value = \Input::post('title') ? \Input::post('title') : (isset($_SESSION['lsShop']['beModule_productSearch']['values']['title']) ? $_SESSION['lsShop']['beModule_productSearch']['values']['title'] : '');
+		$objWidgets['title']->value = Input::post('title') ? Input::post('title') : (isset($_SESSION['lsShop']['beModule_productSearch']['values']['title']) ? $_SESSION['lsShop']['beModule_productSearch']['values']['title'] : '');
 
 		$objWidgets['productCode'] = new \TextField();
 		$objWidgets['productCode']->label = $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductCode'][0];

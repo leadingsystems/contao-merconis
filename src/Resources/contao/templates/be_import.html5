@@ -1,3 +1,7 @@
+<?php
+use Contao\System;
+?>
+
 <div class="contaoBeMainContainer">
 	<div id="shopImport">
 		<div id="lockOverlay"><div class="message"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText22']; ?></div></div>

@@ -19,7 +19,10 @@ namespace Merconis\Core;
  * to worry about any special name restrictions though, everything that's allowed as a php class name
  * will be fine.
  */
-class dynamicAttachment_invoice_01 extends \Controller {
+
+    use Contao\Controller;
+
+    class dynamicAttachment_invoice_01 extends Controller {
 	private $arrOrder = array();
 	private $messageCounterNr = null;
 
