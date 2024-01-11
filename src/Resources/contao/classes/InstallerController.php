@@ -10,6 +10,7 @@ use Contao\Folder;
 use Contao\Input;
 use Contao\StringUtil;
 use Contao\System;
+use Contao\ZipReader;
 
 class InstallerController extends Controller {
 	protected $obj_config = null;
