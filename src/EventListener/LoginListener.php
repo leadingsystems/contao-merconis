@@ -5,6 +5,7 @@ namespace LeadingSystems\MerconisBundle\EventListener;
 
 use Merconis\Core\ls_shop_checkoutData;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
@@ -20,7 +21,7 @@ class LoginListener implements AuthenticationSuccessHandlerInterface
         $this->onAuthenticationSuccess($request, $token);
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token): ?Response
     {
         $user = $token->getUser();
 
@@ -28,5 +29,6 @@ class LoginListener implements AuthenticationSuccessHandlerInterface
             ls_shop_checkoutData::getInstance()->ls_shop_postLogin($user);
         }
 
+        return null;
     }
 }
