@@ -7,6 +7,7 @@ Leading Systems Contao Merconis bundle changelog
  * remove deprecated constants
  * remove deprecated functions
  * improve cache lsjs4c & lscss4c
+ * fix PAYONE for PHP 8
 
 ### 5.0.19 (2023-09-01)
  * remove deprecated FE_USER_LOGGED_IN
