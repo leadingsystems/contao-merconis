@@ -261,6 +261,15 @@ use function LeadingSystems\Helpers\ls_sub;
 		 */
 		public function onAfterCheckoutPage($arr_order = array()) {
 			$str_p1action = \Input::get('p1action') ? \Input::get('p1action') : (\Input::post('p1action') ? \Input::post('p1action') : '');
+
+            if (!$str_p1action) {
+                //NO action by Payone -> is there the GET parameter callbackPaymentMethodId ?
+                if (\Input::get('callbackPaymentMethodId')) {
+                    //Set action manually, because it is certain that it is a notification call from Payone
+                    $str_p1action = 'notification';
+                }
+            }
+
 			if ($str_p1action) {
 				switch ($str_p1action) {
 					case 'aborted':
@@ -493,9 +502,9 @@ use function LeadingSystems\Helpers\ls_sub;
 		
 		protected function payone_addProductsToPayoneParams($arr_payoneParams, $arr_order) {
 			foreach($arr_order['items'] as $arr_item) {
-				$arr_payoneParams['it'][count($arr_payoneParams['it']) + 1] = 'goods';
-				$arr_payoneParams['id'][count($arr_payoneParams['id']) + 1] = $arr_item['artNr'];
-				$arr_payoneParams['va'][count($arr_payoneParams['va']) + 1] = $arr_item['taxPercentage'];
+				$arr_payoneParams['it'][count($arr_payoneParams['it'] ?? []) + 1] = 'goods';
+				$arr_payoneParams['id'][count($arr_payoneParams['id'] ?? []) + 1] = $arr_item['artNr'];
+				$arr_payoneParams['va'][count($arr_payoneParams['va'] ?? []) + 1] = $arr_item['taxPercentage'];
 				
 				/*
 				 * If the quantity is an integer, we can set it directly and we
@@ -507,13 +516,13 @@ use function LeadingSystems\Helpers\ls_sub;
 				 * the exact decimal quantity in the title
 				 */
 				if (intval($arr_item['quantity']) == $arr_item['quantity']) {
-					$arr_payoneParams['no'][count($arr_payoneParams['no']) + 1] = intval($arr_item['quantity']);
-					$arr_payoneParams['pr'][count($arr_payoneParams['pr']) + 1] = ls_mul($arr_item['price'], 100);
-					$arr_payoneParams['de'][count($arr_payoneParams['de']) + 1] = $arr_item['extendedInfo']['_productTitle_customerLanguage'].($arr_item['isVariant'] ? ' ('.$arr_item['extendedInfo']['_title_customerLanguage'].')' : '');
+					$arr_payoneParams['no'][count($arr_payoneParams['no'] ?? []) + 1] = intval($arr_item['quantity']);
+					$arr_payoneParams['pr'][count($arr_payoneParams['pr'] ?? []) + 1] = ls_mul($arr_item['price'], 100);
+					$arr_payoneParams['de'][count($arr_payoneParams['de'] ?? []) + 1] = $arr_item['extendedInfo']['_productTitle_customerLanguage'].($arr_item['isVariant'] ? ' ('.$arr_item['extendedInfo']['_title_customerLanguage'].')' : '');
 				} else {
-					$arr_payoneParams['no'][count($arr_payoneParams['no']) + 1] = 1;
-					$arr_payoneParams['pr'][count($arr_payoneParams['pr']) + 1] = ls_mul($arr_item['priceCumulative'], 100);
-					$arr_payoneParams['de'][count($arr_payoneParams['de']) + 1] = $arr_item['quantity'].' '.$arr_item['extendedInfo']['_quantityUnit_customerLanguage'].' '.$arr_item['productTitle'].($arr_item['variantTitle'] ? ' ('.$arr_item['variantTitle'].')' : '');
+					$arr_payoneParams['no'][count($arr_payoneParams['no'] ?? []) + 1] = 1;
+					$arr_payoneParams['pr'][count($arr_payoneParams['pr'] ?? []) + 1] = ls_mul($arr_item['priceCumulative'], 100);
+					$arr_payoneParams['de'][count($arr_payoneParams['de'] ?? []) + 1] = $arr_item['quantity'].' '.$arr_item['extendedInfo']['_quantityUnit_customerLanguage'].' '.$arr_item['productTitle'].($arr_item['variantTitle'] ? ' ('.$arr_item['variantTitle'].')' : '');
 				}
 			}
 			return $arr_payoneParams;
