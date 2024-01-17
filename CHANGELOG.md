@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 4.0.24 (2024-01-17)
+ * Fix: Payment service provider PAYONE
+
 ### 4.0.23 (2023-09-06)
  * Fix: mediabox
 
