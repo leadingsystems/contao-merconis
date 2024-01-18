@@ -4,6 +4,8 @@
  * This template is most likely being included in another template file.
  * If you duplicate this template, please make sure to adjust the include paths in the other file.
  */
+
+use Contao\Date;
 ?>
 <?php // ########## PRODUCTS IN CART ########## ?>
 <div id="checkoutStepCart">
@@ -11,7 +13,7 @@
         <i class="fas fa-shopping-bag"></i>
         <?php
         if ($bln_orderDetailMode ?? null) {
-            echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText084'], \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $this->arrOrder['orderDateUnixTimestamp']));
+            echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText084'], Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $this->arrOrder['orderDateUnixTimestamp']));
         } else {
             echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText134'];
         }
@@ -29,6 +31,9 @@
 
                     if ($imgToUse) {
                         ?>
+                        <!--
+                        @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+                        -->
                         <img src="<?php echo \Image::get($imgToUse, 600, 600, 'box'); ?>" alt="" />
                         <?php
                     }

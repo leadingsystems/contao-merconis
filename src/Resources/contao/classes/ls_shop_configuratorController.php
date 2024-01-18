@@ -2,6 +2,11 @@
 
 namespace Merconis\Core;
 
+use Contao\Database;
+use Contao\FormModel;
+use Contao\System;
+use Contao\Widget;
+
 class ls_shop_configuratorController
 {
 	/*
@@ -43,7 +48,7 @@ class ls_shop_configuratorController
 		$_SESSION['lsShop']['configurator'][$_SESSION['FORM_DATA']['configurator_productVariantID']]['arrReceivedPost'] = array();
 		
 		// ... dann werden die Datenbankfelder für das aktuelle Formular ausgelesen ...
-		$objFormFields = \Database::getInstance()->prepare("
+		$objFormFields = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_form_field`
 			WHERE		`pid` = ?
@@ -70,7 +75,7 @@ class ls_shop_configuratorController
 		
 		if (isset($GLOBALS['MERCONIS_HOOKS']['onReceivingConfiguratorInput']) && is_array($GLOBALS['MERCONIS_HOOKS']['onReceivingConfiguratorInput'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['onReceivingConfiguratorInput'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$objMccb->{$mccb[1]}();
 			}
 		}
@@ -86,7 +91,7 @@ class ls_shop_configuratorController
 	 * Variablen die aktuellen POST-Daten der aktuellen Konfigurator-Instanz vorliegen. Liegen diese Daten vor, so werden
 	 * sie verwendet, um das Formularfeld mit dem aktuellen Wert zu füllen.
 	 */
-	public function ls_shop_configuratorLoadFormField(\Widget $objWidget, $strForm, $arrForm) {
+	public function ls_shop_configuratorLoadFormField(Widget $objWidget, $strForm, $arrForm) {
 		if (!isset($GLOBALS['merconis_globals']['configurator']['currentArrReceivedPost']) || !is_array($GLOBALS['merconis_globals']['configurator']['currentArrReceivedPost'])) {
 			return $objWidget;
 		}
@@ -105,7 +110,7 @@ class ls_shop_configuratorController
 	 * The Merconis class 'ls_shop_productConfigurator' makes sure that the 'configuratorFormHook_' methods are registered with
 	 * Contao's form hooks when the configurator form is rendered and that they are not registered before and after that.
 	 */
-	public function configuratorFormHook_getForm(\FormModel $objRow, $strBuffer, $objElement) {
+	public function configuratorFormHook_getForm(FormModel $objRow, $strBuffer, $objElement) {
 		return static::importStatic($GLOBALS['merconis_globals']['configurator']['objConfigurator']->customLogicClassName, null, true)->configuratorFormHook_getForm($objRow, $strBuffer, $objElement);
 	}
 
@@ -113,7 +118,7 @@ class ls_shop_configuratorController
 		return static::importStatic($GLOBALS['merconis_globals']['configurator']['objConfigurator']->customLogicClassName, null, true)->configuratorFormHook_compileFormFields($arrFields, $intFormId, $objForm);
 	}
 
-	public function configuratorFormHook_loadFormField(\Widget $objWidget, $strForm, $arrForm) {
+	public function configuratorFormHook_loadFormField(Widget $objWidget, $strForm, $arrForm) {
 		return static::importStatic($GLOBALS['merconis_globals']['configurator']['objConfigurator']->customLogicClassName, null, true)->configuratorFormHook_loadFormField($objWidget, $strForm, $arrForm);
 	}
 
@@ -129,7 +134,7 @@ class ls_shop_configuratorController
 		return static::importStatic($GLOBALS['merconis_globals']['configurator']['objConfigurator']->customLogicClassName, null, true)->configuratorFormHook_storeFormData($arrSet, $objForm);
 	}
 
-	public function configuratorFormHook_validateFormField(\Widget $objWidget, $intId, $arrForm) {
+	public function configuratorFormHook_validateFormField(Widget $objWidget, $intId, $arrForm) {
 		return static::importStatic($GLOBALS['merconis_globals']['configurator']['objConfigurator']->customLogicClassName, null, true)->configuratorFormHook_validateFormField($objWidget, $intId, $arrForm);
 	}
 }

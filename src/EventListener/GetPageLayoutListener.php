@@ -2,6 +2,7 @@
 
 namespace LeadingSystems\MerconisBundle\EventListener;
 
+use Contao\Input;
 use Contao\LayoutModel;
 use Contao\PageModel;
 use Contao\PageRegular;
@@ -41,7 +42,7 @@ class GetPageLayoutListener
      */
     public function switchTemplateInDetailsViewIfNecessary(PageModel &$pageModel, LayoutModel &$layout, PageRegular $pageRegular): void
     {
-        if (!\Input::get('product')) {
+        if (!Input::get('product')) {
             /*
              * We don't have to deal with different layouts because we are
              * not on a product details page
@@ -54,7 +55,7 @@ class GetPageLayoutListener
         if ($pageModel->type != 'root') {
             $int_pid = $pageModel->pid;
             $str_type = $pageModel->type;
-            $objParentPage = \PageModel::findParentsById($int_pid);
+            $objParentPage = PageModel::findParentsById($int_pid);
 
             if ($objParentPage !== null) {
                 while ($int_pid > 0 && $str_type != 'root' && $objParentPage->next()) {

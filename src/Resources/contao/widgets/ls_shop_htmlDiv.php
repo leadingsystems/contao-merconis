@@ -2,7 +2,9 @@
 
 namespace Merconis\Core;
 
-class ls_shop_htmlDiv extends \Widget
+use Contao\Widget;
+
+class ls_shop_htmlDiv extends Widget
 {
 
 	/**

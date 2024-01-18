@@ -2,9 +2,13 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Image;
+use Contao\Input;
 use Contao\StringUtil;
 use Contao\System;
 
@@ -122,7 +126,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			{lsShopPublishAndState_legend},
 			published,
 			lsShopProductIsNew,
-			lsShopProductIsOnSale'.(\Input::get('act') == 'editAll' ? '' : ',sorting').';
+			lsShopProductIsOnSale'.(Input::get('act') == 'editAll' ? '' : ',sorting').';
 			
 			{configurator_legend},
 			configurator,
@@ -1342,14 +1346,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 
 
 
-class tl_ls_shop_product_controller extends \Backend {
+class tl_ls_shop_product_controller extends Backend {
 
 	public function __construct() {
 		parent::__construct();
 		$this->import('BackendUser', 'User');
 	}
 
-	public function generateAlias($str_value, \DataContainer $dc) {
+	public function generateAlias($str_value, DataContainer $dc) {
 		/*
 		 * By default we don't expect to have to create an auto alias.
 		 * Whether we have to do so or not, will be determined later
@@ -1383,7 +1387,7 @@ class tl_ls_shop_product_controller extends \Backend {
 		 */
 		if ($str_value == '') {
 			$bln_createAutoAlias = true;
-			$str_value = \StringUtil::generateAlias($str_titleToUseForAutoAlias);
+			$str_value = StringUtil::generateAlias($str_titleToUseForAutoAlias);
 		}
 
 		/*
@@ -1395,7 +1399,7 @@ class tl_ls_shop_product_controller extends \Backend {
 		 * Check whether the alias already exists, i.e. we can already
 		 * find a record with this alias
 		 */
-		$obj_dbres_recordForAlias = \Database::getInstance()->prepare("
+		$obj_dbres_recordForAlias = Database::getInstance()->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_product`
 			WHERE		`id` = ?
@@ -1426,7 +1430,7 @@ class tl_ls_shop_product_controller extends \Backend {
 		return $str_value;
 	}
 
-	public function insertAttributeValueAllocationsInAllocationTable($str_value, \DataContainer $dc) {
+	public function insertAttributeValueAllocationsInAllocationTable($str_value, DataContainer $dc) {
 		ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable(json_decode($str_value), $dc->id, 0);
 		return $str_value;
 	}
@@ -1439,8 +1443,8 @@ class tl_ls_shop_product_controller extends \Backend {
 	}
 
 	public function toggleIcon($row, $href, $label, $title, $icon, $attributes) {
-		if (strlen(\Input::get('tid'))) {
-			$this->toggleVisibility(\Input::get('tid'), (\Input::get('state') == 1));
+		if (strlen(Input::get('tid'))) {
+			$this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1));
 			$this->redirect($this->getReferer());
 		}
 
@@ -1454,7 +1458,7 @@ class tl_ls_shop_product_controller extends \Backend {
 			$icon = 'invisible.svg';
 		}
 
-		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
 	}
 
 	public function toggleVisibility($intId, $blnVisible) {
@@ -1476,7 +1480,7 @@ class tl_ls_shop_product_controller extends \Backend {
 		}
 
 		// Update the database
-		\Database::getInstance()->prepare("UPDATE tl_ls_shop_product SET tstamp=". time() .", published='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
+		Database::getInstance()->prepare("UPDATE tl_ls_shop_product SET tstamp=". time() .", published='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
 					   ->execute($intId);
 	}
 

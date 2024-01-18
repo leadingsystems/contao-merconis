@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\Input;
+
 class ls_shop_apiController_cart {
 	protected static $objInstance;
 
@@ -42,19 +44,19 @@ class ls_shop_apiController_cart {
 	 * Adds a product/variant to the cart
 	 */
 	protected function apiResource_addToCart() {
-		if (!\Input::post('productVariantId')) {
+		if (!Input::post('productVariantId')) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('no productVariantId given');
 			return;
 		}
 
-		if (!\Input::post('quantity')) {
+		if (!Input::post('quantity')) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('no quantity given');
 			return;
 		}
 
-        $arr_return = ls_shop_cartHelper::addToCart(\Input::post('productVariantId'), \Input::post('quantity'));
+        $arr_return = ls_shop_cartHelper::addToCart(Input::post('productVariantId'), Input::post('quantity'));
 
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data($arr_return);

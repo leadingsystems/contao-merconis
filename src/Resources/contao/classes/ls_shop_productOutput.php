@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\FrontendTemplate;
+use Contao\Input;
 use Contao\System;
 
 class ls_shop_productOutput
@@ -63,10 +65,10 @@ class ls_shop_productOutput
 		}
 
 		if (
-			\Input::get('selectVariantPersistently')
-			&&	$this->ls_objProduct->_selectVariant(\Input::get('selectVariantPersistently'))
+			Input::get('selectVariantPersistently')
+			&&	$this->ls_objProduct->_selectVariant(Input::get('selectVariantPersistently'))
 		) {
-			$_SESSION['lsShop']['persistentVariantSelection'][$this->ls_productID] = \Input::get('selectVariantPersistently');
+			$_SESSION['lsShop']['persistentVariantSelection'][$this->ls_productID] = Input::get('selectVariantPersistently');
 		}
 
 		else if (
@@ -77,7 +79,7 @@ class ls_shop_productOutput
 	}
 
 	protected function prepareTemplate() {
-		$this->obj_template = new \FrontendTemplate($this->ls_template);
+		$this->obj_template = new FrontendTemplate($this->ls_template);
 		$this->obj_template->objProduct = $this->ls_objProduct;
 		
 		$this->obj_template->blnUseFilter = $this->blnUseFilter;
@@ -114,7 +116,7 @@ class ls_shop_productOutput
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['prepareProductTemplate']) && is_array($GLOBALS['MERCONIS_HOOKS']['prepareProductTemplate'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['prepareProductTemplate'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$objMccb->{$mccb[1]}($this->obj_template, $this->ls_template, $this->ls_objProduct);
 			}
 		}		

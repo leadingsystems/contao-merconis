@@ -2,11 +2,18 @@
 
 namespace Merconis\Core;
 
+use Contao\Config;
+use Contao\Controller;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
+use Contao\File;
+use Contao\Folder;
+use Contao\Input;
 use Contao\StringUtil;
 use Contao\System;
+use Contao\ZipReader;
 
-class InstallerController extends \Controller {
+class InstallerController extends Controller {
 	protected $obj_config = null;
 	/*
 	 * ****************************************************
@@ -64,13 +71,13 @@ class InstallerController extends \Controller {
 
 
 	public function __construct() {
-		$this->obj_config = \Config::getInstance();
+		$this->obj_config = Config::getInstance();
 		parent::__construct();
 		$this->import('Files');
 		$this->import('BackendUser');
 
-		if (\Input::get('merconisThemeRepositoryMode')) {
-			$_SESSION['lsShop']['merconisThemeRepositoryMode'] = \Input::get('merconisThemeRepositoryMode');
+		if (Input::get('merconisThemeRepositoryMode')) {
+			$_SESSION['lsShop']['merconisThemeRepositoryMode'] = Input::get('merconisThemeRepositoryMode');
 		}
 	}
 
@@ -121,11 +128,11 @@ class InstallerController extends \Controller {
 			$arrStatus['rootPageExists'] = true;
 		}
 
-		if (\Database::getInstance()->fieldExists('ls_cnc_languageSelector_correspondingMainLanguagePage', 'tl_page')) {
+		if (Database::getInstance()->fieldExists('ls_cnc_languageSelector_correspondingMainLanguagePage', 'tl_page')) {
 			$arrStatus['languageSelectorDBOkay'] = true;
 		}
 
-		if (\Database::getInstance()->tableExists('tl_ls_shop_orders')) {
+		if (Database::getInstance()->tableExists('tl_ls_shop_orders')) {
 			$arrStatus['shopDBOkay'] = true;
 		}
 
@@ -236,7 +243,7 @@ class InstallerController extends \Controller {
 		if (is_array($arrExportTables['tl_files'])) {
 			$blnUuidConflictInTlFilesDetected = false;
 			foreach ($arrExportTables['tl_files'] as $row) {
-				$objCheckTlFilesRecordWithUUID = \Database::getInstance()->prepare("
+				$objCheckTlFilesRecordWithUUID = Database::getInstance()->prepare("
 					SELECT		*
 					FROM		`tl_files`
 					WHERE		`uuid` = ?
@@ -266,7 +273,7 @@ class InstallerController extends \Controller {
 		 * Ermitteln der erstbesten Root-Seite
 		 */
 		$rootID = 0;
-		$objRootpages = \Database::getInstance()->prepare("
+		$objRootpages = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_page`
 			WHERE		`type` = 'root'
@@ -287,29 +294,29 @@ class InstallerController extends \Controller {
 		if ($this->getInstallationStatus() == 'complete') {
 			return;
 		}
-		if (!\Input::get('lsShopInstallationStep')) {
+		if (!Input::get('lsShopInstallationStep')) {
 			return;
 		}
 
-		switch (\Input::get('lsShopInstallationStep')) {
+		switch (Input::get('lsShopInstallationStep')) {
 			case 1:
                 ls_shop_generalHelper::purgeContaoCache();
 
-                \Config::persist('ls_shop_installedCompletely', false);
+                Config::persist('ls_shop_installedCompletely', false);
 
-                \Controller::redirect('contao?do=ls_shop_dashboard');
+                Controller::redirect('contao?do=ls_shop_dashboard');
 			    break;
 
 			case 2:
                 ls_shop_generalHelper::purgeContaoCache();
 
-				if (\Input::post('FORM_SUBMIT') && \Input::post('FORM_SUBMIT') == 'installer_themeSelection') {
-					if (!\Input::post('installer_selectedTheme')) {
+				if (Input::post('FORM_SUBMIT') && Input::post('FORM_SUBMIT') == 'installer_themeSelection') {
+					if (!Input::post('installer_selectedTheme')) {
 						$_SESSION['lsShop']['noThemeSelected'] = true;
-						\Controller::redirect('contao?do=ls_shop_dashboard');
+						Controller::redirect('contao?do=ls_shop_dashboard');
 					}
 
-					$arrThemeIDAndVersion = explode('|', \Input::post('installer_selectedTheme'));
+					$arrThemeIDAndVersion = explode('|', Input::post('installer_selectedTheme'));
 
 					$_SESSION['lsShop']['installer_selectedTheme']['id'] = $arrThemeIDAndVersion[0];
 					$_SESSION['lsShop']['installer_selectedTheme']['version'] = $arrThemeIDAndVersion[1];
@@ -333,7 +340,7 @@ class InstallerController extends \Controller {
 
 						unset($_SESSION['lsShop']['installer_selectedTheme']);
 						$_SESSION['lsShop']['selectedThemeCanNotBeInstalled'] = true;
-						\Controller::redirect('contao?do=ls_shop_dashboard');
+						Controller::redirect('contao?do=ls_shop_dashboard');
 					}
 				}
 
@@ -381,7 +388,7 @@ class InstallerController extends \Controller {
 				 */
                 eval('$u = '.pack('H*', '6465636865782874696d65282929').'; '.pack('H*', '24746869732d3e6f626a5f636f6e6669672d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b27222e7061636b2827482a272c2027366436353732363336663665363937333566373336353732373636393633363534653735366436323635373227292e22275d222c20737472746f757070657228737562737472286d6435282475292c20302c2033292e247529293b'));
 
-				\Controller::redirect('contao?do=ls_shop_dashboard&lsShopInstallationStep=3');
+				Controller::redirect('contao?do=ls_shop_dashboard&lsShopInstallationStep=3');
 				break;
 
 			case 3:
@@ -419,7 +426,7 @@ class InstallerController extends \Controller {
 
                 $this->Automator->generateSymlinks();
 
-                \Controller::redirect('contao?do=ls_shop_dashboard');
+                Controller::redirect('contao?do=ls_shop_dashboard');
 				break;
 		}
 	}
@@ -429,7 +436,7 @@ class InstallerController extends \Controller {
 	 * entstanden ist und entfernt ggf. das Fallback-Flag bei der MERCONIS-Hauptsprachseite.
 	 */
 	protected function preventLanguageFallbackConflict() {
-		$objPagesWithoutDomainAndWithLanguageFallbackFlag = \Database::getInstance()->prepare("
+		$objPagesWithoutDomainAndWithLanguageFallbackFlag = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_page`
 			WHERE		`type` = ?
@@ -443,7 +450,7 @@ class InstallerController extends \Controller {
 			 * Es existiert mehr als eine Seite, die keinen Domaineintrag und ein gesetztes Sprachen-Fallback-Flag hat.
 			 * In diesem Fall wird das Flag in der MERCONIS-Seite entfernt
 			 */
-			$objUpdate = \Database::getInstance()->prepare("
+			$objUpdate = Database::getInstance()->prepare("
 				UPDATE		`tl_page`
 				SET			`fallback` = ?
 				WHERE		`alias` = ?
@@ -472,7 +479,7 @@ class InstallerController extends \Controller {
             }
 
             foreach ($this->arrMapOldIDToNewID[$str_tableName] as $int_insertedElementId) {
-                $obj_dbres_recordsToHandle = \Database::getInstance()
+                $obj_dbres_recordsToHandle = Database::getInstance()
                     ->prepare("
                         SELECT		*
                         FROM		`" . $str_tableName . "`
@@ -516,7 +523,7 @@ class InstallerController extends \Controller {
                 $arrQueryValues = $arr_currentRecordToHandle;
                 $arrQueryValues[] = $arr_currentRecordToHandle['id'];
 
-                $objUpdate = \Database::getInstance()
+                $objUpdate = Database::getInstance()
                     ->prepare("
                         UPDATE		`" . $str_tableName . "`
                         SET			" . $setStatement . "
@@ -603,13 +610,13 @@ class InstallerController extends \Controller {
 		}
 
 		if (is_file(System::getContainer()->getParameter('kernel.project_dir').'/'.$src)) {
-			$objFile = new \File($src);
+			$objFile = new File($src);
 			$objFile->copyTo($dest);
 			return;
 		}
 
 		if (is_dir(System::getContainer()->getParameter('kernel.project_dir').'/'.$src)) {
-			$objNewDir = new \Folder($dest);
+			$objNewDir = new Folder($dest);
 			$sourceHandle = opendir(System::getContainer()->getParameter('kernel.project_dir').'/'.$src);
 			while ($file = readdir($sourceHandle)) {
 				if ($file == '.' || $file == '..') {
@@ -629,7 +636,7 @@ class InstallerController extends \Controller {
 		if ($this->alreadyExistingRootPageID) {
             System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: moving MERCONIS redirection page in already existing root page with id '.$this->alreadyExistingRootPageID, ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
-			\Database::getInstance()->prepare("
+			Database::getInstance()->prepare("
 				UPDATE		`tl_page`
 				SET			`pid` = ?,
 							`sorting` = ?
@@ -640,7 +647,7 @@ class InstallerController extends \Controller {
 		} else {
             System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Removing MERCONIS redirection page because it is is not required in this installation', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
-			\Database::getInstance()->prepare("
+			Database::getInstance()->prepare("
 				DELETE FROM	`tl_page`
 				WHERE		`alias` = ?
 			")
@@ -684,7 +691,7 @@ class InstallerController extends \Controller {
 				// Alle neu eingefügten Datensätze der aktuellen pTable werden ausgelesen
 				if (is_array($this->arrMapOldIDToNewID[$relation['pTable']])) {
 					foreach ($this->arrMapOldIDToNewID[$relation['pTable']] as $pTableRowID) {
-						$objRow = \Database::getInstance()->prepare("
+						$objRow = Database::getInstance()->prepare("
 							SELECT		*
 							FROM		`" . $relation['pTable'] . "`
 							WHERE		`id` = ?
@@ -706,7 +713,7 @@ class InstallerController extends \Controller {
 						/*
 						 * Eintragen des neuen foreignKeys
 						 */
-						$objUpdate = \Database::getInstance()->prepare("
+						$objUpdate = Database::getInstance()->prepare("
 							UPDATE		`" . $relation['pTable'] . "`
 							SET			`" . $relation['pField'] . "` = ?
 							WHERE		`id` = ?
@@ -873,7 +880,7 @@ class InstallerController extends \Controller {
 			throw new \Exception('insufficient parameters given, import data may be invalid');
 		}
 
-		if (!\Database::getInstance()->tableExists($targetTable)) {
+		if (!Database::getInstance()->tableExists($targetTable)) {
 			throw new \Exception('target table does not exist ('.$targetTable.')');
 		}
 
@@ -885,7 +892,7 @@ class InstallerController extends \Controller {
 			 * Sollen IDs nicht erhalten bleiben und handelt es sich um das ID-Feld, so wird es nicht in das Insert-Statement aufgenommen.
 			 * Sollen Aliase nicht erhalten bleiben und handelt es sich um das Alias-Feld, so wird es nicht in das Insert-Statement aufgenommen.
 			 */
-			if (!\Database::getInstance()->fieldExists($fieldName, $targetTable) || (!$preserveID && $fieldName == 'id') || (!$preserveAlias && $fieldName == 'alias')) {
+			if (!Database::getInstance()->fieldExists($fieldName, $targetTable) || (!$preserveID && $fieldName == 'id') || (!$preserveAlias && $fieldName == 'alias')) {
 				unset($arrData[$fieldName]);
 			} else {
 				if ($setStatement) {
@@ -895,7 +902,7 @@ class InstallerController extends \Controller {
 			}
 		}
 
-		$objQuery = \Database::getInstance()->prepare("
+		$objQuery = Database::getInstance()->prepare("
 			INSERT INTO `".$targetTable."`
 			SET		".$setStatement."
 		")
@@ -908,12 +915,12 @@ class InstallerController extends \Controller {
 		 * so wird ein neuer Alias generiert, wobei bei Bedarf durch Anhängen der Datensatz-ID
 		 * sichergestellt wird, dass der Alias unique ist.
 		 */
-		if (!$preserveAlias && \Database::getInstance()->fieldExists('alias', $targetTable)) {
+		if (!$preserveAlias && Database::getInstance()->fieldExists('alias', $targetTable)) {
 			$alias = (isset($arrData['title']) && $arrData['title'] ? StringUtil::standardize(StringUtil::restoreBasicEntities($arrData['title'])) : 'record-'.$insertID);
 
 			$alias = strlen($alias) > 100 ? substr($alias, 0, 100) : $alias;
 
-			$objCheckAlias = \Database::getInstance()->prepare("
+			$objCheckAlias = Database::getInstance()->prepare("
 				SELECT		`id`
 				FROM		`".$targetTable."`
 				WHERE		`alias` = ?
@@ -923,7 +930,7 @@ class InstallerController extends \Controller {
 				$alias = $alias.'-'.$insertID;
 			}
 
-			$objUpdateAlias = \Database::getInstance()->prepare("
+			$objUpdateAlias = Database::getInstance()->prepare("
 				UPDATE		`".$targetTable."`
 				SET			`alias` = ?
 				WHERE		`id` = ?
@@ -1018,9 +1025,9 @@ class InstallerController extends \Controller {
 		if ($downloadFileHash == md5_file(System::getContainer()->getParameter('kernel.project_dir').'/'.$zipTargetFilename)) {
 			// unzip
 			try {
-				$objArchive = new \ZipReader($zipTargetFilename);
+				$objArchive = new ZipReader($zipTargetFilename);
 				while ($objArchive->next()) {
-					\File::putContent($unzipTargetPath.'/'.$objArchive->file_name, $objArchive->unzip());
+					File::putContent($unzipTargetPath.'/'.$objArchive->file_name, $objArchive->unzip());
 				}
 				unset($objArchive);
 			} catch (\Exception $e) {
@@ -1273,50 +1280,50 @@ class InstallerController extends \Controller {
         ls_shop_generalHelper::purgeContaoCache();
 
 		$varUpdateSituation = $this->checkForUpdateSituation();
-		if (!\Input::get('lsShopUpdateAction') || !is_array($varUpdateSituation)) {
+		if (!Input::get('lsShopUpdateAction') || !is_array($varUpdateSituation)) {
 			return;
 		}
-		$updateAction = \Input::get('lsShopUpdateAction');
+		$updateAction = Input::get('lsShopUpdateAction');
 
 		switch ($updateAction) {
 			case 'setInstalledVersion':
-				if (!\Input::get('installedVersion') || !in_array(\Input::get('installedVersion'), $this->arrVersionHistory)) {
-					\Controller::redirect('contao?do=ls_shop_dashboard');
+				if (!Input::get('installedVersion') || !in_array(Input::get('installedVersion'), $this->arrVersionHistory)) {
+					Controller::redirect('contao?do=ls_shop_dashboard');
 				}
 				$GLOBALS['merconis_globals']['update']['arrUpdateStatus'] = array(
 					'updateInProgress' => false,
 					'currentStep' => ''
 				);
-				$this->obj_config->update("\$GLOBALS['TL_CONFIG']['ls_shop_installedVersion']", \Input::get('installedVersion'));
+				$this->obj_config->update("\$GLOBALS['TL_CONFIG']['ls_shop_installedVersion']", Input::get('installedVersion'));
 				$this->writeUpdateStatus();
-				\Controller::redirect('contao?do=ls_shop_dashboard');
+				Controller::redirect('contao?do=ls_shop_dashboard');
 				break;
 
 			case 'startUpdateProgress':
 				$GLOBALS['merconis_globals']['update']['arrUpdateStatus']['updateInProgress'] = true;
 				$GLOBALS['merconis_globals']['update']['arrUpdateStatus']['currentStep'] = 'versionTrailInformation';
 				$this->writeUpdateStatus();
-				\Controller::redirect('contao?do=ls_shop_dashboard');
+				Controller::redirect('contao?do=ls_shop_dashboard');
 				break;
 
 			case 'converterRoutine_2_0_3_stable_2_1_0_stable':
 				$this->{$updateAction}();
-				\Controller::redirect('contao?do=ls_shop_dashboard');
+				Controller::redirect('contao?do=ls_shop_dashboard');
 				break;
 
 			case 'converterRoutine_2_1_4_stable_2_1_5_stable':
 				$this->{$updateAction}();
-				\Controller::redirect('contao?do=ls_shop_dashboard');
+				Controller::redirect('contao?do=ls_shop_dashboard');
 				break;
 
 			case 'converterRoutine_2_2_0_stable_2_2_1_stable':
 				$this->{$updateAction}();
-				\Controller::redirect('contao?do=ls_shop_dashboard');
+				Controller::redirect('contao?do=ls_shop_dashboard');
 				break;
 
 			case 'converterRoutine_2_2_1_stable_3_0_0_stable':
 				$this->{$updateAction}();
-				\Controller::redirect('contao?do=ls_shop_dashboard');
+				Controller::redirect('contao?do=ls_shop_dashboard');
 				break;
 
 			case 'markUpdateAsFinished':
@@ -1326,7 +1333,7 @@ class InstallerController extends \Controller {
 				);
 				$this->obj_config->update("\$GLOBALS['TL_CONFIG']['ls_shop_installedVersion']", $varUpdateSituation['currentProgramFilesVersion']);
 				$this->writeUpdateStatus();
-				\Controller::redirect('contao?do=ls_shop_dashboard');
+				Controller::redirect('contao?do=ls_shop_dashboard');
 				break;
 		}
 	}
@@ -1483,7 +1490,7 @@ class InstallerController extends \Controller {
 		 * that have not been assigned to an attribute yet (which is the case for all existing
 		 * attribute values because the pid is new).
 		 */
-		$objInsert = \Database::getInstance()->prepare("
+		$objInsert = Database::getInstance()->prepare("
 			INSERT INTO	`tl_ls_shop_attributes`
 			SET			`title` = ?,
 						`alias` = ?,
@@ -1495,7 +1502,7 @@ class InstallerController extends \Controller {
 		/*
 		 * Setting the pid to assign all attribute values to the dummy attribute
 		 */
-		$objUpdate = \Database::getInstance()->prepare("
+		$objUpdate = Database::getInstance()->prepare("
 			UPDATE		`tl_ls_shop_attribute_values`
 			SET			`pid` = ?
 			WHERE		`pid` = ?
@@ -1517,7 +1524,7 @@ class InstallerController extends \Controller {
 		/*
 		 * Set the new "published" flag in all cross_seller records
 		 */
-		\Database::getInstance()->prepare("
+		Database::getInstance()->prepare("
 			UPDATE		`tl_ls_shop_cross_seller`
 			SET			`published` = '1'
 		")
@@ -1544,7 +1551,7 @@ class InstallerController extends \Controller {
 		}
 
 		$arr_languageSpecificAliasFieldnames = array();
-		$arr_fields = \Database::getInstance()->listFields('tl_ls_shop_product', true);
+		$arr_fields = Database::getInstance()->listFields('tl_ls_shop_product', true);
 		foreach ($arr_fields as $arr_fieldDetails) {
 			if (strpos($arr_fieldDetails['name'], 'alias_') !== false) {
 				$arr_languageSpecificAliasFieldnames[] = $arr_fieldDetails['name'];
@@ -1552,7 +1559,7 @@ class InstallerController extends \Controller {
 		}
 
 		foreach ($arr_languageSpecificAliasFieldnames as $str_fieldToUpdate) {
-			$obj_dbquery_updateLanguageSpecificAliases = \Database::getInstance()->prepare("
+			$obj_dbquery_updateLanguageSpecificAliases = Database::getInstance()->prepare("
 				UPDATE		`tl_ls_shop_product`
 				SET			`".$str_fieldToUpdate."` = `alias`
 				WHERE		`".$str_fieldToUpdate."` = ''
@@ -1569,7 +1576,7 @@ class InstallerController extends \Controller {
 			return;
 		}
 
-		\Database::getInstance()
+		Database::getInstance()
 			->prepare("
 			UPDATE		`tl_page`
 			SET			`ls_shop_decimalsSeparator` = ?,
@@ -1600,7 +1607,7 @@ class InstallerController extends \Controller {
 	 * assumes that there is no special condition to wait for.
 	 */
 	protected function check_if_converterRoutine_2_0_3_stable_2_1_0_stable_allowed() {
-		if (!\Database::getInstance()->fieldExists('pid', 'tl_ls_shop_attribute_values')) {
+		if (!Database::getInstance()->fieldExists('pid', 'tl_ls_shop_attribute_values')) {
 			return false;
 		} else {
 			return true;
@@ -1613,7 +1620,7 @@ class InstallerController extends \Controller {
 	 * fields required for the converter routine exist.
 	 */
 	protected function check_if_converterRoutine_2_2_0_stable_2_2_1_stable_allowed() {
-		$arr_fields = \Database::getInstance()->listFields('tl_ls_shop_product', true);
+		$arr_fields = Database::getInstance()->listFields('tl_ls_shop_product', true);
 		foreach ($arr_fields as $arr_fieldDetails) {
 			if (strpos($arr_fieldDetails['name'], 'alias_') !== false) {
 				return true;

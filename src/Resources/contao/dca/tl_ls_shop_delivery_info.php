@@ -2,8 +2,11 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Image;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
@@ -189,12 +192,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_delivery_info'] = array(
 	)
 );
 
-class ls_shop_delivery_info extends \Backend {
+class ls_shop_delivery_info extends Backend {
 	public function __construct() {
 		parent::__construct();
 	}
 
-	public function generateAlias($varValue, \DataContainer $dc) {
+	public function generateAlias($varValue, DataContainer $dc) {
 		$autoAlias = false;
 
 		$currentTitle = isset($dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()}) && $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} ? $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} : $dc->activeRecord->title;
@@ -202,10 +205,10 @@ class ls_shop_delivery_info extends \Backend {
 		// Generate an alias if there is none
 		if ($varValue == '') {
 			$autoAlias = true;
-			$varValue = \StringUtil::generateAlias($currentTitle);
+			$varValue = StringUtil::generateAlias($currentTitle);
 		}
 
-		$objAlias = \Database::getInstance()->prepare("SELECT `id` FROM tl_ls_shop_delivery_info WHERE id=? OR alias=?")
+		$objAlias = Database::getInstance()->prepare("SELECT `id` FROM tl_ls_shop_delivery_info WHERE id=? OR alias=?")
 								   ->execute($dc->id, $varValue);
 
 		// Check whether the alias exists
@@ -228,7 +231,7 @@ class ls_shop_delivery_info extends \Backend {
 		/*
 		 * Get all products and variants where the delivery record is used
 		 */
-		$objProducts = \Database::getInstance()
+		$objProducts = Database::getInstance()
                             ->prepare("
                                 SELECT  `id`
                                 FROM    tl_ls_shop_product
@@ -240,7 +243,7 @@ class ls_shop_delivery_info extends \Backend {
                                 $row['id']
                             );
 
-		$objVariants = \Database::getInstance()
+		$objVariants = Database::getInstance()
                             ->prepare("
                                 SELECT  `id`
                                 FROM    tl_ls_shop_variant
@@ -257,13 +260,13 @@ class ls_shop_delivery_info extends \Backend {
 			 * Wenn das deliveryInfoSet bei keinem Produkt verwendet wird,
 			 * darf gelöscht werden.
 			 */
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
 		} else {
 			/*
 			 * Wird das deliveryInfoSet bei Produkten verwendet,
 			 * so darf es nicht gelöscht werden
 			 */
-			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+			$button = Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 		return $button;
 	}

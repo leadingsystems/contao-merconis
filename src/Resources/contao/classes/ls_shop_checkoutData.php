@@ -2,8 +2,16 @@
 
 namespace Merconis\Core;
 
+use Contao\Controller;
+use Contao\Database;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\FrontendUser;
+use Contao\Input;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
+use Contao\Widget;
 
 class ls_shop_checkoutData {
 	public $arrCheckoutData = array(
@@ -76,10 +84,10 @@ class ls_shop_checkoutData {
 	 * Prevent direct instantiation (Singleton)
 	 */
 	protected function __construct() {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 		if (is_object($objPage)) {
-            \System::loadLanguageFile('default', $objPage->language);
+            System::loadLanguageFile('default', $objPage->language);
         }
 
 		// CheckoutData aus der Session einlesen, sofern in der Session schon vorhanden
@@ -281,7 +289,7 @@ class ls_shop_checkoutData {
 			switch ($what) {
 				case 'payment':
 					// ### paymentMethod callback ########################
-					$obj_paymentModule = \System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
+					$obj_paymentModule = System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
 					if ($obj_paymentModule->statusOkayToShowCustomUserInterface()) {
 						$GLOBALS['merconis_globals']['checkoutData']['customPaymentOrShippingMethodUserInterface'][$what] = $obj_paymentModule->getCustomUserInterface();
 					} else {
@@ -303,7 +311,7 @@ class ls_shop_checkoutData {
 	private function getPaymentMethodMessages() {
 		if (!isset($GLOBALS['merconis_globals']['checkoutData']['paymentMethodMessages'])) {
 			// ### paymentMethod callback ########################
-			$obj_paymentModule = \System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
+			$obj_paymentModule = System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
 			$GLOBALS['merconis_globals']['checkoutData']['paymentMethodMessages']['error'] = $obj_paymentModule->getPaymentMethodErrorMessage();
 			$GLOBALS['merconis_globals']['checkoutData']['paymentMethodMessages']['success'] = $obj_paymentModule->getPaymentMethodSuccessMessage();
 			// ###################################################			
@@ -317,13 +325,13 @@ class ls_shop_checkoutData {
 	 * OHNE step-Parameter
 	 */
 	private function checkIntegrity() {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
-		if (!\Input::get('step')) {
+		if (!Input::get('step')) {
 			return true;
 		}
 		
-		switch(\Input::get('step')) {
+		switch(Input::get('step')) {
 			case 'cart':
 			case 'dataEntry':
 			case 'shippingSelection':
@@ -332,7 +340,7 @@ class ls_shop_checkoutData {
 			case 'review':
 			default:
 				if (!$this->blnCheckoutDataIsValid) {
-					\Controller::redirect(\Controller::generateFrontendUrl($objPage->row()));
+					Controller::redirect(Controller::generateFrontendUrl($objPage->row()));
 				}
 				break;
 		}
@@ -340,7 +348,7 @@ class ls_shop_checkoutData {
 
 	private function getCustomerDataReview() {
 		if (is_null($this->customerDataReview)) {
-			$obj_template = new \FrontendTemplate('template_customerDataReview');
+			$obj_template = new FrontendTemplate('template_customerDataReview');
 			$obj_template->arr_data = $this->arrCustomerDataReview;
 			$this->customerDataReview = $obj_template->parse();
 		}
@@ -355,7 +363,7 @@ class ls_shop_checkoutData {
 				return '';
 			}
 
-			$obj_template = new \FrontendTemplate('template_additionalPaymentDataReview');
+			$obj_template = new FrontendTemplate('template_additionalPaymentDataReview');
 			$obj_template->arr_data = $arrPaymentMethodAdditionalDataReview;
 			$this->paymentMethodAdditionalDataReview = $obj_template->parse();
 		}
@@ -370,7 +378,7 @@ class ls_shop_checkoutData {
 				return '';
 			}
 
-			$obj_template = new \FrontendTemplate('template_additionalShippingDataReview');
+			$obj_template = new FrontendTemplate('template_additionalShippingDataReview');
 			$obj_template->arr_data = $arrShippingMethodAdditionalDataReview;
 			$this->shippingMethodAdditionalDataReview = $obj_template->parse();
 		}
@@ -443,25 +451,25 @@ class ls_shop_checkoutData {
 			$GLOBALS['objPage']->language = '';
         	}
 		
-		$this->formCustomerData = \Controller::getForm($this->formCustomerDataID);
+		$this->formCustomerData = Controller::getForm($this->formCustomerDataID);
 
 		// ### paymentMethod callback ########################
-		$obj_paymentModule = \System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
+		$obj_paymentModule = System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
 
 		if ($this->formPaymentMethodAdditionalDataID && $obj_paymentModule->statusOkayToShowAdditionalDataForm()) {
 			// ###################################################
-			$this->formPaymentMethodAdditionalData = \Controller::getForm($this->formPaymentMethodAdditionalDataID);
+			$this->formPaymentMethodAdditionalData = Controller::getForm($this->formPaymentMethodAdditionalDataID);
 		}
 
 		if ($this->formShippingMethodAdditionalDataID) {
-			$this->formShippingMethodAdditionalData = \Controller::getForm($this->formShippingMethodAdditionalDataID);
+			$this->formShippingMethodAdditionalData = Controller::getForm($this->formShippingMethodAdditionalDataID);
 		}
 
 		$this->formPaymentMethodRadio = $this->getPaymentOrShippingMethodForm('payment');
 		$this->formShippingMethodRadio = $this->getPaymentOrShippingMethodForm('shipping');
 		
 		if ($obj_paymentModule->checkoutFinishAllowed()) {
-			$this->formConfirmOrder = \Controller::getForm($this->formConfirmOrderID);
+			$this->formConfirmOrder = Controller::getForm($this->formConfirmOrderID);
 		}
 
 	}
@@ -484,8 +492,8 @@ class ls_shop_checkoutData {
 		 * so wird die gewählte Zahlungs- und Versand-Methode zurückgesetzt und der Login-Status in den Checkout-Data
 		 * auch zurückgesetzt
 		 */
-		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
-			$obj_user = \System::importStatic('FrontendUser');
+		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+			$obj_user = System::importStatic('FrontendUser');
 
 			if ($this->arrCheckoutData['loggedInData']['userID'] != $obj_user->id) {
 				$this->ls_shop_postLogin($obj_user);
@@ -550,7 +558,7 @@ class ls_shop_checkoutData {
 			return $formID;
 		}
 		
-		$objMethod = \Database::getInstance()->prepare("
+		$objMethod = Database::getInstance()->prepare("
 			SELECT		`formAdditionalData`
 			FROM		`".$tableName."`
 			WHERE		`id` = ?
@@ -567,7 +575,7 @@ class ls_shop_checkoutData {
 		
 		if ($what == 'payment') {
 			// ### paymentMethod callback ########################
-			$obj_paymentModule = \System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
+			$obj_paymentModule = System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
 			$formID = $obj_paymentModule->getFormIDForAdditionalData($formID);
 			// ###################################################
 		}
@@ -629,7 +637,7 @@ class ls_shop_checkoutData {
 	 */
 	private function processFormConfirmData() {
 		ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutFinishPages');
-		\Controller::redirect($GLOBALS['merconis_globals']['ls_shop_checkoutFinishPagesUrl'].'#finish');
+		Controller::redirect($GLOBALS['merconis_globals']['ls_shop_checkoutFinishPagesUrl'].'#finish');
 	}
 	
 	/*
@@ -644,7 +652,7 @@ class ls_shop_checkoutData {
 
 		$this->writeCheckoutDataToSession();
 
-		\Controller::redirect(\Environment::get('request').'#customerData');
+		Controller::redirect(Environment::get('request').'#customerData');
 	}
 
 	/*
@@ -666,7 +674,7 @@ class ls_shop_checkoutData {
 		if ($what == 'payment') {
 
 			// ### paymentMethod callback ########################
-			$obj_paymentModule = \System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
+			$obj_paymentModule = System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
 			$obj_paymentModule->afterPaymentMethodAdditionalDataConfirm();
 			// ###################################################
 
@@ -674,14 +682,14 @@ class ls_shop_checkoutData {
 
 		$this->writeCheckoutDataToSession();
 
-		\Controller::redirect(\Environment::get('request').'#'.$what);
+		Controller::redirect(Environment::get('request').'#'.$what);
 	}
 
 	/*
 	 * Diese Funktion wird über einen Hook aufgerufen, wenn ein Formularfeld geladen wird.
 	 * Abhängig davon, um welches Formular es sich handelt, werden die passenden internen Funktionen aufgerufen.
 	 */
-	public function ls_shop_loadFormField(\Widget $objWidget, $strForm, $arrForm) {
+	public function ls_shop_loadFormField(Widget $objWidget, $strForm, $arrForm) {
 		if ($arrForm['id'] == $this->formCustomerDataID) {
 			return $this->loadCustomerDataFormField($objWidget, $strForm, $arrForm);
 		} else if ($arrForm['id'] == $this->formPaymentMethodAdditionalDataID) {
@@ -697,7 +705,7 @@ class ls_shop_checkoutData {
 	 * Es wird geprüft, ob das Formularfeld vorausgefüllt werden soll. Dies ist der Fall, 
 	 * wenn der Inhalt des Feldes bereits im Checkout-Data-Objekt hinterlegt ist.
 	 */
-	private function loadCustomerDataFormField(\Widget $objWidget, $strForm, $arrForm) {
+	private function loadCustomerDataFormField(Widget $objWidget, $strForm, $arrForm) {
 		return ls_shop_generalHelper::prefillFormField($objWidget, $this->arrCheckoutData['arrCustomerData']);
 	}
 	
@@ -705,7 +713,7 @@ class ls_shop_checkoutData {
 	 * Es wird geprüft, ob das Formularfeld vorausgefüllt werden soll. Dies ist der Fall, 
 	 * wenn der Inhalt des Feldes bereits im Checkout-Data-Objekt hinterlegt ist.
 	 */
-	private function loadPaymentOrShippingMethodAdditionalDataFormField(\Widget $objWidget, $strForm, $arrForm, $what = 'payment') {
+	private function loadPaymentOrShippingMethodAdditionalDataFormField(Widget $objWidget, $strForm, $arrForm, $what = 'payment') {
 		if ($what != 'payment' && $what != 'shipping') {
 			return $objWidget;
 		}
@@ -723,17 +731,17 @@ class ls_shop_checkoutData {
 		}
 
 		if (
-				\Input::get('selectPaymentOrShipping')
-			&&	\Input::get('selectPaymentOrShipping') === $what
-			&&	\Input::get('id')
+				Input::get('selectPaymentOrShipping')
+			&&	Input::get('selectPaymentOrShipping') === $what
+			&&	Input::get('id')
 		) {
 
-			$this->arrCheckoutData['selected'.ucfirst($what).'Method'] = (int) \Input::get('id');
+			$this->arrCheckoutData['selected'.ucfirst($what).'Method'] = (int) Input::get('id');
 			$this->arrCheckoutData['selected'.ucfirst($what).'MethodManually'] = true;
 
 			if ($what == 'payment') {
 				// ### paymentMethod callback ########################
-				$obj_paymentModule = \System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
+				$obj_paymentModule = System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
 				$obj_paymentModule->afterPaymentMethodSelection();
 				// ###################################################
 			}
@@ -741,25 +749,25 @@ class ls_shop_checkoutData {
 			if ($what == 'payment') {
 				if (isset($GLOBALS['MERCONIS_HOOKS']['paymentOptionSelected']) && is_array($GLOBALS['MERCONIS_HOOKS']['paymentOptionSelected'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['paymentOptionSelected'] as $mccb) {
-						$objMccb = \System::importStatic($mccb[0]);
-						$objMccb->{$mccb[1]}((int) \Input::get('id'));
+						$objMccb = System::importStatic($mccb[0]);
+						$objMccb->{$mccb[1]}((int) Input::get('id'));
 					}
 				}
 			} else if ($what == 'shipping') {
 				if (isset($GLOBALS['MERCONIS_HOOKS']['shippingOptionSelected']) && is_array($GLOBALS['MERCONIS_HOOKS']['shippingOptionSelected'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['shippingOptionSelected'] as $mccb) {
-						$objMccb = \System::importStatic($mccb[0]);
-						$objMccb->{$mccb[1]}((int) \Input::get('id'));
+						$objMccb = System::importStatic($mccb[0]);
+						$objMccb->{$mccb[1]}((int) Input::get('id'));
 					}
 				}
 			}
 
 			$this->writeCheckoutDataToSession();
 
-			\Controller::redirect(\LeadingSystems\Helpers\getUrlWithoutParameters(array('selectPaymentOrShipping', 'id')));
+			Controller::redirect(\LeadingSystems\Helpers\getUrlWithoutParameters(array('selectPaymentOrShipping', 'id')));
 		}
 
-        $objMethod = \Database::getInstance()->prepare("
+        $objMethod = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_shipping_methods`
 			WHERE		`id` = ?
@@ -772,7 +780,7 @@ class ls_shop_checkoutData {
             $this->arrCheckoutData['selected'.ucfirst($what).'Method'] = "";
         }
 
-		$obj_templateForPaymentOrShippingSelection = new \FrontendTemplate('template_paymentAndShippingSelect');
+		$obj_templateForPaymentOrShippingSelection = new FrontendTemplate('template_paymentAndShippingSelect');
 		$obj_templateForPaymentOrShippingSelection->arr_availableOptions = ls_shop_generalHelper::getPaymentOrShippingMethods($what);
 		$obj_templateForPaymentOrShippingSelection->int_selectedOptionId = $this->arrCheckoutData['selected'.ucfirst($what).'Method'];
 		$obj_templateForPaymentOrShippingSelection->str_selectWhat = $what;
@@ -827,7 +835,7 @@ class ls_shop_checkoutData {
 				break;
 				
 			case 'withLogin':
-				if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+				if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 					return true;
 				} else {
 					return false;
@@ -856,7 +864,7 @@ class ls_shop_checkoutData {
 	 * no payment or shipping function has been selected yet, selects it.
 	 */
 	private function preselectPaymentOrShippingMethod() {
-		if (\Input::post('isAjax')) {
+		if (Input::post('isAjax')) {
 			return;
 		}
 
@@ -912,7 +920,7 @@ class ls_shop_checkoutData {
 				if ($this->arrCheckoutData['cheapestPossiblePaymentMethod']) {
 					$this->arrCheckoutData['selectedPaymentMethod'] = $this->arrCheckoutData['cheapestPossiblePaymentMethod'];
 					// ### paymentMethod callback ########################
-					$obj_paymentModule = \System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
+					$obj_paymentModule = System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
 					$obj_paymentModule->afterPaymentMethodSelection();
 					// ###################################################
 
@@ -923,7 +931,7 @@ class ls_shop_checkoutData {
 					$this->arrCheckoutData['selectedPaymentMethod'] = $groupInfo['lsShopStandardPaymentMethod'];
 					$this->arrCheckoutData['selectedPaymentMethodManually'] = true;
 					// ### paymentMethod callback ########################
-					$obj_paymentModule = \System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
+					$obj_paymentModule = System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
 					$obj_paymentModule->afterPaymentMethodSelection();
 					// ###################################################
 
@@ -957,8 +965,8 @@ class ls_shop_checkoutData {
 
 		if ($blnReloadRequired) {
 			if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-				if (!\Environment::get('isAjaxRequest')) {
-					\Controller::reload();
+				if (!Environment::get('isAjaxRequest')) {
+					Controller::reload();
 				}
 			}
 		}
@@ -977,7 +985,7 @@ class ls_shop_checkoutData {
                 return $blnIsValid;
             } else {
 
-                $objMethod = \Database::getInstance()->prepare("
+                $objMethod = Database::getInstance()->prepare("
                 SELECT		*
                 FROM		`tl_ls_shop_shipping_methods`
                 WHERE		`id` = ?
@@ -995,9 +1003,9 @@ class ls_shop_checkoutData {
 					if (!ls_shop_generalHelper::checkIfPaymentMethodIsAllowed($this->arrCheckoutData['selectedPaymentMethod'])) {
 						$this->arrCheckoutData['selectedPaymentMethod'] = '';
 						if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-							if (!\Environment::get('isAjaxRequest')) {
+							if (!Environment::get('isAjaxRequest')) {
 								$this->writeCheckoutDataToSession();
-								\Controller::reload();
+								Controller::reload();
 							}
 						}
 					}
@@ -1007,9 +1015,9 @@ class ls_shop_checkoutData {
 					if (!ls_shop_generalHelper::checkIfShippingMethodIsAllowed($this->arrCheckoutData['selectedShippingMethod'])) {
 						$this->arrCheckoutData['selectedShippingMethod'] = '';
 						if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-							if (!\Environment::get('isAjaxRequest')) {
+							if (!Environment::get('isAjaxRequest')) {
 								$this->writeCheckoutDataToSession();
-								\Controller::reload();
+								Controller::reload();
 							}
 						}
 					}
@@ -1020,7 +1028,7 @@ class ls_shop_checkoutData {
 		if ($what == 'payment') {
 
 			// ### paymentMethod callback ########################
-			$obj_paymentModule = \System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
+			$obj_paymentModule = System::importStatic('Merconis\Core\ls_shop_paymentModule', null, true);
 			if (!$obj_paymentModule->statusOkayToRedirectToCheckoutFinish()) {
 				$blnIsValid = false;
 				return $blnIsValid;				
@@ -1092,8 +1100,8 @@ class ls_shop_checkoutData {
 	 * Diese Funktion wird über einen Hook nach erfolgtem Login ausgeführt und
 	 * hinterlegt die nun verfügbaren Benutzerdaten im Checkout-Data-Array
 	 */
-	public function ls_shop_postLogin (\FrontendUser $objUser) {
-		/** @var \PageModel $objPage */
+	public function ls_shop_postLogin (FrontendUser $objUser) {
+		/** @var PageModel $objPage */
 		global $objPage;
 
 		$this->arrCheckoutData['loggedInData']['userID'] = $objUser->id;
@@ -1113,7 +1121,7 @@ class ls_shop_checkoutData {
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['afterCustomerDataHasBeenPrefilledAfterLogin']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterCustomerDataHasBeenPrefilledAfterLogin'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['afterCustomerDataHasBeenPrefilledAfterLogin'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 $this->arrCheckoutData = $objMccb->{$mccb[1]}($objUser, $this->arrCheckoutData);
             }
         }
@@ -1127,7 +1135,7 @@ class ls_shop_checkoutData {
 		 * auf die selbe Seite mit passendem Anchor statt.
 		 */
 		if (($objPage->id ?? null) == ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id')) {
-			\Controller::redirect(\Environment::get('request').'#customerData');
+			Controller::redirect(Environment::get('request').'#customerData');
 		}
 	}
 	

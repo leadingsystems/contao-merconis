@@ -2,7 +2,10 @@
 
 namespace Merconis\Core;
 
-	use Contao\StringUtil;
+	use Contao\Database;
+    use Contao\Environment;
+    use Contao\Input;
+    use Contao\StringUtil;
     use Contao\System;
 
     class ls_shop_paymentModule_sofortueberweisung extends ls_shop_paymentModule_standard {
@@ -45,7 +48,7 @@ namespace Merconis\Core;
 			
 			// make an absolute URL
 			if (!preg_match('@^https?://@i', $afterCheckoutUrl)) {
-				$afterCheckoutUrl = \Environment::get('base') . $afterCheckoutUrl;
+				$afterCheckoutUrl = Environment::get('base') . $afterCheckoutUrl;
 			}
 			/*
 			 * ----------
@@ -237,7 +240,7 @@ namespace Merconis\Core;
 			}
 			
 			// Update the order record with the changed payment information
-			\Database::getInstance()->prepare("
+			Database::getInstance()->prepare("
 				UPDATE	`tl_ls_shop_orders`
 				SET		`paymentMethod_moduleReturnData` = ?
 				WHERE	`id` = ?
@@ -255,8 +258,8 @@ namespace Merconis\Core;
 		 * calls or the call of the abort url.
 		 */
 		public function onAfterCheckoutPage($order = array()) {
-			if (\Input::get('sue')) {
-				switch (\Input::get('sue')) {
+			if (Input::get('sue')) {
+				switch (Input::get('sue')) {
 					case 'aborted':
 						// write the error message to the special payment info and update the payment status in the order record
 						$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'];
@@ -272,7 +275,7 @@ namespace Merconis\Core;
 						 * redirect in order to get rid of the "aborted" value for the sue parameter which would cause
 						 * multiple abortions to be written to the order record if the user would reload the page with the url
 						 */
-						$this->redirect(preg_replace('/sue=aborted/', 'sue=failed', \Environment::get('request')));
+						$this->redirect(preg_replace('/sue=aborted/', 'sue=failed', Environment::get('request')));
 						break;
 					
 					case 'notification':

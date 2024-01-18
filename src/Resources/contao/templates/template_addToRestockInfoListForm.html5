@@ -1,13 +1,21 @@
+<?php
+
+use Contao\Environment;
+use Contao\StringUtil;
+use Contao\System;
+use Merconis\Core\ls_shop_msg;
+
+?>
 <!-- indexer::stop -->
 <div class="restockInfoListSwitchBox">
 	<?php
-		if (\Merconis\Core\ls_shop_msg::checkMsg('addedToRestockInfoList', $this->objProduct->_productVariantID)) {
+		if (ls_shop_msg::checkMsg('addedToRestockInfoList', $this->objProduct->_productVariantID)) {
 			?>
 			<div class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText147']; ?></div>
 			<?php
 		}
 
-		if (\Merconis\Core\ls_shop_msg::checkMsg('removedFromRestockInfoList', $this->objProduct->_productVariantID)) {
+		if (ls_shop_msg::checkMsg('removedFromRestockInfoList', $this->objProduct->_productVariantID)) {
 			?>
 			<div class="success"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText148']; ?></div>
 			<?php
@@ -15,9 +23,9 @@
 	?>
 	
 	<?php
-		if(\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+		if(System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			?>
-				<form action="<?php echo \Contao\StringUtil::ampersand(\Environment::get('request')); ?>" method="post" enctype="application/x-www-form-urlencoded">
+				<form action="<?php echo StringUtil::ampersand(Environment::get('request')); ?>" method="post" enctype="application/x-www-form-urlencoded">
 					<div>
 						<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
 						<input type="hidden" name="FORM_SUBMIT" value="<?php echo $this->str_formSubmitValue; ?>">

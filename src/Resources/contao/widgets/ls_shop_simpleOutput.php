@@ -2,7 +2,9 @@
 
 namespace Merconis\Core;
 
-class ls_shop_simpleOutput extends \Widget {
+use Contao\Widget;
+
+class ls_shop_simpleOutput extends Widget {
 
 	protected $blnSubmitInput = false;
 

@@ -2,6 +2,11 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\Module;
 use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
@@ -10,7 +15,7 @@ use LeadingSystems\Helpers\FlexWidget;
  * If the form that has just been submitted can be identified as the merconisProductSearch form, it's
  * data will be stored in the SESSION in order to make it accessible by a crossSeller.
  */
-class ModuleProductSearch extends \Module {
+class ModuleProductSearch extends Module {
 	public $arrLiveHitFields = array();
 	
 	public function generate() {
@@ -28,11 +33,11 @@ class ModuleProductSearch extends \Module {
         ];
 
 		if (
-			\Input::post('isAjax') == 1
+			Input::post('isAjax') == 1
 			&&	(
-				\Input::post('requestedClass') == __CLASS__
-				||	html_entity_decode(\Input::post('requestedClass')) == __CLASS__
-				||	'Merconis\\Core\\'.\Input::post('requestedClass') == __CLASS__
+				Input::post('requestedClass') == __CLASS__
+				||	html_entity_decode(Input::post('requestedClass')) == __CLASS__
+				||	'Merconis\\Core\\'.Input::post('requestedClass') == __CLASS__
 			)
 		) {
 			/*
@@ -44,7 +49,7 @@ class ModuleProductSearch extends \Module {
 		}
 		
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS ProductSearch ###';
 			return $objTemplate->parse();
 		}
@@ -61,10 +66,10 @@ class ModuleProductSearch extends \Module {
 			'error' => null
 		);
 		
-		if (!\Input::post('action')) {
+		if (!Input::post('action')) {
 			$response['error'] = 'no action defined';
 		} else {
-			switch (\Input::post('action')) {
+			switch (Input::post('action')) {
 				case 'getLiveHitsConfiguration':
 					$response['value'] = array(
 						'ls_shop_liveHitsMinLengthSearchTerm' => isset($GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm']) && $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm'] ? $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm'] : 0
@@ -78,7 +83,7 @@ class ModuleProductSearch extends \Module {
 					 */
 					$arrSearchCriteria = array(
 						'published' => '1',
-						'fulltext' => ls_shop_generalHelper::handleSearchWordMinLength(\Input::post('searchWord'), $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm'])
+						'fulltext' => ls_shop_generalHelper::handleSearchWordMinLength(Input::post('searchWord'), $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm'])
 					);
 					
 					if (isset($GLOBALS['MERCONIS_HOOKS']['beforeAjaxSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeAjaxSearch'])) {
@@ -140,7 +145,10 @@ class ModuleProductSearch extends \Module {
 						foreach ($this->arrLiveHitFields as $liveHitField) {
 							switch ($liveHitField) {
 								case '_mainImage':
-									$arrHit[$liveHitField] = \Image::get($objProduct->{$liveHitField}, $GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeWidth'], $GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeHeight'], 'box');
+                                    /*
+                                     * @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+                                     */
+									$arrHit[$liveHitField] = Image::get($objProduct->{$liveHitField}, $GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeWidth'], $GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeHeight'], 'box');
 									break;
 									
 								case '_priceAfterTaxFormatted':
@@ -148,7 +156,7 @@ class ModuleProductSearch extends \Module {
 									break;
 									
 								case '_linkToProduct':
-									$arrHit[$liveHitField] = \Environment::get('base').$objProduct->_linkToProduct;
+									$arrHit[$liveHitField] = Environment::get('base').$objProduct->_linkToProduct;
 									break;
 									
 								default:
@@ -171,9 +179,9 @@ class ModuleProductSearch extends \Module {
 	
 	public function compile() {
 		$this->strTemplate = $this->ls_shop_productSearch_template;
-		$this->Template = new \FrontendTemplate($this->strTemplate);
+		$this->Template = new FrontendTemplate($this->strTemplate);
 		
-		$this->Template->action = StringUtil::ampersand(\Environment::get('request'));
+		$this->Template->action = StringUtil::ampersand(Environment::get('request'));
 		$this->Template->blnUseLiveHits = isset($this->arrLiveHitFields) && is_array($this->arrLiveHitFields) && count($this->arrLiveHitFields);
 
 		$obj_flexWidget_input = new FlexWidget(
@@ -192,11 +200,11 @@ class ModuleProductSearch extends \Module {
 			)
 		);
 
-		if (\Input::post('FORM_SUBMIT') == 'merconisProductSearch') {
+		if (Input::post('FORM_SUBMIT') == 'merconisProductSearch') {
 			if (!$obj_flexWidget_input->bln_hasErrors) {
 				$_SESSION['lsShop']['productSearch'] = array(
                     'searchWord' => ls_shop_generalHelper::handleSearchWordMinLength($obj_flexWidget_input->getValue(), $this->ls_shop_productSearch_minlengthInput),
-                    'searchType' => \Input::post('searchType')
+                    'searchType' => Input::post('searchType')
                 );
 
 				$this->redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages', false));

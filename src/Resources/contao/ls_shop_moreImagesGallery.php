@@ -3,11 +3,16 @@
 namespace Merconis\Core;
 
 use Contao\ArrayUtil;
+use Contao\File;
+use Contao\FilesModel;
 use Contao\Folder;
+use Contao\Frontend;
+use Contao\FrontendTemplate;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 
-class ls_shop_moreImagesGallery extends \Frontend {
+class ls_shop_moreImagesGallery extends Frontend {
     protected $strTemplate = 'template_productGallery_01';
 
     protected $multiSRC = array();
@@ -104,7 +109,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
             ArrayUtil::arrayInsert($this->multiSRC, 0, $mainImage);
         }
         $this->id = $id;
-        $this->Template = new \FrontendTemplate($this->strTemplate);
+        $this->Template = new FrontendTemplate($this->strTemplate);
         $this->arrOverlays = $arrOverlays;
 
         $this->Template->images = array();
@@ -297,7 +302,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
     }
 
     protected function processSingleImage($file) {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
@@ -316,7 +321,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
 
         $arrOverlays = $this->arrOverlays;
 
-        $objFile = new \File($file, true);
+        $objFile = new File($file, true);
 
         /*
          * If the image is not a gd image we assume that it's a video. This means that images of the following types
@@ -346,7 +351,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
             $this->originalSRC = false;
         }
 
-        $objFileModel = \FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
+        $objFileModel = FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
         $arrMeta = array();
         if (is_object($objFileModel)) {
             $objFileModel->first();
@@ -418,7 +423,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
         $coverFile = $coverFile ? $coverFile : $filename;
 
         $filename = $coverFile;
-        return new \File($coverFile, true);
+        return new File($coverFile, true);
     }
 }
 ?>

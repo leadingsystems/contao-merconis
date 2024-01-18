@@ -1,6 +1,9 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
@@ -258,7 +261,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 			return null;
 		}
 		
-		if (\Input::get('payPalPlus_updateStatus') && \Input::get('payPalPlus_updateStatus') == $arrOrder['id']) {
+		if (Input::get('payPalPlus_updateStatus') && Input::get('payPalPlus_updateStatus') == $arrOrder['id']) {
 			$this->payPalPlus_updateSaleDetailsInOrderRecord($arrOrder['id']);
 			$this->redirect(ls_shop_generalHelper::getUrl(true, array('payPalPlus_updateStatus')));
 		}
@@ -344,13 +347,13 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 	}
 	
 	protected function payPalPlus_showAuthorizationStatus() {
-		$obj_template = new \FrontendTemplate('payPalPlusCustomUserInterface');
+		$obj_template = new FrontendTemplate('payPalPlusCustomUserInterface');
 		$obj_template->bln_paymentAuthorized = true;
 		return $obj_template->parse();		
 	}
 	
 	protected function payPalPlus_showPaymentWall() {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 		try {
 			$str_approvalUrl = $this->payPalPlus_createPayment();
@@ -362,7 +365,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 			$this->redirectToErrorPage(__METHOD__, 'no approval url received as a result of the call to '.__CLASS__.'::payPalPlus_createPayment');
 		}
 		
-		$obj_template = new \FrontendTemplate('payPalPlusCustomUserInterface');
+		$obj_template = new FrontendTemplate('payPalPlusCustomUserInterface');
 		$obj_template->bln_paymentAuthorized = false;
 		$obj_template->str_approvalUrl = $str_approvalUrl;
 		
@@ -513,7 +516,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 	}
 	
 	protected function payPalPlus_determineRedirectUrls() {
-		$this->payPalPlus_arr_returnUrls['return'] = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
+		$this->payPalPlus_arr_returnUrls['return'] = Environment::get('base').ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
 		$this->payPalPlus_arr_returnUrls['notAuthorized'] = $this->payPalPlus_arr_returnUrls['return'].(preg_match('/\?/', $this->payPalPlus_arr_returnUrls['return']) ? '&' : '?').'&approvedPayPalPlusPayment=no';
 		$this->payPalPlus_arr_returnUrls['authorized'] = $this->payPalPlus_arr_returnUrls['return'].(preg_match('/\?/', $this->payPalPlus_arr_returnUrls['return']) ? '&' : '?').'approvedPayPalPlusPayment=yes';
 	}
@@ -522,7 +525,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 		/*
 		 * This is not a return url call, so don't do anything.
 		 */
-		if (!\Input::get('approvedPayPalPlusPayment')) {
+		if (!Input::get('approvedPayPalPlusPayment')) {
 			return;
 		}
 		
@@ -530,9 +533,9 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 		 * Cancel url called, not authorized!
 		 */
 		if (
-				!filter_var(\Input::get('approvedPayPalPlusPayment'), FILTER_VALIDATE_BOOLEAN)
-			||	!\Input::get('paymentId')
-			||	!\Input::get('PayerID')
+				!filter_var(Input::get('approvedPayPalPlusPayment'), FILTER_VALIDATE_BOOLEAN)
+			||	!Input::get('paymentId')
+			||	!Input::get('PayerID')
 		) {
 			$this->payPalPlus_resetSessionStatus();
 			$this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentNotAuthorized']);
@@ -540,8 +543,8 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 		}
 		
 		$_SESSION['lsShopPaymentProcess']['payPalPlus']['authorized'] = true;
-		$_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId'] = \Input::get('paymentId');
-		$_SESSION['lsShopPaymentProcess']['payPalPlus']['PayerID'] = \Input::get('PayerID');
+		$_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId'] = Input::get('paymentId');
+		$_SESSION['lsShopPaymentProcess']['payPalPlus']['PayerID'] = Input::get('PayerID');
 		
 		$this->redirect($this->payPalPlus_arr_returnUrls['return'].'#checkoutStepPayment');
 	}

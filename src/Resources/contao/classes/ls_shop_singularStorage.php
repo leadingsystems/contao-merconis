@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\Database;
 use Contao\StringUtil;
 
 class ls_shop_singularStorage
@@ -72,7 +73,7 @@ class ls_shop_singularStorage
             $var_value = $var_value ? '1' : '';
         }
 
-        $obj_dbres = \Database::getInstance()
+        $obj_dbres = Database::getInstance()
             ->prepare("
                 SELECT		`" . $str_type . "_value`
                 FROM		`tl_ls_shop_singular_storage`
@@ -84,7 +85,7 @@ class ls_shop_singularStorage
 
         if (!$obj_dbres->numRows) {
             if ($var_value !== null) {
-                \Database::getInstance()
+                Database::getInstance()
                     ->prepare("
                         INSERT INTO	`tl_ls_shop_singular_storage`
                         SET			`key` = ?,
@@ -97,7 +98,7 @@ class ls_shop_singularStorage
             }
         } else {
             if ($var_value !== null) {
-                \Database::getInstance()
+                Database::getInstance()
                     ->prepare("
                         UPDATE		`tl_ls_shop_singular_storage`
                         SET			`" . $str_type . "_value` = ?
@@ -109,7 +110,7 @@ class ls_shop_singularStorage
                         $str_key
                     );
             } else {
-                \Database::getInstance()
+                Database::getInstance()
                     ->prepare("
                         DELETE FROM	`tl_ls_shop_singular_storage`
                         WHERE		`key` = ?
@@ -135,7 +136,7 @@ class ls_shop_singularStorage
     {
         $str_type = $this->getTypeFromKey($str_key);
 
-        $obj_dbres = \Database::getInstance()
+        $obj_dbres = Database::getInstance()
             ->prepare("
                 SELECT		`" . $str_type . "_value`
                 FROM		`tl_ls_shop_singular_storage`

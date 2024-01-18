@@ -4,6 +4,9 @@
  * This template is most likely being included in another template file.
  * If you duplicate this template, please make sure to adjust the include paths in the other file.
  */
+
+use Contao\System;
+
 ?>
 
 <?php
@@ -21,7 +24,7 @@ if ($this->allowCheckout == 'both') {
                         "
         data-misc-order-login-type="without-login"
     >
-        <div id="checkoutStepOrderLoginType" class="<?php echo \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() ? 'currently-logged-in' : 'currently-not-logged-in'; ?>">
+        <div id="checkoutStepOrderLoginType" class="<?php echo System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() ? 'currently-logged-in' : 'currently-not-logged-in'; ?>">
             <h3><i class="fas fa-user"></i>
                 <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText151']; ?>
             </h3>
@@ -29,7 +32,7 @@ if ($this->allowCheckout == 'both') {
             <button data-lsjs-element="toggler" data-lsjs-statusToggler-toggle-fixed-value="without-login" class="order-without-login"><span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText154']; ?></span></button>
 
             <?php
-            if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+            if (!System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                 ?>
                 <p class="sign-up-link"><?php echo $this->arrRequiredCheckoutData['signUpLink']; ?></p>
                 <?php
@@ -59,7 +62,7 @@ if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
                     >
                         <?php // ########## FE LOGIN ##########?>
                         <?php
-                        if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+                        if (!System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                             ?>
                             <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText034'][$this->allowCheckout]; ?></p>
                             <?php
@@ -67,7 +70,7 @@ if ($this->allowCheckout == 'both' || $this->allowCheckout == 'withLogin') {
                         ?>
                         {{insert_module::<?php echo $GLOBALS['TL_CONFIG']['ls_shop_loginModuleID']; ?>}}
                         <?php
-                        if ($this->allowCheckout == 'withLogin' && !\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+                        if ($this->allowCheckout == 'withLogin' && !System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
                             ?>
                             <p><?php echo $this->arrRequiredCheckoutData['signUpLink']; ?></p>
                             <?php
@@ -103,7 +106,7 @@ if ($this->allowCheckout == 'both') {
 
 	<div>
 		<?php
-			if ($this->allowCheckout != 'withLogin' || \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+			if ($this->allowCheckout != 'withLogin' || System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 				?>
 					<div
 						class="borderless formCustomerData form"

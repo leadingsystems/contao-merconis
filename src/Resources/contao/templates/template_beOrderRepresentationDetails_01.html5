@@ -48,6 +48,9 @@
 					?>
 					<tr class="<?php echo $oddEven ?>">
 						<td class="title">
+                            <!--
+                            @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+                            -->
 							<?php if ($cartItem['extendedInfo']['_hasMainImage']): ?><img src="<?php echo \Image::get($cartItem['extendedInfo']['_mainImage'], 60, 60, 'box'); ?>" alt="" /><?php endif; ?>
 							<?php echo $cartItem['extendedInfo']['_productTitle'].'<br />'.($cartItem['isVariant'] ? $cartItem['extendedInfo']['_title'] : ''); ?>
 							<?php if ($cartItem['extendedInfo']['_hasCode']) { echo ' ('.$cartItem['extendedInfo']['_code'].')'; } ?>

@@ -1,6 +1,9 @@
 <?php
 	// use this to show the available output options:
 	// echo $this->objProduct->_outputOptions;
+
+use Contao\System;
+
 ?>
 <tr class="space">
 	<td colspan="6">&nbsp;</td>
@@ -8,6 +11,9 @@
 <tr class="product">
 	<td>
 		<?php if ($this->objProduct->_hasMainImage): ?>
+                <!--
+                @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+                -->
 				<img src="<?php echo \Image::get($this->objProduct->_mainImage, 50, 50, 'box'); ?>" alt="" />
 		<?php endif; ?>
 	</td>
@@ -46,6 +52,9 @@
 				<tr class="variant">
 					<td>
 						<?php if ($variant->_hasMainImage): ?>
+                                <!--
+                                @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+                                -->
 								<img src="<?php echo \Image::get($this->objProduct->_mainImage, 50, 50, 'box'); ?>" alt="" />
 						<?php endif; ?>
 					</td>

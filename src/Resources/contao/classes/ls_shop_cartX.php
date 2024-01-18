@@ -1,6 +1,8 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Controller;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -68,7 +70,7 @@ class ls_shop_cartX {
                 }
 
                 if ($bln_reloadRequiredForGroupRestrictions) {
-                    \Controller::reload();
+                    Controller::reload();
                 }
             }
 
@@ -77,7 +79,7 @@ class ls_shop_cartX {
 				$GLOBALS['merconis_globals']['merconisHookInitializeCartControllerAlreadyProcessed'] = true;
 				if (isset($GLOBALS['MERCONIS_HOOKS']['initializeCartController']) && is_array($GLOBALS['MERCONIS_HOOKS']['initializeCartController'])) {
 					foreach ($GLOBALS['MERCONIS_HOOKS']['initializeCartController'] as $mccb) {
-						$objMccb = \System::importStatic($mccb[0]);
+						$objMccb = System::importStatic($mccb[0]);
 						$objMccb->{$mccb[1]}($_SESSION['lsShopCart'], self::$objInstance->itemsExtended, self::$objInstance->calculation);
 					}
 				}
@@ -377,7 +379,7 @@ class ls_shop_cartX {
 
             $couponValueForDetails = ls_shop_generalHelper::ls_roundPrice(($arrCouponInfo['extendedInfo']['couponValueType'] == 'percentaged' ? $arrTotalValueOfGoods[0] / 100 * $arrCouponInfo['extendedInfo']['couponValue'] : $arrCouponInfo['extendedInfo']['couponValue']));
 
-            $this->bln_coupon_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_coupon_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_coupon_debug'] && \System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
+            $this->bln_coupon_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_coupon_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_coupon_debug'] && System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
 
             if($this->bln_coupon_debug) {
                 foreach ($arrItems as $item) {

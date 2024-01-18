@@ -1,5 +1,9 @@
 <?php
 namespace Merconis\Core;
+use Contao\Controller;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
@@ -38,15 +42,15 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
     public function getCustomUserInterface() {
 
-        if(\Input::post('payPalCheckout_reset')){
+        if(Input::post('payPalCheckout_reset')){
             $this->payPalCheckout_resetSessionStatus();
-            \Controller::reload();
+            Controller::reload();
         }
-        if (\Input::post('payPalCheckout_orderId') && \Input::post('payPalCheckout_authorizationId')) {
-            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'] = \Input::post('payPalCheckout_orderId');
-            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'] = \Input::post('payPalCheckout_authorizationId');
+        if (Input::post('payPalCheckout_orderId') && Input::post('payPalCheckout_authorizationId')) {
+            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'] = Input::post('payPalCheckout_orderId');
+            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'] = Input::post('payPalCheckout_authorizationId');
             $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorized'] = true;
-            \Controller::reload();
+            Controller::reload();
         }
         if ($this->payPalCheckout_check_paymentIsAuthorized()) {
             return $this->payPalCheckout_showAuthorizationStatus();
@@ -439,7 +443,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         if (!count($arrOrder) || !$paymentMethod_moduleReturnData) {
             return null;
         }
-        if (\Input::get('payPalCheckout_updateStatus') && \Input::get('payPalCheckout_updateStatus') == $arrOrder['id']) {
+        if (Input::get('payPalCheckout_updateStatus') && Input::get('payPalCheckout_updateStatus') == $arrOrder['id']) {
             $this->payPalCheckout_updateSaleDetailsInOrderRecord($arrOrder['id']);
             $this->redirect(ls_shop_generalHelper::getUrl(true, array('payPalCheckout_updateStatus')));
         }
@@ -523,15 +527,15 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         );
     }
     protected function payPalCheckout_showAuthorizationStatus() {
-        $obj_template = new \FrontendTemplate('payPalCheckoutCustomUserInterface');
+        $obj_template = new FrontendTemplate('payPalCheckoutCustomUserInterface');
         $obj_template->bln_paymentAuthorized = true;
         return $obj_template->parse();
     }
     protected function payPalCheckout_showPaymentWall() {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
         $orderId = $this->payPalCheckout_createOrder();
-        $obj_template = new \FrontendTemplate('payPalCheckoutCustomUserInterface');
+        $obj_template = new FrontendTemplate('payPalCheckoutCustomUserInterface');
         $obj_template->clientId = $this->arrCurrentSettings['payPalCheckout_clientID'];
         $obj_template->bln_paymentAuthorized = false;
         $obj_template->orderId = $orderId;

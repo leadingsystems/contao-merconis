@@ -2,17 +2,21 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\Module;
 use Contao\System;
 
-class ModuleProductOverview extends \Module {
+class ModuleProductOverview extends Module {
 	public function generate() {
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS ProductOverview ###';
 			return $objTemplate->parse();
 		}
 		
-		if (\Input::get('product')) {
+		if (Input::get('product')) {
 			return '';
 		}
 		
@@ -28,7 +32,7 @@ class ModuleProductOverview extends \Module {
             $this->ls_shop_productOverviewStartLevel,
             $this->ls_shop_productOverviewStopLevel
         );
-		$this->Template = new \FrontendTemplate('productOverview');
+		$this->Template = new FrontendTemplate('productOverview');
 		$this->Template->output = $objProductList->parseOutput();
 	}
 }

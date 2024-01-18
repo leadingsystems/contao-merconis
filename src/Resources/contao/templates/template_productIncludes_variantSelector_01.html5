@@ -1,5 +1,10 @@
 <?php
-    $bln_calledFromLsjsVariantSelector = false;
+
+use Contao\Environment;
+use Contao\Input;
+use Contao\System;
+
+$bln_calledFromLsjsVariantSelector = false;
 
 	if ($this->objProduct->_hasVariants) {
 		/*
@@ -23,16 +28,16 @@
 		}
 		
 		if (
-				\Input::post('FORM_SUBMIT') == 'variantSelectionForm_'.$this->objProduct->_id
-			||	\Input::post('FORM_SUBMIT') == 'variantSelectionForm_'.$this->objProduct->_productVariantID
+				Input::post('FORM_SUBMIT') == 'variantSelectionForm_'.$this->objProduct->_id
+			||	Input::post('FORM_SUBMIT') == 'variantSelectionForm_'.$this->objProduct->_productVariantID
 		) {
-			if (\Input::post('json_attributeValueSelection')) {
+			if (Input::post('json_attributeValueSelection')) {
                 $bln_calledFromLsjsVariantSelector = true;
-				$arrRequestedAttributeValues = json_decode(html_entity_decode(\Input::post('json_attributeValueSelection')), true);
+				$arrRequestedAttributeValues = json_decode(html_entity_decode(Input::post('json_attributeValueSelection')), true);
 			} else {
 				$arrRequestedAttributeValues = array();
 				foreach ($attributeFormFields as $attributeID => $str_formField) {
-					$arrRequestedAttributeValues[$attributeID] = \Input::post('attribute_'.$attributeID);
+					$arrRequestedAttributeValues[$attributeID] = Input::post('attribute_'.$attributeID);
 				}
 			}
 
@@ -72,7 +77,7 @@
 			data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
 			data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
 		>
-			<form action="<?php echo \Environment::get('request'); ?>" class="tl_form" method="post">
+			<form action="<?php echo Environment::get('request'); ?>" class="tl_form" method="post">
 				<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
 				<input type="hidden" name="FORM_SUBMIT" value="variantSelectionForm_<?php echo $this->objProduct->_id; ?>">
 				<?php

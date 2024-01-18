@@ -2,6 +2,10 @@
 
 namespace Merconis\Core;
 
+use Contao\Database;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\Input;
 use Contao\StringUtil;
 use LeadingSystems\Helpers\FlexWidget;
 
@@ -73,7 +77,7 @@ class ls_shop_filterController
 		 * we replace the wildcard with this fronted module id with the generated filter form html code.
 		 */
 		foreach ($arrFilterFormFrontendModuleIDs as $filterFormFrontendModuleID) {
-			$objFEModule = \Database::getInstance()->prepare("
+			$objFEModule = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_module`
 				WHERE		`id` = ?
@@ -108,8 +112,8 @@ class ls_shop_filterController
 		/*
 		 * Create the template given in the frontend module record
 		 */
-		$obj_template = new \FrontendTemplate($objFEModule->ls_shop_filterForm_template);
-		$obj_template->request = \Environment::get('request');
+		$obj_template = new FrontendTemplate($objFEModule->ls_shop_filterForm_template);
+		$obj_template->request = Environment::get('request');
 		$obj_template->arr_filterSummaryData = \Merconis\Core\ls_shop_filterHelper::getFilterSummary();
 		$obj_template->str_filterSummaryHtml = trim(\Merconis\Core\ls_shop_filterHelper::getFilterSummaryHtml($objFEModule));
 
@@ -120,7 +124,7 @@ class ls_shop_filterController
 		if (
 			isset($GLOBALS['merconis_globals']['ls_shop_hideFilterFormInProductDetails'])
 			&& $GLOBALS['merconis_globals']['ls_shop_hideFilterFormInProductDetails']
-			&& \Input::get('product')
+			&& Input::get('product')
 		) {
 			/*
 			 * If we are in a product details view (as indicated by the existing get parameter "product")
@@ -377,7 +381,7 @@ class ls_shop_filterController
 				/*
 				 * Price widget
 				 */
-				$obj_template_priceFilterField = new \FrontendTemplate($objWidget_filterField['str_template']);
+				$obj_template_priceFilterField = new FrontendTemplate($objWidget_filterField['str_template']);
 				$obj_template_priceFilterField->objWidget_filterField = $objWidget_filterField;
 				$arrWidgets_filterFields[] = $obj_template_priceFilterField->parse();
 				continue;
@@ -402,8 +406,8 @@ class ls_shop_filterController
 	 */
 	public function processSentFilterSettings()
 	{
-		if (\Input::post('FORM_SUBMIT') == 'filterForm') {
-			if (\Input::post('resetFilter')) {
+		if (Input::post('FORM_SUBMIT') == 'filterForm') {
+			if (Input::post('resetFilter')) {
 				ls_shop_filterHelper::resetFilter();
 				return;
 			}

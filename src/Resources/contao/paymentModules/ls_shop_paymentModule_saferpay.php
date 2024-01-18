@@ -1,6 +1,9 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Date;
+use Contao\Environment;
+use Contao\Input;
 use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -68,7 +71,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			
 			// make an absolute URL
 			if (!preg_match('@^https?://@i', $afterCheckoutUrl)) {
-				$afterCheckoutUrl = \Environment::get('base') . $afterCheckoutUrl;
+				$afterCheckoutUrl = Environment::get('base') . $afterCheckoutUrl;
 			}
 			/*
 			 * ----------
@@ -132,8 +135,8 @@ use function LeadingSystems\Helpers\ls_sub;
 			$arr_statusAllEntries = array_reverse($arr_paymentMethod_moduleReturnData['arr_status']);
 			$arr_currentStatus = $arr_statusAllEntries[0];
 			
-			if (\Input::get('saferpay_cancel') == $arr_order['id']) {
-				$str_request = StringUtil::ampersand(\Environment::get('request'), true);
+			if (Input::get('saferpay_cancel') == $arr_order['id']) {
+				$str_request = StringUtil::ampersand(Environment::get('request'), true);
 				$str_request = preg_replace('/&amp;saferpay_cancel=[0-9]*/', '', $str_request);
 				
 				try {
@@ -167,8 +170,8 @@ use function LeadingSystems\Helpers\ls_sub;
 				$this->redirect($str_request);
 			}
 			
-			if (\Input::get('saferpay_capture') == $arr_order['id']) {
-				$str_request = StringUtil::ampersand(\Environment::get('request'), true);
+			if (Input::get('saferpay_capture') == $arr_order['id']) {
+				$str_request = StringUtil::ampersand(Environment::get('request'), true);
 				$str_request = preg_replace('/&amp;saferpay_capture=[0-9]*/', '', $str_request);
 				
 				try {
@@ -229,7 +232,7 @@ use function LeadingSystems\Helpers\ls_sub;
 									isset($arr_paymentMethod_moduleReturnData['str_transactionId']) && $arr_paymentMethod_moduleReturnData['str_transactionId']
 								&&	$arr_currentStatus['str_statusValue'] === 'AUTHORIZED'
 							) {
-								$str_request = StringUtil::ampersand(\Environment::get('request'), true);
+								$str_request = StringUtil::ampersand(Environment::get('request'), true);
 								$str_request .= '&saferpay_capture='.$arr_order['id'];
 								?>
 								<a onclick="Backend.getScrollOffset();" href="<?php echo $str_request; ?>">
@@ -245,7 +248,7 @@ use function LeadingSystems\Helpers\ls_sub;
 									isset($arr_paymentMethod_moduleReturnData['str_transactionId']) && $arr_paymentMethod_moduleReturnData['str_transactionId']
 								&&	($arr_currentStatus['str_statusValue'] === 'AUTHORIZED' || $arr_currentStatus['str_statusValue'] === 'CAPTURED')
 							) {
-								$str_request = StringUtil::ampersand(\Environment::get('request'), true);
+								$str_request = StringUtil::ampersand(Environment::get('request'), true);
 								$str_request .= '&saferpay_cancel='.$arr_order['id'];
 								?>
 								<a onclick="Backend.getScrollOffset();" href="<?php echo $str_request; ?>">
@@ -316,8 +319,8 @@ use function LeadingSystems\Helpers\ls_sub;
 		 * situations, including notifications
 		 */
 		public function onAfterCheckoutPage($arr_order = array()) {
-			if (\Input::get('saferpay_action')) {
-				switch (\Input::get('saferpay_action')) {
+			if (Input::get('saferpay_action')) {
+				switch (Input::get('saferpay_action')) {
 					case 'abort':
 						/*
 						 * write the error message to the special payment info
@@ -341,7 +344,7 @@ use function LeadingSystems\Helpers\ls_sub;
 						 * abortions to be written to the order record if the user
 						 * would reload the page with the same url.
 						 */
-						$this->redirect(preg_replace('/saferpay_action=abort/', 'saferpay_action=abort_handled', \Environment::get('request')));
+						$this->redirect(preg_replace('/saferpay_action=abort/', 'saferpay_action=abort_handled', Environment::get('request')));
 						break;
 					
 					case 'fail':
@@ -367,7 +370,7 @@ use function LeadingSystems\Helpers\ls_sub;
 						 * abortions to be written to the order record if the user
 						 * would reload the page with the same url.
 						 */
-						$this->redirect(preg_replace('/saferpay_action=fail/', 'saferpay_action=fail_handled', \Environment::get('request')));
+						$this->redirect(preg_replace('/saferpay_action=fail/', 'saferpay_action=fail_handled', Environment::get('request')));
 						break;
 					
 					case 'success':
@@ -509,7 +512,7 @@ use function LeadingSystems\Helpers\ls_sub;
 						'CurrencyCode' => $arr_order['currency']
 					),
 					'OrderId' => $arr_order['orderNr'],
-					'Description' => sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentDescription'], $arr_order['orderNr'], \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $arr_order['orderDateUnixTimestamp']), ls_shop_generalHelper::outputPrice($arr_order['invoicedAmount'])),
+					'Description' => sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentDescription'], $arr_order['orderNr'], Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $arr_order['orderDateUnixTimestamp']), ls_shop_generalHelper::outputPrice($arr_order['invoicedAmount'])),
 					'PayerNote' => $arr_order['orderNr']
 				),
 				

@@ -2,9 +2,11 @@
 
 namespace Merconis\Core;
 
-	class ls_shop_custom_regexp
+	use Contao\Widget;
+
+    class ls_shop_custom_regexp
 	{
-		public function customRegexp($strRegexp, &$varValue, \Widget $objWidget) {
+		public function customRegexp($strRegexp, &$varValue, Widget $objWidget) {
 			if ($strRegexp == 'oneNumber') {
 				if (!preg_match('/^[0-9]{1}$/siU', $varValue)) {
 					$objWidget->addError(sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['oneNumber'], $objWidget->label));

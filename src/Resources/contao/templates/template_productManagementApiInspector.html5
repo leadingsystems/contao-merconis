@@ -1,9 +1,16 @@
-<?php global $objPage; ?>
+<?php
+
+use Contao\Environment;
+use Contao\System;
+
+global $objPage;
+
+?>
 
 <div
 	data-merconis-component="product-management-api-test"
 	data-merconis-http-request-method="<?php echo $this->str_httpRequestMethod; ?>"
-	data-merconis-absolute-request-url="<?php echo \Environment::get('base'); ?><?php echo $this->str_apiResourceUrl; ?>"
+	data-merconis-absolute-request-url="<?php echo Environment::get('base'); ?><?php echo $this->str_apiResourceUrl; ?>"
 	data-merconis-response-type="<?php echo $this->str_responseType; ?>"
 	data-merconis-expects-multiple-data-rows="<?php echo $this->bln_expectsMultipleDataRows; ?>"
 >
@@ -23,7 +30,7 @@
 	<?php if ($this->str_selectedResource) { ?>
 		<h2><?php echo $this->str_selectedResource; ?></h2>
 		<p><?php echo $this->str_resourceDescription; ?></p>
-		<p><strong>Absolute resource URL:</strong> <?php echo \Environment::get('base'); ?><?php echo $this->str_apiResourceUrl; ?></p>
+		<p><strong>Absolute resource URL:</strong> <?php echo Environment::get('base'); ?><?php echo $this->str_apiResourceUrl; ?></p>
 		<p><strong>Relative resource URL:</strong> <?php echo $this->str_apiResourceUrl; ?></p>
 		<div class="dataInput">
 			<h2>Input</h2>
