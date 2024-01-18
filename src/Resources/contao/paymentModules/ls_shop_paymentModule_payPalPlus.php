@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Environment;
 use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\PageModel;
