@@ -2,8 +2,11 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Image;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
@@ -146,7 +149,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 	)
 );
 
-class ls_shop_attribute_values extends \Backend {
+class ls_shop_attribute_values extends Backend {
 	public function __construct() {
 		parent::__construct();
 	}
@@ -155,7 +158,7 @@ class ls_shop_attribute_values extends \Backend {
 		return sprintf('<strong>%s</strong> <span style="font-style: italic;">(Alias: %s)</span>', $arrRow['title'], $arrRow['alias']);
 	}
 
-	public function generateAlias($varValue, \DataContainer $dc) {
+	public function generateAlias($varValue, DataContainer $dc) {
 		$autoAlias = false;
 
 		$currentTitle = isset($dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()}) && $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} ? $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} : $dc->activeRecord->title;
@@ -163,9 +166,9 @@ class ls_shop_attribute_values extends \Backend {
 		// Generate an alias if there is none
 		if ($varValue == '') {
 			$autoAlias = true;
-			$varValue = \StringUtil::generateAlias($currentTitle);
+			$varValue = StringUtil::generateAlias($currentTitle);
 		}
-		$objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_attribute_values WHERE id=? OR alias=?")
+		$objAlias = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_attribute_values WHERE id=? OR alias=?")
 								   ->execute($dc->id, $varValue);
 
 		// Check whether the alias exists
@@ -188,9 +191,9 @@ class ls_shop_attribute_values extends \Backend {
 		$attributesAndValuesCurrentlyInUse = ls_shop_generalHelper::getAttributesAndValuesCurrentlyInUse();
 		
 		if (!in_array($row['id'], $attributesAndValuesCurrentlyInUse['arrValueIDs'])) {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
 		} else {
-			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+			$button = Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 		
 		return $button;

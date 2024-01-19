@@ -2,14 +2,17 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\FrontendTemplate;
+use Contao\Module;
 use Contao\System;
 
-class ModuleFilterForm extends \Module
+class ModuleFilterForm extends Module
 {
 	public function generate()
 	{
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS filter form ###';
 			return $objTemplate->parse();
 		}
@@ -44,7 +47,7 @@ class ModuleFilterForm extends \Module
 			return;
 		}
 
-		$this->Template = new \FrontendTemplate('filterFormPlaceholder');
+		$this->Template = new FrontendTemplate('filterFormPlaceholder');
 		$this->Template->filterFormFrontendModuleID = $this->id;
 	}
 }

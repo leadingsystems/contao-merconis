@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\StringUtil;
@@ -354,7 +356,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 
 
 
-class tl_ls_shop_message_model_controller extends \Backend {
+class tl_ls_shop_message_model_controller extends Backend {
 
 	public function __construct() {
 		parent::__construct();
@@ -368,7 +370,7 @@ class tl_ls_shop_message_model_controller extends \Backend {
 		
 		$memberGroupName = '';
 		foreach ($arrRow['member_group'] as $memberGroup) {
-			$objMemberGroup = \Database::getInstance()->prepare("
+			$objMemberGroup = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_member_group`
 				WHERE		`id` = ?

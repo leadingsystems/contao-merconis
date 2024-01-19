@@ -2,11 +2,15 @@
 
 namespace Merconis\Core;
 
-	use Contao\CoreBundle\Monolog\ContaoContext;
+	use Contao\Controller;
+    use Contao\CoreBundle\Monolog\ContaoContext;
+    use Contao\Database;
+    use Contao\Environment;
+    use Contao\PageModel;
     use Contao\StringUtil;
     use Contao\System;
 
-    class ls_shop_paymentModule_standard extends \Controller {
+    class ls_shop_paymentModule_standard extends Controller {
 		public function logPaymentError($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '', $bln_resetSelectedPaymentMethod = true) {
 			## fixEndlessRecursionOnPaymentError begin ##
 			/*
@@ -64,7 +68,7 @@ namespace Merconis\Core;
 				return null;
 			}
 			
-			$obj_dbres_moduleReturnData = \Database::getInstance()->prepare("
+			$obj_dbres_moduleReturnData = Database::getInstance()->prepare("
 				SELECT		`paymentMethod_moduleReturnData`
 				FROM		`tl_ls_shop_orders`
 				WHERE		`id` = ?
@@ -87,7 +91,7 @@ namespace Merconis\Core;
 				$var_paymentMethod_moduleReturnData = serialize($var_paymentMethod_moduleReturnData);
 			}
 			
-			$obj_dbquery = \Database::getInstance()->prepare("
+			$obj_dbquery = Database::getInstance()->prepare("
 				UPDATE	`tl_ls_shop_orders`
 				SET		`paymentMethod_moduleReturnData` = ?
 				WHERE	`id` = ?
@@ -105,7 +109,7 @@ namespace Merconis\Core;
 				$var_fieldValue = serialize($var_fieldValue);
 			}
 			
-			$obj_dbquery = \Database::getInstance()->prepare("
+			$obj_dbquery = Database::getInstance()->prepare("
 				UPDATE	`tl_ls_shop_orders`
 				SET		`".$str_fieldName."` = ?
 				WHERE	`id` = ?
@@ -120,7 +124,7 @@ namespace Merconis\Core;
 		}
 		
 		public function redirectToErrorPage($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '') {
-			/** @var \PageModel $objPage */
+			/** @var PageModel $objPage */
 			global $objPage;
 			
 			## fixEndlessRecursionOnPaymentError begin ##
@@ -151,7 +155,7 @@ namespace Merconis\Core;
 			) {
 				$this->redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutPaymentErrorPages'));
 			} else {
-                if (!\Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
+                if (!Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
                     $this->reload();
                 }
 			}
@@ -213,7 +217,7 @@ namespace Merconis\Core;
 		}
 
 		private function getPaymentMethodMessage($type = 'success') {
-			/** @var \PageModel $objPage */
+			/** @var PageModel $objPage */
 			global $objPage;
 			$msg = '';
 

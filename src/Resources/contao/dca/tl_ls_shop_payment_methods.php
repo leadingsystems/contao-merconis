@@ -3,8 +3,11 @@
 namespace Merconis\Core;
 
 use Contao\ArrayUtil;
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Image;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
@@ -828,12 +831,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
 
 
 
-class ls_shop_payment_methods extends \Backend {
+class ls_shop_payment_methods extends Backend {
     public function __construct() {
         parent::__construct();
     }
 
-    public function generateAlias($varValue, \DataContainer $dc) {
+    public function generateAlias($varValue, DataContainer $dc) {
         $autoAlias = false;
 
         $currentTitle = isset($dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()}) && $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} ? $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} : $dc->activeRecord->title;
@@ -841,9 +844,9 @@ class ls_shop_payment_methods extends \Backend {
         // Generate an alias if there is none
         if ($varValue == '') {
             $autoAlias = true;
-            $varValue = \StringUtil::generateAlias($currentTitle);
+            $varValue = StringUtil::generateAlias($currentTitle);
         }
-        $objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_payment_methods WHERE id=? OR alias=?")
+        $objAlias = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_payment_methods WHERE id=? OR alias=?")
             ->execute($dc->id, $varValue);
 
         // Check whether the alias exists
@@ -871,7 +874,7 @@ class ls_shop_payment_methods extends \Backend {
              */
             return;
         }
-        $objPaymentMethod = \Database::getInstance()->prepare("SELECT * FROM `tl_ls_shop_payment_methods` WHERE `id` = ?")
+        $objPaymentMethod = Database::getInstance()->prepare("SELECT * FROM `tl_ls_shop_payment_methods` WHERE `id` = ?")
             ->limit(1)
             ->execute($dc->id);
         $objPaymentMethod->first();
@@ -957,9 +960,9 @@ class ls_shop_payment_methods extends \Backend {
         $arr_methodIDsCurrentlyUsed = ls_shop_generalHelper::getPaymentOrShippingMethodsUsedInOrders('payment');
 
         if (!in_array($row['id'], $arr_methodIDsCurrentlyUsed)) {
-            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+            $button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
         } else {
-            $button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+            $button = Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
         }
 
         return $button;

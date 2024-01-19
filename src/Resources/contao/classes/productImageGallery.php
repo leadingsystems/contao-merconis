@@ -2,11 +2,16 @@
 
 namespace Merconis\Core;
 
+use Contao\File;
+use Contao\FilesModel;
+use Contao\Frontend;
+use Contao\FrontendTemplate;
+use Contao\PageModel;
 use Contao\System;
 use LeadingSystems\Helpers\ls_helpers_controller;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
-class productImageGallery extends \Frontend {
+class productImageGallery extends Frontend {
 
     //src for unprocessed Images
     protected $mainImageSRC = false;
@@ -72,7 +77,7 @@ class productImageGallery extends \Frontend {
 
         $this->sortingRandomizer = rand(0,99999);
 
-        $this->Template = new \FrontendTemplate($this->strTemplate);
+        $this->Template = new FrontendTemplate($this->strTemplate);
 
         $this->arrOverlays = $arrOverlays;
 
@@ -109,7 +114,7 @@ class productImageGallery extends \Frontend {
             }else if(!empty($this->getMoreImages())){
                 $this->mainImage = $this->getMoreImages()[0];
             }else if(isset($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])){
-                $this->mainImage = $this->processSingleImage(\FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
+                $this->mainImage = $this->processSingleImage(FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
             }
         }
         return $this->mainImage;
@@ -236,31 +241,32 @@ class productImageGallery extends \Frontend {
     }
 
     protected function processSingleImage($file) {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
 
         //check if _cover is in name
         if (preg_match('/_cover/siU', $file)) {
             $parts = explode("_cover.", $file);
             //check of there is a image for this cover or not, if not then this will be used as a normal product image
-            if (!preg_match('/\.mp4/siU', $file) && file_exists(TL_ROOT.'/'.$parts[0].".mp4")) {
+            if (!preg_match('/\.mp4/siU', $file) && file_exists($str_projectDir.'/'.$parts[0].".mp4")) {
                 return false;
 
             }
         }
 
-        if (isset($this->ls_images[$file]) || !file_exists(TL_ROOT.'/'.$file)) {
+        if (isset($this->ls_images[$file]) || !file_exists($str_projectDir.'/'.$file)) {
             return false;
         }
 
 
-        if (!is_file(TL_ROOT . '/' . $file)) {
+        if (!is_file($str_projectDir . '/' . $file)) {
             return false;
         }
 
         $arrOverlays = $this->arrOverlays;
 
-        $objFile = new \File($file, true);
+        $objFile = new File($file, true);
 
         /*
          * If the image is not a gd image we assume that it's a video. This means that images of the following types
@@ -291,7 +297,7 @@ class productImageGallery extends \Frontend {
             $this->originalSRC = false;
         }
 
-        $objFileModel = \FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
+        $objFileModel = FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
         $arrMeta = array();
         if (is_object($objFileModel)) {
             $objFileModel->first();
@@ -344,7 +350,7 @@ class productImageGallery extends \Frontend {
          */
         foreach ($this->arrImgSuffixes as $suffix) {
             $coverFilename2 = $coverFilename.'.'.$suffix;
-            if (is_file(TL_ROOT . '/' . $coverFilename2)) {
+            if (is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $coverFilename2)) {
                 /*
                  * If we have a match, that's our cover filename, so we break the loop and use this value
                  */
@@ -367,6 +373,6 @@ class productImageGallery extends \Frontend {
         $coverFile = $coverFile ? $coverFile : $filename;
 
         $filename = $coverFile;
-        return new \File($coverFile, true);
+        return new File($coverFile, true);
     }
 }

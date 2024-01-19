@@ -3,9 +3,10 @@
 
 namespace LeadingSystems\MerconisBundle\EventListener;
 
-use Contao\CoreBundle\Event\ContaoCoreEvents;
 use Contao\CoreBundle\Event\SitemapEvent;
-use Contao\CoreBundle\ServiceAnnotation\Page;
+use Contao\Database;
+use Contao\Environment;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use Merconis\Core\ls_shop_languageHelper;
@@ -31,7 +32,7 @@ class SitemapListener
             $str_columns .= ', `alias_'.$str_languageKey.'`';
         }
 
-        $objProducts = \Database::getInstance()
+        $objProducts = Database::getInstance()
             ->prepare("
 			SELECT			".$str_columns."			
 			FROM			`tl_ls_shop_product`
@@ -60,7 +61,7 @@ class SitemapListener
             }
 
             $time = time();
-            $objPagesForProduct = \Database::getInstance()->prepare("
+            $objPagesForProduct = Database::getInstance()->prepare("
 					SELECT			id,
 									alias
 					FROM 			tl_page
@@ -78,10 +79,10 @@ class SitemapListener
                 continue;
             } else {
                 while ($objPagesForProduct->next()) {
-                    $domain = \Environment::get('base');
+                    $domain = Environment::get('base');
                     $arrLanguagePages = ls_shop_languageHelper::getLanguagePages($objPagesForProduct->id);
                     foreach ($arrLanguagePages as $languagePageInfo) {
-                        $objPageForProduct = \PageModel::findWithDetails($languagePageInfo['id']);
+                        $objPageForProduct = PageModel::findWithDetails($languagePageInfo['id']);
 
                         $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
                         if ($str_languageAlias == '') {
@@ -93,7 +94,7 @@ class SitemapListener
                         $frontendUrl = $objPageForProduct->getFrontendUrl('/product/' . $str_languageAlias/*, $objPageForProduct->language*/);
 
                         if(!(strpos($frontendUrl, "http://") === 0 || strpos($frontendUrl, "https://") === 0)){
-                            $frontendUrl = (\Environment::get('ssl') ? 'https://' : 'http://').$objRouter->getContext()->getHost()."/".$frontendUrl;
+                            $frontendUrl = (Environment::get('ssl') ? 'https://' : 'http://').$objRouter->getContext()->getHost()."/".$frontendUrl;
                         }
 
                         $loc->appendChild($sitemap->createTextNode($frontendUrl));

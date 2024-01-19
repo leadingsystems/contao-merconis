@@ -1,3 +1,9 @@
+<?php
+
+use Contao\Date;
+use Contao\System;
+
+?>
 <!-- indexer::stop -->
 <div class="<?php echo $this->strTemplate ?>">
     <?php if ($this->useSortingWidget) { ?>
@@ -47,7 +53,7 @@
 								</div>
 								<div class="orderDate">
 									<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText088']; ?></div>
-									<div class="value"><?php echo \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $arrOrder['orderDateUnixTimestamp']); ?></div>
+									<div class="value"><?php echo Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $arrOrder['orderDateUnixTimestamp']); ?></div>
 								</div>
 								<div class="orderStatus">
 									<div class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText095']; ?></div>

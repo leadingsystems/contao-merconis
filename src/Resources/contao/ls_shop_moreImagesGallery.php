@@ -3,10 +3,16 @@
 namespace Merconis\Core;
 
 use Contao\ArrayUtil;
+use Contao\File;
+use Contao\FilesModel;
 use Contao\Folder;
+use Contao\Frontend;
+use Contao\FrontendTemplate;
+use Contao\PageModel;
 use Contao\StringUtil;
+use Contao\System;
 
-class ls_shop_moreImagesGallery extends \Frontend {
+class ls_shop_moreImagesGallery extends Frontend {
     protected $strTemplate = 'template_productGallery_01';
 
     protected $multiSRC = array();
@@ -103,7 +109,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
             ArrayUtil::arrayInsert($this->multiSRC, 0, $mainImage);
         }
         $this->id = $id;
-        $this->Template = new \FrontendTemplate($this->strTemplate);
+        $this->Template = new FrontendTemplate($this->strTemplate);
         $this->arrOverlays = $arrOverlays;
 
         $this->Template->images = array();
@@ -148,20 +154,22 @@ class ls_shop_moreImagesGallery extends \Frontend {
          */
         $this->ls_images = array();
 
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+
         // Get all images
         foreach ($this->multiSRC as $file) {
-            if (!@file_exists(TL_ROOT.'/'.$file)) {
+            if (!@file_exists($str_projectDir.'/'.$file)) {
                 continue;
             }
 
             // Process single files
-            if (is_file(TL_ROOT.'/'.$file)) {
+            if (is_file($str_projectDir.'/'.$file)) {
                 $this->processSingleImage($file);
             }
 
             // Process folders (not recursive, only the one given folder!)
             else {
-                $subfiles = Folder::scan(TL_ROOT.'/'.$file);
+                $subfiles = Folder::scan($str_projectDir.'/'.$file);
 
                 foreach ($subfiles as $subfile) {
                     $subfileName = $file . '/' . $subfile;
@@ -294,24 +302,26 @@ class ls_shop_moreImagesGallery extends \Frontend {
     }
 
     protected function processSingleImage($file) {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
+
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
 
         if (preg_match('/_cover/siU', $file)) {
             return false;
         }
 
-        if (isset($this->ls_images[$file]) || !file_exists(TL_ROOT.'/'.$file)) {
+        if (isset($this->ls_images[$file]) || !file_exists($str_projectDir.'/'.$file)) {
             return false;
         }
 
-        if (!is_file(TL_ROOT . '/' . $file)) {
+        if (!is_file($str_projectDir . '/' . $file)) {
             return false;
         }
 
         $arrOverlays = $this->arrOverlays;
 
-        $objFile = new \File($file, true);
+        $objFile = new File($file, true);
 
         /*
          * If the image is not a gd image we assume that it's a video. This means that images of the following types
@@ -341,7 +351,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
             $this->originalSRC = false;
         }
 
-        $objFileModel = \FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
+        $objFileModel = FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
         $arrMeta = array();
         if (is_object($objFileModel)) {
             $objFileModel->first();
@@ -390,7 +400,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
          */
         foreach ($this->arrImgSuffixes as $suffix) {
             $coverFilename2 = $coverFilename.'.'.$suffix;
-            if (is_file(TL_ROOT . '/' . $coverFilename2)) {
+            if (is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $coverFilename2)) {
                 /*
                  * If we have a match, that's our cover filename, so we break the loop and use this value
                  */
@@ -413,7 +423,7 @@ class ls_shop_moreImagesGallery extends \Frontend {
         $coverFile = $coverFile ? $coverFile : $filename;
 
         $filename = $coverFile;
-        return new \File($coverFile, true);
+        return new File($coverFile, true);
     }
 }
 ?>

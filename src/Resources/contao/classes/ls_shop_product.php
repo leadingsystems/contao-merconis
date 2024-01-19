@@ -1,7 +1,12 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\Controller;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 
@@ -116,7 +121,7 @@ class ls_shop_product
 	 * des Produkt-Objektes und analysiert dafür die Methoden "__get()" und "__call()"
 	 <--*/
 	protected function ls_outputOptions() {
-		$fileContent = file_get_contents(TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/classes/ls_shop_product.php');
+		$fileContent = file_get_contents(System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/classes/ls_shop_product.php');
 
 		/*-->
 		 * Properties
@@ -253,7 +258,7 @@ class ls_shop_product
 	 * hier verfügbaren Eigenschaften in der automatischen Dokumentation dargestellt werden
 	 */
 	public function __get($what = '') {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 		switch ($what) {
 			/* ## START AUTO DOCUMENTATION PROPERTIES PRODUCT ## */
@@ -272,7 +277,7 @@ class ls_shop_product
 				break;
 
             case '_hasCustomizerLogicFile':
-                return $this->_customizerLogicFile && is_file(TL_ROOT."/".$this->_customizerLogicFile);
+                return $this->_customizerLogicFile && is_file(System::getContainer()->getParameter('kernel.project_dir')."/".$this->_customizerLogicFile);
 
             case '_customizer':
                 return $this->obj_customizer;
@@ -525,11 +530,13 @@ returns the main image that has been selected explicitly or null if none has bee
 				return isset($this->mainData['lsShopProductMainImage']) && $this->mainData['lsShopProductMainImage'] ? ls_getFilePathFromVariableSources($this->mainData['lsShopProductMainImage']) : null;
 				break;
 
-			case '_mainImage'
-				/* ## DESCRIPTION:
-Returns the image that will be used as the main image if images are processed in an alphabetical ascending order.
-If a main image has been selected explicitly, it will always be returned here. Otherwise the image sorted on top will be returned.
-You can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
+            case '_mainImage'
+				/*
+				 * @toDo Fix Description: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+				 * ## DESCRIPTION:
+				 * Returns the image that will be used as the main image if images are processed in an alphabetical ascending order.
+				 * If a main image has been selected explicitly, it will always be returned here. Otherwise the image sorted on top will be returned.
+				 * You can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
                 trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMainImage() instead', E_USER_DEPRECATED);
@@ -553,8 +560,10 @@ You can use the method "\Image::get" to get the image in the size you need: \Ima
 				break;
 
 			case '_moreImages'
-				/* ## DESCRIPTION:
-you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
+				/*
+				 * @toDo Fix Description: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+				 * ## DESCRIPTION:
+				 * you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
                 trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMoreImages() instead', E_USER_DEPRECATED);
@@ -720,7 +729,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
                 break;
 
             case '_allowedGroups':
-                return \StringUtil::deserialize($this->mainData['allowedGroups'], true);
+                return StringUtil::deserialize($this->mainData['allowedGroups'], true);
                 break;
 
 			case '_pages'
@@ -732,7 +741,7 @@ Returns an Array containing the pages which the product is assigned to
 
 				$arr_pagesForDomain = array();
 				foreach ($arr_pages as $int_pageID) {
-					$pageInfo = \PageModel::findWithDetails($int_pageID);
+					$pageInfo = PageModel::findWithDetails($int_pageID);
 					if (!is_object($objPage) || $pageInfo->domain == $objPage->domain) {
 						$arr_pagesForDomain[] = $int_pageID;
 					}
@@ -843,7 +852,7 @@ returns the id of the variant that has currently been selected
 			case '_isOnRestockInfoList':
 				$obj_user = System::importStatic('FrontendUser');
 
-                $obj_dbres_restockInfoListRecord = \Database::getInstance()
+                $obj_dbres_restockInfoListRecord = Database::getInstance()
                     ->prepare("
                         SELECT      *
                         FROM        tl_ls_shop_restock_info_list
@@ -1892,7 +1901,7 @@ This method takes the name of a template file as an argument and returns the ren
             :
                 $args = ls_shop_generalHelper::setArrayLength($args, 2);
                 $str_template = $args[0];
-                $obj_template = new \FrontendTemplate($str_template);
+                $obj_template = new FrontendTemplate($str_template);
                 $obj_template->objProduct = $this;
                 $obj_template->arr_args = is_array($args[1]) ? $args[1] : [$args[1]];
                 return $obj_template->parse();
@@ -2019,11 +2028,11 @@ This method can be used to call a function hooked with the "callingHookedProduct
     }
 
 	public function ls_getVariants() {
-		$objVariants = \Database::getInstance()->prepare("
+		$objVariants = Database::getInstance()->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_variant`
 			WHERE		`pid` = ?
-				".(System::getContainer()->get('merconis.routing.scope')->isBackend() && (strpos(\Environment::get('request'), 'tl_ls_shop_variant') !== false || strpos(\Environment::get('request'), 'ls_shop_stockManagement') !== false) ? "" : "AND		`published` = '1'")."
+				".(System::getContainer()->get('merconis.routing.scope')->isBackend() && (strpos(Environment::get('request'), 'tl_ls_shop_variant') !== false || strpos(Environment::get('request'), 'ls_shop_stockManagement') !== false) ? "" : "AND		`published` = '1'")."
 			ORDER BY	`sorting` ASC
 		");
 
@@ -2197,7 +2206,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
                 );
 			}
 
-			\Database::getInstance()->prepare("
+			Database::getInstance()->prepare("
 				UPDATE		`tl_ls_shop_product`
 				SET			`lsShopProductStock` = ?
 				WHERE		`id` = ?
@@ -2212,7 +2221,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	}
 
 	protected function getFreshestStock() {
-		$objFreshestStock = \Database::getInstance()->prepare("
+		$objFreshestStock = Database::getInstance()->prepare("
 			SELECT		`lsShopProductStock`
 			FROM		`tl_ls_shop_product`
 			WHERE		`id` = ?
@@ -2238,7 +2247,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	 * Diese Funktion zählt den Bestellungs-Zähler des Produktes um eins hoch
 	 <--*/
 	public function countSale() {
-		\Database::getInstance()->prepare("
+		Database::getInstance()->prepare("
 			UPDATE		`tl_ls_shop_product`
 			SET			`lsShopProductNumSales` = `lsShopProductNumSales` + 1
 			WHERE		`id` = ?
@@ -2262,7 +2271,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	 * das nicht der Fall ist, wird einfach die erstbeste hinterlegte Seite verwendet.
 	 */
 	public function getlinkToProduct($var_useVariantAliasOrID = '') {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
         $currentMainLanguagePageID = ls_shop_languageHelper::getMainlanguagePageIDForPageID($objPage->id);
 
@@ -2284,7 +2293,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $languagePages = ls_shop_languageHelper::getLanguagePages($MainLanguagePageIDForLink);
             $currentLanguagePageIDForLink = $languagePages[$objPage->language]['id'];
 
-            $objProductPage = \PageModel::findWithDetails($currentLanguagePageIDForLink);
+            $objProductPage = PageModel::findWithDetails($currentLanguagePageIDForLink);
         }
 
         /*-->
@@ -2300,7 +2309,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $addReturnPageToUrl = '/calledBy/searchResult';
         }
 
-        $this->ls_linkToProduct = \Controller::generateFrontendUrl($objProductPage->row(), '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl);
+        $this->ls_linkToProduct = Controller::generateFrontendUrl($objProductPage->row(), '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl);
 
 		return $this->ls_linkToProduct;
 	}

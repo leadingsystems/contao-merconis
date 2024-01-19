@@ -1,6 +1,8 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Environment;
+use Contao\Input;
 use Contao\StringUtil;
 use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
@@ -32,7 +34,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			/*
 			 * ###### Create the return url #######
 			 */
-			$this->returnUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
+			$this->returnUrl = Environment::get('base').ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
 			/*
 			 * #######################################
 			 */
@@ -181,7 +183,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			if (!ls_shop_generalHelper::checkIfPaymentMethodIsAllowed(ls_shop_checkoutData::getInstance()->arrCheckoutData['selectedPaymentMethod'])) {
 				ls_shop_checkoutData::getInstance()->resetSelectedPaymentMethod();
 
-                if (!\Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
+                if (!Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
                     $this->reload();
                 }
 			}
@@ -228,9 +230,9 @@ use function LeadingSystems\Helpers\ls_sub;
 			/*
 			 * Wurde ein Token in der URL übergeben, so ist dies das Zeichen für den Aufruf als Folge des Redirects von PayPal zurück
 			 */
-			if (\Input::get('token') && \Input::get('token') == $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']) {
+			if (Input::get('token') && Input::get('token') == $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']) {
 				// Verarbeiten eines Abbruchs
-				if (\Input::get('cancelPaypal')) {
+				if (Input::get('cancelPaypal')) {
 					$this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['authorizationCancelled']);
 					$this->afterPaymentMethodSelection();
 					$this->redirect($this->returnUrl.'#checkoutStepPayment');
@@ -242,8 +244,8 @@ use function LeadingSystems\Helpers\ls_sub;
 				if (
 						isset($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'])
 					&&	$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID']
-					&&	\Input::get('PayerID')
-					&&	$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'] == \Input::get('PayerID')
+					&&	Input::get('PayerID')
+					&&	$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'] == Input::get('PayerID')
 				) {
 					$_SESSION['lsShopPaymentProcess']['paypal']['authorized'] = true;
 					$this->setPaymentMethodSuccessMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['successfullyAuthorized']);
@@ -275,9 +277,9 @@ use function LeadingSystems\Helpers\ls_sub;
 		protected function paypal_createSetExpressCheckoutNVP() {
 			$cancelUrl = $this->returnUrl.(preg_match('/\?/', $this->returnUrl) ? '&' : '?').'cancelPaypal=1';
 			
-			$giropaysuccesUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropaySuccessPages', StringUtil::deserialize($this->arrCurrentSettings['paypalGiropaySuccessPages']));
-			$giropaycancelUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropayCancelPages', StringUtil::deserialize($this->arrCurrentSettings['paypalGiropayCancelPages']));
-			$banktxnpendingUrl = \Environment::get('base').ls_shop_languageHelper::getLanguagePage('banktransferPendingPages', StringUtil::deserialize($this->arrCurrentSettings['paypalBanktransferPendingPages']));
+			$giropaysuccesUrl = Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropaySuccessPages', StringUtil::deserialize($this->arrCurrentSettings['paypalGiropaySuccessPages']));
+			$giropaycancelUrl = Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropayCancelPages', StringUtil::deserialize($this->arrCurrentSettings['paypalGiropayCancelPages']));
+			$banktxnpendingUrl = Environment::get('base').ls_shop_languageHelper::getLanguagePage('banktransferPendingPages', StringUtil::deserialize($this->arrCurrentSettings['paypalBanktransferPendingPages']));
 
 			/*
 			 * Hinzufügen der allgemeinen Bestellinformationen zum NVP-Array

@@ -2,6 +2,9 @@
 
 namespace Merconis\Core;
 
+use Contao\Database;
+use Contao\Input;
+
 class ls_shop_apiController_exportFrontend
 {
 	protected static $objInstance;
@@ -47,8 +50,8 @@ class ls_shop_apiController_exportFrontend
 	 */
 	protected function apiResource_exportFeed()
 	{
-		$str_feedName = \Input::get('feedName') ? \Input::get('feedName') : null;
-		$str_pwd = \Input::get('pwd') ? \Input::get('pwd') : '';
+		$str_feedName = Input::get('feedName') ? Input::get('feedName') : null;
+		$str_pwd = Input::get('pwd') ? Input::get('pwd') : '';
 
 		if (!$str_feedName) {
 			$this->obj_apiReceiver->fail();
@@ -56,7 +59,7 @@ class ls_shop_apiController_exportFrontend
 			return;
 		}
 
-		$obj_dbres_export = \Database::getInstance()->prepare("
+		$obj_dbres_export = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_export`
 		  	WHERE		`feedActive` = ?

@@ -2,20 +2,28 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\Database;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\Module;
+use Contao\Pagination;
+use Contao\SelectMenu;
 use Contao\StringUtil;
 use Contao\System;
 
-class ModuleMyOrders extends \Module {
+class ModuleMyOrders extends Module {
 	protected $intDefaultNumPerPage = 10;
 	protected $strDefaultSorting = 'orderDateUnixTimestamp';
 	protected $strDefaultSortingDirection = 'DESC';
 	
 	public function generate() {
-		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS My Orders ###';
 			return $objTemplate->parse();
 		}
@@ -24,17 +32,17 @@ class ModuleMyOrders extends \Module {
 	
 	public function compile() {
 		$this->strTemplate = $this->ls_shop_myOrders_template;
-		$this->Template = new \FrontendTemplate($this->strTemplate);
+		$this->Template = new FrontendTemplate($this->strTemplate);
 		$this->Template->arrOrders = array();
 		
 		/*
 		 * Get the user's order from the database
 		 */
-		if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() || !$this->User->id) {
+		if (!System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() || !$this->User->id) {
 			return;
 		}
 				
-		$objOrdersAll = \Database::getInstance()->prepare("
+		$objOrdersAll = Database::getInstance()->prepare("
 			SELECT		`orderIdentificationHash`
 			FROM		`tl_ls_shop_orders`
 			WHERE		`customerNr` = ?
@@ -62,7 +70,7 @@ class ModuleMyOrders extends \Module {
 			 * Create the sorting options widget
 			 */
 			$this->Template->useSortingWidget = true;
-			$objWidgetSorting = new \SelectMenu();
+			$objWidgetSorting = new SelectMenu();
 			$objWidgetSorting->name = 'sorting';
 
 			$tmpArrSortingOptions = array();
@@ -77,7 +85,7 @@ class ModuleMyOrders extends \Module {
 			/*
 			 * Create the sorting directions widget
 			 */
-			$objWidgetSortingDirection = new \SelectMenu();
+			$objWidgetSortingDirection = new SelectMenu();
 			$objWidgetSortingDirection->name = 'sortingDirection';
 			$objWidgetSortingDirection->options = array(array('label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText093'], 'value' => 'ASC'), array('label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText094'], 'value' => 'DESC'));
 			$objWidgetSortingDirection->value = $_SESSION['lsShop']['myOrders']['sortingDirection'];
@@ -89,24 +97,24 @@ class ModuleMyOrders extends \Module {
 			$_SESSION['lsShop']['myOrders']['numPerPage'] = $this->intDefaultNumPerPage;
 		}
 		
-		$objWidgetNumPerPage = new \SelectMenu();
+		$objWidgetNumPerPage = new SelectMenu();
 		$objWidgetNumPerPage->name = 'numPerPage';
 		$objWidgetNumPerPage->options = array(array('label' => 1, 'value' => 1), array('label' => 2, 'value' => 2), array('label' => 3, 'value' => 3), array('label' => 10, 'value' => 10), array('label' => 20, 'value' => 20), array('label' => 50, 'value' => 50), array('label' => 100, 'value' => 100));
 		$objWidgetNumPerPage->value = $_SESSION['lsShop']['myOrders']['numPerPage'];
 		$this->Template->fflNumPerPage = $objWidgetNumPerPage->generate();
 		
-		if (\Input::post('FORM_SUBMIT') == 'myOrders_numPerPage') {
-			$_SESSION['lsShop']['myOrders']['numPerPage'] = \Input::post('numPerPage') ? \Input::post('numPerPage') : $this->intDefaultNumPerPage;
-			$_SESSION['lsShop']['myOrders']['sorting'] = \Input::post('sorting') ? \Input::post('sorting') : $this->strDefaultSorting;
-			$_SESSION['lsShop']['myOrders']['sortingDirection'] = \Input::post('sortingDirection') ? \Input::post('sortingDirection') : $this->strDefaultSortingDirection;
+		if (Input::post('FORM_SUBMIT') == 'myOrders_numPerPage') {
+			$_SESSION['lsShop']['myOrders']['numPerPage'] = Input::post('numPerPage') ? Input::post('numPerPage') : $this->intDefaultNumPerPage;
+			$_SESSION['lsShop']['myOrders']['sorting'] = Input::post('sorting') ? Input::post('sorting') : $this->strDefaultSorting;
+			$_SESSION['lsShop']['myOrders']['sortingDirection'] = Input::post('sortingDirection') ? Input::post('sortingDirection') : $this->strDefaultSortingDirection;
 			$this->redirect(ls_shop_generalHelper::getUrl(false, array('page')));
 		}
 
-		$objPagination = new \Pagination($objOrdersAll->numRows, $_SESSION['lsShop']['myOrders']['numPerPage'], 7, 'page', new \FrontendTemplate('merconisPagination'));
+		$objPagination = new Pagination($objOrdersAll->numRows, $_SESSION['lsShop']['myOrders']['numPerPage'], 7, 'page', new FrontendTemplate('merconisPagination'));
 		$this->Template->pagination = $objPagination->generate();
-		$this->Template->request = StringUtil::ampersand(\Environment::get('request'), true);
+		$this->Template->request = StringUtil::ampersand(Environment::get('request'), true);
 		
-		$currentPageOffset = \Input::get('page') ? \Input::get('page') - 1 : 0;
+		$currentPageOffset = Input::get('page') ? Input::get('page') - 1 : 0;
 		
 		/*
 		 * If we sort by status the value to sort is not actually the value that is held in the database field
@@ -127,7 +135,7 @@ class ModuleMyOrders extends \Module {
 			$statusStatement05 .= "WHEN `status05` = '".$statusKey."' THEN '".$statusLanguageName."'"."\r\n";
 		}
 		
-		$objOrders = \Database::getInstance()->prepare("
+		$objOrders = Database::getInstance()->prepare("
 			SELECT		`orderIdentificationHash`,
 						CASE\r\n".$statusStatement01." ELSE '' END AS `status01_language`,
 						CASE\r\n".$statusStatement02." ELSE '' END AS `status02_language`,

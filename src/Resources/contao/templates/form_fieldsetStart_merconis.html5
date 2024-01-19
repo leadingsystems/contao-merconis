@@ -5,6 +5,6 @@
     <?= ($this->arrAttributes['data-showoncondition-boolean'] ?? "") != "" ? " data-showoncondition-boolean=".$this->arrAttributes['data-showoncondition-boolean'] : "" ?>
     <?php if ($this->class): ?> class="<?= $this->class ?>"<?php endif; ?>>
 
-    <?php if ($this->label): ?>
+  <?php if ($this->label): ?>
     <legend><?= $this->label ?></legend>
-<?php endif; ?>
+  <?php endif; ?>

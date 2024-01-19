@@ -2,14 +2,19 @@
 
 namespace Merconis\Core;
 
+use Contao\Controller;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
+use Contao\Date;
+use Contao\Input;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 
 class ls_shop_customInserttags
 {
 	public function customInserttags($strTag, $blnCache, $var_cache, $flags, $tags, &$arrCache, &$_rit, &$_cnt) {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 		if (!preg_match('/^shop([^:]*)(::(.*))?$/', $strTag, $matches)) {
 			return false;
@@ -242,7 +247,7 @@ class ls_shop_customInserttags
 
                 /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
                 $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
-                $str_deliveryDate = \Date::parse($objPage->dateFormat, time() + 86400 * $obj_productOrVariant->getDeliveryTimeDays($GLOBALS['merconis_globals']['arr_dataForInsertTags']['float_requestedQuantity']));
+                $str_deliveryDate = Date::parse($objPage->dateFormat, time() + 86400 * $obj_productOrVariant->getDeliveryTimeDays($GLOBALS['merconis_globals']['arr_dataForInsertTags']['float_requestedQuantity']));
                 return $str_deliveryDate;
                 break;
 
@@ -266,7 +271,7 @@ class ls_shop_customInserttags
 
                 /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
                 $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
-                $str_availableFrom = \Date::parse($objPage->dateFormat, $obj_productOrVariant->_availableFrom);
+                $str_availableFrom = Date::parse($objPage->dateFormat, $obj_productOrVariant->_availableFrom);
                 return $str_availableFrom;
                 break;
 
@@ -288,11 +293,11 @@ class ls_shop_customInserttags
 				break;
 
 			case 'CategoryLink':
-				return \Controller::generateFrontendUrl($objPage->row());
+				return Controller::generateFrontendUrl($objPage->row());
 				break;
 
 			case 'CategoryLinkOrSearchResult':
-				return \Input::get('calledBy') == 'searchResult' ? ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages') : \Controller::generateFrontendUrl($objPage->row());
+				return Input::get('calledBy') == 'searchResult' ? ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages') : Controller::generateFrontendUrl($objPage->row());
 				break;
 
             case 'Picture':
@@ -316,7 +321,7 @@ class ls_shop_customInserttags
                                  * the id in the parameter string or remove the size parameter entirely if no image size
                                  * record could be found with the merconis_alias.
                                  */
-                                $result = \Database::getInstance()->prepare("SELECT id FROM tl_image_size WHERE merconis_alias=?")->execute($value)->fetchAssoc();
+                                $result = Database::getInstance()->prepare("SELECT id FROM tl_image_size WHERE merconis_alias=?")->execute($value)->fetchAssoc();
                                 if ($result) {
                                     $params = str_replace('size=' . $value, 'size=' . $result['id'], $params);
                                 } else {
@@ -346,42 +351,23 @@ class ls_shop_customInserttags
             case 'ProductOutput':
                 $arr_params = explode(',', $params);
                 $str_productVariantId = trim($arr_params[0]);
-
-                if ($str_productVariantId === 'current') {
-                    /*
-                     * Get product currently displayed in singleview if not productVariantId is given
-                     */
-                    $str_productAlias = \Input::get('product');
-                    $int_productId = ls_shop_generalHelper::getProductIdForAlias($str_productAlias);
-                    if (!$int_productId) {
-                        return '';
-                    }
-                    $str_productVariantId = $int_productId.'-0';
-                }
+                $str_productVariantId = $this->convertTagToId($str_productVariantId);
 
                 $str_templateToUse = isset($arr_params[1]) && $arr_params[1] ? trim($arr_params[1]) : '';
 
                 $objProductOutput = new ls_shop_productOutput($str_productVariantId, 'overview', $str_templateToUse);
                 $str_productOutput = $objProductOutput->parseOutput();
 
-                return \Controller::replaceInsertTags($str_productOutput);
+                return Controller::replaceInsertTags($str_productOutput);
                 break;
 
             case 'ProductProperty':
                 $arr_params = explode(',', $params);
                 $str_productVariantId = trim($arr_params[0]);
 
-                if ($str_productVariantId === 'current') {
-                    /*
-                     * Get product currently displayed in singleview if not productVariantId is given
-                     */
-                    $str_productAlias = \Input::get('product');
-                    $int_productId = ls_shop_generalHelper::getProductIdForAlias($str_productAlias);
-                    if (!$int_productId) {
-                        return '';
-                    }
-                    $str_productVariantId = $int_productId.'-0';
-                }
+                //if no parameter exists search for productId
+                $what = ($arr_params[2] ? trim($arr_params[2]) : "productId");
+                $str_productVariantId = $this->convertTagToId($str_productVariantId, $what);
 
                 $str_propertyToUse = isset($arr_params[1]) && $arr_params[1] ? trim($arr_params[1]) : '';
 
@@ -393,4 +379,57 @@ class ls_shop_customInserttags
 
 		return false;
 	}
+
+    //converts tags(ids, codes, alias) to 'productId'-'variantId'
+	private function convertTagToId($str_productTag, $what){
+
+        //if current convert it to "productId-0"
+        if ($str_productTag === 'current') {
+            /*
+             * Get product currently displayed in singleview if not productVariantId is given
+             */
+            $str_productAlias = Input::get('product');
+            $int_productId = ls_shop_generalHelper::getProductIdForAlias($str_productAlias);
+            if (!$int_productId) {
+                return '';
+            }
+            $str_productVariantId = $int_productId.'-0';
+        }
+        if($what === "productId") {
+            $str_productVariantId = $str_productTag;
+        }
+        //if productAlias convert it to "productId-0"
+        if($what === "productAlias"){
+            $int_productId = ls_shop_generalHelper::getProductIdForAlias($str_productTag);
+            if (!$int_productId) {
+                return '';
+            }
+            $str_productVariantId = $int_productId.'-0';
+        }
+        //if productCode convert it to "productId-0"
+        if($what === "productCode" ){
+            $int_productId = ls_shop_generalHelper::getProductIdForCode($str_productTag);
+            if (!$int_productId) {
+                return '';
+            }
+            $str_productVariantId = $int_productId.'-0';
+        }
+        //if variantAlias convert it to "productId-variantId"
+        if($what === "variantAlias"){
+            $int_variantId = ls_shop_generalHelper::getVariantIdForAlias($str_productTag);
+            if (!$int_variantId) {
+                return '';
+            }
+            $str_productVariantId = ls_shop_generalHelper::getProductIdForVariantId($int_variantId).'-'.$int_variantId;
+        }
+        //if variantCode convert it to "productId-variantId"
+        if($what === "variantCode"){
+            $int_variantId = ls_shop_generalHelper::getVariantIdForCode($str_productTag);
+            if (!$int_variantId) {
+                return '';
+            }
+            $str_productVariantId = ls_shop_generalHelper::getProductIdForVariantId($int_variantId).'-'.$int_variantId;
+        }
+        return $str_productVariantId;
+    }
 }

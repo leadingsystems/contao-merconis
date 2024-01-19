@@ -3,8 +3,10 @@
 namespace Merconis\Core;
 
 use Contao\ArrayUtil;
+use Contao\Backend;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Image;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
@@ -315,7 +317,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOver
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewUserSortingFields'];
 $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination_crossSeller'] = $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions']['fields']['lsShopProductOverviewPagination'];
 
-class ls_shop_output_definitions extends \Backend {
+class ls_shop_output_definitions extends Backend {
 	public function __construct() {
 		parent::__construct();
 	}
@@ -373,9 +375,9 @@ class ls_shop_output_definitions extends \Backend {
 	 */
 	public function getDeleteButton($row, $href, $label, $title, $icon, $attributes) {
 		if (!in_array($row['id'], ls_shop_generalHelper::getOutputDefinitionsCurrentlyInUse())) {
-			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+			$button = '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
 		} else {
-			$button = \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+			$button = Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 		}
 
 		return $button;

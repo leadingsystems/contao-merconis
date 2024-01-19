@@ -2,12 +2,16 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\Controller;
+use Contao\FrontendTemplate;
+use Contao\Module;
 use Contao\System;
 
-class ModuleOrderReview extends \Module {
+class ModuleOrderReview extends Module {
 	public function generate() {
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS order review ###';
 			return $objTemplate->parse();
 		}
@@ -17,10 +21,10 @@ class ModuleOrderReview extends \Module {
 
 	public function compile() {
 		if (!ls_shop_generalHelper::check_finishingOrderIsAllowed()) {
-			\Controller::redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages'));
+			Controller::redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages'));
 		}
 
-		$this->Template = new \FrontendTemplate($this->ls_shop_orderReview_template);
+		$this->Template = new FrontendTemplate($this->ls_shop_orderReview_template);
 
 		$formConfirmOrder = ls_shop_checkoutData::getInstance()->formConfirmOrder;
 		// ### paymentMethod callback ########################

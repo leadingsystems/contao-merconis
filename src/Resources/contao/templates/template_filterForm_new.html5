@@ -1,5 +1,8 @@
 <!-- indexer::stop -->
 <?php
+
+use Contao\System;
+
 $bln_moreFilterFieldsAvailableThanShownInSummary = $this->arr_filterSummaryData['int_numAvailableFilterFields'] > $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'];
 $int_numFilterCriteriaCurrentlyUsed = count(($this->arr_filterSummaryData['arr_filterSummary']['arr_attributes'] ?? null) ?: []) + count(($this->arr_filterSummaryData['arr_filterSummary']['arr_producers'] ?? null) ?: []) + (($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['low'] ?? null) || ($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['high'] ?? null) ? 1 : 0);
 ?>

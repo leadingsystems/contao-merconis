@@ -2,14 +2,20 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\Controller;
+use Contao\Database;
+use Contao\Input;
+use Contao\Module;
+use Contao\PageModel;
 use Contao\System;
 
-class ModuleProductManagementApiInspector extends \Module {
+class ModuleProductManagementApiInspector extends Module {
 	public $strTemplate = 'template_productManagementApiInspector';
 
 	public function generate() {
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS product management API inspector ###';
 			return $objTemplate->parse();
 		}
@@ -17,10 +23,10 @@ class ModuleProductManagementApiInspector extends \Module {
 	}
 	
 	public function compile() {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 
-		$str_selectedResource = \Input::get('selectedResource');
+		$str_selectedResource = Input::get('selectedResource');
 
 		$arr_allRawResourceNames = array_keys(ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition);
 		$arr_allRawResourceNames = array_flip($arr_allRawResourceNames);
@@ -30,7 +36,7 @@ class ModuleProductManagementApiInspector extends \Module {
 		foreach ($arr_allRawResourceNames as $str_rawResourceName => $void) {
 			$str_resourceName = str_replace('apiResource_', '', $str_rawResourceName);
 			$arr_allResourceLinks[$str_resourceName] = array(
-				'str_href' => \Controller::generateFrontendUrl($objPage->row(), '/selectedResource/'.$str_resourceName),
+				'str_href' => Controller::generateFrontendUrl($objPage->row(), '/selectedResource/'.$str_resourceName),
 				'bln_currentlySelected' => $str_selectedResource && $str_resourceName === $str_selectedResource,
 				'str_httpRequestMethod' => isset(ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition[$str_rawResourceName]['str_httpRequestMethod']) && ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition[$str_rawResourceName]['str_httpRequestMethod'] ? ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition[$str_rawResourceName]['str_httpRequestMethod'] : 'post'
 			);
@@ -44,7 +50,7 @@ class ModuleProductManagementApiInspector extends \Module {
 
 		$arr_preprocessorDescriptions = ls_shop_productManagementApiPreprocessor::getPreprocessorDescriptions();
 
-		$obj_apiPage = \Database::getInstance()
+		$obj_apiPage = Database::getInstance()
 		->prepare("
 			SELECT		*
 			FROM		`tl_page`
@@ -58,7 +64,7 @@ class ModuleProductManagementApiInspector extends \Module {
 
 		$obj_apiPage->first();
 
-		$str_apiResourceUrl = \Controller::generateFrontendUrl($obj_apiPage->row(), '/resource/'.$str_selectedResource);
+		$str_apiResourceUrl = Controller::generateFrontendUrl($obj_apiPage->row(), '/resource/'.$str_selectedResource);
 
 		$arr_apiResourceDescriptions = ls_shop_productManagementApiHelper::getApiResourceDescriptions();
 

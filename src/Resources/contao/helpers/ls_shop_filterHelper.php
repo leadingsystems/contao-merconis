@@ -1,6 +1,13 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\Controller;
+use Contao\Database;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\PageModel;
+
 class ls_shop_filterHelper {
     public static function getFilterSummary() {
         global $objPage;
@@ -99,7 +106,7 @@ class ls_shop_filterHelper {
         $arr_filterFieldSortingNumbers = [];
         $arr_filterFieldPriorities = [];
 
-        $obj_dbres_filterFieldPriorities = \Database::getInstance()
+        $obj_dbres_filterFieldPriorities = Database::getInstance()
             ->prepare("
                 SELECT  id,
                         sourceAttribute,
@@ -157,7 +164,7 @@ class ls_shop_filterHelper {
 
         $arr_summaryData = self::getFilterSummary();
 
-        $obj_template = new \FrontendTemplate($objFEModule->ls_shop_filterSummary_template);
+        $obj_template = new FrontendTemplate($objFEModule->ls_shop_filterSummary_template);
         $obj_template->arr_filterSummary = $arr_summaryData['arr_filterSummary'];
         $obj_template->arr_filterAllFields = $arr_summaryData['arr_filterAllFields'];
         $obj_template->int_numAvailableFilterFields = $arr_summaryData['int_numAvailableFilterFields'];
@@ -209,7 +216,7 @@ class ls_shop_filterHelper {
 
 		switch ($arrFilterFieldInfo['dataSource']) {
 			case 'producer':
-				$objFilterFields = \Database::getInstance()
+				$objFilterFields = Database::getInstance()
 					->prepare("
 						SELECT		*
 						FROM		`tl_ls_shop_filter_field_values`
@@ -237,13 +244,13 @@ class ls_shop_filterHelper {
 	}
 
 	public static function getFilterFieldInfos() {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 
 		if (!isset($GLOBALS['merconis_globals']['filterFieldInfos'])) {
 			$arrFilterFields = array();
 
-			$objFilterFields = \Database::getInstance()->prepare("
+			$objFilterFields = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_filter_fields`
 				WHERE		`published` = '1'
@@ -702,7 +709,7 @@ class ls_shop_filterHelper {
 	}
 
 	public static function filterReload() {
-	    $str_targetUrl = \Environment::get('request');
+	    $str_targetUrl = Environment::get('request');
 
 	    /*
 	     * Remove a possibly existing cajaxCall parameter
@@ -716,7 +723,7 @@ class ls_shop_filterHelper {
 	     */
 	    $str_targetUrl = preg_replace('/(page_(?:crossSeller|standard).*?=)(.*?[0-9]*?)([^0-9]|&|$)/', '${1}1$3', $str_targetUrl);
 
-		\Controller::redirect($str_targetUrl);
+		Controller::redirect($str_targetUrl);
 	}
 
 	public static function resetFilter() {
@@ -729,7 +736,7 @@ class ls_shop_filterHelper {
 			$_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] = array();
 		}
 
-		$arr_filterModeInput = \Input::post('filterModeForAttribute');
+		$arr_filterModeInput = Input::post('filterModeForAttribute');
 
 		if (is_array($arr_filterModeInput)) {
 			foreach ($arr_filterModeInput as $var_attribute => $str_filterMode) {

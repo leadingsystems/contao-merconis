@@ -2,7 +2,9 @@
 
 namespace Merconis\Core;
 
-class dashboard extends \BackendModule {
+use Contao\BackendModule;
+
+class dashboard extends BackendModule {
 
 	protected $strTemplate = 'lsm_dashboard';
 	

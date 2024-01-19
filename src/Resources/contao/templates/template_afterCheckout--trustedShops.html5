@@ -4,6 +4,9 @@
  * This template is most likely being included in another template file.
  * If you duplicate this template, please make sure to adjust the include paths in the other file.
  */
+
+use Contao\Environment;
+
 ?>
 
 <div id="trustedShopsCheckout" style="display: none;">
@@ -53,8 +56,8 @@
                 }
             }
 ?>
-            <span class="tsCheckoutProductUrl"><?php echo \Environment::get('base') .  ($cartItem['extendedInfo']['_linkToVariant'] ?: $cartItem['extendedInfo']['_linkToProduct']); ?></span>
-            <span class="tsCheckoutProductImageUrl"><?php echo \Environment::get('base') .  ($cartItem['extendedInfo']['_mainImageOfVariant'] ?: $cartItem['extendedInfo']['_mainImageOfProduct']); ?></span>
+            <span class="tsCheckoutProductUrl"><?php echo Environment::get('base') .  ($cartItem['extendedInfo']['_linkToVariant'] ?: $cartItem['extendedInfo']['_linkToProduct']); ?></span>
+            <span class="tsCheckoutProductImageUrl"><?php echo Environment::get('base') .  ($cartItem['extendedInfo']['_mainImageOfVariant'] ?: $cartItem['extendedInfo']['_mainImageOfProduct']); ?></span>
             <span class="tsCheckoutProductBrand"><?php echo $cartItem['extendedInfo']['_producer']; ?></span>
 
         </span>

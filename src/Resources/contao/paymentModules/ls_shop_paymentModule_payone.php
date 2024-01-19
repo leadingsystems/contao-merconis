@@ -1,6 +1,8 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Environment;
+use Contao\Input;
 use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -40,13 +42,13 @@ use function LeadingSystems\Helpers\ls_sub;
 			 * Make sure not to grant access to the order if we don't have the
 			 * correct payone key given
 			 */
-			if (!\Input::post('key') || \Input::post('key') != md5($this->arrCurrentSettings['payone_key'])) {
+			if (!Input::post('key') || Input::post('key') != md5($this->arrCurrentSettings['payone_key'])) {
 				return '';
 			}
 			
 			$str_oix = '';
-			if (\Input::post('param')) {
-				$str_oix = \Input::post('param');
+			if (Input::post('param')) {
+				$str_oix = Input::post('param');
 			}
 			return $str_oix;
 		}
@@ -260,7 +262,7 @@ use function LeadingSystems\Helpers\ls_sub;
 		 * calls or the call of the backurl (abort).
 		 */
 		public function onAfterCheckoutPage($arr_order = array()) {
-			$str_p1action = \Input::get('p1action') ? \Input::get('p1action') : (\Input::post('p1action') ? \Input::post('p1action') : '');
+			$str_p1action = Input::get('p1action') ? Input::get('p1action') : (Input::post('p1action') ? Input::post('p1action') : '');
 			if ($str_p1action) {
 				switch ($str_p1action) {
 					case 'aborted':
@@ -281,7 +283,7 @@ use function LeadingSystems\Helpers\ls_sub;
 						 * redirect in order to get rid of the "aborted" value for the sue parameter which would cause
 						 * multiple abortions to be written to the order record if the user would reload the page with the url
 						 */
-						$this->redirect(preg_replace('/p1action=aborted/', 'p1action=failed', \Environment::get('request')));
+						$this->redirect(preg_replace('/p1action=aborted/', 'p1action=failed', Environment::get('request')));
 						break;
 					
 					case 'success':
@@ -292,49 +294,49 @@ use function LeadingSystems\Helpers\ls_sub;
 					case 'notification':
 						$arr_moduleReturnData = $this->get_paymentMethod_moduleReturnData_forOrderId($arr_order['id']);
 						$arr_moduleReturnData['arr_status'][] = array(
-							'str_statusValue' => strtoupper(\Input::post('txaction')),
+							'str_statusValue' => strtoupper(Input::post('txaction')),
 							'str_statusReason' => 'status push from payone',
 							'utstamp_statusModifiedTime' => time(),
 							'arr_statusDetails' => array(
 								'tstamp' => time(),
-								'txaction' => \Input::post('txaction'),
-								'transaction_status' => \Input::post('transaction_status'),
-								'notify_version' => \Input::post('notify_version'),
-								'mode' => \Input::post('mode'),
-								'portalid' => \Input::post('portalid'),
-								'aid' => \Input::post('aid'),
-								'clearingtype' => \Input::post('clearingtype'),
-								'txtime' => \Input::post('txtime'),
-								'currency' => \Input::post('currency'),
-								'userid' => \Input::post('userid'),
-								'customerid' => \Input::post('customerid'),
-								'firstname' => \Input::post('firstname'),
-								'lastname' => \Input::post('lastname'),
-								'company' => \Input::post('company'),
-								'street' => \Input::post('street'),
-								'zip' => \Input::post('zip'),
-								'city' => \Input::post('city'),
-								'country' => \Input::post('country'),
-								'shipping_firstname' => \Input::post('shipping_firstname'),
-								'shipping_lastname' => \Input::post('shipping_lastname'),
-								'shipping_company' => \Input::post('shipping_company'),
-								'shipping_street' => \Input::post('shipping_street'),
-								'shipping_zip' => \Input::post('shipping_zip'),
-								'shipping_city' => \Input::post('shipping_city'),
-								'shipping_country' => \Input::post('shipping_country'),
-								'email' => \Input::post('email'),
-								'txid' => \Input::post('txid'),
-								'reference' => \Input::post('reference'),
-								'sequencenumber' => \Input::post('sequencenumber'),
-								'price' => \Input::post('price'),
-								'receivable' => \Input::post('receivable'),
-								'balance' => \Input::post('balance'),
-								'failedcause' => \Input::post('failedcause')
+								'txaction' => Input::post('txaction'),
+								'transaction_status' => Input::post('transaction_status'),
+								'notify_version' => Input::post('notify_version'),
+								'mode' => Input::post('mode'),
+								'portalid' => Input::post('portalid'),
+								'aid' => Input::post('aid'),
+								'clearingtype' => Input::post('clearingtype'),
+								'txtime' => Input::post('txtime'),
+								'currency' => Input::post('currency'),
+								'userid' => Input::post('userid'),
+								'customerid' => Input::post('customerid'),
+								'firstname' => Input::post('firstname'),
+								'lastname' => Input::post('lastname'),
+								'company' => Input::post('company'),
+								'street' => Input::post('street'),
+								'zip' => Input::post('zip'),
+								'city' => Input::post('city'),
+								'country' => Input::post('country'),
+								'shipping_firstname' => Input::post('shipping_firstname'),
+								'shipping_lastname' => Input::post('shipping_lastname'),
+								'shipping_company' => Input::post('shipping_company'),
+								'shipping_street' => Input::post('shipping_street'),
+								'shipping_zip' => Input::post('shipping_zip'),
+								'shipping_city' => Input::post('shipping_city'),
+								'shipping_country' => Input::post('shipping_country'),
+								'email' => Input::post('email'),
+								'txid' => Input::post('txid'),
+								'reference' => Input::post('reference'),
+								'sequencenumber' => Input::post('sequencenumber'),
+								'price' => Input::post('price'),
+								'receivable' => Input::post('receivable'),
+								'balance' => Input::post('balance'),
+								'failedcause' => Input::post('failedcause')
 							)
 						);
 						
 						$this->update_paymentMethod_moduleReturnData_inOrder($arr_order['id'], $arr_moduleReturnData);
-						$this->update_fieldValue_inOrder($arr_order['id'], 'payone_currentStatus', strtoupper(\Input::post('txaction')));
+						$this->update_fieldValue_inOrder($arr_order['id'], 'payone_currentStatus', strtoupper(Input::post('txaction')));
 						die('TSOK');
 						break;
 				}
@@ -365,7 +367,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			
 			// make an absolute URL
 			if (!preg_match('@^https?://@i', $afterCheckoutUrl)) {
-				$afterCheckoutUrl = \Environment::get('base') . $afterCheckoutUrl;
+				$afterCheckoutUrl = Environment::get('base') . $afterCheckoutUrl;
 			}
 			/*
 			 * ----------

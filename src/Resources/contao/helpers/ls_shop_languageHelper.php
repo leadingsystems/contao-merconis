@@ -1,8 +1,14 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\Controller;
+use Contao\Database;
+use Contao\DataContainer;
+use Contao\Environment;
+use Contao\Input;
 use Contao\PageModel;
 use Contao\StringUtil;
+use Contao\System;
 
 class ls_shop_languageHelper {
 	public static function getFallbackLanguage() {
@@ -20,13 +26,13 @@ class ls_shop_languageHelper {
 			return;
 		}
 
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 		$str_domain = is_object($objPage) ? $objPage->domain : '%';
 
 		$arr_languages = array();
 		$str_fallbackLanguage = '';
-		$obj_dbres_rootPages = \Database::getInstance()
+		$obj_dbres_rootPages = Database::getInstance()
 			->prepare("
 			SELECT			`language`,
 							`fallback`
@@ -166,9 +172,9 @@ class ls_shop_languageHelper {
 					 * menu where the fields to edit are selected.
 					 */
 					if (
-							TL_MODE == 'BE'
-						&&	\Input::get('act') != 'editAll'
-						&&	\Input::get('act') != 'overrideAll'
+                        System::getContainer()->get('merconis.routing.scope')->isBackend()
+						&&	Input::get('act') != 'editAll'
+						&&	Input::get('act') != 'overrideAll'
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeCompleteField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -177,9 +183,9 @@ class ls_shop_languageHelper {
 					}
 
 					if (
-							TL_MODE == 'BE'
-						&&	\Input::get('act') != 'editAll'
-						&&	\Input::get('act') != 'overrideAll'
+                        System::getContainer()->get('merconis.routing.scope')->isBackend()
+						&&	Input::get('act') != 'editAll'
+						&&	Input::get('act') != 'overrideAll'
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeMainLanguageField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -193,9 +199,9 @@ class ls_shop_languageHelper {
 					$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_'.self::getFallbackLanguage()] = $arr_fieldDefinition;
 
 					if (
-							TL_MODE == 'BE'
-						&&	\Input::get('act') != 'editAll'
-						&&	\Input::get('act') != 'overrideAll'
+                        System::getContainer()->get('merconis.routing.scope')->isBackend()
+						&&	Input::get('act') != 'editAll'
+						&&	Input::get('act') != 'overrideAll'
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputAfterMainLanguageField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -212,9 +218,9 @@ class ls_shop_languageHelper {
 						}
 
 						if (
-								TL_MODE == 'BE'
-							&&	\Input::get('act') != 'editAll'
-							&&	\Input::get('act') != 'overrideAll'
+                            System::getContainer()->get('merconis.routing.scope')->isBackend()
+							&&	Input::get('act') != 'editAll'
+							&&	Input::get('act') != 'overrideAll'
 						) {
 							$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeForeignLanguageField-'.$str_language] = array(
 								'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -228,9 +234,9 @@ class ls_shop_languageHelper {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_'.$str_language] = $arr_fieldDefinition;
 
 						if (
-								TL_MODE == 'BE'
-							&&	\Input::get('act') != 'editAll'
-							&&	\Input::get('act') != 'overrideAll'
+                            System::getContainer()->get('merconis.routing.scope')->isBackend()
+							&&	Input::get('act') != 'editAll'
+							&&	Input::get('act') != 'overrideAll'
 						) {
 							$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputAfterForeignLanguageField-'.$str_language] = array(
 								'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -240,9 +246,9 @@ class ls_shop_languageHelper {
 					}
 
 					if (
-							TL_MODE == 'BE'
-						&&	\Input::get('act') != 'editAll'
-						&&	\Input::get('act') != 'overrideAll'
+                        System::getContainer()->get('merconis.routing.scope')->isBackend()
+						&&	Input::get('act') != 'editAll'
+						&&	Input::get('act') != 'overrideAll'
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputAfterCompleteField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -303,7 +309,7 @@ class ls_shop_languageHelper {
 				 * Creating the sql statement for the field because otherwise install.php would suggest to
 				 * delete the dynamically added fields because they are not defined in the database.sql
 				 */
-				if (\Database::getInstance()->tableExists($str_dcaName)) {
+				if (Database::getInstance()->tableExists($str_dcaName)) {
 					$arr_newFieldDefinition['sql'] = ls_shop_generalHelper::getSQLFieldAttributes($str_dcaName, $str_fieldKey);
 				}
 
@@ -323,7 +329,7 @@ class ls_shop_languageHelper {
 				/*
 				 * Don't try to add a database field if the table doesn't exist yet.
 				 */
-				if (!\Database::getInstance()->tableExists($str_dcaName)) {
+				if (!Database::getInstance()->tableExists($str_dcaName)) {
 					continue;
 				}
 
@@ -332,8 +338,8 @@ class ls_shop_languageHelper {
 				 * or in the repository manager
 				 */
 				if (
-						\Input::get('do') == 'repository_manager'
-					||	strpos(\Environment::get('request'), 'install.php') !== false
+						Input::get('do') == 'repository_manager'
+					||	strpos(Environment::get('request'), 'install.php') !== false
 				) {
 					continue;
 				}
@@ -384,7 +390,7 @@ class ls_shop_languageHelper {
 	}
 
 	public static function createMultilanguageDatabaseFieldIfNotExists($str_tableName, $str_fieldName, $str_fieldToUseAsTemplate) {
-		if (!\Database::getInstance()->tableExists($str_tableName)) {
+		if (!Database::getInstance()->tableExists($str_tableName)) {
 			return array();
 		}
 
@@ -403,7 +409,7 @@ class ls_shop_languageHelper {
 			/*
 			 * Check if field already exists in DB
 			 */
-			$obj_dbres_fields = \Database::getInstance()
+			$obj_dbres_fields = Database::getInstance()
 			->prepare("
 				SHOW COLUMNS FROM	`".$str_tableName."`
 			")
@@ -430,7 +436,7 @@ class ls_shop_languageHelper {
 					!key_exists($str_fieldName, $arr_fields)
 				&&	key_exists($str_fieldToUseAsTemplate, $arr_fields)
 			) {
-				\Database::getInstance()
+				Database::getInstance()
 				->prepare("
 					ALTER TABLE	`".$str_tableName."`
 					ADD			`".$str_fieldName."` ".$str_fieldAttributes."
@@ -453,7 +459,7 @@ class ls_shop_languageHelper {
 	 * of a language field for the fallback language is also saved as the
 	 * value of language independent master field
 	 */
-	public static function saveMultilanguageValue_new($var_value, \DataContainer $dc) {
+	public static function saveMultilanguageValue_new($var_value, DataContainer $dc) {
 		$str_tableName = $dc->table;
 		$str_fieldName = $dc->field;
 		$str_masterFieldName = preg_replace('/_[a-zA-Z]*$/', '', $str_fieldName);
@@ -465,7 +471,7 @@ class ls_shop_languageHelper {
 		 * will be saved in the master field
 		 */
 		if ($str_languageKey == self::getFallbackLanguage()) {
-			\Database::getInstance()
+			Database::getInstance()
 			->prepare("
 				UPDATE	`".$str_tableName."`
 				SET		`".$str_masterFieldName."` = ?
@@ -491,7 +497,7 @@ class ls_shop_languageHelper {
 	}
 
 	public static function getAllMultilanguageFields($str_tableName = null) {
-		if (!\Database::getInstance()->tableExists($str_tableName)) {
+		if (!Database::getInstance()->tableExists($str_tableName)) {
 			return array();
 		}
 
@@ -505,7 +511,7 @@ class ls_shop_languageHelper {
 			$arr_multilanguageFields = array();
 
 
-			$obj_dbres_fields = \Database::getInstance()
+			$obj_dbres_fields = Database::getInstance()
 			->prepare("
 				SHOW COLUMNS FROM	`".$str_tableName."`
 			")
@@ -550,7 +556,7 @@ class ls_shop_languageHelper {
 			 * definitely means that all language specific fields in all tables exist in all
 			 * languages.
 			 */
-			$arr_fields = \Database::getInstance()->listFields('tl_ls_shop_product');
+			$arr_fields = Database::getInstance()->listFields('tl_ls_shop_product');
 			$arr_tmp_fields = array();
 			foreach ($arr_fields as $arr_fieldInfo) {
 				$arr_tmp_fields[] = $arr_fieldInfo['name'];
@@ -585,7 +591,7 @@ class ls_shop_languageHelper {
 		/*
 		 * Load all DCA definitions
 		 */
-		$str_pathToMerconisDCA = TL_ROOT.'/vendor/leadingsystems/contao-merconis/src/Resources/contao/dca';
+		$str_pathToMerconisDCA = System::getContainer()->getParameter('kernel.project_dir').'/vendor/leadingsystems/contao-merconis/src/Resources/contao/dca';
 		$arr_dcaFiles = scandir($str_pathToMerconisDCA);
 		foreach ($arr_dcaFiles as $str_filename) {
 			if ($str_filename == '.' || $str_filename == '..') {
@@ -595,7 +601,7 @@ class ls_shop_languageHelper {
 			if (in_array($str_dcaName, $arr_excludeDCA)) {
 				continue;
 			}
-			\Controller::loadDataContainer($str_dcaName);
+			Controller::loadDataContainer($str_dcaName);
 		}
 	}
 
@@ -657,7 +663,7 @@ class ls_shop_languageHelper {
 		}
 
 		$arr_values[] = $int_rowId;
-		\Database::getInstance()
+		Database::getInstance()
 			->prepare("
 			UPDATE		`".$str_tableName."`
 			SET			".$str_set."
@@ -741,7 +747,7 @@ class ls_shop_languageHelper {
 		/*
 		 * Get the complete row for the requested id
 		 */
-		$obj_dbres_row = \Database::getInstance()
+		$obj_dbres_row = Database::getInstance()
 			->prepare("
 			SELECT		*
 			FROM		`".$str_tableName."`
@@ -867,7 +873,7 @@ class ls_shop_languageHelper {
 	 * sodass es von der Funktion getLanguagePage verarbeitet werden kann.
 	 */
 	public static function processLanguagePageArray($key) {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 
 		if (!is_array($GLOBALS['TL_CONFIG'][$key])) {
@@ -878,7 +884,7 @@ class ls_shop_languageHelper {
 					/*
 					 * Zu jeder Seite wird eingetragen, welche Sprache sie hat.
 					 */
-					$pageInfo = \PageModel::findWithDetails($languagePageID);
+					$pageInfo = PageModel::findWithDetails($languagePageID);
 
 					/*
 					 * Skip pages with non-matching domains
@@ -913,7 +919,7 @@ class ls_shop_languageHelper {
 				$GLOBALS['TL_CONFIG'][$key] = $languagePageSelection;
 			}
 
-			/** @var \PageModel $objPage */
+			/** @var PageModel $objPage */
 			global $objPage;
 			ls_shop_languageHelper::processLanguagePageArray($key);
 			$GLOBALS['merconis_globals'][$key.'Url'] = '';
@@ -941,7 +947,7 @@ class ls_shop_languageHelper {
 				$pageID = $pageFallbackID;
 			}
 
-			$objLanguagePage = \Database::getInstance()
+			$objLanguagePage = Database::getInstance()
 				->prepare("SELECT id, alias FROM tl_page WHERE id = ?")
 				->limit(1)
 				->execute($pageID);
@@ -990,7 +996,7 @@ class ls_shop_languageHelper {
 		}
 
 		try {
-			$obj_dbres_recordForAlias = \Database::getInstance()->prepare("
+			$obj_dbres_recordForAlias = Database::getInstance()->prepare("
 					SELECT		`alias_".$str_targetLanguage."`
 					FROM		`tl_ls_shop_product`
 					WHERE		`alias_".$str_sourceLanguage."` = ?
@@ -1015,7 +1021,7 @@ class ls_shop_languageHelper {
 		}
 
 		try {
-			$obj_dbres_recordForAlias = \Database::getInstance()->prepare("
+			$obj_dbres_recordForAlias = Database::getInstance()->prepare("
 					SELECT		`alias_".$str_targetLanguage."`
 					FROM		`tl_ls_shop_variant`
 					WHERE		`alias_".$str_sourceLanguage."` = ?

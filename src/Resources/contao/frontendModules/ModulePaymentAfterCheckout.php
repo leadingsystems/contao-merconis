@@ -2,16 +2,20 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\Module;
 use Contao\System;
 
-class ModulePaymentAfterCheckout extends \Module {
+class ModulePaymentAfterCheckout extends Module {
 	public function generate() {
-		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$obj_template = new \BackendTemplate('be_wildcard');
+			$obj_template = new BackendTemplate('be_wildcard');
 			$obj_template->wildcard = '### MERCONIS - Kasse - Bezahlung nach Checkout ###';
 			return $obj_template->parse();
 		}
@@ -25,10 +29,10 @@ class ModulePaymentAfterCheckout extends \Module {
 		 * Look if an oih is given as a get or post parameter
 		 */
 		$str_oih = null;
-		if (\Input::get('oih')) {
-			$str_oih = \Input::get('oih');
-		} else if (\Input::post('oih')) {
-			$str_oih = \Input::get('oih');
+		if (Input::get('oih')) {
+			$str_oih = Input::get('oih');
+		} else if (Input::post('oih')) {
+			$str_oih = Input::get('oih');
 		}
 
 		$arr_order = ls_shop_generalHelper::getOrder($str_oih, 'orderIdentificationHash');
@@ -42,7 +46,7 @@ class ModulePaymentAfterCheckout extends \Module {
 		$arr_paymentModuleReturn = $obj_paymentModule->onPaymentAfterCheckoutPage($arr_order);
 		// ###################################################
 
-		$this->Template = new \FrontendTemplate($this->strTemplate);
+		$this->Template = new FrontendTemplate($this->strTemplate);
 		$this->Template->arr_order = $arr_order;
 		$this->Template->str_paymentModuleOutput = $arr_paymentModuleReturn['str_output'];
 		$this->Template->str_cancelUrl = $arr_paymentModuleReturn['str_cancelUrl'];

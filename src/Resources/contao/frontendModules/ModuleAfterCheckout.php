@@ -2,16 +2,20 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\Module;
 use Contao\System;
 
-class ModuleAfterCheckout extends \Module {
+class ModuleAfterCheckout extends Module {
 	public function generate() {
-		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS - Kasse - Nach Checkout ###';
 			return $objTemplate->parse();
 		}
@@ -65,10 +69,10 @@ class ModuleAfterCheckout extends \Module {
 		$bln_paymentModuleAlreadySpecialized = false;
 		$str_oixFromCallback = '';
 		
-		if (\Input::get('callbackPaymentMethodId')) {
-			$int_callbackPaymentMethodId = \Input::get('callbackPaymentMethodId');
-		} else if (\Input::post('callbackPaymentMethodId')) {
-			$int_callbackPaymentMethodId = \Input::post('callbackPaymentMethodId');
+		if (Input::get('callbackPaymentMethodId')) {
+			$int_callbackPaymentMethodId = Input::get('callbackPaymentMethodId');
+		} else if (Input::post('callbackPaymentMethodId')) {
+			$int_callbackPaymentMethodId = Input::post('callbackPaymentMethodId');
 		}
 		
 		if ($int_callbackPaymentMethodId) {
@@ -91,11 +95,11 @@ class ModuleAfterCheckout extends \Module {
 		if ($str_oixFromCallback) {
 			$oix = $str_oixFromCallback;
 			$idFromOix = ls_shop_generalHelper::decodeOix($oix);
-		} else if (\Input::get('oix')) {
-			$oix = \Input::get('oix');
+		} else if (Input::get('oix')) {
+			$oix = Input::get('oix');
 			$idFromOix = ls_shop_generalHelper::decodeOix($oix);
-		} else if (\Input::post('oix')) {
-			$oix = \Input::post('oix');
+		} else if (Input::post('oix')) {
+			$oix = Input::post('oix');
 			$idFromOix = ls_shop_generalHelper::decodeOix($oix);
 		}
 		
@@ -105,10 +109,10 @@ class ModuleAfterCheckout extends \Module {
 		$oih = null;
 		if (isset($_SESSION['lsShop']['oix2oih'][$oix]) && $_SESSION['lsShop']['oix2oih'][$oix]) {
 			$oih = $_SESSION['lsShop']['oix2oih'][$oix];
-		} else if (\Input::get('oih')) {
-			$oih = \Input::get('oih');
-		} else if (\Input::post('oih')) {
-			$oih = \Input::get('oih');
+		} else if (Input::get('oih')) {
+			$oih = Input::get('oih');
+		} else if (Input::post('oih')) {
+			$oih = Input::get('oih');
 		}
 		
 		$arrOrder = null;
@@ -138,7 +142,7 @@ class ModuleAfterCheckout extends \Module {
 				return false;
 			}
 
-			$this->Template = new \FrontendTemplate($this->strTemplate);
+			$this->Template = new FrontendTemplate($this->strTemplate);
 			
 			$this->Template->arrOrder = $arrOrder;
 			$this->Template->specialInfoForPaymentMethod = isset($_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish']) ? $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] : '';

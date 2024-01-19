@@ -2,6 +2,11 @@
 
 namespace Merconis\Core;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
+use Contao\Date;
+use Contao\File;
+use Contao\FilesModel;
+use Contao\Folder;
 use Contao\System;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -120,8 +125,9 @@ class ls_shop_importController
 			'currentlyProcessingDataRowType' => null,
 			'lastFilePointerPosition' => 0
 		);
-		
-		$importFolder = TL_ROOT.'/'.ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']);
+
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+		$importFolder = $str_projectDir.'/'.ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']);
 		$files = scandir($importFolder);
 		
 		// If exactly one file exists (which must be the case), $files counts 3 because of the pseudo files "." und ".."
@@ -133,11 +139,11 @@ class ls_shop_importController
 		
 		$file = $files[2];
 
-		$objFile = new \File(ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']).'/'.$file);
+		$objFile = new File(ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']).'/'.$file);
 		
 		$arrImportFileInfo['name'] = $objFile->name;
-		$arrImportFileInfo['fullFilename'] = TL_ROOT.'/'.ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']).'/'.$file;
-		$arrImportFileInfo['date'] = \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $objFile->mtime);
+		$arrImportFileInfo['fullFilename'] = $str_projectDir.'/'.ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']).'/'.$file;
+		$arrImportFileInfo['date'] = Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $objFile->mtime);
 		
 		$arrImportFileInfo['sizeBytes'] = $objFile->size;
 		if ($arrImportFileInfo['sizeBytes'] >= 1024 && $arrImportFileInfo['sizeBytes'] < 1048576) {
@@ -527,7 +533,7 @@ class ls_shop_importController
 		// Prüfen, ob es ein Produkt mit der Artikelnummer bereits gibt
 		$alreadyExistsAsID = false;
 
-		$objProdExists = \Database::getInstance()->prepare("
+		$objProdExists = Database::getInstance()->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_product`
 			WHERE		`lsShopProductCode` = ?
@@ -545,7 +551,7 @@ class ls_shop_importController
 		if ($row['delete']) {
 			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToDelete'][] = $row['productcode'];
 			if ($alreadyExistsAsID) {
-				\Database::getInstance()->prepare("
+				Database::getInstance()->prepare("
 					DELETE FROM	`tl_ls_shop_product`
 					WHERE		`id` = ?
 				")
@@ -613,7 +619,7 @@ class ls_shop_importController
 		}
 		$row['image'] = is_array($arrTmp[0]) ? trim($arrTmp[0]) : trim($row['image']);
 		$row['image'] = $row['image'] ? ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']).'/'.$row['image'] : '';
-		$objModels = \FilesModel::findMultipleByPaths(array($row['image']));
+		$objModels = FilesModel::findMultipleByPaths(array($row['image']));
 		if ($objModels !== null) {
 			$row['image'] = $objModels->first()->uuid;
 		} else {
@@ -644,7 +650,7 @@ class ls_shop_importController
 		if ($alreadyExistsAsID) {
 			$str_addGroupPriceFieldsToQuery = ls_shop_productManagementApiHelper::createGroupPriceFieldsForQuery('product');
 			
-			$objUpdateProduct = \Database::getInstance()->prepare("
+			$objUpdateProduct = Database::getInstance()->prepare("
 				UPDATE		`tl_ls_shop_product`
 				SET			`title` = ?,
 							`alias` = ?,
@@ -779,7 +785,7 @@ class ls_shop_importController
 		else {
 			$str_addGroupPriceFieldsToQuery = ls_shop_productManagementApiHelper::createGroupPriceFieldsForQuery('product');
 			
-			$objInsertProduct = \Database::getInstance()->prepare("
+			$objInsertProduct = Database::getInstance()->prepare("
 				INSERT INTO	`tl_ls_shop_product`
 				SET			`tstamp` = ?,
 							`title` = ?,
@@ -935,7 +941,7 @@ class ls_shop_importController
 		$alreadyExistsAsID = false;
 		$parentProductID = false;
 
-		$objVariant = \Database::getInstance()->prepare("
+		$objVariant = Database::getInstance()->prepare("
 			SELECT		`id`,
 						`pid`
 			FROM		`tl_ls_shop_variant`
@@ -1030,7 +1036,7 @@ class ls_shop_importController
 		}
 		$row['image'] = is_array($arrTmp[0]) ? trim($arrTmp[0]) : trim($row['image']);
 		$row['image'] = $row['image'] ? ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']).'/'.$row['image'] : '';
-		$objModels = \FilesModel::findMultipleByPaths(array($row['image']));
+		$objModels = FilesModel::findMultipleByPaths(array($row['image']));
 		if ($objModels !== null) {
 			$row['image'] = $objModels->first()->uuid;
 		} else {
@@ -1055,7 +1061,7 @@ class ls_shop_importController
 		if ($alreadyExistsAsID) {
 			$str_addGroupPriceFieldsToQuery = ls_shop_productManagementApiHelper::createGroupPriceFieldsForQuery('variant');
 			
-			$objUpdateVariant = \Database::getInstance()->prepare("
+			$objUpdateVariant = Database::getInstance()->prepare("
 				UPDATE		`tl_ls_shop_variant`
 				SET			`title` = ?,
 							`alias` = ?,
@@ -1180,7 +1186,7 @@ class ls_shop_importController
 		else {
 			$str_addGroupPriceFieldsToQuery = ls_shop_productManagementApiHelper::createGroupPriceFieldsForQuery('variant');
 			
-			$objInsertVariant = \Database::getInstance()->prepare("
+			$objInsertVariant = Database::getInstance()->prepare("
 				INSERT INTO	`tl_ls_shop_variant`
 				SET			`tstamp` = ?,
 							`pid` = ?,
@@ -2014,7 +2020,7 @@ class ls_shop_importController
 			return;
 		}
 
-		$objFolder = new \Folder(ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']));
+		$objFolder = new Folder(ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']));
 		$objFolder->purge();
 	}
 
@@ -2026,7 +2032,7 @@ class ls_shop_importController
 			throw new \Exception('no product id given.');
 		}
 		
-		$objVariants = \Database::getInstance()->prepare("
+		$objVariants = Database::getInstance()->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_variant`
 			WHERE		`pid` = ?
@@ -2046,7 +2052,7 @@ class ls_shop_importController
 			throw new \Exception('no variant id given.');
 		}
 		
-		\Database::getInstance()->prepare("
+		Database::getInstance()->prepare("
 			DELETE FROM	`tl_ls_shop_variant`
 			WHERE		`id` = ?
 		")

@@ -2,7 +2,10 @@
 
 namespace Merconis\Core;
 
-	/**
+	use Contao\Controller;
+use Contao\System;
+
+/**
 	 * Diese Klasse stellt die Zahlungsmodule bereit. Die Einstellungen für ein Zahlungsmodul werden in $this->types definiert
 	 * und dann automatisch verarbeitet, z. B. für die Anpassung des DCA in tl_ls_shop_payment_methods.
 	 * 
@@ -34,7 +37,7 @@ namespace Merconis\Core;
 	 * Auf den Key, der dem TypeCode entspricht, ist besonders zu achten!
 	 *
 	 */
-	class ls_shop_paymentModule extends \Controller {
+	class ls_shop_paymentModule extends Controller {
 		public $types = array(
 			'standard' => array(
 				'typeCode' => 'standard',
@@ -552,12 +555,12 @@ namespace Merconis\Core;
 
 			if (isset($GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$this->types = $objMccb->{$mccb[1]}($this->types);
 				}
 			}
 			
-			if(\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+			if(System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 				$this->import('FrontendUser', 'User');
 			}
 			parent::__construct();
@@ -861,7 +864,7 @@ namespace Merconis\Core;
 			if (isset($GLOBALS['MERCONIS_HOOKS']['modifyConfirmOrderForm']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyConfirmOrderForm'])) {
 				$modifiedForm = $form;
 				foreach ($GLOBALS['MERCONIS_HOOKS']['modifyConfirmOrderForm'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$modifiedForm = $objMccb->{$mccb[1]}($modifiedForm);
 					
 				}

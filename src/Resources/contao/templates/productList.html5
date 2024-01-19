@@ -1,4 +1,8 @@
 <?php
+
+use Contao\Environment;
+use Contao\System;
+
 $bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting']) && $GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting'];
 ?>
 <!-- indexer::stop -->
@@ -14,7 +18,7 @@ $bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorti
             <?php if ($this->allowUserSorting) { ?>
                 <div class="user-sorting-form">
                     <form
-                        action="<?php echo Merconis\Core\ls_shop_generalHelper::removeGetParametersFromUrl(\Environment::get('request'), 'cajaxCall'); ?>"
+                        action="<?php echo Merconis\Core\ls_shop_generalHelper::removeGetParametersFromUrl(Environment::get('request'), 'cajaxCall'); ?>"
                         method="post"
                         <?php
                         if ($bln_useAjax) {

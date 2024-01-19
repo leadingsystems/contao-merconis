@@ -8,6 +8,9 @@
  * - data source: "product search"
  * - make sure to check "create product objects"
  */
+
+use Contao\Environment;
+
 if (is_array($this->arr_data) && count($this->arr_data)) {
     /*
      * Create a pseudo file pointer for php's output stream
@@ -28,8 +31,8 @@ if (is_array($this->arr_data) && count($this->arr_data)) {
             $var_description = trim($var_description);
             $var_description = substr($var_description, 0, 5000);
         }
-        $var_link = \Environment::get('base') . $obj_product->_linkToProduct;
-        $var_imageLink = $obj_product->_hasMainImage ? \Environment::get('base') . $obj_product->_mainImage : '';
+        $var_link = Environment::get('base') . $obj_product->_linkToProduct;
+        $var_imageLink = $obj_product->_hasMainImage ? Environment::get('base') . $obj_product->_mainImage : '';
         $var_price = $obj_product->_unscaledPriceAfterTax . ' ' . $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'];
         $var_availability = $obj_product->_stock > 0 ? 'in_stock' : 'backorder';
         $var_condition = 'new';
@@ -62,8 +65,8 @@ if (is_array($this->arr_data) && count($this->arr_data)) {
                     $var_description = trim($var_description);
                     $var_description = substr($var_description, 0, 5000);
                 }
-                $var_link = \Environment::get('base') . $obj_variant->_linkToVariant;
-                $var_imageLink = $obj_variant->_hasMainImage ? \Environment::get('base') . $obj_variant->_mainImage : '';
+                $var_link = Environment::get('base') . $obj_variant->_linkToVariant;
+                $var_imageLink = $obj_variant->_hasMainImage ? Environment::get('base') . $obj_variant->_mainImage : '';
                 $var_price = $obj_variant->_unscaledPriceAfterTax . ' ' . $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'];
                 $var_availability = $obj_variant->_stock > 0 ? 'in_stock' : 'backorder';
 

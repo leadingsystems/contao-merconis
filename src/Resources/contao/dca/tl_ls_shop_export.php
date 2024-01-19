@@ -1,8 +1,16 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Backend;
+use Contao\BackendTemplate;
+use Contao\Controller;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Environment;
+use Contao\PageModel;
+use Contao\StringUtil;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
@@ -811,12 +819,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_export'] = array(
 
 
 
-class ls_shop_export_dc extends \Backend {
+class ls_shop_export_dc extends Backend {
     public function __construct() {
         parent::__construct();
     }
 
-    public function generateFeedName($varValue, \DataContainer $dc) {
+    public function generateFeedName($varValue, DataContainer $dc) {
         $autoAlias = false;
 
         $currentTitle = $dc->activeRecord->title;
@@ -824,9 +832,9 @@ class ls_shop_export_dc extends \Backend {
         // Generate an alias if there is none
         if ($varValue == '') {
             $autoAlias = true;
-            $varValue = \StringUtil::generateAlias($currentTitle);
+            $varValue = StringUtil::generateAlias($currentTitle);
         }
-        $objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_export WHERE id=? OR feedName=?")
+        $objAlias = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_export WHERE id=? OR feedName=?")
             ->execute($dc->id, $varValue);
 
         // Check whether the alias exists
@@ -840,7 +848,7 @@ class ls_shop_export_dc extends \Backend {
         return $varValue;
     }
 
-    public function generateFileName($varValue, \DataContainer $dc) {
+    public function generateFileName($varValue, DataContainer $dc) {
         $autoAlias = false;
 
         $currentTitle = $dc->activeRecord->title;
@@ -848,9 +856,9 @@ class ls_shop_export_dc extends \Backend {
         // Generate an alias if there is none
         if ($varValue == '') {
             $autoAlias = true;
-            $varValue = \StringUtil::generateAlias($currentTitle);
+            $varValue = StringUtil::generateAlias($currentTitle);
         }
-        $objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_export WHERE id=? OR fileName=?")
+        $objAlias = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_export WHERE id=? OR fileName=?")
             ->execute($dc->id, $varValue);
 
         // Check whether the alias exists
@@ -865,13 +873,14 @@ class ls_shop_export_dc extends \Backend {
     }
 
     public function createLabel($arr_row, $str_label) {
-        $obj_template = new \BackendTemplate('template_beExport');
-
+        $obj_template = new BackendTemplate('template_beExport');
         $obj_template->arr_row = $arr_row;
+
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
 
         $arr_ajaxPage = ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages', false, 'array');
         if (is_array($arr_ajaxPage)) {
-            $obj_targetPageCollection = \PageModel::findById($arr_ajaxPage['id']);
+            $obj_targetPageCollection = PageModel::findById($arr_ajaxPage['id']);
             $obj_template->str_ajaxUrl = $obj_targetPageCollection->getFrontendUrl('/resource/exportFeed').'?feedName='.$arr_row['feedName'].($arr_row['feedPassword'] ? '&pwd='.$arr_row['feedPassword'] : '');
         } else {
             $obj_template->str_ajaxUrl = 'AJAX PAGE NOT FOUND';
@@ -882,8 +891,8 @@ class ls_shop_export_dc extends \Backend {
         if ($arr_row['fileExportActive'] && $arr_row['fileName'] && $arr_row['folder']) {
             $str_pathToFileExportFolder = ls_getFilePathFromVariableSources($arr_row['folder']);
 
-            if (file_exists(TL_ROOT.'/'.$str_pathToFileExportFolder)) {
-                foreach (scandir(TL_ROOT.'/'.$str_pathToFileExportFolder) as $str_fileName) {
+            if (file_exists($str_projectDir.'/'.$str_pathToFileExportFolder)) {
+                foreach (scandir($str_projectDir.'/'.$str_pathToFileExportFolder) as $str_fileName) {
                     if (
                         $str_fileName == '.'
                         ||	$str_fileName == '..'
@@ -909,9 +918,9 @@ class ls_shop_export_dc extends \Backend {
 
                     $arr_existingExportFiles[] = array(
                         'fileName' => $str_fileName,
-                        'url' => \Environment::get('base').$str_pathToFileExportFolder.'/'.$str_fileName,
-                        'dateTime' => date($GLOBALS['TL_CONFIG']['datimFormat'], filemtime(TL_ROOT.'/'.$str_pathToFileExportFolder.'/'.$str_fileName)),
-                        'fileSize' => \Controller::getReadableSize(filesize(TL_ROOT.'/'.$str_pathToFileExportFolder.'/'.$str_fileName))
+                        'url' => Environment::get('base').$str_pathToFileExportFolder.'/'.$str_fileName,
+                        'dateTime' => date($GLOBALS['TL_CONFIG']['datimFormat'], filemtime($str_projectDir.'/'.$str_pathToFileExportFolder.'/'.$str_fileName)),
+                        'fileSize' => Controller::getReadableSize(filesize($str_projectDir.'/'.$str_pathToFileExportFolder.'/'.$str_fileName))
                     );
                 }
             }

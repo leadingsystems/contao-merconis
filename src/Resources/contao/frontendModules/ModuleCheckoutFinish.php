@@ -1,13 +1,19 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\BackendTemplate;
+use Contao\Config;
+use Contao\Database;
+use Contao\Environment;
+use Contao\Module;
+use Contao\PageModel;
 use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
 use function LeadingSystems\Helpers\ls_sub;
 
-class ModuleCheckoutFinish extends \Module {
+class ModuleCheckoutFinish extends Module {
 	protected $objCart = null;
 	private $orderNr = null;
 	
@@ -17,7 +23,7 @@ class ModuleCheckoutFinish extends \Module {
 		}
 		
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS - Bestellabschluss ###';
 			return $objTemplate->parse();
 		}
@@ -57,7 +63,7 @@ class ModuleCheckoutFinish extends \Module {
 			 */
 			$useTableLock = true;
 			if ($useTableLock) {
-				\Database::getInstance()->prepare("
+				Database::getInstance()->prepare("
 					LOCK TABLES
 									`tl_files` READ,
 									`tl_layout` READ,
@@ -96,7 +102,7 @@ class ModuleCheckoutFinish extends \Module {
 				 * Lagerbestand für mindestens eine Position nicht ausreichend, daher Bestellabschluss abbrechen und zurück zur Checkout-Seite
 				 */
 				if ($useTableLock) {
-					\Database::getInstance()->prepare("UNLOCK TABLES")->execute();
+					Database::getInstance()->prepare("UNLOCK TABLES")->execute();
 				}
 				ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
 				$urlCart = $GLOBALS['merconis_globals']['ls_shop_cartPagesUrl'];
@@ -115,7 +121,7 @@ class ModuleCheckoutFinish extends \Module {
 				 */
 				if (is_array(ls_shop_cartX::getInstance()->calculation['couponValues'])) {
 					foreach (ls_shop_cartX::getInstance()->calculation['couponValues'] as $couponID => $arrCouponValues) {
-						$obj_dbquery = \Database::getInstance()->prepare("
+						$obj_dbquery = Database::getInstance()->prepare("
 							UPDATE		`tl_ls_shop_coupon`
 							SET			`numAvailable` = `numAvailable` - 1
 							WHERE		`id` = ?
@@ -129,7 +135,7 @@ class ModuleCheckoutFinish extends \Module {
 			}
 			
 			if ($useTableLock) {
-				\Database::getInstance()->prepare("UNLOCK TABLES")->execute();
+				Database::getInstance()->prepare("UNLOCK TABLES")->execute();
 			}
 			/*
 			 * Ende Verfügbarkeitsprüfung
@@ -218,7 +224,7 @@ class ModuleCheckoutFinish extends \Module {
 	public function generateOrderNr() {
 		$useTableLock = true;
 		if ($useTableLock) {
-			\Database::getInstance()->prepare("
+			Database::getInstance()->prepare("
 				LOCK TABLES
 				`tl_ls_shop_orders` WRITE
 			")->execute();
@@ -226,7 +232,7 @@ class ModuleCheckoutFinish extends \Module {
 		/*
 		 * Auslesen der Informationen zur letzten Bestellung
 		 */
-		$objLastOrder = \Database::getInstance()->prepare("
+		$objLastOrder = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_orders`
 			ORDER BY	`id` DESC
@@ -237,7 +243,7 @@ class ModuleCheckoutFinish extends \Module {
 		/*
 		 * Make sure that we load absolutely fresh config values
 		 */
-		\Config::preload();
+		Config::preload();
 		
 		$orderNr = html_entity_decode($GLOBALS['TL_CONFIG']['ls_shop_orderNrString']);
 		
@@ -313,7 +319,7 @@ class ModuleCheckoutFinish extends \Module {
 		$this->Config->update("\$GLOBALS['TL_CONFIG']['ls_shop_orderNrCounter']", $nextCounter);
 		$this->Config->save();
 		if ($useTableLock) {
-			\Database::getInstance()->prepare("UNLOCK TABLES")->execute();
+			Database::getInstance()->prepare("UNLOCK TABLES")->execute();
 		}
 		
 		/*
@@ -345,7 +351,7 @@ class ModuleCheckoutFinish extends \Module {
 		$obj_paymentModule = new ls_shop_paymentModule();
 		$obj_shippingModule = new ls_shop_shippingModule();
 
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 
 		$customerGroupInfo = ls_shop_generalHelper::getGroupSettings4User();
@@ -358,7 +364,7 @@ class ModuleCheckoutFinish extends \Module {
 		//get formID from first Element for the arrData, this is the form that needs to be checked
 		$formID = $arrData[array_key_first($arrData)]["arrData"]["pid"];
 
-		$objFormFields = \Database::getInstance()->prepare("
+		$objFormFields = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_form_field`
 				WHERE		`pid` = ?
@@ -475,10 +481,13 @@ class ModuleCheckoutFinish extends \Module {
 			'thousandsSeparator' => $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'], // no language
 			'miscData' => array( // no language
 				'pageDNS' => $objPage->domain ?: '',
-				'host' => \Environment::get('host'),
-				'domain' => ($objPage->rootUseSSL ? 'https://' : 'http://') . ($objPage->domain ?: \Environment::get('host')) . TL_PATH . '/',
+				'host' => Environment::get('host'),
+				/*
+				 * @toDo Fix undefined constant TL_PATH
+				 */
+				'domain' => ($objPage->rootUseSSL ? 'https://' : 'http://') . ($objPage->domain ?: Environment::get('host')) . TL_PATH . '/',
 				'languageUsedOnCheckout' => $objPage->language,
-				'ipAnonymized' => System::anonymizeIp(\Environment::get('ip'))
+				'ipAnonymized' => System::anonymizeIp(Environment::get('ip'))
 			),
 			
 			'totalValueOfGoods' => ls_shop_cartX::getInstance()->calculation['totalValueOfGoods'][0], // no language
@@ -769,7 +778,7 @@ class ModuleCheckoutFinish extends \Module {
 		/*
 		 * writing the order row in tl_ls_shop_orders
 		 */
-		$objInsertedOrder = \Database::getInstance()->prepare("
+		$objInsertedOrder = Database::getInstance()->prepare("
 			INSERT INTO `tl_ls_shop_orders`
 			SET			`tstamp` = ?,
 						`orderIdentificationHash` = ?,
@@ -943,7 +952,7 @@ class ModuleCheckoutFinish extends \Module {
 			}
 			
 			foreach ($arrData as $fieldName => $fieldValue) {
-				\Database::getInstance()->prepare("
+				Database::getInstance()->prepare("
 					INSERT INTO	`tl_ls_shop_orders_customer_data`
 					SET			`pid` = ?,
 								`tstamp` = ?,
@@ -975,7 +984,7 @@ class ModuleCheckoutFinish extends \Module {
 			 */
 			$itemPosition = $itemKey + 1;
 			
-			\Database::getInstance()->prepare("
+			Database::getInstance()->prepare("
 				INSERT INTO	`tl_ls_shop_orders_items`
 				SET			`pid` = ?,
 							`tstamp` = ?,
@@ -1046,7 +1055,7 @@ class ModuleCheckoutFinish extends \Module {
 			return $arr_data;
 		}
 
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 
 		$tmpObjPageLanguage = $objPage->language;

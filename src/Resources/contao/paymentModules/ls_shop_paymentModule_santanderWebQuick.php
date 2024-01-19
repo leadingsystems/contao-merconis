@@ -2,7 +2,11 @@
 
 namespace Merconis\Core;
 
-	use Contao\StringUtil;
+	use Contao\Config;
+    use Contao\Environment;
+    use Contao\FrontendTemplate;
+    use Contao\Input;
+    use Contao\StringUtil;
 
     class ls_shop_paymentModule_santanderWebQuick extends ls_shop_paymentModule_standard {
 		public $arrCurrentSettings = array();
@@ -134,7 +138,7 @@ namespace Merconis\Core;
 		}
 		
 		public function getCustomUserInterface() {
-			$obj_template = new \FrontendTemplate('santanderWebQuickCustomUserInterface');
+			$obj_template = new FrontendTemplate('santanderWebQuickCustomUserInterface');
 
 			$arrCheckoutFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'];
 			$arrPaymentMethodAdditionalDataFormFields = ls_shop_checkoutData::getInstance()->arrCheckoutData['arrPaymentMethodAdditionalData'];
@@ -143,17 +147,17 @@ namespace Merconis\Core;
 				return $obj_template->parse();
 			}
 			
-			if (\Input::post('FORM_SUBMIT') && \Input::post('FORM_SUBMIT') == 'santanderWebQuickCheckStatus') {
+			if (Input::post('FORM_SUBMIT') && Input::post('FORM_SUBMIT') == 'santanderWebQuickCheckStatus') {
 				$_SESSION['lsShopPaymentProcess']['santanderWebQuick']['bln_statusCheckedAtLeastOnce'] = true;
 			}
 			
 			/*
 			 * Handle POST data from the birthday form
 			 */
-			if (\Input::post('FORM_SUBMIT') && \Input::post('FORM_SUBMIT') == 'santanderWebQuickBirthday') {
-				$_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_day'] = intval(\Input::post('santanderWebQuickBirthdayDay')) ?: '';
-				$_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_month'] = intval(\Input::post('santanderWebQuickBirthdayMonth')) ?: '';
-				$_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_year'] = intval(\Input::post('santanderWebQuickBirthdayYear')) ?: '';
+			if (Input::post('FORM_SUBMIT') && Input::post('FORM_SUBMIT') == 'santanderWebQuickBirthday') {
+				$_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_day'] = intval(Input::post('santanderWebQuickBirthdayDay')) ?: '';
+				$_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_month'] = intval(Input::post('santanderWebQuickBirthdayMonth')) ?: '';
+				$_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_year'] = intval(Input::post('santanderWebQuickBirthdayYear')) ?: '';
 				
 				$str_birthdayValidationResult = $this->santanderWebQuick_validateBirthday($_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_day'], $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_month'], $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_year'], $this->arrCurrentSettings['santanderWebQuickMinAge']);
 				switch ($str_birthdayValidationResult) {
@@ -192,7 +196,7 @@ namespace Merconis\Core;
 				$obj_storeFinanceDataRequest->lastName = ($arrCheckoutFormFields[$this->arrCurrentSettings['santanderWebQuickFieldNameLastName']]['value'] ?: $arrPaymentMethodAdditionalDataFormFields[$this->arrCurrentSettings['santanderWebQuickFieldNameLastName']]['value']) ?: null;
 				
 				$obj_storeFinanceDataRequest->orderID = $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['str_orderID'];
-				$obj_storeFinanceDataRequest->productName = sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc02'], date(\Config::get('dateFormat'), time()));
+				$obj_storeFinanceDataRequest->productName = sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc02'], date(Config::get('dateFormat'), time()));
 
 				$obj_storeFinanceDataRequest->customerBirthday = $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_year'].'-'.$_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_month'].'-'.$_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_day'];
 
@@ -236,7 +240,7 @@ namespace Merconis\Core;
 				$this->reload();
 			}
 			
-			$obj_template->formAction = \Environment::get('request');
+			$obj_template->formAction = Environment::get('request');
 			$obj_template->linkToSantander = sprintf(($this->arrCurrentSettings['santanderWebQuickLiveMode'] ? $this->santanderWebQuick_str_redirectUrlLive : $this->santanderWebQuick_str_redirectUrlTest), $this->arrCurrentSettings['santanderWebQuickVendorNumber'], $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['str_orderID'], $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['str_financeID']);
 			return $obj_template->parse();
 		}
@@ -261,7 +265,7 @@ namespace Merconis\Core;
 			$outputValue = '';
 			$paymentMethod_moduleReturnData = StringUtil::deserialize($paymentMethod_moduleReturnData);
 			
-			if (\Input::get('santanderWebQuick_cancel') && \Input::get('santanderWebQuick_cancel') == $arrOrder['id']) {
+			if (Input::get('santanderWebQuick_cancel') && Input::get('santanderWebQuick_cancel') == $arrOrder['id']) {
 				$obj_cancelContractRequest = new santanderWebQuick_cancelContract();
 				$obj_cancelContractRequest->vendor = $this->santanderWebQuick_obj_vendor;
 				$obj_cancelContractRequest->financeID = $paymentMethod_moduleReturnData['str_financeID'];
@@ -282,8 +286,8 @@ namespace Merconis\Core;
 				}
 			}
 			
-			if (\Input::get('santanderWebQuick_markAsDelivered') && \Input::get('santanderWebQuick_markAsDelivered') == $arrOrder['id']) {
-				$str_specifiedAmount = \Input::post('specifiedAmount') ?: 0;
+			if (Input::get('santanderWebQuick_markAsDelivered') && Input::get('santanderWebQuick_markAsDelivered') == $arrOrder['id']) {
+				$str_specifiedAmount = Input::post('specifiedAmount') ?: 0;
 				$bln_specifiedAmountOk = true;
 				if ($str_specifiedAmount) {
 					if (preg_match('[^0-9.]', $str_specifiedAmount) || strpos($str_specifiedAmount, '.') === false) {
@@ -326,9 +330,9 @@ namespace Merconis\Core;
 			 */
 			if (
 					$bln_useDetailsMode
-				||	(\Input::get('santanderWebQuick_updateStatus') && \Input::get('santanderWebQuick_updateStatus') == $arrOrder['id'])
-				||	(\Input::get('santanderWebQuick_cancel') && \Input::get('santanderWebQuick_cancel') == $arrOrder['id'])
-				||	(\Input::get('santanderWebQuick_markAsDelivered') && \Input::get('santanderWebQuick_markAsDelivered') == $arrOrder['id'])
+				||	(Input::get('santanderWebQuick_updateStatus') && Input::get('santanderWebQuick_updateStatus') == $arrOrder['id'])
+				||	(Input::get('santanderWebQuick_cancel') && Input::get('santanderWebQuick_cancel') == $arrOrder['id'])
+				||	(Input::get('santanderWebQuick_markAsDelivered') && Input::get('santanderWebQuick_markAsDelivered') == $arrOrder['id'])
 			) {
 				$obj_getApplicationStatusRequest = new santanderWebQuick_getApplicationStatus();
 				$obj_getApplicationStatusRequest->vendor = $this->santanderWebQuick_obj_vendor;
@@ -359,7 +363,7 @@ namespace Merconis\Core;
 			?>
 			<div id="santander_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview santanderWebQuick status_<?php echo $paymentMethod_moduleReturnData['int_status']; ?><?php echo $bln_useDetailsMode ? ' details' : ''; ?>">
 				<div class="statusBlock">
-					<?php echo sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc13'], date(\Config::get('datimFormat'), $paymentMethod_moduleReturnData['utstamp_status'])); ?>:
+					<?php echo sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc13'], date(Config::get('datimFormat'), $paymentMethod_moduleReturnData['utstamp_status'])); ?>:
 					<span class="status">
 						<?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['statusTitles'][$paymentMethod_moduleReturnData['int_status']] ?: $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['statusTitles']['unknown']; ?>
 					</span>

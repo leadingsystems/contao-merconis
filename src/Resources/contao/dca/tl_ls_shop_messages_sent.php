@@ -2,7 +2,10 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\BackendTemplate;
 use Contao\DataContainer;
+use Contao\Date;
 use Contao\DC_Table;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
@@ -227,23 +230,23 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 
 
 
-class ls_shop_messages_sent extends \Backend {
+class ls_shop_messages_sent extends Backend {
 	public function __construct() {
 		parent::__construct();
 	}
 
 	public function createLabel($row, $label) {
-		$objTemplate = new \BackendTemplate('template_beMessageRepresentationOverview_default');
+		$objTemplate = new BackendTemplate('template_beMessageRepresentationOverview_default');
 		$objTemplate->value = ls_shop_generalHelper::getMessageSent($row['id']);
 		$label = $objTemplate->parse();
 		return $label;
 	}
 
-	public function getMessageRepresentationValue($varValue, \DataContainer $dc) {
+	public function getMessageRepresentationValue($varValue, DataContainer $dc) {
 		return ls_shop_generalHelper::getMessageSent($dc->id);
 	}
 	
-	public function getDate($varValue, \DataContainer $dc) {
-		return \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $varValue);
+	public function getDate($varValue, DataContainer $dc) {
+		return Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $varValue);
 	}
 }

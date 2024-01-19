@@ -1,4 +1,9 @@
 <?php
+
+use Contao\System;
+use Merconis\Core\ls_shop_cartX;
+use Merconis\Core\ls_shop_msg;
+
 $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
 
 /*
@@ -7,7 +12,7 @@ $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
  * If you duplicate this template, please make sure to adjust the include paths in the other file.
  */
 
-if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
+if (!ls_shop_cartX::getInstance()->numItems) {
 	?>
 		<p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText025']; ?></p>
 	<?php
@@ -15,7 +20,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 ?>
 
 <?php
-	if (\Merconis\Core\ls_shop_msg::checkMsgClass('checkCartPositionsStockSufficient')) {
+	if (ls_shop_msg::checkMsgClass('checkCartPositionsStockSufficient')) {
 		?>
 		<p class="error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText038']; ?></p>
 		<?php
@@ -23,7 +28,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 ?>
 		
 <?php
-	if (\Merconis\Core\ls_shop_msg::checkMsgClass('couponsNotAllowed')) {
+	if (ls_shop_msg::checkMsgClass('couponsNotAllowed')) {
 		?>
 		<p class="error"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text011']; ?></p>
 		<?php
@@ -43,7 +48,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 
 	<div class="cart-item-list">
         <?php
-        foreach (\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
+        foreach (ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
             $objProduct = &$cartItem['objProduct'];
 
             if ($objProduct->_variantIsSelected) {
@@ -81,6 +86,9 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                             <?php
                         }
                         ?>
+                        <!--
+                        @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+                        -->
                         <img src="<?php echo \Image::get($imgToUse, 600, 600, 'box'); ?>" alt="" />
                         <?php
                         if (!$objProduct->_configuratorHasValue) {
@@ -96,23 +104,23 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
 
                 <div class="name-and-description">
                     <?php
-                    if (\Merconis\Core\ls_shop_msg::checkMsg('cartPositionOrderNotAllowed', $productCartKey)) {
+                    if (ls_shop_msg::checkMsg('cartPositionOrderNotAllowed', $productCartKey)) {
                         ?>
                         <p class="error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText059']; ?></p>
                         <?php
                     }
                     ?>
                     <?php
-                    if (\Merconis\Core\ls_shop_msg::checkMsg('checkCartPositionsStockSufficient', $productCartKey)) {
-                        $msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('checkCartPositionsStockSufficient', $productCartKey);
+                    if (ls_shop_msg::checkMsg('checkCartPositionsStockSufficient', $productCartKey)) {
+                        $msgDetails = ls_shop_msg::getMsgDetails('checkCartPositionsStockSufficient', $productCartKey);
                         ?>
                         <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText056'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['originalQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['newQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit']); ?></p>
                         <?php
                     }
                     ?>
                     <?php
-                    if (\Merconis\Core\ls_shop_msg::checkMsg('setItemQuantity', $productCartKey)) {
-                        $msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('setItemQuantity', $productCartKey);
+                    if (ls_shop_msg::checkMsg('setItemQuantity', $productCartKey)) {
+                        $msgDetails = ls_shop_msg::getMsgDetails('setItemQuantity', $productCartKey);
                         ?>
                         <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText057'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['availableQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit']); ?></p>
                         <?php
@@ -173,13 +181,13 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                 <div class="price-cumulative">
                     <div class="field-label "><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText018'] ?></div>
                     <div class="field-content">
-                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['priceCumulative']); ?>
+                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['priceCumulative']); ?>
                     </div>
                 </div>
                 <div class="tax-class">
                     <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText026'] ?></div>
                     <div class="field-content">
-                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['taxPercentage']); ?> %
+                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputNumber(ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['taxPercentage']); ?> %
                     </div>
                 </div>
 

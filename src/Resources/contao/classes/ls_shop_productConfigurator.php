@@ -1,6 +1,11 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Controller;
+use Contao\Database;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\Input;
 use Contao\System;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -93,7 +98,7 @@ class ls_shop_productConfigurator {
 		 * Einlesen der Konfigurator-Daten, sofern Konfigurator-ID vorhanden
 		 */
 		if ($this->configuratorID) {
-			$objConfiguratorData = \Database::getInstance()->prepare("
+			$objConfiguratorData = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_configurator`
 				WHERE		`id` = ?
@@ -125,11 +130,12 @@ class ls_shop_productConfigurator {
 				 * Einbinden einer eventuell vorhandenen PHP-Datei mit der customLogic
 				 * und Erstellen des customLogic-Objektes
 				 */
-				
+
+                $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
 				$pathToCustomLogicFile = ls_getFilePathFromVariableSources($objConfiguratorData->customLogicFile);
 				
-				if ($pathToCustomLogicFile && file_exists(TL_ROOT."/".$pathToCustomLogicFile) && is_file(TL_ROOT."/".$pathToCustomLogicFile)) {
-					require_once(TL_ROOT."/".$pathToCustomLogicFile);
+				if ($pathToCustomLogicFile && file_exists($str_projectDir."/".$pathToCustomLogicFile) && is_file($str_projectDir."/".$pathToCustomLogicFile)) {
+					require_once($str_projectDir."/".$pathToCustomLogicFile);
 					$customLogicClassName = '\Merconis\Core\\'.preg_replace('/(^.*\/)([^\/\.]*)(\.php$)/', '\\2', $pathToCustomLogicFile);
 					$this->customLogicClassName = $customLogicClassName;
 
@@ -287,7 +293,7 @@ class ls_shop_productConfigurator {
 			return $GLOBALS['merconis_globals']['configurator'][$this->configuratorCacheKey]['output'];
 		}
 		
-		$template = new \FrontendTemplate($this->strTemplate);
+		$template = new FrontendTemplate($this->strTemplate);
 		$template->arrReceivedPost = $this->arrReceivedPost;
 		$template->arr_customLogicData = $this->arr_customLogicData;
 		$template->blnReceivedFormDataJustNow = $this->blnReceivedFormDataJustNow;
@@ -333,8 +339,8 @@ class ls_shop_productConfigurator {
 		 */
 		$tmpFormSubmitValue = null;
 		if (
-				\Input::post('configurator_productVariantID')
-			&&	\Input::post('configurator_productVariantID') != $this->configuratorCacheKey
+				Input::post('configurator_productVariantID')
+			&&	Input::post('configurator_productVariantID') != $this->configuratorCacheKey
 			
 			/*
 			 * Check for the completely raw post value "FORM_SUBMIT" to make sure that
@@ -344,8 +350,8 @@ class ls_shop_productConfigurator {
 			 */
 			&&	$_POST['FORM_SUBMIT']
 		) {
-			$tmpFormSubmitValue = \Input::post('FORM_SUBMIT');
-			\Input::setPost('FORM_SUBMIT', 'ignore me');
+			$tmpFormSubmitValue = Input::post('FORM_SUBMIT');
+			Input::setPost('FORM_SUBMIT', 'ignore me');
 		}
 
 		/* ->
@@ -398,7 +404,7 @@ class ls_shop_productConfigurator {
 		 */
 		$GLOBALS['merconis_globals']['configurator']['objConfigurator'] = &$this;
 
-		$form = \Controller::getForm($this->formID);
+		$form = Controller::getForm($this->formID);
 
 		unset($GLOBALS['merconis_globals']['configurator']['objConfigurator']);
 
@@ -418,7 +424,7 @@ class ls_shop_productConfigurator {
 		}
 		
 		if ($tmpFormSubmitValue !== null) {
-			\Input::setPost('FORM_SUBMIT', $tmpFormSubmitValue);
+			Input::setPost('FORM_SUBMIT', $tmpFormSubmitValue);
 		}
 
 
@@ -434,7 +440,7 @@ class ls_shop_productConfigurator {
 		 * die empfangenen Daten der richtigen Konfigurator-Instanz zuzuweisen.
 		 */
 		$form = preg_replace('/(<form.*>)/', '\\1'."\r\n".'<div><input type="hidden" name="configurator_productVariantID" value="'.$this->configuratorCacheKey.'" /></div>', $form);
-		$form = preg_replace('/(<form.*action=")(.*)(")/siU', '\\1'.\Environment::get('request').'#'.$this->arrProductOrVariantData['anchor'].'\\3', $form);
+		$form = preg_replace('/(<form.*action=")(.*)(")/siU', '\\1'.Environment::get('request').'#'.$this->arrProductOrVariantData['anchor'].'\\3', $form);
 		$template->form = $form;
 
 		$template->blnIsValid = $this->blnIsValid;
@@ -488,18 +494,18 @@ class ls_shop_productConfigurator {
 	 */
 	public function handleConfigurationChangeRequests() {
 		// Erstellen der URL, um einen Konfigurations-Änderungswunsch zu signalisieren
-		$this->changeConfigurationUrl = \Environment::get('request').(preg_match('/\?/', \Environment::get('request')) ? '&' : '?').'changeConfiguration='.$this->configuratorCacheKey.'#'.$this->arrProductOrVariantData['anchor'];
+		$this->changeConfigurationUrl = Environment::get('request').(preg_match('/\?/', Environment::get('request')) ? '&' : '?').'changeConfiguration='.$this->configuratorCacheKey.'#'.$this->arrProductOrVariantData['anchor'];
 		
 		/*
 		 * Liegt eine Änderungsanforderung vor, so wird diese zunächst in die Session geschrieben und die Seite ohne den GET-Parameter erneut aufgerufen.
 		 * Liegt die Änderungsanforderung per POST vor, so wird sie auch in die Session geschrieben und die Seite neu aufgerufen, um die POST-Daten zu entfernen.
 		 */
 		if (
-				\Input::get('changeConfiguration') && \Input::get('changeConfiguration') == $this->configuratorCacheKey
-			||	\Input::post('changeConfiguration') && \Input::post('changeConfiguration') == $this->configuratorCacheKey
+				Input::get('changeConfiguration') && Input::get('changeConfiguration') == $this->configuratorCacheKey
+			||	Input::post('changeConfiguration') && Input::post('changeConfiguration') == $this->configuratorCacheKey
 		) {
 			$_SESSION['lsShop']['configurator'][$this->configuratorCacheKey]['changeConfiguration'] = true;
-			\Controller::redirect(preg_replace('/(\?|&)changeConfiguration='.$this->configuratorCacheKey.'/', '', \Environment::get('request')).'#'.$this->arrProductOrVariantData['anchor']);
+			Controller::redirect(preg_replace('/(\?|&)changeConfiguration='.$this->configuratorCacheKey.'/', '', Environment::get('request')).'#'.$this->arrProductOrVariantData['anchor']);
 		}
 		
 		/*
@@ -531,7 +537,7 @@ class ls_shop_productConfigurator {
 			$this->blnDataEntryMode = true;
 			$this->saveBlnDataEntryMode();
 
-			\Controller::redirect(\Environment::get('request').'#'.$this->arrProductOrVariantData['anchor']);
+			Controller::redirect(Environment::get('request').'#'.$this->arrProductOrVariantData['anchor']);
 		}		
 	}
 
@@ -568,7 +574,7 @@ class ls_shop_productConfigurator {
             $arr_receivedPostForReview = ls_shop_generalHelper::getArrDataReview($this->arrReceivedPost);
             $arr_formFieldLabels = ls_shop_generalHelper::getFormFieldLabels($this->formID);
 
-            $obj_template_defaultConfiguratorRepresentation = new \FrontendTemplate('template_defaultConfiguratorDataReview');
+            $obj_template_defaultConfiguratorRepresentation = new FrontendTemplate('template_defaultConfiguratorDataReview');
             $obj_template_defaultConfiguratorRepresentation->arr_data = $arr_receivedPostForReview;
             $obj_template_defaultConfiguratorRepresentation->arr_formFieldLabels = $arr_formFieldLabels;
             $cartRepresentation = $obj_template_defaultConfiguratorRepresentation->parse();

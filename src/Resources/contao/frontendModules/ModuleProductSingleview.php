@@ -2,18 +2,23 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\Module;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 
-class ModuleProductSingleview extends \Module {
+class ModuleProductSingleview extends Module {
 	public function generate() {
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS ProductSingleview ###';
 			return $objTemplate->parse();
 		}
 		
-		if (!\Input::get('product')) {
+		if (!Input::get('product')) {
 			return '';
 		}
 		
@@ -21,13 +26,13 @@ class ModuleProductSingleview extends \Module {
 	}
 	
 	public function compile() {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 		
 		/*
 		 * Ermitteln der Produkt-ID
 		 */
-		$str_productAlias = \Input::get('product');
+		$str_productAlias = Input::get('product');
 		
 		$int_productId = ls_shop_generalHelper::getProductIdForAlias($str_productAlias);
 		
@@ -84,13 +89,13 @@ class ModuleProductSingleview extends \Module {
 		 * End: Product-specific customization of page title and description
 		 */
 
-		$this->Template = new \FrontendTemplate('productSingleview');
+		$this->Template = new FrontendTemplate('productSingleview');
 		
 		$objProductOutput = new ls_shop_productOutput($int_productId, 'singleview');
 		
 		if (isset($GLOBALS['MERCONIS_HOOKS']['beforeProductSingleviewOutput']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeProductSingleviewOutput'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['beforeProductSingleviewOutput'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$objMccb->{$mccb[1]}($int_productId);
 			}
 		}
