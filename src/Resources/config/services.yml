@@ -9,6 +9,16 @@ services:
     class: LeadingSystems\MerconisBundle\Services\Scope
     public: true
 
+  merconis.helpers.general:
+    class: LeadingSystems\MerconisBundle\Helpers\GeneralHelper
+    arguments:
+      - '@merconis.helpers.ip_checker'
+    public: true
+
+  merconis.helpers.ip_checker:
+    class: LeadingSystems\MerconisBundle\Helpers\IpChecker
+    public: true
+
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
       - '@contao.framework'
@@ -23,6 +33,14 @@ services:
     tags:
       - { name: contao.hook, hook: getPageLayout, method: switchTemplateInDetailsViewIfNecessary }
       - { name: contao.hook, hook: getPageLayout, method: getLayoutSettingsForGlobalUse }
+
+  LeadingSystems\MerconisBundle\EventListener\RequestListener:
+    arguments:
+      - '@contao.framework'
+      - '@contao.routing.scope_matcher'
+      - '@merconis.helpers.general'
+    tags:
+      - { name: kernel.event_listener, priority: 15 }
 
   merconis.eventlistener.loginlistener:
     class: LeadingSystems\MerconisBundle\EventListener\LoginListener

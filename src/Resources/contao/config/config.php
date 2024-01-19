@@ -24,14 +24,6 @@ if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
     $GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getBackendLsjs');
 }
 
-if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
-	$GLOBALS['TL_HOOKS']['getPageLayout'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_switchTemplateInDetailsViewIfNecessary');
-	/*
-	 * Hook for writing the layout's filter settings into the global variables for later use
-	 */
-	$GLOBALS['TL_HOOKS']['getPageLayout'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getLayoutSettingsForGlobalUse');
-}
-
 /*
  * Hook for loading the themes' language files
  */
@@ -102,7 +94,6 @@ $GLOBALS['LS_LANGUAGESELECTOR_HOOKS']['modifyLanguageLinks'][] = array('Merconis
 /*
  * Hook to allow payment provider callbacks to work
  */
-$GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_generalHelper', 'bypassRefererCheckIfNecessary');
 $GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_cartHelper', 'initializeEmptyCart');
 
 /*
