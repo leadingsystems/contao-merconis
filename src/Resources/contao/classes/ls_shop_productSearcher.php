@@ -3,6 +3,8 @@
 namespace Merconis\Core;
 
 use Contao\ArrayUtil;
+use Contao\Database;
+use Contao\PageModel;
 use Contao\System;
 
 use function LeadingSystems\Helpers\createMultidimensionalArray;
@@ -81,7 +83,7 @@ class ls_shop_productSearcher
             ls_shop_filterController::getInstance()->processSentFilterSettings();
         }
 
-        $this->bln_searchWeighting_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug'] && \System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
+        $this->bln_searchWeighting_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug'] && System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
         $this->bln_andSearch = isset($GLOBALS['TL_CONFIG']['ls_shop_searchType']) ? $GLOBALS['TL_CONFIG']['ls_shop_searchType'] : false;
     }
 
@@ -179,7 +181,7 @@ class ls_shop_productSearcher
 
         if (false && isset($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'] as $mccb) {
-                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb = System::importStatic($mccb[0]);
                 $this->blnCacheCanBeUsed = $objMccb->{$mccb[1]}($this->str_productListID, $this->blnCacheCanBeUsed);
             }
         }
@@ -336,7 +338,7 @@ class ls_shop_productSearcher
         if ($this->str_productListID && !$this->checkIfCacheCanBeUsed()) {
             if (isset($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination'])) {
                 foreach ($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination'] as $mccb) {
-                    $objMccb = \System::importStatic($mccb[0]);
+                    $objMccb = System::importStatic($mccb[0]);
                     $this->arrProductResultsComplete = $objMccb->{$mccb[1]}($this->str_productListID, $this->arrProductResultsComplete);
                 }
             }
@@ -358,7 +360,7 @@ class ls_shop_productSearcher
 
         // Use the language of the current page if we have a fronted call
         if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
-            /** @var \PageModel $objPage */
+            /** @var PageModel $objPage */
             global $objPage;
             $this->searchLanguage = $objPage->language;
         }
@@ -374,7 +376,7 @@ class ls_shop_productSearcher
          * created all the other language specific fields for this languge
          * as well.
          */
-        return \Database::getInstance()->fieldExists('title_'.$searchLanguage, 'tl_ls_shop_product');
+        return Database::getInstance()->fieldExists('title_'.$searchLanguage, 'tl_ls_shop_product');
     }
 
     protected function getQualifiedFieldName($fieldName) {
@@ -653,7 +655,7 @@ class ls_shop_productSearcher
 
                         if (isset($GLOBALS['MERCONIS_HOOKS']['customizeSearchResultWeighting']) && is_array($GLOBALS['MERCONIS_HOOKS']['customizeSearchResultWeighting'])) {
                             foreach ($GLOBALS['MERCONIS_HOOKS']['customizeSearchResultWeighting'] as $mccb) {
-                                $objMccb = \System::importStatic($mccb[0]);
+                                $objMccb = System::importStatic($mccb[0]);
                                 $arr_searchResultWeighting = $objMccb->{$mccb[1]}($arr_searchResultWeighting);
                             }
                         }
@@ -1426,7 +1428,7 @@ class ls_shop_productSearcher
          * the filter because it is only required if we request attribute
          * allocations
          */
-        $objProductsComplete = \Database::getInstance()->prepare("
+        $objProductsComplete = Database::getInstance()->prepare("
 			SELECT			".$fieldSelectionPart."
 							".($addToSelectStatement ?? '')."
 			FROM			`tl_ls_shop_product`
@@ -1715,7 +1717,7 @@ class ls_shop_productSearcher
             /*
              * Get all variants for the products from the database
              */
-            $objVariants = \Database::getInstance()->prepare("
+            $objVariants = Database::getInstance()->prepare("
 				SELECT			`tl_ls_shop_variant`.`id`,
 								`tl_ls_shop_variant`.`pid`,
 								`tl_ls_shop_variant`.`lsShopVariantPrice`,
@@ -1850,7 +1852,7 @@ class ls_shop_productSearcher
             if ($this->str_productListID && !$this->checkIfCacheCanBeUsed()) {
                 if (isset($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'])) {
                     foreach ($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'] as $mccb) {
-                        $objMccb = \System::importStatic($mccb[0]);
+                        $objMccb = System::importStatic($mccb[0]);
                         $arrProductsComplete = $objMccb->{$mccb[1]}($this->str_productListID, $arrProductsComplete);
                     }
                 }

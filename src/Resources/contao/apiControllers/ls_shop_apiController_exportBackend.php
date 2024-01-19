@@ -1,6 +1,8 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Database;
+use Contao\Input;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 use Contao\System;
 
@@ -49,7 +51,7 @@ class ls_shop_apiController_exportBackend
 	 */
 	protected function apiResource_writeExportFile()
 	{
-		$int_exportId = \Input::get('exportId') ? \Input::get('exportId') : null;
+		$int_exportId = Input::get('exportId') ? Input::get('exportId') : null;
 
 		if (!$int_exportId) {
 			$this->obj_apiReceiver->fail();
@@ -57,7 +59,7 @@ class ls_shop_apiController_exportBackend
 			return;
 		}
 
-		$obj_dbres_export = \Database::getInstance()->prepare("
+		$obj_dbres_export = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_export`
 		  	WHERE		`fileExportActive` = ?
@@ -135,8 +137,8 @@ class ls_shop_apiController_exportBackend
 	 */
 	protected function apiResource_deleteExportFile()
 	{
-		$int_exportId = \Input::get('exportId') ? \Input::get('exportId') : null;
-		$str_fileName = \Input::get('fileName') ? \Input::get('fileName') : null;
+		$int_exportId = Input::get('exportId') ? Input::get('exportId') : null;
+		$str_fileName = Input::get('fileName') ? Input::get('fileName') : null;
 
 		if (!$int_exportId || !$str_fileName) {
 			$this->obj_apiReceiver->fail();
@@ -144,7 +146,7 @@ class ls_shop_apiController_exportBackend
 			return;
 		}
 
-		$obj_dbres_export = \Database::getInstance()->prepare("
+		$obj_dbres_export = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_export`
 		  	WHERE		`id` = ?

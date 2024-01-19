@@ -2,8 +2,11 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values'] = array(
 	'config' => array(
@@ -146,7 +149,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values'] = array(
 
 
 
-class ls_shop_filter_field_values extends \Backend {
+class ls_shop_filter_field_values extends Backend {
 	public function __construct() {
 		parent::__construct();
 	}
@@ -155,7 +158,7 @@ class ls_shop_filter_field_values extends \Backend {
 		return sprintf('<strong>%s</strong> <span style="font-style: italic;">(Alias: %s)</span>', $arrRow['filterValue'], $arrRow['alias']);
 	}
 
-	public function generateAlias($varValue, \DataContainer $dc) {
+	public function generateAlias($varValue, DataContainer $dc) {
 		$autoAlias = false;
 
 		$currentFilterValue = $dc->activeRecord->filterValue;
@@ -163,9 +166,9 @@ class ls_shop_filter_field_values extends \Backend {
 		// Generate an alias if there is none
 		if ($varValue == '') {
 			$autoAlias = true;
-			$varValue = \StringUtil::generateAlias($currentFilterValue);
+			$varValue = StringUtil::generateAlias($currentFilterValue);
 		}
-		$objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_filter_field_values WHERE id=? OR alias=?")
+		$objAlias = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_filter_field_values WHERE id=? OR alias=?")
 								   ->execute($dc->id, $varValue);
 
 		// Check whether the alias exists

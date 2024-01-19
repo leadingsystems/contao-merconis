@@ -3,6 +3,10 @@
 namespace Merconis\Core;
 
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 
@@ -67,7 +71,7 @@ class ls_shop_cross_seller
          * (before and after the reload)
          */
         if ($this->ls_details['productSelectionType'] == 'frontendProductSearch') {
-            if (\Input::post('FORM_SUBMIT') == 'merconisProductSearch' || (\Input::post('isAjax') == 1 && \Input::post('action') == 'getPossibleHits')) {
+            if (Input::post('FORM_SUBMIT') == 'merconisProductSearch' || (Input::post('isAjax') == 1 && Input::post('action') == 'getPossibleHits')) {
                 return $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText113'];
             }
         }
@@ -75,7 +79,7 @@ class ls_shop_cross_seller
         $GLOBALS['lsShopProductViewContext'] = 'crossSeller_'.$this->ls_id;
 
         $this->ls_template = $this->ls_details['template'];
-        $obj_template =  new \FrontendTemplate($this->ls_template);
+        $obj_template =  new FrontendTemplate($this->ls_template);
 
         $productListOutput = '';
 
@@ -252,7 +256,7 @@ class ls_shop_cross_seller
     }
 
     protected function ls_getSearchSelection() {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
         /*
          * Erstellung des Suchkriterien-Arrays für productSearcher
@@ -324,10 +328,10 @@ class ls_shop_cross_seller
 
 
     protected function ls_getDetails() {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
-        $objCrossSeller = \Database::getInstance()->prepare("
+        $objCrossSeller = Database::getInstance()->prepare("
 			SELECT			*
 			FROM			`tl_ls_shop_cross_seller`
 			WHERE			`id` = ?
@@ -382,7 +386,7 @@ class ls_shop_cross_seller
     protected function ls_getRestockInfoListSelection() {
         $obj_user = System::importStatic('FrontendUser');
 
-        $obj_dbres_restockInfoListRecords = \Database::getInstance()
+        $obj_dbres_restockInfoListRecords = Database::getInstance()
             ->prepare("
                 SELECT      productVariantId
                 FROM        tl_ls_shop_restock_info_list
@@ -412,16 +416,16 @@ class ls_shop_cross_seller
     }
 
     protected function getCurrentProductInDetailMode() {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
-        if (\Input::get('product') || ($GLOBALS['merconis_globals']['str_currentProductAliasForCrossSeller'] ?? null)) {
-            $objCurrentProduct = \Database::getInstance()->prepare("
+        if (Input::get('product') || ($GLOBALS['merconis_globals']['str_currentProductAliasForCrossSeller'] ?? null)) {
+            $objCurrentProduct = Database::getInstance()->prepare("
 				SELECT			*
 				FROM			`tl_ls_shop_product`
 				WHERE			`alias_".$objPage->language."` = ?
 			")
                 ->limit(1)
-                ->execute(\Input::get('product') ? \Input::get('product') : $GLOBALS['merconis_globals']['str_currentProductAliasForCrossSeller']);
+                ->execute(Input::get('product') ? Input::get('product') : $GLOBALS['merconis_globals']['str_currentProductAliasForCrossSeller']);
 
             if ($objCurrentProduct->numRows) {
                 $this->ls_currentProductInDetailMode = $objCurrentProduct->first();

@@ -1,10 +1,15 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\BackendModule;
+use Contao\Environment;
+use Contao\FileUpload;
+use Contao\Input;
+use Contao\Message;
 use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
-class ls_shop_import extends \BackendModule {
+class ls_shop_import extends BackendModule {
 
 	protected $strTemplate = 'be_import';
 	
@@ -17,11 +22,11 @@ class ls_shop_import extends \BackendModule {
 		$obj_importController = new ls_shop_importController();
 		
 		// Create the file upload field
-		$objFfl_importFileUpload = new \FileUpload(array(
+		$objFfl_importFileUpload = new FileUpload(array(
 			'name' => 'importFileUpload'
 		));
 		
-		if (\Input::post('FORM_SUBMIT') == 'beModule_importUploadFile') {
+		if (Input::post('FORM_SUBMIT') == 'beModule_importUploadFile') {
 			/*
 			 * If a file has been uploaded, we remove all files that currently exist in the import folder
 			 * and move the uploaded file into that folder
@@ -55,10 +60,10 @@ class ls_shop_import extends \BackendModule {
 			}
 		}
 		
-		$this->Template->request = StringUtil::ampersand(\Environment::get('request'), true);
+		$this->Template->request = StringUtil::ampersand(Environment::get('request'), true);
 		$this->Template->ffl_importFileUpload = $objFfl_importFileUpload->generateMarkup();
 		$this->Template->arrCurrentlyExistingImportFileInfo = $_SESSION['lsShop']['importFileInfo'];
-		$this->Template->messages = \Message::generate(false, true);
+		$this->Template->messages = Message::generate(false, true);
 	}
 }
 ?>

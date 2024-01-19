@@ -2,6 +2,14 @@
 
 namespace Merconis\Core;
 
+use Contao\Controller;
+use Contao\Database;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\PageModel;
+use Contao\Pagination;
+use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
 class ls_shop_productList
@@ -29,7 +37,7 @@ class ls_shop_productList
 	protected $int_stopLevel = 0;
 
 	public function __construct($productListID = '', $bln_showProductsFromSubordinatePages = null, $bln_considerUnpublishedPages = null, $bln_considerHiddenPages = null, $int_startLevel = null, $int_stopLevel = null) {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 		if ($productListID) {
 			$this->productListID = $productListID;
@@ -51,7 +59,7 @@ class ls_shop_productList
 			 */
 			if (preg_match('/crossSeller_(\d*)/', $this->productListID, $arrMatches)) {
 				if ($arrMatches[1]) {
-					$objCrossSeller = \Database::getInstance()->prepare("
+					$objCrossSeller = Database::getInstance()->prepare("
 						SELECT		`canBeFiltered`
 						FROM		`tl_ls_shop_cross_seller`
 						WHERE		`id` = ?
@@ -67,7 +75,7 @@ class ls_shop_productList
 			}
 		}
 		
-		$this->currentPage = \Input::get('page_'.$this->productListID) ? \Input::get('page_'.$this->productListID) : 1;
+		$this->currentPage = Input::get('page_'.$this->productListID) ? Input::get('page_'.$this->productListID) : 1;
 		
 		$this->outputDefinition = ls_shop_generalHelper::getOutputDefinition();
 
@@ -132,11 +140,11 @@ class ls_shop_productList
 	public function parseOutput() {
 		// Verarbeiten einer übergebenen Sortiervorgabe (User-Sortierung)
 		if (
-				\Input::post('FORM_SUBMIT') && \Input::post('FORM_SUBMIT') == 'userSorting'
-			&&	\Input::post('identifyCorrespondingOutputDefinition') == $this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID
+				Input::post('FORM_SUBMIT') && Input::post('FORM_SUBMIT') == 'userSorting'
+			&&	Input::post('identifyCorrespondingOutputDefinition') == $this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID
 		) {
-			$_SESSION['lsShop']['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID] = html_entity_decode(\Input::post('userSortingSelection'));
-			\Controller::redirect(\Environment::get('request'));
+			$_SESSION['lsShop']['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID] = html_entity_decode(Input::post('userSortingSelection'));
+			Controller::redirect(Environment::get('request'));
 		}
 
 		/*
@@ -145,7 +153,7 @@ class ls_shop_productList
 		if ($this->blnIsFrontendSearch) {
 			if (isset($GLOBALS['MERCONIS_HOOKS']['beforeSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeSearch'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['beforeSearch'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$this->arrSearchCriteria = $objMccb->{$mccb[1]}($this->arrSearchCriteria);
 				}
 			}
@@ -203,7 +211,7 @@ class ls_shop_productList
 		if ($this->blnIsFrontendSearch) {
 			if (isset($GLOBALS['MERCONIS_HOOKS']['afterSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterSearch'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['afterSearch'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$arrProducts = $objMccb->{$mccb[1]}($this->arrSearchCriteria, $arrProducts);
 				}
 			}
@@ -220,7 +228,7 @@ class ls_shop_productList
 				
 		if (isset($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutput']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutput'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutput'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$arrProducts = $objMccb->{$mccb[1]}($this->productListID, $arrProducts);
 			}
 		}
@@ -233,23 +241,23 @@ class ls_shop_productList
 			return '';
 		}
 		
-		$objTemplate = new \FrontendTemplate('productList');
+		$objTemplate = new FrontendTemplate('productList');
 		
 		$objTemplate->blnUseFilter = $this->blnUseFilter;
 		$objTemplate->blnNotAllProductsMatchFilter = $objProductSearch->blnNotAllProductsMatch;
 		$objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;
 		$objTemplate->numProductsBeforeFilter = $objProductSearch->numProductsBeforeFilter;
 
-		$obj_paginationTemplate = new \FrontendTemplate('merconisPagination');
+		$obj_paginationTemplate = new FrontendTemplate('merconisPagination');
 		$obj_paginationTemplate->productListID = $this->productListID;
-		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
+		$objPagination = new Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
 		$paginationHTML = $objPagination->generate(' ');
 				
 		$objTemplate->pagination = $paginationHTML;
 		
 		$objTemplate->allowUserSorting = $this->outputDefinition['overviewUserSorting'] == 'yes' && !count($this->fixedSorting) ? true : false;
 		
-		\System::loadLanguageFile('tl_ls_shop_output_definitions');
+		System::loadLanguageFile('tl_ls_shop_output_definitions');
 		
 		$objTemplate->identifyCorrespondingOutputDefinition = $this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID;
 

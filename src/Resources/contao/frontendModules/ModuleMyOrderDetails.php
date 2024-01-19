@@ -2,15 +2,19 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\Module;
 use Contao\System;
 
-class ModuleMyOrderDetails extends \Module {
+class ModuleMyOrderDetails extends Module {
 	public function generate() {
-		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('FrontendUser', 'User');
 		}
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS My order details ###';
 			return $objTemplate->parse();
 		}
@@ -19,14 +23,14 @@ class ModuleMyOrderDetails extends \Module {
 	
 	public function compile() {
 		$this->strTemplate = $this->ls_shop_myOrderDetails_template;
-		$this->Template = new \FrontendTemplate($this->strTemplate);
+		$this->Template = new FrontendTemplate($this->strTemplate);
 
-		if (!\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() || !$this->User->id) {
+		if (!System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() || !$this->User->id) {
 			return;
 		}
 				
 
-		$arrOrder = ls_shop_generalHelper::getOrder(\Input::get('oih'), 'orderIdentificationHash');
+		$arrOrder = ls_shop_generalHelper::getOrder(Input::get('oih'), 'orderIdentificationHash');
 		if (!is_array($arrOrder) || !count($arrOrder)) {
 			return false;
 		}

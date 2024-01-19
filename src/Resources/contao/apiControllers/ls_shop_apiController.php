@@ -2,6 +2,8 @@
 
 namespace Merconis\Core;
 
+use Contao\Input;
+
 class ls_shop_apiController {
 	protected static $objInstance;
 
@@ -49,13 +51,13 @@ class ls_shop_apiController {
 	 * every property can be read with an api call.
 	 */
 	protected function apiResource_getProductProperty() {
-		if (!\Input::get('productId')) {
+		if (!Input::get('productId')) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('no productId given');
 			return;
 		}
 		
-		$arr_requestedProperties = array_map('trim', explode(',', \Input::get('properties')));
+		$arr_requestedProperties = array_map('trim', explode(',', Input::get('properties')));
 		
 		if (!is_array($arr_requestedProperties) || !count($arr_requestedProperties)) {
 			$this->obj_apiReceiver->fail();
@@ -63,9 +65,9 @@ class ls_shop_apiController {
 			return;
 		}
 		
-		$obj_product = ls_shop_generalHelper::getObjProduct(\Input::get('productId'));
+		$obj_product = ls_shop_generalHelper::getObjProduct(Input::get('productId'));
 		
-		$bln_useVariant = \Input::get('useVariant') ? true : false;
+		$bln_useVariant = Input::get('useVariant') ? true : false;
 		if ($bln_useVariant && !$obj_product->_variantIsSelected) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('variant property requested but no variant selected');
@@ -96,27 +98,27 @@ class ls_shop_apiController {
 	 * every return value can be successfully read with an api call.
 	 */
 	protected function apiResource_callProductMethod() {
-		if (!\Input::get('productId')) {
+		if (!Input::get('productId')) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('no productId given');
 			return;
 		}
 		
-		if (!\Input::get('method')) {
+		if (!Input::get('method')) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('no method specified');
 			return;
 		}
 		
-		$obj_product = ls_shop_generalHelper::getObjProduct(\Input::get('productId'));
+		$obj_product = ls_shop_generalHelper::getObjProduct(Input::get('productId'));
 		
-		$arr_parameters = json_decode(html_entity_decode(\Input::get('parameters')), true);
+		$arr_parameters = json_decode(html_entity_decode(Input::get('parameters')), true);
 		
 		if (!is_array($arr_parameters)) {
 			$arr_parameters = array();
 		}
 		
-		$var_return = call_user_func_array(array($obj_product, \Input::get('method')), $arr_parameters);
+		$var_return = call_user_func_array(array($obj_product, Input::get('method')), $arr_parameters);
 		
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data($var_return);
@@ -137,13 +139,13 @@ class ls_shop_apiController {
      */
     protected function apiResource_callConfiguratorCustomLogicMethodForProduct() {
 
-        if (\Input::get('productId')) {
+        if (Input::get('productId')) {
 
-            $int_productId = \Input::get('productId');
+            $int_productId = Input::get('productId');
             $str_getOrPost = 'get';                             //alle weiteren Zugriffe auf empfangene Daten mit der Methode
-        } else if (\Input::post('productId')) {
+        } else if (Input::post('productId')) {
 
-            $int_productId = \Input::post('productId');
+            $int_productId = Input::post('productId');
             $str_getOrPost = 'post';                             //alle weiteren Zugriffe auf empfangene Daten mit der Methode
         } else {
 
@@ -154,7 +156,7 @@ class ls_shop_apiController {
 
 
 
-        $str_method = \Input::{$str_getOrPost}('method');
+        $str_method = Input::{$str_getOrPost}('method');
 
         if (!$str_method) {
             $this->obj_apiReceiver->fail();
@@ -169,7 +171,7 @@ class ls_shop_apiController {
         }
         $obj_configurator = $obj_productOrVariant->_objConfigurator;
 
-        $str_inputParameters = \Input::{$str_getOrPost}('parameters');
+        $str_inputParameters = Input::{$str_getOrPost}('parameters');
 
         $str_inputParameters = html_entity_decode($str_inputParameters);
 
@@ -186,13 +188,13 @@ class ls_shop_apiController {
             return;
         }
 
-        if (!method_exists($obj_configurator->objCustomLogic, \Input::{$str_getOrPost}('method'))) {
+        if (!method_exists($obj_configurator->objCustomLogic, Input::{$str_getOrPost}('method'))) {
             $this->obj_apiReceiver->success();
             $this->obj_apiReceiver->set_data('method does not exist in configurator custom logic object');
             return;
         }
 
-        $var_return = call_user_func_array(array($obj_configurator->objCustomLogic, \Input::{$str_getOrPost}('method')), $arr_parameters);
+        $var_return = call_user_func_array(array($obj_configurator->objCustomLogic, Input::{$str_getOrPost}('method')), $arr_parameters);
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($var_return);
@@ -209,11 +211,11 @@ class ls_shop_apiController {
      */
     protected function apiResource_callCustomizerMethodForProduct() {
 
-        if (\Input::get('productId')) {
-            $int_productId = \Input::get('productId');
+        if (Input::get('productId')) {
+            $int_productId = Input::get('productId');
             $str_getOrPost = 'get';                             // all further accesses to received data with this method
-        } else if (\Input::post('productId')) {
-            $int_productId = \Input::post('productId');
+        } else if (Input::post('productId')) {
+            $int_productId = Input::post('productId');
             $str_getOrPost = 'post';                             // all further accesses to received data with this method
         } else {
             $this->obj_apiReceiver->fail();
@@ -221,7 +223,7 @@ class ls_shop_apiController {
             return;
         }
 
-        $str_method = \Input::{$str_getOrPost}('method');
+        $str_method = Input::{$str_getOrPost}('method');
 
         if (!$str_method) {
             $this->obj_apiReceiver->fail();
@@ -241,7 +243,7 @@ class ls_shop_apiController {
             return;
         }
 
-        $str_inputParameters = \Input::{$str_getOrPost}('parameters');
+        $str_inputParameters = Input::{$str_getOrPost}('parameters');
         $str_inputParameters = html_entity_decode($str_inputParameters);
         $arr_parameters = json_decode($str_inputParameters, true);
 
@@ -250,13 +252,13 @@ class ls_shop_apiController {
             $arr_parameters = [];
         }
 
-        if (!method_exists($obj_productOrVariant->_customizer, \Input::{$str_getOrPost}('method'))) {
+        if (!method_exists($obj_productOrVariant->_customizer, Input::{$str_getOrPost}('method'))) {
             $this->obj_apiReceiver->success();
             $this->obj_apiReceiver->set_data('method does not exist in customizer object');
             return;
         }
 
-        $var_return = call_user_func_array(array($obj_productOrVariant->_customizer, \Input::{$str_getOrPost}('method')), $arr_parameters);
+        $var_return = call_user_func_array(array($obj_productOrVariant->_customizer, Input::{$str_getOrPost}('method')), $arr_parameters);
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($var_return);
@@ -266,13 +268,13 @@ class ls_shop_apiController {
      * Returns a specific merconis url
      */
     protected function apiResource_getMerconisPageUrl() {
-        if (!\Input::post('pageType')) {
+        if (!Input::post('pageType')) {
             $this->obj_apiReceiver->fail();
             $this->obj_apiReceiver->set_data('no pageType given');
             return;
         }
 
-        $str_return = ls_shop_languageHelper::getLanguagePage(\Input::post('pageType'));
+        $str_return = ls_shop_languageHelper::getLanguagePage(Input::post('pageType'));
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($str_return);

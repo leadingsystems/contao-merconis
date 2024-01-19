@@ -3,11 +3,33 @@
 namespace Merconis\Core;
 
 use Contao\ArrayUtil;
+use Contao\ArticleModel;
+use Contao\BackendTemplate;
+use Contao\Config;
+use Contao\Controller;
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
+use Contao\DataContainer;
+use Contao\Date;
+use Contao\DC_Table;
+use Contao\Email;
+use Contao\Environment;
+use Contao\File;
+use Contao\FormCheckbox;
+use Contao\FormRadio;
+use Contao\FormSelect;
+use Contao\FormText;
+use Contao\FrontendTemplate;
+use Contao\Idna;
+use Contao\Image;
+use Contao\Input;
 use Contao\LayoutModel;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
+use Contao\Validator;
+use Contao\Widget;
 use LeadingSystems\Helpers\FlexWidget;
 
 use function LeadingSystems\Helpers\ls_mul;
@@ -33,7 +55,7 @@ class ls_shop_generalHelper
         /*
          * First, delete all entries related to the current product or variant
          */
-        \Database::getInstance()
+        Database::getInstance()
             ->prepare("
 			DELETE FROM	`tl_ls_shop_attribute_allocation`
 			WHERE		`pid` = ?
@@ -58,7 +80,7 @@ class ls_shop_generalHelper
                     continue;
                 }
 
-                \Database::getInstance()
+                Database::getInstance()
                     ->prepare("
                     INSERT INTO `tl_ls_shop_attribute_allocation`
                     SET			`pid` = ?,
@@ -98,7 +120,7 @@ class ls_shop_generalHelper
 
         $str_setStatement = strpos($str_stockChange, '-') !== false || strpos($str_stockChange, '+') !== false ? "`" . $str_fieldName . "` = `" . $str_fieldName . "` + ?" : "`" . $str_fieldName . "` =  + ?";
 
-        \Database::getInstance()
+        Database::getInstance()
             ->prepare("
 			UPDATE		`" . $str_tableName . "`
 			SET			" . $str_setStatement . "
@@ -120,11 +142,11 @@ class ls_shop_generalHelper
         if (is_array($var_table)) {
             $arr_fields = $var_table;
         } else {
-            if (!\Database::getInstance()->tableExists($var_table)) {
+            if (!Database::getInstance()->tableExists($var_table)) {
                 return array();
             }
 
-            $obj_dbres_fields = \Database::getInstance()
+            $obj_dbres_fields = Database::getInstance()
                 ->prepare("
 				SHOW COLUMNS FROM	`" . $var_table . "`
 			")
@@ -158,7 +180,7 @@ class ls_shop_generalHelper
             return $GLOBALS['merconis_globals']['cache']['checkIfAttributeAndValueBelongTogether'][$int_attributeID . '_' . $int_attributeValueID];
         }
 
-        $obj_dbres_data = \Database::getInstance()->prepare("
+        $obj_dbres_data = Database::getInstance()->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_attribute_values`
 				WHERE		`id` = ?
@@ -182,7 +204,7 @@ class ls_shop_generalHelper
     {
         $int_productId = 0;
 
-        $obj_dbres_product = \Database::getInstance()
+        $obj_dbres_product = Database::getInstance()
             ->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_product`
@@ -201,7 +223,7 @@ class ls_shop_generalHelper
     {
         $int_variantId = 0;
 
-        $obj_dbres_variant = \Database::getInstance()
+        $obj_dbres_variant = Database::getInstance()
             ->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_variant`
@@ -280,7 +302,10 @@ class ls_shop_generalHelper
 
     public static function getProductImageByPath($str_imagePath, $int_width = 20, $int_height = 20, $str_mode = '', $bln_force = false)
     {
-        return \Image::get($str_imagePath, $int_width, $int_height, $str_mode, null, $bln_force);
+        /*
+         * @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+         */
+        return Image::get($str_imagePath, $int_width, $int_height, $str_mode, null, $bln_force);
     }
 
     /*
@@ -321,12 +346,12 @@ class ls_shop_generalHelper
             return null;
         }
 
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         $str_aliasFieldName = 'alias' . (!$bln_useFallbackLanguage && is_object($objPage) && $objPage->language ? '_' . $objPage->language : '');
 
-        $obj_dbres_product = \Database::getInstance()->prepare("
+        $obj_dbres_product = Database::getInstance()->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_product`
 			WHERE		`" . $str_aliasFieldName . "` = ?
@@ -348,12 +373,12 @@ class ls_shop_generalHelper
             return null;
         }
 
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         $str_aliasFieldName = 'alias' . (!$bln_useFallbackLanguage && is_object($objPage) && $objPage->language ? '_' . $objPage->language : '');
 
-        $obj_dbres_variant = \Database::getInstance()->prepare("
+        $obj_dbres_variant = Database::getInstance()->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_variant`
 				WHERE		`" . $str_aliasFieldName . "` = ?
@@ -370,7 +395,7 @@ class ls_shop_generalHelper
 
     public static function getProductIdForVariantId($variantId)
     {
-        $obj_productId = \Database::getInstance()->prepare("
+        $obj_productId = Database::getInstance()->prepare("
 				SELECT		`pid`
 				FROM		`tl_ls_shop_variant`
 				WHERE		`id` = ?
@@ -402,7 +427,7 @@ class ls_shop_generalHelper
         $productID = $arrProductVariantID['productID'];
         $variantID = $arrProductVariantID['variantID'];
         if (!$variantID) {
-            $variantID = \Input::get('selectVariant') ? \Input::get('selectVariant') : $variantID;
+            $variantID = Input::get('selectVariant') ? Input::get('selectVariant') : $variantID;
             /*
              * If the given variant does not solely consist of digits,
              * it must be an alias that has to be translated
@@ -440,7 +465,7 @@ class ls_shop_generalHelper
             return $GLOBALS['merconis_globals']['cache']['getFormFieldNameForFormFieldId'][$int_formFieldId];
         }
 
-        $obj_dbres_fieldName = \Database::getInstance()
+        $obj_dbres_fieldName = Database::getInstance()
             ->prepare("
 						SELECT	`name`
 						FROM	`tl_form_field`
@@ -525,7 +550,7 @@ class ls_shop_generalHelper
             $int_groupID = $GLOBALS['TL_CONFIG']['ls_shop_standardGroup'];
         }
 
-        $obj_dbres_groups = \Database::getInstance()
+        $obj_dbres_groups = Database::getInstance()
             ->prepare("
 				SELECT	*
 				FROM	`tl_member_group`
@@ -607,7 +632,7 @@ class ls_shop_generalHelper
      *
      * Returns the widget that in case of an existing corresponding entry is now prefilled.
      */
-    public static function prefillFormField(\Widget $objWidget, $arrDataToPrefillWith = array())
+    public static function prefillFormField(Widget $objWidget, $arrDataToPrefillWith = array())
     {
         if (!is_array($arrDataToPrefillWith)) {
             return $objWidget;
@@ -616,9 +641,9 @@ class ls_shop_generalHelper
         $fieldName = $objWidget->name;
         $fieldPrefilledValue = array_key_exists($fieldName, $arrDataToPrefillWith) ? $arrDataToPrefillWith[$fieldName]['value'] : '';
 
-        if ($objWidget instanceof \FormTextField) {
+        if ($objWidget instanceof FormText) {
             $objWidget->value = $fieldPrefilledValue;
-        } else if ($objWidget instanceof \FormSelectMenu) {
+        } else if ($objWidget instanceof FormSelect) {
             /*
              * Handelt es sich beim Widget um ein Select-Feld, so
              * kann nicht einfach ein Value gesetzt werden. Es muss
@@ -636,7 +661,7 @@ class ls_shop_generalHelper
             }
             $objWidget->options = $options;
 
-        } else if ($objWidget instanceof \FormCheckBox) {
+        } else if ($objWidget instanceof FormCheckbox) {
             /*
              * Handelt es sich beim Widget um ein Checkbox-Feld, so
              * kann nicht einfach ein Value gesetzt werden. Es muss
@@ -655,7 +680,7 @@ class ls_shop_generalHelper
                 $options[$key] = $option;
             }
             $objWidget->options = $options;
-        } else if ($objWidget instanceof \FormRadioButton) {
+        } else if ($objWidget instanceof FormRadio) {
             /*
              * Handelt es sich beim Widget um ein RadioButton-Feld, so
              * kann nicht einfach ein Value gesetzt werden. Es muss
@@ -815,7 +840,7 @@ class ls_shop_generalHelper
             return $GLOBALS['merconis_globals']['customerCountry'][$specialMode];
         }
 
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         if ($objPage === null) {
@@ -929,7 +954,7 @@ class ls_shop_generalHelper
 
             $currentSteuersatzInProzent = 0;
 
-            $objSteuersatz = \Database::getInstance()->prepare("SELECT * FROM `tl_ls_shop_steuersaetze` WHERE `id` = ?")
+            $objSteuersatz = Database::getInstance()->prepare("SELECT * FROM `tl_ls_shop_steuersaetze` WHERE `id` = ?")
                 ->execute($steuersatzID);
             $objSteuersatz->next();
             /*
@@ -1418,14 +1443,14 @@ class ls_shop_generalHelper
     public static function getPaymentAndShippingMethodInfo($methodID = false, $type = false, $bln_throwExceptionOnMissingMethod = false)
     {
         if (!isset($GLOBALS['merconis_globals']['getPaymentAndShippingMethodInfo']['request_' . $methodID . '_' . $type])) {
-            /** @var \PageModel $objPage */
+            /** @var PageModel $objPage */
             global $objPage;
 
             if (!$methodID || !$type) {
                 return array();
             }
 
-            $objMethod = \Database::getInstance()->prepare("SELECT * FROM `tl_ls_shop_" . $type . "_methods` WHERE `id` = ?")
+            $objMethod = Database::getInstance()->prepare("SELECT * FROM `tl_ls_shop_" . $type . "_methods` WHERE `id` = ?")
                 ->limit(1)
                 ->execute($methodID);
             if (!$objMethod->numRows) {
@@ -1433,7 +1458,7 @@ class ls_shop_generalHelper
                     throw new \Exception($type . ' method with id ' . $methodID . ' does not exist.');
                 }
                 ls_shop_checkoutData::getInstance()->resetSelectedPaymentAndShippingMethod();
-                \Controller::reload();
+                Controller::reload();
             }
 
             $objMethod->first();
@@ -1837,7 +1862,7 @@ class ls_shop_generalHelper
 
         $methodTable = $type == 'payment' ? 'tl_ls_shop_payment_methods' : 'tl_ls_shop_shipping_methods';
 
-        $objMethods = \Database::getInstance()->prepare("
+        $objMethods = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`" . $methodTable . "`
 				WHERE		`published` = '1'
@@ -1868,7 +1893,7 @@ class ls_shop_generalHelper
 
         $methodTable = 'tl_ls_shop_shipping_methods';
 
-        $objMethods = \Database::getInstance()->prepare("
+        $objMethods = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`" . $methodTable . "`
 				WHERE		`published` = '1'
@@ -1895,7 +1920,7 @@ class ls_shop_generalHelper
      */
     public static function getSteuersatzOptions()
     {
-        $objSteuersaetze = \Database::getInstance()->prepare("
+        $objSteuersaetze = Database::getInstance()->prepare("
 				SELECT	*
 				FROM	`tl_ls_shop_steuersaetze`
 			")
@@ -1917,7 +1942,7 @@ class ls_shop_generalHelper
      */
     public static function getNonDynamicSteuersatzOptions()
     {
-        $objSteuersaetze = \Database::getInstance()->prepare("
+        $objSteuersaetze = Database::getInstance()->prepare("
 				SELECT	*
 				FROM	`tl_ls_shop_steuersaetze`
 				WHERE	`steuerProzentPeriod1` NOT LIKE '%#%'
@@ -1935,11 +1960,11 @@ class ls_shop_generalHelper
         return $arrSteuersatzOptions;
     }
 
-    public static function getOtherFieldsInFormAsOptions(\DataContainer $dc)
+    public static function getOtherFieldsInFormAsOptions(DataContainer $dc)
     {
         $arr_formFieldsAsOptions = [];
 
-        $obj_dbres_fieldsInForm = \Database::getInstance()
+        $obj_dbres_fieldsInForm = Database::getInstance()
             ->prepare("
 					SELECT		*
 					FROM		`tl_form_field`
@@ -1986,13 +2011,13 @@ class ls_shop_generalHelper
      */
     public static function getProductAttributes($str_languageToUse = '')
     {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         $str_languageToUse = $str_languageToUse ? $str_languageToUse : (($objPage->language ?? null) ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
 
         if (!isset($GLOBALS['merconis_globals']['productAttributes'][$str_languageToUse])) {
-            $objAttributes = \Database::getInstance()->prepare("
+            $objAttributes = Database::getInstance()->prepare("
 					SELECT		*
 					FROM		`tl_ls_shop_attributes`
 					ORDER BY	`id` ASC
@@ -2013,13 +2038,13 @@ class ls_shop_generalHelper
      */
     public static function getAttributeValues($attributeID = 0, $blnUncached = false, $str_languageToUse = '')
     {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         $str_languageToUse = $str_languageToUse ? $str_languageToUse : (($objPage->language ?? null) ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
 
         if ($blnUncached || !isset($GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse])) {
-            $objAttributeValues = \Database::getInstance()->prepare("
+            $objAttributeValues = Database::getInstance()->prepare("
 					SELECT		*
 					FROM		`tl_ls_shop_attribute_values`
 				" . ($attributeID ? "WHERE `pid` = ?" : "") . "
@@ -2276,7 +2301,7 @@ class ls_shop_generalHelper
      */
     public static function getOutputDefinition($pageID = false, $mode = 'standard')
     {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         $outputDefinition = array(
@@ -2310,7 +2335,7 @@ class ls_shop_generalHelper
                 return $outputDefinition;
             }
 
-            $objOutputDefinitionSet = \Database::getInstance()->prepare("
+            $objOutputDefinitionSet = Database::getInstance()->prepare("
 					SELECT			*
 					FROM			`tl_ls_shop_output_definitions`
 					WHERE			`id` = ?
@@ -2394,7 +2419,7 @@ class ls_shop_generalHelper
             return false;
         }
 
-        $objData = \Database::getInstance()->prepare("
+        $objData = Database::getInstance()->prepare("
 				SELECT		`lsShopOutputDefinitionSet`,
 							`pid`
 				FROM		`tl_page`
@@ -2425,7 +2450,7 @@ class ls_shop_generalHelper
             // Add the id of the outputDefinition used in the shop settings
             $GLOBALS['merconis_globals']['arrOutputDefinitionIDs'] = array($GLOBALS['TL_CONFIG']['ls_shop_output_definitionset']);
 
-            $objPages = \Database::getInstance()->prepare("
+            $objPages = Database::getInstance()->prepare("
 					SELECT		`lsShopOutputDefinitionSet`
 					FROM		`tl_page`
 				")
@@ -2465,14 +2490,14 @@ class ls_shop_generalHelper
 
     public static function getDeliveryInfo($int_deliveryInfoSetID, $blnUseMainLanguage = false)
     {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         if (!$int_deliveryInfoSetID) {
             return false;
         }
 
-        $objDeliveryInfoSet = \Database::getInstance()->prepare("
+        $objDeliveryInfoSet = Database::getInstance()->prepare("
                 SELECT			*
                 FROM			`tl_ls_shop_delivery_info`
                 WHERE			`id` = ?
@@ -2495,7 +2520,7 @@ class ls_shop_generalHelper
     }
 
     public static function sendRestockInfo() {
-        $obj_dbres_productsBackInStock = \Database::getInstance()
+        $obj_dbres_productsBackInStock = Database::getInstance()
             ->prepare("
                 SELECT
                     N.productVariantId
@@ -2527,7 +2552,7 @@ class ls_shop_generalHelper
             );
             $objOrderMessages->sendMessages();
 
-            \Database::getInstance()
+            Database::getInstance()
                 ->prepare("
                     DELETE FROM tl_ls_shop_restock_info_list
                     WHERE       productVariantId = ?
@@ -2539,7 +2564,7 @@ class ls_shop_generalHelper
                 );
         }
 
-        $obj_dbres_variantsBackInStock = \Database::getInstance()
+        $obj_dbres_variantsBackInStock = Database::getInstance()
             ->prepare("
                 SELECT
                     N.productVariantId
@@ -2571,7 +2596,7 @@ class ls_shop_generalHelper
             );
             $objOrderMessages->sendMessages();
 
-            \Database::getInstance()
+            Database::getInstance()
                 ->prepare("
                     DELETE FROM tl_ls_shop_restock_info_list
                     WHERE       productVariantId = ?
@@ -2588,7 +2613,7 @@ class ls_shop_generalHelper
     {
         if ($obj_productOrVariant->_deliveryInfo['alertWhenLowerThanMinimumStock'] && $stock < $obj_productOrVariant->_deliveryInfo['minimumStock']) {
 
-            if (!\Validator::isEmail(\Idna::encodeEmail($GLOBALS['TL_CONFIG']['ls_shop_ownEmailAddress']))) {
+            if (!Validator::isEmail(Idna::encodeEmail($GLOBALS['TL_CONFIG']['ls_shop_ownEmailAddress']))) {
                 // log an error if the address is invalid
                 System::getContainer()->get('monolog.logger.contao')->info(
                     'MERCONIS: Stock notification could not be sent because address "' . $GLOBALS['TL_CONFIG']['ls_shop_ownEmailAddress'] . '" is invalid',
@@ -2597,7 +2622,7 @@ class ls_shop_generalHelper
                 return;
             }
 
-            $objEmail = new \Email();
+            $objEmail = new Email();
             $objEmail->from = $GLOBALS['TL_CONFIG']['ls_shop_ownEmailAddress'];
 
             $text = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['stockNotificationText'];
@@ -2643,7 +2668,7 @@ class ls_shop_generalHelper
 
     public static function getAlternativeCrossSellerOptions($arg1)
     {
-        $objCrossSellers = \Database::getInstance()->prepare("SELECT * FROM `tl_ls_shop_cross_seller` WHERE `published` = '1'")
+        $objCrossSellers = Database::getInstance()->prepare("SELECT * FROM `tl_ls_shop_cross_seller` WHERE `published` = '1'")
             ->execute();
 
         $arrCrossSellerOptions = array('' => '-');
@@ -2659,7 +2684,7 @@ class ls_shop_generalHelper
         return $arrCrossSellerOptions;
     }
 
-    public static function simpleHTMLOutputForBE(\DataContainer $dc)
+    public static function simpleHTMLOutputForBE(DataContainer $dc)
     {
         $arrData = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field];
 
@@ -2669,7 +2694,7 @@ class ls_shop_generalHelper
             $arrData['eval']['outputAfter'] ?? '');
     }
 
-    public static function rawOutputForBackendDCA(\DataContainer $dc)
+    public static function rawOutputForBackendDCA(DataContainer $dc)
     {
         $arrData = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field];
         return $arrData['eval']['output'];
@@ -2687,12 +2712,12 @@ class ls_shop_generalHelper
     /*
      * Diese Funktion liefert den Wizard
      */
-    public static function beValuePickerWizard(\DataContainer $dc)
+    public static function beValuePickerWizard(DataContainer $dc)
     {
         $headline = isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline']) ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline'] : '';
         $requestedTable = $dc->table;
         $requestedValue = $dc->field;
-        return ' ' . \Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.gif', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="vertical-align:top;cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . StringUtil::specialchars($headline) . '\')"');
+        return ' ' . Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.gif', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="vertical-align:top;cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . StringUtil::specialchars($headline) . '\')"');
     }
 
     public static function createValueList($requestedTable = false, $requestedValue = false, $requestedLanguage = false)
@@ -2703,7 +2728,7 @@ class ls_shop_generalHelper
 
         $requestedValue = $requestedValue . ($requestedLanguage ? "_" . $requestedLanguage : "");
 
-        $objValues = \Database::getInstance()->prepare("
+        $objValues = Database::getInstance()->prepare("
 				SELECT		`" . $requestedValue . "`
 				FROM		`" . $requestedTable . "`
 				GROUP BY	`" . $requestedValue . "`
@@ -2713,26 +2738,26 @@ class ls_shop_generalHelper
 
         $strOptions = '';
         while ($objValues->next()) {
-            $strOptions .= sprintf('<option value="%s"%s>%s</option>', StringUtil::specialchars($objValues->{$requestedValue}), (($objValues->{$requestedValue} == \Input::get('value')) ? ' selected="selected"' : ''), StringUtil::specialchars($objValues->{$requestedValue}));
+            $strOptions .= sprintf('<option value="%s"%s>%s</option>', StringUtil::specialchars($objValues->{$requestedValue}), (($objValues->{$requestedValue} == Input::get('value')) ? ' selected="selected"' : ''), StringUtil::specialchars($objValues->{$requestedValue}));
         }
         return $strOptions;
     }
 
-    public static function conditionalArticleOutput(\ArticleModel &$obj_article) {
+    public static function conditionalArticleOutput(ArticleModel &$obj_article) {
         switch ($obj_article->lsShopOutputCondition) {
             case 'always':
                 return;
                 break;
 
             case 'onlyInOverview':
-                if (\Input::get('product')) {
+                if (Input::get('product')) {
                     $obj_article->published = false;
                     return;
                 }
                 break;
 
             case 'onlyInSingleview':
-                if (!\Input::get('product')) {
+                if (!Input::get('product')) {
                     $obj_article->published = false;
                     return;
                 }
@@ -2785,13 +2810,13 @@ class ls_shop_generalHelper
                 break;
 
             case 'onlyInOverview':
-                if (\Input::get('product')) {
+                if (Input::get('product')) {
                     return '';
                 }
                 break;
 
             case 'onlyInSingleview':
-                if (!\Input::get('product')) {
+                if (!Input::get('product')) {
                     return '';
                 }
                 break;
@@ -2878,7 +2903,7 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['getAllProductImages'][$globalCacheKey];
     }
 
-    public static function checkForUniqueProductCode($varValue, \DataContainer $dc)
+    public static function checkForUniqueProductCode($varValue, DataContainer $dc)
     {
         if ($varValue == '') {
             throw new \Exception($GLOBALS['TL_LANG']['MSC']['ls_shop']['validationMessages']['productCode01']);
@@ -2888,7 +2913,7 @@ class ls_shop_generalHelper
          * Prüfen, ob die Artikelnummer in der Produkttabelle vorkommt, Exception aber nur werfen, wenn die Artikelnummer nicht bereits dem aktuell
          * aufgerufenen Datensatz hinterlegt ist
          */
-        $objProductCode = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_product WHERE `lsShopProductCode`=?")
+        $objProductCode = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_product WHERE `lsShopProductCode`=?")
             ->execute($varValue);
         while ($objProductCode->next()) {
             if ($dc->table == 'tl_ls_shop_product' && $objProductCode->id == $dc->id) {
@@ -2901,7 +2926,7 @@ class ls_shop_generalHelper
          * Prüfen, ob die Artikelnummer in der Variantentabelle vorkommt, Exception aber nur werfen, wenn die Artikelnummer nicht bereits dem aktuell
          * aufgerufenen Datensatz hinterlegt ist
          */
-        $objProductCodeVariant = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_variant WHERE `lsShopVariantCode`=?")
+        $objProductCodeVariant = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_variant WHERE `lsShopVariantCode`=?")
             ->execute($varValue);
         while ($objProductCodeVariant->next()) {
             if ($dc->table == 'tl_ls_shop_variant' && $objProductCodeVariant->id == $dc->id) {
@@ -2922,7 +2947,7 @@ class ls_shop_generalHelper
         $str_what = in_array($str_what, array('payment', 'shipping')) ? $str_what : 'payment';
         $arr_methodIDs = array();
 
-        $obj_dbres_orders = \Database::getInstance()->prepare("
+        $obj_dbres_orders = Database::getInstance()->prepare("
 				SELECT		`" . $str_what . "Method_id` AS `int_methodID`
 				FROM		`tl_ls_shop_orders`
 				GROUP BY	`" . $str_what . "Method_id`
@@ -2947,7 +2972,7 @@ class ls_shop_generalHelper
                 'arrAttributeIDs' => array(),
                 'arrValueIDs' => array()
             );
-            $objVariants = \Database::getInstance()->prepare("
+            $objVariants = Database::getInstance()->prepare("
 					SELECT		`lsShopProductVariantAttributesValues`
 					FROM		`tl_ls_shop_variant`
 				")
@@ -2971,7 +2996,7 @@ class ls_shop_generalHelper
                 }
             }
 
-            $objProducts = \Database::getInstance()->prepare("
+            $objProducts = Database::getInstance()->prepare("
 					SELECT		`lsShopProductAttributesValues`
 					FROM		`tl_ls_shop_product`
 				")
@@ -3008,7 +3033,7 @@ class ls_shop_generalHelper
         if (!isset($GLOBALS['merconis_globals']['arrConfiguratorIDs'])) {
             $GLOBALS['merconis_globals']['arrConfiguratorIDs'] = array();
 
-            $objProducts = \Database::getInstance()->prepare("
+            $objProducts = Database::getInstance()->prepare("
 					SELECT		`configurator`
 					FROM		`tl_ls_shop_product`
 				")
@@ -3021,7 +3046,7 @@ class ls_shop_generalHelper
                 }
             }
 
-            $objVariants = \Database::getInstance()->prepare("
+            $objVariants = Database::getInstance()->prepare("
 					SELECT		`configurator`
 					FROM		`tl_ls_shop_variant`
 				")
@@ -3045,7 +3070,7 @@ class ls_shop_generalHelper
             return $arrMethods;
         }
 
-        $objMethods = \Database::getInstance()->prepare("
+        $objMethods = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_" . $what . "_methods`
 				WHERE		`published` = 1
@@ -3095,7 +3120,7 @@ class ls_shop_generalHelper
             $options[0] = array('label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText055'], 'value' => 0);
         }
 
-        $objPages = \Database::getInstance()
+        $objPages = Database::getInstance()
             ->prepare("
 					SELECT		*
 					FROM		`tl_page`
@@ -3109,8 +3134,8 @@ class ls_shop_generalHelper
 
         while ($objPages->next()) {
             // Check whether root page is fallback language or not and only then add the page to the options array
-            $objPageDetails = \PageModel::findWithDetails($objPages->id);
-            $objRootPage = \Database::getInstance()->prepare("
+            $objPageDetails = PageModel::findWithDetails($objPages->id);
+            $objRootPage = Database::getInstance()->prepare("
 					SELECT * FROM `tl_page` WHERE `id` = ?
 				")
                 ->limit(1)
@@ -3123,9 +3148,9 @@ class ls_shop_generalHelper
         return $options;
     }
 
-    public static function handleConditionalFormFields(\Widget $objWidget, $intId, $arrForm)
+    public static function handleConditionalFormFields(Widget $objWidget, $intId, $arrForm)
     {
-        $obj_dbres_mandatoryOnConditionSettings = \Database::getInstance()
+        $obj_dbres_mandatoryOnConditionSettings = Database::getInstance()
             ->prepare("
 					SELECT	`lsShop_mandatoryOnConditionField`,
 							`lsShop_mandatoryOnConditionValue`,
@@ -3147,7 +3172,7 @@ class ls_shop_generalHelper
         $obj_dbres_mandatoryOnConditionSettings->first();
 
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField) {
-            if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
+            if (Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
             }
@@ -3162,7 +3187,7 @@ class ls_shop_generalHelper
         }
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2) {
 
-            if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2) {
+            if (Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2) {
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
             }
@@ -3349,7 +3374,7 @@ class ls_shop_generalHelper
     public static function getFormFieldLabels($int_formId) {
         $arr_formFieldLabels = [];
 
-        $obj_dbres_formFields = \Database::getInstance()
+        $obj_dbres_formFields = Database::getInstance()
             ->prepare("
                 SELECT      id,
                             label,
@@ -3454,7 +3479,7 @@ class ls_shop_generalHelper
         $blnIsValid = true;
 
         // Auslesen der Fomularinformationen des Formulars, mit dem die zu prüfenden Daten erfasst wurden.
-        $objForm = \Database::getInstance()->prepare("
+        $objForm = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_form`
 				WHERE		`id` = ?
@@ -3525,12 +3550,12 @@ class ls_shop_generalHelper
              * Validierung prüft nämlich nur POST-Werte. Nach der Validierung wird der ursprüngliche POST-Wert wieder zurück-
              * gesetzt, da die Validierung keinen Einfluss auf tatsächlich gesendete Daten haben soll.
              */
-            $tmpPostValue = isset($_POST[$fieldName]) ? \Input::post($fieldName) : null;
-            \Input::setPost($fieldName, $arrValidateData[$fieldName]['value']);
+            $tmpPostValue = isset($_POST[$fieldName]) ? Input::post($fieldName) : null;
+            Input::setPost($fieldName, $arrValidateData[$fieldName]['value']);
 
             $objWidget->validate();
 
-            \Input::setPost($fieldName, $tmpPostValue);
+            Input::setPost($fieldName, $tmpPostValue);
 
             if ($objWidget->hasErrors()) {
                 $blnIsValid = false;
@@ -3548,7 +3573,7 @@ class ls_shop_generalHelper
      */
     public static function analyzeRequiredDataFields($formID, $arrData = array(), $considerDefaultFormFieldValues = false)
     {
-        $objFormFields = \Database::getInstance()->prepare("
+        $objFormFields = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_form_field`
 				WHERE		`pid` = ?
@@ -3580,7 +3605,7 @@ class ls_shop_generalHelper
              */
             if ($objFormFields->lsShop_ShowOnConditionField) {
                 if (
-                    (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value'] ?? null) != $objFormFields->lsShop_ShowOnConditionValue
+                    (Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)) ?: $tmpArrDataOld[ls_shop_generalHelper::getFormFieldNameForFormFieldId($objFormFields->lsShop_ShowOnConditionField)]['value'] ?? null) != $objFormFields->lsShop_ShowOnConditionValue
                 ) {
                     continue;
                 }
@@ -3642,7 +3667,7 @@ class ls_shop_generalHelper
 
     public static function getDefaultConfiguratorHash($configuratorID)
     {
-        $objConfiguratorData = \Database::getInstance()->prepare("
+        $objConfiguratorData = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_configurator`
 				WHERE		`id` = ?
@@ -3740,7 +3765,7 @@ class ls_shop_generalHelper
 
     public static function ls_replaceProductWildcards($str_text, $obj_product, $str_language)
     {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         $str_tmp_objPageLanguage = $objPage->language;
@@ -3765,7 +3790,7 @@ class ls_shop_generalHelper
                     break;
 
                 case '_link':
-                    $str_replace = \Environment::get('base') . $obj_tmp_productOrVariant->{$str_keyword};
+                    $str_replace = Environment::get('base') . $obj_tmp_productOrVariant->{$str_keyword};
                     break;
 
                 default:
@@ -3793,7 +3818,7 @@ class ls_shop_generalHelper
 
     public static function ls_replaceOrderWildcards($text, $arrOrder)
     {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         if (!is_array($arrOrder['miscData'])) {
@@ -3821,7 +3846,7 @@ class ls_shop_generalHelper
          * Replace the wildcards for the link to the after checkout page using the order identification hash
          */
         if ($arrOrder['orderIdentificationHash']) {
-            $afterCheckoutUrl = ($arrOrder['miscData']['domain'] ?: \Environment::get('base')) . ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages') . (preg_match('/\?/', ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages')) ? '&' : '?') . 'oih=' . $arrOrder['orderIdentificationHash'];
+            $afterCheckoutUrl = ($arrOrder['miscData']['domain'] ?: Environment::get('base')) . ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages') . (preg_match('/\?/', ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages')) ? '&' : '?') . 'oih=' . $arrOrder['orderIdentificationHash'];
             $text = preg_replace('/(&#35;&#35;afterCheckoutUrl&#35;&#35;)|(##afterCheckoutUrl##)/siU', $afterCheckoutUrl, $text);
         }
 
@@ -3836,7 +3861,7 @@ class ls_shop_generalHelper
          * Replace the orderDate wildcard
          */
         if ($arrOrder['orderDateUnixTimestamp']) {
-            $text = preg_replace('/(&#35;&#35;orderDate&#35;&#35;)|(##orderDate##)/siU', \Date::parse($GLOBALS['TL_CONFIG']['dateFormat'], $arrOrder['orderDateUnixTimestamp']), $text);
+            $text = preg_replace('/(&#35;&#35;orderDate&#35;&#35;)|(##orderDate##)/siU', Date::parse($GLOBALS['TL_CONFIG']['dateFormat'], $arrOrder['orderDateUnixTimestamp']), $text);
         }
 
         /*
@@ -3899,7 +3924,7 @@ class ls_shop_generalHelper
              * Only if the template file exists in the required output format, it can be used. Otherwise it will not be used and a log entry will be created.
              */
             try {
-                $objWildcardTemplate = new \FrontendTemplate($strTemplate);
+                $objWildcardTemplate = new FrontendTemplate($strTemplate);
                 $objWildcardTemplate->arrOrder = $arrOrder;
                 $wildcardTemplateReplacement = $objWildcardTemplate->parse();
             } catch (\Exception $e) {
@@ -3927,7 +3952,7 @@ class ls_shop_generalHelper
 
         if (!isset($GLOBALS['merconis_globals']['order'][$identificationToken]) || $blnForceRefresh) {
             $arrOrder = array();
-            $objOrder = \Database::getInstance()->prepare("
+            $objOrder = Database::getInstance()->prepare("
 					SELECT		*
 					FROM 		`tl_ls_shop_orders`
 					WHERE		`" . $searchBy . "` = ?
@@ -3950,7 +3975,7 @@ class ls_shop_generalHelper
 
             $arrOrder['customerData'] = array();
 
-            $objCustomerData = \Database::getInstance()->prepare("
+            $objCustomerData = Database::getInstance()->prepare("
 					SELECT		*
 					FROM		`tl_ls_shop_orders_customer_data`
 					WHERE		`pid` = ?
@@ -3963,7 +3988,7 @@ class ls_shop_generalHelper
 
             $arrOrder['items'] = array();
 
-            $objItems = \Database::getInstance()->prepare("
+            $objItems = Database::getInstance()->prepare("
 					SELECT		*
 					FROM		`tl_ls_shop_orders_items`
 					WHERE		`pid` = ?
@@ -3978,7 +4003,7 @@ class ls_shop_generalHelper
 
             $arrOrder['messageTypesSent'] = array();
 
-            $objMessageTypesSent = \Database::getInstance()->prepare("
+            $objMessageTypesSent = Database::getInstance()->prepare("
 					SELECT		`messageTypeID`
 					FROM		`tl_ls_shop_messages_sent`
 					WHERE		`orderID` = ?
@@ -4011,7 +4036,7 @@ class ls_shop_generalHelper
 
         if (!isset($GLOBALS['merconis_globals']['messageSent'][$identificationToken]) || $blnForceRefresh) {
             $arrMessageSent = array();
-            $objOrder = \Database::getInstance()->prepare("
+            $objOrder = Database::getInstance()->prepare("
 					SELECT		*
 					FROM 		`tl_ls_shop_messages_sent`
 					WHERE		`" . $searchBy . "` = ?
@@ -4026,7 +4051,7 @@ class ls_shop_generalHelper
             $arrMessageSent = $objOrder->first()->row();
 
             $arrMessageSent['messageTypeTitle'] = ls_shop_languageHelper::getMultiLanguage($arrMessageSent['messageTypeID'], "tl_ls_shop_message_type_languages", array('title'), array($GLOBALS['TL_LANGUAGE']));
-            $arrMessageSent['tstampFormatted'] = \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $arrMessageSent['tstamp']);
+            $arrMessageSent['tstampFormatted'] = Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $arrMessageSent['tstamp']);
 
             $GLOBALS['merconis_globals']['messageSent'][$identificationToken] = $arrMessageSent;
         }
@@ -4043,14 +4068,14 @@ class ls_shop_generalHelper
         return $strContent;
     }
 
-    public static function getTemplates_beOrderOverview(\DataContainer $dc)
+    public static function getTemplates_beOrderOverview(DataContainer $dc)
     {
-        return \Controller::getTemplateGroup('template_beOrderRepresentationOverview_');
+        return Controller::getTemplateGroup('template_beOrderRepresentationOverview_');
     }
 
-    public static function getTemplates_beOrderDetails(\DataContainer $dc)
+    public static function getTemplates_beOrderDetails(DataContainer $dc)
     {
-        return \Controller::getTemplateGroup('template_beOrderRepresentationDetails_');
+        return Controller::getTemplateGroup('template_beOrderRepresentationDetails_');
     }
 
     public static function getMessageTypesForOrderOverview($arrOrder = null, $isAjax = false)
@@ -4061,7 +4086,7 @@ class ls_shop_generalHelper
             return $arrMessageTypes;
         }
 
-        $objMessageTypes = \Database::getInstance()->prepare("
+        $objMessageTypes = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_message_type`
 				WHERE		`sendWhen` != ?
@@ -4084,7 +4109,7 @@ class ls_shop_generalHelper
         while ($objMessageTypes->next()) {
             $arrMessageTypes[$objMessageTypes->id] = $objMessageTypes->row();
             $arrMessageTypes[$objMessageTypes->id]['multilanguage']['title'] = ls_shop_languageHelper::getMultiLanguage($objMessageTypes->id, "tl_ls_shop_message_type_languages", array('title'), array($GLOBALS['TL_LANGUAGE']));
-            $objTemplateMessageTypeButton = new \BackendTemplate('template_beMessageTypeButton_default');
+            $objTemplateMessageTypeButton = new BackendTemplate('template_beMessageTypeButton_default');
 
             $objTemplateMessageTypeButton->messageType = $arrMessageTypes[$objMessageTypes->id];
             $objTemplateMessageTypeButton->arrOrder = $arrOrder;
@@ -4097,7 +4122,7 @@ class ls_shop_generalHelper
 
     public static function sendMessagesOnStatusChangeCronDaily()
     {
-        $objOrders = \Database::getInstance()->prepare("
+        $objOrders = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_orders`
 			")
@@ -4111,7 +4136,7 @@ class ls_shop_generalHelper
 
     public static function sendMessagesOnStatusChangeCronHourly()
     {
-        $objOrders = \Database::getInstance()->prepare("
+        $objOrders = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_orders`
 			")
@@ -4129,7 +4154,7 @@ class ls_shop_generalHelper
      */
     public static function removeFieldsForEditAll($strDCAName)
     {
-        if (System::getContainer()->get('merconis.routing.scope')->isBackend() && \Input::get('act') != 'editAll' && \Input::get('act') != 'overrideAll') {
+        if (System::getContainer()->get('merconis.routing.scope')->isBackend() && Input::get('act') != 'editAll' && Input::get('act') != 'overrideAll') {
             /*
              * Don't do anything if we're not in editAll or overrideAll mode
              */
@@ -4219,7 +4244,7 @@ class ls_shop_generalHelper
          * Get the attribute variant allocations from the allocation table
          * for the copied product/variant
          */
-        $objAllocations = \Database::getInstance()->prepare("
+        $objAllocations = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_attribute_allocation`
 				WHERE		`pid` = ?
@@ -4232,7 +4257,7 @@ class ls_shop_generalHelper
             /*
              * Insert each allocation for the new product/variant
              */
-            $objInsert = \Database::getInstance()->prepare("
+            $objInsert = Database::getInstance()->prepare("
 					INSERT INTO `tl_ls_shop_attribute_allocation`
 					SET			`pid` = ?,
 								`parentIsVariant` = ?,
@@ -4249,7 +4274,7 @@ class ls_shop_generalHelper
          * which is exactly what we want to achieve with this approach
          */
         if ($dc->table == 'tl_ls_shop_product') {
-            $objVariants = \Database::getInstance()->prepare("
+            $objVariants = Database::getInstance()->prepare("
 					SELECT		*
 					FROM		`tl_ls_shop_variant`
 					WHERE		`pid` = ?
@@ -4270,10 +4295,10 @@ class ls_shop_generalHelper
                  * Fake a regular call for this variant where it's id
                  * would be a get parameter
                  */
-                $tmpGetID = \Input::get('id');
-                \Input::setGet('id', $objVariants->id);
+                $tmpGetID = Input::get('id');
+                Input::setGet('id', $objVariants->id);
 
-                $dcVariant = new \DC_Table('tl_ls_shop_variant');
+                $dcVariant = new DC_Table('tl_ls_shop_variant');
 
                 /*
                  * Copy the variant record by calling the DC_Table copy function and prevent
@@ -4287,7 +4312,7 @@ class ls_shop_generalHelper
                  * but we need it to be assigend to the new parent i.e. the product that
                  * has just been copied. So we update the pid with the new product's id.
                  */
-                $objUpdatePID = \Database::getInstance()->prepare("
+                $objUpdatePID = Database::getInstance()->prepare("
 						UPDATE 		`tl_ls_shop_variant`
 						SET			`pid` = ?
 						WHERE		`id` = ?
@@ -4298,7 +4323,7 @@ class ls_shop_generalHelper
                 /*
                  * Resetting the temporarily faked get parameter 'id'
                  */
-                \Input::setGet('id', $tmpGetID);
+                Input::setGet('id', $tmpGetID);
 
                 /*
                  * Maybe we don't need to do that
@@ -4321,7 +4346,7 @@ class ls_shop_generalHelper
          * Delete the attribute variant allocations from the allocation table
          * for the deleted product/variant
          */
-        $objDelete = \Database::getInstance()->prepare("
+        $objDelete = Database::getInstance()->prepare("
 				DELETE FROM	`tl_ls_shop_attribute_allocation`
 				WHERE		`pid` = ?
 					AND		`parentIsVariant` = ?
@@ -4341,7 +4366,7 @@ class ls_shop_generalHelper
              * because we want to delete all attribute value allocations that are assigend to
              * these variants.
              */
-            $objVariants = \Database::getInstance()->prepare("
+            $objVariants = Database::getInstance()->prepare("
 					SELECT		*
 					FROM		`tl_ls_shop_variant`
 					WHERE		`pid` = ?
@@ -4354,7 +4379,7 @@ class ls_shop_generalHelper
                  * Delete the attribute variant allocations from the allocation table
                  * for this variant (which will itself be deleted soon)
                  */
-                $objDelete = \Database::getInstance()->prepare("
+                $objDelete = Database::getInstance()->prepare("
 						DELETE FROM	`tl_ls_shop_attribute_allocation`
 						WHERE		`pid` = ?
 							AND		`parentIsVariant` = ?
@@ -4367,7 +4392,7 @@ class ls_shop_generalHelper
         /*
          * Also delete all orphaned records that exist in the allocation table
          */
-        \Database::getInstance()->prepare("
+        Database::getInstance()->prepare("
 				DELETE		`tl_ls_shop_attribute_allocation` FROM `tl_ls_shop_attribute_allocation`
 				LEFT JOIN	`tl_ls_shop_product`
 					ON		`tl_ls_shop_attribute_allocation`.`pid` = `tl_ls_shop_product`.`id`
@@ -4376,7 +4401,7 @@ class ls_shop_generalHelper
 			")
             ->execute('0');
 
-        \Database::getInstance()->prepare("
+        Database::getInstance()->prepare("
 				DELETE		`tl_ls_shop_attribute_allocation` FROM `tl_ls_shop_attribute_allocation`
 				LEFT JOIN	`tl_ls_shop_variant`
 					ON		`tl_ls_shop_attribute_allocation`.`pid` = `tl_ls_shop_variant`.`id`
@@ -4440,7 +4465,7 @@ class ls_shop_generalHelper
 
     public static function saveLastBackendDataChangeTimestamp()
     {
-        \Config::getInstance()->update("\$GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']", time());
+        Config::getInstance()->update("\$GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']", time());
 
         ls_shop_generalHelper::LaFP();
     }
@@ -4479,7 +4504,7 @@ class ls_shop_generalHelper
             return $arr_themeData;
         }
 
-        $obj_dbres_theme = \Database::getInstance()->prepare("
+        $obj_dbres_theme = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_theme`
 				WHERE		`id` = ?
@@ -4502,7 +4527,7 @@ class ls_shop_generalHelper
             return $arr_pageData;
         }
 
-        $obj_dbres_page = \Database::getInstance()->prepare("
+        $obj_dbres_page = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_page`
 				WHERE		`id` = ?
@@ -4672,7 +4697,7 @@ class ls_shop_generalHelper
      */
     public static function getMerconisFilesVersion($bln_removeInternalBuildNumber = false)
     {
-        $objFile_ls_version = new \File('vendor/leadingsystems/contao-merconis/CHANGELOG.md');
+        $objFile_ls_version = new File('vendor/leadingsystems/contao-merconis/CHANGELOG.md');
         $str_fileContent = $objFile_ls_version->getContent();
 
         preg_match('/###\s*(.*?)\s*\(\d{4}-\d{2}-\d{2}\)/', $str_fileContent, $arr_matches);
@@ -4706,7 +4731,7 @@ class ls_shop_generalHelper
         if (!isset($_SERVER['REMOTE_ADDR']) || in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
             define('BYPASS_TOKEN_CHECK', true);
         } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'] ?? '') > 2) {
-            if (preg_match($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'], \Environment::get('request'))) {
+            if (preg_match($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'], Environment::get('request'))) {
                 define('BYPASS_TOKEN_CHECK', true);
             }
         }
@@ -4742,7 +4767,7 @@ class ls_shop_generalHelper
          <--*/
         $quantityInput = '';
         if ($obj_productOrVariant->_objectType === 'variant' || !$obj_productOrVariant->_hasVariants) {
-            $objQuantityInputTemplate = new \FrontendTemplate('quantityInput');
+            $objQuantityInputTemplate = new FrontendTemplate('quantityInput');
             $str_formSubmitValue = 'product_form_' . $productID . '-' . $variantID;
             $objQuantityInputTemplate->str_formSubmitValue = $str_formSubmitValue;
             $objQuantityInputTemplate->str_productVariantId = $productID . '-' . $variantID;
@@ -4771,7 +4796,7 @@ class ls_shop_generalHelper
                 )
             );
 
-            if (\Input::post('FORM_SUBMIT') == $str_formSubmitValue) {
+            if (Input::post('FORM_SUBMIT') == $str_formSubmitValue) {
                 if (
                     !$obj_flexWidget_inputQuantity->bln_hasErrors
 
@@ -4781,8 +4806,8 @@ class ls_shop_generalHelper
                      */
                     && !$obj_productOrVariant->ls_configuratorHash
                 ) {
-                    $productVariantIDToPutInCart = \Input::post('productVariantID');
-                    \Input::setPost('productVariantID', false); // Verhindert, dass bei späteren Initialisierungen des Produktes erneut in den Warenkorb gesteckt wird
+                    $productVariantIDToPutInCart = Input::post('productVariantID');
+                    Input::setPost('productVariantID', false); // Verhindert, dass bei späteren Initialisierungen des Produktes erneut in den Warenkorb gesteckt wird
 
                     if (
                         !$obj_productOrVariant->_orderAllowed
@@ -4808,8 +4833,8 @@ class ls_shop_generalHelper
                             ls_shop_cartHelper::updateCartItem($cartKeyToPutInCart, -1);
                         }
                     }
-                    if (!\Input::post('isAjax')) {
-                        \Controller::redirect(\Environment::get('request') . '#p_' . $productID . '-' . $variantID);
+                    if (!Input::post('isAjax')) {
+                        Controller::redirect(Environment::get('request') . '#p_' . $productID . '-' . $variantID);
                     }
                 }
             }
@@ -4824,21 +4849,21 @@ class ls_shop_generalHelper
 
     public static function getRestockInfoListForm($obj_product)
     {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
 
         $obj_user = System::importStatic('FrontendUser');
-        $objTemplate = new \FrontendTemplate('template_addToRestockInfoListForm');
+        $objTemplate = new FrontendTemplate('template_addToRestockInfoListForm');
         $str_formSubmitValue = 'restockInfoListProduct_form_' . $obj_product->_productVariantID;
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;
         $objTemplate->str_restockInfoListProductId = $obj_product->_productVariantID;
         $objTemplate->bln_isOnRestockInfoList = $obj_product->_isOnRestockInfoList;
 
         if (
-            \Input::post('FORM_SUBMIT')
-            && \Input::post('FORM_SUBMIT') == $str_formSubmitValue
-            && \Input::post('restockInfoListProductID')
-            && \Input::post('restockInfoListProductID') == $obj_product->_productVariantID
+            Input::post('FORM_SUBMIT')
+            && Input::post('FORM_SUBMIT') == $str_formSubmitValue
+            && Input::post('restockInfoListProductID')
+            && Input::post('restockInfoListProductID') == $obj_product->_productVariantID
         ) {
             if (!$obj_product->_isOnRestockInfoList) {
                 /*
@@ -4846,7 +4871,7 @@ class ls_shop_generalHelper
                  */
                 $arr_splitProductVariantId = ls_shop_generalHelper::splitProductVariantID($obj_product->_productVariantID);
 
-                \Database::getInstance()
+                Database::getInstance()
                     ->prepare("
                         INSERT INTO tl_ls_shop_restock_info_list
                         SET         productVariantId = ?,
@@ -4871,7 +4896,7 @@ class ls_shop_generalHelper
                 /*
                  * Remove the product from the restockInfoList
                  */
-                \Database::getInstance()
+                Database::getInstance()
                     ->prepare("
                         DELETE FROM tl_ls_shop_restock_info_list
                         WHERE       productVariantId = ?
@@ -4888,8 +4913,8 @@ class ls_shop_generalHelper
                 ));
             }
 
-            if (!\Input::post('isAjax')) {
-                \Controller::reload();
+            if (!Input::post('isAjax')) {
+                Controller::reload();
             }
         }
 
@@ -4901,17 +4926,17 @@ class ls_shop_generalHelper
     public static function getFavoritesForm($obj_product)
     {
         $obj_user = System::importStatic('FrontendUser');
-        $objTemplate = new \FrontendTemplate('template_addToFavoritesForm');
+        $objTemplate = new FrontendTemplate('template_addToFavoritesForm');
         $str_formSubmitValue = 'favoriteProduct_form_' . $obj_product->_id;
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;
         $objTemplate->str_favoriteProductId = $obj_product->_id;
         $objTemplate->bln_isFavorite = $obj_product->_isFavorite;
 
         if (
-            \Input::post('FORM_SUBMIT')
-            && \Input::post('FORM_SUBMIT') == 'favoriteProduct_form_' . $obj_product->_id
-            && \Input::post('favoriteProductID')
-            && \Input::post('favoriteProductID') == $obj_product->_id
+            Input::post('FORM_SUBMIT')
+            && Input::post('FORM_SUBMIT') == 'favoriteProduct_form_' . $obj_product->_id
+            && Input::post('favoriteProductID')
+            && Input::post('favoriteProductID') == $obj_product->_id
         ) {
             $strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
             $arrFavorites = $strFavorites ? StringUtil::deserialize($strFavorites) : array();
@@ -4939,7 +4964,7 @@ class ls_shop_generalHelper
                 ));
             }
 
-            \Database::getInstance()->prepare("
+            Database::getInstance()->prepare("
 				UPDATE		`tl_member`
 				SET			`merconis_favoriteProducts` = ?
 				WHERE		`id` = ?
@@ -4947,8 +4972,8 @@ class ls_shop_generalHelper
                 ->limit(1)
                 ->execute(serialize($arrFavorites), $obj_user->id);
 
-            if (!\Input::post('isAjax')) {
-                \Controller::reload();
+            if (!Input::post('isAjax')) {
+                Controller::reload();
             }
         }
 
@@ -5004,7 +5029,7 @@ class ls_shop_generalHelper
     public static function getSubPageIdsRecursively($int_pageId = 0, $bln_considerUnpublishedPages = false, $bln_considerHiddenPages = false, $int_currentLevel = 0) {
         $arr_pageIds = [];
 
-        $obj_dbres_subPageIds = \Database::getInstance()
+        $obj_dbres_subPageIds = Database::getInstance()
             ->prepare("
                 SELECT      `id`
                 FROM        `tl_page`

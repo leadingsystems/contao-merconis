@@ -1,7 +1,9 @@
 <?php
 namespace Merconis\Core;
 
-class LsShopPaymentMethodsModel extends \Model {
+use Contao\Model;
+
+class LsShopPaymentMethodsModel extends Model {
 	protected static $strTable = 'tl_ls_shop_payment_methods';
 }
 ?>

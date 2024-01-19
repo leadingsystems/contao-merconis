@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Controller;
 use Contao\System;
 
 	/* ##########################################################################
@@ -20,7 +21,7 @@ use Contao\System;
  * to worry about any special name restrictions though, everything that's allowed as a php class name
  * will be fine.
  */
-class dynamicAttachment_invoice_01 extends \Controller {
+class dynamicAttachment_invoice_01 extends Controller {
 	private $arrOrder = array();
 	private $messageCounterNr = null;
 

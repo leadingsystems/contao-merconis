@@ -2,13 +2,20 @@
 
 namespace Merconis\Core;
 
+use Contao\BackendTemplate;
+use Contao\Controller;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\Module;
+use Contao\PageModel;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
-class ModuleCart extends \Module {
+class ModuleCart extends Module {
 	public function generate() {
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$objTemplate = new \BackendTemplate('be_wildcard');
+			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS Warenkorb ###';
 			return $objTemplate->parse();
 		}
@@ -17,7 +24,7 @@ class ModuleCart extends \Module {
 	}
 
 	public function compile() {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 
 		$arrWidgets = array();
@@ -59,20 +66,20 @@ class ModuleCart extends \Module {
 			/*
 			 * Aktualisieren des Warenkorbs, sofern angefordert
 			 */
-			if (\Input::post('FORM_SUBMIT') && preg_match('/^product_quantity_form_/siU', \Input::post('FORM_SUBMIT')) && \Input::post('productID') == $productCartKey) {
+			if (Input::post('FORM_SUBMIT') && preg_match('/^product_quantity_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productID') == $productCartKey) {
 				if (!$obj_FlexWidget_inputQuantity->bln_hasErrors) {
-					ls_shop_cartHelper::updateCartItem(\Input::post('productID'), $obj_FlexWidget_inputQuantity->getValue());
+					ls_shop_cartHelper::updateCartItem(Input::post('productID'), $obj_FlexWidget_inputQuantity->getValue());
 					$this->reload();
 				}
-			} else if(\Input::post('FORM_SUBMIT') && preg_match('/^product_delete_form_/siU', \Input::post('FORM_SUBMIT')) && \Input::post('productIDDelete') == $productCartKey) {
+			} else if(Input::post('FORM_SUBMIT') && preg_match('/^product_delete_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productIDDelete') == $productCartKey) {
 				// Negative Menge für Warenkorbposition bedeutet eine Lösch-Anforderung
-				ls_shop_cartHelper::updateCartItem(\Input::post('productIDDelete'), -1);
+				ls_shop_cartHelper::updateCartItem(Input::post('productIDDelete'), -1);
 				$this->reload();
 			}
 			
 		}
 
-		$this->Template = new \FrontendTemplate($this->ls_shop_cart_template);
+		$this->Template = new FrontendTemplate($this->ls_shop_cart_template);
 
 		$formConfirmOrder = ls_shop_checkoutData::getInstance()->formConfirmOrder;
 		// ### paymentMethod callback ########################
@@ -89,9 +96,9 @@ class ModuleCart extends \Module {
 		/*
 		 * Gutschein-Handling
 		 */
-		if (\Input::get('deleteCoupon')) {
-			ls_shop_cartHelper::deleteUsedCoupon(\Input::get('deleteCoupon'));
-			$this->redirect(\Controller::generateFrontendUrl($objPage->row()));
+		if (Input::get('deleteCoupon')) {
+			ls_shop_cartHelper::deleteUsedCoupon(Input::get('deleteCoupon'));
+			$this->redirect(Controller::generateFrontendUrl($objPage->row()));
 		}
 
 		$obj_FlexWidget_inputCoupon = new FlexWidget(
@@ -123,10 +130,10 @@ class ModuleCart extends \Module {
 
 		$this->Template->fflInputCoupon = $obj_FlexWidget_inputCoupon->getOutput();
 		
-		if (\Input::post('FORM_SUBMIT') == 'useCouponSubmit') {
+		if (Input::post('FORM_SUBMIT') == 'useCouponSubmit') {
 			if (!$obj_FlexWidget_inputCoupon->bln_hasErrors) {
 				ls_shop_cartHelper::useCoupon($obj_FlexWidget_inputCoupon->getValue());
-				$this->redirect(\Environment::get('request').'#coupon');
+				$this->redirect(Environment::get('request').'#coupon');
 			}
 		}
 		
@@ -136,7 +143,7 @@ class ModuleCart extends \Module {
 
 		$this->Template->arrWidgets = $arrWidgets;
 		
-		$this->Template->formAction = \Environment::get('request');
+		$this->Template->formAction = Environment::get('request');
 		$this->Template->formMethod = 'post';
 
 		ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');

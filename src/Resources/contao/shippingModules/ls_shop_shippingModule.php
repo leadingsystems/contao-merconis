@@ -2,7 +2,10 @@
 
 namespace Merconis\Core;
 
-	/**
+	use Contao\Controller;
+    use Contao\System;
+
+    /**
 	 * Diese Klasse stellt die Versandmodule bereit. Die Einstellungen für ein Versandmodul werden in $this->types definiert
 	 * und dann automatisch verarbeitet, z. B. für die Anpassung des DCA in tl_ls_shop_shipping_methods.
 	 * 
@@ -18,7 +21,7 @@ namespace Merconis\Core;
 	 * benötigten Felder entsprechend erweitert werden.
 	 *
 	 */
-	class ls_shop_shippingModule extends \Controller {
+	class ls_shop_shippingModule extends Controller {
 		public $types = array(
 			'standard' => array(
 				'title' => 'Standard',
@@ -48,7 +51,7 @@ namespace Merconis\Core;
 		
 		
 		public function __construct() {
-			if(\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+			if(System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 				$this->import('FrontendUser', 'User');
 			}
 			parent::__construct();

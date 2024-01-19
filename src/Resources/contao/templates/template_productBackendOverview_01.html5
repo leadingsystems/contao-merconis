@@ -5,6 +5,9 @@
 <div class="shopProduct <?php echo $this->productTemplateType; ?> <?php echo $this->productTemplate; ?> <?php echo $this->productPositionsClassString; ?> block">
 	<div class="imageContainer">
 		<?php if ($this->objProduct->_hasMainImage): ?>
+            <!--
+            @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+            -->
 			<a href="<?php echo $this->objProduct->_linkToProduct; ?>"><img src="<?php echo \Image::get($this->objProduct->_mainImage, 190, 190, 'box'); ?>" /></a></p>
 		<?php endif; ?>
 	</div>

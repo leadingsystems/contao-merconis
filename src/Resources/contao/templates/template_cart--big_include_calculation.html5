@@ -1,4 +1,6 @@
 <?php
+
+use Contao\System;
 use function LeadingSystems\Helpers\ls_add;
 
 $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;

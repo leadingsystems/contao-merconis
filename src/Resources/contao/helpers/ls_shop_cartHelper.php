@@ -1,7 +1,11 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\Controller;
+use Contao\Database;
+use Contao\PageModel;
 use Contao\StringUtil;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -190,7 +194,7 @@ class ls_shop_cartHelper {
 
 			if (isset($GLOBALS['MERCONIS_HOOKS']['beforeAddToCart']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeAddToCart'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['beforeAddToCart'] as $mccb) {
-					$objMccb = \System::importStatic($mccb[0]);
+					$objMccb = System::importStatic($mccb[0]);
 					$arrItemInfoToAddToCart = $objMccb->{$mccb[1]}($arrItemInfoToAddToCart, $objProduct);
 				}
 			}
@@ -225,7 +229,7 @@ class ls_shop_cartHelper {
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['addToCart']) && is_array($GLOBALS['MERCONIS_HOOKS']['addToCart'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['addToCart'] as $mccb) {
-				$objMccb = \System::importStatic($mccb[0]);
+				$objMccb = System::importStatic($mccb[0]);
 				$objMccb->{$mccb[1]}($objProduct, $desiredQuantity, $quantityPutInCart);
 			}
 		}
@@ -452,7 +456,7 @@ class ls_shop_cartHelper {
 			$getByField = 'couponCode';
 		}
 
-		$objCoupon = \Database::getInstance()->prepare("
+		$objCoupon = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_coupon`
 			WHERE		`".$getByField."` = ?
@@ -535,7 +539,7 @@ class ls_shop_cartHelper {
 	 * Diese Funktion gibt das Array zurück, mit dem der jeweilige Coupon in der Cart-Session-Variable abgelegt wird.
 	 */
 	public static function getCouponRepresentationForCart($couponID = false) {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 
 		$couponInfo = array(
@@ -550,7 +554,7 @@ class ls_shop_cartHelper {
 			return $couponInfo;
 		}
 
-		$objCoupon = \Database::getInstance()->prepare("
+		$objCoupon = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_coupon`
 			WHERE		`id` = ?
@@ -575,7 +579,7 @@ class ls_shop_cartHelper {
 				$couponInfo['hasErrors'] = true;
 			}
 		}
-		$couponInfo['deleteUrl'] = is_object($objPage) ? \Controller::generateFrontendUrl($objPage->row(), '/deleteCoupon/'.$couponID) : '';
+		$couponInfo['deleteUrl'] = is_object($objPage) ? Controller::generateFrontendUrl($objPage->row(), '/deleteCoupon/'.$couponID) : '';
 		$couponInfo['extendedInfo'] = $objCoupon->row();
 		$couponInfo['extendedInfo']['discountOutput'] = '- '.($objCoupon->couponValueType == 'percentaged' ? $objCoupon->couponValue.' %' : ls_shop_generalHelper::outputPrice($objCoupon->couponValue));
 
@@ -623,7 +627,7 @@ class ls_shop_cartHelper {
     }
 
     public static function ls_getSearchSelection($couponInfo) {
-        /** @var \PageModel $objPage */
+        /** @var PageModel $objPage */
         global $objPage;
         /*
          * Erstellung des Suchkriterien-Arrays für productSearcher
@@ -709,7 +713,7 @@ class ls_shop_cartHelper {
 			return false;
 		}
 
-		$objCoupon = \Database::getInstance()->prepare("
+		$objCoupon = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_coupon`
 			WHERE		`couponCode` = ?

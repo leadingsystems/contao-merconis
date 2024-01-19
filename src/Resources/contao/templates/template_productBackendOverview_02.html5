@@ -5,6 +5,9 @@
 <tr>
 	<td>
 		<?php if ($this->objProduct->_hasMainImage): ?>
+                <!--
+                @toDo Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+                -->
 				<img src="<?php echo \Image::get($this->objProduct->_mainImage, 50, 50, 'box'); ?>" alt="" />
 		<?php endif; ?>
 	</td>

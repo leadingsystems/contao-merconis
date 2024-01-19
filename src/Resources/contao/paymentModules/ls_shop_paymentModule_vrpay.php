@@ -2,7 +2,10 @@
 
 namespace Merconis\Core;
 
-	use Contao\StringUtil;
+	use Contao\Environment;
+use Contao\Input;
+use Contao\PageModel;
+use Contao\StringUtil;
 
 class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 		public $arrCurrentSettings = array();
@@ -149,7 +152,7 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 
 			// make an absolute URL
 			if (!preg_match('@^https?://@i', $str_afterCheckoutUrl)) {
-				$str_afterCheckoutUrl = \Environment::get('base') . $str_afterCheckoutUrl;
+				$str_afterCheckoutUrl = Environment::get('base') . $str_afterCheckoutUrl;
 			}
 			/*
 			 * ----------
@@ -302,7 +305,7 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 		public function onAfterCheckoutPage($arr_order = array()) {
 			$arr_moduleReturnData = $this->get_paymentMethod_moduleReturnData_forOrderId($arr_order['id']);
 
-			switch (\Input::get('vrpay_action')) {
+			switch (Input::get('vrpay_action')) {
 				case 'abort':
 					$arr_moduleReturnData['arr_status'][] = array(
 						'str_statusValue' => 'ABORTED',
@@ -322,7 +325,7 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 					 * abortions to be written to the order record if the user
 					 * would reload the page with the same url.
 					 */
-					$this->redirect(preg_replace('/vrpay_action=abort/', 'vrpay_action=abort_handled', \Environment::get('request')));
+					$this->redirect(preg_replace('/vrpay_action=abort/', 'vrpay_action=abort_handled', Environment::get('request')));
 					break;
 
 				default:
@@ -330,9 +333,9 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 					 * ->
 					 * Get the transaction status
 					 */
-					if (\Input::get('resourcePath')) {
+					if (Input::get('resourcePath')) {
 						$arr_paymentStatusResponseData = $this->vrpay_doRequest(
-							$this->arr_vrpay_apiUrls[$this->arrCurrentSettings['vrpay_liveMode'] ? 'live' : 'test'].\Input::get('resourcePath'),
+							$this->arr_vrpay_apiUrls[$this->arrCurrentSettings['vrpay_liveMode'] ? 'live' : 'test'].Input::get('resourcePath'),
 							array(),
 							'GET'
 						);
@@ -366,7 +369,7 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 						 * which would cause multiple status entries to be written to
 						 * the order record if the user would reload the page with the same url.
 						 */
-						$this->redirect(preg_replace('/&{0,1}resourcePath=[^&]*/', '', \Environment::get('request')));
+						$this->redirect(preg_replace('/&{0,1}resourcePath=[^&]*/', '', Environment::get('request')));
 					}
 					/*
 					 * <-
@@ -377,7 +380,7 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 		}
 
 		public function onPaymentAfterCheckoutPage($arr_order = array()) {
-			/** @var \PageModel $objPage */
+			/** @var PageModel $objPage */
 			global $objPage;
 			$arr_paymentMethod_moduleReturnData = StringUtil::deserialize($arr_order['paymentMethod_moduleReturnData']);
 

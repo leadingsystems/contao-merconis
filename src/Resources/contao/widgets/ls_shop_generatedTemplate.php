@@ -13,7 +13,11 @@ namespace Merconis\Core;
  * in any way, it's the job of the field's load_callback to do so and it's the job
  * of the given template to create the specific output.
  */
-class ls_shop_generatedTemplate extends \Widget
+
+use Contao\BackendTemplate;
+use Contao\Widget;
+
+class ls_shop_generatedTemplate extends Widget
 {
 
 	/**
@@ -62,7 +66,7 @@ class ls_shop_generatedTemplate extends \Widget
 			$strTemplateToUse = $this->arrConfiguration['ls_shop_generatedTemplate_template'];
 		}
 		
-		$objTemplate = new \BackendTemplate($strTemplateToUse);
+		$objTemplate = new BackendTemplate($strTemplateToUse);
 		$objTemplate->value = $this->varValue;
 		$this->varValue = $objTemplate->parse();
 		

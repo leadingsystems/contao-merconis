@@ -1,5 +1,8 @@
 <?php
 namespace Merconis\Core;
+use Contao\Database;
+use Contao\FilesModel;
+use Contao\PageModel;
 use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -28,7 +31,7 @@ class ls_shop_productManagementApiHelper {
 					if (!$str_category) {
 						continue;
 					}
-					$obj_dbres_page = \Database::getInstance()
+					$obj_dbres_page = Database::getInstance()
 					->prepare("
 						SELECT		`id`
 						FROM		`tl_page`
@@ -59,7 +62,7 @@ class ls_shop_productManagementApiHelper {
 		}
 
 		if (!isset($GLOBALS['merconis_globals']['getTaxClassID'][$str_alias])) {
-			$obj_dbres_row = \Database::getInstance()
+			$obj_dbres_row = Database::getInstance()
 			->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_steuersaetze`
@@ -95,7 +98,7 @@ class ls_shop_productManagementApiHelper {
         }
 
 		if (!isset($GLOBALS['merconis_globals']['getConfiguratorID'][$str_alias])) {
-			$obj_dbres_row = \Database::getInstance()
+			$obj_dbres_row = Database::getInstance()
 			->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_configurator`
@@ -127,7 +130,7 @@ class ls_shop_productManagementApiHelper {
             return null;
         }
 
-        $fileModel = \FilesModel::findByPath($str_filePath);
+        $fileModel = FilesModel::findByPath($str_filePath);
         $fileReference = $fileModel->uuid;
         return $fileReference;
     }
@@ -141,7 +144,7 @@ class ls_shop_productManagementApiHelper {
 		}
 
 		if (!isset($GLOBALS['merconis_globals']['getDeliveryInfoSetID'][$str_alias])) {
-			$obj_dbres_row = \Database::getInstance()
+			$obj_dbres_row = Database::getInstance()
 			->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_delivery_info`
@@ -176,7 +179,7 @@ class ls_shop_productManagementApiHelper {
 					continue;
 				}
 
-				$obj_models = \FilesModel::findMultipleByPaths(array(ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']).'/'.$str_image));
+				$obj_models = FilesModel::findMultipleByPaths(array(ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']).'/'.$str_image));
 				if ($obj_models !== null) {
 					$str_image = $obj_models->first()->uuid;
 				} else {
@@ -242,7 +245,7 @@ class ls_shop_productManagementApiHelper {
 				'attributeValueAliases' => array()
 			);
 
-			$obj_dbres_attributes = \Database::getInstance()
+			$obj_dbres_attributes = Database::getInstance()
 			->prepare("
 				SELECT		`alias`
 				FROM		`tl_ls_shop_attributes`
@@ -253,7 +256,7 @@ class ls_shop_productManagementApiHelper {
 				$GLOBALS['merconis_globals']['attributeAndValueAliases']['attributeAliases'][] = $obj_dbres_attributes->alias;
 			}
 
-			$obj_attributeValues = \Database::getInstance()
+			$obj_attributeValues = Database::getInstance()
 			->prepare("
 				SELECT		`alias`
 				FROM		`tl_ls_shop_attribute_values`
@@ -272,7 +275,7 @@ class ls_shop_productManagementApiHelper {
 		if (!isset($GLOBALS['merconis_globals']['attributeAndValueAliasesInRelation'])) {
 			$GLOBALS['merconis_globals']['attributeAndValueAliasesInRelation'] = array();
 
-			$obj_dbres_attributes = \Database::getInstance()
+			$obj_dbres_attributes = Database::getInstance()
 			->prepare("
 				SELECT		`id`,
 							`alias`
@@ -281,7 +284,7 @@ class ls_shop_productManagementApiHelper {
 			->execute();
 
 			while($obj_dbres_attributes->next()) {
-				$obj_attributeValues = \Database::getInstance()
+				$obj_attributeValues = Database::getInstance()
 				->prepare("
 					SELECT		`alias`
 					FROM		`tl_ls_shop_attribute_values`
@@ -304,7 +307,7 @@ class ls_shop_productManagementApiHelper {
 		}
 
 		if (!isset($GLOBALS['merconis_globals']['getAttributeIDForAlias'][$str_alias])) {
-			$obj_dbres_attribute = \Database::getInstance()
+			$obj_dbres_attribute = Database::getInstance()
 			->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_attributes`
@@ -331,7 +334,7 @@ class ls_shop_productManagementApiHelper {
 		}
 
 		if (!isset($GLOBALS['merconis_globals']['getAttributeValueIDForAlias'][$str_alias])) {
-			$obj_dbres_attributeValue = \Database::getInstance()
+			$obj_dbres_attributeValue = Database::getInstance()
 			->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_attribute_values`
@@ -356,7 +359,7 @@ class ls_shop_productManagementApiHelper {
 		if (!isset($GLOBALS['merconis_globals']['pageAliases'])) {
 			$GLOBALS['merconis_globals']['pageAliases'] = array();
 
-			$obj_dbres_pages = \Database::getInstance()
+			$obj_dbres_pages = Database::getInstance()
 			->prepare("
 				SELECT		`id`,
                             `alias`
@@ -367,8 +370,8 @@ class ls_shop_productManagementApiHelper {
 
             while ($obj_dbres_pages->next()) {
                 // Check whether root page is fallback language or not and only then add the page to the pageAliases array
-                $obj_pageDetails = \PageModel::findWithDetails($obj_dbres_pages->id);
-                $obj_rootPage = \Database::getInstance()
+                $obj_pageDetails = PageModel::findWithDetails($obj_dbres_pages->id);
+                $obj_rootPage = Database::getInstance()
                     ->prepare("
                         SELECT * FROM `tl_page` WHERE `id` = ?
                     ")
@@ -387,7 +390,7 @@ class ls_shop_productManagementApiHelper {
 		if (!isset($GLOBALS['merconis_globals']['deliveryInfoTypeAliases'])) {
 			$GLOBALS['merconis_globals']['deliveryInfoTypeAliases'] = array();
 
-			$obj_dbres_deliveryInfoTypes = \Database::getInstance()
+			$obj_dbres_deliveryInfoTypes = Database::getInstance()
 			->prepare("
 				SELECT		`alias`
 				FROM		`tl_ls_shop_delivery_info`
@@ -405,7 +408,7 @@ class ls_shop_productManagementApiHelper {
 		if (!isset($GLOBALS['merconis_globals']['cache']['taxClassAliases'])) {
 			$GLOBALS['merconis_globals']['cache']['taxClassAliases'] = array();
 
-			$obj_dbres_taxClasses = \Database::getInstance()
+			$obj_dbres_taxClasses = Database::getInstance()
 			->prepare("
 				SELECT		`alias`
 				FROM		`tl_ls_shop_steuersaetze`
@@ -423,7 +426,7 @@ class ls_shop_productManagementApiHelper {
 		if (!isset($GLOBALS['merconis_globals']['cache']['configuratorAliases'])) {
 			$GLOBALS['merconis_globals']['cache']['configuratorAliases'] = array();
 
-			$obj_dbres_configurators = \Database::getInstance()
+			$obj_dbres_configurators = Database::getInstance()
 			->prepare("
 				SELECT		`alias`
 				FROM		`tl_ls_shop_configurator`
@@ -545,7 +548,7 @@ class ls_shop_productManagementApiHelper {
 	 * in den Produktdatensatz geschrieben werden.
 	 */
 	public static function translateRecommendedProductCodesInIDs() {
-		$obj_dbres_prodResults = \Database::getInstance()
+		$obj_dbres_prodResults = Database::getInstance()
 		->prepare("
 			SELECT		`id`,
 						`lsShopProductRecommendedProducts`
@@ -567,7 +570,7 @@ class ls_shop_productManagementApiHelper {
 				continue;
 			} else {
 				foreach ($arr_recommendedProducts['productCodes'] as $str_productCode) {
-					$obj_dbres_prodId = \Database::getInstance()
+					$obj_dbres_prodId = Database::getInstance()
 					->prepare("
 						SELECT		`id`
 						FROM		`tl_ls_shop_product`
@@ -582,7 +585,7 @@ class ls_shop_productManagementApiHelper {
 					$arr_recommendedProductIDs[] = $obj_dbres_prodId->id;
 				}
 
-				\Database::getInstance()
+				Database::getInstance()
 				->prepare("
 					UPDATE		`tl_ls_shop_product`
 					SET			`lsShopProductRecommendedProducts` = ?
@@ -653,7 +656,7 @@ class ls_shop_productManagementApiHelper {
 	        $bln_alwaysAddIdToAlias = isset($GLOBALS['TL_CONFIG']['ls_shop_alwaysAddIdToAliasDuringProductImport']) && $GLOBALS['TL_CONFIG']['ls_shop_alwaysAddIdToAliasDuringProductImport'];
         }
 
-		$str_alias = $str_givenAlias ? $str_givenAlias : \StringUtil::generateAlias($str_title);
+		$str_alias = $str_givenAlias ? $str_givenAlias : StringUtil::generateAlias($str_title);
 
 		/*
 		 * The alias must not be longer than 128 characters
@@ -664,7 +667,7 @@ class ls_shop_productManagementApiHelper {
             /*
              * Check whether the alias already exists
              */
-            $obj_dbres_recordForAlias = \Database::getInstance()
+            $obj_dbres_recordForAlias = Database::getInstance()
                 ->prepare("
                     SELECT		`id`
                     FROM		`tl_ls_shop_product`
@@ -690,7 +693,7 @@ class ls_shop_productManagementApiHelper {
 	}
 
 	public static function generateVariantAlias($str_title, $str_givenAlias = '', $int_variantId = 0, $str_language = '', $bln_alwaysAddIdToAlias = true) {
-		$str_alias = $str_givenAlias ? $str_givenAlias : \StringUtil::generateAlias($str_title);
+		$str_alias = $str_givenAlias ? $str_givenAlias : StringUtil::generateAlias($str_title);
 
 		/*
 		 * The alias must not be longer than 128 characters
@@ -701,7 +704,7 @@ class ls_shop_productManagementApiHelper {
             /*
              * Check whether the alias already exists
              */
-            $obj_dbres_recordForAlias = \Database::getInstance()
+            $obj_dbres_recordForAlias = Database::getInstance()
                 ->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_variant`
@@ -729,7 +732,7 @@ class ls_shop_productManagementApiHelper {
 	public static function getProductIdForProductCode($str_productcode) {
 		$int_productId = 0;
 
-		$obj_dbres_product = \Database::getInstance()
+		$obj_dbres_product = Database::getInstance()
 		->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_product`
@@ -749,7 +752,7 @@ class ls_shop_productManagementApiHelper {
 	public static function getVariantIdForProductCode($str_productcode) {
 		$int_variantId = 0;
 
-		$obj_dbres_variant = \Database::getInstance()
+		$obj_dbres_variant = Database::getInstance()
 		->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_variant`
@@ -770,7 +773,7 @@ class ls_shop_productManagementApiHelper {
 		// Prüfen, ob es ein Produkt mit der Artikelnummer bereits gibt
 		$int_alreadyExistsAsID = 0;
 
-		$obj_dbres_prodExists = \Database::getInstance()
+		$obj_dbres_prodExists = Database::getInstance()
 			->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_product`
@@ -788,7 +791,7 @@ class ls_shop_productManagementApiHelper {
 		if ($int_alreadyExistsAsID) {
 			$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('product');
 
-			$obj_dbquery_updateProduct = \Database::getInstance()
+			$obj_dbquery_updateProduct = Database::getInstance()
 				->prepare("
 				UPDATE		`tl_ls_shop_product`
 				SET			`title` = ?,
@@ -934,7 +937,7 @@ class ls_shop_productManagementApiHelper {
 		else {
 			$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('product');
 
-			$obj_insertProduct = \Database::getInstance()
+			$obj_insertProduct = Database::getInstance()
 				->prepare("
 				INSERT INTO	`tl_ls_shop_product`
 				SET			`tstamp` = ?,
@@ -1080,7 +1083,7 @@ class ls_shop_productManagementApiHelper {
 		// Prüfen, ob es eine Variante mit der Artikelnummer bereits gibt
 		$int_alreadyExistsAsID = false;
 
-		$obj_dbres_variant = \Database::getInstance()
+		$obj_dbres_variant = Database::getInstance()
 			->prepare("
 				SELECT		`id`
 				FROM		`tl_ls_shop_variant`
@@ -1099,7 +1102,7 @@ class ls_shop_productManagementApiHelper {
 		if ($int_alreadyExistsAsID) {
 			$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('variant');
 
-			$obj_dbquery_updateVariant = \Database::getInstance()
+			$obj_dbquery_updateVariant = Database::getInstance()
 				->prepare("
 					UPDATE		`tl_ls_shop_variant`
 					SET			`title` = ?,
@@ -1238,7 +1241,7 @@ class ls_shop_productManagementApiHelper {
 
 			$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('variant');
 
-			$obj_dbquery_insertVariant = \Database::getInstance()
+			$obj_dbquery_insertVariant = Database::getInstance()
 				->prepare("
 				INSERT INTO	`tl_ls_shop_variant`
 				SET			`tstamp` = ?,
@@ -1507,7 +1510,7 @@ class ls_shop_productManagementApiHelper {
 			throw new \Exception('no product id given.');
 		}
 
-		\Database::getInstance()
+		Database::getInstance()
 		->prepare("
 			DELETE FROM	`tl_ls_shop_product`
 			WHERE		`id` = ?
@@ -1523,7 +1526,7 @@ class ls_shop_productManagementApiHelper {
 			throw new \Exception('no product id given.');
 		}
 
-		$obj_dbres_variants = \Database::getInstance()
+		$obj_dbres_variants = Database::getInstance()
 		->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_variant`
@@ -1551,7 +1554,7 @@ class ls_shop_productManagementApiHelper {
 			throw new \Exception('no variant id given.');
 		}
 
-		\Database::getInstance()
+		Database::getInstance()
 		->prepare("
 			DELETE FROM	`tl_ls_shop_variant`
 			WHERE		`id` = ?

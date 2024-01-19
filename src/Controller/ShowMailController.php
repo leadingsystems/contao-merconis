@@ -46,7 +46,7 @@ class ShowMailController
 	 * @param Request $request
 	 *
 	 * @return \Symfony\Component\HttpFoundation\Response
-	 * @throws \Doctrine\DBAL\DBALException
+	 * @throws \Doctrine\DBAL\Exception
 	 */
 	public function htmlBodyAction($messageId, Request $request)
 	{

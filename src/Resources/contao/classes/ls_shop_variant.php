@@ -2,6 +2,9 @@
 
 namespace Merconis\Core;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
+use Contao\FrontendTemplate;
+use Contao\PageModel;
 use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -223,7 +226,7 @@ class ls_shop_variant
 	 * hier verfügbaren Eigenschaften in der automatischen Dokumentation dargestellt werden
 	 */
 	public function __get($what = '') {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 		switch ($what) {
 			/* ## START AUTO DOCUMENTATION PROPERTIES VARIANT ## */
@@ -354,10 +357,12 @@ returns the main image that has been selected explicitly or null if none has bee
 				break;
 
 			case '_mainImage'
-				/* ## DESCRIPTION:
-Returns the image that will be used as the main image if images are processed in an alphabetical ascending order.
-If a main image has been selected explicitly, it will always be returned here. Otherwise the image sorted on top will be returned.
-You can use the method "getImage" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
+				/*
+				 * @toDo Fix Description: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+				 * ## DESCRIPTION:
+				 * Returns the image that will be used as the main image if images are processed in an alphabetical ascending order.
+				 * If a main image has been selected explicitly, it will always be returned here. Otherwise the image sorted on top will be returned.
+				 * You can use the method "getImage" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
                 trigger_error('Case ' . $what . ' is deprecated use $obj_variant->getImageGallery()->getMainImage() instead', E_USER_DEPRECATED);
@@ -381,8 +386,10 @@ You can use the method "getImage" to get the image in the size you need: \Image:
 				break;
 
 			case '_moreImages'
-				/* ## DESCRIPTION:
-you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
+				/*
+				 * @toDo Fix Description: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+				 * ## DESCRIPTION:
+				 * you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
                 trigger_error('Case ' . $what . ' is deprecated use $obj_variant->getImageGallery()->getMoreImages() instead', E_USER_DEPRECATED);
@@ -1265,7 +1272,7 @@ This method takes the name of a template file as an argument and returns the ren
             :
                 $args = ls_shop_generalHelper::setArrayLength($args, 2);
                 $str_template = $args[0];
-                $obj_template = new \FrontendTemplate($str_template);
+                $obj_template = new FrontendTemplate($str_template);
                 $obj_template->objVariant = $this;
                 $obj_template->arr_args = is_array($args[1]) ? $args[1] : [$args[1]];
                 return $obj_template->parse();
@@ -1407,7 +1414,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
             );
 		}
 
-		$objQuery = \Database::getInstance()->prepare("
+		$objQuery = Database::getInstance()->prepare("
 			UPDATE		`tl_ls_shop_variant`
 			SET			`lsShopVariantStock` = ?
 			WHERE		`id` = ?
@@ -1421,7 +1428,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	}
 
 	protected function getFreshestStock() {
-		$objFreshestStock = \Database::getInstance()->prepare("
+		$objFreshestStock = Database::getInstance()->prepare("
 			SELECT		`lsShopVariantStock`
 			FROM		`tl_ls_shop_variant`
 			WHERE		`id` = ?

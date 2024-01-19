@@ -1,3 +1,8 @@
+<?php
+
+use Contao\System;
+
+?>
 <!-- indexer::stop -->
 <div class="<?php echo $this->class; ?> <?php echo $this->strTemplate ?> ls_searchBox off-canvas"<?= $this->cssID ?>>
 	<form action="<?php echo $this->action; ?>" method="post">

@@ -2,6 +2,11 @@
 
 namespace Merconis\Core;
 
+use Contao\Controller;
+use Contao\Database;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\Input;
 use Contao\System;
 
 class Installer
@@ -37,8 +42,8 @@ class Installer
      */
     protected function __construct()
     {
-        \System::loadLanguageFile('lsm_installer');
-        $this->obj_template = new \FrontendTemplate('lsm_installer');
+        System::loadLanguageFile('lsm_installer');
+        $this->obj_template = new FrontendTemplate('lsm_installer');
         $this->obj_template->str_output = $this->getIncompleteInstallationMessage();
     }
 
@@ -50,7 +55,7 @@ class Installer
     protected function getIncompleteInstallationMessage()
     {
         /** @var \Merconis\Core\InstallerController $obj_installerController */
-        $obj_installerController = \System::importStatic('Merconis\Core\InstallerController');
+        $obj_installerController = System::importStatic('Merconis\Core\InstallerController');
 
         // Installationsstatus zu Beginn abfragen
         $arrInstallationStatus = $obj_installerController->getInstallationStatus();
@@ -75,14 +80,14 @@ class Installer
         } else if (!is_array($arrInstallationStatus) && $arrInstallationStatus == 'complete' && !is_array($varUpdateSituation)) {
             ob_start();
 
-            $urlToFrontendShopInstallation = \Environment::get('base');
+            $urlToFrontendShopInstallation = Environment::get('base');
 
             /*
              * Prüfen, ob bei der Seite mit dem Alias "merconis-root-page-main-language" das Fallback-Flag gesetzt ist
              */
             $blnMerconisFallbackFlagSet = true;
 
-            $objMerconisRootPageMainLanguage = \Database::getInstance()->prepare("
+            $objMerconisRootPageMainLanguage = Database::getInstance()->prepare("
 				SELECT		*
 				FROM		`tl_page`
 				WHERE		`alias` = 'merconis-root-page-main-language'
@@ -98,7 +103,7 @@ class Installer
 
             ?>
             <div class="ls_shop ls_shop_systemMessage shopInstalledCompletely">
-                <?php echo $urlToFrontendShopInstallation ? sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage07'], ls_shop_generalHelper::getMerconisFilesVersion(!\Input::get('showMerconisBuildNumber')), $urlToFrontendShopInstallation) : sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage08'], $obj_installerController->getMerconisFilesVersion(!\Input::get('showMerconisBuildNumber'))); ?>
+                <?php echo $urlToFrontendShopInstallation ? sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage07'], ls_shop_generalHelper::getMerconisFilesVersion(!Input::get('showMerconisBuildNumber')), $urlToFrontendShopInstallation) : sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage08'], $obj_installerController->getMerconisFilesVersion(!Input::get('showMerconisBuildNumber'))); ?>
                 <?php echo !$blnMerconisFallbackFlagSet ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage10'] : ''; ?>
                 <?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage23'], $GLOBALS['TL_CONFIG']['merconis_serviceNumber']); ?>
             </div>
@@ -284,9 +289,9 @@ class Installer
                     <?php
                 }
 
-                if (\Input::get('switchThemeSource')) {
-                    $_SESSION['lsShop']['themeSource'] = \Input::get('switchThemeSource');
-                    \Controller::redirect('contao?do=ls_shop_dashboard');
+                if (Input::get('switchThemeSource')) {
+                    $_SESSION['lsShop']['themeSource'] = Input::get('switchThemeSource');
+                    Controller::redirect('contao?do=ls_shop_dashboard');
                 }
                 ?>
 

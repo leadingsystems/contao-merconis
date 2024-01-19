@@ -2,8 +2,12 @@
 
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
+use Contao\Date;
 use Contao\DC_Table;
+use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 	'config' => array(
@@ -386,14 +390,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 
 
 
-class tl_ls_shop_message_type_controller extends \Backend {
+class tl_ls_shop_message_type_controller extends Backend {
 
 	public function __construct() {
 		parent::__construct();
 		$this->import('BackendUser', 'User');
 	}
 
-	public function generateAlias($varValue, \DataContainer $dc) {
+	public function generateAlias($varValue, DataContainer $dc) {
 		$autoAlias = false;
 
 		$currentTitle = isset($dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()}) && $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} ? $dc->activeRecord->{'title_'.ls_shop_languageHelper::getFallbackLanguage()} : $dc->activeRecord->title;
@@ -401,9 +405,9 @@ class tl_ls_shop_message_type_controller extends \Backend {
 		// Generate an alias if there is none
 		if ($varValue == '') {
 			$autoAlias = true;
-			$varValue = \StringUtil::generateAlias($currentTitle);
+			$varValue = StringUtil::generateAlias($currentTitle);
 		}
-		$objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_message_type WHERE id=? OR alias=?")
+		$objAlias = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_message_type WHERE id=? OR alias=?")
 								   ->execute($dc->id, $varValue);
 
 		// Check whether the alias exists
@@ -424,7 +428,7 @@ class tl_ls_shop_message_type_controller extends \Backend {
 			 * da beim Abschluss einer Bestellung automatisch der Startwert verwendet wird, sofern der Zähler
 			 * auf 0 steht.
 			 */
-			$objUpdate = \Database::getInstance()->prepare("
+			$objUpdate = Database::getInstance()->prepare("
 				UPDATE		`tl_ls_shop_message_type`
 				SET			`counter` = ?,
 							`counterRestartNow` = ?
@@ -435,7 +439,7 @@ class tl_ls_shop_message_type_controller extends \Backend {
 		}
 	}
 	
-	public function getLastDispatchDateUnixTimestamp($varValue, \DataContainer $dc) {
-		return \Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $varValue);
+	public function getLastDispatchDateUnixTimestamp($varValue, DataContainer $dc) {
+		return Date::parse($GLOBALS['TL_CONFIG']['datimFormat'], $varValue);
 	}
 }

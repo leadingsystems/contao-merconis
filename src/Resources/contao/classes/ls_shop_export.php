@@ -3,6 +3,11 @@
 namespace Merconis\Core;
 
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
+use Contao\Environment;
+use Contao\FrontendTemplate;
+use Contao\Input;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 
@@ -38,7 +43,7 @@ class ls_shop_export
 		}
 
 		if ($this->arr_exportRecord['template']) {
-			$this->obj_template = new \FrontendTemplate($this->arr_exportRecord['template']);
+			$this->obj_template = new FrontendTemplate($this->arr_exportRecord['template']);
 		}
 
 		if ($this->arr_exportRecord['useSegmentedOutput'] && $this->arr_exportRecord['numberOfRecordsPerSegment']) {
@@ -61,11 +66,11 @@ class ls_shop_export
 	}
 
 	protected function getExportRecordForIdentificationToken($var_identificationToken, $str_identificationTokenFieldName = 'id') {
-		if (!\Database::getInstance()->fieldExists($str_identificationTokenFieldName, 'tl_ls_shop_export')) {
+		if (!Database::getInstance()->fieldExists($str_identificationTokenFieldName, 'tl_ls_shop_export')) {
 			return;
 		}
 
-		$obj_dbresExport = \Database::getInstance()->prepare("
+		$obj_dbresExport = Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_export`
 			WHERE		`".$str_identificationTokenFieldName."` = ?
@@ -291,7 +296,7 @@ class ls_shop_export
 			/*
 			 * Get the total number of records (required for segmentation)
 			 */
-			$obj_dbres_numTotal = \Database::getInstance()
+			$obj_dbres_numTotal = Database::getInstance()
 				->prepare("
 					SELECT		COUNT(*) as `numTotal`
 					FROM		`tl_ls_shop_orders`
@@ -304,7 +309,7 @@ class ls_shop_export
 
 			$this->obj_segmentizer->numSegmentsTotal = ceil($obj_dbres_numTotal->first()->numTotal / $this->arr_exportRecord['numberOfRecordsPerSegment']);
 		}
-		$obj_dbres_order = \Database::getInstance()
+		$obj_dbres_order = Database::getInstance()
 			->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_orders`
@@ -373,7 +378,7 @@ class ls_shop_export
 	protected function getOrderItemsForOrderId($int_orderId) {
 		$arr_orderItems = array();
 
-		$obj_dbres_orderItems = \Database::getInstance()
+		$obj_dbres_orderItems = Database::getInstance()
 			->prepare("
 					SELECT		*
 					FROM		`tl_ls_shop_orders_items`
@@ -392,7 +397,7 @@ class ls_shop_export
 	protected function getCustomerDataForOrderId($int_orderId) {
 		$arr_customerData = array();
 
-		$obj_dbres_customerData = \Database::getInstance()
+		$obj_dbres_customerData = Database::getInstance()
 			->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_orders_customer_data`
@@ -440,7 +445,7 @@ class ls_shop_export
 				/*
 				 * Get the total number of records (required for segmentation)
 				 */
-				$obj_dbres_numTotal = \Database::getInstance()
+				$obj_dbres_numTotal = Database::getInstance()
 					->prepare("
 					SELECT		COUNT(*) as `numTotal`
 					FROM		`" . $this->arr_exportRecord['tableName'] . "`
@@ -450,7 +455,7 @@ class ls_shop_export
 				$this->obj_segmentizer->numSegmentsTotal = ceil($obj_dbres_numTotal->first()->numTotal / $this->arr_exportRecord['numberOfRecordsPerSegment']);
 			}
 
-			$obj_dbres_data = \Database::getInstance()
+			$obj_dbres_data = Database::getInstance()
 			->prepare("
 				SELECT		*
 				FROM		`" . $this->arr_exportRecord['tableName'] . "`
@@ -553,7 +558,7 @@ class ls_shop_export
 				'arr_variants' => array()
 			);
 
-			$obj_dbres_products = \Database::getInstance()
+			$obj_dbres_products = Database::getInstance()
 			->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_product`
@@ -568,7 +573,7 @@ class ls_shop_export
 				}
 			}
 
-			$obj_dbres_variants = \Database::getInstance()
+			$obj_dbres_variants = Database::getInstance()
 			->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_variant`
@@ -590,7 +595,7 @@ class ls_shop_export
 	}
 
 	public function ls_getSearchSelection() {
-		/** @var \PageModel $objPage */
+		/** @var PageModel $objPage */
 		global $objPage;
 		/*
 		 * Erstellung des Suchkriterien-Arrays für productSearcher
@@ -732,8 +737,8 @@ class ls_shop_export
 		/*
 		 * If a segmentation token is given explicitly as a get parameter, we use it
 		 */
-		if (\Input::get('stok')) {
-			return \Input::get('stok');
+		if (Input::get('stok')) {
+			return Input::get('stok');
 		}
 
 		/*
@@ -748,7 +753,7 @@ class ls_shop_export
 		 * Since multiple users could share the same ip or one user could swap ips,
 		 * the ip is obviously not the best segmentation token but we use it as a fallback.
 		 */
-		return sha1(\Environment::get('ip'));
+		return sha1(Environment::get('ip'));
 	}
 
 	protected function performAutomaticOrderStatusChange($arr_data) {
@@ -774,7 +779,7 @@ class ls_shop_export
 			}
 		}
 
-		$obj_dbqueryUpdateOrderStatus = \Database::getInstance()->prepare("
+		$obj_dbqueryUpdateOrderStatus = Database::getInstance()->prepare("
 			UPDATE		`tl_ls_shop_orders`
 			SET			".$str_sqlSetStatement."
 			WHERE		`id` IN (".implode(',', $arr_orderIds).")

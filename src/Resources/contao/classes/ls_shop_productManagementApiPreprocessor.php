@@ -1,5 +1,6 @@
 <?php
 namespace Merconis\Core;
+use Contao\FilesModel;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_productManagementApiPreprocessor
@@ -1918,7 +1919,7 @@ class ls_shop_productManagementApiPreprocessor
 
 		$str_output = $str_output ? ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']).'/'.$str_output : '';
 
-		$obj_imageModels = \FilesModel::findMultipleByPaths(array($str_output));
+		$obj_imageModels = FilesModel::findMultipleByPaths(array($str_output));
 
 		if ($obj_imageModels !== null) {
 			$str_output = $obj_imageModels->first()->uuid;

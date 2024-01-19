@@ -2,6 +2,9 @@
 
 namespace Merconis\Core;
 
+use Contao\Environment;
+use Contao\System;
+
 class customizerLogic_standard extends customizer {
     protected $bln_showFieldsetsInSummary = true;
 
@@ -14,7 +17,7 @@ class customizerLogic_standard extends customizer {
 
     public function initialize()
     {
-        \System::loadLanguageFile('customizerLogic_standard');
+        System::loadLanguageFile('customizerLogic_standard');
         $this->arr_language = &$GLOBALS['TL_LANG']['MSC']['merconis']['customizerLogic_standard'];
     }
 
@@ -51,7 +54,7 @@ class customizerLogic_standard extends customizer {
     {
         ob_start();
         ?>
-        <div data-merconis-component="customizerInterfaceStandard" data-merconis-productVariantId="<?php echo $obj_productOrVariant->_productVariantID; ?>" data-merconis-targetUrl="<?php echo \Environment::get('request'); ?>"></div>
+        <div data-merconis-component="customizerInterfaceStandard" data-merconis-productVariantId="<?php echo $obj_productOrVariant->_productVariantID; ?>" data-merconis-targetUrl="<?php echo Environment::get('request'); ?>"></div>
         <?php
         return ob_get_clean();
     }

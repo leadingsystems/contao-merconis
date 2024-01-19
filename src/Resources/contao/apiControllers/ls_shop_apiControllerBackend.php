@@ -2,6 +2,9 @@
 
 namespace Merconis\Core;
 
+use Contao\Database;
+use Contao\Input;
+
 class ls_shop_apiControllerBackend
 {
 	protected static $objInstance;
@@ -55,9 +58,9 @@ class ls_shop_apiControllerBackend
 			return;
 		}
 
-		$int_sourceProductIdsStart = \Input::get('int_sourceProductIdsStart') ? \Input::get('int_sourceProductIdsStart') : 1;
-		$int_sourceProductIdsStop = \Input::get('int_sourceProductIdsStop') ? \Input::get('int_sourceProductIdsStop') : 1;
-		$int_inputFactor = \Input::get('int_inputFactor') ? \Input::get('int_inputFactor') : 1;
+		$int_sourceProductIdsStart = Input::get('int_sourceProductIdsStart') ? Input::get('int_sourceProductIdsStart') : 1;
+		$int_sourceProductIdsStop = Input::get('int_sourceProductIdsStop') ? Input::get('int_sourceProductIdsStop') : 1;
+		$int_inputFactor = Input::get('int_inputFactor') ? Input::get('int_inputFactor') : 1;
 
 		$this->obj_apiReceiver->success();
 
@@ -68,7 +71,7 @@ class ls_shop_apiControllerBackend
 			'arr_insertedVariantIds' => array()
 		);
 
-		$obj_dbres_products = \Database::getInstance()
+		$obj_dbres_products = Database::getInstance()
 			->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_product`
@@ -88,7 +91,7 @@ class ls_shop_apiControllerBackend
 			$arr_products[$obj_dbres_products->id] = $obj_dbres_products->row();
 			$arr_products[$obj_dbres_products->id]['arr_variants'] = array();
 
-			$obj_dbres_variants = \Database::getInstance()
+			$obj_dbres_variants = Database::getInstance()
 				->prepare("
 				SELECT		*
 				FROM		`tl_ls_shop_variant`
@@ -117,7 +120,7 @@ class ls_shop_apiControllerBackend
 					$arr_valuePlaceholders[] = '?';
 				}
 
-				$obj_dbquery_insertProduct = \Database::getInstance()
+				$obj_dbquery_insertProduct = Database::getInstance()
 					->prepare("
 					INSERT INTO		`tl_ls_shop_product`
 									(" . implode(',', $arr_fieldNames) . ")
@@ -144,7 +147,7 @@ class ls_shop_apiControllerBackend
 						$arr_valuePlaceholders[] = '?';
 					}
 
-					$obj_dbquery_insertVariant = \Database::getInstance()
+					$obj_dbquery_insertVariant = Database::getInstance()
 						->prepare("
 						INSERT INTO		`tl_ls_shop_variant`
 										(" . implode(',', $arr_fieldNames) . ")
@@ -166,7 +169,7 @@ class ls_shop_apiControllerBackend
 		}
 
 		if (count($arr_resultOutput['arr_insertedProductIds'])) {
-			$obj_dbquery_updateProductTitles = \Database::getInstance()
+			$obj_dbquery_updateProductTitles = Database::getInstance()
 			->prepare("
 				UPDATE		`tl_ls_shop_product`
 				SET			".$str_titleUpdateStatement."
@@ -176,7 +179,7 @@ class ls_shop_apiControllerBackend
 		}
 
 		if (count($arr_resultOutput['arr_insertedVariantIds'])) {
-			$obj_dbquery_updateVariantTitles = \Database::getInstance()
+			$obj_dbquery_updateVariantTitles = Database::getInstance()
 			->prepare("
 				UPDATE		`tl_ls_shop_variant`
 				SET			".$str_titleUpdateStatement."

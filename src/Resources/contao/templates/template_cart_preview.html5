@@ -48,6 +48,9 @@
                             if ($imgToUse) {
                                 ?>
                                 <a<?php if (!$objProduct->_configuratorHasValue) { ?> href="<?php echo $obj_tmp_productOrVariant->_link; ?>"<?php } ?>>
+                                    <!--
+                                    @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
+                                    -->
                                     <img src="<?php echo \Image::get($imgToUse, 600, 600, 'box'); ?>" alt="" />
                                 </a>
                                 <?php
