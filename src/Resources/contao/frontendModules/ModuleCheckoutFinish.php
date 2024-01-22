@@ -176,10 +176,10 @@ class ModuleCheckoutFinish extends Module {
 			$objOrderMessages->sendMessages();
 
 
-			$session = \System::getContainer()->get('merconis.session')->getSession();
+			$session = System::getContainer()->get('merconis.session')->getSession();
 			$session->remove('lsShopCart');
 
-			$session = \System::getContainer()->get('merconis.session')->getSession();
+			$session = System::getContainer()->get('merconis.session')->getSession();
 			$session_lsShop =  $session->get('lsShop', []);
 			
 			unset($session_lsShop['configurator']);

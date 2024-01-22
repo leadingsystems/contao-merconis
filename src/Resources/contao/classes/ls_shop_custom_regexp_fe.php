@@ -8,7 +8,7 @@ use function LeadingSystems\Helpers\createMultidimensionalArray;
 
 	class ls_shop_custom_regexp_fe
 	{
-		public function customRegexp($strRegexp, &$varValue, \Widget &$objWidget) {
+		public function customRegexp($strRegexp, &$varValue, Widget &$objWidget) {
             $session = System::getContainer()->get('merconis.session')->getSession();
             $session_lsShop =  $session->get('lsShop', []);
 

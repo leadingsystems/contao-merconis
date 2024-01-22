@@ -5,6 +5,7 @@ use Contao\Date;
 use Contao\Environment;
 use Contao\Input;
 use Contao\StringUtil;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -52,7 +53,7 @@ use function LeadingSystems\Helpers\ls_sub;
 		 */
 		public function afterCheckoutFinish($int_orderIdInDb = 0, $arr_order = array(), $afterCheckoutUrl = '', $oix = '') {
 			// Reset the special payment info
-            $session = \System::getContainer()->get('merconis.session')->getSession();
+            $session = System::getContainer()->get('merconis.session')->getSession();
             $session_lsShop =  $session->get('lsShop', []);
             $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
             $session->set('lsShop', $session_lsShop);
@@ -330,7 +331,7 @@ use function LeadingSystems\Helpers\ls_sub;
 						 * write the error message to the special payment info
 						 * and update the payment status in the order record
 						 */
-                        $session = \System::getContainer()->get('merconis.session')->getSession();
+                        $session = System::getContainer()->get('merconis.session')->getSession();
                         $session_lsShop =  $session->get('lsShop', []);
                         $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentErrorAfterFinishedOrder'];
                         $session->set('lsShop', $session_lsShop);
@@ -359,7 +360,7 @@ use function LeadingSystems\Helpers\ls_sub;
 						 * write the error message to the special payment info
 						 * and update the payment status in the order record
 						 */
-                        $session = \System::getContainer()->get('merconis.session')->getSession();
+                        $session = System::getContainer()->get('merconis.session')->getSession();
                         $session_lsShop =  $session->get('lsShop', []);
                         $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentErrorAfterFinishedOrder'];
                         $session->set('lsShop', $session_lsShop);
@@ -384,7 +385,7 @@ use function LeadingSystems\Helpers\ls_sub;
 						break;
 					
 					case 'success':
-                        $session = \System::getContainer()->get('merconis.session')->getSession();
+                        $session = System::getContainer()->get('merconis.session')->getSession();
                         $session_lsShop =  $session->get('lsShop', []);
                         $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentSuccessAfterFinishedOrder'];
                         $session->set('lsShop', $session_lsShop);

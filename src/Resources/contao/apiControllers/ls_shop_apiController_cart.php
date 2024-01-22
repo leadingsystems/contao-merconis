@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\Input;
+use Contao\System;
 
 class ls_shop_apiController_cart {
 	protected static $objInstance;
@@ -67,7 +68,7 @@ class ls_shop_apiController_cart {
 	 */
 	protected function apiResource_emptyCart() {
 
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
 
         if ($session->has('lsShopCart')) {
             $session->remove('lsShopCart');

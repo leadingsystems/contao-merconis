@@ -28,7 +28,7 @@ namespace Merconis\Core;
 		 * After the checkout the sofortueberweisung payment is processed.
 		 */
 		public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
-            $session = \System::getContainer()->get('merconis.session')->getSession();
+            $session = System::getContainer()->get('merconis.session')->getSession();
             $session_lsShop =  $session->get('lsShop', []);
 
 			// Reset the special payment info
@@ -267,7 +267,7 @@ namespace Merconis\Core;
 			if (Input::get('sue')) {
 				switch (Input::get('sue')) {
 					case 'aborted':
-                        $session = \System::getContainer()->get('merconis.session')->getSession();
+                        $session = System::getContainer()->get('merconis.session')->getSession();
                         $session_lsShop =  $session->get('lsShop', []);
 
 						// write the error message to the special payment info and update the payment status in the order record

@@ -184,7 +184,7 @@ class ModuleProductSearch extends Module {
 		$this->Template->action = StringUtil::ampersand(Environment::get('request'));
 		$this->Template->blnUseLiveHits = isset($this->arrLiveHitFields) && is_array($this->arrLiveHitFields) && count($this->arrLiveHitFields);
 
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		$obj_flexWidget_input = new FlexWidget(

@@ -15,7 +15,9 @@ global $objPage;
  * Apart from that, please do not change the following lines of code unless you know exactly what you're doing!
  */
 
-$session = \Contao\System::getContainer()->get('merconis.session')->getSession();
+use Contao\System;
+
+$session = System::getContainer()->get('merconis.session')->getSession();
 $session_merconis = $session->get('merconis', false);
 
 if (!($session_merconis['tmp']['variantSelector']['bln_preventVariantPreselection'] ?? false)) {

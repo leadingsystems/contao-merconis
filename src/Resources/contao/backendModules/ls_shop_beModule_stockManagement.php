@@ -8,6 +8,7 @@ use Contao\Input;
 use Contao\Pagination;
 use Contao\SelectMenu;
 use Contao\StringUtil;
+use Contao\System;
 use Contao\TextField;
 
 class ls_shop_beModule_stockManagement extends BackendModule {

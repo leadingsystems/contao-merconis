@@ -17,7 +17,7 @@ class ls_shop_configuratorController
         //remove auto_form_ prefix
         $formId = intval(explode("auto_form_",$formId)[1]);
 
-        $objFormFields = \Database::getInstance()->prepare("
+        $objFormFields = Database::getInstance()->prepare("
 			SELECT  	*
 			FROM		`tl_ls_shop_configurator`
 			WHERE		`form` = ?
@@ -48,7 +48,7 @@ class ls_shop_configuratorController
 	public function ls_shop_configuratorProcessFormData($arrSubmitted, $arrForm, $files, $labels, $form) {
 		$GLOBALS['merconis_globals']['configurator']['currentlySubmittedFormID'] = $arrForm['id'];
 
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		// Keine Formular-Verarbeitung, die den Konfigurator etwas angeht, also Abbruch!

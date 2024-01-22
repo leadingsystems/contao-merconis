@@ -306,7 +306,7 @@ class ls_shop_cross_seller
 
     protected function ls_getFrontendSearchSelection() {
 
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
         /*
          * Erstellung des Suchkriterien-Arrays für productSearcher
@@ -372,7 +372,7 @@ class ls_shop_cross_seller
     }
 
     protected function ls_getLastSeenSelection() {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
         $lastSeenProducts = isset($session_lsShop['lastSeenProducts']) && is_array($session_lsShop['lastSeenProducts']) ? $session_lsShop['lastSeenProducts'] : array();

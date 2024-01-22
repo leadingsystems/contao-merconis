@@ -6,7 +6,7 @@ use Contao\System;
 ?>
 <!-- indexer::stop -->
 <?php
-$session = \System::getContainer()->get('merconis.session')->getSession();
+$session = System::getContainer()->get('merconis.session')->getSession();
 $session_lsShop =  $session->get('lsShop', []);
 ?>
 <div class="<?php echo $this->strTemplate ?>">

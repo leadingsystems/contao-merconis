@@ -1103,7 +1103,7 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 				 *
 				 */
 				:
-                $session = \System::getContainer()->get('merconis.session')->getSession();
+                $session = System::getContainer()->get('merconis.session')->getSession();
                 $session_lsShop =  $session->get('lsShop', []);
 
 				if (isset($session_lsShop['filter']['matchedVariants'][$this->_id])) {

@@ -91,7 +91,7 @@ class ls_shop_checkoutData {
         }
 
 		// CheckoutData aus der Session einlesen, sofern in der Session schon vorhanden
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		$this->arrCheckoutData = isset($session_lsShop['arrCheckoutData']) ? $session_lsShop['arrCheckoutData'] : $this->arrCheckoutData;
@@ -99,7 +99,7 @@ class ls_shop_checkoutData {
 	
 	public function writeCheckoutDataToSession() {
 		// CheckoutData in die Session schreiben
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
         $session_lsShop['arrCheckoutData'] = $this->arrCheckoutData;
         $session->set('lsShop', $session_lsShop);
@@ -821,7 +821,7 @@ class ls_shop_checkoutData {
 	 * Prüfen, ob der Warenkorb-Zustand valide ist.
 	 */
 	private function validateCartStatus() {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShopCart', []);
 
 		if (!isset($session_lsShop['items']) || !is_array($session_lsShop['items']) || !count($session_lsShop['items'])) {
@@ -902,7 +902,7 @@ class ls_shop_checkoutData {
 		 * ls_shop_cartX because loading ls_shop_cartX would be too much overhead and could probably cause problems
 		 * and to just make this simple check, we just don't need it.
 		 */
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShopCart =  $session->get('lsShopCart', []);
 
 		if (!isset($session_lsShopCart['items']) || !count($session_lsShopCart['items'])) {

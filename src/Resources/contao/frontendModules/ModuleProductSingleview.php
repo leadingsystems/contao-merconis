@@ -55,7 +55,7 @@ class ModuleProductSingleview extends Module {
 				$objProductSearch->setSearchCriterion('id', array($int_productId));
 				$objProductSearch->search();
 			} else {
-                $session = \System::getContainer()->get('merconis.session')->getSession();
+                $session = System::getContainer()->get('merconis.session')->getSession();
                 $session_lsShop =  $session->get('lsShop', []);
 				unset($session_lsShop['filter']['matchedProducts']);
 				unset($session_lsShop['filter']['matchedVariants']);

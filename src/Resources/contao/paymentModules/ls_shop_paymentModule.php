@@ -2,7 +2,7 @@
 
 namespace Merconis\Core;
 
-	use Contao\Controller;
+use Contao\Controller;
 use Contao\System;
 
 /**
@@ -652,7 +652,7 @@ use Contao\System;
 		public function redirectToErrorPage($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '') {
 			$methodName = __FUNCTION__;
 			## fixEndlessRecursionOnPaymentError begin ##
-			$session = \System::getContainer()->get('merconis.session')->getSession();
+			$session = System::getContainer()->get('merconis.session')->getSession();
 			$session_lsShop =  $session->get('lsShop', []);
 			$session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
 			$session->set('lsShop', $session_lsShop);
@@ -667,7 +667,7 @@ use Contao\System;
 		public function logPaymentError($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '') {
 			$methodName = __FUNCTION__;
 			## fixEndlessRecursionOnPaymentError begin ##
-			$session = \System::getContainer()->get('merconis.session')->getSession();
+			$session = System::getContainer()->get('merconis.session')->getSession();
 			$session_lsShop =  $session->get('lsShop', []);
 			$session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
 			$session->set('lsShop', $session_lsShop);

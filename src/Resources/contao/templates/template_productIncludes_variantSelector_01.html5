@@ -50,9 +50,9 @@ $bln_calledFromLsjsVariantSelector = false;
                     $this->redirect($obj_matchingVariant->_linkToVariant);
                 } else {
                     // more than one or no variant found, redirect to the product without selected variant
-                    $session_merconis = \Contao\System::getContainer()->get('merconis.session')->getSession()->get('merconis', []);
+                    $session_merconis = System::getContainer()->get('merconis.session')->getSession()->get('merconis', []);
                     $session_merconis['tmp']['variantSelector']['bln_preventVariantPreselection'] = true;
-                    \Contao\System::getContainer()->get('merconis.session')->getSession()->set('merconis', $session_merconis);
+                    System::getContainer()->get('merconis.session')->getSession()->set('merconis', $session_merconis);
 
                     $this->redirect($this->objProduct->_linkToProduct);
                 }

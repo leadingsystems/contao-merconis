@@ -258,7 +258,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     }
 
     public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
         $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
         $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';

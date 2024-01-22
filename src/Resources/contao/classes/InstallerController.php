@@ -318,7 +318,7 @@ class InstallerController extends Controller {
                 $session = System::getContainer()->get('merconis.session')->getSession();
                 $session_lsShop =  $session->get('lsShop', []);
 
-				if (Input::post('FORM_SUBMIT') && \Input::post('FORM_SUBMIT') == 'installer_themeSelection') {
+				if (Input::post('FORM_SUBMIT') && Input::post('FORM_SUBMIT') == 'installer_themeSelection') {
 					if (!Input::post('installer_selectedTheme')) {
                         $session_lsShop['noThemeSelected'] = true;
 						Controller::redirect('contao?do=ls_shop_dashboard');

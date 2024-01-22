@@ -92,7 +92,7 @@ class ls_shop_productSearcher
     }
 
     protected function getCache() {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
         $this->arrCache = ($session_lsShop['caches']['ls_shop_productSearcher'][$this->strCacheKey] ?? null) ?: null;
     }
@@ -107,7 +107,7 @@ class ls_shop_productSearcher
              * Only set the cache if a cache couldn't be used this time so that we have
              * a new result to cache now
              */
-            $session = \System::getContainer()->get('merconis.session')->getSession();
+            $session = System::getContainer()->get('merconis.session')->getSession();
             $session_lsShop =  $session->get('lsShop', []);
             $session_lsShop['caches']['ls_shop_productSearcher'][$this->strCacheKey] = array(
                 'tstamp' => time(),
@@ -154,7 +154,7 @@ class ls_shop_productSearcher
     }
 
     protected function setCurrentCacheKey() {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
         $arrSettings = array(
@@ -493,7 +493,7 @@ class ls_shop_productSearcher
          */
         if (false && $this->checkIfCacheCanBeUsed()) {
             if ($this->blnUseFilter) {
-                $session = \System::getContainer()->get('merconis.session')->getSession();
+                $session = System::getContainer()->get('merconis.session')->getSession();
                 $session_lsShop =  $session->get('lsShop', []);
                 /*
                  * Set this flag because the filter needs it to decide whether or not to display the filter form

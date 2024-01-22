@@ -7,12 +7,13 @@ use Contao\Environment;
 use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\PageModel;
+use Contao\System;
 
 class ls_shop_filterHelper {
     public static function getFilterSummary() {
         global $objPage;
 
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
         $arr_filterSummary = [
@@ -182,7 +183,7 @@ class ls_shop_filterHelper {
     }
 
 	public static function createEmptyFilterSession() {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
         $session_lsShop['filter'] = array(
@@ -278,7 +279,7 @@ class ls_shop_filterHelper {
 	}
 
 	public static function resetCriteriaToUseInFilterForm() {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
         $session_lsShop['filter']['arrCriteriaToUseInFilterForm'] = array(
@@ -293,7 +294,7 @@ class ls_shop_filterHelper {
 	}
 
 	public static function addPriceToCriteriaUsedInFilterForm($price, $where = 'arrCriteriaToUseInFilterForm') {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		if ($session_lsShop['filter'][$where]['price']['low'] === null || $price < $session_lsShop['filter'][$where]['price']['low']) {
@@ -307,7 +308,7 @@ class ls_shop_filterHelper {
 	}
 
 	public static function addProducerToCriteriaUsedInFilterForm($strProducer = '', $where = 'arrCriteriaToUseInFilterForm') {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		if (!$strProducer || in_array($strProducer, $session_lsShop['filter'][$where]['producers'])) {
@@ -330,7 +331,7 @@ class ls_shop_filterHelper {
 			return;
 		}
 
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		if (!isset($session_lsShop['filter'][$where]['attributes'][$attributeID])) {
@@ -355,7 +356,7 @@ class ls_shop_filterHelper {
 	 * product lists as well.
 	 */
 	public static function checkIfProductMatchesFilter($arrProductInfo = null, $arrCriteriaToFilterWith = null, $blnStoreProductAndVariantMatchesInSession = true, &$numVariantMatches = 0) {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		if (!$arrCriteriaToFilterWith) {
@@ -618,7 +619,7 @@ class ls_shop_filterHelper {
 	}
 
 	public static function resetMatchedProductsAndVariants() {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
         $session_lsShop['filter']['matchedProducts'] = array();
@@ -635,7 +636,7 @@ class ls_shop_filterHelper {
 		 */
 		ls_shop_filterHelper::resetMatchedProductsAndVariants();
 
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		/*
@@ -736,7 +737,7 @@ class ls_shop_filterHelper {
 		 * Remove filter criteria from the filter form if they don't make any sense, e.g. attributes, if there
 		 * is only one possible value and producers if there is only one possible producer
 		 */
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		foreach ($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $attributeID => $arrAttributeValueIDs) {
@@ -780,7 +781,7 @@ class ls_shop_filterHelper {
 	}
 
 	public static function handleFilterModeSettings() {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		if (!isset($session_lsShop['filter']['filterModeSettingsByAttributes'])) {
@@ -802,7 +803,7 @@ class ls_shop_filterHelper {
 			return;
 		}
 
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		/*
@@ -915,7 +916,7 @@ class ls_shop_filterHelper {
 	 * In this function we determine how many matches a selected criteria would have.
 	 */
 	public static function getEstimatedMatchNumbers($arrProductsResultSet = array()) {
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
         $session_lsShop['filter']['matchEstimates']['attributeValues'] = array();

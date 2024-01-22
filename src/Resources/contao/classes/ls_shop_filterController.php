@@ -7,6 +7,7 @@ use Contao\Environment;
 use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\StringUtil;
+use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
 /*
@@ -27,7 +28,7 @@ class ls_shop_filterController
 	 */
 	protected function __construct()
 	{
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		if (!isset($session_lsShop['filter'])) {
@@ -162,7 +163,7 @@ class ls_shop_filterController
 		$arrFilterFieldInfos = ls_shop_filterHelper::getFilterFieldInfos();
 
 
-        $session = \System::getContainer()->get('merconis.session')->getSession();
+        $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop', []);
 
 		/*
