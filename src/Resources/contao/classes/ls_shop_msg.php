@@ -18,22 +18,26 @@ class ls_shop_msg {
 
 	    $tl_mode = System::getContainer()->get('merconis.routing.scope')->getTLMode();
 
-		if (isset($_SESSION['lsShop']) && isset($_SESSION['lsShop']['ls_shop_msg']) && isset($_SESSION['lsShop']['ls_shop_msg'][$tl_mode])) {
-			foreach ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode] as $class => $arrClassMsgs) {
-				foreach ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class] as $reference => $arrMsg) {
-					if ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class][$reference]->killManually) {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+
+		if (isset($session_lsShop) && isset($session_lsShop['ls_shop_msg']) && isset($session_lsShop['ls_shop_msg'][$tl_mode])) {
+			foreach ($session_lsShop['ls_shop_msg'][$tl_mode] as $class => $arrClassMsgs) {
+				foreach ($session_lsShop['ls_shop_msg'][$tl_mode][$class] as $reference => $arrMsg) {
+					if ($session_lsShop['ls_shop_msg'][$tl_mode][$class][$reference]->killManually) {
 						continue;
 					}
-					$_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class][$reference]->lifetime--;
-					if ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class][$reference]->lifetime < 1) {
-						unset ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class][$reference]);
+                    $session_lsShop['ls_shop_msg'][$tl_mode][$class][$reference]->lifetime--;
+					if ($session_lsShop['ls_shop_msg'][$tl_mode][$class][$reference]->lifetime < 1) {
+						unset ($session_lsShop['ls_shop_msg'][$tl_mode][$class][$reference]);
 					}
 				}
-				if (!count($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class])) {
-					unset ($_SESSION['lsShop']['ls_shop_msg'][$tl_mode][$class]);
+				if (!count($session_lsShop['ls_shop_msg'][$tl_mode][$class])) {
+					unset ($session_lsShop['ls_shop_msg'][$tl_mode][$class]);
 				}
 			}
 		}
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	/*
@@ -96,7 +100,10 @@ class ls_shop_msg {
 		$om->arrDetails = isset($om->arrDetails) && is_array($om->arrDetails) ? $om->arrDetails : array();
 
 		// Festhalten der Msg in der Session
-		$_SESSION['lsShop']['ls_shop_msg'][$om->mode][$om->class][$om->reference] = $om;
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+        $session_lsShop['ls_shop_msg'][$om->mode][$om->class][$om->reference] = $om;
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function getMsg() {
@@ -109,7 +116,9 @@ class ls_shop_msg {
 			return false;
 		}
 
-		return $_SESSION['lsShop']['ls_shop_msg'][$mode][$class][$reference]->msg;
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+		return $session_lsShop['ls_shop_msg'][$mode][$class][$reference]->msg;
 	}
 
 	public static function getMsgDetails() {
@@ -122,7 +131,9 @@ class ls_shop_msg {
 			return false;
 		}
 
-		return $_SESSION['lsShop']['ls_shop_msg'][$mode][$class][$reference]->arrDetails;
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+		return $session_lsShop['ls_shop_msg'][$mode][$class][$reference]->arrDetails;
 	}
 
 	public static function delMsg() {
@@ -135,7 +146,10 @@ class ls_shop_msg {
 			return false;
 		}
 
-		unset ($_SESSION['lsShop']['ls_shop_msg'][$mode][$class][$reference]);
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+		unset ($session_lsShop['ls_shop_msg'][$mode][$class][$reference]);
+        $session->set('lsShop', $session_lsShop);
 	}
 
 	public static function checkMsg() {
@@ -148,7 +162,10 @@ class ls_shop_msg {
 			return false;
 		}
 
-		if (isset($_SESSION['lsShop']['ls_shop_msg'][$mode][$class][$reference])) {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+
+		if (isset($session_lsShop['ls_shop_msg'][$mode][$class][$reference])) {
 			return true;
 		}
 
@@ -165,7 +182,9 @@ class ls_shop_msg {
 			return false;
 		}
 
-		if (isset($_SESSION['lsShop']['ls_shop_msg'][$mode][$class]) && count($_SESSION['lsShop']['ls_shop_msg'][$mode][$class])) {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+		if (isset($session_lsShop['ls_shop_msg'][$mode][$class]) && count($session_lsShop['ls_shop_msg'][$mode][$class])) {
 			return true;
 		}
 
@@ -183,8 +202,11 @@ class ls_shop_msg {
 			return false;
 		}
 
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+
 		ob_start();
-		print_r($_SESSION['lsShop']['ls_shop_msg'][$mode]);
+		print_r($session_lsShop['ls_shop_msg'][$mode]);
 		$output = ob_get_clean();
 		error_log('ls_shop_msg::errorlogAllMsgs ==>');
 		error_log($output);

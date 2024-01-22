@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Contao\ArrayUtil;
 use Contao\Input;
 use Contao\System;
 
@@ -52,6 +53,13 @@ if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
  */
 if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
     $GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
+}
+
+/*
+ * Hook for adding hidden field for product-variant
+ */
+if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
+    $GLOBALS['TL_HOOKS']['compileFormFields'][] = array('Merconis\Core\ls_shop_configuratorController', 'compileFormFields');
 }
 
 /*
@@ -135,7 +143,7 @@ if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_x_controller.js';
 }
 
-\Contao\ArrayUtil::arrayInsert($GLOBALS['BE_MOD'], 0, array(
+ArrayUtil::arrayInsert($GLOBALS['BE_MOD'], 0, array(
 	'merconis' => array(
 		'ls_shop_dashboard' => array(
 			'callback' => 'Merconis\Core\dashboard'

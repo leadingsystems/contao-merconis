@@ -15,8 +15,11 @@ use Contao\System;
             <?php
             if(isset($GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']) && $GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']){
 
-                if(isset($_SESSION['lsShop']['productSearch']['searchType'])){
-                    $type = $_SESSION['lsShop']['productSearch']['searchType'];
+                $session = System::getContainer()->get('merconis.session')->getSession();
+                $session_lsShop =  $session->get('lsShop', []);
+
+                if(isset($session_lsShop['productSearch']['searchType'])){
+                    $type = $session_lsShop['productSearch']['searchType'];
                 }else{
                     $type = $GLOBALS['TL_CONFIG']['ls_shop_searchType'];
                 }

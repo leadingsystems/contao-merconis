@@ -18,7 +18,11 @@ namespace Merconis\Core;
 			 * that this function is being called directly from a payment module itself which means that the general logPaymentError function
 			 * in ls_shop_paymentModule is skipped and therefore can not set this flag itself.
 			 */
-			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
+
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop', []);
+            $session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShop);
 			## fixEndlessRecursionOnPaymentError end ##
 
 			error_log('Payment error in payment method "'.$this->arrCurrentSettings['title'].'" (type: '.$this->arrCurrentSettings['type'].') in context "'.$context.'"');
@@ -133,7 +137,10 @@ namespace Merconis\Core;
 			 * that this function is being called directly from a payment module itself which means that the general redirectToErrorPage function
 			 * in ls_shop_paymentModule is skipped and therefore can not set this flag itself.
 			 */
-			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop', []);
+            $session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShop);
 			## fixEndlessRecursionOnPaymentError end ##
 			
 			$this->logPaymentError($context, $errorInformation01, $errorInformation02, $errorInformation03);
@@ -155,7 +162,10 @@ namespace Merconis\Core;
 			) {
 				$this->redirect(ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutPaymentErrorPages'));
 			} else {
-                if (!Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
+                $session = System::getContainer()->get('cajax.session')->getSession();
+                $session_lsCajax =  $session->get('lsCajax', []);
+
+                if (!Environment::get('isAjaxRequest') && $session_lsCajax['requestData'] === null) {
                     $this->reload();
                 }
 			}
@@ -191,7 +201,10 @@ namespace Merconis\Core;
 		}
 				
 		public function afterCheckoutFinish() {
-			$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop', []);
+            $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session->set('lsShop', $session_lsShop);
 		}
 
 		public function check_usePaymentAfterCheckoutPage() {
@@ -221,23 +234,27 @@ namespace Merconis\Core;
 			global $objPage;
 			$msg = '';
 
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
+
 			// Only show messages if the checkout page displaying the payment selection is currently opened.
 			if (
 					($objPage->id ?? null) == ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id')
-				&&	isset($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])
+				&&	isset($arrSessionlsShopPaymentProcess['standard']['messages'][$type])
 			) {
-				if (!is_array($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])) {
-					$msg = $_SESSION['lsShopPaymentProcess']['standard']['messages'][$type];
+				if (!is_array($arrSessionlsShopPaymentProcess['standard']['messages'][$type])) {
+					$msg = $arrSessionlsShopPaymentProcess['standard']['messages'][$type];
 				} else {
-					foreach ($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type] as $msgPart) {
+					foreach ($arrSessionlsShopPaymentProcess['standard']['messages'][$type] as $msgPart) {
 						if ($msg) {
 							$msg .= '<br />';
 						}
 						$msg .= $msgPart;
 					}
 				}
-				unset($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type]);
+				unset($arrSessionlsShopPaymentProcess['standard']['messages'][$type]);
 			}
+            $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
 			return $msg;			
 		}
 		
@@ -253,17 +270,20 @@ namespace Merconis\Core;
 			if (!$msg) {
 				return;
 			}
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
 			
 			// Ist eine Fehlermeldung bereits enthalten, so wird sie nicht erneut hinzugefügt, da doppelte Meldungen sinnlos sind
 			if (
-					isset($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])
-				&&	is_array($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])
-				&&	in_array($msg, $_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])
+					isset($arrSessionlsShopPaymentProcess['standard']['messages'][$type])
+				&&	is_array($arrSessionlsShopPaymentProcess['standard']['messages'][$type])
+				&&	in_array($msg, $arrSessionlsShopPaymentProcess['standard']['messages'][$type])
 			) {
 				return;
 			}
-			
-			$_SESSION['lsShopPaymentProcess']['standard']['messages'][$type][] = $msg;
+
+            $arrSessionlsShopPaymentProcess['standard']['messages'][$type][] = $msg;
+            $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
 		}
 		
 		public function setPaymentMethodSuccessMessage($msg = '') {

@@ -1273,19 +1273,21 @@ class ls_shop_generalHelper
      */
     public static function getVATIDValidationResult($VATID = false)
     {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
         if (
             !$VATID
-            || !isset($_SESSION['lsShop']['checkedVATID'][$VATID])
-            || !is_array($_SESSION['lsShop']['checkedVATID'][$VATID])
-            || !isset($_SESSION['lsShop']['checkedVATID'][$VATID]['valid'])
-            || $_SESSION['lsShop']['checkedVATID'][$VATID]['valid'] === null
+            || !isset($session_lsShop['checkedVATID'][$VATID])
+            || !is_array($session_lsShop['checkedVATID'][$VATID])
+            || !isset($session_lsShop['checkedVATID'][$VATID]['valid'])
+            || $session_lsShop['checkedVATID'][$VATID]['valid'] === null
         ) {
             return 'VALIDATION IMPOSSIBLE';
-        } else if (!$_SESSION['lsShop']['checkedVATID'][$VATID]['valid']) {
+        } else if (!$session_lsShop['checkedVATID'][$VATID]['valid']) {
             return 'NOT VALID';
         }
 
-        return 'VALID, Name: ' . ($_SESSION['lsShop']['checkedVATID'][$VATID]['arrDetails']->name ? preg_replace('/\n/', ' ', $_SESSION['lsShop']['checkedVATID'][$VATID]['arrDetails']->name) : 'unknown') . ', Address: ' . ($_SESSION['lsShop']['checkedVATID'][$VATID]['arrDetails']->address ? preg_replace('/\n/', ' ', $_SESSION['lsShop']['checkedVATID'][$VATID]['arrDetails']->address) : 'unknown');
+        return 'VALID, Name: ' . ($session_lsShop['checkedVATID'][$VATID]['arrDetails']->name ? preg_replace('/\n/', ' ', $session_lsShop['checkedVATID'][$VATID]['arrDetails']->name) : 'unknown') . ', Address: ' . ($session_lsShop['checkedVATID'][$VATID]['arrDetails']->address ? preg_replace('/\n/', ' ', $session_lsShop['checkedVATID'][$VATID]['arrDetails']->address) : 'unknown');
     }
 
     public static function calculateScaledPrice($price, $obj_productOrVariant)
@@ -1350,8 +1352,11 @@ class ls_shop_generalHelper
              * If we don't have a configurator hash yet, we look if there's a configurator entry in the session
              * for the product's or variant's productVariantID, and if there is one, we use its configurator hash.
              */
-            if (isset($_SESSION['lsShop']['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'])) {
-                $configuratorHash = $_SESSION['lsShop']['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'];
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop', []);
+
+            if (isset($session_lsShop ['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'])) {
+                $configuratorHash = $session_lsShop ['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'];
             } /*
 			 * If we did not find a configurator hash in the session, we generate the default configurator hash.
 			 */
@@ -1384,12 +1389,18 @@ class ls_shop_generalHelper
                      * The cart key automatically separates products, variants and even configurations.
                      * If we can't find a cart item with this exact cart key, it's quantity must be 0.
                      */
-                    $scalePriceQuantity = key_exists($cartKey, $_SESSION['lsShopCart']['items']) ? $_SESSION['lsShopCart']['items'][$cartKey]['quantity'] : 0;
+                    $session = System::getContainer()->get('merconis.session')->getSession();
+                    $session_lsShopCart =  $session->get('lsShopCart', []);
+
+                    $scalePriceQuantity = key_exists($cartKey, $session_lsShopCart['items']) ? $session_lsShopCart['items'][$cartKey]['quantity'] : 0;
                     break;
 
                 case 'separatedVariants':
+                    $session = System::getContainer()->get('merconis.session')->getSession();
+                    $session_lsShopCart =  $session->get('lsShopCart', []);
+
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
-                    foreach ($_SESSION['lsShopCart']['items'] as $itemCartKey => $arrItemInfo) {
+                    foreach ($session_lsShopCart['items'] as $itemCartKey => $arrItemInfo) {
                         $arrSplitItemCartKey = ls_shop_generalHelper::splitProductVariantID($itemCartKey);
                         if (
                             $arrSplitCartKey['productID'] == $arrSplitItemCartKey['productID']
@@ -1404,8 +1415,11 @@ class ls_shop_generalHelper
                     break;
 
                 case 'separatedProducts':
+                    $session = System::getContainer()->get('merconis.session')->getSession();
+                    $session_lsShopCart =  $session->get('lsShopCart', []);
+
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
-                    foreach ($_SESSION['lsShopCart']['items'] as $itemCartKey => $arrItemInfo) {
+                    foreach ($session_lsShopCart['items'] as $itemCartKey => $arrItemInfo) {
                         $arrSplitItemCartKey = ls_shop_generalHelper::splitProductVariantID($itemCartKey);
                         if ($arrSplitCartKey['productID'] == $arrSplitItemCartKey['productID']) {
                             if ($obj_productOrVariant->_scalePriceQuantityDetectionAlwaysSeparateConfigurations && $arrSplitCartKey['configuratorHash'] != $arrSplitItemCartKey['configuratorHash']) {
@@ -1417,8 +1431,11 @@ class ls_shop_generalHelper
                     break;
 
                 case 'separatedScalePriceKeywords':
+                    $session = System::getContainer()->get('merconis.session')->getSession();
+                    $session_lsShopCart =  $session->get('lsShopCart', []);
+
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
-                    foreach ($_SESSION['lsShopCart']['items'] as $itemCartKey => $arrItemInfo) {
+                    foreach ($session_lsShopCart['items'] as $itemCartKey => $arrItemInfo) {
                         $arrSplitItemCartKey = ls_shop_generalHelper::splitProductVariantID($itemCartKey);
                         if ($obj_productOrVariant->_scalePriceKeyword == $arrItemInfo['scalePriceKeyword']) {
                             if ($obj_productOrVariant->_scalePriceQuantityDetectionAlwaysSeparateConfigurations && $arrSplitCartKey['configuratorHash'] != $arrSplitItemCartKey['configuratorHash']) {
@@ -2644,11 +2661,16 @@ class ls_shop_generalHelper
 
     public static function addToLastSeenProducts($productID)
     {
-        if (!isset($_SESSION['lsShop']['lastSeenProducts'])) {
-            $_SESSION['lsShop']['lastSeenProducts'] = array();
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+
+        if (!isset($session_lsShop['lastSeenProducts'])) {
+            $session_lsShop['lastSeenProducts'] = array();
         }
 
-        ArrayUtil::arrayInsert($_SESSION['lsShop']['lastSeenProducts'], 0, array($productID));
+        array_insert($session_lsShop['lastSeenProducts'], 0, array($productID));
+
+        $session->set('lsShop', $session_lsShop);
     }
 
     /*
@@ -4483,6 +4505,9 @@ class ls_shop_generalHelper
         // Die if there is no layout
         if (null === $objLayout)
         {
+            /*
+             * @toDo Fix undefined constant TL_ERROR
+             */
             System::getContainer()->get('monolog.logger.contao')->info(
                 'Could not find layout ID "' . $objPage->layout . '"',
                 ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]
@@ -4790,9 +4815,12 @@ class ls_shop_generalHelper
                     } else {
                         $cartKeyToPutInCart = $obj_productOrVariant->_cartKey;
 
+                        $session = System::getContainer()->get('merconis.session')->getSession();
+                        $session_lsShopCart =  $session->get('lsShopCart', []);
+
                         /*--> Prüfen, ob das Produkt vorher schon im Warenkorb ist <--*/
                         $tmpBlnCartKeyAlreadyInCart = false;
-                        if (isset($_SESSION['lsShopCart']['items'][$cartKeyToPutInCart])) {
+                        if (isset($session_lsShopCart['items'][$cartKeyToPutInCart])) {
                             $tmpBlnCartKeyAlreadyInCart = true;
                         }
 
