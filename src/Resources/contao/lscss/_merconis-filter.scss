@@ -206,7 +206,8 @@
         }
 
         &:not(:only-child) {
-          .filter-criterion-attribute-container {
+          .filter-criterion-attribute-container,
+          .filter-criterion-flexContent-container {
             border-right: 0.1rem solid $ls-color-grey;
           }
         }
@@ -349,7 +350,8 @@
           width: 50%;
         }
 
-        .filter-criterion-attribute-container {
+        .filter-criterion-attribute-container,
+        .filter-criterion-flexContent-container {
           width: 100%;
           height: 100%;
           padding-right: 0;
@@ -392,7 +394,8 @@
         }
 
         &.currently-filtering {
-          .filter-criterion-attribute-container {
+          .filter-criterion-attribute-container,
+          .filter-criterion-flexContent-container {
             padding-right: 4rem;
           }
         }

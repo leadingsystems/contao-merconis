@@ -291,6 +291,76 @@ class ls_shop_filterController
 					);
 					break;
 
+                case 'flexContent':
+                    /*
+                     * If based on the current product list there are no flexContents to be used as criteria in the filter form
+                     * or no values for the current flexContent, we don't create a widget
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContents'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContents'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContents'][$arrFilterFieldInfo['flexContentKey']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContents'][$arrFilterFieldInfo['flexContentKey']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContents'][$arrFilterFieldInfo['flexContentKey']])
+                    ) {
+                        continue 2;
+                    }
+
+                    /*
+                     * Create the options array for this filter field ->
+                     */
+                    $arrOptions = array();
+
+                    $blnHasImportantOption = false;
+
+                    foreach ($arrFilterFieldInfo['fieldValues'] as $arrFieldValue) {
+                        if (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue']) {
+                            $blnHasImportantOption = true;
+                        }
+
+                        /*
+                         * In the widget we only insert the values that should be used as filter criteria based on the current product list
+                         */
+                        if (!in_array($arrFieldValue['filterValue'], $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContents'][$arrFilterFieldInfo['flexContentKey']])) {
+                            continue;
+                        }
+
+                        $arrOptions[] = array(
+                            'value' => $arrFieldValue['filterValue'],
+                            'label' => $arrFieldValue['filterValue'],
+                            'class' => (isset($arrFieldValue['classForFilterFormField']) && $arrFieldValue['classForFilterFormField'] ? ' ' . $arrFieldValue['classForFilterFormField'] : ''),
+                            'important' => (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue'] ? true : false),
+                            'matchEstimates' => isset($_SESSION['lsShop']['filter']['matchEstimates']['flexContentValues'][$arrFieldValue['filterValue']]) ? $_SESSION['lsShop']['filter']['matchEstimates']['flexContentValues'][$arrFieldValue['filterValue']] : null
+                        );
+                    }
+                    /*
+                     * <- Create the options array for this filter field
+                     */
+
+                    $arrObjWidgets_filterFields[$filterFieldID] = new FlexWidget(
+                        array(
+                            'str_uniqueName' => 'filterField_' . $filterFieldID,
+                            'str_template' => $arrFilterFieldInfo['templateToUseForFlexContentField'] ? $arrFilterFieldInfo['templateToUseForFlexContentField'] : 'template_formFlexContentFilterField_new',
+                            'str_label' => $arrFilterFieldInfo['title'],
+                            'str_allowedRequestMethod' => 'post',
+                            'arr_moreData' => array(
+                                'filterSectionId' => $arrFilterFieldInfo['dataSource'] . '-' . $arrFilterFieldInfo['flexContentKey'],
+                                'arrOptions' => $arrOptions,
+                                'flexContentKey' => $arrFilterFieldInfo['flexContentKey'],
+                                'filterMode' => isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContents'][$arrFilterFieldInfo['flexContentKey']]) ? $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContents'][$arrFilterFieldInfo['flexContentKey']] : $arrFilterFieldInfo['filterMode'],
+                                'makeFilterModeUserAdjustable' => $arrFilterFieldInfo['makeFilterModeUserAdjustable'],
+                                'arrFieldInfo' => $arrFilterFieldInfo,
+                                'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
+                                'classForFilterFormField' => isset($arrFilterFieldInfo['classForFilterFormField']) ? $arrFilterFieldInfo['classForFilterFormField'] : '',
+                                'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
+                                'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
+                            ),
+                            'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContents'][$arrFilterFieldInfo['flexContentKey']]) ? $_SESSION['lsShop']['filter']['criteria']['flexContents'][$arrFilterFieldInfo['flexContentKey']] : ''
+                        )
+                    );
+
+                    break;
+
 				case 'attribute':
 					/*
 					 * If based on the current product list there are no attributes to be used as criteria in the filter form
@@ -450,6 +520,10 @@ class ls_shop_filterController
 					switch ($arrFilterFieldInfos[$filterFieldID]['dataSource']) {
 						case 'attribute':
 							ls_shop_filterHelper::setFilter('attributes', array('attributeID' => $arrFilterFieldInfos[$filterFieldID]['sourceAttribute'], 'value' => $objWidget_filterField->getValue()));
+							break;
+
+						case 'flexContent':
+							ls_shop_filterHelper::setFilter('flexContents', array('flexContentKey' => $arrFilterFieldInfos[$filterFieldID]['flexContentKey'], 'value' => $objWidget_filterField->getValue()));
 							break;
 
 						case 'producer':

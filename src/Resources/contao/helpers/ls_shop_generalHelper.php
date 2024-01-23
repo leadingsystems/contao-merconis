@@ -2025,6 +2025,58 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse];
     }
 
+    public static function getFlexContentLanguageIndependentValues($str_flexContentKey) {
+        if (!isset($GLOBALS['merconis_globals']['flexContentLanguageIndependentValues'][$str_flexContentKey])) {
+            $GLOBALS['merconis_globals']['flexContentLanguageIndependentValues'][$str_flexContentKey] = ls_shop_generalHelper::getAllFlexContentsLanguageIndependent()[$str_flexContentKey] ?? [];
+        }
+        return $GLOBALS['merconis_globals']['flexContentLanguageIndependentValues'][$str_flexContentKey];
+    }
+
+    public static function getAllFlexContentsLanguageIndependent() {
+        if (!isset($GLOBALS['merconis_globals']['allFlexContentsLanguageIndependent'])) {
+            $arr_allFlexContents = [];
+
+            $obj_dbres_flexContentsLanguageIndependentForProducts = \Database::getInstance()->prepare("
+                SELECT      flex_contentsLanguageIndependent
+                FROM        tl_ls_shop_product
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLanguageIndependentForProducts->next()) {
+                $arr_flexContents = json_decode($obj_dbres_flexContentsLanguageIndependentForProducts->flex_contentsLanguageIndependent);
+                foreach ($arr_flexContents as $arr_flexContent) {
+                    $arr_allFlexContents[$arr_flexContent[0]][] = $arr_flexContent[1];
+                }
+            }
+
+            $obj_dbres_flexContentsLanguageIndependentForVariants = \Database::getInstance()->prepare("
+                SELECT      flex_contentsLanguageIndependent
+                FROM        tl_ls_shop_variant
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLanguageIndependentForVariants->next()) {
+                $arr_flexContents = json_decode($obj_dbres_flexContentsLanguageIndependentForVariants->flex_contentsLanguageIndependent);
+                foreach ($arr_flexContents as $arr_flexContent) {
+                    $arr_allFlexContents[$arr_flexContent[0]][] = $arr_flexContent[1];
+                }
+            }
+
+            $arr_allFlexContents = array_map('array_unique', $arr_allFlexContents);
+            $arr_allFlexContents = array_map(
+                function($arr_toSort) {
+                    sort($arr_toSort);
+                    return $arr_toSort;
+                },
+                $arr_allFlexContents
+            );
+
+            $GLOBALS['merconis_globals']['allFlexContentsLanguageIndependent'] = $arr_allFlexContents;
+        }
+
+        return $GLOBALS['merconis_globals']['allFlexContentsLanguageIndependent'];
+    }
+
     public static function getProductAttributeValueIds($arr_productAttributesValues = array())
     {
         $arr_attributeValueIds = array();

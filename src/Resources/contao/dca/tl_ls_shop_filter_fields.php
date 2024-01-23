@@ -99,7 +99,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		'default' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority;{published_legend},published;',
 		'attribute' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
 		'producer' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{published_legend},published;',
-		'price' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},classForFilterFormField,priority,templateToUseForPriceField;{published_legend},published;'
+		'price' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},classForFilterFormField,priority,templateToUseForPriceField;{published_legend},published;',
+        'flexContent' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;'
 	),
 
 	'fields' => array(
@@ -139,7 +140,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'default'                 => 'attribute',
 			'exclude' => true,
 			'inputType'               => 'select',
-			'options'                 => array('attribute', 'producer', 'price'),
+			'options'                 => array('attribute', 'producer', 'price', 'flexContent'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource']['options'],
 			'eval'					  => array('tl_class' => 'clr', 'helpwizard' => true, 'submitOnChange' => true),
             'sql'                     => "varchar(255) NOT NULL default ''"
@@ -153,6 +154,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval' => array('tl_class' => 'w50'),
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
+
+        'flexContentKey' => array (
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentKey'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength'=>255, 'mandatory' => true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
 
 		'numItemsInReducedMode' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['numItemsInReducedMode'],
@@ -207,6 +216,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval'                    => array('tl_class'=>'w50'),
             'sql'                     => "varchar(64) NOT NULL default 'template_formPriceFilterField_standard'"
 		),
+
+        'templateToUseForFlexContentField'  => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentField'],
+            'exclude'				  => true,
+            'inputType'               => 'select',
+            'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentFilterFieldTemplates'),
+            'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentFilterField_new'"
+        ),
 
 		'filterMode' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode'],
@@ -322,4 +340,8 @@ class ls_shop_filter_fields extends \Backend {
 	public function getPriceFilterFieldTemplates() {
 		return $this->getTemplateGroup('template_formPriceFilterField_');
 	}
+
+    public function getFlexContentFilterFieldTemplates() {
+        return $this->getTemplateGroup('template_formFlexContentFilterField_');
+    }
 }
