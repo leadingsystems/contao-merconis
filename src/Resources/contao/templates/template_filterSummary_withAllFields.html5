@@ -59,30 +59,30 @@ if (
                 }
             }
 
-            if ($this->bln_flexContentsFilterCurrentlyAvailable) {
-                foreach ($this->arr_filterAllFields['arr_flexContents'] as $str_flexContentKey => $arr_filterFlexContent) {
-                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContent_' . $str_flexContentKey] <= $int_numFilterFieldsMax;
-                    $bln_currentlyFilteringByThisFlexContent = isset($this->arr_filterSummary['arr_flexContents'][$str_flexContentKey]) && is_array($this->arr_filterSummary['arr_flexContents'][$str_flexContentKey]['arr_values']);
+            if ($this->bln_flexContentsLIFilterCurrentlyAvailable) {
+                foreach ($this->arr_filterAllFields['arr_flexContentsLI'] as $str_flexContentLIKey => $arr_filterflexContentLI) {
+                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey] <= $int_numFilterFieldsMax;
+                    $bln_currentlyFilteringByThisflexContentLI = isset($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]) && is_array($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values']);
                     ?>
-                    <li class="filter-criterion filter-criterion-flexContent<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $bln_currentlyFilteringByThisFlexContent ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['flexContent_' . $str_flexContentKey]; ?>" data-lsjs-filter-section-id="flexContent-<?php echo $str_flexContentKey; ?>">
+                    <li class="filter-criterion filter-criterion-flexContentLI<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $bln_currentlyFilteringByThisflexContentLI ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey]; ?>" data-lsjs-filter-section-id="flexContentLI-<?php echo $str_flexContentLIKey; ?>">
                         <div class="filter-criterion-flexContent-container">
                             <?php
-                            if ($bln_currentlyFilteringByThisFlexContent) {
+                            if ($bln_currentlyFilteringByThisflexContentLI) {
                                 ?>
                                 <div class="reset-this-criterion"></div>
                                 <?php
                             }
                             ?>
                             <div class="off-canvas-filter-form-toggler-remote">
-                                <span class="filter-criterion-title"><?php echo $arr_filterFlexContent['str_title']; ?></span>
+                                <span class="filter-criterion-title"><?php echo $arr_filterflexContentLI['str_title']; ?></span>
                                 <?php
-                                if ($bln_currentlyFilteringByThisFlexContent) {
+                                if ($bln_currentlyFilteringByThisflexContentLI) {
                                     ?>
                                     <div class="filter-values">
                                         <?php
                                         $int_count = 0;
-                                        $int_numValues = count($this->arr_filterSummary['arr_flexContents'][$str_flexContentKey]['arr_values']);
-                                        foreach ($this->arr_filterSummary['arr_flexContents'][$str_flexContentKey]['arr_values'] as $str_filterValueTitle) {
+                                        $int_numValues = count($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values']);
+                                        foreach ($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values'] as $str_filterValueTitle) {
                                             $int_count++;
                                             ?>
                                             <?php
@@ -90,7 +90,7 @@ if (
                                             if ($int_numValues >= 3 && $int_count <= $int_numValues - 2) {
                                                 $str_stringAddition = ', ';
                                             } else if ($int_count === $int_numValues - 1) {
-                                                $str_stringAddition = ' ' . $this->arr_filterSummary['arr_flexContents'][$str_flexContentKey]['str_logicalOperator'] . ' ';
+                                                $str_stringAddition = ' ' . $this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['str_logicalOperator'] . ' ';
                                             }
                                             ?>
                                             <?php echo $str_filterValueTitle . $str_stringAddition; ?>
