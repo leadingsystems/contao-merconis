@@ -340,14 +340,14 @@ class ls_shop_filterController
                     $arrObjWidgets_filterFields[$filterFieldID] = new FlexWidget(
                         array(
                             'str_uniqueName' => 'filterField_' . $filterFieldID,
-                            'str_template' => $arrFilterFieldInfo['templateToUseForflexContentLIField'] ? $arrFilterFieldInfo['templateToUseForflexContentLIField'] : 'template_formflexContentLIFilterField_new',
+                            'str_template' => $arrFilterFieldInfo['templateToUseForFlexContentLIField'] ? $arrFilterFieldInfo['templateToUseForFlexContentLIField'] : 'template_formFlexContentLIFilterField_new',
                             'str_label' => $arrFilterFieldInfo['title'],
                             'str_allowedRequestMethod' => 'post',
                             'arr_moreData' => array(
                                 'filterSectionId' => $arrFilterFieldInfo['dataSource'] . '-' . $arrFilterFieldInfo['flexContentLIKey'],
                                 'arrOptions' => $arrOptions,
                                 'flexContentLIKey' => $arrFilterFieldInfo['flexContentLIKey'],
-                                'filterMode' => isset($_SESSION['lsShop']['filter']['filterModeSettingsByflexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]) ? $_SESSION['lsShop']['filter']['filterModeSettingsByflexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] : $arrFilterFieldInfo['filterMode'],
+                                'filterMode' => isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]) ? $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] : $arrFilterFieldInfo['filterMode'],
                                 'makeFilterModeUserAdjustable' => $arrFilterFieldInfo['makeFilterModeUserAdjustable'],
                                 'arrFieldInfo' => $arrFilterFieldInfo,
                                 'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',

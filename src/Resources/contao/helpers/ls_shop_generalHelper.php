@@ -2044,8 +2044,8 @@ class ls_shop_generalHelper
      * the flex content overview data after finishing the whole import.
      */
     public static function getAllFlexContentsLI() {
-        if (!isset($GLOBALS['merconis_globals']['allflexContentsLI'])) {
-            $arr_allflexContentsLI = [];
+        if (!isset($GLOBALS['merconis_globals']['allFlexContentsLI'])) {
+            $arr_allFlexContentsLI = [];
 
             $obj_dbres_flexContentsLIForProducts = \Database::getInstance()->prepare("
                 SELECT      flex_contentsLanguageIndependent
@@ -2056,7 +2056,7 @@ class ls_shop_generalHelper
             while ($obj_dbres_flexContentsLIForProducts->next()) {
                 $arr_flexContentsLI = json_decode($obj_dbres_flexContentsLIForProducts->flex_contentsLanguageIndependent);
                 foreach ($arr_flexContentsLI as $arr_flexContentLI) {
-                    $arr_allflexContentsLI[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
+                    $arr_allFlexContentsLI[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
                 }
             }
 
@@ -2070,24 +2070,24 @@ class ls_shop_generalHelper
                 $arr_flexContentsLI = json_decode($obj_dbres_flexContentsLIForVariants->flex_contentsLanguageIndependent);
                 if (is_array($arr_flexContentsLI)) {
                     foreach ($arr_flexContentsLI as $arr_flexContentLI) {
-                        $arr_allflexContentsLI[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
+                        $arr_allFlexContentsLI[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
                     }
                 }
             }
 
-            $arr_allflexContentsLI = array_map('array_unique', $arr_allflexContentsLI);
-            $arr_allflexContentsLI = array_map(
+            $arr_allFlexContentsLI = array_map('array_unique', $arr_allFlexContentsLI);
+            $arr_allFlexContentsLI = array_map(
                 function($arr_toSort) {
                     sort($arr_toSort);
                     return $arr_toSort;
                 },
-                $arr_allflexContentsLI
+                $arr_allFlexContentsLI
             );
 
-            $GLOBALS['merconis_globals']['allflexContentsLI'] = $arr_allflexContentsLI;
+            $GLOBALS['merconis_globals']['allFlexContentsLI'] = $arr_allFlexContentsLI;
         }
 
-        return $GLOBALS['merconis_globals']['allflexContentsLI'];
+        return $GLOBALS['merconis_globals']['allFlexContentsLI'];
     }
 
     public static function getProductAttributeValueIds($arr_productAttributesValues = array())

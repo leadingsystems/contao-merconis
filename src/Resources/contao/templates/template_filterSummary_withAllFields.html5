@@ -60,23 +60,23 @@ if (
             }
 
             if ($this->bln_flexContentsLIFilterCurrentlyAvailable) {
-                foreach ($this->arr_filterAllFields['arr_flexContentsLI'] as $str_flexContentLIKey => $arr_filterflexContentLI) {
+                foreach ($this->arr_filterAllFields['arr_flexContentsLI'] as $str_flexContentLIKey => $arr_filterFlexContentLI) {
                     $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey] <= $int_numFilterFieldsMax;
-                    $bln_currentlyFilteringByThisflexContentLI = isset($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]) && is_array($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values']);
+                    $bln_currentlyFilteringByThisFlexContentLI = isset($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]) && is_array($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values']);
                     ?>
-                    <li class="filter-criterion filter-criterion-flexContentLI<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $bln_currentlyFilteringByThisflexContentLI ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey]; ?>" data-lsjs-filter-section-id="flexContentLI-<?php echo $str_flexContentLIKey; ?>">
+                    <li class="filter-criterion filter-criterion-flexContentLI<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $bln_currentlyFilteringByThisFlexContentLI ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey]; ?>" data-lsjs-filter-section-id="flexContentLI-<?php echo $str_flexContentLIKey; ?>">
                         <div class="filter-criterion-flexContent-container">
                             <?php
-                            if ($bln_currentlyFilteringByThisflexContentLI) {
+                            if ($bln_currentlyFilteringByThisFlexContentLI) {
                                 ?>
                                 <div class="reset-this-criterion"></div>
                                 <?php
                             }
                             ?>
                             <div class="off-canvas-filter-form-toggler-remote">
-                                <span class="filter-criterion-title"><?php echo $arr_filterflexContentLI['str_title']; ?></span>
+                                <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLI['str_title']; ?></span>
                                 <?php
-                                if ($bln_currentlyFilteringByThisflexContentLI) {
+                                if ($bln_currentlyFilteringByThisFlexContentLI) {
                                     ?>
                                     <div class="filter-values">
                                         <?php
