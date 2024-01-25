@@ -2032,6 +2032,17 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['flexContentLanguageIndependentValues'][$str_flexContentKey];
     }
 
+    /*
+     * IMPORTANT NOTE REGARDING POTENTIAL PERFORMANCE ISSUE:
+     * If getting all flex contents should become problematic regarding performance on huge product/variant tables,
+     * it might be a good idea or even necessary to have a flex content overview table that is created periodically
+     * using a cron job and that makes access during runtime much faster because then only a single DB request would
+     * be necessary. Of course, during a short period after someone added/removed/changed flex contents, this function
+     * would still return the old information. The best solution might be to use the flex content overview table but
+     * re-create its data exactly when flex contents in a product or variant have actually changed. In case of product
+     * imports it might be best to not check for flex content changes for every product but instead always re-create
+     * the flex content overview data after finishing the whole import.
+     */
     public static function getAllFlexContentsLanguageIndependent() {
         if (!isset($GLOBALS['merconis_globals']['allFlexContentsLanguageIndependent'])) {
             $arr_allFlexContents = [];

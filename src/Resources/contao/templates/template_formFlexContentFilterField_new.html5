@@ -71,15 +71,15 @@
             ?>
             <div class="filterMode">
                 <?php
-                    if ($this->arr_moreData['sourceAttribute'] !== null) {
+                    if ($this->arr_moreData['flexContentKey'] !== null) {
                         if ($this->arr_moreData['makeFilterModeUserAdjustable']) {
                             ?>
                             <label for="<?php echo $this->str_name.'_filterMode'; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterModeLabel']; ?></label>
-                            <select id="<?php echo $this->str_name.'_filterMode'; ?>" name="filterModeForAttribute[<?php echo $this->arr_moreData['sourceAttribute']; ?>]">
+                            <select id="<?php echo $this->str_name.'_filterMode'; ?>" name="filterModeForFlexContent[<?php echo $this->arr_moreData['flexContentKey']; ?>]">
                                 <?php
-                                    if (isset($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']])) {
-                                        $bln_orIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'or';
-                                        $bln_andIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$this->arr_moreData['sourceAttribute']] === 'and';
+                                    if (isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContents'][$this->arr_moreData['flexContentKey']])) {
+                                        $bln_orIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContents'][$this->arr_moreData['flexContentKey']] === 'or';
+                                        $bln_andIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContents'][$this->arr_moreData['flexContentKey']] === 'and';
                                     } else {
                                         $bln_orIsSelected = $this->arr_moreData['filterMode'] === 'or';
                                         $bln_andIsSelected = $this->arr_moreData['filterMode'] === 'and';
@@ -91,7 +91,7 @@
                             <?php
                         } else {
                             ?>
-                            <input type="hidden" name="filterModeForAttribute[<?php echo $this->arr_moreData['sourceAttribute']; ?>]" value="<?php echo $this->arr_moreData['filterMode']; ?>" />
+                            <input type="hidden" name="filterModeForFlexContent[<?php echo $this->arr_moreData['flexContentKey']; ?>]" value="<?php echo $this->arr_moreData['filterMode']; ?>" />
                             <?php
                         }
                     }
