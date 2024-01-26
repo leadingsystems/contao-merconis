@@ -6,6 +6,7 @@ use Contao\ArrayUtil;
 use Contao\System;
 
 use function LeadingSystems\Helpers\createMultidimensionalArray;
+use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
 
 class ls_shop_productSearcher
 {
@@ -155,7 +156,8 @@ class ls_shop_productSearcher
             'arrSearchCriteria' => $this->arrSearchCriteria,
             'arrLimit' => $this->arrLimit,
             'filterCriteria' => $this->blnUseFilter ? $_SESSION['lsShop']['filter']['criteria'] : null,
-            'filterModeSettings' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
+            'filterModeSettingsByAttributes' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
+            'filterModeSettingsByFlexContentsLI' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'] ?? null) : null,
             'language' => $this->searchLanguage,
             'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
             'checkVATID' => ls_shop_generalHelper::checkVATID(),
@@ -1323,6 +1325,10 @@ class ls_shop_productSearcher
             if (!in_array('lsShopProductProducer', $this->arrRequestFields)) {
                 $this->arrRequestFields[] = 'lsShopProductProducer';
             }
+
+            if (!in_array('flex_contentsLanguageIndependent', $this->arrRequestFields)) {
+                $this->arrRequestFields[] = 'flex_contentsLanguageIndependent';
+            }
         }
 
         if (count($this->arrSplitSorting['php'])) {
@@ -1676,6 +1682,8 @@ class ls_shop_productSearcher
                     $refCurrentProductRow['attributeValueIDs'] = array();
                     $refCurrentProductRow['attributeAndValueIDs'] = array();
 
+                    $refCurrentProductRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
+
                     $refCurrentProductRow['variants'] = array();
 
                     if ($this->bln_useGroupPrices) {
@@ -1720,6 +1728,7 @@ class ls_shop_productSearcher
 								`tl_ls_shop_variant`.`pid`,
 								`tl_ls_shop_variant`.`lsShopVariantPrice`,
 								`tl_ls_shop_variant`.`lsShopVariantPriceType`,
+								`tl_ls_shop_variant`.`flex_contentsLanguageIndependent`,
 				".
                 (
                 $this->bln_useGroupPrices
@@ -1785,6 +1794,8 @@ class ls_shop_productSearcher
                     $refCurrentVariantRow['attributeIDs'] = array();
                     $refCurrentVariantRow['attributeValueIDs'] = array();
                     $refCurrentVariantRow['attributeAndValueIDs'] = array();
+
+                    $refCurrentVariantRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
 
                     /*
                      * Get the variant's price

@@ -2025,6 +2025,71 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse];
     }
 
+    public static function getFlexContentLIValues($str_flexContentLIKey) {
+        if (!isset($GLOBALS['merconis_globals']['flexContentLIValues'][$str_flexContentLIKey])) {
+            $GLOBALS['merconis_globals']['flexContentLIValues'][$str_flexContentLIKey] = ls_shop_generalHelper::getAllFlexContentsLI()[$str_flexContentLIKey] ?? [];
+        }
+        return $GLOBALS['merconis_globals']['flexContentLIValues'][$str_flexContentLIKey];
+    }
+
+    /*
+     * IMPORTANT NOTE REGARDING POTENTIAL PERFORMANCE ISSUE:
+     * If getting all flex contents should become problematic regarding performance on huge product/variant tables,
+     * it might be a good idea or even necessary to have a flex content overview table that is created periodically
+     * using a cron job and that makes access during runtime much faster because then only a single DB request would
+     * be necessary. Of course, during a short period after someone added/removed/changed flex contents, this function
+     * would still return the old information. The best solution might be to use the flex content overview table but
+     * re-create its data exactly when flex contents in a product or variant have actually changed. In case of product
+     * imports it might be best to not check for flex content changes for every product but instead always re-create
+     * the flex content overview data after finishing the whole import.
+     */
+    public static function getAllFlexContentsLI() {
+        if (!isset($GLOBALS['merconis_globals']['allFlexContentsLI'])) {
+            $arr_allFlexContentsLI = [];
+
+            $obj_dbres_flexContentsLIForProducts = \Database::getInstance()->prepare("
+                SELECT      flex_contentsLanguageIndependent
+                FROM        tl_ls_shop_product
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLIForProducts->next()) {
+                $arr_flexContentsLI = json_decode($obj_dbres_flexContentsLIForProducts->flex_contentsLanguageIndependent);
+                foreach ($arr_flexContentsLI as $arr_flexContentLI) {
+                    $arr_allFlexContentsLI[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
+                }
+            }
+
+            $obj_dbres_flexContentsLIForVariants = \Database::getInstance()->prepare("
+                SELECT      id, flex_contentsLanguageIndependent
+                FROM        tl_ls_shop_variant
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLIForVariants->next()) {
+                $arr_flexContentsLI = json_decode($obj_dbres_flexContentsLIForVariants->flex_contentsLanguageIndependent);
+                if (is_array($arr_flexContentsLI)) {
+                    foreach ($arr_flexContentsLI as $arr_flexContentLI) {
+                        $arr_allFlexContentsLI[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
+                    }
+                }
+            }
+
+            $arr_allFlexContentsLI = array_map('array_unique', $arr_allFlexContentsLI);
+            $arr_allFlexContentsLI = array_map(
+                function($arr_toSort) {
+                    sort($arr_toSort);
+                    return $arr_toSort;
+                },
+                $arr_allFlexContentsLI
+            );
+
+            $GLOBALS['merconis_globals']['allFlexContentsLI'] = $arr_allFlexContentsLI;
+        }
+
+        return $GLOBALS['merconis_globals']['allFlexContentsLI'];
+    }
+
     public static function getProductAttributeValueIds($arr_productAttributesValues = array())
     {
         $arr_attributeValueIds = array();

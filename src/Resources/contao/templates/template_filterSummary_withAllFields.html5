@@ -59,6 +59,55 @@ if (
                 }
             }
 
+            if ($this->bln_flexContentsLIFilterCurrentlyAvailable) {
+                foreach ($this->arr_filterAllFields['arr_flexContentsLI'] as $str_flexContentLIKey => $arr_filterFlexContentLI) {
+                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey] <= $int_numFilterFieldsMax;
+                    $bln_currentlyFilteringByThisFlexContentLI = isset($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]) && is_array($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values']);
+                    ?>
+                    <li class="filter-criterion filter-criterion-flexContentLI<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $bln_currentlyFilteringByThisFlexContentLI ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey]; ?>" data-lsjs-filter-section-id="flexContentLI-<?php echo $str_flexContentLIKey; ?>">
+                        <div class="filter-criterion-flexContent-container">
+                            <?php
+                            if ($bln_currentlyFilteringByThisFlexContentLI) {
+                                ?>
+                                <div class="reset-this-criterion"></div>
+                                <?php
+                            }
+                            ?>
+                            <div class="off-canvas-filter-form-toggler-remote">
+                                <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLI['str_title']; ?></span>
+                                <?php
+                                if ($bln_currentlyFilteringByThisFlexContentLI) {
+                                    ?>
+                                    <div class="filter-values">
+                                        <?php
+                                        $int_count = 0;
+                                        $int_numValues = count($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values']);
+                                        foreach ($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values'] as $str_filterValueTitle) {
+                                            $int_count++;
+                                            ?>
+                                            <?php
+                                            $str_stringAddition = '';
+                                            if ($int_numValues >= 3 && $int_count <= $int_numValues - 2) {
+                                                $str_stringAddition = ', ';
+                                            } else if ($int_count === $int_numValues - 1) {
+                                                $str_stringAddition = ' ' . $this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['str_logicalOperator'] . ' ';
+                                            }
+                                            ?>
+                                            <?php echo $str_filterValueTitle . $str_stringAddition; ?>
+                                            <?php
+                                        }
+                                        ?>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </li>
+                    <?php
+                }
+            }
+
             if ($this->bln_poducerFilterCurrentlyAvailable) {
                 $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['producer'] <= $int_numFilterFieldsMax;
                 ?>
