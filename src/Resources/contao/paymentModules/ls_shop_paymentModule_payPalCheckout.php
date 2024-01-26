@@ -116,7 +116,9 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             }
 
             //negativ value items can not be added to paypaly itemlist, so we remove this list entirely if this happens
-            if($price < 0) $showItemlist = false;
+            if ($price < 0) {
+                $showItemlist = false;
+            }
 
             $itemlist[] = [
                 "name"=> $name,
