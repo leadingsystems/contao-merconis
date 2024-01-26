@@ -665,7 +665,7 @@ class ls_shop_filterHelper {
                              * into the variant's flex content values before performing the filter checks.
                              */
                             $arr_variantFlexContentLIValuesToCompareWithFilterRequirements = (array) ($arrVariantInfo['flex_contentsLanguageIndependent'][$str_flexContentLIKey] ?? []);
-                            $arr_mergedProductAndVariantFlexContentLIValuesToCompareWithFilterRequirements = array_merge($arr_variantFlexContentLIValuesToCompareWithFilterRequirements, $arr_productFlexContentLIValuesToCompareWithFilterRequirements);
+                            $arr_mergedProductAndVariantFlexContentLIValuesToCompareWithFilterRequirements = array_merge($arr_variantFlexContentLIValuesToCompareWithFilterRequirements, $arr_productFlexContentLIValuesToCompareWithFilterRequirements ?? []);
 
                             if (($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$str_flexContentLIKey] ?? null) === 'and') {
                                 if (count(array_intersect($arr_flexContentLIValues, $arr_mergedProductAndVariantFlexContentLIValuesToCompareWithFilterRequirements)) !== count($arr_flexContentLIValues)) {
