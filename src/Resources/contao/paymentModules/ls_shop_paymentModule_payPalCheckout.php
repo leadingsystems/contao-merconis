@@ -5,6 +5,7 @@ use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
 use function LeadingSystems\Helpers\ls_sub;
+use function LeadingSystems\Helpers\lsDebugLog;
 
 class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standard {
     const SANDBOX_URL = 'https://api-m.sandbox.paypal.com';
@@ -23,16 +24,9 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
     private function writeLog($outputType, $output){
 
-        if (is_array($output) || is_object($output)) {
-            ob_start();
-            print_r($output);
-            $output = ob_get_clean();
-        }
-
         if($this->arrCurrentSettings['payPalCheckout_logMode'] !== 'NONE') {
-            $myfile = fopen(TL_ROOT . '/system/logs/paypalCheckout.log', "a");
-            fwrite($myfile, "[".date("d-m-Y h:i:sa")."] [".$outputType."] ".$output."\n");
-            fclose($myfile);
+            $str_filename = 'paypalCheckout_'.date("Y-m-d").'.log';
+            lsDebugLog($output, $outputType, 'regular', false, '', false, $str_filename);
         }
         //$this->arrCurrentSettings['payPalCheckout_logMode']
         //TL_ROOT.'/system/logs/PayPal.log',
