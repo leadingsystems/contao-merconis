@@ -302,4 +302,33 @@ class ls_shop_apiController {
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($arr_return);
     }
+
+
+    /**
+     * Returns all language Dependent flex contents that exist in all products and variants
+     */
+    protected function apiResource_getAllFlexContentsLD() {
+        $arr_return = ls_shop_generalHelper::getAllFlexContentsLI();
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+    /**
+     * Returns all values for language Dependent flex content with a specific key that exist in all products and variants
+     */
+    protected function apiResource_getFlexContentLDValues() {
+        if (!\Input::get('flexContentKey')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no flexContentKey given');
+            return;
+        }
+        $arr_return = ls_shop_generalHelper::getFlexContentLDValues(\Input::get('flexContentKey'));
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
 }
+
+

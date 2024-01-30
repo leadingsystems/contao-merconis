@@ -8,6 +8,7 @@ class ls_shop_filterHelper {
         $arr_filterSummary = [
             'arr_attributes' => [],
             'arr_flexContentsLI' => [],
+            'arr_flexContentsLD' => [],
             'arr_producers' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['producers'] ?? null,
             'arr_price' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['price'] ?? null,
         ];
@@ -15,6 +16,7 @@ class ls_shop_filterHelper {
         $arr_filterAllFields = [
             'arr_attributes' => [],
             'arr_flexContentsLI' => [],
+            'arr_flexContentsLD' => [],
             'arr_producers' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'],
             'arr_price' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'],
         ];
@@ -45,6 +47,20 @@ class ls_shop_filterHelper {
 
                 foreach ($arr_filterValues as $str_filterValue) {
                     $arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values'][$str_filterValue] = $str_filterValue;
+                }
+            }
+        }
+
+        if (is_array($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLD'] ?? null)) {
+            foreach ($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLD'] as $str_flexContentLDKey => $arr_filterValues) {
+                $arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey] = [
+                    'str_title' => $str_flexContentLDKey,
+                    'arr_values' => [],
+                    'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$str_flexContentLDKey]]
+                ];
+
+                foreach ($arr_filterValues as $str_filterValue) {
+                    $arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey]['arr_values'][$str_filterValue] = $str_filterValue;
                 }
             }
         }
@@ -111,12 +127,40 @@ class ls_shop_filterHelper {
                         $arr_filterAllFields['arr_flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]['arr_values'][$str_filterValue] = $str_filterValue;
                     }
                     break;
+                case 'flexContentLD':
+                    /*
+                     * If based on the current product list there are no flexContentsLI to be used as criteria in the filter form
+                     * or no values for the current flexContentLI, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])
+                    ) {
+                        break;
+                    }
+
+                    $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']];
+
+                    $arr_filterAllFields['arr_flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] = [
+                        'str_title' => $arrFilterFieldInfo['flexContentLDKey'],
+                        'arr_values' => [],
+                        'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] ?? null] ?? null
+                    ];
+
+                    foreach ($arr_filterValues as $str_filterValue) {
+                        $arr_filterAllFields['arr_flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']]['arr_values'][$str_filterValue] = $str_filterValue;
+                    }
+                    break;
             }
 
         }
 
         $bln_attributesFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_attributes']) && count($arr_filterAllFields['arr_attributes']);
         $bln_flexContentsLIFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_flexContentsLI']) && count($arr_filterAllFields['arr_flexContentsLI']);
+        $bln_flexContentsLDFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_flexContentsLD']) && count($arr_filterAllFields['arr_flexContentsLD']);
         $bln_poducerFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_producers']) && count($arr_filterAllFields['arr_producers']);
         $bln_priceFilterCurrentlyAvailable = (
             is_array($arr_filterAllFields['arr_price'])
@@ -128,6 +172,7 @@ class ls_shop_filterHelper {
 
         $bln_currentlyFilteringByAttributes = is_array($arr_filterSummary['arr_attributes']) && count($arr_filterSummary['arr_attributes']);
         $bln_currentlyFilteringByFlexContentsLI = is_array($arr_filterSummary['arr_flexContentsLI']) && count($arr_filterSummary['arr_flexContentsLI']);
+        $bln_currentlyFilteringByFlexContentsLD = is_array($arr_filterSummary['arr_flexContentsLD']) && count($arr_filterSummary['arr_flexContentsLD']);
         $bln_currentlyFilteringByProducer = is_array($arr_filterSummary['arr_producers']) && count($arr_filterSummary['arr_producers']);
         $bln_currentlyFilteringByPrice = (
             is_array($arr_filterSummary['arr_price'])
@@ -150,6 +195,7 @@ class ls_shop_filterHelper {
                 SELECT  id,
                         sourceAttribute,
                         flexContentLIKey,
+                        flexContentLDKey,
                         dataSource,
                         priority
                 FROM    tl_ls_shop_filter_fields
@@ -166,6 +212,10 @@ class ls_shop_filterHelper {
                 case 'flexContentLI':
                     $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->flexContentLIKey;
                     break;
+
+                case 'flexContentLD':
+                    $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->flexContentLDKey;
+                    break;
             }
 
             $arr_filterFieldPriorities[$obj_dbres_filterFieldPriorities->dataSource . $str_priorityKeySuffix] = $obj_dbres_filterFieldPriorities->priority;
@@ -178,6 +228,10 @@ class ls_shop_filterHelper {
         foreach (array_keys($arr_filterAllFields['arr_flexContentsLI']) as $str_flexContentLIKey) {
             $arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey] = $arr_filterFieldPriorities['flexContentLI_' . $str_flexContentLIKey];
         }
+
+#        foreach (array_keys($arr_filterAllFields['arr_flexContentsLD']) as $str_flexContentLDKey) {
+#            $arr_filterFieldSortingNumbers['flexContentLD_' . $str_flexContentLDKey] = $arr_filterFieldPriorities['flexContentLD_' . $str_flexContentLDKey];
+#        }
 
         if ($bln_poducerFilterCurrentlyAvailable) {
             $arr_filterFieldSortingNumbers['producer'] = $arr_filterFieldPriorities['producer'];
@@ -204,10 +258,12 @@ class ls_shop_filterHelper {
             'int_numAvailableFilterFields' => ($bln_poducerFilterCurrentlyAvailable ? 1 : 0) + ($bln_priceFilterCurrentlyAvailable ? 1 : 0) + count($arr_filterAllFields['arr_attributes']),
             'bln_attributesFilterCurrentlyAvailable' => $bln_attributesFilterCurrentlyAvailable,
             'bln_flexContentsLIFilterCurrentlyAvailable' => $bln_flexContentsLIFilterCurrentlyAvailable,
+            'bln_flexContentsLDFilterCurrentlyAvailable' => $bln_flexContentsLDFilterCurrentlyAvailable,
             'bln_poducerFilterCurrentlyAvailable' => $bln_poducerFilterCurrentlyAvailable,
             'bln_priceFilterCurrentlyAvailable' => $bln_priceFilterCurrentlyAvailable,
             'bln_currentlyFilteringByAttributes' => $bln_currentlyFilteringByAttributes,
             'bln_currentlyFilteringByFlexContentsLI' => $bln_currentlyFilteringByFlexContentsLI,
+            'bln_currentlyFilteringByFlexContentsLD' => $bln_currentlyFilteringByFlexContentsLD,
             'bln_currentlyFilteringByProducer' => $bln_currentlyFilteringByProducer,
             'bln_currentlyFilteringByPrice' => $bln_currentlyFilteringByPrice,
             'arr_filterFieldSortingNumbers' => $arr_filterFieldSortingNumbers
@@ -227,10 +283,12 @@ class ls_shop_filterHelper {
         $obj_template->int_numAvailableFilterFields = $arr_summaryData['int_numAvailableFilterFields'];
         $obj_template->bln_attributesFilterCurrentlyAvailable = $arr_summaryData['bln_attributesFilterCurrentlyAvailable'];
         $obj_template->bln_flexContentsLIFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLIFilterCurrentlyAvailable'];
+        $obj_template->bln_flexContentsLDFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLDFilterCurrentlyAvailable'];
         $obj_template->bln_poducerFilterCurrentlyAvailable = $arr_summaryData['bln_poducerFilterCurrentlyAvailable'];
         $obj_template->bln_priceFilterCurrentlyAvailable = $arr_summaryData['bln_priceFilterCurrentlyAvailable'];
         $obj_template->bln_currentlyFilteringByAttributes = $arr_summaryData['bln_currentlyFilteringByAttributes'];
         $obj_template->bln_currentlyFilteringByFlexContentsLI = $arr_summaryData['bln_currentlyFilteringByFlexContentsLI'];
+        $obj_template->bln_currentlyFilteringByFlexContentsLD = $arr_summaryData['bln_currentlyFilteringByFlexContentsLD'];
         $obj_template->bln_currentlyFilteringByProducer = $arr_summaryData['bln_currentlyFilteringByProducer'];
         $obj_template->bln_currentlyFilteringByPrice = $arr_summaryData['bln_currentlyFilteringByPrice'];
         $obj_template->arr_filterFieldSortingNumbers = $arr_summaryData['arr_filterFieldSortingNumbers'];
@@ -243,6 +301,7 @@ class ls_shop_filterHelper {
 			'criteria' => array(
 				'attributes' => array(),
 				'flexContentsLI' => array(),
+                'flexContentsLD' => array(),
 				'price' => array(
 					'low' => 0,
 					'high' => 0
@@ -252,6 +311,7 @@ class ls_shop_filterHelper {
 			'arrCriteriaToUseInFilterForm' => array(
 				'attributes' => array(),
 				'flexContentsLI' => array(),
+                'flexContentsLD' => array(),
 				'price' => array(
 					'low' => null,
 					'high' => null
@@ -263,6 +323,7 @@ class ls_shop_filterHelper {
 			'matchEstimates' => array(
 				'attributeValues' => array(),
 				'flexContentLIValues' => array(),
+                'flexContentLDValues' => array(),
 				'producers' => array()
 			),
 			'lastResetTimestamp' => time(),
@@ -306,6 +367,12 @@ class ls_shop_filterHelper {
 				$arr_flexContentLIValues = ls_shop_generalHelper::getFlexContentLIValues($arrFilterFieldInfo['flexContentLIKey']);
 				foreach ($arr_flexContentLIValues as $str_flexContentLIValue) {
 					$arrFilterFieldValues[] = ['filterValue' => $str_flexContentLIValue];
+				}
+				break;
+			case 'flexContentLD':
+				$arr_flexContentLDValues = ls_shop_generalHelper::getFlexContentLDValues($arrFilterFieldInfo['flexContentLDKey']);
+				foreach ($arr_flexContentLDValues as $str_flexContentLDValue) {
+					$arrFilterFieldValues[] = ['filterValue' => $str_flexContentLDValue];
 				}
 				break;
 		}
