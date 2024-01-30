@@ -158,6 +158,7 @@ class ls_shop_productSearcher
             'filterCriteria' => $this->blnUseFilter ? $_SESSION['lsShop']['filter']['criteria'] : null,
             'filterModeSettingsByAttributes' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
             'filterModeSettingsByFlexContentsLI' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'] ?? null) : null,
+            'filterModeSettingsByFlexContentsLD' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'] ?? null) : null,
             'language' => $this->searchLanguage,
             'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
             'checkVATID' => ls_shop_generalHelper::checkVATID(),
@@ -1329,6 +1330,11 @@ class ls_shop_productSearcher
             if (!in_array('flex_contentsLanguageIndependent', $this->arrRequestFields)) {
                 $this->arrRequestFields[] = 'flex_contentsLanguageIndependent';
             }
+
+//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
+            if (!in_array('flex_contents', $this->arrRequestFields)) {
+                $this->arrRequestFields[] = 'flex_contents';
+            }
         }
 
         if (count($this->arrSplitSorting['php'])) {
@@ -1682,7 +1688,9 @@ class ls_shop_productSearcher
                     $refCurrentProductRow['attributeValueIDs'] = array();
                     $refCurrentProductRow['attributeAndValueIDs'] = array();
 
+//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
                     $refCurrentProductRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
+                    $refCurrentProductRow['flex_contents'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents'])), 2, 1);
 
                     $refCurrentProductRow['variants'] = array();
 
@@ -1723,12 +1731,14 @@ class ls_shop_productSearcher
             /*
              * Get all variants for the products from the database
              */
+//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
             $objVariants = \Database::getInstance()->prepare("
 				SELECT			`tl_ls_shop_variant`.`id`,
 								`tl_ls_shop_variant`.`pid`,
 								`tl_ls_shop_variant`.`lsShopVariantPrice`,
 								`tl_ls_shop_variant`.`lsShopVariantPriceType`,
 								`tl_ls_shop_variant`.`flex_contentsLanguageIndependent`,
+								`tl_ls_shop_variant`.`flex_contents`,
 				".
                 (
                 $this->bln_useGroupPrices
@@ -1795,7 +1805,9 @@ class ls_shop_productSearcher
                     $refCurrentVariantRow['attributeValueIDs'] = array();
                     $refCurrentVariantRow['attributeAndValueIDs'] = array();
 
+//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
                     $refCurrentVariantRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
+                    $refCurrentVariantRow['flex_contents'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents'])), 2, 1);
 
                     /*
                      * Get the variant's price

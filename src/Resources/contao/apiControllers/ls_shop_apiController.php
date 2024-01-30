@@ -305,7 +305,7 @@ class ls_shop_apiController {
 
 
     /**
-     * Returns all language Dependent flex contents that exist in all products and variants
+     * Returns all language dependent flex contents that exist in all products and variants
      */
     protected function apiResource_getAllFlexContentsLD() {
         $arr_return = ls_shop_generalHelper::getAllFlexContentsLI();
@@ -315,7 +315,7 @@ class ls_shop_apiController {
     }
 
     /**
-     * Returns all values for language Dependent flex content with a specific key that exist in all products and variants
+     * Returns all values for language dependent flex content with a specific key that exist in all products and variants
      */
     protected function apiResource_getFlexContentLDValues() {
         if (!\Input::get('flexContentKey')) {

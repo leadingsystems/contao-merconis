@@ -141,7 +141,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'default'                 => 'attribute',
 			'exclude' => true,
 			'inputType'               => 'select',
-			'options'                 => array('attribute', 'producer', 'price', 'flexContentLI'),
+			'options'                 => array('attribute', 'producer', 'price', 'flexContentLI', 'flexContentLD'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource']['options'],
 			'eval'					  => array('tl_class' => 'clr', 'helpwizard' => true, 'submitOnChange' => true),
             'sql'                     => "varchar(255) NOT NULL default ''"
@@ -233,6 +233,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLIFilterFieldTemplates'),
             'eval'                    => array('tl_class'=>'w50'),
             'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLIFilterField_new'"
+        ),
+
+        'templateToUseForFlexContentLDField'  => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLDField'],
+            'exclude'				  => true,
+            'inputType'               => 'select',
+            'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLDFilterFieldTemplates'),
+            'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLDFilterField_new'"
         ),
 
 		'filterMode' => array(
@@ -352,5 +361,9 @@ class ls_shop_filter_fields extends \Backend {
 
     public function getFlexContentLIFilterFieldTemplates() {
         return $this->getTemplateGroup('template_formFlexContentLIFilterField_');
+    }
+
+    public function getFlexContentLDFilterFieldTemplates() {
+        return $this->getTemplateGroup('template_formFlexContentLDFilterField_');
     }
 }

@@ -2032,6 +2032,13 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['flexContentLIValues'][$str_flexContentLIKey];
     }
 
+    public static function getFlexContentLDValues($str_flexContentLDKey) {
+        if (!isset($GLOBALS['merconis_globals']['flexContentLDValues'][$str_flexContentLDKey])) {
+            $GLOBALS['merconis_globals']['flexContentLDValues'][$str_flexContentLDKey] = ls_shop_generalHelper::getAllFlexContentsLD()[$str_flexContentLDKey] ?? [];
+        }
+        return $GLOBALS['merconis_globals']['flexContentLDValues'][$str_flexContentLDKey];
+    }
+
     /*
      * IMPORTANT NOTE REGARDING POTENTIAL PERFORMANCE ISSUE:
      * If getting all flex contents should become problematic regarding performance on huge product/variant tables,
@@ -2088,6 +2095,55 @@ class ls_shop_generalHelper
         }
 
         return $GLOBALS['merconis_globals']['allFlexContentsLI'];
+    }
+
+    public static function getAllFlexContentsLD() {
+        if (!isset($GLOBALS['merconis_globals']['allFlexContentsLD'])) {
+            $arr_allFlexContentsLD = [];
+
+//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
+            $obj_dbres_flexContentsLDForProducts = \Database::getInstance()->prepare("
+                SELECT      flex_contents
+                FROM        tl_ls_shop_product
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLDForProducts->next()) {
+                $arr_flexContentsLD = json_decode($obj_dbres_flexContentsLDForProducts->flex_contents);
+                foreach ($arr_flexContentsLD as $arr_flexContentLD) {
+                    $arr_allFlexContentsLD[$arr_flexContentLD[0]][] = $arr_flexContentLD[1];
+                }
+            }
+
+//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
+            $obj_dbres_flexContentsLDForVariants = \Database::getInstance()->prepare("
+                SELECT      id, flex_contents
+                FROM        tl_ls_shop_variant
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLDForVariants->next()) {
+                $arr_flexContentsLD = json_decode($obj_dbres_flexContentsLDForVariants->flex_contents);
+                if (is_array($arr_flexContentsLD)) {
+                    foreach ($arr_flexContentsLD as $arr_flexContentLD) {
+                        $arr_allFlexContentsLD[$arr_flexContentLD[0]][] = $arr_flexContentLD[1];
+                    }
+                }
+            }
+
+            $arr_allFlexContentsLD = array_map('array_unique', $arr_allFlexContentsLD);
+            $arr_allFlexContentsLD = array_map(
+                function($arr_toSort) {
+                    sort($arr_toSort);
+                    return $arr_toSort;
+                },
+                $arr_allFlexContentsLD
+            );
+
+            $GLOBALS['merconis_globals']['allFlexContentsLD'] = $arr_allFlexContentsLD;
+        }
+
+        return $GLOBALS['merconis_globals']['allFlexContentsLD'];
     }
 
     public static function getProductAttributeValueIds($arr_productAttributesValues = array())
