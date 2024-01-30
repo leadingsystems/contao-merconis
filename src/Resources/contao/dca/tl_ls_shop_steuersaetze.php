@@ -154,7 +154,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['startPeriod1'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+            'eval'                    => array(
+                'rgxp'=>'date',
+                /*
+                 * @toDo check if 'datepicker'=>true works
+                 */
+//                'datepicker'=>$this->getDatePickerString(),
+                'tl_class'=>'w50 wizard clr'),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
@@ -162,7 +168,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['stopPeriod1'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+            'eval'                    => array(
+                'rgxp'=>'date',
+                /*
+                 * @toDo check if 'datepicker'=>true works
+                 */
+//                'datepicker'=>$this->getDatePickerString(),
+                'tl_class'=>'w50 wizard clr'),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
@@ -200,7 +212,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['startPeriod2'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+            'eval'                    => array(
+                'rgxp'=>'date',
+                /*
+                 * @toDo check if 'datepicker'=>true works
+                 */
+//                'datepicker'=>$this->getDatePickerString(),
+                'tl_class'=>'w50 wizard clr'),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
@@ -208,7 +226,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['stopPeriod2'],
 			'inputType'               => 'text',
-			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+            'eval'                    => array(
+                'rgxp'=>'date',
+                /*
+                 * @toDo check if 'datepicker'=>true works
+                 */
+//                'datepicker'=>$this->getDatePickerString(),
+                'tl_class'=>'w50 wizard clr'),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		)
 	)
