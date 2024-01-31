@@ -94,9 +94,9 @@
      * PayOne-Bezeichnungen
      */
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_legend']						= 'PAYONE settings';
-	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_subaccountId']						= array('PAYONE Sub account ID', 'Please enter the value here of which you learn when you have the API parameter tab displayed in the payment portal section of the PAYONE Merchant Interface.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_portalId']							= array('PAYONE Portal ID', 'Please enter the value here of which you learn when you have the API parameter tab displayed in the payment portal section of the PAYONE Merchant Interface.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_key']							= array('PAYONE Portal key', 'Please enter the value here of which you learn when you have the API parameter tab displayed in the payment portal section of the PAYONE Merchant Interface.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_subaccountId']						= array('PAYONE Sub account ID', 'Please enter the value here of which you learn when you have the API parameter tab displayed in the payment portal section of the PAYONE Merchant Interface. Please also ensure that the hash value check procedure is set correctly (sha2).');
+	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_portalId']							= array('PAYONE Portal ID', 'Please enter the value here of which you learn when you have the API parameter tab displayed in the payment portal section of the PAYONE Merchant Interface.Please also ensure that the hash value check procedure is set correctly (sha2).');
+	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_key']							= array('PAYONE Portal key', 'Please enter the value here of which you learn when you have the API parameter tab displayed in the payment portal section of the PAYONE Merchant Interface.Please also ensure that the hash value check procedure is set correctly (sha2).');
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_liveMode']						= array('Live mode', 'Please activate this checkbox if you want to go live with the PAYONE module.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_clearingtype']	= array('Clearing type', 'Please choose the clearing type used by PAYONE');
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_clearingtype']['options'] = array(

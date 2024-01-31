@@ -42,7 +42,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		'oncut_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
-		'onrestore_callback' => array(
+		'onrestore_version_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
         'sql' => array

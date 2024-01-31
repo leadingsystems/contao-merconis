@@ -63,6 +63,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             return $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'];
         }
 
+        $showItemlist = true;
+
         $access_token = $this->payPalCheckout_getaccessToken();
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/checkout/orders');
@@ -85,6 +87,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                 $description = $description.' ('.$arr_cartItemExtended['quantity'].' '.$arr_cartItemExtended['objProduct']->_quantityUnit.' * '.$arr_cartItemExtended['objProduct']->_priceAfterTaxFormatted.')';
             }
 
+            //negativ value items can not be added to paypaly itemlist, so we remove this list entirely if this happens
+            if($price < 0) $showItemlist = false;
 
             $itemlist[] = [
                 "name"=> $name,
@@ -182,10 +186,13 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                         ],
                         "address"=> $arr_adress
                     ],
-                    "items" => $itemlist
                 ]
             ]
         ];
+
+        if($showItemlist) {
+            $arr_requestBody["purchase_units"][0]["items"] = $itemlist;
+        }
 
         $this->writeLog('Request Data', $arr_requestBody);
 

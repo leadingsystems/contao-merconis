@@ -3687,6 +3687,10 @@ class ls_shop_generalHelper
      */
     public static function ls_shop_provideInfosForJS()
     {
+        if (!isset($GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) || !$GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) {
+            return;
+        }
+
         // get the url of the merconis ajax page
         $str_ajaxUrl = ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages');
         $int_minicartID = isset($GLOBALS['TL_CONFIG']['ls_shop_miniCartModuleID']) ? $GLOBALS['TL_CONFIG']['ls_shop_miniCartModuleID'] : 0;
@@ -3695,21 +3699,12 @@ class ls_shop_generalHelper
         ?>
         <script type="text/javascript">
             window.addEvent('domready', function () {
-                <?php
-                /*
-                 * LSJS ->
-                 */
-                if (isset($GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) && $GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) {
-                ?>
                 if (lsjs.__appHelpers.merconisApp !== undefined && lsjs.__appHelpers.merconisApp !== null) {
                     lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN = '<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.str_ajaxUrl = '<?php echo $str_ajaxUrl; ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.int_minicartID = '<?php echo $int_minicartID; ?>';
                     lsjs.__appHelpers.merconisApp.start();
                 }
-                <?php
-                }
-                ?>
             });
         </script>
         <?php
