@@ -1044,7 +1044,9 @@ class ls_shop_filterHelper {
 			foreach ($arrProduct['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
 				ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
 			}
-			foreach ($arrProduct['flex_contentsLanguageIndependent'] as $str_flexContentLDKey => $str_flexContentLDValue) {
+//TODO: hier intensiv prüfen,
+//bei arrProduct ist im "flex_contents_de" was hinterlegt, in "flex_contents" NICHT.
+			foreach ($arrProduct['flex_contents'] as $str_flexContentLDKey => $str_flexContentLDValue) {
 				ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
 			}
 			foreach ($arrProduct['variants'] as $arrVariant) {

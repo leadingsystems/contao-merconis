@@ -308,7 +308,7 @@ class ls_shop_apiController {
      * Returns all language dependent flex contents that exist in all products and variants
      */
     protected function apiResource_getAllFlexContentsLD() {
-        $arr_return = ls_shop_generalHelper::getAllFlexContentsLI();
+        $arr_return = ls_shop_generalHelper::getAllFlexContentsLD();
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($arr_return);

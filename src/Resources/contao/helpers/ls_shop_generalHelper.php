@@ -2104,32 +2104,28 @@ class ls_shop_generalHelper
 
             $arr_allFlexContentsLD = [];
 
-//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
 
             $obj_dbres_flexContentsLDForProducts = \Database::getInstance()->prepare("
-                SELECT      flex_contents_" . $str_currentLanguage . "
+                SELECT      flex_contents_" . $str_currentLanguage . " AS result
                 FROM        tl_ls_shop_product
             ")
             ->execute();
 
             while ($obj_dbres_flexContentsLDForProducts->next()) {
-                $arr_flexContentsLD = json_decode($obj_dbres_flexContentsLDForProducts->flex_contents);
+                $arr_flexContentsLD = json_decode($obj_dbres_flexContentsLDForProducts->result);
                 foreach ($arr_flexContentsLD as $arr_flexContentLD) {
                     $arr_allFlexContentsLD[$arr_flexContentLD[0]][] = $arr_flexContentLD[1];
                 }
             }
 
-//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
-
-//TODO: hier auch sprachabhängigkeit einbauen
             $obj_dbres_flexContentsLDForVariants = \Database::getInstance()->prepare("
-                SELECT      id, flex_contents
+                SELECT      id, flex_contents_" . $str_currentLanguage . " AS result
                 FROM        tl_ls_shop_variant
             ")
             ->execute();
 
             while ($obj_dbres_flexContentsLDForVariants->next()) {
-                $arr_flexContentsLD = json_decode($obj_dbres_flexContentsLDForVariants->flex_contents);
+                $arr_flexContentsLD = json_decode($obj_dbres_flexContentsLDForVariants->result);
                 if (is_array($arr_flexContentsLD)) {
                     foreach ($arr_flexContentsLD as $arr_flexContentLD) {
                         $arr_allFlexContentsLD[$arr_flexContentLD[0]][] = $arr_flexContentLD[1];
