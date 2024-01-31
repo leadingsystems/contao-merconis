@@ -1501,7 +1501,13 @@ class ls_shop_generalHelper
             }
             $totalValueOfCoupons = $totalValueOfCoupons ? $totalValueOfCoupons : 0;
 
-            $shippingFee = $type == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+
+            if(!empty(ls_shop_cartX::getInstance()->calculation['shippingFee'])){
+                $shippingFee = $type == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+            }else{
+                $shippingFee = 0;
+            }
+
 
             $totalValueOfGoodsPlusCoupons = ls_add($totalValueOfGoods, $totalValueOfCoupons);
             $totalValueOfGoodsPlusShipping = ls_add($totalValueOfGoods, $shippingFee);
@@ -1799,7 +1805,11 @@ class ls_shop_generalHelper
         }
         $totalValueOfCoupons = $totalValueOfCoupons ? $totalValueOfCoupons : 0;
 
-        $shippingFee = $what == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+        if(!empty(ls_shop_cartX::getInstance()->calculation['shippingFee'])){
+            $shippingFee = $what == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+        }else{
+            $shippingFee = 0;
+        }
 
         $totalValueOfGoodsPlusCoupons = ls_add($totalValueOfGoods, $totalValueOfCoupons);
         $totalValueOfGoodsPlusShipping = ls_add($totalValueOfGoods, $shippingFee);
@@ -1875,7 +1885,7 @@ class ls_shop_generalHelper
             if (!ls_shop_generalHelper::checkIfPaymentOrShippingMethodIsAllowed($tmpMethodInfo, $type)) {
                 continue;
             }
-            if($tmpMethodInfo["notSelectable"] != 1){
+            if(!array_key_exists("notSelectable", $tmpMethodInfo) || $tmpMethodInfo["notSelectable"] != 1){
                 if (!is_array($cheapestMethod) || $cheapestMethod['feePrice'] > $tmpMethodInfo['feePrice']) {
                     $cheapestMethod = $tmpMethodInfo;
                 }

@@ -776,7 +776,7 @@ class ls_shop_checkoutData {
 
         $first = $objMethod->fetchAssoc();
 
-        if($first['notSelectable'] == 1){
+        if($first && $first['notSelectable'] == 1){
             $this->arrCheckoutData['selected'.ucfirst($what).'Method'] = "";
         }
 
@@ -893,7 +893,7 @@ class ls_shop_checkoutData {
 		 * ls_shop_cartX because loading ls_shop_cartX would be too much overhead and could probably cause problems
 		 * and to just make this simple check, we just don't need it.
 		 */
-		if (!isset($_SESSION['lsShopCart']['items']) || !count($_SESSION['lsShopCart']['items'])) {
+		if (!isset($_SESSION['lsShopCart']['items']) || !is_array($_SESSION['lsShopCart']['items']) || !count($_SESSION['lsShopCart']['items'])) {
 			$this->writeCheckoutDataToSession();
 			return;
 		}

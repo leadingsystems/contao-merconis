@@ -1643,6 +1643,8 @@ class ls_shop_productSearcher
                         unset($arrProductsComplete[$i]["wordCount"]);
                     }
 
+        
+
         /*
          * If we use the filter we had a left join in our database query which leads to a result set
          * that has multiple entries for one product if there's more than one related row in the
