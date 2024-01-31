@@ -2099,11 +2099,15 @@ class ls_shop_generalHelper
 
     public static function getAllFlexContentsLD() {
         if (!isset($GLOBALS['merconis_globals']['allFlexContentsLD'])) {
+            global $objPage;
+            $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
             $arr_allFlexContentsLD = [];
 
 //TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
+
             $obj_dbres_flexContentsLDForProducts = \Database::getInstance()->prepare("
-                SELECT      flex_contents
+                SELECT      flex_contents_" . $str_currentLanguage . "
                 FROM        tl_ls_shop_product
             ")
             ->execute();
@@ -2116,6 +2120,8 @@ class ls_shop_generalHelper
             }
 
 //TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
+
+//TODO: hier auch sprachabhängigkeit einbauen
             $obj_dbres_flexContentsLDForVariants = \Database::getInstance()->prepare("
                 SELECT      id, flex_contents
                 FROM        tl_ls_shop_variant
