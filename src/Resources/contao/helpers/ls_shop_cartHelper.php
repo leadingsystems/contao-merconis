@@ -13,13 +13,12 @@ use function LeadingSystems\Helpers\ls_sub;
 
 class ls_shop_cartHelper {
 	public static function initializeEmptyCart() {
+	    if (!is_array($_SESSION['lsShopCart'] ?? null)) {
+			$_SESSION['lsShopCart'] = array();
+		}
 
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
-		if (!is_array($session_lsShopCart['items'] ?? null)) {
-            $session_lsShopCart['items'] = array();
-            $session->set('lsShopCart', $session_lsShopCart);
+		if (!is_array($_SESSION['lsShopCart']['items'] ?? null)) {
+			$_SESSION['lsShopCart']['items'] = array();
 		}
 	}
 
@@ -52,11 +51,8 @@ class ls_shop_cartHelper {
 			return 0;
 		}
 
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
 		$cumulatedQuantity = 0;
-		foreach ($session_lsShopCart['items'] as $cartItemProductCartKey => $arrCartItem) {
+		foreach ($_SESSION['lsShopCart']['items'] as $cartItemProductCartKey => $arrCartItem) {
 			if (ls_shop_generalHelper::getProductVariantIDFromCartKey($cartItemProductCartKey) != $productVariantID) {
 				continue;
 			}
@@ -138,13 +134,7 @@ class ls_shop_cartHelper {
 		 */
 		if ($quantity >= 0) {
 			$availableQuantity = $checkStock ? ls_shop_cartHelper::getAvailableQuantity($productCartKey, $quantity) : $quantity;
-
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $session_lsShopCart =  $session->get('lsShopCart', []);
-
-            $session_lsShopCart['items'][$productCartKey]['quantity'] = $availableQuantity;
-            $session->set('lsShopCart', $session_lsShopCart);
-
+			$_SESSION['lsShopCart']['items'][$productCartKey]['quantity'] = $availableQuantity;
 		}
 
 		if (isset($availableQuantity) && $availableQuantity != $quantity) {
@@ -167,11 +157,7 @@ class ls_shop_cartHelper {
 		 * erwartet wird - 0 zurückgegeben.
 		 */
 		if ($quantity < 0 || $availableQuantity < 0) {
-
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $session_lsShopCart =  $session->get('lsShopCart', []);
-			unset($session_lsShopCart['items'][$productCartKey]);
-            $session->set('lsShopCart', $session_lsShopCart);
+			unset($_SESSION['lsShopCart']['items'][$productCartKey]);
 			return 0;
 		}
 
@@ -196,15 +182,11 @@ class ls_shop_cartHelper {
 		$objProduct = ls_shop_generalHelper::getObjProduct($productVariantID, __METHOD__);
 
 		$desiredQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
-
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
 		/*
 		 * Ist der aktuelle cartKey der ProduktVarianten-ID noch nicht im Warenkorb enthalten,
 		 * so wird sie eingetragen, ist sie schon vorhanden, so wird nur die Menge geupdatet.
 		 */
-		if (!isset($session_lsShopCart['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey])) {
+		if (!isset($_SESSION['lsShopCart']['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey])) {
 			$arrItemInfoToAddToCart = array(
 				'quantity' => 0,
 				'scalePriceKeyword' => $objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_scalePriceKeyword : $objProduct->_scalePriceKeyword
@@ -217,8 +199,7 @@ class ls_shop_cartHelper {
 				}
 			}
 
-            $session_lsShopCart['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey] = $arrItemInfoToAddToCart;
-            $session->set('lsShopCart', $session_lsShopCart);
+			$_SESSION['lsShopCart']['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey] = $arrItemInfoToAddToCart;
 
 			if ($objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_hasCustomizer : $objProduct->_hasCustomizer) {
                 $objProduct->saveCustomizerForCurrentCartKey();
@@ -230,7 +211,7 @@ class ls_shop_cartHelper {
 		/*
 		 * Ermitteln der für dieses Produkt im Warenkorb zu hinterlegenden Menge
 		 */
-		$newQuantity = ls_add($session_lsShopCart['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey]['quantity'], $desiredQuantity);
+		$newQuantity = ls_add($_SESSION['lsShopCart']['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey]['quantity'], $desiredQuantity);
 		$quantityCurrentlyInCart = ls_shop_cartHelper::setItemQuantity($objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey, $newQuantity, $checkStock);
 		$quantityPutInCart = ls_sub($desiredQuantity, ls_sub($newQuantity,$quantityCurrentlyInCart));
 
@@ -267,11 +248,9 @@ class ls_shop_cartHelper {
 	 * oder ob eines der Produkte nicht "orderAllowed" true hat.
 	 */
 	public static function validateOrderPermissionOfCartPositions() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
 		$blnValid = true;
-		if (isset($session_lsShopCart['items']) && is_array($session_lsShopCart['items'])) {
-			foreach ($session_lsShopCart['items'] as $cartItemProductCartKey => $arrCartItem) {
+		if (isset($_SESSION['lsShopCart']['items']) && is_array($_SESSION['lsShopCart']['items'])) {
+			foreach ($_SESSION['lsShopCart']['items'] as $cartItemProductCartKey => $arrCartItem) {
 				/*
 				 * Remove validation messages that might still exist from a previous validation
 				 */
@@ -297,9 +276,6 @@ class ls_shop_cartHelper {
 	public static function checkCartPositionsStockSufficient() {
 		$stockNotSufficientForAtLeastOneItem = false;
 
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
 		/*
 		 * Zunächst müssen die Warenkorbpositionen nach tatsächlichen Produkten/Varianten gruppiert werden.
 		 * Mehrere durch unterschiedliche Konfigurator-Einstellungen entstandene Instanzen desselben Produkts
@@ -311,7 +287,7 @@ class ls_shop_cartHelper {
 		 * Prüfungen positiv waren.
 		 */
 		$tmpArrCartItemsGrouped = array();
-		foreach ($session_lsShopCart['items'] as $cartItemProductCartKey => $arrCartItem) {
+		foreach ($_SESSION['lsShopCart']['items'] as $cartItemProductCartKey => $arrCartItem) {
 			$productVariantID = ls_shop_generalHelper::getProductVariantIDFromCartKey($cartItemProductCartKey);
 			if (!isset($tmpArrCartItemsGrouped[$productVariantID])) {
 				$tmpArrCartItemsGrouped[$productVariantID] = array(
@@ -365,7 +341,7 @@ class ls_shop_cartHelper {
 					 */
 
 					// Abziehen der Warenkorb-Positions-Menge von der verfügbaren Menge
-					$cartItemGroupInfo['availableQuantity'] = $cartItemGroupInfo['availableQuantity'] - $session_lsShopCart['items'][$cartKey]['quantity'];
+					$cartItemGroupInfo['availableQuantity'] = $cartItemGroupInfo['availableQuantity'] - $_SESSION['lsShopCart']['items'][$cartKey]['quantity'];
 
 					if ($cartItemGroupInfo['availableQuantity'] >= 0) {
 						// Verbleibende verfügbare Menge größer/gleich 0, die verfügbare Menge war also ausreichend für diese Warenkorb-Position
@@ -392,7 +368,7 @@ class ls_shop_cartHelper {
 						 * Wert aber auf keinen Fall erlaubt wäre, wird hier vorsichtshalber dennoch sichergestellt, dass im Falle
 						 * eines ermittelten negativen Wertes die Warenkorb-Positions-Menge auf 0 und nicht weniger gesetzt wird.
 						 */
-						$newItemQuantity = $session_lsShopCart['items'][$cartKey]['quantity'] - $fehlmenge;
+						$newItemQuantity = $_SESSION['lsShopCart']['items'][$cartKey]['quantity'] - $fehlmenge;
 						if ($newItemQuantity < 0) {
 							$newItemQuantity = 0;
 						}
@@ -402,7 +378,7 @@ class ls_shop_cartHelper {
 							'class' => 'checkCartPositionsStockSufficient',
 							'reference' => $cartKey,
 							'arrDetails' => array(
-								'originalQuantity' => $session_lsShopCart['items'][$cartKey]['quantity'],
+								'originalQuantity' => $_SESSION['lsShopCart']['items'][$cartKey]['quantity'],
 								'shortage' => $fehlmenge,
 								'newQuantity' => $newItemQuantity,
 								'quantityUnit' => $objProduct4Msg->_quantityUnit,
@@ -428,10 +404,7 @@ class ls_shop_cartHelper {
 	 * Diese Funktion reduziert den Lagerbestand für alle im Warenkorb enthaltenen Artikel um die im Warenkorb enthaltene Menge
 	 */
 	public static function reduceStockForCartPositions() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
-		foreach ($session_lsShopCart['items'] as $cartItemProductCartKey => $arrCartItem) {
+		foreach ($_SESSION['lsShopCart']['items'] as $cartItemProductCartKey => $arrCartItem) {
 			$objProduct = ls_shop_generalHelper::getObjProduct($cartItemProductCartKey, __METHOD__, true);
 			if ($arrCartItem['quantity'] > 0) {
 				$objProduct->changeStock($arrCartItem['quantity'] * -1);
@@ -443,10 +416,7 @@ class ls_shop_cartHelper {
 	 * Diese Funktion zählt den Bestellungszähler für die im Warenkorb enthaltenen Produkte um eins hoch
 	 */
 	public static function countSalesForCartPositions() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
-		foreach ($session_lsShopCart['items'] as $cartItemProductCartKey => $arrCartItem) {
+		foreach ($_SESSION['lsShopCart']['items'] as $cartItemProductCartKey => $arrCartItem) {
 			$objProduct = ls_shop_generalHelper::getObjProduct($cartItemProductCartKey, __METHOD__);
 			$objProduct->countSale();
 		}
@@ -517,13 +487,10 @@ class ls_shop_cartHelper {
 			$GLOBALS['TL_CONFIG']['ls_shop_allowCouponCombinations'] = false;
 		}
 		if (!$GLOBALS['TL_CONFIG']['ls_shop_allowCouponCombinations']) {
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $session_lsShopCart =  $session->get('lsShopCart', []);
+			if (is_array($_SESSION['lsShopCart']['couponsUsed'])) {
+				$arrCouponArrayKeys = array_keys($_SESSION['lsShopCart']['couponsUsed']);
 
-			if (is_array($session_lsShopCart['couponsUsed'])) {
-				$arrCouponArrayKeys = array_keys($session_lsShopCart['couponsUsed']);
-
-				if (count($session_lsShopCart['couponsUsed']) && $arrCouponArrayKeys[0] != $objCoupon->id) {
+				if (count($_SESSION['lsShopCart']['couponsUsed']) && $arrCouponArrayKeys[0] != $objCoupon->id) {
 					$arrErrors['onlyOneCouponAllowed'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text008'];
 					return $arrErrors;
 				}
@@ -714,18 +681,13 @@ class ls_shop_cartHelper {
 	 * der Gutschein durch eine Wartezeit nicht mehr gültig oder verfügbar sein.
 	 */
 	public static function revalidateCouponsUsed() {
-
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
-		if (!is_array($session_lsShopCart['couponsUsed'] ?? null)) {
+		if (!is_array($_SESSION['lsShopCart']['couponsUsed'] ?? null)) {
 			return false;
 		}
 
-		foreach ($session_lsShopCart['couponsUsed'] as $couponID => $arrCouponInfo) {
-            $session_lsShopCart['couponsUsed'][$couponID] = ls_shop_cartHelper::getCouponRepresentationForCart($couponID);
+		foreach ($_SESSION['lsShopCart']['couponsUsed'] as $couponID => $arrCouponInfo) {
+			$_SESSION['lsShopCart']['couponsUsed'][$couponID] = ls_shop_cartHelper::getCouponRepresentationForCart($couponID);
 		}
-        $session->set('lsShopCart', $session_lsShopCart);
 	}
 
 	public static function check_couponIsValid($int_couponID = false, $str_getCouponBy = 'id') {
@@ -764,12 +726,7 @@ class ls_shop_cartHelper {
 		}
 		$objCoupon->first();
 
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
-        $session_lsShopCart['couponsUsed'][$objCoupon->id] = ls_shop_cartHelper::getCouponRepresentationForCart($objCoupon->id);
-
-        $session->set('lsShopCart', $session_lsShopCart);
+		$_SESSION['lsShopCart']['couponsUsed'][$objCoupon->id] = ls_shop_cartHelper::getCouponRepresentationForCart($objCoupon->id);
 	}
 
 	public static function deleteUsedCoupon($couponID) {
@@ -777,12 +734,8 @@ class ls_shop_cartHelper {
 			return false;
 		}
 
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
-		if (isset($session_lsShopCart['couponsUsed'][$couponID])) {
-			unset($session_lsShopCart['couponsUsed'][$couponID]);
-            $session->set('lsShopCart', $session_lsShopCart);
+		if (isset($_SESSION['lsShopCart']['couponsUsed'][$couponID])) {
+			unset($_SESSION['lsShopCart']['couponsUsed'][$couponID]);
 		}
 
 		return true;

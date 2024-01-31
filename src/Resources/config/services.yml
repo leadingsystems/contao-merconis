@@ -42,15 +42,6 @@ services:
     tags:
       - { name: kernel.event_listener, priority: 15 }
 
-  merconis.session:
-    class: LeadingSystems\MerconisBundle\Services\Session
-    public: true
-
-  merconis.eventlistener.kernellistener:
-    class: LeadingSystems\MerconisBundle\EventListener\KernelListener
-    tags:
-      - { name: kernel.event_listener, event: kernel.controller_arguments }
-
   merconis.eventlistener.loginlistener:
     class: LeadingSystems\MerconisBundle\EventListener\LoginListener
     tags:

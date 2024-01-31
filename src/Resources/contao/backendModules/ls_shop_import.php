@@ -7,7 +7,6 @@ use Contao\FileUpload;
 use Contao\Input;
 use Contao\Message;
 use Contao\StringUtil;
-use Contao\System;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_import extends BackendModule {
@@ -63,12 +62,7 @@ class ls_shop_import extends BackendModule {
 		
 		$this->Template->request = StringUtil::ampersand(Environment::get('request'), true);
 		$this->Template->ffl_importFileUpload = $objFfl_importFileUpload->generateMarkup();
-
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-		$this->Template->arrCurrentlyExistingImportFileInfo = $session_lsShop['importFileInfo'];
-        $session->set('lsShop', $session_lsShop);
-
+		$this->Template->arrCurrentlyExistingImportFileInfo = $_SESSION['lsShop']['importFileInfo'];
 		$this->Template->messages = Message::generate(false, true);
 	}
 }

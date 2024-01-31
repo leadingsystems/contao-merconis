@@ -785,7 +785,7 @@ abstract class SofortLibAbstract {
 	 * checks (response)- for payment-specific error
 	 *
 	 * @param string $paymentMethod - 'all', 'su' (if unknown then it uses "all")
-	 * (optional) @param array $message response array
+	 * @param (optional) array $message response array
 	 * @return bool true if errors found (in given payment-method or in 'global') ELSE false
 	 */
 	private function _getPaymentSpecificError($paymentMethod, $message) {

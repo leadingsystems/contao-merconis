@@ -2,8 +2,6 @@
 
 namespace Merconis\Core;
 
-use Contao\System;
-
 abstract class customizer {
     /**
      * @var ls_shop_product
@@ -17,11 +15,8 @@ abstract class customizer {
         $this->obj_productOrVariant = $obj_productOrVariant;
         $this->str_storageKey = $this->obj_productOrVariant->_productVariantID . ($str_customizerHash ? '_' . $str_customizerHash : '');
 
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
-        if (isset($session_lsShop['customizerStorage'][$this->str_storageKey])) {
-            $this->obj_storage = unserialize($session_lsShop['customizerStorage'][$this->str_storageKey]);
+        if (isset($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey])) {
+            $this->obj_storage = unserialize($_SESSION['lsShop']['customizerStorage'][$this->str_storageKey]);
         } else {
             $this->obj_storage = new customizerStorage($this->str_storageKey);
         }
@@ -32,17 +27,11 @@ abstract class customizer {
     }
 
     public function storeToSession() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-        $session_lsShop['customizerStorage'][$this->str_storageKey] = serialize($this->obj_storage);
-        $session->set('lsShop', $session_lsShop);
+        $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey] = serialize($this->obj_storage);
     }
 
     public function saveCustomizerForCurrentCartKey() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-        $session_lsShop['customizerStorage'][$this->obj_productOrVariant->_cartKey] = $session_lsShop['customizerStorage'][$this->str_storageKey];
-        $session->set('lsShop', $session_lsShop);
+        $_SESSION['lsShop']['customizerStorage'][$this->obj_productOrVariant->_cartKey] = $_SESSION['lsShop']['customizerStorage'][$this->str_storageKey];
     }
 
     public function getCustomizerHash() {

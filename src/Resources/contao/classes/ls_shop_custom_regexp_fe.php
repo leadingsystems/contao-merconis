@@ -9,9 +9,6 @@ use function LeadingSystems\Helpers\createMultidimensionalArray;
 	class ls_shop_custom_regexp_fe
 	{
 		public function customRegexp($strRegexp, &$varValue, Widget &$objWidget) {
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $session_lsShop =  $session->get('lsShop', []);
-
 			$decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null) ?: '.';
 			switch($strRegexp) {
 				case 'merconisCheckVATID':
@@ -65,8 +62,8 @@ use function LeadingSystems\Helpers\createMultidimensionalArray;
 						 * If the VATID has been validated yet, the result that has been stored in the session before will be used.
 						 */
 						if (
-								!isset($session_lsShop['checkedVATID'][$varValue])
-							||	!is_array($session_lsShop['checkedVATID'][$varValue])
+								!isset($_SESSION['lsShop']['checkedVATID'][$varValue])
+							||	!is_array($_SESSION['lsShop']['checkedVATID'][$varValue])
 						) {
 							$europeanServiceWsdlUrl = 'http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl';
 							$blnTryAgain = false;
@@ -135,24 +132,23 @@ use function LeadingSystems\Helpers\createMultidimensionalArray;
 							 * If the result is not definitely true/1 or false/0, the result null will be stored.
 							 */
 							if ($result === null || !isset($result->valid) || ($result->valid !== true && $result->valid !== false && $result->valid !== 1 && $result->valid !== 0)) {
-                                $session_lsShop['checkedVATID'][$varValue] = array(
+								$_SESSION['lsShop']['checkedVATID'][$varValue] = array(
 									'valid' => null
 								);
 							} else {
-                                $session_lsShop['checkedVATID'][$varValue] = array(
+								$_SESSION['lsShop']['checkedVATID'][$varValue] = array(
 									'valid' => $result->valid ? true : false,
 									'arrDetails' => $result
 								);
 							}
-                            $session->set('lsShop', $session_lsShop);
 						}
 
 						/*
 						 * Using the online validation result that has been stored in the session regardless of when the online validation request has been performed.
 						 */
-						if ($session_lsShop['checkedVATID'][$varValue]['valid'] === null || $session_lsShop['checkedVATID'][$varValue]['valid']) {
+						if ($_SESSION['lsShop']['checkedVATID'][$varValue]['valid'] === null || $_SESSION['lsShop']['checkedVATID'][$varValue]['valid']) {
 							/*
-							 * If $session_lsShop['checkedVATID'][$varValue]['valid'] is null (no result could be retrieved for whatever reason, e. g. soap service down)
+							 * If $_SESSION['lsShop']['checkedVATID'][$varValue]['valid'] is null (no result could be retrieved for whatever reason, e. g. soap service down)
 							 * this validation actually validates the given VATID positively to make sure that a VATID whose validation status is unclear will not be blocked.
 							 * 
 							 * If we have a result and it's valid, we'll validate the widget positively as well.

@@ -38,13 +38,9 @@ use function LeadingSystems\Helpers\ls_sub;
 			/*
 			 * #######################################
 			 */
-
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-			if (!isset($arrSessionlsShopPaymentProcess['paypal']) || !is_array($arrSessionlsShopPaymentProcess['paypal'])) {
-                $arrSessionlsShopPaymentProcess['paypal'] = array();
-                $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+			
+			if (!isset($_SESSION['lsShopPaymentProcess']['paypal']) || !is_array($_SESSION['lsShopPaymentProcess']['paypal'])) {
+				$_SESSION['lsShopPaymentProcess']['paypal'] = array();
 			}
 			
 			if (!$specializedManually) {
@@ -57,64 +53,49 @@ use function LeadingSystems\Helpers\ls_sub;
 		}
 
 		public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $session_lsShop =  $session->get('lsShop', []);
-
-            $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+			$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
 			
 			###
 			$this->paypal_doExpressCheckoutPayment($order);
 			###
-
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-			if (!$arrSessionlsShopPaymentProcess['paypal']['finishedSuccessfully']) {
-                $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentErrorAfterFinishedOrder'];
+			
+			if (!$_SESSION['lsShopPaymentProcess']['paypal']['finishedSuccessfully']) {
+				$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentErrorAfterFinishedOrder'];
 			} else {
-				if ($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['REDIRECTREQUIRED']) {
+				if ($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['REDIRECTREQUIRED']) {
 					$giropayRedirectionForm = $this->getForm($this->arrCurrentSettings['paypalGiropayRedirectForm']);
-					$giropayRedirectionForm = preg_replace('/(<form.*action=")(.*)(")/siU', '\\1'.$this->redirectToGiropay.'&token='.$arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN'].'\\3', $giropayRedirectionForm);
-                    $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $giropayRedirectionForm;
+					$giropayRedirectionForm = preg_replace('/(<form.*action=")(.*)(")/siU', '\\1'.$this->redirectToGiropay.'&token='.$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN'].'\\3', $giropayRedirectionForm);
+					$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $giropayRedirectionForm;
 				}
 			}
-            $session->set('lsShop', $session_lsShop);
 
 			/*
 			 * Nach abgeschlossener Bestellung wird das Array mit Informationen über den Status der PayPal-Zahlung zurückgesetzt, um zu verhindern, dass bei einer weiteren Bestellung versucht wird, die alte Autorisierung weiter zu benutzen.
 			 */
-			unset($arrSessionlsShopPaymentProcess['paypal']);
-            $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+			unset($_SESSION['lsShopPaymentProcess']['paypal']);
 		}
 		
 		public function afterPaymentMethodSelection() {
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-            $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse'] = array(
+			$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse'] = array(
 				'ACK' => 'Failure',
 				'TOKEN' => ''
 			);
-            $arrSessionlsShopPaymentProcess['paypal']['authorized'] = false;
-            $arrSessionlsShopPaymentProcess['paypal']['finishedSuccessfully'] = false;
-            $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+			$_SESSION['lsShopPaymentProcess']['paypal']['authorized'] = false;
+			$_SESSION['lsShopPaymentProcess']['paypal']['finishedSuccessfully'] = false;
 
 			$this->paypal_setExpressCheckout();
 		}
 		
 		public function afterPaymentMethodAdditionalDataConfirm() {
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-			if ($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] != 'Success' || !$arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']) {
+			if ($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] != 'Success' || !$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']) {
 				/*
 				 * Zahlung nicht erfolgreich eingeleitet, deshalb keine Weiterleitung zum PayPal-Login,
 				 * stattdessen Fehlerseite!
 				 */
-				$this->redirectToErrorPage('afterPaymentMethodAdditionalDataConfirm', $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['ACK']);
+				$this->redirectToErrorPage('afterPaymentMethodAdditionalDataConfirm', $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['ACK']);
 			}
 
-			$this->redirect($this->redirectToLogin.'&token='.$arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']);
+			$this->redirect($this->redirectToLogin.'&token='.$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']);
 		}		
 		
 		public function statusOkayToShowAdditionalDataForm() {
@@ -122,10 +103,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			 * sollte unnötig sein!
 			$this->paypal_renewExpressCheckoutDetailsResponse();
 			 */
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-			if ($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] == 'Success') {
+			if ($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] == 'Success') {
 				return true;
 			} else {
 				return false;
@@ -137,10 +115,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			 * sollte unnötig sein!
 			$this->paypal_renewExpressCheckoutDetailsResponse();
 			 */
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-			if ($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] == 'Success' && $arrSessionlsShopPaymentProcess['paypal']['authorized']) {
+			if ($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] == 'Success' && $_SESSION['lsShopPaymentProcess']['paypal']['authorized']) {
 				return true;
 			} else {
 				return false;
@@ -151,10 +126,7 @@ use function LeadingSystems\Helpers\ls_sub;
 		}
 		
 		public function checkoutFinishAllowed() {
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-			if ($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] != 'Success') {
+			if ($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] != 'Success') {
 				return false;
 			} else {
 				return true;
@@ -175,10 +147,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			 * sollte unnötig sein!
 			$this->paypal_renewExpressCheckoutDetailsResponse();
 			 */
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-			foreach ($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse'] as $key => $value) {
+			foreach ($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse'] as $key => $value) {
 				$info .= '<strong>'.$key.':</strong> '.$value."<br />\r\n";
 			}
 			return $info;
@@ -214,11 +183,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			if (!ls_shop_generalHelper::checkIfPaymentMethodIsAllowed(ls_shop_checkoutData::getInstance()->arrCheckoutData['selectedPaymentMethod'])) {
 				ls_shop_checkoutData::getInstance()->resetSelectedPaymentMethod();
 
-                $session = System::getContainer()->get('cajax.session')->getSession();
-                $session_lsCajax =  $session->get('lsCajax', []);
-
-
-                if (!Environment::get('isAjaxRequest') && $session_lsCajax['requestData'] === null) {
+                if (!Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
                     $this->reload();
                 }
 			}
@@ -230,39 +195,34 @@ use function LeadingSystems\Helpers\ls_sub;
 		 * Kalkulation nicht mehr passenden PayPal-Transaktion/-Autorisierung weitergearbeitet wird.
 		 */
 		protected function paypal_checkIfCalculationChanged() {
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-			if (!$arrSessionlsShopPaymentProcess['paypal']['finishedSuccessfully']) {
+			if (!$_SESSION['lsShopPaymentProcess']['paypal']['finishedSuccessfully']) {
 				$arrCurrentNVP = $this->paypal_createSetExpressCheckoutNVP();
-				if (isset($arrSessionlsShopPaymentProcess['paypal']['setExpressCheckoutNVP'])) {
+				if (isset($_SESSION['lsShopPaymentProcess']['paypal']['setExpressCheckoutNVP'])) {
 					 if (
-                                $arrSessionlsShopPaymentProcess['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_AMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_AMT']
+					 			$_SESSION['lsShopPaymentProcess']['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_AMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_AMT']
 					 		||
-                                $arrSessionlsShopPaymentProcess['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_CURRENCYCODE'] != $arrCurrentNVP['PAYMENTREQUEST_0_CURRENCYCODE']
+					 			$_SESSION['lsShopPaymentProcess']['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_CURRENCYCODE'] != $arrCurrentNVP['PAYMENTREQUEST_0_CURRENCYCODE']
 					 		||
-                                $arrSessionlsShopPaymentProcess['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_ITEMAMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_ITEMAMT']
+					 			$_SESSION['lsShopPaymentProcess']['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_ITEMAMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_ITEMAMT']
 					 		||
-                                $arrSessionlsShopPaymentProcess['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_SHIPPINGAMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_SHIPPINGAMT']
+					 			$_SESSION['lsShopPaymentProcess']['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_SHIPPINGAMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_SHIPPINGAMT']
 					 		||
-                                $arrSessionlsShopPaymentProcess['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_HANDLINGAMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_HANDLINGAMT']
+					 			$_SESSION['lsShopPaymentProcess']['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_HANDLINGAMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_HANDLINGAMT']
 					 		||
-                                $arrSessionlsShopPaymentProcess['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_TAXAMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_TAXAMT']
+					 			$_SESSION['lsShopPaymentProcess']['paypal']['setExpressCheckoutNVP']['PAYMENTREQUEST_0_TAXAMT'] != $arrCurrentNVP['PAYMENTREQUEST_0_TAXAMT']
 					) {
-					 	unset($arrSessionlsShopPaymentProcess['paypal']['setExpressCheckoutNVP']);
+					 	unset($_SESSION['lsShopPaymentProcess']['paypal']['setExpressCheckoutNVP']);
 						
-						if (isset($arrSessionlsShopPaymentProcess['paypal']['authorized']) && $arrSessionlsShopPaymentProcess['paypal']['authorized']) {
+						if (isset($_SESSION['lsShopPaymentProcess']['paypal']['authorized']) && $_SESSION['lsShopPaymentProcess']['paypal']['authorized']) {
 							$this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['authorizationObsolete']);
 						}
 
-                         $arrSessionlsShopPaymentProcess['paypal']['authorized'] = false;
-                         $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+						$_SESSION['lsShopPaymentProcess']['paypal']['authorized'] = false;
 
 						$this->paypal_setExpressCheckout();
 					 }
 				}
-                $arrSessionlsShopPaymentProcess['paypal']['setExpressCheckoutNVP'] = $arrCurrentNVP;
-                $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+				$_SESSION['lsShopPaymentProcess']['paypal']['setExpressCheckoutNVP'] = $arrCurrentNVP;
 			}
 		}
 		
@@ -270,10 +230,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			/*
 			 * Wurde ein Token in der URL übergeben, so ist dies das Zeichen für den Aufruf als Folge des Redirects von PayPal zurück
 			 */
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-			if (Input::get('token') && Input::get('token') == $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']) {
+			if (Input::get('token') && Input::get('token') == $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']) {
 				// Verarbeiten eines Abbruchs
 				if (Input::get('cancelPaypal')) {
 					$this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['authorizationCancelled']);
@@ -285,13 +242,12 @@ use function LeadingSystems\Helpers\ls_sub;
 				
 				// Verarbeiten einer erfolgreichen Autorisierung
 				if (
-						isset($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'])
-					&&	$arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID']
+						isset($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'])
+					&&	$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID']
 					&&	Input::get('PayerID')
-					&&	$arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'] == Input::get('PayerID')
+					&&	$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'] == Input::get('PayerID')
 				) {
-                    $arrSessionlsShopPaymentProcess['paypal']['authorized'] = true;
-                    $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+					$_SESSION['lsShopPaymentProcess']['paypal']['authorized'] = true;
 					$this->setPaymentMethodSuccessMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['successfullyAuthorized']);
 					$this->redirect($this->returnUrl.'#checkoutStepPayment');
 				}
@@ -299,25 +255,21 @@ use function LeadingSystems\Helpers\ls_sub;
 		}
 		
 		protected function paypal_renewExpressCheckoutDetailsResponse($blnRedirectOnError = true) {
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
 			// Ermitteln der GetExpressCheckoutDetailsResponse und Ablegen in Session
 			$arrNVP = array(
 				'METHOD' => 'GetExpressCheckoutDetails',
-				'TOKEN' => $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']
+				'TOKEN' => $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']
 			);
-            $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse'] = $this->paypal_hashCall('GetExpressCheckoutDetails', $arrNVP);
-            $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+			$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse'] = $this->paypal_hashCall('GetExpressCheckoutDetails', $arrNVP);
 
-			if ($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] != 'Success') {
+			if ($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] != 'Success') {
 				/*
 				 * Die Empfangenen ExpressCheckoutDetails enthalten einen Fehler! 
 				 */
 				if ($blnRedirectOnError) {
-					$this->redirectToErrorPage('paypal_renewExpressCheckoutDetailsResponse', $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']);
+					$this->redirectToErrorPage('paypal_renewExpressCheckoutDetailsResponse', $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']);
 				} else {
-					$this->logPaymentError('paypal_renewExpressCheckoutDetailsResponse', $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']);
+					$this->logPaymentError('paypal_renewExpressCheckoutDetailsResponse', $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']);
 				}
 			}
 		}
@@ -441,39 +393,30 @@ use function LeadingSystems\Helpers\ls_sub;
 			if ($arrResultNVP['ACK'] != 'Success' || !$arrResultNVP['TOKEN']) {
 				$this->redirectToErrorPage('paypal_setExpressCheckout ($arrNVP, $arrResultNVP)', $arrNVP, $arrResultNVP);
 			}
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-            $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN'] = $arrResultNVP['TOKEN'];
-            $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
-
+			$_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN'] = $arrResultNVP['TOKEN'];
 			$this->paypal_renewExpressCheckoutDetailsResponse();
 		}
 
 		public function paypal_doExpressCheckoutPayment($arr_order) {
-            $session = System::getContainer()->get('merconis.session')->getSession();
-            $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
 			$arrNVP = array(
-				'TOKEN' => $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN'],
-				'PAYERID' => $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'],
-				'PAYMENTREQUEST_0_AMT' => $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_AMT'],
+				'TOKEN' => $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN'],
+				'PAYERID' => $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'],
+				'PAYMENTREQUEST_0_AMT' => $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_AMT'],
 				'PAYMENTREQUEST_0_NOTETEXT' => (isset($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['orderNo']) && $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['orderNo'] ? $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['orderNo'].': ' : 'order no.: ').$arr_order['orderNr'],
 				'PAYMENTREQUEST_0_DESC' => (isset($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentDesc']) && $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentDesc'] ? $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentDesc'].': ' : 'order no.: ').$arr_order['orderNr'],
-				'PAYMENTREQUEST_0_CURRENCYCODE' => $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_CURRENCYCODE'],
-				'PAYMENTREQUEST_0_ITEMAMT' => $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_ITEMAMT'],
-				'PAYMENTREQUEST_0_SHIPPINGAMT' => $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_SHIPPINGAMT'],
-				'PAYMENTREQUEST_0_HANDLINGAMT' => $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_HANDLINGAMT'],
-				'PAYMENTREQUEST_0_TAXAMT' => $arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_TAXAMT']
+				'PAYMENTREQUEST_0_CURRENCYCODE' => $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_CURRENCYCODE'],
+				'PAYMENTREQUEST_0_ITEMAMT' => $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_ITEMAMT'],
+				'PAYMENTREQUEST_0_SHIPPINGAMT' => $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_SHIPPINGAMT'],
+				'PAYMENTREQUEST_0_HANDLINGAMT' => $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_HANDLINGAMT'],
+				'PAYMENTREQUEST_0_TAXAMT' => $_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['PAYMENTREQUEST_0_TAXAMT']
 			);
 
 			$arrResultNVP = $this->paypal_hashCall('DoExpressCheckoutPayment', $arrNVP);
 			
 			if ($arrResultNVP['ACK'] == 'Success') {
 				$this->paypal_renewExpressCheckoutDetailsResponse(false);
-				if ($arrSessionlsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] == 'Success') {
-                    $arrSessionlsShopPaymentProcess['paypal']['finishedSuccessfully'] = true;
-                    $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+				if ($_SESSION['lsShopPaymentProcess']['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] == 'Success') {
+					$_SESSION['lsShopPaymentProcess']['paypal']['finishedSuccessfully'] = true;
 				}
 			}
 		}
@@ -522,14 +465,10 @@ use function LeadingSystems\Helpers\ls_sub;
 			$arrRequestNVP = $this->paypal_deformatNVP($strRequestNVP);
 		
 			if (curl_errno($ch)) {
-				// Weiterleiten auf Fehlerseite,
-                $session = System::getContainer()->get('merconis.session')->getSession();
-                $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-                $arrSessionlsShopPaymentProcess['paypal']['curl_errno'] = curl_errno($ch);
-                $arrSessionlsShopPaymentProcess['paypal']['curl_error'] = curl_error($ch);
-                $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
-
-				$this->redirectToErrorPage('curl_errno', 'curl_errno: '.$arrSessionlsShopPaymentProcess['paypal']['curl_errno'].', curl_error: '.$arrSessionlsShopPaymentProcess['paypal']['curl_error']);
+				// Weiterleiten auf Fehlerseite, 
+				$_SESSION['lsShopPaymentProcess']['paypal']['curl_errno'] = curl_errno($ch);
+				$_SESSION['lsShopPaymentProcess']['paypal']['curl_error'] = curl_error($ch);
+				$this->redirectToErrorPage('curl_errno', 'curl_errno: '.$_SESSION['lsShopPaymentProcess']['paypal']['curl_errno'].', curl_error: '.$_SESSION['lsShopPaymentProcess']['paypal']['curl_error']);
 			} else {
 				curl_close($ch);
 			}

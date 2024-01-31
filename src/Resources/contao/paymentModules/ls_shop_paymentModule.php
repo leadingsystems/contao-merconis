@@ -2,7 +2,7 @@
 
 namespace Merconis\Core;
 
-use Contao\Controller;
+	use Contao\Controller;
 use Contao\System;
 
 /**
@@ -33,7 +33,7 @@ use Contao\System;
 	 * das dem TypeCode entspricht. Variablen, die rein in den Funktionen Verwendung finden, benötigen kein solches Prefix.
 	 * 
 	 * Session-Variablen, die nur für die Interna/Abwicklung einer einzelnen Zahlungsmethode nötig sind, 
-	 * werden wie folgt benannt: z. B. $arrSessionlsShopPaymentProcess['paypal']['xyz']
+	 * werden wie folgt benannt: z. B. $_SESSION['lsShopPaymentProcess']['paypal']['xyz']
 	 * Auf den Key, der dem TypeCode entspricht, ist besonders zu achten!
 	 *
 	 */
@@ -652,10 +652,7 @@ use Contao\System;
 		public function redirectToErrorPage($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '') {
 			$methodName = __FUNCTION__;
 			## fixEndlessRecursionOnPaymentError begin ##
-			$session = System::getContainer()->get('merconis.session')->getSession();
-			$session_lsShop =  $session->get('lsShop', []);
-			$session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
-			$session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
 			## fixEndlessRecursionOnPaymentError end ##
 			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($context, $errorInformation01, $errorInformation02, $errorInformation03);
@@ -667,10 +664,7 @@ use Contao\System;
 		public function logPaymentError($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '') {
 			$methodName = __FUNCTION__;
 			## fixEndlessRecursionOnPaymentError begin ##
-			$session = System::getContainer()->get('merconis.session')->getSession();
-			$session_lsShop =  $session->get('lsShop', []);
-			$session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
-			$session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
 			## fixEndlessRecursionOnPaymentError end ##
 			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($context, $errorInformation01, $errorInformation02, $errorInformation03);

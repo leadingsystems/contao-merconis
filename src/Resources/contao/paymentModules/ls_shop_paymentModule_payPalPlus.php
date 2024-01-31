@@ -43,10 +43,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 	);
 
 	public function initialize($specializedManually = false) {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-		if (!isset($arrSessionlsShopPaymentProcess['payPalPlus']) || !is_array($arrSessionlsShopPaymentProcess['payPalPlus'])) {
+		if (!isset($_SESSION['lsShopPaymentProcess']['payPalPlus']) || !is_array($_SESSION['lsShopPaymentProcess']['payPalPlus'])) {
 			$this->payPalPlus_resetSessionStatus();
 		}
 		
@@ -81,16 +78,11 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 	}
 	
 	public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-        $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-        $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
-        $session->set('lsShop', $session_lsShop);
+		$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
 		
-		$obj_payment = Payment::get($arrSessionlsShopPaymentProcess['payPalPlus']['paymentId'], $this->payPalPlus_obj_apiContext);
+		$obj_payment = Payment::get($_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId'], $this->payPalPlus_obj_apiContext);
 		$obj_execute = new PaymentExecution();
-		$obj_execute->setPayerId($arrSessionlsShopPaymentProcess['payPalPlus']['PayerID']);
+		$obj_execute->setPayerId($_SESSION['lsShopPaymentProcess']['payPalPlus']['PayerID']);
 		
 		try {
 			$obj_payment->execute($obj_execute, $this->payPalPlus_obj_apiContext);
@@ -126,10 +118,8 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 	}
 
 	public function getPaymentInfo() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
 		$arrPaymentInfo = array(
-			'str_paymentId' => $arrSessionlsShopPaymentProcess['payPalPlus']['paymentId'],
+			'str_paymentId' => $_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId'],
 			'arr_saleDetails' => array(
 				'str_saleId' => '',
 				'str_currentStatus' => '',
@@ -316,9 +306,6 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 	 * pay pal authorization is obsolete.
 	 */
 	protected function payPalPlus_checkRelevantCalculationDataHash() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
 		$str_relevantCalculationDataHash = sha1(
 				ls_shop_cartX::getInstance()->calculation['shippingFee'][0]
 			.	ls_shop_cartX::getInstance()->calculation['paymentFee'][0]
@@ -334,11 +321,10 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 		 */
 		if (
 				!$this->payPalPlus_check_paymentIsAuthorized()
-			||	!isset($arrSessionlsShopPaymentProcess['payPalPlus']['relevantCalculationDataHash'])
-			||	!$arrSessionlsShopPaymentProcess['payPalPlus']['relevantCalculationDataHash']
+			||	!isset($_SESSION['lsShopPaymentProcess']['payPalPlus']['relevantCalculationDataHash'])
+			||	!$_SESSION['lsShopPaymentProcess']['payPalPlus']['relevantCalculationDataHash']
 		) {
-            $arrSessionlsShopPaymentProcess['payPalPlus']['relevantCalculationDataHash'] = $str_relevantCalculationDataHash;
-            $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+			$_SESSION['lsShopPaymentProcess']['payPalPlus']['relevantCalculationDataHash'] = $str_relevantCalculationDataHash;
 		}
 		
 		/*
@@ -346,20 +332,18 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 		 * is stored in the session, we compare the hash to the current hash and
 		 * if it differs, we reset the payment status and display a message.
 		 */
-		else if ($arrSessionlsShopPaymentProcess['payPalPlus']['relevantCalculationDataHash'] != $str_relevantCalculationDataHash) {
+		else if ($_SESSION['lsShopPaymentProcess']['payPalPlus']['relevantCalculationDataHash'] != $str_relevantCalculationDataHash) {
 			$this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['authorizationObsolete']);
 			$this->payPalPlus_resetSessionStatus();
 		}
 	}
 	
 	protected function payPalPlus_check_paymentIsAuthorized() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
 		return (
-				isset($arrSessionlsShopPaymentProcess['payPalPlus']['authorized'])
-			&&	$arrSessionlsShopPaymentProcess['payPalPlus']['authorized']
-			&&	$arrSessionlsShopPaymentProcess['payPalPlus']['paymentId']
-			&&	$arrSessionlsShopPaymentProcess['payPalPlus']['PayerID']
+				isset($_SESSION['lsShopPaymentProcess']['payPalPlus']['authorized'])
+			&&	$_SESSION['lsShopPaymentProcess']['payPalPlus']['authorized']
+			&&	$_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId']
+			&&	$_SESSION['lsShopPaymentProcess']['payPalPlus']['PayerID']
 		);
 	}
 	
@@ -558,28 +542,21 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 			$this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentNotAuthorized']);
 			$this->redirect($this->payPalPlus_arr_returnUrls['return'].'#checkoutStepPayment');
 		}
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-
-        $arrSessionlsShopPaymentProcess['payPalPlus']['authorized'] = true;
-        $arrSessionlsShopPaymentProcess['payPalPlus']['paymentId'] = Input::get('paymentId');
-        $arrSessionlsShopPaymentProcess['payPalPlus']['PayerID'] = Input::get('PayerID');
-
-        $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
+		
+		$_SESSION['lsShopPaymentProcess']['payPalPlus']['authorized'] = true;
+		$_SESSION['lsShopPaymentProcess']['payPalPlus']['paymentId'] = Input::get('paymentId');
+		$_SESSION['lsShopPaymentProcess']['payPalPlus']['PayerID'] = Input::get('PayerID');
 		
 		$this->redirect($this->payPalPlus_arr_returnUrls['return'].'#checkoutStepPayment');
 	}
 	
 	protected function payPalPlus_resetSessionStatus() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $arrSessionlsShopPaymentProcess =  $session->get('lsShopPaymentProcess', []);
-        $arrSessionlsShopPaymentProcess['payPalPlus'] = array(
+		$_SESSION['lsShopPaymentProcess']['payPalPlus'] = array(
 			'authorized' => false,
 			'paymentId' => null,
 			'PayerID' => null,
 			'relevantCalculationDataHash' => null
 		);
-        $session->set('lsShopPaymentProcess', $arrSessionlsShopPaymentProcess);
 	}
 	
 	protected function payPalPlus_getShippingFieldValue($str_fieldName) {

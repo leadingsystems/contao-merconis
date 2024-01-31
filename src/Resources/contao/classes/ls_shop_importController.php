@@ -50,29 +50,26 @@ class ls_shop_importController
 	 * and omits unnecessary information to prevent unnecessary traffic.
 	 * 
 	 * Important note: Although it seems to be much easier to just make
-	 * a duplicate of $session_lsShop['importFileInfo'] and then unset
+	 * a duplicate of $_SESSION['lsShop']['importFileInfo'] and then unset
 	 * the unnecessary information we don't go this way on purpose because
-	 * $session_lsShop['importFileInfo'] could hold a huge amount of data and therefore
+	 * $_SESSION['lsShop']['importFileInfo'] could hold a huge amount of data and therefore
 	 * it might cause problems with the memory limit if we duplicate the data
 	 * even if it's just for a short moment.
 	 */
 	public function getImportFileInfoMinimal() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
 		return array(
-			'hash' => $session_lsShop['importFileInfo']['hash'],
-			'name' => $session_lsShop['importFileInfo']['name'],
-			'fullFilename' => $session_lsShop['importFileInfo']['fullFilename'],
-			'date' => $session_lsShop['importFileInfo']['date'],
-			'size' => $session_lsShop['importFileInfo']['size'],
-			'status' => $session_lsShop['importFileInfo']['status'],
-			'numRecords' => $session_lsShop['importFileInfo']['numRecords'],
-			'numProcessedRecords' => $session_lsShop['importFileInfo']['numProcessedRecords'],
-			'changesStock' => $session_lsShop['importFileInfo']['changesStock'],
-			'deletesRecords' => $session_lsShop['importFileInfo']['deletesRecords'],
-			'currentlyProcessingDataRowType' => $session_lsShop['importFileInfo']['currentlyProcessingDataRowType'],
-			'recommendedProductsTranslated' => $session_lsShop['importFileInfo']['recommendedProductsTranslated']
+			'hash' => $_SESSION['lsShop']['importFileInfo']['hash'],
+			'name' => $_SESSION['lsShop']['importFileInfo']['name'],
+			'fullFilename' => $_SESSION['lsShop']['importFileInfo']['fullFilename'],
+			'date' => $_SESSION['lsShop']['importFileInfo']['date'],
+			'size' => $_SESSION['lsShop']['importFileInfo']['size'],
+			'status' => $_SESSION['lsShop']['importFileInfo']['status'],
+			'numRecords' => $_SESSION['lsShop']['importFileInfo']['numRecords'],
+			'numProcessedRecords' => $_SESSION['lsShop']['importFileInfo']['numProcessedRecords'],
+			'changesStock' => $_SESSION['lsShop']['importFileInfo']['changesStock'],
+			'deletesRecords' => $_SESSION['lsShop']['importFileInfo']['deletesRecords'],
+			'currentlyProcessingDataRowType' => $_SESSION['lsShop']['importFileInfo']['currentlyProcessingDataRowType'],
+			'recommendedProductsTranslated' => $_SESSION['lsShop']['importFileInfo']['recommendedProductsTranslated']
 		);
 	}
 	
@@ -87,9 +84,6 @@ class ls_shop_importController
 		if (!$GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']) {
 			return null;
 		}
-
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
 
 		$arrImportFileInfo = array(
 			'hash' => '',
@@ -135,12 +129,11 @@ class ls_shop_importController
         $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
 		$importFolder = $str_projectDir.'/'.ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImportFolder']);
 		$files = scandir($importFolder);
-
+		
 		// If exactly one file exists (which must be the case), $files counts 3 because of the pseudo files "." und ".."
 		if (count($files) != 3) {
 			$this->clearImportFolder();
-			unset($session_lsShop['importFileInfo']);
-            $session->set('lsShop', $session_lsShop);
+			unset($_SESSION['lsShop']['importFileInfo']);
 			return null;
 		}
 		
@@ -171,31 +164,25 @@ class ls_shop_importController
 		 * 
 		 * If there's file information in the session and the hash matches we don't do anything.
 		 */
-		if (!isset($session_lsShop['importFileInfo'])) {
-            $session_lsShop['importFileInfo'] = $arrImportFileInfo;
-		} else if ($session_lsShop['importFileInfo']['hash'] != $arrImportFileInfo['hash']) {
+		if (!isset($_SESSION['lsShop']['importFileInfo'])) {
+			$_SESSION['lsShop']['importFileInfo'] = $arrImportFileInfo;
+		} else if ($_SESSION['lsShop']['importFileInfo']['hash'] != $arrImportFileInfo['hash']) {
 			$arrImportFileInfo['status'] = 'fileChanged';
-            $session_lsShop['importFileInfo'] = $arrImportFileInfo;
+			$_SESSION['lsShop']['importFileInfo'] = $arrImportFileInfo;
 		}
-        $session->set('lsShop', $session_lsShop);
 	}
 
 	public function validateFile() {
 		$this->analyzeImportFile();
-
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
-		if ($session_lsShop['importFileInfo']['hasError']) {
-			foreach ($session_lsShop['importFileInfo']['arrMessages'] as $message) {
+		
+		if ($_SESSION['lsShop']['importFileInfo']['hasError']) {
+			foreach ($_SESSION['lsShop']['importFileInfo']['arrMessages'] as $message) {
                 System::getContainer()->get('monolog.logger.contao')->info('MERCONIS IMPORTER: '.$message, ['contao' => new ContaoContext('MERCONIS IMPORTER', TL_MERCONIS_IMPORTER)]);
 			}
-            $session_lsShop['importFileInfo']['status'] = 'notOk';
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['status'] = 'notOk';
 			return false;
 		} else {
-            $session_lsShop['importFileInfo']['status'] = 'ok';
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['status'] = 'ok';
 			return true;
 		}
 	}
@@ -206,20 +193,16 @@ class ls_shop_importController
 	 */
 	protected function analyzeImportFile() {
 		setlocale(LC_ALL, (isset($GLOBALS['TL_CONFIG']['ls_shop_importCsvLocale']) && $GLOBALS['TL_CONFIG']['ls_shop_importCsvLocale'] ? $GLOBALS['TL_CONFIG']['ls_shop_importCsvLocale'] : 'en_US.utf-8'));
-
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
+		
 		if (!$this->openImportFile()) {
-            $session_lsShop['importFileInfo']['hasError'] = true;
-            $session_lsShop['importFileInfo']['arrMessages'][] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText15'];
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['hasError'] = true;
+			$_SESSION['lsShop']['importFileInfo']['arrMessages'][] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText15'];
 			return;
 		}
 		
 		
 		while (($row = $this->getImportFileRow()) !== false) {
-			if ($this->bln_importFileHasRowForVersionAndSpecialChars && $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] == 1) {
+			if ($this->bln_importFileHasRowForVersionAndSpecialChars && $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] == 1) {
 				$importFileVersion = $row[0];
 				$testSpecialCharacters = $row[1];
 				
@@ -227,9 +210,8 @@ class ls_shop_importController
 				 * Prüfen, ob die Versionsnummer der Import-Datei erlaubt ist
 				 */
 				if (!in_array($importFileVersion, $this->allowedImportFileVersions)) {
-                    $session_lsShop['importFileInfo']['hasError'] = true;
-                    $session_lsShop['importFileInfo']['arrMessages'][] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText08'];
-                    $session->set('lsShop', $session_lsShop);
+					$_SESSION['lsShop']['importFileInfo']['hasError'] = true;
+					$_SESSION['lsShop']['importFileInfo']['arrMessages'][] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText08'];
 					return;
 				}
 				
@@ -245,20 +227,18 @@ class ls_shop_importController
 					||	!preg_match('/è/', $testSpecialCharacters)
 					||	!preg_match('/ê/', $testSpecialCharacters)
 				) {
-                    $session_lsShop['importFileInfo']['hasError'] = true;
-                    $session_lsShop['importFileInfo']['arrMessages'][] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText09'];
-                    $session->set('lsShop', $session_lsShop);
+					$_SESSION['lsShop']['importFileInfo']['hasError'] = true;
+					$_SESSION['lsShop']['importFileInfo']['arrMessages'][] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText09'];
 					return;
 				}
 				/* */
 
 				continue;
 			} else if (
-			    ($this->bln_importFileHasRowForVersionAndSpecialChars && $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] == 2)
-                || (!$this->bln_importFileHasRowForVersionAndSpecialChars && $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] == 1)
+			    ($this->bln_importFileHasRowForVersionAndSpecialChars && $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] == 2)
+                || (!$this->bln_importFileHasRowForVersionAndSpecialChars && $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] == 1)
             ) {
-                $session_lsShop['importFileInfo']['arrKeys'] = $row;
-                $session->set('lsShop', $session_lsShop);
+				$_SESSION['lsShop']['importFileInfo']['arrKeys'] = $row;
 				continue;
 			}
 			
@@ -274,9 +254,8 @@ class ls_shop_importController
 			 * null zurück.
 			 */
 			if ($row === null) {
-                $session_lsShop['importFileInfo']['hasError'] = true;
-                $session_lsShop['importFileInfo']['arrMessages'][] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText13'];
-                $session->set('lsShop', $session_lsShop);
+				$_SESSION['lsShop']['importFileInfo']['hasError'] = true;
+				$_SESSION['lsShop']['importFileInfo']['arrMessages'][] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText13'];
 				return;
 			}
 			
@@ -294,25 +273,24 @@ class ls_shop_importController
 			 */
 			
 			if ($row['changeStock']) {
-                $session_lsShop['importFileInfo']['changesStock'] = true;
+				$_SESSION['lsShop']['importFileInfo']['changesStock'] = true;
 			}
 			
 			if ($row['delete']) {
-                $session_lsShop['importFileInfo']['deletesRecords'] = true;
+				$_SESSION['lsShop']['importFileInfo']['deletesRecords'] = true;
 			}
 			
 			if ($row['type'] == 'product') {
-                $session_lsShop['importFileInfo']['arrAnalyzingInfo']['product_productcodes'][] = $row['productcode'];
-                $session_lsShop['importFileInfo']['numRecords']['products']++;
+				$_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['product_productcodes'][] = $row['productcode'];
+				$_SESSION['lsShop']['importFileInfo']['numRecords']['products']++;
 			} else if ($row['type'] == 'variant') {
-                $session_lsShop['importFileInfo']['arrAnalyzingInfo']['variant_productcodes'][] = $row['productcode'];
-                $session_lsShop['importFileInfo']['numRecords']['variants']++;
+				$_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['variant_productcodes'][] = $row['productcode'];
+				$_SESSION['lsShop']['importFileInfo']['numRecords']['variants']++;
 			} else if ($row['type'] == 'productLanguage') {
-                $session_lsShop['importFileInfo']['numRecords']['productLanguages']++;
+				$_SESSION['lsShop']['importFileInfo']['numRecords']['productLanguages']++;
 			} else if ($row['type'] == 'variantLanguage') {
-                $session_lsShop['importFileInfo']['numRecords']['variantLanguages']++;
+				$_SESSION['lsShop']['importFileInfo']['numRecords']['variantLanguages']++;
 			}
-            $session->set('lsShop', $session_lsShop);
 		}
 		
 		/*
@@ -368,8 +346,8 @@ class ls_shop_importController
 		$rowCounter = 0;
 		while (($row = $this->getImportFileRow()) !== false) {
 			if (
-                $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] == 1
-                || ($this->bln_importFileHasRowForVersionAndSpecialChars && $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] == 2)
+			    $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] == 1
+                || ($this->bln_importFileHasRowForVersionAndSpecialChars && $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] == 2)
             ) {
 				continue;
 			}
@@ -398,26 +376,21 @@ class ls_shop_importController
 					}
 					$strRowNumbers .= $rowNr;
 				}
-                $session_lsShop['importFileInfo']['hasError'] = true;
-                $session_lsShop['importFileInfo']['arrMessages'][] = sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'][$errorKey], $strRowNumbers);
-                $session->set('lsShop', $session_lsShop);
+				$_SESSION['lsShop']['importFileInfo']['hasError'] = true;
+				$_SESSION['lsShop']['importFileInfo']['arrMessages'][] = sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'][$errorKey], $strRowNumbers);
 			}
 		}
 	}
 	
 	public function importFile() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
-		if ($session_lsShop['importFileInfo']['status'] != 'ok') {
-            $session_lsShop['importFileInfo']['status'] = 'importFailed';
-            $session->set('lsShop', $session_lsShop);
+		if ($_SESSION['lsShop']['importFileInfo']['status'] != 'ok') {
+			$_SESSION['lsShop']['importFileInfo']['status'] = 'importFailed';
 			return;
 		}
 		
 		if (
-				!isset($session_lsShop['importFileInfo']['currentlyProcessingDataRowType'])
-			||	!$session_lsShop['importFileInfo']['currentlyProcessingDataRowType']
+				!isset($_SESSION['lsShop']['importFileInfo']['currentlyProcessingDataRowType'])
+			||	!$_SESSION['lsShop']['importFileInfo']['currentlyProcessingDataRowType']
 		) {
 			/*
 			 * If we don't know anything about the currently processing data row type,
@@ -425,9 +398,8 @@ class ls_shop_importController
 			 * at the beginning of the file
 			 */
 			reset($this->dataRowTypesInOrderToProcess);
-            $session_lsShop['importFileInfo']['currentlyProcessingDataRowType'] = $this->dataRowTypesInOrderToProcess[key($this->dataRowTypesInOrderToProcess)];
-            $session_lsShop['importFileInfo']['lastFilePointerPosition'] = 0;
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['currentlyProcessingDataRowType'] = $this->dataRowTypesInOrderToProcess[key($this->dataRowTypesInOrderToProcess)];
+			$_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'] = 0;
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_begin']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_begin'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['import_begin'] as $mccb) {
@@ -435,26 +407,25 @@ class ls_shop_importController
 					$objMccb->{$mccb[1]}();
 				}
 			}
-		} else if ($session_lsShop['importFileInfo']['lastFilePointerPosition'] === null) {
+		} else if ($_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'] === null) {
 			/*
 			 * If we know the currently processing data row type but the last file pointer position
 			 * is null, we jump to the next data row type and set the file pointer to the beginning
 			 * of the file
 			 */
-			$nextDataRowTypeKey = array_search($session_lsShop['importFileInfo']['currentlyProcessingDataRowType'], $this->dataRowTypesInOrderToProcess) + 1;
+			$nextDataRowTypeKey = array_search($_SESSION['lsShop']['importFileInfo']['currentlyProcessingDataRowType'], $this->dataRowTypesInOrderToProcess) + 1;
 			if (!isset($this->dataRowTypesInOrderToProcess[$nextDataRowTypeKey])) {
 				/*
 				 * If there is no next data row type and recommended products have already been translated, we are finished!
 				 */
-				if ($session_lsShop['importFileInfo']['recommendedProductsTranslated']) {
-                    $session_lsShop['importFileInfo']['status'] = 'importFinished';
-                    $session->set('lsShop', $session_lsShop);
+				if ($_SESSION['lsShop']['importFileInfo']['recommendedProductsTranslated']) {
+					$_SESSION['lsShop']['importFileInfo']['status'] = 'importFinished';
 					
 					/*
 					 * Adding this confirmation message might not be a good idea because it will be displayed when the page reloads which,
 					 * because of AJAX, might not be the case until it's too late and the message could be confusing.
 					 */
-					// $this->addConfirmationMessage(sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText07'], $session_lsShop['importFileInfo']['name']));
+					// $this->addConfirmationMessage(sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importText07'], $_SESSION['lsShop']['importFileInfo']['name']));
 			
 					/*
 					 * Not sure if it's a good idea to clear the import folder after the import.
@@ -470,18 +441,16 @@ class ls_shop_importController
 
 					ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
 				} else {
-					if (!$session_lsShop['importFileInfo']['recommendedProductsTranslated']) {
+					if (!$_SESSION['lsShop']['importFileInfo']['recommendedProductsTranslated']) {
 						ls_shop_productManagementApiHelper::translateRecommendedProductCodesInIDs();
-                        $session_lsShop['importFileInfo']['recommendedProductsTranslated'] = true;
-                        $session->set('lsShop', $session_lsShop);
+						$_SESSION['lsShop']['importFileInfo']['recommendedProductsTranslated'] = true;
 					}
 				}
 				
 				return;				
 			}
-            $session_lsShop['importFileInfo']['currentlyProcessingDataRowType'] = $this->dataRowTypesInOrderToProcess[$nextDataRowTypeKey];
-            $session_lsShop['importFileInfo']['lastFilePointerPosition'] = 0;
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['currentlyProcessingDataRowType'] = $this->dataRowTypesInOrderToProcess[$nextDataRowTypeKey];
+			$_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'] = 0;
 		}
 		
 		$this->openImportFile();
@@ -492,7 +461,7 @@ class ls_shop_importController
 		 */
 		$count = 0;
 		while (($row = $this->getImportFileRow()) !== false) {
-			if ($row['type'] != $session_lsShop['importFileInfo']['currentlyProcessingDataRowType']) {
+			if ($row['type'] != $_SESSION['lsShop']['importFileInfo']['currentlyProcessingDataRowType']) {
 				continue;
 			}
 			
@@ -500,37 +469,37 @@ class ls_shop_importController
 				case 'product':
 					$this->processProductData($row);
 					
-					if (!isset($session_lsShop['importFileInfo']['numProcessedRecords']['products'])) {
-                        $session_lsShop['importFileInfo']['numProcessedRecords']['products'] = 0;
+					if (!isset($_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['products'])) {
+						$_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['products'] = 0;
 					}
-                    $session_lsShop['importFileInfo']['numProcessedRecords']['products']++;
+					$_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['products']++;
 					break;
 
 				case 'variant':
 					$this->processVariantData($row);
 					
-					if (!isset($session_lsShop['importFileInfo']['numProcessedRecords']['variants'])) {
-                        $session_lsShop['importFileInfo']['numProcessedRecords']['variants'] = 0;
+					if (!isset($_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['variants'])) {
+						$_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['variants'] = 0;
 					}
-                    $session_lsShop['importFileInfo']['numProcessedRecords']['variants']++;
+					$_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['variants']++;
 					break;
 
 				case 'productLanguage':
 					$this->processProductLanguageData($row);
 					
-					if (!isset($session_lsShop['importFileInfo']['numProcessedRecords']['productLanguages'])) {
-                        $session_lsShop['importFileInfo']['numProcessedRecords']['productLanguages'] = 0;
+					if (!isset($_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['productLanguages'])) {
+						$_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['productLanguages'] = 0;
 					}
-                    $session_lsShop['importFileInfo']['numProcessedRecords']['productLanguages']++;
+					$_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['productLanguages']++;
 					break;
 
 				case 'variantLanguage':
 					$this->processVariantLanguageData($row);
 					
-					if (!isset($session_lsShop['importFileInfo']['numProcessedRecords']['variantLanguages'])) {
-                        $session_lsShop['importFileInfo']['numProcessedRecords']['variantLanguages'] = 0;
+					if (!isset($_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['variantLanguages'])) {
+						$_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['variantLanguages'] = 0;
 					}
-                    $session_lsShop['importFileInfo']['numProcessedRecords']['variantLanguages']++;
+					$_SESSION['lsShop']['importFileInfo']['numProcessedRecords']['variantLanguages']++;
 					break;
 			}
 			
@@ -539,7 +508,6 @@ class ls_shop_importController
 				break;
 			}
 		}
-        $session->set('lsShop', $session_lsShop);
 	}
 	
 	/*
@@ -553,16 +521,12 @@ class ls_shop_importController
 				$row = $objMccb->{$mccb[1]}($row);
 			}
 		}
-
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
 		
 		/*
 		 * Zu ignorierenden Datensatz überspringen und merken
 		 */
 		if ($row['ignore']) {
-            $session_lsShop['importFileInfo']['arrImportInfos']['productsToIgnore'][] = $row['productcode'];
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToIgnore'][] = $row['productcode'];
 			return true;
 		}
 		
@@ -578,16 +542,14 @@ class ls_shop_importController
 
 		if ($objProdExists->numRows) {
 			$alreadyExistsAsID = $objProdExists->id;
-            $session_lsShop['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['productcode']] = $alreadyExistsAsID;
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['productcode']] = $alreadyExistsAsID;
 		}
 		
 		/* ######################################################################################################################
 		 * Löschen, sofern gewünscht und Datensatz bereits vorhanden. Falls Datensatz nicht vorhanden, Funktion einfach abbrechen
 		 */
 		if ($row['delete']) {
-            $session_lsShop['importFileInfo']['arrImportInfos']['productsToDelete'][] = $row['productcode'];
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToDelete'][] = $row['productcode'];
 			if ($alreadyExistsAsID) {
 				Database::getInstance()->prepare("
 					DELETE FROM	`tl_ls_shop_product`
@@ -918,8 +880,7 @@ class ls_shop_importController
 			$objInsertProduct->execute($arr_queryParams);
 
 			$newProductID = $objInsertProduct->insertId;
-            $session_lsShop['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['productcode']] = $newProductID;
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['productcode']] = $newProductID;
 
 			ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable($row['propertiesAndValues'], $newProductID, 0);
 			
@@ -956,14 +917,11 @@ class ls_shop_importController
 	}
 
 	protected function processVariantData($row) {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
-		if (in_array($row['parentProductcode'], $session_lsShop['importFileInfo']['arrImportInfos']['productsToIgnore'])) {
+		if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToIgnore'])) {
 			$row['ignore'] = 'x';
 		}
 		
-		if (in_array($row['parentProductcode'], $session_lsShop['importFileInfo']['arrImportInfos']['productsToDelete'])) {
+		if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToDelete'])) {
 			$row['delete'] = 'x';
 		}
 		
@@ -975,8 +933,7 @@ class ls_shop_importController
 		}
 		
 		if ($row['ignore']) {
-            $session_lsShop['importFileInfo']['arrImportInfos']['variantsToIgnore'] = $row['productcode'];
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['variantsToIgnore'] = $row['productcode'];
 			return true;
 		}
 		
@@ -995,25 +952,23 @@ class ls_shop_importController
 		if ($objVariant->numRows) {
 			$objVariant->first();
 			$alreadyExistsAsID = $objVariant->id;
-            $session_lsShop['importFileInfo']['arrImportInfos']['variantsProductcodeToID'][$row['productcode']] = $alreadyExistsAsID;
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['variantsProductcodeToID'][$row['productcode']] = $alreadyExistsAsID;
+			
 			$parentProductID = $objVariant->pid;
 		}
 		
 		if (!$parentProductID) {
-			if (!isset($session_lsShop['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['parentProductcode']])) {
+			if (!isset($_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['parentProductcode']])) {
 				return false;
 			}
-			$parentProductID = $session_lsShop['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['parentProductcode']];
-            $session->set('lsShop', $session_lsShop);
+			$parentProductID = $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['parentProductcode']];
 		}
 		
 		/* ######################################################################################################################
 		 * Löschen, sofern gewünscht und Datensatz bereits vorhanden. Falls Datensatz nicht vorhanden, Funktion einfach abbrechen
 		 */
 		if ($row['delete']) {
-            $session_lsShop['importFileInfo']['arrImportInfos']['variantsToDelete'] = $row['productcode'];
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['variantsToDelete'] = $row['productcode'];
 			if ($alreadyExistsAsID) {
 				// Löschen der Varianten zum Produkt
 				$this->deleteVariant($alreadyExistsAsID);
@@ -1318,8 +1273,7 @@ class ls_shop_importController
 			$objInsertVariant->execute($arr_queryParams);
 			
 			$newVariantID = $objInsertVariant->insertId;
-            $session_lsShop['importFileInfo']['arrImportInfos']['variantsProductcodeToID'][$row['productcode']] = $newVariantID;
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['variantsProductcodeToID'][$row['productcode']] = $newVariantID;
 
 			ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable($row['propertiesAndValues'], $newVariantID, 1);
 			
@@ -1356,14 +1310,11 @@ class ls_shop_importController
 	}
 
 	protected function processProductLanguageData($row) {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
-		if (in_array($row['parentProductcode'], $session_lsShop['importFileInfo']['arrImportInfos']['productsToIgnore'])) {
+		if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToIgnore'])) {
 			$row['ignore'] = 'x';
 		}
 		
-		if (in_array($row['parentProductcode'], $session_lsShop['importFileInfo']['arrImportInfos']['productsToDelete'])) {
+		if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToDelete'])) {
 			$row['delete'] = 'x';
 		}
 		
@@ -1381,10 +1332,10 @@ class ls_shop_importController
 		/*
 		 * ID des übergeordneten Datensatzes ermitteln
 		 */
-		if (!isset($session_lsShop['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['parentProductcode']])) {
+		if (!isset($_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['parentProductcode']])) {
 			return false;
 		}
-		$parentProductID = $session_lsShop['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['parentProductcode']];
+		$parentProductID = $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['parentProductcode']];
 		
 		if ($row['delete']) {
 			ls_shop_languageHelper::deleteEntry($parentProductID, 'tl_ls_shop_product_languages', array($row['language']));
@@ -1421,14 +1372,11 @@ class ls_shop_importController
 	}
 
 	protected function processVariantLanguageData($row) {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
-		if (in_array($row['parentProductcode'], $session_lsShop['importFileInfo']['arrImportInfos']['variantsToIgnore'])) {
+		if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['variantsToIgnore'])) {
 			$row['ignore'] = 'x';
 		}
 		
-		if (in_array($row['parentProductcode'], $session_lsShop['importFileInfo']['arrImportInfos']['variantsToDelete'])) {
+		if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['variantsToDelete'])) {
 			$row['delete'] = 'x';
 		}
 		
@@ -1446,10 +1394,10 @@ class ls_shop_importController
 		/*
 		 * ID des übergeordneten Datensatzes ermitteln
 		 */
-		if (!isset($session_lsShop['importFileInfo']['arrImportInfos']['variantsProductcodeToID'][$row['parentProductcode']])) {
+		if (!isset($_SESSION['lsShop']['importFileInfo']['arrImportInfos']['variantsProductcodeToID'][$row['parentProductcode']])) {
 			return false;
 		}
-		$parentProductID = $session_lsShop['importFileInfo']['arrImportInfos']['variantsProductcodeToID'][$row['parentProductcode']];
+		$parentProductID = $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['variantsProductcodeToID'][$row['parentProductcode']];
 		
 		if ($row['delete']) {
 			ls_shop_languageHelper::deleteEntry($parentProductID, 'tl_ls_shop_variant_languages', array($row['language']));
@@ -1486,11 +1434,8 @@ class ls_shop_importController
 	}
 
 	protected function openImportFile() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
 		$this->importFileHandle = null;
-		if (($handle = fopen($session_lsShop['importFileInfo']['fullFilename'], "rb")) !== FALSE) {
+		if (($handle = fopen($_SESSION['lsShop']['importFileInfo']['fullFilename'], "rb")) !== FALSE) {
 			$this->importFileHandle = $handle;
 			return true;
 		}
@@ -1504,14 +1449,11 @@ class ls_shop_importController
 	}
 	
 	protected function getImportFileRow() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
-		if (!isset($session_lsShop['importFileInfo']['lastFilePointerPosition'])) {
-            $session_lsShop['importFileInfo']['lastFilePointerPosition'] = null;
+		if (!isset($_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'])) {
+			$_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'] = null;
 		}
-		if ($session_lsShop['importFileInfo']['lastFilePointerPosition'] !== null) {
-			fseek($this->importFileHandle, $session_lsShop['importFileInfo']['lastFilePointerPosition'], SEEK_SET );
+		if ($_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'] !== null) {
+			fseek($this->importFileHandle, $_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'], SEEK_SET );
 		}
 		$row = fgetcsv(
 			$this->importFileHandle,
@@ -1520,35 +1462,33 @@ class ls_shop_importController
 			(isset($GLOBALS['TL_CONFIG']['ls_shop_importCsvEnclosure']) && $GLOBALS['TL_CONFIG']['ls_shop_importCsvEnclosure'] ? $GLOBALS['TL_CONFIG']['ls_shop_importCsvEnclosure'] : '"'),
 			(isset($GLOBALS['TL_CONFIG']['ls_shop_importCsvEscape']) && $GLOBALS['TL_CONFIG']['ls_shop_importCsvEscape'] ? $GLOBALS['TL_CONFIG']['ls_shop_importCsvEscape'] : '\\')
 		);
-        $session_lsShop['importFileInfo']['lastFilePointerPosition'] = ftell($this->importFileHandle);
+		$_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'] = ftell($this->importFileHandle);
 
 		if ($row === false) {
 			rewind($this->importFileHandle);
-            $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] = 0;
-            $session_lsShop['importFileInfo']['lastFilePointerPosition'] = null;
-            $session->set('lsShop', $session_lsShop);
+			$_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] = 0;
+			$_SESSION['lsShop']['importFileInfo']['lastFilePointerPosition'] = null;
 			return false;
 		}
 
-		if (!isset($session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'])) {
-            $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] = 0;
+		if (!isset($_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'])) {
+            $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] = 0;
         }
 
-        $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow']++;
+		$_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow']++;
 
-		if ($session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] == 1) {
+		if ($_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] == 1) {
 			$row[0] = $this->rmBOM($row[0]);
 		} else if (
-		    ($this->bln_importFileHasRowForVersionAndSpecialChars && $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] >= 3)
-            || (!$this->bln_importFileHasRowForVersionAndSpecialChars && $session_lsShop['importFileInfo']['intCurrentlyReadImportFileRow'] >= 2)
+		    ($this->bln_importFileHasRowForVersionAndSpecialChars && $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] >= 3)
+            || (!$this->bln_importFileHasRowForVersionAndSpecialChars && $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] >= 2)
         ) {
-			if (count($session_lsShop['importFileInfo']['arrKeys']) == count($row)) {
-				$row = array_combine($session_lsShop['importFileInfo']['arrKeys'], $row);
+			if (count($_SESSION['lsShop']['importFileInfo']['arrKeys']) == count($row)) {
+				$row = array_combine($_SESSION['lsShop']['importFileInfo']['arrKeys'], $row);
 			} else {
 				$row = null;
 			}
 		}
-        $session->set('lsShop', $session_lsShop);
 		return $row;
 	}
 
@@ -1574,9 +1514,6 @@ class ls_shop_importController
 		if (!$checkFor || !is_array($row) || !count($row)) {
 			throw new \Exception('insufficient parameters given');
 		}
-
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
 		
 		switch ($checkFor) {
 			case 'notExistingDataType':
@@ -1622,7 +1559,7 @@ class ls_shop_importController
 				if ($row['type'] != 'variant') {
 					break;
 				}
-				if (!in_array($row['parentProductcode'], $session_lsShop['importFileInfo']['arrAnalyzingInfo']['product_productcodes'])) {
+				if (!in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['product_productcodes'])) {
 					return true;
 				}
 				break;
@@ -1631,7 +1568,7 @@ class ls_shop_importController
 				if ($row['type'] != 'variantLanguage') {
 					break;
 				}
-				if (!in_array($row['parentProductcode'], $session_lsShop['importFileInfo']['arrAnalyzingInfo']['variant_productcodes'])) {
+				if (!in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['variant_productcodes'])) {
 					return true;
 				}
 				break;
@@ -1640,7 +1577,7 @@ class ls_shop_importController
 				if ($row['type'] != 'productLanguage') {
 					break;
 				}
-				if (!in_array($row['parentProductcode'], $session_lsShop['importFileInfo']['arrAnalyzingInfo']['product_productcodes'])) {
+				if (!in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['product_productcodes'])) {
 					return true;
 				}
 				break;
@@ -1854,7 +1791,7 @@ class ls_shop_importController
 
 			case 'missingFlexContentFields':
 				foreach (ls_shop_productManagementApiHelper::getImportFlexFieldKeys() as $importField) {
-					if (!in_array($importField, $session_lsShop['importFileInfo']['arrKeys'])) {
+					if (!in_array($importField, $_SESSION['lsShop']['importFileInfo']['arrKeys'])) {
 						return true;
 					}
 				}
@@ -1862,7 +1799,7 @@ class ls_shop_importController
 
 			case 'missingFlexContentFieldsLanguageIndependent':
 				foreach (ls_shop_productManagementApiHelper::getImportFlexFieldKeysLanguageIndependent() as $importField) {
-					if (!in_array($importField, $session_lsShop['importFileInfo']['arrKeys'])) {
+					if (!in_array($importField, $_SESSION['lsShop']['importFileInfo']['arrKeys'])) {
 						return true;
 					}
 				}

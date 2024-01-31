@@ -305,16 +305,13 @@ class ls_shop_cross_seller
     }
 
     protected function ls_getFrontendSearchSelection() {
-
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
         /*
          * Erstellung des Suchkriterien-Arrays für productSearcher
          */
         $arrSearchCriteria = array(
             'published' => '1',
-            'fulltext' => $session_lsShop['productSearch']['searchWord'],
-            'searchType' => $session_lsShop['productSearch']['searchType'],
+            'fulltext' => $_SESSION['lsShop']['productSearch']['searchWord'],
+            'searchType' => $_SESSION['lsShop']['productSearch']['searchType'],
         );
         /*
          * Ende Erstellung des Suchkriterien-Arrays für productSearcher
@@ -372,10 +369,7 @@ class ls_shop_cross_seller
     }
 
     protected function ls_getLastSeenSelection() {
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop', []);
-
-        $lastSeenProducts = isset($session_lsShop['lastSeenProducts']) && is_array($session_lsShop['lastSeenProducts']) ? $session_lsShop['lastSeenProducts'] : array();
+        $lastSeenProducts = isset($_SESSION['lsShop']['lastSeenProducts']) && is_array($_SESSION['lsShop']['lastSeenProducts']) ? $_SESSION['lsShop']['lastSeenProducts'] : array();
         $lastSeenProducts = ls_shop_generalHelper::ls_array_unique($lastSeenProducts);
         return $lastSeenProducts;
     }

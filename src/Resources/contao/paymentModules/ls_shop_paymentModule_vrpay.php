@@ -2,11 +2,10 @@
 
 namespace Merconis\Core;
 
-use Contao\Environment;
+	use Contao\Environment;
 use Contao\Input;
 use Contao\PageModel;
 use Contao\StringUtil;
-use Contao\System;
 
 class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 		public $arrCurrentSettings = array();
@@ -318,10 +317,7 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 					$this->update_paymentMethod_moduleReturnData_inOrder($arr_order['id'], $arr_moduleReturnData);
 					$this->update_fieldValue_inOrder($arr_order['id'], 'vrpay_currentStatus', 'ABORTED');
 
-                    $session = System::getContainer()->get('merconis.session')->getSession();
-                    $session_lsShop =  $session->get('lsShop', []);
-                    $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
-                    $session->set('lsShop', $session_lsShop);
+					$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
 
 					/*
 					 * redirect in order to get rid of the "aborted" value for
@@ -360,17 +356,11 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 
 						switch ($arr_resultCodeGroupInfo['groupStatus']) {
 							case 'SUCCESS':
-                                $session = System::getContainer()->get('merconis.session')->getSession();
-                                $session_lsShop =  $session->get('lsShop', []);
-                                $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentSuccessAfterFinishedOrder'];
-                                $session->set('lsShop', $session_lsShop);
+								$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentSuccessAfterFinishedOrder'];
 								break;
 
 							default:
-                                $session = System::getContainer()->get('merconis.session')->getSession();
-                                $session_lsShop =  $session->get('lsShop', []);
-                                $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
-                                $session->set('lsShop', $session_lsShop);
+								$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
 								break;
 						}
 
