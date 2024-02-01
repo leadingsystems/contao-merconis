@@ -469,6 +469,10 @@ class ls_shop_productSearcher
     }
 
     protected function ls_performSearch() {
+
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
         /*
          * Set the current cache key because if ls_performSearch() is being executed, all
          * settings affecting the results have been set completely
@@ -1690,7 +1694,7 @@ class ls_shop_productSearcher
 
 //TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
                     $refCurrentProductRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
-                    $refCurrentProductRow['flex_contents'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents'])), 2, 1);
+                    $refCurrentProductRow['flex_contents_'.$str_currentLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents_'.$str_currentLanguage])), 2, 1);
 
                     $refCurrentProductRow['variants'] = array();
 
@@ -1807,7 +1811,7 @@ class ls_shop_productSearcher
 
 //TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
                     $refCurrentVariantRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
-                    $refCurrentVariantRow['flex_contents'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents'])), 2, 1);
+                    $refCurrentVariantRow['flex_contents_'.$str_currentLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents_'.$str_currentLanguage])), 2, 1);
 
                     /*
                      * Get the variant's price

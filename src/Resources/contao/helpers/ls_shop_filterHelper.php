@@ -1019,6 +1019,10 @@ class ls_shop_filterHelper {
 	}
 
 	public static function setCriteriaToUseInFilterForm($arrProductsComplete = array()) {
+
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		if (!isset($GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'])) {
 			$GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'] = true;
 		}
@@ -1046,7 +1050,9 @@ class ls_shop_filterHelper {
 			}
 //TODO: hier intensiv prüfen,
 //bei arrProduct ist im "flex_contents_de" was hinterlegt, in "flex_contents" NICHT.
-			foreach ($arrProduct['flex_contents'] as $str_flexContentLDKey => $str_flexContentLDValue) {
+            foreach ($arrProduct['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
+            #foreach ($arrProduct['flex_contents_de'] as $str_flexContentLDKey => $str_flexContentLDValue) {
+			#foreach ($arrProduct['flex_contents'] as $str_flexContentLDKey => $str_flexContentLDValue) {
 				ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
 			}
 			foreach ($arrProduct['variants'] as $arrVariant) {
@@ -1056,7 +1062,11 @@ class ls_shop_filterHelper {
                 foreach ($arrVariant['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
                     ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
                 }
-                foreach ($arrVariant['flex_contentsLanguageIndependent'] as $str_flexContentLDKey => $str_flexContentLDValue) {
+                foreach ($arrVariant['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
+
+                #foreach ($arrVariant['flex_contents_de'] as $str_flexContentLDKey => $str_flexContentLDValue) {
+                #foreach ($arrVariant['flex_contents'] as $str_flexContentLDKey => $str_flexContentLDValue) {
+                #foreach ($arrVariant['flex_contentsLanguageIndependent'] as $str_flexContentLDKey => $str_flexContentLDValue) {
                     ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
                 }
 			}
