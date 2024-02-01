@@ -4,16 +4,21 @@ namespace Merconis\Core;
 
 use Contao\Controller;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\CoreBundle\Routing\Page\PageRoute;
+use Contao\CoreBundle\Util\LocaleUtil;
 use Contao\Database;
 use Contao\Date;
+use Contao\Environment;
 use Contao\Input;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
+use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 
 class ls_shop_customInserttags
 {
-	public function customInserttags($strTag, $blnCache, $var_cache, $flags, $tags, &$arrCache, &$_rit, &$_cnt) {
+    //TODO: $arrCache is not called by reference anymore because: Merconis\Core\ls_shop_customInserttags::customInserttags(): Argument #6 ($arrCache) cannot be passed by reference
+	public function customInserttags($strTag, $blnCache, $var_cache, $flags, $tags, $arrCache, &$_rit, &$_cnt) {
 		/** @var PageModel $objPage */
 		global $objPage;
 		if (!preg_match('/^shop([^:]*)(::(.*))?$/', $strTag, $matches)) {
@@ -293,11 +298,11 @@ class ls_shop_customInserttags
 				break;
 
 			case 'CategoryLink':
-				return Controller::generateFrontendUrl($objPage->row());
+				return self::generateFrontendUrl($objPage->row());
 				break;
 
 			case 'CategoryLinkOrSearchResult':
-				return Input::get('calledBy') == 'searchResult' ? ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages') : Controller::generateFrontendUrl($objPage->row());
+				return Input::get('calledBy') == 'searchResult' ? ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages') : self::generateFrontendUrl($objPage->row());
 				break;
 
             case 'Picture':
@@ -358,7 +363,8 @@ class ls_shop_customInserttags
                 $objProductOutput = new ls_shop_productOutput($str_productVariantId, 'overview', $str_templateToUse);
                 $str_productOutput = $objProductOutput->parseOutput();
 
-                return Controller::replaceInsertTags($str_productOutput);
+                $parser = System::getContainer()->get('contao.insert_tag.parser');
+                return $parser->replace((string) $str_productOutput);
                 break;
 
             case 'ProductProperty':
@@ -431,5 +437,77 @@ class ls_shop_customInserttags
             $str_productVariantId = ls_shop_generalHelper::getProductIdForVariantId($int_variantId).'-'.$int_variantId;
         }
         return $str_productVariantId;
+    }
+
+
+
+    public static function generateFrontendUrl(array $arrRow, $strParams=null, $strForceLang=null, $blnFixDomain=false)
+    {
+        trigger_deprecation('contao/core-bundle', '4.2', 'Using "Contao\Controller::generateFrontendUrl()" has been deprecated and will no longer work in Contao 5.0. Use PageModel::getFrontendUrl() instead.');
+
+        $page = new PageModel();
+        $page->preventSaving(false);
+        $page->setRow($arrRow);
+
+        if (!isset($arrRow['rootId']))
+        {
+            $page->loadDetails();
+
+            foreach (array('domain', 'rootLanguage', 'rootUseSSL') as $key)
+            {
+                if (isset($arrRow[$key]))
+                {
+                    $page->$key = $arrRow[$key];
+                }
+                else
+                {
+                    $arrRow[$key] = $page->$key;
+                }
+            }
+        }
+
+        // Set the language
+        if ($strForceLang !== null)
+        {
+            $strForceLang = LocaleUtil::formatAsLocale($strForceLang);
+
+            $page->language = $strForceLang;
+            $page->rootLanguage = $strForceLang;
+
+            if (System::getContainer()->getParameter('contao.legacy_routing'))
+            {
+                $page->urlPrefix = System::getContainer()->getParameter('contao.prepend_locale') ? $strForceLang : '';
+            }
+        }
+
+        // Add the domain if it differs from the current one (see #3765 and #6927)
+        if ($blnFixDomain)
+        {
+            $page->domain = $arrRow['domain'];
+            $page->rootUseSSL = (bool) $arrRow['rootUseSSL'];
+        }
+
+        $objRouter = System::getContainer()->get('router');
+        $strUrl = $objRouter->generate(PageRoute::PAGE_BASED_ROUTE_NAME, array(RouteObjectInterface::CONTENT_OBJECT => $page, 'parameters' => $strParams));
+
+        // Remove path from absolute URLs
+        if (0 === strncmp($strUrl, '/', 1) && 0 !== strncmp($strUrl, '//', 2))
+        {
+            $strUrl = substr($strUrl, \strlen(Environment::get('path')) + 1);
+        }
+
+        // Decode sprintf placeholders
+        if (strpos($strParams, '%') !== false)
+        {
+            $arrMatches = array();
+            preg_match_all('/%([sducoxXbgGeEfF])/', $strParams, $arrMatches);
+
+            foreach (array_unique($arrMatches[1]) as $v)
+            {
+                $strUrl = str_replace('%25' . $v, '%' . $v, $strUrl);
+            }
+        }
+
+        return $strUrl;
     }
 }
