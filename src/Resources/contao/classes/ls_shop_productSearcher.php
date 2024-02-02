@@ -1428,220 +1428,243 @@ class ls_shop_productSearcher
          * the filter because it is only required if we request attribute
          * allocations
          */
-//        $objProductsComplete = Database::getInstance()->prepare("
-//			SELECT			".$fieldSelectionPart."
-//							".($addToSelectStatement ?? '')."
-//			FROM			`tl_ls_shop_product`
-//		".($this->blnUseFilter ? "
-//			LEFT JOIN		`tl_ls_shop_attribute_allocation`
-//				ON			`tl_ls_shop_product`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
-//				AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '0'
-//		" : "")."
-//			WHERE			".$searchCondition."
-//			".$orderStatement."
-//		");
-//
-//        if (is_array($this->arrLimit) && isset($this->arrLimit['rows']) && isset($this->arrLimit['offset']) && $this->arrLimit['rows'] > 0) {
-//            $objProductsComplete = $objProductsComplete->limit($this->arrLimit['rows'], $this->arrLimit['offset']);
-//        }
-//
-//        $objProductsComplete = $objProductsComplete->execute($searchConditionValues);
-//
-//        /*
-//         * If we use the filter or the special price sorting or maybe for some other reasons,
-//         * we requested more than just the id field, and those other
-//         * fields will be used in the filter checks. However, the productSearcher must still
-//         * only return the fields that have been requested originally on instantiation of
-//         * the productSearcher object. Therefore we restore the original requestFields using
-//         * the temporary variable we assigned previously.
-//         */
-//        $this->arrRequestFields = $tmpRequestFields;
-//
-//        $arrProductsComplete = $objProductsComplete->fetchAllAssoc();
-//
-//                    if ($this->bln_searchWeighting_debug) {
-//
-//                        $searchDebug = &$GLOBALS['merconis_globals']['searchDebug'];
-//
-//                        $GLOBALS['merconis_globals']['searchDebug'] = [];
-//
-//                        for ($i = 0; $i < count($arrProductsComplete); $i++) {
-//                            if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
-//
-//                                $priority = 0;
-//                                $factor = 0;
-//
-//                                //fulltext Like
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["title"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')];
-//                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["keywords"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')];
-//                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["shortDescription"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')];
-//                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["description"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')];
-//                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["lsShopProductCode"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
-//                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["lsShopProductProducer"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
-//                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')]);
-//
-//                                //fulltext genau gleich
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["title"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')];
-//                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["keywords"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')];
-//                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["shortDescription"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')];
-//                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["description"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')];
-//                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["lsShopProductCode"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
-//                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')]);
-//
-//                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["lsShopProductProducer"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
-//                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
-//                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')]);
-//
-//
-//                                foreach ($arrCriterionValues as $criterionValue) {
-//
-//                                    $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
-//                                    $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
-//
-//                                    if ($this->blnUsePriority()) {
-//
-//                                        if($searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue] == null) {
-//
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["title"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["title"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
-//
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["keywords"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["keywords"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
-//
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["shortDescription"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["shortDescription"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
-//
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["description"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["description"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
-//
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductCode"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductCode"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
-//
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductProducer"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductProducer"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
-//                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
-//
-//
-//                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["doesWordExistOneTime"] = $arrProductsComplete[$i]["priority_" . $criterionValue];
-//
-//
-//
-//                                            if($arrProductsComplete[$i]["priority_" . $criterionValue] == 1){
-//                                                $factor++;
-//                                            }
-//
-//                                        }else{
-//                                            //unset for dupicate Products in array, happens if produkt has variants
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
-//                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
-//
-//                                        }
-//
-//
-//                                    }
-//                                    $arrProductsComplete[$i]["wordCount"] += $arrProductsComplete[$i]["priority_" . $criterionValue];
-//                                    unset($arrProductsComplete[$i]["priority_" . $criterionValue]);
-//
-//                                }
-//                                $priority = $priority*$factor;
-//                                $arrProductsComplete[$i]["priority"] = $priority;
-//
-//                            }
-//                        }
-//
-//                    }
-//
-//                    //count different words
-//                    $arr = [];
-//                    if (is_array($arrCriterionValues ?? null)) {
-//                        foreach ($arrCriterionValues as $criterionValue) {
-//                            $arr[$criterionValue] = 0;
-//                        }
-//                    }
-//                    $maxWordCount = count($arr);
-//
-//                    //remove all Products with a wordCount lower than the highest wordCount if $bln_AndSearch is true
-//                    //if $bln_AndSearch = false just multiple wordCount*Prio without removing
-//                    $anzahl = count($arrProductsComplete);
-//                    for ($i = 0; $i < $anzahl; $i++) {
-//
-//                        // if bln_AndSearch remove all that dont match all words
-//                        if($this->bln_andSearch == "And-Search"){
-//                            if(($arrProductsComplete[$i]["wordCount"] ?? null) != $maxWordCount) {
-//
-//                                unset($arrProductsComplete[$i]);
-//                            }
-//                        }
-//                        //calculate priority if it is a priority search
-//                        if ($this->blnUsePriority()) {
-//                            if($arrProductsComplete[$i]) {
-//                                $arrProductsComplete[$i]["priority"] = $arrProductsComplete[$i]["priority"] * $arrProductsComplete[$i]["wordCount"];
-//                            }
-//                        }
-//                        unset($arrProductsComplete[$i]["wordCount"]);
-//                    }
+/*
+        $searchCondition = "(
+
+                        `useGroupRestrictions` != '1'
+
+                        OR `allowedGroups` LIKE '%\"1\"%'
+
+                    )
+
+AND IFNULL(`tl_ls_shop_product`.`title_de`, '') LIKE \"%%\"
+
+AND `tl_ls_shop_product`.`published` LIKE 1
+
+AND 
+
+(`tl_ls_shop_product`.`pages` LIKE '%%\"46\"%')
+";*/
+
+        $objProductsComplete = Database::getInstance()->prepare("
+			SELECT			".$fieldSelectionPart."
+							".($addToSelectStatement ?? '')."
+			FROM			`tl_ls_shop_product`
+		".($this->blnUseFilter ? "
+			LEFT JOIN		`tl_ls_shop_attribute_allocation`
+				ON			`tl_ls_shop_product`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
+				AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '0'
+		" : "")."
+			WHERE			".$searchCondition."
+			".$orderStatement."
+		");
+
+        if (is_array($this->arrLimit) && isset($this->arrLimit['rows']) && isset($this->arrLimit['offset']) && $this->arrLimit['rows'] > 0) {
+            $objProductsComplete = $objProductsComplete->limit($this->arrLimit['rows'], $this->arrLimit['offset']);
+        }
+
+        dump($objProductsComplete);
+        dump($searchConditionValues);
+
+        $objProductsComplete = $objProductsComplete->execute(...$searchConditionValues);
+
+        dump($objProductsComplete->query);
+
+        /*
+         * If we use the filter or the special price sorting or maybe for some other reasons,
+         * we requested more than just the id field, and those other
+         * fields will be used in the filter checks. However, the productSearcher must still
+         * only return the fields that have been requested originally on instantiation of
+         * the productSearcher object. Therefore we restore the original requestFields using
+         * the temporary variable we assigned previously.
+         */
+        $this->arrRequestFields = $tmpRequestFields;
+
+        $arrProductsComplete = $objProductsComplete->fetchAllAssoc();
+
+                    if ($this->bln_searchWeighting_debug) {
+
+                        $searchDebug = &$GLOBALS['merconis_globals']['searchDebug'];
+
+                        $GLOBALS['merconis_globals']['searchDebug'] = [];
+
+                        for ($i = 0; $i < count($arrProductsComplete); $i++) {
+                            if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
+
+                                $priority = 0;
+                                $factor = 0;
+
+                                //fulltext Like
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["title"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')];
+                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["keywords"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')];
+                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["shortDescription"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')];
+                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["description"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')];
+                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["lsShopProductCode"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
+                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["lsShopProductProducer"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
+                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')]);
+
+                                //fulltext genau gleich
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["title"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')];
+                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["keywords"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')];
+                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["shortDescription"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')];
+                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["description"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')];
+                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["lsShopProductCode"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
+                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')]);
+
+                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["lsShopProductProducer"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
+                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
+                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')]);
+
+
+                                foreach ($arrCriterionValues as $criterionValue) {
+
+                                    $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
+                                    $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
+
+                                    if ($this->blnUsePriority()) {
+
+                                        if($searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue] == null) {
+
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["title"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["title"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
+
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["keywords"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["keywords"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
+
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["shortDescription"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["shortDescription"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
+
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["description"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["description"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
+
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductCode"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductCode"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
+
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductProducer"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductProducer"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
+                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
+
+
+                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["doesWordExistOneTime"] = $arrProductsComplete[$i]["priority_" . $criterionValue];
+
+
+
+                                            if($arrProductsComplete[$i]["priority_" . $criterionValue] == 1){
+                                                $factor++;
+                                            }
+
+                                        }else{
+                                            //unset for dupicate Products in array, happens if produkt has variants
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
+                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
+
+                                        }
+
+
+                                    }
+                                    $arrProductsComplete[$i]["wordCount"] += $arrProductsComplete[$i]["priority_" . $criterionValue];
+                                    unset($arrProductsComplete[$i]["priority_" . $criterionValue]);
+
+                                }
+                                $priority = $priority*$factor;
+                                $arrProductsComplete[$i]["priority"] = $priority;
+
+                            }
+                        }
+
+                    }
+
+                    //count different words
+                    $arr = [];
+                    if (is_array($arrCriterionValues ?? null)) {
+                        foreach ($arrCriterionValues as $criterionValue) {
+                            $arr[$criterionValue] = 0;
+                        }
+                    }
+                    $maxWordCount = count($arr);
+
+                    //remove all Products with a wordCount lower than the highest wordCount if $bln_AndSearch is true
+                    //if $bln_AndSearch = false just multiple wordCount*Prio without removing
+                    $anzahl = count($arrProductsComplete);
+                    for ($i = 0; $i < $anzahl; $i++) {
+
+                        // if bln_AndSearch remove all that dont match all words
+                        if($this->bln_andSearch == "And-Search"){
+                            if(($arrProductsComplete[$i]["wordCount"] ?? null) != $maxWordCount) {
+
+                                unset($arrProductsComplete[$i]);
+                            }
+                        }
+                        //calculate priority if it is a priority search
+                        if ($this->blnUsePriority()) {
+                            if($arrProductsComplete[$i]) {
+                                $arrProductsComplete[$i]["priority"] = $arrProductsComplete[$i]["priority"] * $arrProductsComplete[$i]["wordCount"];
+                            }
+                        }
+                        unset($arrProductsComplete[$i]["wordCount"]);
+                    }
 
         $arrProductsComplete = [];
 
