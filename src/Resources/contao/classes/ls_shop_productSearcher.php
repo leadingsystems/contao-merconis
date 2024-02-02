@@ -380,6 +380,13 @@ class ls_shop_productSearcher
         return \Database::getInstance()->fieldExists('title_'.$searchLanguage, 'tl_ls_shop_product');
     }
 
+    protected function checkIfLanguageFieldsExistInTable($searchLanguage, $table = 'tl_ls_shop_variant') {
+        /*
+         * Same functionality as in ´checkIfLanguageFieldsExist´, only with table name as parameter
+         */
+        return \Database::getInstance()->fieldExists('title_'.$searchLanguage, $table);
+    }
+
     protected function getQualifiedFieldName($fieldName) {
         $searchLanguage = $this->searchLanguage;
 
@@ -454,6 +461,46 @@ class ls_shop_productSearcher
         }
     }
 
+    /*
+     * Since the two existing functions refer to the product table, this should refer to the specified table
+     */
+    protected function getQualifiedFieldNameTable($fieldName, $table = 'tl_ls_shop_variant') {
+        $searchLanguage = $this->searchLanguage;
+
+        /*
+         * If fields for the requested language don't exist, no specific search language should
+         * be used which means that the non language specific main field would be used for the search.
+         */
+        if (!$this->checkIfLanguageFieldsExistInTable($searchLanguage, $table)) {
+            $searchLanguage = null;
+        }
+
+
+        switch($fieldName) {
+            case 'title':
+            case 'keywords':
+            case 'shortDescription':
+            case 'description':
+            case 'lsShopProductQuantityUnit':
+            case 'lsShopProductMengenvergleichUnit':
+            case 'flex_contents':
+                return "`".$table."`.`".$fieldName.($searchLanguage ? "_".$searchLanguage : "")."`";
+                break;
+
+            case 'priority':
+                return "`".$fieldName."`";
+                break;
+
+            case 'attributeID':
+            case 'attributeValueID':
+                return "`tl_ls_shop_attribute_allocation`.`".$fieldName."`";
+
+            default:
+                return "`".$table."`.`".$fieldName."`";
+                break;
+        }
+    }
+
     protected function checkIfValidCriteriaGiven() {
         $blnValid = true;
 
@@ -470,8 +517,11 @@ class ls_shop_productSearcher
 
     protected function ls_performSearch() {
 
-        global $objPage;
-        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+//TODO: bei nächster Besprechung abklären, ob $this->searchLanguage wirklich benutzt werden darf
+        #global $objPage;
+        #$str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+        $searchLanguage = $this->searchLanguage;
+
 
         /*
          * Set the current cache key because if ls_performSearch() is being executed, all
@@ -1692,9 +1742,8 @@ class ls_shop_productSearcher
                     $refCurrentProductRow['attributeValueIDs'] = array();
                     $refCurrentProductRow['attributeAndValueIDs'] = array();
 
-//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
                     $refCurrentProductRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
-                    $refCurrentProductRow['flex_contents_'.$str_currentLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents_'.$str_currentLanguage])), 2, 1);
+                    $refCurrentProductRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents_'.$searchLanguage])), 2, 1);
 
                     $refCurrentProductRow['variants'] = array();
 
@@ -1736,6 +1785,75 @@ class ls_shop_productSearcher
              * Get all variants for the products from the database
              */
 //TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
+
+
+
+            //wir brauchen diesselbe Logik wie beim Produkt
+            $arrRequestFieldsVariant = [
+                    ['tl_ls_shop_variant','id'],
+                    ['tl_ls_shop_variant','pid'],
+                    ['tl_ls_shop_variant','lsShopVariantPrice'],
+                    ['tl_ls_shop_variant','lsShopVariantPriceType'],
+                    ['tl_ls_shop_variant','flex_contentsLanguageIndependent'],
+                    ['tl_ls_shop_variant','flex_contents'],
+                    ['tl_ls_shop_attribute_allocation','attributeID'],
+                    ['tl_ls_shop_attribute_allocation','attributeValueID'],
+                ];
+            if ($this->bln_useGroupPrices) {
+                $arrRequestFieldsVariant = array_merge($arrRequestFieldsVariant, [
+                    ['tl_ls_shop_variant','useGroupPrices_1'],
+                    ['tl_ls_shop_variant','priceForGroups_1'],
+                    ['tl_ls_shop_variant','lsShopVariantPrice_1'],
+                    ['tl_ls_shop_variant','lsShopVariantPriceType_1'],
+                    ['tl_ls_shop_variant','useGroupPrices_2'],
+                    ['tl_ls_shop_variant','priceForGroups_2'],
+                    ['tl_ls_shop_variant','lsShopVariantPrice_2'],
+                    ['tl_ls_shop_variant','lsShopVariantPriceType_2'],
+                    ['tl_ls_shop_variant','useGroupPrices_3'],
+                    ['tl_ls_shop_variant','priceForGroups_3'],
+                    ['tl_ls_shop_variant','lsShopVariantPrice_3'],
+                    ['tl_ls_shop_variant','lsShopVariantPriceType_3'],
+                    ['tl_ls_shop_variant','useGroupPrices_4'],
+                    ['tl_ls_shop_variant','priceForGroups_4'],
+                    ['tl_ls_shop_variant','lsShopVariantPrice_4'],
+                    ['tl_ls_shop_variant','lsShopVariantPriceType_4'],
+                    ['tl_ls_shop_variant','useGroupPrices_5'],
+                    ['tl_ls_shop_variant','priceForGroups_5'],
+                    ['tl_ls_shop_variant','lsShopVariantPrice_5'],
+                    ['tl_ls_shop_variant','lsShopVariantPriceType_5'],
+                    ]
+                );
+            }
+
+            #$arrRequestFieldsVariant = ['tl_ls_shop_variant' => 'lsShopVariantPrice'];
+
+
+            $fieldSelectionPartVariant = '';
+            foreach ($arrRequestFieldsVariant as $requestFieldVariant) {
+                if ($fieldSelectionPartVariant) {
+                    $fieldSelectionPartVariant .= ",
+                    ";
+                }
+                $fieldSelectionPartVariant .= $this->getQualifiedFieldNameTable($requestFieldVariant[1], $requestFieldVariant[0]);
+            }
+
+
+
+            $objVariants = \Database::getInstance()->prepare("
+				SELECT		".$fieldSelectionPartVariant."	
+
+				FROM			`tl_ls_shop_variant`
+				LEFT JOIN		`tl_ls_shop_attribute_allocation`
+					ON			`tl_ls_shop_variant`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
+					AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '1'
+				WHERE			`tl_ls_shop_variant`.`published` = '1'
+					AND			`tl_ls_shop_variant`.`pid` IN (".implode(',', array_keys($tmpArrProductsComplete)).")
+				ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
+			")
+                ->execute();
+
+if (false) {
+
             $objVariants = \Database::getInstance()->prepare("
 				SELECT			`tl_ls_shop_variant`.`id`,
 								`tl_ls_shop_variant`.`pid`,
@@ -1787,7 +1905,7 @@ class ls_shop_productSearcher
 				ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
 			")
                 ->execute();
-
+}
             $arrVariants = $objVariants->fetchAllAssoc();
 
             /*
@@ -1809,9 +1927,9 @@ class ls_shop_productSearcher
                     $refCurrentVariantRow['attributeValueIDs'] = array();
                     $refCurrentVariantRow['attributeAndValueIDs'] = array();
 
-//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
+//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de".
                     $refCurrentVariantRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
-                    $refCurrentVariantRow['flex_contents_'.$str_currentLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents_'.$str_currentLanguage])), 2, 1);
+                    $refCurrentVariantRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents_'.$searchLanguage])), 2, 1);
 
                     /*
                      * Get the variant's price
