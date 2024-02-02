@@ -1428,23 +1428,6 @@ class ls_shop_productSearcher
          * the filter because it is only required if we request attribute
          * allocations
          */
-/*
-        $searchCondition = "(
-
-                        `useGroupRestrictions` != '1'
-
-                        OR `allowedGroups` LIKE '%\"1\"%'
-
-                    )
-
-AND IFNULL(`tl_ls_shop_product`.`title_de`, '') LIKE \"%%\"
-
-AND `tl_ls_shop_product`.`published` LIKE 1
-
-AND 
-
-(`tl_ls_shop_product`.`pages` LIKE '%%\"46\"%')
-";*/
 
         $objProductsComplete = Database::getInstance()->prepare("
 			SELECT			".$fieldSelectionPart."
@@ -1463,12 +1446,8 @@ AND
             $objProductsComplete = $objProductsComplete->limit($this->arrLimit['rows'], $this->arrLimit['offset']);
         }
 
-        dump($objProductsComplete);
-        dump($searchConditionValues);
-
+        //lösung: trigger_deprecation('contao/core-bundle', '4.13', 'Using execute() with an array parameter has been deprecated and will no longer work in Contao 5.0. Use argument unpacking via ... instead."', __METHOD__)
         $objProductsComplete = $objProductsComplete->execute(...$searchConditionValues);
-
-        dump($objProductsComplete->query);
 
         /*
          * If we use the filter or the special price sorting or maybe for some other reasons,
