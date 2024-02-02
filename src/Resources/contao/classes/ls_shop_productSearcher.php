@@ -1666,7 +1666,8 @@ AND
                         unset($arrProductsComplete[$i]["wordCount"]);
                     }
 
-        $arrProductsComplete = [];
+
+
 
         /*
          * If we use the filter we had a left join in our database query which leads to a result set
