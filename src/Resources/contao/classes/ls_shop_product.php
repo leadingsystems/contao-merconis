@@ -2374,7 +2374,9 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $addReturnPageToUrl = '/calledBy/searchResult';
         }
 
-        $this->ls_linkToProduct = Controller::generateFrontendUrl($objProductPage->row(), '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl);
+        $pageModel = PageModel::findWithDetails($objProductPage->row()['id']);
+        $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+        $this->ls_linkToProduct = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl));
 
 		return $this->ls_linkToProduct;
 	}
