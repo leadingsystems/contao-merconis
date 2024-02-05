@@ -418,9 +418,7 @@ class ls_shop_productSearcher
         }
     }
 
-    /*
-     * Since the two existing functions refer to the product table, this should refer to the specified table
-     */
+
     protected function getQualifiedFieldName($fieldName, $table = 'tl_ls_shop_product') {
         $searchLanguage = $this->searchLanguage;
 
