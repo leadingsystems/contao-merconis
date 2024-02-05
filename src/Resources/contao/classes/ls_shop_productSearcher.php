@@ -380,42 +380,6 @@ class ls_shop_productSearcher
         return \Database::getInstance()->fieldExists('title_'.$searchLanguage, 'tl_ls_shop_product');
     }
 
-    protected function getQualifiedFieldName($fieldName) {
-        $searchLanguage = $this->searchLanguage;
-
-        /*
-         * If fields for the requested language don't exist, no specific search language should
-         * be used which means that the non language specific main field would be used for the search.
-         */
-        if (!$this->checkIfLanguageFieldsExist($searchLanguage)) {
-            $searchLanguage = null;
-        }
-
-
-        switch($fieldName) {
-            case 'title':
-            case 'keywords':
-            case 'shortDescription':
-            case 'description':
-            case 'lsShopProductQuantityUnit':
-            case 'lsShopProductMengenvergleichUnit':
-            case 'flex_contents':
-                return "`tl_ls_shop_product`.`".$fieldName.($searchLanguage ? "_".$searchLanguage : "")."`";
-                break;
-
-            case 'priority':
-                return "`".$fieldName."`";
-                break;
-
-            case 'attributeID':
-            case 'attributeValueID':
-                return "`tl_ls_shop_attribute_allocation`.`".$fieldName."`";
-
-            default:
-                return "`tl_ls_shop_product`.`".$fieldName."`";
-                break;
-        }
-    }
 
     protected function getQualifiedFieldNameOnly($fieldName) {
         $searchLanguage = $this->searchLanguage;
@@ -457,7 +421,7 @@ class ls_shop_productSearcher
     /*
      * Since the two existing functions refer to the product table, this should refer to the specified table
      */
-    protected function getQualifiedFieldNameTable($fieldName, $table = 'tl_ls_shop_variant') {
+    protected function getQualifiedFieldName($fieldName, $table = 'tl_ls_shop_product') {
         $searchLanguage = $this->searchLanguage;
 
         /*
@@ -1827,7 +1791,7 @@ class ls_shop_productSearcher
                     $fieldSelectionPartVariant .= ",
                     ";
                 }
-                $fieldSelectionPartVariant .= $this->getQualifiedFieldNameTable($requestFieldVariant[1], $requestFieldVariant[0]);
+                $fieldSelectionPartVariant .= $this->getQualifiedFieldName($requestFieldVariant[1], $requestFieldVariant[0]);
             }
 
 
