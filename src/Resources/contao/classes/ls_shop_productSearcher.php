@@ -380,6 +380,42 @@ class ls_shop_productSearcher
         return \Database::getInstance()->fieldExists('title_'.$searchLanguage, 'tl_ls_shop_product');
     }
 
+    protected function getQualifiedFieldName($fieldName) {
+        $searchLanguage = $this->searchLanguage;
+
+        /*
+         * If fields for the requested language don't exist, no specific search language should
+         * be used which means that the non language specific main field would be used for the search.
+         */
+        if (!$this->checkIfLanguageFieldsExist($searchLanguage)) {
+            $searchLanguage = null;
+        }
+
+
+        switch($fieldName) {
+            case 'title':
+            case 'keywords':
+            case 'shortDescription':
+            case 'description':
+            case 'lsShopProductQuantityUnit':
+            case 'lsShopProductMengenvergleichUnit':
+            case 'flex_contents':
+                return "`tl_ls_shop_product`.`".$fieldName.($searchLanguage ? "_".$searchLanguage : "")."`";
+                break;
+
+            case 'priority':
+                return "`".$fieldName."`";
+                break;
+
+            case 'attributeID':
+            case 'attributeValueID':
+                return "`tl_ls_shop_attribute_allocation`.`".$fieldName."`";
+
+            default:
+                return "`tl_ls_shop_product`.`".$fieldName."`";
+                break;
+        }
+    }
 
     protected function getQualifiedFieldNameOnly($fieldName) {
         $searchLanguage = $this->searchLanguage;
@@ -418,14 +454,14 @@ class ls_shop_productSearcher
         }
     }
 
-
+/*
     protected function getQualifiedFieldName($fieldName, $table = 'tl_ls_shop_product') {
         $searchLanguage = $this->searchLanguage;
 
-        /*
+        / *
          * If fields for the requested language don't exist, no specific search language should
          * be used which means that the non language specific main field would be used for the search.
-         */
+         * /
         if (!$this->checkIfLanguageFieldsExist($searchLanguage)) {
             $searchLanguage = null;
         }
@@ -455,6 +491,7 @@ class ls_shop_productSearcher
                 break;
         }
     }
+*/
 
     protected function checkIfValidCriteriaGiven() {
         $blnValid = true;
@@ -1739,6 +1776,7 @@ class ls_shop_productSearcher
             /*
              * Get all variants for the products from the database
              */
+/*
 //TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
 
 
@@ -1806,8 +1844,8 @@ class ls_shop_productSearcher
 				ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
 			")
                 ->execute();
+*/
 
-if (false) {
 
             $objVariants = \Database::getInstance()->prepare("
 				SELECT			`tl_ls_shop_variant`.`id`,
@@ -1815,7 +1853,7 @@ if (false) {
 								`tl_ls_shop_variant`.`lsShopVariantPrice`,
 								`tl_ls_shop_variant`.`lsShopVariantPriceType`,
 								`tl_ls_shop_variant`.`flex_contentsLanguageIndependent`,
-								`tl_ls_shop_variant`.`flex_contents`,
+								`tl_ls_shop_variant`.`flex_contents_". $this->searchLanguage."`,
 				".
                 (
                 $this->bln_useGroupPrices
@@ -1860,7 +1898,7 @@ if (false) {
 				ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
 			")
                 ->execute();
-}
+
             $arrVariants = $objVariants->fetchAllAssoc();
 
             /*
