@@ -380,13 +380,6 @@ class ls_shop_productSearcher
         return \Database::getInstance()->fieldExists('title_'.$searchLanguage, 'tl_ls_shop_product');
     }
 
-    protected function checkIfLanguageFieldsExistInTable($searchLanguage, $table = 'tl_ls_shop_variant') {
-        /*
-         * Same functionality as in ´checkIfLanguageFieldsExist´, only with table name as parameter
-         */
-        return \Database::getInstance()->fieldExists('title_'.$searchLanguage, $table);
-    }
-
     protected function getQualifiedFieldName($fieldName) {
         $searchLanguage = $this->searchLanguage;
 
@@ -471,7 +464,7 @@ class ls_shop_productSearcher
          * If fields for the requested language don't exist, no specific search language should
          * be used which means that the non language specific main field would be used for the search.
          */
-        if (!$this->checkIfLanguageFieldsExistInTable($searchLanguage, $table)) {
+        if (!$this->checkIfLanguageFieldsExist($searchLanguage)) {
             $searchLanguage = null;
         }
 
