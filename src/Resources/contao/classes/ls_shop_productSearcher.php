@@ -1341,7 +1341,7 @@ class ls_shop_productSearcher
 
 //TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
             if (!in_array('flex_contents', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'flex_contents';
+                $this->arrRequestFields[] = 'flex_contents_'.$this->searchLanguage;
             }
         }
 
