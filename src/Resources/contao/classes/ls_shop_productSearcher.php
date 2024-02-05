@@ -454,44 +454,6 @@ class ls_shop_productSearcher
         }
     }
 
-/*
-    protected function getQualifiedFieldName($fieldName, $table = 'tl_ls_shop_product') {
-        $searchLanguage = $this->searchLanguage;
-
-        / *
-         * If fields for the requested language don't exist, no specific search language should
-         * be used which means that the non language specific main field would be used for the search.
-         * /
-        if (!$this->checkIfLanguageFieldsExist($searchLanguage)) {
-            $searchLanguage = null;
-        }
-
-
-        switch($fieldName) {
-            case 'title':
-            case 'keywords':
-            case 'shortDescription':
-            case 'description':
-            case 'lsShopProductQuantityUnit':
-            case 'lsShopProductMengenvergleichUnit':
-            case 'flex_contents':
-                return "`".$table."`.`".$fieldName.($searchLanguage ? "_".$searchLanguage : "")."`";
-                break;
-
-            case 'priority':
-                return "`".$fieldName."`";
-                break;
-
-            case 'attributeID':
-            case 'attributeValueID':
-                return "`tl_ls_shop_attribute_allocation`.`".$fieldName."`";
-
-            default:
-                return "`".$table."`.`".$fieldName."`";
-                break;
-        }
-    }
-*/
 
     protected function checkIfValidCriteriaGiven() {
         $blnValid = true;
@@ -1776,77 +1738,6 @@ class ls_shop_productSearcher
             /*
              * Get all variants for the products from the database
              */
-/*
-//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
-
-
-
-            //wir brauchen diesselbe Logik wie beim Produkt
-            $arrRequestFieldsVariant = [
-                    ['tl_ls_shop_variant','id'],
-                    ['tl_ls_shop_variant','pid'],
-                    ['tl_ls_shop_variant','lsShopVariantPrice'],
-                    ['tl_ls_shop_variant','lsShopVariantPriceType'],
-                    ['tl_ls_shop_variant','flex_contentsLanguageIndependent'],
-                    ['tl_ls_shop_variant','flex_contents'],
-                    ['tl_ls_shop_attribute_allocation','attributeID'],
-                    ['tl_ls_shop_attribute_allocation','attributeValueID'],
-                ];
-            if ($this->bln_useGroupPrices) {
-                $arrRequestFieldsVariant = array_merge($arrRequestFieldsVariant, [
-                    ['tl_ls_shop_variant','useGroupPrices_1'],
-                    ['tl_ls_shop_variant','priceForGroups_1'],
-                    ['tl_ls_shop_variant','lsShopVariantPrice_1'],
-                    ['tl_ls_shop_variant','lsShopVariantPriceType_1'],
-                    ['tl_ls_shop_variant','useGroupPrices_2'],
-                    ['tl_ls_shop_variant','priceForGroups_2'],
-                    ['tl_ls_shop_variant','lsShopVariantPrice_2'],
-                    ['tl_ls_shop_variant','lsShopVariantPriceType_2'],
-                    ['tl_ls_shop_variant','useGroupPrices_3'],
-                    ['tl_ls_shop_variant','priceForGroups_3'],
-                    ['tl_ls_shop_variant','lsShopVariantPrice_3'],
-                    ['tl_ls_shop_variant','lsShopVariantPriceType_3'],
-                    ['tl_ls_shop_variant','useGroupPrices_4'],
-                    ['tl_ls_shop_variant','priceForGroups_4'],
-                    ['tl_ls_shop_variant','lsShopVariantPrice_4'],
-                    ['tl_ls_shop_variant','lsShopVariantPriceType_4'],
-                    ['tl_ls_shop_variant','useGroupPrices_5'],
-                    ['tl_ls_shop_variant','priceForGroups_5'],
-                    ['tl_ls_shop_variant','lsShopVariantPrice_5'],
-                    ['tl_ls_shop_variant','lsShopVariantPriceType_5'],
-                    ]
-                );
-            }
-
-            #$arrRequestFieldsVariant = ['tl_ls_shop_variant' => 'lsShopVariantPrice'];
-
-
-            $fieldSelectionPartVariant = '';
-            foreach ($arrRequestFieldsVariant as $requestFieldVariant) {
-                if ($fieldSelectionPartVariant) {
-                    $fieldSelectionPartVariant .= ",
-                    ";
-                }
-                $fieldSelectionPartVariant .= $this->getQualifiedFieldName($requestFieldVariant[1], $requestFieldVariant[0]);
-            }
-
-
-
-            $objVariants = \Database::getInstance()->prepare("
-				SELECT		".$fieldSelectionPartVariant."	
-
-				FROM			`tl_ls_shop_variant`
-				LEFT JOIN		`tl_ls_shop_attribute_allocation`
-					ON			`tl_ls_shop_variant`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
-					AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '1'
-				WHERE			`tl_ls_shop_variant`.`published` = '1'
-					AND			`tl_ls_shop_variant`.`pid` IN (".implode(',', array_keys($tmpArrProductsComplete)).")
-				ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
-			")
-                ->execute();
-*/
-
-
             $objVariants = \Database::getInstance()->prepare("
 				SELECT			`tl_ls_shop_variant`.`id`,
 								`tl_ls_shop_variant`.`pid`,
