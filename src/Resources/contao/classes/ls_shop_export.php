@@ -731,7 +731,7 @@ class ls_shop_export
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$obj_user = System::importStatic('BackendUser');
 		} else {
-			$obj_user = System::importStatic('FrontendUser');
+			$obj_user = System::importStatic('Contao\FrontendUser');
 		}
 
 		/*

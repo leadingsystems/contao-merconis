@@ -515,7 +515,7 @@ class ls_shop_generalHelper
             !is_object($obj_user)
             && System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()
         ) {
-            $obj_user = System::importStatic('FrontendUser');
+            $obj_user = System::importStatic('Contao\FrontendUser');
         }
 
         if (!isset($GLOBALS['merconis_globals']['groupInfo']) || $bln_forceRefresh) {
@@ -4827,7 +4827,7 @@ class ls_shop_generalHelper
         /** @var PageModel $objPage */
         global $objPage;
 
-        $obj_user = System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('Contao\FrontendUser');
         $objTemplate = new FrontendTemplate('template_addToRestockInfoListForm');
         $str_formSubmitValue = 'restockInfoListProduct_form_' . $obj_product->_productVariantID;
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;
@@ -4900,7 +4900,7 @@ class ls_shop_generalHelper
 
     public static function getFavoritesForm($obj_product)
     {
-        $obj_user = System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('Contao\FrontendUser');
         $objTemplate = new FrontendTemplate('template_addToFavoritesForm');
         $str_formSubmitValue = 'favoriteProduct_form_' . $obj_product->_id;
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;

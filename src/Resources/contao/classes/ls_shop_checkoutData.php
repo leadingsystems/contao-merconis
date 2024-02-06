@@ -493,7 +493,7 @@ class ls_shop_checkoutData {
 		 * auch zurückgesetzt
 		 */
 		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
-			$obj_user = System::importStatic('FrontendUser');
+			$obj_user = System::importStatic('Contao\FrontendUser');
 
 			if ($this->arrCheckoutData['loggedInData']['userID'] != $obj_user->id) {
 				$this->ls_shop_postLogin($obj_user);

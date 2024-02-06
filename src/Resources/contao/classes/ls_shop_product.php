@@ -9,6 +9,7 @@ use Contao\FrontendTemplate;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
+use Contao;
 
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -837,7 +838,10 @@ returns the id of the variant that has currently been selected
 				break;
 
 			case '_isFavorite':
-				$obj_user = System::importStatic('FrontendUser');
+
+                dump("hi");
+                dump(class_exists('FrontendUser')); //Merconis\Core\ls_shop_paymentModule
+				$obj_user = System::importStatic('Contao\FrontendUser');
 				$strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
 				$arrFavorites = $strFavorites ? StringUtil::deserialize($strFavorites) : array();
 				$arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
@@ -850,7 +854,9 @@ returns the id of the variant that has currently been selected
 				break;
 
 			case '_isOnRestockInfoList':
-				$obj_user = System::importStatic('FrontendUser');
+
+
+				$obj_user = System::importStatic('Contao\FrontendUser');
 
                 $obj_dbres_restockInfoListRecord = Database::getInstance()
                     ->prepare("

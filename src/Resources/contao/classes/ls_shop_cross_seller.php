@@ -375,7 +375,7 @@ class ls_shop_cross_seller
     }
 
     protected function ls_getFavoritesSelection() {
-        $obj_user = System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('Contao\FrontendUser');
         $strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
         $arrFavorites = $strFavorites ? StringUtil::deserialize($strFavorites) : array();
         $arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
@@ -384,7 +384,7 @@ class ls_shop_cross_seller
     }
 
     protected function ls_getRestockInfoListSelection() {
-        $obj_user = System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('Contao\FrontendUser');
 
         $obj_dbres_restockInfoListRecords = Database::getInstance()
             ->prepare("
