@@ -513,6 +513,9 @@ class ls_shop_filterHelper {
 	 * product lists as well.
 	 */
 	public static function checkIfProductMatchesFilter($arrProductInfo = null, $arrCriteriaToFilterWith = null, $blnStoreProductAndVariantMatchesInSession = true, &$numVariantMatches = 0) {
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		if (!$arrCriteriaToFilterWith) {
 			$arrCriteriaToFilterWith = $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'];
 		}
@@ -630,7 +633,7 @@ class ls_shop_filterHelper {
                      * the flexContentLD must not necessarily be an array. Therefore, we make sure that we always
                      * have a proper array for the filter check.
                      */
-                    $arr_productFlexContentLDValuesToCompareWithFilterRequirements = (array) ($arrProductInfo['flex_contentsLanguageIndependent'][$str_flexContentLDKey] ?? []);
+                    $arr_productFlexContentLDValuesToCompareWithFilterRequirements = (array) ($arrProductInfo['flex_contents_'.$str_currentLanguage][$str_flexContentLDKey] ?? []);
 
                     if (($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$str_flexContentLDKey] ?? null) === 'and') {
 						if (count(array_intersect($arr_flexContentLDValues, $arr_productFlexContentLDValuesToCompareWithFilterRequirements)) !== count($arr_flexContentLDValues)) {
@@ -844,7 +847,7 @@ class ls_shop_filterHelper {
                              * all the product's variants as well. Therefore, we merge the product's flex content values
                              * into the variant's flex content values before performing the filter checks.
                              */
-                            $arr_variantFlexContentLDValuesToCompareWithFilterRequirements = (array) ($arrVariantInfo['flex_contentsLanguageIndependent'][$str_flexContentLDKey] ?? []);
+                            $arr_variantFlexContentLDValuesToCompareWithFilterRequirements = (array) ($arrVariantInfo['flex_contents_'.$str_currentLanguage][$str_flexContentLDKey] ?? []);
                             $arr_mergedProductAndVariantFlexContentLDValuesToCompareWithFilterRequirements = array_merge($arr_variantFlexContentLDValuesToCompareWithFilterRequirements, $arr_productFlexContentLDValuesToCompareWithFilterRequirements ?? []);
 
                             if (($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$str_flexContentLDKey] ?? null) === 'and') {
