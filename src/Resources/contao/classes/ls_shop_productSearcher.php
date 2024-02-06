@@ -471,9 +471,6 @@ class ls_shop_productSearcher
 
     protected function ls_performSearch() {
 
-//TODO: bei nächster Besprechung abklären, ob $this->searchLanguage wirklich benutzt werden darf
-        #global $objPage;
-        #$str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
         $searchLanguage = $this->searchLanguage;
 
 
@@ -1339,7 +1336,6 @@ class ls_shop_productSearcher
                 $this->arrRequestFields[] = 'flex_contentsLanguageIndependent';
             }
 
-//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de"
             if (!in_array('flex_contents', $this->arrRequestFields)) {
                 $this->arrRequestFields[] = 'flex_contents_'.$this->searchLanguage;
             }
@@ -1811,7 +1807,6 @@ class ls_shop_productSearcher
                     $refCurrentVariantRow['attributeValueIDs'] = array();
                     $refCurrentVariantRow['attributeAndValueIDs'] = array();
 
-//TODO: hier klären: entweder die Spalte "flex_contents" oder die "flex_contents_de".
                     $refCurrentVariantRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
                     $refCurrentVariantRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents_'.$searchLanguage])), 2, 1);
 
