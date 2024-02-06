@@ -4,6 +4,7 @@ namespace Merconis\Core;
 class ls_shop_filterHelper {
     public static function getFilterSummary() {
         global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
 
         $arr_filterSummary = [
             'arr_attributes' => [],
@@ -118,6 +119,7 @@ class ls_shop_filterHelper {
                     $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']];
 
                     $arr_filterAllFields['arr_flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] = [
+                        'str_caption' => $arrFilterFieldInfo['title_'.$str_currentLanguage],
                         'str_title' => $arrFilterFieldInfo['flexContentLIKey'],
                         'arr_values' => [],
                         'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] ?? null] ?? null
@@ -146,6 +148,7 @@ class ls_shop_filterHelper {
                     $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']];
 
                     $arr_filterAllFields['arr_flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] = [
+                        'str_caption' => $arrFilterFieldInfo['title_'.$str_currentLanguage],
                         'str_title' => $arrFilterFieldInfo['flexContentLDKey'],
                         'arr_values' => [],
                         'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] ?? null] ?? null

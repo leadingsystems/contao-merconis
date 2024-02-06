@@ -74,7 +74,7 @@ if (
                             }
                             ?>
                             <div class="off-canvas-filter-form-toggler-remote">
-                                <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLI['str_title']; ?></span>
+                                <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLI['str_caption']; ?></span>
                                 <?php
                                 if ($bln_currentlyFilteringByThisFlexContentLI) {
                                     ?>
@@ -124,7 +124,7 @@ if (
                             }
                             ?>
                             <div class="off-canvas-filter-form-toggler-remote">
-                                <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLD['str_title']; ?></span>
+                                <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLD['str_caption']; ?></span>
                                 <?php
                                 if ($bln_currentlyFilteringByThisFlexContentLD) {
                                     ?>
