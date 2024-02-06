@@ -1356,7 +1356,7 @@ class tl_ls_shop_product_controller extends Backend {
 
 	public function __construct() {
 		parent::__construct();
-		$this->import('BackendUser', 'User');
+		$this->import('Contao\BackendUser', 'User');
 	}
 
 	public function generateAlias($str_value, DataContainer $dc) {
