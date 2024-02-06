@@ -134,6 +134,7 @@ class ls_shop_cartHelper {
 		 */
 		if ($quantity >= 0) {
 			$availableQuantity = $checkStock ? ls_shop_cartHelper::getAvailableQuantity($productCartKey, $quantity) : $quantity;
+			if(!is_array($_SESSION['lsShopCart']['items'])) $_SESSION['lsShopCart']['items'] = [];
 			$_SESSION['lsShopCart']['items'][$productCartKey]['quantity'] = $availableQuantity;
 		}
 
@@ -211,7 +212,11 @@ class ls_shop_cartHelper {
 		/*
 		 * Ermitteln der für dieses Produkt im Warenkorb zu hinterlegenden Menge
 		 */
-		$newQuantity = ls_add($_SESSION['lsShopCart']['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey]['quantity'], $desiredQuantity);
+        if(is_array($_SESSION['lsShopCart']['items'])) {
+            $newQuantity = ls_add($_SESSION['lsShopCart']['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey]['quantity'], $desiredQuantity);
+        }else{
+            $newQuantity = $desiredQuantity;
+        }
 		$quantityCurrentlyInCart = ls_shop_cartHelper::setItemQuantity($objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey, $newQuantity, $checkStock);
 		$quantityPutInCart = ls_sub($desiredQuantity, ls_sub($newQuantity,$quantityCurrentlyInCart));
 
