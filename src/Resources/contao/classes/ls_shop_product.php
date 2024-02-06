@@ -838,9 +838,6 @@ returns the id of the variant that has currently been selected
 				break;
 
 			case '_isFavorite':
-
-                dump("hi");
-                dump(class_exists('FrontendUser')); //Merconis\Core\ls_shop_paymentModule
 				$obj_user = System::importStatic('Contao\FrontendUser');
 				$strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
 				$arrFavorites = $strFavorites ? StringUtil::deserialize($strFavorites) : array();
