@@ -470,9 +470,7 @@ class ls_shop_productSearcher
     }
 
     protected function ls_performSearch() {
-
         $searchLanguage = $this->searchLanguage;
-
 
         /*
          * Set the current cache key because if ls_performSearch() is being executed, all
