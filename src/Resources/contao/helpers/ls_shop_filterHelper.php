@@ -4,6 +4,7 @@ namespace Merconis\Core;
 class ls_shop_filterHelper {
     public static function getFilterSummary() {
         global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
 
         $arr_filterSummary = [
             'arr_attributes' => [],
@@ -51,8 +52,8 @@ class ls_shop_filterHelper {
             }
         }
 
-        if (is_array($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLD'] ?? null)) {
-            foreach ($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLD'] as $str_flexContentLDKey => $arr_filterValues) {
+        if (is_array($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLD'][$str_currentLanguage] ?? null)) {
+            foreach ($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLD'][$str_currentLanguage] as $str_flexContentLDKey => $arr_filterValues) {
                 $arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey] = [
                     'str_title' => $str_flexContentLDKey,
                     'arr_values' => [],
@@ -135,16 +136,16 @@ class ls_shop_filterHelper {
                      * or no values for the current flexContentLD, we don't create a summary item
                      */
                     if (
-                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'])
-                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])
-                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
                     ) {
                         break;
                     }
 
-                    $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']];
+                    $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']];
 
                     $arr_filterAllFields['arr_flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] = [
                         'str_caption' => $arrFilterFieldInfo['title'],
@@ -484,6 +485,9 @@ class ls_shop_filterHelper {
 	}
 
 	public static function addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		if (!$str_flexContentLDKey || !$var_value) {
 			return;
 		}
@@ -495,12 +499,12 @@ class ls_shop_filterHelper {
 			return;
 		}
 
-		if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_flexContentLDKey])) {
-			$_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_flexContentLDKey] = array();
+		if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_currentLanguage][$str_flexContentLDKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_currentLanguage][$str_flexContentLDKey] = array();
 		}
 
-		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_flexContentLDKey])) {
-			$_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_flexContentLDKey][] = $var_value;
+		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_currentLanguage][$str_flexContentLDKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_currentLanguage][$str_flexContentLDKey][] = $var_value;
 		}
 	}
 
@@ -615,8 +619,8 @@ class ls_shop_filterHelper {
 		 * Check the product's flexContentsLD
 		 */
 		if ($blnWholeProductCouldStillMatch) {
-			if (is_array($arrCriteriaToFilterWith['flexContentsLD'])) {
-				foreach ($arrCriteriaToFilterWith['flexContentsLD'] as $str_flexContentLDKey => $arr_flexContentLDValues) {
+			if (is_array($arrCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage])) {
+				foreach ($arrCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage] as $str_flexContentLDKey => $arr_flexContentLDValues) {
 					/*
 					 * The array returned by array_intersect() contains the requested flexContentLD values which
 					 * are also included in the product's flexContentLD values for the respective flexContentLDKey.
@@ -823,8 +827,8 @@ class ls_shop_filterHelper {
                  * Check the variant's flexContentsLD
                  */
                 if ($blnThisVariantCouldStillMatch) {
-                    if (is_array($arrCriteriaToFilterWith['flexContentsLD'])) {
-                        foreach ($arrCriteriaToFilterWith['flexContentsLD'] as $str_flexContentLDKey => $arr_flexContentLDValues) {
+                    if (is_array($arrCriteriaToFilterWith['flexContentsLD'])[$str_currentLanguage]) {
+                        foreach ($arrCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage] as $str_flexContentLDKey => $arr_flexContentLDValues) {
                             /*
                              * The array returned by array_intersect() contains the requested flexContentLD values which
                              * are also included in the variant's flexContentLD values for the respective flexContentLDKey.
@@ -1162,6 +1166,9 @@ class ls_shop_filterHelper {
 	}
 
 	public static function setFilter($what = '', $varValue) {
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		if (!$what) {
 			return;
 		}
@@ -1250,7 +1257,7 @@ class ls_shop_filterHelper {
 
             case 'flexContentsLD':
 				if (!$varValue['value']) {
-					unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$varValue['flexContentLDKey']]);
+					unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']]);
 				} else {
 					$varValue['value'] = is_array($varValue['value']) ? $varValue['value'] : array($varValue['value']);
 
@@ -1259,10 +1266,10 @@ class ls_shop_filterHelper {
 					 * because they weren't even part of the filter form should be added. The reason is, that we don't want filter criteria
 					 * to be reset by submitting a filter form if the user didn't intentionally uncheck them.
 					 */
-					if (isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$varValue['flexContentLDKey']]) && is_array($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$varValue['flexContentLDKey']])) {
-						foreach ($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$varValue['flexContentLDKey']] as $flexContentLDValueCurrentlyInFilter) {
+					if (isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']]) && is_array($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$varValue['flexContentLDKey']])) {
+						foreach ($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']] as $flexContentLDValueCurrentlyInFilter) {
 							if (
-								!in_array($flexContentLDValueCurrentlyInFilter, $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$varValue['flexContentLDKey']])
+								!in_array($flexContentLDValueCurrentlyInFilter, $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']])
 								&&	!in_array($flexContentLDValueCurrentlyInFilter, $varValue['value'])
 							) {
 								$varValue['value'][] = $flexContentLDValueCurrentlyInFilter;
@@ -1277,11 +1284,11 @@ class ls_shop_filterHelper {
 					}
 
 					if (!count($varValue['value'])) {
-						unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$varValue['flexContentLDKey']]);
+						unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']]);
 						break;
 					}
 
-					$_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$varValue['flexContentLDKey']] = $varValue['value'];
+					$_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']] = $varValue['value'];
 				}
 				break;
 
@@ -1349,6 +1356,9 @@ class ls_shop_filterHelper {
 	 * In this function we determine how many matches a selected criteria would have.
 	 */
 	public static function getEstimatedMatchNumbers($arrProductsResultSet = array()) {
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		$_SESSION['lsShop']['filter']['matchEstimates']['attributeValues'] = array();
 		$_SESSION['lsShop']['filter']['matchEstimates']['flexContentLIValues'] = array();
         $_SESSION['lsShop']['filter']['matchEstimates']['flexContentLDValues'] = array();
@@ -1374,7 +1384,7 @@ class ls_shop_filterHelper {
 		foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'] as $arrFlexContentLIValues) {
 			$numFilterValuesToDetermineEstimatesFor += count($arrFlexContentLIValues);
 		}
-		foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'] as $arrFlexContentLDValues) {
+		foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage] as $arrFlexContentLDValues) {
 			$numFilterValuesToDetermineEstimatesFor += count($arrFlexContentLDValues);
 		}
 		$numFilterValuesToDetermineEstimatesFor += count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers']);
@@ -1475,14 +1485,14 @@ class ls_shop_filterHelper {
 		 * Walk through all flexContentsLD used in the filter form and create an array with filter criteria that does not
 		 * include the current flexContentLD
 		 */
-		foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'] as $flexContentLDKey => $arrFlexContentLDValues) {
+		foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage] as $flexContentLDKey => $arrFlexContentLDValues) {
 			$tmpCriteriaToFilterWith = $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'];
 
 			/*
 			 * Remove the current flexContentLD from the criteria array
 			 */
-			if (isset($tmpCriteriaToFilterWith['flexContentsLD'][$flexContentLDKey])) {
-				unset($tmpCriteriaToFilterWith['flexContentsLD'][$flexContentLDKey]);
+			if (isset($tmpCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage][$flexContentLDKey])) {
+				unset($tmpCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage][$flexContentLDKey]);
 			}
 
 			/*
@@ -1491,7 +1501,7 @@ class ls_shop_filterHelper {
 			 */
 			foreach ($arrFlexContentLDValues as $flexContentLDValue) {
 				$tmpCriteriaToFilterWithPlusCurrentValue = $tmpCriteriaToFilterWith;
-				$tmpCriteriaToFilterWithPlusCurrentValue['flexContentsLD'][$flexContentLDKey] = array($flexContentLDValue);
+				$tmpCriteriaToFilterWithPlusCurrentValue['flexContentsLD'][$str_currentLanguage][$flexContentLDKey] = array($flexContentLDValue);
 
 				/*
 				 * Filter the previously created result set using only the current attribute value

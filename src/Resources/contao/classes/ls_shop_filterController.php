@@ -143,6 +143,9 @@ class ls_shop_filterController
 
 	protected function createFilterWidgets($obj_template = null)
 	{
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		/*
 		 * All widgets that base on a filter field entry will be
 		 * stored in the array $arrObjWidgets_filterFields
@@ -367,11 +370,11 @@ class ls_shop_filterController
                      * or no values for the current flexContentLD, we don't create a widget
                      */
                     if (
-                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'])
-                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])
-                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
                     ) {
                         continue 2;
                     }
@@ -391,7 +394,7 @@ class ls_shop_filterController
                         /*
                          * In the widget we only insert the values that should be used as filter criteria based on the current product list
                          */
-                        if (!in_array($arrFieldValue['filterValue'], $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']])) {
+                        if (!in_array($arrFieldValue['filterValue'], $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])) {
                             continue;
                         }
 
@@ -425,7 +428,7 @@ class ls_shop_filterController
                                 'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
                                 'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
                             ),
-                            'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']]) ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] : ''
+                            'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']]) ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']] : ''
                         )
                     );
 
