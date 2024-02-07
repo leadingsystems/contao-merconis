@@ -827,7 +827,7 @@ class ls_shop_filterHelper {
                  * Check the variant's flexContentsLD
                  */
                 if ($blnThisVariantCouldStillMatch) {
-                    if (is_array($arrCriteriaToFilterWith['flexContentsLD'])[$str_currentLanguage]) {
+                    if (is_array($arrCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage])) {
                         foreach ($arrCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage] as $str_flexContentLDKey => $arr_flexContentLDValues) {
                             /*
                              * The array returned by array_intersect() contains the requested flexContentLD values which
