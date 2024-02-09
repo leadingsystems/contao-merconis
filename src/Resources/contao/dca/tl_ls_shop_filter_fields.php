@@ -101,7 +101,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		'producer' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{published_legend},published;',
 		'price' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},classForFilterFormField,priority,templateToUseForPriceField;{published_legend},published;',
         'flexContentLI' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLIField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
-        'flexContentLD' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLDKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLDField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;'
+        'flexContentLD' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLDKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLDField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
+        'flexContentLIMinMax' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLDKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLIMinMaxField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;'
 	),
 
 	'fields' => array(
@@ -141,7 +142,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'default'                 => 'attribute',
 			'exclude' => true,
 			'inputType'               => 'select',
-			'options'                 => array('attribute', 'producer', 'price', 'flexContentLI', 'flexContentLD'),
+			'options'                 => array('attribute', 'producer', 'price', 'flexContentLI', 'flexContentLD', 'flexContentLIMinMax'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource']['options'],
 			'eval'					  => array('tl_class' => 'clr', 'helpwizard' => true, 'submitOnChange' => true),
             'sql'                     => "varchar(255) NOT NULL default ''"
@@ -242,6 +243,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLDFilterFieldTemplates'),
             'eval'                    => array('tl_class'=>'w50'),
             'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLDFilterField_new'"
+        ),
+
+        'templateToUseForFlexContentLIMinMaxField'  => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLIMinMaxField'],
+            'exclude'				  => true,
+            'inputType'               => 'select',
+            'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLIMinMaxFilterFieldTemplates'),
+            'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLIMinMaxFilterField_new'"
         ),
 
 		'filterMode' => array(
@@ -365,5 +375,9 @@ class ls_shop_filter_fields extends \Backend {
 
     public function getFlexContentLDFilterFieldTemplates() {
         return $this->getTemplateGroup('template_formFlexContentLDFilterField_');
+    }
+
+    public function getFlexContentLIMinMaxFilterFieldTemplates() {
+        return $this->getTemplateGroup('template_formFlexContentLIMinMaxFilterField_');
     }
 }

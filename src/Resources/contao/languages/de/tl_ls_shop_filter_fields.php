@@ -49,7 +49,8 @@
 		'producer' => array('Hersteller', 'Die Hersteller, die Sie Ihren Produkten hinterlegt haben, werden als Feldwerte verwendet. Legen Sie Datensätze mit übereinstimmenden Werten an, um einzelne Feldwerte sortieren, priorisieren und mit individuellen Klassen versehen zu können.'),
 		'price' => array('Preis', 'Es werden Felder zur Eingabe eines Minimal- und Maximalpreises ausgegeben. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
         'flexContentLI' => array('Flexible Produktinformation/FlexContent (sprachunabhängig)', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
-        'flexContentLD' => array('Flexible Produktinformation/FlexContent (sprachabhängig)', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.')
+        'flexContentLD' => array('Flexible Produktinformation/FlexContent (sprachabhängig)', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
+        'flexContentLIMinMax' => array('Flexible Produktinformation/FlexContent (sprachunabhängig) Min-/Max', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.')
 	);
 	
 	/*
