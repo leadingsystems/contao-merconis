@@ -31,10 +31,7 @@ use Contao\Date;
 
                     if ($imgToUse) {
                         ?>
-                        <!--
-                        @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-                        -->
-                        <img src="<?php echo \Image::get($imgToUse, 600, 600, 'box'); ?>" alt="" />
+                        {{image::<?=$imgToUse?>?width=600&height=600&mode=box}}
                         <?php
                     }
                     ?>

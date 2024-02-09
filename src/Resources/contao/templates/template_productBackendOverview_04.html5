@@ -11,10 +11,7 @@ use Contao\System;
 <tr class="product">
 	<td>
 		<?php if ($this->objProduct->_hasMainImage): ?>
-                <!--
-                @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-                -->
-				<img src="<?php echo \Image::get($this->objProduct->_mainImage, 50, 50, 'box'); ?>" alt="" />
+            <?= Contao\System::getContainer()->get('contao.insert_tag.parser')->replace('{{image::'.$this->objProduct->_mainImage.'?width=50&height=50&mode=box}}'); ?>
 		<?php endif; ?>
 	</td>
 	<td><strong><?php echo $this->objProduct->_code; ?></strong></td>
@@ -52,10 +49,7 @@ use Contao\System;
 				<tr class="variant">
 					<td>
 						<?php if ($variant->_hasMainImage): ?>
-                                <!--
-                                @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-                                -->
-								<img src="<?php echo \Image::get($this->objProduct->_mainImage, 50, 50, 'box'); ?>" alt="" />
+                            <?= Contao\System::getContainer()->get('contao.insert_tag.parser')->replace('{{image::'.$this->objProduct->_mainImage.'?width=50&height=50&mode=box}}'); ?>
 						<?php endif; ?>
 					</td>
 					<td></td>

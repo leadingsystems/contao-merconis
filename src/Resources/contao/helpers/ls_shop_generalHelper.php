@@ -300,12 +300,10 @@ class ls_shop_generalHelper
         return $arr_productImages;
     }
 
-    public static function getProductImageByPath($str_imagePath, $int_width = 20, $int_height = 20, $str_mode = '', $bln_force = false)
+    public static function getProductImageByPath($str_imagePath, $int_width = 20, $int_height = 20, $str_mode = '')
     {
-        /*
-         * @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-         */
-        return Image::get($str_imagePath, $int_width, $int_height, $str_mode, null, $bln_force);
+        $img = new \Merconis\Core\Image($str_imagePath);
+        return $img->getSrc([$int_width, $int_height, $str_mode]);
     }
 
     /*

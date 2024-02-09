@@ -305,7 +305,8 @@ class ls_shop_customInserttags
 				return Input::get('calledBy') == 'searchResult' ? ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages') : self::generateFrontendUrl($objPage->row());
 				break;
 
-            case 'Picture':
+				//shopPicture insert tag
+            case 'picture':
 
                 if (strpos($params, '?') !== false)
                 {

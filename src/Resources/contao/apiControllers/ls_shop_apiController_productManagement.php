@@ -293,8 +293,7 @@ class ls_shop_apiController_productManagement
 			ls_getFilePathFromVariableSources($arr_dataRows['image']),
 			$arr_dataRows['width'],
 			$arr_dataRows['height'],
-			$arr_dataRows['resizeMode'],
-			$arr_dataRows['forceRefresh']
+			$arr_dataRows['resizeMode']
 		);
 
 		if (!$str_filePath) {

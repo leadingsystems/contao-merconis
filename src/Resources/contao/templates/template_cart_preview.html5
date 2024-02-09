@@ -2,7 +2,8 @@
 <div id="cart-preview">
         <div class="headline-area">
             <div id="cart-preview-headline" class="ajax-reload-by-putInCart">
-                <h3><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop'][\Merconis\Core\ls_shop_cartX::getInstance()->numItems === 1 ? 'miscText044' : 'miscText045'], \Merconis\Core\ls_shop_cartX::getInstance()->numItems ?: $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText141']); ?></h3>
+                <h3><?php
+                    echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop'][\Merconis\Core\ls_shop_cartX::getInstance()->numItems === 1 ? 'miscText044' : 'miscText045'], \Merconis\Core\ls_shop_cartX::getInstance()->numItems ?: $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText141']); ?></h3>
             </div>
             <div id="cart-preview-empty-cart-message" class="ajax-reload-by-putInCart">
                 <?php
@@ -48,10 +49,7 @@
                             if ($imgToUse) {
                                 ?>
                                 <a<?php if (!$objProduct->_configuratorHasValue) { ?> href="<?php echo $obj_tmp_productOrVariant->_link; ?>"<?php } ?>>
-                                    <!--
-                                    @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-                                    -->
-                                    <img src="<?php echo \Image::get($imgToUse, 600, 600, 'box'); ?>" alt="" />
+                                    {{image::<?=$imgToUse?>?width=600&height=600&mode=box}}
                                 </a>
                                 <?php
                             }
