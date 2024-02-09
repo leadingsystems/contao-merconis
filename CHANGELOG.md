@@ -1,13 +1,18 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.21 (nry: 2024-02-09)
+ * fix PAYONE for PHP 8
+ * fix price overview for variants
+ * fix PayPal Checkout calculation (negativ value)
+ * fix remove script tag if no lsjs
+
 ### 5.0.20 (2023-12-11)
  * add enableVersioning
  * replace TL_CRON with service contao.cronjob 
  * remove deprecated constants
  * remove deprecated functions
  * improve cache lsjs4c & lscss4c
- * fix PAYONE for PHP 8
 
 ### 5.0.19 (2023-09-01)
  * remove deprecated FE_USER_LOGGED_IN
