@@ -394,7 +394,7 @@ class tl_ls_shop_message_type_controller extends Backend {
 
 	public function __construct() {
 		parent::__construct();
-		$this->import('BackendUser', 'User');
+		$this->import('Contao\BackendUser', 'User');
 	}
 
 	public function generateAlias($varValue, DataContainer $dc) {

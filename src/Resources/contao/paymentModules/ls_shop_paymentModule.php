@@ -561,7 +561,7 @@ use Contao\System;
 			}
 			
 			if(System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
-				$this->import('FrontendUser', 'User');
+				$this->import('Contao\FrontendUser', 'User');
 			}
 			parent::__construct();
 			

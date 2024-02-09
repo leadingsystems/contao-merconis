@@ -729,7 +729,7 @@ class ls_shop_export
 	protected function getSegmentationToken()
 	{
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-			$obj_user = System::importStatic('BackendUser');
+			$obj_user = System::importStatic('Contao\BackendUser');
 		} else {
 			$obj_user = System::importStatic('Contao\FrontendUser');
 		}

@@ -245,7 +245,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 class ls_shop_filter_fields extends Backend {
 	public function __construct() {
 		parent::__construct();
-		$this->import('BackendUser', 'User');
+		$this->import('Contao\BackendUser', 'User');
 	}
 
 	public function generateAlias($varValue, DataContainer $dc) {
