@@ -329,6 +329,32 @@ class ls_shop_apiController {
         $this->obj_apiReceiver->set_data($arr_return);
     }
 
+
+
+    /**
+     * Returns all language independent flex contents MinMax that exist in all products and variants
+     */
+    protected function apiResource_getAllFlexContentsLIMinMax() {
+        $arr_return = ls_shop_generalHelper::getAllFlexContentsLIMinMax();
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+    /**
+     * Returns all values for language inddependent flex content MinMax with a specific key that exist in all products and variants
+     */
+    protected function apiResource_getFlexContentLIMinMaxValues() {
+        if (!\Input::get('flexContentKey')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no flexContentKey given');
+            return;
+        }
+        $arr_return = ls_shop_generalHelper::getFlexContentLIMinMaxValues(\Input::get('flexContentKey'));
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
 }
 
 
