@@ -2172,7 +2172,7 @@ class ls_shop_generalHelper
             $arr_allFlexContentsLIMinMax = [];
             $allFilterKeys = [];
 
-
+/*
             $obj_dbres_filterKeys = \Database::getInstance()->prepare("
                 SELECT  flexContentLIKey
                 FROM    tl_ls_shop_filter_fields
@@ -2183,7 +2183,8 @@ class ls_shop_generalHelper
             while ($obj_dbres_filterKeys->next()) {
                 $allFilterKeys[] = $obj_dbres_filterKeys->flexContentLIKey;
             }
-
+*/
+            $allFilterKeys = self::getFlexContentLIMinMaxKeys();
 
 
             $obj_dbres_flexContentsLIMinMaxForProducts = \Database::getInstance()->prepare("
@@ -2234,6 +2235,31 @@ class ls_shop_generalHelper
 
         return $GLOBALS['merconis_globals']['allFlexContentsLIMinMax'];
     }
+
+
+    /**
+     *  retrieves all flexContent language independent filter keys
+     *
+     * @return array
+     */
+    public static function getFlexContentLIMinMaxKeys()
+    {
+
+        $obj_dbres_filterKeys = \Database::getInstance()->prepare("
+                SELECT  flexContentLIKey
+                FROM    tl_ls_shop_filter_fields
+                WHERE   dataSource = 'flexContentLIMinMax'
+        ")
+        ->execute();
+
+        while ($obj_dbres_filterKeys->next()) {
+            $allFilterKeys[] = $obj_dbres_filterKeys->flexContentLIKey;
+        }
+
+        return $allFilterKeys ?? [];
+    }
+
+
 
 
     public static function getProductAttributeValueIds($arr_productAttributesValues = array())

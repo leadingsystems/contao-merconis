@@ -1882,6 +1882,28 @@ class ls_shop_productSearcher
                 $this->blnEnoughProductsOrVariantsToFilterAvailable = true;
             }
 
+//TODO: übersetzen
+            /**
+             *  Da die Information über FCLI ob sie vom Typ Min-/Max ist nicht beim Produkt (oder Variante) hinterlegt ist,
+             *  müssen die Schlüssel der Filterfelder geholt und nachträglich zugeordnet werden
+             */
+/*
+            $objLIMinMaxKeys = \Database::getInstance()->prepare("
+                SELECT  flexContentLIKey
+                FROM    tl_ls_shop_filter_fields
+                WHERE published = 1
+                    AND dataSource = 'flexContentLIMinMax'	
+            ")
+                ->execute();
+
+            $arrLIMinMaxKeys = $objLIMinMaxKeys->fetchAllAssoc();
+*/
+            $arrLIMinMaxKeys = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
+
+            #$GLOBALS['merconis_globals']['flexContentLIKeys'] = $arrLIMinMaxKeys;
+            $_SESSION['lsShop']['filter']['flexContentLIKeys'] = $arrLIMinMaxKeys;
+
+
             if ($this->blnEnoughProductsOrVariantsToFilterAvailable) {
                 ls_shop_filterController::getInstance();
                 ls_shop_filterHelper::setCriteriaToUseInFilterForm($arrProductsComplete);
