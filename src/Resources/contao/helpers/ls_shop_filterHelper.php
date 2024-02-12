@@ -417,6 +417,8 @@ class ls_shop_filterHelper {
 			'attributes' => array(),
             'flexContentsLI' => array(),
             'flexContentsLD' => array(),
+            'flexContentsLIMinMax' => array(
+			),
 			'price' => array(
 				'low' => null,
 				'high' => null
@@ -475,12 +477,19 @@ class ls_shop_filterHelper {
 			return;
 		}
 
-		if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
-			$_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey] = array();
+
+        /**
+         *  Wenn der Flex Content language independent Key in der Liste der LIMinMax Keys enthalten ist, handelt es sich
+         *  nicht mehr um einen FCLI sondern einen Zahlen-Bereichs-FlexContent (ZFCLI)
+         */
+        $filterKey = in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']) ? 'flexContentsLIMinMax' : 'flexContentsLI';
+
+		if (!isset($_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey])) {
+			$_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey] = array();
 		}
 
-		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
-			$_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey][] = $var_value;
+		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey])) {
+			$_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey][] = $var_value;
 		}
 	}
 
