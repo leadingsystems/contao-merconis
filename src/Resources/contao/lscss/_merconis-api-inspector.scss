@@ -83,9 +83,13 @@
 }
 
 [data-merconis-component="product-management-api-test"] .productDataField {
-  max-height: 400px;
+  max-height: 85vh;
   overflow-y: scroll;
   margin-bottom: 10px;
+
+  > div {
+    display: flex;
+  }
 }
 
 [data-merconis-component="product-management-api-test"] .api-inspector-navigation ul li {
