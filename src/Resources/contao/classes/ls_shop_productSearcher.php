@@ -1882,27 +1882,11 @@ class ls_shop_productSearcher
                 $this->blnEnoughProductsOrVariantsToFilterAvailable = true;
             }
 
-//TODO: übersetzen
             /**
-             *  Da die Information über FCLI ob sie vom Typ Min-/Max ist nicht beim Produkt (oder Variante) hinterlegt ist,
-             *  müssen die Schlüssel der Filterfelder geholt und nachträglich zugeordnet werden
+             *  Since the information about FCLI as to whether it is of the min/max type is not stored with the
+             *  product (or variant), the keys of the filter fields must be fetched and assigned subsequently
              */
-/*
-            $objLIMinMaxKeys = \Database::getInstance()->prepare("
-                SELECT  flexContentLIKey
-                FROM    tl_ls_shop_filter_fields
-                WHERE published = 1
-                    AND dataSource = 'flexContentLIMinMax'	
-            ")
-                ->execute();
-
-            $arrLIMinMaxKeys = $objLIMinMaxKeys->fetchAllAssoc();
-*/
-            $arrLIMinMaxKeys = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
-
-            #$GLOBALS['merconis_globals']['flexContentLIKeys'] = $arrLIMinMaxKeys;
-            $_SESSION['lsShop']['filter']['flexContentLIKeys'] = $arrLIMinMaxKeys;
-
+            $_SESSION['lsShop']['filter']['flexContentLIKeys'] = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
 
             if ($this->blnEnoughProductsOrVariantsToFilterAvailable) {
                 ls_shop_filterController::getInstance();
