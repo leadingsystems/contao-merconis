@@ -476,21 +476,51 @@ class ls_shop_filterHelper {
 			}
 			return;
 		}
+/*
 
+
+
+
+ * */
 
         /**
          *  Wenn der Flex Content language independent Key in der Liste der LIMinMax Keys enthalten ist, handelt es sich
          *  nicht mehr um einen FCLI sondern einen Zahlen-Bereichs-FlexContent (ZFCLI)
          */
-        $filterKey = in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']) ? 'flexContentsLIMinMax' : 'flexContentsLI';
+        #$filterKey = in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']) ? 'flexContentsLIMinMax' : 'flexContentsLI';
 
-		if (!isset($_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey])) {
-			$_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey] = array();
-		}
+		#if (!isset($_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey])) {
+			#$_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey] = array();
+		#}
 
-		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey])) {
-			$_SESSION['lsShop']['filter'][$where][$filterKey][$str_flexContentLIKey][] = $var_value;
-		}
+        if (in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']))
+        {   // Zahlen-Range-FCLI
+
+            if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
+			    $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey] = array();
+		    }
+
+            if ($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'] === null
+                || $var_value < $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low']) {
+                $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'] = $var_value;
+            }
+            if ($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'] === null
+                || $var_value > $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high']) {
+                $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'] = $var_value;
+            }
+        }
+        else
+        {   // Standard-FCLI
+
+            if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
+			    $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey] = array();
+		    }
+
+            if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
+                $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey][] = $var_value;
+            }
+        }
+
 	}
 
 	public static function addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
