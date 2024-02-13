@@ -2061,9 +2061,11 @@ class ls_shop_generalHelper
         if (!isset($GLOBALS['merconis_globals']['allFlexContentsLI'])) {
             $arr_allFlexContentsLI = [];
 
+//TODO: Vst zeigen (where is not null)
             $obj_dbres_flexContentsLIForProducts = \Database::getInstance()->prepare("
                 SELECT      flex_contentsLanguageIndependent
                 FROM        tl_ls_shop_product
+                WHERE       NOT flex_contentsLanguageIndependent IS NULL
             ")
             ->execute();
 
@@ -2073,10 +2075,11 @@ class ls_shop_generalHelper
                     $arr_allFlexContentsLI[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
                 }
             }
-
+//TODO: Vst zeigen
             $obj_dbres_flexContentsLIForVariants = \Database::getInstance()->prepare("
                 SELECT      id, flex_contentsLanguageIndependent
                 FROM        tl_ls_shop_variant
+                WHERE 		IFNULL(flex_contentsLanguageIndependent, '') != ''
             ")
             ->execute();
 
@@ -2111,10 +2114,11 @@ class ls_shop_generalHelper
 
             $arr_allFlexContentsLD = [];
 
-
+//TODO: Vst zeigen (where is not null)
             $obj_dbres_flexContentsLDForProducts = \Database::getInstance()->prepare("
                 SELECT      flex_contents_" . $str_currentLanguage . " AS result
                 FROM        tl_ls_shop_product
+                WHERE 		IFNULL(flex_contents_" . $str_currentLanguage . ", '') != ''
             ")
             ->execute();
 
@@ -2128,6 +2132,7 @@ class ls_shop_generalHelper
             $obj_dbres_flexContentsLDForVariants = \Database::getInstance()->prepare("
                 SELECT      id, flex_contents_" . $str_currentLanguage . " AS result
                 FROM        tl_ls_shop_variant
+                WHERE 		IFNULL(flex_contents_" . $str_currentLanguage . ", '') != ''
             ")
             ->execute();
 
