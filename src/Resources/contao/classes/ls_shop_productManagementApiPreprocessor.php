@@ -931,7 +931,7 @@ class ls_shop_productManagementApiPreprocessor
 		foreach ($arr_dataRows as $int_rowNumber => $arr_row) {
 			$arr_preprocessingResult['arr_preprocessedDataRows'][$int_rowNumber] = array();
 
-			foreach ($arr_fieldNameToPreprocessorTypeAssignment = self::$arr_resourceAndFieldDefinition[$str_context]['arr_fields'] as $str_fieldName => $arr_fieldDefinition) {
+			foreach (self::$arr_resourceAndFieldDefinition[$str_context]['arr_fields'] as $str_fieldName => $arr_fieldDefinition) {
 				$var_inputValue = isset($arr_row[$str_fieldName]) ? $arr_row[$str_fieldName] : null;
 
 
