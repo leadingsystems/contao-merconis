@@ -1,3 +1,4 @@
+formFlexContentLIMinMaxFilterField_new
 <div data-lsjs-element="filterPriceBox"  data-lsjs-filter-section-id="<?php echo $this->objWidget_filterField['arr_moreData']['filterSectionId']; ?>" class="filter-form-field filterPriceBox <?php echo $this->objWidget_filterField['arrFilterFieldInfo']['classForFilterFormField']; ?>">
 	<div data-lsjs-element="optionsBox_label" class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></div>
 	<div

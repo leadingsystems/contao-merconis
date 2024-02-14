@@ -7,6 +7,7 @@ if (
     || $this->bln_priceFilterCurrentlyAvailable
 ) {
     ?>
+filterSummary_withAllFields
     <div id="filter-summary-container" class="filter-summary-container ajax-reload-by-filter">
         <ul class="filter-summary">
             <?php
@@ -154,6 +155,74 @@ if (
                             </div>
                         </div>
                     </li>
+                    <?php
+                }
+            }
+
+            if ($this->bln_flexContentsLIMinMaxFilterCurrentlyAvailable) {
+                foreach ($this->arr_filterAllFields['arr_flexContentsLIMinMax'] as $str_flexContentLIKey => $arr_filterFlexContentLI) {
+
+                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContentLIMinMax_' . $str_flexContentLIKey] <= $int_numFilterFieldsMax;
+
+                    $bln_currentlyFilteringByThisFlexContentLIMinMax = isset($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]) && is_array($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['arr_values']);
+                    ?>
+EIN MINMAX
+                <li class="filter-criterion filter-criterion-price<?php
+                    echo $bln_showEvenUnused ? ' show-even-unused' : '';
+                    ?><?php
+                    echo $bln_currentlyFilteringByThisFlexContentLIMinMax ? ' currently-filtering' : '';
+                    ?>" data-order-by-priority="<?php
+                    echo $this->arr_filterFieldSortingNumbers['flexContentLIMinMax_'.$str_flexContentLIKey]; ?>"
+                    original-data-lsjs-filter-section-id="price"
+                    data-lsjs-filter-section-id="<?php echo 'flexContentLIMinMax_'.$str_flexContentLIKey; ?>">
+                    <div class="filter-criterion-attribute-container">
+                        <?php
+                        if ($bln_currentlyFilteringByThisFlexContentLIMinMax) {
+                            ?>
+                            <div class="reset-this-criterion"></div>
+                            <?php
+                        }
+                        ?>
+                        <div class="off-canvas-filter-form-toggler-remote">
+                            <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLI['str_title']; ?>
+                                <?php # echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></span>
+                            <div class="filter-values">
+                                <?php
+                                if ($bln_currentlyFilteringByThisFlexContentLIMinMax) {
+                                    if ($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['low']) {
+                                        ?>
+                                        <span class="filter-price-from">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098']; ?>
+                                            <?php echo
+                                            #\Merconis\Core\ls_shop_generalHelper::outputPrice(
+                                            $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['low']
+                                            #)
+                                            ; ?>
+                                            &nbsp;
+                                        </span>
+                                        <?php
+                                    }
+                                    if ($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['high']) {
+                                        ?>
+                                        <span class="filter-price-to">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099']; ?>
+                                            <?php echo
+                                            #\Merconis\Core\ls_shop_generalHelper::outputPrice(
+                                            $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['high']
+                                            #)
+                                            ; ?>
+                                        </span>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+
+
                     <?php
                 }
             }

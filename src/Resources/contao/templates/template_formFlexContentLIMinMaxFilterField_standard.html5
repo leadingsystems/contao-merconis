@@ -1,4 +1,4 @@
-formPriceFilterField_standard
+formFlexContentLIMinMaxFilterField_standard
 <div data-lsjs-element="filterPriceBox" class="filterPriceBox <?php echo $this->objWidget_filterField['arrFilterFieldInfo']['classForFilterFormField']; ?><?php echo ($this->objWidget_filterField['arr_moreData']['startClosedIfNothingSelected']) ? ' startClosedIfNothingSelected' : ' startOpen'; ?>">
 	<div data-lsjs-element="optionsBox_label" class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></div>
 	<div data-lsjs-element="optionsBox_content" class="content">

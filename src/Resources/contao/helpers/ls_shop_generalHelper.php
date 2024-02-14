@@ -2177,24 +2177,12 @@ class ls_shop_generalHelper
             $arr_allFlexContentsLIMinMax = [];
             $allFilterKeys = [];
 
-/*
-            $obj_dbres_filterKeys = \Database::getInstance()->prepare("
-                SELECT  flexContentLIKey
-                FROM    tl_ls_shop_filter_fields
-                WHERE   dataSource = 'flexContentLIMinMax'
-            ")
-            ->execute();
-
-            while ($obj_dbres_filterKeys->next()) {
-                $allFilterKeys[] = $obj_dbres_filterKeys->flexContentLIKey;
-            }
-*/
             $allFilterKeys = self::getFlexContentLIMinMaxKeys();
-
 
             $obj_dbres_flexContentsLIMinMaxForProducts = \Database::getInstance()->prepare("
                 SELECT      flex_contentsLanguageIndependent
                 FROM        tl_ls_shop_product
+                WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
             ")
             ->execute();
 
@@ -2208,9 +2196,11 @@ class ls_shop_generalHelper
                 }
             }
 
+//TODO: auf die id wird im weiteren nicht zugegriffen. Sie könnte entfernt werden
             $obj_dbres_flexContentsLIForVariants = \Database::getInstance()->prepare("
                 SELECT      id, flex_contentsLanguageIndependent
                 FROM        tl_ls_shop_variant
+                WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
             ")
             ->execute();
 
@@ -2225,10 +2215,33 @@ class ls_shop_generalHelper
                     }
                 }
             }
+//TODO: das folgende Statement holt die Datensätze beider Abfragen auf einmal, wobei zusätzlich nulls ignoriert werden und doppelte rausgefiltert werden
+/*
+SELECT      flex_contentsLanguageIndependent
+FROM        tl_ls_shop_product
+WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
+GROUP BY flex_contentsLanguageIndependent
+UNION ALL
+SELECT      flex_contentsLanguageIndependent
+FROM        tl_ls_shop_variant
+WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
+GROUP BY flex_contentsLanguageIndependent
+*/
+
 
             $arr_allFlexContentsLIMinMax = array_map('array_unique', $arr_allFlexContentsLIMinMax);
+
             $arr_allFlexContentsLIMinMax = array_map(
                 function($arr_toSort) {
+
+                    //Non-numeric values are filtered out. Because the LIMinMax can have several subkeys we need a callable in the callable
+                    $arr_toSort = array_filter($arr_toSort,
+                        function($myval) {
+//TODO: Ein String wie "5,9" ist für den nicht numerisch - sollen wir solche Werte noch mit str_replace(',', '.') abfangen ?
+                            return is_numeric($myval);
+                        }
+                    );
+
                     sort($arr_toSort);
                     return $arr_toSort;
                 },
