@@ -450,6 +450,10 @@
     }
   }
 
+  .rangeInputs > div > input[type="text"] {
+    width: 10rem;
+  }
+
   &.useLsUnfold {
     h2 {
       cursor: pointer;
