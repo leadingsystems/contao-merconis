@@ -21,7 +21,7 @@ class ls_shop_filterHelper {
             'arr_flexContentsLD' => [],
             'arr_flexContentsLIMinMax' => [],
             'arr_producers' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'],
-            'arr_price' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'],
+            'arr_price' => [],
         ];
 //TODO: Der Grund warum ein Preisfilter auch dann angezeigt wird wenn er in den Filterfelder deaktiviert ist liegt hier.
 //  Im Array $arr_filterAllFields erhält arr_price bereits vorhandene ermittelte Preis-Grenzen und es gibt keinen Vergleich
@@ -93,6 +93,24 @@ class ls_shop_filterHelper {
 
         foreach ($arrFilterFieldInfos as $filterFieldID => $arrFilterFieldInfo) {
             switch ($arrFilterFieldInfo['dataSource']) {
+                case 'price':
+                    /*
+                     * If based on the current product list there are no prices to be used as criteria in the filter form
+                     * or no values for the current price, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high'])
+                        || !($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'])
+                        || !($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high'])
+                    ) {
+                        break;
+                    }
+                    $arr_filterAllFields['arr_price'] = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'];
+                    break;
+
                 case 'attribute':
                     /*
                      * If based on the current product list there are no attributes to be used as criteria in the filter form
