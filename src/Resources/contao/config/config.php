@@ -60,10 +60,6 @@ if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
 $GLOBALS['TL_HOOKS']['executePreActions'][] = array('Merconis\Core\ls_shop_ajaxController', 'executePreActions');
 $GLOBALS['TL_HOOKS']['executePostActions'][] = array('Merconis\Core\ls_shop_ajaxController', 'executePostActions');
 
-/*
- * Custom Inserttags
- */
-$GLOBALS['TL_HOOKS']['replaceInsertTags'][] = array('Merconis\Core\ls_shop_customInserttags', 'customInserttags');
 
 /*
  * Hook für bedingte CTE-Ausgabe

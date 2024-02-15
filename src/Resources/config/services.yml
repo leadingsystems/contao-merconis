@@ -87,3 +87,10 @@ services:
     class: LeadingSystems\MerconisBundle\Cronjob\Daily
     tags:
       - { name: contao.cronjob, interval: daily }
+
+
+  LeadingSystems\MerconisBundle\InsertTag\AsInsertTag\:
+    resource: '../../InsertTag/AsInsertTag'
+
+  LeadingSystems\MerconisBundle\InsertTag\AsBlockInsertTag\:
+    resource: '../../InsertTag/AsBlockInsertTag'
