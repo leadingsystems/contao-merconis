@@ -453,64 +453,12 @@ class ls_shop_filterController
                     /*
                      * Create the options array for this filter field ->
                      */
-/*
-                    $arrOptions = array();
-
-                    foreach ($arrFilterFieldInfo['fieldValues'] as $arrFieldValue) {
-                        / *
-                         * In the widget we only insert the values that should be used as filter criteria based on the current product list
-                         * /
-                        if (!in_array($arrFieldValue['filterValue'], $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])) {
-                            continue;
-                        }
-
-                        $arrOptions[] = array(
-                            'value' => $arrFieldValue['filterValue'],
-                            'label' => $arrFieldValue['filterValue'],
-                            'class' => (isset($arrFieldValue['classForFilterFormField']) && $arrFieldValue['classForFilterFormField'] ? ' ' . $arrFieldValue['classForFilterFormField'] : ''),
-                            'important' => (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue'] ? true : false),
-                            'matchEstimates' => isset($_SESSION['lsShop']['filter']['matchEstimates']['flexContentLIValues'][$arrFieldValue['filterValue']])
-                                ? $_SESSION['lsShop']['filter']['matchEstimates']['flexContentLIValues'][$arrFieldValue['filterValue']]
-                                : null
-                        );
-                    }
-                    / *
-                     * <- Create the options array for this filter field
-                     * /
-
-                    $arrObjWidgets_filterFields[$filterFieldID] = new FlexWidget(
-                        array(
-                            'str_uniqueName' => 'filterField_' . $filterFieldID,
-                            'str_template' => $arrFilterFieldInfo['templateToUseForFlexContentLIField'] ? $arrFilterFieldInfo['templateToUseForFlexContentLIField'] : 'template_formFlexContentLIFilterField_new',
-                            'str_label' => $arrFilterFieldInfo['title'],
-                            'str_allowedRequestMethod' => 'post',
-                            'arr_moreData' => array(
-                                'filterSectionId' => $arrFilterFieldInfo['dataSource'] . '-' . $arrFilterFieldInfo['flexContentLIKey'],
-                                'arrOptions' => $arrOptions,
-                                'flexContentLIKey' => $arrFilterFieldInfo['flexContentLIKey'],
-                                'filterMode' => isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
-                                    ? $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]
-                                    : $arrFilterFieldInfo['filterMode'],
-                                'makeFilterModeUserAdjustable' => $arrFilterFieldInfo['makeFilterModeUserAdjustable'],
-                                'arrFieldInfo' => $arrFilterFieldInfo,
-                                'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
-                                'classForFilterFormField' => isset($arrFilterFieldInfo['classForFilterFormField']) ? $arrFilterFieldInfo['classForFilterFormField'] : '',
-                                'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
-                                'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
-                            ),
-                            'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
-                                ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]
-                                : ''
-                        )
-                    );
-*/
-
 					if ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low'] ==
                         $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high']) {
 						continue 2;
 					}
 
-					$objFlexWidget_priceLow = new FlexWidget(
+					$objFlexWidget_ZFCLILow = new FlexWidget(
 						array(
 							'str_uniqueName' => $arrFilterFieldInfo['flexContentLIKey'].'_Low',
 							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098'],
@@ -521,7 +469,7 @@ class ls_shop_filterController
 						)
 					);
 
-					$objFlexWidget_priceHigh = new FlexWidget(
+					$objFlexWidget_ZFCLIHigh = new FlexWidget(
 						array(
 							'str_uniqueName' => $arrFilterFieldInfo['flexContentLIKey'].'_High',
 							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099'],
@@ -531,16 +479,17 @@ class ls_shop_filterController
                                 : 0
 						)
 					);
-
+//TODO: hier vielleicht auch title_de anstatt title ?
 					$arrObjWidgets_filterFields[$filterFieldID] = array(
-						'objWidget_priceLow' => $objFlexWidget_priceLow,
-						'objWidget_priceHigh' => $objFlexWidget_priceHigh,
+						'objWidget_ZFCLILow' => $objFlexWidget_ZFCLILow,
+						'objWidget_ZFCLIHigh' => $objFlexWidget_ZFCLIHigh,
 						'arrFilterFieldInfo' => $arrFilterFieldInfo,
-                        'str_template' => $arrFilterFieldInfo['templateToUseForPriceField'] ? $arrFilterFieldInfo['templateToUseForPriceField'] : 'template_formPriceFilterField_standard',
+                        'str_label' => $arrFilterFieldInfo['title'],
+                        'str_template' => $arrFilterFieldInfo['templateToUseForFlexContentLIMinMaxField'] ?: 'template_formFlexContentLIMinMaxFilterField_standard',
                         'arr_moreData' => array(
-                            'filterSectionId' => $arrFilterFieldInfo['dataSource'],
-                            'minValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'],
-                            'maxValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']
+                            'filterSectionId' => $arrFilterFieldInfo['dataSource'].'_'.$arrFilterFieldInfo['flexContentLIKey'],
+                            'minValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low'],
+                            'maxValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high']
                         )
 					);
 
@@ -635,6 +584,22 @@ class ls_shop_filterController
 				$obj_template_priceFilterField = new \FrontendTemplate($objWidget_filterField['str_template']);
 				$obj_template_priceFilterField->objWidget_filterField = $objWidget_filterField;
 				$arrWidgets_filterFields[] = $obj_template_priceFilterField->parse();
+				continue;
+			}
+
+            //ZFCLI
+            if (
+				!is_object($objWidget_filterField)
+				&& is_array($objWidget_filterField)
+				&& isset($objWidget_filterField['objWidget_ZFCLILow'])
+				&& isset($objWidget_filterField['objWidget_ZFCLIHigh'])
+			) {
+				/*
+				 * FlexContent LI MinMax widget
+				 */
+				$obj_template_ZFCLIFilterField = new \FrontendTemplate($objWidget_filterField['str_template']);
+				$obj_template_ZFCLIFilterField->objWidget_filterField = $objWidget_filterField;
+				$arrWidgets_filterFields[] = $obj_template_ZFCLIFilterField->parse();
 				continue;
 			}
 

@@ -3,7 +3,6 @@
 $bln_moreFilterFieldsAvailableThanShownInSummary = $this->arr_filterSummaryData['int_numAvailableFilterFields'] > $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'];
 $int_numFilterCriteriaCurrentlyUsed = count(($this->arr_filterSummaryData['arr_filterSummary']['arr_attributes'] ?? null) ?: []) + count(($this->arr_filterSummaryData['arr_filterSummary']['arr_producers'] ?? null) ?: []) + (($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['low'] ?? null) || ($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['high'] ?? null) ? 1 : 0);
 ?>
-filterForm_new
 <div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?><?php echo $bln_moreFilterFieldsAvailableThanShownInSummary ? ' more-filter-fields-available' : '' ?>">
     <div id="filter-headline-container" class="ajax-reload-by-filter">
         <span class="all-filter-options off-canvas-filter-form-toggler-remote">
