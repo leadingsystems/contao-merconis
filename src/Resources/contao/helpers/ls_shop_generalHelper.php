@@ -2486,8 +2486,8 @@ class ls_shop_generalHelper
         /*
          * Replacing the old placeholders with the new insert tags for backwards compatibility
          */
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shop_delivery_date}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shop_delivery_time_days}}', $str_deliveryTimeMessage);
 
         $str_deliveryTimeMessage = System::getContainer()->get('contao.insert_tag.parser')->replace($str_deliveryTimeMessage);
 

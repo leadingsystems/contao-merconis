@@ -43,7 +43,7 @@
 					<?php } // <----- NOT USED BY DEFAULT ----- ?>
 
 					<a class="productMainImage boxImage" href="<?php echo $this->objProduct->_linkToProduct; ?>" >
-                        {{shopPicture::<?=$this->objProduct->getImageGallery()->getMainImage()->singleSRC?>?size=productOverview&class=productImage}}
+                        {{shop_picture::<?=$this->objProduct->getImageGallery()->getMainImage()->singleSRC?>?size=productOverview&class=productImage}}
                     </a>
 
                     <?php echo $str_html_statusIcons ?: ''; ?>

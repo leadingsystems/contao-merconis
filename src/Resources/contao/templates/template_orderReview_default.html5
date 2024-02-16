@@ -2,7 +2,7 @@
 <div id="cart-big" class="<?php echo $this->strTemplate ?>">
     <div id="checkout-content" class="order-overview">
         <div class="back-button-box">
-            <a href="{{shopLink::cartPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['checkoutFlow']['goToPreviousStep']; ?></a>
+            <a href="{{shop_link::cartPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['checkoutFlow']['goToPreviousStep']; ?></a>
         </div>
 
         <div id="checkoutStepCustomerDataReview">

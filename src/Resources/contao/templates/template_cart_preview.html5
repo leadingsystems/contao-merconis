@@ -19,7 +19,7 @@
             <?php
             if (\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
                 ?>
-                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or']; ?> <a href="{{shopLink::cartPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart']; ?></a>
+                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or']; ?> <a href="{{shop_link::cartPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart']; ?></a>
                 <?php
             }
             ?>

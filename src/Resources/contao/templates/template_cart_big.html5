@@ -18,7 +18,7 @@
                 if (\Merconis\Core\ls_shop_generalHelper::check_finishingOrderIsAllowed()) {
                     ?>
                     <div class="submit-box">
-                        <a class="button" href="{{shopLink::reviewPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText033']; ?></a>
+                        <a class="button" href="{{shop_link::reviewPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText033']; ?></a>
                     </div>
                     <?php
                 }

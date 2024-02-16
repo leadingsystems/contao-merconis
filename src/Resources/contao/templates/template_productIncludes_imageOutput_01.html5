@@ -23,7 +23,7 @@ if ($obj_tmp_productOrVariant !== null) {
             ?>
             <div class="imageContainer">
                 <a target="<?= (empty($image->originalSRC)) ?  '' : '_blank' ?>" class="<?= (empty($image->originalSRC)) ?  'lsjs-image-zoomer' : '' ?>" href="<?= (empty($image->originalSRC)) ?  $image->singleSRC : $image->originalSRC ?>" title="<?php echo $image->title ?>">
-                    {{shopPicture::<?=$image->singleSRC?>?size=productDetailview&class=productImage&class=productImage}}
+                    {{shop_picture::<?=$image->singleSRC?>?size=productDetailview&class=productImage&class=productImage}}
                 </a>
             </div>
             <?php
