@@ -654,6 +654,26 @@ class ls_shop_filterController
 					continue;
 				}
 
+                if (
+					!is_object($objWidget_filterField)
+					&& is_array($objWidget_filterField)
+					&& isset($objWidget_filterField['objWidget_ZFCLILow'])
+					&& isset($objWidget_filterField['objWidget_ZFCLIHigh'])
+				) {
+					/*
+					 * ZFCLI widget
+					 */
+					if ($objWidget_filterField['objWidget_ZFCLILow']->bln_hasErrors) {
+						$blnFormHasErrors = true;
+					}
+
+					if ($objWidget_filterField['objWidget_ZFCLIHigh']->bln_hasErrors) {
+						$blnFormHasErrors = true;
+					}
+
+					continue;
+				}
+
 				if ($objWidget_filterField->bln_hasErrors) {
 					$blnFormHasErrors = true;
 				}
@@ -684,9 +704,10 @@ class ls_shop_filterController
 							ls_shop_filterHelper::setFilter('flexContentsLIMinMax'
                                 , array(
                                     'flexContentLIKey' => $arrFilterFieldInfos[$filterFieldID]['flexContentLIKey'],
-                                    'value' => $objWidget_filterField->getValue()
-                                )
-                            );
+                                    #'value' => $objWidget_filterField->getValue()
+                                    'low' => $objWidget_filterField['objWidget_ZFCLILow']->getValue(),
+                                    'high' => $objWidget_filterField['objWidget_ZFCLIHigh']->getValue())
+                                );
 							break;
 
 						case 'producer':
@@ -694,7 +715,11 @@ class ls_shop_filterController
 							break;
 
 						case 'price':
-							ls_shop_filterHelper::setFilter('price', array('low' => $objWidget_filterField['objWidget_priceLow']->getValue(), 'high' => $objWidget_filterField['objWidget_priceHigh']->getValue()));
+							ls_shop_filterHelper::setFilter('price'
+                                , array(
+                                    'low' => $objWidget_filterField['objWidget_priceLow']->getValue()
+                                    , 'high' => $objWidget_filterField['objWidget_priceHigh']->getValue())
+                                );
 							break;
 					}
 				}

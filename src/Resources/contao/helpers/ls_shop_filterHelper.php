@@ -1306,6 +1306,7 @@ class ls_shop_filterHelper {
         self::handleFilterModeSettingsForAttributes();
         self::handleFilterModeSettingsForFlexContentsLI();
         self::handleFilterModeSettingsForFlexContentsLD();
+#        #self::handleFilterModeSettingsForFlexContentsLIMinMax();
     }
 
 	public static function handleFilterModeSettingsForAttributes() {
@@ -1346,6 +1347,20 @@ class ls_shop_filterHelper {
         if (is_array($arr_filterModeInput)) {
             foreach ($arr_filterModeInput as $str_flexContentLDKey => $str_filterMode) {
                 $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$str_flexContentLDKey] = $str_filterMode;
+            }
+        }
+	}
+
+    public static function handleFilterModeSettingsForFlexContentsLIMinMax() {
+        if (!isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLIMinMax'])) {
+            $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLIMinMax'] = array();
+        }
+
+        $arr_filterModeInput = \Input::post('filterModeForFlexContentLIMinMax');
+
+        if (is_array($arr_filterModeInput)) {
+            foreach ($arr_filterModeInput as $str_flexContentLIMinMaxKey => $str_filterMode) {
+                $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLIMinMax'][$str_flexContentLIMinMaxKey] = $str_filterMode;
             }
         }
 	}
@@ -1478,16 +1493,17 @@ class ls_shop_filterHelper {
 				break;
 
 			case 'flexContentsLIMinMax':
+/*
 				if (!$varValue['value']) {
 					unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]);
 				} else {
 					$varValue['value'] = is_array($varValue['value']) ? $varValue['value'] : array($varValue['value']);
 
-					/*
+					/ *
 					 * Flex content values that are currently in the filter criteria but that have not been sent with the filter form
 					 * because they weren't even part of the filter form should be added. The reason is, that we don't want filter criteria
 					 * to be reset by submitting a filter form if the user didn't intentionally uncheck them.
-					 */
+					 * /
 					if (isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']])
                         && is_array($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']])) {
 						foreach ($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]
@@ -1514,6 +1530,12 @@ class ls_shop_filterHelper {
 
 					$_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']] = $varValue['value'];
 				}
+*/
+
+//Wahrscheinlich reicht sowas
+                $_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]['low'] = $varValue['low'];
+				$_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]['high'] = $varValue['high'];
+
 				break;
 
 			case 'price':
@@ -1540,7 +1562,7 @@ class ls_shop_filterHelper {
 							$varValue[] = $producerCurrentlyInFilter;
 						}
 					}
-
+//TODO: die Begriffe --reset-- und --checkall-- kommen nur hier vor und werden scheinbar nirgends gesetzt. Dann können sie eigentlich raus
 					foreach($varValue as $k => $v) {
 						if (!$v || $v == '--reset--' || $v == '--checkall--') {
 							unset($varValue[$k]);
