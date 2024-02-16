@@ -20,7 +20,8 @@ class ls_shop_filterHelper {
             'arr_flexContentsLI' => [],
             'arr_flexContentsLD' => [],
             'arr_flexContentsLIMinMax' => [],
-            'arr_producers' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'],
+            #'arr_producers' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'],
+            'arr_producers' => [],
             'arr_price' => [],
         ];
 //TODO: Der Grund warum ein Preisfilter auch dann angezeigt wird wenn er in den Filterfelder deaktiviert ist liegt hier.
@@ -110,6 +111,39 @@ class ls_shop_filterHelper {
                     }
                     $arr_filterAllFields['arr_price'] = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'];
                     break;
+
+                case 'producer':
+                    /*
+                     * If based on the current product list there are no producers to be used as criteria in the filter form
+                     * or no values for the current producer, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
+                        #|| !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'][$arrFilterFieldInfo['flexContentLIKey']])
+                        #|| !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'][$arrFilterFieldInfo['flexContentLIKey']])
+                        #|| !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'][$arrFilterFieldInfo['flexContentLIKey']])
+                    ) {
+                        break;
+                    }
+                    $arr_filterAllFields['arr_producers'] = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'];
+                    break;
+/*
+            $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'];
+
+            $arr_filterAllFields['arr_producers'] = [
+                'str_caption' => $arrFilterFieldInfo['title'],
+                'str_title' => $arrFilterFieldInfo['flexContentLIKey'],
+                'arr_values' => [],
+                'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] ?? null] ?? null
+            ];
+
+            foreach ($arr_filterValues as $str_filterValue) {
+                $arr_filterAllFields['arr_flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]['arr_values'][$str_filterValue] = $str_filterValue;
+            }
+
+                    break;
+*/
 
                 case 'attribute':
                     /*
