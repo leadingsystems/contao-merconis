@@ -12,7 +12,6 @@ if (
     || $this->bln_flexContentsLIMinMaxFilterCurrentlyAvailable
 ) {
     ?>
-filterSummary_withAllFields
     <div id="filter-summary-container" class="filter-summary-container ajax-reload-by-filter">
         <ul class="filter-summary">
             <?php
@@ -171,7 +170,6 @@ filterSummary_withAllFields
 
                     $bln_currentlyFilteringByThisFlexContentLIMinMax = isset($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]) && is_array($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['arr_values']);
                     ?>
-EIN MINMAX
                 <li class="filter-criterion filter-criterion-price<?php
                     echo $bln_showEvenUnused ? ' show-even-unused' : '';
                     ?><?php

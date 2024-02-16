@@ -1,8 +1,7 @@
-formFlexContentLIMinMaxFilterField_standard
-<div data-lsjs-element="filterPriceBox" data-lsjs-filter-section-id="<?php echo $this->objWidget_filterField['arr_moreData']['filterSectionId']; ?>" class="filterPriceBox <?php echo $this->objWidget_filterField['arrFilterFieldInfo']['classForFilterFormField']; ?><?php echo ($this->objWidget_filterField['arr_moreData']['startClosedIfNothingSelected']) ? ' startClosedIfNothingSelected' : ' startOpen'; ?>">
-	<div data-lsjs-element="optionsBox_label" class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107']; ?></div>
+<div data-lsjs-element="filterPriceBox" data-lsjs-filter-section-id="<?php echo $this->objWidget_filterField['arr_moreData']['filterSectionId']; ?>" class="filterPriceBox <?php echo $this->objWidget_filterField['arrFilterFieldInfo']['classForFilterFormField'] ?? ''; ?><?php echo ($this->objWidget_filterField['arr_moreData']['startClosedIfNothingSelected'] ?? '') ? ' startClosedIfNothingSelected' : ' startOpen'; ?>">
+	<div data-lsjs-element="optionsBox_label" class="label"><?php echo $this->objWidget_filterField['str_label'] ?? ''; ?></div>
 	<div data-lsjs-element="optionsBox_content" class="content">
-		<span class="price-from" data-lsjs-element="priceField"><?php echo $this->objWidget_filterField['objWidget_priceLow']->getOutput(); ?></span>
-		<span class="price-to" data-lsjs-element="priceField"><?php echo $this->objWidget_filterField['objWidget_priceHigh']->getOutput(); ?></span>
+		<span class="rangeInputs" data-lsjs-element="rangeField"><?php echo $this->objWidget_filterField['objWidget_ZFCLILow']->getOutput(); ?></span>
+		<span class="rangeInputs" data-lsjs-element="rangeField"><?php echo $this->objWidget_filterField['objWidget_ZFCLIHigh']->getOutput(); ?></span>
 	</div>
 </div>

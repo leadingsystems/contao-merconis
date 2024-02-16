@@ -450,8 +450,13 @@
     }
   }
 
-  .rangeInputs > div > input[type="text"] {
-    width: 10rem;
+  .rangeInputs {
+    .flexWidget {
+      display: inline-block;
+    }
+    > div > input[type="text"] {
+      width: 10rem;
+    }
   }
 
   &.useLsUnfold {

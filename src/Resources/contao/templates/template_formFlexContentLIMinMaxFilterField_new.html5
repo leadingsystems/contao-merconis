@@ -1,6 +1,5 @@
-<!--formFlexContentLIMinMaxFilterField_new-->
 <?php
-//TODO: eigentlich wäre es sauber, wenn es für ´filterPriceBox´ hier ´filterRangeBox´ gäbe. Aber da hängen wieder einige Klassen dran
+//TODO: die rangeInputs Klasse könnte für beide Stellen (preise) genommen werden
 ?>
 <div data-lsjs-element="filterPriceBox" data-lsjs-filter-section-id="<?php
     echo $this->objWidget_filterField['arr_moreData']['filterSectionId'];
@@ -8,11 +7,8 @@
     echo $this->objWidget_filterField['arrFilterFieldInfo']['classForFilterFormField'];
     ?>">
 	<div data-lsjs-element="optionsBox_label" class="label"><?php
-        #echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText107'];
-        ?><?php
-        echo isset($this->objWidget_filterField['str_label']) && $this->objWidget_filterField['str_label'] ?: '';
+        echo $this->objWidget_filterField['str_label'] ?? '';
         ?></div>
-
 	<div
         data-lsjs-component="sliderInput"
         data-lsjs-slider-input-min-value="0"
@@ -21,11 +17,7 @@
         class="content"
     >
 		<span class="price-from rangeInputs" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_ZFCLILow']->getOutput(); ?></span>
-		<span class="price-to rangeInputs" data-lsjs-element="sliderInput_inputField"><?php
-            echo $this->objWidget_filterField['objWidget_ZFCLIHigh']->getOutput(); ?></span>
+		<span class="price-to rangeInputs" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_ZFCLIHigh']->getOutput(); ?></span>
         <div data-lsjs-element="sliderInput_targetContainer"></div>
-<?php
-//TODO: die rangeInputs Klasse könnte für beide Stellen (preise) genommen werden
-?>
 	</div>
 </div>
