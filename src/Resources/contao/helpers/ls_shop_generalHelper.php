@@ -2262,7 +2262,7 @@ GROUP BY flex_contentsLanguageIndependent
      */
     public static function getFlexContentLIMinMaxKeys()
     {
-
+//TODO: evtl. noch Gedanken machen, ob dieses Ergebnis in der Session gecachet wird - und dann wo es wieder gelöscht/neu geholt wird
         $obj_dbres_filterKeys = \Database::getInstance()->prepare("
                 SELECT  flexContentLIKey
                 FROM    tl_ls_shop_filter_fields
