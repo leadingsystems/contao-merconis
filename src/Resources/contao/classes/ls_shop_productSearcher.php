@@ -484,6 +484,13 @@ class ls_shop_productSearcher
         }
         unset($this->arrSearchCriteria["searchType"]);
 
+
+        /**
+         *  Since the information about FCLI as to whether it is of the min/max type is not stored with the
+         *  product (or variant), the keys of the filter fields must be fetched and assigned subsequently
+         */
+        $_SESSION['lsShop']['filter']['flexContentLIKeys'] = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
+
         /*
          * Don't perform a new search if the cached result of the last search can be used
          */
@@ -1881,12 +1888,6 @@ class ls_shop_productSearcher
             if (count($arrProductsComplete) > 1 || (count($arrProductsComplete) == 1 && count($arrProductsComplete[key($arrProductsComplete)]['variants']))) {
                 $this->blnEnoughProductsOrVariantsToFilterAvailable = true;
             }
-
-            /**
-             *  Since the information about FCLI as to whether it is of the min/max type is not stored with the
-             *  product (or variant), the keys of the filter fields must be fetched and assigned subsequently
-             */
-            $_SESSION['lsShop']['filter']['flexContentLIKeys'] = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
 
             if ($this->blnEnoughProductsOrVariantsToFilterAvailable) {
                 ls_shop_filterController::getInstance();

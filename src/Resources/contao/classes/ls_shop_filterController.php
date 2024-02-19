@@ -704,7 +704,6 @@ class ls_shop_filterController
 							ls_shop_filterHelper::setFilter('flexContentsLIMinMax'
                                 , array(
                                     'flexContentLIKey' => $arrFilterFieldInfos[$filterFieldID]['flexContentLIKey'],
-                                    #'value' => $objWidget_filterField->getValue()
                                     'low' => $objWidget_filterField['objWidget_ZFCLILow']->getValue(),
                                     'high' => $objWidget_filterField['objWidget_ZFCLIHigh']->getValue())
                                 );
