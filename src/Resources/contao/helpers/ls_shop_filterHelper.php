@@ -594,15 +594,71 @@ class ls_shop_filterHelper {
 
 
 
+
+    public static function processFCLI($FCLIs, $type)
+    {
+        if (!is_array($FCLIs) ) {
+            return;
+        }
+        $result = [];
+
+        foreach ($FCLIs as $str_flexContentLIKey => &$arr_flexContentLIValues) {
+
+            if ( $type == 'flex_contentsLIMinMax' && self::isFCLIMinMax($str_flexContentLIKey) ) {
+                //ZFCLI
+
+                if (!is_array($arr_flexContentLIValues)) {
+                    #unset($FCLIs[$str_flexContentLIKey]);
+                    continue;
+                }
+
+                //The filter must simply ignore non-numerical values in Z-FCLIs
+                $arr_flexContentLIValues = array_filter($arr_flexContentLIValues, 'is_numeric');
+
+                foreach ($arr_flexContentLIValues as $value) {
+                    self::determineMinMaxValues($value, $min, $max);
+                }
+
+                $result = [$str_flexContentLIKey => ['low' => $min, 'high' => $max]];
+
+            } else if ( $type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($str_flexContentLIKey) ) {
+                //Standard FCLI
+                $result = [$str_flexContentLIKey => $arr_flexContentLIValues];
+            }
+        }
+        return $result;
+    }
+
     public static function isFCLIMinMax($str_flexContentLIKey)
     {
+        if (!isset($_SESSION['lsShop']['filter']['flexContentLIKeys'])) {
+            /**
+            *  Since the information about FCLI as to whether it is of the min/max type is not stored with the
+            *  product (or variant), the keys of the filter fields must be fetched and assigned subsequently
+            */
+            $_SESSION['lsShop']['filter']['flexContentLIKeys'] = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
+        }
+
+
+
         return (in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']));
     }
 
-
+/*
     public static function flimin($str_flexContentLIKey, &$var_values)
     {
+        #$min = '';
+        #$max = '';
+       / **
+         *  If the Flex Content language independent key is included in the list of LIMinMax keys, it is no
+         *  longer an FCLI but a number range FlexContent (ZFCLI)
+         * /
+        #if (in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']))
+        #{   // Number-Range-FCLI
 
+            //alle nicht-numerischen rausfiltern
+            //The filter must simply ignore non-numerical values in Z-FCLIs
+            $var_values = array_filter($var_values, 'is_numeric');
 
             foreach($var_values as $value) {
                 self::determineMinMaxValues($value, $min, $max);
@@ -613,17 +669,24 @@ class ls_shop_filterHelper {
         #}
         #else
         #{   // Default-FCLI
+/ *
+            if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
+			    $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey] = array();
+		    }
 
+            if (!in_array($var_values, $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
+                $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey][] = $var_values;
+            }
+* /
         #}
 
 
     }
+*/
 
 
 
-
-//TODO: die wieder zurückbauen
-	public static function addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
+    public static function addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
 		if (!$str_flexContentLIKey || !$var_value) {
 			return;
 		}
@@ -635,49 +698,28 @@ class ls_shop_filterHelper {
 			return;
 		}
 
-        /**
-         *  If the Flex Content language independent key is included in the list of LIMinMax keys, it is no
-         *  longer an FCLI but a number range FlexContent (ZFCLI)
-         */
-        if (in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']))
-        {   // Number-Range-FCLI
+		if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey] = array();
+		}
 
-            //The filter must simply ignore non-numerical values in Z-FCLIs
-            if (!is_numeric($var_value) ) {
-                return;
-            }
+		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey][] = $var_value;
+		}
+	}
 
-            if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
-			    $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey] = array();
-		    }
 
-//TODO: die funktion könnte auch bei ´addPriceToCriteriaUsedInFilterForm´ eingesetzt werden.
-            self::determineMinMaxValues($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low']
-                , $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high']);
+    public static function addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
+		if (!$str_flexContentLIKey || !$var_value) {
+			return;
+		}
 
-/*
-            if ($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'] === null
-                || $var_value < $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low']) {
-                $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'] = $var_value;
-            }
-            if ($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'] === null
-                || $var_value > $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high']) {
-                $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'] = $var_value;
-            }
-*/
-        }
-        else
-        {   // Default-FCLI
+		if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey] = array();
+		}
 
-            if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
-			    $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey] = array();
-		    }
-
-            if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
-                $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey][] = $var_value;
-            }
-        }
-
+		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey][] = $var_value;
+		}
 	}
 
     /** This function determines a range limit by comparing the passed value with the current range limits and updating it accordingly
@@ -1354,6 +1396,9 @@ class ls_shop_filterHelper {
 			foreach ($arrProduct['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
 				ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
 			}
+foreach ($arrProduct['flex_contentsLIMinMax'] as $str_flexContentLIKey => $str_flexContentLIValue) {
+    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
+}
             foreach ($arrProduct['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
 				ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
 			}
@@ -1364,6 +1409,9 @@ class ls_shop_filterHelper {
                 foreach ($arrVariant['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
                     ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
                 }
+foreach ($arrVariant['flex_contentsLIMinMax'] as $str_flexContentLIKey => $str_flexContentLIValue) {
+    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
+}
                 foreach ($arrVariant['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
                     ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
                 }

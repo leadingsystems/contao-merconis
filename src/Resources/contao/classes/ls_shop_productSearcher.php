@@ -489,7 +489,7 @@ class ls_shop_productSearcher
          *  Since the information about FCLI as to whether it is of the min/max type is not stored with the
          *  product (or variant), the keys of the filter fields must be fetched and assigned subsequently
          */
-        $_SESSION['lsShop']['filter']['flexContentLIKeys'] = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
+        #$_SESSION['lsShop']['filter']['flexContentLIKeys'] = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
 
         /*
          * Don't perform a new search if the cached result of the last search can be used
@@ -1696,8 +1696,11 @@ class ls_shop_productSearcher
                     $refCurrentProductRow['attributeIDs'] = array();
                     $refCurrentProductRow['attributeValueIDs'] = array();
                     $refCurrentProductRow['attributeAndValueIDs'] = array();
-
-                    $refCurrentProductRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
+//TODO: hier ist noch zu überlegen, ob ZFCLI überhaupt in die Liste flex_contentsLanguageIndependent reinkommen dürfen
+                    $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
+                    $refCurrentProductRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax');
+                    $refCurrentProductRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent');
+                    #$refCurrentProductRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
                     $refCurrentProductRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents_'.$searchLanguage])), 2, 1);
 
                     $refCurrentProductRow['variants'] = array();
@@ -1812,7 +1815,11 @@ class ls_shop_productSearcher
                     $refCurrentVariantRow['attributeValueIDs'] = array();
                     $refCurrentVariantRow['attributeAndValueIDs'] = array();
 
-                    $refCurrentVariantRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
+                    $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
+                    #$refCurrentVariantRow['flex_contentsLIMinMax'] = $refCurrentVariantRow['flex_contentsLanguageIndependent'];
+                    $refCurrentVariantRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax');
+                    $refCurrentVariantRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent');
+                    #$refCurrentVariantRow['flex_contentsLanguageIndependent'] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
                     $refCurrentVariantRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents_'.$searchLanguage])), 2, 1);
 
                     /*
