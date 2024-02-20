@@ -2237,7 +2237,6 @@ GROUP BY flex_contentsLanguageIndependent
                     //Non-numeric values are filtered out. Because the LIMinMax can have several subkeys we need a callable in the callable
                     $arr_toSort = array_filter($arr_toSort,
                         function($myval) {
-//TODO: Ein String wie "5,9" ist für den nicht numerisch - sollen wir solche Werte noch mit str_replace(',', '.') abfangen ?
                             return is_numeric($myval);
                         }
                     );

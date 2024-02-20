@@ -5,8 +5,6 @@ if (
     $this->bln_attributesFilterCurrentlyAvailable
     || $this->bln_poducerFilterCurrentlyAvailable
     || $this->bln_priceFilterCurrentlyAvailable
-//TODO: abklären: das ganze Filter-Template soll auch dann angezeigt werden, wenn zwar weder Attribute, Hersteller oder Preis zu zeigen sind, aber ein paar FC-Filter
-
     || $this->bln_flexContentsLIFilterCurrentlyAvailable
     || $this->bln_flexContentsLDFilterCurrentlyAvailable
     || $this->bln_flexContentsLIMinMaxFilterCurrentlyAvailable
