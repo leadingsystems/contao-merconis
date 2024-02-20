@@ -120,30 +120,11 @@ class ls_shop_filterHelper {
                     if (
                         !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
                         || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
-                        #|| !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'][$arrFilterFieldInfo['flexContentLIKey']])
-                        #|| !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'][$arrFilterFieldInfo['flexContentLIKey']])
-                        #|| !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'][$arrFilterFieldInfo['flexContentLIKey']])
                     ) {
                         break;
                     }
                     $arr_filterAllFields['arr_producers'] = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'];
                     break;
-/*
-            $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'];
-
-            $arr_filterAllFields['arr_producers'] = [
-                'str_caption' => $arrFilterFieldInfo['title'],
-                'str_title' => $arrFilterFieldInfo['flexContentLIKey'],
-                'arr_values' => [],
-                'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] ?? null] ?? null
-            ];
-
-            foreach ($arr_filterValues as $str_filterValue) {
-                $arr_filterAllFields['arr_flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]['arr_values'][$str_filterValue] = $str_filterValue;
-            }
-
-                    break;
-*/
 
                 case 'attribute':
                     /*
@@ -629,6 +610,11 @@ class ls_shop_filterHelper {
         return $result;
     }
 
+    /** Compares the LI key with the list of LI MinMax keys and returns true if it is included
+     *
+     * @param $str_flexContentLIKey     FCLI Key to compare
+     * @return true|false               True if FCLI MinMax, false if standard FCLI
+     */
     public static function isFCLIMinMax($str_flexContentLIKey)
     {
         if (!isset($_SESSION['lsShop']['filter']['flexContentLIKeys'])) {
@@ -639,51 +625,8 @@ class ls_shop_filterHelper {
             $_SESSION['lsShop']['filter']['flexContentLIKeys'] = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
         }
 
-
-
         return (in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']));
     }
-
-/*
-    public static function flimin($str_flexContentLIKey, &$var_values)
-    {
-        #$min = '';
-        #$max = '';
-       / **
-         *  If the Flex Content language independent key is included in the list of LIMinMax keys, it is no
-         *  longer an FCLI but a number range FlexContent (ZFCLI)
-         * /
-        #if (in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']))
-        #{   // Number-Range-FCLI
-
-            //alle nicht-numerischen rausfiltern
-            //The filter must simply ignore non-numerical values in Z-FCLIs
-            $var_values = array_filter($var_values, 'is_numeric');
-
-            foreach($var_values as $value) {
-                self::determineMinMaxValues($value, $min, $max);
-            }
-
-
-            return [$str_flexContentLIKey => ['low' => $min, 'high' => $max]];
-        #}
-        #else
-        #{   // Default-FCLI
-/ *
-            if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
-			    $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey] = array();
-		    }
-
-            if (!in_array($var_values, $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
-                $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey][] = $var_values;
-            }
-* /
-        #}
-
-
-    }
-*/
-
 
 
     public static function addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
@@ -718,7 +661,7 @@ class ls_shop_filterHelper {
 		}
 
 		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
-			$_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey][] = $var_value;
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey] = $var_value;
 		}
 	}
 
@@ -925,72 +868,59 @@ class ls_shop_filterHelper {
 					 * are also included in the product's flexContentLI values for the respective flexContentLIKey.
 					 *
 					 */
-
                     /*
-                     * It is unclear whether the product actually has the relevant flexContentLI and if it has,
-                     * the flexContentLI must not necessarily be an array. Therefore, we make sure that we always
-                     * have a proper array for the filter check.
+                     * Ignore the range filter if the high filter range is not higher than 0 and not as least as high as the low filter range.
+                     * This way it is possible to skip the range filter part by setting both filter parameters to 0.
                      */
-                    #$arr_productFlexContentLIValuesToCompareWithFilterRequirements = (array) ($arrProductInfo['flex_contentsLanguageIndependent'][$str_flexContentLIKey] ?? []);
+                    if ($arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']
+                        >= $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                        && $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high'] > 0) {
+                        if (!count($arrProductInfo['variants'])) {
+                            /*
+                             * If the product doesn't have variants, the product's FCLI has to be checked
+                             */
+                            if ($arrProductInfo['flexContentsLIMinMax'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                || $arrProductInfo['flexContentsLIMinMax'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                                $blnWholeProductCouldStillMatch = false;
+                            }
+                        } else {
+
+
+//Das folgende ist die Preis-Vergleichs-Verarbeitungsroutine für Produkte und Varianten
+//Diese ist nicht ohne weiteres direkt auf ZFCLI anwendbar, weil wir auf Produktebene noch Werte haben wie highestPrice und lowestPrice
+//Lösung: alle Varianten müssen nacheinander wie das Produkt verglichen werden.
+                            /*
+                             * If the product has variants, we have to use it's highest and lowest FCLI to see,
+                             * if it is possible to match or filter out the whole product or if we have to
+                             * check each variant separately.
+                             */
 /*
-                    #if (($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$str_flexContentLIKey] ?? null) === 'and') {
-						if (count(array_intersect($arr_flexContentLIValues, $arr_productFlexContentLIValuesToCompareWithFilterRequirements)) !== count($arr_flexContentLIValues)) {
-							$blnWholeProductCouldStillMatch = false;
-							break;
-						}
-					#} else {
-						#if (!count(array_intersect($arr_flexContentLIValues, $arr_productFlexContentLIValuesToCompareWithFilterRequirements))) {
-							#$blnWholeProductCouldStillMatch = false;
-							#break;
-						#}
-					#}
+                            if ($arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                && $arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                                / *
+                                 * If the product's lowest price is higher than the low filter limit and the product's highest price is lower than the high filter limit,
+                                 * this means that all product variants must be within the price range and, regarding the price, the product matches as a whole.
+                                 * /
+                            } else if ($arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                || $arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                                / *
+                                 * If even the product's highest price is lower than the low filter limit or it's lowest
+                                 * price is higher than the high filter limit, this means that none of it's variants
+                                 * has a price within the range and the product has to be filtered out as a whole.
+                                 * /
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = false;
+                            } else {
+                                / *
+                                 * If none of the above is true, this means that there's definitely a variant that has a price outside the range
+                                 * but there could be one ore more variants that have a price within.
+                                 * /
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = true;
+                            }
 */
-			/*
-			 * Ignore the price filter if the high filter price is not higher than 0 and not as least as high as the low filter price.
-			 * This way it is possible to skip the price filter part by setting both filter parameters to 0.
-			 */
-			if ($arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']
-                >= $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
-                && $arrCriteriaToFilterWith['flexContentsLIMinMax']['high'] > 0) {
-				if (!count($arrProductInfo['variants'])) {
-					/*
-					 * If the product doesn't have variants, the product's price has to be checked
-					 */
-					if ($arrProductInfo['flexContentsLIMinMax'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
-                        || $arrProductInfo['flexContentsLIMinMax'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
-						$blnWholeProductCouldStillMatch = false;
-					}
-				} else {
-					/*
-					 * If the product has variants, we have to use it's highest and lowest price to see,
-					 * if it is possible to match or filter out the whole product or if we have to
-					 * check each variant separately.
-					 */
-					if ($arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
-                        && $arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
-						/*
-						 * If the product's lowest price is higher than the low filter limit and the product's highest price is lower than the high filter limit,
-						 * this means that all product variants must be within the price range and, regarding the price, the product matches as a whole.
-						 */
-					} else if ($arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
-                        || $arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
-						/*
-						 * If even the product's highest price is lower than the low filter limit or it's lowest
-						 * price is higher than the high filter limit, this means that none of it's variants
-						 * has a price within the range and the product has to be filtered out as a whole.
-						 */
-						$blnWholeProductCouldStillMatch = false;
-						$blnVariantsCouldStillMatch = false;
-					} else {
-						/*
-						 * If none of the above is true, this means that there's definitely a variant that has a price outside the range
-						 * but there could be one ore more variants that have a price within.
-						 */
-						$blnWholeProductCouldStillMatch = false;
-						$blnVariantsCouldStillMatch = true;
-					}
-				}
-			}
+                        }
+                    }
 				}
 			}
 		}
@@ -1396,9 +1326,9 @@ class ls_shop_filterHelper {
 			foreach ($arrProduct['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
 				ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
 			}
-foreach ($arrProduct['flex_contentsLIMinMax'] as $str_flexContentLIKey => $str_flexContentLIValue) {
-    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
-}
+            foreach ($arrProduct['flex_contentsLIMinMax'] as $str_flexContentLIMinMaxKey => $str_flexContentLIMinMaxValue) {
+                ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue);
+            }
             foreach ($arrProduct['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
 				ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
 			}
@@ -1409,9 +1339,9 @@ foreach ($arrProduct['flex_contentsLIMinMax'] as $str_flexContentLIKey => $str_f
                 foreach ($arrVariant['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
                     ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
                 }
-foreach ($arrVariant['flex_contentsLIMinMax'] as $str_flexContentLIKey => $str_flexContentLIValue) {
-    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
-}
+                foreach ($arrVariant['flex_contentsLIMinMax'] as $str_flexContentLIMinMaxKey => $str_flexContentLIMinMaxValue) {
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue);
+                }
                 foreach ($arrVariant['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
                     ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
                 }
@@ -1653,46 +1583,6 @@ foreach ($arrVariant['flex_contentsLIMinMax'] as $str_flexContentLIKey => $str_f
 				break;
 
 			case 'flexContentsLIMinMax':
-/*
-				if (!$varValue['value']) {
-					unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]);
-				} else {
-					$varValue['value'] = is_array($varValue['value']) ? $varValue['value'] : array($varValue['value']);
-
-					/ *
-					 * Flex content values that are currently in the filter criteria but that have not been sent with the filter form
-					 * because they weren't even part of the filter form should be added. The reason is, that we don't want filter criteria
-					 * to be reset by submitting a filter form if the user didn't intentionally uncheck them.
-					 * /
-					if (isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']])
-                        && is_array($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']])) {
-						foreach ($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]
-                                 as $flexContentLIValueCurrentlyInFilter) {
-							if (
-								!in_array($flexContentLIValueCurrentlyInFilter, $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$varValue['flexContentLIKey']])
-								&&	!in_array($flexContentLIValueCurrentlyInFilter, $varValue['value'])
-							) {
-								$varValue['value'][] = $flexContentLIValueCurrentlyInFilter;
-							}
-						}
-					}
-
-					foreach($varValue['value'] as $k => $v) {
-						if (!$v || $v == '--reset--' || $v == '--checkall--') {
-							unset($varValue['value'][$k]);
-						}
-					}
-
-					if (!count($varValue['value'])) {
-						unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]);
-						break;
-					}
-
-					$_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']] = $varValue['value'];
-				}
-*/
-
-//Wahrscheinlich reicht sowas
                 $_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]['low'] = $varValue['low'];
 				$_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]['high'] = $varValue['high'];
 
