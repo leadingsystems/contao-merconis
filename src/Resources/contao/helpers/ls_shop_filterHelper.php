@@ -574,6 +574,15 @@ class ls_shop_filterHelper {
 	}
 
 
+    /** Die DB-Werte von Produkten werden (für die Filtererstellung) in die Produkt/Variantenstruktur konsolidiert.
+     * Da die Daten für Standard FCLI und Zahlen-FCLI im selben Feld gespeichert sind erfolgt hier die Trennung.
+     * Zahlen-FCLI müssen numerisch sein und es werden gleich die Grenzwerte ermittelt
+     *
+     * @param $FCLIs                flexContent Language Independent of product or Variant
+     * @param $type                 'flex_contentsLIMinMax' or 'flex_contentsLanguageIndependent'
+     * @param $rangeForProduct      boolean, true if product
+     * @return $result
+     */
 
 
     public static function processFCLI($FCLIs, $type)
@@ -589,7 +598,6 @@ class ls_shop_filterHelper {
                 //ZFCLI
 
                 if (!is_array($arr_flexContentLIValues)) {
-                    #unset($FCLIs[$str_flexContentLIKey]);
                     continue;
                 }
 
@@ -1294,6 +1302,7 @@ class ls_shop_filterHelper {
 				'high' => null
 			);
 		}
+//TODO: prüfen: muss der FCLIMinMax Filter hier auch zurückgesetzt werden ?
 	}
 
 	public static function setCriteriaToUseInFilterForm($arrProductsComplete = array()) {
