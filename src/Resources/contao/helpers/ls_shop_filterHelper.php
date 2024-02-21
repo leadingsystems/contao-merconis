@@ -584,8 +584,7 @@ class ls_shop_filterHelper {
      * @return $result
      */
 
-
-    public static function processFCLI($FCLIs, $type)
+    public static function processFCLI($FCLIs, $type, $rangeForProduct = false)
     {
         if (!is_array($FCLIs) ) {
             return;
@@ -609,6 +608,10 @@ class ls_shop_filterHelper {
                 }
 
                 $result = [$str_flexContentLIKey => ['low' => $min, 'high' => $max]];
+
+                if ($rangeForProduct) {
+                    $result[$str_flexContentLIKey] += ['lowestValue' => null, 'highestValue' => null];
+                }
 
             } else if ( $type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($str_flexContentLIKey) ) {
                 //Standard FCLI
@@ -664,13 +667,14 @@ class ls_shop_filterHelper {
 			return;
 		}
 
-		if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
-			$_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey] = array();
-		}
-
-		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
-			$_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey] = $var_value;
-		}
+        if ($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'] === null
+            || $var_value < $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low']) {
+            $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'] = $var_value;
+        }
+        if ($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'] === null
+            || $var_value > $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high']) {
+            $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'] = $var_value;
+        }
 	}
 
     /** This function determines a range limit by comparing the passed value with the current range limits and updating it accordingly
@@ -887,46 +891,41 @@ class ls_shop_filterHelper {
                             /*
                              * If the product doesn't have variants, the product's FCLI has to be checked
                              */
-                            if ($arrProductInfo['flexContentsLIMinMax'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
-                                || $arrProductInfo['flexContentsLIMinMax'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                            if ($arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['high'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                || $arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['low'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
                                 $blnWholeProductCouldStillMatch = false;
                             }
                         } else {
-
-
-//Das folgende ist die Preis-Vergleichs-Verarbeitungsroutine für Produkte und Varianten
-//Diese ist nicht ohne weiteres direkt auf ZFCLI anwendbar, weil wir auf Produktebene noch Werte haben wie highestPrice und lowestPrice
-//Lösung: alle Varianten müssen nacheinander wie das Produkt verglichen werden.
                             /*
                              * If the product has variants, we have to use it's highest and lowest FCLI to see,
                              * if it is possible to match or filter out the whole product or if we have to
                              * check each variant separately.
                              */
-/*
-                            if ($arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
-                                && $arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
-                                / *
-                                 * If the product's lowest price is higher than the low filter limit and the product's highest price is lower than the high filter limit,
-                                 * this means that all product variants must be within the price range and, regarding the price, the product matches as a whole.
-                                 * /
-                            } else if ($arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
-                                || $arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
-                                / *
-                                 * If even the product's highest price is lower than the low filter limit or it's lowest
-                                 * price is higher than the high filter limit, this means that none of it's variants
-                                 * has a price within the range and the product has to be filtered out as a whole.
-                                 * /
+
+                            if ($arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                && $arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                                /*
+                                 * If the product's lowest value is higher than the low filter limit and the product's highest value is lower than the high filter limit,
+                                 * this means that all product variants must be within the value range and, regarding the value, the product matches as a whole.
+                                 */
+                            } else if ($arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                || $arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                                /*
+                                 * If even the product's highest value is lower than the low filter limit or it's lowest
+                                 * value is higher than the high filter limit, this means that none of it's variants
+                                 * has a value within the range and the product has to be filtered out as a whole.
+                                 */
                                 $blnWholeProductCouldStillMatch = false;
                                 $blnVariantsCouldStillMatch = false;
                             } else {
-                                / *
-                                 * If none of the above is true, this means that there's definitely a variant that has a price outside the range
-                                 * but there could be one ore more variants that have a price within.
-                                 * /
+                                /*
+                                 * If none of the above is true, this means that there's definitely a variant that has a value outside the range
+                                 * but there could be one ore more variants that have a value within.
+                                 */
                                 $blnWholeProductCouldStillMatch = false;
                                 $blnVariantsCouldStillMatch = true;
                             }
-*/
+
                         }
                     }
 				}
@@ -1336,7 +1335,8 @@ class ls_shop_filterHelper {
 				ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
 			}
             foreach ($arrProduct['flex_contentsLIMinMax'] as $str_flexContentLIMinMaxKey => $str_flexContentLIMinMaxValue) {
-                ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue);
+                ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['low']);
+                ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['high']);
             }
             foreach ($arrProduct['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
 				ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
@@ -1349,7 +1349,8 @@ class ls_shop_filterHelper {
                     ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
                 }
                 foreach ($arrVariant['flex_contentsLIMinMax'] as $str_flexContentLIMinMaxKey => $str_flexContentLIMinMaxValue) {
-                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue);
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['low']);
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['high']);
                 }
                 foreach ($arrVariant['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
                     ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
