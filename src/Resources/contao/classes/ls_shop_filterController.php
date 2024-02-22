@@ -184,7 +184,6 @@ class ls_shop_filterController
 
 					$fieldValuesAlreadyHandled = array();
 
-//TODO: die Variable $blnHasImportantOption wird initialisiert und ermittelt, aber im späteren nicht weiter verwendet. kann raus
 					$blnHasImportantOption = false;
 
 					foreach ($arrFilterFieldInfo['fieldValues'] as $arrFieldValue) {
