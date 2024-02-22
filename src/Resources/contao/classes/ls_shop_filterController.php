@@ -473,8 +473,8 @@ class ls_shop_filterController
 							'str_uniqueName' => $arrFilterFieldInfo['flexContentLIKey'].'_High',
 							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099'],
 							'str_allowedRequestMethod' => 'post',
-							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['price']['high'])
-                                ? $_SESSION['lsShop']['filter']['criteria']['price']['high']
+							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high'])
+                                ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high']
                                 : 0
 						)
 					);

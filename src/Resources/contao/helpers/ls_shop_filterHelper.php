@@ -20,13 +20,9 @@ class ls_shop_filterHelper {
             'arr_flexContentsLI' => [],
             'arr_flexContentsLD' => [],
             'arr_flexContentsLIMinMax' => [],
-            #'arr_producers' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'],
             'arr_producers' => [],
             'arr_price' => [],
         ];
-//TODO: Der Grund warum ein Preisfilter auch dann angezeigt wird wenn er in den Filterfelder deaktiviert ist liegt hier.
-//  Im Array $arr_filterAllFields erhält arr_price bereits vorhandene ermittelte Preis-Grenzen und es gibt keinen Vergleich
-//  - wie bei den anderen Filtertypen - ob es dazu auch FilterFieldInfos gibt
 
 
         if (is_array($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes'] ?? null)) {
@@ -255,11 +251,13 @@ class ls_shop_filterHelper {
                 || (isset($arr_filterAllFields['arr_price']['high']) && $arr_filterAllFields['arr_price']['high'])
             )
         );
+//TODO: hier eigentlich das gleiche tun ? $bln_flexContentsLIMinMaxFilterCurrentlyAvailable (unten in der Schleife)
+
 
         $bln_currentlyFilteringByAttributes = is_array($arr_filterSummary['arr_attributes']) && count($arr_filterSummary['arr_attributes']);
         $bln_currentlyFilteringByFlexContentsLI = is_array($arr_filterSummary['arr_flexContentsLI']) && count($arr_filterSummary['arr_flexContentsLI']);
         $bln_currentlyFilteringByFlexContentsLD = is_array($arr_filterSummary['arr_flexContentsLD']) && count($arr_filterSummary['arr_flexContentsLD']);
-        $bln_currentlyFilteringByFlexContentsLIMinMax = is_array($arr_filterSummary['arr_flexContentsLIMinMax']) && count($arr_filterSummary['arr_flexContentsLIMinMax']);
+        #$bln_currentlyFilteringByFlexContentsLIMinMax = is_array($arr_filterSummary['arr_flexContentsLIMinMax']) && count($arr_filterSummary['arr_flexContentsLIMinMax']);
         $bln_currentlyFilteringByProducer = is_array($arr_filterSummary['arr_producers']) && count($arr_filterSummary['arr_producers']);
         $bln_currentlyFilteringByPrice = (
             is_array($arr_filterSummary['arr_price'])
@@ -268,6 +266,30 @@ class ls_shop_filterHelper {
                 || (isset($arr_filterSummary['arr_price']['high']) && $arr_filterSummary['arr_price']['high'])
             )
         );
+
+        foreach($arr_filterSummary['arr_flexContentsLIMinMax'] as $flexContentLIMinMaxKey => $flexContentLIMinMaxValues) {
+            if (
+/*
+                (isset($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'])
+                    && $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'])
+                ||
+                (isset($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'])
+                    && $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'])
+*/
+/*
+                (!empty($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low']))
+                ||
+                (!empty($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high']))
+*/
+                ($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'] ?? '')
+                ||
+                ($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'] ?? '')
+                ) {
+                $bln_currentlyFilteringByFlexContentsLIMinMax = true;
+                break;
+            }
+        }
+
 
 
 
@@ -390,6 +412,7 @@ class ls_shop_filterHelper {
         $obj_template->bln_currentlyFilteringByAttributes = $arr_summaryData['bln_currentlyFilteringByAttributes'];
         $obj_template->bln_currentlyFilteringByFlexContentsLI = $arr_summaryData['bln_currentlyFilteringByFlexContentsLI'];
         $obj_template->bln_currentlyFilteringByFlexContentsLD = $arr_summaryData['bln_currentlyFilteringByFlexContentsLD'];
+        $obj_template->bln_currentlyFilteringByFlexContentsLIMinMax = $arr_summaryData['bln_currentlyFilteringByFlexContentsLIMinMax'];
         $obj_template->bln_currentlyFilteringByProducer = $arr_summaryData['bln_currentlyFilteringByProducer'];
         $obj_template->bln_currentlyFilteringByPrice = $arr_summaryData['bln_currentlyFilteringByPrice'];
         $obj_template->arr_filterFieldSortingNumbers = $arr_summaryData['arr_filterFieldSortingNumbers'];
@@ -666,12 +689,14 @@ class ls_shop_filterHelper {
 		if (!$str_flexContentLIKey || !$var_value) {
 			return;
 		}
-
-        if ($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'] === null
+        if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
+            $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey] = [];
+        }
+        if (empty($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'])
             || $var_value < $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low']) {
             $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'] = $var_value;
         }
-        if ($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'] === null
+        if (empty($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'])
             || $var_value > $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high']) {
             $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'] = $var_value;
         }
@@ -1335,8 +1360,13 @@ class ls_shop_filterHelper {
 				ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
 			}
             foreach ($arrProduct['flex_contentsLIMinMax'] as $str_flexContentLIMinMaxKey => $str_flexContentLIMinMaxValue) {
-                ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['low']);
-                ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['high']);
+                if (!isset($str_flexContentLIMinMaxValue['lowestValue'])) {
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['low']);
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['high']);
+                } else {
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['lowestValue']);
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['highestValue']);
+                }
             }
             foreach ($arrProduct['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
 				ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
@@ -1406,7 +1436,6 @@ class ls_shop_filterHelper {
         self::handleFilterModeSettingsForAttributes();
         self::handleFilterModeSettingsForFlexContentsLI();
         self::handleFilterModeSettingsForFlexContentsLD();
-#        #self::handleFilterModeSettingsForFlexContentsLIMinMax();
     }
 
 	public static function handleFilterModeSettingsForAttributes() {

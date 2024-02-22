@@ -1845,23 +1845,15 @@ class ls_shop_productSearcher
                      *  FCLI Ranges from Variant to Product
                      */
                     foreach ($refCurrentVariantRow['flex_contentsLIMinMax'] as $FCLIKey => $FCLIValues) {
-
-                        //avoid warnings
-                        if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'])) {
-                            $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'] = null;
-                        }
-                        if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'])) {
-                            $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'] = null;
-                        }
                         /*
                          * Store the variant's Range as the product's lowest and highest value if it hasn't been set yet or if
                          * the current variant's range is lower/higher than the currently stored lowest/highest value.
                          */
-                        if ($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue'] === null
+                        if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue'])
                             || $FCLIValues['low'] < $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue']) {
                             $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue'] = $FCLIValues['low'];
                         }
-                        if ($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'] === null
+                        if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'])
                             || $FCLIValues['high'] > $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue']) {
                             $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'] = $FCLIValues['high'];
                         }
