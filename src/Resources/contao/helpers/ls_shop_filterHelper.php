@@ -1321,7 +1321,7 @@ class ls_shop_filterHelper {
 		/*
 		 * Reset the price range if it is no longer in the filter form
 		 */
-		if ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'] == $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
+		if (!$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'] && !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
 			$_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['price'] = array(
 				'low' => null,
 				'high' => null

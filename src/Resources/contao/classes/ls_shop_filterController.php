@@ -257,9 +257,9 @@ class ls_shop_filterController
 
 				case 'price':
 					/*
-					 * Skip the price field if there are no different prices in the result that should be filtered
+					 * Skip the price field if there are no different prices (both are 0) in the result that should be filtered
 					 */
-					if ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'] == $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
+					if (!$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'] && !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
 						continue 2;
 					}
 
@@ -438,6 +438,7 @@ class ls_shop_filterController
                     /*
                      * If based on the current product list there are no flexContentsLIMinMax to be used as criteria in the filter form
                      * or no values for the current flexContentsLIMinMax, we don't create a widget
+                     * Skip it if both rangevalues are 0
                      */
                     if (
                         !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'])
@@ -445,17 +446,11 @@ class ls_shop_filterController
                         || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
                         || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
                         || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || (!$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low']
+                            && !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high'])
                     ) {
                         continue 2;
                     }
-
-                    /*
-                     * Create the options array for this filter field ->
-                     */
-					if ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low'] ==
-                        $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high']) {
-						continue 2;
-					}
 
 					$objFlexWidget_ZFCLILow = new FlexWidget(
 						array(
