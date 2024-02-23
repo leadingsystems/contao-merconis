@@ -1304,7 +1304,18 @@ class ls_shop_filterHelper {
 				'high' => null
 			);
 		}
-//TODO: prüfen: muss der FCLIMinMax Filter hier auch zurückgesetzt werden ?
+
+        foreach($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'] as $FCLIKey => $FCLIValues) {
+            if (
+                !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$FCLIKey]['low'] &&
+                !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$FCLIKey]['high']
+                ) {
+                $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLIMinMax'][$FCLIKey]['low'] = array(
+                    'low' => null,
+				    'high' => null
+                );
+            }
+        }
 	}
 
 	public static function setCriteriaToUseInFilterForm($arrProductsComplete = array()) {
