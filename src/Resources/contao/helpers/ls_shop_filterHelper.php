@@ -597,16 +597,15 @@ class ls_shop_filterHelper {
 	}
 
 
-    /** Die DB-Werte von Produkten werden (für die Filtererstellung) in die Produkt/Variantenstruktur konsolidiert.
-     * Da die Daten für Standard FCLI und Zahlen-FCLI im selben Feld gespeichert sind erfolgt hier die Trennung.
-     * Zahlen-FCLI müssen numerisch sein und es werden gleich die Grenzwerte ermittelt
+    /** The DB values ​​of products are consolidated (for filter creation) into the product/variant structure.
+     *  Since the data for standard FCLI and numerical FCLI are stored in the same field, the separation occurs here.
+     *  Numerical FCLI must be numerical and the limit values ​​are determined immediately
      *
      * @param $FCLIs                flexContent Language Independent of product or Variant
-     * @param $type                 'flex_contentsLIMinMax' or 'flex_contentsLanguageIndependent'
+     * @param $type                 ´flex_contentsLIMinMax´ or ´flex_contentsLanguageIndependent´
      * @param $rangeForProduct      boolean, true if product
      * @return $result
      */
-
     public static function processFCLI($FCLIs, $type, $rangeForProduct = false)
     {
         if (!is_array($FCLIs) ) {
@@ -614,17 +613,20 @@ class ls_shop_filterHelper {
         }
         $result = [];
 
-        foreach ($FCLIs as $str_flexContentLIKey => &$arr_flexContentLIValues) {
+        foreach ($FCLIs as $str_flexContentLIKey => $arr_flexContentLIValues) {
 
             if ( $type == 'flex_contentsLIMinMax' && self::isFCLIMinMax($str_flexContentLIKey) ) {
-                //ZFCLI
 
                 if (!is_array($arr_flexContentLIValues)) {
-                    continue;
+                    $arr_flexContentLIValues = [$arr_flexContentLIValues];
                 }
 
                 //The filter must simply ignore non-numerical values in Z-FCLIs
                 $arr_flexContentLIValues = array_filter($arr_flexContentLIValues, 'is_numeric');
+
+                if (!count($arr_flexContentLIValues)) {
+                    continue;
+                }
 
                 foreach ($arr_flexContentLIValues as $value) {
                     self::determineMinMaxValues($value, $min, $max);
@@ -637,7 +639,6 @@ class ls_shop_filterHelper {
                 }
 
             } else if ( $type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($str_flexContentLIKey) ) {
-                //Standard FCLI
                 $result = [$str_flexContentLIKey => $arr_flexContentLIValues];
             }
         }
