@@ -69,23 +69,6 @@ class ls_shop_filterHelper {
             }
         }
 
-//TODO: hier eher Price-Verhalten - Prüfen wie sieht criteriaToActuallyFilterWith aus, wenn nach Preis gefiltert wird
-/*
-        if (is_array($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLIMinMax'] ?? null)) {
-            foreach ($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLIMinMax'] as $str_flexContentLIKey => $arr_filterValues) {
-                $arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey] = [
-                    'str_title' => $str_flexContentLIKey,
-                    'arr_values' => [],
-                    'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$str_flexContentLIKey]]
-                ];
-
-                foreach ($arr_filterValues as $str_filterValue) {
-                    $arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values'][$str_filterValue] = $str_filterValue;
-                }
-            }
-        }
-*/
-
         $arrFilterFieldInfos = ls_shop_filterHelper::getFilterFieldInfos();
 
         foreach ($arrFilterFieldInfos as $filterFieldID => $arrFilterFieldInfo) {
@@ -299,7 +282,6 @@ class ls_shop_filterHelper {
         $arr_filterFieldSortingNumbers = [];
         $arr_filterFieldPriorities = [];
 
-//TODO: 2x Abfrage auf diesselbe Tabelle (ls_shop_filterHelper::getFilterFieldInfos())
         $obj_dbres_filterFieldPriorities = \Database::getInstance()
             ->prepare("
                 SELECT  id,
@@ -349,7 +331,6 @@ class ls_shop_filterHelper {
 
 
         foreach (array_keys($arr_filterAllFields['arr_flexContentsLIMinMax']) as $str_flexContentLIMinMaxKey) {
-//TODO: hier ist ein "flexContentLI_" enthalten - der ist bestimmt falsch - untersuchen
             $arr_filterFieldSortingNumbers['flexContentLIMinMax_' . $str_flexContentLIMinMaxKey] = $arr_filterFieldPriorities['flexContentLIMinMax_' . $str_flexContentLIMinMaxKey];
         }
 
