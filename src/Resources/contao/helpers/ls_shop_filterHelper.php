@@ -225,7 +225,6 @@ class ls_shop_filterHelper {
         $bln_attributesFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_attributes']) && count($arr_filterAllFields['arr_attributes']);
         $bln_flexContentsLIFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_flexContentsLI']) && count($arr_filterAllFields['arr_flexContentsLI']);
         $bln_flexContentsLDFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_flexContentsLD']) && count($arr_filterAllFields['arr_flexContentsLD']);
-        $bln_flexContentsLIMinMaxFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_flexContentsLIMinMax']) && count($arr_filterAllFields['arr_flexContentsLIMinMax']);
         $bln_poducerFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_producers']) && count($arr_filterAllFields['arr_producers']);
         $bln_priceFilterCurrentlyAvailable = (
             is_array($arr_filterAllFields['arr_price'])
@@ -234,13 +233,22 @@ class ls_shop_filterHelper {
                 || (isset($arr_filterAllFields['arr_price']['high']) && $arr_filterAllFields['arr_price']['high'])
             )
         );
-//TODO: hier eigentlich das gleiche tun ? $bln_flexContentsLIMinMaxFilterCurrentlyAvailable (unten in der Schleife)
+
+        foreach($arr_filterAllFields['arr_flexContentsLIMinMax'] as $flexContentLIMinMaxKey => $flexContentLIMinMaxValues) {
+            if (
+                ($arr_filterAllFields['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'] ?? '')
+                ||
+                ($arr_filterAllFields['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'] ?? '')
+                ) {
+                $bln_flexContentsLIMinMaxFilterCurrentlyAvailable = true;
+                break;
+            }
+        }
 
 
         $bln_currentlyFilteringByAttributes = is_array($arr_filterSummary['arr_attributes']) && count($arr_filterSummary['arr_attributes']);
         $bln_currentlyFilteringByFlexContentsLI = is_array($arr_filterSummary['arr_flexContentsLI']) && count($arr_filterSummary['arr_flexContentsLI']);
         $bln_currentlyFilteringByFlexContentsLD = is_array($arr_filterSummary['arr_flexContentsLD']) && count($arr_filterSummary['arr_flexContentsLD']);
-        #$bln_currentlyFilteringByFlexContentsLIMinMax = is_array($arr_filterSummary['arr_flexContentsLIMinMax']) && count($arr_filterSummary['arr_flexContentsLIMinMax']);
         $bln_currentlyFilteringByProducer = is_array($arr_filterSummary['arr_producers']) && count($arr_filterSummary['arr_producers']);
         $bln_currentlyFilteringByPrice = (
             is_array($arr_filterSummary['arr_price'])
@@ -252,18 +260,6 @@ class ls_shop_filterHelper {
 
         foreach($arr_filterSummary['arr_flexContentsLIMinMax'] as $flexContentLIMinMaxKey => $flexContentLIMinMaxValues) {
             if (
-/*
-                (isset($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'])
-                    && $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'])
-                ||
-                (isset($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'])
-                    && $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'])
-*/
-/*
-                (!empty($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low']))
-                ||
-                (!empty($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high']))
-*/
                 ($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'] ?? '')
                 ||
                 ($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'] ?? '')
