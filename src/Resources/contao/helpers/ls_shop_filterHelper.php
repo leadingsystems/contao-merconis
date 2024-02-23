@@ -635,7 +635,7 @@ class ls_shop_filterHelper {
                 $result = [$str_flexContentLIKey => ['low' => $min, 'high' => $max]];
 
                 if ($rangeForProduct) {
-                    $result[$str_flexContentLIKey] += ['lowestValue' => null, 'highestValue' => null];
+                    $result[$str_flexContentLIKey] += ['lowestValue' => $min, 'highestValue' => $max];
                 }
 
             } else if ( $type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($str_flexContentLIKey) ) {

@@ -1704,8 +1704,8 @@ class ls_shop_productSearcher
 
                     $refCurrentProductRow['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz']);
 
-                    $refCurrentProductRow['lowestPrice'] = null;
-                    $refCurrentProductRow['highestPrice'] = null;
+                    $refCurrentProductRow['lowestPrice'] = $refCurrentProductRow['price'];
+                    $refCurrentProductRow['highestPrice'] = $refCurrentProductRow['price'];
                 } else {
                     /*
                      * use a reference to make the following code better readable (the reference has to be
