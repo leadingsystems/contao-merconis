@@ -259,13 +259,14 @@ class ls_shop_filterHelper {
         );
 
         foreach($arr_filterSummary['arr_flexContentsLIMinMax'] as $flexContentLIMinMaxKey => $flexContentLIMinMaxValues) {
+            $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['currentlyFiltering'] = false;
             if (
                 ($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'] ?? '')
                 ||
                 ($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'] ?? '')
                 ) {
+                $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['currentlyFiltering'] = true;
                 $bln_currentlyFilteringByFlexContentsLIMinMax = true;
-                break;
             }
         }
 

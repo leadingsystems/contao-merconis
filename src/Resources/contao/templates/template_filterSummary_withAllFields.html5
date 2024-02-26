@@ -168,13 +168,16 @@ if (
                 <li class="filter-criterion filter-criterion-price<?php
                     echo $bln_showEvenUnused ? ' show-even-unused' : '';
                     ?><?php
-                    echo $this->bln_currentlyFilteringByFlexContentsLIMinMax ? ' currently-filtering' : '';
+                    echo (isset($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey])
+                        && $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['currentlyFiltering'])
+                        ? ' currently-filtering' : '';
                     ?>" data-order-by-priority="<?php
                     echo $this->arr_filterFieldSortingNumbers['flexContentLIMinMax_'.$str_flexContentLIKey]; ?>"
                     data-lsjs-filter-section-id="<?php echo 'flexContentLIMinMax_'.$str_flexContentLIKey; ?>">
                     <div class="filter-criterion-attribute-container">
                         <?php
-                        if ($this->bln_currentlyFilteringByFlexContentsLIMinMax) {
+                        if (isset($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey])
+                            && $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['currentlyFiltering']) {
                             ?>
                             <div class="reset-this-criterion"></div>
                             <?php
@@ -184,7 +187,9 @@ if (
                             <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLI['str_caption']; ?></span>
                             <div class="filter-values">
                                 <?php
-                                if ($this->bln_currentlyFilteringByFlexContentsLIMinMax) {
+                                if (isset($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey])
+
+                                    && $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['currentlyFiltering']) {
                                     if ($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['low']) {
                                         ?>
                                         <span class="filter-price-from">
