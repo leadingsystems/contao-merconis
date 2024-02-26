@@ -258,6 +258,7 @@ class ls_shop_filterHelper {
             )
         );
 
+        $bln_currentlyFilteringByFlexContentsLIMinMax = false;
         foreach($arr_filterSummary['arr_flexContentsLIMinMax'] as $flexContentLIMinMaxKey => $flexContentLIMinMaxValues) {
             $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['currentlyFiltering'] = false;
             if (
