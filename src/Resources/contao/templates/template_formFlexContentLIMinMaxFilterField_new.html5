@@ -1,6 +1,3 @@
-<?php
-//TODO: die rangeInputs Klasse könnte für beide Stellen (preise) genommen werden
-?>
 <div data-lsjs-element="filterPriceBox" data-lsjs-filter-section-id="<?php
     echo $this->objWidget_filterField['arr_moreData']['filterSectionId'];
     ?>" class="filter-form-field filterPriceBox <?php

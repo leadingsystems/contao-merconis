@@ -1631,7 +1631,7 @@ class ls_shop_filterHelper {
 							$varValue[] = $producerCurrentlyInFilter;
 						}
 					}
-//TODO: die Begriffe --reset-- und --checkall-- kommen nur hier vor und werden scheinbar nirgends gesetzt. Dann können sie eigentlich raus
+
 					foreach($varValue as $k => $v) {
 						if (!$v || $v == '--reset--' || $v == '--checkall--') {
 							unset($varValue[$k]);
