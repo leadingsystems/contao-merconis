@@ -2051,7 +2051,7 @@ class ls_shop_productManagementApiPreprocessor
 		$arr_attributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 
 		if (!in_array($str_output, $arr_attributeAndValueAliases['attributeAliases'])) {
-			throw new \Exception('given property alias does not exist');
+			throw new \Exception('given property alias "' . $str_output . '" does not exist');
 		}
 
 		$str_output = ls_shop_productManagementApiHelper::getAttributeIDForAlias($str_output);
@@ -2080,7 +2080,7 @@ class ls_shop_productManagementApiPreprocessor
 		$arr_attributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 
 		if (!in_array($str_output, $arr_attributeAndValueAliases['attributeValueAliases'])) {
-			throw new \Exception('given property value alias does not exist');
+			throw new \Exception('given property value alias "' . $str_output. '" does not exist');
 		}
 
 		$str_output = ls_shop_productManagementApiHelper::getAttributeValueIDForAlias($str_output);
