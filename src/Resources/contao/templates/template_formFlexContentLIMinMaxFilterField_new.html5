@@ -8,10 +8,7 @@
         ?></div>
 	<div
         data-lsjs-component="sliderInput"
-        data-lsjs-slider-input-min-value="<?php
-        echo '0';
-        #echo floor($this->objWidget_filterField['arr_moreData']['minValue']);
-        ?>"
+        data-lsjs-slider-input-min-value="<?php echo '0'; ?>"
         data-lsjs-slider-input-max-value="<?php echo ceil($this->objWidget_filterField['arr_moreData']['maxValue']); ?>"
         data-lsjs-element="optionsBox_content"
         class="content"

@@ -325,7 +325,6 @@ class ls_shop_filterHelper {
             $arr_filterFieldSortingNumbers['flexContentLD_' . $str_flexContentLDKey] = $arr_filterFieldPriorities['flexContentLD_' . $str_flexContentLDKey];
         }
 
-
         foreach (array_keys($arr_filterAllFields['arr_flexContentsLIMinMax']) as $str_flexContentLIMinMaxKey) {
             $arr_filterFieldSortingNumbers['flexContentLIMinMax_' . $str_flexContentLIMinMaxKey] = $arr_filterFieldPriorities['flexContentLIMinMax_' . $str_flexContentLIMinMaxKey];
         }
@@ -581,33 +580,33 @@ class ls_shop_filterHelper {
         }
         $result = [];
 
-        foreach ($FCLIs as $str_flexContentLIKey => $arr_flexContentLIValues) {
+        foreach ($FCLIs as $flexContentLIKey => $flexContentLIValues) {
 
-            if ( $type == 'flex_contentsLIMinMax' && self::isFCLIMinMax($str_flexContentLIKey) ) {
+            if ( $type == 'flex_contentsLIMinMax' && self::isFCLIMinMax($flexContentLIKey) ) {
 
-                if (!is_array($arr_flexContentLIValues)) {
-                    $arr_flexContentLIValues = [$arr_flexContentLIValues];
+                if (!is_array($flexContentLIValues)) {
+                    $flexContentLIValues = [$flexContentLIValues];
                 }
 
                 //The filter must simply ignore non-numerical values in Z-FCLIs
-                $arr_flexContentLIValues = array_filter($arr_flexContentLIValues, 'is_numeric');
+                $flexContentLIValues = array_filter($flexContentLIValues, 'is_numeric');
 
-                if (!count($arr_flexContentLIValues)) {
+                if (!count($flexContentLIValues)) {
                     continue;
                 }
 
-                foreach ($arr_flexContentLIValues as $value) {
-                    self::determineMinMaxValues($value, $min, $max);
+                foreach ($flexContentLIValues as $flexContentLIValue) {
+                    self::determineMinMaxValues($flexContentLIValue, $min, $max);
                 }
 
-                $result = [$str_flexContentLIKey => ['low' => $min, 'high' => $max]];
+                $result = [$flexContentLIKey => ['low' => $min, 'high' => $max]];
 
                 if ($rangeForProduct) {
-                    $result[$str_flexContentLIKey] += ['lowestValue' => $min, 'highestValue' => $max];
+                    $result[$flexContentLIKey] += ['lowestValue' => $min, 'highestValue' => $max];
                 }
 
-            } else if ( $type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($str_flexContentLIKey) ) {
-                $result = [$str_flexContentLIKey => $arr_flexContentLIValues];
+            } else if ( $type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($flexContentLIKey) ) {
+                $result = [$flexContentLIKey => $flexContentLIValues];
             }
         }
         return $result;
@@ -615,10 +614,10 @@ class ls_shop_filterHelper {
 
     /** Compares the LI key with the list of LI MinMax keys and returns true if it is included
      *
-     * @param $str_flexContentLIKey     FCLI Key to compare
+     * @param $flexContentLIKey         FCLI Key to compare
      * @return true|false               True if FCLI MinMax, false if standard FCLI
      */
-    public static function isFCLIMinMax($str_flexContentLIKey)
+    public static function isFCLIMinMax($flexContentLIKey)
     {
         if (!isset($_SESSION['lsShop']['filter']['flexContentLIKeys'])) {
             /**
@@ -628,7 +627,7 @@ class ls_shop_filterHelper {
             $_SESSION['lsShop']['filter']['flexContentLIKeys'] = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
         }
 
-        return (in_array($str_flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']));
+        return (in_array($flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']));
     }
 
 

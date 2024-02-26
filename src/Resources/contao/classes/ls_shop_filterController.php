@@ -695,12 +695,7 @@ class ls_shop_filterController
 							break;
 
 						case 'flexContentLIMinMax':
-							ls_shop_filterHelper::setFilter('flexContentsLIMinMax'
-                                , array(
-                                    'flexContentLIKey' => $arrFilterFieldInfos[$filterFieldID]['flexContentLIKey'],
-                                    'low' => $objWidget_filterField['objWidget_ZFCLILow']->getValue(),
-                                    'high' => $objWidget_filterField['objWidget_ZFCLIHigh']->getValue())
-                                );
+							ls_shop_filterHelper::setFilter('flexContentsLIMinMax', array('flexContentLIKey' => $arrFilterFieldInfos[$filterFieldID]['flexContentLIKey'], 'low' => $objWidget_filterField['objWidget_ZFCLILow']->getValue(), 'high' => $objWidget_filterField['objWidget_ZFCLIHigh']->getValue()));
 							break;
 
 						case 'producer':
@@ -708,11 +703,7 @@ class ls_shop_filterController
 							break;
 
 						case 'price':
-							ls_shop_filterHelper::setFilter('price'
-                                , array(
-                                    'low' => $objWidget_filterField['objWidget_priceLow']->getValue()
-                                    , 'high' => $objWidget_filterField['objWidget_priceHigh']->getValue())
-                                );
+							ls_shop_filterHelper::setFilter('price', array('low' => $objWidget_filterField['objWidget_priceLow']->getValue(), 'high' => $objWidget_filterField['objWidget_priceHigh']->getValue()));
 							break;
 					}
 				}
