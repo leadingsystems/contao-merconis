@@ -427,7 +427,6 @@ class ls_shop_filterHelper {
 				'attributeValues' => array(),
 				'flexContentLIValues' => array(),
                 'flexContentLDValues' => array(),
-                'flexContentLIMinMaxValues' => array(),
 				'producers' => array()
 			),
 			'lastResetTimestamp' => time(),
@@ -478,14 +477,6 @@ class ls_shop_filterHelper {
 				$arr_flexContentLDValues = ls_shop_generalHelper::getFlexContentLDValues($arrFilterFieldInfo['flexContentLDKey']);
 				foreach ($arr_flexContentLDValues as $str_flexContentLDValue) {
 					$arrFilterFieldValues[] = ['filterValue' => $str_flexContentLDValue];
-				}
-				break;
-
-            case 'flexContentLIMinMax':
-//TODO: evtl muss hier auch die Bereichs-Grenzen-Ermittlung stattfinden. Beim Preis ist das "fieldValues" Array einfach leer
-				$arr_flexContentLIMinMaxValues = ls_shop_generalHelper::getFlexContentLIMinMaxValues($arrFilterFieldInfo['flexContentLIKey']);
-				foreach ($arr_flexContentLIMinMaxValues as $str_flexContentLIMinMaxValue) {
-					$arrFilterFieldValues[] = ['filterValue' => $str_flexContentLIMinMaxValue];
 				}
 				break;
 		}
