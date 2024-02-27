@@ -134,7 +134,9 @@ class ls_shop_cartHelper {
 		 */
 		if ($quantity >= 0) {
 			$availableQuantity = $checkStock ? ls_shop_cartHelper::getAvailableQuantity($productCartKey, $quantity) : $quantity;
-			if(!is_array($_SESSION['lsShopCart']['items'])) $_SESSION['lsShopCart']['items'] = [];
+			if(!is_array($_SESSION['lsShopCart']['items'])) {
+                $_SESSION['lsShopCart']['items'] = [];
+            }
 			$_SESSION['lsShopCart']['items'][$productCartKey]['quantity'] = $availableQuantity;
 		}
 

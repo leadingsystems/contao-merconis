@@ -2,8 +2,7 @@
 <div id="cart-preview">
         <div class="headline-area">
             <div id="cart-preview-headline" class="ajax-reload-by-putInCart">
-                <h3><?php
-                    echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop'][\Merconis\Core\ls_shop_cartX::getInstance()->numItems === 1 ? 'miscText044' : 'miscText045'], \Merconis\Core\ls_shop_cartX::getInstance()->numItems ?: $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText141']); ?></h3>
+                <h3><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop'][\Merconis\Core\ls_shop_cartX::getInstance()->numItems === 1 ? 'miscText044' : 'miscText045'], \Merconis\Core\ls_shop_cartX::getInstance()->numItems ?: $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText141']); ?></h3>
             </div>
             <div id="cart-preview-empty-cart-message" class="ajax-reload-by-putInCart">
                 <?php

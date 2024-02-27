@@ -358,11 +358,9 @@ returns the main image that has been selected explicitly or null if none has bee
 
 			case '_mainImage'
 				/*
-				 * @toDo Fix Description: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
 				 * ## DESCRIPTION:
 				 * Returns the image that will be used as the main image if images are processed in an alphabetical ascending order.
 				 * If a main image has been selected explicitly, it will always be returned here. Otherwise the image sorted on top will be returned.
-				 * You can use the method "getImage" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
                 trigger_error('Case ' . $what . ' is deprecated use $obj_variant->getImageGallery()->getMainImage() instead', E_USER_DEPRECATED);
@@ -385,13 +383,7 @@ returns the main image that has been selected explicitly or null if none has bee
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, null, $this->mainData['lsShopProductVariantMoreImages']);
 				break;
 
-			case '_moreImages'
-				/*
-				 * @toDo Fix Description: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-				 * ## DESCRIPTION:
-				 * you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
-				 */
-				 :
+			case '_moreImages':
                 trigger_error('Case ' . $what . ' is deprecated use $obj_variant->getImageGallery()->getMoreImages() instead', E_USER_DEPRECATED);
 				if (!isset($GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID])) {
 					$arrMoreImages = array();

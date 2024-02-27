@@ -1446,7 +1446,7 @@ class ls_shop_productSearcher
             $objProductsComplete = $objProductsComplete->limit($this->arrLimit['rows'], $this->arrLimit['offset']);
         }
 
-        //lösung: trigger_deprecation('contao/core-bundle', '4.13', 'Using execute() with an array parameter has been deprecated and will no longer work in Contao 5.0. Use argument unpacking via ... instead."', __METHOD__)
+        // Notice: Using execute() with an array parameter has been deprecated and will no longer work. Use argument unpacking via ... instead."', __METHOD__)
         $objProductsComplete = $objProductsComplete->execute(...$searchConditionValues);
 
         /*
@@ -1644,9 +1644,6 @@ class ls_shop_productSearcher
                         }
                         unset($arrProductsComplete[$i]["wordCount"]);
                     }
-
-
-
 
         /*
          * If we use the filter we had a left join in our database query which leads to a result set
