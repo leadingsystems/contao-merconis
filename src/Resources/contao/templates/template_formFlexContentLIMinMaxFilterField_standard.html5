@@ -1,4 +1,4 @@
-<div data-lsjs-element="filterPriceBox" data-lsjs-filter-section-id="<?php echo $this->objWidget_filterField['arr_moreData']['filterSectionId']; ?>" class="filterPriceBox <?php echo $this->objWidget_filterField['arrFilterFieldInfo']['classForFilterFormField'] ?? ''; ?><?php echo ($this->objWidget_filterField['arr_moreData']['startClosedIfNothingSelected'] ?? '') ? ' startClosedIfNothingSelected' : ' startOpen'; ?>">
+<div data-lsjs-element="filterRangeBox" data-lsjs-filter-section-id="<?php echo $this->objWidget_filterField['arr_moreData']['filterSectionId']; ?>" class="filterRangeBox <?php echo $this->objWidget_filterField['arrFilterFieldInfo']['classForFilterFormField'] ?? ''; ?><?php echo ($this->objWidget_filterField['arr_moreData']['startClosedIfNothingSelected'] ?? '') ? ' startClosedIfNothingSelected' : ' startOpen'; ?>">
 	<div data-lsjs-element="optionsBox_label" class="label"><?php echo $this->objWidget_filterField['str_label'] ?? ''; ?></div>
 	<div data-lsjs-element="optionsBox_content" class="content">
 		<span class="rangeInputs" data-lsjs-element="rangeField"><?php echo $this->objWidget_filterField['objWidget_ZFCLILow']->getOutput(); ?></span>

@@ -423,7 +423,8 @@
       }
 
       .filterOptionsBox,
-      .filterPriceBox {
+      .filterPriceBox,
+      .filterRangeBox {
         border: none;
       }
     }
@@ -529,7 +530,8 @@
   }
 
   .filterOptionsBox,
-  .filterPriceBox {
+  .filterPriceBox,
+  .filterRangeBox {
     margin-bottom: 0.5rem;
 
     &:not(:last-child) {
@@ -671,7 +673,8 @@
 
   .partial-filter-form-display {
     .filterOptionsBox,
-    .filterPriceBox {
+    .filterPriceBox,
+    .filterRangeBox {
       .content {
         padding-left: 0;
       }
@@ -900,7 +903,8 @@
   }
 
   .filterOptionsBox,
-  .filterPriceBox {
+  .filterPriceBox,
+  .filterRangeBox {
     margin-bottom: 0.5rem;
 
     &:not(:last-child) {
