@@ -5,6 +5,7 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 class ls_shop_productManagementApiPreprocessor
 {
 	protected static $str_preprocessorMethodNamePrefix = 'preprocess_';
+    public static bool $throwExceptionForMissingOrWrongAttributesOrValues = true;
 
 	public static $arr_resourceAndFieldDefinition = array(
 		'apiResource_writeProductData' => array(
@@ -2051,7 +2052,11 @@ class ls_shop_productManagementApiPreprocessor
 		$arr_attributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 
 		if (!in_array($str_output, $arr_attributeAndValueAliases['attributeAliases'])) {
-			throw new \Exception('given property alias "' . $str_output . '" does not exist');
+            if (self::$throwExceptionForMissingOrWrongAttributesOrValues) {
+                throw new \Exception('given property alias "' . $str_output . '" does not exist');
+            } else {
+                return 0;
+            }
 		}
 
 		$str_output = ls_shop_productManagementApiHelper::getAttributeIDForAlias($str_output);
@@ -2080,7 +2085,11 @@ class ls_shop_productManagementApiPreprocessor
 		$arr_attributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 
 		if (!in_array($str_output, $arr_attributeAndValueAliases['attributeValueAliases'])) {
-			throw new \Exception('given property value alias "' . $str_output. '" does not exist');
+            if (self::$throwExceptionForMissingOrWrongAttributesOrValues) {
+                throw new \Exception('given property value alias "' . $str_output . '" does not exist');
+            } else {
+                return 0;
+            }
 		}
 
 		$str_output = ls_shop_productManagementApiHelper::getAttributeValueIDForAlias($str_output);
@@ -2088,7 +2097,11 @@ class ls_shop_productManagementApiPreprocessor
 		$int_attributeValueFieldNumber = preg_replace('/[^\d]/', '', $str_fieldName);
 
 		if (!ls_shop_generalHelper::checkIfAttributeAndValueBelongTogether($arr_normalizedRow['property'.$int_attributeValueFieldNumber], $str_output)) {
-			throw new \Exception('given property value does not belong to the given property');
+            if (self::$throwExceptionForMissingOrWrongAttributesOrValues) {
+                throw new \Exception('given property value does not belong to the given property');
+            } else {
+                return 0;
+            }
 		}
 
 		return $str_output;
