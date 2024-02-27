@@ -473,7 +473,7 @@ class ls_shop_filterController
                                 : 0
 						)
 					);
-//TODO: hier vielleicht auch title_de anstatt title ?
+
 					$arrObjWidgets_filterFields[$filterFieldID] = array(
 						'objWidget_ZFCLILow' => $objFlexWidget_ZFCLILow,
 						'objWidget_ZFCLIHigh' => $objFlexWidget_ZFCLIHigh,
