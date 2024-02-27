@@ -5,6 +5,7 @@ namespace Merconis\Core;
 use Contao\BackendTemplate;
 use Contao\Environment;
 use Contao\FrontendTemplate;
+use Contao\Image\ResizeConfiguration;
 use Contao\Input;
 use Contao\Module;
 use Contao\StringUtil;
@@ -20,7 +21,7 @@ class ModuleProductSearch extends Module {
 	
 	public function generate() {
 		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
-			$this->import('FrontendUser', 'User');
+			$this->import('Contao\FrontendUser', 'User');
 		}
 		
 		$this->arrLiveHitFields = [
@@ -145,10 +146,8 @@ class ModuleProductSearch extends Module {
 						foreach ($this->arrLiveHitFields as $liveHitField) {
 							switch ($liveHitField) {
 								case '_mainImage':
-                                    /*
-                                     * @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-                                     */
-									$arrHit[$liveHitField] = Image::get($objProduct->{$liveHitField}, $GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeWidth'], $GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeHeight'], 'box');
+                                    $img = new Image($objProduct->{$liveHitField});
+                                    $arrHit[$liveHitField] = $img->getSrc([$GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeWidth'], $GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeHeight'], ResizeConfiguration::MODE_BOX]);
 									break;
 									
 								case '_priceAfterTaxFormatted':

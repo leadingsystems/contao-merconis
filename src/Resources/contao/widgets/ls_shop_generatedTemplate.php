@@ -53,7 +53,7 @@ class ls_shop_generatedTemplate extends Widget
 		
 		$strTemplateToUse = '';
 		if (isset($this->arrConfiguration['ls_shop_generatedTemplate_userTemplateField']) && $this->arrConfiguration['ls_shop_generatedTemplate_userTemplateField']) {
-			$this->import('BackendUser', 'User');
+			$this->import('Contao\BackendUser', 'User');
 			$fieldName = $this->arrConfiguration['ls_shop_generatedTemplate_userTemplateField'];
 			$strTemplateToUse = $this->User->{$fieldName};
 		}

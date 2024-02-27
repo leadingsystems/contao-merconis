@@ -5,10 +5,9 @@
 <?php if (!$this->objProduct->_variantIsSelected): ?>
 	<div class="image">
 		<?php if ($this->objProduct->_hasMainImage): ?>
-                <!--
-                @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-                -->
-				<img src="<?php echo \Image::get($this->objProduct->_mainImage, 40, 40, 'box'); ?>" alt="" />
+                <?php if($this->objProduct->_mainImage){ ?>
+                    <?= Contao\System::getContainer()->get('contao.insert_tag.parser')->replace('{{image::'.$this->objProduct->_mainImage.'?width=40&height=40&mode=box}}'); ?>
+                <?php } ?>
 		<?php endif; ?>
 	</div>
 	<div class="title"><?php echo $this->objProduct->_title; ?></div>
@@ -18,10 +17,9 @@
 <?php else: ?>
 	<div class="image">
 		<?php if ($this->objProduct->_selectedVariant->_hasMainImage): ?>
-                <!--
-                @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-                -->
-				<img src="<?php echo \Image::get($this->objProduct->_selectedVariant->_mainImage, 40, 40, 'box'); ?>" alt="" />
+                <?php if($this->objProduct->_mainImage){ ?>
+                    <?= Contao\System::getContainer()->get('contao.insert_tag.parser')->replace('{{image::'.$this->objProduct->_mainImage.'?width=40&height=40&mode=box}}'); ?>
+                <?php } ?>
 		<?php endif; ?>
 	</div>
 	<div class="title"><?php echo $this->objProduct->_selectedVariant->_title; ?></div>

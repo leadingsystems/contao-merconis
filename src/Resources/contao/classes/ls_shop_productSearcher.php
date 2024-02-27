@@ -1428,6 +1428,7 @@ class ls_shop_productSearcher
          * the filter because it is only required if we request attribute
          * allocations
          */
+
         $objProductsComplete = Database::getInstance()->prepare("
 			SELECT			".$fieldSelectionPart."
 							".($addToSelectStatement ?? '')."
@@ -1445,7 +1446,8 @@ class ls_shop_productSearcher
             $objProductsComplete = $objProductsComplete->limit($this->arrLimit['rows'], $this->arrLimit['offset']);
         }
 
-        $objProductsComplete = $objProductsComplete->execute($searchConditionValues);
+        // Notice: Using execute() with an array parameter has been deprecated and will no longer work. Use argument unpacking via ... instead."', __METHOD__)
+        $objProductsComplete = $objProductsComplete->execute(...$searchConditionValues);
 
         /*
          * If we use the filter or the special price sorting or maybe for some other reasons,

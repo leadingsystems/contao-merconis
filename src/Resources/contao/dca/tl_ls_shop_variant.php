@@ -1305,7 +1305,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'exclude'                 => true,
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom'],
             'inputType'               => 'text',
-            'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
+            'eval'                    => array(
+                'rgxp'=>'date',
+                /*
+                 * @toDo check if 'datepicker'=>true works
+                 */
+//                'datepicker'=>$this->getDatePickerString(),
+                'tl_class'=>'w50 wizard clr'),
             'sql'                     => "varchar(10) NOT NULL default ''"
         ),
 
@@ -1346,7 +1352,7 @@ class tl_ls_shop_variant_controller extends Backend {
 
 	public function __construct() {
 		parent::__construct();
-		$this->import('BackendUser', 'User');
+		$this->import('Contao\BackendUser', 'User');
 	}
 
 	public function generateAlias($str_value, DataContainer $dc) {

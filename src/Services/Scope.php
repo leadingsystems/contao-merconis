@@ -17,18 +17,10 @@ class Scope {
     }
 
     public function isBackend() {
-        /*
-         * @toDo check change
-         * old: return $this->scopeMatcher->isBackendRequest($this->requestStack->getCurrentRequest());
-         */
         return $this->scopeMatcher->isBackendRequest($this->requestStack->getCurrentRequest() ?? Request::create(''));
     }
 
     public function isFrontend() {
-        /*
-         * @toDo check change
-         * old: return $this->scopeMatcher->isFrontendRequest($this->requestStack->getCurrentRequest());
-         */
         return $this->scopeMatcher->isFrontendRequest($this->requestStack->getCurrentRequest() ?? Request::create(''));
     }
 

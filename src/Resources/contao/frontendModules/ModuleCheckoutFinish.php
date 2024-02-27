@@ -19,7 +19,7 @@ class ModuleCheckoutFinish extends Module {
 	
 	public function generate() {
 		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
-			$this->import('FrontendUser', 'User');
+			$this->import('Contao\FrontendUser', 'User');
 		}
 		
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {

@@ -1,7 +1,6 @@
 <?php
 namespace Merconis\Core;
 
-use Contao\Controller;
 use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\Database;
 use Contao\Environment;
@@ -532,11 +531,9 @@ returns the main image that has been selected explicitly or null if none has bee
 
             case '_mainImage'
 				/*
-				 * @toDo Fix Description: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
 				 * ## DESCRIPTION:
 				 * Returns the image that will be used as the main image if images are processed in an alphabetical ascending order.
 				 * If a main image has been selected explicitly, it will always be returned here. Otherwise the image sorted on top will be returned.
-				 * You can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
 				 */
 				 :
                 trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMainImage() instead', E_USER_DEPRECATED);
@@ -559,13 +556,7 @@ returns the main image that has been selected explicitly or null if none has bee
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, null, $this->mainData['lsShopProductMoreImages']);
 				break;
 
-			case '_moreImages'
-				/*
-				 * @toDo Fix Description: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-				 * ## DESCRIPTION:
-				 * you can use the method "\Image::get" to get the image in the size you need: \Image::get($image, $width, $height, $croppingMode='');
-				 */
-				 :
+			case '_moreImages':
                 trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMoreImages() instead', E_USER_DEPRECATED);
 				if (!isset($GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID])) {
 					$arrMoreImages = array();
@@ -837,7 +828,7 @@ returns the id of the variant that has currently been selected
 				break;
 
 			case '_isFavorite':
-				$obj_user = System::importStatic('FrontendUser');
+				$obj_user = System::importStatic('Contao\FrontendUser');
 				$strFavorites = isset($obj_user->merconis_favoriteProducts) ? $obj_user->merconis_favoriteProducts : '';
 				$arrFavorites = $strFavorites ? StringUtil::deserialize($strFavorites) : array();
 				$arrFavorites = is_array($arrFavorites) ? $arrFavorites : array();
@@ -850,7 +841,9 @@ returns the id of the variant that has currently been selected
 				break;
 
 			case '_isOnRestockInfoList':
-				$obj_user = System::importStatic('FrontendUser');
+
+
+				$obj_user = System::importStatic('Contao\FrontendUser');
 
                 $obj_dbres_restockInfoListRecord = Database::getInstance()
                     ->prepare("
@@ -2374,7 +2367,9 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $addReturnPageToUrl = '/calledBy/searchResult';
         }
 
-        $this->ls_linkToProduct = Controller::generateFrontendUrl($objProductPage->row(), '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl);
+        $pageModel = PageModel::findWithDetails($objProductPage->row()['id']);
+        $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+        $this->ls_linkToProduct = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl));
 
 		return $this->ls_linkToProduct;
 	}

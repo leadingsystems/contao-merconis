@@ -997,17 +997,21 @@ class tl_lsShopSettings_controller extends Backend {
 		return html_entity_decode($value);
 	}
 
+    //todo: global variable VERSION and BUILD are undefined
 	public function ls_escapeBackslash($value = '') {
+	    /*
 		if (version_compare(VERSION . '.' . BUILD, '3.2.9', '>=')) {
 			return $value;
-		}
+		}*/
 		return $value == '\\' ? '\\\\' : $value;
 	}
 
+	//todo: global variable VERSION and BUILD are undefined
 	public function ls_unescapeBackslash($value = '') {
+	    /*
 		if (version_compare(VERSION . '.' . BUILD, '3.2.9', '>=')) {
 			return $value;
-		}
+		}*/
 		return $value == '\\\\' ? '\\' : $value;
 	}
 }

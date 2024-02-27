@@ -74,7 +74,7 @@ class InstallerController extends Controller {
 		$this->obj_config = Config::getInstance();
 		parent::__construct();
 		$this->import('Files');
-		$this->import('BackendUser');
+		$this->import('Contao\BackendUser');
 
 		if (Input::get('merconisThemeRepositoryMode')) {
 			$_SESSION['lsShop']['merconisThemeRepositoryMode'] = Input::get('merconisThemeRepositoryMode');

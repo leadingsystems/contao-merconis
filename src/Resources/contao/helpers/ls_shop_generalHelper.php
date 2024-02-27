@@ -300,12 +300,10 @@ class ls_shop_generalHelper
         return $arr_productImages;
     }
 
-    public static function getProductImageByPath($str_imagePath, $int_width = 20, $int_height = 20, $str_mode = '', $bln_force = false)
+    public static function getProductImageByPath($str_imagePath, $int_width = 20, $int_height = 20, $str_mode = '')
     {
-        /*
-         * @toDo Fix: Using "Contao\Image::get()" has been deprecated and will no longer work in Contao 5.0. Use the "contao.image.factory" service instead.
-         */
-        return Image::get($str_imagePath, $int_width, $int_height, $str_mode, null, $bln_force);
+        $img = new \Merconis\Core\Image($str_imagePath);
+        return $img->getSrc([$int_width, $int_height, $str_mode]);
     }
 
     /*
@@ -515,7 +513,7 @@ class ls_shop_generalHelper
             !is_object($obj_user)
             && System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()
         ) {
-            $obj_user = System::importStatic('FrontendUser');
+            $obj_user = System::importStatic('Contao\FrontendUser');
         }
 
         if (!isset($GLOBALS['merconis_globals']['groupInfo']) || $bln_forceRefresh) {
@@ -1501,7 +1499,13 @@ class ls_shop_generalHelper
             }
             $totalValueOfCoupons = $totalValueOfCoupons ? $totalValueOfCoupons : 0;
 
-            $shippingFee = $type == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+
+            if(!empty(ls_shop_cartX::getInstance()->calculation['shippingFee'])){
+                $shippingFee = $type == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+            }else{
+                $shippingFee = 0;
+            }
+
 
             $totalValueOfGoodsPlusCoupons = ls_add($totalValueOfGoods, $totalValueOfCoupons);
             $totalValueOfGoodsPlusShipping = ls_add($totalValueOfGoods, $shippingFee);
@@ -1799,7 +1803,11 @@ class ls_shop_generalHelper
         }
         $totalValueOfCoupons = $totalValueOfCoupons ? $totalValueOfCoupons : 0;
 
-        $shippingFee = $what == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+        if(!empty(ls_shop_cartX::getInstance()->calculation['shippingFee'])){
+            $shippingFee = $what == 'shipping' ? 0 : (ls_shop_cartX::getInstance()->calculation['shippingFee'][0] ? ls_shop_cartX::getInstance()->calculation['shippingFee'][0] : 0);
+        }else{
+            $shippingFee = 0;
+        }
 
         $totalValueOfGoodsPlusCoupons = ls_add($totalValueOfGoods, $totalValueOfCoupons);
         $totalValueOfGoodsPlusShipping = ls_add($totalValueOfGoods, $shippingFee);
@@ -1875,7 +1883,7 @@ class ls_shop_generalHelper
             if (!ls_shop_generalHelper::checkIfPaymentOrShippingMethodIsAllowed($tmpMethodInfo, $type)) {
                 continue;
             }
-            if($tmpMethodInfo["notSelectable"] != 1){
+            if(!array_key_exists("notSelectable", $tmpMethodInfo) || $tmpMethodInfo["notSelectable"] != 1){
                 if (!is_array($cheapestMethod) || $cheapestMethod['feePrice'] > $tmpMethodInfo['feePrice']) {
                     $cheapestMethod = $tmpMethodInfo;
                 }
@@ -2478,8 +2486,8 @@ class ls_shop_generalHelper
         /*
          * Replacing the old placeholders with the new insert tags for backwards compatibility
          */
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shop_delivery_date}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shop_delivery_time_days}}', $str_deliveryTimeMessage);
 
         $str_deliveryTimeMessage = System::getContainer()->get('contao.insert_tag.parser')->replace($str_deliveryTimeMessage);
 
@@ -4817,7 +4825,7 @@ class ls_shop_generalHelper
         /** @var PageModel $objPage */
         global $objPage;
 
-        $obj_user = System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('Contao\FrontendUser');
         $objTemplate = new FrontendTemplate('template_addToRestockInfoListForm');
         $str_formSubmitValue = 'restockInfoListProduct_form_' . $obj_product->_productVariantID;
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;
@@ -4890,7 +4898,7 @@ class ls_shop_generalHelper
 
     public static function getFavoritesForm($obj_product)
     {
-        $obj_user = System::importStatic('FrontendUser');
+        $obj_user = System::importStatic('Contao\FrontendUser');
         $objTemplate = new FrontendTemplate('template_addToFavoritesForm');
         $str_formSubmitValue = 'favoriteProduct_form_' . $obj_product->_id;
         $objTemplate->str_formSubmitValue = $str_formSubmitValue;

@@ -14,7 +14,7 @@
 			<div class="imageContainer">
 				<?php if ($this->objProduct->_hasMainImage) { ?>
 					<a class="productMainImage boxImage" href="<?php echo $this->objProduct->_linkToProduct; ?>">
-                        {{shopPicture::<?=$this->objProduct->getImageGallery()->getMainImage()->singleSRC?>?size=productOverview&class=productImage}}
+                        {{shop_picture::<?=$this->objProduct->getImageGallery()->getMainImage()->singleSRC?>?size=productOverview&class=productImage}}
                     </a>
 
                     <?php echo $str_html_statusIcons ?: ''; ?>
