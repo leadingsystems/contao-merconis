@@ -601,7 +601,7 @@ class ls_shop_filterHelper {
                     self::determineMinMaxValues($flexContentLIValue, $min, $max);
                 }
 
-                $result = [$flexContentLIKey => ['low' => $min, 'high' => $max]];
+                $result += [$flexContentLIKey => ['low' => $min, 'high' => $max]];
 
                 if ($rangeForProduct) {
                     $result[$flexContentLIKey] += ['lowestValue' => $min, 'highestValue' => $max];
