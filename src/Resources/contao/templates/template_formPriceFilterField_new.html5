@@ -7,8 +7,8 @@
         data-lsjs-element="optionsBox_content"
         class="content"
     >
-		<span class="price-from" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_priceLow']->getOutput(); ?></span>
-		<span class="price-to" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_priceHigh']->getOutput(); ?></span>
+		<span class="range-from" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_priceLow']->getOutput(); ?></span>
+		<span class="range-to" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_priceHigh']->getOutput(); ?></span>
         <div data-lsjs-element="sliderInput_targetContainer"></div>
 	</div>
 </div>

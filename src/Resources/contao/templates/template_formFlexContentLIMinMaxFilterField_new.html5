@@ -13,8 +13,8 @@
         data-lsjs-element="optionsBox_content"
         class="content"
     >
-		<span class="price-from rangeInputs" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_ZFCLILow']->getOutput(); ?></span>
-		<span class="price-to rangeInputs" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_ZFCLIHigh']->getOutput(); ?></span>
+		<span class="range-from rangeInputs" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_ZFCLILow']->getOutput(); ?></span>
+		<span class="range-to rangeInputs" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_ZFCLIHigh']->getOutput(); ?></span>
         <div data-lsjs-element="sliderInput_targetContainer"></div>
 	</div>
 </div>
