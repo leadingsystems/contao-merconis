@@ -33,7 +33,6 @@ class ls_shop_productSearcher
         'offset' => 0
     );
 
-    protected $blnEnoughProductsOrVariantsToFilterAvailable = false;
     protected $blnUseFilter = false;
 
     /*
@@ -1902,14 +1901,8 @@ class ls_shop_productSearcher
                 }
             }
 
-            if (count($arrProductsComplete) > 1 || (count($arrProductsComplete) == 1 && count($arrProductsComplete[key($arrProductsComplete)]['variants']))) {
-                $this->blnEnoughProductsOrVariantsToFilterAvailable = true;
-            }
-
-            if ($this->blnEnoughProductsOrVariantsToFilterAvailable) {
-                ls_shop_filterController::getInstance();
-                ls_shop_filterHelper::setCriteriaToUseInFilterForm($arrProductsComplete);
-            }
+            ls_shop_filterController::getInstance();
+            ls_shop_filterHelper::setCriteriaToUseInFilterForm($arrProductsComplete);
         }
 
         $this->numProductsBeforeFilter = !is_array($arrProductsComplete) ? 0 : count($arrProductsComplete);
@@ -1928,7 +1921,7 @@ class ls_shop_productSearcher
         if (is_array($arrProductsComplete)) {
             $arrProductsAfterFilter = array();
             foreach ($arrProductsComplete as $rowProductsComplete) {
-                if ($this->blnUseFilter && $this->blnEnoughProductsOrVariantsToFilterAvailable) {
+                if ($this->blnUseFilter) {
                     /*
                      * Here we walk through all products that the database request delivered. In order
                      * to filter these products we perform filter checks for each product (and the
@@ -1947,7 +1940,7 @@ class ls_shop_productSearcher
                 $arrProductsAfterFilter[] = $rowProductsComplete;
             }
 
-            if ($this->blnUseFilter && $this->blnEnoughProductsOrVariantsToFilterAvailable && is_array($arrProductsAfterFilter)) {
+            if ($this->blnUseFilter && is_array($arrProductsAfterFilter)) {
                 ls_shop_filterController::getInstance();
                 ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
             }
