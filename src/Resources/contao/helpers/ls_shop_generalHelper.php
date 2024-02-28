@@ -2177,15 +2177,21 @@ class ls_shop_generalHelper
 
             $allFilterKeys = self::getFlexContentLIMinMaxKeys();
 
-            $obj_dbres_flexContentsLIMinMaxForProducts = \Database::getInstance()->prepare("
+            $obj_dbres_flexContentsLIMinMax = \Database::getInstance()->prepare("
                 SELECT      flex_contentsLanguageIndependent
                 FROM        tl_ls_shop_product
                 WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
+                GROUP BY flex_contentsLanguageIndependent
+                UNION ALL
+                SELECT      flex_contentsLanguageIndependent
+                FROM        tl_ls_shop_variant
+                WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
+                GROUP BY flex_contentsLanguageIndependent
             ")
             ->execute();
 
-            while ($obj_dbres_flexContentsLIMinMaxForProducts->next()) {
-                $arr_flexContentsLIMinMax = json_decode($obj_dbres_flexContentsLIMinMaxForProducts->flex_contentsLanguageIndependent);
+            while ($obj_dbres_flexContentsLIMinMax->next()) {
+                $arr_flexContentsLIMinMax = json_decode($obj_dbres_flexContentsLIMinMax->flex_contentsLanguageIndependent);
                 foreach ($arr_flexContentsLIMinMax as $arr_flexContentLI) {
                     if (in_array($arr_flexContentLI[0], $allFilterKeys))
                     {
@@ -2193,39 +2199,6 @@ class ls_shop_generalHelper
                     }
                 }
             }
-
-//TODO: auf die id wird im weiteren nicht zugegriffen. Sie könnte entfernt werden
-            $obj_dbres_flexContentsLIForVariants = \Database::getInstance()->prepare("
-                SELECT      id, flex_contentsLanguageIndependent
-                FROM        tl_ls_shop_variant
-                WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
-            ")
-            ->execute();
-
-            while ($obj_dbres_flexContentsLIForVariants->next()) {
-                $arr_flexContentsLIMinMax = json_decode($obj_dbres_flexContentsLIForVariants->flex_contentsLanguageIndependent);
-                if (is_array($arr_flexContentsLIMinMax)) {
-                    foreach ($arr_flexContentsLIMinMax as $arr_flexContentLI) {
-                        if (in_array($arr_flexContentLI[0], $allFilterKeys))
-                        {
-                            $arr_allFlexContentsLIMinMax[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
-                        }
-                    }
-                }
-            }
-//TODO: das folgende Statement holt die Datensätze beider Abfragen auf einmal, wobei zusätzlich nulls ignoriert werden und doppelte rausgefiltert werden
-/*
-SELECT      flex_contentsLanguageIndependent
-FROM        tl_ls_shop_product
-WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
-GROUP BY flex_contentsLanguageIndependent
-UNION ALL
-SELECT      flex_contentsLanguageIndependent
-FROM        tl_ls_shop_variant
-WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
-GROUP BY flex_contentsLanguageIndependent
-*/
-
 
             $arr_allFlexContentsLIMinMax = array_map('array_unique', $arr_allFlexContentsLIMinMax);
 
