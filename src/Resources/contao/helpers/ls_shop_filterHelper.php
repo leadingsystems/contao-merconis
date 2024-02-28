@@ -584,7 +584,7 @@ class ls_shop_filterHelper {
 
         foreach ($FCLIs as $flexContentLIKey => $flexContentLIValues) {
 
-            if ( $type == 'flex_contentsLIMinMax' && self::isFCLIMinMax($flexContentLIKey) ) {
+            if ($type == 'flex_contentsLIMinMax' && self::isFCLIMinMax($flexContentLIKey)) {
 
                 if (!is_array($flexContentLIValues)) {
                     $flexContentLIValues = [$flexContentLIValues];
@@ -607,7 +607,7 @@ class ls_shop_filterHelper {
                     $result[$flexContentLIKey] += ['lowestValue' => $min, 'highestValue' => $max];
                 }
 
-            } else if ( $type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($flexContentLIKey) ) {
+            } else if ($type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($flexContentLIKey)) {
                 $result = [$flexContentLIKey => $flexContentLIValues];
             }
         }
