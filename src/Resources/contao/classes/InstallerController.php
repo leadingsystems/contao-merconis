@@ -73,7 +73,7 @@ class InstallerController extends Controller {
 	public function __construct() {
 		$this->obj_config = Config::getInstance();
 		parent::__construct();
-		$this->import('Files');
+		$this->import('Contao\Files');
 		$this->import('Contao\BackendUser');
 
 		if (Input::get('merconisThemeRepositoryMode')) {
@@ -392,7 +392,7 @@ class InstallerController extends Controller {
 				break;
 
 			case 3:
-                $this->import('Automator');
+                $this->import('Contao\Automator');
 
                 ls_shop_generalHelper::purgeContaoCache();
 

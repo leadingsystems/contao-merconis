@@ -5097,7 +5097,7 @@ class ls_shop_generalHelper
          */
         return;
         if (is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/var/cache/prod/contao/dca')) {
-            $obj_automator = System::importStatic('Automator');
+            $obj_automator = System::importStatic('Contao\Automator');
             $obj_automator->purgeInternalCache();
         }
     }
