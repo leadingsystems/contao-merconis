@@ -184,12 +184,7 @@ class ls_shop_filterController
 
 					$fieldValuesAlreadyHandled = array();
 
-					$blnHasImportantOption = false;
-
 					foreach ($arrFilterFieldInfo['fieldValues'] as $arrFieldValue) {
-						if (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue']) {
-							$blnHasImportantOption = true;
-						}
 
 						$fieldValuesAlreadyHandled[] = $arrFieldValue['filterValue'];
 						/*
@@ -314,12 +309,7 @@ class ls_shop_filterController
                      */
                     $arrOptions = array();
 
-                    $blnHasImportantOption = false;
-
                     foreach ($arrFilterFieldInfo['fieldValues'] as $arrFieldValue) {
-                        if (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue']) {
-                            $blnHasImportantOption = true;
-                        }
 
                         /*
                          * In the widget we only insert the values that should be used as filter criteria based on the current product list
@@ -384,12 +374,7 @@ class ls_shop_filterController
                      */
                     $arrOptions = array();
 
-                    $blnHasImportantOption = false;
-
                     foreach ($arrFilterFieldInfo['fieldValues'] as $arrFieldValue) {
-                        if (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue']) {
-                            $blnHasImportantOption = true;
-                        }
 
                         /*
                          * In the widget we only insert the values that should be used as filter criteria based on the current product list
@@ -509,12 +494,7 @@ class ls_shop_filterController
 					 */
 					$arrOptions = array();
 
-					$blnHasImportantOption = false;
-
 					foreach ($arrFilterFieldInfo['fieldValues'] as $arrFieldValue) {
-						if (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue']) {
-							$blnHasImportantOption = true;
-						}
 
 						/*
 						 * In the widget we only insert the values that should be used as filter criteria based on the current product list
