@@ -83,7 +83,6 @@ class ls_shop_filterHelper {
                         || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'])
                         || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'])
                         || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high'])
-                        || !($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'])
                         || !($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high'])
                     ) {
                         break;
@@ -583,8 +582,8 @@ class ls_shop_filterHelper {
         $result = [];
 
         foreach ($FCLIs as $flexContentLIKey => $flexContentLIValues) {
-            $min = 0;
-            $max = 0;
+            $min = null;
+            $max = null;
 
             if ($type == 'flex_contentsLIMinMax' && self::isFCLIMinMax($flexContentLIKey)) {
 
@@ -658,7 +657,7 @@ class ls_shop_filterHelper {
 
 
     public static function addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
-		if (!$str_flexContentLIKey || !$var_value) {
+		if (!$str_flexContentLIKey || $var_value === null) {
 			return;
 		}
         if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
@@ -685,10 +684,10 @@ class ls_shop_filterHelper {
     {
         $value = (float) $value;
 
-        if ($variableMin == 0 || $value < $variableMin) {
+        if ($variableMin === null || $value < $variableMin) {
             $variableMin = $value;
         }
-        if ($variableMax == 0 || $value > $variableMax) {
+        if ($variableMax === null || $value > $variableMax) {
             $variableMax = $value;
         }
     }
