@@ -1693,7 +1693,7 @@ class ls_shop_productSearcher
 
                     $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
                     $refCurrentProductRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax', true);
-                    $refCurrentProductRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent');
+                    $refCurrentProductRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent', true);
                     $refCurrentProductRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents_'.$searchLanguage])), 2, 1);
 
                     $refCurrentProductRow['variants'] = array();

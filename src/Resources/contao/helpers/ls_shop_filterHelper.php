@@ -583,6 +583,8 @@ class ls_shop_filterHelper {
         $result = [];
 
         foreach ($FCLIs as $flexContentLIKey => $flexContentLIValues) {
+            $min = 0;
+            $max = 0;
 
             if ($type == 'flex_contentsLIMinMax' && self::isFCLIMinMax($flexContentLIKey)) {
 
@@ -683,10 +685,10 @@ class ls_shop_filterHelper {
     {
         $value = (float) $value;
 
-        if ($variableMin === null || $value < $variableMin) {
+        if ($variableMin == 0 || $value < $variableMin) {
             $variableMin = $value;
         }
-        if ($variableMax === null || $value > $variableMax) {
+        if ($variableMax == 0 || $value > $variableMax) {
             $variableMax = $value;
         }
     }
