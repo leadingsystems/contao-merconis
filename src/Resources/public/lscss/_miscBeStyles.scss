@@ -466,7 +466,6 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
  */
 .productViewBEList {
   position: relative;
-  float: left;
   padding-left: 60px;
   min-height: 44px;
 }
@@ -2090,11 +2089,11 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
 }
 
 .key-value-widget .main button[data-lsjs-element="btn_rowUp"] {
-  background-image: url("/system/themes/flexible/icons/up.svg");
+  background-image: url("/bundles/leadingsystemsmerconis/icons/be/up.svg");
 }
 
 .key-value-widget .main button[data-lsjs-element="btn_rowDown"] {
-  background-image: url("/system/themes/flexible/icons/down.svg");
+  background-image: url("/bundles/leadingsystemsmerconis/icons/be/down.svg");
 }
 
 .key-value-widget .main .field-container {
