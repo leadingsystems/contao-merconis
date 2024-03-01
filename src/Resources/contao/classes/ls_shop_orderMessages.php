@@ -286,11 +286,7 @@ class ls_shop_orderMessages
 			
 			if ($arrMessageModel['useHTML']) {
 				$objTemplate_emailHTML = new FrontendTemplate($arrMessageModel['template_html']);
-				if (version_compare(VERSION . '.' . BUILD, '3.3.0', '<')) {
-					$objTemplate_emailHTML->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html'])));
-				} else {
-					$objTemplate_emailHTML->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(StringUtil::insertTagToSrc(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html']))));
-				}
+				$objTemplate_emailHTML->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(StringUtil::insertTagToSrc(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html']))));
 				$objTemplate_emailHTML->arrOrder = $this->arrOrder;
 				$objTemplate_emailHTML->arrMessageModel = $arrMessageModel;
 				$objTemplate_emailHTML->counterNr = $this->counterNr;

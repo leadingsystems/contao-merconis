@@ -681,14 +681,12 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'eval' => array('tl_class'=>'clr w50 m12')
         ),
 
-
         'ls_shop_searchWeighting_debug' => array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'],
             'inputType' => 'checkbox',
             'eval' => array('tl_class'=>'w50 m12')
         ),
-
 
 		'ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title' => array(
             'exclude' => true,
@@ -731,7 +729,6 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'inputType' => 'text',
             'eval' => array('tl_class'=>'w50')
         ),
-
 
 		'ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_title' => array(
             'exclude' => true,
@@ -818,7 +815,6 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'eval' => array('tl_class'=>'w50')
         ),
 
-
         'ls_shop_searchWeighting_partialSearchStringMatchesPartialField_title' => array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_title'],
@@ -860,9 +856,6 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'inputType' => 'text',
             'eval' => array('tl_class'=>'w50')
         ),
-
-
-
 
         'ls_shop_blnCompatMode2-1-4' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_blnCompatMode2-1-4'],
@@ -997,21 +990,11 @@ class tl_lsShopSettings_controller extends Backend {
 		return html_entity_decode($value);
 	}
 
-    //todo: global variable VERSION and BUILD are undefined
 	public function ls_escapeBackslash($value = '') {
-	    /*
-		if (version_compare(VERSION . '.' . BUILD, '3.2.9', '>=')) {
-			return $value;
-		}*/
-		return $value == '\\' ? '\\\\' : $value;
+        return $value;
 	}
 
-	//todo: global variable VERSION and BUILD are undefined
 	public function ls_unescapeBackslash($value = '') {
-	    /*
-		if (version_compare(VERSION . '.' . BUILD, '3.2.9', '>=')) {
-			return $value;
-		}*/
-		return $value == '\\\\' ? '\\' : $value;
+        return $value;
 	}
 }
