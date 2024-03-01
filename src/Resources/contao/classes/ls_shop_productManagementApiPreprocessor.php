@@ -6,6 +6,7 @@ class ls_shop_productManagementApiPreprocessor
 {
 	protected static $str_preprocessorMethodNamePrefix = 'preprocess_';
     public static bool $throwExceptionForMissingOrWrongAttributesOrValues = true;
+    public static bool $throwExceptionForMissingImageFiles = true;
 
 	public static $arr_resourceAndFieldDefinition = array(
 		'apiResource_writeProductData' => array(
@@ -1924,7 +1925,11 @@ class ls_shop_productManagementApiPreprocessor
 		if ($obj_imageModels !== null) {
 			$str_output = $obj_imageModels->first()->uuid;
 		} else {
-			throw new \Exception('the image file does not exist in the merconis standard product image folder');
+            if (self::$throwExceptionForMissingImageFiles) {
+                throw new \Exception('the image file does not exist in the merconis standard product image folder');
+            } else {
+                $str_output = null;
+            }
 		}
 
 		return $str_output;
