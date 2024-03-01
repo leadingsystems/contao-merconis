@@ -556,7 +556,7 @@ class ls_shop_productConfigurator {
 	}
 	
 	public function saveConfiguratorForCurrentCartKey() {
-		$_SESSION['lsShop']['configurator'][$this->createCacheKey(true)] = $_SESSION['lsShop']['configurator'][$this->configuratorCacheKey];
+		$_SESSION['lsShop']['configurator'][$this->createCacheKey(true)] = $_SESSION['lsShop']['configurator'][$this->configuratorCacheKey] ?? ($_SESSION['lsShopCart']['configurator'] = []) ;
 	}
 	
 	/*
