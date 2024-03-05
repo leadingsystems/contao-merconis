@@ -586,7 +586,12 @@ class ls_shop_cartHelper {
 				$couponInfo['hasErrors'] = true;
 			}
 		}
-		$couponInfo['deleteUrl'] = is_object($objPage) ? Controller::generateFrontendUrl($objPage->row(), '/deleteCoupon/'.$couponID) : '';
+
+        $pageModel = PageModel::findWithDetails($objPage->row()['id']);
+        $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+        $str_url = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/deleteCoupon/'.$couponID));
+
+		$couponInfo['deleteUrl'] = is_object($objPage) ? $str_url : '';
 		$couponInfo['extendedInfo'] = $objCoupon->row();
 		$couponInfo['extendedInfo']['discountOutput'] = '- '.($objCoupon->couponValueType == 'percentaged' ? $objCoupon->couponValue.' %' : ls_shop_generalHelper::outputPrice($objCoupon->couponValue));
 

@@ -35,8 +35,13 @@ class ModuleProductManagementApiInspector extends Module {
 
 		foreach ($arr_allRawResourceNames as $str_rawResourceName => $void) {
 			$str_resourceName = str_replace('apiResource_', '', $str_rawResourceName);
+
+            $pageModel = PageModel::findWithDetails($objPage->row()['id']);
+            $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+            $str_href = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/selectedResource/'.$str_resourceName));
+
 			$arr_allResourceLinks[$str_resourceName] = array(
-				'str_href' => Controller::generateFrontendUrl($objPage->row(), '/selectedResource/'.$str_resourceName),
+				'str_href' => $str_href,
 				'bln_currentlySelected' => $str_selectedResource && $str_resourceName === $str_selectedResource,
 				'str_httpRequestMethod' => isset(ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition[$str_rawResourceName]['str_httpRequestMethod']) && ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition[$str_rawResourceName]['str_httpRequestMethod'] ? ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition[$str_rawResourceName]['str_httpRequestMethod'] : 'post'
 			);
@@ -64,7 +69,9 @@ class ModuleProductManagementApiInspector extends Module {
 
 		$obj_apiPage->first();
 
-		$str_apiResourceUrl = Controller::generateFrontendUrl($obj_apiPage->row(), '/resource/'.$str_selectedResource);
+        $pageModel = PageModel::findWithDetails($obj_apiPage->row()['id']);
+        $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+        $str_apiResourceUrl = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/resource/'.$str_selectedResource));
 
 		$arr_apiResourceDescriptions = ls_shop_productManagementApiHelper::getApiResourceDescriptions();
 
