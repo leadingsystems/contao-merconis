@@ -2,7 +2,6 @@
 
 namespace Merconis\Core;
 
-
 class ls_shop_apiController_dashboard
 {
     protected static $objInstance;

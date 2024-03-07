@@ -27,6 +27,8 @@ class ls_shop_apiControllerBackend
 	}
 	
 	public function processRequest($str_resourceName, $obj_apiReceiver) {
+        if(System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
+
 		if (!$str_resourceName || !$obj_apiReceiver) {
 			return;
 		}

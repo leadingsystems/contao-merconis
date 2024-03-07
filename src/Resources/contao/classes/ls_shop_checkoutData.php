@@ -599,8 +599,8 @@ class ls_shop_checkoutData {
 	 * Diese Funktion wird über einen Hook aufgerufen, sobald ein Formular abgeschickt und erfolgreich validiert wurde.
 	 * Abhängig davon, um welches Formular es sich handelt, werden die passenden internen Funktionen aufgerufen.
 	 */
-	public function ls_shop_processFormData($arrPost, $arrForm, $arrFiles) {
-
+	public function ls_shop_processFormData($arrPost, $arrForm, $arrFiles)
+    {
 		if ($arrForm['id'] == $this->formCustomerDataID) {
 			ls_shop_msg::setMsg(array(
 				'class' => 'customerDataSubmitted',

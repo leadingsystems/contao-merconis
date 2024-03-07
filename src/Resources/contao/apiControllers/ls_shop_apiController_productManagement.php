@@ -4,6 +4,7 @@ namespace Merconis\Core;
 use Contao\Controller;
 use Contao\Dbafs;
 use Contao\File;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_apiController_productManagement
@@ -30,6 +31,8 @@ class ls_shop_apiController_productManagement
 
 	public function processRequest($str_resourceName, $obj_apiReceiver)
 	{
+        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
+
 		if (!$str_resourceName || !$obj_apiReceiver) {
 			return;
 		}
