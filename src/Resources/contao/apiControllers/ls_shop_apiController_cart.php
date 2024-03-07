@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\Input;
+use Contao\System;
 
 class ls_shop_apiController_cart {
 	protected static $objInstance;
@@ -24,6 +25,8 @@ class ls_shop_apiController_cart {
 	}
 	
 	public function processRequest($str_resourceName, $obj_apiReceiver) {
+        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
+
 		if (!$str_resourceName || !$obj_apiReceiver) {
 			return;
 		}

@@ -3158,6 +3158,8 @@ class ls_shop_generalHelper
 
     public static function handleConditionalFormFields(Widget $objWidget, $intId, $arrForm)
     {
+        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
+
         $obj_dbres_mandatoryOnConditionSettings = Database::getInstance()
             ->prepare("
 					SELECT	`lsShop_mandatoryOnConditionField`,
@@ -3695,6 +3697,8 @@ class ls_shop_generalHelper
      */
     public static function ls_shop_provideInfosForJS()
     {
+        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
+
         if (!isset($GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) || !$GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) {
             return;
         }
@@ -4547,6 +4551,8 @@ class ls_shop_generalHelper
 
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
     {
+        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
+
         $themesPath = 'files/merconisfiles/themes';
         if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath) || !is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath)) {
             return;
@@ -5049,6 +5055,7 @@ class ls_shop_generalHelper
     }
 
     public static function merconis_getBackendLsjs($str_content, $str_template) {
+
         if ($str_template !== 'be_main') {
             return $str_content;
         }

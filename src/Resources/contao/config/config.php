@@ -20,39 +20,33 @@ $GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_
 /*
  * Include the lsjs app for the merconis backend
  */
-if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-    $GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getBackendLsjs');
-}
+$GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getBackendLsjs');
 
 /*
  * Hook for loading the themes' language files
  */
-if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
-	$GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_loadThemeLanguageFiles');
-}
+$GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_loadThemeLanguageFiles');
+
 
 /*
  * Hook zur Ermittlung und Bereitstellung der AJAX-URL
  */
-if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
-	$GLOBALS['TL_HOOKS']['generatePage'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_provideInfosForJS');
-}
+$GLOBALS['TL_HOOKS']['generatePage'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_provideInfosForJS');
+
 
 /*
  * Hooks für checkoutData
  */
-if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
-	$GLOBALS['TL_HOOKS']['processFormData'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_processFormData');
-	$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_loadFormField');
-}
+
+$GLOBALS['TL_HOOKS']['processFormData'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_processFormData');
+$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_loadFormField');
+
 
 
 /*
  * Hooks for form validation
  */
-if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
-    $GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
-}
+$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
 
 /*
  * Hooks für Ajax
@@ -108,27 +102,18 @@ $GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_s
 $GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
 $GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
 
-if (System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
-	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_variantSelector', 'processRequest');
-	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_exportFrontend', 'processRequest');
-	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_productManagement', 'processRequest');
-	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_cart', 'processRequest');
-}
+/** Frontend Hooks */
+$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_variantSelector', 'processRequest');
+$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_exportFrontend', 'processRequest');
+$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_productManagement', 'processRequest');
+$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_cart', 'processRequest');
 
-if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_exportBackend', 'processRequest');
-	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiControllerBackend', 'processRequest');
-	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_dashboard', 'processRequest');
-	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_themeExporter', 'processRequest');
-}
-/*
- * <-
- */
+/** Backend Hooks */
+$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_exportBackend', 'processRequest');
+$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiControllerBackend', 'processRequest');
+$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_dashboard', 'processRequest');
+$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_themeExporter', 'processRequest');
 
-if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
-	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_shop_BE.js';
-	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_x_controller.js';
-}
 
 \Contao\ArrayUtil::arrayInsert($GLOBALS['BE_MOD'], 0, array(
 	'merconis' => array(

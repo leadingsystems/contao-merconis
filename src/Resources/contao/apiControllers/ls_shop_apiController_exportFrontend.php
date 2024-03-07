@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\Database;
 use Contao\Input;
+use Contao\System;
 
 class ls_shop_apiController_exportFrontend
 {
@@ -29,6 +30,8 @@ class ls_shop_apiController_exportFrontend
 
 	public function processRequest($str_resourceName, $obj_apiReceiver)
 	{
+        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
+
 		if (!$str_resourceName || !$obj_apiReceiver) {
 			return;
 		}
