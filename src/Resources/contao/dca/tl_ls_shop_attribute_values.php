@@ -150,7 +150,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
             'inputType'               => 'text',
             'eval' => array('maxlength'=>12),
             'search' => true,
-            'sql'                     => "decimal(10,2) unsigned NOT NULL default '0'"
+            'sql'                     => "INT(10) unsigned NOT NULL default '0'"
         ),
 	)
 );
