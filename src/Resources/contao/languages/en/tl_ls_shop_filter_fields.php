@@ -52,6 +52,7 @@
         'flexContentLI' => array('Flexible product information/FlexContent (language-independent)', 'Flexible product information (Flex Contents) can be used for filtering. In this case, do not create any field values as child data records for this filter field.'),
         'flexContentLD' => array('Flexible product information/FlexContent (language-dependent)', 'Flexible product information (Flex Contents) can be used for filtering. In this case, do not create any field values as child data records for this filter field.'),
         'flexContentLIMinMax' => array('Flexible product information/FlexContent (language-independent) MinMax', 'Flexible product information (Flex Contents MinMax) can be used for filtering. In this case, do not create any field values as child data records for this filter field.'),
+        'attributeMinMax' => array('Product attribute (numeric)', 'The numeric attribute values of the attribute you select as the data source will be used. Don\'t enter child records for this filter field in this case.'),
 	);
 	
 	/*
