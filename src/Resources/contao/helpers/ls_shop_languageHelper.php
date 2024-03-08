@@ -712,7 +712,7 @@ class ls_shop_languageHelper {
 	 * gewünschten Feldern und Sprachen und gibt dann ein Array mit den entsprechenden Feldwerten in den
 	 * unterschiedlichen Sprachen zurück
 	 */
-	public static function getMultiLanguage($int_rowId = false, $str_tableName = '', $var_fields = 'all', $var_languages = 'all', $bln_allFieldsIncludingMonolanguageFields = false, $bln_returnNullIfLanguageNotDefined = true) {
+	public static function getMultiLanguage($int_rowId = false, $str_tableName = '', $var_fields = 'all', $var_languages = 'all', $bln_allFieldsIncludingMonolanguageFields = false, $bln_returnNullIfLanguageNotDefined = true, $arr_dbRecord = null) {
 		$str_cacheKey = md5(serialize(func_get_args()));
 
 		if (isset($GLOBALS['merconis_globals']['getMultiLanguage'][$str_cacheKey])) {
@@ -720,7 +720,7 @@ class ls_shop_languageHelper {
 		}
 
 		if (
-				!$int_rowId
+				(!$int_rowId && !is_array($arr_dbRecord))
 			|| 	!$str_tableName
 			|| 	($var_fields != 'all' && (!is_array($var_fields) || !count($var_fields)))
 			|| 	($var_languages != 'all' && (!is_array($var_languages) || !count($var_languages)))
@@ -738,24 +738,32 @@ class ls_shop_languageHelper {
 
 		$var_return = null;
 
-		/*
-		 * Get the complete row for the requested id
-		 */
-		$obj_dbres_row = \Database::getInstance()
-			->prepare("
-			SELECT		*
-			FROM		`".$str_tableName."`
-			WHERE		`id` = ?
-		");
+        if (is_array($arr_dbRecord)) {
+            /*
+             * If the data array has already been passed as an argument,
+             * no db request is necessary to retrieve the data ...
+             */
+            $arr_data = $arr_dbRecord;
+        } else {
+            /*
+             * ... otherwise get the complete row for the requested id
+             */
+            $obj_dbres_row = \Database::getInstance()
+                ->prepare("
+                SELECT		*
+                FROM		`".$str_tableName."`
+                WHERE		`id` = ?
+            ");
 
-		$obj_dbres_row = $obj_dbres_row->execute($int_rowId);
+            $obj_dbres_row = $obj_dbres_row->execute($int_rowId);
 
-		if (!$obj_dbres_row->numRows) {
-			$GLOBALS['merconis_globals']['getMultiLanguage'][$str_cacheKey] = $var_return;
-			return $GLOBALS['merconis_globals']['getMultiLanguage'][$str_cacheKey];
-		}
+            if (!$obj_dbres_row->numRows) {
+                $GLOBALS['merconis_globals']['getMultiLanguage'][$str_cacheKey] = $var_return;
+                return $GLOBALS['merconis_globals']['getMultiLanguage'][$str_cacheKey];
+            }
 
-		$arr_data = $obj_dbres_row->fetchAssoc();
+            $arr_data = $obj_dbres_row->fetchAssoc();
+        }
 
 		if (is_array($var_languages) && count($var_languages) == 1) {
 			$var_languages = $var_languages[0];

@@ -468,14 +468,14 @@ class ls_shop_generalHelper
      */
     public static function getGroupSettings4User($bln_forceRefresh = false, $obj_user = null)
     {
-        if (
-            !is_object($obj_user)
-            && \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()
-        ) {
-            $obj_user = \System::importStatic('FrontendUser');
-        }
-
         if (!isset($GLOBALS['merconis_globals']['groupInfo']) || $bln_forceRefresh) {
+            if (
+                !is_object($obj_user)
+                && \System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()
+            ) {
+                $obj_user = \System::importStatic('FrontendUser');
+            }
+
             $int_groupID = false;
 
             if (is_object($obj_user) && count($obj_user->groups)) {
@@ -490,9 +490,9 @@ class ls_shop_generalHelper
                     $GLOBALS['merconis_globals']['groupInfo'] = $objMccb->{$mccb[1]}($GLOBALS['merconis_globals']['groupInfo']);
                 }
             }
-        }
 
-        ls_shop_generalHelper::LaFP();
+            ls_shop_generalHelper::LaFP();
+        }
 
         return $GLOBALS['merconis_globals']['groupInfo'];
     }
@@ -2001,25 +2001,23 @@ class ls_shop_generalHelper
         $str_languageToUse = $str_languageToUse ? $str_languageToUse : (($objPage->language ?? null) ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage());
 
         if ($blnUncached || !isset($GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse])) {
-            $objAttributeValues = \Database::getInstance()->prepare("
+            $objAttributeValues = \Database::getInstance()
+                ->prepare("
 					SELECT		*
 					FROM		`tl_ls_shop_attribute_values`
-				" . ($attributeID ? "WHERE `pid` = ?" : "") . "
 					ORDER BY	`sorting` ASC
-				"
-            );
-
-            if ($attributeID) {
-                $objAttributeValues = $objAttributeValues->execute($attributeID);
-            } else {
-                $objAttributeValues = $objAttributeValues->execute();
-            }
+				")
+                ->execute();
 
             $arrAttributeValues = $objAttributeValues->fetchAllAssoc();
-            $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse] = array();
             foreach ($arrAttributeValues as $attributeValue) {
-                $attributeValue['title'] = ls_shop_languageHelper::getMultiLanguage($attributeValue['id'], 'tl_ls_shop_attribute_values_languages', array('title'), array($str_languageToUse));
-                $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse][$attributeValue['id']] = $attributeValue;
+                $attributeValue['title'] = ls_shop_languageHelper::getMultiLanguage($attributeValue['id'], 'tl_ls_shop_attribute_values_languages', array('title'), array($str_languageToUse), arr_dbRecord: $attributeValue);
+
+                // Storing all attribute values regardless of the parent attribute
+                $GLOBALS['merconis_globals']['productAttributeValues'][0][$str_languageToUse][$attributeValue['id']] = $attributeValue;
+
+                // Storing attribute values grouped by the parent attribute
+                $GLOBALS['merconis_globals']['productAttributeValues'][$attributeValue['pid']][$str_languageToUse][$attributeValue['id']] = $attributeValue;
             }
         }
         return $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse];
