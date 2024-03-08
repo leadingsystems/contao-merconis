@@ -1,17 +1,16 @@
 <?php
-/*
- * @toDo Fix: Contao\CoreBundle\Framework\ContaoFrameworkInterface deprecated since Contao 4.7, to be removed in Contao 5.0; use the Contao\CoreBundle\Framework\ContaoFramework class instead
- */
 
 namespace LeadingSystems\MerconisBundle\Controller;
+
 use Contao\Backend;
 use Contao\BackendTemplate;
 use Contao\CoreBundle\Framework\Adapter;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Environment;
 use Contao\Input;
 use Contao\System;
 use Merconis\Core\ls_shop_generalHelper;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Controller for the value picker wizard.
@@ -23,17 +22,17 @@ class ValuePickerController
 	/**
 	 * Contao framework.
 	 *
-	 * @var ContaoFrameworkInterface
+	 * @var ContaoFramework
 	 */
 	private $framework;
 
 	/**
 	 * ValuePickerController constructor.
 	 *
-	 * @param ContaoFrameworkInterface $framework Contao framework.
+	 * @param ContaoFramework $framework Contao framework.
 	 *
 	 */
-	public function __construct(ContaoFrameworkInterface $framework)
+	public function __construct(ContaoFramework $framework)
 	{
 		$this->framework = $framework;
 	}
@@ -41,10 +40,10 @@ class ValuePickerController
 	/**
 	 * Pick a value.
 	 *
-	 * @return \Symfony\Component\HttpFoundation\Response
+	 * @return Response
 	 */
-	public function pickAction()
-	{
+	public function pickAction(): Response
+    {
 		$this->framework->initialize();
 
 		Backend::setStaticUrls();

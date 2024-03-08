@@ -1,14 +1,11 @@
 <?php
-/*
- * @toDo Fix: Contao\CoreBundle\Framework\ContaoFrameworkInterface deprecated since Contao 4.7, to be removed in Contao 5.0; use the Contao\CoreBundle\Framework\ContaoFramework class instead
- */
 
 namespace LeadingSystems\MerconisBundle\Controller;
 
 use Contao\Ajax;
 use Contao\Backend;
 use Contao\BackendTemplate;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Environment;
 use Contao\Input;
 use Contao\StringUtil;
@@ -24,16 +21,16 @@ class ProductSearchController extends Backend
 	/**
 	 * Contao framework.
 	 *
-	 * @var ContaoFrameworkInterface
+	 * @var ContaoFramework
 	 */
 	private $framework;
 
 	/**
 	 * ProductSearchController constructor.
 	 *
-	 * @param ContaoFrameworkInterface $framework Contao framework.
+	 * @param ContaoFramework $framework Contao framework.
 	 */
-	public function __construct(ContaoFrameworkInterface $framework)
+	public function __construct(ContaoFramework $framework)
 	{
 		$this->framework = $framework;
 		$this->framework->initialize();
@@ -49,8 +46,8 @@ class ProductSearchController extends Backend
 	 *
 	 * @return Response
 	 */
-	public function searchAction()
-	{
+	public function searchAction(): Response
+    {
 
 		$this->Template = new BackendTemplate('be_productSearch');
 		$this->Template->main = '';
