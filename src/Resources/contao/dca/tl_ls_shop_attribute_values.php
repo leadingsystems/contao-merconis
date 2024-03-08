@@ -90,7 +90,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 	),
 	
 	'palettes' => array(
-		'default' => '{title_legend},title,alias;{filter_legend},classForFilterFormField,importantFieldValue'
+		'default' => '{title_legend},title,alias,numericValue;{filter_legend},classForFilterFormField,importantFieldValue'
 	),
 	
 	'fields' => array(
@@ -142,7 +142,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'w50 m12'),
             'sql'                     => "char(1) NOT NULL default ''"
-		)
+		),
+
+        'numericValue' => array (
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['numericValue'],
+            'exclude' => true,
+            'inputType'               => 'text',
+            'eval' => array('maxlength'=>12),
+            'search' => true,
+            'sql'                     => "decimal(10,2) unsigned NOT NULL default '0'"
+        ),
 	)
 );
 
