@@ -59,6 +59,8 @@ class ls_shop_filterController
 	 * as far as this function is concerend, it probably would be. Actually it isn't possible to use more than
 	 * one filter form or more than one product list which uses the filter because both would produce unpredictable
 	 * results and therefore is considered a misconfiguration.
+	 *
+	 * contao.hook: outputFrontendTemplate
 	 */
 	public function generateAndInsertFilterForms($strContent, $strTemplate)
 	{

@@ -6,6 +6,9 @@ use Contao\System;
 use Contao\Widget;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 
+    /*
+     * contao.hook: addCustomRegexp
+     */
 	class ls_shop_custom_regexp_fe
 	{
 		public function customRegexp($strRegexp, &$varValue, Widget &$objWidget) {

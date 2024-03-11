@@ -598,6 +598,8 @@ class ls_shop_checkoutData {
 	/*
 	 * Diese Funktion wird über einen Hook aufgerufen, sobald ein Formular abgeschickt und erfolgreich validiert wurde.
 	 * Abhängig davon, um welches Formular es sich handelt, werden die passenden internen Funktionen aufgerufen.
+	 *
+	 * contao.hook: processFormData
 	 */
 	public function ls_shop_processFormData($arrPost, $arrForm, $arrFiles)
     {
@@ -689,6 +691,8 @@ class ls_shop_checkoutData {
 	/*
 	 * Diese Funktion wird über einen Hook aufgerufen, wenn ein Formularfeld geladen wird.
 	 * Abhängig davon, um welches Formular es sich handelt, werden die passenden internen Funktionen aufgerufen.
+	 *
+	 * contao.hook: loadFormField
 	 */
 	public function ls_shop_loadFormField(Widget $objWidget, $strForm, $arrForm) {
 
