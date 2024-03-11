@@ -514,6 +514,7 @@ class ls_shop_filterHelper {
 	public static function resetCriteriaToUseInFilterForm() {
 		$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] = array(
 			'attributes' => array(),
+            'attributesMinMax' => array(),
             'flexContentsLI' => array(),
             'flexContentsLD' => array(),
             'flexContentsLIMinMax' => array(
@@ -673,6 +674,34 @@ class ls_shop_filterHelper {
         }
 	}
 
+    /**
+     * Each product and variant attribute and its numerical values ​​are compared with the overall filter array
+     * and the highest or
+     * lowest value are adopted.
+     * It therefore represents the MinMax limit value determination for attribute areas.
+     *
+     * @param int           $attributeID        New value for the range limit
+     * @param int           $value              numerischer Wert den es zu prüfen gilt
+     * @param string        $where              Unterschlüssel für die lsShop-filter Sessionvariable
+     * @return void
+     */
+    public static function addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID = null, $value = null, $where = 'arrCriteriaToUseInFilterForm') {
+		if (!$attributeID || $value === null) {
+			return;
+		}
+        if (!isset($_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID])) {
+            $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID] = [];
+        }
+        if (empty($_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['low'])
+            || $value < $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['low']) {
+            $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['low'] = $value;
+        }
+        if (empty($_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['high'])
+            || $value > $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['high']) {
+            $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['high'] = $value;
+        }
+	}
+
     /** This function determines a range limit by comparing the passed value with the current range limits and updating it accordingly
      *
      * @param $value                    New value for the range limit
@@ -681,7 +710,8 @@ class ls_shop_filterHelper {
      * @return void
      */
     public static function determineMinMaxValues($value, &$variableMin,&$variableMax
-    , $checkZero = false)
+    #, $checkZero = false
+    )
     {
         $value = (float) $value;
 
@@ -692,15 +722,6 @@ class ls_shop_filterHelper {
             $variableMax = $value;
         }
 
-//TODO: könnte man noch kürzer machen
-        if ($checkZero) {
-            if ($variableMin === 0 || $value < $variableMin) {
-                $variableMin = $value;
-            }
-            if ($variableMax === 0 || $value > $variableMax) {
-                $variableMax = $value;
-            }
-        }
 
     }
 
@@ -1324,6 +1345,20 @@ class ls_shop_filterHelper {
                 );
             }
         }
+
+//TODO: diesen Block prüfen,
+        foreach($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'] as $attributeID => $attributeValues) {
+            if (
+                !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$attributeID]['low'] &&
+                !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$attributeID]['high']
+                ) {
+                $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributesMinMax'][$attributeID]['low'] = array(
+                    'low' => null,
+				    'high' => null
+                );
+            }
+        }
+
 	}
 
 	public static function setCriteriaToUseInFilterForm($arrProductsComplete = array()) {
@@ -1353,6 +1388,16 @@ class ls_shop_filterHelper {
 			foreach ($arrProduct['attributeAndValueIDs'] as $intAttributeID => $arrValueIDs) {
 				ls_shop_filterHelper::addAttributeValueToCriteriaUsedInFilterForm($intAttributeID, $arrValueIDs);
 			}
+			foreach ($arrProduct['attributesMinMax'] as $attributeID => $attributeValues) {
+				//ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues);
+                if (!isset($attributeValues['lowestValue'])) {
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['low']);
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['high']);
+                } else {
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['lowestValue']);
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['highestValue']);
+                }
+			}
 			foreach ($arrProduct['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
 				ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
 			}
@@ -1372,6 +1417,10 @@ class ls_shop_filterHelper {
 				foreach ($arrVariant['attributeAndValueIDs'] as $intAttributeID => $arrValueIDs) {
 					ls_shop_filterHelper::addAttributeValueToCriteriaUsedInFilterForm($intAttributeID, $arrValueIDs);
 				}
+                foreach ($arrVariant['attributesMinMax'] as $attributeID => $attributeValues) {
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['low']);
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['high']);
+                }
                 foreach ($arrVariant['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
                     ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
                 }

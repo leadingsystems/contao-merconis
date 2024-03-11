@@ -1698,7 +1698,7 @@ class ls_shop_productSearcher
                     $refCurrentProductRow['attributeIDs'] = array();
                     $refCurrentProductRow['attributeValueIDs'] = array();
                     $refCurrentProductRow['attributeAndValueIDs'] = array();
-                    $refCurrentProductRow['attributeMinMax'] = array();
+                    $refCurrentProductRow['attributesMinMax'] = array();
 
                     $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
                     $refCurrentProductRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax', true);
@@ -1742,28 +1742,26 @@ class ls_shop_productSearcher
 
                 //Range for Attribute numeric Values
                 if ($rowProductsComplete['attributeNumericValue']) {
-                    if (!isset($refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']])) {
-                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']] = array();
-                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']] = ['low' => 0, 'high' => 0, 'lowestValue' => 0, 'highestValue' => 0];
+                    if (!isset($refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']])) {
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']] = array();
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']] = ['low' => null, 'high' => null, 'lowestValue' => null, 'highestValue' => null];
 
                     }
-                    #$refCurrentProductRow['attributeMinMax'] = array();
+
                     ls_shop_filterhelper::determineMinMaxValues(
                         $rowProductsComplete['attributeNumericValue'],
-                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']]['low'],
-                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']]['high'],
-                        true
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['low'],
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['high']
+                        #,true
                     );
 
                     ls_shop_filterhelper::determineMinMaxValues(
                         $rowProductsComplete['attributeNumericValue'],
-                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']]['lowestValue'],
-                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']]['highestValue'],
-                        true
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['lowestValue'],
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['highestValue']
+                        #,true
                     );
-
                 }
-
 
             }
 
@@ -1811,11 +1809,14 @@ class ls_shop_productSearcher
                 )
                 ."
 								`tl_ls_shop_attribute_allocation`.`attributeID`,
-								`tl_ls_shop_attribute_allocation`.`attributeValueID`
+								`tl_ls_shop_attribute_allocation`.`attributeValueID`,
+								`tl_ls_shop_attribute_values`.`numericValue` AS attributeNumericValue
 				FROM			`tl_ls_shop_variant`
 				LEFT JOIN		`tl_ls_shop_attribute_allocation`
 					ON			`tl_ls_shop_variant`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
 					AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '1'
+                LEFT JOIN `tl_ls_shop_attribute_values` 
+    				ON `tl_ls_shop_attribute_allocation`.attributeValueID = `tl_ls_shop_attribute_values`.`id`
 				WHERE			`tl_ls_shop_variant`.`published` = '1'
 					AND			`tl_ls_shop_variant`.`pid` IN (".implode(',', array_keys($tmpArrProductsComplete)).")
 				ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
@@ -1842,6 +1843,7 @@ class ls_shop_productSearcher
                     $refCurrentVariantRow['attributeIDs'] = array();
                     $refCurrentVariantRow['attributeValueIDs'] = array();
                     $refCurrentVariantRow['attributeAndValueIDs'] = array();
+                    $refCurrentVariantRow['attributesMinMax'] = array();
 
                     $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
                     $refCurrentVariantRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax');
@@ -1917,6 +1919,26 @@ class ls_shop_productSearcher
 
                 if ($rowVariants['attributeValueID']) {
                     $refCurrentVariantRow['attributeValueIDs'][] = $rowVariants['attributeValueID'];
+                }
+
+                //Range for Attribute numeric Values
+                if ($rowVariants['attributeNumericValue']) {
+                    if (!isset($refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']])) {
+                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']] = array();
+                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']] = ['low' => null, 'high' => null];
+                    }
+
+                    ls_shop_filterhelper::determineMinMaxValues(
+                        $rowVariants['attributeNumericValue'],
+                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['low'],
+                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['high']
+                    );
+
+                    #ls_shop_filterhelper::determineMinMaxValues(
+                        #$rowVariants['attributeNumericValue'],
+                        #$refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['lowestValue'],
+                        #$refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['highestValue']
+                    #);
                 }
             }
 
