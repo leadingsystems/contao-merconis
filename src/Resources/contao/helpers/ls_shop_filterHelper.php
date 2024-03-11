@@ -692,6 +692,7 @@ class ls_shop_filterHelper {
             $variableMax = $value;
         }
 
+//TODO: könnte man noch kürzer machen
         if ($checkZero) {
             if ($variableMin === 0 || $value < $variableMin) {
                 $variableMin = $value;
