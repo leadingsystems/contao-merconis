@@ -410,6 +410,9 @@ class ls_shop_productSearcher
             case 'attributeValueID':
                 return "`tl_ls_shop_attribute_allocation`.`".$fieldName."`";
 
+            case 'numericValue':
+                return "`tl_ls_shop_attribute_values`.`".$fieldName."` AS attributeNumericValue";
+
             default:
                 return "`tl_ls_shop_product`.`".$fieldName."`";
                 break;
@@ -1318,6 +1321,10 @@ class ls_shop_productSearcher
                 $this->arrRequestFields[] = 'attributeValueID';
             }
 
+            if (!in_array('numericValue', $this->arrRequestFields)) {
+                $this->arrRequestFields[] = 'numericValue';
+            }
+
             if (!in_array('lsShopProductPrice', $this->arrRequestFields)) {
                 $this->arrRequestFields[] = 'lsShopProductPrice';
             }
@@ -1448,6 +1455,8 @@ class ls_shop_productSearcher
 			LEFT JOIN		`tl_ls_shop_attribute_allocation`
 				ON			`tl_ls_shop_product`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
 				AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '0'
+            LEFT JOIN `tl_ls_shop_attribute_values` 
+				ON `tl_ls_shop_attribute_allocation`.attributeValueID = `tl_ls_shop_attribute_values`.`id`
 		" : "")."
 			WHERE			".$searchCondition."
 			".$orderStatement."
@@ -1689,6 +1698,7 @@ class ls_shop_productSearcher
                     $refCurrentProductRow['attributeIDs'] = array();
                     $refCurrentProductRow['attributeValueIDs'] = array();
                     $refCurrentProductRow['attributeAndValueIDs'] = array();
+                    $refCurrentProductRow['attributeMinMax'] = array();
 
                     $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
                     $refCurrentProductRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax', true);
@@ -1729,6 +1739,32 @@ class ls_shop_productSearcher
                 if ($rowProductsComplete['attributeValueID']) {
                     $refCurrentProductRow['attributeValueIDs'][] = $rowProductsComplete['attributeValueID'];
                 }
+
+                //Range for Attribute numeric Values
+                if ($rowProductsComplete['attributeNumericValue']) {
+                    if (!isset($refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']])) {
+                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']] = array();
+                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']] = ['low' => 0, 'high' => 0, 'lowestValue' => 0, 'highestValue' => 0];
+
+                    }
+                    #$refCurrentProductRow['attributeMinMax'] = array();
+                    ls_shop_filterhelper::determineMinMaxValues(
+                        $rowProductsComplete['attributeNumericValue'],
+                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']]['low'],
+                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']]['high'],
+                        true
+                    );
+
+                    ls_shop_filterhelper::determineMinMaxValues(
+                        $rowProductsComplete['attributeNumericValue'],
+                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']]['lowestValue'],
+                        $refCurrentProductRow['attributeMinMax'][$rowProductsComplete['attributeID']]['highestValue'],
+                        true
+                    );
+
+                }
+
+
             }
 
             /*

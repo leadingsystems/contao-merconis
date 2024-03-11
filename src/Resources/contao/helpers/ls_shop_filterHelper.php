@@ -680,7 +680,8 @@ class ls_shop_filterHelper {
      * @param $variableMax              Reference variable for the max value
      * @return void
      */
-    private static function determineMinMaxValues($value, &$variableMin,&$variableMax)
+    public static function determineMinMaxValues($value, &$variableMin,&$variableMax
+    , $checkZero = false)
     {
         $value = (float) $value;
 
@@ -690,6 +691,16 @@ class ls_shop_filterHelper {
         if ($variableMax === null || $value > $variableMax) {
             $variableMax = $value;
         }
+
+        if ($checkZero) {
+            if ($variableMin === 0 || $value < $variableMin) {
+                $variableMin = $value;
+            }
+            if ($variableMax === 0 || $value > $variableMax) {
+                $variableMax = $value;
+            }
+        }
+
     }
 
 
