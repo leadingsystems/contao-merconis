@@ -12,6 +12,9 @@ use function LeadingSystems\Helpers\ls_add;
 use function LeadingSystems\Helpers\ls_sub;
 
 class ls_shop_cartHelper {
+    /*
+     * contao.hook: initializeSystem
+     */
 	public static function initializeEmptyCart() {
 	    if (!is_array($_SESSION['lsShopCart'] ?? null)) {
 			$_SESSION['lsShopCart'] = array();

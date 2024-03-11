@@ -14,58 +14,58 @@ define('TL_MERCONIS_STOCK_MANAGEMENT', 'MERCONIS STOCK MANAGEMENT');
 
 $GLOBALS['TL_HOOKS']['merconisCustomTaxRateCalculation'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconisCustomTaxRateCalculation');
 
-$GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_regexp', 'customRegexp');
-$GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_regexp_fe', 'customRegexp');
+//$GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_regexp', 'customRegexp');
+//$GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_regexp_fe', 'customRegexp');
 
 /*
  * Include the lsjs app for the merconis backend
  */
-$GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getBackendLsjs');
+//$GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconis_getBackendLsjs');
 
 /*
  * Hook for loading the themes' language files
  */
-$GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_loadThemeLanguageFiles');
+//$GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_loadThemeLanguageFiles');
 
 
 /*
  * Hook zur Ermittlung und Bereitstellung der AJAX-URL
  */
-$GLOBALS['TL_HOOKS']['generatePage'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_provideInfosForJS');
+//$GLOBALS['TL_HOOKS']['generatePage'][] = array('Merconis\Core\ls_shop_generalHelper', 'ls_shop_provideInfosForJS');
 
 
 /*
  * Hooks für checkoutData
  */
 
-$GLOBALS['TL_HOOKS']['processFormData'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_processFormData');
-$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_loadFormField');
+//$GLOBALS['TL_HOOKS']['processFormData'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_processFormData');
+//$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_checkoutData', 'ls_shop_loadFormField');
 
 
 
 /*
  * Hooks for form validation
  */
-$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
+//$GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
 
 /*
  * Hooks für Ajax
  */
-$GLOBALS['TL_HOOKS']['executePreActions'][] = array('Merconis\Core\ls_shop_ajaxController', 'executePreActions');
-$GLOBALS['TL_HOOKS']['executePostActions'][] = array('Merconis\Core\ls_shop_ajaxController', 'executePostActions');
+//$GLOBALS['TL_HOOKS']['executePreActions'][] = array('Merconis\Core\ls_shop_ajaxController', 'executePreActions');
+//$GLOBALS['TL_HOOKS']['executePostActions'][] = array('Merconis\Core\ls_shop_ajaxController', 'executePostActions');
 
 /*
  * Hook für bedingte CTE-Ausgabe
  */
-$GLOBALS['TL_HOOKS']['getContentElement'][] = array('Merconis\Core\ls_shop_generalHelper', 'conditionalCTEOutput');
-$GLOBALS['TL_HOOKS']['getArticle'][] = array('Merconis\Core\ls_shop_generalHelper', 'conditionalArticleOutput');
+//$GLOBALS['TL_HOOKS']['getContentElement'][] = array('Merconis\Core\ls_shop_generalHelper', 'conditionalCTEOutput');
+//$GLOBALS['TL_HOOKS']['getArticle'][] = array('Merconis\Core\ls_shop_generalHelper', 'conditionalArticleOutput');
 
 /*
  * Hook zum Generieren und Einfügen des Filter-Formulars an seine Platzhalterstelle
  */
-$GLOBALS['TL_HOOKS']['outputFrontendTemplate'][] = array('Merconis\Core\ls_shop_filterController', 'generateAndInsertFilterForms');
+//$GLOBALS['TL_HOOKS']['outputFrontendTemplate'][] = array('Merconis\Core\ls_shop_filterController', 'generateAndInsertFilterForms');
 
-$GLOBALS['TL_HOOKS']['outputFrontendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'callback_outputFrontendTemplate');
+//$GLOBALS['TL_HOOKS']['outputFrontendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'callback_outputFrontendTemplate');
 
 /*
  * Hook for the multiLanguage DCA manipulation
@@ -73,7 +73,7 @@ $GLOBALS['TL_HOOKS']['outputFrontendTemplate'][] = array('Merconis\Core\ls_shop_
 if (Input::get('do') != 'themes' || Input::get('key') != 'importTheme') {
 	$GLOBALS['TL_HOOKS']['loadDataContainer'][] = array('Merconis\Core\ls_shop_languageHelper', 'createMultiLanguageDCAFields');
 }
-$GLOBALS['TL_HOOKS']['loadDataContainer'][] = array('Merconis\Core\ls_shop_generalHelper', 'removeFieldsForEditAll');
+//$GLOBALS['TL_HOOKS']['loadDataContainer'][] = array('Merconis\Core\ls_shop_generalHelper', 'removeFieldsForEditAll');
 
 /*
  * Hooks for language selector
@@ -83,7 +83,7 @@ $GLOBALS['LS_LANGUAGESELECTOR_HOOKS']['modifyLanguageLinks'][] = array('Merconis
 /*
  * Hook to allow payment provider callbacks to work
  */
-$GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_cartHelper', 'initializeEmptyCart');
+//$GLOBALS['TL_HOOKS']['initializeSystem'][] = array('Merconis\Core\ls_shop_cartHelper', 'initializeEmptyCart');
 
 /*
  * ->
@@ -96,10 +96,10 @@ $GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\
  * to execute functionality that we would want to execute in destructor functions but can't because of symfony's
  * custom session handling
  */
-$GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
+//$GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
 $GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
 
-$GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
+//$GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
 $GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
 
 /** Frontend Hooks */
@@ -219,6 +219,6 @@ $GLOBALS['FE_MOD']['ls_shop'] = array(
  */
 $GLOBALS['TL_CTE']['lsShop']['lsShopCrossSellerCTE'] = 'Merconis\Core\ls_shop_cross_sellerCTE';
 
-$GLOBALS['TL_HOOKS']['getUserNavigation'][] = array('Merconis\Core\ls_shop_generalHelper', 'manipulateBackendNavigation');
+//$GLOBALS['TL_HOOKS']['getUserNavigation'][] = array('Merconis\Core\ls_shop_generalHelper', 'manipulateBackendNavigation');
 
-$GLOBALS['TL_HOOKS']['getSystemMessages'][] = array('Merconis\Core\ls_shop_generalHelper', 'getMerconisSystemMessages');
+//$GLOBALS['TL_HOOKS']['getSystemMessages'][] = array('Merconis\Core\ls_shop_generalHelper', 'getMerconisSystemMessages');

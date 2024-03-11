@@ -93,3 +93,46 @@ services:
 
   LeadingSystems\MerconisBundle\InsertTag\AsBlockInsertTag\:
     resource: '../../InsertTag/AsBlockInsertTag'
+
+
+  Merconis\Core\ls_shop_generalHelper:
+    tags:
+      - { name: contao.hook, hook: generatePage, method: ls_shop_provideInfosForJS}
+      - { name: contao.hook, hook: loadLanguageFile, method: ls_shop_loadThemeLanguageFiles }
+      - { name: contao.hook, hook: outputBackendTemplate, method: merconis_getBackendLsjs }
+      - { name: contao.hook, hook: loadFormField, method: handleConditionalFormFields }
+      - { name: contao.hook, hook: getContentElement, method: conditionalCTEOutput }
+      - { name: contao.hook, hook: getArticle, method: conditionalArticleOutput }
+      - { name: contao.hook, hook: outputFrontendTemplate, method: callback_outputFrontendTemplate }
+      - { name: contao.hook, hook: loadDataContainer, method: removeFieldsForEditAll }
+      - { name: contao.hook, hook: modifyFrontendPage, method: storeConfiguratorDataToSession }
+      - { name: contao.hook, hook: modifyFrontendPage, method: storeCustomizerDataToSession }
+      - { name: contao.hook, hook: getUserNavigation, method: manipulateBackendNavigation }
+      - { name: contao.hook, hook: getSystemMessages, method: getMerconisSystemMessages }
+
+  Merconis\Core\ls_shop_cartHelper:
+    tags:
+      - { name: contao.hook, hook: initializeSystem, method: initializeEmptyCart }
+
+  LeadingSystems\MerconisBundle\Services\FilterController:
+    tags:
+      - { name: contao.hook, hook: outputFrontendTemplate, method: generateAndInsertFilterForms }
+
+  LeadingSystems\MerconisBundle\Services\CheckoutData:
+    tags:
+      - { name: contao.hook, hook: processFormData, method: ls_shop_processFormData }
+      - { name: contao.hook, hook: loadFormField, method: ls_shop_loadFormField }
+
+  Merconis\Core\ls_shop_ajaxController:
+    tags:
+      - { name: contao.hook, hook: executePreActions, method: executePreActions }
+      - { name: contao.hook, hook: executePostActions, method: executePostActions }
+
+  Merconis\Core\ls_shop_custom_regexp:
+    tags:
+      - { name: contao.hook, hook: addCustomRegexp, method: customRegexp }
+
+  Merconis\Core\ls_shop_custom_regexp_fe:
+    tags:
+      - { name: contao.hook, hook: addCustomRegexp, method: customRegexp }
+

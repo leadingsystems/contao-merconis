@@ -6,6 +6,9 @@ namespace Merconis\Core;
 
     class ls_shop_custom_regexp
 	{
+	    /*
+	     * contao.hook: addCustomRegexp
+	     */
 		public function customRegexp($strRegexp, &$varValue, Widget $objWidget) {
 			if ($strRegexp == 'oneNumber') {
 				if (!preg_match('/^[0-9]{1}$/siU', $varValue)) {

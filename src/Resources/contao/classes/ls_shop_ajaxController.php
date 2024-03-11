@@ -8,6 +8,9 @@ use Contao\System;
 
 class ls_shop_ajaxController
 {
+    /*
+     * contao.hook: executePreActions
+     */
 	public function executePreActions($strAction) {
 		switch ($strAction) {
 			case 'ls_shop_loadCorrespondingAttributeValuesAsOptions':
@@ -132,7 +135,10 @@ class ls_shop_ajaxController
 				break;
 		}		
 	}
-	
+
+	/*
+	 * contao.hook: executePostActions
+	 */
 	public function executePostActions($strAction, DataContainer $dc) {
 		switch ($strAction) {
 			case 'ls_shop_productSelection::loadProduct':				
