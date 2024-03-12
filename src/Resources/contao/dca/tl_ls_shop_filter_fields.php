@@ -98,7 +98,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		'__selector__' => array('dataSource'),
 		'default' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority;{published_legend},published;',
 		'attribute' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
-        'attributesMinMax' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},classForFilterFormField,priority,templateToUseForFlexContentLIMinMaxField;{filterLogic_legend};{published_legend},published;',
+        'attributesMinMax' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},classForFilterFormField,priority,templateToUseForRangeField;{filterLogic_legend};{published_legend},published;',
 		'producer' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{published_legend},published;',
 		'price' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},classForFilterFormField,priority,templateToUseForPriceField;{published_legend},published;',
         'flexContentLI' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLIField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
@@ -255,6 +255,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLIMinMaxFilterField_new'"
         ),
 
+        'templateToUseForRangeField'  => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForRangeField'],
+            'exclude'				  => true,
+            'inputType'               => 'select',
+            'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getRangeFilterFieldTemplates'),
+            'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formRangeFilterField_new'"
+        ),
+
 		'filterMode' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode'],
 			'exclude'				  => true,
@@ -380,5 +389,9 @@ class ls_shop_filter_fields extends \Backend {
 
     public function getFlexContentLIMinMaxFilterFieldTemplates() {
         return $this->getTemplateGroup('template_formFlexContentLIMinMaxFilterField_');
+    }
+
+    public function getRangeFilterFieldTemplates() {
+        return $this->getTemplateGroup('template_formAttributesMinMaxFilterField_');
     }
 }
