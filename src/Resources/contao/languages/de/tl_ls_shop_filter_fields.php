@@ -53,7 +53,7 @@
         'flexContentLI' => array('Flexible Produktinformation/FlexContent (sprachunabhängig)', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
         'flexContentLD' => array('Flexible Produktinformation/FlexContent (sprachabhängig)', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
         'flexContentLIMinMax' => array('Flexible Produktinformation/FlexContent (sprachunabhängig) Min-/Max', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
-        'attributeMinMax' => array('Produktmerkmal (numerisch)', 'Die Ausprägungen des als Datenquelle gewählten Merkmals werden verwendet. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.')
+        'attributesMinMax' => array('Produktmerkmal (numerisch)', 'Die Ausprägungen des als Datenquelle gewählten Merkmals werden verwendet. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.')
 	);
 	
 	/*
