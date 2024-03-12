@@ -45,10 +45,6 @@ class LsjsInsertionSubscriber implements EventSubscriberInterface
             $binderController = new \lsjs_binderController($arr_config);
 
             $GLOBALS['TL_JAVASCRIPT'][] = str_replace($this->projectDir, '', $binderController->getPathToRenderedFile());
-
-
-            $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_shop_BE.js';
-            $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_x_controller.js';
         }
     }
 
