@@ -36,7 +36,7 @@ services:
 
   LeadingSystems\MerconisBundle\EventListener\GeneratePageListener:
     tags:
-      - { name: contao.hook, hook: generatePage, method: provideInfosForJS }
+      - { name: contao.hook, hook: generatePage, method: execute }
 
   LeadingSystems\MerconisBundle\EventListener\RequestListener:
     arguments:
