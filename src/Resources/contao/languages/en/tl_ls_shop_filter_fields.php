@@ -21,6 +21,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForPriceField']           = array('Template');
     $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLIField']     = array('Template');
     $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLDField']     = array('Template');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLIMinMaxField']     = array('Template');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['published']							= array('Active');
 
 	/*
