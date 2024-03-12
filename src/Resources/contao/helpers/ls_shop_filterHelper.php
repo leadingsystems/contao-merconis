@@ -8,6 +8,7 @@ class ls_shop_filterHelper {
 
         $arr_filterSummary = [
             'arr_attributes' => [],
+            'arr_attributesMinMax' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributesMinMax'] ?? null,
             'arr_flexContentsLI' => [],
             'arr_flexContentsLD' => [],
             'arr_flexContentsLIMinMax' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLIMinMax'] ?? null,
@@ -17,6 +18,7 @@ class ls_shop_filterHelper {
 
         $arr_filterAllFields = [
             'arr_attributes' => [],
+            'arr_attributesMinMax' => [],
             'arr_flexContentsLI' => [],
             'arr_flexContentsLD' => [],
             'arr_flexContentsLIMinMax' => [],
@@ -217,6 +219,33 @@ class ls_shop_filterHelper {
 
                     $arr_filterAllFields['arr_flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']] += $arr_filterValues;
                     break;
+
+                case 'attributesMinMax':
+                    /*
+                     * If based on the current product list there are no attributesMinMax to be used as criteria in the filter form
+                     * or no values for the current attributesMinMax, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                    ) {
+                        break;
+                    }
+
+                    $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']];
+
+                    $arr_filterAllFields['arr_attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']] = [
+                        'str_caption' => $arrFilterFieldInfo['title'],
+                        'str_title' => $arrFilterFieldInfo['sourceAttribute'],
+                        'low' => $arr_filterValues['low'],
+                        'high' => $arr_filterValues['high'],
+                    ];
+
+                    #$arr_filterAllFields['arr_attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']] += $arr_filterValues;
+                    break;
             }
 
         }
@@ -244,6 +273,19 @@ class ls_shop_filterHelper {
             }
         }
 
+        $bln_attributesMinMaxFilterCurrentlyAvailable = false;
+        foreach($arr_filterAllFields['arr_attributesMinMax'] as $attributeID => $attributesMinMaxValues) {
+            if (
+                ($arr_filterAllFields['arr_attributesMinMax'][$attributeID]['low'] ?? '')
+                ||
+                ($arr_filterAllFields['arr_attributesMinMax'][$attributeID]['high'] ?? '')
+                ) {
+                $bln_attributesMinMaxFilterCurrentlyAvailable = true;
+                break;
+            }
+        }
+
+
 
         $bln_currentlyFilteringByAttributes = is_array($arr_filterSummary['arr_attributes']) && count($arr_filterSummary['arr_attributes']);
         $bln_currentlyFilteringByFlexContentsLI = is_array($arr_filterSummary['arr_flexContentsLI']) && count($arr_filterSummary['arr_flexContentsLI']);
@@ -270,6 +312,18 @@ class ls_shop_filterHelper {
             }
         }
 
+        $bln_currentlyFilteringByAttributesMinMax = false;
+        foreach($arr_filterSummary['arr_attributesMinMax'] as $attributeID => $attributesMinMaxValues) {
+            $arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering'] = false;
+            if (
+                ($arr_filterSummary['arr_attributesMinMax'][$attributeID]['low'] ?? '')
+                ||
+                ($arr_filterSummary['arr_attributesMinMax'][$attributeID]['high'] ?? '')
+                ) {
+                $arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering'] = true;
+                $bln_currentlyFilteringByAttributesMinMax = true;
+            }
+        }
 
 
 
@@ -354,12 +408,14 @@ class ls_shop_filterHelper {
             'arr_filterAllFields' => $arr_filterAllFields,
             'int_numAvailableFilterFields' => ($bln_poducerFilterCurrentlyAvailable ? 1 : 0) + ($bln_priceFilterCurrentlyAvailable ? 1 : 0) + count($arr_filterAllFields['arr_attributes']),
             'bln_attributesFilterCurrentlyAvailable' => $bln_attributesFilterCurrentlyAvailable,
+            'bln_attributesMinMaxFilterCurrentlyAvailable' => $bln_attributesMinMaxFilterCurrentlyAvailable,
             'bln_flexContentsLIFilterCurrentlyAvailable' => $bln_flexContentsLIFilterCurrentlyAvailable,
             'bln_flexContentsLDFilterCurrentlyAvailable' => $bln_flexContentsLDFilterCurrentlyAvailable,
             'bln_flexContentsLIMinMaxFilterCurrentlyAvailable' => $bln_flexContentsLIMinMaxFilterCurrentlyAvailable,
             'bln_poducerFilterCurrentlyAvailable' => $bln_poducerFilterCurrentlyAvailable,
             'bln_priceFilterCurrentlyAvailable' => $bln_priceFilterCurrentlyAvailable,
             'bln_currentlyFilteringByAttributes' => $bln_currentlyFilteringByAttributes,
+            'bln_currentlyFilteringByAttributesMinMax' => $bln_currentlyFilteringByAttributesMinMax,
             'bln_currentlyFilteringByFlexContentsLI' => $bln_currentlyFilteringByFlexContentsLI,
             'bln_currentlyFilteringByFlexContentsLD' => $bln_currentlyFilteringByFlexContentsLD,
             'bln_currentlyFilteringByFlexContentsLIMinMax' => $bln_currentlyFilteringByFlexContentsLIMinMax,
@@ -401,6 +457,7 @@ class ls_shop_filterHelper {
 		$_SESSION['lsShop']['filter'] = array(
 			'criteria' => array(
 				'attributes' => array(),
+                'attributesMinMax' => array(),
 				'flexContentsLI' => array(),
                 'flexContentsLD' => array(),
                 'flexContentsLIMinMax' => array(),
@@ -412,6 +469,7 @@ class ls_shop_filterHelper {
 			),
 			'arrCriteriaToUseInFilterForm' => array(
 				'attributes' => array(),
+                'attributesMinMax' => array(),
 				'flexContentsLI' => array(),
                 'flexContentsLD' => array(),
                 'flexContentsLIMinMax' => array(),
@@ -964,6 +1022,56 @@ class ls_shop_filterHelper {
 			}
 		}
 
+
+
+        /*
+		 * Check the product's Attributes MinMax
+		 */
+
+        self::checkIfProductMatchesFilter_ranges( $blnWholeProductCouldStillMatch
+            , $blnVariantsCouldStillMatch, $arrCriteriaToFilterWith, $arrProductInfo
+            , 'attributesMinMax' );
+/*
+		if ($blnWholeProductCouldStillMatch) {
+			if (is_array($arrCriteriaToFilterWith['attributesMinMax'])) {
+				foreach ($arrCriteriaToFilterWith['attributesMinMax'] as $str_flexContentLIMinMaxKey => $arr_flexContentLIMinMaxValues) {
+
+                    if ($arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['high']
+                        >= $arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['low']
+                        && $arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['high'] > 0) {
+                        if (!count($arrProductInfo['variants'])) {
+
+                            if (!isset($arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]) ||
+                                $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['high'] < $arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                || $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['low'] > $arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                                $blnWholeProductCouldStillMatch = false;
+                            }
+                        } else {
+
+
+                            if (isset($arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]) &&
+                                $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                && $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+
+                            } else if (!isset($arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey])                                ||
+                                $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                || $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = false;
+                            } else {
+
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = true;
+                            }
+
+                        }
+                    }
+				}
+			}
+		}
+*/
+
 		/*
 		 * Check the prices
 		 */
@@ -1260,6 +1368,84 @@ class ls_shop_filterHelper {
 		}
 	}
 
+
+    /*  Da die Prüfung für Bereiche bei FCLIMinMax und Attributen gleich ablaufen können sie in eine Funktion ausgelagert werden
+     *
+     * */
+    private static function checkIfProductMatchesFilter_ranges(&$blnWholeProductCouldStillMatch, &$blnVariantsCouldStillMatch
+    , &$arrCriteriaToFilterWith, &$arrProductInfo
+        , $criteriaKey
+    )
+    {
+
+        /*
+		 * Check the product's Attributes MinMax
+		 */
+		if ($blnWholeProductCouldStillMatch) {
+			if (is_array($arrCriteriaToFilterWith[$criteriaKey])) {
+				foreach ($arrCriteriaToFilterWith[$criteriaKey] as $rangeKey => $rangeValues) {
+					/*
+					 * The array returned by array_intersect() contains the requested attributesMinMax values which
+					 * are also included in the product's attributesMinMax values for the respective attributeID.
+					 *
+					 */
+                    /*
+                     * Ignore the range filter if the high filter range is not higher than 0 and not as least as high as the low filter range.
+                     * This way it is possible to skip the range filter part by setting both filter parameters to 0.
+                     */
+                    if ($arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['high']
+                        >= $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['low']
+                        && $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['high'] > 0) {
+                        if (!count($arrProductInfo['variants'])) {
+                            /*
+                             * If the product doesn't have variants, the product's FCLI has to be checked
+                             */
+                            if (!isset($arrProductInfo[$criteriaKey][$rangeKey]) ||
+                                $arrProductInfo[$criteriaKey][$rangeKey]['high'] < $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['low']
+                                || $arrProductInfo[$criteriaKey][$rangeKey]['low'] > $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['high']) {
+                                $blnWholeProductCouldStillMatch = false;
+                            }
+                        } else {
+                            /*
+                             * If the product has variants, we have to use it's highest and lowest FCLI to see,
+                             * if it is possible to match or filter out the whole product or if we have to
+                             * check each variant separately.
+                             */
+
+                            if (isset($arrProductInfo[$criteriaKey][$rangeKey]) &&
+                                $arrProductInfo[$criteriaKey][$rangeKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$rangeKey]['low']
+                                && $arrProductInfo[$criteriaKey][$rangeKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$rangeKey]['high']) {
+                                /*
+                                 * If the product's lowest value is higher than the low filter limit and the product's highest value is lower than the high filter limit,
+                                 * this means that all product variants must be within the value range and, regarding the value, the product matches as a whole.
+                                 */
+                            } else if (!isset($arrProductInfo[$criteriaKey][$rangeKey])                                ||
+                                $arrProductInfo[$criteriaKey][$rangeKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$rangeKey]['low']
+                                || $arrProductInfo[$criteriaKey][$rangeKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$rangeKey]['high']) {
+                                /*
+                                 * If even the product's highest value is lower than the low filter limit or it's lowest
+                                 * value is higher than the high filter limit, this means that none of it's variants
+                                 * has a value within the range and the product has to be filtered out as a whole.
+                                 */
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = false;
+                            } else {
+                                /*
+                                 * If none of the above is true, this means that there's definitely a variant that has a value outside the range
+                                 * but there could be one ore more variants that have a value within.
+                                 */
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = true;
+                            }
+
+                        }
+                    }
+				}
+			}
+		}
+    }
+
+
 	public static function resetMatchedProductsAndVariants() {
 		$_SESSION['lsShop']['filter']['matchedProducts'] = array();
 		$_SESSION['lsShop']['filter']['matchedVariants'] = array();
@@ -1389,7 +1575,6 @@ class ls_shop_filterHelper {
 				ls_shop_filterHelper::addAttributeValueToCriteriaUsedInFilterForm($intAttributeID, $arrValueIDs);
 			}
 			foreach ($arrProduct['attributesMinMax'] as $attributeID => $attributeValues) {
-				//ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues);
                 if (!isset($attributeValues['lowestValue'])) {
                     ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['low']);
                     ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['high']);

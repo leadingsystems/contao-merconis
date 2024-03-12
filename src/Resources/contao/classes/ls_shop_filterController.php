@@ -538,6 +538,61 @@ class ls_shop_filterController
 					);
 
 					break;
+
+                case 'attributesMinMax':
+                    /*
+                     * If based on the current product list there are no attributesMinMax to be used as criteria in the filter form
+                     * or no values for the current attributesMinMax, we don't create a widget
+                     * Skip it if both rangevalues are 0
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || (!$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low']
+                            && !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high'])
+                    ) {
+                        continue 2;
+                    }
+
+					$objFlexWidget_attributesMinMaxLow = new FlexWidget(
+						array(
+							'str_uniqueName' => $arrFilterFieldInfo['sourceAttribute'].'_Low',
+							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098'],
+							'str_allowedRequestMethod' => 'post',
+							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low'])
+                                ? $_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low']
+                                : 0
+						)
+					);
+
+					$objFlexWidget_attributesMinMaxHigh = new FlexWidget(
+						array(
+							'str_uniqueName' => $arrFilterFieldInfo['sourceAttribute'].'_High',
+							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099'],
+							'str_allowedRequestMethod' => 'post',
+							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high'])
+                                ? $_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high']
+                                : 0
+						)
+					);
+
+					$arrObjWidgets_filterFields[$filterFieldID] = array(
+						'objWidget_attributesMinMaxLow' => $objFlexWidget_attributesMinMaxLow,
+						'objWidget_attributesMinMaxHigh' => $objFlexWidget_attributesMinMaxHigh,
+						'arrFilterFieldInfo' => $arrFilterFieldInfo,
+                        'str_label' => $arrFilterFieldInfo['title'],
+                        'str_template' => $arrFilterFieldInfo['templateToUseForRangeField'] ?: 'template_formAttributesMinMaxFilterField_standard',
+                        'arr_moreData' => array(
+                            'filterSectionId' => $arrFilterFieldInfo['dataSource'].'_'.$arrFilterFieldInfo['sourceAttribute'],
+                            'minValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low'],
+                            'maxValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high']
+                        )
+					);
+
+                    break;
 			}
 		}
 
@@ -574,6 +629,22 @@ class ls_shop_filterController
 				$obj_template_ZFCLIFilterField = new \FrontendTemplate($objWidget_filterField['str_template']);
 				$obj_template_ZFCLIFilterField->objWidget_filterField = $objWidget_filterField;
 				$arrWidgets_filterFields[] = $obj_template_ZFCLIFilterField->parse();
+				continue;
+			}
+
+            //attributesMinMax
+            if (
+				!is_object($objWidget_filterField)
+				&& is_array($objWidget_filterField)
+                && isset($objWidget_filterField['objWidget_attributesMinMaxLow'])
+				&& isset($objWidget_filterField['objWidget_attributesMinMaxHigh'])
+			) {
+				/*
+				 * attributes MinMax widget
+				 */
+				$obj_template_attributesMinMaxFilterField = new \FrontendTemplate($objWidget_filterField['str_template']);
+				$obj_template_attributesMinMaxFilterField->objWidget_filterField = $objWidget_filterField;
+				$arrWidgets_filterFields[] = $obj_template_attributesMinMaxFilterField->parse();
 				continue;
 			}
 
@@ -664,6 +735,10 @@ class ls_shop_filterController
 					switch ($arrFilterFieldInfos[$filterFieldID]['dataSource']) {
 						case 'attribute':
 							ls_shop_filterHelper::setFilter('attributes', array('attributeID' => $arrFilterFieldInfos[$filterFieldID]['sourceAttribute'], 'value' => $objWidget_filterField->getValue()));
+							break;
+
+						case 'flexContentLIMinMax':
+							ls_shop_filterHelper::setFilter('flexContentsLIMinMax', array('flexContentLIKey' => $arrFilterFieldInfos[$filterFieldID]['flexContentLIKey'], 'low' => $objWidget_filterField['objWidget_ZFCLILow']->getValue(), 'high' => $objWidget_filterField['objWidget_ZFCLIHigh']->getValue()));
 							break;
 
 						case 'flexContentLI':

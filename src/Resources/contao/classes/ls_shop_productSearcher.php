@@ -1933,12 +1933,6 @@ class ls_shop_productSearcher
                         $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['low'],
                         $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['high']
                     );
-
-                    #ls_shop_filterhelper::determineMinMaxValues(
-                        #$rowVariants['attributeNumericValue'],
-                        #$refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['lowestValue'],
-                        #$refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['highestValue']
-                    #);
                 }
             }
 
