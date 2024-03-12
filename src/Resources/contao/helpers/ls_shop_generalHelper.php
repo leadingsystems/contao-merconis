@@ -3712,8 +3712,6 @@ class ls_shop_generalHelper
      */
     public static function ls_shop_provideInfosForJS()
     {
-        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
-
         if (!isset($GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) || !$GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) {
             return;
         }

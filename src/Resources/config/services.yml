@@ -34,6 +34,10 @@ services:
       - { name: contao.hook, hook: getPageLayout, method: switchTemplateInDetailsViewIfNecessary }
       - { name: contao.hook, hook: getPageLayout, method: getLayoutSettingsForGlobalUse }
 
+  LeadingSystems\MerconisBundle\EventListener\GeneratePageListener:
+    tags:
+      - { name: contao.hook, hook: generatePage, method: provideInfosForJS }
+
   LeadingSystems\MerconisBundle\EventListener\RequestListener:
     arguments:
       - '@contao.framework'
@@ -97,7 +101,6 @@ services:
 
   Merconis\Core\ls_shop_generalHelper:
     tags:
-      - { name: contao.hook, hook: generatePage, method: ls_shop_provideInfosForJS}
       - { name: contao.hook, hook: loadLanguageFile, method: ls_shop_loadThemeLanguageFiles }
       - { name: contao.hook, hook: outputBackendTemplate, method: merconis_getBackendLsjs }
       - { name: contao.hook, hook: loadFormField, method: handleConditionalFormFields }
