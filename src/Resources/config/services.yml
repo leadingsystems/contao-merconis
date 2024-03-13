@@ -58,10 +58,6 @@ services:
     tags:
       - { name: contao.hook, hook: getArticle, method: execute }
 
-  LeadingSystems\MerconisBundle\EventListener\OutputFrontendTemplateListener:
-    tags:
-      - { name: contao.hook, hook: outputFrontendTemplate, method: execute }
-
   LeadingSystems\MerconisBundle\EventListener\LoadDataContainerListener:
     tags:
       - { name: contao.hook, hook: loadDataContainer, method: execute }
@@ -89,10 +85,6 @@ services:
   LeadingSystems\MerconisBundle\EventListener\ProcessFormDataListener:
     tags:
       - { name: contao.hook, hook: processFormData, method: execute }
-
-  LeadingSystems\MerconisBundle\EventListener\LoadFormFieldListener:
-    tags:
-      - { name: contao.hook, hook: loadFormField, method: execute }
 
   LeadingSystems\MerconisBundle\EventListener\ExecutePreActionsListener:
     tags:
