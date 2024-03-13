@@ -1027,50 +1027,10 @@ class ls_shop_filterHelper {
         /*
 		 * Check the product's Attributes MinMax
 		 */
-
         self::checkIfProductMatchesFilter_ranges( $blnWholeProductCouldStillMatch
             , $blnVariantsCouldStillMatch, $arrCriteriaToFilterWith, $arrProductInfo
             , 'attributesMinMax' );
-/*
-		if ($blnWholeProductCouldStillMatch) {
-			if (is_array($arrCriteriaToFilterWith['attributesMinMax'])) {
-				foreach ($arrCriteriaToFilterWith['attributesMinMax'] as $str_flexContentLIMinMaxKey => $arr_flexContentLIMinMaxValues) {
 
-                    if ($arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['high']
-                        >= $arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['low']
-                        && $arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['high'] > 0) {
-                        if (!count($arrProductInfo['variants'])) {
-
-                            if (!isset($arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]) ||
-                                $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['high'] < $arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['low']
-                                || $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['low'] > $arrCriteriaToFilterWith['attributesMinMax'][$str_flexContentLIMinMaxKey]['high']) {
-                                $blnWholeProductCouldStillMatch = false;
-                            }
-                        } else {
-
-
-                            if (isset($arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]) &&
-                                $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
-                                && $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
-
-                            } else if (!isset($arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey])                                ||
-                                $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
-                                || $arrProductInfo['attributesMinMax'][$str_flexContentLIMinMaxKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
-
-                                $blnWholeProductCouldStillMatch = false;
-                                $blnVariantsCouldStillMatch = false;
-                            } else {
-
-                                $blnWholeProductCouldStillMatch = false;
-                                $blnVariantsCouldStillMatch = true;
-                            }
-
-                        }
-                    }
-				}
-			}
-		}
-*/
 
 		/*
 		 * Check the prices
