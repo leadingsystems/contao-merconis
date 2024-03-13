@@ -98,14 +98,8 @@ class ls_shop_languageHelper {
 	/*
 	 * This function is being called whenever a DCA configuration gets loaded and then creates
 	 * the multilanguage field definitions where needed.
-	 *
-	 * contao.hook: loadDataContainer
 	 */
 	public static function createMultiLanguageDCAFields($str_dcaName) {
-
-        if( Input::get('do') == 'themes' || Input::get('key') == 'importTheme' ) {
-            return;
-        }
 
 		/*
 		 * Do not process this function if the DCA name is on the list of DCAs not to process

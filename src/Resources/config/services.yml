@@ -38,6 +38,74 @@ services:
     tags:
       - { name: contao.hook, hook: generatePage, method: execute }
 
+  LeadingSystems\MerconisBundle\EventListener\LoadLanguageFileListener:
+    tags:
+      - { name: contao.hook, hook: loadLanguageFile, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\OutputBackendTemplateListener:
+    tags:
+      - { name: contao.hook, hook: outputBackendTemplate, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\LoadFormFieldListener:
+    tags:
+      - { name: contao.hook, hook: loadFormField, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\GetContentElementListener:
+    tags:
+      - { name: contao.hook, hook: getContentElement, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\GetArticleListener:
+    tags:
+      - { name: contao.hook, hook: getArticle, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\OutputFrontendTemplateListener:
+    tags:
+      - { name: contao.hook, hook: outputFrontendTemplate, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\LoadDataContainerListener:
+    tags:
+      - { name: contao.hook, hook: loadDataContainer, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\ModifyFrontendPageListener:
+    tags:
+      - { name: contao.hook, hook: modifyFrontendPage, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\GetUserNavigationListener:
+    tags:
+      - { name: contao.hook, hook: getUserNavigation, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\GetSystemMessagesListener:
+    tags:
+      - { name: contao.hook, hook: getSystemMessages, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\InitializeSystemListener:
+    tags:
+      - { name: contao.hook, hook: initializeSystem, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\OutputFrontendTemplateListener:
+    tags:
+      - { name: contao.hook, hook: outputFrontendTemplate, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\ProcessFormDataListener:
+    tags:
+      - { name: contao.hook, hook: processFormData, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\LoadFormFieldListener:
+    tags:
+      - { name: contao.hook, hook: loadFormField, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\ExecutePreActionsListener:
+    tags:
+      - { name: contao.hook, hook: executePreActions, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\ExecutePostActionsListener:
+    tags:
+      - { name: contao.hook, hook: executePostActions, method: execute }
+
+  LeadingSystems\MerconisBundle\EventListener\AddCustomRegexpListener:
+    tags:
+      - { name: contao.hook, hook: addCustomRegexp, method: execute }
+
   LeadingSystems\MerconisBundle\EventListener\RequestListener:
     arguments:
       - '@contao.framework'
@@ -99,43 +167,5 @@ services:
     resource: '../../InsertTag/AsBlockInsertTag'
 
 
-  Merconis\Core\ls_shop_generalHelper:
-    tags:
-      - { name: contao.hook, hook: loadLanguageFile, method: ls_shop_loadThemeLanguageFiles }
-      - { name: contao.hook, hook: outputBackendTemplate, method: merconis_getBackendLsjs }
-      - { name: contao.hook, hook: loadFormField, method: handleConditionalFormFields }
-      - { name: contao.hook, hook: getContentElement, method: conditionalCTEOutput }
-      - { name: contao.hook, hook: getArticle, method: conditionalArticleOutput }
-      - { name: contao.hook, hook: outputFrontendTemplate, method: callback_outputFrontendTemplate }
-      - { name: contao.hook, hook: loadDataContainer, method: removeFieldsForEditAll }
-      - { name: contao.hook, hook: modifyFrontendPage, method: storeConfiguratorDataToSession }
-      - { name: contao.hook, hook: modifyFrontendPage, method: storeCustomizerDataToSession }
-      - { name: contao.hook, hook: getUserNavigation, method: manipulateBackendNavigation }
-      - { name: contao.hook, hook: getSystemMessages, method: getMerconisSystemMessages }
 
-  Merconis\Core\ls_shop_cartHelper:
-    tags:
-      - { name: contao.hook, hook: initializeSystem, method: initializeEmptyCart }
-
-  LeadingSystems\MerconisBundle\Services\FilterController:
-    tags:
-      - { name: contao.hook, hook: outputFrontendTemplate, method: generateAndInsertFilterForms }
-
-  LeadingSystems\MerconisBundle\Services\CheckoutData:
-    tags:
-      - { name: contao.hook, hook: processFormData, method: ls_shop_processFormData }
-      - { name: contao.hook, hook: loadFormField, method: ls_shop_loadFormField }
-
-  Merconis\Core\ls_shop_ajaxController:
-    tags:
-      - { name: contao.hook, hook: executePreActions, method: executePreActions }
-      - { name: contao.hook, hook: executePostActions, method: executePostActions }
-
-  Merconis\Core\ls_shop_custom_regexp:
-    tags:
-      - { name: contao.hook, hook: addCustomRegexp, method: customRegexp }
-
-  Merconis\Core\ls_shop_custom_regexp_fe:
-    tags:
-      - { name: contao.hook, hook: addCustomRegexp, method: customRegexp }
 

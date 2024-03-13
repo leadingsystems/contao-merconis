@@ -2233,9 +2233,6 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['customizerObjects'][$str_customizerObjectKey];
     }
 
-    /*
-     * contao.hook: modifyFrontendPage
-     */
     public static function storeConfiguratorDataToSession($var_arg) {
         if (isset($GLOBALS['merconis_globals']['configuratorObjs']) && is_array($GLOBALS['merconis_globals']['configuratorObjs'])) {
             foreach ($GLOBALS['merconis_globals']['configuratorObjs'] as $obj_configurator) {
@@ -2252,9 +2249,6 @@ class ls_shop_generalHelper
         return $var_arg;
     }
 
-    /*
-     * contao.hook: modifyFrontendPage
-     */
     public static function storeCustomizerDataToSession($var_arg) {
         if (isset($GLOBALS['merconis_globals']['customizerObjects']) && is_array($GLOBALS['merconis_globals']['customizerObjects'])) {
             /** @var customizer $obj_customizer */
@@ -2757,9 +2751,6 @@ class ls_shop_generalHelper
         return $strOptions;
     }
 
-    /*
-     * contao.hook: getArticle
-     */
     public static function conditionalArticleOutput(ArticleModel &$obj_article) {
         switch ($obj_article->lsShopOutputCondition) {
             case 'always':
@@ -2814,8 +2805,6 @@ class ls_shop_generalHelper
      * Diese Funktion wird als Hook (getContentElement) aufgerufen und prüft, ob für ein
      * CTE eine Ausgabebedingung hinterlegt ist und gibt einen Leerstring zurück, falls
      * eine eventuell hinterlegte Bedingung nicht zutrifft.
-     *
-     * contao.hook: getContentElement
      */
     public static function conditionalCTEOutput($objElement, $strBuffer)
     {
@@ -3167,12 +3156,9 @@ class ls_shop_generalHelper
         return $options;
     }
 
-    /*
-     * contao.hook: loadFormField
-     */
+
     public static function handleConditionalFormFields(Widget $objWidget, $intId, $arrForm)
     {
-        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
 
         $obj_dbres_mandatoryOnConditionSettings = Database::getInstance()
             ->prepare("
@@ -3708,7 +3694,6 @@ class ls_shop_generalHelper
 
     /*
      * This function provides data required by javascript.
-     * contao.hook: generatePage
      */
     public static function ls_shop_provideInfosForJS()
     {
@@ -4078,9 +4063,6 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['messageSent'][$identificationToken];
     }
 
-    /*
-     * contao.hook: outputFrontendTemplate
-     */
     public static function callback_outputFrontendTemplate($strContent, $strTemplate)
     {
         /*
@@ -4174,8 +4156,6 @@ class ls_shop_generalHelper
     /*
      * This function gets called whenever a DCA configuration is loaded. Some fields
      * which should not be offered in the editAll mode will be removed in this function
-     *
-     * contao.hook: loadDataContainer
      */
     public static function removeFieldsForEditAll($strDCAName)
     {
@@ -4567,13 +4547,8 @@ class ls_shop_generalHelper
         return $arr_pageData;
     }
 
-    /*
-     * contao.hook: loadLanguageFile
-     */
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
     {
-        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
-
         $themesPath = 'files/merconisfiles/themes';
         if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath) || !is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath)) {
             return;
@@ -4982,9 +4957,6 @@ class ls_shop_generalHelper
         return $favoritesForm;
     }
 
-    /*
-     * contao.hook: getUserNavigation
-     */
     public function manipulateBackendNavigation($arr_modules, $blnShowAll)
     {
         System::loadLanguageFile('lsm_installer');
@@ -5003,9 +4975,6 @@ class ls_shop_generalHelper
         return $arr_modules;
     }
 
-    /*
-     * contao.hook: getSystemMessages
-     */
     public static function getMerconisSystemMessages()
     {
         ob_start();
@@ -5081,9 +5050,6 @@ class ls_shop_generalHelper
         return $arr_pageIds;
     }
 
-    /*
-     * contao.hook: outputBackendTemplate
-     */
     public static function merconis_getBackendLsjs($str_content, $str_template) {
 
         if ($str_template !== 'be_main') {
