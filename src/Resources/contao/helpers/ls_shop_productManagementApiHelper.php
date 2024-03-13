@@ -10,6 +10,8 @@ class ls_shop_productManagementApiHelper {
 	public static $modificationTypesTranslationMap = array('independent' => 'standalone', 'percentaged' => 'adjustmentPercentaged', 'fixed' => 'adjustmentFix');
 	public static $arr_scalePriceQuantityDetectionMethods = array('separatedVariantsAndConfigurations', 'separatedVariants', 'separatedProducts', 'separatedScalePriceKeywords');
 	public static $arr_scalePriceTypes = array('scalePriceStandalone', 'scalePricePercentaged', 'scalePriceFixedAdjustment');
+    public static array $arr_customFieldsForProducts = [];
+    public static array $arr_customFieldsForVariants = [];
 
 	/*
 	 * Diese Funktion erwartet als Parameter einen String, der kommasepariert die Aliase
@@ -787,6 +789,7 @@ class ls_shop_productManagementApiHelper {
 		 */
 		if ($int_alreadyExistsAsID) {
 			$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('product');
+            $str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('product');
 
 			$obj_dbquery_updateProduct = \Database::getInstance()
 				->prepare("
@@ -827,6 +830,7 @@ class ls_shop_productManagementApiHelper {
 							`scalePriceKeyword` = ?,
 							`scalePrice` = ?
 							".$str_addGroupPriceFieldsToQuery."
+							".$str_customFieldsQueryExtension."
 				WHERE		`id` = ?
 			")
 				->limit(1);
@@ -870,6 +874,7 @@ class ls_shop_productManagementApiHelper {
 			);
 
 			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
+            $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
 
 			// Must be the last parameter in the array
 			$arr_queryParams[] = $int_alreadyExistsAsID;
@@ -933,6 +938,7 @@ class ls_shop_productManagementApiHelper {
 		 */
 		else {
 			$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('product');
+            $str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('product');
 
 			$obj_insertProduct = \Database::getInstance()
 				->prepare("
@@ -975,6 +981,7 @@ class ls_shop_productManagementApiHelper {
 							`scalePriceKeyword` = ?,
 							`scalePrice` = ?
 							".$str_addGroupPriceFieldsToQuery."
+							".$str_customFieldsQueryExtension."
 			");
 
 			$arr_queryParams = array(
@@ -1018,6 +1025,7 @@ class ls_shop_productManagementApiHelper {
 			);
 
 			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
+			$arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
 
 			$obj_insertProduct->execute($arr_queryParams);
 
@@ -1098,6 +1106,7 @@ class ls_shop_productManagementApiHelper {
 		 */
 		if ($int_alreadyExistsAsID) {
 			$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('variant');
+            $str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('variant');
 
 			$obj_dbquery_updateVariant = \Database::getInstance()
 				->prepare("
@@ -1132,6 +1141,7 @@ class ls_shop_productManagementApiHelper {
 								`scalePriceKeyword` = ?,
 								`scalePrice` = ?
 								".$str_addGroupPriceFieldsToQuery."
+								".$str_customFieldsQueryExtension."
 					WHERE		`id` = ?
 				")
 				->limit(1);
@@ -1169,6 +1179,7 @@ class ls_shop_productManagementApiHelper {
 			);
 
 			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
+            $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
 
 			// Must be the last parameter in the array
 			$arr_queryParams[] = $int_alreadyExistsAsID;
@@ -1237,6 +1248,7 @@ class ls_shop_productManagementApiHelper {
 			}
 
 			$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('variant');
+            $str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('variant');
 
 			$obj_dbquery_insertVariant = \Database::getInstance()
 				->prepare("
@@ -1274,6 +1286,7 @@ class ls_shop_productManagementApiHelper {
 							`scalePriceKeyword` = ?,
 							`scalePrice` = ?
 							".$str_addGroupPriceFieldsToQuery."
+							".$str_customFieldsQueryExtension."
 			");
 
 			$arr_queryParams = array(
@@ -1312,6 +1325,7 @@ class ls_shop_productManagementApiHelper {
 			);
 
 			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
+            $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
 
 			$obj_dbquery_insertVariant->execute($arr_queryParams);
 
@@ -1612,4 +1626,27 @@ class ls_shop_productManagementApiHelper {
 	public static function getAvailableProductImages() {
 		
 	}
+
+    private static function createCustomFieldsQueryExtension(string $str_productOrVariant = 'product'): string
+    {
+        $queryExtension = '';
+        $customFields = $str_productOrVariant === 'product' ? self::$arr_customFieldsForProducts : self::$arr_customFieldsForVariants;
+
+        foreach ($customFields as $customFieldName) {
+            $queryExtension .= ", `" . $customFieldName . "` = ?";
+        }
+
+        return $queryExtension;
+    }
+
+    private static function addCustomFieldsToQueryParam(array $arr_queryParams, array $arr_preprocessedDataRow, string $str_productOrVariant = 'product'): array
+    {
+        $customFields = $str_productOrVariant === 'product' ? self::$arr_customFieldsForProducts : self::$arr_customFieldsForVariants;
+
+        foreach ($customFields as $customFieldName) {
+            $arr_queryParams[] = $arr_preprocessedDataRow[$customFieldName] ?? '';
+        }
+
+        return $arr_queryParams;
+    }
 }
