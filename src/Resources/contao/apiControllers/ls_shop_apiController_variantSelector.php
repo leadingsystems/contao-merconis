@@ -3,7 +3,6 @@
 namespace Merconis\Core;
 
 use Contao\Input;
-use Contao\System;
 
 class ls_shop_apiController_variantSelector
 {
@@ -26,8 +25,6 @@ class ls_shop_apiController_variantSelector
 	}
 	
 	public function processRequest($str_resourceName, $obj_apiReceiver) {
-        if(!System::getContainer()->get('merconis.routing.scope')->isFrontend()) return;
-
 		if (!$str_resourceName || !$obj_apiReceiver) {
 			return;
 		}
