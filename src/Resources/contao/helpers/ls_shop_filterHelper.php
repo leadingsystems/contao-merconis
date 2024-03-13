@@ -243,8 +243,6 @@ class ls_shop_filterHelper {
                         'low' => $arr_filterValues['low'],
                         'high' => $arr_filterValues['high'],
                     ];
-
-                    #$arr_filterAllFields['arr_attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']] += $arr_filterValues;
                     break;
             }
 
@@ -628,10 +626,10 @@ class ls_shop_filterHelper {
      *  Since the data for standard FCLI and numerical FCLI are stored in the same field, the separation occurs here.
      *  Numerical FCLI must be numerical and the limit values ​​are determined immediately
      *
-     * @param $FCLIs                flexContent Language Independent of product or Variant
-     * @param $type                 ´flex_contentsLIMinMax´ or ´flex_contentsLanguageIndependent´
-     * @param $rangeForProduct      boolean, true if product
-     * @return $result
+     * @param   array       $FCLIs              flexContent Language Independent of product or Variant
+     * @param   string      $type               ´flex_contentsLIMinMax´ or ´flex_contentsLanguageIndependent´
+     * @param   bool        $rangeForProduct    boolean, true if product
+     * @return  array       $result             low and high values and lowest/highest for products
      */
     public static function processFCLI($FCLIs, $type, $rangeForProduct = false)
     {
@@ -1369,7 +1367,7 @@ class ls_shop_filterHelper {
 	}
 
 
-    /*  Da die Prüfung für Bereiche bei FCLIMinMax und Attributen gleich ablaufen können sie in eine Funktion ausgelagert werden
+    /*  Since the check for areas with FCLIMinMax and attributesMinMax is the same, they can be outsourced to a function
      *
      * */
     private static function checkIfProductMatchesFilter_ranges(&$blnWholeProductCouldStillMatch, &$blnVariantsCouldStillMatch
@@ -1377,16 +1375,15 @@ class ls_shop_filterHelper {
         , $criteriaKey
     )
     {
-
         /*
-		 * Check the product's Attributes MinMax
+		 * Check the product's MinMax range
 		 */
 		if ($blnWholeProductCouldStillMatch) {
 			if (is_array($arrCriteriaToFilterWith[$criteriaKey])) {
 				foreach ($arrCriteriaToFilterWith[$criteriaKey] as $rangeKey => $rangeValues) {
 					/*
-					 * The array returned by array_intersect() contains the requested attributesMinMax values which
-					 * are also included in the product's attributesMinMax values for the respective attributeID.
+					 * The array returned by array_intersect() contains the requested MinMax values which
+					 * are also included in the product's MinMax values for the respective key.
 					 *
 					 */
                     /*
@@ -1398,7 +1395,7 @@ class ls_shop_filterHelper {
                         && $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['high'] > 0) {
                         if (!count($arrProductInfo['variants'])) {
                             /*
-                             * If the product doesn't have variants, the product's FCLI has to be checked
+                             * If the product doesn't have variants, the product's Range has to be checked
                              */
                             if (!isset($arrProductInfo[$criteriaKey][$rangeKey]) ||
                                 $arrProductInfo[$criteriaKey][$rangeKey]['high'] < $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['low']
@@ -1407,7 +1404,7 @@ class ls_shop_filterHelper {
                             }
                         } else {
                             /*
-                             * If the product has variants, we have to use it's highest and lowest FCLI to see,
+                             * If the product has variants, we have to use it's highest and lowest Rangevalues to see,
                              * if it is possible to match or filter out the whole product or if we have to
                              * check each variant separately.
                              */
