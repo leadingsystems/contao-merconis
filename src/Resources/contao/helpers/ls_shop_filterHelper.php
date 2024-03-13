@@ -307,6 +307,7 @@ class ls_shop_filterHelper {
                 ) {
                 $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['currentlyFiltering'] = true;
                 $bln_currentlyFilteringByFlexContentsLIMinMax = true;
+                break;
             }
         }
 
@@ -320,6 +321,7 @@ class ls_shop_filterHelper {
                 ) {
                 $arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering'] = true;
                 $bln_currentlyFilteringByAttributesMinMax = true;
+                break;
             }
         }
 
