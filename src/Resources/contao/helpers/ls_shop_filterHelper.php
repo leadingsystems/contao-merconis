@@ -260,6 +260,7 @@ class ls_shop_filterHelper {
             )
         );
 
+        $bln_flexContentsLIMinMaxFilterCurrentlyAvailable = false;
         foreach($arr_filterAllFields['arr_flexContentsLIMinMax'] as $flexContentLIMinMaxKey => $flexContentLIMinMaxValues) {
             if (
                 ($arr_filterAllFields['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'] ?? '')
@@ -307,7 +308,6 @@ class ls_shop_filterHelper {
                 ) {
                 $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['currentlyFiltering'] = true;
                 $bln_currentlyFilteringByFlexContentsLIMinMax = true;
-                break;
             }
         }
 
@@ -321,7 +321,6 @@ class ls_shop_filterHelper {
                 ) {
                 $arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering'] = true;
                 $bln_currentlyFilteringByAttributesMinMax = true;
-                break;
             }
         }
 
@@ -352,6 +351,10 @@ class ls_shop_filterHelper {
                     $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->sourceAttribute;
                     break;
 
+                case 'attributesMinMax':
+                    $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->sourceAttribute;
+                    break;
+
                 case 'flexContentLI':
                     $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->flexContentLIKey;
                     break;
@@ -370,6 +373,10 @@ class ls_shop_filterHelper {
 
         foreach (array_keys($arr_filterAllFields['arr_attributes']) as $int_filterAttributeId) {
             $arr_filterFieldSortingNumbers['attribute_' . $int_filterAttributeId] = $arr_filterFieldPriorities['attribute_' . $int_filterAttributeId];
+        }
+
+        foreach (array_keys($arr_filterAllFields['arr_attributesMinMax']) as $attributeID) {
+            $arr_filterFieldSortingNumbers['attributesMinMax_' . $attributeID] = $arr_filterFieldPriorities['attributesMinMax_' . $attributeID];
         }
 
         foreach (array_keys($arr_filterAllFields['arr_flexContentsLI']) as $str_flexContentLIKey) {
@@ -437,12 +444,14 @@ class ls_shop_filterHelper {
         $obj_template->arr_filterAllFields = $arr_summaryData['arr_filterAllFields'];
         $obj_template->int_numAvailableFilterFields = $arr_summaryData['int_numAvailableFilterFields'];
         $obj_template->bln_attributesFilterCurrentlyAvailable = $arr_summaryData['bln_attributesFilterCurrentlyAvailable'];
+        $obj_template->bln_attributesMinMaxFilterCurrentlyAvailable = $arr_summaryData['bln_attributesMinMaxFilterCurrentlyAvailable'];
         $obj_template->bln_flexContentsLIFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLIFilterCurrentlyAvailable'];
         $obj_template->bln_flexContentsLDFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLDFilterCurrentlyAvailable'];
         $obj_template->bln_flexContentsLIMinMaxFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLIMinMaxFilterCurrentlyAvailable'];
         $obj_template->bln_poducerFilterCurrentlyAvailable = $arr_summaryData['bln_poducerFilterCurrentlyAvailable'];
         $obj_template->bln_priceFilterCurrentlyAvailable = $arr_summaryData['bln_priceFilterCurrentlyAvailable'];
         $obj_template->bln_currentlyFilteringByAttributes = $arr_summaryData['bln_currentlyFilteringByAttributes'];
+        $obj_template->bln_currentlyFilteringByAttributesMinMax = $arr_summaryData['bln_currentlyFilteringByAttributesMinMax'];
         $obj_template->bln_currentlyFilteringByFlexContentsLI = $arr_summaryData['bln_currentlyFilteringByFlexContentsLI'];
         $obj_template->bln_currentlyFilteringByFlexContentsLD = $arr_summaryData['bln_currentlyFilteringByFlexContentsLD'];
         $obj_template->bln_currentlyFilteringByFlexContentsLIMinMax = $arr_summaryData['bln_currentlyFilteringByFlexContentsLIMinMax'];
@@ -1332,10 +1341,7 @@ class ls_shop_filterHelper {
     /*  Since the check for areas with FCLIMinMax and attributesMinMax is the same, they can be outsourced to a function
      *
      * */
-    private static function checkIfProductMatchesFilter_ranges(&$blnWholeProductCouldStillMatch, &$blnVariantsCouldStillMatch
-    , &$arrCriteriaToFilterWith, &$arrProductInfo
-        , $criteriaKey
-    )
+    private static function checkIfProductMatchesFilter_ranges(&$blnWholeProductCouldStillMatch, &$blnVariantsCouldStillMatch, &$arrCriteriaToFilterWith, &$arrProductInfo, $criteriaKey)
     {
         /*
 		 * Check the product's MinMax range
@@ -1735,6 +1741,11 @@ class ls_shop_filterHelper {
 
 					$_SESSION['lsShop']['filter']['criteria']['attributes'][$varValue['attributeID']] = $varValue['value'];
 				}
+				break;
+
+			case 'attributesMinMax':
+                $_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$varValue['attributeID']]['low'] = $varValue['low'];
+				$_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$varValue['attributeID']]['high'] = $varValue['high'];
 				break;
 
 			case 'flexContentsLI':

@@ -3,6 +3,7 @@ $int_numFilterFieldsMax = $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsI
 
 if (
     $this->bln_attributesFilterCurrentlyAvailable
+    || $this->bln_attributesMinMaxFilterCurrentlyAvailable
     || $this->bln_poducerFilterCurrentlyAvailable
     || $this->bln_priceFilterCurrentlyAvailable
     || $this->bln_flexContentsLIFilterCurrentlyAvailable
@@ -58,6 +59,63 @@ if (
                             </div>
                         </div>
                     </li>
+                    <?php
+                }
+            }
+
+
+            if ($this->bln_attributesMinMaxFilterCurrentlyAvailable) {
+                foreach ($this->arr_filterAllFields['arr_attributesMinMax'] as $attributeID => $attributesMinMaxValues) {
+                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['attributesMinMax_' . $attributeID] <= $int_numFilterFieldsMax;
+                    ?>
+                <li class="filter-criterion filter-criterion-price<?php
+                    echo $bln_showEvenUnused ? ' show-even-unused' : '';
+                    ?><?php
+                    echo (isset($this->arr_filterSummary['arr_attributesMinMax'][$attributeID])
+                        && $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering'])
+                        ? ' currently-filtering' : '';
+                    ?>" data-order-by-priority="<?php
+                    echo $this->arr_filterFieldSortingNumbers['attributesMinMax_'.$attributeID]; ?>"
+                    data-lsjs-filter-section-id="<?php echo 'attributesMinMax_'.$attributeID; ?>">
+                    <div class="filter-criterion-attribute-container">
+                        <?php
+                        if (isset($this->arr_filterSummary['arr_attributesMinMax'][$attributeID])
+                            && $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering']) {
+                            ?>
+                            <div class="reset-this-criterion"></div>
+                            <?php
+                        }
+                        ?>
+                        <div class="off-canvas-filter-form-toggler-remote">
+                            <span class="filter-criterion-title"><?php echo $attributesMinMaxValues['str_caption']; ?></span>
+                            <div class="filter-values">
+                                <?php
+                                if (isset($this->arr_filterSummary['arr_attributesMinMax'][$attributeID])
+
+                                    && $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering']) {
+                                    if ($this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['low']) {
+                                        ?>
+                                        <span class="filter-price-from">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098']; ?>
+                                            <?php echo $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['low']; ?>
+                                            &nbsp;
+                                        </span>
+                                        <?php
+                                    }
+                                    if ($this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['high']) {
+                                        ?>
+                                        <span class="filter-price-to">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099']; ?>
+                                            <?php echo $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['high']; ?>
+                                        </span>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </li>
                     <?php
                 }
             }

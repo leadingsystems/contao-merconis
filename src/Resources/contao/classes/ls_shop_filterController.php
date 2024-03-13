@@ -719,6 +719,26 @@ class ls_shop_filterController
 					continue;
 				}
 
+               if (
+					!is_object($objWidget_filterField)
+					&& is_array($objWidget_filterField)
+					&& isset($objWidget_filterField['objWidget_attributesMinMaxLow'])
+					&& isset($objWidget_filterField['objWidget_attributesMinMaxHigh'])
+				) {
+					/*
+					 * attributesMinMax widget
+					 */
+					if ($objWidget_filterField['objWidget_attributesMinMaxLow']->bln_hasErrors) {
+						$blnFormHasErrors = true;
+					}
+
+					if ($objWidget_filterField['objWidget_attributesMinMaxHigh']->bln_hasErrors) {
+						$blnFormHasErrors = true;
+					}
+
+					continue;
+				}
+
 				if ($objWidget_filterField->bln_hasErrors) {
 					$blnFormHasErrors = true;
 				}
@@ -737,8 +757,8 @@ class ls_shop_filterController
 							ls_shop_filterHelper::setFilter('attributes', array('attributeID' => $arrFilterFieldInfos[$filterFieldID]['sourceAttribute'], 'value' => $objWidget_filterField->getValue()));
 							break;
 
-						case 'flexContentLIMinMax':
-							ls_shop_filterHelper::setFilter('flexContentsLIMinMax', array('flexContentLIKey' => $arrFilterFieldInfos[$filterFieldID]['flexContentLIKey'], 'low' => $objWidget_filterField['objWidget_ZFCLILow']->getValue(), 'high' => $objWidget_filterField['objWidget_ZFCLIHigh']->getValue()));
+						case 'attributesMinMax':
+							ls_shop_filterHelper::setFilter('attributesMinMax', array('attributeID' => $arrFilterFieldInfos[$filterFieldID]['sourceAttribute'], 'low' => $objWidget_filterField['objWidget_attributesMinMaxLow']->getValue(), 'high' => $objWidget_filterField['objWidget_attributesMinMaxHigh']->getValue()));
 							break;
 
 						case 'flexContentLI':
