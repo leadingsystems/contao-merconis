@@ -1032,7 +1032,7 @@ class ls_shop_filterHelper {
 		}
 
 
-
+//TODO: die Funktion kann bei FCLIMinMax eingesetzt werden
         /*
 		 * Check the product's Attributes MinMax
 		 */
