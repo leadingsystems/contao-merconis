@@ -1341,7 +1341,7 @@ class ls_shop_filterHelper {
     /*  Since the check for areas with FCLIMinMax and attributesMinMax is the same, they can be outsourced to a function
      *
      * */
-    private static function checkIfProductMatchesFilter_ranges(&$blnWholeProductCouldStillMatch, &$blnVariantsCouldStillMatch, &$arrCriteriaToFilterWith, &$arrProductInfo, $criteriaKey)
+    private static function checkIfProductMatchesFilter_ranges(&$blnWholeProductCouldStillMatch, &$blnVariantsCouldStillMatch, $arrCriteriaToFilterWith, $arrProductInfo, $criteriaKey)
     {
         /*
 		 * Check the product's MinMax range
