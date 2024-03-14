@@ -1076,10 +1076,51 @@ returns the product price or the cheapest variant price.
 			case '_unscaledPriceMinimumBeforeTax'
 				/* ## DESCRIPTION:
 returns the product price or the cheapest variant price.
+				If there is only one variant, the min-variant price is always used. If there is no variant or more than
+				one variant, the 'unscaledCheckForDifferentPrices' runs (which does not detect any price difference for
+				a variant and therefore returns the main product price)
 				 */
 				:
-				return !$this->_unscaledPricesAreDifferent ? $this->_unscaledPriceBeforeTax : $this->_unscaledPriceCheapestVariantBeforeTax;
+                if (count($this->_variants) == 1) {
+                    return $this->_unscaledPriceCheapestVariantBeforeTax;
+                } else {
+                    return !$this->_unscaledPricesAreDifferent ? $this->_unscaledPriceBeforeTax : $this->_unscaledPriceCheapestVariantBeforeTax;
+                }
 				break;
+
+            case '_scaledOrVariantsPriceMinimum'
+                /* ## DESCRIPTION:
+                 * The logic that previously ran in 2 templates has been moved here
+                 * The cheapest variant or scale price is determined (for the entire product) - especially for the output
+                 * in the product overview
+                 * All variants are looped through - if available - and then all scaled prices - if available.
+                 */
+                :
+
+                $float_cheapestPrice = null;
+                $str_cheapestPriceOutput = null;
+                $str_minQuantityInfo = null;
+                $bln_cheapestPriceComesFromScalePrices = false;
+
+                if ($this->_hasVariants) {
+                    foreach ($this->_variants as $obj_variant){
+                        if (is_array($obj_variant->_scalePricesOutputUnconfigured)) {
+                            $this->getMinScalePrice($obj_variant->_scalePricesOutputUnconfigured,$float_cheapestPrice, $str_cheapestPriceOutput, $str_minQuantityInfo, $bln_cheapestPriceComesFromScalePrices);
+                        } else {
+                            if (!$float_cheapestPrice || $obj_variant->_priceAfterTax < $float_cheapestPrice) {
+                                $float_cheapestPrice = $obj_variant->_priceAfterTax;
+                                $str_cheapestPriceOutput = ls_shop_generalHelper::outputPrice($float_cheapestPrice);
+                            }
+                        }
+                    }
+                } else {
+                    if (is_array($this->_scalePricesOutputUnconfigured)) {
+                        $this->getMinScalePrice($this->_scalePricesOutputUnconfigured,$float_cheapestPrice, $str_cheapestPriceOutput, $str_minQuantityInfo, $bln_cheapestPriceComesFromScalePrices);
+                    }
+                }
+
+                return array($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo);
+                break;
 
 			case '_priceMinimumAfterTax':
 				return ls_shop_generalHelper::getDisplayPrice($this->_priceMinimumBeforeTax, $this->_steuersatz);
@@ -1565,6 +1606,30 @@ filter context, NULL will be returned.
 
 		return null;
 	}
+
+    /*  Determines the min price of the scale prices
+     *  Because the function can be called for all variants of a product, some arguments are passed byref and thus retain their values
+     *
+     *  @param      $arr_scalePriceDetailsAll               array, list of scale-prices
+     *  @param      $float_cheapestPrice                    float, byref min-price to compare
+     *  @param      $str_cheapestPriceOutput                string, byref min-price as string
+     *  @param      $str_minQuantityInfo                    string, byref, min-quantity from which the price applies
+     *  @param      $bln_cheapestPriceComesFromScalePrices  boolean, byref, flag for output control in template
+     *  @return     null
+     */
+    private function getMinScalePrice($arr_scalePriceDetailsAll, &$float_cheapestPrice, &$str_cheapestPriceOutput, &$str_minQuantityInfo, &$bln_cheapestPriceComesFromScalePrices)
+    {
+        $bln_cheapestPriceComesFromScalePrices = true;
+
+        foreach ($arr_scalePriceDetailsAll as $arr_scalePriceDetails) {
+            if (!$float_cheapestPrice || $arr_scalePriceDetails['priceUnconfiguredUnformatted'] < $float_cheapestPrice) {
+                $float_cheapestPrice = $arr_scalePriceDetails['priceUnconfiguredUnformatted'];
+                $str_cheapestPriceOutput = $arr_scalePriceDetails['priceUnconfigured'];
+                $str_minQuantityInfo = $arr_scalePriceDetails['minQuantity'];
+            }
+        }
+    }
+
 
 	/*
 	 * Getter- (bzw. Caller-)Funktion. Durch die Kommentare für AUTO DOCUMENTATION und DESCRIPTION können die
