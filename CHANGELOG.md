@@ -1,7 +1,7 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.0.21 (nry: 2024-02-09)
+### 5.0.21 (2024-03-14)
  * fix PAYONE for PHP 8
  * fix price overview for variants
  * fix PayPal Checkout calculation (negativ value)
