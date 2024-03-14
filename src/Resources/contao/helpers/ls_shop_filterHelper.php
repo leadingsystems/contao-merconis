@@ -1036,9 +1036,7 @@ class ls_shop_filterHelper {
         /*
 		 * Check the product's Attributes MinMax
 		 */
-        self::checkIfProductMatchesFilter_ranges( $blnWholeProductCouldStillMatch
-            , $blnVariantsCouldStillMatch, $arrCriteriaToFilterWith, $arrProductInfo
-            , 'attributesMinMax' );
+        self::checkIfProductMatchesFilter_ranges( $blnWholeProductCouldStillMatch, $blnVariantsCouldStillMatch, $arrCriteriaToFilterWith, $arrProductInfo, 'attributesMinMax' );
 
 
 		/*
