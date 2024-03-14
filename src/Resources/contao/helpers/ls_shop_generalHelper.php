@@ -2327,6 +2327,62 @@ class ls_shop_generalHelper
         return $str_attributesString;
     }
 
+
+    public static function getAllAttributesMinMax() {
+        if (!isset($GLOBALS['merconis_globals']['allAttributesMinMax'])) {
+            $allAttributesMinMax = [];
+            #$allFilterKeys = [];
+
+            #$allFilterKeys = self::getFlexContentLIMinMaxKeys();
+
+            $obj_dbres_attributesMinMax = \Database::getInstance()->prepare("
+                SELECT  A.alias, GROUP_CONCAT(V2.alias, ':', V2.numericValue) AS groupedvalues
+                FROM tl_ls_shop_attributes A 
+                INNER JOIN (
+                    SELECT V.pid FROM tl_ls_shop_attribute_values V WHERE V.numericValue != 0 GROUP BY V.pid
+                ) V1 ON A.id = V1.pid
+                INNER JOIN tl_ls_shop_attribute_values V2 ON A.id = V2.pid
+                GROUP BY A.id
+                ORDER BY A.id
+            ")
+            ->execute();
+
+
+            while ($obj_dbres_attributesMinMax->next()) {
+                $allAttributesMinMax += [
+                    $obj_dbres_attributesMinMax->alias =>
+                        explode(',', $obj_dbres_attributesMinMax->groupedvalues)];
+            }
+
+
+            #$allAttributesMinMax = $obj_dbres_attributesMinMax->fetchAssoc();
+
+
+            #$allAttributesMinMax = array_map('array_unique', $allAttributesMinMax);
+/*
+            $allAttributesMinMax = array_map(
+                function($arr_toSort) {
+
+                    //Non-numeric values are filtered out. Because the LIMinMax can have several subkeys we need a callable in the callable
+                    $arr_toSort = array_filter($arr_toSort,
+                        function($myval) {
+                            return is_numeric($myval);
+                        }
+                    );
+
+
+                    sort($arr_toSort);
+                    return $arr_toSort;
+                },
+                $allAttributesMinMax
+            );
+*/
+            $GLOBALS['merconis_globals']['allAttributesMinMax'] = $allAttributesMinMax;
+        }
+
+        return $GLOBALS['merconis_globals']['allAttributesMinMax'];
+    }
+
     /*
      * Gibt ein Configurator-Objekt zurück und sorgt dafür, dass für jeden Configurator nur ein Objekt existiert,
      * selbst wenn das Objekt mehrmals nacheinander benötigt wird. Das "Eindeutigkeitsmerkmal" eines Configurator-Objektes

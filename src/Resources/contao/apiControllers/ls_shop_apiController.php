@@ -355,6 +355,31 @@ class ls_shop_apiController {
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($arr_return);
     }
+
+    /**
+     * Returns all Attributes MinMax that exist in all products and variants
+     */
+    protected function apiResource_getAllAttributesMinMax() {
+        $arr_return = ls_shop_generalHelper::getAllAttributesMinMax();
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+    /**
+     * Returns all values for Attributes MinMax with a specific key that exist in all products and variants
+     */
+    protected function apiResource_getAttributesMinMaxValues() {
+        if (!\Input::get('attributeID')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no attributeID given');
+            return;
+        }
+        $arr_return = ls_shop_generalHelper::getAttributesMinMaxValues(\Input::get('flexContentKey'));
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
 }
 
 
