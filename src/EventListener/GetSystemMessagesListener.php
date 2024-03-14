@@ -6,7 +6,7 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class GetSystemMessagesListener
 {
-    public function execute()
+    public function __invoke()
     {
         return ls_shop_generalHelper::getMerconisSystemMessages();
     }

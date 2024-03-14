@@ -6,7 +6,7 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class ModifyFrontendPageListener
 {
-    public function execute($var_arg)
+    public function __invoke($var_arg)
     {
         $var_arg = ls_shop_generalHelper::storeConfiguratorDataToSession($var_arg);
         $var_arg = ls_shop_generalHelper::storeCustomizerDataToSession($var_arg);

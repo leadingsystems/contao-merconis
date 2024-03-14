@@ -8,7 +8,7 @@ use Merconis\Core\ls_shop_languageHelper;
 
 class LoadDataContainerListener
 {
-    public function execute($strDCAName): void
+    public function __invoke($strDCAName): void
     {
         if (Input::get('do') != 'themes' || Input::get('key') != 'importTheme') {
             ls_shop_languageHelper::createMultiLanguageDCAFields($strDCAName);

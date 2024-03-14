@@ -7,7 +7,7 @@ use Merconis\Core\ls_shop_checkoutData;
 
 class ProcessFormDataListener
 {
-    public function execute($arrPost, $arrForm, $arrFiles): void
+    public function __invoke($arrPost, $arrForm, $arrFiles): void
     {
         if(System::getContainer()->get('merconis.routing.scope')->isFrontend())
         {

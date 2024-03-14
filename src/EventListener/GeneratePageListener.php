@@ -7,7 +7,7 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class GeneratePageListener
 {
-    public function execute(): void
+    public function __invoke(): void
     {
         if(System::getContainer()->get('merconis.routing.scope')->isFrontend())
         {

@@ -9,7 +9,7 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class LoadFormFieldListener
 {
-    public function execute(Widget $objWidget, $strForm, $arrForm)
+    public function __invoke(Widget $objWidget, $strForm, $arrForm)
     {
         if(System::getContainer()->get('merconis.routing.scope')->isFrontend())
         {

@@ -7,7 +7,7 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class OutputFrontendTemplateListener
 {
-    public function execute($strContent, $strTemplate)
+    public function __invoke($strContent, $strTemplate)
     {
         $strContent = ls_shop_filterController::getInstance()->generateAndInsertFilterForms($strContent, $strTemplate);
         $strContent = ls_shop_generalHelper::callback_outputFrontendTemplate($strContent, $strTemplate);

@@ -7,7 +7,7 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class LoadLanguageFileListener
 {
-    public function execute($filename, $language): void
+    public function __invoke($filename, $language): void
     {
         if(System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
             ls_shop_generalHelper::ls_shop_loadThemeLanguageFiles($filename, $language);

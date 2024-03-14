@@ -6,7 +6,7 @@ use Merconis\Core\ls_shop_cartHelper;
 
 class InitializeSystemListener
 {
-    public function execute(): void
+    public function __invoke(): void
     {
         ls_shop_cartHelper::initializeEmptyCart();
     }

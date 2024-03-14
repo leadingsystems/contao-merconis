@@ -6,8 +6,8 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class GetContentElementListener
 {
-    public function execute($objElement, $strBuffer): void
+    public function __invoke($objElement, $strBuffer): string
     {
-        ls_shop_generalHelper::conditionalCTEOutput($objElement, $strBuffer);
+        return ls_shop_generalHelper::conditionalCTEOutput($objElement, $strBuffer);
     }
 }

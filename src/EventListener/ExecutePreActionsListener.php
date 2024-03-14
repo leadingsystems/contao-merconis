@@ -6,7 +6,7 @@ use Merconis\Core\ls_shop_ajaxController;
 
 class ExecutePreActionsListener
 {
-    public function execute($strAction): void
+    public function __invoke($strAction): void
     {
         (new ls_shop_ajaxController)->executePreActions($strAction);
     }
