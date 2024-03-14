@@ -9,6 +9,6 @@ class ExecutePostActionsListener
 {
     public function execute($strAction, DataContainer $dc): void
     {
-        ls_shop_ajaxController::executePostActions($strAction, $dc);
+        (new ls_shop_ajaxController)->executePostActions($strAction, $dc);
     }
 }

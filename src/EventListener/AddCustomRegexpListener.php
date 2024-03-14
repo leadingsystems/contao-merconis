@@ -10,8 +10,8 @@ class AddCustomRegexpListener
 {
     public function execute($strRegexp, &$varValue, Widget $objWidget)
     {
-        if(!ls_shop_custom_regexp::customRegexp($strRegexp, $varValue,  $objWidget)){
-            return ls_shop_custom_regexp_fe::customRegexp($strRegexp, $varValue,  $objWidget);
+        if(!(new ls_shop_custom_regexp)->customRegexp($strRegexp, $varValue,  $objWidget)){
+            return (new ls_shop_custom_regexp_fe)->customRegexp($strRegexp, $varValue,  $objWidget);
         }
     }
 }
