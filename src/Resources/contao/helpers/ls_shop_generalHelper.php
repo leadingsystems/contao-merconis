@@ -2046,6 +2046,13 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['flexContentLIMinMaxValues'][$str_flexContentLIMinMaxKey];
     }
 
+    public static function getAttributesMinMaxValues($attributeAlias) {
+        if (!isset($GLOBALS['merconis_globals']['attributeMinMaxValues'][$attributeAlias])) {
+            $GLOBALS['merconis_globals']['attributeMinMaxValues'][$attributeAlias] = ls_shop_generalHelper::getAllAttributesMinMax()[$attributeAlias] ?? [];
+        }
+        return $GLOBALS['merconis_globals']['attributeMinMaxValues'][$attributeAlias];
+    }
+
     /*
      * IMPORTANT NOTE REGARDING POTENTIAL PERFORMANCE ISSUE:
      * If getting all flex contents should become problematic regarding performance on huge product/variant tables,
@@ -2328,12 +2335,15 @@ class ls_shop_generalHelper
     }
 
 
+
+    /**
+     *  retrieves all Product attributes that have numeric values as an array. Alias is key (not ID).
+     *
+     * @return array
+     */
     public static function getAllAttributesMinMax() {
         if (!isset($GLOBALS['merconis_globals']['allAttributesMinMax'])) {
             $allAttributesMinMax = [];
-            #$allFilterKeys = [];
-
-            #$allFilterKeys = self::getFlexContentLIMinMaxKeys();
 
             $obj_dbres_attributesMinMax = \Database::getInstance()->prepare("
                 SELECT  A.alias, GROUP_CONCAT(V2.alias, ':', V2.numericValue) AS groupedvalues
@@ -2347,36 +2357,10 @@ class ls_shop_generalHelper
             ")
             ->execute();
 
-
             while ($obj_dbres_attributesMinMax->next()) {
-                $allAttributesMinMax += [
-                    $obj_dbres_attributesMinMax->alias =>
-                        explode(',', $obj_dbres_attributesMinMax->groupedvalues)];
+                $allAttributesMinMax += [$obj_dbres_attributesMinMax->alias =>explode(',', $obj_dbres_attributesMinMax->groupedvalues)];
             }
 
-
-            #$allAttributesMinMax = $obj_dbres_attributesMinMax->fetchAssoc();
-
-
-            #$allAttributesMinMax = array_map('array_unique', $allAttributesMinMax);
-/*
-            $allAttributesMinMax = array_map(
-                function($arr_toSort) {
-
-                    //Non-numeric values are filtered out. Because the LIMinMax can have several subkeys we need a callable in the callable
-                    $arr_toSort = array_filter($arr_toSort,
-                        function($myval) {
-                            return is_numeric($myval);
-                        }
-                    );
-
-
-                    sort($arr_toSort);
-                    return $arr_toSort;
-                },
-                $allAttributesMinMax
-            );
-*/
             $GLOBALS['merconis_globals']['allAttributesMinMax'] = $allAttributesMinMax;
         }
 

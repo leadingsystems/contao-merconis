@@ -367,15 +367,15 @@ class ls_shop_apiController {
     }
 
     /**
-     * Returns all values for Attributes MinMax with a specific key that exist in all products and variants
+     * Returns all values for Attributes MinMax with a specific alias that exist in all products and variants
      */
     protected function apiResource_getAttributesMinMaxValues() {
-        if (!\Input::get('attributeID')) {
+        if (!\Input::get('attributeAlias')) {
             $this->obj_apiReceiver->fail();
-            $this->obj_apiReceiver->set_data('no attributeID given');
+            $this->obj_apiReceiver->set_data('no attributeAlias given');
             return;
         }
-        $arr_return = ls_shop_generalHelper::getAttributesMinMaxValues(\Input::get('flexContentKey'));
+        $arr_return = ls_shop_generalHelper::getAttributesMinMaxValues(\Input::get('attributeAlias'));
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($arr_return);
