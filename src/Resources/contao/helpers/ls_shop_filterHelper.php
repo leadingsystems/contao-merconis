@@ -1340,6 +1340,13 @@ class ls_shop_filterHelper {
 
     /*  Since the check for areas with FCLIMinMax and attributesMinMax is the same, they can be outsourced to a function
      *
+     * @param   boolean     $blnWholeProductCouldStillMatch     byref, true if the product has not been excluded by this filter-check
+     * @param   boolean     $blnVariantsCouldStillMatch         byref, false if there isn't even a variant that fits the filter
+     * @param   array       $arrCriteriaToFilterWith            comes from ´criteriaToActuallyFilterWith´
+     * @param   array       $arrProductInfo                     current product data that has to be checked
+     * @param   string      $criteriaKey                        current criteria to check e.g. attributesMinMax
+     *
+     * @return  void
      * */
     private static function checkIfProductMatchesFilter_ranges(&$blnWholeProductCouldStillMatch, &$blnVariantsCouldStillMatch, $arrCriteriaToFilterWith, $arrProductInfo, $criteriaKey)
     {
