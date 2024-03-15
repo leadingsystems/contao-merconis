@@ -1,7 +1,7 @@
 merconis.backend.product_search:
   path: /contao/merconis/products/search
   defaults:
-    _controller: merconis.controller.backend.product_search:searchAction
+    _controller: merconis.controller.backend.product_search
     _scope:      "backend"
     _token_check: true
     _custom_backend_view: true
@@ -9,7 +9,7 @@ merconis.backend.product_search:
 merconis.backend.pick_value:
   path: /contao/merconis/value
   defaults:
-    _controller: merconis.controller.backend.pick_value:pickAction
+    _controller: merconis.controller.backend.pick_value
     _scope:      "backend"
     _token_check: true
     _custom_backend_view: true

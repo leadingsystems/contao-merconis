@@ -4,6 +4,8 @@ namespace LeadingSystems\MerconisBundle\Controller;
 
 use Contao\Backend;
 use Contao\BackendTemplate;
+use Contao\CoreBundle\ContaoCoreBundle;
+use Contao\CoreBundle\Controller\AbstractBackendController;
 use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Environment;
@@ -17,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @author Leading Systems GmbH
  */
-class ValuePickerController
+class ValuePickerController extends AbstractBackendController
 {
 	/**
 	 * Contao framework.
@@ -37,30 +39,31 @@ class ValuePickerController
 		$this->framework = $framework;
 	}
 
-	/**
-	 * Pick a value.
-	 *
-	 * @return Response
-	 */
-	public function pickAction(): Response
+    /**
+     * Pick a value.
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function __invoke(): Response
     {
-		$this->framework->initialize();
+        $this->framework->initialize();
 
-		Backend::setStaticUrls();
+        \define("VERSION", (method_exists(ContaoCoreBundle::class, 'getVersion') ? ContaoCoreBundle::getVersion() : VERSION));
+        \define('TL_ASSETS_URL', System::getContainer()->get('contao.assets.assets_context')->getStaticUrl());
 
         System::loadLanguageFile('default');
 
-		/** @var Adapter|Environment $environment */
-		$template = new BackendTemplate('be_valuePicker');
+        /** @var Adapter|Environment $environment */
+        $template = new BackendTemplate('be_valuePicker');
 
-		$template->theme = Backend::getTheme();
-		$template->base = Environment::get('base');
-		$template->language = $GLOBALS['TL_LANGUAGE'];
-		$template->title = $GLOBALS['TL_CONFIG']['websiteTitle'];
-		$template->headline = Input::get('pickerHeadline');
-		$template->charset = $GLOBALS['TL_CONFIG']['characterSet'];
-		$template->options = ls_shop_generalHelper::createValueList(Input::get('requestedTable'),Input::get('requestedValue'),Input::get('requestedLanguage'));
+        $template->theme = Backend::getTheme();
+        $template->base = Environment::get('base');
+        $template->language = $GLOBALS['TL_LANGUAGE'];
+        $template->title = $GLOBALS['TL_CONFIG']['websiteTitle'];
+        $template->headline = Input::get('pickerHeadline');
+        $template->charset = $GLOBALS['TL_CONFIG']['characterSet'];
+        $template->options = ls_shop_generalHelper::createValueList(Input::get('requestedTable'),Input::get('requestedValue'),Input::get('requestedLanguage'));
 
-		return $template->getResponse();
-	}
+        return $template->getResponse();
+    }
 }
