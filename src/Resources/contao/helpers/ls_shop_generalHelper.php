@@ -4957,7 +4957,7 @@ class ls_shop_generalHelper
         return $favoritesForm;
     }
 
-    public static function manipulateBackendNavigation($arr_modules, $blnShowAll)
+    public function manipulateBackendNavigation($arr_modules, $blnShowAll)
     {
         System::loadLanguageFile('lsm_installer');
 

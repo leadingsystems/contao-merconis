@@ -8,6 +8,6 @@ class GetUserNavigationListener
 {
     public function __invoke($arr_modules, $blnShowAll)
     {
-        return ls_shop_generalHelper::manipulateBackendNavigation($arr_modules, $blnShowAll);
+        return (new ls_shop_generalHelper)->manipulateBackendNavigation($arr_modules, $blnShowAll);
     }
 }
