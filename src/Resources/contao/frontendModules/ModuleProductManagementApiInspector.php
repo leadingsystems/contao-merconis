@@ -22,7 +22,7 @@ class ModuleProductManagementApiInspector extends \Module {
 
 		$str_selectedResource = \Input::get('selectedResource');
 
-		$arr_allRawResourceNames = array_keys(ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition);
+		$arr_allRawResourceNames = array_keys(ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition());
 		$arr_allRawResourceNames = array_flip($arr_allRawResourceNames);
 
 		$arr_allResourceLinks = array();
@@ -32,7 +32,7 @@ class ModuleProductManagementApiInspector extends \Module {
 			$arr_allResourceLinks[$str_resourceName] = array(
 				'str_href' => \Controller::generateFrontendUrl($objPage->row(), '/selectedResource/'.$str_resourceName),
 				'bln_currentlySelected' => $str_selectedResource && $str_resourceName === $str_selectedResource,
-				'str_httpRequestMethod' => isset(ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition[$str_rawResourceName]['str_httpRequestMethod']) && ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition[$str_rawResourceName]['str_httpRequestMethod'] ? ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition[$str_rawResourceName]['str_httpRequestMethod'] : 'post'
+				'str_httpRequestMethod' => isset(ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()[$str_rawResourceName]['str_httpRequestMethod']) && ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()[$str_rawResourceName]['str_httpRequestMethod'] ? ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()[$str_rawResourceName]['str_httpRequestMethod'] : 'post'
 			);
 		}
 
@@ -66,10 +66,10 @@ class ModuleProductManagementApiInspector extends \Module {
 		$this->Template->str_selectedResource = $str_selectedResource;
 		$this->Template->arr_preprocessorDescriptions = $arr_preprocessorDescriptions;
 		$this->Template->str_resourceDescription = $arr_apiResourceDescriptions['apiResource_'.$str_selectedResource];
-		$this->Template->arr_fieldDefinition = ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition['apiResource_'.$str_selectedResource]['arr_fields'];
-		$this->Template->str_httpRequestMethod = isset(ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition['apiResource_'.$str_selectedResource]['str_httpRequestMethod']) && ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition['apiResource_'.$str_selectedResource]['str_httpRequestMethod'] ? ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition['apiResource_'.$str_selectedResource]['str_httpRequestMethod'] : 'post';
-		$this->Template->str_responseType = isset(ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition['apiResource_'.$str_selectedResource]['str_responseType']) && ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition['apiResource_'.$str_selectedResource]['str_responseType'] ? ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition['apiResource_'.$str_selectedResource]['str_responseType'] : 'json';
-		$this->Template->bln_expectsMultipleDataRows = isset(ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition['apiResource_'.$str_selectedResource]['bln_expectsMultipleDataRows']) && ls_shop_productManagementApiPreprocessor::$arr_resourceAndFieldDefinition['apiResource_'.$str_selectedResource]['bln_expectsMultipleDataRows'] ? 1 : 0;
+		$this->Template->arr_fieldDefinition = ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()['apiResource_'.$str_selectedResource]['arr_fields'];
+		$this->Template->str_httpRequestMethod = isset(ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()['apiResource_'.$str_selectedResource]['str_httpRequestMethod']) && ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()['apiResource_'.$str_selectedResource]['str_httpRequestMethod'] ? ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()['apiResource_'.$str_selectedResource]['str_httpRequestMethod'] : 'post';
+		$this->Template->str_responseType = isset(ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()['apiResource_'.$str_selectedResource]['str_responseType']) && ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()['apiResource_'.$str_selectedResource]['str_responseType'] ? ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()['apiResource_'.$str_selectedResource]['str_responseType'] : 'json';
+		$this->Template->bln_expectsMultipleDataRows = isset(ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()['apiResource_'.$str_selectedResource]['bln_expectsMultipleDataRows']) && ls_shop_productManagementApiPreprocessor::getResourceAndFieldDefinition()['apiResource_'.$str_selectedResource]['bln_expectsMultipleDataRows'] ? 1 : 0;
 	}
 }
 ?>
