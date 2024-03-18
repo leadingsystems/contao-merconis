@@ -8,10 +8,10 @@ use Merconis\Core\ls_shop_custom_regexp_fe;
 
 class AddCustomRegexpListener
 {
-    public function __invoke($strRegexp, &$varValue, Widget $objWidget)
+    public function __invoke($str_regexp, &$var_value, Widget $objWidget): bool
     {
-        if(!(new ls_shop_custom_regexp)->customRegexp($strRegexp, $varValue,  $objWidget)){
-            return (new ls_shop_custom_regexp_fe)->customRegexp($strRegexp, $varValue,  $objWidget);
+        if(!(new ls_shop_custom_regexp)->customRegexp($str_regexp, $var_value, $objWidget)){
+            return (new ls_shop_custom_regexp_fe)->customRegexp($str_regexp, $var_value, $objWidget);
         }
         return true;
     }

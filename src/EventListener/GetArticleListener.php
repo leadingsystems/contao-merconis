@@ -7,8 +7,8 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class GetArticleListener
 {
-    public function __invoke(ArticleModel $obj_article): void
+    public function __invoke(ArticleModel $objArticle): void
     {
-        ls_shop_generalHelper::conditionalArticleOutput($obj_article);
+        ls_shop_generalHelper::conditionalArticleOutput($objArticle);
     }
 }

@@ -8,12 +8,12 @@ use Merconis\Core\ls_shop_languageHelper;
 
 class LoadDataContainerListener
 {
-    public function __invoke($strDCAName): void
+    public function __invoke($str_dcaName): void
     {
         if (Input::get('do') != 'themes' || Input::get('key') != 'importTheme') {
-            ls_shop_languageHelper::createMultiLanguageDCAFields($strDCAName);
+            ls_shop_languageHelper::createMultiLanguageDCAFields($str_dcaName);
         }
 
-        ls_shop_generalHelper::removeFieldsForEditAll($strDCAName);
+        ls_shop_generalHelper::removeFieldsForEditAll($str_dcaName);
     }
 }

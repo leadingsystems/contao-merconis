@@ -9,12 +9,12 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class LoadFormFieldListener
 {
-    public function __invoke(Widget $objWidget, $strForm, $arrForm)
+    public function __invoke(Widget $objWidget, $str_form, $arr_form): Widget
     {
         if(System::getContainer()->get('merconis.routing.scope')->isFrontend())
         {
-            $objWidget =  ls_shop_checkoutData::getInstance()->ls_shop_loadFormField($objWidget, $strForm, $arrForm);
-            $objWidget =  ls_shop_generalHelper::handleConditionalFormFields($objWidget, $strForm, $arrForm);
+            $objWidget =  ls_shop_checkoutData::getInstance()->ls_shop_loadFormField($objWidget, $str_form, $arr_form);
+            $objWidget =  ls_shop_generalHelper::handleConditionalFormFields($objWidget, $str_form, $arr_form);
         }
 
         return $objWidget;
