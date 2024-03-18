@@ -600,6 +600,7 @@ class ls_shop_checkoutData {
 	 * Abhängig davon, um welches Formular es sich handelt, werden die passenden internen Funktionen aufgerufen.
 	 */
 	public function ls_shop_processFormData($arrPost, $arrForm, $arrFiles) {
+
 		if ($arrForm['id'] == $this->formCustomerDataID) {
 			ls_shop_msg::setMsg(array(
 				'class' => 'customerDataSubmitted',
@@ -690,6 +691,7 @@ class ls_shop_checkoutData {
 	 * Abhängig davon, um welches Formular es sich handelt, werden die passenden internen Funktionen aufgerufen.
 	 */
 	public function ls_shop_loadFormField(Widget $objWidget, $strForm, $arrForm) {
+
 		if ($arrForm['id'] == $this->formCustomerDataID) {
 			return $this->loadCustomerDataFormField($objWidget, $strForm, $arrForm);
 		} else if ($arrForm['id'] == $this->formPaymentMethodAdditionalDataID) {

@@ -100,6 +100,7 @@ class ls_shop_languageHelper {
 	 * the multilanguage field definitions where needed.
 	 */
 	public static function createMultiLanguageDCAFields($str_dcaName) {
+
 		/*
 		 * Do not process this function if the DCA name is on the list of DCAs not to process
 		 */

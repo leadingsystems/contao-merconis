@@ -132,7 +132,7 @@ class ls_shop_ajaxController
 				break;
 		}		
 	}
-	
+
 	public function executePostActions($strAction, DataContainer $dc) {
 		switch ($strAction) {
 			case 'ls_shop_productSelection::loadProduct':				
