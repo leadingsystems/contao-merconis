@@ -891,6 +891,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['variantSelector']['nothingSelectedYet'] =
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variantSelector']['moreOptionsAll'] = '%s options';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variantSelector']['moreOptionsAdditional'] = '+ %s additional options';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['nothingSelectedYet'] = 'Please select';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['moreOptionsAll'] = '%s options';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['moreOptionsAdditional'] = '+ %s additional options';
+
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['searchType']['options'] = array(
 	'And-Search' => 'Match all words',
 	'Or-Search' => 'Match any word'

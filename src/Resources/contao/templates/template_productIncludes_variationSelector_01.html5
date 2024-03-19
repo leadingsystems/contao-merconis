@@ -1,104 +1,54 @@
 <?php
-    $bln_calledFromLsjsVariantSelector = false;
+if ($this->objProduct->_hasVariations) {
+    if (\Input::post('json_attributeValueSelection') && \Input::post('productId') == $this->objProduct->_id) {
+        $arrRequestedAttributeValues = json_decode(html_entity_decode(\Input::post('json_attributeValueSelection')), true);
 
-	if ($this->objProduct->_hasVariants) {
-		/*
-		 * Create a variant selection form
-		 */
-		$attributeFormFields = array();
-		foreach ($this->objProduct->_allVariantAttributes as $arrAttribute) {
-			$attributeFormFields[$arrAttribute['attributeID']] = '<label>'.$arrAttribute['attributeTitle'].'</label>';
-			$attributeFormFields[$arrAttribute['attributeID']] .= '<select id="ctrl_attribute_'.$arrAttribute['attributeID'].'" name="attribute_'.$arrAttribute['attributeID'].'">';
-			
-			$arrSelectedVariantAttributeValues = $this->objProduct->_selectedVariant->_attributes[$arrAttribute['attributeID']];
-			if (is_array($arrSelectedVariantAttributeValues)) {
-				reset($arrSelectedVariantAttributeValues);
-			}
-			
-			foreach ($arrAttribute['values'] as $arrValue) {
-				$attributeFormFields[$arrAttribute['attributeID']] .= '<option value="'.$arrValue['valueID'].'"'.(is_array($arrSelectedVariantAttributeValues) && $arrSelectedVariantAttributeValues[key($arrSelectedVariantAttributeValues)]['valueID'] == $arrValue['valueID'] ? ' selected' : '').'>'.$arrValue['valueTitle'].'</option>';
-			}
+        $arr_matchingVariation = $this->objProduct->_getVariationByAttributeValues($arrRequestedAttributeValues, false);
 
-			$attributeFormFields[$arrAttribute['attributeID']] .= '</select>';
-		}
-		
-		if (
-				\Input::post('FORM_SUBMIT') == 'variantSelectionForm_'.$this->objProduct->_id
-			||	\Input::post('FORM_SUBMIT') == 'variantSelectionForm_'.$this->objProduct->_productVariantID
-		) {
-			if (\Input::post('json_attributeValueSelection')) {
-                $bln_calledFromLsjsVariantSelector = true;
-				$arrRequestedAttributeValues = json_decode(html_entity_decode(\Input::post('json_attributeValueSelection')), true);
-			} else {
-				$arrRequestedAttributeValues = array();
-				foreach ($attributeFormFields as $attributeID => $str_formField) {
-					$arrRequestedAttributeValues[$attributeID] = \Input::post('attribute_'.$attributeID);
-				}
-			}
+        if (count($arr_matchingVariation) === 1) {
+            /** @var \Merconis\Core\ls_shop_product $obj_matchingVariationProduct */
+            $obj_matchingVariationProduct = $arr_matchingVariation[0];
 
-			$var_matchingVariant = $this->objProduct->_getVariantByAttributeValues($arrRequestedAttributeValues, $bln_calledFromLsjsVariantSelector ? false : true);
+            // only if exactly one variation found, we redirect to the variation
+            $this->redirect($obj_matchingVariationProduct->_link);
+        } else if (count($arr_matchingVariation) > 1) {
+            /*
+             * DOME! What if multiple variations are found?
+             * We could redirect to either of them and could choose to just redirect to the first possible variation.
+             * However, that would mean that there are some products in the shop that users will never see and the
+             * shop owner would at least have to be informed about that situation so that he can fix his products.
+             * But what if it is actually the case that multiple different product variations have the exact same
+             * attributes/values, as stupid as that may be?
+             *
+             * !!! >>>
+             * The best way to handle this would probably be to not redirect to a product details page but instead
+             * display a list with the names of all matching variations and links to all of them
+             * <<< !!!
+             *
+             * The following just redirects to the first possible variation and is therefore NOT THE FINAL SOLUTION!
+             */
+            /** @var \Merconis\Core\ls_shop_product $obj_matchingVariationProduct */
+            $obj_matchingVariationProduct = $arr_matchingVariation[0];
+            $this->redirect($obj_matchingVariationProduct->_link);
+        } else {
+            /*
+             * DOME! What if no variation is found?
+             * We can't redirect anywhere but should probably display a message indicating  that with the given
+             * attribute/value selection no other variation than the currently already displayed one could be loaded.
+             */
+        }
+    }
+    ?>
 
-            if ($bln_calledFromLsjsVariantSelector) {
-                if (count($var_matchingVariant) === 1) {
-                    $obj_matchingVariant = $var_matchingVariant[0];
-                    // exactly one variant found (in lsjs context) or first variant of many returned (in non-lsjs context) => redirect to the variant
-                    $this->redirect($obj_matchingVariant->_linkToVariant);
-                } else {
-                    // more than one or no variant found, redirect to the product without selected variant
-                    $_SESSION['merconis']['tmp']['variantSelector']['bln_preventVariantPreselection'] = true;
-                    $this->redirect($this->objProduct->_linkToProduct);
-                }
-            } else {
-                if (is_object($var_matchingVariant)) {
-                    // found one or more variants, returned the next best variant => redirect to the variant
-                    $this->redirect($var_matchingVariant->_linkToVariant);
-                } else {
-                    // no variant found, don't redirect anywhere. Show frontend message in this case.
-                    $blnNoVariantFound = true;
-                }
-            }
-
-		}
-		?>
-
-		<div
-			class="variantSelector"
-			data-merconis-component="variantSelector"
-			data-merconis-variantSelectorOptions="
-			{
-			    interfaceType: '<?php echo $this->objProduct->_flexContentExistsLanguageIndependent('variant-selector-mode') ? $this->objProduct->_flexContentsLanguageIndependent['variant-selector-mode'] : 'folded' ?>'
-            }
-            "
-			data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
-			data-merconis-productVariantId="<?php echo $this->objProduct->_productVariantID; ?>"
-		>
-			<form action="<?php echo \Environment::get('request'); ?>" class="tl_form" method="post">
-				<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
-				<input type="hidden" name="FORM_SUBMIT" value="variantSelectionForm_<?php echo $this->objProduct->_id; ?>">
-				<?php
-					if (isset($blnNoVariantFound) && $blnNoVariantFound) {
-						?>
-						<p class="error noVariantFound"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText111']; ?></p>
-						<?php
-					}
-				?>
-				<?php
-					foreach ($attributeFormFields as $str_formField) {
-						?>
-							<div class="variantSelectorWidget">
-								<?php
-									echo $str_formField;
-								?>
-							</div>
-						<?php
-					}
-				?>
-				<div class="variantSelectorSubmit">
-					<button type="submit" class="submit">OK</button>
-				</div>
-			</form>
-		</div>
-
-		<?php
-	}
-?>
+    <div
+        class="variationSelector"
+        data-merconis-component="variationSelector"
+        data-merconis-variationSelectorOptions="
+        {
+            interfaceType: '<?php echo $this->objProduct->_flexContentExistsLanguageIndependent('variation-selector-mode') ? $this->objProduct->_flexContentsLanguageIndependent['variation-selector-mode'] : 'folded' ?>'
+        }
+        "
+        data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
+    ></div>
+    <?php
+}

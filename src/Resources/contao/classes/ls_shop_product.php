@@ -753,6 +753,11 @@ Array. If the product has variants, this array contains all the variant objects.
 				return is_array($this->_variants) && count($this->_variants);
 				break;
 
+			case '_hasVariations':
+                $variations = ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
+				return is_array($variations) && count($variations) > 1;
+				break;
+
 			case '_variantIsSelected'
 				/* ## DESCRIPTION:
 returns true/false, indicates whether a variant of this product has currently been selected
@@ -1719,6 +1724,23 @@ This method takes an array holding attribute ids as keys and attribute value ids
 				return $int_numMatchingVariants;
 				break;
 
+			case '_getNumMatchingVariationsByAttributeValues'
+				/* ## DESCRIPTION:
+This method takes an array holding attribute ids as keys and attribute value ids as values and returns the number of matching variations
+				 */
+				:
+				$args = ls_shop_generalHelper::setArrayLength($args, 1, array());
+				$arr_requestedAttributeValues = $args[0];
+
+				$int_numMatchingVariations = 0;
+
+				$arr_matchingVariations = $this->_getVariationsByAttributeValues($arr_requestedAttributeValues);
+
+                $int_numMatchingVariations = count($arr_matchingVariations);
+
+				return $int_numMatchingVariations;
+				break;
+
 			case '_getAllVariantAttributesForMatchingVariants'
 				/* ## DESCRIPTION:
 This method takes an array holding attribute ids as keys and attribute value ids as values and returns all variant attributes of the matching variants
@@ -1730,12 +1752,23 @@ This method takes an array holding attribute ids as keys and attribute value ids
 				return $this->getAllVariantAttributes($arr_matchingVariants);
 				break;
 
+			case '_getAllVariationAttributesForMatchingVariations'
+				/* ## DESCRIPTION:
+This method takes an array holding attribute ids as keys and attribute value ids as values and returns all variation attributes of the matching variations
+				 */
+				:
+				$args = ls_shop_generalHelper::setArrayLength($args, 1, array());
+				$arr_requestedAttributeValues = $args[0];
+				$arr_matchingVariations = $this->_getVariationsByAttributeValues($arr_requestedAttributeValues);
+				return $this->getAllVariationAttributes($arr_matchingVariations);
+				break;
+
 			case '_getPossibleAttributeValuesForCurrentSelection'
 				/* ## DESCRIPTION:
 This method takes an array holding attribute ids as keys and attribute value ids as values and returns all variant attribute values that would result in a match if they were chosen instead of the currently selected value for the attribute
 				 */
 				:
-				$args = ls_shop_generalHelper::setArrayLength($args, 2);
+				$args = ls_shop_generalHelper::setArrayLength($args, 3);
 
 				/*
 				 * The current selection is given as a parameter of this
@@ -1748,15 +1781,17 @@ This method takes an array holding attribute ids as keys and attribute value ids
 
 				$bln_getNumMatches = $args[1];
 
+                $bln_useVariationsInsteadOfVariants = $args[2];
+
 				$arr_possibleAttributeValues = array();
-				$arr_allAttributeValues = $this->getAllVariantAttributes();
+				$arr_allAttributeValues = $bln_useVariationsInsteadOfVariants ? $this->getAllVariationAttributes() : $this->getAllVariantAttributes();
 
 				/*
 				 * Walk through all attribute values and replace each selected
 				 * attribute value with each value that - in theory - should be
 				 * possible for the same attribute. Then we count the number of
-				 * matching variants to find out which attribute value would
-				 * acutally result in a match and therefore is a possible selection.
+				 * matching variants or variations to find out which attribute value would
+				 * actually result in a match and therefore is a possible selection.
 				 */
 				/*
 				 * FIXME: Important: Check performance!
@@ -1786,7 +1821,7 @@ This method takes an array holding attribute ids as keys and attribute value ids
 						$arr_modifiedSelectionToCheck[$arr_attributeToCheck['attributeID']] = $arr_valueToCheck['valueID'];
 
 						if ($bln_getNumMatches) {
-							$int_numMatchesForModifiedSelection = $this->_getNumMatchingVariantsByAttributeValues($arr_modifiedSelectionToCheck);
+							$int_numMatchesForModifiedSelection = $bln_useVariationsInsteadOfVariants ? $this->_getNumMatchingVariationsByAttributeValues($arr_modifiedSelectionToCheck) : $this->_getNumMatchingVariantsByAttributeValues($arr_modifiedSelectionToCheck);
 
 							/*
 							 * Only if the alternative selection with this value
@@ -1798,7 +1833,7 @@ This method takes an array holding attribute ids as keys and attribute value ids
 								$arr_possibleAttributeValues[$int_attributeKey]['values'][$int_valueKey] = $arr_valueToCheck;
 							}
 						} else {
-							$bln_atLeastOneMatch = $this->_getVariantsByAttributeValues($arr_modifiedSelectionToCheck, true) !== null ? true : false;
+							$bln_atLeastOneMatch = $bln_useVariationsInsteadOfVariants ? ($this->_getVariationsByAttributeValues($arr_modifiedSelectionToCheck, true) !== null) : ($this->_getVariantsByAttributeValues($arr_modifiedSelectionToCheck, true) !== null);
 
 							/*
 							 * Only if the alternative selection with this value
@@ -1813,6 +1848,72 @@ This method takes an array holding attribute ids as keys and attribute value ids
 				}
 
 				return $arr_possibleAttributeValues;
+				break;
+
+			case '_getVariationByAttributeValues'
+				/* ## DESCRIPTION:
+This method takes an array holding attribute ids as keys and attribute value ids as values and returns the product object of the matching variation (the first match if more than one variation matches) or null if no variation matches. If the provided array holds an empty value for an attribute, no variation will match.
+				 */
+				:
+				$args = ls_shop_generalHelper::setArrayLength($args, 2);
+				$arr_requestedAttributeValues = is_array($args[0]) ? $args[0] : [];
+                $bln_returnFirstMatch = (bool) $args[1];
+
+				return $this->_getVariationsByAttributeValues($arr_requestedAttributeValues, $bln_returnFirstMatch);
+				break;
+
+			case '_getVariationsByAttributeValues'
+				/* ## DESCRIPTION:
+This method takes an array holding attribute ids as keys and attribute value ids as values and returns the product objects of the matching variations
+				 */
+				:
+				$args = ls_shop_generalHelper::setArrayLength($args, 2);
+				$arr_requestedAttributeValues = $args[0];
+				if (!is_array($arr_requestedAttributeValues)) {
+					$arr_requestedAttributeValues = array();
+				}
+
+				$bln_returnFirstMatch = $args[1];
+
+                $variations = ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
+				$arr_matchingVariations = array();
+
+                if (is_array($variations)) {
+                    foreach ($variations as $objVariationProduct) {
+                        $blnMatches = true;
+                        foreach ($arr_requestedAttributeValues as $attributeID => $valueID) {
+                            if (!isset($objVariationProduct->_attributes[$attributeID])) {
+                                $blnMatches = false;
+                                break;
+                            }
+
+                            $blnMatchForValue = false;
+                            foreach ($objVariationProduct->_attributes[$attributeID] as $arrAttributeValue) {
+                                if ($arrAttributeValue['valueID'] == $valueID) {
+                                    $blnMatchForValue = true;
+                                    break;
+                                }
+                            }
+                            if (!$blnMatchForValue) {
+                                $blnMatches = false;
+                                break;
+                            }
+                        }
+                        if ($blnMatches) {
+                            if ($bln_returnFirstMatch) {
+                                return $objVariationProduct;
+                            }
+                            $arr_matchingVariations[] = $objVariationProduct;
+                        }
+                    }
+                }
+
+				if ($bln_returnFirstMatch) {
+                    // no match found because otherwise it would already have been returned
+					return null;
+				}
+
+				return $arr_matchingVariations;
 				break;
 
 			case '_getVariantByAttributeValues'
@@ -2113,6 +2214,45 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		$arrAllAttributesAndValues = array();
 		foreach ($arr_variants as $objVariant) {
 			foreach ($objVariant->_attributes as $arrAttributeValues) {
+				foreach ($arrAttributeValues as $arrAttributeValue) {
+					if (!isset($arrAllAttributesAndValues[$arrAttributeValue['attributeID']])) {
+						$arrAllAttributesAndValues[$arrAttributeValue['attributeID']] = array(
+							'attributeID' => $arrAttributeValue['attributeID'],
+							'attributeTitle' => $arrAttributeValue['attributeTitle'],
+							'attributeAlias' => $arrAttributeValue['attributeAlias'],
+							'values' => array()
+						);
+					}
+					if (!isset($arrAllAttributesAndValues[$arrAttributeValue['attributeID']]['values'][$arrAttributeValue['valueID']])) {
+						$arrAllAttributesAndValues[$arrAttributeValue['attributeID']]['values'][$arrAttributeValue['valueID']] = array(
+							'valueID' => $arrAttributeValue['valueID'],
+							'valueTitle' => $arrAttributeValue['valueTitle'],
+							'valueAlias' => $arrAttributeValue['valueAlias'],
+							'valueSorting' => $arrAttributeValue['valueSorting']
+						);
+					}
+				}
+			}
+		}
+
+        foreach ($arrAllAttributesAndValues as $arrAttributeValue) {
+            uasort($arrAllAttributesAndValues[$arrAttributeValue['attributeID']]['values'],
+                function (array $a, array $b) {
+                    return $a['valueSorting'] <=> $b['valueSorting'];
+                }
+
+            );
+        }
+
+		return $arrAllAttributesAndValues;
+	}
+
+	public function getAllVariationAttributes($arr_variations = null) {
+        $arr_variations = is_array($arr_variations) ? $arr_variations : ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
+
+		$arrAllAttributesAndValues = array();
+		foreach ($arr_variations as $variationProduct) {
+			foreach ($variationProduct->_attributes as $arrAttributeValues) {
 				foreach ($arrAttributeValues as $arrAttributeValue) {
 					if (!isset($arrAllAttributesAndValues[$arrAttributeValue['attributeID']])) {
 						$arrAllAttributesAndValues[$arrAttributeValue['attributeID']] = array(

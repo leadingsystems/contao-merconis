@@ -416,6 +416,43 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey];
     }
 
+    public static function getVariationGroup(string $variationGroupCode): ?array
+    {
+        if (!$variationGroupCode) {
+            return null;
+        }
+
+        if (!isset($GLOBALS['merconis_globals']['variationGroups'][$variationGroupCode])) {
+            $dbres_variations = \Database::getInstance()
+                ->prepare("
+                SELECT id
+                FROM tl_ls_shop_product
+                WHERE variationGroupCode = ?
+            ")
+                ->execute(
+                    $variationGroupCode
+                );
+
+            while ($dbres_variations->next()) {
+                $GLOBALS['merconis_globals']['variationGroups'][$variationGroupCode][$dbres_variations->id] = ls_shop_generalHelper::getObjProduct($dbres_variations->id);
+            }
+        }
+
+        return $GLOBALS['merconis_globals']['variationGroups'][$variationGroupCode];
+    }
+
+    public static function getUniqueElementId(): callable
+    {
+        return function() {
+            $fileId = md5(__FILE__);
+            if (!isset($GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'])) {
+                $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'] = 0;
+            }
+            $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter']++;
+            echo $fileId . '_' . $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'];
+        };
+    }
+
     public static function getFormFieldNameForFormFieldId($int_formFieldId)
     {
         if (isset($GLOBALS['merconis_globals']['cache']['getFormFieldNameForFormFieldId'][$int_formFieldId])) {
