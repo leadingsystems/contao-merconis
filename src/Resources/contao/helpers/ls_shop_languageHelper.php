@@ -670,7 +670,7 @@ class ls_shop_languageHelper {
 			WHERE		`id` = ?
 		")
 			->limit(1)
-			->execute($arr_values);
+			->execute(...$arr_values);
 	}
 
 	/*

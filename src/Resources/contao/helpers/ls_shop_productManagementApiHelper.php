@@ -877,7 +877,7 @@ class ls_shop_productManagementApiHelper {
 			// Must be the last parameter in the array
 			$arr_queryParams[] = $int_alreadyExistsAsID;
 
-			$obj_dbquery_updateProduct->execute($arr_queryParams);
+			$obj_dbquery_updateProduct->execute(...$arr_queryParams);
 
 			ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable($arr_preprocessedDataRow['propertiesAndValues'], $int_alreadyExistsAsID, 0);
 
@@ -1022,7 +1022,7 @@ class ls_shop_productManagementApiHelper {
 
 			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
 
-			$obj_insertProduct->execute($arr_queryParams);
+			$obj_insertProduct->execute(...$arr_queryParams);
 
 			$int_newProductID = $obj_insertProduct->insertId;
 
@@ -1176,7 +1176,7 @@ class ls_shop_productManagementApiHelper {
 			// Must be the last parameter in the array
 			$arr_queryParams[] = $int_alreadyExistsAsID;
 
-			$obj_dbquery_updateVariant->execute($arr_queryParams);
+			$obj_dbquery_updateVariant->execute(...$arr_queryParams);
 
 			ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable($arr_preprocessedDataRow['propertiesAndValues'], $int_alreadyExistsAsID, 1);
 
@@ -1316,7 +1316,7 @@ class ls_shop_productManagementApiHelper {
 
 			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
 
-			$obj_dbquery_insertVariant->execute($arr_queryParams);
+			$obj_dbquery_insertVariant->execute(...$arr_queryParams);
 
 			$int_newVariantId = $obj_dbquery_insertVariant->insertId;
 

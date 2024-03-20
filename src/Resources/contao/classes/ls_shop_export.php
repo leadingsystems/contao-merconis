@@ -322,7 +322,7 @@ class ls_shop_export
 			$obj_dbres_order = $obj_dbres_order->limit($this->arr_exportRecord['numberOfRecordsPerSegment'], ($this->obj_segmentizer->currentSegment - 1) * $this->arr_exportRecord['numberOfRecordsPerSegment']);
 		}
 
-		$obj_dbres_order = $obj_dbres_order->execute($arr_queryParameters);
+		$obj_dbres_order = $obj_dbres_order->execute(...$arr_queryParameters);
 
 		while ($obj_dbres_order->next()) {
 			$arr_orderRecord = $obj_dbres_order->row();
@@ -784,9 +784,7 @@ class ls_shop_export
 			SET			".$str_sqlSetStatement."
 			WHERE		`id` IN (".implode(',', $arr_orderIds).")
 		")
-		->execute(
-			$arr_queryParameters
-		);
+		->execute(...$arr_queryParameters);
 
 		if ($this->arr_exportRecord['sendOrderMailsOnStatusChange']) {
 			foreach ($arr_orderIds as $int_orderId) {
