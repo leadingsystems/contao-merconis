@@ -2274,8 +2274,13 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			}
 		}
 
-        foreach ($arrAllAttributesAndValues as $arrAttributeValue) {
-            uasort($arrAllAttributesAndValues[$arrAttributeValue['attributeID']]['values'],
+        foreach ($arrAllAttributesAndValues as $attributeId => $arrAttributeValue) {
+            if (count($arrAttributeValue['values']) <= 1) {
+                unset($arrAllAttributesAndValues[$attributeId]);
+                continue;
+            }
+
+            uasort($arrAllAttributesAndValues[$attributeId]['values'],
                 function (array $a, array $b) {
                     return $a['valueSorting'] <=> $b['valueSorting'];
                 }
