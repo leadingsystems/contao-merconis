@@ -1469,7 +1469,7 @@ class tl_ls_shop_variant_controller extends Backend {
 		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_variant::published', 'alexf')) {
             System::getContainer()->get('monolog.logger.contao')->info(
                 'Not enough permissions to publish/unpublish variant ID "'.$intId.'"',
-                ['contao' => new ContaoContext('tl_ls_shop_variant toggleVisibility', TL_ERROR)]
+                ['contao' => new ContaoContext('tl_ls_shop_variant toggleVisibility', ContaoContext::ERROR)]
             );
 			$this->redirect('contao/main.php?act=error');
 		}

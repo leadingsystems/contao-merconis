@@ -1471,7 +1471,7 @@ class tl_ls_shop_product_controller extends Backend {
 		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_product::published', 'alexf')) {
             System::getContainer()->get('monolog.logger.contao')->info(
                 'Not enough permissions to publish/unpublish product ID "'.$intId.'"',
-                ['contao' => new ContaoContext('tl_ls_shop_product toggleVisibility', TL_ERROR)]
+                ['contao' => new ContaoContext('tl_ls_shop_product toggleVisibility', ContaoContext::ERROR)]
             );
 			$this->redirect('contao/main.php?act=error');
 		}
