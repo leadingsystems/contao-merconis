@@ -157,7 +157,3 @@ services:
 
   LeadingSystems\MerconisBundle\InsertTag\AsBlockInsertTag\:
     resource: '../../InsertTag/AsBlockInsertTag'
-
-
-
-

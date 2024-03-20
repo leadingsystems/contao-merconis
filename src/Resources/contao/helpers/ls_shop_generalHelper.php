@@ -3156,10 +3156,8 @@ class ls_shop_generalHelper
         return $options;
     }
 
-
     public static function handleConditionalFormFields(Widget $objWidget, $intId, $arrForm)
     {
-
         $obj_dbres_mandatoryOnConditionSettings = Database::getInstance()
             ->prepare("
 					SELECT	`lsShop_mandatoryOnConditionField`,
