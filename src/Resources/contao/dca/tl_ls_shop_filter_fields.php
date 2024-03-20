@@ -305,7 +305,7 @@ class ls_shop_filter_fields extends Backend {
 		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_filter_fields::published', 'alexf')) {
             System::getContainer()->get('monolog.logger.contao')->info(
                 'Not enough permissions to publish/unpublish filter field ID "'.$intId.'"',
-                ['contao' => new ContaoContext('tl_ls_shop_filter_fields toggleVisibility', TL_ERROR)]
+                ['contao' => new ContaoContext('tl_ls_shop_filter_fields toggleVisibility', ContaoContext::ERROR)]
             );
 			$this->redirect('contao/main.php?act=error');
 		}

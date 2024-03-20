@@ -4488,7 +4488,7 @@ class ls_shop_generalHelper
         {
             System::getContainer()->get('monolog.logger.contao')->info(
                 'Could not find layout ID "' . $objPage->layout . '"',
-                ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]
+                ['contao' => new ContaoContext(__METHOD__, ContaoContext::ERROR)]
             );
             throw new NoLayoutSpecifiedException('No layout specified');
         }
