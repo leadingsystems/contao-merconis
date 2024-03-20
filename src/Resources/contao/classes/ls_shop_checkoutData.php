@@ -340,7 +340,11 @@ class ls_shop_checkoutData {
 			case 'review':
 			default:
 				if (!$this->blnCheckoutDataIsValid) {
-					Controller::redirect(Controller::generateFrontendUrl($objPage->row()));
+
+                    $pageModel = PageModel::findWithDetails($objPage->row()['id']);
+                    $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+
+					Controller::redirect($objContentUrlGenerator->generate($pageModel));
 				}
 				break;
 		}

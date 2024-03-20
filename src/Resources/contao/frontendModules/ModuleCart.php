@@ -98,7 +98,12 @@ class ModuleCart extends Module {
 		 */
 		if (Input::get('deleteCoupon')) {
 			ls_shop_cartHelper::deleteUsedCoupon(Input::get('deleteCoupon'));
-			$this->redirect(Controller::generateFrontendUrl($objPage->row()));
+
+            $pageModel = PageModel::findWithDetails($objPage->row()['id']);
+            $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+
+            $this->redirect($objContentUrlGenerator->generate($pageModel));
+
 		}
 
 		$obj_FlexWidget_inputCoupon = new FlexWidget(
