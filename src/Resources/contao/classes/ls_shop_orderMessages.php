@@ -422,7 +422,7 @@ class ls_shop_orderMessages
 						`dynamicPdfAttachmentPaths` = ?,
 						`attachmentPaths` = ?
 		")
-		->execute($arrMessageToSave);
+		->execute(...$arrMessageToSave);
 	}
 
 	/*

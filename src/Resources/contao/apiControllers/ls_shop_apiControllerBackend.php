@@ -128,7 +128,7 @@ class ls_shop_apiControllerBackend
 					VALUES			(" . implode(',', $arr_valuePlaceholders) . ")
 				");
 
-				$obj_dbquery_insertProduct->execute($arr_fieldValues);
+				$obj_dbquery_insertProduct->execute(...$arr_fieldValues);
 
 				$int_lastProductId = $obj_dbquery_insertProduct->insertId;
 
@@ -155,7 +155,7 @@ class ls_shop_apiControllerBackend
 						VALUES			(" . implode(',', $arr_valuePlaceholders) . ")
 					");
 
-					$obj_dbquery_insertVariant->execute($arr_fieldValues);
+					$obj_dbquery_insertVariant->execute(...$arr_fieldValues);
 
 					$int_lastVariantId = $obj_dbquery_insertVariant->insertId;
 
