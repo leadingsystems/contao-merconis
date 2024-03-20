@@ -48,10 +48,8 @@ class ProductSearchController extends Backend
      *
      * @return Response
      */
-    public function __invoke()
+    public function __invoke(): Response
     {
-        \define("VERSION", (method_exists(ContaoCoreBundle::class, 'getVersion') ? ContaoCoreBundle::getVersion() : VERSION));
-        \define('TL_ASSETS_URL', System::getContainer()->get('contao.assets.assets_context')->getStaticUrl());
 
         $this->Template = new BackendTemplate('be_productSearch');
         $this->Template->main = '';

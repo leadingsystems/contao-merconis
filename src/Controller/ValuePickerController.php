@@ -48,9 +48,6 @@ class ValuePickerController extends AbstractBackendController
     {
         $this->framework->initialize();
 
-        \define("VERSION", (method_exists(ContaoCoreBundle::class, 'getVersion') ? ContaoCoreBundle::getVersion() : VERSION));
-        \define('TL_ASSETS_URL', System::getContainer()->get('contao.assets.assets_context')->getStaticUrl());
-
         System::loadLanguageFile('default');
 
         /** @var Adapter|Environment $environment */

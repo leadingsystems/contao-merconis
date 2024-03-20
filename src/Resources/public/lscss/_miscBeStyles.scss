@@ -435,6 +435,24 @@ ul.ls_shop_productSelectionWizard li .listWizardButtons {
   right: 30px;
 }
 
+ul.ls_shop_productSelectionWizard li .listWizardButtons a[class^='button-'] {
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border: none;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  margin-top: 2px;
+}
+
+ul.ls_shop_productSelectionWizard li .listWizardButtons a.button-up {
+  background-image: url("/bundles/leadingsystemsmerconis/icons/be/up.svg");
+}
+
+ul.ls_shop_productSelectionWizard li .listWizardButtons a.button-down {
+  background-image: url("/bundles/leadingsystemsmerconis/icons/be/down.svg");
+}
+
 ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOutput {
   position: relative;
   padding-left: 60px;
