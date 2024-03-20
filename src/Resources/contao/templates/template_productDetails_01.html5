@@ -111,6 +111,24 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // <- ##### FILTER MATCH ###### ?>
             </div>
 
+            <div id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>" class="attributes ajaxReloadByVariationSelector">
+                <?php
+                $attributesSorted = $this->objProduct->_attributes;
+                uasort($attributesSorted, function($a, $b) {
+                    return strcmp($a[0]['attributeTitle'], $b[0]['attributeTitle']);
+                });
+
+                foreach ($attributesSorted as $attribute) {
+                    foreach ($attribute as $attributeValue) {
+                        ?>
+                        <strong><?php echo $attributeValue['attributeTitle']; ?>:</strong> <?php echo $attributeValue['valueTitle']; ?><br>
+                        <?php
+                    }
+                    ?>
+                    <?php
+                }
+                ?>
+            </div>
 
             <div>
                 <?php // ##### VARIANT SELECTOR ###### -> ?>
