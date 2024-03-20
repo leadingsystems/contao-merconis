@@ -428,9 +428,11 @@ class ls_shop_generalHelper
                 SELECT id
                 FROM tl_ls_shop_product
                 WHERE variationGroupCode = ?
+                    AND published = ?
             ")
                 ->execute(
-                    $variationGroupCode
+                    $variationGroupCode,
+                    '1'
                 );
 
             while ($dbres_variations->next()) {
