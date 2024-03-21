@@ -362,19 +362,8 @@ class InstallerController extends Controller {
 
                 System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Inserting MERCONIS configuration values in localconfig.php', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
 
-				foreach ($arrExportLocalconfig as $k => $v) {
-					/*
-					 * Deal with the csv escape character which would break the localconfig
-					 * if it was just an unescaped backslash. So, essentially, we just look
-					 * if the value is a backslash, and if it is, we add another backslash
-					 * to escape it.
-					 */
-					if (version_compare(VERSION . '.' . BUILD, '3.2.9', '<')) {
-						if ($k == 'ls_shop_importCsvEscape') {
-							$v = $v == '\\' ? '\\\\' : $v;
-						}
-					}
-
+				foreach ($arrExportLocalconfig as $k => $v)
+                {
 					if ($k == 'ls_shop_installedVersion') {
 						$merconisVersion = ls_shop_generalHelper::getMerconisFilesVersion();
 						$v = $merconisVersion;
@@ -1105,6 +1094,9 @@ class InstallerController extends Controller {
 					 */
 					$arrThemeInfo['compatibleWithContaoVersion'] = (
 							$arrThemeInfo['contaoCompatibilityFrom'] == '0.0.0'
+                            /*
+                             * @toDo rewrite version control for Contao 5
+                             */
 							||	version_compare(VERSION . '.' . BUILD, $arrThemeInfo['contaoCompatibilityFrom'], '>=')
 						) && (
 							$arrThemeInfo['contaoCompatibilityTo'] == '0.0.0'
