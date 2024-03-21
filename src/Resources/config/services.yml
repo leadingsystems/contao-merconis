@@ -157,3 +157,11 @@ services:
 
   LeadingSystems\MerconisBundle\InsertTag\AsBlockInsertTag\:
     resource: '../../InsertTag/AsBlockInsertTag'
+
+
+  merconis.migration.test_migration:
+    class: LeadingSystems\MerconisBundle\Migration\TestMigration
+    tags:
+      - { name: contao.migration, priority: 0 }
+
+
