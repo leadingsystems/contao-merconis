@@ -56,6 +56,8 @@ class ls_shop_product
     // Holds image galleries created with getImageGallery()
     protected $arr_imageGalleries = [];
 
+    private ?array $allVariationAttributes = null;
+
     public function __construct($intID = false, $configuratorHash = '') {
 		$this->ls_ID = $intID;
 
@@ -1521,6 +1523,36 @@ returns the product price or the cheapest variant price.
 				return ls_shop_generalHelper::getProductAttributeValueIds(json_decode($this->mainData['lsShopProductAttributesValues']));
 				break;
 
+			case '_attributeValueIdsForVariationSelector':
+                $attributeValueIdsForVariantSelector = $this->_attributeValueIds;
+
+                /*
+                 * A product can have multiple values selected for the same attribute and therefore the product
+                 * property _attributeValueIds delivers an array for each attribute holding all selected values.
+                 *
+                 * The variation selector doesn't support multiple selected values and therefore expects only one
+                 * value id for each attribute id, so we have to translate the array accordingly
+                 */
+                foreach ($attributeValueIdsForVariantSelector as $int_attributeId => $arr_valueIds) {
+                    $attributeValueIdsForVariantSelector[$int_attributeId] = $arr_valueIds[0];
+                }
+
+                $attributesMissingInSelectedAttributeValues = array_keys(array_diff_key($this->getAllVariationAttributes(), $attributeValueIdsForVariantSelector));
+                foreach ($attributesMissingInSelectedAttributeValues as $missingAttributeId) {
+                    $attributeValueIdsForVariantSelector[$missingAttributeId] = 0;
+                }
+				return $attributeValueIdsForVariantSelector;
+				break;
+
+			case '_attributeValueIdsForVariationSelectorNotFlattened':
+                $attributeValueIdsForVariantSelector = $this->_attributeValueIds;
+                $attributesMissingInSelectedAttributeValues = array_keys(array_diff_key($this->getAllVariationAttributes(), $attributeValueIdsForVariantSelector));
+                foreach ($attributesMissingInSelectedAttributeValues as $missingAttributeId) {
+                    $attributeValueIdsForVariantSelector[$missingAttributeId][0] = 0;
+                }
+				return $attributeValueIdsForVariantSelector;
+				break;
+
 			case '_attributesAsString':
 				return ls_shop_generalHelper::createAttributesString($this->_attributes);
 				break;
@@ -1724,23 +1756,6 @@ This method takes an array holding attribute ids as keys and attribute value ids
 				return $int_numMatchingVariants;
 				break;
 
-			case '_getNumMatchingVariationsByAttributeValues'
-				/* ## DESCRIPTION:
-This method takes an array holding attribute ids as keys and attribute value ids as values and returns the number of matching variations
-				 */
-				:
-				$args = ls_shop_generalHelper::setArrayLength($args, 1, array());
-				$arr_requestedAttributeValues = $args[0];
-
-				$int_numMatchingVariations = 0;
-
-				$arr_matchingVariations = $this->_getVariationsByAttributeValues($arr_requestedAttributeValues);
-
-                $int_numMatchingVariations = count($arr_matchingVariations);
-
-				return $int_numMatchingVariations;
-				break;
-
 			case '_getAllVariantAttributesForMatchingVariants'
 				/* ## DESCRIPTION:
 This method takes an array holding attribute ids as keys and attribute value ids as values and returns all variant attributes of the matching variants
@@ -1752,23 +1767,12 @@ This method takes an array holding attribute ids as keys and attribute value ids
 				return $this->getAllVariantAttributes($arr_matchingVariants);
 				break;
 
-			case '_getAllVariationAttributesForMatchingVariations'
-				/* ## DESCRIPTION:
-This method takes an array holding attribute ids as keys and attribute value ids as values and returns all variation attributes of the matching variations
-				 */
-				:
-				$args = ls_shop_generalHelper::setArrayLength($args, 1, array());
-				$arr_requestedAttributeValues = $args[0];
-				$arr_matchingVariations = $this->_getVariationsByAttributeValues($arr_requestedAttributeValues);
-				return $this->getAllVariationAttributes($arr_matchingVariations);
-				break;
-
 			case '_getPossibleAttributeValuesForCurrentSelection'
 				/* ## DESCRIPTION:
 This method takes an array holding attribute ids as keys and attribute value ids as values and returns all variant attribute values that would result in a match if they were chosen instead of the currently selected value for the attribute
 				 */
 				:
-				$args = ls_shop_generalHelper::setArrayLength($args, 3);
+				$args = ls_shop_generalHelper::setArrayLength($args, 2);
 
 				/*
 				 * The current selection is given as a parameter of this
@@ -1781,16 +1785,14 @@ This method takes an array holding attribute ids as keys and attribute value ids
 
 				$bln_getNumMatches = $args[1];
 
-                $bln_useVariationsInsteadOfVariants = $args[2];
-
 				$arr_possibleAttributeValues = array();
-				$arr_allAttributeValues = $bln_useVariationsInsteadOfVariants ? $this->getAllVariationAttributes() : $this->getAllVariantAttributes();
+				$arr_allAttributeValues = $this->getAllVariantAttributes();
 
 				/*
 				 * Walk through all attribute values and replace each selected
 				 * attribute value with each value that - in theory - should be
 				 * possible for the same attribute. Then we count the number of
-				 * matching variants or variations to find out which attribute value would
+				 * matching variants to find out which attribute value would
 				 * actually result in a match and therefore is a possible selection.
 				 */
 				/*
@@ -1821,7 +1823,7 @@ This method takes an array holding attribute ids as keys and attribute value ids
 						$arr_modifiedSelectionToCheck[$arr_attributeToCheck['attributeID']] = $arr_valueToCheck['valueID'];
 
 						if ($bln_getNumMatches) {
-							$int_numMatchesForModifiedSelection = $bln_useVariationsInsteadOfVariants ? $this->_getNumMatchingVariationsByAttributeValues($arr_modifiedSelectionToCheck) : $this->_getNumMatchingVariantsByAttributeValues($arr_modifiedSelectionToCheck);
+							$int_numMatchesForModifiedSelection = $this->_getNumMatchingVariantsByAttributeValues($arr_modifiedSelectionToCheck);
 
 							/*
 							 * Only if the alternative selection with this value
@@ -1833,7 +1835,7 @@ This method takes an array holding attribute ids as keys and attribute value ids
 								$arr_possibleAttributeValues[$int_attributeKey]['values'][$int_valueKey] = $arr_valueToCheck;
 							}
 						} else {
-							$bln_atLeastOneMatch = $bln_useVariationsInsteadOfVariants ? ($this->_getVariationsByAttributeValues($arr_modifiedSelectionToCheck, true) !== null) : ($this->_getVariantsByAttributeValues($arr_modifiedSelectionToCheck, true) !== null);
+							$bln_atLeastOneMatch = $this->_getVariantsByAttributeValues($arr_modifiedSelectionToCheck, true) !== null ? true : false;
 
 							/*
 							 * Only if the alternative selection with this value
@@ -1867,6 +1869,14 @@ This method takes an array holding attribute ids as keys and attribute value ids
 This method takes an array holding attribute ids as keys and attribute value ids as values and returns the product objects of the matching variations
 				 */
 				:
+
+                /*
+                 * DOME! Check if this function handles the new "non-values" correctly. It should work now but wasn't
+                 * tested yet!
+                 * The non-value must be handled like an actual value. It is basically an attribute value that behaves
+                 * normal with the only exception that it does not actually exist in the attribute value table.
+                 */
+
 				$args = ls_shop_generalHelper::setArrayLength($args, 2);
 				$arr_requestedAttributeValues = $args[0];
 				if (!is_array($arr_requestedAttributeValues)) {
@@ -1881,15 +1891,15 @@ This method takes an array holding attribute ids as keys and attribute value ids
                 if (is_array($variations)) {
                     foreach ($variations as $objVariationProduct) {
                         $blnMatches = true;
-                        foreach ($arr_requestedAttributeValues as $attributeID => $valueID) {
-                            if (!isset($objVariationProduct->_attributes[$attributeID])) {
+                        foreach ($arr_requestedAttributeValues as $requestedAttributeID => $requestedValueID) {
+                            if (!isset($objVariationProduct->_attributeValueIdsForVariationSelectorNotFlattened[$requestedAttributeID])) {
                                 $blnMatches = false;
                                 break;
                             }
 
                             $blnMatchForValue = false;
-                            foreach ($objVariationProduct->_attributes[$attributeID] as $arrAttributeValue) {
-                                if ($arrAttributeValue['valueID'] == $valueID) {
+                            foreach ($objVariationProduct->_attributeValueIdsForVariationSelectorNotFlattened[$requestedAttributeID] as $valueId) {
+                                if ($valueId == $requestedValueID) {
                                     $blnMatchForValue = true;
                                     break;
                                 }
@@ -2247,48 +2257,78 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		return $arrAllAttributesAndValues;
 	}
 
-	public function getAllVariationAttributes($arr_variations = null) {
-        $arr_variations = is_array($arr_variations) ? $arr_variations : ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
+	public function getAllVariationAttributes(): array
+    {
+        if (!is_array($this->allVariationAttributes)) {
+            $variations = ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
+            $numVariations = count($variations);
+            $allAttributesAndValues = [];
+            $attributeAppearances = [];
 
-		$arrAllAttributesAndValues = array();
-		foreach ($arr_variations as $variationProduct) {
-			foreach ($variationProduct->_attributes as $arrAttributeValues) {
-				foreach ($arrAttributeValues as $arrAttributeValue) {
-					if (!isset($arrAllAttributesAndValues[$arrAttributeValue['attributeID']])) {
-						$arrAllAttributesAndValues[$arrAttributeValue['attributeID']] = array(
-							'attributeID' => $arrAttributeValue['attributeID'],
-							'attributeTitle' => $arrAttributeValue['attributeTitle'],
-							'attributeAlias' => $arrAttributeValue['attributeAlias'],
-							'values' => array()
-						);
-					}
-					if (!isset($arrAllAttributesAndValues[$arrAttributeValue['attributeID']]['values'][$arrAttributeValue['valueID']])) {
-						$arrAllAttributesAndValues[$arrAttributeValue['attributeID']]['values'][$arrAttributeValue['valueID']] = array(
-							'valueID' => $arrAttributeValue['valueID'],
-							'valueTitle' => $arrAttributeValue['valueTitle'],
-							'valueAlias' => $arrAttributeValue['valueAlias'],
-							'valueSorting' => $arrAttributeValue['valueSorting']
-						);
-					}
-				}
-			}
-		}
+            foreach ($variations as $variationProductId => $variationProduct) {
+                /** @var array $attributeValues */
+                foreach ($variationProduct->_attributes as $attributeValues) {
+                    /** @var array $attributeValue */
+                    foreach ($attributeValues as $attributeValue) {
+                        $attributeAppearances[$attributeValue['attributeID']][] = $variationProductId;
+                        $attributeAppearances[$attributeValue['attributeID']][] = $variationProductId;
 
-        foreach ($arrAllAttributesAndValues as $attributeId => $arrAttributeValue) {
-            if (count($arrAttributeValue['values']) <= 1) {
-                unset($arrAllAttributesAndValues[$attributeId]);
-                continue;
+                        if (!isset($allAttributesAndValues[$attributeValue['attributeID']])) {
+                            $allAttributesAndValues[$attributeValue['attributeID']] = [
+                                'attributeID' => $attributeValue['attributeID'],
+                                'attributeTitle' => $attributeValue['attributeTitle'],
+                                'attributeAlias' => $attributeValue['attributeAlias'],
+                                'values' => []
+                            ];
+                        }
+                        if (!isset($allAttributesAndValues[$attributeValue['attributeID']]['values'][$attributeValue['valueID']])) {
+                            $allAttributesAndValues[$attributeValue['attributeID']]['values'][$attributeValue['valueID']] = [
+                                'valueID' => $attributeValue['valueID'],
+                                'valueTitle' => $attributeValue['valueTitle'],
+                                'valueAlias' => $attributeValue['valueAlias'],
+                                'valueSorting' => $attributeValue['valueSorting']
+                            ];
+                        }
+                    }
+                }
             }
 
-            uasort($arrAllAttributesAndValues[$attributeId]['values'],
-                function (array $a, array $b) {
-                    return $a['valueSorting'] <=> $b['valueSorting'];
+            array_walk($attributeAppearances, function(&$subArray) {
+                $subArray = array_unique($subArray);
+            });
+
+            /*
+             * Adding a non-value for all attributes that don't occur in all product variations
+             */
+            foreach ($attributeAppearances as $attributeId => $productVariationIds) {
+                if (count($productVariationIds) < $numVariations) {
+                    $allAttributesAndValues[$attributeId]['values'][0] = [
+                        'valueID' => 0,
+                        'valueTitle' => '-',
+                        'valueAlias' => '-',
+                        'valueSorting' => 0
+                    ];
+                }
+            }
+
+            foreach ($allAttributesAndValues as $attributeId => $attributeValue) {
+                if (count($attributeValue['values']) <= 1) {
+                    unset($allAttributesAndValues[$attributeId]);
+                    continue;
                 }
 
-            );
+                uasort($allAttributesAndValues[$attributeId]['values'],
+                    function (array $a, array $b) {
+                        return $a['valueSorting'] <=> $b['valueSorting'];
+                    }
+
+                );
+            }
+
+            $this->allVariationAttributes = $allAttributesAndValues;
         }
 
-		return $arrAllAttributesAndValues;
+		return $this->allVariationAttributes;
 	}
 
 	/*

@@ -373,7 +373,7 @@ class ls_shop_generalHelper
      * an jeder Stelle, an der ein Produkt-Objekt benötigt wird, dieses Objekt über diese Funktion anzufordern,
      * ohne dass man sich Gedanken über Speicherauslastung und Performance machen muss.
      */
-    public static function getObjProduct($productVariantIDOrCartKey = false, $callerName = '', $refreshObject = false)
+    public static function getObjProduct($productVariantIDOrCartKey = false, $callerName = '', $refreshObject = false): ls_shop_product
     {
         if (!$productVariantIDOrCartKey) {
             throw new \Exception('no productVariantIDOrCartKey given');

@@ -55,33 +55,67 @@ class ls_shop_apiController_variationSelector
          * We are only interested in the product id because product variations have nothing to do with variants
          */
         $productID = \Input::get('productId');
-		
 		$obj_product = ls_shop_generalHelper::getObjProduct($productID);
-
         $allVariationAttributes = $obj_product->getAllVariationAttributes();
-		
-		$arr_selectedAttributeValues = $obj_product->_attributeValueIds;
-		
-		/*
-		 * A product can have multiple values selected for the same
-		 * attribute and therefore the product property _attributeValueIds
-		 * delivers an array for each attribute holding all selected values.
-		 * 
-		 * The variation selector doesn't support multiple selected values and therefore
-		 * expects only one value id for each attribute id, so we have to translate
-		 * the array accordingly
-		 */
-		foreach ($arr_selectedAttributeValues as $int_attributeId => $arr_valueIds) {
-			$arr_selectedAttributeValues[$int_attributeId] = $arr_valueIds[0];
-		}
-		
-		$arr_return = array(
+		$arr_selectedAttributeValues = $obj_product->_attributeValueIdsForVariationSelector;
+
+
+        $arr_return = array(
 			'_allVariationAttributes' => $allVariationAttributes,
 			'_selectedAttributeValues' => $arr_selectedAttributeValues,
-			'_possibleAttributeValues' => $obj_product->_getPossibleAttributeValuesForCurrentSelection($arr_selectedAttributeValues, false, true)
 		);
 		
 		$this->obj_apiReceiver->success();
 		$this->obj_apiReceiver->set_data($arr_return);
 	}
+
+    protected function apiResource_variationSelector_getVariationForAttributeSelection() {
+        /*
+         * productId is the ID of the currently selected product variation
+         */
+        if (!\Input::get('productId')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no productId given');
+            return;
+        }
+
+        if (!\Input::get('attributeSelection') || !is_array($attributeSelection = json_decode(html_entity_decode(\Input::get('attributeSelection')), true))) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no attributeSelection given');
+            return;
+        }
+
+        $productID = \Input::get('productId');
+        $obj_product = ls_shop_generalHelper::getObjProduct($productID);
+
+        /*
+         * We combine the requested attributeSelection with the current product's attributes so that we can look
+         * for a product variation that is as close as possible to the current product but with the currently requested
+         * attribute selection. Since a product with those specific attributes/values might not exist, we have to
+         * look for an alternative product variation with only the requested attributeSelection if we don't get a
+         * better matching product variation.
+         */
+        $fullAttributeSelection = [];
+        foreach ($obj_product->_attributes as $attributeId => $attributeValues) {
+            $fullAttributeSelection[$attributeId] = $attributeValues[0]['valueID'];
+        }
+        $fullAttributeSelection[key($attributeSelection)] = (int) current($attributeSelection);
+
+        /** @var ls_shop_product $matchingProductVariation */
+        $matchingProductVariation = $obj_product->_getVariationByAttributeValues($fullAttributeSelection, true);
+        if ($matchingProductVariation === null) {
+            $matchingProductVariation = $obj_product->_getVariationByAttributeValues($attributeSelection, true);
+        }
+
+        $arr_selectedAttributeValues = $matchingProductVariation->_attributeValueIdsForVariationSelector;
+
+        $arr_return = array(
+            '_productVariationId' => $matchingProductVariation->ls_ID,
+            '_productVariationUrl' => $matchingProductVariation->_link,
+            '_selectedAttributeValues' => $arr_selectedAttributeValues,
+        );
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
 }

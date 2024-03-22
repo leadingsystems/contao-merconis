@@ -34,12 +34,7 @@ body.lsjs-active .variationSelector:not(.variationSelectorInstance_view-loaded) 
       position: relative;
       cursor: pointer;
 
-      &:not([data-lsjs-class*="possible"]):not(:hover) {
-        opacity: .3;
-      }
-
-      &[data-lsjs-class*="selected"],
-      &[data-lsjs-class*="only-option"]{
+      &[data-lsjs-class*="selected"] {
         position: relative;
 
         &::before {
@@ -76,8 +71,7 @@ body.lsjs-active .variationSelector:not(.variationSelectorInstance_view-loaded) 
       }
 
       .value {
-        &[data-lsjs-class*="selected"],
-        &[data-lsjs-class*="only-option"] {
+        &[data-lsjs-class*="selected"] {
           cursor: default;
         }
       }
