@@ -1523,7 +1523,7 @@ returns the product price or the cheapest variant price.
 				return ls_shop_generalHelper::getProductAttributeValueIds(json_decode($this->mainData['lsShopProductAttributesValues']));
 				break;
 
-			case '_attributeValueIdsForVariationSelector':
+			case '_attributeValueIdsForVariationSelectorFlattened':
                 $attributeValueIdsForVariantSelector = $this->_attributeValueIds;
 
                 /*
@@ -1544,7 +1544,7 @@ returns the product price or the cheapest variant price.
 				return $attributeValueIdsForVariantSelector;
 				break;
 
-			case '_attributeValueIdsForVariationSelectorNotFlattened':
+			case '_attributeValueIdsForVariationSelector':
                 $attributeValueIdsForVariantSelector = $this->_attributeValueIds;
                 $attributesMissingInSelectedAttributeValues = array_keys(array_diff_key($this->getAllVariationAttributes(), $attributeValueIdsForVariantSelector));
                 foreach ($attributesMissingInSelectedAttributeValues as $missingAttributeId) {
@@ -1892,13 +1892,13 @@ This method takes an array holding attribute ids as keys and attribute value ids
                     foreach ($variations as $objVariationProduct) {
                         $blnMatches = true;
                         foreach ($arr_requestedAttributeValues as $requestedAttributeID => $requestedValueID) {
-                            if (!isset($objVariationProduct->_attributeValueIdsForVariationSelectorNotFlattened[$requestedAttributeID])) {
+                            if (!isset($objVariationProduct->_attributeValueIdsForVariationSelector[$requestedAttributeID])) {
                                 $blnMatches = false;
                                 break;
                             }
 
                             $blnMatchForValue = false;
-                            foreach ($objVariationProduct->_attributeValueIdsForVariationSelectorNotFlattened[$requestedAttributeID] as $valueId) {
+                            foreach ($objVariationProduct->_attributeValueIdsForVariationSelector[$requestedAttributeID] as $valueId) {
                                 if ($valueId == $requestedValueID) {
                                     $blnMatchForValue = true;
                                     break;

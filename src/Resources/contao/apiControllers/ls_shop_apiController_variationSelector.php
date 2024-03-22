@@ -57,7 +57,7 @@ class ls_shop_apiController_variationSelector
         $productID = \Input::get('productId');
 		$obj_product = ls_shop_generalHelper::getObjProduct($productID);
         $allVariationAttributes = $obj_product->getAllVariationAttributes();
-		$arr_selectedAttributeValues = $obj_product->_attributeValueIdsForVariationSelector;
+		$arr_selectedAttributeValues = $obj_product->_attributeValueIdsForVariationSelectorFlattened;
 
 
         $arr_return = array(
@@ -107,7 +107,7 @@ class ls_shop_apiController_variationSelector
             $matchingProductVariation = $obj_product->_getVariationByAttributeValues($attributeSelection, true);
         }
 
-        $arr_selectedAttributeValues = $matchingProductVariation->_attributeValueIdsForVariationSelector;
+        $arr_selectedAttributeValues = $matchingProductVariation->_attributeValueIdsForVariationSelectorFlattened;
 
         $arr_return = array(
             '_productVariationId' => $matchingProductVariation->ls_ID,
