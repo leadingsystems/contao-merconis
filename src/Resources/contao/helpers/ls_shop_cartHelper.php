@@ -13,18 +13,6 @@ use function LeadingSystems\Helpers\ls_sub;
 
 class ls_shop_cartHelper {
 
-	public static function initializeEmptyCart() {
-
-	    /*
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
-        if (!is_array($session_lsShopCart['items'] ?? null)) {
-            $session_lsShopCart['items'] = array();
-            $session->set('lsShopCart', $session_lsShopCart);
-		}*/
-	}
-
 	/*
 	 * Diese Funktion bereinigt die eingegebene Menge entsprechend der für das Produkt definierten Bestimmungen.
 	 * Diese Funktion gibt dabei vor allem eine für Berechnungen verwertbare Zahl zurück. Tausendertrennzeichen

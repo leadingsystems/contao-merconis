@@ -161,8 +161,3 @@ services:
   merconis.session:
     class: LeadingSystems\MerconisBundle\Services\Session
     public: true
-
-  merconis.eventlistener.kernellistener:
-    class: LeadingSystems\MerconisBundle\EventListener\KernelListener
-    tags:
-      - { name: kernel.event_listener, event: kernel.controller_arguments }
