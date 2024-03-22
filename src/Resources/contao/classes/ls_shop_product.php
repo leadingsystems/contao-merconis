@@ -1869,14 +1869,6 @@ This method takes an array holding attribute ids as keys and attribute value ids
 This method takes an array holding attribute ids as keys and attribute value ids as values and returns the product objects of the matching variations
 				 */
 				:
-
-                /*
-                 * DOME! Check if this function handles the new "non-values" correctly. It should work now but wasn't
-                 * tested yet!
-                 * The non-value must be handled like an actual value. It is basically an attribute value that behaves
-                 * normal with the only exception that it does not actually exist in the attribute value table.
-                 */
-
 				$args = ls_shop_generalHelper::setArrayLength($args, 2);
 				$arr_requestedAttributeValues = $args[0];
 				if (!is_array($arr_requestedAttributeValues)) {
