@@ -174,9 +174,11 @@ class ModuleCheckoutFinish extends Module {
 
 			$objOrderMessages = new ls_shop_orderMessages($orderIdInDb, 'asOrderNotice', 'sendWhen', ls_shop_languageHelper::getFallbackLanguage());
 			$objOrderMessages->sendMessages();
-		
 
-			unset($_SESSION['lsShopCart']);
+
+			$session = System::getContainer()->get('merconis.session')->getSession();
+			$session->remove('lsShopCart');
+
 			unset($_SESSION['lsShop']['configurator']);
 			unset($_SESSION['lsShop']['customizerStorage']);
 

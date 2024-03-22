@@ -91,12 +91,18 @@ class ls_shop_checkoutData {
         }
 
 		// CheckoutData aus der Session einlesen, sofern in der Session schon vorhanden
-		$this->arrCheckoutData = isset($_SESSION['lsShop']['arrCheckoutData']) ? $_SESSION['lsShop']['arrCheckoutData'] : $this->arrCheckoutData;
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+
+        $this->arrCheckoutData = isset($session_lsShop['arrCheckoutData']) ? $session_lsShop['arrCheckoutData'] : $this->arrCheckoutData;
 	}
 	
 	public function writeCheckoutDataToSession() {
 		// CheckoutData in die Session schreiben
-		$_SESSION['lsShop']['arrCheckoutData'] = $this->arrCheckoutData;
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop', []);
+        $session_lsShop['arrCheckoutData'] = $this->arrCheckoutData;
+        $session->set('lsShop', $session_lsShop);
 	}
 
 
@@ -821,7 +827,11 @@ class ls_shop_checkoutData {
 	 * Prüfen, ob der Warenkorb-Zustand valide ist.
 	 */
 	private function validateCartStatus() {
-		if (!isset($_SESSION['lsShopCart']['items']) || !is_array($_SESSION['lsShopCart']['items']) || !count($_SESSION['lsShopCart']['items'])) {
+
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShopCart', []);
+
+        if (!isset($session_lsShop['items']) || !is_array($session_lsShop['items']) || !count($session_lsShop['items'])) {
 			return false;
 		}
 		return ls_shop_cartHelper::validateOrderPermissionOfCartPositions();
@@ -899,7 +909,10 @@ class ls_shop_checkoutData {
 		 * ls_shop_cartX because loading ls_shop_cartX would be too much overhead and could probably cause problems
 		 * and to just make this simple check, we just don't need it.
 		 */
-		if (!isset($_SESSION['lsShopCart']['items']) || !is_array($_SESSION['lsShopCart']['items']) || !count($_SESSION['lsShopCart']['items'])) {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopCart =  $session->get('lsShopCart', []);
+
+        if (!isset($session_lsShopCart['items']) || !count($session_lsShopCart['items'])) {
 			$this->writeCheckoutDataToSession();
 			return;
 		}
@@ -911,7 +924,7 @@ class ls_shop_checkoutData {
 		 * if a payment or shipping error occured earlier. This way we prevent the endless recursion that would
 		 * take place if the method that just threw the error would be selected again instantly.
 		 */
-		if (isset($_SESSION['lsShop']['blnPaymentOrShippingErrorOccured']) && $_SESSION['lsShop']['blnPaymentOrShippingErrorOccured']) {
+        if (isset($session_lsShop['blnPaymentOrShippingErrorOccured']) && $session_lsShop['blnPaymentOrShippingErrorOccured']) {
 			$this->writeCheckoutDataToSession();
 			return;
 		}
