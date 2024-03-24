@@ -732,7 +732,7 @@ class ls_shop_productManagementApiPreprocessor
 			throw new \Exception('a value is mandatory for row type \''.$arr_row['type'].'\'');
 		}
 
-		if (strlen($str_output) > 255) {
+		if (mb_strlen($str_output) > 255) {
 			throw new \Exception('the value must not be longer than 255 characters');
 		}
 
@@ -764,7 +764,7 @@ class ls_shop_productManagementApiPreprocessor
 			throw new \Exception('a value is mandatory for row type \''.$arr_row['type'].'\'');
 		}
 
-		if (strlen($str_output) > 255) {
+		if (mb_strlen($str_output) > 255) {
 			throw new \Exception('the value must not be longer than 255 characters');
 		}
 
@@ -865,7 +865,7 @@ class ls_shop_productManagementApiPreprocessor
 	protected static function preprocess_name($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		$str_output = trim($var_input);
 
-		$int_length = strlen($str_output);
+		$int_length = mb_strlen($str_output);
 
 		if ($int_length < 1) {
 			if (
@@ -890,7 +890,7 @@ class ls_shop_productManagementApiPreprocessor
 	protected static function preprocess_string_maxlength_255($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		$str_output = trim($var_input);
 
-		$int_length = strlen($str_output);
+		$int_length = mb_strlen($str_output);
 
 		if ($int_length > 255) {
 			throw new \Exception('the value must not be longer than 255 characters');
@@ -907,7 +907,7 @@ class ls_shop_productManagementApiPreprocessor
 	protected static function preprocess_string_maxlength_64($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		$str_output = trim($var_input);
 
-		$int_length = strlen($str_output);
+		$int_length = mb_strlen($str_output);
 
 		if ($int_length > 64) {
 			throw new \Exception('the value must not be longer than 64 characters');
