@@ -1383,20 +1383,14 @@ class ls_shop_generalHelper
                      * If we can't find a cart item with this exact cart key, it's quantity must be 0.
                      */
                     $session = System::getContainer()->get('merconis.session')->getSession();
-                    $session_lsShopCart =  $session->get('lsShopCart', []);
-
-                    /*
-                    if(!$session_lsShopCart['items']){
-                        $session_lsShopCart['items'] =[];
-                    }
-                    */
+                    $session_lsShopCart =  $session->get('lsShopCart');
 
                     $scalePriceQuantity = key_exists($cartKey, $session_lsShopCart['items']) ? $session_lsShopCart['items'][$cartKey]['quantity'] : 0;
                     break;
 
                 case 'separatedVariants':
                     $session = System::getContainer()->get('merconis.session')->getSession();
-                    $session_lsShopCart =  $session->get('lsShopCart', []);
+                    $session_lsShopCart =  $session->get('lsShopCart');
 
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
                     foreach ($session_lsShopCart['items'] as $itemCartKey => $arrItemInfo) {
@@ -1415,7 +1409,7 @@ class ls_shop_generalHelper
 
                 case 'separatedProducts':
                     $session = System::getContainer()->get('merconis.session')->getSession();
-                    $session_lsShopCart =  $session->get('lsShopCart', []);
+                    $session_lsShopCart =  $session->get('lsShopCart');
 
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
                     foreach ($session_lsShopCart['items'] as $itemCartKey => $arrItemInfo) {
@@ -1431,7 +1425,7 @@ class ls_shop_generalHelper
 
                 case 'separatedScalePriceKeywords':
                     $session = System::getContainer()->get('merconis.session')->getSession();
-                    $session_lsShopCart =  $session->get('lsShopCart', []);
+                    $session_lsShopCart =  $session->get('lsShopCart');
 
                     $arrSplitCartKey = ls_shop_generalHelper::splitProductVariantID($cartKey);
                     foreach ($session_lsShopCart['items'] as $itemCartKey => $arrItemInfo) {
@@ -4812,7 +4806,7 @@ class ls_shop_generalHelper
                         $cartKeyToPutInCart = $obj_productOrVariant->_cartKey;
 
                         $session = System::getContainer()->get('merconis.session')->getSession();
-                        $session_lsShopCart =  $session->get('lsShopCart', []);
+                        $session_lsShopCart =  $session->get('lsShopCart');
 
                         /*--> Prüfen, ob das Produkt vorher schon im Warenkorb ist <--*/
                         $tmpBlnCartKeyAlreadyInCart = false;

@@ -829,7 +829,7 @@ class ls_shop_checkoutData {
 	private function validateCartStatus() {
 
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShopCart', []);
+        $session_lsShop =  $session->get('lsShopCart');
 
         if (!isset($session_lsShop['items']) || !is_array($session_lsShop['items']) || !count($session_lsShop['items'])) {
 			return false;
@@ -910,7 +910,7 @@ class ls_shop_checkoutData {
 		 * and to just make this simple check, we just don't need it.
 		 */
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
+        $session_lsShopCart =  $session->get('lsShopCart');
 
         if (!isset($session_lsShopCart['items']) || !count($session_lsShopCart['items'])) {
 			$this->writeCheckoutDataToSession();

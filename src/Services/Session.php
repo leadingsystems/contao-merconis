@@ -14,15 +14,7 @@ class Session {
         $this->requestStack = $requestStack;
         $this->scopeMatcher = $scopeMatcher;
 
-
-        //create lsShopCart Session item array if it does not exist
-        $session = $this->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
-
-        if (!is_array($session_lsShopCart['items'] ?? null)) {
-            $session_lsShopCart['items'] = array();
-            $session->set('lsShopCart', $session_lsShopCart);
-		}
+        $this->initializeEmptyCart();
     }
 
     public function getSession() {
@@ -30,6 +22,19 @@ class Session {
         $session = $request->getSession();
 
         return $session;
+    }
+
+
+    private function initializeEmptyCart(){
+
+
+        $session = $this->getSession();
+        $session_lsShopCart =  $session->get('lsShopCart');
+
+        if (!is_array($session_lsShopCart['items'] ?? null)) {
+            $session_lsShopCart['items'] = array();
+            $session->set('lsShopCart', $session_lsShopCart);
+        }
     }
 
 }

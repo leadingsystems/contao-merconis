@@ -74,10 +74,6 @@ services:
     tags:
       - { name: contao.hook, hook: getSystemMessages }
 
-  LeadingSystems\MerconisBundle\EventListener\InitializeSystemListener:
-    tags:
-      - { name: contao.hook, hook: initializeSystem }
-
   LeadingSystems\MerconisBundle\EventListener\OutputFrontendTemplateListener:
     tags:
       - { name: contao.hook, hook: outputFrontendTemplate }

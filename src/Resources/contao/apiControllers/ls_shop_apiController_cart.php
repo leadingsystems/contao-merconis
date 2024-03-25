@@ -74,8 +74,6 @@ class ls_shop_apiController_cart {
             $session->remove('lsShopCart');
         }
 
-        ls_shop_cartHelper::initializeEmptyCart();
-
 		$this->obj_apiReceiver->success();
 //		$this->obj_apiReceiver->set_data($arr_return);
 	}

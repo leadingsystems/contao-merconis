@@ -96,7 +96,7 @@ class ls_shop_cartX {
 	 */
 	public function getCartFromSession() {
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
+        $session_lsShopCart =  $session->get('lsShopCart');
         $this->items = $session_lsShopCart['items'];
 		
 		if (isset($this->items) && is_array($this->items)) {
@@ -131,7 +131,7 @@ class ls_shop_cartX {
 	
 	protected function getCouponsUsed() {
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShopCart =  $session->get('lsShopCart', []);
+        $session_lsShopCart =  $session->get('lsShopCart');
 
         $this->couponsUsed = isset($session_lsShopCart['couponsUsed']) && is_array($session_lsShopCart['couponsUsed']) ? $session_lsShopCart['couponsUsed'] : array();
 	}
