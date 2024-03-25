@@ -67,11 +67,12 @@ class ls_shop_apiController_cart {
 	 * Empties the cart completely
 	 */
 	protected function apiResource_emptyCart() {
-        if (isset($_SESSION['lsShopCart'])) {
-            unset($_SESSION['lsShopCart']);
-        }
 
-        ls_shop_cartHelper::initializeEmptyCart();
+        $session = System::getContainer()->get('merconis.session')->getSession();
+
+        if ($session->has('lsShopCart')) {
+            $session->remove('lsShopCart');
+        }
 
 		$this->obj_apiReceiver->success();
 //		$this->obj_apiReceiver->set_data($arr_return);
