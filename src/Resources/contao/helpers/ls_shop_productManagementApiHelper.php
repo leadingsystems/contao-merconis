@@ -52,6 +52,14 @@ class ls_shop_productManagementApiHelper {
 		return $GLOBALS['merconis_globals']['generatePageListFromCategoryValue'][$str_categories];
 	}
 
+    public static function generatePageListFromCategoryIds(array $pageIds): string{
+        $cacheHash = json_encode($pageIds);
+        if (!isset($GLOBALS['merconis_globals']['generatePageListFromCategoryIds'][$cacheHash])) {
+            $GLOBALS['merconis_globals']['generatePageListFromCategoryIds'][$cacheHash] = serialize(array_map('strval', $pageIds));
+        }
+        return $GLOBALS['merconis_globals']['generatePageListFromCategoryIds'][$cacheHash];
+    }
+
 	/*
 	 * Diese Funktion liest anhand des Alias die ID aus und gibt diese zurück
 	 */
@@ -797,6 +805,7 @@ class ls_shop_productManagementApiHelper {
 				SET			`title` = ?,
 							`alias` = ?,
 							`sorting` = ?,
+							`variationGroupCode` = ?,
 							`keywords` = ?,
 							`shortDescription` = ?,
 							`description` = ?,
@@ -839,6 +848,7 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['name'], // String, maxlength 255
 				self::generateProductAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias'], $int_alreadyExistsAsID),
 				$arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
+				$arr_preprocessedDataRow['variationGroupCode'], // String, maxlength 255
 				$arr_preprocessedDataRow['keywords'], // text
 				$arr_preprocessedDataRow['shortDescription'], // text
 				$arr_preprocessedDataRow['description'], // text
@@ -948,6 +958,7 @@ class ls_shop_productManagementApiHelper {
 							`alias` = ?,
 							`sorting` = ?,
 							`lsShopProductCode` = ?,
+							`variationGroupCode` = ?,
 							`keywords` = ?,
 							`shortDescription` = ?,
 							`description` = ?,
@@ -990,6 +1001,7 @@ class ls_shop_productManagementApiHelper {
 				self::generateProductAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias']),
 				$arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
 				$arr_preprocessedDataRow['productcode'], // String, maxlength 255
+				$arr_preprocessedDataRow['variationGroupCode'], // String, maxlength 255
 				$arr_preprocessedDataRow['keywords'], // text
 				$arr_preprocessedDataRow['shortDescription'], // text
 				$arr_preprocessedDataRow['description'], // text
@@ -1114,6 +1126,7 @@ class ls_shop_productManagementApiHelper {
 					SET			`title` = ?,
 								`alias` = ?,
 								`sorting` = ?,
+								`variationGroupCode` = ?,
 								`shortDescription` = ?,
 								`description` = ?,
 								`published` = ?,
@@ -1150,6 +1163,7 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['name'], // String, maxlength 255
 				self::generateVariantAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias'], $int_alreadyExistsAsID),
 				$arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
+				$arr_preprocessedDataRow['variationGroupCode'], // String, maxlength 255
 				$arr_preprocessedDataRow['shortDescription'], // text
 				$arr_preprocessedDataRow['description'], // text
 				$arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
@@ -1259,6 +1273,7 @@ class ls_shop_productManagementApiHelper {
 							`alias` = ?,
 							`sorting` = ?,
 							`lsShopVariantCode` = ?,
+							`variationGroupCode` = ?,
 							`shortDescription` = ?,
 							`description` = ?,
 							`published` = ?,
@@ -1296,6 +1311,7 @@ class ls_shop_productManagementApiHelper {
 				self::generateVariantAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias']),
 				$arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
 				$arr_preprocessedDataRow['productcode'], // String, maxlength 255
+				$arr_preprocessedDataRow['variationGroupCode'], // String, maxlength 255
 				$arr_preprocessedDataRow['shortDescription'], // text
 				$arr_preprocessedDataRow['description'], // text
 				$arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''

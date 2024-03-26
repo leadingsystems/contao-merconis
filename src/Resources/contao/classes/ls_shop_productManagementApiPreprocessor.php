@@ -795,7 +795,7 @@ class ls_shop_productManagementApiPreprocessor
 	}
 
 	/**
-	 * Expected input: Only for row type 'product': a page alias of a contao main language page where the product should be displayed or a comma separated list of multiple aliases
+	 * Expected input: Only for row type 'product': a page alias or id of a contao main language page where the product should be displayed or a comma separated list of multiple aliases or ids. The input must consist of only aliases or only ids. A mixed input is not supported and would be interpreted as all aliases.
 	 * Accepted input: as expected
 	 * Normalization: creating page list
 	 */
@@ -809,24 +809,35 @@ class ls_shop_productManagementApiPreprocessor
 		$str_output = trim($var_input);
 
 		$arr_categories = ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $str_output);
-
-		$arr_pageAliases = ls_shop_productManagementApiHelper::getPageAliases();
-
-        $arr_categoriesToWrite = array();
-
-        if (count($arr_categories)) {
-            foreach ($arr_categories as $str_category) {
-                if (!in_array($str_category, $arr_pageAliases)) {
-                    continue;
-                }
-
-                $arr_categoriesToWrite[] = $str_category;
+        $bln_allCategoriesNumeric = !array_filter(
+            $arr_categories,
+            function ($val) {
+                return !is_numeric($val);
             }
+        );
+
+        if ($bln_allCategoriesNumeric) {
+            $str_output = ls_shop_productManagementApiHelper::generatePageListFromCategoryIds($arr_categories);
+        } else {
+            $arr_pageAliases = ls_shop_productManagementApiHelper::getPageAliases();
+
+            $arr_categoriesToWrite = array();
+
+            if (count($arr_categories)) {
+                foreach ($arr_categories as $str_category) {
+                    if (!in_array($str_category, $arr_pageAliases)) {
+                        continue;
+                    }
+
+                    $arr_categoriesToWrite[] = $str_category;
+                }
+            }
+
+            $str_output = implode(',', $arr_categoriesToWrite);
+
+            $str_output = ls_shop_productManagementApiHelper::generatePageListFromCategoryValue($str_output);
         }
 
-		$str_output = implode(',', $arr_categoriesToWrite);
-
-		$str_output = ls_shop_productManagementApiHelper::generatePageListFromCategoryValue($str_output);
 
 		return $str_output;
 	}
