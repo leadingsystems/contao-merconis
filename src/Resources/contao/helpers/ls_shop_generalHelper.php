@@ -48,6 +48,9 @@ class ls_shop_generalHelper
 
         $int_sortingKey = 0;
         if (is_array($arr_allocations)) {
+            $valueSets = [];
+            $params = [];
+
             foreach ($arr_allocations as $arr_allocation) {
                 if (!isset($arr_allocation[0]) || !$arr_allocation[0] || !isset($arr_allocation[1]) || !$arr_allocation[1]) {
                     /*
@@ -57,24 +60,24 @@ class ls_shop_generalHelper
                     continue;
                 }
 
-                \Database::getInstance()
-                    ->prepare("
-                    INSERT INTO `tl_ls_shop_attribute_allocation`
-                    SET			`pid` = ?,
-                                `parentIsVariant` = ?,
-                                `attributeID` = ?,
-                                `attributeValueID` = ?,
-                                `sorting` = ?
-                ")
-                    ->execute(
-                        $int_parentId,
-                        ($bln_parentIsVariant ? '1' : '0'),
-                        $arr_allocation[0],
-                        $arr_allocation[1],
-                        $int_sortingKey
-                    );
+                $valueSets[] = '(?, ?, ?, ?, ?)';
+                $params[] = $int_parentId;
+                $params[] = ($bln_parentIsVariant ? '1' : '0');
+                $params[] = $arr_allocation[0];
+                $params[] = $arr_allocation[1];
+                $params[] = $int_sortingKey;
 
                 $int_sortingKey++;
+            }
+
+            if (!empty($valueSets)) {
+                $sql = "
+                    INSERT INTO `tl_ls_shop_attribute_allocation`
+                    (`pid`, `parentIsVariant`, `attributeID`, `attributeValueID`, `sorting`)
+                    VALUES
+                    " . implode(',', $valueSets);
+
+                \Database::getInstance()->prepare($sql)->execute($params);
             }
         }
     }
