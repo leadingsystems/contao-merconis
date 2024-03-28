@@ -772,6 +772,96 @@ class ls_shop_productManagementApiHelper {
 		// Prüfen, ob es ein Produkt mit der Artikelnummer bereits gibt
 		$int_alreadyExistsAsID = 0;
 
+
+        $obj_dbres_prodExists = \Database::getInstance()
+			->prepare("
+            INSERT INTO `tl_ls_shop_product` (
+                `title`,
+                `alias`,
+                `sorting`,
+                `keywords`,
+                `shortDescription`,
+                `description`,
+                `published`,
+                `pages`,
+                `lsShopProductPrice`,
+                `lsShopProductPriceOld`,
+                `useOldPrice`,
+                `lsShopProductWeight`,
+                `lsShopProductSteuersatz`,
+                `lsShopProductQuantityUnit`,
+                `lsShopProductQuantityDecimals`,
+                `lsShopProductMengenvergleichUnit`,
+                `lsShopProductMengenvergleichDivisor`,
+                `lsShopProductMainImage`,
+                `lsShopProductMoreImages`,
+                `lsShopProductDetailsTemplate`,
+                `lsShopProductIsNew`,
+                `lsShopProductIsOnSale`,
+                `lsShopProductRecommendedProducts`,
+                `lsShopProductDeliveryInfoSet`,
+                `lsShopProductProducer`,
+                `configurator`,
+                `flex_contents`,
+                `flex_contentsLanguageIndependent`,
+                `lsShopProductAttributesValues`,
+                `useScalePrice`,
+                `scalePriceType`,
+                `scalePriceQuantityDetectionMethod`,
+                `scalePriceQuantityDetectionAlwaysSeparateConfigurations`,
+                `scalePriceKeyword`,
+                `scalePrice` = ?
+                ".$str_addGroupPriceFieldsToQuery."
+                ".$str_customFieldsQueryExtension."
+                                              
+                                              ) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE 
+                `title` = ?,
+                `alias` = ?,
+                `sorting` = ?,
+                `keywords` = ?,
+                `shortDescription` = ?,
+                `description` = ?,
+                `published` = ?,
+                `pages` = ?,
+                `lsShopProductPrice` = ?,
+                `lsShopProductPriceOld` = ?,
+                `useOldPrice` = ?,
+                `lsShopProductWeight` = ?,
+                `lsShopProductSteuersatz` = ?,
+                `lsShopProductQuantityUnit` = ?,
+                `lsShopProductQuantityDecimals` = ?,
+                `lsShopProductMengenvergleichUnit` = ?,
+                `lsShopProductMengenvergleichDivisor` = ?,
+                `lsShopProductMainImage` = ?,
+                `lsShopProductMoreImages` = ?,
+                `lsShopProductDetailsTemplate` = ?,
+                `lsShopProductIsNew` = ?,
+                `lsShopProductIsOnSale` = ?,
+                `lsShopProductRecommendedProducts` = ?,
+                `lsShopProductDeliveryInfoSet` = ?,
+                `lsShopProductProducer` = ?,
+                `configurator` = ?,
+                `flex_contents` = ?,
+                `flex_contentsLanguageIndependent` = ?,
+                `lsShopProductAttributesValues` = ?,
+                `useScalePrice` = ?,
+                `scalePriceType` = ?,
+                `scalePriceQuantityDetectionMethod` = ?,
+                `scalePriceQuantityDetectionAlwaysSeparateConfigurations` = ?,
+                `scalePriceKeyword` = ?,
+                `scalePrice` = ?
+                ".$str_addGroupPriceFieldsToQuery."
+                ".$str_customFieldsQueryExtension."
+
+		")
+			->execute($arr_preprocessedDataRow['productcode']);
+
+
+
+
+
 		$obj_dbres_prodExists = \Database::getInstance()
 			->prepare("
 			SELECT		`id`
