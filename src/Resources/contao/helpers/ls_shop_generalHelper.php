@@ -79,6 +79,77 @@ class ls_shop_generalHelper
         }
     }
 
+    /*
+     * This function takes the attribute value allocations as an array (possibly serialized)
+     * and writes them into the allocation table
+     *
+     * Diese Version arbeitet nicht mit der ID, sondern mit der vorliegenden lsShopProductCode
+     *
+     */
+    public static function insertAttributeValueAllocations_byShopProductCode($arr_allocations
+        , $parent_lsShopProductCode = '', $bln_parentIsVariant = 0)
+    {
+        if (!$parent_lsShopProductCode) {
+            return;
+        }
+
+        /*
+         * First, delete all entries related to the current product or variant
+         */
+        $db_del = \Database::getInstance()
+            ->prepare("
+			-- DELETE FROM	`tl_ls_shop_attribute_allocation`
+			-- WHERE		`pid` = ?
+				-- AND		`parentIsVariant` = ?
+
+            DELETE AA.* 
+            FROM `tl_ls_shop_attribute_allocation` AA
+            INNER JOIN tl_ls_shop_product P ON AA.pid = P.id
+            WHERE P.lsShopProductCode = ?
+                AND		AA.parentIsVariant = ?
+		")
+            ->execute(
+                $parent_lsShopProductCode,
+                ($bln_parentIsVariant ? '1' : '0')
+            );
+
+        $prod_id = $db_del->isModified;
+
+        $arr_allocations = is_array($arr_allocations) ? $arr_allocations : json_decode($arr_allocations, true);
+
+        $int_sortingKey = 0;
+        if (is_array($arr_allocations)) {
+            foreach ($arr_allocations as $arr_allocation) {
+                if (!isset($arr_allocation[0]) || !$arr_allocation[0] || !isset($arr_allocation[1]) || !$arr_allocation[1]) {
+                    /*
+                     * Skip attribute value allocations if either the attribute or the value
+                     * is not defined (or both, of course)
+                     */
+                    continue;
+                }
+
+                \Database::getInstance()
+                    ->prepare("
+                    INSERT INTO `tl_ls_shop_attribute_allocation`
+                    SET			`pid` = ?,
+                                `parentIsVariant` = ?,
+                                `attributeID` = ?,
+                                `attributeValueID` = ?,
+                                `sorting` = ?
+                ")
+                    ->execute(
+                        $int_parentId,
+                        ($bln_parentIsVariant ? '1' : '0'),
+                        $arr_allocation[0],
+                        $arr_allocation[1],
+                        $int_sortingKey
+                    );
+
+                $int_sortingKey++;
+            }
+        }
+    }
+
     public static function changeStockDirectly($str_productOrVariant = 'product', $int_id = 0, $str_stockChange = null)
     {
         if (
