@@ -773,9 +773,20 @@ class ls_shop_productManagementApiHelper {
 		$int_alreadyExistsAsID = 0;
 
 
-        $obj_dbres_prodExists = \Database::getInstance()
+        //Hier der Block mit on duplicate key
+        #$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('product');
+        #$str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('product');
+        $str_addGroupPriceFieldsToQuery = '';
+        $str_customFieldsQueryExtension = '';
+
+#`lsShopProductCode` = `lsShopProductCode`,
+#`tstamp` = `tstamp`,
+
+        $obj_dbres_prod = \Database::getInstance()
 			->prepare("
             INSERT INTO `tl_ls_shop_product` (
+                `lsShopProductCode`, 
+                `tstamp`,
                 `title`,
                 `alias`,
                 `sorting`,
@@ -810,15 +821,18 @@ class ls_shop_productManagementApiHelper {
                 `scalePriceQuantityDetectionMethod`,
                 `scalePriceQuantityDetectionAlwaysSeparateConfigurations`,
                 `scalePriceKeyword`,
-                `scalePrice` = ?
+                `scalePrice`
                 ".$str_addGroupPriceFieldsToQuery."
                 ".$str_customFieldsQueryExtension."
-                                              
+                     
                                               ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+
+                
+                
                 `title` = ?,
-                `alias` = ?,
+                `alias` = `alias`,
                 `sorting` = ?,
                 `keywords` = ?,
                 `shortDescription` = ?,
@@ -855,11 +869,103 @@ class ls_shop_productManagementApiHelper {
                 ".$str_addGroupPriceFieldsToQuery."
                 ".$str_customFieldsQueryExtension."
 
-		")
-			->execute($arr_preprocessedDataRow['productcode']);
+		");
+			#->execute($arr_preprocessedDataRow['productcode']);
+
+        $arr_queryParams = array(
+            $arr_preprocessedDataRow['productcode'], // String, maxlength 255
+            time(),
+            $arr_preprocessedDataRow['name'], // String, maxlength 255
+            self::generateProductAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias'], $int_alreadyExistsAsID),
+            $arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
+            $arr_preprocessedDataRow['keywords'], // text
+            $arr_preprocessedDataRow['shortDescription'], // text
+            $arr_preprocessedDataRow['description'], // text
+            $arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['category'], // blob
+            $arr_preprocessedDataRow['price'] ? $arr_preprocessedDataRow['price'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['taxclass'] ? $arr_preprocessedDataRow['taxclass'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['unit'], // String, maxlength 255
+            $arr_preprocessedDataRow['quantityDecimals'] && $arr_preprocessedDataRow['quantityDecimals'] > 0 ? $arr_preprocessedDataRow['quantityDecimals'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
+            $arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
+            $arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['template'], // String, maxlength 64
+            $arr_preprocessedDataRow['new'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['onSale'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['producer'], // String, maxlength 255
+            $arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['propertiesAndValues'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['scalePriceType'], // String, maxlength 255
+            $arr_preprocessedDataRow['scalePriceQuantityDetectionMethod'], // String, maxlength 255
+            $arr_preprocessedDataRow['scalePriceQuantityDetectionAlwaysSeparateConfigurations'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
+            $arr_preprocessedDataRow['scalePrice'], // blob, translated, check unclear
+
+//hier 2. Liste
+
+$arr_preprocessedDataRow['name'], // String, maxlength 255
+ #'mein Testtitel123',
 
 
+#            self::generateProductAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias'], $int_alreadyExistsAsID),
+            $arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
+            $arr_preprocessedDataRow['keywords'], // text
+            $arr_preprocessedDataRow['shortDescription'], // text
+            $arr_preprocessedDataRow['description'], // text
+            $arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['category'], // blob
+            $arr_preprocessedDataRow['price'] ? $arr_preprocessedDataRow['price'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['taxclass'] ? $arr_preprocessedDataRow['taxclass'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['unit'], // String, maxlength 255
+            $arr_preprocessedDataRow['quantityDecimals'] && $arr_preprocessedDataRow['quantityDecimals'] > 0 ? $arr_preprocessedDataRow['quantityDecimals'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
+            $arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
+            $arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['template'], // String, maxlength 64
+            $arr_preprocessedDataRow['new'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['onSale'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['producer'], // String, maxlength 255
+            $arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['propertiesAndValues'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['scalePriceType'], // String, maxlength 255
+            $arr_preprocessedDataRow['scalePriceQuantityDetectionMethod'], // String, maxlength 255
+            $arr_preprocessedDataRow['scalePriceQuantityDetectionAlwaysSeparateConfigurations'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
+            $arr_preprocessedDataRow['scalePrice'] // blob, translated, check unclear
+        );
 
+#$sql = $obj_dbres_prod->showSQLWithInsertedParameters($arr_queryParams);
+        $obj_dbres_prod->execute($arr_queryParams);
+
+        $int_newProductID = $obj_dbres_prod->insertId;
+
+
+        //Attribute
+        ls_shop_generalHelper::insertAttributeValueAllocations_byShopProductCode(
+            $arr_preprocessedDataRow['propertiesAndValues']
+            , $arr_preprocessedDataRow['productcode'], 0);
+
+
+return;
 
 
 		$obj_dbres_prodExists = \Database::getInstance()
