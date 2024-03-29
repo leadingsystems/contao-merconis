@@ -1,43 +1,5 @@
 <?php
 if ($this->objProduct->_hasVariations) {
-    if (\Input::post('json_attributeValueSelection') && \Input::post('productId') == $this->objProduct->_id) {
-        $arrRequestedAttributeValues = json_decode(html_entity_decode(\Input::post('json_attributeValueSelection')), true);
-
-        $arr_matchingVariation = $this->objProduct->_getVariationByAttributeValues($arrRequestedAttributeValues, false);
-
-        if (count($arr_matchingVariation) === 1) {
-            /** @var \Merconis\Core\ls_shop_product $obj_matchingVariationProduct */
-            $obj_matchingVariationProduct = $arr_matchingVariation[0];
-
-            // only if exactly one variation found, we redirect to the variation
-            $this->redirect($obj_matchingVariationProduct->_link);
-        } else if (count($arr_matchingVariation) > 1) {
-            /*
-             * DOME! What if multiple variations are found?
-             * We could redirect to either of them and could choose to just redirect to the first possible variation.
-             * However, that would mean that there are some products in the shop that users will never see and the
-             * shop owner would at least have to be informed about that situation so that he can fix his products.
-             * But what if it is actually the case that multiple different product variations have the exact same
-             * attributes/values, as stupid as that may be?
-             *
-             * !!! >>>
-             * The best way to handle this would probably be to not redirect to a product details page but instead
-             * display a list with the names of all matching variations and links to all of them
-             * <<< !!!
-             *
-             * The following just redirects to the first possible variation and is therefore NOT THE FINAL SOLUTION!
-             */
-            /** @var \Merconis\Core\ls_shop_product $obj_matchingVariationProduct */
-            $obj_matchingVariationProduct = $arr_matchingVariation[0];
-            $this->redirect($obj_matchingVariationProduct->_link);
-        } else {
-            /*
-             * DOME! What if no variation is found?
-             * We can't redirect anywhere but should probably display a message indicating  that with the given
-             * attribute/value selection no other variation than the currently already displayed one could be loaded.
-             */
-        }
-    }
     ?>
 
     <div
