@@ -26,6 +26,21 @@ body.lsjs-active .variationSelector:not(.variationSelectorInstance_view-loaded) 
         overflow: hidden;
         transition: height 0.6s ease-out;
       }
+
+      .option-message {
+        padding: 1rem;
+        background-color: $ls-color-light-grey;
+
+        &::before {
+          margin-right: 1rem;
+          @extend .fas;
+          content: fa-content($fa-var-exclamation-triangle);
+        }
+
+        &:not(.visible) {
+          display: none;
+        }
+      }
     }
 
     .value {

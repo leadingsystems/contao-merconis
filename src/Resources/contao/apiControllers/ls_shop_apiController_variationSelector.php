@@ -101,18 +101,26 @@ class ls_shop_apiController_variationSelector
         }
         $fullAttributeSelection[key($attributeSelection)] = (int) current($attributeSelection);
 
-        /** @var ls_shop_product $matchingProductVariation */
+        $isExactMatch = true;
+
+        /** @var ?ls_shop_product $matchingProductVariation */
         $matchingProductVariation = $obj_product->_getVariationByAttributeValues($fullAttributeSelection, true);
         if ($matchingProductVariation === null) {
+            /*
+             * If we haven't found a matching variation with the full attribute selection, we have to look for a match
+             * with only the actually requested attribute selection.
+             * If we find a matching variation for that, we know that more attribute values are different from what
+             * the user would expect. Therefore, we have to inform the user about that.
+             */
+            $isExactMatch = false;
             $matchingProductVariation = $obj_product->_getVariationByAttributeValues($attributeSelection, true);
         }
-
-        $arr_selectedAttributeValues = $matchingProductVariation->_attributeValueIdsForVariationSelectorFlattened;
 
         $arr_return = array(
             '_productVariationId' => $matchingProductVariation->ls_ID,
             '_productVariationUrl' => $matchingProductVariation->_link,
-            '_selectedAttributeValues' => $arr_selectedAttributeValues,
+            '_selectedAttributeValues' => $matchingProductVariation->_attributeValueIdsForVariationSelectorFlattened,
+            '_isExactMatch' => $isExactMatch
         );
 
         $this->obj_apiReceiver->success();

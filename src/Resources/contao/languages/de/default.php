@@ -894,6 +894,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['variantSelector']['moreOptionsAdditional'
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['nothingSelectedYet'] = 'Bitte wählen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['moreOptionsAll'] = '%s Optionen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['moreOptionsAdditional'] = '+ %s weitere Optionen';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['notAnExactMatchMessage'] = 'Durch Ihre Auswahl haben sich weitere Produkteigenschaften geändert';
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['searchType']['options'] = array(
 	'And-Search' => 'Finde alle Wörter',
