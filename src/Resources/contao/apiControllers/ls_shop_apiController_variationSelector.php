@@ -116,10 +116,14 @@ class ls_shop_apiController_variationSelector
             $matchingProductVariation = $obj_product->_getVariationByAttributeValues($attributeSelection, true);
         }
 
+        if ($matchingProductVariation === null) {
+            trigger_error("No matching product variation found. This should never happen. Please check!", E_USER_WARNING);
+        }
+
         $arr_return = array(
-            '_productVariationId' => $matchingProductVariation->ls_ID,
-            '_productVariationUrl' => $matchingProductVariation->_link,
-            '_selectedAttributeValues' => $matchingProductVariation->_attributeValueIdsForVariationSelectorFlattened,
+            '_productVariationId' => $matchingProductVariation->ls_ID ?? null,
+            '_productVariationUrl' => $matchingProductVariation->_link ?? null,
+            '_selectedAttributeValues' => $matchingProductVariation->_attributeValueIdsForVariationSelectorFlattened ?? null,
             '_isExactMatch' => $isExactMatch
         );
 
