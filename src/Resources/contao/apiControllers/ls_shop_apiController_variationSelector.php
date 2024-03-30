@@ -103,8 +103,7 @@ class ls_shop_apiController_variationSelector
 
         $isExactMatch = true;
 
-        /** @var ?ls_shop_product $matchingProductVariation */
-        $matchingProductVariation = $obj_product->_getVariationByAttributeValues($fullAttributeSelection, true);
+        $matchingProductVariation = $obj_product->getVariationByAttributeValues($fullAttributeSelection);
         if ($matchingProductVariation === null) {
             /*
              * If we haven't found a matching variation with the full attribute selection, we have to look for a match
@@ -113,7 +112,7 @@ class ls_shop_apiController_variationSelector
              * the user would expect. Therefore, we have to inform the user about that.
              */
             $isExactMatch = false;
-            $matchingProductVariation = $obj_product->_getVariationByAttributeValues($attributeSelection, true);
+            $matchingProductVariation = $obj_product->getVariationByAttributeValues($attributeSelection);
         }
 
         if ($matchingProductVariation === null) {

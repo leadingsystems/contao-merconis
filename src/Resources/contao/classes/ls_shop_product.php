@@ -1852,70 +1852,12 @@ This method takes an array holding attribute ids as keys and attribute value ids
 				return $arr_possibleAttributeValues;
 				break;
 
-			case '_getVariationByAttributeValues'
-				/* ## DESCRIPTION:
-This method takes an array holding attribute ids as keys and attribute value ids as values and returns the product object of the matching variation (the first match if more than one variation matches) or null if no variation matches. If the provided array holds an empty value for an attribute, no variation will match.
-				 */
-				:
-				$args = ls_shop_generalHelper::setArrayLength($args, 2);
-				$arr_requestedAttributeValues = is_array($args[0]) ? $args[0] : [];
-                $bln_returnFirstMatch = (bool) $args[1];
-
-				return $this->_getVariationsByAttributeValues($arr_requestedAttributeValues, $bln_returnFirstMatch);
+			case '_getVariationByAttributeValues':
+                return call_user_func_array([$this, 'getVariationByAttributeValues'], $args);
 				break;
 
-			case '_getVariationsByAttributeValues'
-				/* ## DESCRIPTION:
-This method takes an array holding attribute ids as keys and attribute value ids as values and returns the product objects of the matching variations
-				 */
-				:
-				$args = ls_shop_generalHelper::setArrayLength($args, 2);
-				$arr_requestedAttributeValues = $args[0];
-				if (!is_array($arr_requestedAttributeValues)) {
-					$arr_requestedAttributeValues = array();
-				}
-
-				$bln_returnFirstMatch = $args[1];
-
-                $variations = ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
-				$arr_matchingVariations = array();
-
-                if (is_array($variations)) {
-                    foreach ($variations as $objVariationProduct) {
-                        $blnMatches = true;
-                        foreach ($arr_requestedAttributeValues as $requestedAttributeID => $requestedValueID) {
-                            if (!isset($objVariationProduct->_attributeValueIdsForVariationSelector[$requestedAttributeID])) {
-                                $blnMatches = false;
-                                break;
-                            }
-
-                            $blnMatchForValue = false;
-                            foreach ($objVariationProduct->_attributeValueIdsForVariationSelector[$requestedAttributeID] as $valueId) {
-                                if ($valueId == $requestedValueID) {
-                                    $blnMatchForValue = true;
-                                    break;
-                                }
-                            }
-                            if (!$blnMatchForValue) {
-                                $blnMatches = false;
-                                break;
-                            }
-                        }
-                        if ($blnMatches) {
-                            if ($bln_returnFirstMatch) {
-                                return $objVariationProduct;
-                            }
-                            $arr_matchingVariations[] = $objVariationProduct;
-                        }
-                    }
-                }
-
-				if ($bln_returnFirstMatch) {
-                    // no match found because otherwise it would already have been returned
-					return null;
-				}
-
-				return $arr_matchingVariations;
+			case '_getVariationsByAttributeValues':
+                return call_user_func_array([$this, 'getVariationsByAttributeValues'], $args);
 				break;
 
 			case '_getVariantByAttributeValues'
@@ -2109,6 +2051,63 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 		}
 	}
+
+    /*
+     * This method takes an array holding attribute ids as keys and attribute value ids as values and returns the
+     * product object of the matching variation (the first match if more than one variation matches) or null if no
+     * variation matches. If the provided array holds an empty value for an attribute, no variation will match.
+     */
+    public function getVariationByAttributeValues(array $requestedAttributeValues): ?ls_shop_product
+    {
+        return $this->getVariationsByAttributeValues($requestedAttributeValues, true);
+    }
+
+    /*
+     * This method takes an array holding attribute ids as keys and attribute value ids as values and returns
+     * the product objects of the matching variations
+     */
+    public function getVariationsByAttributeValues(array $requestedAttributeValues, bool $returnFirstMatch = false): array|ls_shop_product|null
+    {
+        $variations = ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
+        $arr_matchingVariations = array();
+
+        if (is_array($variations)) {
+            foreach ($variations as $objVariationProduct) {
+                $blnMatches = true;
+                foreach ($requestedAttributeValues as $requestedAttributeID => $requestedValueID) {
+                    if (!isset($objVariationProduct->_attributeValueIdsForVariationSelector[$requestedAttributeID])) {
+                        $blnMatches = false;
+                        break;
+                    }
+
+                    $blnMatchForValue = false;
+                    foreach ($objVariationProduct->_attributeValueIdsForVariationSelector[$requestedAttributeID] as $valueId) {
+                        if ($valueId == $requestedValueID) {
+                            $blnMatchForValue = true;
+                            break;
+                        }
+                    }
+                    if (!$blnMatchForValue) {
+                        $blnMatches = false;
+                        break;
+                    }
+                }
+                if ($blnMatches) {
+                    if ($returnFirstMatch) {
+                        return $objVariationProduct;
+                    }
+                    $arr_matchingVariations[] = $objVariationProduct;
+                }
+            }
+        }
+
+        if ($returnFirstMatch) {
+            // no match found because otherwise it would already have been returned
+            return null;
+        }
+
+        return $arr_matchingVariations;
+    }
 
 	public function ls_getData() {
 		$this->arr_originalData = ls_shop_languageHelper::getMultiLanguage($this->ls_ID, 'tl_ls_shop_product', 'all', 'all', true, false);
