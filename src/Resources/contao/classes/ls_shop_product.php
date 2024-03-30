@@ -2068,44 +2068,47 @@ This method can be used to call a function hooked with the "callingHookedProduct
      */
     public function getVariationsByAttributeValues(array $requestedAttributeValues, bool $returnFirstMatch = false): array|ls_shop_product|null
     {
-        $variations = ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
-        $arr_matchingVariations = array();
+        $arr_params = [];
+        $where_conditions = '';
 
-        if (is_array($variations)) {
-            foreach ($variations as $objVariationProduct) {
-                $blnMatches = true;
-                foreach ($requestedAttributeValues as $requestedAttributeID => $requestedValueID) {
-                    if (!isset($objVariationProduct->_attributeValueIdsForVariationSelector[$requestedAttributeID])) {
-                        $blnMatches = false;
-                        break;
-                    }
-
-                    $blnMatchForValue = false;
-                    foreach ($objVariationProduct->_attributeValueIdsForVariationSelector[$requestedAttributeID] as $valueId) {
-                        if ($valueId == $requestedValueID) {
-                            $blnMatchForValue = true;
-                            break;
-                        }
-                    }
-                    if (!$blnMatchForValue) {
-                        $blnMatches = false;
-                        break;
-                    }
-                }
-                if ($blnMatches) {
-                    if ($returnFirstMatch) {
-                        return $objVariationProduct;
-                    }
-                    $arr_matchingVariations[] = $objVariationProduct;
-                }
-            }
+        foreach ($requestedAttributeValues as $attributeID => $attributeValueID) {
+            $arr_params[] = $attributeID;
+            $arr_params[] = $attributeValueID;
+            $where_conditions .= "(av.attributeID = ? AND av.attributeValueID = ?) OR ";
         }
 
-        if ($returnFirstMatch) {
-            // no match found because otherwise it would already have been returned
+        // Remove the last "OR" from the WHERE conditions
+        $where_conditions = rtrim($where_conditions, ' OR ');
+
+        $arr_params[] = $this->mainData['variationGroupCode'];
+
+        $sql_query = "
+            SELECT
+                p.id
+            FROM `tl_ls_shop_attribute_allocation` av
+            JOIN tl_ls_shop_product p
+                ON av.pid = p.id
+            WHERE
+                ($where_conditions)
+                AND p.variationGroupCode = ?
+            GROUP BY av.pid
+            HAVING COUNT(DISTINCT av.attributeID) = ?
+        ";
+
+        // Add the count of distinct attribute IDs to the parameters array
+        $arr_params[] = count($requestedAttributeValues);
+
+        $dbres_matchingVariations = \Database::getInstance()->prepare($sql_query)->execute(...$arr_params);
+
+        if (!$dbres_matchingVariations->numRows) {
             return null;
         }
 
+        if ($returnFirstMatch) {
+            return ls_shop_generalHelper::getObjProduct($dbres_matchingVariations->first()->id);
+        }
+
+        $arr_matchingVariations = array_map(fn($row) => ls_shop_generalHelper::getObjProduct($row['id']), $dbres_matchingVariations->fetchAllAssoc());
         return $arr_matchingVariations;
     }
 
