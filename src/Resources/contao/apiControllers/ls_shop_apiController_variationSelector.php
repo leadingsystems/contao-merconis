@@ -116,7 +116,7 @@ class ls_shop_apiController_variationSelector
         }
 
         if ($matchingProductVariation === null) {
-            trigger_error("No matching product variation found. This should never happen. Please check!", E_USER_WARNING);
+            trigger_error('No matching product variation found for attributeSelection ' . json_encode($attributeSelection) . '. This should never happen. Please check!', E_USER_WARNING);
         }
 
         $arr_return = array(
