@@ -2085,7 +2085,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
          * actually exist) and we translate null values for attributeValueIDs into 0 because that's how we reference
          * a null value in $requestedAttributeValues.
          */
-        $sql_query = "
+        $sql_query = /** @lang MySQL */ "
             WITH
                 allocations_with_null_values AS (
                     /*
