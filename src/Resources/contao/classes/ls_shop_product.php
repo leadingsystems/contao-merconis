@@ -2052,40 +2052,31 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		}
 	}
 
-    /*
-     * This method takes an array holding attribute ids as keys and attribute value ids as values and returns the
-     * product object of the matching variation (the first match if more than one variation matches) or null if no
-     * variation matches. If the provided array holds an empty value for an attribute, no variation will match.
-     */
-    public function getVariationByAttributeValues(array $requestedAttributeValues): ?ls_shop_product
+    public function getVariationByAttributeValues(array $requestedAttributeValues, array $mandatoryAttributeValue): ?array
     {
-        return $this->getVariationsByAttributeValues($requestedAttributeValues, true);
+        $variations = $this->getVariationsByAttributeValues($requestedAttributeValues, $mandatoryAttributeValue);
+        return $variations[0] ?? null;
     }
 
-    /*
-     * This method takes an array holding attribute ids as keys and attribute value ids as values and returns
-     * the product objects of the matching variations
-     */
-    public function getVariationsByAttributeValues(array $requestedAttributeValues, bool $returnFirstMatch = false): array|ls_shop_product|null
+    public function getVariationsByAttributeValues(array $requestedAttributeValues, array $mandatoryAttributeValue): ?array
     {
         $arr_params = [];
         $arr_params[] = $this->mainData['variationGroupCode'];
         $arr_params[] = $this->mainData['variationGroupCode'];
-
-        $where_conditions = '';
+        $arr_params[] = $this->mainData['variationGroupCode'];
+        $arr_params[] = key($mandatoryAttributeValue);
+        $arr_params[] = current($mandatoryAttributeValue);
 
         foreach ($requestedAttributeValues as $attributeID => $attributeValueID) {
             $arr_params[] = $attributeID;
             $arr_params[] = $attributeValueID;
-            $where_conditions .= "(av.attributeID = ? AND av.attributeValueID = ?) OR ";
+            $where_conditions .= '(av.attributeID = ? AND av.attributeValueID = ?) OR ';
         }
 
         // Remove the last "OR" from the WHERE conditions
         $where_conditions = rtrim($where_conditions, ' OR ');
 
-
-        // Add the count of distinct attribute IDs to the parameters array
-        $arr_params[] = count($requestedAttributeValues);
+        $numRequestedAttributeValues = count($requestedAttributeValues);
 
         /*
          * In this query we get all distinct pids and attributeIDs for the variationGroup and create a cartesian product.
@@ -2098,12 +2089,14 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $sql_query = "
             SELECT
                 av.pid,
-                COUNT(DISTINCT av.attributeID) AS count
+                COUNT(DISTINCT av.attributeID) AS matchingAttributesCount
             FROM (
-                SELECT
+				SELECT
                 pa.pid,
                 attr.attributeID,
-                COALESCE(p.attributeValueID, 0) AS attributeValueID
+                COALESCE(p.attributeValueID, 0) AS attributeValueID,
+                p2.matchForMandatoryAttributeValueCombination
+                
                 FROM (
                     /* list of all distinct pids for variationGroupCode */
                     SELECT DISTINCT allo.pid
@@ -2112,6 +2105,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
                     ON allo.pid = prod.id
                     WHERE prod.variationGroupCode = ?
                 ) AS pa
+                
                 CROSS JOIN (
                     /* list of all distinct attributeIDs pids for variationGroupCode */
                     SELECT DISTINCT allo.attributeID
@@ -2120,14 +2114,45 @@ This method can be used to call a function hooked with the "callingHookedProduct
                     ON allo.pid = prod.id
                     WHERE prod.variationGroupCode = ?
                 ) AS attr
+                
+                /* 
+                 * Join all actually existing rows so that we get null values for
+                 * the attributeValueID for those rows that only exist in the cartesian
+                 * product of the pid and the attributeID
+                 */
                 LEFT JOIN tl_ls_shop_attribute_allocation AS p
                 ON pa.pid = p.pid
                 AND attr.attributeID = p.attributeID
+
+				/*
+                 * Join only those records with pids that definitely are a match for the
+                 * mandatory attribute/value combination so that we get a flag for all rows
+                 * with pids that we want to consider for the end result.
+                 */
+                 LEFT JOIN (
+                 	SELECT
+                    	pid,
+                     	attributeID,
+                    	'1' AS matchForMandatoryAttributeValueCombination
+                    FROM tl_ls_shop_attribute_allocation
+                    WHERE pid IN (
+                        SELECT DISTINCT allo.pid
+                        FROM `tl_ls_shop_attribute_allocation` allo
+                        JOIN tl_ls_shop_product prod
+                            ON allo.pid = prod.id
+                        WHERE prod.variationGroupCode = ?
+                            AND (allo.attributeID = ? AND allo.attributeValueID = ?)
+                    )
+                 ) AS p2
+                ON pa.pid = p2.pid
+                AND attr.attributeID = p2.attributeID
+                
+                WHERE p2.matchForMandatoryAttributeValueCombination IS NOT NULL
             ) av
             WHERE
                 ($where_conditions)
             GROUP BY av.pid
-            HAVING COUNT(DISTINCT av.attributeID) = ?
+            ORDER BY matchingAttributesCount DESC
         ";
 
         $dbres_matchingVariations = \Database::getInstance()->prepare($sql_query)->execute(...$arr_params);
@@ -2136,11 +2161,10 @@ This method can be used to call a function hooked with the "callingHookedProduct
             return null;
         }
 
-        if ($returnFirstMatch) {
-            return ls_shop_generalHelper::getObjProduct($dbres_matchingVariations->first()->pid);
-        }
-
-        $arr_matchingVariations = array_map(fn($row) => ls_shop_generalHelper::getObjProduct($row['pid']), $dbres_matchingVariations->fetchAllAssoc());
+        $arr_matchingVariations = array_map(
+            fn($row) => ['product' => ls_shop_generalHelper::getObjProduct($row['pid']), 'exactMatch' => $row['matchingAttributesCount'] == $numRequestedAttributeValues],
+            $dbres_matchingVariations->fetchAllAssoc()
+        );
         return $arr_matchingVariations;
     }
 

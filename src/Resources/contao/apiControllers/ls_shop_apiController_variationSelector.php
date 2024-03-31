@@ -91,9 +91,7 @@ class ls_shop_apiController_variationSelector
         /*
          * We combine the requested attributeSelection with the current product's attributes so that we can look
          * for a product variation that is as close as possible to the current product but with the currently requested
-         * attribute selection. Since a product with those specific attributes/values might not exist, we have to
-         * look for an alternative product variation with only the requested attributeSelection if we don't get a
-         * better matching product variation.
+         * attribute selection.
          */
         $fullAttributeSelection = [];
         foreach ($obj_product->_attributes as $attributeId => $attributeValues) {
@@ -101,29 +99,17 @@ class ls_shop_apiController_variationSelector
         }
         $fullAttributeSelection[key($attributeSelection)] = (int) current($attributeSelection);
 
-        $isExactMatch = true;
-
-        $matchingProductVariation = $obj_product->getVariationByAttributeValues($fullAttributeSelection);
-        if ($matchingProductVariation === null) {
-            /*
-             * If we haven't found a matching variation with the full attribute selection, we have to look for a match
-             * with only the actually requested attribute selection.
-             * If we find a matching variation for that, we know that more attribute values are different from what
-             * the user would expect. Therefore, we have to inform the user about that.
-             */
-            $isExactMatch = false;
-            $matchingProductVariation = $obj_product->getVariationByAttributeValues($attributeSelection);
-        }
+        $matchingProductVariation = $obj_product->getVariationByAttributeValues($fullAttributeSelection, $attributeSelection);
 
         if ($matchingProductVariation === null) {
             trigger_error('No matching product variation found for attributeSelection ' . json_encode($attributeSelection) . '. This should never happen. Please check!', E_USER_WARNING);
         }
 
         $arr_return = array(
-            '_productVariationId' => $matchingProductVariation->ls_ID ?? null,
-            '_productVariationUrl' => $matchingProductVariation->_link ?? null,
-            '_selectedAttributeValues' => $matchingProductVariation->_attributeValueIdsForVariationSelectorFlattened ?? null,
-            '_isExactMatch' => $isExactMatch
+            '_productVariationId' => $matchingProductVariation['product']->ls_ID ?? null,
+            '_productVariationUrl' => $matchingProductVariation['product']->_link ?? null,
+            '_selectedAttributeValues' => $matchingProductVariation['product']->_attributeValueIdsForVariationSelectorFlattened ?? null,
+            '_isExactMatch' => $matchingProductVariation['exactMatch']
         );
 
         $this->obj_apiReceiver->success();
