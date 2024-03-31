@@ -2069,6 +2069,9 @@ This method can be used to call a function hooked with the "callingHookedProduct
     public function getVariationsByAttributeValues(array $requestedAttributeValues, bool $returnFirstMatch = false): array|ls_shop_product|null
     {
         $arr_params = [];
+        $arr_params[] = $this->mainData['variationGroupCode'];
+        $arr_params[] = $this->mainData['variationGroupCode'];
+
         $where_conditions = '';
 
         foreach ($requestedAttributeValues as $attributeID => $attributeValueID) {
@@ -2080,23 +2083,52 @@ This method can be used to call a function hooked with the "callingHookedProduct
         // Remove the last "OR" from the WHERE conditions
         $where_conditions = rtrim($where_conditions, ' OR ');
 
-        $arr_params[] = $this->mainData['variationGroupCode'];
-
-        $sql_query = "
-            SELECT
-                p.id
-            FROM `tl_ls_shop_attribute_allocation` av
-            JOIN tl_ls_shop_product p
-                ON av.pid = p.id
-            WHERE
-                ($where_conditions)
-                AND p.variationGroupCode = ?
-            GROUP BY av.pid
-            HAVING COUNT(DISTINCT av.attributeID) = ?
-        ";
 
         // Add the count of distinct attribute IDs to the parameters array
         $arr_params[] = count($requestedAttributeValues);
+
+        /*
+         * In this query we get all distinct pids and attributeIDs for the variationGroup and create a cartesian product.
+         * That means that we have a list of all possible combinations of pids and attributeIDs even if some of those
+         * combinations don't actually exist in the allocation table.
+         * The left join with the allocation table gives us the attributeValueIDs (null for combinations that don't
+         * actually exist) and we translate null values for attributeValueIDs into 0 because that's how we reference
+         * a null value in $requestedAttributeValues.
+         */
+        $sql_query = "
+            SELECT
+                av.pid,
+                COUNT(DISTINCT av.attributeID) AS count
+            FROM (
+                SELECT
+                pa.pid,
+                attr.attributeID,
+                COALESCE(p.attributeValueID, 0) AS attributeValueID
+                FROM (
+                    /* list of all distinct pids for variationGroupCode */
+                    SELECT DISTINCT allo.pid
+                    FROM tl_ls_shop_attribute_allocation allo
+                    JOIN tl_ls_shop_product prod
+                    ON allo.pid = prod.id
+                    WHERE prod.variationGroupCode = ?
+                ) AS pa
+                CROSS JOIN (
+                    /* list of all distinct attributeIDs pids for variationGroupCode */
+                    SELECT DISTINCT allo.attributeID
+                    FROM tl_ls_shop_attribute_allocation allo
+                    JOIN tl_ls_shop_product prod
+                    ON allo.pid = prod.id
+                    WHERE prod.variationGroupCode = ?
+                ) AS attr
+                LEFT JOIN tl_ls_shop_attribute_allocation AS p
+                ON pa.pid = p.pid
+                AND attr.attributeID = p.attributeID
+            ) av
+            WHERE
+                ($where_conditions)
+            GROUP BY av.pid
+            HAVING COUNT(DISTINCT av.attributeID) = ?
+        ";
 
         $dbres_matchingVariations = \Database::getInstance()->prepare($sql_query)->execute(...$arr_params);
 
@@ -2105,10 +2137,10 @@ This method can be used to call a function hooked with the "callingHookedProduct
         }
 
         if ($returnFirstMatch) {
-            return ls_shop_generalHelper::getObjProduct($dbres_matchingVariations->first()->id);
+            return ls_shop_generalHelper::getObjProduct($dbres_matchingVariations->first()->pid);
         }
 
-        $arr_matchingVariations = array_map(fn($row) => ls_shop_generalHelper::getObjProduct($row['id']), $dbres_matchingVariations->fetchAllAssoc());
+        $arr_matchingVariations = array_map(fn($row) => ls_shop_generalHelper::getObjProduct($row['pid']), $dbres_matchingVariations->fetchAllAssoc());
         return $arr_matchingVariations;
     }
 
