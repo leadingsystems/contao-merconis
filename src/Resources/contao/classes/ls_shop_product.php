@@ -2097,21 +2097,23 @@ This method can be used to call a function hooked with the "callingHookedProduct
                            COALESCE(p.attributeValueID, 0) AS attributeValueID
             
                     FROM (
-                             /* list of all distinct pids for variationGroupCode */
-                             SELECT DISTINCT allo.pid
-                             FROM tl_ls_shop_attribute_allocation allo
-                                      JOIN tl_ls_shop_product prod
-                                           ON allo.pid = prod.id
-                             WHERE prod.variationGroupCode = ?
+                        /* list of all distinct pids for variationGroupCode */
+                        SELECT DISTINCT allo.pid
+                        FROM tl_ls_shop_attribute_allocation allo
+                        JOIN tl_ls_shop_product prod
+                            ON allo.pid = prod.id
+                        WHERE prod.variationGroupCode = ?
+                            AND allo.parentIsVariant = '0'
                      ) AS pa
             
                     CROSS JOIN (
                         /* list of all distinct attributeIDs pids for variationGroupCode */
                         SELECT DISTINCT allo.attributeID
                         FROM tl_ls_shop_attribute_allocation allo
-                                 JOIN tl_ls_shop_product prod
-                                      ON allo.pid = prod.id
+                        JOIN tl_ls_shop_product prod
+                            ON allo.pid = prod.id
                         WHERE prod.variationGroupCode = ?
+                            AND allo.parentIsVariant = '0'
                     ) AS attr
             
                     /*
