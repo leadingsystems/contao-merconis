@@ -616,28 +616,22 @@ class ls_shop_languageHelper {
 	 * FIXME: New function description!
 	 */
 	public static function saveMultilanguageValue($int_rowId = false, $str_language = '', $str_tableName = '', $var_fieldName = '', $var_value = ''
-        , $arr_identifier = null
+        , ?array $arr_identifier = null
 
         ) {
 		if (
 			!$str_language
 			||	!$str_tableName
 			||	!$var_fieldName
-			||	!$int_rowId
+			||	(!$int_rowId && !$arr_identifier)
 		) {
 			return false;
 		}
 
-        $arr_identifier = [
-            'ls_shop_productCode' => 'XYZ123'
-        ];
+        #$arr_identifier = [
+            #'ls_shop_productCode' => 'XYZ123'
+        #];
 
-        if (is_array($arr_identifier) && count($arr_identifier)) {
-            /*
-             * Wenn alternativer Identifier übergeben, ignorieren der ID und Statement so aufbauen,
-             * dass statt der ID der alternative Identifier verwendet wird.
-             */
-        }
 
 		/*
 		 * Don't try to insert anything if the language that should be inserted doesn't exist in the languages array
@@ -670,12 +664,26 @@ class ls_shop_languageHelper {
 			$arr_values = array($var_value);
 		}
 
-		$arr_values[] = $int_rowId;
+
+        if (is_array($arr_identifier) && count($arr_identifier)) {
+            /*
+             * Wenn alternativer Identifier übergeben, ignorieren der ID und Statement so aufbauen,
+             * dass statt der ID der alternative Identifier verwendet wird.
+             */
+            $arrayKeyFirst = array_key_first($arr_identifier);
+            $where = '`'.$arrayKeyFirst.'`';
+            $arr_values[] = $arr_identifier[$arrayKeyFirst];
+        } else {
+            $where = '`id`';
+            $arr_values[] = $int_rowId;
+        }
+
+
 		\Database::getInstance()
 			->prepare("
 			UPDATE		`".$str_tableName."`
 			SET			".$str_set."
-			WHERE		`id` = ?
+			WHERE		".$where." = ?
 		")
 			->limit(1)
 			->execute($arr_values);
