@@ -150,14 +150,17 @@ class ls_shop_generalHelper
         }
     }
 
-    public static function changeStockDirectly($str_productOrVariant = 'product', $int_id = 0, $str_stockChange = null)
+    public static function changeStockDirectly($str_productOrVariant = 'product', $int_id = 0, $str_stockChange = null
+        #, bool $useLsShopProductKey = false
+        , ?string $lsShopProductCode = null
+    )
     {
         if (
             $str_stockChange === null
             || $str_stockChange === ''
             || $str_stockChange === false
             || preg_match('/[^0-9+-.]/', $str_stockChange)
-            || !$int_id
+            || (!$int_id && !$lsShopProductCode)
             || !in_array($str_productOrVariant, array('product', 'variant'))
         ) {
             return;
@@ -168,17 +171,34 @@ class ls_shop_generalHelper
 
         $str_setStatement = strpos($str_stockChange, '-') !== false || strpos($str_stockChange, '+') !== false ? "`" . $str_fieldName . "` = `" . $str_fieldName . "` + ?" : "`" . $str_fieldName . "` =  + ?";
 
+        $params = [$str_stockChange];
+
+        #if ($useLsShopProductKey) {
+        if ($lsShopProductCode) {
+
+            if ($str_productOrVariant == 'product') {
+                $where = '`lsShopProductCode`';
+            } elseif ($str_productOrVariant == 'variant') {
+                $where = '`lsShopVariantCode`';
+            }
+
+            $params[] = $lsShopProductCode;
+
+        } else {
+            $where = '';
+            $params[] = $int_id;
+        }
+
+
+
         \Database::getInstance()
             ->prepare("
 			UPDATE		`" . $str_tableName . "`
 			SET			" . $str_setStatement . "
-			WHERE		`id` = ?
+			WHERE		".$where." = ?
 		")
             ->limit(1)
-            ->execute(
-                $str_stockChange,
-                $int_id
-            );
+            ->execute($params);
     }
 
     public static function getSQLFieldAttributes($var_table = null, $str_fieldName = null)

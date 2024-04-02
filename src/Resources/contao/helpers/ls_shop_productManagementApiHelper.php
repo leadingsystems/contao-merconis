@@ -1020,6 +1020,28 @@ $productalias,
         );
 
 
+        /*
+         * Durchführen der Lagerbestandsänderung, sofern das Feld nicht wirklich leer ist. Eine eingetragene "0" führt auch zur entsprechenden
+         * Lagerbestandsänderung. Enthält der Feldwert etwas anderes als Zahlen von 0-9 und einen Punkt, ein Plus- bzw. ein Minuszeichen, so
+         * wird die Lagerbestandsänderung nicht durchgeführt. Ist ein Plus- oder Minuszeichen enthalten, so wird berechnet, falls nicht, dann
+         * wird der Wert fest eingetragen.
+         */
+$arr_preprocessedDataRow['changeStock'] = 8;
+        if (
+            $arr_preprocessedDataRow['changeStock'] !== ''
+            &&	$arr_preprocessedDataRow['changeStock'] !== null
+            &&	$arr_preprocessedDataRow['changeStock'] !== false
+            &&	!preg_match('/[^0-9+-.]/', $arr_preprocessedDataRow['changeStock'])
+        ) {
+            ls_shop_generalHelper::changeStockDirectly('product'
+                , $productID
+                , $arr_preprocessedDataRow['changeStock']
+                #, true
+                , $arr_preprocessedDataRow['productcode']
+            );
+        }
+
+
 return;
 
 
