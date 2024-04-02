@@ -956,7 +956,18 @@ $arr_preprocessedDataRow['name'], // String, maxlength 255
 #$sql = $obj_dbres_prod->showSQLWithInsertedParameters($arr_queryParams);
         $obj_dbres_prod->execute($arr_queryParams);
 
-        $int_newProductID = $obj_dbres_prod->insertId;
+        $productID = (int) $obj_dbres_prod->insertId;
+
+
+        //Entweder ein Insert, dann gibt es eine $productID, oder ein Update mit Änderungen
+        //Bei einem Update ohne echte Änderungen gibt es keine $productID
+        #if ($productID) {
+            #$identifier = null;
+        #} else {
+            #$identifier = array('lsShopProductCode' => $arr_preprocessedDataRow['productcode']);
+        #}
+        $identifier = ($productID) ? null : array('lsShopProductCode' => $arr_preprocessedDataRow['productcode']);
+
 
 
         //Attribute
