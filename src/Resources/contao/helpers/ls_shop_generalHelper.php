@@ -96,12 +96,11 @@ class ls_shop_generalHelper
         /*
          * First, delete all entries related to the current product or variant
          */
+			#-- DELETE FROM	`tl_ls_shop_attribute_allocation`
+			#-- WHERE		`pid` = ?
+			#-- AND		`parentIsVariant` = ?
         $db_del = \Database::getInstance()
             ->prepare("
-			-- DELETE FROM	`tl_ls_shop_attribute_allocation`
-			-- WHERE		`pid` = ?
-				-- AND		`parentIsVariant` = ?
-
             DELETE AA.* 
             FROM `tl_ls_shop_attribute_allocation` AA
             INNER JOIN tl_ls_shop_product P ON AA.pid = P.id
@@ -112,8 +111,6 @@ class ls_shop_generalHelper
                 $parent_lsShopProductCode,
                 ($bln_parentIsVariant ? '1' : '0')
             );
-
-        $prod_id = $db_del->isModified;
 
         $arr_allocations = is_array($arr_allocations) ? $arr_allocations : json_decode($arr_allocations, true);
 
@@ -131,14 +128,14 @@ class ls_shop_generalHelper
                 \Database::getInstance()
                     ->prepare("
                     INSERT INTO `tl_ls_shop_attribute_allocation`
-                    SET			`pid` = ?,
+                    SET			`pid` = (select id from `tl_ls_shop_product` where lsShopProductCode = ?),
                                 `parentIsVariant` = ?,
                                 `attributeID` = ?,
                                 `attributeValueID` = ?,
                                 `sorting` = ?
                 ")
                     ->execute(
-                        $int_parentId,
+                        $parent_lsShopProductCode,
                         ($bln_parentIsVariant ? '1' : '0'),
                         $arr_allocation[0],
                         $arr_allocation[1],
