@@ -170,7 +170,6 @@ class ls_shop_generalHelper
 
         $params = [$str_stockChange];
 
-        #if ($useLsShopProductKey) {
         if ($lsShopProductCode) {
 
             if ($str_productOrVariant == 'product') {
@@ -178,15 +177,12 @@ class ls_shop_generalHelper
             } elseif ($str_productOrVariant == 'variant') {
                 $where = '`lsShopVariantCode`';
             }
-
             $params[] = $lsShopProductCode;
 
         } else {
             $where = '';
             $params[] = $int_id;
         }
-
-
 
         \Database::getInstance()
             ->prepare("

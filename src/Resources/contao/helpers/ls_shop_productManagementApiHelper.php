@@ -779,8 +779,7 @@ class ls_shop_productManagementApiHelper {
         $str_addGroupPriceFieldsToQuery = '';
         $str_customFieldsQueryExtension = '';
 
-#`lsShopProductCode` = `lsShopProductCode`,
-#`tstamp` = `tstamp`,
+
 
         $obj_dbres_prod = \Database::getInstance()
 			->prepare("
@@ -911,9 +910,9 @@ class ls_shop_productManagementApiHelper {
             $arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
             $arr_preprocessedDataRow['scalePrice'], // blob, translated, check unclear
 
-//hier 2. Liste
 
-$arr_preprocessedDataRow['name'], // String, maxlength 255
+
+            $arr_preprocessedDataRow['name'], // String, maxlength 255
  #'mein Testtitel123',
 
 
@@ -961,11 +960,6 @@ $arr_preprocessedDataRow['name'], // String, maxlength 255
 
         //Entweder ein Insert, dann gibt es eine $productID, oder ein Update mit Änderungen
         //Bei einem Update ohne echte Änderungen gibt es keine $productID
-        #if ($productID) {
-            #$identifier = null;
-        #} else {
-            #$identifier = array('lsShopProductCode' => $arr_preprocessedDataRow['productcode']);
-        #}
         $identifier = ($productID) ? null : array('lsShopProductCode' => $arr_preprocessedDataRow['productcode']);
 
 
@@ -979,12 +973,12 @@ $arr_preprocessedDataRow['name'], // String, maxlength 255
         /*
          * Spracheinträge schreiben
          */
-$productalias = self::generateProductAlias(
-                    $arr_preprocessedDataRow['name'],
-                    $arr_preprocessedDataRow['alias'],
-                    $int_alreadyExistsAsID,
-                    $arr_preprocessedDataRow['language']
-                );
+#$productalias = self::generateProductAlias(
+                    #$arr_preprocessedDataRow['name'],
+                    #$arr_preprocessedDataRow['alias'],
+                    #$int_alreadyExistsAsID,
+                    #$arr_preprocessedDataRow['language']
+                #);
 
         ls_shop_languageHelper::saveMultilanguageValue(
             $productID,
@@ -1002,13 +996,13 @@ $productalias = self::generateProductAlias(
             ),
             array(
                 $arr_preprocessedDataRow['name'],
-$productalias,
-                //self::generateProductAlias(
-                    //$arr_preprocessedDataRow['name'],
-                    //$arr_preprocessedDataRow['alias'],
-                    //$int_alreadyExistsAsID,
-                    //$arr_preprocessedDataRow['language']
-                //),
+#$productalias,
+                self::generateProductAlias(
+                    $arr_preprocessedDataRow['name'],
+                    $arr_preprocessedDataRow['alias'],
+                    $int_alreadyExistsAsID,
+                    $arr_preprocessedDataRow['language']
+                ),
                 $arr_preprocessedDataRow['keywords'],
                 $arr_preprocessedDataRow['description'],
                 $arr_preprocessedDataRow['unit'],
@@ -1026,7 +1020,7 @@ $productalias,
          * wird die Lagerbestandsänderung nicht durchgeführt. Ist ein Plus- oder Minuszeichen enthalten, so wird berechnet, falls nicht, dann
          * wird der Wert fest eingetragen.
          */
-$arr_preprocessedDataRow['changeStock'] = 8;
+#$arr_preprocessedDataRow['changeStock'] = 12;
         if (
             $arr_preprocessedDataRow['changeStock'] !== ''
             &&	$arr_preprocessedDataRow['changeStock'] !== null
