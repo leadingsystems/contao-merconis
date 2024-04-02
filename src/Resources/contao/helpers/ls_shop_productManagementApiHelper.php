@@ -976,6 +976,50 @@ $arr_preprocessedDataRow['name'], // String, maxlength 255
             , $arr_preprocessedDataRow['productcode'], 0);
 
 
+        /*
+         * Spracheinträge schreiben
+         */
+$productalias = self::generateProductAlias(
+                    $arr_preprocessedDataRow['name'],
+                    $arr_preprocessedDataRow['alias'],
+                    $int_alreadyExistsAsID,
+                    $arr_preprocessedDataRow['language']
+                );
+
+        ls_shop_languageHelper::saveMultilanguageValue(
+            $productID,
+            $arr_preprocessedDataRow['language'],
+            'tl_ls_shop_product_languages',
+            array(
+                'title',
+                'alias',
+                'keywords',
+                'description',
+                'lsShopProductQuantityUnit',
+                'lsShopProductMengenvergleichUnit',
+                'shortDescription',
+                'flex_contents'
+            ),
+            array(
+                $arr_preprocessedDataRow['name'],
+$productalias,
+                //self::generateProductAlias(
+                    //$arr_preprocessedDataRow['name'],
+                    //$arr_preprocessedDataRow['alias'],
+                    //$int_alreadyExistsAsID,
+                    //$arr_preprocessedDataRow['language']
+                //),
+                $arr_preprocessedDataRow['keywords'],
+                $arr_preprocessedDataRow['description'],
+                $arr_preprocessedDataRow['unit'],
+                $arr_preprocessedDataRow['quantityComparisonUnit'],
+                $arr_preprocessedDataRow['shortDescription'],
+                $arr_preprocessedDataRow['flex_contents']
+            )
+            , $identifier
+        );
+
+
 return;
 
 
