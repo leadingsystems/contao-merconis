@@ -816,7 +816,6 @@ class ls_shop_productManagementApiHelper {
 
 	public static function insertOrUpdateProductRecord($arr_preprocessedDataRow) {
 		// Prüfen, ob es ein Produkt mit der Artikelnummer bereits gibt
-		$int_alreadyExistsAsID = 0;
 
 
         $groupPriceFieldNames = '';
