@@ -179,7 +179,7 @@ class ls_shop_generalHelper
             $params[] = $lsShopProductCode;
 
         } else {
-            $where = '';
+            $where = '`id`';
             $params[] = $int_id;
         }
 
