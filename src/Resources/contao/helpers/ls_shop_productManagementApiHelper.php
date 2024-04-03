@@ -920,7 +920,7 @@ class ls_shop_productManagementApiHelper {
                 ".$str_customFieldsQueryExtension."
 
 		");
-			#->execute($arr_preprocessedDataRow['productcode']);
+
 
         $arr_queryParams = array(
             $arr_preprocessedDataRow['productcode'], // String, maxlength 255
@@ -969,10 +969,6 @@ class ls_shop_productManagementApiHelper {
 
         $arr_queryParams = array_merge($arr_queryParams, array(
             $arr_preprocessedDataRow['name'], // String, maxlength 255
- #'mein Testtitel123',
-
-
-#            self::generateProductAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias'], $int_alreadyExistsAsID),
             $arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
             $arr_preprocessedDataRow['keywords'], // text
             $arr_preprocessedDataRow['shortDescription'], // text

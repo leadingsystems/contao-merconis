@@ -147,10 +147,7 @@ class ls_shop_generalHelper
         }
     }
 
-    public static function changeStockDirectly($str_productOrVariant = 'product', $int_id = 0, $str_stockChange = null
-        #, bool $useLsShopProductKey = false
-        , ?string $lsShopProductCode = null
-    )
+    public static function changeStockDirectly($str_productOrVariant = 'product', $int_id = 0, $str_stockChange = null, ?string $lsShopProductCode = null)
     {
         if (
             $str_stockChange === null
@@ -171,12 +168,14 @@ class ls_shop_generalHelper
         $params = [$str_stockChange];
 
         if ($lsShopProductCode) {
-
+/*
             if ($str_productOrVariant == 'product') {
                 $where = '`lsShopProductCode`';
             } elseif ($str_productOrVariant == 'variant') {
                 $where = '`lsShopVariantCode`';
             }
+*/
+            $where = ($str_productOrVariant == 'product') ? '`lsShopProductCode`' : '`lsShopVariantCode`';
             $params[] = $lsShopProductCode;
 
         } else {
