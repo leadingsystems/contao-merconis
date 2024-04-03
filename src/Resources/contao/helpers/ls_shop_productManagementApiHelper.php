@@ -926,7 +926,7 @@ class ls_shop_productManagementApiHelper {
             $arr_preprocessedDataRow['productcode'], // String, maxlength 255
             time(),
             $arr_preprocessedDataRow['name'], // String, maxlength 255
-            self::generateProductAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias'], $int_alreadyExistsAsID),
+            self::generateProductAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias']),
             $arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
             $arr_preprocessedDataRow['keywords'], // text
             $arr_preprocessedDataRow['shortDescription'], // text
@@ -1054,7 +1054,7 @@ class ls_shop_productManagementApiHelper {
                 self::generateProductAlias(
                     $arr_preprocessedDataRow['name'],
                     $arr_preprocessedDataRow['alias'],
-                    $int_alreadyExistsAsID,
+                    $productID,
                     $arr_preprocessedDataRow['language']
                 ),
                 $arr_preprocessedDataRow['keywords'],
