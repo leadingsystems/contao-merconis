@@ -602,9 +602,10 @@ class ls_shop_productManagementApiHelper {
      *  Für weitere SQL Abfragen ´on duplicate key update´ liefert sie in den optionalen Rückgabeparametern noch
      *  die separaten Feldnamen und eine Liste mit Fragezeichen zurück.
      *
-     *  @param  {string}    $str_productOrVariant       entweder ´product´ oder etwas anderes für Variante
-     *  @param  {string}    $fieldnames                 eine Liste in der die Feldnamen ohne Fragezeichen enthalten sind
-     *  @param  {string}    $questionMarks
+     *  @param  {string}    $str_productOrVariant               entweder ´product´ oder etwas anderes für Variante
+     *  @param  {string}    $fieldnames                         eine Liste in der die Feldnamen ohne Fragezeichen enthalten sind
+     *  @param  {string}    $questionMarks                      eine Liste in der die Fragezeichen ohne die Feldnamen enthalten sind (für den Values Teil)
+     *  @return {string}    $str_addGroupPriceFieldsToQuery     eine Liste mit Feldnamen und Fragezeichen
      */
 	public static function createGroupPriceFieldsForQuery($str_productOrVariant = 'product'
         , ?string &$fieldnames = null, ?string &$questionMarks = null) {
