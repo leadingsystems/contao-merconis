@@ -615,10 +615,8 @@ class ls_shop_languageHelper {
 	 *
 	 * FIXME: New function description!
 	 */
-	public static function saveMultilanguageValue($int_rowId = false, $str_language = '', $str_tableName = '', $var_fieldName = '', $var_value = ''
-        , ?array $arr_identifier = null
-
-        ) {
+	public static function saveMultilanguageValue($int_rowId = false, $str_language = '', $str_tableName = '', $var_fieldName = '', $var_value = '', ?array $arr_identifier = null)
+    {
 		if (
 			!$str_language
 			||	!$str_tableName
@@ -627,11 +625,6 @@ class ls_shop_languageHelper {
 		) {
 			return false;
 		}
-
-        #$arr_identifier = [
-            #'ls_shop_productCode' => 'XYZ123'
-        #];
-
 
 		/*
 		 * Don't try to insert anything if the language that should be inserted doesn't exist in the languages array

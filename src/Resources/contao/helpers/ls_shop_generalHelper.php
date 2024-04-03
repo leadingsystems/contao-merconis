@@ -168,16 +168,8 @@ class ls_shop_generalHelper
         $params = [$str_stockChange];
 
         if ($lsShopProductCode) {
-/*
-            if ($str_productOrVariant == 'product') {
-                $where = '`lsShopProductCode`';
-            } elseif ($str_productOrVariant == 'variant') {
-                $where = '`lsShopVariantCode`';
-            }
-*/
             $where = ($str_productOrVariant == 'product') ? '`lsShopProductCode`' : '`lsShopVariantCode`';
             $params[] = $lsShopProductCode;
-
         } else {
             $where = '`id`';
             $params[] = $int_id;

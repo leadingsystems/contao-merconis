@@ -607,8 +607,8 @@ class ls_shop_productManagementApiHelper {
      *  @param  {string}    $questionMarks                      a list containing the question marks without the field names (for the values part)
      *  @return {string}    $str_addGroupPriceFieldsToQuery     a list with field names and question marks
      */
-	public static function createGroupPriceFieldsForQuery($str_productOrVariant = 'product'
-        , ?string &$fieldnames = null, ?string &$questionMarks = null) {
+	public static function createGroupPriceFieldsForQuery($str_productOrVariant = 'product', ?string &$fieldnames = null, ?string &$questionMarks = null)
+    {
 		$str_addGroupPriceFieldsToQuery = "";
 
 		for ($i=1; $i <= self::$int_numImportableGroupPrices; $i++) {
@@ -819,9 +819,6 @@ class ls_shop_productManagementApiHelper {
 		$int_alreadyExistsAsID = 0;
 
 
-        //Hier der Block mit on duplicate key
-        $str_addGroupPriceFieldsToQuery = '';
-        $str_customFieldsQueryExtension = '';
         $groupPriceFieldNames = '';
         $groupPriceQuestionMarks = '';
         $customFieldsFieldNames = '';
@@ -873,14 +870,12 @@ class ls_shop_productManagementApiHelper {
                 `scalePrice`
                 ".$groupPriceFieldNames."
                 ".$customFieldsFieldNames."
-                     
-                                              ) 
+            ) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             ".$groupPriceQuestionMarks."
             ".$customFieldsQuestionMarks."
             )
             ON DUPLICATE KEY UPDATE
-
                 `title` = ?,
                 `alias` = `alias`,
                 `sorting` = ?,
@@ -918,7 +913,6 @@ class ls_shop_productManagementApiHelper {
                 `scalePrice` = ?
                 ".$str_addGroupPriceFieldsToQuery."
                 ".$str_customFieldsQueryExtension."
-
 		");
 
 
@@ -960,7 +954,6 @@ class ls_shop_productManagementApiHelper {
             $arr_preprocessedDataRow['scalePriceQuantityDetectionAlwaysSeparateConfigurations'] ? '1' : '', // 1 or ''
             $arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
             $arr_preprocessedDataRow['scalePrice'], // blob, translated, check unclear
-
         );
 
         $arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
@@ -1007,10 +1000,7 @@ class ls_shop_productManagementApiHelper {
         $arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
         $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
 
-
-#$sql = $obj_dbres_prod->showSQLWithInsertedParameters($arr_queryParams);
         $obj_dbres_prod->execute($arr_queryParams);
-
         $productID = (int) $obj_dbres_prod->insertId;
 
 
@@ -1027,13 +1017,6 @@ class ls_shop_productManagementApiHelper {
 
 
         //Writing language entries
-#$productalias = self::generateProductAlias(
-                    #$arr_preprocessedDataRow['name'],
-                    #$arr_preprocessedDataRow['alias'],
-                    #$int_alreadyExistsAsID,
-                    #$arr_preprocessedDataRow['language']
-                #);
-
         ls_shop_languageHelper::saveMultilanguageValue(
             $productID,
             $arr_preprocessedDataRow['language'],
@@ -1050,7 +1033,6 @@ class ls_shop_productManagementApiHelper {
             ),
             array(
                 $arr_preprocessedDataRow['name'],
-#$productalias,
                 self::generateProductAlias(
                     $arr_preprocessedDataRow['name'],
                     $arr_preprocessedDataRow['alias'],
@@ -1080,12 +1062,7 @@ class ls_shop_productManagementApiHelper {
             &&	$arr_preprocessedDataRow['changeStock'] !== false
             &&	!preg_match('/[^0-9+-.]/', $arr_preprocessedDataRow['changeStock'])
         ) {
-            ls_shop_generalHelper::changeStockDirectly('product'
-                , $productID
-                , $arr_preprocessedDataRow['changeStock']
-                #, true
-                , $arr_preprocessedDataRow['productcode']
-            );
+            ls_shop_generalHelper::changeStockDirectly('product', $productID, $arr_preprocessedDataRow['changeStock'], $arr_preprocessedDataRow['productcode']);
         }
 
 	}
@@ -1644,9 +1621,7 @@ class ls_shop_productManagementApiHelper {
      *  @param  {string}    $questionMarks              a list containing the question marks without the field names (for the values part)
      *  @return {string}    $queryExtension             a list with field names and question marks
      */
-    private static function createCustomFieldsQueryExtension(string $str_productOrVariant = 'product'
-        , ?string &$fieldnames = null, ?string &$questionMarks = null
-        ): string
+    private static function createCustomFieldsQueryExtension(string $str_productOrVariant = 'product', ?string &$fieldnames = null, ?string &$questionMarks = null): string
     {
         $queryExtension = '';
         $customFields = $str_productOrVariant === 'product' ? self::$arr_customFieldsForProducts : self::$arr_customFieldsForVariants;
