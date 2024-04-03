@@ -667,8 +667,8 @@ class ls_shop_languageHelper {
 
         if (is_array($arr_identifier) && count($arr_identifier)) {
             /*
-             * Wenn alternativer Identifier übergeben, ignorieren der ID und Statement so aufbauen,
-             * dass statt der ID der alternative Identifier verwendet wird.
+             * If an alternative identifier is passed, ignore the ID and construct the statement in such a way,
+             * that the alternative identifier is used instead of the ID.
              */
             $arrayKeyFirst = array_key_first($arr_identifier);
             $where = '`'.$arrayKeyFirst.'`';
