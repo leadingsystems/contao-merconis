@@ -826,7 +826,7 @@ class ls_shop_productManagementApiHelper {
         $customFieldsFieldNames = '';
         $customFieldsQuestionMarks = '';
         $str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('product', $groupPriceFieldNames, $groupPriceQuestionMarks);
-        #$str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('product');
+        $str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('product', $customFieldsFieldNames, $customFieldsQuestionMarks);
 
 
 
@@ -963,6 +963,7 @@ class ls_shop_productManagementApiHelper {
         );
 
         $arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
+        $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
 
 
         $arr_queryParams = array_merge($arr_queryParams, array(
@@ -1007,9 +1008,7 @@ class ls_shop_productManagementApiHelper {
         ));
 
         $arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
-
-        #$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
-        #$arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
+        $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
 
 
 #$sql = $obj_dbres_prod->showSQLWithInsertedParameters($arr_queryParams);
@@ -1954,13 +1953,28 @@ return;
 		
 	}
 
-    private static function createCustomFieldsQueryExtension(string $str_productOrVariant = 'product'): string
+    /*
+     *  Liefert für eine SQL Abfrage eine Liste von Feldern mit Fragezeichen Parametern zurück, die zu
+     *  individuellen Feldern eines Produkts oder einer Variante passen (abhängig vom Parameter)
+     *  Für weitere SQL Abfragen ´on duplicate key update´ liefert sie in den optionalen Rückgabeparametern noch
+     *  die separaten Feldnamen und eine Liste mit Fragezeichen zurück.
+     *
+     *  @param  {string}    $str_productOrVariant       entweder ´product´ oder etwas anderes für Variante
+     *  @param  {string}    $fieldnames                 eine Liste in der die Feldnamen ohne Fragezeichen enthalten sind
+     *  @param  {string}    $questionMarks              eine Liste in der die Fragezeichen ohne die Feldnamen enthalten sind (für den Values Teil)
+     *  @return {string}    $queryExtension             eine Liste mit Feldnamen und Fragezeichen
+     */
+    private static function createCustomFieldsQueryExtension(string $str_productOrVariant = 'product'
+        , ?string &$fieldnames = null, ?string &$questionMarks = null
+        ): string
     {
         $queryExtension = '';
         $customFields = $str_productOrVariant === 'product' ? self::$arr_customFieldsForProducts : self::$arr_customFieldsForVariants;
 
         foreach ($customFields as $customFieldName) {
             $queryExtension .= ", `" . $customFieldName . "` = ?";
+            $fieldnames .= ", `" . $customFieldName . "`";
+            $questionMarks .= ", ?";
         }
 
         return $queryExtension;
