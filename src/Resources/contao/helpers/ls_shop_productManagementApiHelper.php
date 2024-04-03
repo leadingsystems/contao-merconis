@@ -596,7 +596,18 @@ class ls_shop_productManagementApiHelper {
 		}
 	}
 
-	public static function createGroupPriceFieldsForQuery($str_productOrVariant = 'product') {
+    /*
+     *  Liefert für eine SQL Abfrage eine Liste von Feldern mit Fragezeichen Parametern zurück, die zu
+     *  Gruppenpreisen eines Produkts oder einer Variante passen (abhängig vom Parameter)
+     *  Für weitere SQL Abfragen ´on duplicate key update´ liefert sie in den optionalen Rückgabeparametern noch
+     *  die separaten Feldnamen und eine Liste mit Fragezeichen zurück.
+     *
+     *  @param  {string}    $str_productOrVariant       entweder ´product´ oder etwas anderes für Variante
+     *  @param  {string}    $fieldnames                 eine Liste in der die Feldnamen ohne Fragezeichen enthalten sind
+     *  @param  {string}    $questionMarks
+     */
+	public static function createGroupPriceFieldsForQuery($str_productOrVariant = 'product'
+        , ?string &$fieldnames = null, ?string &$questionMarks = null) {
 		$str_addGroupPriceFieldsToQuery = "";
 
 		for ($i=1; $i <= self::$int_numImportableGroupPrices; $i++) {
@@ -615,6 +626,40 @@ class ls_shop_productManagementApiHelper {
 				".($str_productOrVariant === 'product' ? "`lsShopProductPriceOld_".$i."`" : "`lsShopVariantPriceOld_".$i."`")." = ?,
 				".($str_productOrVariant === 'product' ? "" : "`lsShopVariantPriceTypeOld_".$i."` = ?,")."
 				`useOldPrice_".$i."` = ?
+			";
+
+			$fieldnames = $fieldnames.",
+				
+				`useGroupPrices_".$i."`,
+				`priceForGroups_".$i."`,
+				".($str_productOrVariant === 'product' ? "`lsShopProductPrice_".$i."`" : "`lsShopVariantPrice_".$i."`").",
+				".($str_productOrVariant === 'product' ? "" : "`lsShopVariantPriceType_".$i."`,")."
+				`useScalePrice_".$i."`,
+				`scalePriceType_".$i."`,
+				`scalePriceQuantityDetectionMethod_".$i."`,
+				`scalePriceQuantityDetectionAlwaysSeparateConfigurations_".$i."`,
+				`scalePriceKeyword_".$i."`,
+				`scalePrice_".$i."`,
+				".($str_productOrVariant === 'product' ? "`lsShopProductPriceOld_".$i."`" : "`lsShopVariantPriceOld_".$i."`").",
+				".($str_productOrVariant === 'product' ? "" : "`lsShopVariantPriceTypeOld_".$i."`,")."
+				`useOldPrice_".$i."`
+			";
+
+			$questionMarks = $questionMarks.",
+				
+				?,
+				?,
+				?,
+				".($str_productOrVariant === 'product' ? "" : "?,")."
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+                ".($str_productOrVariant === 'product' ? "" : "?,")."
+				?
 			";
 		}
 
@@ -774,10 +819,14 @@ class ls_shop_productManagementApiHelper {
 
 
         //Hier der Block mit on duplicate key
-        #$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('product');
-        #$str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('product');
         $str_addGroupPriceFieldsToQuery = '';
         $str_customFieldsQueryExtension = '';
+        $groupPriceFieldNames = '';
+        $groupPriceQuestionMarks = '';
+        $customFieldsFieldNames = '';
+        $customFieldsQuestionMarks = '';
+        $str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('product', $groupPriceFieldNames, $groupPriceQuestionMarks);
+        #$str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('product');
 
 
 
@@ -821,15 +870,16 @@ class ls_shop_productManagementApiHelper {
                 `scalePriceQuantityDetectionAlwaysSeparateConfigurations`,
                 `scalePriceKeyword`,
                 `scalePrice`
-                ".$str_addGroupPriceFieldsToQuery."
-                ".$str_customFieldsQueryExtension."
+                ".$groupPriceFieldNames."
+                ".$customFieldsFieldNames."
                      
                                               ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ".$groupPriceQuestionMarks."
+            ".$customFieldsQuestionMarks."
+            )
             ON DUPLICATE KEY UPDATE
 
-                
-                
                 `title` = ?,
                 `alias` = `alias`,
                 `sorting` = ?,
@@ -910,8 +960,12 @@ class ls_shop_productManagementApiHelper {
             $arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
             $arr_preprocessedDataRow['scalePrice'], // blob, translated, check unclear
 
+        );
+
+        $arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
 
 
+        $arr_queryParams = array_merge($arr_queryParams, array(
             $arr_preprocessedDataRow['name'], // String, maxlength 255
  #'mein Testtitel123',
 
@@ -950,7 +1004,13 @@ class ls_shop_productManagementApiHelper {
             $arr_preprocessedDataRow['scalePriceQuantityDetectionAlwaysSeparateConfigurations'] ? '1' : '', // 1 or ''
             $arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
             $arr_preprocessedDataRow['scalePrice'] // blob, translated, check unclear
-        );
+        ));
+
+        $arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
+
+        #$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
+        #$arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
+
 
 #$sql = $obj_dbres_prod->showSQLWithInsertedParameters($arr_queryParams);
         $obj_dbres_prod->execute($arr_queryParams);
