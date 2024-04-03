@@ -597,15 +597,15 @@ class ls_shop_productManagementApiHelper {
 	}
 
     /*
-     *  Liefert für eine SQL Abfrage eine Liste von Feldern mit Fragezeichen Parametern zurück, die zu
-     *  Gruppenpreisen eines Produkts oder einer Variante passen (abhängig vom Parameter)
-     *  Für weitere SQL Abfragen ´on duplicate key update´ liefert sie in den optionalen Rückgabeparametern noch
-     *  die separaten Feldnamen und eine Liste mit Fragezeichen zurück.
+     * Returns a list of fields with question mark parameters for an SQL query that match
+     * group prices of a product or variant (depending on the parameter)
+     * For further SQL queries 'on duplicate key update', it also returns in the optional return parameters
+     * the separate field names and a list with question marks.
      *
-     *  @param  {string}    $str_productOrVariant               entweder ´product´ oder etwas anderes für Variante
-     *  @param  {string}    $fieldnames                         eine Liste in der die Feldnamen ohne Fragezeichen enthalten sind
-     *  @param  {string}    $questionMarks                      eine Liste in der die Fragezeichen ohne die Feldnamen enthalten sind (für den Values Teil)
-     *  @return {string}    $str_addGroupPriceFieldsToQuery     eine Liste mit Feldnamen und Fragezeichen
+     *  @param  {string}    $str_productOrVariant               either 'product' or something else for variant
+     *  @param  {string}    $fieldnames                         a list containing the field names without question marks
+     *  @param  {string}    $questionMarks                      a list containing the question marks without the field names (for the values part)
+     *  @return {string}    $str_addGroupPriceFieldsToQuery     a list with field names and question marks
      */
 	public static function createGroupPriceFieldsForQuery($str_productOrVariant = 'product'
         , ?string &$fieldnames = null, ?string &$questionMarks = null) {
@@ -1014,21 +1014,19 @@ class ls_shop_productManagementApiHelper {
         $productID = (int) $obj_dbres_prod->insertId;
 
 
-        //Entweder ein Insert, dann gibt es eine $productID, oder ein Update mit Änderungen
-        //Bei einem Update ohne echte Änderungen gibt es keine $productID
+        //Either an insert, in which case there is a $productID, or an update with changes
+        //For an update without real changes, there is no $productID
         $identifier = ($productID) ? null : array('lsShopProductCode' => $arr_preprocessedDataRow['productcode']);
 
 
 
-        //Attribute
+        //Attributes
         ls_shop_generalHelper::insertAttributeValueAllocations_byShopProductCode(
             $arr_preprocessedDataRow['propertiesAndValues']
             , $arr_preprocessedDataRow['productcode'], 0);
 
 
-        /*
-         * Spracheinträge schreiben
-         */
+        //Writing language entries
 #$productalias = self::generateProductAlias(
                     #$arr_preprocessedDataRow['name'],
                     #$arr_preprocessedDataRow['alias'],
@@ -1071,12 +1069,11 @@ class ls_shop_productManagementApiHelper {
 
 
         /*
-         * Durchführen der Lagerbestandsänderung, sofern das Feld nicht wirklich leer ist. Eine eingetragene "0" führt auch zur entsprechenden
-         * Lagerbestandsänderung. Enthält der Feldwert etwas anderes als Zahlen von 0-9 und einen Punkt, ein Plus- bzw. ein Minuszeichen, so
-         * wird die Lagerbestandsänderung nicht durchgeführt. Ist ein Plus- oder Minuszeichen enthalten, so wird berechnet, falls nicht, dann
-         * wird der Wert fest eingetragen.
-         */
-#$arr_preprocessedDataRow['changeStock'] = 12;
+        * Carry out the stock change, provided the field is not actually empty. An entered "0" also leads to the corresponding stock change.
+        * stock change. If the field value contains anything other than numbers from 0-9 and a point, a plus or a minus sign, then
+        * the stock change is not carried out. If it contains a plus or minus sign, the calculation is carried out, if not
+        * the value is entered as a fixed value.
+        */
         if (
             $arr_preprocessedDataRow['changeStock'] !== ''
             &&	$arr_preprocessedDataRow['changeStock'] !== null
@@ -1951,15 +1948,15 @@ return;
 	}
 
     /*
-     *  Liefert für eine SQL Abfrage eine Liste von Feldern mit Fragezeichen Parametern zurück, die zu
-     *  individuellen Feldern eines Produkts oder einer Variante passen (abhängig vom Parameter)
-     *  Für weitere SQL Abfragen ´on duplicate key update´ liefert sie in den optionalen Rückgabeparametern noch
-     *  die separaten Feldnamen und eine Liste mit Fragezeichen zurück.
+     * Returns a list of fields with question mark parameters for an SQL query that match
+     * individual fields of a product or variant (depending on the parameter)
+     * For further SQL queries 'on duplicate key update', it also returns in the optional return parameters
+     * the separate field names and a list with question marks.
      *
-     *  @param  {string}    $str_productOrVariant       entweder ´product´ oder etwas anderes für Variante
-     *  @param  {string}    $fieldnames                 eine Liste in der die Feldnamen ohne Fragezeichen enthalten sind
-     *  @param  {string}    $questionMarks              eine Liste in der die Fragezeichen ohne die Feldnamen enthalten sind (für den Values Teil)
-     *  @return {string}    $queryExtension             eine Liste mit Feldnamen und Fragezeichen
+     *  @param  {string}    $str_productOrVariant       either 'product' or something else for variant
+     *  @param  {string}    $fieldnames                 a list containing the field names without question marks
+     *  @param  {string}    $questionMarks              a list containing the question marks without the field names (for the values part)
+     *  @return {string}    $queryExtension             a list with field names and question marks
      */
     private static function createCustomFieldsQueryExtension(string $str_productOrVariant = 'product'
         , ?string &$fieldnames = null, ?string &$questionMarks = null
