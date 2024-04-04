@@ -1055,6 +1055,160 @@ class ls_shop_productManagementApiHelper {
 		// Prüfen, ob es eine Variante mit der Artikelnummer bereits gibt
 		$int_alreadyExistsAsID = false;
 
+
+//HINWEIS:
+//Um diesen Aufruf einzusparen wurde ein subselect ins Statement eingebaut
+/*
+$int_parentProductId = self::getProductIdForProductCode($arr_preprocessedDataRow['parentProductcode']);
+
+if (!$int_parentProductId) {
+    throw new \Exception('no parent product found with product code '.$arr_preprocessedDataRow['parentProductcode'].' for variant with product code '.$arr_preprocessedDataRow['productcode']);
+}
+*/
+
+        $groupPriceFieldNames = '';
+        $groupPriceQuestionMarks = '';
+        $groupPriceValuesFields = '';
+        $customFieldsFieldNames = '';
+        $customFieldsQuestionMarks = '';
+        $customFieldsValuesFields = '';
+        self::createGroupPriceFieldsForQuery('product', $groupPriceFieldNames, $groupPriceQuestionMarks, $groupPriceValuesFields);
+        self::createCustomFieldsQueryExtension('product', $customFieldsFieldNames, $customFieldsQuestionMarks, $customFieldsValuesFields);
+$groupPriceFieldNames = '';
+$groupPriceQuestionMarks = '';
+$groupPriceValuesFields = '';
+$customFieldsFieldNames = '';
+$customFieldsQuestionMarks = '';
+$customFieldsValuesFields = '';
+
+        $query_variant = \Database::getInstance()
+            ->prepare("
+            INSERT INTO	`tl_ls_shop_variant` (
+                `tstamp`,
+                `pid`,
+                `title`,
+                `alias`,
+                `sorting`,
+                `lsShopVariantCode`,
+                `shortDescription`,
+                `description`,
+                `published`,
+                `lsShopProductVariantAttributesValues`,
+                `lsShopVariantPrice`,
+                `lsShopVariantPriceType`,
+                `lsShopVariantPriceOld`,
+                `lsShopVariantPriceTypeOld`,
+                `useOldPrice`,
+                `lsShopVariantWeight`,
+                `lsShopVariantWeightType`,
+                `lsShopVariantQuantityUnit`,
+                `lsShopVariantMengenvergleichUnit`,
+                `lsShopVariantMengenvergleichDivisor`,
+                `lsShopProductVariantMainImage`,
+                `lsShopProductVariantMoreImages`,
+                `lsShopVariantDeliveryInfoSet`,
+                `configurator`,
+                `flex_contents`,
+                `flex_contentsLanguageIndependent`,
+                `useScalePrice`,
+                `scalePriceType`,
+                `scalePriceQuantityDetectionMethod`,
+                `scalePriceQuantityDetectionAlwaysSeparateConfigurations`,
+                `scalePriceKeyword`,
+                `scalePrice` = ?
+                ".$groupPriceFieldNames."
+                ".$customFieldsFieldNames."
+            )
+
+            VALUES (?
+            -- , ?
+            , (SELECT pid FROM `tl_ls_shop_variant` WHERE lsShopProductCode = '?')
+            , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ".$groupPriceQuestionMarks."
+            ".$customFieldsQuestionMarks."
+            )
+            ON DUPLICATE KEY UPDATE
+    			`title` = VALUES(`title`),
+                `alias` = VALUES(`alias`),
+                `sorting` = VALUES(`sorting`),
+                `shortDescription` = VALUES(`shortDescription`),
+                `description` = VALUES(`description`),
+                `published` = VALUES(`published`),
+                `lsShopProductVariantAttributesValues` = VALUES(`lsShopProductVariantAttributesValues`),
+                `lsShopVariantPrice` = VALUES(`lsShopVariantPrice`),
+                `lsShopVariantPriceType` = VALUES(`lsShopVariantPriceType`),
+                `lsShopVariantPriceOld` = VALUES(`lsShopVariantPriceOld`),
+                `lsShopVariantPriceTypeOld` = VALUES(`lsShopVariantPriceTypeOld`),
+                `useOldPrice` = VALUES(`useOldPrice`),
+                `lsShopVariantWeight` = VALUES(`lsShopVariantWeight`),
+                `lsShopVariantWeightType` = VALUES(`lsShopVariantWeightType`),
+                `lsShopVariantQuantityUnit` = VALUES(`lsShopVariantQuantityUnit`),
+                `lsShopVariantMengenvergleichUnit` = VALUES(`lsShopVariantMengenvergleichUnit`),
+                `lsShopVariantMengenvergleichDivisor` = VALUES(`lsShopVariantMengenvergleichDivisor`),
+                `lsShopProductVariantMainImage` = VALUES(`lsShopProductVariantMainImage`),
+                `lsShopProductVariantMoreImages` = VALUES(`lsShopProductVariantMoreImages`),
+                `lsShopVariantDeliveryInfoSet` = VALUES(`lsShopVariantDeliveryInfoSet`),
+                `configurator` = VALUES(`configurator`),
+                `flex_contents` = VALUES(`flex_contents`),
+                `flex_contentsLanguageIndependent` = VALUES(`flex_contentsLanguageIndependent`),
+                `useScalePrice` = VALUES(`useScalePrice`),
+                `scalePriceType` = VALUES(`scalePriceType`),
+                `scalePriceQuantityDetectionMethod` = VALUES(`scalePriceQuantityDetectionMethod`),
+                `scalePriceQuantityDetectionAlwaysSeparateConfigurations` = VALUES(`scalePriceQuantityDetectionAlwaysSeparateConfigurations`),
+                `scalePriceKeyword` = VALUES(`scalePriceKeyword`),
+                `scalePrice` = VALUES(`scalePrice`)
+                ".$groupPriceValuesFields."
+                ".$customFieldsValuesFields."
+            ");
+
+			$arr_queryParams = array(
+                time(),
+#$int_parentProductId,
+$arr_preprocessedDataRow['productcode'],
+				$arr_preprocessedDataRow['name'], // String, maxlength 255
+				self::generateVariantAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias'], $int_alreadyExistsAsID),
+				$arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
+				$arr_preprocessedDataRow['shortDescription'], // text
+				$arr_preprocessedDataRow['description'], // text
+				$arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['propertiesAndValues'], // blob, translated, check unclear
+				$arr_preprocessedDataRow['price'] ? $arr_preprocessedDataRow['price'] : 0, // decimal, empty = 0
+				$arr_preprocessedDataRow['priceType'], // String, maxlength 255
+				$arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
+				$arr_preprocessedDataRow['oldPriceType'], // String, maxlength 255
+				$arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
+				$arr_preprocessedDataRow['weightType'], // String, maxlength 255
+				$arr_preprocessedDataRow['unit'], // String, maxlength 255
+				$arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
+				$arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
+				$arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
+				$arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
+				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
+				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
+				$arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['scalePriceType'], // String, maxlength 255
+				$arr_preprocessedDataRow['scalePriceQuantityDetectionMethod'], // String, maxlength 255
+				$arr_preprocessedDataRow['scalePriceQuantityDetectionAlwaysSeparateConfigurations'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
+				$arr_preprocessedDataRow['scalePrice'] // blob, translated, check unclear
+			);
+
+#			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
+#            $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
+
+			// Must be the last parameter in the array
+			#$arr_queryParams[] = $int_alreadyExistsAsID;
+
+			$query_variant->execute($arr_queryParams);
+
+
+return;
+
+
+
 		$obj_dbres_variant = \Database::getInstance()
 			->prepare("
 				SELECT		`id`
