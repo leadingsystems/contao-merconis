@@ -605,9 +605,10 @@ class ls_shop_productManagementApiHelper {
      *  @param  {string}    $str_productOrVariant               either 'product' or something else for variant
      *  @param  {string}    $fieldnames                         a list containing the field names without question marks
      *  @param  {string}    $questionMarks                      a list containing the question marks without the field names (for the values part)
+     *  @param  {string}    $valuesFields                       a list with two identical field names, one with VALUES
      *  @return {string}    $str_addGroupPriceFieldsToQuery     a list with field names and question marks
      */
-	public static function createGroupPriceFieldsForQuery($str_productOrVariant = 'product', ?string &$fieldnames = null, ?string &$questionMarks = null)
+	public static function createGroupPriceFieldsForQuery($str_productOrVariant = 'product', ?string &$fieldnames = null, ?string &$questionMarks = null, ?string &$valuesFields = null)
     {
 		$str_addGroupPriceFieldsToQuery = "";
 
@@ -661,6 +662,30 @@ class ls_shop_productManagementApiHelper {
 				?,
                 ".($str_productOrVariant === 'product' ? "" : "?,")."
 				?
+			";
+
+			$valuesFields .= ",
+				`useGroupPrices_".$i."` = VALUES(`useGroupPrices_".$i."`),
+				`priceForGroups_".$i."` = VALUES(`priceForGroups_".$i."`),
+				".($str_productOrVariant === 'product'
+                    ? "`lsShopProductPrice_".$i."` = VALUES(`lsShopProductPrice_".$i."`)"
+                    : "`lsShopVariantPrice_".$i."` = VALUES(`lsShopVariantPrice_".$i."`)").",
+				".($str_productOrVariant === 'product'
+                    ? ""
+                    : "`lsShopVariantPriceType_".$i."` = VALUES(`lsShopVariantPriceType_".$i."`),")."
+				`useScalePrice_".$i."` = VALUES(`useScalePrice_".$i."`),
+				`scalePriceType_".$i."` = VALUES(`scalePriceType_".$i."`),
+				`scalePriceQuantityDetectionMethod_".$i."` = VALUES(`scalePriceQuantityDetectionMethod_".$i."`),
+				`scalePriceQuantityDetectionAlwaysSeparateConfigurations_".$i."` = VALUES(`scalePriceQuantityDetectionAlwaysSeparateConfigurations_".$i."`),
+				`scalePriceKeyword_".$i."` = VALUES(`scalePriceKeyword_".$i."`),
+				`scalePrice_".$i."` = VALUES(`scalePrice_".$i."`),
+				".($str_productOrVariant === 'product'
+                    ? "`lsShopProductPriceOld_".$i."` = VALUES(`lsShopProductPriceOld_".$i."`)"
+                    : "`lsShopVariantPriceOld_".$i."` = VALUES(`lsShopVariantPriceOld_".$i."`)").",
+				".($str_productOrVariant === 'product'
+                    ? ""
+                    : "`lsShopVariantPriceTypeOld_".$i."` = ?,")."
+				`useOldPrice_".$i."` = VALUES(`useOldPrice_".$i."`)
 			";
 		}
 
@@ -820,10 +845,12 @@ class ls_shop_productManagementApiHelper {
 
         $groupPriceFieldNames = '';
         $groupPriceQuestionMarks = '';
+        $groupPriceValuesFields = '';
         $customFieldsFieldNames = '';
         $customFieldsQuestionMarks = '';
-        $str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('product', $groupPriceFieldNames, $groupPriceQuestionMarks);
-        $str_customFieldsQueryExtension = self::createCustomFieldsQueryExtension('product', $customFieldsFieldNames, $customFieldsQuestionMarks);
+        $customFieldsValuesFields = '';
+        self::createGroupPriceFieldsForQuery('product', $groupPriceFieldNames, $groupPriceQuestionMarks, $groupPriceValuesFields);
+        self::createCustomFieldsQueryExtension('product', $customFieldsFieldNames, $customFieldsQuestionMarks, $customFieldsValuesFields);
 
 
 
@@ -875,43 +902,43 @@ class ls_shop_productManagementApiHelper {
             ".$customFieldsQuestionMarks."
             )
             ON DUPLICATE KEY UPDATE
-                `title` = ?,
-                `alias` = `alias`,
-                `sorting` = ?,
-                `keywords` = ?,
-                `shortDescription` = ?,
-                `description` = ?,
-                `published` = ?,
-                `pages` = ?,
-                `lsShopProductPrice` = ?,
-                `lsShopProductPriceOld` = ?,
-                `useOldPrice` = ?,
-                `lsShopProductWeight` = ?,
-                `lsShopProductSteuersatz` = ?,
-                `lsShopProductQuantityUnit` = ?,
-                `lsShopProductQuantityDecimals` = ?,
-                `lsShopProductMengenvergleichUnit` = ?,
-                `lsShopProductMengenvergleichDivisor` = ?,
-                `lsShopProductMainImage` = ?,
-                `lsShopProductMoreImages` = ?,
-                `lsShopProductDetailsTemplate` = ?,
-                `lsShopProductIsNew` = ?,
-                `lsShopProductIsOnSale` = ?,
-                `lsShopProductRecommendedProducts` = ?,
-                `lsShopProductDeliveryInfoSet` = ?,
-                `lsShopProductProducer` = ?,
-                `configurator` = ?,
-                `flex_contents` = ?,
-                `flex_contentsLanguageIndependent` = ?,
-                `lsShopProductAttributesValues` = ?,
-                `useScalePrice` = ?,
-                `scalePriceType` = ?,
-                `scalePriceQuantityDetectionMethod` = ?,
-                `scalePriceQuantityDetectionAlwaysSeparateConfigurations` = ?,
-                `scalePriceKeyword` = ?,
-                `scalePrice` = ?
-                ".$str_addGroupPriceFieldsToQuery."
-                ".$str_customFieldsQueryExtension."
+                title = VALUES(title),
+                alias = VALUES(alias),
+                sorting = VALUES(sorting),
+                keywords = VALUES(keywords),
+                shortDescription = VALUES(shortDescription),
+                description = VALUES(description),
+                published = VALUES(published),
+                pages = VALUES(pages),
+                lsShopProductPrice = VALUES(lsShopProductPrice),
+                lsShopProductPriceOld = VALUES(lsShopProductPriceOld),
+                useOldPrice = VALUES(useOldPrice),
+                lsShopProductWeight = VALUES(lsShopProductWeight),
+                lsShopProductSteuersatz = VALUES(lsShopProductSteuersatz),
+                lsShopProductQuantityUnit = VALUES(lsShopProductQuantityUnit),
+                lsShopProductQuantityDecimals = VALUES(lsShopProductQuantityDecimals),
+                lsShopProductMengenvergleichUnit = VALUES(lsShopProductMengenvergleichUnit),
+                lsShopProductMengenvergleichDivisor = VALUES(lsShopProductMengenvergleichDivisor),
+                lsShopProductMainImage = VALUES(lsShopProductMainImage),
+                lsShopProductMoreImages = VALUES(lsShopProductMoreImages),
+                lsShopProductDetailsTemplate = VALUES(lsShopProductDetailsTemplate),
+                lsShopProductIsNew = VALUES(lsShopProductIsNew),
+                lsShopProductIsOnSale = VALUES(lsShopProductIsOnSale),
+                lsShopProductRecommendedProducts = VALUES(lsShopProductRecommendedProducts),
+                lsShopProductDeliveryInfoSet = VALUES(lsShopProductDeliveryInfoSet),
+                lsShopProductProducer = VALUES(lsShopProductProducer),
+                configurator = VALUES(configurator),
+                flex_contents = VALUES(flex_contents),
+                flex_contentsLanguageIndependent = VALUES(flex_contentsLanguageIndependent),
+                lsShopProductAttributesValues = VALUES(lsShopProductAttributesValues),
+                useScalePrice = VALUES(useScalePrice),
+                scalePriceType = VALUES(scalePriceType),
+                scalePriceQuantityDetectionMethod = VALUES(scalePriceQuantityDetectionMethod),
+                scalePriceQuantityDetectionAlwaysSeparateConfigurations = VALUES(scalePriceQuantityDetectionAlwaysSeparateConfigurations),
+                scalePriceKeyword = VALUES(scalePriceKeyword),
+                scalePrice = VALUES(scalePrice)
+                ".$groupPriceValuesFields."
+                ".$customFieldsValuesFields."
 		");
 
 
@@ -958,46 +985,6 @@ class ls_shop_productManagementApiHelper {
         $arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
         $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
 
-
-        $arr_queryParams = array_merge($arr_queryParams, array(
-            $arr_preprocessedDataRow['name'], // String, maxlength 255
-            $arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
-            $arr_preprocessedDataRow['keywords'], // text
-            $arr_preprocessedDataRow['shortDescription'], // text
-            $arr_preprocessedDataRow['description'], // text
-            $arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
-            $arr_preprocessedDataRow['category'], // blob
-            $arr_preprocessedDataRow['price'] ? $arr_preprocessedDataRow['price'] : 0, // decimal, empty = 0
-            $arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
-            $arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
-            $arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
-            $arr_preprocessedDataRow['taxclass'] ? $arr_preprocessedDataRow['taxclass'] : 0, // int, empty = 0
-            $arr_preprocessedDataRow['unit'], // String, maxlength 255
-            $arr_preprocessedDataRow['quantityDecimals'] && $arr_preprocessedDataRow['quantityDecimals'] > 0 ? $arr_preprocessedDataRow['quantityDecimals'] : 0, // int, empty = 0
-            $arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
-            $arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
-            $arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
-            $arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
-            $arr_preprocessedDataRow['template'], // String, maxlength 64
-            $arr_preprocessedDataRow['new'] ? '1' : '', // 1 or ''
-            $arr_preprocessedDataRow['onSale'] ? '1' : '', // 1 or ''
-            $arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
-            $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
-            $arr_preprocessedDataRow['producer'], // String, maxlength 255
-            $arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
-            $arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
-            $arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
-            $arr_preprocessedDataRow['propertiesAndValues'], // blob, translated, check unclear
-            $arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''
-            $arr_preprocessedDataRow['scalePriceType'], // String, maxlength 255
-            $arr_preprocessedDataRow['scalePriceQuantityDetectionMethod'], // String, maxlength 255
-            $arr_preprocessedDataRow['scalePriceQuantityDetectionAlwaysSeparateConfigurations'] ? '1' : '', // 1 or ''
-            $arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
-            $arr_preprocessedDataRow['scalePrice'] // blob, translated, check unclear
-        ));
-
-        $arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
-        $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'product');
 
         $obj_dbres_prod->execute($arr_queryParams);
         $productID = (int) $obj_dbres_prod->insertId;
@@ -1618,9 +1605,10 @@ class ls_shop_productManagementApiHelper {
      *  @param  {string}    $str_productOrVariant       either 'product' or something else for variant
      *  @param  {string}    $fieldnames                 a list containing the field names without question marks
      *  @param  {string}    $questionMarks              a list containing the question marks without the field names (for the values part)
+     *  @param  {string}    $valuesFields               a list with two identical field names, one with VALUES
      *  @return {string}    $queryExtension             a list with field names and question marks
      */
-    private static function createCustomFieldsQueryExtension(string $str_productOrVariant = 'product', ?string &$fieldnames = null, ?string &$questionMarks = null): string
+    private static function createCustomFieldsQueryExtension(string $str_productOrVariant = 'product', ?string &$fieldnames = null, ?string &$questionMarks = null, ?string &$valuesFields = null): string
     {
         $queryExtension = '';
         $customFields = $str_productOrVariant === 'product' ? self::$arr_customFieldsForProducts : self::$arr_customFieldsForVariants;
@@ -1629,6 +1617,7 @@ class ls_shop_productManagementApiHelper {
             $queryExtension .= ", `" . $customFieldName . "` = ?";
             $fieldnames .= ", `" . $customFieldName . "`";
             $questionMarks .= ", ?";
+            $valuesFields .= ", `" . $customFieldName . "` = VALUES(`".$customFieldName."`)";
         }
 
         return $queryExtension;
