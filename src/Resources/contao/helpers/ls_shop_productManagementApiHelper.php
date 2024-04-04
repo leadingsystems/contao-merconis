@@ -612,7 +612,7 @@ class ls_shop_productManagementApiHelper {
 		$str_addGroupPriceFieldsToQuery = "";
 
 		for ($i=1; $i <= self::$int_numImportableGroupPrices; $i++) {
-			$str_addGroupPriceFieldsToQuery = $str_addGroupPriceFieldsToQuery.",
+			$str_addGroupPriceFieldsToQuery .= ",
 				
 				`useGroupPrices_".$i."` = ?,
 				`priceForGroups_".$i."` = ?,
@@ -629,7 +629,7 @@ class ls_shop_productManagementApiHelper {
 				`useOldPrice_".$i."` = ?
 			";
 
-			$fieldnames = $fieldnames.",
+			$fieldnames .= ",
 				
 				`useGroupPrices_".$i."`,
 				`priceForGroups_".$i."`,
@@ -646,7 +646,7 @@ class ls_shop_productManagementApiHelper {
 				`useOldPrice_".$i."`
 			";
 
-			$questionMarks = $questionMarks.",
+			$questionMarks .=",
 				
 				?,
 				?,
