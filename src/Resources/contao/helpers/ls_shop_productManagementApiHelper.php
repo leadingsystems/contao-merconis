@@ -684,7 +684,7 @@ class ls_shop_productManagementApiHelper {
                     : "`lsShopVariantPriceOld_".$i."` = VALUES(`lsShopVariantPriceOld_".$i."`)").",
 				".($str_productOrVariant === 'product'
                     ? ""
-                    : "`lsShopVariantPriceTypeOld_".$i."` = ?,")."
+                    : "`lsShopVariantPriceTypeOld_".$i."` = VALUES(`lsShopVariantPriceTypeOld_".$i."`),")."
 				`useOldPrice_".$i."` = VALUES(`useOldPrice_".$i."`)
 			";
 		}
@@ -1052,8 +1052,6 @@ class ls_shop_productManagementApiHelper {
 	}
 
 	public static function insertOrUpdateVariantRecord($arr_preprocessedDataRow) {
-		// Prüfen, ob es eine Variante mit der Artikelnummer bereits gibt
-		$int_alreadyExistsAsID = false;
 
 
 //HINWEIS:
@@ -1072,14 +1070,9 @@ if (!$int_parentProductId) {
         $customFieldsFieldNames = '';
         $customFieldsQuestionMarks = '';
         $customFieldsValuesFields = '';
-        self::createGroupPriceFieldsForQuery('product', $groupPriceFieldNames, $groupPriceQuestionMarks, $groupPriceValuesFields);
-        self::createCustomFieldsQueryExtension('product', $customFieldsFieldNames, $customFieldsQuestionMarks, $customFieldsValuesFields);
-$groupPriceFieldNames = '';
-$groupPriceQuestionMarks = '';
-$groupPriceValuesFields = '';
-$customFieldsFieldNames = '';
-$customFieldsQuestionMarks = '';
-$customFieldsValuesFields = '';
+        self::createGroupPriceFieldsForQuery('variant', $groupPriceFieldNames, $groupPriceQuestionMarks, $groupPriceValuesFields);
+        self::createCustomFieldsQueryExtension('variant', $customFieldsFieldNames, $customFieldsQuestionMarks, $customFieldsValuesFields);
+
 
         $query_variant = \Database::getInstance()
             ->prepare("
@@ -1115,14 +1108,13 @@ $customFieldsValuesFields = '';
                 `scalePriceQuantityDetectionMethod`,
                 `scalePriceQuantityDetectionAlwaysSeparateConfigurations`,
                 `scalePriceKeyword`,
-                `scalePrice` = ?
+                `scalePrice`
                 ".$groupPriceFieldNames."
                 ".$customFieldsFieldNames."
             )
 
             VALUES (?
-            -- , ?
-            , (SELECT pid FROM `tl_ls_shop_variant` WHERE lsShopProductCode = '?')
+            , (SELECT id FROM `tl_ls_shop_product` WHERE lsShopProductCode = ?)
             , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             ".$groupPriceQuestionMarks."
             ".$customFieldsQuestionMarks."
@@ -1166,8 +1158,11 @@ $customFieldsValuesFields = '';
 #$int_parentProductId,
 $arr_preprocessedDataRow['productcode'],
 				$arr_preprocessedDataRow['name'], // String, maxlength 255
-				self::generateVariantAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias'], $int_alreadyExistsAsID),
+				self::generateVariantAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias']),
 				$arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
+
+//Vorläufig ist der productCode der variantCode
+$arr_preprocessedDataRow['productcode'], // text
 				$arr_preprocessedDataRow['shortDescription'], // text
 				$arr_preprocessedDataRow['description'], // text
 				$arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
@@ -1196,8 +1191,8 @@ $arr_preprocessedDataRow['productcode'],
 				$arr_preprocessedDataRow['scalePrice'] // blob, translated, check unclear
 			);
 
-#			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
-#            $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
+			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
+            $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
 
 			// Must be the last parameter in the array
 			#$arr_queryParams[] = $int_alreadyExistsAsID;
@@ -1207,6 +1202,8 @@ $arr_preprocessedDataRow['productcode'],
 
 return;
 
+		// Prüfen, ob es eine Variante mit der Artikelnummer bereits gibt
+		$int_alreadyExistsAsID = false;
 
 
 		$obj_dbres_variant = \Database::getInstance()
