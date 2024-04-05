@@ -96,9 +96,6 @@ class ls_shop_generalHelper
         /*
          * First, delete all entries related to the current product or variant
          */
-			#-- DELETE FROM	`tl_ls_shop_attribute_allocation`
-			#-- WHERE		`pid` = ?
-			#-- AND		`parentIsVariant` = ?
         $db_del = \Database::getInstance()
             ->prepare("
             DELETE AA.* 
