@@ -1153,49 +1153,49 @@ if (!$int_parentProductId) {
                 ".$customFieldsValuesFields."
             ");
 
-			$arr_queryParams = array(
-                time(),
+        $arr_queryParams = array(
+            time(),
 #$int_parentProductId,
 $arr_preprocessedDataRow['productcode'],
-				$arr_preprocessedDataRow['name'], // String, maxlength 255
-				self::generateVariantAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias']),
-				$arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
+            $arr_preprocessedDataRow['name'], // String, maxlength 255
+            self::generateVariantAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias']),
+            $arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
 
 //Vorläufig ist der productCode der variantCode
 $arr_preprocessedDataRow['productcode'], // text
-				$arr_preprocessedDataRow['shortDescription'], // text
-				$arr_preprocessedDataRow['description'], // text
-				$arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
-				$arr_preprocessedDataRow['propertiesAndValues'], // blob, translated, check unclear
-				$arr_preprocessedDataRow['price'] ? $arr_preprocessedDataRow['price'] : 0, // decimal, empty = 0
-				$arr_preprocessedDataRow['priceType'], // String, maxlength 255
-				$arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
-				$arr_preprocessedDataRow['oldPriceType'], // String, maxlength 255
-				$arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
-				$arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
-				$arr_preprocessedDataRow['weightType'], // String, maxlength 255
-				$arr_preprocessedDataRow['unit'], // String, maxlength 255
-				$arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
-				$arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
-				$arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
-				$arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
-				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
-				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
-				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
-				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
-				$arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''
-				$arr_preprocessedDataRow['scalePriceType'], // String, maxlength 255
-				$arr_preprocessedDataRow['scalePriceQuantityDetectionMethod'], // String, maxlength 255
-				$arr_preprocessedDataRow['scalePriceQuantityDetectionAlwaysSeparateConfigurations'] ? '1' : '', // 1 or ''
-				$arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
-				$arr_preprocessedDataRow['scalePrice'] // blob, translated, check unclear
-			);
+            $arr_preprocessedDataRow['shortDescription'], // text
+            $arr_preprocessedDataRow['description'], // text
+            $arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['propertiesAndValues'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['price'] ? $arr_preprocessedDataRow['price'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['priceType'], // String, maxlength 255
+            $arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['oldPriceType'], // String, maxlength 255
+            $arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['weightType'], // String, maxlength 255
+            $arr_preprocessedDataRow['unit'], // String, maxlength 255
+            $arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
+            $arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
+            $arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
+            $arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
+            $arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
+            $arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['scalePriceType'], // String, maxlength 255
+            $arr_preprocessedDataRow['scalePriceQuantityDetectionMethod'], // String, maxlength 255
+            $arr_preprocessedDataRow['scalePriceQuantityDetectionAlwaysSeparateConfigurations'] ? '1' : '', // 1 or ''
+            $arr_preprocessedDataRow['scalePriceKeyword'], // String, maxlength 255
+            $arr_preprocessedDataRow['scalePrice'] // blob, translated, check unclear
+        );
 
-			$arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
-            $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
+        $arr_queryParams = self::addGroupPriceFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
+        $arr_queryParams = self::addCustomFieldsToQueryParam($arr_queryParams, $arr_preprocessedDataRow, 'variant');
 
-			// Must be the last parameter in the array
-			#$arr_queryParams[] = $int_alreadyExistsAsID;
+        // Must be the last parameter in the array
+        #$arr_queryParams[] = $int_alreadyExistsAsID;
 
 			$query_variant->execute($arr_queryParams);
 
