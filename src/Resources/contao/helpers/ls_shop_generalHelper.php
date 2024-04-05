@@ -86,8 +86,7 @@ class ls_shop_generalHelper
      * Diese Version arbeitet nicht mit der ID, sondern mit der vorliegenden lsShopProductCode
      *
      */
-    public static function insertAttributeValueAllocations_byShopProductCode($arr_allocations
-        , $parent_lsShopProductCode = '', $bln_parentIsVariant = 0)
+    public static function insertAttributeValueAllocations_byShopProductCode($arr_allocations, $parent_lsShopProductCode = '', $bln_parentIsVariant = 0)
     {
         if (!$parent_lsShopProductCode) {
             return;
@@ -96,12 +95,15 @@ class ls_shop_generalHelper
         /*
          * First, delete all entries related to the current product or variant
          */
+        $tableProductOrVariant = ($bln_parentIsVariant == 0) ? 'tl_ls_shop_product' : 'tl_ls_shop_variant';
+        $keyField = ($bln_parentIsVariant == 0) ? 'lsShopProductCode' : 'lsShopVariantCode';
+
         $db_del = \Database::getInstance()
             ->prepare("
             DELETE AA.* 
             FROM `tl_ls_shop_attribute_allocation` AA
-            INNER JOIN tl_ls_shop_product P ON AA.pid = P.id
-            WHERE P.lsShopProductCode = ?
+            INNER JOIN ".$tableProductOrVariant." P ON AA.pid = P.id
+            WHERE P.".$keyField." = ?
                 AND		AA.parentIsVariant = ?
 		")
             ->execute(
@@ -125,7 +127,7 @@ class ls_shop_generalHelper
                 \Database::getInstance()
                     ->prepare("
                     INSERT INTO `tl_ls_shop_attribute_allocation`
-                    SET			`pid` = (select id from `tl_ls_shop_product` where lsShopProductCode = ?),
+                    SET			`pid` = (select id from `".$tableProductOrVariant."` where ".$keyField." = ?),
                                 `parentIsVariant` = ?,
                                 `attributeID` = ?,
                                 `attributeValueID` = ?,
