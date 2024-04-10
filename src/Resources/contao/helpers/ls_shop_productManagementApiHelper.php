@@ -1126,7 +1126,6 @@ class ls_shop_productManagementApiHelper {
 					SET			`title` = ?,
 								`alias` = ?,
 								`sorting` = ?,
-								`variationGroupCode` = ?,
 								`shortDescription` = ?,
 								`description` = ?,
 								`published` = ?,
@@ -1163,7 +1162,6 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['name'], // String, maxlength 255
 				self::generateVariantAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias'], $int_alreadyExistsAsID),
 				$arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
-				$arr_preprocessedDataRow['variationGroupCode'], // String, maxlength 255
 				$arr_preprocessedDataRow['shortDescription'], // text
 				$arr_preprocessedDataRow['description'], // text
 				$arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
@@ -1273,7 +1271,6 @@ class ls_shop_productManagementApiHelper {
 							`alias` = ?,
 							`sorting` = ?,
 							`lsShopVariantCode` = ?,
-							`variationGroupCode` = ?,
 							`shortDescription` = ?,
 							`description` = ?,
 							`published` = ?,
@@ -1311,7 +1308,6 @@ class ls_shop_productManagementApiHelper {
 				self::generateVariantAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias']),
 				$arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
 				$arr_preprocessedDataRow['productcode'], // String, maxlength 255
-				$arr_preprocessedDataRow['variationGroupCode'], // String, maxlength 255
 				$arr_preprocessedDataRow['shortDescription'], // text
 				$arr_preprocessedDataRow['description'], // text
 				$arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
