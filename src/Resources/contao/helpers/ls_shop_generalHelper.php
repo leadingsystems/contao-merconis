@@ -439,6 +439,17 @@ class ls_shop_generalHelper
                 );
 
             while ($dbres_variations->next()) {
+                /*
+                 * Do me! Check if performance must and can be improved here.
+                     *
+                     * First assumption: With very large variation groups it is probably really bad for performance that we have
+                     * to instantiate every variation's product object. On the other hand, if we don't do that, when checking
+                     * for attributes/values e.g. in the variationSelector, we can't use the product object's built-in
+                     * functionalities.
+                     *
+                     * But then: After a first quick test it looks like instantiating the product objects is not really what slows
+                     * things down significantly. At least it was not that bad with a variation group of 352 variations.
+                 */
                 $GLOBALS['merconis_globals']['variationGroups'][$variationGroupCode][$dbres_variations->id] = ls_shop_generalHelper::getObjProduct($dbres_variations->id);
             }
         }
