@@ -6,26 +6,6 @@
 			<input type="hidden" name="FORM_SUBMIT" value="merconisProductSearch">
 			<?php echo $this->str_widget_searchWord; ?>
 			<button type="submit" class="submit no-button"></button>
-
-            <?php
-            if(isset($GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']) && $GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']){
-
-                if(isset($_SESSION['lsShop']['productSearch']['searchType'])){
-                    $type = $_SESSION['lsShop']['productSearch']['searchType'];
-                }else{
-                    $type = $GLOBALS['TL_CONFIG']['ls_shop_searchType'];
-                }
-                ?>
-                <div class="widget widget-select select">
-                    <select name="searchType">
-                        <option value="And-Search" <?= ($type == "And-Search") ? "selected" : "" ?> ><?= $GLOBALS['TL_LANG']['MOD']['ls_shop']['searchType']['options']['And-Search'] ?></option>
-                        <option value="Or-Search" <?= ($type == "Or-Search") ? "selected" : "" ?> ><?= $GLOBALS['TL_LANG']['MOD']['ls_shop']['searchType']['options']['Or-Search'] ?></option>
-                    </select>
-                </div>
-                <?php
-            }
-            ?>
-
 		</div>
 	</form>
 </div>
