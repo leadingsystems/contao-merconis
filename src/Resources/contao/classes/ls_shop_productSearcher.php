@@ -942,12 +942,8 @@ class ls_shop_productSearcher
          */
         $tmpRequestFields = $this->arrRequestFields;
         if ($this->blnUseFilter) {
-            if (!in_array('attributeID', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'attributeID';
-            }
-
-            if (!in_array('attributeValueID', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'attributeValueID';
+            if (!in_array('lsShopProductAttributesValues', $this->arrRequestFields)) {
+                $this->arrRequestFields[] = 'lsShopProductAttributesValues';
             }
 
             if (!in_array('lsShopProductPrice', $this->arrRequestFields)) {
@@ -1068,11 +1064,6 @@ class ls_shop_productSearcher
 			SELECT			".$fieldSelectionPart."
 							".($addToSelectStatement ?? '')."
 			FROM			`tl_ls_shop_product`
-		".($this->blnUseFilter ? "
-			LEFT JOIN		`tl_ls_shop_attribute_allocation`
-				ON			`tl_ls_shop_product`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
-				AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '0'
-		" : "")."
 			WHERE			".$searchCondition."
 			".$orderStatement."
 		");
@@ -1096,74 +1087,52 @@ class ls_shop_productSearcher
         $arrProductsComplete = $objProductsComplete->fetchAllAssoc();
 
         /*
-         * If we use the filter we had a left join in our database query which leads to a result set
-         * that has multiple entries for one product if there's more than one related row in the
-         * left joined allocation table. In this case we have to transform the result set so that
-         * we have only one row per product and the info about additional attribute value allocations
-         * are merged in the row.
-         *
-         * Furthermore, if we use the filter we need variant informations for each product.
+         * If we use the filter we need variant information for each product.
          *
          * We also add some other information to the product/variant data that could not be retrieved
          * directly from the database, e.g. calculated prices.
          */
 
         if ($this->blnUseFilter && count($arrProductsComplete)) {
-            $tmpArrProductsComplete = array();
+            /*
+             * We want each product to be easily accessible by its id when we're adding variant information later
+             * and therefore we can't work with the database results array directly. Instead, we write all product
+             * data in a temporary array which we index with the product ids and overwrite the original database
+             * results array with that temporary array. Effectively, we re-index the database results array with
+             * the product ids and add some information.
+             */
+            $tmpArrProductsComplete = [];
             foreach ($arrProductsComplete as $rowProductsComplete) {
-                if (!isset($tmpArrProductsComplete[$rowProductsComplete['id']])) {
-                    $tmpArrProductsComplete[$rowProductsComplete['id']] = $rowProductsComplete;
+                $productId = $rowProductsComplete['id'];
+                $tmpArrProductsComplete[$productId] = $rowProductsComplete;
+                $tmpArrProductsComplete[$productId]['variants'] = [];
 
-                    // use a reference to make the following code better readable
-                    $refCurrentProductRow = &$tmpArrProductsComplete[$rowProductsComplete['id']];
+                /*
+                 * We create an array holding only the attribute IDs, another array holding only
+                 * the attribute value IDs and one more array holding attribute IDs and attribute
+                 * value IDs related to each other. That's because this way we can reduce workload
+                 * while creating the filter form and while filtering, and we assume that this is
+                 * worth the extra workload that we create here which should be smaller.
+                 */
+                $tmpArrProductsComplete[$productId]['attributeIDs'] = [];
+                $tmpArrProductsComplete[$productId]['attributeValueIDs'] = [];
+                $tmpArrProductsComplete[$productId]['attributeAndValueIDs'] = [];
 
-                    unset($refCurrentProductRow['attributeID']);
-                    unset($refCurrentProductRow['attributeValueID']);
-                    /*
-                     * We create an array holding only the attribute IDs, another array holding only
-                     * the attribute value IDs and one more array holding attribute IDs and attribute
-                     * value IDs related to each other. That's because this way we can save workload
-                     * while creating the filter form and while filtering and we assume that this is
-                     * worth the extra workload that we create here which should be smaller.
-                     */
-                    $refCurrentProductRow['attributeIDs'] = array();
-                    $refCurrentProductRow['attributeValueIDs'] = array();
-                    $refCurrentProductRow['attributeAndValueIDs'] = array();
-
-                    $refCurrentProductRow['variants'] = array();
-
-                    if ($this->bln_useGroupPrices) {
-                        $rowProductsComplete = $this->updateProductRowWithGroupPrice($rowProductsComplete);
+                $attributesAndValues = json_decode($rowProductsComplete['lsShopProductAttributesValues'], true);
+                if (is_array($attributesAndValues)) {
+                    foreach ($attributesAndValues as $attributeAndValue) {
+                        $tmpArrProductsComplete[$productId]['attributeIDs'][] = $attributeAndValue[0];
+                        $tmpArrProductsComplete[$productId]['attributeValueIDs'][] = $attributeAndValue[1];
+                        $tmpArrProductsComplete[$productId]['attributeAndValueIDs'][$attributeAndValue[0]][] = $attributeAndValue[1];
                     }
-
-                    $refCurrentProductRow['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz']);
-
-                    $refCurrentProductRow['lowestPrice'] = null;
-                    $refCurrentProductRow['highestPrice'] = null;
-                } else {
-                    /*
-                     * use a reference to make the following code better readable (the reference has to be
-                     * defined here as well to make sure that there can never be the wrong reference even if
-                     * the duplicate entries of a product don't follow each other directly)
-                     */
-                    $refCurrentProductRow = &$tmpArrProductsComplete[$rowProductsComplete['id']];
                 }
 
-                if ($rowProductsComplete['attributeID'] && $rowProductsComplete['attributeValueID']) {
-                    if (!isset($refCurrentProductRow['attributeAndValueIDs'][$rowProductsComplete['attributeID']])) {
-                        $refCurrentProductRow['attributeAndValueIDs'][$rowProductsComplete['attributeID']] = array();
-                    }
-
-                    $refCurrentProductRow['attributeAndValueIDs'][$rowProductsComplete['attributeID']][] = $rowProductsComplete['attributeValueID'];
+                if ($this->bln_useGroupPrices) {
+                    $rowProductsComplete = $this->updateProductRowWithGroupPrice($rowProductsComplete);
                 }
-
-                if ($rowProductsComplete['attributeID']) {
-                    $refCurrentProductRow['attributeIDs'][] = $rowProductsComplete['attributeID'];
-                }
-
-                if ($rowProductsComplete['attributeValueID']) {
-                    $refCurrentProductRow['attributeValueIDs'][] = $rowProductsComplete['attributeValueID'];
-                }
+                $tmpArrProductsComplete[$productId]['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz']);
+                $tmpArrProductsComplete[$productId]['lowestPrice'] = null;
+                $tmpArrProductsComplete[$productId]['highestPrice'] = null;
             }
 
             /*
@@ -1207,12 +1176,8 @@ class ls_shop_productSearcher
                     :	""
                 )
                 ."
-								`tl_ls_shop_attribute_allocation`.`attributeID`,
-								`tl_ls_shop_attribute_allocation`.`attributeValueID`
+								`tl_ls_shop_variant`.`lsShopProductVariantAttributesValues`
 				FROM			`tl_ls_shop_variant`
-				LEFT JOIN		`tl_ls_shop_attribute_allocation`
-					ON			`tl_ls_shop_variant`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
-					AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '1'
 				WHERE			`tl_ls_shop_variant`.`published` = '1'
 					AND			`tl_ls_shop_variant`.`pid` IN (".implode(',', array_keys($tmpArrProductsComplete)).")
 				ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
@@ -1221,75 +1186,49 @@ class ls_shop_productSearcher
 
             $arrVariants = $objVariants->fetchAllAssoc();
 
-            /*
-             * Walk through each variant record and merge duplicate records that occur
-             * because of multiple references to the attribute value allocation table
-             * and write the resulting variant array to the parent product's array.
-             */
             foreach ($arrVariants as $rowVariants) {
-                if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']])) {
-                    $tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']] = $rowVariants;
+                $productId = $rowVariants['pid'];
+                $variantId = $rowVariants['id'];
+                $tmpArrProductsComplete[$productId]['variants'][$variantId] = $rowVariants;
 
-                    // use a reference to make the following code better readable
-                    $refCurrentVariantRow = &$tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']];
+                $tmpArrProductsComplete[$productId]['variants'][$variantId]['attributeIDs'] = [];
+                $tmpArrProductsComplete[$productId]['variants'][$variantId]['attributeValueIDs'] = [];
+                $tmpArrProductsComplete[$productId]['variants'][$variantId]['attributeAndValueIDs'] = [];
 
-                    unset($refCurrentVariantRow['attributeID']);
-                    unset($refCurrentVariantRow['attributeValueID']);
-
-                    $refCurrentVariantRow['attributeIDs'] = array();
-                    $refCurrentVariantRow['attributeValueIDs'] = array();
-                    $refCurrentVariantRow['attributeAndValueIDs'] = array();
-
-                    /*
-                     * Get the variant's price
-                     */
-
-                    if ($this->bln_useGroupPrices) {
-                        $rowVariants = $this->updateVariantRowWithGroupPrice($rowVariants);
+                $attributesAndValues = json_decode($rowVariants['lsShopProductVariantAttributesValues'], true);
+                if (is_array($attributesAndValues)) {
+                    foreach ($attributesAndValues as $attributeAndValue) {
+                        $tmpArrProductsComplete[$productId]['variants'][$variantId]['attributeIDs'][] = $attributeAndValue[0];
+                        $tmpArrProductsComplete[$productId]['variants'][$variantId]['attributeValueIDs'][] = $attributeAndValue[1];
+                        $tmpArrProductsComplete[$productId]['variants'][$variantId]['attributeAndValueIDs'][$attributeAndValue[0]][] = $attributeAndValue[1];
                     }
-
-                    $refCurrentVariantRow['price'] = ls_shop_generalHelper::getDisplayPrice(
-                        ls_shop_generalHelper::ls_calculateVariantPriceRegardingPriceType(
-                            $rowVariants['lsShopVariantPriceType'],
-                            $tmpArrProductsComplete[$rowVariants['pid']]['lsShopProductPrice'],
-                            $rowVariants['lsShopVariantPrice']
-                        ),
-                        $tmpArrProductsComplete[$rowVariants['pid']]['lsShopProductSteuersatz']
-                    );
-
-                    /*
-                     * Store the variant's price as the product's lowest and highest price if it hasn't been set yet or if
-                     * the current variant's price is lower/higher than the currently stored lowest/highest price.
-                     */
-                    if ($tmpArrProductsComplete[$rowVariants['pid']]['lowestPrice'] === null || $refCurrentVariantRow['price'] < $tmpArrProductsComplete[$rowVariants['pid']]['lowestPrice']) {
-                        $tmpArrProductsComplete[$rowVariants['pid']]['lowestPrice'] = $refCurrentVariantRow['price'];
-                    }
-                    if ($tmpArrProductsComplete[$rowVariants['pid']]['highestPrice'] === null || $refCurrentVariantRow['price'] > $tmpArrProductsComplete[$rowVariants['pid']]['highestPrice']) {
-                        $tmpArrProductsComplete[$rowVariants['pid']]['highestPrice'] = $refCurrentVariantRow['price'];
-                    }
-                } else {
-                    /*
-                     * use a reference to make the following code better readable (the reference has to be
-                     * defined here as well to make sure that there can never be the wrong reference even if
-                     * the duplicate entries of a variant don't follow each other directly)
-                     */
-                    $refCurrentVariantRow = &$tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']];
                 }
 
-                if ($rowVariants['attributeID'] && $rowVariants['attributeValueID']) {
-                    if (!isset($refCurrentVariantRow['attributeAndValueIDs'][$rowVariants['attributeID']])) {
-                        $refCurrentVariantRow['attributeAndValueIDs'][$rowVariants['attributeID']] = array();
-                    }
-
-                    $refCurrentVariantRow['attributeAndValueIDs'][$rowVariants['attributeID']][] = $rowVariants['attributeValueID'];
+                /*
+                 * Get the variant's price
+                 */
+                if ($this->bln_useGroupPrices) {
+                    $rowVariants = $this->updateVariantRowWithGroupPrice($rowVariants);
                 }
 
-                if ($rowVariants['attributeID']) {
-                    $refCurrentVariantRow['attributeIDs'][] = $rowVariants['attributeID'];
-                }
+                $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'] = ls_shop_generalHelper::getDisplayPrice(
+                    ls_shop_generalHelper::ls_calculateVariantPriceRegardingPriceType(
+                        $rowVariants['lsShopVariantPriceType'],
+                        $tmpArrProductsComplete[$productId]['lsShopProductPrice'],
+                        $rowVariants['lsShopVariantPrice']
+                    ),
+                    $tmpArrProductsComplete[$productId]['lsShopProductSteuersatz']
+                );
 
-                if ($rowVariants['attributeValueID']) {
-                    $refCurrentVariantRow['attributeValueIDs'][] = $rowVariants['attributeValueID'];
+                /*
+                 * Store the variant's price as the product's lowest and highest price if it hasn't been set yet or if
+                 * the current variant's price is lower/higher than the currently stored lowest/highest price.
+                 */
+                if ($tmpArrProductsComplete[$productId]['lowestPrice'] === null || $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'] < $tmpArrProductsComplete[$productId]['lowestPrice']) {
+                    $tmpArrProductsComplete[$productId]['lowestPrice'] = $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'];
+                }
+                if ($tmpArrProductsComplete[$productId]['highestPrice'] === null || $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'] > $tmpArrProductsComplete[$productId]['highestPrice']) {
+                    $tmpArrProductsComplete[$productId]['highestPrice'] = $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'];
                 }
             }
 
