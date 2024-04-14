@@ -146,6 +146,7 @@ class ls_shop_productSearcher
             'filterModeSettings' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
             'language' => $this->searchLanguage,
             'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
+            'filterFieldForPriceExists' => ls_shop_filterHelper::filterFieldForPriceExists(),
             'checkVATID' => ls_shop_generalHelper::checkVATID(),
             'customerCountry' => ls_shop_generalHelper::getCustomerCountry(),
             'lastBackendDataChange' => isset($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']) ? $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] : 0,
@@ -1127,12 +1128,14 @@ class ls_shop_productSearcher
                     }
                 }
 
-                if ($this->bln_useGroupPrices) {
-                    $rowProductsComplete = $this->updateProductRowWithGroupPrice($rowProductsComplete);
+                if (ls_shop_filterHelper::filterFieldForPriceExists()) {
+                    if ($this->bln_useGroupPrices) {
+                        $rowProductsComplete = $this->updateProductRowWithGroupPrice($rowProductsComplete);
+                    }
+                    $tmpArrProductsComplete[$productId]['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz']);
+                    $tmpArrProductsComplete[$productId]['lowestPrice'] = null;
+                    $tmpArrProductsComplete[$productId]['highestPrice'] = null;
                 }
-                $tmpArrProductsComplete[$productId]['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz']);
-                $tmpArrProductsComplete[$productId]['lowestPrice'] = null;
-                $tmpArrProductsComplete[$productId]['highestPrice'] = null;
             }
 
             /*
@@ -1204,31 +1207,33 @@ class ls_shop_productSearcher
                     }
                 }
 
-                /*
-                 * Get the variant's price
-                 */
-                if ($this->bln_useGroupPrices) {
-                    $rowVariants = $this->updateVariantRowWithGroupPrice($rowVariants);
-                }
+                if (ls_shop_filterHelper::filterFieldForPriceExists()) {
+                    /*
+                     * Get the variant's price
+                     */
+                    if ($this->bln_useGroupPrices) {
+                        $rowVariants = $this->updateVariantRowWithGroupPrice($rowVariants);
+                    }
 
-                $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'] = ls_shop_generalHelper::getDisplayPrice(
-                    ls_shop_generalHelper::ls_calculateVariantPriceRegardingPriceType(
-                        $rowVariants['lsShopVariantPriceType'],
-                        $tmpArrProductsComplete[$productId]['lsShopProductPrice'],
-                        $rowVariants['lsShopVariantPrice']
-                    ),
-                    $tmpArrProductsComplete[$productId]['lsShopProductSteuersatz']
-                );
+                    $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'] = ls_shop_generalHelper::getDisplayPrice(
+                        ls_shop_generalHelper::ls_calculateVariantPriceRegardingPriceType(
+                            $rowVariants['lsShopVariantPriceType'],
+                            $tmpArrProductsComplete[$productId]['lsShopProductPrice'],
+                            $rowVariants['lsShopVariantPrice']
+                        ),
+                        $tmpArrProductsComplete[$productId]['lsShopProductSteuersatz']
+                    );
 
-                /*
-                 * Store the variant's price as the product's lowest and highest price if it hasn't been set yet or if
-                 * the current variant's price is lower/higher than the currently stored lowest/highest price.
-                 */
-                if ($tmpArrProductsComplete[$productId]['lowestPrice'] === null || $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'] < $tmpArrProductsComplete[$productId]['lowestPrice']) {
-                    $tmpArrProductsComplete[$productId]['lowestPrice'] = $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'];
-                }
-                if ($tmpArrProductsComplete[$productId]['highestPrice'] === null || $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'] > $tmpArrProductsComplete[$productId]['highestPrice']) {
-                    $tmpArrProductsComplete[$productId]['highestPrice'] = $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'];
+                    /*
+                     * Store the variant's price as the product's lowest and highest price if it hasn't been set yet or if
+                     * the current variant's price is lower/higher than the currently stored lowest/highest price.
+                     */
+                    if ($tmpArrProductsComplete[$productId]['lowestPrice'] === null || $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'] < $tmpArrProductsComplete[$productId]['lowestPrice']) {
+                        $tmpArrProductsComplete[$productId]['lowestPrice'] = $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'];
+                    }
+                    if ($tmpArrProductsComplete[$productId]['highestPrice'] === null || $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'] > $tmpArrProductsComplete[$productId]['highestPrice']) {
+                        $tmpArrProductsComplete[$productId]['highestPrice'] = $tmpArrProductsComplete[$productId]['variants'][$variantId]['price'];
+                    }
                 }
             }
 
