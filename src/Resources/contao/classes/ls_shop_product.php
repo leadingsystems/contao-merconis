@@ -1635,10 +1635,6 @@ filter context, NULL will be returned.
                 $bln_isPreorderable = !$this->_isAvailableBasedOnDate && $this->mainData['preorderingAllowed'];
                 return $bln_isPreorderable;
                 break;
-
-            case '_searchDebug':
-                return isset($GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID]) ? $GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID] : null;
-                break;
 		}
 
 		return null;
