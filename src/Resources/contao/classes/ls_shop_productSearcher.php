@@ -1122,6 +1122,9 @@ class ls_shop_productSearcher
                 $attributesAndValues = json_decode($rowProductsComplete['lsShopProductAttributesValues'], true);
                 if (is_array($attributesAndValues)) {
                     foreach ($attributesAndValues as $attributeAndValue) {
+                        if (!ls_shop_filterHelper::filterFieldForAttributeExists($attributeAndValue[0])) {
+                            continue;
+                        }
                         $tmpArrProductsComplete[$productId]['attributeIDs'][] = $attributeAndValue[0];
                         $tmpArrProductsComplete[$productId]['attributeValueIDs'][] = $attributeAndValue[1];
                         $tmpArrProductsComplete[$productId]['attributeAndValueIDs'][$attributeAndValue[0]][] = $attributeAndValue[1];
@@ -1201,6 +1204,9 @@ class ls_shop_productSearcher
                 $attributesAndValues = json_decode($rowVariants['lsShopProductVariantAttributesValues'], true);
                 if (is_array($attributesAndValues)) {
                     foreach ($attributesAndValues as $attributeAndValue) {
+                        if (!ls_shop_filterHelper::filterFieldForAttributeExists($attributeAndValue[0])) {
+                            continue;
+                        }
                         $tmpArrProductsComplete[$productId]['variants'][$variantId]['attributeIDs'][] = $attributeAndValue[0];
                         $tmpArrProductsComplete[$productId]['variants'][$variantId]['attributeValueIDs'][] = $attributeAndValue[1];
                         $tmpArrProductsComplete[$productId]['variants'][$variantId]['attributeAndValueIDs'][$attributeAndValue[0]][] = $attributeAndValue[1];

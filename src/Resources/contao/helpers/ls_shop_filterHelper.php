@@ -2,6 +2,8 @@
 namespace Merconis\Core;
 
 class ls_shop_filterHelper {
+    private static ?array $attributeIdsForWhichFilterFieldsArePublished = null;
+
     public static function getFilterSummary() {
         global $objPage;
 
@@ -252,6 +254,43 @@ class ls_shop_filterHelper {
         }
 
         return $GLOBALS['merconis_globals']['cache'][__METHOD__];
+    }
+
+    public static function filterFieldForProducerExists(): bool
+    {
+        if (!isset($GLOBALS['merconis_globals']['cache'][__METHOD__])) {
+            $dbres = \Database::getInstance()
+                ->prepare("
+                    SELECT		*
+                    FROM		`tl_ls_shop_filter_fields`
+                    WHERE		`published` = '1'
+                    AND         `dataSource` = 'producer';
+                ")
+                ->execute();
+
+            $GLOBALS['merconis_globals']['cache'][__METHOD__] = (bool) $dbres->numRows;
+        }
+
+        return $GLOBALS['merconis_globals']['cache'][__METHOD__];
+    }
+
+    public static function filterFieldForAttributeExists(int $attributeId): bool
+    {
+        if (self::$attributeIdsForWhichFilterFieldsArePublished === null) {
+            $dbres = \Database::getInstance()
+                ->prepare("
+                    SELECT		sourceAttribute
+                    FROM		`tl_ls_shop_filter_fields`
+                    WHERE published = '1'
+                        AND dataSource = 'attribute'
+                    ORDER BY sourceAttribute
+                ")
+                ->execute();
+
+            self::$attributeIdsForWhichFilterFieldsArePublished = $dbres->fetchEach('sourceAttribute');
+        }
+
+        return in_array($attributeId, self::$attributeIdsForWhichFilterFieldsArePublished);
     }
 
 	public static function getFilterFieldInfos() {
@@ -690,7 +729,9 @@ class ls_shop_filterHelper {
                 }
             }
 
-			ls_shop_filterHelper::addProducerToCriteriaUsedInFilterForm($arrProduct['lsShopProductProducer']);
+            if (ls_shop_filterHelper::filterFieldForProducerExists()) {
+                ls_shop_filterHelper::addProducerToCriteriaUsedInFilterForm($arrProduct['lsShopProductProducer']);
+            }
 
 			foreach ($arrProduct['attributeAndValueIDs'] as $intAttributeID => $arrValueIDs) {
 				ls_shop_filterHelper::addAttributeValueToCriteriaUsedInFilterForm($intAttributeID, $arrValueIDs);
