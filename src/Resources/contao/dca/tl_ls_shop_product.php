@@ -42,7 +42,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'mode' => DataContainer::MODE_SORTABLE,
 			'fields' => array('id'),
 			'flag' => DataContainer::SORT_ASC,
-			'panelLayout' => 'filter;sort,search,limit'
+			'panelLayout' => 'filter;sort,search,limit',
+            'filter' => [['productTypeCollectiveOrder=?', 1]]
 		),
 
 		'label' => array(
@@ -74,11 +75,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['editheader'],
 				'href'                => 'act=edit',
 				'icon'                => 'bundles/leadingsystemsmerconis/images/icons/editProduct.png'
-			),
-			'copy' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['copy'],
-				'href'                => 'act=copy',
-				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['delete'],
@@ -462,7 +458,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'exclude'                => true,
             'inputType'              => 'checkbox',
             'eval'                   => array('disabled' => true, 'tl_class' => 'w50'),
-            'sorting'                => true,
+            'filter'		         => true,
             'sql'                    => "char(1) NOT NULL default ''"
         ),
 
