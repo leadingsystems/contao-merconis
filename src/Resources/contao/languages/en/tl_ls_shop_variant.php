@@ -8,6 +8,13 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['title']												= array('Product v
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['alias']												= array('Alias');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['description']										= array('Product variant description');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['shortDescription']									= array('Brief description');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopRuntimeFrom']                                  = array('Runtime from','Defines the start of the collective purchase for the product.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopRuntimeUntil']                                 = array('Runtime until','Defines the end of the collective purchase for the product.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopDeliveryDate']                                 = array('Delivery date','Indication of the expected delivery date. Pure output field with no functional significance.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopMinimumOrders']                                = array('Minimum sales quantity','Specifies the minimum number of items sold for the collective purchase to be realized.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopMaximumOrders']                                = array('Maximum sales quantity','Indication of the maximum number of items sold.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVpe']                                          = array('Unit (PU)','Packaging unit (PU), in which packaged quantities can the product be purchased.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopMinimumCustomerOrders']                        = array('Minimum order quantity','The minimum quantity of the individual product (not PU) that the buyer must order.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['published']											= array('Published');
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['useGroupPrices_1']									=	array('Use deviant prices for group 1');
@@ -54,6 +61,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts']								=	array('
  * Legends
  */
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantCode_legend']							= 'Product code';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopCollectiveOrder_legend']						= 'Collective buying settings';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStatus_legend']								= 'Status';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopTitleAndDescriptions_legend']					= 'Designation and descriptions';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopUnits_legend']									= 'Units (language-dependent)';
