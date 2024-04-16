@@ -4,6 +4,8 @@ if ($this->objProduct->_variantIsSelected) {
 	$obj_tmp_productOrVariant = &$this->objProduct->_selectedVariant;
 } else if (!$this->objProduct->_hasVariants) {
 	$obj_tmp_productOrVariant = &$this->objProduct;
+} else if (count($this->objProduct->_variants) === 1) {
+    $obj_tmp_productOrVariant = &$this->objProduct->_variants[array_key_first($this->objProduct->_variants)];
 }
 
 if ($obj_tmp_productOrVariant !== null) {
