@@ -12,8 +12,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['description']									=	array('Product description');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['shortDescription']								=	array('Brief description');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['published']										=	array('Published');
+    $GLOBALS['TL_LANG']['tl_ls_shop_product']['productTypeCollectiveOrder']						=	array('Collective buying product','The product is a collective buying product. The configuration is made in the corresponding supplier variant.');
 
-    $GLOBALS['TL_LANG']['tl_ls_shop_product']['useGroupRestrictions']							=	array('Group Restrictions');
+$GLOBALS['TL_LANG']['tl_ls_shop_product']['useGroupRestrictions']							=	array('Group Restrictions');
     $GLOBALS['TL_LANG']['tl_ls_shop_product']['allowedGroups']							        =	array('Allowed for the following groups');
 
     $GLOBALS['TL_LANG']['tl_ls_shop_product']['useGroupPrices_1']								=	array('Use deviant prices for group 1');

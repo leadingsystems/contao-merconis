@@ -12,6 +12,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['description']									=	array('Produktbeschreibung');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['shortDescription']								=	array('Kurzbeschreibung');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['published']										=	array('Veröffentlicht');
+    $GLOBALS['TL_LANG']['tl_ls_shop_product']['productTypeCollectiveOrder']						=	array('Sammelkaufprodukt','Das Produkt ist ein Sammelkaufprodukt. Die konfiguration wird in der entsprechenden Lieferanten-Variante vorgenommen.');
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['useGroupRestrictions']							=	array('Gruppeneinschränkungen');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['allowedGroups']							        =	array('Erlaubt für folgende Gruppen');
