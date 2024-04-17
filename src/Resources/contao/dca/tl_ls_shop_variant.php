@@ -138,8 +138,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			
 			{lsShopImages_legend};
 			
-			{lsShopVariantAttributesAndValues_legend},
-			lsShopProductVariantAttributesValues;
+			{lsShopVariantAttributesAndValues_legend};
 			
 			{lsShopPrice_legend},
 			lsShopVariantPrice,
