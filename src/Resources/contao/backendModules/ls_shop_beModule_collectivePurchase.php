@@ -59,7 +59,7 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
 		$this->Template->widgets = $widgets;
 	}
 
-	
+
     private function createProduct($pid, string $skprefix){
 
         \Database::getInstance()
