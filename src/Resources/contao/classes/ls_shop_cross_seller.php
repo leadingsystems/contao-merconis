@@ -305,8 +305,7 @@ class ls_shop_cross_seller
          */
         $arrSearchCriteria = array(
             'published' => '1',
-            'fulltext' => $_SESSION['lsShop']['productSearch']['searchWord'],
-            'searchType' => $_SESSION['lsShop']['productSearch']['searchType'],
+            'fulltext' => $_SESSION['lsShop']['productSearch']['searchWord']
         );
         /*
          * Ende Erstellung des Suchkriterien-Arrays für productSearcher

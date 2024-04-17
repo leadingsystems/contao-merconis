@@ -10,8 +10,8 @@ $bln_displayProductCartPreview = true;
 ?>
 
 <!-- indexer::stop -->
-<div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-     id="ajaxReloadByVariantSelector_7_<?php echo $this->objProduct->_id; ?>">
+<div class="ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> ajaxReloadByVariationSelector"
+     id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>">
     <div
         id="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>_2"
         class="ajax-reload-by-putInCart_<?php echo $this->objProduct->_productVariantID; ?>"

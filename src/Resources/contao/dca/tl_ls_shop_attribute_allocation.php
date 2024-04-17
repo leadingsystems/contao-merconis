@@ -6,7 +6,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_allocation'] = array(
         (
             'keys' => array
             (
-                'pid' => 'index'
+                'pid' => 'index',
+                'attributeID,attributeValueID' => 'index',
             )
         )
     ),

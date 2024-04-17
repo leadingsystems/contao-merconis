@@ -52,6 +52,14 @@ class ls_shop_productManagementApiHelper {
 		return $GLOBALS['merconis_globals']['generatePageListFromCategoryValue'][$str_categories];
 	}
 
+    public static function generatePageListFromCategoryIds(array $pageIds): string{
+        $cacheHash = json_encode($pageIds);
+        if (!isset($GLOBALS['merconis_globals']['generatePageListFromCategoryIds'][$cacheHash])) {
+            $GLOBALS['merconis_globals']['generatePageListFromCategoryIds'][$cacheHash] = serialize(array_map('strval', $pageIds));
+        }
+        return $GLOBALS['merconis_globals']['generatePageListFromCategoryIds'][$cacheHash];
+    }
+
 	/*
 	 * Diese Funktion liest anhand des Alias die ID aus und gibt diese zurück
 	 */
@@ -850,8 +858,6 @@ class ls_shop_productManagementApiHelper {
         self::createGroupPriceFieldsForQuery('product', $groupPriceFieldNames, $groupPriceQuestionMarks, $groupPriceValuesFields);
         self::createCustomFieldsQueryExtension('product', $customFieldsFieldNames, $customFieldsQuestionMarks, $customFieldsValuesFields);
 
-
-
         $obj_dbres_prod = \Database::getInstance()
 			->prepare("
             INSERT INTO `tl_ls_shop_product` (
@@ -1048,7 +1054,6 @@ class ls_shop_productManagementApiHelper {
         ) {
             ls_shop_generalHelper::changeStockDirectly('product', $productID, $arr_preprocessedDataRow['changeStock'], $arr_preprocessedDataRow['productcode']);
         }
-
 	}
 
 	public static function insertOrUpdateVariantRecord($arr_preprocessedDataRow) {

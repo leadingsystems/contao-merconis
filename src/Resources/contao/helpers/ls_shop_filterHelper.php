@@ -2,6 +2,8 @@
 namespace Merconis\Core;
 
 class ls_shop_filterHelper {
+    private static ?array $attributeIdsForWhichFilterFieldsArePublished = null;
+
     public static function getFilterSummary() {
         global $objPage;
 
@@ -236,6 +238,61 @@ class ls_shop_filterHelper {
 		return $arrFilterFieldValues;
 	}
 
+    public static function filterFieldForPriceExists(): bool
+    {
+        if (!isset($GLOBALS['merconis_globals']['cache'][__METHOD__])) {
+            $dbres = \Database::getInstance()
+                ->prepare("
+                    SELECT		*
+                    FROM		`tl_ls_shop_filter_fields`
+                    WHERE		`published` = '1'
+                    AND         `dataSource` = 'price';
+                ")
+                ->execute();
+
+            $GLOBALS['merconis_globals']['cache'][__METHOD__] = (bool) $dbres->numRows;
+        }
+
+        return $GLOBALS['merconis_globals']['cache'][__METHOD__];
+    }
+
+    public static function filterFieldForProducerExists(): bool
+    {
+        if (!isset($GLOBALS['merconis_globals']['cache'][__METHOD__])) {
+            $dbres = \Database::getInstance()
+                ->prepare("
+                    SELECT		*
+                    FROM		`tl_ls_shop_filter_fields`
+                    WHERE		`published` = '1'
+                    AND         `dataSource` = 'producer';
+                ")
+                ->execute();
+
+            $GLOBALS['merconis_globals']['cache'][__METHOD__] = (bool) $dbres->numRows;
+        }
+
+        return $GLOBALS['merconis_globals']['cache'][__METHOD__];
+    }
+
+    public static function filterFieldForAttributeExists(int $attributeId): bool
+    {
+        if (self::$attributeIdsForWhichFilterFieldsArePublished === null) {
+            $dbres = \Database::getInstance()
+                ->prepare("
+                    SELECT		sourceAttribute
+                    FROM		`tl_ls_shop_filter_fields`
+                    WHERE published = '1'
+                        AND dataSource = 'attribute'
+                    ORDER BY sourceAttribute
+                ")
+                ->execute();
+
+            self::$attributeIdsForWhichFilterFieldsArePublished = $dbres->fetchEach('sourceAttribute');
+        }
+
+        return in_array($attributeId, self::$attributeIdsForWhichFilterFieldsArePublished);
+    }
+
 	public static function getFilterFieldInfos() {
 		/** @var \PageModel $objPage */
 		global $objPage;
@@ -379,47 +436,49 @@ class ls_shop_filterHelper {
 		 * Check the prices
 		 */
 		if ($blnWholeProductCouldStillMatch) {
-			/*
-			 * Ignore the price filter if the high filter price is not higher than 0 and not as least as high as the low filter price.
-			 * This way it is possible to skip the price filter part by setting both filter parameters to 0.
-			 */
-			if ($arrCriteriaToFilterWith['price']['high'] >= $arrCriteriaToFilterWith['price']['low'] && $arrCriteriaToFilterWith['price']['high'] > 0) {
-				if (!count($arrProductInfo['variants'])) {
-					/*
-					 * If the product doesn't have variants, the product's price has to be checked
-					 */
-					if ($arrProductInfo['price'] < $arrCriteriaToFilterWith['price']['low'] || $arrProductInfo['price'] > $arrCriteriaToFilterWith['price']['high']) {
-						$blnWholeProductCouldStillMatch = false;
-					}
-				} else {
-					/*
-					 * If the product has variants, we have to use it's highest and lowest price to see,
-					 * if it is possible to match or filter out the whole product or if we have to
-					 * check each variant separately.
-					 */
-					if ($arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['price']['low'] && $arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['price']['high']) {
-						/*
-						 * If the product's lowest price is higher than the low filter limit and the product's highest price is lower than the high filter limit,
-						 * this means that all product variants must be within the price range and, regarding the price, the product matches as a whole.
-						 */
-					} else if ($arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['price']['low'] || $arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['price']['high']) {
-						/*
-						 * If even the product's highest price is lower than the low filter limit or it's lowest
-						 * price is higher than the high filter limit, this means that none of it's variants
-						 * has a price within the range and the product has to be filtered out as a whole.
-						 */
-						$blnWholeProductCouldStillMatch = false;
-						$blnVariantsCouldStillMatch = false;
-					} else {
-						/*
-						 * If none of the above is true, this means that there's definitely a variant that has a price outside the range
-						 * but there could be one ore more variants that have a price within.
-						 */
-						$blnWholeProductCouldStillMatch = false;
-						$blnVariantsCouldStillMatch = true;
-					}
-				}
-			}
+            if (ls_shop_filterHelper::filterFieldForPriceExists()) {
+                /*
+                 * Ignore the price filter if the high filter price is not higher than 0 and not as least as high as the low filter price.
+                 * This way it is possible to skip the price filter part by setting both filter parameters to 0.
+                 */
+                if ($arrCriteriaToFilterWith['price']['high'] >= $arrCriteriaToFilterWith['price']['low'] && $arrCriteriaToFilterWith['price']['high'] > 0) {
+                    if (!count($arrProductInfo['variants'])) {
+                        /*
+                         * If the product doesn't have variants, the product's price has to be checked
+                         */
+                        if ($arrProductInfo['price'] < $arrCriteriaToFilterWith['price']['low'] || $arrProductInfo['price'] > $arrCriteriaToFilterWith['price']['high']) {
+                            $blnWholeProductCouldStillMatch = false;
+                        }
+                    } else {
+                        /*
+                         * If the product has variants, we have to use it's highest and lowest price to see,
+                         * if it is possible to match or filter out the whole product or if we have to
+                         * check each variant separately.
+                         */
+                        if ($arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['price']['low'] && $arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['price']['high']) {
+                            /*
+                             * If the product's lowest price is higher than the low filter limit and the product's highest price is lower than the high filter limit,
+                             * this means that all product variants must be within the price range and, regarding the price, the product matches as a whole.
+                             */
+                        } else if ($arrProductInfo['highestPrice'] < $arrCriteriaToFilterWith['price']['low'] || $arrProductInfo['lowestPrice'] > $arrCriteriaToFilterWith['price']['high']) {
+                            /*
+                             * If even the product's highest price is lower than the low filter limit or it's lowest
+                             * price is higher than the high filter limit, this means that none of it's variants
+                             * has a price within the range and the product has to be filtered out as a whole.
+                             */
+                            $blnWholeProductCouldStillMatch = false;
+                            $blnVariantsCouldStillMatch = false;
+                        } else {
+                            /*
+                             * If none of the above is true, this means that there's definitely a variant that has a price outside the range
+                             * but there could be one ore more variants that have a price within.
+                             */
+                            $blnWholeProductCouldStillMatch = false;
+                            $blnVariantsCouldStillMatch = true;
+                        }
+                    }
+                }
+            }
 		}
 
 		if ($blnWholeProductCouldStillMatch) {
@@ -661,14 +720,18 @@ class ls_shop_filterHelper {
 		ls_shop_filterHelper::resetCriteriaToUseInFilterForm();
 
 		foreach ($arrProductsComplete as $arrProduct) {
-			if (!$arrProduct['lowestPrice']) {
-				ls_shop_filterHelper::addPriceToCriteriaUsedInFilterForm($arrProduct['price']);
-			} else {
-				ls_shop_filterHelper::addPriceToCriteriaUsedInFilterForm($arrProduct['lowestPrice']);
-				ls_shop_filterHelper::addPriceToCriteriaUsedInFilterForm($arrProduct['highestPrice']);
-			}
+            if (ls_shop_filterHelper::filterFieldForPriceExists()) {
+                if (!$arrProduct['lowestPrice']) {
+                    ls_shop_filterHelper::addPriceToCriteriaUsedInFilterForm($arrProduct['price']);
+                } else {
+                    ls_shop_filterHelper::addPriceToCriteriaUsedInFilterForm($arrProduct['lowestPrice']);
+                    ls_shop_filterHelper::addPriceToCriteriaUsedInFilterForm($arrProduct['highestPrice']);
+                }
+            }
 
-			ls_shop_filterHelper::addProducerToCriteriaUsedInFilterForm($arrProduct['lsShopProductProducer']);
+            if (ls_shop_filterHelper::filterFieldForProducerExists()) {
+                ls_shop_filterHelper::addProducerToCriteriaUsedInFilterForm($arrProduct['lsShopProductProducer']);
+            }
 
 			foreach ($arrProduct['attributeAndValueIDs'] as $intAttributeID => $arrValueIDs) {
 				ls_shop_filterHelper::addAttributeValueToCriteriaUsedInFilterForm($intAttributeID, $arrValueIDs);

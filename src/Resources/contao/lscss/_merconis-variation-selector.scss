@@ -1,0 +1,135 @@
+body.lsjs-active .variationSelector:not(.variationSelectorInstance_view-loaded) {
+  display: none;
+}
+
+.variation-selector-interface {
+  margin-top: $grid-gutter-width;
+  .attributeBox {
+    .attribute-header {
+      position: relative;
+      @include clearfix;
+
+      .selected-value-info {
+        display: block;
+        height: 3rem;
+        overflow: hidden;
+        transition: height 0.6s ease-out;
+
+        &.selection-required {
+          color: $ls-color-red;
+        }
+      }
+
+      .more-options-info {
+        display: none;
+        height: 3rem;
+        overflow: hidden;
+        transition: height 0.6s ease-out;
+      }
+
+      .option-message {
+        padding: 1rem;
+        background-color: $ls-color-light-grey;
+
+        &::before {
+          margin-right: 1rem;
+          @extend .fas;
+          content: fa-content($fa-var-exclamation-triangle);
+        }
+
+        &:not(.visible) {
+          display: none;
+        }
+      }
+    }
+
+    .value {
+      padding: $grid-gutter-width-super-small;
+      margin-left: $grid-gutter-width-small;
+      position: relative;
+      cursor: pointer;
+
+      &[data-lsjs-class*="selected"] {
+        position: relative;
+
+        &::before {
+          @extend .fas;
+          content: fa-content($fa-var-check);
+          position: absolute;
+          left: -1rem;
+          top: 1.9rem;
+        }
+      }
+    }
+  }
+
+  &.standard {
+    @include make-row();
+
+    .attributeBox {
+      margin-top: $grid-gutter-width;
+
+      @include make-col-ready();
+      @include media-breakpoint-up(11, $grid-breakpoints-ls) {
+        @include make-col(6);
+      }
+      @include media-breakpoint-up(16, $grid-breakpoints-ls) {
+        @include make-col(4);
+      }
+
+      .attribute-header {
+        .selected-value-info {
+          &:not(.selection-required) {
+            display: none;
+          }
+        }
+      }
+
+      .value {
+        &[data-lsjs-class*="selected"] {
+          cursor: default;
+        }
+      }
+    }
+  }
+
+  &.folded {
+    .attributeBox {
+      //border: 0.1rem solid $ls-color-black;
+      //padding: $grid-gutter-width-super-small;
+
+      &:not(:first-child) {
+        margin-top: $grid-gutter-width-small;
+      }
+
+      &.lsUnfoldOpen:not(.lsUnfoldRunning),
+      &.lsUnfoldClosed.lsUnfoldRunning{
+        .attribute-header {
+          .selected-value-info,
+          .more-options-info {
+            height: 0;
+          }
+        }
+      }
+
+      .attribute-headline {
+        margin: 0;
+        position: relative;
+        cursor: pointer;
+        border-bottom: 0.1rem solid $ls-color-black;
+      }
+
+      .selected-value-info {
+        cursor: pointer;
+        float: left;
+      }
+
+      .more-options-info {
+        display: block;
+        float: right;
+        text-align: right;
+        cursor: pointer;
+      }
+    }
+  }
+}

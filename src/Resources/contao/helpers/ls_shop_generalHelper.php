@@ -48,6 +48,9 @@ class ls_shop_generalHelper
 
         $int_sortingKey = 0;
         if (is_array($arr_allocations)) {
+            $valueSets = [];
+            $params = [];
+
             foreach ($arr_allocations as $arr_allocation) {
                 if (!isset($arr_allocation[0]) || !$arr_allocation[0] || !isset($arr_allocation[1]) || !$arr_allocation[1]) {
                     /*
@@ -57,24 +60,24 @@ class ls_shop_generalHelper
                     continue;
                 }
 
-                \Database::getInstance()
-                    ->prepare("
-                    INSERT INTO `tl_ls_shop_attribute_allocation`
-                    SET			`pid` = ?,
-                                `parentIsVariant` = ?,
-                                `attributeID` = ?,
-                                `attributeValueID` = ?,
-                                `sorting` = ?
-                ")
-                    ->execute(
-                        $int_parentId,
-                        ($bln_parentIsVariant ? '1' : '0'),
-                        $arr_allocation[0],
-                        $arr_allocation[1],
-                        $int_sortingKey
-                    );
+                $valueSets[] = '(?, ?, ?, ?, ?)';
+                $params[] = $int_parentId;
+                $params[] = ($bln_parentIsVariant ? '1' : '0');
+                $params[] = $arr_allocation[0];
+                $params[] = $arr_allocation[1];
+                $params[] = $int_sortingKey;
 
                 $int_sortingKey++;
+            }
+
+            if (!empty($valueSets)) {
+                $sql = "
+                    INSERT INTO `tl_ls_shop_attribute_allocation`
+                    (`pid`, `parentIsVariant`, `attributeID`, `attributeValueID`, `sorting`)
+                    VALUES
+                    " . implode(',', $valueSets);
+
+                \Database::getInstance()->prepare($sql)->execute($params);
             }
         }
     }
@@ -447,7 +450,7 @@ class ls_shop_generalHelper
      * an jeder Stelle, an der ein Produkt-Objekt benötigt wird, dieses Objekt über diese Funktion anzufordern,
      * ohne dass man sich Gedanken über Speicherauslastung und Performance machen muss.
      */
-    public static function getObjProduct($productVariantIDOrCartKey = false, $callerName = '', $refreshObject = false)
+    public static function getObjProduct($productVariantIDOrCartKey = false, $callerName = '', $refreshObject = false): ls_shop_product
     {
         if (!$productVariantIDOrCartKey) {
             throw new \Exception('no productVariantIDOrCartKey given');
@@ -488,6 +491,56 @@ class ls_shop_generalHelper
         $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey]->useCustomizableData();
 
         return $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey];
+    }
+
+    public static function getVariationGroup(string $variationGroupCode): ?array
+    {
+        if (!$variationGroupCode) {
+            return null;
+        }
+
+        if (!isset($GLOBALS['merconis_globals']['variationGroups'][$variationGroupCode])) {
+            $dbres_variations = \Database::getInstance()
+                ->prepare("
+                SELECT id
+                FROM tl_ls_shop_product
+                WHERE variationGroupCode = ?
+                    AND published = ?
+            ")
+                ->execute(
+                    $variationGroupCode,
+                    '1'
+                );
+
+            while ($dbres_variations->next()) {
+                /*
+                 * Do me! Check if performance must and can be improved here.
+                     *
+                     * First assumption: With very large variation groups it is probably really bad for performance that we have
+                     * to instantiate every variation's product object. On the other hand, if we don't do that, when checking
+                     * for attributes/values e.g. in the variationSelector, we can't use the product object's built-in
+                     * functionalities.
+                     *
+                     * But then: After a first quick test it looks like instantiating the product objects is not really what slows
+                     * things down significantly. At least it was not that bad with a variation group of 352 variations.
+                 */
+                $GLOBALS['merconis_globals']['variationGroups'][$variationGroupCode][$dbres_variations->id] = ls_shop_generalHelper::getObjProduct($dbres_variations->id);
+            }
+        }
+
+        return $GLOBALS['merconis_globals']['variationGroups'][$variationGroupCode];
+    }
+
+    public static function getUniqueElementId(): callable
+    {
+        return function() {
+            $fileId = md5(__FILE__);
+            if (!isset($GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'])) {
+                $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'] = 0;
+            }
+            $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter']++;
+            echo $fileId . '_' . $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'];
+        };
     }
 
     public static function getFormFieldNameForFormFieldId($int_formFieldId)

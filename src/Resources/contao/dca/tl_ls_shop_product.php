@@ -31,7 +31,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             (
                 'id' => 'primary',
                 'alias' => 'index',
-                'lsshopproductcode' => 'index'
+                'lsshopproductcode' => 'index',
+                'variationgroupcode' => 'index'
             )
         )
 	),
@@ -115,6 +116,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			
 			{lsShopProductCode_legend},
 			lsShopProductCode,
+			variationGroupCode,
 			alias;
 
 			{lsShopPublishAndState_legend},
@@ -381,6 +383,17 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'save_callback' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'checkForUniqueProductCode')
 			),
+			'sorting' => true,
+			'flag' => 11,
+			'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
+		),
+
+		'variationGroupCode' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['variationGroupCode'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>255),
 			'sorting' => true,
 			'flag' => 11,
 			'search'		=> true,

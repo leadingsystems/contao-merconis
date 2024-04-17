@@ -56,6 +56,8 @@ class ls_shop_product
     // Holds image galleries created with getImageGallery()
     protected $arr_imageGalleries = [];
 
+    private ?array $allVariationAttributes = null;
+
     public function __construct($intID = false, $configuratorHash = '') {
 		$this->ls_ID = $intID;
 
@@ -751,6 +753,11 @@ Array. If the product has variants, this array contains all the variant objects.
 
 			case '_hasVariants':
 				return is_array($this->_variants) && count($this->_variants);
+				break;
+
+			case '_hasVariations':
+                $variations = ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
+				return is_array($variations) && count($variations) > 1;
 				break;
 
 			case '_variantIsSelected'
@@ -1516,6 +1523,36 @@ returns the product price or the cheapest variant price.
 				return ls_shop_generalHelper::getProductAttributeValueIds(json_decode($this->mainData['lsShopProductAttributesValues']));
 				break;
 
+			case '_attributeValueIdsForVariationSelectorFlattened':
+                $attributeValueIdsForVariantSelector = $this->_attributeValueIds;
+
+                /*
+                 * A product can have multiple values selected for the same attribute and therefore the product
+                 * property _attributeValueIds delivers an array for each attribute holding all selected values.
+                 *
+                 * The variation selector doesn't support multiple selected values and therefore expects only one
+                 * value id for each attribute id, so we have to translate the array accordingly
+                 */
+                foreach ($attributeValueIdsForVariantSelector as $int_attributeId => $arr_valueIds) {
+                    $attributeValueIdsForVariantSelector[$int_attributeId] = $arr_valueIds[0];
+                }
+
+                $attributesMissingInSelectedAttributeValues = array_keys(array_diff_key($this->getAllVariationAttributes(), $attributeValueIdsForVariantSelector));
+                foreach ($attributesMissingInSelectedAttributeValues as $missingAttributeId) {
+                    $attributeValueIdsForVariantSelector[$missingAttributeId] = 0;
+                }
+				return $attributeValueIdsForVariantSelector;
+				break;
+
+			case '_attributeValueIdsForVariationSelector':
+                $attributeValueIdsForVariantSelector = $this->_attributeValueIds;
+                $attributesMissingInSelectedAttributeValues = array_keys(array_diff_key($this->getAllVariationAttributes(), $attributeValueIdsForVariantSelector));
+                foreach ($attributesMissingInSelectedAttributeValues as $missingAttributeId) {
+                    $attributeValueIdsForVariantSelector[$missingAttributeId][0] = 0;
+                }
+				return $attributeValueIdsForVariantSelector;
+				break;
+
 			case '_attributesAsString':
 				return ls_shop_generalHelper::createAttributesString($this->_attributes);
 				break;
@@ -1597,10 +1634,6 @@ filter context, NULL will be returned.
             case '_isPreorderable':
                 $bln_isPreorderable = !$this->_isAvailableBasedOnDate && $this->mainData['preorderingAllowed'];
                 return $bln_isPreorderable;
-                break;
-
-            case '_searchDebug':
-                return isset($GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID]) ? $GLOBALS['merconis_globals']['searchDebug'][$this->ls_ID] : null;
                 break;
 		}
 
@@ -1756,7 +1789,7 @@ This method takes an array holding attribute ids as keys and attribute value ids
 				 * attribute value with each value that - in theory - should be
 				 * possible for the same attribute. Then we count the number of
 				 * matching variants to find out which attribute value would
-				 * acutally result in a match and therefore is a possible selection.
+				 * actually result in a match and therefore is a possible selection.
 				 */
 				/*
 				 * FIXME: Important: Check performance!
@@ -1813,6 +1846,14 @@ This method takes an array holding attribute ids as keys and attribute value ids
 				}
 
 				return $arr_possibleAttributeValues;
+				break;
+
+			case '_getVariationByAttributeValues':
+                return call_user_func_array([$this, 'getVariationByAttributeValues'], $args);
+				break;
+
+			case '_getVariationsByAttributeValues':
+                return call_user_func_array([$this, 'getVariationsByAttributeValues'], $args);
 				break;
 
 			case '_getVariantByAttributeValues'
@@ -2007,6 +2048,135 @@ This method can be used to call a function hooked with the "callingHookedProduct
 		}
 	}
 
+    public function getVariationByAttributeValues(array $requestedAttributeValues, array $mandatoryAttributeValue): ?array
+    {
+        $variations = $this->getVariationsByAttributeValues($requestedAttributeValues, $mandatoryAttributeValue);
+        return $variations[0] ?? null;
+    }
+
+    public function getVariationsByAttributeValues(array $requestedAttributeValues, array $mandatoryAttributeValue): ?array
+    {
+        $arr_params = [];
+        $arr_params[] = $this->mainData['variationGroupCode'];
+        $arr_params[] = $this->mainData['variationGroupCode'];
+        $arr_params[] = key($mandatoryAttributeValue);
+        $arr_params[] = current($mandatoryAttributeValue);
+
+        foreach ($requestedAttributeValues as $attributeID => $attributeValueID) {
+            $arr_params[] = $attributeID;
+            $arr_params[] = $attributeValueID;
+            $where_conditions .= '(av.attributeID = ? AND av.attributeValueID = ?) OR ';
+        }
+
+        // Remove the last "OR" from the WHERE conditions
+        $where_conditions = rtrim($where_conditions, ' OR ');
+
+        $numRequestedAttributeValues = count($requestedAttributeValues);
+
+        /*
+         * In this query we get all distinct pids and attributeIDs for the variationGroup and create a cartesian product.
+         * That means that we have a list of all possible combinations of pids and attributeIDs even if some of those
+         * combinations don't actually exist in the allocation table.
+         * The left join with the allocation table gives us the attributeValueIDs (null for combinations that don't
+         * actually exist) and we translate null values for attributeValueIDs into 0 because that's how we reference
+         * a null value in $requestedAttributeValues.
+         */
+        $sql_query = /** @lang MySQL */ "
+            WITH
+                allocations_with_null_values AS (
+                    /*
+                     all pids and all attributes, filling combinations that
+                     don't actually exist in tl_ls_shop_attribute_allocation with 0
+                     */
+                    SELECT pa.pid,
+                           attr.attributeID,
+                           COALESCE(p.attributeValueID, 0) AS attributeValueID
+            
+                    FROM (
+                        /* list of all distinct pids for variationGroupCode */
+                        SELECT DISTINCT allo.pid
+                        FROM tl_ls_shop_attribute_allocation allo
+                        JOIN tl_ls_shop_product prod
+                            ON allo.pid = prod.id
+                        WHERE prod.variationGroupCode = ?
+                            AND allo.parentIsVariant = '0'
+                     ) AS pa
+            
+                    CROSS JOIN (
+                        /* list of all distinct attributeIDs pids for variationGroupCode */
+                        SELECT DISTINCT allo.attributeID
+                        FROM tl_ls_shop_attribute_allocation allo
+                        JOIN tl_ls_shop_product prod
+                            ON allo.pid = prod.id
+                        WHERE prod.variationGroupCode = ?
+                            AND allo.parentIsVariant = '0'
+                    ) AS attr
+            
+                    /*
+                    Join all actually existing rows so that we get null values for the attributeValueID
+                    for those rows that only exist in the cartesian product of the pid and the attributeID
+                    */
+                     LEFT JOIN tl_ls_shop_attribute_allocation AS p
+                        ON pa.pid = p.pid
+                            AND attr.attributeID = p.attributeID
+                )
+            
+            
+            
+            SELECT
+                av.pid,
+                COUNT(DISTINCT av.attributeID) AS matchingAttributesCount
+            
+            FROM (
+                 SELECT
+                     pa.pid,
+                     pa.attributeID,
+                     COALESCE(pa.attributeValueID, 0) AS attributeValueID,
+                     p2.matchForMandatoryAttributeValueCombination
+        
+                 FROM allocations_with_null_values pa
+        
+                  /*
+                   * Join only those records with pids that definitely are a match for the
+                   * mandatory attribute/value combination so that we get a flag for all rows
+                   * with pids that we want to consider for the end result.
+                   */
+                  LEFT JOIN (
+                     SELECT
+                         pid,
+                         attributeID,
+                         '1' AS matchForMandatoryAttributeValueCombination
+                     FROM allocations_with_null_values
+                     WHERE pid IN (
+                         SELECT DISTINCT pid
+                         FROM allocations_with_null_values
+                         WHERE (attributeID = ? AND attributeValueID = ?)
+                     )
+                 ) AS p2
+                                    ON pa.pid = p2.pid
+                                        AND pa.attributeID = p2.attributeID
+            
+                     WHERE p2.matchForMandatoryAttributeValueCombination IS NOT NULL
+                 ) av
+            WHERE
+                ($where_conditions)
+            GROUP BY av.pid
+            ORDER BY matchingAttributesCount DESC
+        ";
+
+        $dbres_matchingVariations = \Database::getInstance()->prepare($sql_query)->execute(...$arr_params);
+
+        if (!$dbres_matchingVariations->numRows) {
+            return null;
+        }
+
+        $arr_matchingVariations = array_map(
+            fn($row) => ['product' => ls_shop_generalHelper::getObjProduct($row['pid']), 'exactMatch' => $row['matchingAttributesCount'] == $numRequestedAttributeValues],
+            $dbres_matchingVariations->fetchAllAssoc()
+        );
+        return $arr_matchingVariations;
+    }
+
 	public function ls_getData() {
 		$this->arr_originalData = ls_shop_languageHelper::getMultiLanguage($this->ls_ID, 'tl_ls_shop_product', 'all', 'all', true, false);
 
@@ -2144,6 +2314,80 @@ This method can be used to call a function hooked with the "callingHookedProduct
         }
 
 		return $arrAllAttributesAndValues;
+	}
+
+	public function getAllVariationAttributes(): array
+    {
+        if (!is_array($this->allVariationAttributes)) {
+            $variations = ls_shop_generalHelper::getVariationGroup($this->mainData['variationGroupCode']);
+            $numVariations = count($variations);
+            $allAttributesAndValues = [];
+            $attributeAppearances = [];
+
+            foreach ($variations as $variationProductId => $variationProduct) {
+                /** @var array $attributeValues */
+                foreach ($variationProduct->_attributes as $attributeValues) {
+                    /** @var array $attributeValue */
+                    foreach ($attributeValues as $attributeValue) {
+                        $attributeAppearances[$attributeValue['attributeID']][] = $variationProductId;
+                        $attributeAppearances[$attributeValue['attributeID']][] = $variationProductId;
+
+                        if (!isset($allAttributesAndValues[$attributeValue['attributeID']])) {
+                            $allAttributesAndValues[$attributeValue['attributeID']] = [
+                                'attributeID' => $attributeValue['attributeID'],
+                                'attributeTitle' => $attributeValue['attributeTitle'],
+                                'attributeAlias' => $attributeValue['attributeAlias'],
+                                'values' => []
+                            ];
+                        }
+                        if (!isset($allAttributesAndValues[$attributeValue['attributeID']]['values'][$attributeValue['valueID']])) {
+                            $allAttributesAndValues[$attributeValue['attributeID']]['values'][$attributeValue['valueID']] = [
+                                'valueID' => $attributeValue['valueID'],
+                                'valueTitle' => $attributeValue['valueTitle'],
+                                'valueAlias' => $attributeValue['valueAlias'],
+                                'valueSorting' => $attributeValue['valueSorting']
+                            ];
+                        }
+                    }
+                }
+            }
+
+            array_walk($attributeAppearances, function(&$subArray) {
+                $subArray = array_unique($subArray);
+            });
+
+            /*
+             * Adding a non-value for all attributes that don't occur in all product variations
+             */
+            foreach ($attributeAppearances as $attributeId => $productVariationIds) {
+                if (count($productVariationIds) < $numVariations) {
+                    $allAttributesAndValues[$attributeId]['values'][0] = [
+                        'valueID' => 0,
+                        'valueTitle' => '-',
+                        'valueAlias' => '-',
+                        'valueSorting' => 0
+                    ];
+                }
+            }
+
+            foreach ($allAttributesAndValues as $attributeId => $attributeValue) {
+                if (count($attributeValue['values']) <= 1) {
+                    unset($allAttributesAndValues[$attributeId]);
+                    continue;
+                }
+
+                uasort($allAttributesAndValues[$attributeId]['values'],
+                    function (array $a, array $b) {
+                        return $a['valueSorting'] <=> $b['valueSorting'];
+                    }
+
+                );
+            }
+
+            $this->allVariationAttributes = $allAttributesAndValues;
+        }
+
+		return $this->allVariationAttributes;
 	}
 
 	/*

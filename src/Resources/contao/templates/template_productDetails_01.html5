@@ -38,6 +38,7 @@ $str_html_attributesInfo = $this->objProduct->_useCustomTemplate('template_produ
 $str_html_deliveryInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_deliveryInfo_01');
 $str_html_stockInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_stockInfo_01');
 $str_html_variantSelector = $this->objProduct->_useCustomTemplate('template_productIncludes_variantSelector_01');
+$str_html_variationSelector = $this->objProduct->_useCustomTemplate('template_productIncludes_variationSelector_01');
 $str_html_price = $this->objProduct->_useCustomTemplate('template_productIncludes_price_01');
 $str_html_addedToCartInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_addedToCartInfo_01');
 $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productIncludes_filterMatch_01');
@@ -56,8 +57,8 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
     <div class="shop-product">
         <div class="wrapper-gallery">
-            <div class="wrapper-gallery-inside ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                 id="ajaxReloadByVariantSelector_1_<?php echo $this->objProduct->_id; ?>">
+            <div class="wrapper-gallery-inside ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> ajaxReloadByVariationSelector"
+                 id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>">
 
                 <?php echo $str_html_statusIcons ?: ''; ?>
 
@@ -70,11 +71,11 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
         <div class="wrapper-price-etc">
             <?php // ##### TITLE ###### -> ?>
-            <h1 class="productTitle"><?php echo $this->objProduct->_title; ?></h1>
+            <h1 class="productTitle ajaxReloadByVariationSelector" id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>"><?php echo $this->objProduct->_title; ?></h1>
             <?php // <- ##### TITLE ###### ?>
 
-            <div class="ajax-reload-by-customizer_<?php echo $this->objProduct->_productVariantID; ?> ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                 id="ajaxReloadByVariantSelector_2_<?php echo $this->objProduct->_id; ?>">
+            <div class="ajax-reload-by-customizer_<?php echo $this->objProduct->_productVariantID; ?> ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> ajaxReloadByVariationSelector"
+                 id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>">
                 <div>
                     <?php // ##### PRODUCER ###### -> ?>
                     <?php if ($this->objProduct->_hasProducer) { ?>
@@ -110,16 +111,38 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // <- ##### FILTER MATCH ###### ?>
             </div>
 
+            <div id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>" class="attributes ajaxReloadByVariationSelector">
+                <?php
+                $attributesSorted = $this->objProduct->_attributes;
+                uasort($attributesSorted, function($a, $b) {
+                    return strcmp($a[0]['attributeTitle'], $b[0]['attributeTitle']);
+                });
+
+                foreach ($attributesSorted as $attribute) {
+                    foreach ($attribute as $attributeValue) {
+                        ?>
+                        <strong><?php echo $attributeValue['attributeTitle']; ?>:</strong> <?php echo $attributeValue['valueTitle']; ?><br>
+                        <?php
+                    }
+                    ?>
+                    <?php
+                }
+                ?>
+            </div>
 
             <div>
                 <?php // ##### VARIANT SELECTOR ###### -> ?>
                 <?php echo isset($str_html_variantSelector) ? $str_html_variantSelector : ''; ?>
                 <?php // <- ##### VARIANT SELECTOR ###### ?>
+
+                <?php // ##### VARIATION SELECTOR ###### -> ?>
+                <?php echo $str_html_variationSelector ?? ''; ?>
+                <?php // <- ##### VARIATION SELECTOR ###### ?>
             </div>
 
 
-            <div class="ajax-reload-by-customizer_<?php echo $this->objProduct->_productVariantID; ?> ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                 id="ajaxReloadByVariantSelector_3_<?php echo $this->objProduct->_id; ?>">
+            <div class="ajax-reload-by-customizer_<?php echo $this->objProduct->_productVariantID; ?> ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> ajaxReloadByVariationSelector"
+                 id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>">
                 <div class="boxRight">
 
                     <?php if (isset($str_html_price)) { ?>
@@ -197,7 +220,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
             <?php // <- ##### WATCH LIST BUTTON ###### ?>
 
             <?php // <- ##### RESTOCK INFO LIST BUTTON ###### ?>
-            <div class="ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>" id="ajaxReloadByVariantSelector_4_<?php echo $this->objProduct->_id; ?>">
+            <div class="ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> ajaxReloadByVariationSelector" id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>">
                 <?php
                 if ($obj_tmp_productOrVariant->_stockIsInsufficient) {
                     ?>
@@ -218,8 +241,8 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // ##### DESCRIPTION ###### -> ?>
 
                 <div
-                    class="description ajax-reload-by-customizer_<?php echo $this->objProduct->_productVariantID; ?> ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                    id="ajaxReloadByVariantSelector_5_<?php echo $this->objProduct->_id; ?>"
+                    class="description ajax-reload-by-customizer_<?php echo $this->objProduct->_productVariantID; ?> ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> ajaxReloadByVariationSelector"
+                    id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>"
                 >
                     <p><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></p>
                     <?php
@@ -238,8 +261,8 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php // ##### CONFIGURATOR ###### -> ?>
 
                     <div
-                            class="configurator-container ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                            id="ajaxReloadByVariantSelector_8_<?php echo $this->objProduct->_id; ?>"
+                            class="configurator-container ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> ajaxReloadByVariationSelector"
+                            id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>"
                     >
                         <?php
                         if ($obj_tmp_productOrVariant->_hasCustomizer) {
@@ -253,8 +276,8 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                 <?php if ($this->objProduct->_hasConfigurator) { ?>
                     <?php if (!$this->objProduct->_hasVariants || $this->objProduct->_variantIsSelected) { ?>
                         <div
-                            class="configurator-container ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
-                            id="ajaxReloadByVariantSelector_6_<?php echo $this->objProduct->_id; ?>"
+                            class="configurator-container ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?> ajaxReloadByVariationSelector"
+                            id="<?php \Merconis\Core\ls_shop_generalHelper::getUniqueElementId()(); ?>"
                         >
                             <?php echo $obj_tmp_productOrVariant->_configurator ? $obj_tmp_productOrVariant->_configurator : ''; ?>
                         </div>

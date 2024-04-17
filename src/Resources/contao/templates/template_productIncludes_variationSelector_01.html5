@@ -1,0 +1,16 @@
+<?php
+if ($this->objProduct->_hasVariations) {
+    ?>
+
+    <div
+        class="variationSelector"
+        data-merconis-component="variationSelector"
+        data-merconis-variationSelectorOptions="
+        {
+            interfaceType: '<?php echo $this->objProduct->_flexContentExistsLanguageIndependent('variation-selector-mode') ? $this->objProduct->_flexContentsLanguageIndependent['variation-selector-mode'] : 'folded' ?>'
+        }
+        "
+        data-merconis-productId="<?php echo $this->objProduct->_id; ?>"
+    ></div>
+    <?php
+}
