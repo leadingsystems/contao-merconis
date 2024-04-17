@@ -1,17 +1,25 @@
-<div class="beModule_productSearch">
-	<div class="searchForm">
+<div class="beModule_collectivePurchase">
+	<div class="collectivePurchaseForm">
 
 		<form action="<?php echo $this->request; ?>" class="tl_form" method="post">
 			<input type="hidden" name="FORM_SUBMIT" value="beModule_collectivePurchase">
 			<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
 
-			<div class="widgetContainer productCode right">
+
+			<div class="widgetContainer variantId right">
+                <h3><?= $GLOBALS['TL_LANG']['be_collectivePurchase']['text002'] ?></h3>
 				<?php echo $this->widgets['variantId']['widget']; ?>
 			</div>
 			<div class="submitContainer">
-				<input type="submit" name="submitSearch" id="submitSearch" class="tl_submit" value="<?php echo $GLOBALS['TL_LANG']['be_productSearch']['text002']; ?>">
+				<input type="submit" name="submitCollectivePurchase" id="submitCollectivePurchase" class="tl_submit" value="<?php echo $GLOBALS['TL_LANG']['be_collectivePurchase']['text001']; ?>">
 			</div>
 		</form>
+        <?php if($_SESSION['BE_CollectivePurchase']){ ?>
+            <div> created </div>
+
+        <?php
+            $_SESSION['BE_CollectivePurchase'] = false;
+        } ?>
 	</div>
 
 </div>

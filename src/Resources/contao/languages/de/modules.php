@@ -19,6 +19,7 @@
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_product']				= array('Produkte', 'Erfassen und bearbeiten Sie hier Ihre Produkte und Varianten.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_configurator']			= array('Produkt-Konfiguratoren', 'Erstellen Sie hier Produkt-Konfiguratoren, mit denen Ihre Kunden bei der Bestellung Produkte individualisieren und konfigurieren können.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_productSearch']			= array('Produkt-Suche', 'Durchsuchen Sie Ihren Produktbestand.');
+    $GLOBALS['TL_LANG']['MOD']['ls_shop_collectivePurchase']	= array('Sammelkauf', 'Erstelle ein Sammelkauf');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_stockManagement']		= array('Lagerbestand', 'Verwalten Sie hier Ihren Lagerbestand.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_dashboard']				= array(!$GLOBALS['TL_CONFIG']['ls_shop_installedCompletely'] ? 'EINRICHTUNG' : 'Info', '');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_import']				= array('Produkt-Import', 'Nutzen Sie die Möglichkeit, einen umfassenden Produktbestand schnell und komfortabel in den Online-Shop zu importieren.');

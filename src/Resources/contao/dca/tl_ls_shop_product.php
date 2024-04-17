@@ -394,7 +394,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'sorting' => true,
 			'flag' => 11,
 			'search'		=> true,
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NULL default ''"
 		),
 
 		'alias' => array (
