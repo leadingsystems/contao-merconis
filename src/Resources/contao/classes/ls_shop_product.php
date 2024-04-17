@@ -1635,6 +1635,12 @@ filter context, NULL will be returned.
                 $bln_isPreorderable = !$this->_isAvailableBasedOnDate && $this->mainData['preorderingAllowed'];
                 return $bln_isPreorderable;
                 break;
+
+            /*
+             * Collective Order
+             */
+            case '_isCollectiveOrderProduct':
+                return $this->mainData['productTypeCollectiveOrder'] == 0 ? false : true;
 		}
 
 		return null;
