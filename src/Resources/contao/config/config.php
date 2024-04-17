@@ -190,8 +190,12 @@ if (TL_MODE == 'BE') {
 		),
 
 		'ls_shop_productSearch' => array(
-			'callback' => 'Merconis\Core\ls_shop_beModule_productSearch',
+			'callback' => '\Merconis\Core\ls_shop_beModule_productSearch',
 		),
+
+        'ls_shop_collectivePurchase' => array(
+            'callback' => \Merconis\Core\ls_shop_beModule_collectivePurchase::class,
+        ),
 
 		'ls_shop_stockManagement' => array(
 			'callback' => 'Merconis\Core\ls_shop_beModule_stockManagement',

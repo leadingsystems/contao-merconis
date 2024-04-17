@@ -1,0 +1,17 @@
+<div class="beModule_productSearch">
+	<div class="searchForm">
+
+		<form action="<?php echo $this->request; ?>" class="tl_form" method="post">
+			<input type="hidden" name="FORM_SUBMIT" value="beModule_collectivePurchase">
+			<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
+
+			<div class="widgetContainer productCode right">
+				<?php echo $this->widgets['variantId']['widget']; ?>
+			</div>
+			<div class="submitContainer">
+				<input type="submit" name="submitSearch" id="submitSearch" class="tl_submit" value="<?php echo $GLOBALS['TL_LANG']['be_productSearch']['text002']; ?>">
+			</div>
+		</form>
+	</div>
+
+</div>
