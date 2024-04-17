@@ -178,6 +178,22 @@ class ls_shop_cartHelper {
 		$objProduct = ls_shop_generalHelper::getObjProduct($productVariantID, __METHOD__);
 
 		$desiredQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
+
+        ls_shop_msg::setMsg(array(
+            'class' => 'collectiveOrderCartError',
+            'reference' => $productVariantID,
+            'arrDetails' => array(
+                'message' => 'Ging nicht wegen Sammelkaufsproblem',
+            )
+        ));
+
+        return array(
+            'desiredQuantity' => $desiredQuantity,
+            'quantityPutInCart' => 0,
+            'stockNotSufficient' => false,
+            'cartKeyCurrentlyPutInCart' => ''
+        );
+
 		/*
 		 * Ist der aktuelle cartKey der ProduktVarianten-ID noch nicht im Warenkorb enthalten,
 		 * so wird sie eingetragen, ist sie schon vorhanden, so wird nur die Menge geupdatet.

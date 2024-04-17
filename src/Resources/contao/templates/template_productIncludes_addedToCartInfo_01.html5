@@ -30,6 +30,13 @@ $bln_displayProductCartPreview = true;
                             <?php
                             // ####################################################################
                             // message to display after putting the product/variant into the cart
+
+                            if (\Merconis\Core\ls_shop_msg::checkMsg('collectiveOrderCartError', $obj_tmp_productOrVariant->_productVariantID)) { // check if an "addedToCart" message is set for this product/variant
+                                $msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('collectiveOrderCartError', $obj_tmp_productOrVariant->_productVariantID); // get the message details
+                                ?>
+                                <span class="hasBeenPutInCart error"><?= $msgDetails['message'] ?></span>
+                                <?php
+                            }
                             if (\Merconis\Core\ls_shop_msg::checkMsg('addedToCart', $obj_tmp_productOrVariant->_productVariantID)) { // check if an "addedToCart" message is set for this product/variant
                                 $msgDetails = \Merconis\Core\ls_shop_msg::getMsgDetails('addedToCart', $obj_tmp_productOrVariant->_productVariantID); // get the message details
                                 if ($obj_tmp_productOrVariant->_useStock && $msgDetails['stockNotSufficient']) { // check if the product/variant uses stock and if the stock was not sufficient
