@@ -82,14 +82,81 @@ class ls_shop_generalHelper
         }
     }
 
-    public static function changeStockDirectly($str_productOrVariant = 'product', $int_id = 0, $str_stockChange = null)
+    /*
+     * This function takes the attribute value allocations as an array (possibly serialized)
+     * and writes them into the allocation table
+     *
+     * Diese Version arbeitet nicht mit der ID, sondern mit der vorliegenden lsShopProductCode
+     *
+     */
+    public static function insertAttributeValueAllocations_byShopProductCode($arr_allocations, $parent_lsShopProductCode = '', $bln_parentIsVariant = 0)
+    {
+        if (!$parent_lsShopProductCode) {
+            return;
+        }
+
+        /*
+         * First, delete all entries related to the current product or variant
+         */
+        $tableProductOrVariant = ($bln_parentIsVariant == 0) ? 'tl_ls_shop_product' : 'tl_ls_shop_variant';
+        $keyField = ($bln_parentIsVariant == 0) ? 'lsShopProductCode' : 'lsShopVariantCode';
+
+        $db_del = \Database::getInstance()
+            ->prepare("
+            DELETE AA.* 
+            FROM `tl_ls_shop_attribute_allocation` AA
+            INNER JOIN ".$tableProductOrVariant." P ON AA.pid = P.id
+            WHERE P.".$keyField." = ?
+                AND		AA.parentIsVariant = ?
+		")
+            ->execute(
+                $parent_lsShopProductCode,
+                ($bln_parentIsVariant ? '1' : '0')
+            );
+
+        $arr_allocations = is_array($arr_allocations) ? $arr_allocations : json_decode($arr_allocations, true);
+
+        $int_sortingKey = 0;
+        if (is_array($arr_allocations)) {
+            foreach ($arr_allocations as $arr_allocation) {
+                if (!isset($arr_allocation[0]) || !$arr_allocation[0] || !isset($arr_allocation[1]) || !$arr_allocation[1]) {
+                    /*
+                     * Skip attribute value allocations if either the attribute or the value
+                     * is not defined (or both, of course)
+                     */
+                    continue;
+                }
+
+                \Database::getInstance()
+                    ->prepare("
+                    INSERT INTO `tl_ls_shop_attribute_allocation`
+                    SET			`pid` = (select id from `".$tableProductOrVariant."` where ".$keyField." = ?),
+                                `parentIsVariant` = ?,
+                                `attributeID` = ?,
+                                `attributeValueID` = ?,
+                                `sorting` = ?
+                ")
+                    ->execute(
+                        $parent_lsShopProductCode,
+                        ($bln_parentIsVariant ? '1' : '0'),
+                        $arr_allocation[0],
+                        $arr_allocation[1],
+                        $int_sortingKey
+                    );
+
+                $int_sortingKey++;
+            }
+        }
+    }
+
+    public static function changeStockDirectly($str_productOrVariant = 'product', $int_id = 0, $str_stockChange = null, ?string $lsShopProductCode = null)
     {
         if (
             $str_stockChange === null
             || $str_stockChange === ''
             || $str_stockChange === false
             || preg_match('/[^0-9+-.]/', $str_stockChange)
-            || !$int_id
+            || (!$int_id && !$lsShopProductCode)
             || !in_array($str_productOrVariant, array('product', 'variant'))
         ) {
             return;
@@ -100,17 +167,24 @@ class ls_shop_generalHelper
 
         $str_setStatement = strpos($str_stockChange, '-') !== false || strpos($str_stockChange, '+') !== false ? "`" . $str_fieldName . "` = `" . $str_fieldName . "` + ?" : "`" . $str_fieldName . "` =  + ?";
 
+        $params = [$str_stockChange];
+
+        if ($lsShopProductCode) {
+            $where = ($str_productOrVariant == 'product') ? '`lsShopProductCode`' : '`lsShopVariantCode`';
+            $params[] = $lsShopProductCode;
+        } else {
+            $where = '`id`';
+            $params[] = $int_id;
+        }
+
         \Database::getInstance()
             ->prepare("
 			UPDATE		`" . $str_tableName . "`
 			SET			" . $str_setStatement . "
-			WHERE		`id` = ?
+			WHERE		".$where." = ?
 		")
             ->limit(1)
-            ->execute(
-                $str_stockChange,
-                $int_id
-            );
+            ->execute($params);
     }
 
     public static function getSQLFieldAttributes($var_table = null, $str_fieldName = null)
