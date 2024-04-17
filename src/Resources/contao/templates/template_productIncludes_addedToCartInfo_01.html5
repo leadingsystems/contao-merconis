@@ -20,6 +20,7 @@ $bln_displayProductCartPreview = true;
         if (
             \Merconis\Core\ls_shop_msg::checkMsg('addedToCart', $obj_tmp_productOrVariant->_productVariantID)
             || \Merconis\Core\ls_shop_msg::checkMsg('couldNotBePutInCart', $obj_tmp_productOrVariant->_productVariantID)
+            || \Merconis\Core\ls_shop_msg::checkMsg('collectiveOrderCartError', $obj_tmp_productOrVariant->_productVariantID)
         ) {
             ?>
             <div id="off-canvas-added-to-cart-info-container_<?php echo $this->objProduct->_productVariantID; ?>" class="oc-flex-default-container">
