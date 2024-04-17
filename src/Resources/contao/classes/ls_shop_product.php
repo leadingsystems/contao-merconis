@@ -1641,6 +1641,7 @@ filter context, NULL will be returned.
              */
             case '_isCollectiveOrderProduct':
                 return $this->mainData['productTypeCollectiveOrder'] == 0 ? false : true;
+                break;
 		}
 
 		return null;

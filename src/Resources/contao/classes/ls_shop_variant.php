@@ -1185,6 +1185,41 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 $bln_isPreorderable = !$this->_isAvailableBasedOnDate && $this->mainData['preorderingAllowed'];
                 return $bln_isPreorderable;
                 break;
+
+            /*
+             * Collective Order
+             */
+            case '_collectiveOrderRuntimeFrom':
+                return $this->mainData['lsShopRuntimeFrom'];
+                break;
+
+            case '_collectiveOrderRuntimeUntil':
+                return $this->mainData['lsShopRuntimeUntil'];
+                break;
+
+            case '_collectiveOrderDeliveryDate':
+                return $this->mainData['lsShopDeliveryDate'];
+                break;
+
+            case '_collectiveOrderMinimumOrders':
+                return $this->mainData['lsShopMinimumOrders'];
+                break;
+
+            case '_collectiveOrderMaximumOrders':
+                return $this->mainData['lsShopMaximumOrders'];
+                break;
+
+            case '_collectiveOrderVpe':
+                return $this->mainData['lsShopVpe'];
+                break;
+
+            case '_collectiveOrderMinimumCustomerOrders':
+                return $this->mainData['lsShopMinimumCustomerOrders'];
+                break;
+
+            case '_collectiveOrderSingleStock':
+                return ($this->mainData['lsShopVariantStock'] * $this->mainData['lsShopVpe']);
+                break;
 		}
 
 		return null;
