@@ -30,8 +30,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'keys' => array
             (
                 'id' => 'primary',
-                'alias' => 'index',
-                'lsshopproductcode' => 'index',
+                'alias' => 'unique',
+                'lsshopproductcode' => 'unique',
                 'variationgroupcode' => 'index'
             )
         )

@@ -615,12 +615,13 @@ class ls_shop_languageHelper {
 	 *
 	 * FIXME: New function description!
 	 */
-	public static function saveMultilanguageValue($int_rowId = false, $str_language = '', $str_tableName = '', $var_fieldName = '', $var_value = '') {
+	public static function saveMultilanguageValue($int_rowId = false, $str_language = '', $str_tableName = '', $var_fieldName = '', $var_value = '', ?array $arr_identifier = null)
+    {
 		if (
 			!$str_language
 			||	!$str_tableName
 			||	!$var_fieldName
-			||	!$int_rowId
+			||	(!$int_rowId && !$arr_identifier)
 		) {
 			return false;
 		}
@@ -656,12 +657,26 @@ class ls_shop_languageHelper {
 			$arr_values = array($var_value);
 		}
 
-		$arr_values[] = $int_rowId;
+
+        if (is_array($arr_identifier) && count($arr_identifier)) {
+            /*
+             * If an alternative identifier is passed, ignore the ID and construct the statement in such a way,
+             * that the alternative identifier is used instead of the ID.
+             */
+            $arrayKeyFirst = array_key_first($arr_identifier);
+            $where = '`'.$arrayKeyFirst.'`';
+            $arr_values[] = $arr_identifier[$arrayKeyFirst];
+        } else {
+            $where = '`id`';
+            $arr_values[] = $int_rowId;
+        }
+
+
 		\Database::getInstance()
 			->prepare("
 			UPDATE		`".$str_tableName."`
 			SET			".$str_set."
-			WHERE		`id` = ?
+			WHERE		".$where." = ?
 		")
 			->limit(1)
 			->execute($arr_values);
