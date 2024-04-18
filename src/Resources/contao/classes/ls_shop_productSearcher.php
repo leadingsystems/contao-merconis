@@ -556,6 +556,7 @@ class ls_shop_productSearcher
                     $addToSelectStatement = '';
 
                     if ($this->blnUsePriority()) {
+                        //TODO: What is needed is a new evaluation array that can be maintained cleanly using global variables
                         $arr_searchResultWeighting = array(
                             'wholeSearchStringMatches' => array(
                                 'wholeFieldMatches' => array(
