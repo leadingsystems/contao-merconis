@@ -16,11 +16,6 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
 		$objWidgets = array();
 		$widgets = array();
 
-		/*
-		 * Erzeugen der Widgets für die Suchfelder
-		 * sowie Verarbeitung evtl. übergebener Werte
-		 */
-
 		$objWidgets['variantId'] = new \TextField();
 		$objWidgets['variantId']->label = $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopVariantId'][0];
 		$objWidgets['variantId']->id = 'variantId';
@@ -30,21 +25,29 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
 		if (\Input::post('FORM_SUBMIT') == 'beModule_collectivePurchase') {
 			$_SESSION['lsShop']['beModule_collectivePurchase']['values']['variantId'] = \Input::post('variantId') ? \Input::post('variantId') : '';
 
-            $variantId = $this->createVariant($_SESSION['lsShop']['beModule_collectivePurchase']['values']['variantId']);
-            $productId = $this->createProduct($variantId);
+            $arrReturn  = $this->createVariant($_SESSION['lsShop']['beModule_collectivePurchase']['values']['variantId']);
 
-            \Database::getInstance()
-                ->prepare("
-                UPDATE tl_ls_shop_variant 
-                SET pid = ?
-                WHERE id = ?
-            ")
-                ->execute(
-                    $productId,
-                    $variantId
-                );
+            if($arrReturn["error"] == true){
+                $_SESSION['BE_CollectivePurchaseError'] = true;
+            }else{
+                $oldProductId = $arrReturn["oldProductId"];
+                $variantId = $arrReturn["variantId"];
 
-            $_SESSION['BE_CollectivePurchase'] = true;
+                $productId = $this->createProduct($oldProductId);
+
+                \Database::getInstance()
+                        ->prepare("
+                    UPDATE tl_ls_shop_variant 
+                    SET pid = ?
+                    WHERE id = ?
+                ")
+                    ->execute(
+                        $productId,
+                        $variantId
+                    );
+
+                $_SESSION['BE_CollectivePurchase'] = true;
+            }
 
 			\Controller::redirect(ls_shop_generalHelper::getUrl(false, array('page')));
 		}
@@ -52,13 +55,9 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
 		$widgets['variantId']['widget'] = $objWidgets['variantId']->parse();
 		
 		$this->Template->widgets = $widgets;
-		/*
-		 * Ende Erzeugen der Widgets
-		 */
-
 	}
 
-    //create variant return parentId
+	
     private function createProduct($pid){
 
         \Database::getInstance()
@@ -98,9 +97,9 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
                     pages = ?;
             ")
             ->execute(
-                "sk".$objProduct['id']."#".$objProduct['lsShopVariantCode'],
-                "sk".$objProduct['id']."#".$objProduct['alias'],
-                "sk".$objProduct['id']."#".$objProduct['alias_de'],
+                "sk".sprintf("%010d",$objProduct['id'])."#".$objProduct['lsShopProductCode'],
+                "sk".$objProduct['id']."-".$objProduct['alias'],
+                "sk".$objProduct['id']."-".$objProduct['alias_de'],
                 $GLOBALS['TL_CONFIG']['ls_shop_collectivePurchasePages']
             );
 
@@ -138,6 +137,10 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
             ->execute();
         $objVariant = $selectStatement->fetchAllAssoc()[0];
 
+        if($objVariant == null){
+            return ["error" => true];
+        }
+
         \Database::getInstance()
             ->prepare("
                 ALTER TABLE tmp_tl_ls_shop_variant MODIFY id INT(10) NULL;
@@ -155,27 +158,23 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
                     useOldPrice = true;
             ")
             ->execute(
-                "sk".$objVariant['id']."#".$objVariant['lsShopVariantCode'],
-                "sk".$objVariant['id']."#".$objVariant['alias'],
-                "sk".$objVariant['id']."#".$objVariant['alias_de'],
+                "sk".sprintf("%010d",$objVariant['id'])."#".$objVariant['lsShopVariantCode'],
+                "sk".$objVariant['id']."-".$objVariant['alias'],
+                "sk".$objVariant['id']."-".$objVariant['alias_de'],
                 $objVariant['lsShopVariantPrice']
             );
 
-        \Database::getInstance()
+        $objQuery = \Database::getInstance()
             ->prepare("
                     INSERT INTO tl_ls_shop_variant
                     SELECT * FROM tmp_tl_ls_shop_variant LIMIT 1
                 ")
             ->execute();
 
-
-
-
-
-
-        return $objVariant['pid'];
-        //dump($objVariant);
-        //dump($objVariant['pid']);
+        return [
+            "variantId" => $objQuery->insertId,
+            "oldProductId" => $objVariant['pid']
+        ];
 
     }
 }
