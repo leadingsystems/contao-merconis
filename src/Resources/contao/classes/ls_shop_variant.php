@@ -1185,6 +1185,58 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 $bln_isPreorderable = !$this->_isAvailableBasedOnDate && $this->mainData['preorderingAllowed'];
                 return $bln_isPreorderable;
                 break;
+
+            /*
+             * Collective Order
+             */
+            case '_collectiveOrderRuntimeFrom':
+                return $this->mainData['lsShopRuntimeFrom'];
+                break;
+
+            case '_collectiveOrderRuntimeUntil':
+                return $this->mainData['lsShopRuntimeUntil'];
+                break;
+
+            case '_collectiveOrderDeliveryDate':
+                return $this->mainData['lsShopDeliveryDate'];
+                break;
+
+            case '_collectiveOrderMinimumOrders':
+                return ls_shop_generalHelper::removeUslessZeros(ls_shop_generalHelper::outputNumber($this->mainData['lsShopMinimumOrders']));
+                break;
+
+            case '_collectiveOrderMaximumOrders':
+                return ls_shop_generalHelper::removeUslessZeros(ls_shop_generalHelper::outputNumber($this->mainData['lsShopMaximumOrders']));
+                break;
+
+//            case '_collectiveOrderVpe':
+//                return $this->mainData['lsShopVpe'];
+//                break;
+
+            case '_collectiveOrderMinimumCustomerOrders':
+                return ls_shop_generalHelper::removeUslessZeros(ls_shop_generalHelper::outputNumber($this->mainData['lsShopMinimumCustomerOrders']));
+                break;
+
+            case '_collectiveOrderSingleStock':
+                return ($this->mainData['lsShopVariantStock'] * $this->mainData['lsShopVpe']);
+                break;
+
+            case '_collectiveOrderSold':
+                return ls_shop_generalHelper::removeUslessZeros(ls_shop_generalHelper::outputNumber($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']));
+                break;
+
+            case '_collectiveOrderSoldMinimumOrdersPercent':
+                return ($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']) * (100 / $this->mainData['lsShopMinimumOrders']);
+                break;
+
+            case '_collectiveOrderSoldMaximumOrdersPercent':
+                return (($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']) * 100) / $this->mainData['lsShopMaximumOrders'];
+                break;
+
+            case '_collectiveOrderMinimumOrdersReached':
+                $value = (($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']) * 100) / $this->mainData['lsShopMaximumOrders'];
+                return $value;
+                break;
 		}
 
 		return null;
@@ -1540,4 +1592,9 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
         return $int_deliveryInfoSetID;
     }
+
+//    public static function removeUslessZeros($value)
+//    {
+//        return strpos($value,$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) ? rtrim(rtrim($value,'0'),$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) : $value;
+//    }
 }
