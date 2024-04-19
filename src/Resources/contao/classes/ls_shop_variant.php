@@ -1218,16 +1218,8 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 return ls_shop_generalHelper::removeUslessZeros(ls_shop_generalHelper::outputNumber($this->mainData['lsShopMaximumOrders']));
                 break;
 
-//            case '_collectiveOrderVpe':
-//                return $this->mainData['lsShopVpe'];
-//                break;
-
             case '_collectiveOrderMinimumCustomerOrders':
                 return ls_shop_generalHelper::removeUslessZeros(ls_shop_generalHelper::outputNumber($this->mainData['lsShopMinimumCustomerOrders']));
-                break;
-
-            case '_collectiveOrderSingleStock':
-                return ($this->mainData['lsShopVariantStock'] * $this->mainData['lsShopVpe']);
                 break;
 
             case '_collectiveOrderSold':
@@ -1600,9 +1592,4 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
         return $int_deliveryInfoSetID;
     }
-
-//    public static function removeUslessZeros($value)
-//    {
-//        return strpos($value,$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) ? rtrim(rtrim($value,'0'),$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) : $value;
-//    }
 }
