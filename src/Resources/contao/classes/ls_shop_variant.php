@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\Config;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -1193,8 +1194,16 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 return $this->mainData['lsShopRuntimeFrom'];
                 break;
 
+            case '_collectiveOrderRuntimeFromFormatted':
+                return date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeFrom);
+                break;
+
             case '_collectiveOrderRuntimeUntil':
                 return $this->mainData['lsShopRuntimeUntil'];
+                break;
+
+            case '_collectiveOrderRuntimeUntilFormatted':
+                return date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeUntil);
                 break;
 
             case '_collectiveOrderDeliveryDate':
