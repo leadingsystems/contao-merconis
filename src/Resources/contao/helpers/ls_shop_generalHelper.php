@@ -5137,4 +5137,9 @@ class ls_shop_generalHelper
 
         return $str_url;
     }
+
+    public static function removeUslessZeros(float|string $value): float|string
+    {
+        return strpos($value,$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) ? rtrim(rtrim($value,'0'),$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) : $value;
+    }
 }
