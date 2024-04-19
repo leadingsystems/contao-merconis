@@ -1234,8 +1234,7 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 break;
 
             case '_collectiveOrderMinimumOrdersReached':
-                $value = (($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']) * 100) / $this->mainData['lsShopMaximumOrders'];
-                return $value;
+                return ($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']) < $this->mainData['lsShopMinimumOrders'];
                 break;
 		}
 
