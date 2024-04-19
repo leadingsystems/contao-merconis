@@ -119,10 +119,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			lsShopRuntimeFrom,
 			lsShopRuntimeUntil,
 			lsShopDeliveryDate,
+			lsShopMinimumCustomerOrders,
 			lsShopMinimumOrders,
-			lsShopMaximumOrders,
-			lsShopVpe,
-			lsShopMinimumCustomerOrders;
+			lsShopMaximumOrders;
 
 			{lsShopStatus_legend},
 			published;
@@ -130,7 +129,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			{configurator_legend};
 			
 			{lsShopUnits_legend},
-			lsShopVariantQuantityUnit;
+			lsShopVariantQuantityUnit,
+			lsShopVariantMengenvergleichUnit;
 			
 			{lsShopTitleAndDescriptions_legend},
 			title,
@@ -143,7 +143,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			{lsShopPrice_legend},
 			lsShopVariantPrice,
 			useOldPrice,
-			lsShopVariantPriceOld;
+			lsShopVariantPriceOld,
+			lsShopVariantMengenvergleichDivisor;
 
 			{lsShopPrice_1_legend};
 
@@ -302,13 +303,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'sql'                     => "decimal(12,2) NOT NULL default '0.00'"
         ),
 
-        'lsShopVpe' => array(
-            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVpe'],
-            'exclude'                 => true,
-            'inputType'			      => 'text',
-            'eval'					  => array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
-            'sql'                     => "decimal(12,2) NOT NULL default '0.00'"
-        ),
 
         'lsShopMinimumCustomerOrders' => array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopMinimumCustomerOrders'],
