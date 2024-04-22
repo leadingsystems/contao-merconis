@@ -1195,7 +1195,7 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 break;
 
             case '_collectiveOrderRuntimeFromFormatted':
-                return date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeFrom);
+                return is_int($this->_collectiveOrderRuntimeFrom) ? date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeFrom) : '';
                 break;
 
             case '_collectiveOrderRuntimeUntil':
@@ -1203,7 +1203,7 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 break;
 
             case '_collectiveOrderRuntimeUntilFormatted':
-                return date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeUntil);
+                return is_int($this->_collectiveOrderRuntimeUntil) ? date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeUntil) : '';
                 break;
 
             case '_collectiveOrderDeliveryDate':
@@ -1227,11 +1227,11 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 break;
 
             case '_collectiveOrderSoldMinimumOrdersPercent':
-                return ($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']) * (100 / $this->mainData['lsShopMinimumOrders']);
+                return $this->mainData['lsShopMinimumOrders'] > 0 ? ($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']) * (100 / $this->mainData['lsShopMinimumOrders']) : '';
                 break;
 
             case '_collectiveOrderSoldMaximumOrdersPercent':
-                return (($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']) * 100) / $this->mainData['lsShopMaximumOrders'];
+                return $this->mainData['lsShopMaximumOrders'] > 0 ? (($this->mainData['lsShopMaximumOrders'] - $this->mainData['lsShopVariantStock']) * 100) / $this->mainData['lsShopMaximumOrders'] : '';
                 break;
 
             case '_collectiveOrderMinimumOrdersReached':
