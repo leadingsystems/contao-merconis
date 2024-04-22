@@ -2415,7 +2415,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			$vergleichsangabe = sprintf($vergleichUnit, $mengenvergleichspreis);
 		} else {
 			/*--> ansonsten Standardausgabe <--*/
-			$vergleichsangabe = $vergleichUnit.' = '.$mengenvergleichspreis;
+			$vergleichsangabe = $mengenvergleichspreis.'/'.$vergleichUnit;
 		}
 		return $vergleichsangabe;
 	}
