@@ -1316,7 +1316,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantMengenvergleichDivisor'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals','tl_class' => 'w50', 'mandatory' => true, 'doNotShow' => true),
+			'eval'			=>	array('rgxp' => 'numberWithDecimals','tl_class' => 'w50', 'mandatory' => true),
             'sql'                     => "decimal(12,6) NOT NULL default '0.000000'"
 		),
 
