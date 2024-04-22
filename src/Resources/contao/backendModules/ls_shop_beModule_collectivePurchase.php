@@ -97,7 +97,8 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
                     lsShopProductCode = ?,
                     alias = ?,
                     alias_de = ?,
-                    pages = ?;
+                    pages = ?,
+                    published = 0;
             ")
             ->execute(
                 "sk".sprintf("%010d",$objProduct['id'])."#".$objProduct['lsShopProductCode'],
