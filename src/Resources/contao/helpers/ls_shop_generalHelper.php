@@ -4773,6 +4773,7 @@ class ls_shop_generalHelper
             $obj_flexWidget_inputQuantity = new FlexWidget(
                 array(
                     'str_uniqueName' => 'quantity_' . $productID . '-' . $variantID,
+                    'bln_multipleWidgetsWithSameNameAllowed' => true,
                     'arr_validationFunctions' => array(
                         array(
                             'str_className' => '\Merconis\Core\FlexWidgetValidator',
