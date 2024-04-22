@@ -1,6 +1,7 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\FrontendUser;
 use Contao\StringUtil;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -160,6 +161,82 @@ class ls_shop_cartHelper {
 		return $availableQuantity;
 	}
 
+
+    public static function getProductAndVariantObj($productVariantID) {
+
+        $arrProductVariantId = (explode("-",$productVariantID));
+        $productId = $arrProductVariantId[0];
+        $variantId = $arrProductVariantId[1];
+
+        //get product
+        $selectStatementProduct= \Database::getInstance()
+            ->prepare("
+                            SELECT * FROM tl_ls_shop_product
+                            WHERE id = ?
+                            LIMIT 1
+
+                        ")
+            ->execute($productId);
+        $objProduct = $selectStatementProduct->fetchAllAssoc()[0];
+
+        //get variant
+        $selectStatementVariant= \Database::getInstance()
+            ->prepare("
+                            SELECT * FROM tl_ls_shop_variant
+                            WHERE id = ?
+                            LIMIT 1
+
+                        ")
+            ->execute($variantId);
+        $objVariant = $selectStatementVariant->fetchAllAssoc()[0];
+
+        return [
+            'product' =>  $objProduct,
+            'variant' =>  $objVariant
+        ];
+
+    }
+
+    public static function minOrderValueReached($productVariantID, $customerNr, $minOrderQuantity, $currentQuantity) {
+
+        if($currentQuantity >= $minOrderQuantity) {
+            return true;
+        }
+
+        //get all orders of a customer um am ende zu überprüfen ob die mindestbestellmenge erreicht wurde
+        $selectStatementProduct= \Database::getInstance()
+            ->prepare("
+                SELECT * FROM tl_ls_shop_orders
+                WHERE customerNr = ?
+            ")
+            ->execute($customerNr);
+        $arrOrdersOfCustomer = $selectStatementProduct->fetchAllAssoc();
+
+        //für jeden Order bekomme die bestellten Items
+        foreach ($arrOrdersOfCustomer as $ordersOfCustomer) {
+
+            $selectStatementProduct = \Database::getInstance()
+                ->prepare("
+                                    SELECT * FROM tl_ls_shop_orders_items
+                                    WHERE pid = ?
+                                ")
+                ->execute($ordersOfCustomer['id']);
+            $arrOrderItems = $selectStatementProduct->fetchAllAssoc();
+
+            foreach ($arrOrderItems as $item) {
+
+                //sollte auch nur ein Produkt bestellt worden sein ist die mindestbestellmenge überschritten und die bestellung ist ok
+                if( $item['productVariantID'] == $productVariantID){
+                    return true;
+                }
+            }
+        }
+
+        //sollte es keine bestellung mit der variante geben UND keine bestellung in der Datenbank sein ist es ungültig
+        return false;
+    }
+
+
 	/*
 	 * Diese Funktion fügt ein Produkt bzw. eine Variante eines Produktes dem Warenkorb in der
 	 * gewünschten Menge hinzu. Sofern das Flag 'checkStock' nicht explizit als false übergeben wird,
@@ -178,6 +255,103 @@ class ls_shop_cartHelper {
 		$objProduct = ls_shop_generalHelper::getObjProduct($productVariantID, __METHOD__);
 
 		$desiredQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
+
+
+        $arrProductVariant = ls_shop_cartHelper::getProductAndVariantObj($productVariantID);
+        \System::loadLanguageFile('shk');
+
+        //gehe shoppingcart durch un prüfe artikel ob das produkt was reingelegt wird in den warenkorb darf oder nicht
+        foreach ($_SESSION['lsShopCart']['items'] as $cartItemProductCartKey => $arrCartItem) {
+
+            $arrProductVariantInCart = ls_shop_cartHelper::getProductAndVariantObj($cartItemProductCartKey);
+
+            //prüfe ob schon ein sammelkaufprodukt drin ist und ein weiteres reingelegt wird
+            if($arrProductVariantInCart['product']['productTypeCollectiveOrder'] == 1 && $arrProductVariant['product']['productTypeCollectiveOrder'] == 1
+                && $arrProductVariantInCart['product']['id'] != $arrProductVariant['product']['id']
+            ) {
+
+                ls_shop_msg::setMsg(array(
+                    'class' => 'collectiveOrderCartError',
+                    'reference' => $productVariantID,
+                    'arrDetails' => array(
+                        'message' => $GLOBALS['TL_LANG']['shk']['text001'],
+                    )
+                ));
+
+                return array(
+                    'desiredQuantity' => $desiredQuantity,
+                    'quantityPutInCart' => 0,
+                    'stockNotSufficient' => false,
+                    'cartKeyCurrentlyPutInCart' => ''
+                );
+            }
+
+            //sammelkauf im warenkorb und ein produkt wird reingelegt
+            if($arrProductVariantInCart['product']['productTypeCollectiveOrder'] == 1 && !$arrProductVariant['product']['productTypeCollectiveOrder'] == 1) {
+
+                ls_shop_msg::setMsg(array(
+                    'class' => 'collectiveOrderCartError',
+                    'reference' => $productVariantID,
+                    'arrDetails' => array(
+                        'message' => $GLOBALS['TL_LANG']['shk']['text002'],
+                    )
+                ));
+
+                return array(
+                    'desiredQuantity' => $desiredQuantity,
+                    'quantityPutInCart' => 0,
+                    'stockNotSufficient' => false,
+                    'cartKeyCurrentlyPutInCart' => ''
+                );
+            }
+
+            //normales produkt und ein sammelkauf wird reingelegt
+            if(!$arrProductVariantInCart['product']['productTypeCollectiveOrder'] == 1 && $arrProductVariant['product']['productTypeCollectiveOrder'] == 1) {
+
+                ls_shop_msg::setMsg(array(
+                    'class' => 'collectiveOrderCartError',
+                    'reference' => $productVariantID,
+                    'arrDetails' => array(
+                        'message' => $GLOBALS['TL_LANG']['shk']['text003'],
+                    )
+                ));
+
+                return array(
+                    'desiredQuantity' => $desiredQuantity,
+                    'quantityPutInCart' => 0,
+                    'stockNotSufficient' => false,
+                    'cartKeyCurrentlyPutInCart' => ''
+                );
+            }
+        }
+
+        $quantityToAdd = $desiredQuantity;
+        if( $_SESSION['lsShopCart']['items'][$productVariantID] && $_SESSION['lsShopCart']['items'][$productVariantID]['quantity']){
+            $quantityToAdd = $desiredQuantity + (int)$_SESSION['lsShopCart']['items'][$productVariantID]['quantity'];
+        }
+
+        $user = FrontendUser::getInstance();
+        $loggedInUserId = $user->id;
+
+        if(!ls_shop_cartHelper::minOrderValueReached($productVariantID, $loggedInUserId, $arrProductVariant['variant']['lsShopMinimumCustomerOrders'], $quantityToAdd)){
+
+            ls_shop_msg::setMsg(array(
+                'class' => 'collectiveOrderCartError',
+                'reference' => $productVariantID,
+                'arrDetails' => array(
+                    'message' => $GLOBALS['TL_LANG']['shk']['text004'],
+                )
+            ));
+
+            return array(
+                'desiredQuantity' => $desiredQuantity,
+                'quantityPutInCart' => 0,
+                'stockNotSufficient' => false,
+                'cartKeyCurrentlyPutInCart' => ''
+            );
+        }
+
+
 		/*
 		 * Ist der aktuelle cartKey der ProduktVarianten-ID noch nicht im Warenkorb enthalten,
 		 * so wird sie eingetragen, ist sie schon vorhanden, so wird nur die Menge geupdatet.
