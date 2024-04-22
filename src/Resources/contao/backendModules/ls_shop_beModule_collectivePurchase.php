@@ -1,4 +1,7 @@
 <?php
+/*
+ * @toDo set lsShopVariantMengenvergleichDivisor to 1.000000
+ */
 
 namespace Merconis\Core;
 
