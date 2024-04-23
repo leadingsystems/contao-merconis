@@ -1195,7 +1195,7 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 break;
 
             case '_collectiveOrderRuntimeFromFormatted':
-                return is_int($this->_collectiveOrderRuntimeFrom) ? date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeFrom) : '';
+                return $this->_collectiveOrderRuntimeFrom ? date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeFrom) : '';
                 break;
 
             case '_collectiveOrderRuntimeUntil':
@@ -1203,7 +1203,7 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 break;
 
             case '_collectiveOrderRuntimeUntilFormatted':
-                return is_int($this->_collectiveOrderRuntimeUntil) ? date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeUntil) : '';
+                return $this->_collectiveOrderRuntimeUntil ? date(Config::get('dateFormat'), $this->_collectiveOrderRuntimeUntil) : '';
                 break;
 
             case '_collectiveOrderDeliveryDate':
