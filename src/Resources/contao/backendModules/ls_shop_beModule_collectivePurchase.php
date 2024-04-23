@@ -1,7 +1,4 @@
 <?php
-/*
- * @toDo set lsShopVariantMengenvergleichDivisor to 1.000000
- */
 
 namespace Merconis\Core;
 
@@ -88,6 +85,13 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
             ")
             ->execute();
 
+        //Merconis cant work with integer in serialized page array, pageId must be converted to string
+        $unserializeCollectivePurchasePages = unserialize($GLOBALS['TL_CONFIG']['ls_shop_collectivePurchasePages']);
+        foreach ($unserializeCollectivePurchasePages as &$page) {
+            $page =  strval($page);
+        }
+        $collectivePurchasePages = serialize($unserializeCollectivePurchasePages);
+
         \Database::getInstance()
             ->prepare("
                 UPDATE tmp_tl_ls_shop_product 
@@ -104,7 +108,7 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
                 "sk".sprintf("%010d",$objProduct['id'])."#".$objProduct['lsShopProductCode'],
                 "sk".$objProduct['id']."-".$objProduct['alias'],
                 "sk".$objProduct['id']."-".$objProduct['alias_de'],
-                $GLOBALS['TL_CONFIG']['ls_shop_collectivePurchasePages']
+                $collectivePurchasePages
             );
 
         $objQuery = \Database::getInstance()
