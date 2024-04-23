@@ -1635,6 +1635,13 @@ filter context, NULL will be returned.
                 $bln_isPreorderable = !$this->_isAvailableBasedOnDate && $this->mainData['preorderingAllowed'];
                 return $bln_isPreorderable;
                 break;
+
+            /*
+             * Collective Order
+             */
+            case '_isCollectiveOrderProduct':
+                return (bool)$this->mainData['productTypeCollectiveOrder'];
+                break;
 		}
 
 		return null;
@@ -2408,7 +2415,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			$vergleichsangabe = sprintf($vergleichUnit, $mengenvergleichspreis);
 		} else {
 			/*--> ansonsten Standardausgabe <--*/
-			$vergleichsangabe = $vergleichUnit.' = '.$mengenvergleichspreis;
+			$vergleichsangabe = $mengenvergleichspreis.'/'.$vergleichUnit;
 		}
 		return $vergleichsangabe;
 	}

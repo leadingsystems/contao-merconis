@@ -19,6 +19,7 @@
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_product']				= array('Products', 'Enter and edit your products and variants here.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_configurator']			= array('Product configurators', 'Create product configurators here with which your customers can individualize and configure products during ordering.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_productSearch']			= array('Product search', 'Search your product inventory.');
+    $GLOBALS['TL_LANG']['MOD']['ls_shop_collectivePurchase']	= array('Collective Purchase', 'Create a collective purchase');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_stockManagement']		= array('Goods in stock', 'Manage your goods in stock here.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_dashboard']				= array(!$GLOBALS['TL_CONFIG']['ls_shop_installedCompletely'] ? 'SETUP' : 'Info', '');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_import']				= array('Product import', 'Use the possibility to quickly and comfortably import an extensive product inventory into your online shop.');

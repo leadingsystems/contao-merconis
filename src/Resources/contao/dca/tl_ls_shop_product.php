@@ -42,7 +42,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'mode' => DataContainer::MODE_SORTABLE,
 			'fields' => array('id'),
 			'flag' => DataContainer::SORT_ASC,
-			'panelLayout' => 'filter;sort,search,limit'
+			'panelLayout' => 'filter;sort,search,limit',
+            'filter' => [['productTypeCollectiveOrder=?', 1]]
 		),
 
 		'label' => array(
@@ -74,11 +75,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['editheader'],
 				'href'                => 'act=edit',
 				'icon'                => 'bundles/leadingsystemsmerconis/images/icons/editProduct.png'
-			),
-			'copy' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['copy'],
-				'href'                => 'act=copy',
-				'icon'                => 'copy.svg'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['delete'],
@@ -122,7 +118,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			{lsShopPublishAndState_legend},
 			published,
 			lsShopProductIsNew,
-			lsShopProductIsOnSale'.(\Input::get('act') == 'editAll' ? '' : ',sorting').';
+			lsShopProductIsOnSale'.(\Input::get('act') == 'editAll' ? '' : ',sorting').',
+			productTypeCollectiveOrder;
 			
 			{configurator_legend},
 			configurator,
@@ -397,7 +394,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'sorting' => true,
 			'flag' => 11,
 			'search'		=> true,
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NULL default ''"
 		),
 
 		'alias' => array (
@@ -455,6 +452,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'sorting' => true,
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
+
+        'productTypeCollectiveOrder' => array(
+            'label'                  => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['productTypeCollectiveOrder'],
+            'exclude'                => true,
+            'inputType'              => 'checkbox',
+            'eval'                   => array('disabled' => true, 'tl_class' => 'w50'),
+            'filter'		         => true,
+            'sql'                    => "char(1) NOT NULL default ''"
+        ),
 
 		'configurator' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['configurator'],
@@ -561,7 +567,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'default'                 => '',
 			'exclude' => true,
 			'inputType'               => 'text',
-			'eval'					  => array('tl_class' => 'merconis-component-autostart--merconisWidgetAttributesValues', 'decodeEntities' => true),
+			'eval'					  => array('decodeEntities' => true, 'disabled' => true),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'insertAttributeValueAllocationsInAllocationTable')
 			),

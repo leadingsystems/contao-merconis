@@ -407,6 +407,33 @@
  */
 
 /*
+ * End: ls_shop_multi_language (Widget)
+ */
+
+/*
+ * Start: beModule_productSearch
+ */
+.beModule_collectivePurchase {
+  padding: 8px;
+}
+
+.beModule_collectivePurchase tl_form{
+  display: flex;
+}
+
+.beModule_collectivePurchase .widgetContainer input.tl_text {
+  width: 344px;
+}
+
+.beModule_collectivePurchase a {
+  cursor: pointer;
+}
+
+/*
+ * End: beModule_productSearch
+ */
+
+/*
  * Start: ls_shop_productSelectionWizard
  */
 ul.ls_shop_productSelectionWizard {
