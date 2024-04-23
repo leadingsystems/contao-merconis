@@ -25,7 +25,9 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
 		if (\Input::post('FORM_SUBMIT') == 'beModule_collectivePurchase') {
 			$_SESSION['lsShop']['beModule_collectivePurchase']['values']['variantId'] = \Input::post('variantId') ? \Input::post('variantId') : '';
 
-            $arrReturn  = $this->createVariant($_SESSION['lsShop']['beModule_collectivePurchase']['values']['variantId']);
+            $skprefix = 'sk' . time();
+
+            $arrReturn  = $this->createVariant($_SESSION['lsShop']['beModule_collectivePurchase']['values']['variantId'], $skprefix);
 
             if($arrReturn["error"] == true){
                 $_SESSION['BE_CollectivePurchaseError'] = true;
@@ -33,7 +35,7 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
                 $oldProductId = $arrReturn["oldProductId"];
                 $variantId = $arrReturn["variantId"];
 
-                $productId = $this->createProduct($oldProductId);
+                $productId = $this->createProduct($oldProductId, $skprefix);
 
                 \Database::getInstance()
                         ->prepare("
@@ -58,7 +60,7 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
 	}
 
 	
-    private function createProduct($pid){
+    private function createProduct($pid, string $skprefix){
 
         \Database::getInstance()
             ->prepare("
@@ -102,13 +104,15 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
                     alias = ?,
                     alias_de = ?,
                     pages = ?,
-                    published = 0;
+                    published = 0,
+                    tstamp = ?;
             ")
             ->execute(
-                "sk".sprintf("%010d",$objProduct['id'])."#".$objProduct['lsShopProductCode'],
-                "sk".$objProduct['id']."-".$objProduct['alias'],
-                "sk".$objProduct['id']."-".$objProduct['alias_de'],
-                $collectivePurchasePages
+                $skprefix."#".$objProduct['lsShopProductCode'],
+                $skprefix."-".$objProduct['alias'],
+                $skprefix."-".$objProduct['alias_de'],
+                $collectivePurchasePages,
+                time()
             );
 
         $objQuery = \Database::getInstance()
@@ -123,9 +127,8 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
         return $insertID;
     }
 
-    //TODO: sk[DatenbankID]#[oldProductCode]
     //create variant return parentId
-    private function createVariant($lsShopVariantCode) {
+    private function createVariant($lsShopVariantCode, string $skprefix) {
 
         \Database::getInstance()
             ->prepare("
@@ -163,13 +166,15 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
                     alias = ?,
                     alias_de = ?,
                     lsShopVariantPriceOld = ?,
-                    useOldPrice = true;
+                    useOldPrice = false,
+                    tstamp = ?;
             ")
             ->execute(
-                "sk".sprintf("%010d",$objVariant['id'])."#".$objVariant['lsShopVariantCode'],
-                "sk".$objVariant['id']."-".$objVariant['alias'],
-                "sk".$objVariant['id']."-".$objVariant['alias_de'],
-                $objVariant['lsShopVariantPrice']
+                $skprefix."#".$objVariant['lsShopVariantCode'],
+                $skprefix."-".$objVariant['alias'],
+                $skprefix."-".$objVariant['alias_de'],
+                $objVariant['lsShopVariantPrice'],
+                time()
             );
 
         $objQuery = \Database::getInstance()
