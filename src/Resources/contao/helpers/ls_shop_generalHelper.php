@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\ArrayUtil;
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
+use Contao\FrontendUser;
 use Contao\LayoutModel;
 use Contao\StringUtil;
 use Contao\System;
@@ -5217,4 +5218,100 @@ class ls_shop_generalHelper
     {
         return strpos($value,$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) ? rtrim(rtrim($value,'0'),$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) : $value;
     }
+
+
+    public function getCollectiveOrderByUserId() {
+
+        $user = FrontendUser::getInstance();
+        $loggedInUserId = $user->id;
+
+        $arrProducts = array();
+        $productsInDb = \Database::getInstance()->prepare("
+			SELECT tl_ls_shop_orders_items.productVariantID
+            FROM tl_ls_shop_orders_items
+            JOIN tl_ls_shop_orders
+            ON tl_ls_shop_orders.id = tl_ls_shop_orders_items.pid
+            WHERE tl_ls_shop_orders.customerNr = ?;
+        ");
+
+        $productsInDb = $productsInDb->execute($loggedInUserId);
+
+        while ($productsInDb->next()) {
+            $arrProducts[] = explode('-', $productsInDb->productVariantID)[0];
+        }
+
+        return $arrProducts;
+    }
+
+    public function getCollectiveOrder($parameter) {
+
+        $sqlTimeCheck = "";
+
+        if( $parameter == "abgelaufene"){
+            $sqlTimeCheck = "AND lsShopRuntimeFrom < ".time().
+                " AND lsShopRuntimeUntil < ".time();
+        }
+        if( $parameter == "kommende"){
+            $sqlTimeCheck = "AND lsShopRuntimeFrom > ".time().
+                " AND lsShopRuntimeUntil > ".time();
+        }
+        if( $parameter == "aktive"){
+            $sqlTimeCheck = "AND lsShopRuntimeFrom <= ".time().
+                " AND lsShopRuntimeUntil >= ".time();
+        }
+
+        $arrCollectiveOrderProducts = array();
+        $productsInDb = \Database::getInstance()->prepare("
+				SELECT		tl_ls_shop_product.id
+				FROM		tl_ls_shop_product
+				JOIN tl_ls_shop_variant
+				ON tl_ls_shop_product.id = tl_ls_shop_variant.pid
+                WHERE tl_ls_shop_product.productTypeCollectiveOrder = 1
+                AND tl_ls_shop_product.published = true 
+                
+			".$sqlTimeCheck.";");
+
+        $productsInDb = $productsInDb->execute();
+        while ($productsInDb->next()) {
+            $arrCollectiveOrderProducts[] = $productsInDb->id;
+        }
+
+        return $arrCollectiveOrderProducts;
+    }
+
+    public function onlyShowNeededProducts($productListID, $arrProducts) {
+
+
+        $parameter = \Input::get('skstatus');
+//        $parameterMeine = \Input::get('skuser');
+
+        //if(//ob ich auf der steite bin die in den grundeinstellungen drin ist)
+
+        if ($productListID == 'standard') {
+
+            if($parameter == "abgelaufene" || $parameter == "kommende" || $parameter == "aktive"){
+
+                $arrCollectiveOrderProducts = $this::getCollectiveOrder($parameter);
+
+                if($parameterMeine == "meine"){
+                    $arrOrder = $this::getCollectiveOrderByUserId();
+
+                    $arrProducts = array();
+
+                    foreach($arrOrder as $productIdofOrder){
+                        foreach($arrCollectiveOrderProducts as $productIdofProduct){
+                            if($productIdofOrder == $productIdofProduct){
+                                $arrProducts[] = $productIdofOrder;
+                            }
+                        }
+                    }
+                }else{
+                    $arrProducts = $arrCollectiveOrderProducts;
+                }
+            }
+        }
+
+        return $arrProducts;
+    }
 }
+
