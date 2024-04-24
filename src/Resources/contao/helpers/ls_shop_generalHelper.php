@@ -5243,19 +5243,34 @@ class ls_shop_generalHelper
         return $arrProducts;
     }
 
+
+    const PARAMETER_KOMMENDE = "kommende";
+    const PARAMETER_AKTIVE = "aktive";
+    const PARAMETER_MEINE_AKTIVE = "meine-aktive";
+    const PARAMETER_ABGELAUFENE = "abgelaufene";
+    const PARAMETER_MEINE_ABGELAUFENE = "meine-abgelaufene";
+
     public function getCollectiveOrder($parameter) {
 
         $sqlTimeCheck = "";
 
-        if( $parameter == "abgelaufene"){
+        if(
+                $parameter == ls_shop_generalHelper::PARAMETER_ABGELAUFENE ||
+                $parameter == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
+        ){
             $sqlTimeCheck = "AND lsShopRuntimeFrom < ".time().
                 " AND lsShopRuntimeUntil < ".time();
         }
-        if( $parameter == "kommende"){
+        if(
+                $parameter == ls_shop_generalHelper::PARAMETER_KOMMENDE
+        ){
             $sqlTimeCheck = "AND lsShopRuntimeFrom > ".time().
                 " AND lsShopRuntimeUntil > ".time();
         }
-        if( $parameter == "aktive"){
+        if(
+                $parameter == ls_shop_generalHelper::PARAMETER_AKTIVE ||
+                $parameter == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE
+        ){
             $sqlTimeCheck = "AND lsShopRuntimeFrom <= ".time().
                 " AND lsShopRuntimeUntil >= ".time();
         }
@@ -5281,36 +5296,45 @@ class ls_shop_generalHelper
 
     public function onlyShowNeededProducts($productListID, $arrProducts) {
 
-
         $parameter = \Input::get('skstatus');
-//        $parameterMeine = \Input::get('skuser');
-
-        //if(//ob ich auf der steite bin die in den grundeinstellungen drin ist)
 
         if ($productListID == 'standard') {
 
-            if($parameter == "abgelaufene" || $parameter == "kommende" || $parameter == "aktive"){
+            if(
+                    $parameter == ls_shop_generalHelper::PARAMETER_KOMMENDE ||
+                    $parameter == ls_shop_generalHelper::PARAMETER_AKTIVE ||
+                    $parameter == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE ||
+                    $parameter == ls_shop_generalHelper::PARAMETER_ABGELAUFENE ||
+                    $parameter == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
+            ){
 
                 $arrCollectiveOrderProducts = $this::getCollectiveOrder($parameter);
 
-                if($parameterMeine == "meine"){
+                //filter that only my own orders are shown
+                if(
+                        $parameter == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE ||
+                        $parameter == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
+                ){
                     $arrOrder = $this::getCollectiveOrderByUserId();
 
                     $arrProducts = array();
 
-                    foreach($arrOrder as $productIdofOrder){
-                        foreach($arrCollectiveOrderProducts as $productIdofProduct){
+                    foreach($arrCollectiveOrderProducts as $productIdofProduct){
+                        foreach($arrOrder as $productIdofOrder){
                             if($productIdofOrder == $productIdofProduct){
+
                                 $arrProducts[] = $productIdofOrder;
+                                break;
                             }
                         }
                     }
+
+
                 }else{
                     $arrProducts = $arrCollectiveOrderProducts;
                 }
             }
         }
-
         return $arrProducts;
     }
 }
