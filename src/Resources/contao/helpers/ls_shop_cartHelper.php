@@ -910,4 +910,41 @@ class ls_shop_cartHelper {
 
 		return true;
 	}
+
+
+
+	public static function hookCartController($cart, $itemsExtended, $calculation) {
+
+
+        foreach ($cart['items'] as $productVariantId => $arrCartInfo) {
+
+            $arrProductVariantInCart = ls_shop_cartHelper::getProductAndVariantObj($productVariantId);
+
+            $currentQuantity = $arrCartInfo['quantity'];
+
+
+            $minOrderQuantity = $arrProductVariantInCart['variant']['lsShopMinimumCustomerOrders'];
+
+
+            $user = FrontendUser::getInstance();
+            $loggedInUserId = $user->id;
+
+            if(ls_shop_cartHelper::minOrderValueReached($productVariantId, $loggedInUserId, $minOrderQuantity, $currentQuantity)){
+
+                $_SESSION['CartMinOrderValueNotReached'] = false;
+            }else{
+                $_SESSION['CartMinOrderValueNotReached'] = true;
+            }
+
+            $shopCart = $_SESSION['lsShopCart']['items'];
+            $shopCartProductVariant = $_SESSION['lsShopCart']['items'][$productVariantId]['quantity'];
+            //$_SESSION['lsShopCart']['items'][$productVariantId]['quantity'] = "10";
+
+            ls_shop_cartHelper::setItemQuantity($productVariantId, 10);
+
+            $shopCartProductVariant2 = $_SESSION['lsShopCart']['items'][$productVariantId]['quantity'];
+
+        }
+    }
+
 }
