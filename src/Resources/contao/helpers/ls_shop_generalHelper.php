@@ -5295,6 +5295,18 @@ class ls_shop_generalHelper
         return $arrCollectiveOrderProductsIds;
     }
 
+    public function manipulateCacheBasedOnSkStatus(string $strProductList, bool $blnCacheCanBeUsed) {
+        $skStatus = \Input::get('skstatus');
+        if (
+                ($skStatus && !isset($_SESSION['merconis']['lastSkStatus']))
+            || $skStatus != $_SESSION['merconis']['lastSkStatus']
+        ) {
+            $_SESSION['merconis']['lastSkStatus'] = $skStatus;
+            return false;
+        }
+        return $blnCacheCanBeUsed;
+    }
+
     public function onlyShowNeededProducts($productListID, $arrProductsIds) {
 
         $strSkStatus = \Input::get('skstatus');
