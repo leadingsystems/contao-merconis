@@ -5220,12 +5220,13 @@ class ls_shop_generalHelper
     }
 
 
-    public function getCollectiveOrderByUserId() {
+    //returns the ProductIds of CollectiveOrder-Products Ordered by the currently logged in user
+    public function getCollectiveOrderProductIdsOrderedByLoggedInUser() {
 
         $user = FrontendUser::getInstance();
         $loggedInUserId = $user->id;
 
-        $arrProducts = array();
+        $arrProductIds = array();
         $productsInDb = \Database::getInstance()->prepare("
 			SELECT tl_ls_shop_orders_items.productVariantID
             FROM tl_ls_shop_orders_items
@@ -5237,10 +5238,10 @@ class ls_shop_generalHelper
         $productsInDb = $productsInDb->execute($loggedInUserId);
 
         while ($productsInDb->next()) {
-            $arrProducts[] = explode('-', $productsInDb->productVariantID)[0];
+            $arrProductIds[] = explode('-', $productsInDb->productVariantID)[0];
         }
 
-        return $arrProducts;
+        return $arrProductIds;
     }
 
 
@@ -5250,32 +5251,32 @@ class ls_shop_generalHelper
     const PARAMETER_ABGELAUFENE = "abgelaufene";
     const PARAMETER_MEINE_ABGELAUFENE = "meine-abgelaufene";
 
-    public function getCollectiveOrder($parameter) {
+    public function getCollectiveOrderProductIds($strSkStatus) {
 
         $sqlTimeCheck = "";
 
         if(
-                $parameter == ls_shop_generalHelper::PARAMETER_ABGELAUFENE ||
-                $parameter == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_ABGELAUFENE ||
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
         ){
             $sqlTimeCheck = "AND lsShopRuntimeFrom < ".time().
                 " AND lsShopRuntimeUntil < ".time();
         }
         if(
-                $parameter == ls_shop_generalHelper::PARAMETER_KOMMENDE
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_KOMMENDE
         ){
             $sqlTimeCheck = "AND lsShopRuntimeFrom > ".time().
                 " AND lsShopRuntimeUntil > ".time();
         }
         if(
-                $parameter == ls_shop_generalHelper::PARAMETER_AKTIVE ||
-                $parameter == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_AKTIVE ||
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE
         ){
             $sqlTimeCheck = "AND lsShopRuntimeFrom <= ".time().
                 " AND lsShopRuntimeUntil >= ".time();
         }
 
-        $arrCollectiveOrderProducts = array();
+        $arrCollectiveOrderProductsIds = array();
         $productsInDb = \Database::getInstance()->prepare("
 				SELECT		tl_ls_shop_product.id
 				FROM		tl_ls_shop_product
@@ -5288,54 +5289,49 @@ class ls_shop_generalHelper
 
         $productsInDb = $productsInDb->execute();
         while ($productsInDb->next()) {
-            $arrCollectiveOrderProducts[] = $productsInDb->id;
+            $arrCollectiveOrderProductsIds[] = $productsInDb->id;
         }
 
-        return $arrCollectiveOrderProducts;
+        return $arrCollectiveOrderProductsIds;
     }
 
-    public function onlyShowNeededProducts($productListID, $arrProducts) {
+    public function onlyShowNeededProducts($productListID, $arrProductsIds) {
 
-        $parameter = \Input::get('skstatus');
+        $strSkStatus = \Input::get('skstatus');
+
+        /*
+         * if no skStatus if given we are on the wrong page. We cant check for a specific page so we just check
+         * for skStatus because skStatus is only set on the correct page
+         */
+        if(!$strSkStatus){
+            return $arrProductsIds;
+        }
 
         if ($productListID == 'standard') {
 
             if(
-                    $parameter == ls_shop_generalHelper::PARAMETER_KOMMENDE ||
-                    $parameter == ls_shop_generalHelper::PARAMETER_AKTIVE ||
-                    $parameter == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE ||
-                    $parameter == ls_shop_generalHelper::PARAMETER_ABGELAUFENE ||
-                    $parameter == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_KOMMENDE ||
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_AKTIVE ||
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE ||
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_ABGELAUFENE ||
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
             ){
 
-                $arrCollectiveOrderProducts = $this::getCollectiveOrder($parameter);
+                $arrCollectiveOrderProductsIds = $this::getCollectiveOrderProductIds($strSkStatus);
 
-                //filter that only my own orders are shown
                 if(
-                        $parameter == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE ||
-                        $parameter == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
+                        $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE ||
+                        $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
                 ){
-                    $arrOrder = $this::getCollectiveOrderByUserId();
-
-                    $arrProducts = array();
-
-                    foreach($arrCollectiveOrderProducts as $productIdofProduct){
-                        foreach($arrOrder as $productIdofOrder){
-                            if($productIdofOrder == $productIdofProduct){
-
-                                $arrProducts[] = $productIdofOrder;
-                                break;
-                            }
-                        }
-                    }
-
+                    $arrCollectiveOrderProductIdsOrderedByLoggedInUser = $this::getCollectiveOrderProductIdsOrderedByLoggedInUser();
+                    $arrProductsIds = array_intersect($arrProductsIds, $arrCollectiveOrderProductsIds, $arrCollectiveOrderProductIdsOrderedByLoggedInUser);
 
                 }else{
-                    $arrProducts = $arrCollectiveOrderProducts;
+                    $arrProductsIds = array_intersect($arrProductsIds, $arrCollectiveOrderProductsIds);
                 }
             }
         }
-        return $arrProducts;
+        return $arrProductsIds;
     }
 }
 
