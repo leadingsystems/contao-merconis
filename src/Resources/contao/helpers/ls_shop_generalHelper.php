@@ -531,15 +531,42 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['variationGroups'][$variationGroupCode];
     }
 
-    public static function getUniqueElementId(): callable
+    public static function getUniqueElementId(?string $callingFile = null): callable
     {
+        /*
+         * Explicitly providing the name of the calling file is not necessary, unless this function is
+         * executed so often, that it might actually be a performance issue using debug_backtrace every time.
+         */
+        if ($callingFile === null) {
+            $callingFile = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0]['file'];
+        }
+        $fileId = md5($callingFile);
+
+        /*
+         * Since the purpose of this method is to provide a unique id, theoretically it would be sufficient
+         * to just use the counter to make the ID unique. However, it is absolutely important that the same elements
+         * get exactly the same ids when the page is loaded again in a cajax request, we want to limit the scope in
+         * which a counter is used, as much as possible. To understand the idea behind this, consider the following
+         * scenario: In the first request,  a template X, which uses "getUniqueElementId()" is parsed, and then, in a
+         * following cajax request, for some reason not only template X is parsed but also template Y is parsed before
+         * template X and template Y also uses "getUniqueElementId()". If we had only one counter the first element in
+         * template X that used "getUniqueElementId()" would have had the counter number 1 in the first request but
+         * a higher number in the cajax request because number 1 would have been used for the first element in template Y.
+         * By using counters with a scope limited to one file, this situation would not be a problem.
+         */
+        if (!isset($GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'])) {
+            $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'] = 0;
+        }
+        $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter']++;
+        echo $fileId . '_' . $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'];
+
         return function() {
-            $fileId = md5(__FILE__);
-            if (!isset($GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'])) {
-                $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'] = 0;
-            }
-            $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter']++;
-            echo $fileId . '_' . $GLOBALS['merconis_globals'][__METHOD__][$fileId]['counter'];
+            /*
+             * BC: An earlier version of this method returned a callable. To make sure that code, that expects a callable
+             * to be returned, causes a fatal error, we return an empty callable just for BC. Using this method by calling
+             * getUniqueElementId()() is deprecated and will not work anymore in future versions.
+             */
+            trigger_deprecation('leadingsystems/contao-merconis', '*', 'Calling getUniqueElementId()() is no longer necessary and now deprecated and will not work anymore in future versions.');
         };
     }
 
