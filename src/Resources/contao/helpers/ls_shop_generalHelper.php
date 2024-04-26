@@ -5296,12 +5296,25 @@ class ls_shop_generalHelper
     }
 
     public function manipulateCacheBasedOnSkStatus(string $strProductList, bool $blnCacheCanBeUsed) {
+
         $skStatus = \Input::get('skstatus');
+
+        global $objPage;
+
+        $unserializeCollectivePurchasePages = unserialize($GLOBALS['TL_CONFIG']['ls_shop_collectivePurchasePages']);
+        $isOnCollectiveOrderPage = in_array($objPage->id, $unserializeCollectivePurchasePages);
+
+        /*
+         * Done change $blnCacheCanBeUsed if not on CollectiveOrder-page, we can't only check for skstatus
+         * because manipulateCacheBasedOnSkStatus probably gets also triggered by other calls like javascript
+         */
+        if(!$isOnCollectiveOrderPage) return $blnCacheCanBeUsed;
+
         if (
-                ($skStatus && !isset($_SESSION['merconis']['lastSkStatus']))
-            || $skStatus != $_SESSION['merconis']['lastSkStatus']
+                ($skStatus && !isset($_SESSION['lsShop']['lastSkStatus']))
+            || $skStatus != $_SESSION['lsShop']['lastSkStatus']
         ) {
-            $_SESSION['merconis']['lastSkStatus'] = $skStatus;
+            $_SESSION['lsShop']['lastSkStatus'] = $skStatus;
             return false;
         }
         return $blnCacheCanBeUsed;
