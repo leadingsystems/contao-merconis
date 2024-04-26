@@ -245,3 +245,9 @@ $GLOBALS['TL_CTE']['lsShop']['lsShopCrossSellerCTE'] = 'Merconis\Core\ls_shop_cr
 $GLOBALS['TL_HOOKS']['getUserNavigation'][] = array('Merconis\Core\ls_shop_generalHelper', 'manipulateBackendNavigation');
 
 $GLOBALS['TL_HOOKS']['getSystemMessages'][] = array('Merconis\Core\ls_shop_generalHelper', 'getMerconisSystemMessages');
+
+$GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'][] = array('Merconis\Core\ls_shop_generalHelper', 'manipulateCacheBasedOnSkStatus');
+
+$GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination'][] = array('Merconis\Core\ls_shop_generalHelper', 'onlyShowNeededProducts');
+
+

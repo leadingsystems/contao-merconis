@@ -372,7 +372,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'inputType' => 'pageTree',
             'eval' => array('fieldType'=>'checkbox', 'multiple' => true)
         ),
-		
+
 		'ls_shop_shippingInfoPages' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_shippingInfoPages'],
 			'exclude' => true,

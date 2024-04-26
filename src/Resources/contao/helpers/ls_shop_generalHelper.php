@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\ArrayUtil;
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
+use Contao\FrontendUser;
 use Contao\LayoutModel;
 use Contao\StringUtil;
 use Contao\System;
@@ -5244,4 +5245,145 @@ class ls_shop_generalHelper
     {
         return strpos($value,$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) ? rtrim(rtrim($value,'0'),$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator']) : $value;
     }
+
+
+    //returns the ProductIds of CollectiveOrder-Products Ordered by the currently logged in user
+    public function getCollectiveOrderProductIdsOrderedByLoggedInUser() {
+
+        $user = FrontendUser::getInstance();
+        $loggedInUserId = $user->id;
+
+        $arrProductIds = array();
+        $productsInDb = \Database::getInstance()->prepare("
+			SELECT tl_ls_shop_orders_items.productVariantID
+            FROM tl_ls_shop_orders_items
+            JOIN tl_ls_shop_orders
+            ON tl_ls_shop_orders.id = tl_ls_shop_orders_items.pid
+            WHERE tl_ls_shop_orders.customerNr = ?;
+        ");
+
+        $productsInDb = $productsInDb->execute($loggedInUserId);
+
+        while ($productsInDb->next()) {
+            $arrProductIds[] = explode('-', $productsInDb->productVariantID)[0];
+        }
+
+        return $arrProductIds;
+    }
+
+
+    const PARAMETER_KOMMENDE = "kommende";
+    const PARAMETER_AKTIVE = "aktive";
+    const PARAMETER_MEINE_AKTIVE = "meine-aktive";
+    const PARAMETER_ABGELAUFENE = "abgelaufene";
+    const PARAMETER_MEINE_ABGELAUFENE = "meine-abgelaufene";
+
+    public function getCollectiveOrderProductIds($strSkStatus) {
+
+        $sqlTimeCheck = "";
+
+        if(
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_ABGELAUFENE ||
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
+        ){
+            $sqlTimeCheck = "AND lsShopRuntimeFrom < ".time().
+                " AND lsShopRuntimeUntil < ".time();
+        }
+        if(
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_KOMMENDE
+        ){
+            $sqlTimeCheck = "AND lsShopRuntimeFrom > ".time().
+                " AND lsShopRuntimeUntil > ".time();
+        }
+        if(
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_AKTIVE ||
+                $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE
+        ){
+            $sqlTimeCheck = "AND lsShopRuntimeFrom <= ".time().
+                " AND lsShopRuntimeUntil >= ".time();
+        }
+
+        $arrCollectiveOrderProductsIds = array();
+        $productsInDb = \Database::getInstance()->prepare("
+				SELECT		tl_ls_shop_product.id
+				FROM		tl_ls_shop_product
+				JOIN tl_ls_shop_variant
+				ON tl_ls_shop_product.id = tl_ls_shop_variant.pid
+                WHERE tl_ls_shop_product.productTypeCollectiveOrder = 1
+                AND tl_ls_shop_product.published = true 
+                
+			".$sqlTimeCheck.";");
+
+        $productsInDb = $productsInDb->execute();
+        while ($productsInDb->next()) {
+            $arrCollectiveOrderProductsIds[] = $productsInDb->id;
+        }
+
+        return $arrCollectiveOrderProductsIds;
+    }
+
+    public function manipulateCacheBasedOnSkStatus(string $strProductList, bool $blnCacheCanBeUsed) {
+
+        $skStatus = \Input::get('skstatus');
+
+        global $objPage;
+
+        $unserializeCollectivePurchasePages = unserialize($GLOBALS['TL_CONFIG']['ls_shop_collectivePurchasePages']);
+        $isOnCollectiveOrderPage = in_array($objPage->id, $unserializeCollectivePurchasePages);
+
+        /*
+         * Done change $blnCacheCanBeUsed if not on CollectiveOrder-page, we can't only check for skstatus
+         * because manipulateCacheBasedOnSkStatus probably gets also triggered by other calls like javascript
+         */
+        if(!$isOnCollectiveOrderPage) return $blnCacheCanBeUsed;
+
+        if (
+                ($skStatus && !isset($_SESSION['lsShop']['lastSkStatus']))
+            || $skStatus != $_SESSION['lsShop']['lastSkStatus']
+        ) {
+            $_SESSION['lsShop']['lastSkStatus'] = $skStatus;
+            return false;
+        }
+        return $blnCacheCanBeUsed;
+    }
+
+    public function onlyShowNeededProducts($productListID, $arrProductsIds) {
+
+        $strSkStatus = \Input::get('skstatus');
+
+        /*
+         * if no skStatus if given we are on the wrong page. We cant check for a specific page so we just check
+         * for skStatus because skStatus is only set on the correct page
+         */
+        if(!$strSkStatus){
+            return $arrProductsIds;
+        }
+
+        if ($productListID == 'standard') {
+
+            if(
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_KOMMENDE ||
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_AKTIVE ||
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE ||
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_ABGELAUFENE ||
+                    $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
+            ){
+
+                $arrCollectiveOrderProductsIds = $this::getCollectiveOrderProductIds($strSkStatus);
+
+                if(
+                        $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_AKTIVE ||
+                        $strSkStatus == ls_shop_generalHelper::PARAMETER_MEINE_ABGELAUFENE
+                ){
+                    $arrCollectiveOrderProductIdsOrderedByLoggedInUser = $this::getCollectiveOrderProductIdsOrderedByLoggedInUser();
+                    $arrProductsIds = array_intersect($arrProductsIds, $arrCollectiveOrderProductsIds, $arrCollectiveOrderProductIdsOrderedByLoggedInUser);
+
+                }else{
+                    $arrProductsIds = array_intersect($arrProductsIds, $arrCollectiveOrderProductsIds);
+                }
+            }
+        }
+        return $arrProductsIds;
+    }
 }
+
