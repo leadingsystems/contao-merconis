@@ -957,11 +957,11 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				break;
 
 			case '_priceBeforeConfiguratorAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_priceBeforeTax, $this->_steuersatz);
+				return $this->getDisplayPrice($this->_priceBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_unscaledPriceBeforeConfiguratorAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_unscaledPriceBeforeTax, $this->_steuersatz);
+				return $this->getDisplayPrice($this->_unscaledPriceBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_priceBeforeConfiguratorAfterTaxFormatted':
@@ -1057,11 +1057,11 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				break;
 
 			case '_priceCheapestVariantAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_priceCheapestVariantBeforeTax, $this->_steuersatz);
+				return $this->getDisplayPrice($this->_priceCheapestVariantBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_unscaledPriceCheapestVariantAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_unscaledPriceCheapestVariantBeforeTax, $this->_steuersatz);
+				return $this->getDisplayPrice($this->_unscaledPriceCheapestVariantBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_priceCheapestVariantAfterTaxFormatted':
@@ -1130,11 +1130,11 @@ returns the product price or the cheapest variant price.
                 break;
 
 			case '_priceMinimumAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_priceMinimumBeforeTax, $this->_steuersatz);
+				return $this->getDisplayPrice($this->_priceMinimumBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_unscaledPriceMinimumAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_unscaledPriceMinimumBeforeTax, $this->_steuersatz);
+				return $this->getDisplayPrice($this->_unscaledPriceMinimumBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_priceMinimumAfterTaxFormatted':
@@ -1154,7 +1154,7 @@ returns the product price or the cheapest variant price.
 				break;
 
 			case '_priceOldAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_priceOldBeforeTax, $this->_steuersatz);
+				return $this->getDisplayPrice($this->_priceOldBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_priceOldAfterTaxFormatted':
@@ -1182,7 +1182,7 @@ returns the product price or the cheapest variant price.
 				break;
 
 			case '_priceOldCheapestVariantAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_priceOldCheapestVariantBeforeTax, $this->_steuersatz);
+				return $this->getDisplayPrice($this->_priceOldCheapestVariantBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_priceOldCheapestVariantAfterTaxFormatted':
@@ -1198,7 +1198,7 @@ returns the product price or the cheapest variant price.
 				break;
 
 			case '_priceOldMinimumAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_priceOldMinimumBeforeTax, $this->_steuersatz);
+				return $this->getDisplayPrice($this->_priceOldMinimumBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_priceOldMinimumAfterTaxFormatted':
@@ -1646,6 +1646,15 @@ filter context, NULL will be returned.
 
 		return null;
 	}
+
+    public function getDisplayPrice($price, $steuersatzIdProduct)
+    {
+        $usePriceAdjustment = true;
+        if ($this->_isCollectiveOrderProduct) {
+            $usePriceAdjustment = false;
+        }
+        return ls_shop_generalHelper::getDisplayPrice($price, $steuersatzIdProduct, $usePriceAdjustment);
+    }
 
     /*  Determines the min price of the scale prices
      *  Because the function can be called for all variants of a product, some arguments are passed byref and thus retain their values
