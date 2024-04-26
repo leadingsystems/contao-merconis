@@ -455,6 +455,27 @@ class ls_shop_productSearcher
     }
 
 
+    /*
+     *
+     */
+    function minToken()
+    {
+        if (!$GLOBALS['merconis_globals']['innodb_ft_min_token_size']) {
+
+            $queryToken = \Database::getInstance()->prepare("
+                SELECT variable_value 
+                FROM information_schema.global_variables
+                WHERE variable_name LIKE ?
+            ");
+
+            $resultToken = $queryToken->execute('innodb_ft_min_token_size%');
+
+            $GLOBALS['merconis_globals']['innodb_ft_min_token_size'] = (int) $resultToken->first()->variable_value;
+
+        }
+        return $GLOBALS['merconis_globals']['innodb_ft_min_token_size'];
+    }
+
     protected function ls_performSearch() {
         /*
          * Set the current cache key because if ls_performSearch() is being executed, all
@@ -585,7 +606,14 @@ class ls_shop_productSearcher
                             continue;
                         }
                         $arrCriterionValues[$k] = preg_replace('/&#34;/', '', $v);
-                        $criterionValuesPlus[$k] = '+'.preg_replace('/&#34;/', '"', $v);;
+
+                        if (strlen($v) >= $this->minToken()) {
+                            $criterionValuesPlus[$k] = '+'.preg_replace('/&#34;/', '"', $v);;
+                        } else {
+                            $criterionValuesPlus[$k] = preg_replace('/&#34;/', '"', $v);;
+                        }
+
+
                     }
 
                     /*
