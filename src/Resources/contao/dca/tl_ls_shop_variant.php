@@ -276,6 +276,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'exclude'                 => true,
             'inputType'               => 'text',
             'eval'                    => array('rgxp' => 'date', 'datepicker' => true, 'tl_class' => 'w50 wizard', 'mandatory' => true),
+            'save_callback' => array (
+                array('Merconis\Core\tl_ls_shop_variant_controller', 'changeUntilDate')
+            ),
             'sql'                     => "varchar(10) NOT NULL default ''"
         ),
 
@@ -1516,4 +1519,9 @@ class tl_ls_shop_variant_controller extends \Backend {
 		\Database::getInstance()->prepare("UPDATE tl_ls_shop_variant SET tstamp=". time() .", published='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
 					   ->execute($intId);
 	}
+
+    public function changeUntilDate($value, \DataContainer $dc): bool|int
+    {
+        return strtotime('+23 hours + 59 minutes + 59 seconds', $value);
+    }
 }
