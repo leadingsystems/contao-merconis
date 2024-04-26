@@ -811,11 +811,11 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				break;
 
 			case '_priceBeforeConfiguratorAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_priceBeforeTax, $this->_steuersatz);
+				return $this->_objParentProduct->getDisplayPrice($this->_priceBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_unscaledPriceBeforeConfiguratorAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_unscaledPriceBeforeTax, $this->_steuersatz);
+				return $this->_objParentProduct->getDisplayPrice($this->_unscaledPriceBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_priceBeforeConfiguratorAfterTaxFormatted':
@@ -881,7 +881,7 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				break;
 
 			case '_priceOldAfterTax':
-				return ls_shop_generalHelper::getDisplayPrice($this->_priceOldBeforeTax, $this->_steuersatz);
+				return $this->_objParentProduct->getDisplayPrice($this->_priceOldBeforeTax, $this->_steuersatz);
 				break;
 
 			case '_priceOldAfterTaxFormatted':
