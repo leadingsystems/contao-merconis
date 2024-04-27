@@ -4,6 +4,38 @@ namespace Merconis\Core;
 class ls_shop_filterHelper {
     private static ?array $attributeIdsForWhichFilterFieldsArePublished = null;
 
+    public static function getAttributesInOrderOfRelevanceInDisplayedProducts(): array
+    {
+        $productIds = is_array($_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] ?? null) ? $_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] : [];
+        $attributesAndNumberOfUsages = [];
+        $attributesInOrderOfUsage = [];
+        $productsInDisplay = array_intersect_key($_SESSION['lsShop']['filter']['allProductsInfluencingFilterForm'], array_flip($productIds));
+
+        foreach ($productsInDisplay as $product) {
+            foreach ($product['attributeIDs'] as $attributeID) {
+                if (!isset($attributesAndNumberOfUsages[$attributeID])) {
+                    $attributesAndNumberOfUsages[$attributeID] = 0;
+                }
+                $attributesAndNumberOfUsages[$attributeID]++;
+            }
+            if (is_array($product['variants'] ?? null)) {
+                foreach ($product['variants'] as $variant) {
+                    foreach ($variant['attributeIDs'] as $attributeID) {
+                        if (!isset($attributesAndNumberOfUsages[$attributeID])) {
+                            $attributesAndNumberOfUsages[$attributeID] = 0;
+                        }
+                        $attributesAndNumberOfUsages[$attributeID]++;
+                    }
+                }
+            }
+        }
+
+        arsort($attributesAndNumberOfUsages);
+        $attributesInOrderOfUsage = array_keys($attributesAndNumberOfUsages);
+
+        return $attributesInOrderOfUsage;
+    }
+
     public static function getFilterSummary() {
         global $objPage;
 
@@ -119,6 +151,12 @@ class ls_shop_filterHelper {
             $arr_filterFieldSortingNumbers['attribute_' . $int_filterAttributeId] = $arr_filterFieldPriorities['attribute_' . $int_filterAttributeId];
         }
 
+        $attributesInOrderOfRelevance = self::getAttributesInOrderOfRelevanceInDisplayedProducts();
+        $highestPriorityValue = max($arr_filterFieldSortingNumbers);
+        foreach (array_reverse($attributesInOrderOfRelevance) as $numPosition => $relevantAttributeId) {
+            $arr_filterFieldSortingNumbers['attribute_' . $relevantAttributeId] = $highestPriorityValue + $numPosition;
+        }
+
         if ($bln_poducerFilterCurrentlyAvailable) {
             $arr_filterFieldSortingNumbers['producer'] = $arr_filterFieldPriorities['producer'];
         }
@@ -183,6 +221,9 @@ class ls_shop_filterHelper {
 				),
 				'producers' => array()
 			),
+
+            'allProductsInfluencingFilterForm' => [],
+
 			'arrCriteriaToUseInFilterForm' => array(
 				'attributes' => array(),
 				'price' => array(
@@ -718,6 +759,8 @@ class ls_shop_filterHelper {
 		}
 
 		ls_shop_filterHelper::resetCriteriaToUseInFilterForm();
+
+        $_SESSION['lsShop']['filter']['allProductsInfluencingFilterForm'] = $arrProductsComplete;
 
 		foreach ($arrProductsComplete as $arrProduct) {
             if (ls_shop_filterHelper::filterFieldForPriceExists()) {
