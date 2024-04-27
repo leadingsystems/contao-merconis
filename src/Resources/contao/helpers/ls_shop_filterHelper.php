@@ -4,14 +4,37 @@ namespace Merconis\Core;
 class ls_shop_filterHelper {
     private static ?array $attributeIdsForWhichFilterFieldsArePublished = null;
 
-    public static function getAttributesInOrderOfRelevanceInDisplayedProducts(): array
+    /*
+     * Filter fields are considered relevant, if the corresponding attributes appear in products that are
+     * currently displayed.
+     */
+    public static function getAttributeIdsForRelevantFilterFieldsSortedByRelevance(): array
     {
+        /*
+         * Get the product ids of currently displayed products
+         */
         $productIds = is_array($_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] ?? null) ? $_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] : [];
+
+        /*
+         * Prepare the array to collect all attributes and their number of usage
+         */
         $attributesAndNumberOfUsages = [];
+
+        /*
+         * Get product and variant data for all products in display, containing the attribute/value allocations
+         */
         $productsInDisplay = array_intersect_key($_SESSION['lsShop']['filter']['allProductsInfluencingFilterForm'], array_flip($productIds));
 
+        /*
+         * Iterating over all products and their variants, collecting their attribute ids and the number that those
+         * attribute ids occur in all products and variants.
+         * Attributes for which no published filter field exists, are skipped.
+         */
         foreach ($productsInDisplay as $product) {
             foreach ($product['attributeIDs'] as $attributeID) {
+                if (!self::filterFieldForAttributeExists($attributeID)) {
+                    continue;
+                }
                 if (!isset($attributesAndNumberOfUsages[$attributeID])) {
                     $attributesAndNumberOfUsages[$attributeID] = 0;
                 }
@@ -20,6 +43,9 @@ class ls_shop_filterHelper {
             if (is_array($product['variants'] ?? null)) {
                 foreach ($product['variants'] as $variant) {
                     foreach ($variant['attributeIDs'] as $attributeID) {
+                        if (!self::filterFieldForAttributeExists($attributeID)) {
+                            continue;
+                        }
                         if (!isset($attributesAndNumberOfUsages[$attributeID])) {
                             $attributesAndNumberOfUsages[$attributeID] = 0;
                         }
@@ -29,10 +55,18 @@ class ls_shop_filterHelper {
             }
         }
 
+        /*
+         * Sort by number of usages (i.e. relevance) in descending order
+         */
         arsort($attributesAndNumberOfUsages);
-        $attributesInOrderOfUsage = array_keys($attributesAndNumberOfUsages);
 
-        return $attributesInOrderOfUsage;
+        /*
+         * Only get the attribute ids (the keys of the array) and getting rid of the number of appearances which
+         * were only necessary for sorting
+         */
+        $attributesInOrderOfRelevance = array_keys($attributesAndNumberOfUsages);
+
+        return $attributesInOrderOfRelevance;
     }
 
     public static function getFilterSummary() {
@@ -151,16 +185,12 @@ class ls_shop_filterHelper {
                 $arr_filterFieldSortingNumbers['attribute_' . $int_filterAttributeId] = $arr_filterFieldPriorities['attribute_' . $int_filterAttributeId];
             }
 
-            $attributesInOrderOfRelevance = self::getAttributesInOrderOfRelevanceInDisplayedProducts();
+            $attributeIdsForRelevantFilterFieldsSortedByRelevance = self::getAttributeIdsForRelevantFilterFieldsSortedByRelevance();
 
-            /*
-             * Do me! There's a difference between relevant attributes and filter fields. In situations where there are
-             * attributes for which no filter field exists, this is not correct!
-             */
-            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = count($attributesInOrderOfRelevance);
+            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = count($attributeIdsForRelevantFilterFieldsSortedByRelevance);
 
             $highestPriorityValue = max($arr_filterFieldSortingNumbers);
-            foreach (array_reverse($attributesInOrderOfRelevance) as $numPosition => $relevantAttributeId) {
+            foreach (array_reverse($attributeIdsForRelevantFilterFieldsSortedByRelevance) as $numPosition => $relevantAttributeId) {
                 $arr_filterFieldSortingNumbers['attribute_' . $relevantAttributeId] = $highestPriorityValue + $numPosition;
             }
 
@@ -184,12 +214,12 @@ class ls_shop_filterHelper {
              */
 
 
-            uksort($arr_filterAllFields['arr_attributes'], function($key1, $key2) use ($attributesInOrderOfRelevance) {
-                $val1 = array_search($key1, $attributesInOrderOfRelevance);
+            uksort($arr_filterAllFields['arr_attributes'], function($key1, $key2) use ($attributeIdsForRelevantFilterFieldsSortedByRelevance) {
+                $val1 = array_search($key1, $attributeIdsForRelevantFilterFieldsSortedByRelevance);
                 if ($val1 === false) {
                     return -1;
                 }
-                $val2 = array_search($key2, $attributesInOrderOfRelevance);
+                $val2 = array_search($key2, $attributeIdsForRelevantFilterFieldsSortedByRelevance);
                 if ($val2 === false) {
                     return 0;
                 }
