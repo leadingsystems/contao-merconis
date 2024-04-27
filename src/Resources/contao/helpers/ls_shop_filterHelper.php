@@ -128,6 +128,7 @@ class ls_shop_filterHelper {
                 $str_filterAttributeName = ls_shop_languageHelper::getMultiLanguage($int_filterAttributeId, 'tl_ls_shop_attributes', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
                 $arr_filterAllFields['arr_attributes'][$int_filterAttributeId] = [
                     'str_title' => $str_filterAttributeName,
+                    'str_alias' => $arrFilterFieldInfo['alias'],
                     'arr_values' => [],
                     'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId] ?? null] ?? null
                 ];
