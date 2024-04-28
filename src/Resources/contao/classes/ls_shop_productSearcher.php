@@ -78,8 +78,10 @@ class ls_shop_productSearcher
     }
 
     protected function getCache() {
-        $potentialCache = ($_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey] ?? null) ?: null;
-        $this->arrCache = time() - $potentialCache['tstamp'] < $this->cacheLifetimeSec ? $potentialCache : null;
+        $this->arrCache = ($_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey] ?? null) ?: null;
+        if (is_array($this->arrCache)) {
+            $this->arrCache = time() - $this->arrCache['tstamp'] < $this->cacheLifetimeSec ? $this->arrCache : null;
+        }
     }
 
     protected function setCache() {
