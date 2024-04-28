@@ -8,7 +8,7 @@ class ls_shop_filterHelper {
      * Filter fields are considered relevant, if the corresponding attributes appear in products that are
      * currently displayed.
      */
-    public static function getAttributeIdsForRelevantFilterFieldsSortedByRelevance(): array
+    public static function getAttributeIdsForRelevantFilterFieldsWithRelevance(): array
     {
         /*
          * Get the product ids of currently displayed products
@@ -60,13 +60,7 @@ class ls_shop_filterHelper {
          */
         arsort($attributesAndNumberOfUsages);
 
-        /*
-         * Only get the attribute ids (the keys of the array) and getting rid of the number of appearances which
-         * were only necessary for sorting
-         */
-        $attributesInOrderOfRelevance = array_keys($attributesAndNumberOfUsages);
-
-        return $attributesInOrderOfRelevance;
+        return $attributesAndNumberOfUsages;
     }
 
     public static function getFilterSummary() {
@@ -127,6 +121,7 @@ class ls_shop_filterHelper {
 
                 $str_filterAttributeName = ls_shop_languageHelper::getMultiLanguage($int_filterAttributeId, 'tl_ls_shop_attributes', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
                 $arr_filterAllFields['arr_attributes'][$int_filterAttributeId] = [
+                    'int_id' => $int_filterAttributeId,
                     'str_title' => $str_filterAttributeName,
                     'str_alias' => $arrFilterFieldInfo['alias'],
                     'arr_values' => [],
@@ -186,12 +181,23 @@ class ls_shop_filterHelper {
                 $arr_filterFieldSortingNumbers['attribute_' . $int_filterAttributeId] = $arr_filterFieldPriorities['attribute_' . $int_filterAttributeId];
             }
 
-            $attributeIdsForRelevantFilterFieldsSortedByRelevance = self::getAttributeIdsForRelevantFilterFieldsSortedByRelevance();
+            $attributeIdsForRelevantFilterFieldsWithRelevance = self::getAttributeIdsForRelevantFilterFieldsWithRelevance();
 
-            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = count($attributeIdsForRelevantFilterFieldsSortedByRelevance);
+            /*
+             * Do me! Read the "Do me" comment in template_filterSummary_withAllFields_SEP01 about this global variable
+             */
+            /*
+             * Not all filter fields with relevance are necessarily actually in $arr_filterAllFields['arr_attributes'].
+             * If a filter field is relevant but there is no variation in the respective attribute in all products
+             * in the whole product list, the filter field is ignored. Therefore, the number of relevant filter fields
+             * to limit display can not be a simple count of the relevant filter fields. It must be the count of the
+             * intersection between relevant and actually available filter fields.
+             */
+            $numRelevantFilterFieldsActuallyAvailableForFiltering = array_intersect_key($attributeIdsForRelevantFilterFieldsWithRelevance, $arr_filterAllFields['arr_attributes']);
+            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = count($numRelevantFilterFieldsActuallyAvailableForFiltering);
 
             $highestPriorityValue = is_array($arr_filterFieldSortingNumbers) && count($arr_filterFieldSortingNumbers) ? max($arr_filterFieldSortingNumbers) : 0;
-            foreach (array_reverse($attributeIdsForRelevantFilterFieldsSortedByRelevance) as $numPosition => $relevantAttributeId) {
+            foreach (array_reverse($attributeIdsForRelevantFilterFieldsWithRelevance) as $numPosition => $relevantAttributeId) {
                 $arr_filterFieldSortingNumbers['attribute_' . $relevantAttributeId] = $highestPriorityValue + $numPosition;
             }
 
@@ -214,17 +220,30 @@ class ls_shop_filterHelper {
              * <--
              */
 
+            uasort($arr_filterAllFields['arr_attributes'], function($a, $b) use ($attributeIdsForRelevantFilterFieldsWithRelevance) {
+                $a_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$a['int_id']];
+                $b_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$b['int_id']];
 
-            uksort($arr_filterAllFields['arr_attributes'], function($key1, $key2) use ($attributeIdsForRelevantFilterFieldsSortedByRelevance) {
-                $val1 = array_search($key1, $attributeIdsForRelevantFilterFieldsSortedByRelevance);
-                if ($val1 === false) {
-                    return -1;
+                // If only one element has high relevance, it comes first
+                if ($a_relevance xor $b_relevance) {
+                    return $a_relevance ? -1 : 1;
                 }
-                $val2 = array_search($key2, $attributeIdsForRelevantFilterFieldsSortedByRelevance);
-                if ($val2 === false) {
-                    return 0;
+
+                /*
+                 * If both elements have high relevance but the relevance is different,
+                 * the one with the higher relevance comes first
+                 */
+                else if ($a_relevance && $b_relevance && ($a_relevance !== $b_relevance)) {
+                    /*
+                     * Do me! Check if the operands need to be switched
+                     */
+                    return $a_relevance <=> $b_relevance;
                 }
-                return $val1 - $val2;
+
+                // If both elements have the same relevance, compare them alphabetically by 'str_title'
+                else {
+                    return strcmp($a['str_title'], $b['str_title']);
+                }
             });
 
             $GLOBALS['merconis_globals']['cache'][__METHOD__] = [
@@ -237,6 +256,11 @@ class ls_shop_filterHelper {
                 'bln_currentlyFilteringByAttributes' => $bln_currentlyFilteringByAttributes,
                 'bln_currentlyFilteringByProducer' => $bln_currentlyFilteringByProducer,
                 'bln_currentlyFilteringByPrice' => $bln_currentlyFilteringByPrice,
+
+                /*
+                 * Do me! Check: Do we still have to pass the sorting numbers to the template? What do
+                     * we need them for anyway?
+                 */
                 'arr_filterFieldSortingNumbers' => $arr_filterFieldSortingNumbers
             ];
         }

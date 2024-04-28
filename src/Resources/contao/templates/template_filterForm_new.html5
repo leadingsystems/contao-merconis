@@ -5,9 +5,20 @@ $int_numFilterCriteriaCurrentlyUsed = count(($this->arr_filterSummaryData['arr_f
 ?>
 <div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?><?php echo $bln_moreFilterFieldsAvailableThanShownInSummary ? ' more-filter-fields-available' : '' ?>">
     <div id="filter-headline-container" class="ajax-reload-by-filter">
-        <span class="all-filter-options off-canvas-filter-form-toggler-remote">
-            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-05']; ?>
-        </span>
+        <?php
+        /*
+         * Do me! We don't want to offer an option to open the complete filter form in the overlay
+             * because we use the summary now to access all filter fields.
+             * If we stick with this plan, remove this part entirely.
+         */
+        if (false) {
+            ?>
+            <span class="all-filter-options off-canvas-filter-form-toggler-remote">
+                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-05']; ?>
+            </span>
+            <?php
+        }
+        ?>
         <span class="filter-headline off-canvas-filter-form-toggler-remote">
             <?php
                 if (!$int_numFilterCriteriaCurrentlyUsed) {
