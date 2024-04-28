@@ -1268,6 +1268,12 @@ class ls_shop_productSearcher
             }
 
             if ($this->blnEnoughProductsOrVariantsToFilterAvailable) {
+                /*
+                 * Do me! Check if calling "getInstance()" here is necessary. It looks stupid because
+                     * the usual reason to call it, would be to receive the instance, which doesn't happen
+                     * here. Is this supposed to trigger the constructor? That should not be necessary,
+                     * because this would already have been triggered in ls_shop_productSearcher::__construct()
+                 */
                 ls_shop_filterController::getInstance();
 
                 ls_shop_filterHelper::setCriteriaToUseOrShowInFilterForm($arrProductsComplete, 'use');
@@ -1297,6 +1303,12 @@ class ls_shop_productSearcher
                      * variants it includes) and if we find out that a product doesn't match the filter,
                      * we skip it and don't write it to $this->arrProductResultsComplete.
                      */
+                    /*
+                     * Do me! Check if calling "getInstance()" here is necessary. It looks stupid because
+                         * the usual reason to call it, would be to receive the instance, which doesn't happen
+                         * here. Is this supposed to trigger the constructor? That should not be necessary,
+                         * because this would already have been triggered in ls_shop_productSearcher::__construct()
+                     */
                     ls_shop_filterController::getInstance();
                     $blnProductMatches = ls_shop_filterHelper::checkIfProductMatchesFilter($rowProductsComplete);
 
@@ -1310,6 +1322,12 @@ class ls_shop_productSearcher
             }
 
             if ($this->blnUseFilter && $this->blnEnoughProductsOrVariantsToFilterAvailable && is_array($arrProductsAfterFilter)) {
+                /*
+                 * Do me! Check if calling "getInstance()" here is necessary. It looks stupid because
+                     * the usual reason to call it, would be to receive the instance, which doesn't happen
+                     * here. Is this supposed to trigger the constructor? That should not be necessary,
+                     * because this would already have been triggered in ls_shop_productSearcher::__construct()
+                 */
                 ls_shop_filterController::getInstance();
 
                 /*
