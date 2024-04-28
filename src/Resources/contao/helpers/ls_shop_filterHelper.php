@@ -190,7 +190,7 @@ class ls_shop_filterHelper {
 
             $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = count($attributeIdsForRelevantFilterFieldsSortedByRelevance);
 
-            $highestPriorityValue = max($arr_filterFieldSortingNumbers);
+            $highestPriorityValue = is_array($arr_filterFieldSortingNumbers) && count($arr_filterFieldSortingNumbers) ? max($arr_filterFieldSortingNumbers) : 0;
             foreach (array_reverse($attributeIdsForRelevantFilterFieldsSortedByRelevance) as $numPosition => $relevantAttributeId) {
                 $arr_filterFieldSortingNumbers['attribute_' . $relevantAttributeId] = $highestPriorityValue + $numPosition;
             }
