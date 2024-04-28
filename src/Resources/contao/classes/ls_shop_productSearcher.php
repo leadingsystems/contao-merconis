@@ -1269,7 +1269,8 @@ class ls_shop_productSearcher
 
             if ($this->blnEnoughProductsOrVariantsToFilterAvailable) {
                 ls_shop_filterController::getInstance();
-                ls_shop_filterHelper::setCriteriaToUseInFilterForm($arrProductsComplete);
+
+                ls_shop_filterHelper::setCriteriaToUseOrShowInFilterForm($arrProductsComplete, 'use');
             }
         }
 
@@ -1310,7 +1311,15 @@ class ls_shop_productSearcher
 
             if ($this->blnUseFilter && $this->blnEnoughProductsOrVariantsToFilterAvailable && is_array($arrProductsAfterFilter)) {
                 ls_shop_filterController::getInstance();
-                ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
+
+                /*
+                 * Do me! This method call is deactivated because it is probably no longer relevant
+                     * after the recent improvements in filter behaviour. Delete after confirming this!
+                     * Make sure to also remove everything related, especially user settings etc.
+                 */
+//                ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
+
+                ls_shop_filterHelper::setCriteriaToUseOrShowInFilterForm($arrProductsAfterFilter, 'show');
             }
 
             $this->specialSortResults($arrProductsAfterFilter);
