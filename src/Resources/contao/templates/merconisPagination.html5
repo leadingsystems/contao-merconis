@@ -14,7 +14,7 @@ $bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorti
             data-lsjs-cajaxCallerOptions="
                 {
                     'obj_cajaxRequestData': {
-                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>, filter-reload-area'
                     }
                 }
             "
@@ -35,7 +35,7 @@ $bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorti
             data-lsjs-cajaxCallerOptions="
                 {
                     'obj_cajaxRequestData': {
-                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>, filter-reload-area'
                     }
                 }
             "
@@ -57,7 +57,7 @@ $bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorti
             data-lsjs-cajaxCallerOptions="
                 {
                     'obj_cajaxRequestData': {
-                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>, filter-reload-area'
                     }
                 }
             "
@@ -78,7 +78,7 @@ $bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorti
             data-lsjs-cajaxCallerOptions="
                 {
                     'obj_cajaxRequestData': {
-                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>'
+                        'requestedElementID': 'merconis-product-list-reload-container-<?php echo $this->productListID; ?>, filter-reload-area'
                     }
                 }
             "
