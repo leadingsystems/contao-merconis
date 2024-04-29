@@ -263,8 +263,16 @@ class ls_shop_filterHelper {
              */
 
             uasort($arr_filterAllFields['arr_attributes'], function($a, $b) use ($attributeIdsForRelevantFilterFieldsWithRelevance) {
+                $a_currentlyFilteredBy = key_exists($a['int_id'], $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes']);
+                $b_currentlyFilteredBy = key_exists($b['int_id'], $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes']);
+
                 $a_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$a['int_id']];
                 $b_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$b['int_id']];
+
+                // If only one element is currently used for filtering, it comes first
+                if ($a_currentlyFilteredBy xor $b_currentlyFilteredBy) {
+                    return $a_currentlyFilteredBy ? -1 : 1;
+                }
 
                 // If only one element has high relevance, it comes first
                 if ($a_relevance xor $b_relevance) {
