@@ -263,16 +263,22 @@ class ls_shop_filterHelper {
              */
 
             uasort($arr_filterAllFields['arr_attributes'], function($a, $b) use ($attributeIdsForRelevantFilterFieldsWithRelevance) {
-                $a_currentlyFilteredBy = key_exists($a['int_id'], $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes']);
-                $b_currentlyFilteredBy = key_exists($b['int_id'], $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes']);
-
-                $a_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$a['int_id']];
-                $b_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$b['int_id']];
+                // If an element is the "etim-attributeclass" (basically product type), it comes first
+                $a_isEtimClass = $a['str_alias'] === 'etim-attributeclass';
+                $b_isEtimClass = $b['str_alias'] === 'etim-attributeclass';
+                if ($a_isEtimClass xor $b_isEtimClass) {
+                    return $a_isEtimClass ? -1 : 1;
+                }
 
                 // If only one element is currently used for filtering, it comes first
+                $a_currentlyFilteredBy = key_exists($a['int_id'], $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes']);
+                $b_currentlyFilteredBy = key_exists($b['int_id'], $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes']);
                 if ($a_currentlyFilteredBy xor $b_currentlyFilteredBy) {
                     return $a_currentlyFilteredBy ? -1 : 1;
                 }
+
+                $a_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$a['int_id']];
+                $b_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$b['int_id']];
 
                 // If only one element has high relevance, it comes first
                 if ($a_relevance xor $b_relevance) {
@@ -283,17 +289,15 @@ class ls_shop_filterHelper {
                  * If both elements have high relevance but the relevance is different,
                  * the one with the higher relevance comes first
                  */
-                else if ($a_relevance && $b_relevance && ($a_relevance !== $b_relevance)) {
+                if ($a_relevance && $b_relevance && ($a_relevance !== $b_relevance)) {
                     /*
                      * Do me! Check if the operands need to be switched
                      */
                     return $a_relevance <=> $b_relevance;
                 }
 
-                // If both elements have the same relevance, compare them alphabetically by 'str_title'
-                else {
-                    return strcmp($a['str_title'], $b['str_title']);
-                }
+                // If no element could be prioritized by now, compare them alphabetically by 'str_title'
+                return strcmp($a['str_title'], $b['str_title']);
             });
 
             $GLOBALS['merconis_globals']['cache'][__METHOD__] = [
