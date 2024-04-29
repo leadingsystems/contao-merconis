@@ -196,6 +196,16 @@ class ls_shop_filterController
 							continue;
 						}
 
+                        /*
+                         * Do me! Skip (continue) here if the filterValue does not pass the new relevance check!
+                             * $arrFieldValue['filterValue'] is the producer name (or in case of SEP, the producer number) here!
+                         */
+
+                        /*
+                         * Do me! Use profiler to check whether calls to the md5() method have a considerable
+                             * performance impact. If they do and if we can decide that we don't use the match estimating
+                             * functionality anymore, remove everything md5 creation etc.
+                         */
 						$md5Value = md5($arrFieldValue['filterValue']);
 						$arrOptions[] = array(
 							'value' => $arrFieldValue['filterValue'],
@@ -215,7 +225,13 @@ class ls_shop_filterController
 						if (in_array($value, $fieldValuesAlreadyHandled)) {
 							continue;
 						}
-						$md5Value = md5($value);
+
+                        /*
+                         * Do me! Skip (continue) here if the filterValue does not pass the new relevance check!
+                             * $value is the producer name (or in case of SEP, the producer number) here!
+                         */
+
+                        $md5Value = md5($value);
 						$arrOptions[] = array(
 							'value' => $value,
 							'label' => $value,
@@ -325,7 +341,15 @@ class ls_shop_filterController
 							continue;
 						}
 
-						$arrOptions[] = array(
+                        /*
+                         * Do me! Skip (continue) here if the filterValue does not pass the new relevance check!
+                         */
+                        if (!ls_shop_filterHelper::filterValueIsRelevant($arrFieldValue['filterValue'])) {
+                            continue;
+                        }
+
+
+                        $arrOptions[] = array(
 							'value' => $arrFieldValue['filterValue'],
 							'label' => $arrFieldValue['title'],
 							'class' => (isset($arrFieldValue['classForFilterFormField']) && $arrFieldValue['classForFilterFormField'] ? ' ' . $arrFieldValue['classForFilterFormField'] : ''),

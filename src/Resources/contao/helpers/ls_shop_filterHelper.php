@@ -3,6 +3,31 @@ namespace Merconis\Core;
 
 class ls_shop_filterHelper {
     private static ?array $attributeIdsForWhichFilterFieldsArePublished = null;
+    private static ?array $relevantFilterValueIds = null;
+
+    public static function filterValueIsRelevant(int $attributeValueId): bool
+    {
+        if (self::$relevantFilterValueIds === null) {
+            self::$relevantFilterValueIds = [];
+            /*
+             * Iterating over all products and their variants, collecting their attribute value ids
+             */
+            foreach ($_SESSION['lsShop']['filter']['allProductsInAlreadyFilteredProductList'] as $product) {
+                foreach ($product['attributeValueIDs'] as $attributeValueID) {
+                    self::$relevantFilterValueIds[] = $attributeValueID;
+                }
+                if (is_array($product['variants'] ?? null)) {
+                    foreach ($product['variants'] as $variant) {
+                        foreach ($variant['attributeValueIDs'] as $attributeValueID) {
+                            self::$relevantFilterValueIds[] = $attributeValueID;
+                        }
+                    }
+                }
+            }
+            self::$relevantFilterValueIds = array_unique(self::$relevantFilterValueIds);
+        }
+        return in_array($attributeValueId, self::$relevantFilterValueIds);
+    }
 
     /*
      * Filter fields are considered relevant, if the corresponding attributes appear in products that are
@@ -194,7 +219,8 @@ class ls_shop_filterHelper {
              * intersection between relevant and actually available filter fields.
              */
             $numRelevantFilterFieldsActuallyAvailableForFiltering = array_intersect_key($attributeIdsForRelevantFilterFieldsWithRelevance, $arr_filterAllFields['arr_attributes']);
-            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = count($numRelevantFilterFieldsActuallyAvailableForFiltering);
+            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = count($_SESSION['lsShop']['filter']['productsCurrentlyDisplayed']) ? count($numRelevantFilterFieldsActuallyAvailableForFiltering) : 0;
+//            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = 9999;
 
             $highestPriorityValue = is_array($arr_filterFieldSortingNumbers) && count($arr_filterFieldSortingNumbers) ? max($arr_filterFieldSortingNumbers) : 0;
             foreach (array_reverse($attributeIdsForRelevantFilterFieldsWithRelevance) as $numPosition => $relevantAttributeId) {
@@ -301,6 +327,8 @@ class ls_shop_filterHelper {
 			),
 
             'allProductsInfluencingFilterForm' => [],
+
+            'allProductsInAlreadyFilteredProductList' => [],
 
 			'arrCriteriaToUseInFilterForm' => array(
 				'attributes' => array(),
@@ -854,6 +882,10 @@ class ls_shop_filterHelper {
             }
 
             $_SESSION['lsShop']['filter']['allProductsInfluencingFilterForm'] = $arrProducts;
+        }
+
+        if ($mode === 'show') {
+            $_SESSION['lsShop']['filter']['allProductsInAlreadyFilteredProductList'] = $arrProducts;
         }
 
 		ls_shop_filterHelper::resetCriteriaToUseOrShowInFilterForm($where);
