@@ -200,6 +200,9 @@ class ls_shop_filterController
                          * Do me! Skip (continue) here if the filterValue does not pass the new relevance check!
                              * $arrFieldValue['filterValue'] is the producer name (or in case of SEP, the producer number) here!
                          */
+                        if (!ls_shop_filterHelper::filterValueProducerIsRelevant($arrFieldValue['filterValue'])) {
+                            continue;
+                        }
 
                         /*
                          * Do me! Use profiler to check whether calls to the md5() method have a considerable
@@ -230,6 +233,9 @@ class ls_shop_filterController
                          * Do me! Skip (continue) here if the filterValue does not pass the new relevance check!
                              * $value is the producer name (or in case of SEP, the producer number) here!
                          */
+                        if (!ls_shop_filterHelper::filterValueProducerIsRelevant($value)) {
+                            continue;
+                        }
 
                         $md5Value = md5($value);
 						$arrOptions[] = array(
@@ -341,13 +347,9 @@ class ls_shop_filterController
 							continue;
 						}
 
-                        /*
-                         * Do me! Skip (continue) here if the filterValue does not pass the new relevance check!
-                         */
-                        if (!ls_shop_filterHelper::filterValueIsRelevant($arrFieldValue['filterValue'])) {
+                        if (!ls_shop_filterHelper::filterValueAttributeIsRelevant($arrFieldValue['filterValue'])) {
                             continue;
                         }
-
 
                         $arrOptions[] = array(
 							'value' => $arrFieldValue['filterValue'],

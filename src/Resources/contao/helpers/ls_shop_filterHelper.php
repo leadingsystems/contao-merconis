@@ -3,30 +3,46 @@ namespace Merconis\Core;
 
 class ls_shop_filterHelper {
     private static ?array $attributeIdsForWhichFilterFieldsArePublished = null;
-    private static ?array $relevantFilterValueIds = null;
+    private static ?array $relevantFilterValueAttributes = null;
+    private static ?array $relevantFilterValueProducers = null;
 
-    public static function filterValueIsRelevant(int $attributeValueId): bool
+    public static function filterValueAttributeIsRelevant(int $attributeValueId): bool
     {
-        if (self::$relevantFilterValueIds === null) {
-            self::$relevantFilterValueIds = [];
+        if (self::$relevantFilterValueAttributes === null) {
+            self::$relevantFilterValueAttributes = [];
             /*
              * Iterating over all products and their variants, collecting their attribute value ids
              */
             foreach ($_SESSION['lsShop']['filter']['allProductsInAlreadyFilteredProductList'] as $product) {
                 foreach ($product['attributeValueIDs'] as $attributeValueID) {
-                    self::$relevantFilterValueIds[] = $attributeValueID;
+                    self::$relevantFilterValueAttributes[] = $attributeValueID;
                 }
                 if (is_array($product['variants'] ?? null)) {
                     foreach ($product['variants'] as $variant) {
                         foreach ($variant['attributeValueIDs'] as $attributeValueID) {
-                            self::$relevantFilterValueIds[] = $attributeValueID;
+                            self::$relevantFilterValueAttributes[] = $attributeValueID;
                         }
                     }
                 }
             }
-            self::$relevantFilterValueIds = array_unique(self::$relevantFilterValueIds);
+            self::$relevantFilterValueAttributes = array_unique(self::$relevantFilterValueAttributes);
         }
-        return in_array($attributeValueId, self::$relevantFilterValueIds);
+        return in_array($attributeValueId, self::$relevantFilterValueAttributes);
+    }
+
+    public static function filterValueProducerIsRelevant(string $producer): bool
+    {
+        if (self::$relevantFilterValueProducers === null) {
+            self::$relevantFilterValueProducers = [];
+            /*
+             * Iterating over all products, collecting their producers
+             */
+            foreach ($_SESSION['lsShop']['filter']['allProductsInAlreadyFilteredProductList'] as $product) {
+                self::$relevantFilterValueProducers[] = $product['lsShopProductProducer'];
+            }
+            self::$relevantFilterValueProducers = array_unique(self::$relevantFilterValueProducers);
+        }
+        return in_array($producer, self::$relevantFilterValueProducers);
     }
 
     /*
