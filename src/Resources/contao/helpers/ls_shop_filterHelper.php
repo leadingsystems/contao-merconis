@@ -263,18 +263,18 @@ class ls_shop_filterHelper {
              */
 
             uasort($arr_filterAllFields['arr_attributes'], function($a, $b) use ($attributeIdsForRelevantFilterFieldsWithRelevance) {
-                // If an element is the "etim-attributeclass" (basically product type), it comes first
-                $a_isEtimClass = $a['str_alias'] === 'etim-attributeclass';
-                $b_isEtimClass = $b['str_alias'] === 'etim-attributeclass';
-                if ($a_isEtimClass xor $b_isEtimClass) {
-                    return $a_isEtimClass ? -1 : 1;
-                }
-
                 // If only one element is currently used for filtering, it comes first
                 $a_currentlyFilteredBy = key_exists($a['int_id'], $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes']);
                 $b_currentlyFilteredBy = key_exists($b['int_id'], $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes']);
                 if ($a_currentlyFilteredBy xor $b_currentlyFilteredBy) {
                     return $a_currentlyFilteredBy ? -1 : 1;
+                }
+
+                // If an element is the "etim-attributeclass" (basically product type), it comes first
+                $a_isEtimClass = $a['str_alias'] === 'etim-attributeclass';
+                $b_isEtimClass = $b['str_alias'] === 'etim-attributeclass';
+                if ($a_isEtimClass xor $b_isEtimClass) {
+                    return $a_isEtimClass ? -1 : 1;
                 }
 
                 $a_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$a['int_id']];
