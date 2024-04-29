@@ -44,7 +44,7 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
     <?php if ($_SESSION["CartMinOrderValueNotReached"] == true) {
         \System::loadLanguageFile('shk');
         ?>
-        <div class="checkout-validation-error"><?= $GLOBALS['TL_LANG']['shk']['text004'] ?></div>
+        <div class="checkout-validation-error"><?= $GLOBALS['TL_LANG']['shk']['text005'] ?></div>
     <?php
         $_SESSION["CartMinOrderValueNotReached"] = false;
     } ?>
