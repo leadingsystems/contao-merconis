@@ -550,6 +550,18 @@
     display: none;
   }
 
+  #filter-folder-container {
+    [data-lsjs-element="elementFolderToggler"] {
+      cursor: pointer;
+    }
+
+    [data-lsjs-element="elementFolderContent"] {
+      height: auto;
+      overflow: hidden;
+      display: none;
+    }
+  }
+
   @include media-breakpoint-down(4, $grid-breakpoints-ls) {
     button {
       &.submitFilter {

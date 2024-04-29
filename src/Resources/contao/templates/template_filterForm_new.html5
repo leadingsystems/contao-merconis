@@ -4,33 +4,48 @@ $bln_moreFilterFieldsAvailableThanShownInSummary = $this->arr_filterSummaryData[
 $int_numFilterCriteriaCurrentlyUsed = count(($this->arr_filterSummaryData['arr_filterSummary']['arr_attributes'] ?? null) ?: []) + count(($this->arr_filterSummaryData['arr_filterSummary']['arr_producers'] ?? null) ?: []) + (($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['low'] ?? null) || ($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['high'] ?? null) ? 1 : 0);
 ?>
 <div id="filter-reload-area" class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?><?php echo $bln_moreFilterFieldsAvailableThanShownInSummary ? ' more-filter-fields-available' : '' ?>">
-    <div id="filter-headline-container" class="ajax-reload-by-filter">
-        <?php
-        /*
-         * Do me! We don't want to offer an option to open the complete filter form in the overlay
-             * because we use the summary now to access all filter fields.
-             * If we stick with this plan, remove this part entirely.
-         */
-        if (false) {
+    <section
+        data-lsjs-component="elementFolder"
+        data-lsjs-elementFolderOptions="
+            {
+            bln_automaticallyCreateResizeBox: false,
+            str_initialDisplayType: 'block',
+            str_initialToggleStatus: 'closed',
+            str_initialCookieStatus: 'closed'
+            }
+        "
+        id="filter-folder-container"
+    >
+    <div data-lsjs-element="elementFolderToggler">
+        <div id="filter-headline-container" class="ajax-reload-by-filter">
+            <?php
+            /*
+             * Do me! We don't want to offer an option to open the complete filter form in the overlay
+                 * because we use the summary now to access all filter fields.
+                 * If we stick with this plan, remove this part entirely.
+             */
+            if (false) {
+                ?>
+                <span class="all-filter-options off-canvas-filter-form-toggler-remote">
+                    <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-05']; ?>
+                </span>
+                <?php
+            }
             ?>
-            <span class="all-filter-options off-canvas-filter-form-toggler-remote">
-                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-05']; ?>
+            <span class="filter-headline">
+                <?php
+                    if (!$int_numFilterCriteriaCurrentlyUsed) {
+                        echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'];
+                    } else {
+                        echo sprintf($int_numFilterCriteriaCurrentlyUsed > 1 ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03-03'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03-02'], $int_numFilterCriteriaCurrentlyUsed);
+                    }
+                ?>
             </span>
-            <?php
-        }
-        ?>
-        <span class="filter-headline">
-            <?php
-                if (!$int_numFilterCriteriaCurrentlyUsed) {
-                    echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'];
-                } else {
-                    echo sprintf($int_numFilterCriteriaCurrentlyUsed > 1 ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03-03'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03-02'], $int_numFilterCriteriaCurrentlyUsed);
-                }
-            ?>
-        </span>
+        </div>
     </div>
-
-    <?php echo $this->str_filterSummaryHtml; ?>
+    <div data-lsjs-element="elementFolderContent">
+        <?php echo $this->str_filterSummaryHtml; ?>
+    </div>
 
     <div id="off-canvas-filter-form-container" class="oc-flex-default-container">
         <div id="off-canvas-filter-form-container-inside">
