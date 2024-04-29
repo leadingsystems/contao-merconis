@@ -135,9 +135,16 @@
     overflow: hidden;
     margin-bottom: 2rem;
 
+    /*
+     * Do me! We don't want to offer an option to open the complete filter form in the overlay
+         * because we use the summary now to access all filter fields. Of course, that means that
+         * we don't hide the summary!
+         * If we stick with this plan, remove this part entirely.
+     *
     @include media-breakpoint-down(3, $grid-breakpoints-ls) {
       display: none;
     }
+    /* */
 
     .filter-summary {
       display: flex;

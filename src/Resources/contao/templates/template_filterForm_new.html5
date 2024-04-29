@@ -19,7 +19,7 @@ $int_numFilterCriteriaCurrentlyUsed = count(($this->arr_filterSummaryData['arr_f
             <?php
         }
         ?>
-        <span class="filter-headline off-canvas-filter-form-toggler-remote">
+        <span class="filter-headline">
             <?php
                 if (!$int_numFilterCriteriaCurrentlyUsed) {
                     echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'];
