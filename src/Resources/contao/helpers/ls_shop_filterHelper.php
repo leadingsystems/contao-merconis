@@ -235,7 +235,7 @@ class ls_shop_filterHelper {
              * intersection between relevant and actually available filter fields.
              */
             $numRelevantFilterFieldsActuallyAvailableForFiltering = array_intersect_key($attributeIdsForRelevantFilterFieldsWithRelevance, $arr_filterAllFields['arr_attributes']);
-            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = count($_SESSION['lsShop']['filter']['productsCurrentlyDisplayed']) ? count($numRelevantFilterFieldsActuallyAvailableForFiltering) : 0;
+            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = count(($_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] ?? null) ?: []) ? count($numRelevantFilterFieldsActuallyAvailableForFiltering) : 0;
 //            $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = 9999;
 
             $highestPriorityValue = is_array($arr_filterFieldSortingNumbers) && count($arr_filterFieldSortingNumbers) ? max($arr_filterFieldSortingNumbers) : 0;
