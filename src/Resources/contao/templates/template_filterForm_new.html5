@@ -24,7 +24,7 @@ $int_numFilterCriteriaCurrentlyUsed = count(($this->arr_filterSummaryData['arr_f
                 if (!$int_numFilterCriteriaCurrentlyUsed) {
                     echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'];
                 } else {
-                    echo sprintf($int_numFilterCriteriaCurrentlyUsed > 1 ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-04'], $int_numFilterCriteriaCurrentlyUsed);
+                    echo sprintf($int_numFilterCriteriaCurrentlyUsed > 1 ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03-03'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03-02'], $int_numFilterCriteriaCurrentlyUsed);
                 }
             ?>
         </span>
