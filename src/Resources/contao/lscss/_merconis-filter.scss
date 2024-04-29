@@ -147,7 +147,8 @@
       margin-right: -2rem;
       margin-bottom: -1.1rem;
 
-      .off-canvas-filter-form-toggler-remote {
+      .off-canvas-filter-form-toggler-remote,
+      .off-canvas-filter-form-toggler-remote-inactive {
         height: 100%;
       }
 
@@ -237,7 +238,8 @@
             }
           }
 
-          .off-canvas-filter-form-toggler-remote {
+          .off-canvas-filter-form-toggler-remote,
+          .off-canvas-filter-form-toggler-remote-inactive {
             margin-left: -0.1rem;
             border-left: 0.1rem solid $ls-color-grey;
             padding-left: 2rem;
