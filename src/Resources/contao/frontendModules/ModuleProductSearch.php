@@ -156,12 +156,6 @@ class ModuleProductSearch extends \Module {
 									break;
 							}
 
-                            /*
-                             * Do me! Add a new merconis hook "manipulateLiveHit" here.
-                                 * Then write a service LiveHitsManipulator that can be hooked in here in order to
-                                 * manipulate the data sent with a liveHit so that it corresponds with what we output
-                                 * in regular product overview templates.
-                             */
                             if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateLiveHit']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateLiveHit'])) {
                                 foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateLiveHit'] as $mccb) {
                                     $objMccb = \System::importStatic($mccb[0]);
