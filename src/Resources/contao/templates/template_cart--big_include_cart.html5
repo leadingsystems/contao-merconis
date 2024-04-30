@@ -41,6 +41,14 @@ if (!\Merconis\Core\ls_shop_cartX::getInstance()->numItems) {
         <div class="checkout-validation-error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText058']; ?></div>
     <?php } ?>
 
+    <?php if ($_SESSION["CartMinOrderValueNotReached"] == true) {
+        \System::loadLanguageFile('shk');
+        ?>
+        <div class="checkout-validation-error"><?= $GLOBALS['TL_LANG']['shk']['text005'] ?></div>
+    <?php
+        $_SESSION["CartMinOrderValueNotReached"] = false;
+    } ?>
+
 	<div class="cart-item-list">
         <?php
         foreach (\Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {

@@ -597,6 +597,15 @@ class ls_shop_cartHelper {
 	 */
 	public static function updateCartItem($productCartKey, $quantity) {
 		$objProduct = ls_shop_generalHelper::getObjProduct($productCartKey, __METHOD__);
+
+        if (isset($GLOBALS['MERCONIS_HOOKS']['beforeUpdateCartItem']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeUpdateCartItem'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['beforeUpdateCartItem'] as $mccb) {
+                $objMccb = \System::importStatic($mccb[0]);
+                $quantity = $objMccb->{$mccb[1]}($objProduct, $quantity);
+            }
+        }
+
+
 		/*
 		 * Ist die Quantity < 0, so wird die Position aus dem Warenkorb entfernt
 		 */
@@ -910,4 +919,33 @@ class ls_shop_cartHelper {
 
 		return true;
 	}
+
+
+
+	public static function beforeUpdateCartItem($objProduct, $quantity) {
+
+	    if($quantity > 0){
+            $productVariantId = $objProduct->ls_productVariantID;
+
+            $user = FrontendUser::getInstance();
+            $loggedInUserId = $user->id;
+
+            $arrProductVariantInCart = ls_shop_cartHelper::getProductAndVariantObj($productVariantId);
+            $minOrderQuantity = $arrProductVariantInCart['variant']['lsShopMinimumCustomerOrders'];
+
+            if(ls_shop_cartHelper::minOrderValueReached($objProduct->ls_productVariantID, $loggedInUserId, $minOrderQuantity, $quantity)){
+                //reset CartMinOrderValueNotReached if Order is changed above the needed range
+                $_SESSION['CartMinOrderValueNotReached'] = false;
+            }else{
+                $_SESSION['CartMinOrderValueNotReached'] = true;
+                $quantity = intval($minOrderQuantity);
+            }
+        }else{
+	        //reset CartMinOrderValueNotReached session if produkt is deleted
+            $_SESSION['CartMinOrderValueNotReached'] = false;
+        }
+
+        return $quantity;
+    }
+
 }
