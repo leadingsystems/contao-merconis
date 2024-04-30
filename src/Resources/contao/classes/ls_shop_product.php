@@ -1726,7 +1726,7 @@ With this method it is possible to select a variant for a product. It takes the 
 				 * If the given variant does not solely consist of digits,
 				 * it must be an alias that has to be translated
 				 */
-				if ($var_selectVariantID && !ctype_digit($var_selectVariantID)) {
+				if ($var_selectVariantID && !ctype_digit((string) $var_selectVariantID)) {
 					$var_selectVariantID = ls_shop_generalHelper::getVariantIdForAlias($var_selectVariantID);
 				}
 

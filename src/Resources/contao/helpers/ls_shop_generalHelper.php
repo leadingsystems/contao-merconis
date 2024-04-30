@@ -494,7 +494,7 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['prodObjs'][$productVariantIDOrCartKey];
     }
 
-    public static function getVariationGroup(string $variationGroupCode): ?array
+    public static function getVariationGroup(?string $variationGroupCode): ?array
     {
         if (!$variationGroupCode) {
             return null;
