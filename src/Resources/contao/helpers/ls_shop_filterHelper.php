@@ -290,9 +290,6 @@ class ls_shop_filterHelper {
                  * the one with the higher relevance comes first
                  */
                 if ($a_relevance && $b_relevance && ($a_relevance !== $b_relevance)) {
-                    /*
-                     * Do me! Check if the operands need to be switched
-                     */
                     return $a_relevance <=> $b_relevance;
                 }
 

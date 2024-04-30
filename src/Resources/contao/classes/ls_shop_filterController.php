@@ -196,10 +196,6 @@ class ls_shop_filterController
 							continue;
 						}
 
-                        /*
-                         * Do me! Skip (continue) here if the filterValue does not pass the new relevance check!
-                             * $arrFieldValue['filterValue'] is the producer name (or in case of SEP, the producer number) here!
-                         */
                         if (!ls_shop_filterHelper::filterValueProducerIsRelevant($arrFieldValue['filterValue'])) {
                             continue;
                         }
@@ -229,10 +225,6 @@ class ls_shop_filterController
 							continue;
 						}
 
-                        /*
-                         * Do me! Skip (continue) here if the filterValue does not pass the new relevance check!
-                             * $value is the producer name (or in case of SEP, the producer number) here!
-                         */
                         if (!ls_shop_filterHelper::filterValueProducerIsRelevant($value)) {
                             continue;
                         }
