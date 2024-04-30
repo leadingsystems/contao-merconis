@@ -198,6 +198,11 @@ class ls_shop_productList
 		
 		$objProductSearch->search();
 		$arrProducts = $objProductSearch->productResultsCurrentPage;
+
+        if ($this->blnUseFilter) {
+            $_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] = $arrProducts;
+        }
+
 		$this->numProducts = $objProductSearch->numProductsBeforeFilter;
 		
 		if ($this->blnIsFrontendSearch) {

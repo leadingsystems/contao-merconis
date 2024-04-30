@@ -196,6 +196,15 @@ class ls_shop_filterController
 							continue;
 						}
 
+                        if (!ls_shop_filterHelper::filterValueProducerIsRelevant($arrFieldValue['filterValue'])) {
+                            continue;
+                        }
+
+                        /*
+                         * Do me! Use profiler to check whether calls to the md5() method have a considerable
+                             * performance impact. If they do and if we can decide that we don't use the match estimating
+                             * functionality anymore, remove everything md5 creation etc.
+                         */
 						$md5Value = md5($arrFieldValue['filterValue']);
 						$arrOptions[] = array(
 							'value' => $arrFieldValue['filterValue'],
@@ -215,7 +224,12 @@ class ls_shop_filterController
 						if (in_array($value, $fieldValuesAlreadyHandled)) {
 							continue;
 						}
-						$md5Value = md5($value);
+
+                        if (!ls_shop_filterHelper::filterValueProducerIsRelevant($value)) {
+                            continue;
+                        }
+
+                        $md5Value = md5($value);
 						$arrOptions[] = array(
 							'value' => $value,
 							'label' => $value,
@@ -325,7 +339,11 @@ class ls_shop_filterController
 							continue;
 						}
 
-						$arrOptions[] = array(
+                        if (!ls_shop_filterHelper::filterValueAttributeIsRelevant($arrFieldValue['filterValue'])) {
+                            continue;
+                        }
+
+                        $arrOptions[] = array(
 							'value' => $arrFieldValue['filterValue'],
 							'label' => $arrFieldValue['title'],
 							'class' => (isset($arrFieldValue['classForFilterFormField']) && $arrFieldValue['classForFilterFormField'] ? ' ' . $arrFieldValue['classForFilterFormField'] : ''),

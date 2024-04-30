@@ -135,9 +135,16 @@
     overflow: hidden;
     margin-bottom: 2rem;
 
+    /*
+     * Do me! We don't want to offer an option to open the complete filter form in the overlay
+         * because we use the summary now to access all filter fields. Of course, that means that
+         * we don't hide the summary!
+         * If we stick with this plan, remove this part entirely.
+     *
     @include media-breakpoint-down(3, $grid-breakpoints-ls) {
       display: none;
     }
+    /* */
 
     .filter-summary {
       display: flex;
@@ -147,16 +154,14 @@
       margin-right: -2rem;
       margin-bottom: -1.1rem;
 
-      .off-canvas-filter-form-toggler-remote {
+      .off-canvas-filter-form-toggler-remote,
+      .off-canvas-filter-form-toggler-remote-inactive {
         height: 100%;
       }
 
       .filter-criterion {
         &:not(.currently-filtering) {
-          &:not(.show-even-unused) {
-            display: none;
-          }
-
+          opacity: 0.5;
           /*
            * If we want to match the visual color appearance of the grey hairlines with this bold text, we have
            * to darken the hairline's grey a little bit.
@@ -211,132 +216,6 @@
           }
         }
 
-        /*
-         * The display order of the product filter fields in the summary is not reflected by the elements' actual order in
-         * the DOM but is instead indicated by data attributes. Therefore we have to use flexbox order based on the data
-         * attribute. Since we don't expect more than 30 filter fields to be displayed in the summary, we only have
-         * the styles for 30 filter fields but of course could add more should it be necessary.
-         */
-        &[data-order-by-priority="1"] {
-          order: 1;
-        }
-
-        &[data-order-by-priority="2"] {
-          order: 2;
-        }
-
-        &[data-order-by-priority="3"] {
-          order: 3;
-        }
-
-        &[data-order-by-priority="4"] {
-          order: 4;
-        }
-
-        &[data-order-by-priority="5"] {
-          order: 5;
-        }
-
-        &[data-order-by-priority="6"] {
-          order: 6;
-        }
-
-        &[data-order-by-priority="7"] {
-          order: 7;
-        }
-
-        &[data-order-by-priority="8"] {
-          order: 8;
-        }
-
-        &[data-order-by-priority="9"] {
-          order: 9;
-        }
-
-        &[data-order-by-priority="10"] {
-          order: 10;
-        }
-
-        &[data-order-by-priority="11"] {
-          order: 11;
-        }
-
-        &[data-order-by-priority="12"] {
-          order: 12;
-        }
-
-        &[data-order-by-priority="13"] {
-          order: 13;
-        }
-
-        &[data-order-by-priority="14"] {
-          order: 14;
-        }
-
-        &[data-order-by-priority="15"] {
-          order: 15;
-        }
-
-        &[data-order-by-priority="16"] {
-          order: 16;
-        }
-
-        &[data-order-by-priority="17"] {
-          order: 17;
-        }
-
-        &[data-order-by-priority="18"] {
-          order: 18;
-        }
-
-        &[data-order-by-priority="19"] {
-          order: 19;
-        }
-
-        &[data-order-by-priority="20"] {
-          order: 20;
-        }
-
-        &[data-order-by-priority="21"] {
-          order: 21;
-        }
-
-        &[data-order-by-priority="22"] {
-          order: 22;
-        }
-
-        &[data-order-by-priority="23"] {
-          order: 23;
-        }
-
-        &[data-order-by-priority="24"] {
-          order: 24;
-        }
-
-        &[data-order-by-priority="25"] {
-          order: 25;
-        }
-
-        &[data-order-by-priority="26"] {
-          order: 26;
-        }
-
-        &[data-order-by-priority="27"] {
-          order: 27;
-        }
-
-        &[data-order-by-priority="28"] {
-          order: 28;
-        }
-
-        &[data-order-by-priority="29"] {
-          order: 29;
-        }
-
-        &[data-order-by-priority="30"] {
-          order: 30;
-        }
-
         @include media-breakpoint-down(9, $grid-breakpoints-ls) {
           width: 25%;
         }
@@ -366,7 +245,8 @@
             }
           }
 
-          .off-canvas-filter-form-toggler-remote {
+          .off-canvas-filter-form-toggler-remote,
+          .off-canvas-filter-form-toggler-remote-inactive {
             margin-left: -0.1rem;
             border-left: 0.1rem solid $ls-color-grey;
             padding-left: 2rem;
@@ -668,6 +548,18 @@
 
   .filter-section-hidden {
     display: none;
+  }
+
+  #filter-folder-container {
+    [data-lsjs-element="elementFolderToggler"] {
+      cursor: pointer;
+    }
+
+    [data-lsjs-element="elementFolderContent"] {
+      height: auto;
+      overflow: hidden;
+      display: none;
+    }
   }
 
   @include media-breakpoint-down(4, $grid-breakpoints-ls) {

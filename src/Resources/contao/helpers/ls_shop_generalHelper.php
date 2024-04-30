@@ -5322,7 +5322,7 @@ class ls_shop_generalHelper
         return $arrCollectiveOrderProductsIds;
     }
 
-    public function manipulateCacheBasedOnSkStatus(string $strProductList, bool $blnCacheCanBeUsed) {
+    public function manipulateCacheBasedOnSkStatus(?string $strProductList, bool $blnCacheCanBeUsed) {
 
         $skStatus = \Input::get('skstatus');
 

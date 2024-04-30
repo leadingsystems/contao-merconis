@@ -888,6 +888,7 @@ class ls_shop_productManagementApiHelper {
                 `lsShopProductRecommendedProducts`,
                 `lsShopProductDeliveryInfoSet`,
                 `lsShopProductProducer`,
+                `variationGroupCode`,
                 `configurator`,
                 `flex_contents`,
                 `flex_contentsLanguageIndependent`,
@@ -901,7 +902,7 @@ class ls_shop_productManagementApiHelper {
                 ".$groupPriceFieldNames."
                 ".$customFieldsFieldNames."
             ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             ".$groupPriceQuestionMarks."
             ".$customFieldsQuestionMarks."
             )
@@ -931,6 +932,7 @@ class ls_shop_productManagementApiHelper {
                 lsShopProductRecommendedProducts = VALUES(lsShopProductRecommendedProducts),
                 lsShopProductDeliveryInfoSet = VALUES(lsShopProductDeliveryInfoSet),
                 lsShopProductProducer = VALUES(lsShopProductProducer),
+                variationGroupCode = VALUES(variationGroupCode),
                 configurator = VALUES(configurator),
                 flex_contents = VALUES(flex_contents),
                 flex_contentsLanguageIndependent = VALUES(flex_contentsLanguageIndependent),
@@ -974,6 +976,7 @@ class ls_shop_productManagementApiHelper {
             $arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
             $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
             $arr_preprocessedDataRow['producer'], // String, maxlength 255
+            $arr_preprocessedDataRow['variationGroupCode'], // String, maxlength 255
             $arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
             $arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
             $arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear

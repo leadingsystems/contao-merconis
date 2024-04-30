@@ -79,6 +79,9 @@ class ls_shop_productSearcher
 
     protected function getCache() {
         $this->arrCache = ($_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey] ?? null) ?: null;
+        if (is_array($this->arrCache)) {
+            $this->arrCache = time() - $this->arrCache['tstamp'] < $this->cacheLifetimeSec ? $this->arrCache : null;
+        }
     }
 
     protected function setCache() {
@@ -1265,8 +1268,15 @@ class ls_shop_productSearcher
             }
 
             if ($this->blnEnoughProductsOrVariantsToFilterAvailable) {
+                /*
+                 * Do me! Check if calling "getInstance()" here is necessary. It looks stupid because
+                     * the usual reason to call it, would be to receive the instance, which doesn't happen
+                     * here. Is this supposed to trigger the constructor? That should not be necessary,
+                     * because this would already have been triggered in ls_shop_productSearcher::__construct()
+                 */
                 ls_shop_filterController::getInstance();
-                ls_shop_filterHelper::setCriteriaToUseInFilterForm($arrProductsComplete);
+
+                ls_shop_filterHelper::setCriteriaToUseOrShowInFilterForm($arrProductsComplete, 'use');
             }
         }
 
@@ -1293,6 +1303,12 @@ class ls_shop_productSearcher
                      * variants it includes) and if we find out that a product doesn't match the filter,
                      * we skip it and don't write it to $this->arrProductResultsComplete.
                      */
+                    /*
+                     * Do me! Check if calling "getInstance()" here is necessary. It looks stupid because
+                         * the usual reason to call it, would be to receive the instance, which doesn't happen
+                         * here. Is this supposed to trigger the constructor? That should not be necessary,
+                         * because this would already have been triggered in ls_shop_productSearcher::__construct()
+                     */
                     ls_shop_filterController::getInstance();
                     $blnProductMatches = ls_shop_filterHelper::checkIfProductMatchesFilter($rowProductsComplete);
 
@@ -1306,8 +1322,22 @@ class ls_shop_productSearcher
             }
 
             if ($this->blnUseFilter && $this->blnEnoughProductsOrVariantsToFilterAvailable && is_array($arrProductsAfterFilter)) {
+                /*
+                 * Do me! Check if calling "getInstance()" here is necessary. It looks stupid because
+                     * the usual reason to call it, would be to receive the instance, which doesn't happen
+                     * here. Is this supposed to trigger the constructor? That should not be necessary,
+                     * because this would already have been triggered in ls_shop_productSearcher::__construct()
+                 */
                 ls_shop_filterController::getInstance();
-                ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
+
+                /*
+                 * Do me! This method call is deactivated because it is probably no longer relevant
+                     * after the recent improvements in filter behaviour. Delete after confirming this!
+                     * Make sure to also remove everything related, especially user settings etc.
+                 */
+//                ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
+
+                ls_shop_filterHelper::setCriteriaToUseOrShowInFilterForm($arrProductsAfterFilter, 'show');
             }
 
             $this->specialSortResults($arrProductsAfterFilter);
