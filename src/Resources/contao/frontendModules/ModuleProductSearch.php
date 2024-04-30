@@ -155,6 +155,13 @@ class ModuleProductSearch extends \Module {
 									$arrHit[$liveHitField] = \Controller::replaceInsertTags($objProduct->{$liveHitField});
 									break;
 							}
+
+                            if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateLiveHit']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateLiveHit'])) {
+                                foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateLiveHit'] as $mccb) {
+                                    $objMccb = \System::importStatic($mccb[0]);
+                                    $arrHit = $objMccb->{$mccb[1]}($arrHit, $objProduct);
+                                }
+                            }
 						}
 
 						$arrProducts[] = $arrHit;
