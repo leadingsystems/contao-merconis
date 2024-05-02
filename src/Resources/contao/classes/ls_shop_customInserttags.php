@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\StringUtil;
+use Contao\System;
 
 class ls_shop_customInserttags
 {
@@ -386,6 +387,12 @@ class ls_shop_customInserttags
                 $obj_product = ls_shop_generalHelper::getObjProduct($str_productVariantId, __METHOD__);
 
                 return \Controller::replaceInsertTags($obj_product->{$str_propertyToUse});
+                break;
+
+            case 'ParentSite':
+                global $objPage;
+                $parser = System::getContainer()->get('contao.insert_tag.parser');
+                return $parser->replace('{{link_url::'.$objPage->pid.'}}');
                 break;
 		}
 
