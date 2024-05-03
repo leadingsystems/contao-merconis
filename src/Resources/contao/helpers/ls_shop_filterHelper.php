@@ -277,8 +277,8 @@ class ls_shop_filterHelper {
                     return $a_isEtimClass ? -1 : 1;
                 }
 
-                $a_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$a['int_id']];
-                $b_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$b['int_id']];
+                $a_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$a['int_id']] ?? null;
+                $b_relevance = $attributeIdsForRelevantFilterFieldsWithRelevance[$b['int_id']] ?? null;
 
                 // If only one element has high relevance, it comes first
                 if ($a_relevance xor $b_relevance) {
