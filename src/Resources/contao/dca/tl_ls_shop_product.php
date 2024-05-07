@@ -8,6 +8,7 @@ use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 	'config' => array(
+        'notCreatable' => true,
 		'dataContainer' => DC_Table::class,
         'enableVersioning' => true,
 		'ctable' => array('tl_ls_shop_variant'),
