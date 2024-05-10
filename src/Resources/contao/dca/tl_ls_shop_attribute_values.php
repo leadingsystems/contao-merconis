@@ -148,7 +148,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['numericValue'],
             'exclude' => true,
             'inputType'               => 'text',
-            'eval' => array('maxlength'=>12),
+            'eval' => ['rgxp' => 'digit','maxlength'=>12],
             'search' => true,
             'sql'                     => "INT(10) unsigned NOT NULL default '0'"
         ),
