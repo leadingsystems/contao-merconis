@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Composer\InstalledVersions;
 use Contao\Controller;
 use Contao\Database;
 use Contao\Environment;
@@ -103,9 +104,22 @@ class Installer
 
             ?>
             <div class="ls_shop ls_shop_systemMessage shopInstalledCompletely">
-                <?php echo $urlToFrontendShopInstallation ? sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage07'], ls_shop_generalHelper::getMerconisFilesVersion(!Input::get('showMerconisBuildNumber')), $urlToFrontendShopInstallation) : sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage08'], $obj_installerController->getMerconisFilesVersion(!Input::get('showMerconisBuildNumber'))); ?>
+                <?php echo $urlToFrontendShopInstallation ? sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage07'], InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis'), $urlToFrontendShopInstallation) : sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage08'], InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis')); ?>
                 <?php echo !$blnMerconisFallbackFlagSet ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage10'] : ''; ?>
                 <?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['installToolMessage23'], $GLOBALS['TL_CONFIG']['merconis_serviceNumber']); ?>
+                <ul>
+                    <li>contao-api (<?= InstalledVersions::getPrettyVersion('leadingsystems/contao-api') ?>)</li>
+                    <li>contao-cajax (<?= InstalledVersions::getPrettyVersion('leadingsystems/contao-cajax') ?>)</li>
+                    <li>contao-datacollector (<?= InstalledVersions::getPrettyVersion('leadingsystems/contao-datacollector') ?>)</li>
+                    <li>contao-helpers (<?= InstalledVersions::getPrettyVersion('leadingsystems/contao-helpers') ?>)</li>
+                    <li>contao-lscss4c (<?= InstalledVersions::getPrettyVersion('leadingsystems/contao-lscss4c') ?>)</li>
+                    <li>contao-lsjs4c (<?= InstalledVersions::getPrettyVersion('leadingsystems/contao-lsjs4c') ?>)</li>
+                    <li>contao-merconis (<?= InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis') ?>)</li>
+                    <li>lsce (<?= InstalledVersions::getPrettyVersion('leadingsystems/lsce') ?>)</li>
+                    <li>lscss (<?= InstalledVersions::getPrettyVersion('leadingsystems/lscss') ?>)</li>
+                    <li>lsjs (<?= InstalledVersions::getPrettyVersion('leadingsystems/lsjs') ?>)</li>
+                    <li>merconis-languageselector (<?= InstalledVersions::getPrettyVersion('leadingsystems/merconis-languageselector') ?>)</li>
+                </ul>
             </div>
             <?php
             return ob_get_clean();
