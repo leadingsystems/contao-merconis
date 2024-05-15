@@ -272,58 +272,64 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['title'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('mandatory' => true, 'tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'decodeEntities' => true, 'maxlength'=>255),
+			'eval' => array('mandatory' => true, 'tl_class'=>'w50', /*'merconis_multilanguage' => true,*/ 'merconis_multilanguage_noTopLinedGroup' => true, 'decodeEntities' => true, 'maxlength'=>255),
 			'sorting' => true,
 			'flag' => 11,
 			'search'		=> true,
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''",
+            'multiLanguage' => true
 		),
 
 		'description' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['description'],
 			'exclude' => true,
 			'inputType'               => 'textarea',
-			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
+			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', /*'merconis_multilanguage' => true,*/ 'decodeEntities' => true),
 			'search'		=> true,
-            'sql'                     => "text NULL"
+            'sql'                     => "text NULL",
+            'multiLanguage' => true
 		),
 
 		'shortDescription' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['shortDescription'],
 			'exclude' => true,
 			'inputType'               => 'textarea',
-			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
+			'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', /*'merconis_multilanguage' => true,*/ 'decodeEntities' => true),
 			'search'		=> true,
-            'sql'                     => "text NULL"
+            'sql'                     => "text NULL",
+            'multiLanguage' => true
 		),
 
 		'keywords' => array (
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords'],
 			'exclude' => true,
 			'inputType' => 'textarea',
-			'eval' => array('style'=>'height:60px;', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
+			'eval' => array('style'=>'height:60px;', 'tl_class'=>'clr', /*'merconis_multilanguage' => true,*/ 'decodeEntities' => true),
 			'search'		=> true,
-            'sql'                     => "text NULL"
+            'sql'                     => "text NULL",
+            'multiLanguage' => true
 		),
 
         'pageTitle' => array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['pageTitle'],
             'exclude' => true,
             'inputType' => 'text',
-            'eval' => array('mandatory' => false, 'tl_class'=>'w50', 'merconis_multilanguage' => true, 'decodeEntities' => true, 'maxlength'=>255),
+            'eval' => array('mandatory' => false, 'tl_class'=>'w50', /*'merconis_multilanguage' => true,*/ 'decodeEntities' => true, 'maxlength'=>255),
             'sorting' => true,
             'flag' => 11,
             'search'		=> true,
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''",
+            'multiLanguage' => true
         ),
 
         'pageDescription' => array (
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['pageDescription'],
             'exclude' => true,
             'inputType' => 'textarea',
-            'eval' => array('style'=>'height:60px;', 'tl_class'=>'clr', 'merconis_multilanguage' => true, 'decodeEntities' => true),
+            'eval' => array('style'=>'height:60px;', 'tl_class'=>'clr', /*'merconis_multilanguage' => true,*/ 'decodeEntities' => true),
             'search'		=> true,
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''",
+            'multiLanguage' => true
         ),
 
         'flex_contents' => array(
@@ -332,7 +338,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType' => 'text',
 			'eval'                    => array(
 				'tl_class'=>'clr merconis-component-autostart--merconisWidgetMultiText',
-				'merconis_multilanguage' => true,
+				/*'merconis_multilanguage' => true,*/
 				'preserveTags' => true,
 				'data-merconis-widget-options' => '
 					{
@@ -350,7 +356,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 					}
 				'
 			),
-            'sql'                     => "mediumtext NULL"
+            'sql'                     => "mediumtext NULL",
+            'multiLanguage' => true
 		),
 
 		'flex_contentsLanguageIndependent' => array(
@@ -403,13 +410,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 				'spaceToUnderscore' => true,
 				'maxlength' => 128,
 				'tl_class' => 'w50',
-				'merconis_multilanguage' => true,
+				/*'merconis_multilanguage' => true,*/
 				'merconis_multilanguage_noTopLinedGroup' => false
 			),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'generateAlias')
 			),
-            'sql'                     => "varchar(128) BINARY NOT NULL default ''"
+            'sql'                     => "varchar(128) BINARY NOT NULL default ''",
+            'multiLanguage' => true
 
 		),
 
@@ -471,23 +479,25 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductQuantityUnit'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_multilanguage_noTopLinedGroup' => true, 'merconis_picker_headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityUnitPickerHeadline'] ?? '', 'decodeEntities' => true, 'maxlength' => 255),
+			'eval' => array('tl_class'=>'w50', /*'merconis_multilanguage' => true,*/ 'merconis_multilanguage_noTopLinedGroup' => true, 'merconis_picker_headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityUnitPickerHeadline'] ?? '', 'decodeEntities' => true, 'maxlength' => 255),
 			'filter'		=> true,
 			'wizard' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'beValuePickerWizard')
 			),
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''",
+            'multiLanguage' => true
 		),
 
 		'lsShopProductMengenvergleichUnit' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductMengenvergleichUnit'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('tl_class'=>'w50', 'merconis_multilanguage' => true, 'merconis_picker_headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityComparisonUnitPickerHeadline'] ?? '', 'decodeEntities' => true, 'maxlength' => 255),
+			'eval' => array('tl_class'=>'w50', /*'merconis_multilanguage' => true,*/ 'merconis_picker_headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['quantityComparisonUnitPickerHeadline'] ?? '', 'decodeEntities' => true, 'maxlength' => 255),
 			'wizard' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'beValuePickerWizard')
 			),
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''",
+            'multiLanguage' => true
 		),
 
 		'pages' => array(
@@ -1348,6 +1358,27 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 );
 
 
+
+
+
+/*
+ * get language from database and replace dca fields with 'multiLanguage' = true with all needed languages
+ * example [de,en] and title => title_de, title_en
+ */
+$objMethod = Database::getInstance()->prepare("SELECT `language` FROM `tl_page` WHERE `type` = ?")
+    ->execute('root');
+$arrLanguagefields = $objMethod->fetchAllAssoc();
+
+foreach($GLOBALS['TL_DCA']['tl_ls_shop_product']['fields'] as $key => $arrFields){
+    if(array_key_exists('multiLanguage', $arrFields) && $arrFields['multiLanguage'] == true){
+
+        foreach ($arrLanguagefields as $languagefields) {
+            $language = $languagefields['language'];
+            $GLOBALS['TL_DCA']['tl_ls_shop_product']['fields'][$key.'_'.$language] = $GLOBALS['TL_DCA']['tl_ls_shop_product']['fields'][$key];
+        }
+        unset($GLOBALS['TL_DCA']['tl_ls_shop_product']['fields'][$key]);
+    }
+}
 
 
 
