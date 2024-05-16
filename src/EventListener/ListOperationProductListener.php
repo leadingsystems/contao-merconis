@@ -2,9 +2,12 @@
 namespace LeadingSystems\MerconisBundle\EventListener;
 
 use Contao\Backend;
+use Contao\BackendUser;
 use Contao\DataContainer;
 use Contao\Image;
 use Contao\StringUtil;
+use Contao\System;
+use Merconis\Core\ls_shop_generalHelper;
 
 class ListOperationProductListener
 {
@@ -164,14 +167,14 @@ class ListOperationProductListener
         $variant = self::getVariant($product['id']);
         $status = self::getStatus($product, $variant);
 
-
-        return sprintf(
-            '<a href="%s" title="%s"%s>%s</a> ',
-            Backend::addToUrl($href . '&amp;id=' . $product['id']),
-            StringUtil::specialchars($title),
-            $attributes,
-            Image::getHtml($icon, $label)
-        );
+        return self::toggleIcon($product, $href, $label, $title, $icon, $attributes);
+//        return sprintf(
+//            '<a href="%s" title="%s"%s>%s</a> ',
+//            Backend::addToUrl($href . '&amp;id=' . $product['id']),
+//            StringUtil::specialchars($title),
+//            $attributes,
+//            Image::getHtml($icon, $label)
+//        );
     }
 
 
@@ -233,5 +236,44 @@ class ListOperationProductListener
                         ")
             ->execute($productId.'-'.$variantId);
         return boolval($selectStatementVariant->fetchAllAssoc()[0]);
+    }
+
+    public function toggleIcon($row, $href, $label, $title, $icon, $attributes) {
+        if (strlen(\Input::get('tid'))) {
+            $this->toggleVisibility(\Input::get('tid'), (\Input::get('state') == 1));
+            $this->redirect($this->getReferer());
+        }
+
+//        if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_product::published', 'alexf')) {
+//            return '';
+//        }
+
+        $href .= '&amp;tid='.$row['id'].'&amp;state='.($row['published'] ? '' : 1);
+
+        if (!$row['published']) {
+            $icon = 'invisible.svg';
+        }
+
+        return '<a href="'.Backend::addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
+    }
+
+    public function toggleVisibility($intId, $blnVisible) {
+//        if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_product::published', 'alexf')) {
+//            \System::log('Not enough permissions to publish/unpublish product ID "'.$intId.'"', 'tl_ls_shop_product toggleVisibility', TL_ERROR);
+//            $this->redirect('contao/main.php?act=error');
+//        }
+
+        ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
+
+        if (is_array($GLOBALS['TL_DCA']['tl_ls_shop_product']['fields']['published']['save_callback'])) {
+            foreach ($GLOBALS['TL_DCA']['tl_ls_shop_product']['fields']['published']['save_callback'] as $callback) {
+                $this->import($callback[0]);
+                $blnVisible = $this->{$callback[0]}->{$callback[1]}($blnVisible, $this);
+            }
+        }
+
+        // Update the database
+        \Database::getInstance()->prepare("UPDATE tl_ls_shop_product SET tstamp=". time() .", published='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
+            ->execute($intId);
     }
 }
