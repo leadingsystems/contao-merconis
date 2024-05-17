@@ -4,6 +4,7 @@
 	 */
 	$GLOBALS['TL_LANG']['tl_form_field']['lsShop_addEmptyOption']									=  array('Add an empty option');
 	$GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionField'] = array('Mandatory field validation depends on other field');
+    $GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionField2'] = array('Mandatory field validation depends on other field');
 	$GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionValue'] = array('Mandatory field validation depends on other field value');
     $GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionBoolean'] = array('Mandatory if condition does not apply');
 
