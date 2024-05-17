@@ -9,7 +9,7 @@ use Contao\StringUtil;
 use Contao\System;
 use Merconis\Core\ls_shop_generalHelper;
 
-class ListOperationProductListener
+class ListOperationProductListener extends \Backend
 {
     const STATUS_DRAFT = 'draft';
     const STATUS_KOMMENDE = 'kommende';
@@ -18,6 +18,10 @@ class ListOperationProductListener
     const STATUS_ABGELAUFENE_NO_ORDER = 'abgelaufene-no-order';
     const STATUS_ABGELAUFENE = 'abgelaufene';
 
+    public function __construct() {
+        parent::__construct();
+        $this->import('BackendUser', 'User');
+    }
 
     //disable edit all
     public function all(
@@ -168,13 +172,6 @@ class ListOperationProductListener
         $status = self::getStatus($product, $variant);
 
         return self::toggleIcon($product, $href, $label, $title, $icon, $attributes);
-//        return sprintf(
-//            '<a href="%s" title="%s"%s>%s</a> ',
-//            Backend::addToUrl($href . '&amp;id=' . $product['id']),
-//            StringUtil::specialchars($title),
-//            $attributes,
-//            Image::getHtml($icon, $label)
-//        );
     }
 
 
@@ -244,9 +241,11 @@ class ListOperationProductListener
             $this->redirect($this->getReferer());
         }
 
-//        if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_product::published', 'alexf')) {
-//            return '';
-//        }
+
+
+        if (!$this->User->hasAccess('tl_ls_shop_product::published', 'alexf')) {
+            return '';
+        }
 
         $href .= '&amp;tid='.$row['id'].'&amp;state='.($row['published'] ? '' : 1);
 
@@ -258,10 +257,10 @@ class ListOperationProductListener
     }
 
     public function toggleVisibility($intId, $blnVisible) {
-//        if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_product::published', 'alexf')) {
-//            \System::log('Not enough permissions to publish/unpublish product ID "'.$intId.'"', 'tl_ls_shop_product toggleVisibility', TL_ERROR);
-//            $this->redirect('contao/main.php?act=error');
-//        }
+        if (!$this->User->hasAccess('tl_ls_shop_product::published', 'alexf')) {
+            \System::log('Not enough permissions to publish/unpublish product ID "'.$intId.'"', 'tl_ls_shop_product toggleVisibility', TL_ERROR);
+            $this->redirect('contao/main.php?act=error');
+        }
 
         ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
 
