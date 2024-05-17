@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Composer\InstalledVersions;
 use Contao\Config;
 use Contao\Controller;
 use Contao\CoreBundle\Monolog\ContaoContext;
@@ -365,7 +366,7 @@ class InstallerController extends Controller {
 				foreach ($arrExportLocalconfig as $k => $v)
                 {
 					if ($k == 'ls_shop_installedVersion') {
-						$merconisVersion = ls_shop_generalHelper::getMerconisFilesVersion();
+						$merconisVersion = InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis');
 						$v = $merconisVersion;
 					}
 
@@ -1032,7 +1033,7 @@ class InstallerController extends Controller {
 
 	protected function getAvailableThemes() {
 		if (!$GLOBALS['merconis_globals']['availableThemes']) {
-			$merconisVersion = ls_shop_generalHelper::getMerconisFilesVersion();
+			$merconisVersion = InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis');
 
 			// remove the "beta/rc/stable" part of the version string
 			$merconisVersion = preg_replace('/^(\d{1,3}\.\d{1,3}\.\d{1,3}).*/', '$1', $merconisVersion);
@@ -1340,7 +1341,7 @@ class InstallerController extends Controller {
 	 * than the MERCONIS version number saved in the localconfig.
 	 */
 	public function checkForUpdateSituation() {
-		$currentProgramFilesVersion = ls_shop_generalHelper::getMerconisFilesVersion();
+		$currentProgramFilesVersion = InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis');
 		$installedVersion = isset($GLOBALS['TL_CONFIG']['ls_shop_installedVersion']) ? $GLOBALS['TL_CONFIG']['ls_shop_installedVersion'] : 'unknown';
 
 		if ($currentProgramFilesVersion == $installedVersion) {

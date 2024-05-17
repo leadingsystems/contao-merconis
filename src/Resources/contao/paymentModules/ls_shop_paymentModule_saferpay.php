@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Composer\InstalledVersions;
 use Contao\Date;
 use Contao\Environment;
 use Contao\Input;
@@ -584,7 +585,7 @@ use function LeadingSystems\Helpers\ls_sub;
 				'RequestId' => md5(microtime().rand(0, 1000)), // FIXME: Will work but is not the intended use because we don't consider retries
 				'RetryIndicator' => 0, // FIXME: Will work but is not the intended use because we don't consider retries
 				'ClientInfo' => array(
-					'ShopInfo' => 'MERCONIS '.ls_shop_generalHelper::getMerconisFilesVersion()
+					'ShopInfo' => 'MERCONIS '.InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis')
 				)
 			);
 			
