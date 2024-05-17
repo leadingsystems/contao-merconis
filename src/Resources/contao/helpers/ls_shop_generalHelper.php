@@ -4695,11 +4695,16 @@ class ls_shop_generalHelper
         return $arr_structuredGroupPrices;
     }
 
-    /*
+    /**
      * This function reads the current merconis version from the changelog.md
+     *
+     * @deprecated Using getMerconisFilesVersion() has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0.
+     *              Use Composer\InstalledVersions\getPrettyVersion() instead.
      */
     public static function getMerconisFilesVersion($bln_removeInternalBuildNumber = false)
     {
+        trigger_deprecation('LeadingSystems/contao-merconis', '5.1.0', 'Using "getMerconisFilesVersion()" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use Composer\InstalledVersions\getPrettyVersion() instead.');
+
         $objFile_ls_version = new File('vendor/leadingsystems/contao-merconis/CHANGELOG.md');
         $str_fileContent = $objFile_ls_version->getContent();
 
