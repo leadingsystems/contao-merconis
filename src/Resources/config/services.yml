@@ -158,7 +158,7 @@ services:
     class: LeadingSystems\MerconisBundle\Services\Session
     public: true
 
-  merconis.migration.test_migration:
-    class: LeadingSystems\MerconisBundle\Migration\TestMigration
+  merconis.migration.wrapper_migration:
+    class: LeadingSystems\MerconisBundle\Migration\WrapperMigration
     tags:
       - { name: contao.migration, priority: 0 }
