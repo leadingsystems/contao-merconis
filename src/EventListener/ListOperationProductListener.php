@@ -2,14 +2,12 @@
 namespace LeadingSystems\MerconisBundle\EventListener;
 
 use Contao\Backend;
-use Contao\BackendUser;
 use Contao\DataContainer;
 use Contao\Image;
 use Contao\StringUtil;
-use Contao\System;
 use Merconis\Core\ls_shop_generalHelper;
 
-class ListOperationProductListener extends \Backend
+class ListOperationProductListener extends Backend
 {
     const STATUS_DRAFT = 'draft';
     const STATUS_KOMMENDE = 'kommende';

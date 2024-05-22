@@ -124,8 +124,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			lsShopMinimumOrders,
 			lsShopMaximumOrders;
 
-			{lsShopStatus_legend},
-			published;
+			{lsShopStatus_legend};
 			
 			{configurator_legend};
 			
@@ -320,7 +319,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['published'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('doNotCopy'=>true),
+			'eval'                    => array('doNotCopy'=>true, 'doNotShow' => true),
 			'filter'		=> true,
             'sql'                     => "char(1) NOT NULL default ''"
 		),
