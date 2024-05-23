@@ -54,13 +54,6 @@ class ListOperationProductListener extends Backend
         $variant = self::getVariant($product['id']);
         $status = self::getStatus($product, $variant);
 
-        if(
-            $status == self::STATUS_ABGELAUFENE ||
-            $status == self::STATUS_ABGELAUFENE_NO_ORDER
-        ){
-            return '';
-        }
-
         return sprintf(
             '<a href="%s" title="%s"%s>%s</a> ',
             Backend::addToUrl($href . '&amp;id=' . $product['id']),
@@ -90,14 +83,6 @@ class ListOperationProductListener extends Backend
 
         $variant = self::getVariant($product['id']);
         $status = self::getStatus($product, $variant);
-
-        if(
-            $status == self::STATUS_ABGELAUFENE ||
-            $status == self::STATUS_ABGELAUFENE_NO_ORDER
-        ){
-            return '';
-        }
-
 
         return sprintf(
             '<a href="%s" title="%s"%s>%s</a> ',
@@ -131,8 +116,7 @@ class ListOperationProductListener extends Backend
 
         if(
             $status == self::STATUS_AKTIVE ||
-            $status == self::STATUS_ABGELAUFENE ||
-            $status == self::STATUS_ABGELAUFENE_NO_ORDER
+            $status == self::STATUS_ABGELAUFENE
         ){
             return '';
         }
