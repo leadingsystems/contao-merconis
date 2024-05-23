@@ -176,6 +176,7 @@ class ls_shop_languageHelper {
                         System::getContainer()->get('merconis.routing.scope')->isBackend()
 						&&	Input::get('act') != 'editAll'
 						&&	Input::get('act') != 'overrideAll'
+                        &&	Input::get('do') != 'group'
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeCompleteField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -187,6 +188,7 @@ class ls_shop_languageHelper {
                         System::getContainer()->get('merconis.routing.scope')->isBackend()
 						&&	Input::get('act') != 'editAll'
 						&&	Input::get('act') != 'overrideAll'
+                        &&	Input::get('do') != 'group'
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeMainLanguageField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -203,6 +205,7 @@ class ls_shop_languageHelper {
                         System::getContainer()->get('merconis.routing.scope')->isBackend()
 						&&	Input::get('act') != 'editAll'
 						&&	Input::get('act') != 'overrideAll'
+                        &&	Input::get('do') != 'group'
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputAfterMainLanguageField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -222,6 +225,7 @@ class ls_shop_languageHelper {
                             System::getContainer()->get('merconis.routing.scope')->isBackend()
 							&&	Input::get('act') != 'editAll'
 							&&	Input::get('act') != 'overrideAll'
+                            &&	Input::get('do') != 'group'
 						) {
 							$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeForeignLanguageField-'.$str_language] = array(
 								'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -238,6 +242,7 @@ class ls_shop_languageHelper {
                             System::getContainer()->get('merconis.routing.scope')->isBackend()
 							&&	Input::get('act') != 'editAll'
 							&&	Input::get('act') != 'overrideAll'
+                            &&	Input::get('do') != 'group'
 						) {
 							$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputAfterForeignLanguageField-'.$str_language] = array(
 								'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
@@ -250,6 +255,7 @@ class ls_shop_languageHelper {
                         System::getContainer()->get('merconis.routing.scope')->isBackend()
 						&&	Input::get('act') != 'editAll'
 						&&	Input::get('act') != 'overrideAll'
+                        &&	Input::get('do') != 'group'
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputAfterCompleteField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),

@@ -6,7 +6,9 @@
 	$GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionField'] = array('Mandatory field validation depends on other field');
     $GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionField2'] = array('Mandatory field validation depends on other field');
 	$GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionValue'] = array('Mandatory field validation depends on other field value');
+    $GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionValue2'] = array('Mandatory field validation depends on other field value');
     $GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionBoolean'] = array('Mandatory if condition does not apply');
+    $GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionBoolean2'] = array('Mandatory if condition does not apply');
 
     $GLOBALS['TL_LANG']['tl_form_field']['lsShop_ShowOnConditionField'] = array('Visibility depends on field');
     $GLOBALS['TL_LANG']['tl_form_field']['lsShop_ShowOnConditionValue'] = array('Visibility depends on value');
