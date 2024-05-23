@@ -27,8 +27,8 @@ class WrapperMigration extends AbstractMigration
     public function shouldRun(): bool
     {
         if(version_compare(
-            InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis'),
-            "5.1.0", //TODO: change Version to the version needed
+            InstalledVersions::getPrettyVersion('leadingsystems/lsce'),
+            "1.1.3",
             '<'
         )){
             return false;
