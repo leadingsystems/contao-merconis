@@ -49,12 +49,6 @@ class ListOperationVariantListener
         $product = self::getProduct($variant['pid']);
         $status = ListOperationProductListener::getStatus($product, $variant);
 
-        if(
-            $status == self::STATUS_ABGELAUFENE_NO_ORDER
-        ){
-            return '';
-        }
-
         return sprintf(
             '<a href="%s" title="%s"%s>%s</a> ',
             Backend::addToUrl($href . '&amp;id=' . $variant['id']),
@@ -82,7 +76,7 @@ class ListOperationVariantListener
     ): string
     {
 
-        $product = self::getProduct($variant['id']);
+        $product = self::getProduct($variant['pid']);
         $status = ListOperationProductListener::getStatus($product, $variant);
 
         if(
@@ -90,7 +84,8 @@ class ListOperationVariantListener
             $status == self::STATUS_KOMMENDE ||
             $status == self::STATUS_AKTIVE_NO_ORDER ||
             $status == self::STATUS_AKTIVE ||
-            $status == self::STATUS_ABGELAUFENE_NO_ORDER
+            $status == self::STATUS_ABGELAUFENE_NO_ORDER ||
+            $status == self::STATUS_ABGELAUFENE
         ){
             return '';
         }
@@ -123,7 +118,7 @@ class ListOperationVariantListener
     ): string
     {
 
-        $product = self::getProduct($variant['id']);
+        $product = self::getProduct($variant['pid']);
         $status = ListOperationProductListener::getStatus($product, $variant);
 
         if(
@@ -131,7 +126,8 @@ class ListOperationVariantListener
             $status == self::STATUS_KOMMENDE ||
             $status == self::STATUS_AKTIVE_NO_ORDER ||
             $status == self::STATUS_AKTIVE ||
-            $status == self::STATUS_ABGELAUFENE_NO_ORDER
+            $status == self::STATUS_ABGELAUFENE_NO_ORDER ||
+            $status == self::STATUS_ABGELAUFENE
         ){
             return '';
         }
@@ -165,7 +161,7 @@ class ListOperationVariantListener
     ): string
     {
 
-        $product = self::getProduct($variant['id']);
+        $product = self::getProduct($variant['pid']);
         $status = ListOperationProductListener::getStatus($product, $variant);
 
         if(
@@ -173,7 +169,8 @@ class ListOperationVariantListener
             $status == self::STATUS_KOMMENDE ||
             $status == self::STATUS_AKTIVE_NO_ORDER ||
             $status == self::STATUS_AKTIVE ||
-            $status == self::STATUS_ABGELAUFENE_NO_ORDER
+            $status == self::STATUS_ABGELAUFENE_NO_ORDER ||
+            $status == self::STATUS_ABGELAUFENE
         ){
             return '';
         }
@@ -205,7 +202,7 @@ class ListOperationVariantListener
     ): string
     {
 
-        $product = self::getProduct($variant['id']);
+        $product = self::getProduct($variant['pid']);
         $status = ListOperationProductListener::getStatus($product, $variant);
 
         if(
@@ -213,7 +210,8 @@ class ListOperationVariantListener
             $status == self::STATUS_KOMMENDE ||
             $status == self::STATUS_AKTIVE_NO_ORDER ||
             $status == self::STATUS_AKTIVE ||
-            $status == self::STATUS_ABGELAUFENE_NO_ORDER
+            $status == self::STATUS_ABGELAUFENE_NO_ORDER ||
+            $status == self::STATUS_ABGELAUFENE
         ){
             return '';
         }
