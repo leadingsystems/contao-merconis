@@ -1562,7 +1562,14 @@ filter context, NULL will be returned.
 				break;
 
 			case '_steuersatz':
-				return $this->mainData['lsShopProductSteuersatz'];
+				$taxClass = $this->mainData['lsShopProductSteuersatz'];
+                if (isset($GLOBALS['MERCONIS_HOOKS']['getProductTaxClass']) && is_array($GLOBALS['MERCONIS_HOOKS']['getProductTaxClass'])) {
+                    foreach ($GLOBALS['MERCONIS_HOOKS']['getProductTaxClass'] as $mccb) {
+                        $objMccb = \System::importStatic($mccb[0]);
+                        $taxClass = $objMccb->{$mccb[1]}($this, $taxClass);
+                    }
+                }
+                return $taxClass;
 				break;
 
 			case '_quantityComparisonDivisor':
