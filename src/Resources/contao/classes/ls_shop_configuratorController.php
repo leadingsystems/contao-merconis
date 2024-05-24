@@ -20,33 +20,33 @@ class ls_shop_configuratorController
 		$GLOBALS['merconis_globals']['configurator']['currentlySubmittedFormID'] = $arrForm['id'];
 
 		// Keine Formular-Verarbeitung, die den Konfigurator etwas angeht, also Abbruch!
-		if (!isset($_SESSION['FORM_DATA']['configurator_productVariantID']) || !$_SESSION['FORM_DATA']['configurator_productVariantID']) {
+		if (!isset($_POST['configurator_productVariantID']) || !$_POST['configurator_productVariantID']) {
 			return;
 		}
-		
+
 		/*
 		 * Memorize the product variant id in the array of product variant ids for which the configurator has already been used
 		 */
 		if (!isset($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !is_array($_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
 			$_SESSION['lsShop']['productVariantIDsAlreadyConfigured'] = array();
 		}
-		if (!in_array($_SESSION['FORM_DATA']['configurator_productVariantID'], $_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
-			$_SESSION['lsShop']['productVariantIDsAlreadyConfigured'][] = $_SESSION['FORM_DATA']['configurator_productVariantID'];
+		if (!in_array($_POST['configurator_productVariantID'], $_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
+			$_SESSION['lsShop']['productVariantIDsAlreadyConfigured'][] = $_POST['configurator_productVariantID'];
 		}
-		
-		// Wenn das Configurator-Session-Array noch keinen Key für die aktuell zu verarbeitende configurator-ProduktVarianten-ID enthält, so wird er erstellt
-		if (!isset($_SESSION['lsShop']['configurator'][$_SESSION['FORM_DATA']['configurator_productVariantID']])) {
-			$_SESSION['lsShop']['configurator'][$_SESSION['FORM_DATA']['configurator_productVariantID']] = array();
-		}
-		
-		// Setzen des Flags, das für die Konfigurator-Klasse kennzeichnet, dass zugehörige Daten empfangen wurden
-		$_SESSION['lsShop']['configurator'][$_SESSION['FORM_DATA']['configurator_productVariantID']]['blnReceivedFormDataJustNow'] = true;
-		
 
-		
+		// Wenn das Configurator-Session-Array noch keinen Key für die aktuell zu verarbeitende configurator-ProduktVarianten-ID enthält, so wird er erstellt
+		if (!isset($_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']])) {
+			$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']] = array();
+		}
+
+		// Setzen des Flags, das für die Konfigurator-Klasse kennzeichnet, dass zugehörige Daten empfangen wurden
+		$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['blnReceivedFormDataJustNow'] = true;
+
+
+
 		// Das Received-Post-Array wird zunächst geleert ...
-		$_SESSION['lsShop']['configurator'][$_SESSION['FORM_DATA']['configurator_productVariantID']]['arrReceivedPost'] = array();
-		
+		$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['arrReceivedPost'] = array();
+
 		// ... dann werden die Datenbankfelder für das aktuelle Formular ausgelesen ...
 		$objFormFields = Database::getInstance()->prepare("
 			SELECT		*
@@ -57,33 +57,33 @@ class ls_shop_configuratorController
 			ORDER BY	`sorting`
 		")
 		->execute($arrForm['id']);
-		
+
 		// Abbruch, wenn keine Formularfelder ermittelt werden konnten
 		if (!$objFormFields->numRows) {
 			return;
 		}
-		
+
 		// ... dann Durchlaufen der ermittelten Formularfelder ...
 		while ($objFormFields->next()) {
 			// ... und für jedes ermittelte Formularfeld einen Eintrag im Received-Post-Array machen, welches die Feldinformationen sowie als Value den per Post übergebenen Wert enthält.
-			$_SESSION['lsShop']['configurator'][$_SESSION['FORM_DATA']['configurator_productVariantID']]['arrReceivedPost'][$objFormFields->name] = array(
+			$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['arrReceivedPost'][$objFormFields->name] = array(
 				'name' => $objFormFields->name,
 				'arrData' => $objFormFields->row(),
-				'value' => $_SESSION['FORM_DATA'][$objFormFields->name] ? $_SESSION['FORM_DATA'][$objFormFields->name] : ''
+				'value' => $arrSubmitted[$objFormFields->name] ? $arrSubmitted[$objFormFields->name] : ''
 			);
 		}
-		
+
 		if (isset($GLOBALS['MERCONIS_HOOKS']['onReceivingConfiguratorInput']) && is_array($GLOBALS['MERCONIS_HOOKS']['onReceivingConfiguratorInput'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['onReceivingConfiguratorInput'] as $mccb) {
 				$objMccb = System::importStatic($mccb[0]);
 				$objMccb->{$mccb[1]}();
 			}
 		}
-		
+
 		/*
 		 * Generate the configuratorHash and write it to the session
 		 */
-		$_SESSION['lsShop']['configurator'][$_SESSION['FORM_DATA']['configurator_productVariantID']]['strConfiguratorHash'] = sha1(serialize($_SESSION['lsShop']['configurator'][$_SESSION['FORM_DATA']['configurator_productVariantID']]['arrReceivedPost']));
+		$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['strConfiguratorHash'] = sha1(serialize($_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['arrReceivedPost']));
 	}
 	
 	/*

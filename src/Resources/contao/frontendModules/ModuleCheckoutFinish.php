@@ -484,10 +484,7 @@ class ModuleCheckoutFinish extends Module {
 			'miscData' => array( // no language
 				'pageDNS' => $objPage->domain ?: '',
 				'host' => Environment::get('host'),
-				/*
-				 * @toDo Fix undefined constant TL_PATH
-				 */
-				'domain' => ($objPage->rootUseSSL ? 'https://' : 'http://') . ($objPage->domain ?: Environment::get('host')) . TL_PATH . '/',
+				'domain' => ($objPage->rootUseSSL ? 'https://' : 'http://') . ($objPage->domain ?: Environment::get('host')) . Environment::get('path') . '/',
 				'languageUsedOnCheckout' => $objPage->language,
 				'ipAnonymized' => System::anonymizeIp(Environment::get('ip'))
 			),
