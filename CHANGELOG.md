@@ -1,6 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.22 (2024-05-27)
+ * add hook 'getProductTaxClass'
+ * add hook 'addToCartCustomLogic'
+
 ### 5.0.21 (2024-03-14)
  * fix PAYONE for PHP 8
  * fix price overview for variants
