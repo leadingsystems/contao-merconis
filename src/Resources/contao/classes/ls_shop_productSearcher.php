@@ -1447,7 +1447,7 @@ class ls_shop_productSearcher
         }
 
         // Notice: Using execute() with an array parameter has been deprecated and will no longer work. Use argument unpacking via ... instead."', __METHOD__)
-        $objProductsComplete = $objProductsComplete->execute(...$searchConditionValues);
+        $objProductsComplete = $objProductsComplete->execute(...array_values($searchConditionValues));
 
         /*
          * If we use the filter or the special price sorting or maybe for some other reasons,
