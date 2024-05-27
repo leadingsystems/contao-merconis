@@ -182,6 +182,26 @@ class ls_shop_cartHelper {
 	 * Die Funktion gibt ein Array mit Informationen über die gewünschte und tatsächlich hinzugefügte Menge zurück
 	 */
 	public static function addToCart($productVariantID, $quantity, $checkStock = true) {
+        if (isset($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic']) && is_array($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic'])) {
+            /*
+             * Functions hooked here can stop the execution of the addToCart method by returning a non-null value
+             * that is then being used as the return value for addToCart. The hooked function can thereby completely
+             * replace the logic of the addToCart method.
+             * The return value should be an array with the keys 'desiredQuantity', 'quantityPutInCart',
+             * 'stockNotSufficient', 'cartKeyCurrentlyPutInCart' just like the original value of addToCart.
+             */
+            foreach ($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic'] as $mccb) {
+                $objMccb = System::importStatic($mccb[0]);
+                if (!isset($valueToReturn)) {
+                    $valueToReturn = null;
+                }
+                $valueToReturn = $objMccb->{$mccb[1]}($productVariantID, $quantity, $checkStock, $valueToReturn);
+            }
+            if ($valueToReturn !== null) {
+                return $valueToReturn;
+            }
+        }
+
         /**
          * @var ls_shop_product $objProduct
          */
