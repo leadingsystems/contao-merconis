@@ -520,7 +520,7 @@ class InstallerController extends Controller {
                         WHERE		`id` = ?
                     ")
                     ->limit(1)
-                    ->execute(...$arrQueryValues);
+                    ->execute(...array_values($arrQueryValues));
             }
         }
 	}
@@ -896,7 +896,7 @@ class InstallerController extends Controller {
 			INSERT INTO `".$targetTable."`
 			SET		".$setStatement."
 		")
-			->execute(...$arrData);
+			->execute(...array_values($arrData));
 
 		$insertID = $objQuery->insertId;
 

@@ -743,7 +743,7 @@ class ls_shop_importController
 			// Must be the last parameter in the array
 			$arr_queryParams[] = $alreadyExistsAsID;
 			
-			$objUpdateProduct->execute(...$arr_queryParams);
+			$objUpdateProduct->execute(...array_values($arr_queryParams));
 
 			ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable($row['propertiesAndValues'], $alreadyExistsAsID, 0);
 			
@@ -877,7 +877,7 @@ class ls_shop_importController
 			
 			$arr_queryParams = ls_shop_productManagementApiHelper::addGroupPriceFieldsToQueryParam($arr_queryParams, $row, 'product');
 			
-			$objInsertProduct->execute(...$arr_queryParams);
+			$objInsertProduct->execute(...array_values($arr_queryParams));
 
 			$newProductID = $objInsertProduct->insertId;
 			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsProductcodeToID'][$row['productcode']] = $newProductID;
@@ -1144,7 +1144,7 @@ class ls_shop_importController
 			// Must be the last parameter in the array
 			$arr_queryParams[] = $alreadyExistsAsID;
 			
-			$objUpdateVariant->execute(...$arr_queryParams);
+			$objUpdateVariant->execute(...array_values($arr_queryParams));
 
 			ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable($row['propertiesAndValues'], $alreadyExistsAsID, 1);
 
@@ -1270,7 +1270,7 @@ class ls_shop_importController
 			
 			$arr_queryParams = ls_shop_productManagementApiHelper::addGroupPriceFieldsToQueryParam($arr_queryParams, $row, 'variant');
 			
-			$objInsertVariant->execute(...$arr_queryParams);
+			$objInsertVariant->execute(...array_values($arr_queryParams));
 			
 			$newVariantID = $objInsertVariant->insertId;
 			$_SESSION['lsShop']['importFileInfo']['arrImportInfos']['variantsProductcodeToID'][$row['productcode']] = $newVariantID;
