@@ -261,7 +261,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'inputType'               => 'select',
             'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getRangeFilterFieldTemplates'),
             'eval'                    => array('tl_class'=>'w50'),
-            'sql'                     => "varchar(64) NOT NULL default 'template_formRangeFilterField_new'"
+            'sql'                     => "varchar(64) NOT NULL default 'template_formAttributesMinMaxFilterField_new'"
         ),
 
 		'filterMode' => array(
