@@ -261,6 +261,7 @@ class ls_shop_filterHelper {
         );
 
         $bln_flexContentsLIMinMaxFilterCurrentlyAvailable = false;
+        $arr_flexContentsLIMinMaxFilterCurrentlyAvailable = [];
         foreach($arr_filterAllFields['arr_flexContentsLIMinMax'] as $flexContentLIMinMaxKey => $flexContentLIMinMaxValues) {
             if (
                 ($arr_filterAllFields['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'] ?? '')
@@ -268,11 +269,14 @@ class ls_shop_filterHelper {
                 ($arr_filterAllFields['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'] ?? '')
                 ) {
                 $bln_flexContentsLIMinMaxFilterCurrentlyAvailable = true;
-                break;
+                $arr_flexContentsLIMinMaxFilterCurrentlyAvailable[$flexContentLIMinMaxKey] = true;
+            } else {
+                $arr_flexContentsLIMinMaxFilterCurrentlyAvailable[$flexContentLIMinMaxKey] = false;
             }
         }
 
         $bln_attributesMinMaxFilterCurrentlyAvailable = false;
+        $arr_attributesMinMaxFilterCurrentlyAvailable = [];
         foreach($arr_filterAllFields['arr_attributesMinMax'] as $attributeID => $attributesMinMaxValues) {
             if (
                 ($arr_filterAllFields['arr_attributesMinMax'][$attributeID]['low'] ?? '')
@@ -280,7 +284,9 @@ class ls_shop_filterHelper {
                 ($arr_filterAllFields['arr_attributesMinMax'][$attributeID]['high'] ?? '')
                 ) {
                 $bln_attributesMinMaxFilterCurrentlyAvailable = true;
-                break;
+                $arr_attributesMinMaxFilterCurrentlyAvailable[$attributeID] = true;
+            } else {
+                $arr_attributesMinMaxFilterCurrentlyAvailable[$attributeID] = false;
             }
         }
 
@@ -416,9 +422,11 @@ class ls_shop_filterHelper {
             'int_numAvailableFilterFields' => ($bln_poducerFilterCurrentlyAvailable ? 1 : 0) + ($bln_priceFilterCurrentlyAvailable ? 1 : 0) + count($arr_filterAllFields['arr_attributes']),
             'bln_attributesFilterCurrentlyAvailable' => $bln_attributesFilterCurrentlyAvailable,
             'bln_attributesMinMaxFilterCurrentlyAvailable' => $bln_attributesMinMaxFilterCurrentlyAvailable,
+            'arr_attributesMinMaxFilterCurrentlyAvailable' => $arr_attributesMinMaxFilterCurrentlyAvailable,
             'bln_flexContentsLIFilterCurrentlyAvailable' => $bln_flexContentsLIFilterCurrentlyAvailable,
             'bln_flexContentsLDFilterCurrentlyAvailable' => $bln_flexContentsLDFilterCurrentlyAvailable,
             'bln_flexContentsLIMinMaxFilterCurrentlyAvailable' => $bln_flexContentsLIMinMaxFilterCurrentlyAvailable,
+            'arr_flexContentsLIMinMaxFilterCurrentlyAvailable' => $arr_flexContentsLIMinMaxFilterCurrentlyAvailable,
             'bln_poducerFilterCurrentlyAvailable' => $bln_poducerFilterCurrentlyAvailable,
             'bln_priceFilterCurrentlyAvailable' => $bln_priceFilterCurrentlyAvailable,
             'bln_currentlyFilteringByAttributes' => $bln_currentlyFilteringByAttributes,
@@ -445,9 +453,11 @@ class ls_shop_filterHelper {
         $obj_template->int_numAvailableFilterFields = $arr_summaryData['int_numAvailableFilterFields'];
         $obj_template->bln_attributesFilterCurrentlyAvailable = $arr_summaryData['bln_attributesFilterCurrentlyAvailable'];
         $obj_template->bln_attributesMinMaxFilterCurrentlyAvailable = $arr_summaryData['bln_attributesMinMaxFilterCurrentlyAvailable'];
+        $obj_template->arr_attributesMinMaxFilterCurrentlyAvailable = $arr_summaryData['arr_attributesMinMaxFilterCurrentlyAvailable'];
         $obj_template->bln_flexContentsLIFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLIFilterCurrentlyAvailable'];
         $obj_template->bln_flexContentsLDFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLDFilterCurrentlyAvailable'];
         $obj_template->bln_flexContentsLIMinMaxFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLIMinMaxFilterCurrentlyAvailable'];
+        $obj_template->arr_flexContentsLIMinMaxFilterCurrentlyAvailable = $arr_summaryData['arr_flexContentsLIMinMaxFilterCurrentlyAvailable'];
         $obj_template->bln_poducerFilterCurrentlyAvailable = $arr_summaryData['bln_poducerFilterCurrentlyAvailable'];
         $obj_template->bln_priceFilterCurrentlyAvailable = $arr_summaryData['bln_priceFilterCurrentlyAvailable'];
         $obj_template->bln_currentlyFilteringByAttributes = $arr_summaryData['bln_currentlyFilteringByAttributes'];

@@ -66,6 +66,7 @@ if (
 
             if ($this->bln_attributesMinMaxFilterCurrentlyAvailable) {
                 foreach ($this->arr_filterAllFields['arr_attributesMinMax'] as $attributeID => $attributesMinMaxValues) {
+                    if ($this->arr_attributesMinMaxFilterCurrentlyAvailable[$attributeID]) {
                     $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['attributesMinMax_' . $attributeID] <= $int_numFilterFieldsMax;
                     ?>
                 <li class="filter-criterion filter-criterion-price<?php
@@ -117,6 +118,7 @@ if (
                     </div>
                 </li>
                     <?php
+                    }
                 }
             }
 
@@ -221,7 +223,7 @@ if (
 
             if ($this->bln_flexContentsLIMinMaxFilterCurrentlyAvailable) {
                 foreach ($this->arr_filterAllFields['arr_flexContentsLIMinMax'] as $str_flexContentLIKey => $arr_filterFlexContentLI) {
-                    if (($arr_filterFlexContentLI['low'] ?? '') || ($arr_filterFlexContentLI['high'] ?? '')) {
+                    if ($this->arr_flexContentsLIMinMaxFilterCurrentlyAvailable[$str_flexContentLIKey]) {
                     $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContentLIMinMax_' . $str_flexContentLIKey] <= $int_numFilterFieldsMax;
                     ?>
                 <li class="filter-criterion filter-criterion-price<?php
