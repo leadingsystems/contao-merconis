@@ -221,6 +221,7 @@ if (
 
             if ($this->bln_flexContentsLIMinMaxFilterCurrentlyAvailable) {
                 foreach ($this->arr_filterAllFields['arr_flexContentsLIMinMax'] as $str_flexContentLIKey => $arr_filterFlexContentLI) {
+                    if (($arr_filterFlexContentLI['low'] ?? '') || ($arr_filterFlexContentLI['high'] ?? '')) {
                     $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContentLIMinMax_' . $str_flexContentLIKey] <= $int_numFilterFieldsMax;
                     ?>
                 <li class="filter-criterion filter-criterion-price<?php
@@ -275,6 +276,7 @@ if (
 
 
                     <?php
+                    }
                 }
             }
 

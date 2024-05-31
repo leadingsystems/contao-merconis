@@ -1495,7 +1495,7 @@ class ls_shop_filterHelper {
                 !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$FCLIKey]['low'] &&
                 !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$FCLIKey]['high']
                 ) {
-                $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLIMinMax'][$FCLIKey]['low'] = array(
+                $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLIMinMax'][$FCLIKey] = array(
                     'low' => null,
 				    'high' => null
                 );
@@ -1508,7 +1508,7 @@ class ls_shop_filterHelper {
                 !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$attributeID]['low'] &&
                 !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$attributeID]['high']
                 ) {
-                $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributesMinMax'][$attributeID]['low'] = array(
+                $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributesMinMax'][$attributeID] = array(
                     'low' => null,
 				    'high' => null
                 );
