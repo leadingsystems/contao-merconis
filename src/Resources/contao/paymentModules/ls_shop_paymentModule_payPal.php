@@ -183,7 +183,10 @@ use function LeadingSystems\Helpers\ls_sub;
 			if (!ls_shop_generalHelper::checkIfPaymentMethodIsAllowed(ls_shop_checkoutData::getInstance()->arrCheckoutData['selectedPaymentMethod'])) {
 				ls_shop_checkoutData::getInstance()->resetSelectedPaymentMethod();
 
-                if (!Environment::get('isAjaxRequest') && $_SESSION['ls_cajax']['requestData'] === null) {
+                $session = \Contao\System::getContainer()->get('cajax.session')->getSession();
+                $session_cajax =  $session->get('cajax');
+
+                if (!Environment::get('isAjaxRequest') && $session_cajax['requestData'] === null) {
                     $this->reload();
                 }
 			}
