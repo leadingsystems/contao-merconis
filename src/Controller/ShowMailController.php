@@ -48,7 +48,7 @@ class ShowMailController
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 * @throws \Doctrine\DBAL\Exception
 	 */
-	public function htmlBodyAction($messageId, Request $request)
+	public function __invoke($messageId, Request $request)
 	{
 		$htmlBody = 'Message could not be loaded';
 
