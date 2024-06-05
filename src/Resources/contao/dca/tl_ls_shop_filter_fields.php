@@ -234,7 +234,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'inputType'               => 'select',
             'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLIFilterFieldTemplates'),
             'eval'                    => array('tl_class'=>'w50'),
-            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLIFilterField_new'"
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLIFilterField_standard'"
         ),
 
         'templateToUseForFlexContentLDField'  => array(
@@ -243,7 +243,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'inputType'               => 'select',
             'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLDFilterFieldTemplates'),
             'eval'                    => array('tl_class'=>'w50'),
-            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLDFilterField_new'"
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLDFilterField_standard'"
         ),
 
         'templateToUseForFlexContentLIMinMaxField'  => array(
@@ -252,7 +252,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'inputType'               => 'select',
             'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLIMinMaxFilterFieldTemplates'),
             'eval'                    => array('tl_class'=>'w50'),
-            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLIMinMaxFilterField_new'"
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLIMinMaxFilterField_standard'"
         ),
 
         'templateToUseForRangeField'  => array(
@@ -261,7 +261,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'inputType'               => 'select',
             'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getRangeFilterFieldTemplates'),
             'eval'                    => array('tl_class'=>'w50'),
-            'sql'                     => "varchar(64) NOT NULL default 'template_formAttributesMinMaxFilterField_new'"
+            'sql'                     => "varchar(64) NOT NULL default 'template_formAttributesMinMaxFilterField_standard'"
         ),
 
 		'filterMode' => array(

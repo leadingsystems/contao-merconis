@@ -333,7 +333,7 @@ class ls_shop_filterController
                     $arrObjWidgets_filterFields[$filterFieldID] = new FlexWidget(
                         array(
                             'str_uniqueName' => 'filterField_' . $filterFieldID,
-                            'str_template' => $arrFilterFieldInfo['templateToUseForFlexContentLIField'] ? $arrFilterFieldInfo['templateToUseForFlexContentLIField'] : 'template_formFlexContentLIFilterField_new',
+                            'str_template' => $arrFilterFieldInfo['templateToUseForFlexContentLIField'] ? $arrFilterFieldInfo['templateToUseForFlexContentLIField'] : 'template_formFlexContentLIFilterField_standard',
                             'str_label' => $arrFilterFieldInfo['title'],
                             'str_allowedRequestMethod' => 'post',
                             'arr_moreData' => array(
@@ -398,7 +398,7 @@ class ls_shop_filterController
                     $arrObjWidgets_filterFields[$filterFieldID] = new FlexWidget(
                         array(
                             'str_uniqueName' => 'filterField_' . $filterFieldID,
-                            'str_template' => $arrFilterFieldInfo['templateToUseForFlexContentLDField'] ? $arrFilterFieldInfo['templateToUseForFlexContentLDField'] : 'template_formFlexContentLDFilterField_new',
+                            'str_template' => $arrFilterFieldInfo['templateToUseForFlexContentLDField'] ? $arrFilterFieldInfo['templateToUseForFlexContentLDField'] : 'template_formFlexContentLDFilterField_standard',
                             'str_label' => $arrFilterFieldInfo['title'],
                             'str_allowedRequestMethod' => 'post',
                             'arr_moreData' => array(
