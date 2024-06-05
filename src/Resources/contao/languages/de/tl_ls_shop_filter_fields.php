@@ -8,7 +8,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['title']								= array('Bezeichnung');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource']							= array('Datenquelle', 'Geben Sie an, woher das Filter-Feld seine Werte bezieht.');
     $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLIKey']                     = array('Flex-Content-Key', 'Geben Sie den Key eines sprachunabhängigen FlexContent-Feldes an, von dem das Filter-Feld seine Werte bezieht.');
-    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLDKey']                     = array('Flex-Content-Key LD', 'Geben Sie den Key eines sprachabhängigen FlexContent-Feldes MinMax an, von dem das Filter-Feld seine Werte bezieht.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLDKey']                     = array('Flex-Content-Key LD', 'Geben Sie den Key eines sprachabhängigen FlexContent-Feldes an, von dem das Filter-Feld seine Werte bezieht.');
     $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLIMinMaxKey']               = array('Flex-Content-Key LI MinMax', 'Geben Sie den Key eines sprachunabhängigen FlexContent-MinMax-Feldes an, von dem das Filter-Feld seine Werte bezieht.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['sourceAttribute']						= array('Quellmerkmal');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['classForFilterFormField']				= array('CSS-Klasse', 'Diese CSS-Klasse wird im Filter-Formular-Feld verwendet.');
