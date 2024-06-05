@@ -423,7 +423,7 @@
       }
 
       .filterOptionsBox,
-      .filterRangeBox {
+      .filterRangeBox, .filterPriceBox {
         border: none;
       }
     }
@@ -443,8 +443,8 @@
     padding: 0.5rem !important;
   }
 
-  .range-from,
-  .range-to,
+  .range-from, .price-from,
+  .range-to, .price-to
     {
     .flexWidget {
       display: inline-block;
@@ -530,7 +530,7 @@
   }
 
   .filterOptionsBox,
-  .filterRangeBox {
+  .filterRangeBox, .filterPriceBox {
     margin-bottom: 0.5rem;
 
     &:not(:last-child) {
@@ -672,7 +672,7 @@
 
   .partial-filter-form-display {
     .filterOptionsBox,
-    .filterRangeBox {
+    .filterRangeBox, .filterPriceBox {
       .content {
         padding-left: 0;
       }
@@ -813,8 +813,8 @@
     padding: 0.5rem !important;
   }
 
-  .range-from,
-  .range-to,
+  .range-from, .price-from,
+  .range-to, price-to
     {
     .flexWidget {
       display: inline-block;
@@ -902,7 +902,7 @@
   }
 
   .filterOptionsBox,
-  .filterRangeBox {
+  .filterRangeBox, .filterPriceBox {
     margin-bottom: 0.5rem;
 
     &:not(:last-child) {
