@@ -146,7 +146,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'options'                 => array('attribute', 'attributesMinMax', 'producer', 'price', 'flexContentLI', 'flexContentLD', 'flexContentLIMinMax'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource']['options'],
 			'eval'					  => array('tl_class' => 'clr', 'helpwizard' => true, 'submitOnChange' => true),
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''",
+            'save_callback' => array (array('Merconis\Core\ls_shop_filter_fields', 'dataSource_unsetSession'))
 		),
 
 		'sourceAttribute' => array(
@@ -163,8 +164,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'exclude' => true,
             'inputType' => 'text',
             'eval' => array('tl_class' => 'w50', 'maxlength'=>255, 'mandatory' => true),
-            'sql'                     => "varchar(255) NOT NULL default ''",
-            'save_callback' => array (array('Merconis\Core\ls_shop_filter_fields', 'flexContentLIKey_unsetSession'))
+            'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
         'flexContentLDKey' => array (
@@ -392,9 +392,11 @@ class ls_shop_filter_fields extends \Backend {
         return $this->getTemplateGroup('template_formFlexContentLIMinMaxFilterField_');
     }
 
-    public function flexContentLIKey_unsetSession($val) {
-        unset($_SESSION['lsShop']['filter']['flexContentLIKeys']);
-        return $val;
+    public function dataSource_unsetSession($value) {
+        if (in_array($value,array('flexContentLIMinMax', 'flexContentLI'))) {
+            unset($_SESSION['lsShop']['filter']['flexContentLIKeys']);
+        }
+        return $value;
     }
 
     public function getRangeFilterFieldTemplates() {
