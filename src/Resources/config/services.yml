@@ -34,6 +34,25 @@ services:
     tags:
       - { name: kernel.event_listener, event: contao.sitemap }
 
+  merconis.eventlistener.listOperationProductListener:
+    class: LeadingSystems\MerconisBundle\EventListener\ListOperationProductListener
+    tags:
+      - { name: contao.callback, target: list.operations.editheader.button, method: editheader, table: tl_ls_shop_product }
+      - { name: contao.callback, target: list.operations.edit.button, method: edit, table: tl_ls_shop_product }
+      - { name: contao.callback, target: list.operations.delete.button, method: delete, table: tl_ls_shop_product }
+      - { name: contao.callback, target: list.operations.toggle.button, method: toggle, table: tl_ls_shop_product }
+      - { name: contao.callback, target: list.global_operations.all.button, method: all, table: tl_ls_shop_product }
+
+  merconis.eventlistener.listOperationVariantListener:
+    class: LeadingSystems\MerconisBundle\EventListener\ListOperationVariantListener
+    tags:
+      - { name: contao.callback, target: list.operations.edit.button, method: edit, table: tl_ls_shop_variant }
+      - { name: contao.callback, target: list.operations.copy.button, method: copy, table: tl_ls_shop_variant }
+      - { name: contao.callback, target: list.operations.cut.button, method: cut, table: tl_ls_shop_variant }
+      - { name: contao.callback, target: list.operations.delete.button, method: delete, table: tl_ls_shop_variant }
+      - { name: contao.callback, target: list.operations.toggle.button, method: toggle, table: tl_ls_shop_variant }
+      - { name: contao.callback, target: list.global_operations.all.button, method: all, table: tl_ls_shop_variant }
+
   merconis.controller.backend.product_search:
     class: LeadingSystems\MerconisBundle\Controller\ProductSearchController
     public: true

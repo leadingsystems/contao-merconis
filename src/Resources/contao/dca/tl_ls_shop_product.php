@@ -8,6 +8,7 @@ use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 	'config' => array(
+        'notCreatable' => true,
 		'dataContainer' => DC_Table::class,
         'enableVersioning' => true,
 		'ctable' => array('tl_ls_shop_variant'),
@@ -87,6 +88,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['toggle'],
 				'icon'                => 'visible.svg',
 				'attributes'          => 'onclick="Backend.getScrollOffset(); return AjaxRequest.toggleVisibility(this,%s)"',
+                // @toDo overwritten by ListOperationProductListener move logic into listener
 				'button_callback'     => array('Merconis\Core\tl_ls_shop_product_controller', 'toggleIcon')
 			),
 			'show' => array(
