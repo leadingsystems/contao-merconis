@@ -163,7 +163,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'exclude' => true,
             'inputType' => 'text',
             'eval' => array('tl_class' => 'w50', 'maxlength'=>255, 'mandatory' => true),
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''",
+            'save_callback' => array (array('Merconis\Core\ls_shop_filter_fields', 'flexContentLIKey_unsetSession'))
         ),
 
         'flexContentLDKey' => array (
@@ -389,6 +390,11 @@ class ls_shop_filter_fields extends \Backend {
 
     public function getFlexContentLIMinMaxFilterFieldTemplates() {
         return $this->getTemplateGroup('template_formFlexContentLIMinMaxFilterField_');
+    }
+
+    public function flexContentLIKey_unsetSession($val) {
+        unset($_SESSION['lsShop']['filter']['flexContentLIKeys']);
+        return $val;
     }
 
     public function getRangeFilterFieldTemplates() {
