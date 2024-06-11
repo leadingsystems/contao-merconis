@@ -1,6 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.23 (2024-06-11)
+ * add flex content filters
+ * add range filter for attributes
+
 ### 5.0.22 (2024-05-27)
  * add hook 'getProductTaxClass'
  * add hook 'addToCartCustomLogic'
