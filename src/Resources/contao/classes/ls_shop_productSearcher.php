@@ -6,6 +6,7 @@ use Contao\ArrayUtil;
 use Contao\System;
 
 use function LeadingSystems\Helpers\createMultidimensionalArray;
+use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
 
 class ls_shop_productSearcher
 {
@@ -32,7 +33,6 @@ class ls_shop_productSearcher
         'offset' => 0
     );
 
-    protected $blnEnoughProductsOrVariantsToFilterAvailable = false;
     protected $blnUseFilter = false;
 
     /*
@@ -155,7 +155,9 @@ class ls_shop_productSearcher
             'arrSearchCriteria' => $this->arrSearchCriteria,
             'arrLimit' => $this->arrLimit,
             'filterCriteria' => $this->blnUseFilter ? $_SESSION['lsShop']['filter']['criteria'] : null,
-            'filterModeSettings' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
+            'filterModeSettingsByAttributes' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
+            'filterModeSettingsByFlexContentsLI' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'] ?? null) : null,
+            'filterModeSettingsByFlexContentsLD' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'] ?? null) : null,
             'language' => $this->searchLanguage,
             'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
             'checkVATID' => ls_shop_generalHelper::checkVATID(),
@@ -408,6 +410,9 @@ class ls_shop_productSearcher
             case 'attributeValueID':
                 return "`tl_ls_shop_attribute_allocation`.`".$fieldName."`";
 
+            case 'numericValue':
+                return "`tl_ls_shop_attribute_values`.`".$fieldName."` AS attributeNumericValue";
+
             default:
                 return "`tl_ls_shop_product`.`".$fieldName."`";
                 break;
@@ -451,6 +456,7 @@ class ls_shop_productSearcher
         }
     }
 
+
     protected function checkIfValidCriteriaGiven() {
         $blnValid = true;
 
@@ -466,6 +472,8 @@ class ls_shop_productSearcher
     }
 
     protected function ls_performSearch() {
+        $searchLanguage = $this->searchLanguage;
+
         /*
          * Set the current cache key because if ls_performSearch() is being executed, all
          * settings affecting the results have been set completely
@@ -477,6 +485,7 @@ class ls_shop_productSearcher
             $this->bln_andSearch = $this->arrSearchCriteria["searchType"];
         }
         unset($this->arrSearchCriteria["searchType"]);
+
 
         /*
          * Don't perform a new search if the cached result of the last search can be used
@@ -1312,6 +1321,10 @@ class ls_shop_productSearcher
                 $this->arrRequestFields[] = 'attributeValueID';
             }
 
+            if (!in_array('numericValue', $this->arrRequestFields)) {
+                $this->arrRequestFields[] = 'numericValue';
+            }
+
             if (!in_array('lsShopProductPrice', $this->arrRequestFields)) {
                 $this->arrRequestFields[] = 'lsShopProductPrice';
             }
@@ -1322,6 +1335,14 @@ class ls_shop_productSearcher
 
             if (!in_array('lsShopProductProducer', $this->arrRequestFields)) {
                 $this->arrRequestFields[] = 'lsShopProductProducer';
+            }
+
+            if (!in_array('flex_contentsLanguageIndependent', $this->arrRequestFields)) {
+                $this->arrRequestFields[] = 'flex_contentsLanguageIndependent';
+            }
+
+            if (!in_array('flex_contents', $this->arrRequestFields)) {
+                $this->arrRequestFields[] = 'flex_contents_'.$this->searchLanguage;
             }
         }
 
@@ -1434,6 +1455,8 @@ class ls_shop_productSearcher
 			LEFT JOIN		`tl_ls_shop_attribute_allocation`
 				ON			`tl_ls_shop_product`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
 				AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '0'
+            LEFT JOIN `tl_ls_shop_attribute_values` 
+				ON `tl_ls_shop_attribute_allocation`.attributeValueID = `tl_ls_shop_attribute_values`.`id`
 		" : "")."
 			WHERE			".$searchCondition."
 			".$orderStatement."
@@ -1675,6 +1698,12 @@ class ls_shop_productSearcher
                     $refCurrentProductRow['attributeIDs'] = array();
                     $refCurrentProductRow['attributeValueIDs'] = array();
                     $refCurrentProductRow['attributeAndValueIDs'] = array();
+                    $refCurrentProductRow['attributesMinMax'] = array();
+
+                    $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
+                    $refCurrentProductRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax', true);
+                    $refCurrentProductRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent', true);
+                    $refCurrentProductRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents_'.$searchLanguage])), 2, 1);
 
                     $refCurrentProductRow['variants'] = array();
 
@@ -1684,8 +1713,8 @@ class ls_shop_productSearcher
 
                     $refCurrentProductRow['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz']);
 
-                    $refCurrentProductRow['lowestPrice'] = null;
-                    $refCurrentProductRow['highestPrice'] = null;
+                    $refCurrentProductRow['lowestPrice'] = $refCurrentProductRow['price'];
+                    $refCurrentProductRow['highestPrice'] = $refCurrentProductRow['price'];
                 } else {
                     /*
                      * use a reference to make the following code better readable (the reference has to be
@@ -1710,6 +1739,30 @@ class ls_shop_productSearcher
                 if ($rowProductsComplete['attributeValueID']) {
                     $refCurrentProductRow['attributeValueIDs'][] = $rowProductsComplete['attributeValueID'];
                 }
+
+                //Range for Attribute numeric Values
+                if ($rowProductsComplete['attributeNumericValue']) {
+                    if (!isset($refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']])) {
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']] = array();
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']] = ['low' => null, 'high' => null, 'lowestValue' => null, 'highestValue' => null];
+
+                    }
+
+                    ls_shop_filterhelper::determineMinMaxValues(
+                        $rowProductsComplete['attributeNumericValue'],
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['low'],
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['high']
+                        #,true
+                    );
+
+                    ls_shop_filterhelper::determineMinMaxValues(
+                        $rowProductsComplete['attributeNumericValue'],
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['lowestValue'],
+                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['highestValue']
+                        #,true
+                    );
+                }
+
             }
 
             /*
@@ -1720,6 +1773,8 @@ class ls_shop_productSearcher
 								`tl_ls_shop_variant`.`pid`,
 								`tl_ls_shop_variant`.`lsShopVariantPrice`,
 								`tl_ls_shop_variant`.`lsShopVariantPriceType`,
+								`tl_ls_shop_variant`.`flex_contentsLanguageIndependent`,
+								`tl_ls_shop_variant`.`flex_contents_". $this->searchLanguage."`,
 				".
                 (
                 $this->bln_useGroupPrices
@@ -1754,11 +1809,14 @@ class ls_shop_productSearcher
                 )
                 ."
 								`tl_ls_shop_attribute_allocation`.`attributeID`,
-								`tl_ls_shop_attribute_allocation`.`attributeValueID`
+								`tl_ls_shop_attribute_allocation`.`attributeValueID`,
+								`tl_ls_shop_attribute_values`.`numericValue` AS attributeNumericValue
 				FROM			`tl_ls_shop_variant`
 				LEFT JOIN		`tl_ls_shop_attribute_allocation`
 					ON			`tl_ls_shop_variant`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
 					AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '1'
+                LEFT JOIN `tl_ls_shop_attribute_values` 
+    				ON `tl_ls_shop_attribute_allocation`.attributeValueID = `tl_ls_shop_attribute_values`.`id`
 				WHERE			`tl_ls_shop_variant`.`published` = '1'
 					AND			`tl_ls_shop_variant`.`pid` IN (".implode(',', array_keys($tmpArrProductsComplete)).")
 				ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
@@ -1785,6 +1843,12 @@ class ls_shop_productSearcher
                     $refCurrentVariantRow['attributeIDs'] = array();
                     $refCurrentVariantRow['attributeValueIDs'] = array();
                     $refCurrentVariantRow['attributeAndValueIDs'] = array();
+                    $refCurrentVariantRow['attributesMinMax'] = array();
+
+                    $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
+                    $refCurrentVariantRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax');
+                    $refCurrentVariantRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent');
+                    $refCurrentVariantRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents_'.$searchLanguage])), 2, 1);
 
                     /*
                      * Get the variant's price
@@ -1813,6 +1877,25 @@ class ls_shop_productSearcher
                     if ($tmpArrProductsComplete[$rowVariants['pid']]['highestPrice'] === null || $refCurrentVariantRow['price'] > $tmpArrProductsComplete[$rowVariants['pid']]['highestPrice']) {
                         $tmpArrProductsComplete[$rowVariants['pid']]['highestPrice'] = $refCurrentVariantRow['price'];
                     }
+
+                    /*
+                     *  FCLI Ranges from Variant to Product
+                     */
+                    foreach ($refCurrentVariantRow['flex_contentsLIMinMax'] as $FCLIKey => $FCLIValues) {
+                        /*
+                         * Store the variant's Range as the product's lowest and highest value if it hasn't been set yet or if
+                         * the current variant's range is lower/higher than the currently stored lowest/highest value.
+                         */
+                        if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue'])
+                            || $FCLIValues['low'] < $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue']) {
+                            $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue'] = $FCLIValues['low'];
+                        }
+                        if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'])
+                            || $FCLIValues['high'] > $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue']) {
+                            $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'] = $FCLIValues['high'];
+                        }
+                    }
+
                 } else {
                     /*
                      * use a reference to make the following code better readable (the reference has to be
@@ -1837,6 +1920,20 @@ class ls_shop_productSearcher
                 if ($rowVariants['attributeValueID']) {
                     $refCurrentVariantRow['attributeValueIDs'][] = $rowVariants['attributeValueID'];
                 }
+
+                //Range for Attribute numeric Values
+                if ($rowVariants['attributeNumericValue']) {
+                    if (!isset($refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']])) {
+                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']] = array();
+                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']] = ['low' => null, 'high' => null];
+                    }
+
+                    ls_shop_filterhelper::determineMinMaxValues(
+                        $rowVariants['attributeNumericValue'],
+                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['low'],
+                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['high']
+                    );
+                }
             }
 
             $arrProductsComplete = $tmpArrProductsComplete;
@@ -1856,14 +1953,8 @@ class ls_shop_productSearcher
                 }
             }
 
-            if (count($arrProductsComplete) > 1 || (count($arrProductsComplete) == 1 && count($arrProductsComplete[key($arrProductsComplete)]['variants']))) {
-                $this->blnEnoughProductsOrVariantsToFilterAvailable = true;
-            }
-
-            if ($this->blnEnoughProductsOrVariantsToFilterAvailable) {
-                ls_shop_filterController::getInstance();
-                ls_shop_filterHelper::setCriteriaToUseInFilterForm($arrProductsComplete);
-            }
+            ls_shop_filterController::getInstance();
+            ls_shop_filterHelper::setCriteriaToUseInFilterForm($arrProductsComplete);
         }
 
         $this->numProductsBeforeFilter = !is_array($arrProductsComplete) ? 0 : count($arrProductsComplete);
@@ -1882,7 +1973,7 @@ class ls_shop_productSearcher
         if (is_array($arrProductsComplete)) {
             $arrProductsAfterFilter = array();
             foreach ($arrProductsComplete as $rowProductsComplete) {
-                if ($this->blnUseFilter && $this->blnEnoughProductsOrVariantsToFilterAvailable) {
+                if ($this->blnUseFilter) {
                     /*
                      * Here we walk through all products that the database request delivered. In order
                      * to filter these products we perform filter checks for each product (and the
@@ -1901,7 +1992,7 @@ class ls_shop_productSearcher
                 $arrProductsAfterFilter[] = $rowProductsComplete;
             }
 
-            if ($this->blnUseFilter && $this->blnEnoughProductsOrVariantsToFilterAvailable && is_array($arrProductsAfterFilter)) {
+            if ($this->blnUseFilter && is_array($arrProductsAfterFilter)) {
                 ls_shop_filterController::getInstance();
                 ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
             }

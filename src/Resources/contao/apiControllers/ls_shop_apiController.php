@@ -277,4 +277,109 @@ class ls_shop_apiController {
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($str_return);
     }
+
+    /**
+     * Returns all language independent flex contents that exist in all products and variants
+     */
+    protected function apiResource_getAllFlexContentsLI() {
+        $arr_return = ls_shop_generalHelper::getAllFlexContentsLI();
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+    /**
+     * Returns all values for language independent flex content with a specific key that exist in all products and variants
+     */
+    protected function apiResource_getFlexContentLIValues() {
+        if (!\Input::get('flexContentKey')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no flexContentKey given');
+            return;
+        }
+        $arr_return = ls_shop_generalHelper::getFlexContentLIValues(\Input::get('flexContentKey'));
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+
+    /**
+     * Returns all language dependent flex contents that exist in all products and variants
+     */
+    protected function apiResource_getAllFlexContentsLD() {
+        $arr_return = ls_shop_generalHelper::getAllFlexContentsLD();
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+    /**
+     * Returns all values for language dependent flex content with a specific key that exist in all products and variants
+     */
+    protected function apiResource_getFlexContentLDValues() {
+        if (!\Input::get('flexContentKey')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no flexContentKey given');
+            return;
+        }
+        $arr_return = ls_shop_generalHelper::getFlexContentLDValues(\Input::get('flexContentKey'));
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+
+
+    /**
+     * Returns all language independent flex contents MinMax that exist in all products and variants
+     */
+    protected function apiResource_getAllFlexContentsLIMinMax() {
+        $arr_return = ls_shop_generalHelper::getAllFlexContentsLIMinMax();
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+    /**
+     * Returns all values for language inddependent flex content MinMax with a specific key that exist in all products and variants
+     */
+    protected function apiResource_getFlexContentLIMinMaxValues() {
+        if (!\Input::get('flexContentKey')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no flexContentKey given');
+            return;
+        }
+        $arr_return = ls_shop_generalHelper::getFlexContentLIMinMaxValues(\Input::get('flexContentKey'));
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+    /**
+     * Returns all Attributes MinMax that exist in all products and variants
+     */
+    protected function apiResource_getAllAttributesMinMax() {
+        $arr_return = ls_shop_generalHelper::getAllAttributesMinMax();
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+    /**
+     * Returns all values for Attributes MinMax with a specific alias that exist in all products and variants
+     */
+    protected function apiResource_getAttributesMinMaxValues() {
+        if (!\Input::get('attributeAlias')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('no attributeAlias given');
+            return;
+        }
+        $arr_return = ls_shop_generalHelper::getAttributesMinMaxValues(\Input::get('attributeAlias'));
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
 }
+
+

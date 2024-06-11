@@ -8,6 +8,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['title']										= array('Designation');
 	$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['classForFilterFormField']					= array('CSS class', 'This CSS class will be used with the filter form field.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['importantFieldValue']					= array('Important', 'This value will not be hidden in the "reduced mode".');
+    $GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['numericValue']					            = array('Numeric value', 'Numerical value of this attributes for filtering by areas');
 
 	/*
 	 * Legends

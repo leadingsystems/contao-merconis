@@ -98,8 +98,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		'__selector__' => array('dataSource'),
 		'default' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority;{published_legend},published;',
 		'attribute' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
+        'attributesMinMax' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},classForFilterFormField,priority,templateToUseForRangeField;{filterLogic_legend};{published_legend},published;',
 		'producer' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{published_legend},published;',
-		'price' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},classForFilterFormField,priority,templateToUseForPriceField;{published_legend},published;'
+		'price' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},classForFilterFormField,priority,templateToUseForPriceField;{published_legend},published;',
+        'flexContentLI' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLIField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
+        'flexContentLD' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLDKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLDField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
+        'flexContentLIMinMax' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},classForFilterFormField,priority,templateToUseForFlexContentLIMinMaxField;{filterLogic_legend};{published_legend},published;'
 	),
 
 	'fields' => array(
@@ -139,10 +143,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'default'                 => 'attribute',
 			'exclude' => true,
 			'inputType'               => 'select',
-			'options'                 => array('attribute', 'producer', 'price'),
+			'options'                 => array('attribute', 'attributesMinMax', 'producer', 'price', 'flexContentLI', 'flexContentLD', 'flexContentLIMinMax'),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource']['options'],
 			'eval'					  => array('tl_class' => 'clr', 'helpwizard' => true, 'submitOnChange' => true),
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''",
+            'save_callback' => array (array('Merconis\Core\ls_shop_filter_fields', 'dataSource_unsetSession'))
 		),
 
 		'sourceAttribute' => array(
@@ -153,6 +158,22 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval' => array('tl_class' => 'w50'),
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
+
+        'flexContentLIKey' => array (
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLIKey'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength'=>255, 'mandatory' => true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'flexContentLDKey' => array (
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLDKey'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength'=>255, 'mandatory' => true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
 
 		'numItemsInReducedMode' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['numItemsInReducedMode'],
@@ -207,6 +228,42 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			'eval'                    => array('tl_class'=>'w50'),
             'sql'                     => "varchar(64) NOT NULL default 'template_formPriceFilterField_standard'"
 		),
+
+        'templateToUseForFlexContentLIField'  => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLIField'],
+            'exclude'				  => true,
+            'inputType'               => 'select',
+            'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLIFilterFieldTemplates'),
+            'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLIFilterField_standard'"
+        ),
+
+        'templateToUseForFlexContentLDField'  => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLDField'],
+            'exclude'				  => true,
+            'inputType'               => 'select',
+            'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLDFilterFieldTemplates'),
+            'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLDFilterField_standard'"
+        ),
+
+        'templateToUseForFlexContentLIMinMaxField'  => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLIMinMaxField'],
+            'exclude'				  => true,
+            'inputType'               => 'select',
+            'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getFlexContentLIMinMaxFilterFieldTemplates'),
+            'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formFlexContentLIMinMaxFilterField_standard'"
+        ),
+
+        'templateToUseForRangeField'  => array(
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForRangeField'],
+            'exclude'				  => true,
+            'inputType'               => 'select',
+            'options_callback'		  => array('Merconis\Core\ls_shop_filter_fields', 'getRangeFilterFieldTemplates'),
+            'eval'                    => array('tl_class'=>'w50'),
+            'sql'                     => "varchar(64) NOT NULL default 'template_formAttributesMinMaxFilterField_standard'"
+        ),
 
 		'filterMode' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode'],
@@ -322,4 +379,27 @@ class ls_shop_filter_fields extends \Backend {
 	public function getPriceFilterFieldTemplates() {
 		return $this->getTemplateGroup('template_formPriceFilterField_');
 	}
+
+    public function getFlexContentLIFilterFieldTemplates() {
+        return $this->getTemplateGroup('template_formFlexContentLIFilterField_');
+    }
+
+    public function getFlexContentLDFilterFieldTemplates() {
+        return $this->getTemplateGroup('template_formFlexContentLDFilterField_');
+    }
+
+    public function getFlexContentLIMinMaxFilterFieldTemplates() {
+        return $this->getTemplateGroup('template_formFlexContentLIMinMaxFilterField_');
+    }
+
+    public function dataSource_unsetSession($value) {
+        if (in_array($value,array('flexContentLIMinMax', 'flexContentLI'))) {
+            unset($_SESSION['lsShop']['filter']['flexContentLIKeys']);
+        }
+        return $value;
+    }
+
+    public function getRangeFilterFieldTemplates() {
+        return $this->getTemplateGroup('template_formAttributesMinMaxFilterField_');
+    }
 }
