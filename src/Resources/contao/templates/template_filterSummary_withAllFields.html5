@@ -3,8 +3,12 @@ $int_numFilterFieldsMax = $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsI
 
 if (
     $this->bln_attributesFilterCurrentlyAvailable
+    || $this->bln_attributesMinMaxFilterCurrentlyAvailable
     || $this->bln_poducerFilterCurrentlyAvailable
     || $this->bln_priceFilterCurrentlyAvailable
+    || $this->bln_flexContentsLIFilterCurrentlyAvailable
+    || $this->bln_flexContentsLDFilterCurrentlyAvailable
+    || $this->bln_flexContentsLIMinMaxFilterCurrentlyAvailable
 ) {
     ?>
     <div id="filter-summary-container" class="filter-summary-container ajax-reload-by-filter">
@@ -56,6 +60,225 @@ if (
                         </div>
                     </li>
                     <?php
+                }
+            }
+
+
+            if ($this->bln_attributesMinMaxFilterCurrentlyAvailable) {
+                foreach ($this->arr_filterAllFields['arr_attributesMinMax'] as $attributeID => $attributesMinMaxValues) {
+                    if ($this->arr_attributesMinMaxFilterCurrentlyAvailable[$attributeID]) {
+                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['attributesMinMax_' . $attributeID] <= $int_numFilterFieldsMax;
+                    ?>
+                <li class="filter-criterion filter-criterion-price<?php
+                    echo $bln_showEvenUnused ? ' show-even-unused' : '';
+                    ?><?php
+                    echo (isset($this->arr_filterSummary['arr_attributesMinMax'][$attributeID])
+                        && $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering'])
+                        ? ' currently-filtering' : '';
+                    ?>" data-order-by-priority="<?php
+                    echo $this->arr_filterFieldSortingNumbers['attributesMinMax_'.$attributeID]; ?>"
+                    data-lsjs-filter-section-id="<?php echo 'attributesMinMax_'.$attributeID; ?>">
+                    <div class="filter-criterion-attribute-container">
+                        <?php
+                        if (isset($this->arr_filterSummary['arr_attributesMinMax'][$attributeID])
+                            && $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering']) {
+                            ?>
+                            <div class="reset-this-criterion"></div>
+                            <?php
+                        }
+                        ?>
+                        <div class="off-canvas-filter-form-toggler-remote">
+                            <span class="filter-criterion-title"><?php echo $attributesMinMaxValues['str_caption']; ?></span>
+                            <div class="filter-values">
+                                <?php
+                                if (isset($this->arr_filterSummary['arr_attributesMinMax'][$attributeID])
+
+                                    && $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering']) {
+                                    if ($this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['low']) {
+                                        ?>
+                                        <span class="filter-price-from">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098']; ?>
+                                            <?php echo $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['low']; ?>
+                                            &nbsp;
+                                        </span>
+                                        <?php
+                                    }
+                                    if ($this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['high']) {
+                                        ?>
+                                        <span class="filter-price-to">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099']; ?>
+                                            <?php echo $this->arr_filterSummary['arr_attributesMinMax'][$attributeID]['high']; ?>
+                                        </span>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                    <?php
+                    }
+                }
+            }
+
+            if ($this->bln_flexContentsLIFilterCurrentlyAvailable) {
+                foreach ($this->arr_filterAllFields['arr_flexContentsLI'] as $str_flexContentLIKey => $arr_filterFlexContentLI) {
+                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey] <= $int_numFilterFieldsMax;
+                    $bln_currentlyFilteringByThisFlexContentLI = isset($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]) && is_array($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values']);
+                    ?>
+                    <li class="filter-criterion filter-criterion-flexContentLI<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $bln_currentlyFilteringByThisFlexContentLI ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey]; ?>" data-lsjs-filter-section-id="flexContentLI-<?php echo $str_flexContentLIKey; ?>">
+                        <div class="filter-criterion-flexContent-container">
+                            <?php
+                            if ($bln_currentlyFilteringByThisFlexContentLI) {
+                                ?>
+                                <div class="reset-this-criterion"></div>
+                                <?php
+                            }
+                            ?>
+                            <div class="off-canvas-filter-form-toggler-remote">
+                                <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLI['str_caption']; ?></span>
+                                <?php
+                                if ($bln_currentlyFilteringByThisFlexContentLI) {
+                                    ?>
+                                    <div class="filter-values">
+                                        <?php
+                                        $int_count = 0;
+                                        $int_numValues = count($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values']);
+                                        foreach ($this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values'] as $str_filterValueTitle) {
+                                            $int_count++;
+                                            ?>
+                                            <?php
+                                            $str_stringAddition = '';
+                                            if ($int_numValues >= 3 && $int_count <= $int_numValues - 2) {
+                                                $str_stringAddition = ', ';
+                                            } else if ($int_count === $int_numValues - 1) {
+                                                $str_stringAddition = ' ' . $this->arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['str_logicalOperator'] . ' ';
+                                            }
+                                            ?>
+                                            <?php echo $str_filterValueTitle . $str_stringAddition; ?>
+                                            <?php
+                                        }
+                                        ?>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </li>
+                    <?php
+                }
+            }
+
+
+            if ($this->bln_flexContentsLDFilterCurrentlyAvailable) {
+                foreach ($this->arr_filterAllFields['arr_flexContentsLD'] as $str_flexContentLDKey => $arr_filterFlexContentLD) {
+                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContentLD_' . $str_flexContentLDKey] <= $int_numFilterFieldsMax;
+                    $bln_currentlyFilteringByThisFlexContentLD = isset($this->arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey]) && is_array($this->arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey]['arr_values']);
+                    ?>
+                    <li class="filter-criterion filter-criterion-flexContentLD<?php echo $bln_showEvenUnused ? ' show-even-unused' : ''; ?><?php echo $bln_currentlyFilteringByThisFlexContentLD ? ' currently-filtering' : ''; ?>" data-order-by-priority="<?php echo $this->arr_filterFieldSortingNumbers['flexContentLD_' . $str_flexContentLDKey]; ?>" data-lsjs-filter-section-id="flexContentLD-<?php echo $str_flexContentLDKey; ?>">
+                        <div class="filter-criterion-flexContent-container">
+                            <?php
+                            if ($bln_currentlyFilteringByThisFlexContentLD) {
+                                ?>
+                                <div class="reset-this-criterion"></div>
+                                <?php
+                            }
+                            ?>
+                            <div class="off-canvas-filter-form-toggler-remote">
+                                <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLD['str_caption']; ?></span>
+                                <?php
+                                if ($bln_currentlyFilteringByThisFlexContentLD) {
+                                    ?>
+                                    <div class="filter-values">
+                                        <?php
+                                        $int_count = 0;
+                                        $int_numValues = count($this->arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey]['arr_values']);
+                                        foreach ($this->arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey]['arr_values'] as $str_filterValueTitle) {
+                                            $int_count++;
+                                            ?>
+                                            <?php
+                                            $str_stringAddition = '';
+                                            if ($int_numValues >= 3 && $int_count <= $int_numValues - 2) {
+                                                $str_stringAddition = ', ';
+                                            } else if ($int_count === $int_numValues - 1) {
+                                                $str_stringAddition = ' ' . $this->arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey]['str_logicalOperator'] . ' ';
+                                            }
+                                            ?>
+                                            <?php echo $str_filterValueTitle . $str_stringAddition; ?>
+                                            <?php
+                                        }
+                                        ?>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </li>
+                    <?php
+                }
+            }
+
+            if ($this->bln_flexContentsLIMinMaxFilterCurrentlyAvailable) {
+                foreach ($this->arr_filterAllFields['arr_flexContentsLIMinMax'] as $str_flexContentLIKey => $arr_filterFlexContentLI) {
+                    if ($this->arr_flexContentsLIMinMaxFilterCurrentlyAvailable[$str_flexContentLIKey]) {
+                    $bln_showEvenUnused = $this->arr_filterFieldSortingNumbers['flexContentLIMinMax_' . $str_flexContentLIKey] <= $int_numFilterFieldsMax;
+                    ?>
+                <li class="filter-criterion filter-criterion-price<?php
+                    echo $bln_showEvenUnused ? ' show-even-unused' : '';
+                    ?><?php
+                    echo (isset($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey])
+                        && $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['currentlyFiltering'])
+                        ? ' currently-filtering' : '';
+                    ?>" data-order-by-priority="<?php
+                    echo $this->arr_filterFieldSortingNumbers['flexContentLIMinMax_'.$str_flexContentLIKey]; ?>"
+                    data-lsjs-filter-section-id="<?php echo 'flexContentLIMinMax_'.$str_flexContentLIKey; ?>">
+                    <div class="filter-criterion-attribute-container">
+                        <?php
+                        if (isset($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey])
+                            && $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['currentlyFiltering']) {
+                            ?>
+                            <div class="reset-this-criterion"></div>
+                            <?php
+                        }
+                        ?>
+                        <div class="off-canvas-filter-form-toggler-remote">
+                            <span class="filter-criterion-title"><?php echo $arr_filterFlexContentLI['str_caption']; ?></span>
+                            <div class="filter-values">
+                                <?php
+                                if (isset($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey])
+
+                                    && $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['currentlyFiltering']) {
+                                    if ($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['low']) {
+                                        ?>
+                                        <span class="filter-price-from">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098']; ?>
+                                            <?php echo $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['low']; ?>
+                                            &nbsp;
+                                        </span>
+                                        <?php
+                                    }
+                                    if ($this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['high']) {
+                                        ?>
+                                        <span class="filter-price-to">
+                                            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099']; ?>
+                                            <?php echo $this->arr_filterSummary['arr_flexContentsLIMinMax'][$str_flexContentLIKey]['high']; ?>
+                                        </span>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+
+
+                    <?php
+                    }
                 }
             }
 

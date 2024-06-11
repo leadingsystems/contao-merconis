@@ -4,18 +4,28 @@ namespace Merconis\Core;
 class ls_shop_filterHelper {
     public static function getFilterSummary() {
         global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
 
         $arr_filterSummary = [
             'arr_attributes' => [],
+            'arr_attributesMinMax' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributesMinMax'] ?? null,
+            'arr_flexContentsLI' => [],
+            'arr_flexContentsLD' => [],
+            'arr_flexContentsLIMinMax' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLIMinMax'] ?? null,
             'arr_producers' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['producers'] ?? null,
             'arr_price' => $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['price'] ?? null,
         ];
 
         $arr_filterAllFields = [
             'arr_attributes' => [],
-            'arr_producers' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'],
-            'arr_price' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'],
+            'arr_attributesMinMax' => [],
+            'arr_flexContentsLI' => [],
+            'arr_flexContentsLD' => [],
+            'arr_flexContentsLIMinMax' => [],
+            'arr_producers' => [],
+            'arr_price' => [],
         ];
+
 
         if (is_array($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes'] ?? null)) {
             foreach ($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributes'] as $int_filterAttributeId => $arr_filterValues) {
@@ -33,45 +43,214 @@ class ls_shop_filterHelper {
             }
         }
 
+        if (is_array($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLI'] ?? null)) {
+            foreach ($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLI'] as $str_flexContentLIKey => $arr_filterValues) {
+                $arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey] = [
+                    'str_title' => $str_flexContentLIKey,
+                    'arr_values' => [],
+                    'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$str_flexContentLIKey]]
+                ];
+
+                foreach ($arr_filterValues as $str_filterValue) {
+                    $arr_filterSummary['arr_flexContentsLI'][$str_flexContentLIKey]['arr_values'][$str_filterValue] = $str_filterValue;
+                }
+            }
+        }
+
+        if (is_array($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLD'][$str_currentLanguage] ?? null)) {
+            foreach ($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLD'][$str_currentLanguage] as $str_flexContentLDKey => $arr_filterValues) {
+                $arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey] = [
+                    'str_title' => $str_flexContentLDKey,
+                    'arr_values' => [],
+                    'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$str_flexContentLDKey]]
+                ];
+
+                foreach ($arr_filterValues as $str_filterValue) {
+                    $arr_filterSummary['arr_flexContentsLD'][$str_flexContentLDKey]['arr_values'][$str_filterValue] = $str_filterValue;
+                }
+            }
+        }
+
         $arrFilterFieldInfos = ls_shop_filterHelper::getFilterFieldInfos();
 
         foreach ($arrFilterFieldInfos as $filterFieldID => $arrFilterFieldInfo) {
-            if ($arrFilterFieldInfo['dataSource'] !== 'attribute') {
-                continue;
-            }
+            switch ($arrFilterFieldInfo['dataSource']) {
+                case 'price':
+                    /*
+                     * If based on the current product list there are no prices to be used as criteria in the filter form
+                     * or no values for the current price, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high'])
+                        || !($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high'])
+                    ) {
+                        break;
+                    }
+                    $arr_filterAllFields['arr_price'] = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price'];
+                    break;
 
-            /*
-             * If based on the current product list there are no attributes to be used as criteria in the filter form
-             * or no values for the current attribute, we don't create a summary item
-             */
-            if (
-                !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])
-                || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])
-                || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
-                || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
-                || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
-            ) {
-                continue;
-            }
+                case 'producer':
+                    /*
+                     * If based on the current product list there are no producers to be used as criteria in the filter form
+                     * or no values for the current producer, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
+                    ) {
+                        break;
+                    }
+                    $arr_filterAllFields['arr_producers'] = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'];
+                    break;
 
-            $int_filterAttributeId = $arrFilterFieldInfo['sourceAttribute'];
-            $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$int_filterAttributeId];
+                case 'attribute':
+                    /*
+                     * If based on the current product list there are no attributes to be used as criteria in the filter form
+                     * or no values for the current attribute, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+                    ) {
+                        break;
+                    }
 
-            $str_filterAttributeName = ls_shop_languageHelper::getMultiLanguage($int_filterAttributeId, 'tl_ls_shop_attributes', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
-            $arr_filterAllFields['arr_attributes'][$int_filterAttributeId] = [
-                'str_title' => $str_filterAttributeName,
-                'arr_values' => [],
-                'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId] ?? null] ?? null
-            ];
+                    $int_filterAttributeId = $arrFilterFieldInfo['sourceAttribute'];
+                    $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$int_filterAttributeId];
 
-            foreach ($arr_filterValues as $int_filterValueId) {
-                $str_filterValueName = ls_shop_languageHelper::getMultiLanguage($int_filterValueId, 'tl_ls_shop_attribute_values', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
-                $arr_filterAllFields['arr_attributes'][$int_filterAttributeId]['arr_values'][$int_filterValueId] = $str_filterValueName;
+                    $str_filterAttributeName = ls_shop_languageHelper::getMultiLanguage($int_filterAttributeId, 'tl_ls_shop_attributes', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
+                    $arr_filterAllFields['arr_attributes'][$int_filterAttributeId] = [
+                        'str_title' => $str_filterAttributeName,
+                        'arr_values' => [],
+                        'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$int_filterAttributeId] ?? null] ?? null
+                    ];
+
+                    foreach ($arr_filterValues as $int_filterValueId) {
+                        $str_filterValueName = ls_shop_languageHelper::getMultiLanguage($int_filterValueId, 'tl_ls_shop_attribute_values', array('title'), array($objPage->language ? $objPage->language : ls_shop_languageHelper::getFallbackLanguage()));
+                        $arr_filterAllFields['arr_attributes'][$int_filterAttributeId]['arr_values'][$int_filterValueId] = $str_filterValueName;
+                    }
+                    break;
+
+                case 'flexContentLI':
+                    /*
+                     * If based on the current product list there are no flexContentsLI to be used as criteria in the filter form
+                     * or no values for the current flexContentLI, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
+                    ) {
+                        break;
+                    }
+
+                    $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']];
+
+                    $arr_filterAllFields['arr_flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] = [
+                        'str_caption' => $arrFilterFieldInfo['title'],
+                        'str_title' => $arrFilterFieldInfo['flexContentLIKey'],
+                        'arr_values' => [],
+                        'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] ?? null] ?? null
+                    ];
+
+                    foreach ($arr_filterValues as $str_filterValue) {
+                        $arr_filterAllFields['arr_flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]['arr_values'][$str_filterValue] = $str_filterValue;
+                    }
+                    break;
+
+                case 'flexContentLD':
+                    /*
+                     * If based on the current product list there are no flexContentsLD to be used as criteria in the filter form
+                     * or no values for the current flexContentLD, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                    ) {
+                        break;
+                    }
+
+                    $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']];
+
+                    $arr_filterAllFields['arr_flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] = [
+                        'str_caption' => $arrFilterFieldInfo['title'],
+                        'str_title' => $arrFilterFieldInfo['flexContentLDKey'],
+                        'arr_values' => [],
+                        'str_logicalOperator' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['general'][$_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] ?? null] ?? null
+                    ];
+
+                    foreach ($arr_filterValues as $str_filterValue) {
+                        $arr_filterAllFields['arr_flexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']]['arr_values'][$str_filterValue] = $str_filterValue;
+                    }
+                    break;
+
+                case 'flexContentLIMinMax':
+                    /*
+                     * If based on the current product list there are no flexContentLIMinMax to be used as criteria in the filter form
+                     * or no values for the current flexContentLIMinMax, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
+                    ) {
+                        break;
+                    }
+
+                    $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']];
+
+                    $arr_filterAllFields['arr_flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']] = [
+                        'str_caption' => $arrFilterFieldInfo['title'],
+                        'str_title' => $arrFilterFieldInfo['flexContentLIKey'],
+                    ];
+
+                    $arr_filterAllFields['arr_flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']] += $arr_filterValues;
+                    break;
+
+                case 'attributesMinMax':
+                    /*
+                     * If based on the current product list there are no attributesMinMax to be used as criteria in the filter form
+                     * or no values for the current attributesMinMax, we don't create a summary item
+                     */
+                    if (
+                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
+                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                    ) {
+                        break;
+                    }
+
+                    $arr_filterValues = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']];
+
+                    $arr_filterAllFields['arr_attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']] = [
+                        'str_caption' => $arrFilterFieldInfo['title'],
+                        'str_title' => $arrFilterFieldInfo['sourceAttribute'],
+                        'low' => $arr_filterValues['low'],
+                        'high' => $arr_filterValues['high'],
+                    ];
+                    break;
             }
 
         }
 
         $bln_attributesFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_attributes']) && count($arr_filterAllFields['arr_attributes']);
+        $bln_flexContentsLIFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_flexContentsLI']) && count($arr_filterAllFields['arr_flexContentsLI']);
+        $bln_flexContentsLDFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_flexContentsLD']) && count($arr_filterAllFields['arr_flexContentsLD']);
         $bln_poducerFilterCurrentlyAvailable = is_array($arr_filterAllFields['arr_producers']) && count($arr_filterAllFields['arr_producers']);
         $bln_priceFilterCurrentlyAvailable = (
             is_array($arr_filterAllFields['arr_price'])
@@ -81,7 +260,41 @@ class ls_shop_filterHelper {
             )
         );
 
+        $bln_flexContentsLIMinMaxFilterCurrentlyAvailable = false;
+        $arr_flexContentsLIMinMaxFilterCurrentlyAvailable = [];
+        foreach($arr_filterAllFields['arr_flexContentsLIMinMax'] as $flexContentLIMinMaxKey => $flexContentLIMinMaxValues) {
+            if (
+                ($arr_filterAllFields['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'] ?? '')
+                ||
+                ($arr_filterAllFields['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'] ?? '')
+                ) {
+                $bln_flexContentsLIMinMaxFilterCurrentlyAvailable = true;
+                $arr_flexContentsLIMinMaxFilterCurrentlyAvailable[$flexContentLIMinMaxKey] = true;
+            } else {
+                $arr_flexContentsLIMinMaxFilterCurrentlyAvailable[$flexContentLIMinMaxKey] = false;
+            }
+        }
+
+        $bln_attributesMinMaxFilterCurrentlyAvailable = false;
+        $arr_attributesMinMaxFilterCurrentlyAvailable = [];
+        foreach($arr_filterAllFields['arr_attributesMinMax'] as $attributeID => $attributesMinMaxValues) {
+            if (
+                ($arr_filterAllFields['arr_attributesMinMax'][$attributeID]['low'] ?? '')
+                ||
+                ($arr_filterAllFields['arr_attributesMinMax'][$attributeID]['high'] ?? '')
+                ) {
+                $bln_attributesMinMaxFilterCurrentlyAvailable = true;
+                $arr_attributesMinMaxFilterCurrentlyAvailable[$attributeID] = true;
+            } else {
+                $arr_attributesMinMaxFilterCurrentlyAvailable[$attributeID] = false;
+            }
+        }
+
+
+
         $bln_currentlyFilteringByAttributes = is_array($arr_filterSummary['arr_attributes']) && count($arr_filterSummary['arr_attributes']);
+        $bln_currentlyFilteringByFlexContentsLI = is_array($arr_filterSummary['arr_flexContentsLI']) && count($arr_filterSummary['arr_flexContentsLI']);
+        $bln_currentlyFilteringByFlexContentsLD = is_array($arr_filterSummary['arr_flexContentsLD']) && count($arr_filterSummary['arr_flexContentsLD']);
         $bln_currentlyFilteringByProducer = is_array($arr_filterSummary['arr_producers']) && count($arr_filterSummary['arr_producers']);
         $bln_currentlyFilteringByPrice = (
             is_array($arr_filterSummary['arr_price'])
@@ -90,6 +303,32 @@ class ls_shop_filterHelper {
                 || (isset($arr_filterSummary['arr_price']['high']) && $arr_filterSummary['arr_price']['high'])
             )
         );
+
+        $bln_currentlyFilteringByFlexContentsLIMinMax = false;
+        foreach($arr_filterSummary['arr_flexContentsLIMinMax'] as $flexContentLIMinMaxKey => $flexContentLIMinMaxValues) {
+            $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['currentlyFiltering'] = false;
+            if (
+                ($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['low'] ?? '')
+                ||
+                ($arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['high'] ?? '')
+                ) {
+                $arr_filterSummary['arr_flexContentsLIMinMax'][$flexContentLIMinMaxKey]['currentlyFiltering'] = true;
+                $bln_currentlyFilteringByFlexContentsLIMinMax = true;
+            }
+        }
+
+        $bln_currentlyFilteringByAttributesMinMax = false;
+        foreach($arr_filterSummary['arr_attributesMinMax'] as $attributeID => $attributesMinMaxValues) {
+            $arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering'] = false;
+            if (
+                ($arr_filterSummary['arr_attributesMinMax'][$attributeID]['low'] ?? '')
+                ||
+                ($arr_filterSummary['arr_attributesMinMax'][$attributeID]['high'] ?? '')
+                ) {
+                $arr_filterSummary['arr_attributesMinMax'][$attributeID]['currentlyFiltering'] = true;
+                $bln_currentlyFilteringByAttributesMinMax = true;
+            }
+        }
 
 
 
@@ -103,6 +342,8 @@ class ls_shop_filterHelper {
             ->prepare("
                 SELECT  id,
                         sourceAttribute,
+                        flexContentLIKey,
+                        flexContentLDKey,
                         dataSource,
                         priority
                 FROM    tl_ls_shop_filter_fields
@@ -110,11 +351,50 @@ class ls_shop_filterHelper {
             ->execute();
 
         while ($obj_dbres_filterFieldPriorities->next()) {
-            $arr_filterFieldPriorities[$obj_dbres_filterFieldPriorities->dataSource . ($obj_dbres_filterFieldPriorities->dataSource === 'attribute' ? '_' . $obj_dbres_filterFieldPriorities->sourceAttribute : '')] = $obj_dbres_filterFieldPriorities->priority;
+            $str_priorityKeySuffix = '';
+            switch ($obj_dbres_filterFieldPriorities->dataSource) {
+                case 'attribute':
+                    $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->sourceAttribute;
+                    break;
+
+                case 'attributesMinMax':
+                    $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->sourceAttribute;
+                    break;
+
+                case 'flexContentLI':
+                    $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->flexContentLIKey;
+                    break;
+
+                case 'flexContentLD':
+                    $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->flexContentLDKey;
+                    break;
+
+                case 'flexContentLIMinMax':
+                    $str_priorityKeySuffix = '_' . $obj_dbres_filterFieldPriorities->flexContentLIKey;
+                    break;
+            }
+
+            $arr_filterFieldPriorities[$obj_dbres_filterFieldPriorities->dataSource . $str_priorityKeySuffix] = $obj_dbres_filterFieldPriorities->priority;
         }
 
         foreach (array_keys($arr_filterAllFields['arr_attributes']) as $int_filterAttributeId) {
             $arr_filterFieldSortingNumbers['attribute_' . $int_filterAttributeId] = $arr_filterFieldPriorities['attribute_' . $int_filterAttributeId];
+        }
+
+        foreach (array_keys($arr_filterAllFields['arr_attributesMinMax']) as $attributeID) {
+            $arr_filterFieldSortingNumbers['attributesMinMax_' . $attributeID] = $arr_filterFieldPriorities['attributesMinMax_' . $attributeID];
+        }
+
+        foreach (array_keys($arr_filterAllFields['arr_flexContentsLI']) as $str_flexContentLIKey) {
+            $arr_filterFieldSortingNumbers['flexContentLI_' . $str_flexContentLIKey] = $arr_filterFieldPriorities['flexContentLI_' . $str_flexContentLIKey];
+        }
+
+        foreach (array_keys($arr_filterAllFields['arr_flexContentsLD']) as $str_flexContentLDKey) {
+            $arr_filterFieldSortingNumbers['flexContentLD_' . $str_flexContentLDKey] = $arr_filterFieldPriorities['flexContentLD_' . $str_flexContentLDKey];
+        }
+
+        foreach (array_keys($arr_filterAllFields['arr_flexContentsLIMinMax']) as $str_flexContentLIMinMaxKey) {
+            $arr_filterFieldSortingNumbers['flexContentLIMinMax_' . $str_flexContentLIMinMaxKey] = $arr_filterFieldPriorities['flexContentLIMinMax_' . $str_flexContentLIMinMaxKey];
         }
 
         if ($bln_poducerFilterCurrentlyAvailable) {
@@ -141,9 +421,19 @@ class ls_shop_filterHelper {
             'arr_filterAllFields' => $arr_filterAllFields,
             'int_numAvailableFilterFields' => ($bln_poducerFilterCurrentlyAvailable ? 1 : 0) + ($bln_priceFilterCurrentlyAvailable ? 1 : 0) + count($arr_filterAllFields['arr_attributes']),
             'bln_attributesFilterCurrentlyAvailable' => $bln_attributesFilterCurrentlyAvailable,
+            'bln_attributesMinMaxFilterCurrentlyAvailable' => $bln_attributesMinMaxFilterCurrentlyAvailable,
+            'arr_attributesMinMaxFilterCurrentlyAvailable' => $arr_attributesMinMaxFilterCurrentlyAvailable,
+            'bln_flexContentsLIFilterCurrentlyAvailable' => $bln_flexContentsLIFilterCurrentlyAvailable,
+            'bln_flexContentsLDFilterCurrentlyAvailable' => $bln_flexContentsLDFilterCurrentlyAvailable,
+            'bln_flexContentsLIMinMaxFilterCurrentlyAvailable' => $bln_flexContentsLIMinMaxFilterCurrentlyAvailable,
+            'arr_flexContentsLIMinMaxFilterCurrentlyAvailable' => $arr_flexContentsLIMinMaxFilterCurrentlyAvailable,
             'bln_poducerFilterCurrentlyAvailable' => $bln_poducerFilterCurrentlyAvailable,
             'bln_priceFilterCurrentlyAvailable' => $bln_priceFilterCurrentlyAvailable,
             'bln_currentlyFilteringByAttributes' => $bln_currentlyFilteringByAttributes,
+            'bln_currentlyFilteringByAttributesMinMax' => $bln_currentlyFilteringByAttributesMinMax,
+            'bln_currentlyFilteringByFlexContentsLI' => $bln_currentlyFilteringByFlexContentsLI,
+            'bln_currentlyFilteringByFlexContentsLD' => $bln_currentlyFilteringByFlexContentsLD,
+            'bln_currentlyFilteringByFlexContentsLIMinMax' => $bln_currentlyFilteringByFlexContentsLIMinMax,
             'bln_currentlyFilteringByProducer' => $bln_currentlyFilteringByProducer,
             'bln_currentlyFilteringByPrice' => $bln_currentlyFilteringByPrice,
             'arr_filterFieldSortingNumbers' => $arr_filterFieldSortingNumbers
@@ -162,19 +452,34 @@ class ls_shop_filterHelper {
         $obj_template->arr_filterAllFields = $arr_summaryData['arr_filterAllFields'];
         $obj_template->int_numAvailableFilterFields = $arr_summaryData['int_numAvailableFilterFields'];
         $obj_template->bln_attributesFilterCurrentlyAvailable = $arr_summaryData['bln_attributesFilterCurrentlyAvailable'];
+        $obj_template->bln_attributesMinMaxFilterCurrentlyAvailable = $arr_summaryData['bln_attributesMinMaxFilterCurrentlyAvailable'];
+        $obj_template->arr_attributesMinMaxFilterCurrentlyAvailable = $arr_summaryData['arr_attributesMinMaxFilterCurrentlyAvailable'];
+        $obj_template->bln_flexContentsLIFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLIFilterCurrentlyAvailable'];
+        $obj_template->bln_flexContentsLDFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLDFilterCurrentlyAvailable'];
+        $obj_template->bln_flexContentsLIMinMaxFilterCurrentlyAvailable = $arr_summaryData['bln_flexContentsLIMinMaxFilterCurrentlyAvailable'];
+        $obj_template->arr_flexContentsLIMinMaxFilterCurrentlyAvailable = $arr_summaryData['arr_flexContentsLIMinMaxFilterCurrentlyAvailable'];
         $obj_template->bln_poducerFilterCurrentlyAvailable = $arr_summaryData['bln_poducerFilterCurrentlyAvailable'];
         $obj_template->bln_priceFilterCurrentlyAvailable = $arr_summaryData['bln_priceFilterCurrentlyAvailable'];
         $obj_template->bln_currentlyFilteringByAttributes = $arr_summaryData['bln_currentlyFilteringByAttributes'];
+        $obj_template->bln_currentlyFilteringByAttributesMinMax = $arr_summaryData['bln_currentlyFilteringByAttributesMinMax'];
+        $obj_template->bln_currentlyFilteringByFlexContentsLI = $arr_summaryData['bln_currentlyFilteringByFlexContentsLI'];
+        $obj_template->bln_currentlyFilteringByFlexContentsLD = $arr_summaryData['bln_currentlyFilteringByFlexContentsLD'];
+        $obj_template->bln_currentlyFilteringByFlexContentsLIMinMax = $arr_summaryData['bln_currentlyFilteringByFlexContentsLIMinMax'];
         $obj_template->bln_currentlyFilteringByProducer = $arr_summaryData['bln_currentlyFilteringByProducer'];
         $obj_template->bln_currentlyFilteringByPrice = $arr_summaryData['bln_currentlyFilteringByPrice'];
         $obj_template->arr_filterFieldSortingNumbers = $arr_summaryData['arr_filterFieldSortingNumbers'];
-        return $obj_template->parse();
+        $str_filterSummaryHtml = $obj_template->parse();
+        return $str_filterSummaryHtml;
     }
 
 	public static function createEmptyFilterSession() {
 		$_SESSION['lsShop']['filter'] = array(
 			'criteria' => array(
 				'attributes' => array(),
+                'attributesMinMax' => array(),
+				'flexContentsLI' => array(),
+                'flexContentsLD' => array(),
+                'flexContentsLIMinMax' => array(),
 				'price' => array(
 					'low' => 0,
 					'high' => 0
@@ -183,6 +488,10 @@ class ls_shop_filterHelper {
 			),
 			'arrCriteriaToUseInFilterForm' => array(
 				'attributes' => array(),
+                'attributesMinMax' => array(),
+				'flexContentsLI' => array(),
+                'flexContentsLD' => array(),
+                'flexContentsLIMinMax' => array(),
 				'price' => array(
 					'low' => null,
 					'high' => null
@@ -193,6 +502,8 @@ class ls_shop_filterHelper {
 			'matchedVariants' => array(),
 			'matchEstimates' => array(
 				'attributeValues' => array(),
+				'flexContentLIValues' => array(),
+                'flexContentLDValues' => array(),
 				'producers' => array()
 			),
 			'lastResetTimestamp' => time(),
@@ -231,6 +542,20 @@ class ls_shop_filterHelper {
 					$arrFilterFieldValues[] = $tmpFilterFieldValue;
 				}
 				break;
+
+			case 'flexContentLI':
+				$arr_flexContentLIValues = ls_shop_generalHelper::getFlexContentLIValues($arrFilterFieldInfo['flexContentLIKey']);
+				foreach ($arr_flexContentLIValues as $str_flexContentLIValue) {
+					$arrFilterFieldValues[] = ['filterValue' => $str_flexContentLIValue];
+				}
+				break;
+
+			case 'flexContentLD':
+				$arr_flexContentLDValues = ls_shop_generalHelper::getFlexContentLDValues($arrFilterFieldInfo['flexContentLDKey']);
+				foreach ($arr_flexContentLDValues as $str_flexContentLDValue) {
+					$arrFilterFieldValues[] = ['filterValue' => $str_flexContentLDValue];
+				}
+				break;
 		}
 
 		return $arrFilterFieldValues;
@@ -266,6 +591,11 @@ class ls_shop_filterHelper {
 	public static function resetCriteriaToUseInFilterForm() {
 		$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] = array(
 			'attributes' => array(),
+            'attributesMinMax' => array(),
+            'flexContentsLI' => array(),
+            'flexContentsLD' => array(),
+            'flexContentsLIMinMax' => array(
+			),
 			'price' => array(
 				'low' => null,
 				'high' => null
@@ -312,6 +642,191 @@ class ls_shop_filterHelper {
 		}
 	}
 
+
+    /** The DB values ​​of products are consolidated (for filter creation) into the product/variant structure.
+     *  Since the data for standard FCLI and numerical FCLI are stored in the same field, the separation occurs here.
+     *  Numerical FCLI must be numerical and the limit values ​​are determined immediately
+     *
+     * @param   array       $FCLIs              flexContent Language Independent of product or Variant
+     * @param   string      $type               ´flex_contentsLIMinMax´ or ´flex_contentsLanguageIndependent´
+     * @param   bool        $rangeForProduct    boolean, true if product
+     * @return  array       $result             low and high values and lowest/highest for products
+     */
+    public static function processFCLI($FCLIs, $type, $rangeForProduct = false)
+    {
+        if (!is_array($FCLIs) ) {
+            return;
+        }
+        $result = [];
+
+        foreach ($FCLIs as $flexContentLIKey => $flexContentLIValues) {
+            $min = null;
+            $max = null;
+
+            if ($type == 'flex_contentsLIMinMax' && self::isFCLIMinMax($flexContentLIKey)) {
+
+                if (!is_array($flexContentLIValues)) {
+                    $flexContentLIValues = [$flexContentLIValues];
+                }
+
+                //The filter must simply ignore non-numerical values in Z-FCLIs
+                $flexContentLIValues = array_filter($flexContentLIValues, 'is_numeric');
+
+                if (!count($flexContentLIValues)) {
+                    continue;
+                }
+
+                foreach ($flexContentLIValues as $flexContentLIValue) {
+                    self::determineMinMaxValues($flexContentLIValue, $min, $max);
+                }
+
+                $result += [$flexContentLIKey => ['low' => $min, 'high' => $max]];
+
+                if ($rangeForProduct) {
+                    $result[$flexContentLIKey] += ['lowestValue' => $min, 'highestValue' => $max];
+                }
+
+            } else if ($type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($flexContentLIKey)) {
+                $result = [$flexContentLIKey => $flexContentLIValues];
+            }
+        }
+        return $result;
+    }
+
+    /** Compares the LI key with the list of LI MinMax keys and returns true if it is included
+     *
+     * @param $flexContentLIKey         FCLI Key to compare
+     * @return true|false               True if FCLI MinMax, false if standard FCLI
+     */
+    public static function isFCLIMinMax($flexContentLIKey)
+    {
+        if (!isset($_SESSION['lsShop']['filter']['flexContentLIKeys'])) {
+            /**
+            *  Since the information about FCLI as to whether it is of the min/max type is not stored with the
+            *  product (or variant), the keys of the filter fields must be fetched and assigned subsequently
+            */
+            $_SESSION['lsShop']['filter']['flexContentLIKeys'] = ls_shop_generalHelper::getFlexContentLIMinMaxKeys();
+        }
+
+        return (in_array($flexContentLIKey, $_SESSION['lsShop']['filter']['flexContentLIKeys']));
+    }
+
+
+    public static function addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
+		if (!$str_flexContentLIKey || !$var_value) {
+			return;
+		}
+
+		if (is_array($var_value)) {
+			foreach ($var_value as $str_value) {
+				self::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_value, $where);
+			}
+			return;
+		}
+
+		if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey] = array();
+		}
+
+		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLI'][$str_flexContentLIKey][] = $var_value;
+		}
+	}
+
+
+    public static function addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
+		if (!$str_flexContentLIKey || $var_value === null) {
+			return;
+		}
+        if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey])) {
+            $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey] = [];
+        }
+        if (empty($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'])
+            || $var_value < $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low']) {
+            $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['low'] = $var_value;
+        }
+        if (empty($_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'])
+            || $var_value > $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high']) {
+            $_SESSION['lsShop']['filter'][$where]['flexContentsLIMinMax'][$str_flexContentLIKey]['high'] = $var_value;
+        }
+	}
+
+    /**
+     * Each product and variant attribute and its numerical values ​​are compared with the overall filter array
+     * and the highest or
+     * lowest value are adopted.
+     * It therefore represents the MinMax limit value determination for attribute areas.
+     *
+     * @param int           $attributeID        New value for the range limit
+     * @param int           $value              numerischer Wert den es zu prüfen gilt
+     * @param string        $where              Unterschlüssel für die lsShop-filter Sessionvariable
+     * @return void
+     */
+    public static function addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID = null, $value = null, $where = 'arrCriteriaToUseInFilterForm') {
+		if (!$attributeID || $value === null) {
+			return;
+		}
+        if (!isset($_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID])) {
+            $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID] = [];
+        }
+        if (empty($_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['low'])
+            || $value < $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['low']) {
+            $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['low'] = $value;
+        }
+        if (empty($_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['high'])
+            || $value > $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['high']) {
+            $_SESSION['lsShop']['filter'][$where]['attributesMinMax'][$attributeID]['high'] = $value;
+        }
+	}
+
+    /** This function determines a range limit by comparing the passed value with the current range limits and updating it accordingly
+     *
+     * @param $value                    New value for the range limit
+     * @param $variableMin              Reference variable for the min value
+     * @param $variableMax              Reference variable for the max value
+     * @return void
+     */
+    public static function determineMinMaxValues($value, &$variableMin,&$variableMax
+    #, $checkZero = false
+    )
+    {
+        $value = (float) $value;
+
+        if ($variableMin === null || $value < $variableMin) {
+            $variableMin = $value;
+        }
+        if ($variableMax === null || $value > $variableMax) {
+            $variableMax = $value;
+        }
+
+
+    }
+
+
+	public static function addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey = null, $var_value = null, $where = 'arrCriteriaToUseInFilterForm') {
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
+		if (!$str_flexContentLDKey || !$var_value) {
+			return;
+		}
+
+		if (is_array($var_value)) {
+			foreach ($var_value as $str_value) {
+				self::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_value, $where);
+			}
+			return;
+		}
+
+		if (!isset($_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_currentLanguage][$str_flexContentLDKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_currentLanguage][$str_flexContentLDKey] = array();
+		}
+
+		if (!in_array($var_value, $_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_currentLanguage][$str_flexContentLDKey])) {
+			$_SESSION['lsShop']['filter'][$where]['flexContentsLD'][$str_currentLanguage][$str_flexContentLDKey][] = $var_value;
+		}
+	}
+
 	/*
 	 * This function checks whether a product matches the filter or not. Several
 	 * checks are performed in this function and as soon as one filter criteria
@@ -323,6 +838,9 @@ class ls_shop_filterHelper {
 	 * product lists as well.
 	 */
 	public static function checkIfProductMatchesFilter($arrProductInfo = null, $arrCriteriaToFilterWith = null, $blnStoreProductAndVariantMatchesInSession = true, &$numVariantMatches = 0) {
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		if (!$arrCriteriaToFilterWith) {
 			$arrCriteriaToFilterWith = $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'];
 		}
@@ -374,6 +892,162 @@ class ls_shop_filterHelper {
 				}
 			}
 		}
+
+		/*
+		 * Check the product's flexContentsLI
+		 */
+		if ($blnWholeProductCouldStillMatch) {
+			if (is_array($arrCriteriaToFilterWith['flexContentsLI'])) {
+				foreach ($arrCriteriaToFilterWith['flexContentsLI'] as $str_flexContentLIKey => $arr_flexContentLIValues) {
+					/*
+					 * The array returned by array_intersect() contains the requested flexContentLI values which
+					 * are also included in the product's flexContentLI values for the respective flexContentLIKey.
+					 *
+					 * In filterMode "or": If we get at least one flexContentLI value
+					 * that matches, the product is a match for this flexContentLI,
+					 * otherwise it's not and we return false.
+					 *
+					 * In filterMode "and": If all the flexContentLI values match,
+					 * the product is a match for this flexContentLI, otherwise it's
+					 * not and we return false.
+					 */
+
+                    /*
+                     * It is unclear whether the product actually has the relevant flexContentLI and if it has,
+                     * the flexContentLI must not necessarily be an array. Therefore, we make sure that we always
+                     * have a proper array for the filter check.
+                     */
+                    $arr_productFlexContentLIValuesToCompareWithFilterRequirements = (array) ($arrProductInfo['flex_contentsLanguageIndependent'][$str_flexContentLIKey] ?? []);
+
+                    if (($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$str_flexContentLIKey] ?? null) === 'and') {
+						if (count(array_intersect($arr_flexContentLIValues, $arr_productFlexContentLIValuesToCompareWithFilterRequirements)) !== count($arr_flexContentLIValues)) {
+							$blnWholeProductCouldStillMatch = false;
+							break;
+						}
+					} else {
+						if (!count(array_intersect($arr_flexContentLIValues, $arr_productFlexContentLIValuesToCompareWithFilterRequirements))) {
+							$blnWholeProductCouldStillMatch = false;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		/*
+		 * Check the product's flexContentsLD
+		 */
+		if ($blnWholeProductCouldStillMatch) {
+			if (is_array($arrCriteriaToFilterWith['flexContentsLD']) && isset($arrCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage])) {
+				foreach ($arrCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage] as $str_flexContentLDKey => $arr_flexContentLDValues) {
+					/*
+					 * The array returned by array_intersect() contains the requested flexContentLD values which
+					 * are also included in the product's flexContentLD values for the respective flexContentLDKey.
+					 *
+					 * In filterMode "or": If we get at least one flexContentLD value
+					 * that matches, the product is a match for this flexContentLD,
+					 * otherwise it's not and we return false.
+					 *
+					 * In filterMode "and": If all the flexContentLD values match,
+					 * the product is a match for this flexContentLD, otherwise it's
+					 * not and we return false.
+					 */
+
+                    /*
+                     * It is unclear whether the product actually has the relevant flexContentLD and if it has,
+                     * the flexContentLD must not necessarily be an array. Therefore, we make sure that we always
+                     * have a proper array for the filter check.
+                     */
+                    $arr_productFlexContentLDValuesToCompareWithFilterRequirements = (array) ($arrProductInfo['flex_contents_'.$str_currentLanguage][$str_flexContentLDKey] ?? []);
+
+                    if (($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$str_flexContentLDKey] ?? null) === 'and') {
+						if (count(array_intersect($arr_flexContentLDValues, $arr_productFlexContentLDValuesToCompareWithFilterRequirements)) !== count($arr_flexContentLDValues)) {
+							$blnWholeProductCouldStillMatch = false;
+							break;
+						}
+					} else {
+						if (!count(array_intersect($arr_flexContentLDValues, $arr_productFlexContentLDValuesToCompareWithFilterRequirements))) {
+							$blnWholeProductCouldStillMatch = false;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		/*
+		 * Check the product's flexContentsLI MinMax
+		 */
+		if ($blnWholeProductCouldStillMatch) {
+			if (is_array($arrCriteriaToFilterWith['flexContentsLIMinMax'])) {
+				foreach ($arrCriteriaToFilterWith['flexContentsLIMinMax'] as $str_flexContentLIMinMaxKey => $arr_flexContentLIMinMaxValues) {
+					/*
+					 * The array returned by array_intersect() contains the requested flexContentLI values which
+					 * are also included in the product's flexContentLI values for the respective flexContentLIKey.
+					 *
+					 */
+                    /*
+                     * Ignore the range filter if the high filter range is not higher than 0 and not as least as high as the low filter range.
+                     * This way it is possible to skip the range filter part by setting both filter parameters to 0.
+                     */
+                    if ($arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']
+                        >= $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                        && $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high'] > 0) {
+                        if (!count($arrProductInfo['variants'])) {
+                            /*
+                             * If the product doesn't have variants, the product's FCLI has to be checked
+                             */
+                            if (!isset($arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]) ||
+                                $arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['high'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                || $arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['low'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                                $blnWholeProductCouldStillMatch = false;
+                            }
+                        } else {
+                            /*
+                             * If the product has variants, we have to use it's highest and lowest FCLI to see,
+                             * if it is possible to match or filter out the whole product or if we have to
+                             * check each variant separately.
+                             */
+
+                            if (isset($arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]) &&
+                                $arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                && $arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                                /*
+                                 * If the product's lowest value is higher than the low filter limit and the product's highest value is lower than the high filter limit,
+                                 * this means that all product variants must be within the value range and, regarding the value, the product matches as a whole.
+                                 */
+                            } else if (!isset($arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey])                                ||
+                                $arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['low']
+                                || $arrProductInfo['flex_contentsLIMinMax'][$str_flexContentLIMinMaxKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$str_flexContentLIMinMaxKey]['high']) {
+                                /*
+                                 * If even the product's highest value is lower than the low filter limit or it's lowest
+                                 * value is higher than the high filter limit, this means that none of it's variants
+                                 * has a value within the range and the product has to be filtered out as a whole.
+                                 */
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = false;
+                            } else {
+                                /*
+                                 * If none of the above is true, this means that there's definitely a variant that has a value outside the range
+                                 * but there could be one ore more variants that have a value within.
+                                 */
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = true;
+                            }
+
+                        }
+                    }
+				}
+			}
+		}
+
+
+//TODO: die Funktion kann bei FCLIMinMax eingesetzt werden
+        /*
+		 * Check the product's Attributes MinMax
+		 */
+        self::checkIfProductMatchesFilter_ranges( $blnWholeProductCouldStillMatch, $blnVariantsCouldStillMatch, $arrCriteriaToFilterWith, $arrProductInfo, 'attributesMinMax' );
+
 
 		/*
 		 * Check the prices
@@ -494,6 +1168,102 @@ class ls_shop_filterHelper {
 					}
 				}
 
+                /*
+                 * Check the variant's flexContentsLI
+                 */
+                if ($blnThisVariantCouldStillMatch) {
+                    if (is_array($arrCriteriaToFilterWith['flexContentsLI'])) {
+                        foreach ($arrCriteriaToFilterWith['flexContentsLI'] as $str_flexContentLIKey => $arr_flexContentLIValues) {
+                            /*
+                             * The array returned by array_intersect() contains the requested flexContentLI values which
+                             * are also included in the variant's flexContentLI values for the respective flexContentLIKey.
+                             *
+                             * In filterMode "or": If we get at least one flexContentLI value
+                             * that matches, the variant is a match for this flexContentLI,
+                             * otherwise it's not and we return false.
+                             *
+                             * In filterMode "and": If all the flexContentLI values match,
+                             * the variant is a match for this flexContentLI, otherwise it's
+                             * not and we return false.
+                             */
+
+                            /*
+                             * It is unclear whether the variant actually has the relevant flexContentLI and if it has,
+                             * the flexContentLI must not necessarily be an array. Therefore, we make sure that we always
+                             * have a proper array for the filter check.
+                             *
+                             * Important: A variant could possibly fail to match the filter because it does not have
+                             * a required flex content. However, if the product has the required flex content, we assume
+                             * that the product's flex content can be considered as a "master value" that applies to
+                             * all the product's variants as well. Therefore, we merge the product's flex content values
+                             * into the variant's flex content values before performing the filter checks.
+                             */
+                            $arr_variantFlexContentLIValuesToCompareWithFilterRequirements = (array) ($arrVariantInfo['flex_contentsLanguageIndependent'][$str_flexContentLIKey] ?? []);
+                            $arr_mergedProductAndVariantFlexContentLIValuesToCompareWithFilterRequirements = array_merge($arr_variantFlexContentLIValuesToCompareWithFilterRequirements, $arr_productFlexContentLIValuesToCompareWithFilterRequirements ?? []);
+
+                            if (($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$str_flexContentLIKey] ?? null) === 'and') {
+                                if (count(array_intersect($arr_flexContentLIValues, $arr_mergedProductAndVariantFlexContentLIValuesToCompareWithFilterRequirements)) !== count($arr_flexContentLIValues)) {
+                                    $blnThisVariantCouldStillMatch = false;
+                                    break;
+                                }
+                            } else {
+                                if (!count(array_intersect($arr_flexContentLIValues, $arr_mergedProductAndVariantFlexContentLIValuesToCompareWithFilterRequirements))) {
+                                    $blnThisVariantCouldStillMatch = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                /*
+                 * Check the variant's flexContentsLD
+                 */
+                if ($blnThisVariantCouldStillMatch) {
+                    if (is_array($arrCriteriaToFilterWith['flexContentsLD']) && isset($arrCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage])) {
+                        foreach ($arrCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage] as $str_flexContentLDKey => $arr_flexContentLDValues) {
+                            /*
+                             * The array returned by array_intersect() contains the requested flexContentLD values which
+                             * are also included in the variant's flexContentLD values for the respective flexContentLDKey.
+                             *
+                             * In filterMode "or": If we get at least one flexContentLD value
+                             * that matches, the variant is a match for this flexContentLD,
+                             * otherwise it's not and we return false.
+                             *
+                             * In filterMode "and": If all the flexContentLD values match,
+                             * the variant is a match for this flexContentLD, otherwise it's
+                             * not and we return false.
+                             */
+
+                            /*
+                             * It is unclear whether the variant actually has the relevant flexContentLD and if it has,
+                             * the flexContentLD must not necessarily be an array. Therefore, we make sure that we always
+                             * have a proper array for the filter check.
+                             *
+                             * Important: A variant could possibly fail to match the filter because it does not have
+                             * a required flex content. However, if the product has the required flex content, we assume
+                             * that the product's flex content can be considered as a "master value" that applies to
+                             * all the product's variants as well. Therefore, we merge the product's flex content values
+                             * into the variant's flex content values before performing the filter checks.
+                             */
+                            $arr_variantFlexContentLDValuesToCompareWithFilterRequirements = (array) ($arrVariantInfo['flex_contents_'.$str_currentLanguage][$str_flexContentLDKey] ?? []);
+                            $arr_mergedProductAndVariantFlexContentLDValuesToCompareWithFilterRequirements = array_merge($arr_variantFlexContentLDValuesToCompareWithFilterRequirements, $arr_productFlexContentLDValuesToCompareWithFilterRequirements ?? []);
+
+                            if (($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$str_flexContentLDKey] ?? null) === 'and') {
+                                if (count(array_intersect($arr_flexContentLDValues, $arr_mergedProductAndVariantFlexContentLDValuesToCompareWithFilterRequirements)) !== count($arr_flexContentLDValues)) {
+                                    $blnThisVariantCouldStillMatch = false;
+                                    break;
+                                }
+                            } else {
+                                if (!count(array_intersect($arr_flexContentLDValues, $arr_mergedProductAndVariantFlexContentLDValuesToCompareWithFilterRequirements))) {
+                                    $blnThisVariantCouldStillMatch = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
 				if ($blnThisVariantCouldStillMatch) {
 					/*
 					 * Ignore the price filter if the high filter price is not higher than 0 and not as least as high as the low filter price.
@@ -575,6 +1345,87 @@ class ls_shop_filterHelper {
 		}
 	}
 
+
+    /*  Since the check for areas with FCLIMinMax and attributesMinMax is the same, they can be outsourced to a function
+     *
+     * @param   boolean     $blnWholeProductCouldStillMatch     byref, true if the product has not been excluded by this filter-check
+     * @param   boolean     $blnVariantsCouldStillMatch         byref, false if there isn't even a variant that fits the filter
+     * @param   array       $arrCriteriaToFilterWith            comes from ´criteriaToActuallyFilterWith´
+     * @param   array       $arrProductInfo                     current product data that has to be checked
+     * @param   string      $criteriaKey                        current criteria to check e.g. attributesMinMax
+     *
+     * @return  void
+     * */
+    private static function checkIfProductMatchesFilter_ranges(&$blnWholeProductCouldStillMatch, &$blnVariantsCouldStillMatch, $arrCriteriaToFilterWith, $arrProductInfo, $criteriaKey)
+    {
+        /*
+		 * Check the product's MinMax range
+		 */
+		if ($blnWholeProductCouldStillMatch) {
+			if (is_array($arrCriteriaToFilterWith[$criteriaKey])) {
+				foreach ($arrCriteriaToFilterWith[$criteriaKey] as $rangeKey => $rangeValues) {
+					/*
+					 * The array returned by array_intersect() contains the requested MinMax values which
+					 * are also included in the product's MinMax values for the respective key.
+					 *
+					 */
+                    /*
+                     * Ignore the range filter if the high filter range is not higher than 0 and not as least as high as the low filter range.
+                     * This way it is possible to skip the range filter part by setting both filter parameters to 0.
+                     */
+                    if ($arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['high']
+                        >= $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['low']
+                        && $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['high'] > 0) {
+                        if (!count($arrProductInfo['variants'])) {
+                            /*
+                             * If the product doesn't have variants, the product's Range has to be checked
+                             */
+                            if (!isset($arrProductInfo[$criteriaKey][$rangeKey]) ||
+                                $arrProductInfo[$criteriaKey][$rangeKey]['high'] < $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['low']
+                                || $arrProductInfo[$criteriaKey][$rangeKey]['low'] > $arrCriteriaToFilterWith[$criteriaKey][$rangeKey]['high']) {
+                                $blnWholeProductCouldStillMatch = false;
+                            }
+                        } else {
+                            /*
+                             * If the product has variants, we have to use it's highest and lowest Rangevalues to see,
+                             * if it is possible to match or filter out the whole product or if we have to
+                             * check each variant separately.
+                             */
+
+                            if (isset($arrProductInfo[$criteriaKey][$rangeKey]) &&
+                                $arrProductInfo[$criteriaKey][$rangeKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$rangeKey]['low']
+                                && $arrProductInfo[$criteriaKey][$rangeKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$rangeKey]['high']) {
+                                /*
+                                 * If the product's lowest value is higher than the low filter limit and the product's highest value is lower than the high filter limit,
+                                 * this means that all product variants must be within the value range and, regarding the value, the product matches as a whole.
+                                 */
+                            } else if (!isset($arrProductInfo[$criteriaKey][$rangeKey])                                ||
+                                $arrProductInfo[$criteriaKey][$rangeKey]['highestValue'] < $arrCriteriaToFilterWith['flexContentsLIMinMax'][$rangeKey]['low']
+                                || $arrProductInfo[$criteriaKey][$rangeKey]['lowestValue'] > $arrCriteriaToFilterWith['flexContentsLIMinMax'][$rangeKey]['high']) {
+                                /*
+                                 * If even the product's highest value is lower than the low filter limit or it's lowest
+                                 * value is higher than the high filter limit, this means that none of it's variants
+                                 * has a value within the range and the product has to be filtered out as a whole.
+                                 */
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = false;
+                            } else {
+                                /*
+                                 * If none of the above is true, this means that there's definitely a variant that has a value outside the range
+                                 * but there could be one ore more variants that have a value within.
+                                 */
+                                $blnWholeProductCouldStillMatch = false;
+                                $blnVariantsCouldStillMatch = true;
+                            }
+
+                        }
+                    }
+				}
+			}
+		}
+    }
+
+
 	public static function resetMatchedProductsAndVariants() {
 		$_SESSION['lsShop']['filter']['matchedProducts'] = array();
 		$_SESSION['lsShop']['filter']['matchedVariants'] = array();
@@ -642,15 +1493,45 @@ class ls_shop_filterHelper {
 		/*
 		 * Reset the price range if it is no longer in the filter form
 		 */
-		if ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'] == $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
+		if (!$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'] && !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
 			$_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['price'] = array(
 				'low' => null,
 				'high' => null
 			);
 		}
+
+        foreach($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'] as $FCLIKey => $FCLIValues) {
+            if (
+                !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$FCLIKey]['low'] &&
+                !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$FCLIKey]['high']
+                ) {
+                $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['flexContentsLIMinMax'][$FCLIKey] = array(
+                    'low' => null,
+				    'high' => null
+                );
+            }
+        }
+
+//TODO: diesen Block prüfen,
+        foreach($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'] as $attributeID => $attributeValues) {
+            if (
+                !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$attributeID]['low'] &&
+                !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$attributeID]['high']
+                ) {
+                $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributesMinMax'][$attributeID] = array(
+                    'low' => null,
+				    'high' => null
+                );
+            }
+        }
+
 	}
 
 	public static function setCriteriaToUseInFilterForm($arrProductsComplete = array()) {
+
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		if (!isset($GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'])) {
 			$GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'] = true;
 		}
@@ -673,10 +1554,48 @@ class ls_shop_filterHelper {
 			foreach ($arrProduct['attributeAndValueIDs'] as $intAttributeID => $arrValueIDs) {
 				ls_shop_filterHelper::addAttributeValueToCriteriaUsedInFilterForm($intAttributeID, $arrValueIDs);
 			}
+			foreach ($arrProduct['attributesMinMax'] as $attributeID => $attributeValues) {
+                if (!isset($attributeValues['lowestValue'])) {
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['low']);
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['high']);
+                } else {
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['lowestValue']);
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['highestValue']);
+                }
+			}
+			foreach ($arrProduct['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
+				ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
+			}
+            foreach ($arrProduct['flex_contentsLIMinMax'] as $str_flexContentLIMinMaxKey => $str_flexContentLIMinMaxValue) {
+                if (!isset($str_flexContentLIMinMaxValue['lowestValue'])) {
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['low']);
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['high']);
+                } else {
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['lowestValue']);
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['highestValue']);
+                }
+            }
+            foreach ($arrProduct['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
+				ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
+			}
 			foreach ($arrProduct['variants'] as $arrVariant) {
 				foreach ($arrVariant['attributeAndValueIDs'] as $intAttributeID => $arrValueIDs) {
 					ls_shop_filterHelper::addAttributeValueToCriteriaUsedInFilterForm($intAttributeID, $arrValueIDs);
 				}
+                foreach ($arrVariant['attributesMinMax'] as $attributeID => $attributeValues) {
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['low']);
+                    ls_shop_filterHelper::addAttributeMinMaxToCriteriaUsedInFilterForm($attributeID, $attributeValues['high']);
+                }
+                foreach ($arrVariant['flex_contentsLanguageIndependent'] as $str_flexContentLIKey => $str_flexContentLIValue) {
+                    ls_shop_filterHelper::addFlexContentLIValueToCriteriaUsedInFilterForm($str_flexContentLIKey, $str_flexContentLIValue);
+                }
+                foreach ($arrVariant['flex_contentsLIMinMax'] as $str_flexContentLIMinMaxKey => $str_flexContentLIMinMaxValue) {
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['low']);
+                    ls_shop_filterHelper::addFlexContentLIMinMaxValueToCriteriaUsedInFilterForm($str_flexContentLIMinMaxKey, $str_flexContentLIMinMaxValue['high']);
+                }
+                foreach ($arrVariant['flex_contents_'.$str_currentLanguage] as $str_flexContentLDKey => $str_flexContentLDValue) {
+                    ls_shop_filterHelper::addFlexContentLDValueToCriteriaUsedInFilterForm($str_flexContentLDKey, $str_flexContentLDValue);
+                }
 			}
 		}
 
@@ -725,6 +1644,12 @@ class ls_shop_filterHelper {
 	}
 
 	public static function handleFilterModeSettings() {
+        self::handleFilterModeSettingsForAttributes();
+        self::handleFilterModeSettingsForFlexContentsLI();
+        self::handleFilterModeSettingsForFlexContentsLD();
+    }
+
+	public static function handleFilterModeSettingsForAttributes() {
 		if (!isset($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'])) {
 			$_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] = array();
 		}
@@ -738,7 +1663,52 @@ class ls_shop_filterHelper {
 		}
 	}
 
+	public static function handleFilterModeSettingsForFlexContentsLI() {
+        if (!isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'])) {
+            $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'] = array();
+        }
+
+        $arr_filterModeInput = \Input::post('filterModeForFlexContentLI');
+
+        if (is_array($arr_filterModeInput)) {
+            foreach ($arr_filterModeInput as $str_flexContentLIKey => $str_filterMode) {
+                $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$str_flexContentLIKey] = $str_filterMode;
+            }
+        }
+	}
+
+	public static function handleFilterModeSettingsForFlexContentsLD() {
+        if (!isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'])) {
+            $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'] = array();
+        }
+
+        $arr_filterModeInput = \Input::post('filterModeForFlexContentLD');
+
+        if (is_array($arr_filterModeInput)) {
+            foreach ($arr_filterModeInput as $str_flexContentLDKey => $str_filterMode) {
+                $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$str_flexContentLDKey] = $str_filterMode;
+            }
+        }
+	}
+
+    public static function handleFilterModeSettingsForFlexContentsLIMinMax() {
+        if (!isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLIMinMax'])) {
+            $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLIMinMax'] = array();
+        }
+
+        $arr_filterModeInput = \Input::post('filterModeForFlexContentLIMinMax');
+
+        if (is_array($arr_filterModeInput)) {
+            foreach ($arr_filterModeInput as $str_flexContentLIMinMaxKey => $str_filterMode) {
+                $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLIMinMax'][$str_flexContentLIMinMaxKey] = $str_filterMode;
+            }
+        }
+	}
+
 	public static function setFilter($what = '', $varValue) {
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		if (!$what) {
 			return;
 		}
@@ -786,6 +1756,91 @@ class ls_shop_filterHelper {
 
 					$_SESSION['lsShop']['filter']['criteria']['attributes'][$varValue['attributeID']] = $varValue['value'];
 				}
+				break;
+
+			case 'attributesMinMax':
+                $_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$varValue['attributeID']]['low'] = $varValue['low'];
+				$_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$varValue['attributeID']]['high'] = $varValue['high'];
+				break;
+
+			case 'flexContentsLI':
+				if (!$varValue['value']) {
+					unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$varValue['flexContentLIKey']]);
+				} else {
+					$varValue['value'] = is_array($varValue['value']) ? $varValue['value'] : array($varValue['value']);
+
+					/*
+					 * Flex content values that are currently in the filter criteria but that have not been sent with the filter form
+					 * because they weren't even part of the filter form should be added. The reason is, that we don't want filter criteria
+					 * to be reset by submitting a filter form if the user didn't intentionally uncheck them.
+					 */
+					if (isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$varValue['flexContentLIKey']]) && is_array($_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$varValue['flexContentLIKey']])) {
+						foreach ($_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$varValue['flexContentLIKey']] as $flexContentLIValueCurrentlyInFilter) {
+							if (
+								!in_array($flexContentLIValueCurrentlyInFilter, $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$varValue['flexContentLIKey']])
+								&&	!in_array($flexContentLIValueCurrentlyInFilter, $varValue['value'])
+							) {
+								$varValue['value'][] = $flexContentLIValueCurrentlyInFilter;
+							}
+						}
+					}
+
+					foreach($varValue['value'] as $k => $v) {
+						if (!$v || $v == '--reset--' || $v == '--checkall--') {
+							unset($varValue['value'][$k]);
+						}
+					}
+
+					if (!count($varValue['value'])) {
+						unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$varValue['flexContentLIKey']]);
+						break;
+					}
+
+					$_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$varValue['flexContentLIKey']] = $varValue['value'];
+				}
+				break;
+
+            case 'flexContentsLD':
+				if (!$varValue['value']) {
+					unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']]);
+				} else {
+					$varValue['value'] = is_array($varValue['value']) ? $varValue['value'] : array($varValue['value']);
+
+					/*
+					 * Flex content values that are currently in the filter criteria but that have not been sent with the filter form
+					 * because they weren't even part of the filter form should be added. The reason is, that we don't want filter criteria
+					 * to be reset by submitting a filter form if the user didn't intentionally uncheck them.
+					 */
+					if (isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']]) && is_array($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$varValue['flexContentLDKey']])) {
+						foreach ($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']] as $flexContentLDValueCurrentlyInFilter) {
+							if (
+								!in_array($flexContentLDValueCurrentlyInFilter, $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']])
+								&&	!in_array($flexContentLDValueCurrentlyInFilter, $varValue['value'])
+							) {
+								$varValue['value'][] = $flexContentLDValueCurrentlyInFilter;
+							}
+						}
+					}
+
+					foreach($varValue['value'] as $k => $v) {
+						if (!$v || $v == '--reset--' || $v == '--checkall--') {
+							unset($varValue['value'][$k]);
+						}
+					}
+
+					if (!count($varValue['value'])) {
+						unset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']]);
+						break;
+					}
+
+					$_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$varValue['flexContentLDKey']] = $varValue['value'];
+				}
+				break;
+
+			case 'flexContentsLIMinMax':
+                $_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]['low'] = $varValue['low'];
+				$_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$varValue['flexContentLIKey']]['high'] = $varValue['high'];
+
 				break;
 
 			case 'price':
@@ -852,7 +1907,12 @@ class ls_shop_filterHelper {
 	 * In this function we determine how many matches a selected criteria would have.
 	 */
 	public static function getEstimatedMatchNumbers($arrProductsResultSet = array()) {
+        global $objPage;
+        $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
 		$_SESSION['lsShop']['filter']['matchEstimates']['attributeValues'] = array();
+		$_SESSION['lsShop']['filter']['matchEstimates']['flexContentLIValues'] = array();
+        $_SESSION['lsShop']['filter']['matchEstimates']['flexContentLDValues'] = array();
 		$_SESSION['lsShop']['filter']['matchEstimates']['producers'] = array();
 		if (!isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) || !$GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) {
 			return;
@@ -872,6 +1932,14 @@ class ls_shop_filterHelper {
 		foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $arrAttributeValues) {
 			$numFilterValuesToDetermineEstimatesFor += count($arrAttributeValues);
 		}
+		foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'] as $arrFlexContentLIValues) {
+			$numFilterValuesToDetermineEstimatesFor += count($arrFlexContentLIValues);
+		}
+        if (isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])) {
+            foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage] as $arrFlexContentLDValues) {
+                $numFilterValuesToDetermineEstimatesFor += count($arrFlexContentLDValues);
+            }
+        }
 		$numFilterValuesToDetermineEstimatesFor += count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers']);
 
 		if (
@@ -923,6 +1991,87 @@ class ls_shop_filterHelper {
 			}
 		}
 
+		/*
+		 * Getting the estimates for the flexContentsLI
+		 */
+		/*
+		 * Walk through all flexContentsLI used in the filter form and create an array with filter criteria that does not
+		 * include the current flexContentLI
+		 */
+		foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'] as $flexContentLIKey => $arrFlexContentLIValues) {
+			$tmpCriteriaToFilterWith = $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'];
+
+			/*
+			 * Remove the current flexContentLI from the criteria array
+			 */
+			if (isset($tmpCriteriaToFilterWith['flexContentsLI'][$flexContentLIKey])) {
+				unset($tmpCriteriaToFilterWith['flexContentsLI'][$flexContentLIKey]);
+			}
+
+			/*
+			 * Walk through all the flexContentLI values and create a temporary filter criteria array in which the current
+			 * flexContentLI value is added
+			 */
+			foreach ($arrFlexContentLIValues as $flexContentLIValue) {
+				$tmpCriteriaToFilterWithPlusCurrentValue = $tmpCriteriaToFilterWith;
+				$tmpCriteriaToFilterWithPlusCurrentValue['flexContentsLI'][$flexContentLIKey] = array($flexContentLIValue);
+
+				/*
+				 * Filter the previously created result set using only the current attribute value
+				 */
+				$arrFilterMatches = ls_shop_filterHelper::getMatchesInProductResultSet($arrProductsResultSet, $tmpCriteriaToFilterWithPlusCurrentValue, false);
+
+				/*
+				 * Storing the number of matches
+				 */
+				$_SESSION['lsShop']['filter']['matchEstimates']['flexContentLIValues'][$flexContentLIValue] = array(
+					'products' => $arrFilterMatches['numMatching'],
+					'variants' => $arrFilterMatches['numVariantsMatching']
+				);
+			}
+		}
+
+		/*
+		 * Getting the estimates for the flexContentsLD
+		 */
+		/*
+		 * Walk through all flexContentsLD used in the filter form and create an array with filter criteria that does not
+		 * include the current flexContentLD
+		 */
+        if (isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])) {
+            foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage] as $flexContentLDKey => $arrFlexContentLDValues) {
+                $tmpCriteriaToFilterWith = $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'];
+
+                /*
+                 * Remove the current flexContentLD from the criteria array
+                 */
+                if (isset($tmpCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage][$flexContentLDKey])) {
+                    unset($tmpCriteriaToFilterWith['flexContentsLD'][$str_currentLanguage][$flexContentLDKey]);
+                }
+
+                /*
+                 * Walk through all the flexContentLD values and create a temporary filter criteria array in which the current
+                 * flexContentLD value is added
+                 */
+                foreach ($arrFlexContentLDValues as $flexContentLDValue) {
+                    $tmpCriteriaToFilterWithPlusCurrentValue = $tmpCriteriaToFilterWith;
+                    $tmpCriteriaToFilterWithPlusCurrentValue['flexContentsLD'][$str_currentLanguage][$flexContentLDKey] = array($flexContentLDValue);
+
+                    /*
+                     * Filter the previously created result set using only the current attribute value
+                     */
+                    $arrFilterMatches = ls_shop_filterHelper::getMatchesInProductResultSet($arrProductsResultSet, $tmpCriteriaToFilterWithPlusCurrentValue, false);
+
+                    /*
+                     * Storing the number of matches
+                     */
+                    $_SESSION['lsShop']['filter']['matchEstimates']['flexContentLDValues'][$flexContentLDValue] = array(
+                        'products' => $arrFilterMatches['numMatching'],
+                        'variants' => $arrFilterMatches['numVariantsMatching']
+                    );
+                }
+            }
+        }
 		/*
 		 * Getting the estimates for the producers
 		 */
