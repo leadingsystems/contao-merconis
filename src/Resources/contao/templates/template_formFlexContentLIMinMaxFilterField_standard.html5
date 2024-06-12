@@ -1,0 +1,20 @@
+<div data-lsjs-element="filterRangeBox" data-lsjs-filter-section-id="<?php
+    echo $this->objWidget_filterField['arr_moreData']['filterSectionId'];
+    ?>" class="filter-form-field filterRangeBox <?php
+    echo $this->objWidget_filterField['arrFilterFieldInfo']['classForFilterFormField'];
+    ?>">
+	<div data-lsjs-element="optionsBox_label" class="label"><?php
+        echo $this->objWidget_filterField['str_label'] ?? '';
+        ?></div>
+	<div
+        data-lsjs-component="sliderInput"
+        data-lsjs-slider-input-min-value="<?php echo '0'; ?>"
+        data-lsjs-slider-input-max-value="<?php echo ceil($this->objWidget_filterField['arr_moreData']['maxValue']); ?>"
+        data-lsjs-element="optionsBox_content"
+        class="content"
+    >
+		<span class="range-from rangeInputs" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_ZFCLILow']->getOutput(); ?></span>
+		<span class="range-to rangeInputs" data-lsjs-element="sliderInput_inputField"><?php echo $this->objWidget_filterField['objWidget_ZFCLIHigh']->getOutput(); ?></span>
+        <div data-lsjs-element="sliderInput_targetContainer"></div>
+	</div>
+</div>

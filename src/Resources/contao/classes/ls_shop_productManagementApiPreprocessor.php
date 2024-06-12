@@ -6,6 +6,8 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 class ls_shop_productManagementApiPreprocessor
 {
 	protected static $str_preprocessorMethodNamePrefix = 'preprocess_';
+    public static bool $throwExceptionForMissingOrWrongAttributesOrValues = true;
+    public static bool $throwExceptionForMissingImageFiles = true;
 
 	public static $arr_resourceAndFieldDefinition = array(
 		'apiResource_writeProductData' => array(
@@ -39,6 +41,11 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
+                'variationGroupCode' => [
+                    'preprocessor' => 'preprocess_standard',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ],
 				'language' => array(
 					'preprocessor' => 'preprocess_language',
 					'description' => '',
@@ -217,203 +224,13 @@ class ls_shop_productManagementApiPreprocessor
 					'fieldType' => 'input_output'
 				),
 
-				'property1' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property2' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property3' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property4' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property5' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property6' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property7' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property8' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property9' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property10' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property11' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property12' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property13' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property14' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property15' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property16' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property17' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property18' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property19' => array(
-					'preprocessor' => 'preprocess_attribute',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'property20' => array(
+				'property{numImportableAttributesAndValues}' => array(
 					'preprocessor' => 'preprocess_attribute',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
 
-				'value1' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value2' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value3' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value4' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value5' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value6' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value7' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value8' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value9' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value10' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value11' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value12' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value13' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value14' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value15' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value16' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value17' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value18' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value19' => array(
-					'preprocessor' => 'preprocess_attributeValue',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'value20' => array(
+				'value{numImportableAttributesAndValues}' => array(
 					'preprocessor' => 'preprocess_attributeValue',
 					'description' => '',
 					'fieldType' => 'input_output'
@@ -437,331 +254,67 @@ class ls_shop_productManagementApiPreprocessor
 					'fieldType' => 'input_output'
 				),
 
-				'useGroupPrices_1' => array(
+				'useGroupPrices_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_pseudoBoolean',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'priceForGroups_1' => array(
+				'priceForGroups_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_groupPrices_priceForGroups',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'price_1' => array(
+				'price_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_groupPrices_price',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'priceType_1' => array(
+				'priceType_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_groupPrices_priceType',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'useScalePrice_1' => array(
+				'useScalePrice_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_pseudoBoolean',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'scalePriceType_1' => array(
+				'scalePriceType_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_groupPrices_scalePriceType',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'scalePriceQuantityDetectionMethod_1' => array(
+				'scalePriceQuantityDetectionMethod_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_groupPrices_scalePriceQuantityDetectionMethod',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'scalePriceQuantityDetectionAlwaysSeparateConfigurations_1' => array(
+				'scalePriceQuantityDetectionAlwaysSeparateConfigurations_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_pseudoBoolean',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'scalePriceKeyword_1' => array(
+				'scalePriceKeyword_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_string_maxlength_255',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'scalePrice_1' => array(
+				'scalePrice_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_groupPrices_scalePrice',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'oldPrice_1' => array(
+				'oldPrice_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_groupPrices_oldPrice',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'oldPriceType_1' => array(
+				'oldPriceType_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_groupPrices_oldPriceType',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'useOldPrice_1' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-
-				'useGroupPrices_2' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'priceForGroups_2' => array(
-					'preprocessor' => 'preprocess_groupPrices_priceForGroups',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'price_2' => array(
-					'preprocessor' => 'preprocess_groupPrices_price',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'priceType_2' => array(
-					'preprocessor' => 'preprocess_groupPrices_priceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'useScalePrice_2' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceType_2' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePriceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceQuantityDetectionMethod_2' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePriceQuantityDetectionMethod',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceQuantityDetectionAlwaysSeparateConfigurations_2' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceKeyword_2' => array(
-					'preprocessor' => 'preprocess_string_maxlength_255',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePrice_2' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePrice',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'oldPrice_2' => array(
-					'preprocessor' => 'preprocess_groupPrices_oldPrice',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'oldPriceType_2' => array(
-					'preprocessor' => 'preprocess_groupPrices_oldPriceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'useOldPrice_2' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-
-				'useGroupPrices_3' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'priceForGroups_3' => array(
-					'preprocessor' => 'preprocess_groupPrices_priceForGroups',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'price_3' => array(
-					'preprocessor' => 'preprocess_groupPrices_price',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'priceType_3' => array(
-					'preprocessor' => 'preprocess_groupPrices_priceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'useScalePrice_3' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceType_3' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePriceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceQuantityDetectionMethod_3' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePriceQuantityDetectionMethod',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceQuantityDetectionAlwaysSeparateConfigurations_3' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceKeyword_3' => array(
-					'preprocessor' => 'preprocess_string_maxlength_255',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePrice_3' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePrice',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'oldPrice_3' => array(
-					'preprocessor' => 'preprocess_groupPrices_oldPrice',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'oldPriceType_3' => array(
-					'preprocessor' => 'preprocess_groupPrices_oldPriceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'useOldPrice_3' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-
-				'useGroupPrices_4' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'priceForGroups_4' => array(
-					'preprocessor' => 'preprocess_groupPrices_priceForGroups',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'price_4' => array(
-					'preprocessor' => 'preprocess_groupPrices_price',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'priceType_4' => array(
-					'preprocessor' => 'preprocess_groupPrices_priceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'useScalePrice_4' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceType_4' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePriceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceQuantityDetectionMethod_4' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePriceQuantityDetectionMethod',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceQuantityDetectionAlwaysSeparateConfigurations_4' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceKeyword_4' => array(
-					'preprocessor' => 'preprocess_string_maxlength_255',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePrice_4' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePrice',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'oldPrice_4' => array(
-					'preprocessor' => 'preprocess_groupPrices_oldPrice',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'oldPriceType_4' => array(
-					'preprocessor' => 'preprocess_groupPrices_oldPriceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'useOldPrice_4' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-
-				'useGroupPrices_5' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'priceForGroups_5' => array(
-					'preprocessor' => 'preprocess_groupPrices_priceForGroups',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'price_5' => array(
-					'preprocessor' => 'preprocess_groupPrices_price',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'priceType_5' => array(
-					'preprocessor' => 'preprocess_groupPrices_priceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'useScalePrice_5' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceType_5' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePriceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceQuantityDetectionMethod_5' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePriceQuantityDetectionMethod',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceQuantityDetectionAlwaysSeparateConfigurations_5' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePriceKeyword_5' => array(
-					'preprocessor' => 'preprocess_string_maxlength_255',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'scalePrice_5' => array(
-					'preprocessor' => 'preprocess_groupPrices_scalePrice',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'oldPrice_5' => array(
-					'preprocessor' => 'preprocess_groupPrices_oldPrice',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'oldPriceType_5' => array(
-					'preprocessor' => 'preprocess_groupPrices_oldPriceType',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'useOldPrice_5' => array(
+				'useOldPrice_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_pseudoBoolean',
 					'description' => '',
 					'fieldType' => 'input_output'
@@ -907,12 +460,58 @@ class ls_shop_productManagementApiPreprocessor
 		)
 	);
 
+    public static bool $dynamicFieldsInResourceAndFieldDefinitionAlreadyReplaced = false;
+
+    public static function getResourceAndFieldDefinition(): array
+    {
+        if (self::$dynamicFieldsInResourceAndFieldDefinitionAlreadyReplaced) {
+            return self::$arr_resourceAndFieldDefinition;
+        }
+
+        self::replaceDynamicFields(self::$arr_resourceAndFieldDefinition['apiResource_writeProductData']['arr_fields'], 'numImportableAttributesAndValues', ls_shop_productManagementApiHelper::$int_numImportableAttributesAndValues);
+        self::replaceDynamicFields(self::$arr_resourceAndFieldDefinition['apiResource_writeProductData']['arr_fields'], 'numImportableGroupPrices', ls_shop_productManagementApiHelper::$int_numImportableGroupPrices);
+
+        self::$dynamicFieldsInResourceAndFieldDefinitionAlreadyReplaced = true;
+        return self::$arr_resourceAndFieldDefinition;
+    }
+
+    private static function replaceDynamicFields(&$array, $counterVariableName, $numberOfDynamicElements): void
+    {
+        $dynamicKeys = [];
+        $dynamicPlaceholder = '{' . $counterVariableName . '}';
+        array_walk($array, function($value, $key) use (&$dynamicKeys, $dynamicPlaceholder) {
+            if (str_contains($key, $dynamicPlaceholder)) {
+                $dynamicKeys[] = $key;
+            }
+        });
+
+        foreach ($dynamicKeys as $dynamicKey) {
+            if (!array_key_exists($dynamicKey, $array)) {
+                return; // Element not found, do nothing
+            }
+
+            // Find the position of the dynamic element
+            $position = array_search($dynamicKey, array_keys($array));
+
+            $content = $array[$dynamicKey];
+            unset($array[$dynamicKey]); // Remove the dynamic element
+
+            // Add the dynamically named elements at the found position with the same content
+            for ($i = 1; $i <= $numberOfDynamicElements; $i++) {
+                $array = array_slice($array, 0, $position, true) + [str_replace($dynamicPlaceholder, $i, $dynamicKey) => $content] + array_slice($array, $position, NULL, true);
+                $position++;
+            }
+        }
+
+        $test = 1;
+    }
+
 	/*
 	 * This function takes the input data rows and makes sure that each required field exists
 	 * and has an acceptable value.
 	 */
 	public static function preprocess($arr_dataRows, $str_context) {
-		if (!key_exists($str_context, self::$arr_resourceAndFieldDefinition)) {
+		if (!key_exists($str_context, self::getResourceAndFieldDefinition())) {
 			return null;
 		}
 
@@ -923,8 +522,8 @@ class ls_shop_productManagementApiPreprocessor
 		);
 
 		if (
-			!isset(self::$arr_resourceAndFieldDefinition[$str_context]['bln_expectsMultipleDataRows'])
-			||	!self::$arr_resourceAndFieldDefinition[$str_context]['bln_expectsMultipleDataRows']
+			!isset(self::getResourceAndFieldDefinition()[$str_context]['bln_expectsMultipleDataRows'])
+			||	!self::getResourceAndFieldDefinition()[$str_context]['bln_expectsMultipleDataRows']
 		) {
 			$arr_dataRows = array($arr_dataRows);
 		}
@@ -932,7 +531,7 @@ class ls_shop_productManagementApiPreprocessor
 		foreach ($arr_dataRows as $int_rowNumber => $arr_row) {
 			$arr_preprocessingResult['arr_preprocessedDataRows'][$int_rowNumber] = array();
 
-			foreach ($arr_fieldNameToPreprocessorTypeAssignment = self::$arr_resourceAndFieldDefinition[$str_context]['arr_fields'] as $str_fieldName => $arr_fieldDefinition) {
+			foreach ($arr_fieldNameToPreprocessorTypeAssignment = self::getResourceAndFieldDefinition()[$str_context]['arr_fields'] as $str_fieldName => $arr_fieldDefinition) {
 				$var_inputValue = isset($arr_row[$str_fieldName]) ? $arr_row[$str_fieldName] : null;
 
 
@@ -962,8 +561,8 @@ class ls_shop_productManagementApiPreprocessor
 		}
 
 		if (
-			!isset(self::$arr_resourceAndFieldDefinition[$str_context]['bln_expectsMultipleDataRows'])
-			||	!self::$arr_resourceAndFieldDefinition[$str_context]['bln_expectsMultipleDataRows']
+			!isset(self::getResourceAndFieldDefinition()[$str_context]['bln_expectsMultipleDataRows'])
+			||	!self::getResourceAndFieldDefinition()[$str_context]['bln_expectsMultipleDataRows']
 		) {
 			$arr_preprocessingResult['arr_preprocessedDataRows'] = $arr_preprocessingResult['arr_preprocessedDataRows'][0];
 		}
@@ -1134,7 +733,7 @@ class ls_shop_productManagementApiPreprocessor
 			throw new \Exception('a value is mandatory for row type \''.$arr_row['type'].'\'');
 		}
 
-		if (strlen($str_output) > 255) {
+		if (mb_strlen($str_output) > 255) {
 			throw new \Exception('the value must not be longer than 255 characters');
 		}
 
@@ -1166,7 +765,7 @@ class ls_shop_productManagementApiPreprocessor
 			throw new \Exception('a value is mandatory for row type \''.$arr_row['type'].'\'');
 		}
 
-		if (strlen($str_output) > 255) {
+		if (mb_strlen($str_output) > 255) {
 			throw new \Exception('the value must not be longer than 255 characters');
 		}
 
@@ -1197,7 +796,7 @@ class ls_shop_productManagementApiPreprocessor
 	}
 
 	/**
-	 * Expected input: Only for row type 'product': a page alias of a contao main language page where the product should be displayed or a comma separated list of multiple aliases
+	 * Expected input: Only for row type 'product': a page alias or id of a contao main language page where the product should be displayed or a comma separated list of multiple aliases or ids. The input must consist of only aliases or only ids. A mixed input is not supported and would be interpreted as all aliases.
 	 * Accepted input: as expected
 	 * Normalization: creating page list
 	 */
@@ -1211,24 +810,34 @@ class ls_shop_productManagementApiPreprocessor
 		$str_output = trim($var_input);
 
 		$arr_categories = ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $str_output);
-
-		$arr_pageAliases = ls_shop_productManagementApiHelper::getPageAliases();
-
-        $arr_categoriesToWrite = array();
-
-        if (count($arr_categories)) {
-            foreach ($arr_categories as $str_category) {
-                if (!in_array($str_category, $arr_pageAliases)) {
-                    continue;
-                }
-
-                $arr_categoriesToWrite[] = $str_category;
+        $bln_allCategoriesNumeric = !array_filter(
+            $arr_categories,
+            function ($val) {
+                return !is_numeric($val);
             }
+        );
+
+        if ($bln_allCategoriesNumeric) {
+            $str_output = ls_shop_productManagementApiHelper::generatePageListFromCategoryIds($arr_categories);
+        } else {
+            $arr_pageAliases = ls_shop_productManagementApiHelper::getPageAliases();
+
+            $arr_categoriesToWrite = array();
+
+            if (count($arr_categories)) {
+                foreach ($arr_categories as $str_category) {
+                    if (!in_array($str_category, $arr_pageAliases)) {
+                        continue;
+                    }
+
+                    $arr_categoriesToWrite[] = $str_category;
+                }
+            }
+
+            $str_output = implode(',', $arr_categoriesToWrite);
+
+            $str_output = ls_shop_productManagementApiHelper::generatePageListFromCategoryValue($str_output);
         }
-
-		$str_output = implode(',', $arr_categoriesToWrite);
-
-		$str_output = ls_shop_productManagementApiHelper::generatePageListFromCategoryValue($str_output);
 
 		return $str_output;
 	}
@@ -1267,7 +876,7 @@ class ls_shop_productManagementApiPreprocessor
 	protected static function preprocess_name($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		$str_output = trim($var_input);
 
-		$int_length = strlen($str_output);
+		$int_length = mb_strlen($str_output);
 
 		if ($int_length < 1) {
 			if (
@@ -1292,7 +901,7 @@ class ls_shop_productManagementApiPreprocessor
 	protected static function preprocess_string_maxlength_255($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		$str_output = trim($var_input);
 
-		$int_length = strlen($str_output);
+		$int_length = mb_strlen($str_output);
 
 		if ($int_length > 255) {
 			throw new \Exception('the value must not be longer than 255 characters');
@@ -1309,7 +918,7 @@ class ls_shop_productManagementApiPreprocessor
 	protected static function preprocess_string_maxlength_64($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		$str_output = trim($var_input);
 
-		$int_length = strlen($str_output);
+		$int_length = mb_strlen($str_output);
 
 		if ($int_length > 64) {
 			throw new \Exception('the value must not be longer than 64 characters');
@@ -1369,7 +978,7 @@ class ls_shop_productManagementApiPreprocessor
 	/**
 	 * Expected input: a numeric value with an optional decimal point and up to 4 decimals. Mandatory for row types 'product' and 'variant'
 	 * Accepted input: as expected
-	 * Normalization: none
+	 * Normalization: translates falsy values to 0
 	 */
 	protected static function preprocess_weight($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		if (
@@ -1379,6 +988,10 @@ class ls_shop_productManagementApiPreprocessor
 		}
 
 		$str_output = trim($var_input);
+
+        if (!$str_output) {
+            $str_output = 0;
+        }
 
 		if (!preg_match('/^-?\d+(\.\d{1,4})?$/', $str_output)) {
 			throw new \Exception('not a valid weight');
@@ -1924,7 +1537,11 @@ class ls_shop_productManagementApiPreprocessor
 		if ($obj_imageModels !== null) {
 			$str_output = $obj_imageModels->first()->uuid;
 		} else {
-			throw new \Exception('the image file does not exist in the merconis standard product image folder');
+            if (self::$throwExceptionForMissingImageFiles) {
+                throw new \Exception('the image file does not exist in the merconis standard product image folder');
+            } else {
+                $str_output = null;
+            }
 		}
 
 		return $str_output;
@@ -2052,7 +1669,11 @@ class ls_shop_productManagementApiPreprocessor
 		$arr_attributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 
 		if (!in_array($str_output, $arr_attributeAndValueAliases['attributeAliases'])) {
-			throw new \Exception('given property alias does not exist');
+            if (self::$throwExceptionForMissingOrWrongAttributesOrValues) {
+                throw new \Exception('given property alias "' . $str_output . '" does not exist');
+            } else {
+                return 0;
+            }
 		}
 
 		$str_output = ls_shop_productManagementApiHelper::getAttributeIDForAlias($str_output);
@@ -2081,7 +1702,11 @@ class ls_shop_productManagementApiPreprocessor
 		$arr_attributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 
 		if (!in_array($str_output, $arr_attributeAndValueAliases['attributeValueAliases'])) {
-			throw new \Exception('given property value alias does not exist');
+            if (self::$throwExceptionForMissingOrWrongAttributesOrValues) {
+                throw new \Exception('given property value alias "' . $str_output . '" does not exist');
+            } else {
+                return 0;
+            }
 		}
 
 		$str_output = ls_shop_productManagementApiHelper::getAttributeValueIDForAlias($str_output);
@@ -2089,7 +1714,11 @@ class ls_shop_productManagementApiPreprocessor
 		$int_attributeValueFieldNumber = preg_replace('/[^\d]/', '', $str_fieldName);
 
 		if (!ls_shop_generalHelper::checkIfAttributeAndValueBelongTogether($arr_normalizedRow['property'.$int_attributeValueFieldNumber], $str_output)) {
-			throw new \Exception('given property value does not belong to the given property');
+            if (self::$throwExceptionForMissingOrWrongAttributesOrValues) {
+                throw new \Exception('given property value does not belong to the given property');
+            } else {
+                return 0;
+            }
 		}
 
 		return $str_output;
