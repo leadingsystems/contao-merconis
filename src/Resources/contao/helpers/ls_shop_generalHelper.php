@@ -2131,7 +2131,7 @@ class ls_shop_generalHelper
         if (!isset($GLOBALS['merconis_globals']['allFlexContentsLI'])) {
             $arr_allFlexContentsLI = [];
 
-            $obj_dbres_flexContentsLIForProducts = \Database::getInstance()->prepare("
+            $obj_dbres_flexContentsLIForProducts = Database::getInstance()->prepare("
                 SELECT      flex_contentsLanguageIndependent
                 FROM        tl_ls_shop_product
                 WHERE       NOT flex_contentsLanguageIndependent IS NULL
@@ -2145,7 +2145,7 @@ class ls_shop_generalHelper
                 }
             }
 
-            $obj_dbres_flexContentsLIForVariants = \Database::getInstance()->prepare("
+            $obj_dbres_flexContentsLIForVariants = Database::getInstance()->prepare("
                 SELECT      id, flex_contentsLanguageIndependent
                 FROM        tl_ls_shop_variant
                 WHERE 		IFNULL(flex_contentsLanguageIndependent, '') != ''
@@ -2183,7 +2183,7 @@ class ls_shop_generalHelper
 
             $arr_allFlexContentsLD = [];
 
-            $obj_dbres_flexContentsLDForProducts = \Database::getInstance()->prepare("
+            $obj_dbres_flexContentsLDForProducts = Database::getInstance()->prepare("
                 SELECT      flex_contents_" . $str_currentLanguage . " AS result
                 FROM        tl_ls_shop_product
                 WHERE 		IFNULL(flex_contents_" . $str_currentLanguage . ", '') != ''
@@ -2197,7 +2197,7 @@ class ls_shop_generalHelper
                 }
             }
 
-            $obj_dbres_flexContentsLDForVariants = \Database::getInstance()->prepare("
+            $obj_dbres_flexContentsLDForVariants = Database::getInstance()->prepare("
                 SELECT      id, flex_contents_" . $str_currentLanguage . " AS result
                 FROM        tl_ls_shop_variant
                 WHERE 		IFNULL(flex_contents_" . $str_currentLanguage . ", '') != ''
@@ -2247,7 +2247,7 @@ class ls_shop_generalHelper
 
             $allFilterKeys = self::getFlexContentLIMinMaxKeys();
 
-            $obj_dbres_flexContentsLIMinMax = \Database::getInstance()->prepare("
+            $obj_dbres_flexContentsLIMinMax = Database::getInstance()->prepare("
                 SELECT      flex_contentsLanguageIndependent
                 FROM        tl_ls_shop_product
                 WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
@@ -2302,7 +2302,7 @@ class ls_shop_generalHelper
      */
     public static function getFlexContentLIMinMaxKeys()
     {
-        $obj_dbres_filterKeys = \Database::getInstance()->prepare("
+        $obj_dbres_filterKeys = Database::getInstance()->prepare("
                 SELECT  flexContentLIKey
                 FROM    tl_ls_shop_filter_fields
                 WHERE   dataSource = 'flexContentLIMinMax'
@@ -2406,7 +2406,7 @@ class ls_shop_generalHelper
         if (!isset($GLOBALS['merconis_globals']['allAttributesMinMax'])) {
             $allAttributesMinMax = [];
 
-            $obj_dbres_attributesMinMax = \Database::getInstance()->prepare("
+            $obj_dbres_attributesMinMax = Database::getInstance()->prepare("
                 SELECT  A.alias, GROUP_CONCAT(V2.alias, ':', V2.numericValue) AS groupedvalues
                 FROM tl_ls_shop_attributes A 
                 INNER JOIN (
