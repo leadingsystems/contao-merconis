@@ -7,6 +7,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['alias']								= array('Alias', 'Eindeutige Bezeichnung, welche zur Referenzierung verwendet wird.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['title']								= array('Bezeichnung');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource']							= array('Datenquelle', 'Geben Sie an, woher das Filter-Feld seine Werte bezieht.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLIKey']                     = array('Flex-Content-Key', 'Geben Sie den Key eines sprachunabhängigen FlexContent-Feldes an, von dem das Filter-Feld seine Werte bezieht.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLDKey']                     = array('Flex-Content-Key LD', 'Geben Sie den Key eines sprachabhängigen FlexContent-Feldes an, von dem das Filter-Feld seine Werte bezieht.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLIMinMaxKey']               = array('Flex-Content-Key LI MinMax', 'Geben Sie den Key eines sprachunabhängigen FlexContent-MinMax-Feldes an, von dem das Filter-Feld seine Werte bezieht.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['sourceAttribute']						= array('Quellmerkmal');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['classForFilterFormField']				= array('CSS-Klasse', 'Diese CSS-Klasse wird im Filter-Formular-Feld verwendet.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['numItemsInReducedMode']				= array('Anzahl dargestellter Werte im "Reduziert-Modus"', 'Tragen Sie 0 ein, um im "Reduziert-Modus" alle Werte darzustellen oder, sofern einzelne Werte als "wichtig" gekennzeichnet sind, alle "wichtigen"');
@@ -16,7 +19,11 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['makeFilterModeUserAdjustable']			= array('Einstellung des Filter-Modus im Frontend ermöglichen');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUse']						= array('Template');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForPriceField']           = array('Template');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLIField']     = array('Template');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLDField']     = array('Template');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLIMinMaxField']     = array('Template');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['published']							= array('Aktiv');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForRangeField']           = array('Template');
 
 	/*
 	 * Legends
@@ -43,7 +50,11 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['dataSource']['options'] = array(
 		'attribute' => array('Produktmerkmal', 'Die Ausprägungen des als Datenquelle gewählten Merkmals werden verwendet. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
 		'producer' => array('Hersteller', 'Die Hersteller, die Sie Ihren Produkten hinterlegt haben, werden als Feldwerte verwendet. Legen Sie Datensätze mit übereinstimmenden Werten an, um einzelne Feldwerte sortieren, priorisieren und mit individuellen Klassen versehen zu können.'),
-		'price' => array('Preis', 'Es werden Felder zur Eingabe eines Minimal- und Maximalpreises ausgegeben. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.')
+		'price' => array('Preis', 'Es werden Felder zur Eingabe eines Minimal- und Maximalpreises ausgegeben. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
+        'flexContentLI' => array('Flexible Produktinformation (sprachunabhängig)', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
+        'flexContentLD' => array('Flexible Produktinformation (sprachabhängig)', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
+        'flexContentLIMinMax' => array('Bereich: Flexible Produktinformation (sprachunabhängig)', 'Flexible Produktinformationen (FlexContents) können für die Filterung herangezogen werden. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.'),
+        'attributesMinMax' => array('Bereich: Produktmerkmal', 'Die Ausprägungen des als Datenquelle gewählten Merkmals werden verwendet. Legen Sie in diesem Fall keine Feldwerte als Kinddatensätze dieses Filter-Felds an.')
 	);
 	
 	/*

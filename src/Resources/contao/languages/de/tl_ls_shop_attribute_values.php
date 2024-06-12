@@ -8,6 +8,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['title']										= array('Bezeichnung');
 	$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['classForFilterFormField']					= array('CSS-Klasse', 'Diese CSS-Klasse wird im Filter-Formular-Feld verwendet.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['importantFieldValue']					= array('Wichtig', 'Die Ausprägung wird auch im "Reduziert-Modus" nicht versteckt.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['numericValue']					            = array('Numerischer Wert', 'Numerischer Wert dieser Ausprägung für Filterung nach Bereichen');
 
 	/*
 	 * Legends

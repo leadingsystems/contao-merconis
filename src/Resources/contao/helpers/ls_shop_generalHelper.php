@@ -2088,6 +2088,237 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse];
     }
 
+    public static function getFlexContentLIValues($str_flexContentLIKey) {
+        if (!isset($GLOBALS['merconis_globals']['flexContentLIValues'][$str_flexContentLIKey])) {
+            $GLOBALS['merconis_globals']['flexContentLIValues'][$str_flexContentLIKey] = ls_shop_generalHelper::getAllFlexContentsLI()[$str_flexContentLIKey] ?? [];
+        }
+        return $GLOBALS['merconis_globals']['flexContentLIValues'][$str_flexContentLIKey];
+    }
+
+    public static function getFlexContentLDValues($str_flexContentLDKey) {
+        if (!isset($GLOBALS['merconis_globals']['flexContentLDValues'][$str_flexContentLDKey])) {
+            $GLOBALS['merconis_globals']['flexContentLDValues'][$str_flexContentLDKey] = ls_shop_generalHelper::getAllFlexContentsLD()[$str_flexContentLDKey] ?? [];
+        }
+        return $GLOBALS['merconis_globals']['flexContentLDValues'][$str_flexContentLDKey];
+    }
+
+    public static function getFlexContentLIMinMaxValues($str_flexContentLIMinMaxKey) {
+        if (!isset($GLOBALS['merconis_globals']['flexContentLIMinMaxValues'][$str_flexContentLIMinMaxKey])) {
+            $GLOBALS['merconis_globals']['flexContentLIMinMaxValues'][$str_flexContentLIMinMaxKey] = ls_shop_generalHelper::getAllFlexContentsLIMinMax()[$str_flexContentLIMinMaxKey] ?? [];
+        }
+        return $GLOBALS['merconis_globals']['flexContentLIMinMaxValues'][$str_flexContentLIMinMaxKey];
+    }
+
+    public static function getAttributesMinMaxValues($attributeAlias) {
+        if (!isset($GLOBALS['merconis_globals']['attributeMinMaxValues'][$attributeAlias])) {
+            $GLOBALS['merconis_globals']['attributeMinMaxValues'][$attributeAlias] = ls_shop_generalHelper::getAllAttributesMinMax()[$attributeAlias] ?? [];
+        }
+        return $GLOBALS['merconis_globals']['attributeMinMaxValues'][$attributeAlias];
+    }
+
+    /*
+     * IMPORTANT NOTE REGARDING POTENTIAL PERFORMANCE ISSUE:
+     * If getting all flex contents should become problematic regarding performance on huge product/variant tables,
+     * it might be a good idea or even necessary to have a flex content overview table that is created periodically
+     * using a cron job and that makes access during runtime much faster because then only a single DB request would
+     * be necessary. Of course, during a short period after someone added/removed/changed flex contents, this function
+     * would still return the old information. The best solution might be to use the flex content overview table but
+     * re-create its data exactly when flex contents in a product or variant have actually changed. In case of product
+     * imports it might be best to not check for flex content changes for every product but instead always re-create
+     * the flex content overview data after finishing the whole import.
+     */
+    public static function getAllFlexContentsLI() {
+        if (!isset($GLOBALS['merconis_globals']['allFlexContentsLI'])) {
+            $arr_allFlexContentsLI = [];
+
+            $obj_dbres_flexContentsLIForProducts = \Database::getInstance()->prepare("
+                SELECT      flex_contentsLanguageIndependent
+                FROM        tl_ls_shop_product
+                WHERE       NOT flex_contentsLanguageIndependent IS NULL
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLIForProducts->next()) {
+                $arr_flexContentsLI = json_decode($obj_dbres_flexContentsLIForProducts->flex_contentsLanguageIndependent);
+                foreach ($arr_flexContentsLI as $arr_flexContentLI) {
+                    $arr_allFlexContentsLI[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
+                }
+            }
+
+            $obj_dbres_flexContentsLIForVariants = \Database::getInstance()->prepare("
+                SELECT      id, flex_contentsLanguageIndependent
+                FROM        tl_ls_shop_variant
+                WHERE 		IFNULL(flex_contentsLanguageIndependent, '') != ''
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLIForVariants->next()) {
+                $arr_flexContentsLI = json_decode($obj_dbres_flexContentsLIForVariants->flex_contentsLanguageIndependent);
+                if (is_array($arr_flexContentsLI)) {
+                    foreach ($arr_flexContentsLI as $arr_flexContentLI) {
+                        $arr_allFlexContentsLI[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
+                    }
+                }
+            }
+
+            $arr_allFlexContentsLI = array_map('array_unique', $arr_allFlexContentsLI);
+            $arr_allFlexContentsLI = array_map(
+                function($arr_toSort) {
+                    sort($arr_toSort);
+                    return $arr_toSort;
+                },
+                $arr_allFlexContentsLI
+            );
+
+            $GLOBALS['merconis_globals']['allFlexContentsLI'] = $arr_allFlexContentsLI;
+        }
+
+        return $GLOBALS['merconis_globals']['allFlexContentsLI'];
+    }
+
+    public static function getAllFlexContentsLD() {
+        if (!isset($GLOBALS['merconis_globals']['allFlexContentsLD'])) {
+            global $objPage;
+            $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+
+            $arr_allFlexContentsLD = [];
+
+            $obj_dbres_flexContentsLDForProducts = \Database::getInstance()->prepare("
+                SELECT      flex_contents_" . $str_currentLanguage . " AS result
+                FROM        tl_ls_shop_product
+                WHERE 		IFNULL(flex_contents_" . $str_currentLanguage . ", '') != ''
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLDForProducts->next()) {
+                $arr_flexContentsLD = json_decode($obj_dbres_flexContentsLDForProducts->result);
+                foreach ($arr_flexContentsLD as $arr_flexContentLD) {
+                    $arr_allFlexContentsLD[$arr_flexContentLD[0]][] = $arr_flexContentLD[1];
+                }
+            }
+
+            $obj_dbres_flexContentsLDForVariants = \Database::getInstance()->prepare("
+                SELECT      id, flex_contents_" . $str_currentLanguage . " AS result
+                FROM        tl_ls_shop_variant
+                WHERE 		IFNULL(flex_contents_" . $str_currentLanguage . ", '') != ''
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLDForVariants->next()) {
+                $arr_flexContentsLD = json_decode($obj_dbres_flexContentsLDForVariants->result);
+                if (is_array($arr_flexContentsLD)) {
+                    foreach ($arr_flexContentsLD as $arr_flexContentLD) {
+                        $arr_allFlexContentsLD[$arr_flexContentLD[0]][] = $arr_flexContentLD[1];
+                    }
+                }
+            }
+
+            $arr_allFlexContentsLD = array_map('array_unique', $arr_allFlexContentsLD);
+            $arr_allFlexContentsLD = array_map(
+                function($arr_toSort) {
+                    sort($arr_toSort);
+                    return $arr_toSort;
+                },
+                $arr_allFlexContentsLD
+            );
+
+            $GLOBALS['merconis_globals']['allFlexContentsLD'] = $arr_allFlexContentsLD;
+        }
+
+        return $GLOBALS['merconis_globals']['allFlexContentsLD'];
+    }
+
+
+    /*
+     * IMPORTANT NOTE REGARDING POTENTIAL PERFORMANCE ISSUE:
+     * If getting all flex contents should become problematic regarding performance on huge product/variant tables,
+     * it might be a good idea or even necessary to have a flex content overview table that is created periodically
+     * using a cron job and that makes access during runtime much faster because then only a single DB request would
+     * be necessary. Of course, during a short period after someone added/removed/changed flex contents, this function
+     * would still return the old information. The best solution might be to use the flex content overview table but
+     * re-create its data exactly when flex contents in a product or variant have actually changed. In case of product
+     * imports it might be best to not check for flex content changes for every product but instead always re-create
+     * the flex content overview data after finishing the whole import.
+     */
+    public static function getAllFlexContentsLIMinMax() {
+        if (!isset($GLOBALS['merconis_globals']['allFlexContentsLIMinMax'])) {
+            $arr_allFlexContentsLIMinMax = [];
+            $allFilterKeys = [];
+
+            $allFilterKeys = self::getFlexContentLIMinMaxKeys();
+
+            $obj_dbres_flexContentsLIMinMax = \Database::getInstance()->prepare("
+                SELECT      flex_contentsLanguageIndependent
+                FROM        tl_ls_shop_product
+                WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
+                GROUP BY flex_contentsLanguageIndependent
+                UNION ALL
+                SELECT      flex_contentsLanguageIndependent
+                FROM        tl_ls_shop_variant
+                WHERE       IFNULL(flex_contentsLanguageIndependent, '') != ''
+                GROUP BY flex_contentsLanguageIndependent
+            ")
+            ->execute();
+
+            while ($obj_dbres_flexContentsLIMinMax->next()) {
+                $arr_flexContentsLIMinMax = json_decode($obj_dbres_flexContentsLIMinMax->flex_contentsLanguageIndependent);
+                foreach ($arr_flexContentsLIMinMax as $arr_flexContentLI) {
+                    if (in_array($arr_flexContentLI[0], $allFilterKeys))
+                    {
+                        $arr_allFlexContentsLIMinMax[$arr_flexContentLI[0]][] = $arr_flexContentLI[1];
+                    }
+                }
+            }
+
+            $arr_allFlexContentsLIMinMax = array_map('array_unique', $arr_allFlexContentsLIMinMax);
+
+            $arr_allFlexContentsLIMinMax = array_map(
+                function($arr_toSort) {
+
+                    //Non-numeric values are filtered out. Because the LIMinMax can have several subkeys we need a callable in the callable
+                    $arr_toSort = array_filter($arr_toSort,
+                        function($myval) {
+                            return is_numeric($myval);
+                        }
+                    );
+
+                    sort($arr_toSort);
+                    return $arr_toSort;
+                },
+                $arr_allFlexContentsLIMinMax
+            );
+
+            $GLOBALS['merconis_globals']['allFlexContentsLIMinMax'] = $arr_allFlexContentsLIMinMax;
+        }
+
+        return $GLOBALS['merconis_globals']['allFlexContentsLIMinMax'];
+    }
+
+
+    /**
+     *  retrieves all flexContent language independent filter keys
+     *
+     * @return array
+     */
+    public static function getFlexContentLIMinMaxKeys()
+    {
+        $obj_dbres_filterKeys = \Database::getInstance()->prepare("
+                SELECT  flexContentLIKey
+                FROM    tl_ls_shop_filter_fields
+                WHERE   dataSource = 'flexContentLIMinMax'
+        ")
+        ->execute();
+
+        while ($obj_dbres_filterKeys->next()) {
+            $allFilterKeys[] = $obj_dbres_filterKeys->flexContentLIKey;
+        }
+
+        return $allFilterKeys ?? [];
+    }
+
+
+
+
     public static function getProductAttributeValueIds($arr_productAttributesValues = array())
     {
         $arr_attributeValueIds = array();
@@ -2164,6 +2395,37 @@ class ls_shop_generalHelper
         $str_attributesString = substr($str_attributesString, 0, -2);
 
         return $str_attributesString;
+    }
+
+    /**
+     *  retrieves all Product attributes that have numeric values as an array. Alias is key (not ID).
+     *
+     * @return array
+     */
+    public static function getAllAttributesMinMax() {
+        if (!isset($GLOBALS['merconis_globals']['allAttributesMinMax'])) {
+            $allAttributesMinMax = [];
+
+            $obj_dbres_attributesMinMax = \Database::getInstance()->prepare("
+                SELECT  A.alias, GROUP_CONCAT(V2.alias, ':', V2.numericValue) AS groupedvalues
+                FROM tl_ls_shop_attributes A 
+                INNER JOIN (
+                    SELECT V.pid FROM tl_ls_shop_attribute_values V WHERE V.numericValue != 0 GROUP BY V.pid
+                ) V1 ON A.id = V1.pid
+                INNER JOIN tl_ls_shop_attribute_values V2 ON A.id = V2.pid
+                GROUP BY A.id
+                ORDER BY A.id
+            ")
+            ->execute();
+
+            while ($obj_dbres_attributesMinMax->next()) {
+                $allAttributesMinMax += [$obj_dbres_attributesMinMax->alias =>explode(',', $obj_dbres_attributesMinMax->groupedvalues)];
+            }
+
+            $GLOBALS['merconis_globals']['allAttributesMinMax'] = $allAttributesMinMax;
+        }
+
+        return $GLOBALS['merconis_globals']['allAttributesMinMax'];
     }
 
     /*

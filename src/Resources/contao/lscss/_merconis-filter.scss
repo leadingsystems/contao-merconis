@@ -206,7 +206,8 @@
         }
 
         &:not(:only-child) {
-          .filter-criterion-attribute-container {
+          .filter-criterion-attribute-container,
+          .filter-criterion-flexContent-container {
             border-right: 0.1rem solid $ls-color-grey;
           }
         }
@@ -349,7 +350,8 @@
           width: 50%;
         }
 
-        .filter-criterion-attribute-container {
+        .filter-criterion-attribute-container,
+        .filter-criterion-flexContent-container {
           width: 100%;
           height: 100%;
           padding-right: 0;
@@ -392,7 +394,8 @@
         }
 
         &.currently-filtering {
-          .filter-criterion-attribute-container {
+          .filter-criterion-attribute-container,
+          .filter-criterion-flexContent-container {
             padding-right: 4rem;
           }
         }
@@ -420,6 +423,7 @@
       }
 
       .filterOptionsBox,
+      .filterRangeBox,
       .filterPriceBox {
         border: none;
       }
@@ -440,10 +444,22 @@
     padding: 0.5rem !important;
   }
 
+  .range-from,
+  .range-to,
   .price-from,
-  .price-to {
+  .price-to
+    {
     .flexWidget {
       display: inline-block;
+    }
+  }
+
+  .rangeInputs {
+    .flexWidget {
+      display: inline-block;
+    }
+    > div > input[type="text"] {
+      width: 10rem;
     }
   }
 
@@ -517,6 +533,7 @@
   }
 
   .filterOptionsBox,
+  .filterRangeBox,
   .filterPriceBox {
     margin-bottom: 0.5rem;
 
@@ -659,6 +676,7 @@
 
   .partial-filter-form-display {
     .filterOptionsBox,
+    .filterRangeBox,
     .filterPriceBox {
       .content {
         padding-left: 0;
@@ -800,8 +818,11 @@
     padding: 0.5rem !important;
   }
 
+  .range-from,
+  .range-to,
   .price-from,
-  .price-to {
+  .price-to
+    {
     .flexWidget {
       display: inline-block;
     }
@@ -888,6 +909,7 @@
   }
 
   .filterOptionsBox,
+  .filterRangeBox,
   .filterPriceBox {
     margin-bottom: 0.5rem;
 

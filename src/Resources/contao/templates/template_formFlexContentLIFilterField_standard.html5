@@ -1,0 +1,109 @@
+<?php
+
+use Contao\Input;
+
+if (!isset($GLOBALS['merconis_globals']['formFieldUniqueIDCounter'])) {
+		$GLOBALS['merconis_globals']['formFieldUniqueIDCounter'] = 0;
+	}
+
+	$blnDetailMode = Input::get('product') ? true : false;
+?>
+<div data-lsjs-element="filterOptionsBox" data-lsjs-filter-section-id="<?php
+echo $this->arr_moreData['filterSectionId'];
+?>" class="filter-form-field filterOptionsBox <?php echo $this->arr_moreData['filterFormFieldType']; ?><?php echo ($this->arr_moreData['alias'] != '') ? ' '.$this->arr_moreData['alias'] : ''; ?><?php echo ($this->arr_moreData['classForFilterFormField'] != '') ? ' '.$this->arr_moreData['classForFilterFormField'] : ''; ?>">
+	<input type="hidden" name="<?php echo $this->str_name; ?>" value="" />
+
+	<div data-lsjs-element="optionsBox_label" class="label">
+		<?php echo isset($this->str_label) && $this->str_label ? $this->str_label : ''; ?>
+	</div>
+	<div data-lsjs-element="optionsBox_content" class="content">
+		<div data-lsjs-element="optionsBox_filterOptionsWrapper" class="filterOptionsWrapper">
+			<?php
+				$count = 0;
+				foreach ($this->arr_moreData['arrOptions'] as $i => $arrOption) {
+					$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']++;
+					$count++;
+					?>
+					<div data-lsjs-element="optionsBox_filterOption" class="filterOption <?php echo isset($arrOption['class']) && $arrOption['class'] ? ' '.$arrOption['class'] : ''; ?><?php echo $count <= $this->arr_moreData['numItemsInReducedMode'] || $arrOption['important'] ? ' important' : ''; ?><?php echo isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) && $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] && !$_SESSION['lsShop']['filter']['noMatchEstimatesDetermined'] && (($blnDetailMode && $arrOption['matchEstimates']['variants'] == 0) || (!$blnDetailMode && $arrOption['matchEstimates']['products'] == 0)) ? ' noMatch' : ''; ?>">
+						<input type="<?php echo $this->arr_moreData['filterFormFieldType']; ?>" name="<?php echo $this->str_name.((count($this->arr_moreData['arrOptions']) > 1) ? '[]' : ''); ?>" id="opt_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" class="<?php echo $this->arr_moreData['filterFormFieldType']; ?> opt_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" value="<?php echo $arrOption['value']; ?>"<?php echo (is_array($this->var_value) && in_array($arrOption['value'], $this->var_value)) || $this->var_value == $arrOption['value'] ? ' checked' : '' ?> />
+						<label id="lbl_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" class="lbl_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" for="opt_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>">
+                            <span class="label-content">
+                                <span class="label-text">
+                                    <?php echo $arrOption['label']; ?>
+                                </span>
+                            </span>
+							<?php
+								if (is_array($arrOption['matchEstimates'])) {
+									?>
+									<span class="numEstimatedMatches">(<?php
+											/*
+											 * If we are in a product detail view we want to show the number of
+											 * variant matches and not the number of product matches because this
+											 * would always be 1.
+											 */
+											if ($blnDetailMode) {
+												echo $arrOption['matchEstimates']['variants'];
+											} else {
+												echo $arrOption['matchEstimates']['products'];
+											}
+
+									?>)</span>
+									<?php
+								}
+							?>
+						</label>
+					</div>
+					<?php
+				}
+			?>
+		</div>
+        <div class="special-toggler-container">
+            <?php
+            if ($this->arr_moreData['filterFormFieldType'] === 'radio') {
+                ?>
+                <div data-lsjs-element="uncheckRadio" class="uncheck-radio"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110-2']; ?></div>
+                <?php
+            } else {
+                ?>
+                <div data-lsjs-element="checkAll" class="check-all"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110']; ?></div>
+                <?php
+            }
+            ?>
+            <div data-lsjs-element="showMoreLess" class="show-more-less"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText110-1']; ?></div>
+        </div>
+        <?php
+        if ($this->arr_moreData['filterFormFieldType'] !== 'radio') {
+            ?>
+            <div class="filterMode">
+                <?php
+                    if ($this->arr_moreData['flexContentLIKey'] !== null) {
+                        if ($this->arr_moreData['makeFilterModeUserAdjustable']) {
+                            ?>
+                            <label for="<?php echo $this->str_name.'_filterMode'; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterModeLabel']; ?></label>
+                            <select id="<?php echo $this->str_name.'_filterMode'; ?>" name="filterModeForFlexContentLI[<?php echo $this->arr_moreData['flexContentLIKey']; ?>]">
+                                <?php
+                                    if (isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$this->arr_moreData['flexContentLIKey']])) {
+                                        $bln_orIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$this->arr_moreData['flexContentLIKey']] === 'or';
+                                        $bln_andIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$this->arr_moreData['flexContentLIKey']] === 'and';
+                                    } else {
+                                        $bln_orIsSelected = $this->arr_moreData['filterMode'] === 'or';
+                                        $bln_andIsSelected = $this->arr_moreData['filterMode'] === 'and';
+                                    }
+                                ?>
+                                <option value="or"<?php echo $bln_orIsSelected ? ' selected' : ''; ?>><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterMode']['or']; ?></option>
+                                <option value="and"<?php echo $bln_andIsSelected ? ' selected' : ''; ?>><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterMode']['and']; ?></option>
+                            </select>
+                            <?php
+                        } else {
+                            ?>
+                            <input type="hidden" name="filterModeForFlexContentLI[<?php echo $this->arr_moreData['flexContentLIKey']; ?>]" value="<?php echo $this->arr_moreData['filterMode']; ?>" />
+                            <?php
+                        }
+                    }
+                ?>
+            </div>
+            <?php
+        }
+        ?>
+	</div>
+</div>
