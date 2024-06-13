@@ -966,10 +966,7 @@ class ls_shop_languageHelper {
                  * remove the leading slash, as Merconis does not expect it
                  */
                 $strUrl = System::getContainer()->get('contao.routing.content_url_generator')->generate($pageModel);
-                if($strUrl[0] == '/') {
-                    $strUrl = substr($strUrl,1);
-                }
-                $GLOBALS['merconis_globals'][$key.'Url'] = $strUrl;
+                $GLOBALS['merconis_globals'][$key.'Url'] = ltrim($strUrl, '/');
 			}
 
 			$GLOBALS['merconis_globals'][$key.'ID'] = $pageID;
