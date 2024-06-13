@@ -19,7 +19,7 @@ merconis.backend.show_mail_html_body:
   requirements:
     messageId: '\d+'
   defaults:
-    _controller: merconis.controller.backend.show_mail:htmlBodyAction
+    _controller: merconis.controller.backend.show_mail
     _scope:      "backend"
     _token_check: true
     _custom_backend_view: true
