@@ -3861,16 +3861,7 @@ class ls_shop_generalHelper
          * Replace the wildcards for the link to the after checkout page using the order identification hash
          */
         if ($arrOrder['orderIdentificationHash']) {
-            /*
-             * remove last char of domain because if it's a slash, because ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages')
-             * also returns a slash at the start and we don't want double slashes
-             */
-            $domain = ($arrOrder['miscData']['domain'] ?: Environment::get('base'));
-            $lastChar = substr($domain, -1);
-            if($lastChar == '/'){
-                $domain = substr($domain, 0, -1);
-            }
-            $afterCheckoutUrl = $domain . ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages') . (preg_match('/\?/', ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages')) ? '&' : '?') . 'oih=' . $arrOrder['orderIdentificationHash'];
+            $afterCheckoutUrl = ($arrOrder['miscData']['domain'] ?: Environment::get('base')) . ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages') . (preg_match('/\?/', ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages')) ? '&' : '?') . 'oih=' . $arrOrder['orderIdentificationHash'];
             $text = preg_replace('/(&#35;&#35;afterCheckoutUrl&#35;&#35;)|(##afterCheckoutUrl##)/siU', $afterCheckoutUrl, $text);
         }
 

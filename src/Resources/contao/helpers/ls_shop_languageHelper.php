@@ -962,7 +962,14 @@ class ls_shop_languageHelper {
 			if ($objLanguagePage->numRows) {
 				$GLOBALS['merconis_globals'][$key.'Array'] = $objLanguagePage->row();
                 $pageModel = PageModel::findWithDetails($GLOBALS['merconis_globals'][$key.'Array']['id']);
-                $GLOBALS['merconis_globals'][$key.'Url'] = $pageModel->getFrontendUrl();
+                /*
+                 * remove the leading slash, as Merconis does not expect it
+                 */
+                $strUrl = System::getContainer()->get('contao.routing.content_url_generator')->generate($pageModel);
+                if($strUrl[0] == '/') {
+                    $strUrl = substr($strUrl,1);
+                }
+                $GLOBALS['merconis_globals'][$key.'Url'] = $strUrl;
 			}
 
 			$GLOBALS['merconis_globals'][$key.'ID'] = $pageID;
