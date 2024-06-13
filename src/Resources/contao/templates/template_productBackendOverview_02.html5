@@ -19,7 +19,7 @@
 		<?php if ($this->mode == 'productSelection'): ?>
 			<a onclick="ls_shop_productSelection.selectProduct(<?php echo $this->objProduct->_id; ?>)"><?php echo $GLOBALS['TL_LANG']['be_productSearch']['text013']; ?></a>
 		<?php else: ?>
-			<a href="contao/main.php?do=ls_shop_product&table=tl_ls_shop_variant&id=<?php echo $this->objProduct->_id; ?>"><?php echo $GLOBALS['TL_LANG']['be_productSearch']['text014']; ?></a>
+			<a href="contao?do=ls_shop_product&table=tl_ls_shop_variant&id=<?php echo $this->objProduct->_id; ?>"><?php echo $GLOBALS['TL_LANG']['be_productSearch']['text014']; ?></a>
 		<?php endif; ?>
 	</td>
 </tr>
