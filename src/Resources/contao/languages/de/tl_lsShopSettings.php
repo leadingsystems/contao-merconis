@@ -4,7 +4,6 @@
 	 * Fields
 	 */
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_country']					= array('Land, in dem der Shop betrieben wird', 'Tragen Sie hier die zweistellige Länderkennung (ISO-3166-1-Kodierliste) des Landes ein, in dem der Shop betrieben wird.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_serial']					= array('Seriennummer', 'Bitte tragen Sie hier die Seriennummer ein, die Sie beim Kauf der Software erhalten haben.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownVATID']				= array('Eigene USt-IdNr.', 'Sofern sie über eine USt-IdNr. verfügen, tragen Sie diese hier bitte ein.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_euCountrycodes']			= array('EU-Länder', 'Tragen Sie hier die zweistelligen Länderkennungen (ISO-3166-1-Kodierliste) der EU-Staaten ein.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_currency']				= array('Währung', 'Tragen Sie hier die Währung ein, wie Sie überall im Shop verwendet werden soll.');

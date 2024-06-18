@@ -8,6 +8,7 @@ class GetSystemMessagesListener
 {
     public function __invoke(): string
     {
-        return ls_shop_generalHelper::getMerconisSystemMessages();
+//        return ls_shop_generalHelper::getMerconisSystemMessages();
+        return '';
     }
 }
