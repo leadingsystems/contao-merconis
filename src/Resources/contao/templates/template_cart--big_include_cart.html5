@@ -86,7 +86,7 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                             <?php
                         }
                         ?>
-                        {{image::<?=$imgToUse?>?width=600&height=600&mode=box}}
+                        {{shop_picture::<?=$imgToUse?>?size=productCart}}
                         <?php
                         if (!$objProduct->_configuratorHasValue) {
                             ?>

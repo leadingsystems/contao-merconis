@@ -85,7 +85,7 @@ $bln_displayProductCartPreview = true;
                                 if ($imgToUse) {
                                     ?>
                                     <a<?php if (!$obj_productInCart->_configuratorHasValue) { ?> href="<?php echo $obj_tmp_productOrVariantInCart->_link; ?>"<?php } ?>>
-                                        {{image::<?=$imgToUse?>?width=600&height=600&mode=box}}
+                                        {{shop_picture::<?=$imgToUse?>?size=productCartPreview}}
                                     </a>
                                     <?php
                                 }
