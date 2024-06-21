@@ -1,107 +1,54 @@
 <div class="variant-selector-interface <?= arg.__models.options.data.interfaceType =?>">
-
-    <?
-
+<?
 	Object.each(
-
 		arg.__models.attributesAndValues.readData('obj_allAttributeValues'),
-
 		function(obj_attribute) {
-
 			?>
-
-    <div class="attributeBox" data-lsjs-element="attributeBox">
-
-        <div class="attribute-header">
-
-            <h3 class="attribute-headline"><?= obj_attribute.attributeTitle =?></h3>
-
-            <div
-
-                    class="more-options-info"
-
-                    data-lsjs-value-attributeId="<?= obj_attribute.attributeID =?>"
-
-                    data-lsjs-bindToModel="attributesAndValues"
-
-                    data-lsjs-bindToPath=""
-
-                    data-lsjs-bindToProperty="html"
-
-                    data-lsjs-bindToTranslation="bindingTranslation_getMoreOptionsInfo"
-
-            >
-
-            </div>
-
-            <div
-
-                    class="selected-value-info"
-
-                    data-lsjs-value-attributeId="<?= obj_attribute.attributeID =?>"
-
-                    data-lsjs-bindToModel="attributesAndValues"
-
-                    data-lsjs-bindToPath=""
-
-                    data-lsjs-bindToProperty="html"
-
-                    data-lsjs-bindToTranslation="bindingTranslation_determineSelectedValueInfo"
-
-            >
-
-            </div>
-
-        </div>
-
-        <div class="values">
-
-            <?
-
+			<div class="attributeBox" data-lsjs-element="attributeBox">
+				<div class="attribute-header">
+					<h3 class="attribute-headline"><?= obj_attribute.attributeTitle =?></h3>
+					<div
+							class="more-options-info"
+							data-lsjs-value-attributeId="<?= obj_attribute.attributeID =?>"
+							data-lsjs-bindToModel="attributesAndValues"
+							data-lsjs-bindToPath=""
+							data-lsjs-bindToProperty="html"
+							data-lsjs-bindToTranslation="bindingTranslation_getMoreOptionsInfo"
+					>
+					</div>
+					<div
+						class="selected-value-info"
+						data-lsjs-value-attributeId="<?= obj_attribute.attributeID =?>"
+						data-lsjs-bindToModel="attributesAndValues"
+						data-lsjs-bindToPath=""
+						data-lsjs-bindToProperty="html"
+						data-lsjs-bindToTranslation="bindingTranslation_determineSelectedValueInfo"
+					>
+					</div>
+				</div>
+				<div class="values">
+				<?
 				for (const [key, obj_value] of Object.entries(obj_attribute.values).sort((a, b) => (parseInt(a[1].valueSorting) > parseInt(b[1].valueSorting)) ? 1 : -1)) {
-
-            ?>
-
-            <div
-
-                    data-lsjs-element="btn_valueSelect"
-
-                    class="value"
-
-                    data-lsjs-value-attributeId="<?= obj_attribute.attributeID =?>"
-
-                    data-lsjs-value-valueId="<?= obj_value.valueID =?>"
-
-                    data-lsjs-bindToModel="attributesAndValues"
-
-                    data-lsjs-bindToPath=""
-
-                    data-lsjs-bindToProperty="data-lsjs-class"
-
-                    data-lsjs-bindToTranslation="bindingTranslation_selectedValueIdToSelectionClass"
-
-            >
-
-                <span><?= obj_value.valueTitle =?></span>
-
-            </div>
-
-            <?
-
+					?>
+					<div
+						data-lsjs-element="btn_valueSelect"
+						class="value"
+						data-lsjs-value-attributeId="<?= obj_attribute.attributeID =?>"
+						data-lsjs-value-valueId="<?= obj_value.valueID =?>"
+						data-lsjs-bindToModel="attributesAndValues"
+						data-lsjs-bindToPath=""
+						data-lsjs-bindToProperty="data-lsjs-class"
+						data-lsjs-bindToTranslation="bindingTranslation_selectedValueIdToSelectionClass"
+					>
+						<span><?= obj_value.valueTitle =?></span>
+					</div>
+					<?
 				}
-
 				?>
-
-        </div>
-
-    </div>
-
-    <?
-
+				</div>
+			</div>
+			<?
 		}
-
 	);
-
 ?>
-
 </div>

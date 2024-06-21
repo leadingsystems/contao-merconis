@@ -1,21 +1,21 @@
 <div data-lsjs-element="hitSelectorOutside" class="merconisHitSelectorOutside">
-    <div data-lsjs-element="hitSelector" class="merconisHitSelector">
-        <?
+	<div data-lsjs-element="hitSelector" class="merconisHitSelector">
+		<?
 		Array.each(this.__models.hits.data, function(obj_hitValue, obj_hitKey) {
 			?>
-        <a href="<?= obj_hitValue._linkToProduct =?>" class="hit">
-            <div class="imageBox">
-                <img src="<?= obj_hitValue._mainImage =?>" alt="">
-            </div>
-            <div class="detailsBox">
-                <div class="_title"><?= obj_hitValue._title =?></div>
-                <div class="_code"><?= obj_hitValue._code =?></div>
-                <div class="_shortDescription"><?= obj_hitValue._shortDescription =?></div>
-                <div class="_priceAfterTaxFormatted"><?= obj_hitValue._priceAfterTaxFormatted =?></div>
-            </div>
-        </a>
-        <?
+			<a href="<?= obj_hitValue._linkToProduct =?>" class="hit">
+				<div class="imageBox">
+					<img src="<?= obj_hitValue._mainImage =?>" alt="">
+				</div>
+				<div class="detailsBox">
+					<div class="_title"><?= obj_hitValue._title =?></div>
+					<div class="_code"><?= obj_hitValue._code =?></div>
+					<div class="_shortDescription"><?= obj_hitValue._shortDescription =?></div>
+					<div class="_priceAfterTaxFormatted"><?= obj_hitValue._priceAfterTaxFormatted =?></div>
+				</div>
+			</a>
+			<?
 		});
 		?>
-    </div>
+	</div>
 </div>

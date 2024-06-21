@@ -40,7 +40,7 @@ class ThemeInstaller
     /*
      * Prevent cloning of the object (Singleton)
      */
-    final function __clone()
+    private function __clone()
     {
     }
 
@@ -121,7 +121,7 @@ class ThemeInstaller
         $arr_exportTables = StringUtil::deserialize(file_get_contents(System::getContainer()->getParameter('kernel.project_dir') . '/' . $this->getThemeSetupDataPath() . '/exportTables.dat'));
         $this->importTables($arr_exportTables);
         $this->restoreForeignKeyRelations();
-        $this->updateInsertTagCorrelations__insert_module();
+        $this->updateInsertTagCorrelations__insert_module(); //x
         Config::getInstance()->update("\$GLOBALS['TL_CONFIG']['ls_shop_installedCompletely']", true);
         System::getContainer()->get('monolog.logger.contao')->info('MERCONIS INSTALLER: Setting installation complete flag in localconfig.php', ['contao' => new ContaoContext('MERCONIS INSTALLER', TL_MERCONIS_INSTALLER)]);
     }
@@ -193,7 +193,7 @@ class ThemeInstaller
                         WHERE		`id` = ?
                     ")
                     ->limit(1)
-                    ->execute($arr_queryValues);
+                    ->execute(...array_values($arr_queryValues));
             }
         }
     }
@@ -448,6 +448,11 @@ class ThemeInstaller
 
         $str_setStatement = '';
 
+        //remove emtpy fields because it gets a database error, this check can maybe get removed in the future
+        $arr_data = array_filter($arr_data, function($value) {
+            return !empty($value);
+        });
+
         foreach ($arr_data as $str_fieldName => $var_value) {
             /*
              * If the field does not exist in the target table, the field will not be included in the insert statement.
@@ -468,7 +473,7 @@ class ThemeInstaller
 			INSERT INTO `".$str_targetTable."`
 			SET		".$str_setStatement."
 		")
-            ->execute($arr_data);
+            ->execute(...array_values($arr_data));
 
         $int_insertId = $obj_dbquery->insertId;
 
@@ -536,8 +541,6 @@ class ThemeInstaller
         return 'vendor/' . $this->arr_installedThemeExtensions[0] . '/src/Resources';
     }
 
-
-
     private function getThemeSetupDataPath()
     {
         return $this->getThemeResourcesFolder() . '/theme/setup';
@@ -574,8 +577,6 @@ class ThemeInstaller
     {
         $this->arr_installedThemeExtensions = ls_shop_generalHelper::getInstalledThemeExtensions();
     }
-
-
 }
 
 abstract class themeInstallerStatus

@@ -1,14 +1,14 @@
 var obj_classdef_model = {
-    name: 'options',
+	name: 'options',
 
-    data: {
-    },
+	data: {
+	},
 
-    start: function() {
-        this.__module.onModelLoaded();
-    },
+	start: function() {
+		this.__module.onModelLoaded();
+	},
 
-    set: function(obj_options) {
-        Object.merge(this.data, obj_options);
-    }
+	set: function(obj_options) {
+		Object.merge(this.data, obj_options);
+	}
 };

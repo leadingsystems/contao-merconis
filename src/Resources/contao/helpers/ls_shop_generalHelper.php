@@ -26,6 +26,7 @@ use Contao\Image;
 use Contao\Input;
 use Contao\LayoutModel;
 use Contao\PageModel;
+use Contao\PageRegular;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Validator;
@@ -300,10 +301,9 @@ class ls_shop_generalHelper
         return $arr_productImages;
     }
 
-    public static function getProductImageByPath($str_imagePath, $int_width = 20, $int_height = 20, $str_mode = '')
+    public static function getProductImageByPath($str_imagePath, $int_width = 20, $int_height = 20, $str_mode = '', $bln_force = false)
     {
-        $img = new \Merconis\Core\Image($str_imagePath);
-        return $img->getSrc([$int_width, $int_height, $str_mode]);
+        Image::get($str_imagePath, $int_width, $int_height, $str_mode, null, $bln_force);
     }
 
     /*
@@ -601,7 +601,7 @@ class ls_shop_generalHelper
         if (!isset($GLOBALS['merconis_globals']['LaFP']['y2'])) {
             $GLOBALS['merconis_globals']['LaFP']['y2'] = true;
 
-            eval (pack('H*', '696620282169737365742824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d29207c7c202124474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d207c7c20737472746f6c6f776572287375627374722824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d2c20302c2033292920213d20737562737472286d643528737472746f6c6f776572287375627374722824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d2c20332c207374726c656e2824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d29202d20332929292c302c332929207b205c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736e496e76616c6964275d222c2074727565293b205c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b2072657475726e3b207d'));
+            eval (pack('H*', '6966202824474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d20213d20283939393939392929207b20436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c202839393939393929293b20436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b207d'));
 
             $arr_snp = null;
             eval (pack('H*', '246172725f736e70203d202124474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d203f206e756c6c203a206578706c6f646528272d272c2024474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d293b'));
@@ -614,10 +614,10 @@ class ls_shop_generalHelper
             }
 
             if ($str_sn && substr(md5($str_sn), 0, 5) == $str_hs) {
-                eval (pack('H*', '6966202824474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d20213d20283939393939392929207b205c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c202839393939393929293b205c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b207d'));
+                eval (pack('H*', '6966202824474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d20213d20283939393939392929207b20436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c202839393939393929293b20436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b207d'));
             } else {
                 eval (pack('H*', '2475745f4c614650203d20686578646563287375627374722824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d2c20332c207374726c656e2824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d29202d203329293b20247374725f646c203d20274234273b'));
-                eval (pack('H*', '5c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c20286365696c282868657864656328247374725f646c29202d202874696d652829202d202475745f4c61465029202f2028383634303029292929293b205c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b'));
+                eval (pack('H*', '436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c20286365696c282868657864656328247374725f646c29202d202874696d652829202d202475745f4c61465029202f2028383634303029292929293b20436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b'));
             }
         }
     }
@@ -2760,8 +2760,8 @@ class ls_shop_generalHelper
         /*
          * Replacing the old placeholders with the new insert tags for backwards compatibility
          */
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shop_delivery_date}}', $str_deliveryTimeMessage);
-        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shop_delivery_time_days}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
 
         $str_deliveryTimeMessage = System::getContainer()->get('contao.insert_tag.parser')->replace($str_deliveryTimeMessage);
 
@@ -3969,10 +3969,6 @@ class ls_shop_generalHelper
      */
     public static function ls_shop_provideInfosForJS()
     {
-        if (!isset($GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) || !$GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) {
-            return;
-        }
-
         // get the url of the merconis ajax page
         $str_ajaxUrl = ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages');
         $int_minicartID = isset($GLOBALS['TL_CONFIG']['ls_shop_miniCartModuleID']) ? $GLOBALS['TL_CONFIG']['ls_shop_miniCartModuleID'] : 0;
@@ -3981,12 +3977,21 @@ class ls_shop_generalHelper
         ?>
         <script type="text/javascript">
             window.addEvent('domready', function () {
+                <?php
+                /*
+                 * LSJS ->
+                 */
+                if (isset($GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) && $GLOBALS['lsjs4c_globals']['lsjs4c_loadLsjs']) {
+                ?>
                 if (lsjs.__appHelpers.merconisApp !== undefined && lsjs.__appHelpers.merconisApp !== null) {
                     lsjs.__appHelpers.merconisApp.obj_config.REQUEST_TOKEN = '<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.str_ajaxUrl = '<?php echo $str_ajaxUrl; ?>';
                     lsjs.__appHelpers.merconisApp.obj_config.int_minicartID = '<?php echo $int_minicartID; ?>';
                     lsjs.__appHelpers.merconisApp.start();
                 }
+                <?php
+                }
+                ?>
             });
         </script>
         <?php
@@ -4773,6 +4778,54 @@ class ls_shop_generalHelper
         return $objLayout;
     }
 
+    /*
+     * This function checks if we are on a product detail page and if we are,
+     * it checks if the page has different layout settings for the details view
+     * and if it has, it overwrites the page's regular layout settings
+     */
+    public static function ls_shop_switchTemplateInDetailsViewIfNecessary(PageModel &$objPage, LayoutModel &$objLayout, PageRegular $objPageRegular)
+    {
+
+        if (!Input::get('product')) {
+            /*
+             * We don't have to deal with different layouts because we are
+             * not on a product details page
+             */
+            return;
+        }
+
+        $int_layout = $objPage->lsShopIncludeLayoutForDetailsView ? $objPage->lsShopLayoutForDetailsView : false;
+
+        if ($objPage->type != 'root') {
+            $int_pid = $objPage->pid;
+            $str_type = $objPage->type;
+            $objParentPage = PageModel::findParentsById($int_pid);
+
+            if ($objParentPage !== null) {
+                while ($int_pid > 0 && $str_type != 'root' && $objParentPage->next()) {
+                    $int_pid = $objParentPage->pid;
+                    $str_type = $objParentPage->type;
+
+                    if ($objParentPage->lsShopIncludeLayoutForDetailsView) {
+                        if ($int_layout === false) {
+                            $int_layout = $objParentPage->lsShopLayoutForDetailsView;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($int_layout === false) {
+            /*
+             * We don't have to consider different layouts
+             */
+            return;
+        }
+        $objPage->layout = $int_layout !== false ? $int_layout : $objPage->layout;
+
+        $objLayout = ls_shop_generalHelper::merconis_getPageLayout($objPage);
+    }
+
     public static function ls_shop_getThemeDataForID($int_themeID = null)
     {
         $arr_themeData = array();
@@ -4817,6 +4870,30 @@ class ls_shop_generalHelper
         }
 
         return $arr_pageData;
+    }
+
+    public static function merconis_getLayoutSettingsForGlobalUse(PageModel $objPage, LayoutModel $objLayout, PageRegular $objPageRegular)
+    {
+        $GLOBALS['merconis_globals']['layoutID'] = $objLayout->id;
+        $GLOBALS['merconis_globals']['layoutName'] = $objLayout->name;
+        $GLOBALS['merconis_globals']['ls_shop_activateFilter'] = $objLayout->ls_shop_activateFilter;
+        $GLOBALS['merconis_globals']['ls_shop_useFilterInStandardProductlist'] = $objLayout->ls_shop_useFilterInStandardProductlist;
+        $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = $objLayout->ls_shop_numFilterFieldsInSummary;
+        $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] = $objLayout->ls_shop_useFilterMatchEstimates;
+        $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxNumProducts'] = $objLayout->ls_shop_matchEstimatesMaxNumProducts;
+        $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxFilterValues'] = $objLayout->ls_shop_matchEstimatesMaxFilterValues;
+        $GLOBALS['merconis_globals']['ls_shop_useFilterInProductDetails'] = $objLayout->ls_shop_useFilterInProductDetails;
+        $GLOBALS['merconis_globals']['ls_shop_hideFilterFormInProductDetails'] = $objLayout->ls_shop_hideFilterFormInProductDetails;
+
+        $arr_themeData = ls_shop_generalHelper::ls_shop_getThemeDataForID($objLayout->pid);
+        $GLOBALS['merconis_globals']['contaoThemeFolders'] = isset($arr_themeData) ? StringUtil::deserialize($arr_themeData['folders'], true) : array();
+
+        $GLOBALS['merconis_globals']['int_rootPageId'] = $objPage->rootId;
+        $arr_pageData = ls_shop_generalHelper::ls_shop_getPageDataForID($objPage->rootId);
+
+        $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = $arr_pageData['ls_shop_decimalsSeparator'];
+        $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] = $arr_pageData['ls_shop_thousandsSeparator'];
+        $GLOBALS['merconis_globals']['ls_shop_currencyBeforeValue'] = $arr_pageData['ls_shop_currencyBeforeValue'];
     }
 
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
@@ -4987,6 +5064,36 @@ class ls_shop_generalHelper
         $str_merconisVersion = $arr_matches[1];
 
         return $str_merconisVersion;
+    }
+
+    /*
+     * This function is called by contao's "initializeSystem" hook and its
+     * purpose is to bypass the referer token check under certain circumstances.
+     * For example in case of a status push by payone, post data is sent to
+     * contao/merconis without a proper request_token. This call would fail
+     * unless we make an exception. Contao has a built in referer whitelist
+     * which unfortunately can only be used with domain names. There can be
+     * situations in which we need a whitelist using IP addresses. In fact
+     * that's the case with the payone status pushes.
+     */
+    public static function bypassRefererCheckIfNecessary()
+    {
+        if (
+            !isset($GLOBALS['TL_CONFIG']['ls_shop_ipWhitelist'])
+            && !isset($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'])
+        ) {
+            return;
+        }
+
+        $arr_allowedIpAddresses = array_map('trim', explode(',', $GLOBALS['TL_CONFIG']['ls_shop_ipWhitelist']));
+
+        if (!isset($_SERVER['REMOTE_ADDR']) || in_array($_SERVER['REMOTE_ADDR'], $arr_allowedIpAddresses)) {
+            define('BYPASS_TOKEN_CHECK', true);
+        } else if (strlen($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'] ?? '') > 2) {
+            if (preg_match($GLOBALS['TL_CONFIG']['ls_shop_urlWhitelist'], \Environment::get('request'))) {
+                define('BYPASS_TOKEN_CHECK', true);
+            }
+        }
     }
 
     public static function ls_roundPrice($a = 0, $b = false)
@@ -5338,6 +5445,7 @@ class ls_shop_generalHelper
 
         ob_start();
         ?>
+        <script src="assets/lsjs/core/appBinder/binder.php?output=js&pathToApp=<?php echo urldecode('_dup4_/'.$webDir.'/bundles/leadingsystemsmerconis/js/lsjs/backend/app'); ?>&includeCore=no&includeCoreModules=no<?php echo ($GLOBALS['TL_CONFIG']['ls_shop_lsjsDebugMode'] ? '&debug=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoCacheMode'] ? '&no-cache=1' : '').($GLOBALS['TL_CONFIG']['ls_shop_lsjsNoMinifierMode'] ? '&&no-minifier=1' : '');?>"></script>
         <script type="text/javascript">
             window.addEvent('domready', function () {
                 if (lsjs.__appHelpers.merconisBackendApp !== undefined && lsjs.__appHelpers.merconisBackendApp !== null) {

@@ -1,4 +1,5 @@
 /*
+relevant foreign key relations concerning tables which are not defined in this file:
 
 @tl_article.pid@tl_page.id=single@
 @tl_content.pid@tl_article.id=single@

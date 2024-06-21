@@ -1,15 +1,15 @@
 var obj_classdef_model = {
-    name: 'options',
+	name: 'options',
 
-    data: {
-        interfaceType: 'standard' // standard, folded
-    },
+	data: {
+		interfaceType: 'standard' // standard, folded
+	},
 
-    start: function() {
-        this.__module.onModelLoaded();
-    },
+	start: function() {
+		this.__module.onModelLoaded();
+	},
 
-    set: function(obj_options) {
-        Object.merge(this.data, obj_options);
-    }
+	set: function(obj_options) {
+		Object.merge(this.data, obj_options);
+	}
 };

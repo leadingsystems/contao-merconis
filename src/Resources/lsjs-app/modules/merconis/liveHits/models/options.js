@@ -1,15 +1,15 @@
 var obj_classdef_model = {
-    name: 'options',
+	name: 'options',
 
-    data: {
-        var_inputField: '.liveHits input[name="merconis_searchWord"]'
-    },
+	data: {
+		var_inputField: '.liveHits input[name="merconis_searchWord"]'
+	},
 
-    start: function() {
-    },
+	start: function() {
+	},
 
-    set: function(obj_options) {
-        Object.merge(this.data, obj_options);
-        this.__module.onModelLoaded();
-    }
+	set: function(obj_options) {
+		Object.merge(this.data, obj_options);
+		this.__module.onModelLoaded();
+	}
 };

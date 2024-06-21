@@ -107,8 +107,9 @@ class ls_shop_apiController_themeExporter
      */
     protected function exportLocalconfig()
     {
-        if (file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName)) {
-            unlink(System::getContainer()->getParameter('kernel.project_dir') . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName);
+        $rootDir = System::getContainer()->getParameter('kernel.project_dir');
+        if (file_exists($rootDir . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName)) {
+            unlink($rootDir . '/' . $this->str_dataExportPath . '/' . $this->str_localconfigExportFileName);
         }
 
         $arrLocalconfigExport = array();
@@ -118,7 +119,7 @@ class ls_shop_apiController_themeExporter
             }
         }
 
-        $objFile = new \File($this->str_dataExportPath . '/' . $this->str_localconfigExportFileName);
+        $objFile = new File($this->str_dataExportPath . '/' . $this->str_localconfigExportFileName);
         $objFile->write(serialize($arrLocalconfigExport));
         $objFile->close();
     }
@@ -130,8 +131,9 @@ class ls_shop_apiController_themeExporter
      */
     protected function exportTables()
     {
-        if (file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName)) {
-            unlink(System::getContainer()->getParameter('kernel.project_dir') . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName);
+        $rootDir = System::getContainer()->getParameter('kernel.project_dir');
+        if (file_exists($rootDir . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName)) {
+            unlink($rootDir . '/' . $this->str_dataExportPath . '/' . $this->str_tablesExportFileName);
         }
 
         $arrTables = array(
@@ -191,7 +193,7 @@ class ls_shop_apiController_themeExporter
             }
         }
 
-        $objFile = new \File($this->str_dataExportPath . '/' . $this->str_tablesExportFileName);
+        $objFile = new File($this->str_dataExportPath . '/' . $this->str_tablesExportFileName);
 
         $objFile->write(serialize($arrTables));
         $objFile->close();

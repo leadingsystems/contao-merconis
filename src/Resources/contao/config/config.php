@@ -166,3 +166,4 @@ $GLOBALS['TL_CTE']['lsShop']['lsShopCrossSellerCTE'] = 'Merconis\Core\ls_shop_cr
 
 $GLOBALS['TL_HOOKS']['getUserNavigation'][] = array('Merconis\Core\ls_shop_generalHelper', 'manipulateBackendNavigation');
 $GLOBALS['TL_HOOKS']['getSystemMessages'][] = array('Merconis\Core\ls_shop_generalHelper', 'getMerconisSystemMessages');
+
