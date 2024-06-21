@@ -233,7 +233,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_shipping_methods'] = array(
 			'exclude'                 => true,
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_shipping_methods']['countriesAsBlacklist'],
 			'inputType'               => 'checkbox',
-			'eval'					  =>	array('tl_class' => 'w50'),
+			'eval'					  =>	array('tl_class' => 'w50 m12'),
             'sql'                     => "char(1) NOT NULL default ''"
 		),
 
