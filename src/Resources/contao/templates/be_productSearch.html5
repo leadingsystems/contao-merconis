@@ -21,6 +21,7 @@ use Contao\System;
         <script src="<?= $this->asset('js/mootools.min.js', 'contao-components/mootools') ?>"></script>
         <script src="<?= $this->asset('backend.js', 'contao_core') ?>"></script>
         <script><?= $this->getDateString() ?></script>
+        <?= $this->javascripts ?>
 
         <script>
             parent.REQUEST_TOKEN = '<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>';
@@ -32,6 +33,70 @@ use Contao\System;
             }
             .searchResults tbody a[onclick] {
                 cursor: pointer;
+            }
+
+            /* Pagination */
+            .pagination {
+                display: flow-root;
+                background: var(--panel-bg);
+                margin-bottom: 18px;
+                margin-top: 18px;
+                border: solid var(--border);
+                border-width: 1px 0;
+                padding: 12px 15px;
+            }
+            .pagination ul {
+                width: 60%;
+                float: right;
+                text-align: right;
+            }
+            .pagination p {
+                width: 30%;
+                float: left;
+                margin-bottom: 0;
+            }
+            .pagination li {
+                display: inline;
+                padding-left: 3px;
+            }
+            .pagination .active {
+                color: var(--gray);
+            }
+            .pagination-lp {
+                margin-bottom: 0;
+                border-bottom: 0;
+                padding: 15px 12px;
+            }
+
+            /*Loading Indicator*/
+            @keyframes loadingIndicator-spinner {
+                to {transform: rotate(360deg);}
+            }
+            .moduleContainer.loadingIndicator {
+                display: none;
+            }
+            .moduleContainer.loadingIndicator.show {
+                display: block;
+            }
+            .main.loadingIndicator {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background-color: rgba(255,255,255,0.5);
+                z-index: 100000;
+                display: flex;
+            }
+            .main.loadingIndicator::before {
+                content: '-----';
+                animation: loadingIndicator-spinner 1.5s linear infinite;
+                color: #000000;
+                font-size: 4rem;
+                margin: auto;
+            }
+            .main.loadingIndicator [data-lsjs-element="loadingText"] {
+                display: none;
             }
         </style>
 	</head>
