@@ -236,7 +236,6 @@
 }
 
 .ls_shop_multi_language .clr:not(.widget).languageWidgetContainer {
-  width: calc(100% - 30px);
 }
 
 .ls_shop_multi_language .languageWidgetContainer.w50 {
@@ -273,19 +272,18 @@
 }
 
 .topLinedGroup {
-  width: 100%;
   border-top: 1px solid #DDDDDD;
   margin-top: 15px;
   padding-top: 0px;
 }
 
 .ls_shop_multilanguage_fieldsWrapper {
-  width: 100%;
   margin-left: 15px;
 }
 
 .ls_shop_multilanguage_fieldsWrapper .widget {
   margin-left: 0px;
+  margin-right: 0px;
 }
 
 .languageWidgetContainer .merconis_multilanguage h3 {
