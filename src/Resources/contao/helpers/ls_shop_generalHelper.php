@@ -5511,9 +5511,15 @@ class ls_shop_generalHelper
     }
 
     public static function getInstalledThemeExtensions() {
-        $str_composerLockContent = file_get_contents(System::getContainer()->getParameter('kernel.project_dir') . '/composer.lock');
-        preg_match_all('/"name".*?:.*?"(.*\/merconis-theme.*)"/', $str_composerLockContent, $arr_matches);
-        $arr_installedThemeExtensions = $arr_matches[1];
+
+        $arr_installedThemeExtensions = [];
+
+        foreach (InstalledVersions::getInstalledPackages() as $strPackage) {
+            if (str_contains($strPackage, '/merconis-theme')) {
+                $arr_installedThemeExtensions[] = $strPackage;
+            }
+        }
+
         return $arr_installedThemeExtensions;
     }
 }
