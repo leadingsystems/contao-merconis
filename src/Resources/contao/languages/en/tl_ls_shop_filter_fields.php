@@ -61,8 +61,8 @@
 	 * Buttons
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['new']        = array('New field', 'Add a new filter field attribute');
-	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['editheader']        = array('Edit field', 'Edit filter field ID %s');
-	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit'] = array('Edit field', 'Edit filter field ID %s');
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit']        = array('Edit field', 'Edit filter field ID %s');
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['children'] = array('Edit field', 'Edit filter field ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['delete']        = array('Delete field', 'Delete filter field ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['copy']        = array('Copy field', 'Copy filter field ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['show']        = array('Show details', 'Show details of product feature ID %s');

@@ -61,8 +61,8 @@
 	 * Buttons
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['new']        = array('Neues Feld', 'Ein neues Filter-Feld anlegen');
-	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['editheader']        = array('Feld bearbeiten', 'Filter-Feld ID %s bearbeiten');
-	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit'] = array('Feld bearbeiten', 'Feld mit ID %s bearbeiten');
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit']        = array('Feld bearbeiten', 'Filter-Feld ID %s bearbeiten');
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['children'] = array('Feld bearbeiten', 'Feld mit ID %s bearbeiten');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['delete']        = array('Feld löschen', 'Filter-Feld ID %s löschen');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['copy']        = array('Feld kopieren', 'Filter-Feld ID %s kopieren');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['show']        = array('Details anzeigen', 'Details des Filter-Felds ID %s anzeigen');

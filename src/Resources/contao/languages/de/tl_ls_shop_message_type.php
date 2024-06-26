@@ -74,8 +74,8 @@
 	 * Buttons
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['new']        = array('Neue Nachrichtenart', 'Eine neue Nachrichtenart anlegen');
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['edit']        = array('Nachrichtenvorlagen bearbeiten', 'Nachrichtenvorlagen der Nachrichtenart ID %s bearbeiten');
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['editheader']        = array('Nachrichtenart bearbeiten', 'Nachrichtenart ID %s bearbeiten');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_type']['edit']        = array('Nachrichtenart bearbeiten', 'Nachrichtenart ID %s bearbeiten');
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['children']        = array('Nachrichtenvorlagen bearbeiten', 'Nachrichtenvorlagen der Nachrichtenart ID %s bearbeiten');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['delete']        = array('Nachrichtenart löschen', 'Nachrichtenart ID %s löschen');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['copy']        = array('Nachrichtenart kopieren', 'Nachrichtenart ID %s kopieren');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['show']        = array('Details anzeigen', 'Details der Nachrichtenart ID %s anzeigen');

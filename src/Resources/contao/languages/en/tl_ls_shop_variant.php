@@ -104,7 +104,6 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectio
  */
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['new']        = array('New variant', 'Define a new variant');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['edit']        = array('Edit variant', 'Edit variant with ID %s');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['editheader']  = array('Edit product', 'Edit product');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['delete']      = array('Delete variant', 'Delete variant ID %s');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['copy']        = array('Copy variant', 'Copy variant with ID %s');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['cut']        = array('Move variant', 'Move variant with ID %s');

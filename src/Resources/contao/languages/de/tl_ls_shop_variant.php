@@ -104,7 +104,6 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectio
  */
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['new']        = array('Neue Variante', 'Eine neue Variante anlegen');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['edit']        = array('Variante bearbeiten', 'Variante mit ID %s bearbeiten');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['editheader']  = array('Produkt bearbeiten', 'Produkt bearbeiten');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['delete']      = array('Variante löschen', 'Variante ID %s löschen');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['copy']        = array('Variante kopieren', 'Variante mit ID %s kopieren');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['cut']        = array('Variante verschieben', 'Variante mit ID %s verschieben');

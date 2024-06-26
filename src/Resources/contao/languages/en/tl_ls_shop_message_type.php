@@ -74,8 +74,8 @@
 	 * Buttons
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['new']        = array('New message type', 'Define a new message type');
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['edit']        = array('Edit message models', 'Edit message models of message type ID %s');
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['editheader']        = array('Edit message type', 'Edit message type ID %s');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_type']['edit']        = array('Edit message type', 'Edit message type ID %s');
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['children']        = array('Edit message models', 'Edit message models of message type ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['delete']        = array('Delete message type', 'Delete message type ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['copy']        = array('Copy message type', 'Copy message type ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['show']        = array('Show details', 'Show details of message type ID %s');

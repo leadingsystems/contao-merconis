@@ -60,15 +60,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 		),
 
 		'operations' => array(
-			'edit' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['edit'],
+            'edit' => array (
+                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['edit'],
+                'href'                => 'act=edit',
+                'icon'                => 'edit.svg'
+            ),
+			'children' => array(
+				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['children'],
 				'href'                => 'table=tl_ls_shop_attribute_values',
-				'icon'                => 'edit.svg'
-			),
-			'editheader' => array (
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['editheader'],
-				'href'                => 'act=edit',
-				'icon'                => 'header.svg'
+				'icon'                => 'children.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['copy'],

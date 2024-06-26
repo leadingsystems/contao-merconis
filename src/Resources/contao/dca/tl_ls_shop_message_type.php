@@ -51,18 +51,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 		),
 		
 		'operations' => array(
-			'edit' => array
+            'edit' => array
+            (
+                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['edit'],
+                'href'                => 'act=edit',
+                'icon'                => 'edit.svg'
+            ),
+			'children' => array
 			(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['edit'],
+				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['children'],
 				'href'                => 'table=tl_ls_shop_message_model',
-				'icon'                => 'edit.svg',
+				'icon'                => 'children.svg',
 				'attributes'          => 'class="contextmenu"'
-			),
-			'editheader' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['editheader'],
-				'href'                => 'act=edit',
-				'icon'                => 'header.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['copy'],
