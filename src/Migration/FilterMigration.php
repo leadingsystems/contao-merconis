@@ -61,7 +61,7 @@ class FilterMigration extends AbstractMigration
 
              $this->connection->executeStatement("
                     UPDATE
-                        tl_ls_shop_filter_fieldsxx
+                        tl_ls_shop_filter_fields
                     SET
                         templateToUse = 'template_formFilterField_standard'
                     WHERE 
