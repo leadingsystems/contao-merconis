@@ -19,36 +19,40 @@ class FilterMigration extends AbstractMigration
         $this->connection = $connection;
     }
 
-    public function getName(): string
-    {
-        return "Filter Migration";
-    }
-
     public function shouldRun(): bool
     {
-        $stmt = $this->connection->fetchNumeric("
-            SELECT *
-            FROM `tl_ls_shop_filter_fields` 
-            WHERE templateToUse='template_formFilterField_new' 
-                OR templateToUse='template_formPriceFilterField_new'
-        ");
-
         $needUpdate_tl_ls_shop_filter_fields = false;
-        if(is_array($stmt)){
-            $needUpdate_tl_ls_shop_filter_fields = (bool)count($stmt);
+        $needUpdate_tl_module = false;
+        $schemaManager = $this->connection->createSchemaManager();
+
+        if($schemaManager->tablesExist(['tl_ls_shop_filter_fields']))
+        {
+            $test = $this->connection->fetchNumeric("
+                SELECT *
+                FROM `tl_ls_shop_filter_fields` 
+                WHERE templateToUse='template_formFilterField_new' 
+                    OR templateToUseForPriceField='template_formPriceFilterField_new'
+            ");
+
+            if(is_array($test))
+            {
+                $needUpdate_tl_ls_shop_filter_fields = (bool)count($test);
+            }
         }
 
-        $stmt2 = $this->connection->fetchNumeric("
-            SELECT *
-            FROM `tl_module`
-            WHERE ls_shop_filterForm_template='template_filterForm_new' 
-               OR ls_shop_filterSummary_template='template_filterSummary_withAllFields'
-        ");
+        if($schemaManager->tablesExist(['tl_module']))
+        {
+            $test2 = $this->connection->fetchNumeric("
+                SELECT *
+                FROM `tl_module`
+                WHERE ls_shop_filterForm_template='template_filterForm_new' 
+                   OR ls_shop_filterSummary_template='template_filterSummary_withAllFields'
+            ");
 
-        $needUpdate_tl_module = false;
-        if(is_array($stmt2)){
-
-            $needUpdate_tl_module = (bool)count($stmt2);
+            if(is_array($test2))
+            {
+                $needUpdate_tl_module = (bool)count($test2);
+            }
         }
 
         //check if at least one of this two database tables need to be updatet
@@ -57,54 +61,47 @@ class FilterMigration extends AbstractMigration
 
     public function run(): MigrationResult
     {
-        try{
+        $schemaManager = $this->connection->createSchemaManager();
+        try
+        {
+            if($schemaManager->tablesExist('tl_ls_shop_filter_fields'))
+            {
+                $this->connection->update(
+                    'tl_ls_shop_filter_fields',
+                    ['templateToUse' => 'template_formFilterField_standard'],
+                    ['templateToUse' => 'template_formFilterField_new']
+                );
 
-             $this->connection->executeStatement("
-                    UPDATE
-                        tl_ls_shop_filter_fields
-                    SET
-                        templateToUse = 'template_formFilterField_standard'
-                    WHERE 
-                        templateToUse = 'template_formFilterField_new'
-            ");
+                $this->connection->update(
+                    'tl_ls_shop_filter_fields',
+                    ['templateToUseForPriceField' => 'template_formPriceFilterField_standard'],
+                    ['templateToUseForPriceField' => 'template_formPriceFilterField_new']
+                );
+            }
 
-            $this->connection->executeStatement("
-                    UPDATE
-                        tl_ls_shop_filter_fields
-                    SET
-                        templateToUse = 'template_formPriceFilterField_standard'
-                    WHERE
-                        templateToUse = 'template_formPriceFilterField_new'
-            ");
+            if($schemaManager->tablesExist('tl_module'))
+            {
+                $this->connection->update(
+                    'tl_module',
+                    ['ls_shop_filterForm_template' => 'template_filterForm_default'],
+                    ['ls_shop_filterForm_template' => 'template_filterForm_new']
+                );
 
-            $this->connection->executeStatement("
-                    UPDATE
-                        tl_module 
-                    SET
-                        ls_shop_filterForm_template = 'template_filterForm_default'
-                    WHERE
-                        ls_shop_filterForm_template = 'template_filterForm_new'
-            ");
-
-            $this->connection->executeStatement("
-                    UPDATE
-                        tl_module 
-                    SET
-                        ls_shop_filterSummary_template = 'template_filterSummary_default'
-                    WHERE
-                        ls_shop_filterSummary_template = 'template_filterSummary_withAllFields'
-            ");
-
-        }catch(Exception $e){
+                $this->connection->update(
+                    'tl_module',
+                    ['ls_shop_filterSummary_template' => 'template_filterSummary_default'],
+                    ['ls_shop_filterSummary_template' => 'template_filterSummary_withAllFields']
+                );
+            }
+        }
+        catch(Exception $e)
+        {
             return $this->createResult(
                 false,
                 $e
             );
         }
 
-        return $this->createResult(
-            true,
-            'Fields updatet'
-        );
+        return $this->createResult(true);
     }
 }
