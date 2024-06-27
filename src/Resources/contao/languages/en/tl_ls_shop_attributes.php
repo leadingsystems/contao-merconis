@@ -16,8 +16,8 @@
 	 * Buttons
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['new']        = array('New attribute', 'Add a new product attribute');
-	$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['editheader']        = array('Edit attribute', 'Edit product attribute ID %s');
-	$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['edit'] = array('Edit attribute values', 'Edit attribute values for the attribute ID %s');
+	$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['edit']        = array('Edit attribute', 'Edit product attribute ID %s');
+	$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['children'] = array('Edit attribute values', 'Edit attribute values for the attribute ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['delete']        = array('Delete attribute', 'Delete product attribute ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['copy']        = array('Copy attribute', 'Copy product attribute ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['show']        = array('Show details', 'Show details of product attribute ID %s');

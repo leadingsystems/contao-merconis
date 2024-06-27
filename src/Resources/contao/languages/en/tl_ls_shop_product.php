@@ -112,8 +112,8 @@
 	 * Buttons
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['new']        = array('New product', 'Define a new product');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['edit']        = array('Edit variants', 'Edit variants of product with ID %s');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['editheader']  = array('Edit product', 'Edit product with ID %s');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['edit']  = array('Edit product', 'Edit product with ID %s');
+    $GLOBALS['TL_LANG']['tl_ls_shop_product']['children']        = array('Edit variants', 'Edit variants of product with ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['delete']        = array('Delete product', 'Delete product with ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['toggle']        = array('Publish product', 'Publish product with ID %s');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['copy']        = array('Copy product', 'Copy product with ID %s');

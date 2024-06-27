@@ -63,16 +63,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		),
 
 		'operations' => array(
-			'edit' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit'],
+            'edit' => array (
+                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit'],
+                'href'                => 'act=edit',
+                'icon'                => 'edit.svg'
+            ),
+			'children' => array(
+				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['children'],
 				'href'                => 'table=tl_ls_shop_filter_field_values',
-				'icon'                => 'edit.svg',
+				'icon'                => 'children.svg',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_filter_fields','getEditButton')
-			),
-			'editheader' => array (
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['editheader'],
-				'href'                => 'act=edit',
-				'icon'                => 'header.svg'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['copy'],

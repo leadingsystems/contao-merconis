@@ -111,8 +111,8 @@
 	 * Buttons
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['new']        = array('Neues Produkt', 'Ein neues Produkt anlegen');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['edit']        = array('Varianten bearbeiten', 'Varianten des Produktes mit ID %s bearbeiten');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['editheader']  = array('Produkt bearbeiten', 'Produkt mit ID %s bearbeiten');
+    $GLOBALS['TL_LANG']['tl_ls_shop_product']['edit']  = array('Produkt bearbeiten', 'Produkt mit ID %s bearbeiten');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['children']        = array('Varianten bearbeiten', 'Varianten des Produktes mit ID %s bearbeiten');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['delete']        = array('Produkt löschen', 'Produkt ID %s löschen');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['toggle']        = array('Produkt veröffentlichen', 'Produkt ID %s veröffentlichen');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['copy']        = array('Produkt kopieren', 'Produkt mit ID %s kopieren');

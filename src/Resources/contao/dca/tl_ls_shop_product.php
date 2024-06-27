@@ -67,18 +67,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		),
 
 		'operations' => array(
-			'edit' => array
+            'edit' => array
+            (
+                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['edit'],
+                'href'                => 'act=edit',
+                'icon'                => 'bundles/leadingsystemsmerconis/images/icons/editProduct.png'
+            ),
+			'children' => array
 			(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['edit'],
+				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['children'],
 				'href'                => 'table=tl_ls_shop_variant',
 				'icon'                => 'bundles/leadingsystemsmerconis/images/icons/editVariants.png',
 				'attributes'          => 'class="contextmenu"'
-			),
-			'editheader' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['editheader'],
-				'href'                => 'act=edit',
-				'icon'                => 'bundles/leadingsystemsmerconis/images/icons/editProduct.png'
 			),
 			'copy' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['copy'],
