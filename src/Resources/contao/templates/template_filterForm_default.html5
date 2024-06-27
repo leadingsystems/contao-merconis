@@ -1,53 +1,69 @@
+<!-- indexer::stop -->
 <?php
 
 use Contao\System;
 
+$bln_moreFilterFieldsAvailableThanShownInSummary = $this->arr_filterSummaryData['int_numAvailableFilterFields'] > $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'];
+$int_numFilterCriteriaCurrentlyUsed = count(($this->arr_filterSummaryData['arr_filterSummary']['arr_attributes'] ?? null) ?: []) + count(($this->arr_filterSummaryData['arr_filterSummary']['arr_producers'] ?? null) ?: []) + (($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['low'] ?? null) || ($this->arr_filterSummaryData['arr_filterSummary']['arr_price']['high'] ?? null) ? 1 : 0);
 ?>
-<!-- indexer::stop -->
-<div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>">
-    <div class="off-canvas-filter-form-toggler main-toggler"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop'][$str_filterSummary ? 'miscText097-03' : 'miscText097-02']; ?></div>
+<div class="filter-container <?php echo $this->strTemplate ?><?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?><?php echo $bln_moreFilterFieldsAvailableThanShownInSummary ? ' more-filter-fields-available' : '' ?>">
+    <div id="filter-headline-container" class="ajax-reload-by-filter">
+        <span class="all-filter-options off-canvas-filter-form-toggler-remote">
+            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-05']; ?>
+        </span>
+        <span class="filter-headline off-canvas-filter-form-toggler-remote">
+            <?php
+            if (!$int_numFilterCriteriaCurrentlyUsed) {
+                echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-02'];
+            } else {
+                echo sprintf($int_numFilterCriteriaCurrentlyUsed > 1 ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-03'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-04'], $int_numFilterCriteriaCurrentlyUsed);
+            }
+            ?>
+        </span>
+    </div>
+
     <?php echo $this->str_filterSummaryHtml; ?>
+
     <div id="off-canvas-filter-form-container" class="oc-flex-default-container">
         <div id="off-canvas-filter-form-container-inside">
             <div class="off-canvas-filter-form-toggler close-button">&nbsp;</div>
-            <?php if ($this->headline) { ?>
-                <?php echo '<' . $this->hl . '>'; ?><?php echo $this->headline; ?><?php echo '</' . $this->hl . '>'; ?>
-            <?php } ?>
-            <div class="filterContent">
-            <?php
+            <h3 class="display-with-full-filter-form"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-05']; ?></h3>
+            <h3 class="display-with-partial-filter-form"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097-06']; ?> <span class="placeholder-for-filter-field-name"></span></h3>
+            <div id="filter-content" class="filterContent ajax-reload-by-filter">
+                <?php
                 if (!$this->blnNothingToFilter) {
                     ?>
-                        <form action="<?php echo $this->request; ?>" class="tl_form" method="post">
-                            <input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
-                            <input type="hidden" name="FORM_SUBMIT" value="filterForm">
+                    <form id="product-filter-form" action="<?php echo $this->request; ?>" class="tl_form" method="post">
+                        <input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
+                        <input type="hidden" name="FORM_SUBMIT" value="filterForm">
 
-                            <?php
-                                if (is_array($this->arrWidgets_filterFields) && count($this->arrWidgets_filterFields)) {
+                        <?php
+                        if (is_array($this->arrWidgets_filterFields) && count($this->arrWidgets_filterFields)) {
+                            ?>
+                            <div class="filter-fields">
+                                <?php
+                                foreach ($this->arrWidgets_filterFields as $filterFieldWidget) {
                                     ?>
-                                    <div class="filter-fields">
-                                        <?php
-                                        foreach ($this->arrWidgets_filterFields as $filterFieldWidget) {
-                                            ?>
-                                            <?php echo $filterFieldWidget; ?>
-                                            <?php
-                                        }
-                                        ?>
-                                    </div>
-                                    <div class="filter-submit-box">
-                                        <button type="submit" id="ctrl_" class="submit submitFilter" name="submitFilter"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097']; ?></button>
-                                        <button type="submit" id="ctrl_" class="submit resetFilter" name="resetFilter" value="1"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText106']; ?></button>
-                                    </div>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText105']; ?></p>
+                                    <?php echo $filterFieldWidget; ?>
                                     <?php
                                 }
+                                ?>
+                            </div>
+                            <div class="filter-submit-box">
+                                <button type="submit" id="ctrl_" class="submit submitFilter" name="submitFilter"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097']; ?></button>
+                                <button type="submit" id="ctrl_" class="submit resetFilter" name="resetFilter" value="1"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText106']; ?></button>
+                            </div>
+                            <?php
+                        } else {
                             ?>
-                        </form>
+                            <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText105']; ?></p>
+                            <?php
+                        }
+                        ?>
+                    </form>
                     <?php
                 }
-            ?>
+                ?>
             </div>
         </div>
     </div>

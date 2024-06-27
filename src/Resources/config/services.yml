@@ -157,3 +157,8 @@ services:
   merconis.session:
     class: LeadingSystems\MerconisBundle\Services\Session
     public: true
+
+  merconis.migration.filter_migration:
+    class: LeadingSystems\MerconisBundle\Migration\FilterMigration
+    tags:
+      - { name: contao.migration, priority: 0 }
