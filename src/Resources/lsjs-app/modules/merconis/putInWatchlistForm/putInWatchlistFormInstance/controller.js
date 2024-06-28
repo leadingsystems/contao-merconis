@@ -5,8 +5,8 @@ var str_moduleName = '__moduleName__';
 // #################################
 
 var obj_classdef = {
-	start: function() {
-	}
+    start: function() {
+    }
 };
 
 lsjs.addControllerClass(str_moduleName, obj_classdef);
