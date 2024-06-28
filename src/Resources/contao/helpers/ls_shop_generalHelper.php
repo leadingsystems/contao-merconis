@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Composer\InstalledVersions;
 use Contao\ArrayUtil;
 use Contao\ArticleModel;
 use Contao\BackendTemplate;
@@ -5510,11 +5511,16 @@ class ls_shop_generalHelper
         return $str_url;
     }
 
-    public static function getInstalledThemeExtensions() {
-
+    public static function getInstalledThemeExtensions()
+    {
         $arr_installedThemeExtensions = [];
 
-        foreach (InstalledVersions::getInstalledPackages() as $strPackage) {
+        foreach (InstalledVersions::getInstalledPackages() as $strPackage)
+        {
+            if (str_contains($strPackage, '/merconis-theme-installer')) {
+                continue;
+            }
+
             if (str_contains($strPackage, '/merconis-theme')) {
                 $arr_installedThemeExtensions[] = $strPackage;
             }
