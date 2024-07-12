@@ -431,7 +431,16 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['fieldNames'] = array(
 	'province_ca_alternative' => 'Provinz',
 	'province_it_alternative' => 'Provinz',
 
-	'notes' => 'Bemerkungen'
+	'notes' => 'Bemerkungen',
+
+	/*
+	 * Do me! Check why we had to add the commission label here. Is it because this label
+		 * is required in a backend context where the theme-specific language file is not available?
+		 * If that is the case, we should definitely try to find a way to only maintain one modified
+		 * language file. This should be possible if we don't use the theme-specific file at all and
+		 * move all language file changes/additions to the merconis-custom-shk-sep extension.
+	 */
+	'commission' => 'Kommission'
 );
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['customerData']['country'] = array(
