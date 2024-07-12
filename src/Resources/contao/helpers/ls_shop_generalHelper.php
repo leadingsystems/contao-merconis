@@ -4042,7 +4042,7 @@ class ls_shop_generalHelper
 
     public static function getOrder($identificationToken, $searchBy = 'id', $blnForceRefresh = false)
     {
-        if ($searchBy != 'id' && $searchBy != 'orderIdentificationHash') {
+        if ($searchBy != 'id' && $searchBy != 'orderIdentificationHash' && $searchBy != 'orderNr') {
             return false;
         }
 
