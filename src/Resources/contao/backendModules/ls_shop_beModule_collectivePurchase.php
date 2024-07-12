@@ -109,8 +109,8 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
             ")
             ->execute(
                 $skprefix."#".$objProduct['lsShopProductCode'],
-                $skprefix."-".$objProduct['alias'],
-                $skprefix."-".$objProduct['alias_de'],
+                $skprefix."-".substr($objProduct['alias'], 0, 20),
+                $skprefix."-".substr($objProduct['alias'], 0, 20),
                 $collectivePurchasePages,
                 time()
             );
@@ -172,7 +172,7 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
             ->execute(
                 $skprefix."#".$objVariant['lsShopVariantCode'],
                 $skprefix."-".$objVariant['alias'],
-                $skprefix."-".$objVariant['alias_de'],
+                $skprefix."-".$objVariant['alias'],
                 $objVariant['lsShopVariantPrice'],
                 time()
             );
