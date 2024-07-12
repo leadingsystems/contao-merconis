@@ -1191,6 +1191,10 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
              * Collective Order
              */
             case '_collectiveOrderRuntimeFrom':
+                $isDeveloper = \System::getContainer()->get('request_stack')->getCurrentRequest()->cookies->get('isDeveloper');
+                if ($isDeveloper) {
+                    return strtotime('today');
+                }
                 return $this->mainData['lsShopRuntimeFrom'];
                 break;
 
@@ -1199,6 +1203,10 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
                 break;
 
             case '_collectiveOrderRuntimeUntil':
+                $isDeveloper = \System::getContainer()->get('request_stack')->getCurrentRequest()->cookies->get('isDeveloper');
+                if ($isDeveloper) {
+                    return strtotime('tomorrow');
+                }
                 return $this->mainData['lsShopRuntimeUntil'];
                 break;
 
