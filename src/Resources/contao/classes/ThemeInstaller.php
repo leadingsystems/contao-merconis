@@ -448,11 +448,6 @@ class ThemeInstaller
 
         $str_setStatement = '';
 
-        //remove emtpy fields because it gets a database error, this check can maybe get removed in the future
-        $arr_data = array_filter($arr_data, function($value) {
-            return !empty($value);
-        });
-
         foreach ($arr_data as $str_fieldName => $var_value) {
             /*
              * If the field does not exist in the target table, the field will not be included in the insert statement.
