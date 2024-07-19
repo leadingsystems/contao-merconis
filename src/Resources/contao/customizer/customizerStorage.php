@@ -2,7 +2,8 @@
 
 namespace Merconis\Core;
 
-class customizerStorage {
+class customizerStorage
+{
     public $var_customizationData = null;
     public $var_miscData = null;
     private $str_customizerHash = '';
@@ -16,7 +17,8 @@ class customizerStorage {
         }
     }
 
-    public function __serialize() {
+    public function __serialize()
+    {
         $this->updateCustomizerHash();
 
         $arr_objectRepresentation = [
@@ -29,7 +31,8 @@ class customizerStorage {
         return $arr_objectRepresentation;
     }
 
-    public function __unserialize($arr_objectRepresentation) {
+    public function __unserialize($arr_objectRepresentation)
+    {
         $this->var_customizationData = $arr_objectRepresentation['var_customizationData'];
         $this->var_miscData = $arr_objectRepresentation['var_miscData'];
         $this->str_customizerHash = $arr_objectRepresentation['str_customizerHash'];
@@ -40,7 +43,10 @@ class customizerStorage {
      * @deprecated Deprecated, to be removed in Merconis 6
      * $this->var_customizationData is now publicly accessible and should be written to directly
      */
-    public function writeCustomizationData($var_data) {
+    public function writeCustomizationData($var_data)
+    {
+        trigger_deprecation('LeadingSystems/contao-merconis', '5.0.24', 'Using "writeCustomizationData()" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use direct access to $var_customizationData.');
+
         $this->var_customizationData = $var_data;
     }
 
@@ -48,7 +54,10 @@ class customizerStorage {
      * @deprecated Deprecated, to be removed in Merconis 6
      * $this->var_customizationData is now publicly accessible and should be read from directly
      */
-    public function getCustomizationData() {
+    public function getCustomizationData()
+    {
+        trigger_deprecation('LeadingSystems/contao-merconis', '5.0.24', 'Using "getCustomizationData()" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use direct access to $var_customizationData.');
+
         return $this->var_customizationData;
     }
 
@@ -56,7 +65,10 @@ class customizerStorage {
      * @deprecated Deprecated, to be removed in Merconis 6
      * $this->var_miscData is now publicly accessible and should be written to directly
      */
-    public function writeMiscData($var_data) {
+    public function writeMiscData($var_data)
+    {
+        trigger_deprecation('LeadingSystems/contao-merconis', '5.0.24', 'Using "writeMiscData()" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use direct access to $var_miscData.');
+
         $this->var_miscData = $var_data;
     }
 
@@ -64,15 +76,20 @@ class customizerStorage {
      * @deprecated Deprecated, to be removed in Merconis 6
      * $this->var_miscData is now publicly accessible and should be read from directly
      */
-    public function getMiscData() {
+    public function getMiscData()
+    {
+        trigger_deprecation('LeadingSystems/contao-merconis', '5.0.24', 'Using "getMiscData()" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use direct access to $var_miscData.');
+
         return $this->var_miscData;
     }
 
-    public function getHash() {
+    public function getHash()
+    {
         return $this->str_customizerHash;
     }
 
-    public function updateCustomizerHash() {
+    public function updateCustomizerHash()
+    {
         if ($this->bln_customizerHashFixed) {
             /*
              * If the hash is fixed, we know that we deal with a customizer instance that is already isolated from the
