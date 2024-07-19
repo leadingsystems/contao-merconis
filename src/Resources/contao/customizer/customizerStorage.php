@@ -3,8 +3,8 @@
 namespace Merconis\Core;
 
 class customizerStorage {
-    private $var_customizationData = null;
-    private $var_miscData = null;
+    public $var_customizationData = null;
+    public $var_miscData = null;
     private $str_customizerHash = '';
     private $bln_customizerHashFixed = false;
 
@@ -16,19 +16,54 @@ class customizerStorage {
         }
     }
 
-    public function writeCustomizationData($var_data) {
-        $this->var_customizationData = $var_data;
+    public function __serialize() {
         $this->updateCustomizerHash();
+
+        $arr_objectRepresentation = [
+            'var_customizationData' => $this->var_customizationData,
+            'var_miscData' => $this->var_miscData,
+            'str_customizerHash' => $this->str_customizerHash,
+            'bln_customizerHashFixed' => $this->bln_customizerHashFixed,
+        ];
+
+        return $arr_objectRepresentation;
     }
 
+    public function __unserialize($arr_objectRepresentation) {
+        $this->var_customizationData = $arr_objectRepresentation['var_customizationData'];
+        $this->var_miscData = $arr_objectRepresentation['var_miscData'];
+        $this->str_customizerHash = $arr_objectRepresentation['str_customizerHash'];
+        $this->bln_customizerHashFixed = $arr_objectRepresentation['bln_customizerHashFixed'];
+    }
+
+    /**
+     * @deprecated Deprecated, to be removed in Merconis 6
+     * $this->var_customizationData is now publicly accessible and should be written to directly
+     */
+    public function writeCustomizationData($var_data) {
+        $this->var_customizationData = $var_data;
+    }
+
+    /**
+     * @deprecated Deprecated, to be removed in Merconis 6
+     * $this->var_customizationData is now publicly accessible and should be read from directly
+     */
     public function getCustomizationData() {
         return $this->var_customizationData;
     }
 
+    /**
+     * @deprecated Deprecated, to be removed in Merconis 6
+     * $this->var_miscData is now publicly accessible and should be written to directly
+     */
     public function writeMiscData($var_data) {
         $this->var_miscData = $var_data;
     }
 
+    /**
+     * @deprecated Deprecated, to be removed in Merconis 6
+     * $this->var_miscData is now publicly accessible and should be read from directly
+     */
     public function getMiscData() {
         return $this->var_miscData;
     }
@@ -37,7 +72,7 @@ class customizerStorage {
         return $this->str_customizerHash;
     }
 
-    private function updateCustomizerHash() {
+    public function updateCustomizerHash() {
         if ($this->bln_customizerHashFixed) {
             /*
              * If the hash is fixed, we know that we deal with a customizer instance that is already isolated from the
