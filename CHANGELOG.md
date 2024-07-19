@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.24 (2024-07-19)
+ * improve accessibility of customizerStorage
+
 ### 5.0.23 (2024-06-11)
  * add flex content filters
  * add range filter for attributes
