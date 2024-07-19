@@ -55,11 +55,6 @@ if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendReques
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_x_controller.js';
 }
 
-if (!System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create('')))
-{
-    $GLOBALS['TL_HOOKS']['loadFormField'][] = array('Merconis\Core\ls_shop_generalHelper', 'handleConditionalFormFields');
-}
-
 \Contao\ArrayUtil::arrayInsert($GLOBALS['BE_MOD'], 0, array(
 	'merconis' => array(
 		'ls_shop_dashboard' => array(
@@ -163,5 +158,3 @@ $GLOBALS['FE_MOD']['ls_shop'] = array(
  * Hinzufügen von Content-Elementen
  */
 $GLOBALS['TL_CTE']['lsShop']['lsShopCrossSellerCTE'] = 'Merconis\Core\ls_shop_cross_sellerCTE';
-
-$GLOBALS['TL_HOOKS']['getUserNavigation'][] = array('Merconis\Core\ls_shop_generalHelper', 'manipulateBackendNavigation');

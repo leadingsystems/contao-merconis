@@ -4,8 +4,8 @@
 	 * Fields
 	 */
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_country']					= array('Country in which the shop is run', 'Enter the two-digit country code (ISO-3166-1 coding list) of the country in which the shop is run here.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_serial']                  = array('Serial number', 'Please enter the serial number here which you received when you purchased the software.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownVATID']				= array('Own VAT ident number', 'Should you have a VAT ident number, please enter it here.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_serial']					= array('Serial number', 'Please enter the serial number here which you received when you purchased the software.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownVATID']				= array('Own VAT ident number', 'Should you have a VAT ident number, please enter it here.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_euCountrycodes']			= array('EU countries', 'Enter the two-digit country codes (ISO-3166-1 coding list) of the countries in the EU.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_currency']				= array('Currency', 'Please enter the currency here that shall be used everywhere in the shop.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_currencyCode']			= array('Currency code according to ISO-4217', 'Enter the three-digit currency code according to ISO-4217 (e.g. "EUR" for Euro, "GBP" for British Pound or "USD" for US Dollar) here for the currency used by you.');
@@ -130,15 +130,14 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_productCode'] = array('Product code: Single search term contained in field value');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer'] = array('Producer: Single search term contained in field value');
 
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ipWhitelist'] = array('IP whitelist', 'Enter all IP addresses that are allowed to call your system (e.g. in order to send payment information) as a list separated by commas.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_urlWhitelist'] = array('URL whitelist', 'Enter a regular rexpression which will be used to check whether the request token check should be skipped for a request.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ipWhitelist'] = array('IP whitelist', 'Enter all IPs or IP ranges that you want to allow to access your system, e.g. to transmit payment information without a referrer check, separated by commas. IP ranges can be specified in CIDR notation (e.g. 88.130.218.0/24) or as a from/to specification (e.g. 88.130.218.0 - 88.130.218.255).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_urlWhitelist'] = array('URL whitelist', 'Enter a regular expression which will be used to check whether the request token check should be skipped for a request.');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_blnCompatMode2-1-4'] = array('Compatibility mode for updates from versions < 2.1.5', 'In version 2.1.5 the file structure has changed partially. Use this compatibility mode if you have the old file structure and want Merconis to use it.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_sortingCharacterTranslationTable'] = array('Replacement table for sorting', 'In order to control the way special characters are considered during sorting, you can define replacements for special characters.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dcaNamesWithoutMultilanguageSupport'] = array('DCAs to skip in multilanguage initialization', 'Comma-separated list of DCA names to skip in the multilanguage initialization.');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsDebugMode'] = array('Debug mode');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoCacheMode'] = array('Deactivate caching');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoMinifierMode'] = array('Deactivate minification');
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssFileToLoad'] = array('SCSS file to load', 'By default, an SCSS file supplied by Merconis is used and no other file need/should be selected here. A different selection is only necessary if, for example, additional/changed styles are to be used due to own extensions. Attention: If you select your own SCSS file, the file supplied by Merconis by default will no longer be loaded. It is therefore advisable to create your own file as a copy of the original Merconis file and then add/change it.');
@@ -171,7 +170,7 @@
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['compatSettings_legend'] = 'Compatibility settings';
 	
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ipWhitelist_legend'] = 'Whitelist for referer check';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ipWhitelist_legend'] = 'Whitelist for referrer check';
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['backendLsjs_legend'] = 'Settings for LSJS in the backend';
 

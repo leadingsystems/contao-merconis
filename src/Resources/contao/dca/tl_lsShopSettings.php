@@ -2,7 +2,6 @@
 
 namespace Merconis\Core;
 
-use Composer\InstalledVersions;
 use Contao\Backend;
 use Contao\DC_File;
 
@@ -71,7 +70,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{importSettings_legend},ls_shop_standardProductImportFolder,ls_shop_importFlexFieldKeys,ls_shop_importFlexFieldKeysLanguageIndependent,ls_shop_importCsvDelimiter,ls_shop_importCsvEnclosure,ls_shop_importCsvEscape,ls_shop_importCsvLocale,ls_shop_numMaxImportRecordsPerRound;
 		{compatSettings_legend},ls_shop_blnCompatMode2-1-4;
 		{ipWhitelist_legend},ls_shop_ipWhitelist,ls_shop_urlWhitelist;
-		{backendLsjs_legend},ls_shop_lsjsDebugMode,ls_shop_lsjsNoCacheMode,ls_shop_lsjsNoMinifierMode;
+		{backendLsjs_legend},ls_shop_lsjsDebugMode,ls_shop_lsjsNoMinifierMode;
 		{backendLscss_legend},ls_shop_lscssFileToLoad,ls_shop_lscssDebugMode,ls_shop_lscssNoCacheMode,ls_shop_lscssNoMinifierMode;
 		{misc_legend},ls_shop_sortingCharacterTranslationTable,ls_shop_dcaNamesWithoutMultilanguageSupport;
 		{debug_menu},ls_shop_coupon_debug'
@@ -262,12 +261,12 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'eval' => array('tl_class'=>'w50')
 		),
 
-        'ls_shop_serial' => array(
-            'exclude' => true,
-            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_serial'],
-            'inputType' => 'text',
-            'eval' => array('mandatory' => false, 'tl_class'=>'w50')
-        ),
+		'ls_shop_serial' => array(
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_serial'],
+			'inputType' => 'text',
+			'eval' => array('mandatory' => false, 'tl_class'=>'w50')
+		),
 
 		'ls_shop_country' => array(
 			'exclude' => true,
@@ -886,13 +885,6 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'eval'                    => array('tl_class'=>'w50 m12')
 		),
 
-		'ls_shop_lsjsNoCacheMode' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoCacheMode'],
-			'exclude'                 => true,
-			'inputType'               => 'checkbox',
-			'eval'                    => array('tl_class'=>'w50 m12')
-		),
-
 		'ls_shop_lsjsNoMinifierMode' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoMinifierMode'],
 			'exclude'                 => true,
@@ -999,16 +991,10 @@ class tl_lsShopSettings_controller extends Backend {
 	}
 
 	public function ls_escapeBackslash($value = '') {
-		if (version_compare(InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis'), '3.2.9', '>=')) {
-			return $value;
-		}
-		return $value == '\\' ? '\\\\' : $value;
+        return $value;
 	}
 
 	public function ls_unescapeBackslash($value = '') {
-		if (version_compare(InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis'), '3.2.9', '>=')) {
-			return $value;
-		}
-		return $value == '\\\\' ? '\\' : $value;
+        return $value;
 	}
 }
