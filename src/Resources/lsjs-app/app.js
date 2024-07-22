@@ -250,7 +250,7 @@
             window.fireEvent('cajax_domUpdate', $$('body')[0]);
 
             lsjs.__moduleHelpers.filterFormManager.start({
-                str_containerSelector: '.template_filterForm_new',
+                str_containerSelector: '.template_filterForm_default',
                 bln_doNotUseAjax: false,
 
                 /*

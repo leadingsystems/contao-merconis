@@ -55,7 +55,7 @@
   }
 }
 
-.template_filterForm_new {
+.template_filterForm_default {
   @include ls_contentWrapper;
 
   #off-canvas-filter-form-container {
@@ -707,7 +707,12 @@
   }
 }
 
-.template_filterForm_default {
+/*
+ * Styling of the old filter-template, formerly template_filterForm_default.
+ * Must be renamed to *_old becouse the new filter-template (*_new) is now *_default.
+ * Can probably be removed in Merconis 6.
+ */
+.template_filterForm_old {
   @include ls_contentWrapper;
 
   #off-canvas-filter-form-container {
