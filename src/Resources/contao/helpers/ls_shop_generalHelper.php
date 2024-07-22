@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 
+use Composer\InstalledVersions;
 use Contao\ArrayUtil;
 use Contao\ArticleModel;
 use Contao\BackendTemplate;
