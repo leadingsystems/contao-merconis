@@ -179,7 +179,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Advanced settings';
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menu';
-	
+
 	/*
 	 * References
 	 */

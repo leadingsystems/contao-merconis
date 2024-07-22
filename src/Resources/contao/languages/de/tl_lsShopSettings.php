@@ -233,5 +233,3 @@
         'And-Search' => 'Finde alle Wörter',
         'Or-Search' => 'Finde irgendein Wort'
     );
-
-
