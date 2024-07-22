@@ -180,7 +180,7 @@ class ls_shop_languageHelper {
 					) {
 						$arr_multiLanguageFields[$str_fieldKey][$str_fieldKey.'_htmlOutputBeforeCompleteField'] = array(
 							'input_field_callback'	  => array('Merconis\Core\ls_shop_generalHelper', 'rawOutputForBackendDCA'),
-							'eval'					  => array('output' => '<div class="ls_shop_multilanguage_fieldsWrapper clr'.(!($arr_fieldDefinition['eval']['merconis_multilanguage_noTopLinedGroup'] ?? null) ? ' topLinedGroup' : '').(($arr_fieldDefinition['eval']['merconis_multilanguage_wrapperClass'] ?? null) ? ' '.$arr_fieldDefinition['eval']['merconis_multilanguage_wrapperClass'] : '').'"><h3><label'.(($bln_tmp_fieldIsMandatory ?? null) ? ' class="mandatory"' : '').'>'.($arr_tmpFieldLabel[0] ?? '').($bln_tmp_fieldIsMandatory ? ' <span class="mandatory">*</span>' : '').'</label></h3><div class="ls_shop_multi_language">')
+							'eval'					  => array('output' => '<div class="ls_shop_multilanguage_fieldsWrapper widget clr'.(!($arr_fieldDefinition['eval']['merconis_multilanguage_noTopLinedGroup'] ?? null) ? ' topLinedGroup' : '').(($arr_fieldDefinition['eval']['merconis_multilanguage_wrapperClass'] ?? null) ? ' '.$arr_fieldDefinition['eval']['merconis_multilanguage_wrapperClass'] : '').'"><h3><label'.(($bln_tmp_fieldIsMandatory ?? null) ? ' class="mandatory"' : '').'>'.($arr_tmpFieldLabel[0] ?? '').($bln_tmp_fieldIsMandatory ? ' <span class="mandatory">*</span>' : '').'</label></h3><div class="ls_shop_multi_language">')
 						);
 					}
 

@@ -31,7 +31,7 @@ use Contao\Date;
 
                     if ($imgToUse) {
                         ?>
-                        {{image::<?=$imgToUse?>?width=600&height=600&mode=box}}
+                        {{shop_picture::<?=$imgToUse?>?size=productCart}}
                         <?php
                     }
                     ?>

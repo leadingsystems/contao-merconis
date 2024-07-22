@@ -48,7 +48,7 @@
                             if ($imgToUse) {
                                 ?>
                                 <a<?php if (!$objProduct->_configuratorHasValue) { ?> href="<?php echo $obj_tmp_productOrVariant->_link; ?>"<?php } ?>>
-                                    {{image::<?=$imgToUse?>?width=600&height=600&mode=box}}
+                                    {{shop_picture::<?=$imgToUse?>?size=productCartPreview}}
                                 </a>
                                 <?php
                             }

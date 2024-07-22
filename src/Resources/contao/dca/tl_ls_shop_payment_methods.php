@@ -695,7 +695,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'exclude'                 => true,
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['feeAddCouponToValueOfGoods'],
             'inputType'               => 'checkbox',
-            'eval'					  =>	array('tl_class' => 'w50 m12'),
+            'eval'					  =>	array('tl_class' => 'w50 m12 clr'),
             'sql'                     => "char(1) NOT NULL default ''"
         ),
 
@@ -729,7 +729,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'inputType' => 'text',
             'eval'			=> array(
                 'rgxp' => 'numberWithDecimalsLeftAndRight',
-                'tl_class' => 'merconis-component-autostart--merconisWidgetMultiText',
+                'tl_class' => 'clr merconis-component-autostart--merconisWidgetMultiText',
                 'decodeEntities' => true,
                 'data-merconis-widget-options' => '
 					{
@@ -756,7 +756,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'inputType' => 'text',
             'eval'			=> array(
                 'rgxp' => 'numberWithDecimalsLeftAndRight',
-                'tl_class' => 'merconis-component-autostart--merconisWidgetMultiText',
+                'tl_class' => 'clr merconis-component-autostart--merconisWidgetMultiText',
                 'decodeEntities' => true,
                 'data-merconis-widget-options' => '
 					{
