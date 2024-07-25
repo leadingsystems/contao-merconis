@@ -1,13 +1,15 @@
 <?php
 
+use Composer\InstalledVersions;
+use Contao\Environment;
 use Contao\System;
 
 ?>
 <div class="ls_shop ls_shop_systemMessage">
-    <h2><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_001'] ?></h2>
     <?php
     if ($this->int_status === \Merconis\Core\themeInstallerStatus::MULTIPLE_THEME_EXTENSION_INSTALLED) {
         ?>
+        <h2><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_001'] ?></h2>
         <p><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_006'] ?></p>
 
         <ul>
@@ -24,22 +26,50 @@ use Contao\System;
         <?php
     } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::THEME_EXTENSION_NOT_INSTALLED) {
         ?>
+        <h2><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_001'] ?></h2>
         <p><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_008'] ?></p>
         <?php
     } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::NO_API_KEY) {
         ?>
+        <h2><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_001'] ?></h2>
         <p><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_002'] ?></p>
         <?php
     } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::DB_NOT_OK) {
         ?>
+        <h2><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_001'] ?></h2>
         <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_003'], 'contao/install') ?></p>
         <?php
     } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::FINISHED) {
+
+        $urlToFrontendShopInstallation = Environment::get('base');
         ?>
-        <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_004'] ?>
+
+        <h2><?=
+            sprintf(
+                $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_004'],
+                InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis')
+            );
+        ?></h2>
+        <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_011'], $urlToFrontendShopInstallation); ?></p>
+        <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_012']); ?></p>
+        <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_005'], $GLOBALS['TL_CONFIG']['merconis_serviceNumber']); ?></p>
+
+        <ul>
+            <?php
+            $strNeedle = 'leadingsystems';
+            foreach (InstalledVersions::getInstalledPackages() as $strPackage) {
+                if (str_contains($strPackage,$strNeedle))
+                {
+                    echo '<li>'.str_replace($strNeedle.'/','',$strPackage).' ('. InstalledVersions::getPrettyVersion($strPackage).')</li>';
+                }
+            }
+            ?>
+        </ul>
+
         <?php
     } else if ($this->int_status === \Merconis\Core\themeInstallerStatus::READY_FOR_SETUP) {
         ?>
+        <h2><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_001'] ?></h2>
         <form action="contao?do=ls_shop_dashboard" method="post">
             <input type="hidden" name="FORM_SUBMIT" value="themeInstaller_beginSetup">
             <input type="hidden" name="REQUEST_TOKEN" value="<?=  System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
