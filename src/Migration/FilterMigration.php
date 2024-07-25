@@ -42,7 +42,10 @@ class FilterMigration extends AbstractMigration
 
         $columns = $schemaManager->listTableColumns('tl_module');
 
-        if($schemaManager->tablesExist(['tl_module']) && isset($columns['ls_shop_filterForm_template']) && isset($columns['ls_shop_filterSummary_template']))
+        if ($schemaManager->tablesExist(['tl_module'])
+            && isset($columns['ls_shop_filterform_template'])
+            && isset($columns['ls_shop_filtersummary_template'])
+        )
         {
             $test2 = $this->connection->fetchNumeric("
                 SELECT *
@@ -83,7 +86,10 @@ class FilterMigration extends AbstractMigration
 
             $columns = $schemaManager->listTableColumns('tl_module');
 
-            if($schemaManager->tablesExist('tl_module') && isset($columns['ls_shop_filterForm_template']) && isset($columns['ls_shop_filterSummary_template']))
+            if ($schemaManager->tablesExist('tl_module')
+                && isset($columns['ls_shop_filterform_template'])
+                && isset($columns['ls_shop_filtersummary_template'])
+            )
             {
                 $this->connection->update(
                     'tl_module',
