@@ -4822,7 +4822,7 @@ class ls_shop_generalHelper
 
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
     {
-        $themesPath = 'files/merconisfiles/themes';
+        $themesPath = 'files/merconisfiles/theme';
         if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath) || !is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath)) {
             return;
         }
