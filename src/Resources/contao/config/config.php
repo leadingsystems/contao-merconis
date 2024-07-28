@@ -73,7 +73,7 @@ $GLOBALS['TL_HOOKS']['getArticle'][] = array('Merconis\Core\ls_shop_generalHelpe
  */
 $GLOBALS['TL_HOOKS']['outputFrontendTemplate'][] = array('Merconis\Core\ls_shop_filterController', 'generateAndInsertFilterForms');
 
-$GLOBALS['TL_HOOKS']['outputFrontendTemplate'][] = array('Merconis\Core\ls_shop_generalHelper', 'callback_outputFrontendTemplate');
+$GLOBALS['TL_HOOKS']['modifyFrontendPage'][] = array('Merconis\Core\ls_shop_generalHelper', 'callback_modifyFrontendPage');
 
 /*
  * Hook for the multiLanguage DCA manipulation
