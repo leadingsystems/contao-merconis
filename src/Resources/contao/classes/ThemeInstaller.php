@@ -292,6 +292,15 @@ class ThemeInstaller
                 $arr_newForeignKeys = array();
                 if (is_array($arr_oldForeignKeys)) {
                     foreach ($arr_oldForeignKeys as $k => $int_oldForeignKey) {
+
+                        /*
+                         * Negative keys dont need to be checked because they dont have any datebase records
+                         */
+                        if(intval($int_oldForeignKey) < 0){
+                            $arr_newForeignKeys[$k] = $int_oldForeignKey;
+                            continue;
+                        }
+
                         /*
                          * Important: The determined foreignKey is explicitly stored as a string in the serialized array.
                          * This is important for product page selection, because the quotes used when storing a value in

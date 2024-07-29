@@ -4,6 +4,7 @@ relevant foreign key relations concerning tables which are not defined in this f
 @tl_article.pid@tl_page.id=single@
 @tl_content.pid@tl_article.id=single@
 @tl_content.form@tl_form.id=single@
+@tl_content.groups@tl_member_group.id=array@
 @tl_content.module@tl_module.id=single@
 @tl_content.size@tl_image_size.id=array@
 @tl_form_field.pid@tl_form.id=single@
@@ -18,6 +19,7 @@ relevant foreign key relations concerning tables which are not defined in this f
 @tl_page.groups@tl_member_group.id=array@
 @tl_member.groups@tl_member_group.id=array@
 @tl_layout.pid@tl_theme.id=single@
+@tl_module.groups@tl_member_group.id=array@
 @tl_module.pid@tl_theme.id=single@
 @tl_module.rootPage@tl_page.id=single@
 @tl_module.reg_groups@tl_member_group.id=array@
