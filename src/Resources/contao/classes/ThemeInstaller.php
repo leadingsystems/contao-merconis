@@ -216,9 +216,7 @@ class ThemeInstaller
          * i.e. the records that were newly inserted in the corresponding table. The newly inserted records are those
          * that are contained in the array $this->arr_mapOldIDToNewID.
          */
-        \LeadingSystems\Helpers\lsErrorLog('$this->arr_mapOldIDToNewID', $this->arr_mapOldIDToNewID, 'lslog_14');
         foreach ($arr_relations as $arr_relation) {
-            \LeadingSystems\Helpers\lsErrorLog('$arr_relation', $arr_relation, 'lslog_14');
 
             if ($arr_relation['pTable'] == 'localconfig') { // Es handelt sich um eine Relation zur localconfig
                 $str_oldForeignKey = $GLOBALS['TL_CONFIG'][$arr_relation['pField']];
@@ -248,9 +246,6 @@ class ThemeInstaller
 
                         // Reading out the previously stored assignment
                         $str_oldForeignKey = $obj_dbres_row->{$arr_relation['pField']};
-                        \LeadingSystems\Helpers\lsErrorLog('pTableRow', $obj_dbres_row->row(), 'lslog_14');
-                        \LeadingSystems\Helpers\lsErrorLog('$str_oldForeignKey', $str_oldForeignKey, 'lslog_14');
-
                         $str_newForeignKey = $this->getNewForeignKey($arr_relation, $str_oldForeignKey);
                         $str_newForeignKey = $str_newForeignKey ? $str_newForeignKey : 0;
 
@@ -265,7 +260,6 @@ class ThemeInstaller
                             ")
                             ->limit(1)
                             ->execute($str_newForeignKey, $int_pTableRowId);
-                        \LeadingSystems\Helpers\lsErrorLog('$obj_dbquery_update->query:', $obj_dbquery_update->query, 'lslog_14');
                     }
                 }
             }
@@ -276,18 +270,15 @@ class ThemeInstaller
     {
         switch ($arr_relation['relationType']) {
             case 'single': // The ForeignKey is a single value
-                \LeadingSystems\Helpers\lsErrorLog('single!', '', 'lslog_14');
                 /*
                  * Now it is determined which is the new foreignKey. For this we look in the array
                  * $this->arr_mapOldIDToNewID in the key for the corresponding cTable (i.e. the linked table),
                  * what the new foreignKey is to the old foreignKey.
                  */
                 $int_newForeignKey = $this->arr_mapOldIDToNewID[$arr_relation['cTable']][$int_oldForeignKey];
-                \LeadingSystems\Helpers\lsErrorLog('$int_newForeignKey = $this->arr_mapOldIDToNewID['.$arr_relation['cTable'].']['.$int_oldForeignKey.'];', $int_newForeignKey, 'lslog_14');
                 break;
 
             case 'array': // The ForeignKey is a (serialized) array
-                \LeadingSystems\Helpers\lsErrorLog('array!', '', 'lslog_14');
                 $arr_oldForeignKeys =  is_array($int_oldForeignKey) ? $int_oldForeignKey : StringUtil::deserialize($int_oldForeignKey);
                 $arr_newForeignKeys = array();
                 if (is_array($arr_oldForeignKeys)) {
@@ -307,18 +298,12 @@ class ThemeInstaller
                          * string form in the serialized array are important for recognizing product page assignments!
                          */
                         $arr_newForeignKeys[$k] = strval($this->arr_mapOldIDToNewID[$arr_relation['cTable']][$int_oldForeignKey]);
-
-                        \LeadingSystems\Helpers\lsErrorLog('$arr_newForeignKeys['.$k.'] = $this->arr_mapOldIDToNewID['.$arr_relation['cTable'].']['.$int_oldForeignKey.'];', $arr_newForeignKeys[$k], 'lslog_14');
                     }
-                } else {
-                    \LeadingSystems\Helpers\lsErrorLog('old foreign key is not an array', $arr_relation, 'lslog_14');
-                    \LeadingSystems\Helpers\lsErrorLog('old foreign key: ', $arr_oldForeignKeys, 'lslog_14');
                 }
                 $int_newForeignKey = serialize($arr_newForeignKeys);
                 break;
 
             case 'special': // Der ForeignKey ist in einem speziellen Format gespeichert, der gesondert gehandhabt werden muss
-                \LeadingSystems\Helpers\lsErrorLog('special!', '', 'lslog_14');
                 switch ($arr_relation['pTable']) {
                     case 'tl_layout':
                         switch ($arr_relation['pField']) {
@@ -366,7 +351,6 @@ class ThemeInstaller
                 'relationType' => $arr_matches[5][$k]
             );
         }
-        \LeadingSystems\Helpers\lsErrorLog('$arr_relations', $arr_relations, 'lslog_14');
         return $arr_relations;
     }
 
