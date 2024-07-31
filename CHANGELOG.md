@@ -2,7 +2,7 @@ Leading Systems Contao Merconis bundle changelog
 ===========================================
 
 ### 5.0.25 (2024-07-31)
- * imporve trigger for ls_shop_msg::decreaseLifetime()
+ * improve trigger for ls_shop_msg::decreaseLifetime()
 
 ### 5.0.24 (2024-07-19)
  * improve accessibility of customizerStorage
