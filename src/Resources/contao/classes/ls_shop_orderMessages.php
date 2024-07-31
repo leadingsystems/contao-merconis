@@ -318,14 +318,14 @@ class ls_shop_orderMessages
 			$objEmail->fromName = $arrMessageToSendAndSave['senderName'];
 			$objEmail->subject = $arrMessageToSendAndSave['subject'];
 			
-			// Dynamic PDF attachments
+			// Dynamic attachments
 			$arrTmpGeneratedDynamicAttachmentFiles = array();
 			if (is_array($arrMessageToSendAndSave['dynamicPdfAttachmentPaths']) && count($arrMessageToSendAndSave['dynamicPdfAttachmentPaths']) > 0) {
 
 				foreach ($arrMessageToSendAndSave['dynamicPdfAttachmentPaths'] as $strDynamicAttachmentFile) {
 					$strDynamicAttachmentFile = ls_getFilePathFromVariableSources($strDynamicAttachmentFile);
 					/*
-					 * Use the possibly given dynamicAttachmentFile(s) to create a pdf file
+					 * Use the possibly given dynamicAttachmentFile(s) to create a file
 					 * and use this file as attachments
 					 */
 					if (file_exists(TL_ROOT.'/'.$strDynamicAttachmentFile)) {

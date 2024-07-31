@@ -32,7 +32,7 @@
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['attachments'] = array('Datei-Anhänge');
 	
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['dynamicAttachments'] = array('Dynamisch erzeugter PDF-Anhang', 'Wählen Sie hier eine PHP-Datei aus, die zur Erstellung eines dynamisch generierten PDF-Anhangs verwendet wird. Wenn Sie keine Datei auswählen, so wird kein dynamisch generiertes PDF angehängt.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['dynamicAttachments'] = array('Dynamisch erzeugter Anhang', 'Wählen Sie hier eine PHP-Datei aus, die zur Erstellung eines dynamisch generierten Anhangs verwendet wird. Wenn Sie keine Datei auswählen, so wird kein dynamisch generierter Anhang erzeugt.');
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['published']	= array('Aktiv');
 	
