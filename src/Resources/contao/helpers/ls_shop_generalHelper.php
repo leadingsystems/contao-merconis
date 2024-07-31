@@ -4265,7 +4265,7 @@ class ls_shop_generalHelper
         return $GLOBALS['merconis_globals']['messageSent'][$identificationToken];
     }
 
-    public static function callback_outputFrontendTemplate($strContent, $strTemplate)
+    public static function callback_modifyFrontendPage($strContent, $strTemplate)
     {
         /*
          * The contao hook has to call this intermediary function because the hook requires the content to be
