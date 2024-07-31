@@ -202,7 +202,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 		
 		'dynamicPdfAttachmentPaths' => array(
 			'exclude' => true,
-			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['dynamicPdfAttachmentPaths'],
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['dynamicAttachmentPaths'],
 			'eval' => array(
 				'tl_class' => 'clr',
 				'ls_shop_generatedTemplate_template' => 'template_beMessageAttachmentRepresentation_default',

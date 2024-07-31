@@ -15,7 +15,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['subject']										= array('Subject');
 	$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['messageRepresentation']						= array('Message sent');
 	
-	$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['dynamicPdfAttachmentPaths']					= array('Dynamic attachments');
+	$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['dynamicAttachmentPaths']					    = array('Dynamic attachments');
 	$GLOBALS['TL_LANG']['tl_ls_shop_messages_sent']['attachmentPaths']								= array('Static attachments');
 
 	/*
