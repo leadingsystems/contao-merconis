@@ -6,10 +6,12 @@ use Merconis\Core\ls_shop_generalHelper;
 
 class ModifyFrontendPageListener
 {
-    public function __invoke($var_arg): string
+    public function __invoke(string $str_content, string $str_template): string
     {
-        $var_arg = ls_shop_generalHelper::storeConfiguratorDataToSession($var_arg);
-        $var_arg = ls_shop_generalHelper::storeCustomizerDataToSession($var_arg);
-        return $var_arg;
+        $str_content = ls_shop_generalHelper::callback_modifyFrontendPage($str_content, $str_template);
+        $str_content = ls_shop_generalHelper::storeConfiguratorDataToSession($str_content);
+        $str_content = ls_shop_generalHelper::storeCustomizerDataToSession($str_content);
+
+        return $str_content;
     }
 }
