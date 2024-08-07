@@ -1604,9 +1604,13 @@ class ls_shop_filterHelper {
 		 * Remove filter criteria from the filter form if they don't make any sense, e.g. attributes, if there
 		 * is only one possible value and producers if there is only one possible producer
 		 */
+        $arrFilterFieldInfos = ls_shop_filterHelper::getFilterFieldInfos();
+
 		foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'] as $attributeID => $arrAttributeValueIDs) {
 			if (count($arrAttributeValueIDs) < 2) {
-				unset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$attributeID]);
+                if (self::checkDisableFilterIfOnlyOneValue($arrFilterFieldInfos, $attributeID)) {
+				    unset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$attributeID]);
+                }
 			}
 		}
 
@@ -1619,6 +1623,30 @@ class ls_shop_filterHelper {
 
 		ls_shop_filterHelper::adaptFilterCriteriaToCurrentFilterFormCriteria();
 	}
+
+
+    /*  Checks whether in the active filter fields that match the transferred AttributeID the property
+     *  'Deactivate filter field with only one characteristic' is checked and then returns a true
+     *  Depending on this, such filter fields are hidden
+     *
+     *  @param  array   $arrFilterFieldInfos    DB-ergebnis der aktiven Filterfelder
+     *  @param  int     $attributeID            ID des Produktmerkmals, das in arrCriteriaToUseInFilterForm durchschleift wird
+     *  @return bool                            true, wenn ´disableFilterIfOnlyOneValue´ gecheckt ist
+     */
+    private static function checkDisableFilterIfOnlyOneValue(array $arrFilterFieldInfos, int $attributeID): bool
+    {
+        $result = false;
+
+        foreach ($arrFilterFieldInfos as $filterFieldID => $arrFilterFieldInfo) {
+            if ($arrFilterFieldInfo['sourceAttribute'] == $attributeID) {
+                $result = ($arrFilterFieldInfo['disableFilterIfOnlyOneValue'] == '1');
+                break;
+            }
+        }
+
+        return $result;
+    }
+
 
 	public static function filterReload() {
 	    $str_targetUrl = \Environment::get('request');
