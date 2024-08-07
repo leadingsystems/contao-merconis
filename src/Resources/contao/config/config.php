@@ -47,6 +47,7 @@ if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendReques
     $GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiControllerBackend', 'processRequest');
     $GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_dashboard', 'processRequest');
     $GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_themeExporter', 'processRequest');
+    $GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_themeExporter_legacy', 'processRequest');
 }
 
 if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create('')))

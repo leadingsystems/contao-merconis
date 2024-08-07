@@ -3,5 +3,6 @@
     <?php echo $this->str_themeInstallerOutput; ?>
     <div id="merconis-dashboard">
         <div data-merconis-component-autostart="dashboard"></div>
+        <div data-merconis-component-autostart="dashboard_legacy"></div>
     </div>
 </div>
