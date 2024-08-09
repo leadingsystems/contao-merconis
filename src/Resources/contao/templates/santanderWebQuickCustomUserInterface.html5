@@ -3,7 +3,10 @@ use Contao\System;
 ?>
 <h3><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc09']; ?></h3>
 <?php
-	switch ($_SESSION['lsShopPaymentProcess']['santanderWebQuick']['int_status']) {			
+    $session = System::getContainer()->get('merconis.session')->getSession();
+    $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
+	switch ($session_lsShopPaymentProcess['santanderWebQuick']['int_status']) {
 		case 0: // finance id has been generated but application has not been sent yet
 		case 1: // application has been sent and is being checked by santander
 			if ($this->linkToSantander) {
@@ -14,11 +17,11 @@ use Contao\System;
 				</div>
 				<div class="checkStatus">
 					<?php
-					if ($_SESSION['lsShopPaymentProcess']['santanderWebQuick']['int_status'] === 1) {
+					if ($session_lsShopPaymentProcess['santanderWebQuick']['int_status'] === 1) {
 						?>
 						<p class="error"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc05']; ?></p>
 						<?php
-					} else if ($_SESSION['lsShopPaymentProcess']['santanderWebQuick']['bln_statusCheckedAtLeastOnce']) {
+					} else if ($session_lsShopPaymentProcess['santanderWebQuick']['bln_statusCheckedAtLeastOnce']) {
 						?>
 						<p class="error"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc08']; ?></p>
 						<?php
@@ -67,7 +70,7 @@ use Contao\System;
 		 * Finance application not started yet. We still have to collect birthday information
 		 */
 		case -1:
-			if ($_SESSION['lsShopPaymentProcess']['santanderWebQuick']['bln_previousFinancingApplicationCanceled']) {
+			if ($session_lsShopPaymentProcess['santanderWebQuick']['bln_previousFinancingApplicationCanceled']) {
 				?>
 				<p class="error"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc12']; ?></p>
 				<?php
@@ -77,11 +80,11 @@ use Contao\System;
 			<?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc10']; ?>
 			</p>
 			<?php
-			if ($_SESSION['lsShopPaymentProcess']['santanderWebQuick']['str_birthdayError']) {
+			if ($session_lsShopPaymentProcess['santanderWebQuick']['str_birthdayError']) {
 				?>
-				<p class="error"><?php echo $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['str_birthdayError']; ?></p>
+				<p class="error"><?php echo $session_lsShopPaymentProcess['santanderWebQuick']['str_birthdayError']; ?></p>
 				<?php
-				unset($_SESSION['lsShopPaymentProcess']['santanderWebQuick']['str_birthdayError']);
+				unset($session_lsShopPaymentProcess['santanderWebQuick']['str_birthdayError']);
 			}
 			?>
 			<form class="santanderWebQuickBirthday" action="<?php echo $this->formAction ?>" method="post"
@@ -102,7 +105,7 @@ use Contao\System;
 						<?php
 							for ($i = 1; $i <= 31; $i++) {
 								?>
-								<option value="<?php echo $i; ?>"<?php echo $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_day'] == $i ? ' selected="selected"' : ''; ?>>
+								<option value="<?php echo $i; ?>"<?php echo $session_lsShopPaymentProcess['santanderWebQuick']['arr_birthday']['int_day'] == $i ? ' selected="selected"' : ''; ?>>
 									<?php echo $i; ?>
 								</option>
 								<?php
@@ -116,7 +119,7 @@ use Contao\System;
 						<?php
 							for ($i = 1; $i <= 12; $i++) {
 								?>
-								<option value="<?php echo $i; ?>"<?php echo $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_month'] == $i ? ' selected="selected"' : ''; ?>>
+								<option value="<?php echo $i; ?>"<?php echo $session_lsShopPaymentProcess['santanderWebQuick']['arr_birthday']['int_month'] == $i ? ' selected="selected"' : ''; ?>>
 									<?php echo $i; ?>
 								</option>
 								<?php
@@ -130,7 +133,7 @@ use Contao\System;
 						<?php
 							for ($i = date('Y') - 17; $i >= date('Y') - 110; $i--) {
 								?>
-								<option value="<?php echo $i; ?>"<?php echo $_SESSION['lsShopPaymentProcess']['santanderWebQuick']['arr_birthday']['int_year'] == $i ? ' selected="selected"' : ''; ?>>
+								<option value="<?php echo $i; ?>"<?php echo $session_lsShopPaymentProcess['santanderWebQuick']['arr_birthday']['int_year'] == $i ? ' selected="selected"' : ''; ?>>
 									<?php echo $i; ?>
 								</option>
 								<?php
@@ -153,3 +156,4 @@ use Contao\System;
 			<?php
 			break;
 	}
+    $session->set('lsShop', $session_lsShopPaymentProcess);

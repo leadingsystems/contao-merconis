@@ -16,7 +16,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     const LIVE_URL = 'https://api-m.paypal.com';
     public $arrCurrentSettings = array();
     public function initialize($specializedManually = false) {
-        if (!isset($_SESSION['lsShopPaymentProcess']['payPalCheckout']) || !is_array($_SESSION['lsShopPaymentProcess']['payPalCheckout'])) {
+
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
+        if (!isset($session_lsShopPaymentProcess['payPalCheckout']) || !is_array($session_lsShopPaymentProcess['payPalCheckout'])) {
             $this->payPalCheckout_resetSessionStatus();
         }
         $this->payPalCheckout_checkRelevantCalculationDataHash();
@@ -47,9 +51,16 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             Controller::reload();
         }
         if (Input::post('payPalCheckout_orderId') && Input::post('payPalCheckout_authorizationId')) {
-            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'] = Input::post('payPalCheckout_orderId');
-            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'] = Input::post('payPalCheckout_authorizationId');
-            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorized'] = true;
+
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
+            $session_lsShopPaymentProcess['payPalCheckout']['orderId'] = Input::post('payPalCheckout_orderId');
+            $session_lsShopPaymentProcess['payPalCheckout']['authorizationId'] = Input::post('payPalCheckout_authorizationId');
+            $session_lsShopPaymentProcess['payPalCheckout']['authorized'] = true;
+
+            $session->set('lsShop', $session_lsShopPaymentProcess);
+
             Controller::reload();
         }
         if ($this->payPalCheckout_check_paymentIsAuthorized()) {
@@ -59,8 +70,12 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
     }
     private function payPalCheckout_createOrder(){
-        if ($_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId']) {
-            return $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'];
+
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
+        if ($session_lsShopPaymentProcess['payPalCheckout']['orderId']) {
+            return $session_lsShopPaymentProcess['payPalCheckout']['orderId'];
         }
 
         $showItemlist = true;
@@ -216,7 +231,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
         $orderId = json_decode($result)->id;
 
-        $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'] = $orderId;
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+        $session_lsShopPaymentProcess['payPalCheckout']['orderId'] = $orderId;
+        $session->set('lsShop', $session_lsShopPaymentProcess);
 
         return $orderId;
     }
@@ -253,10 +271,14 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     }
 
     public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
+
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
         $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
         $access_token = $this->payPalCheckout_getaccessToken();
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/payments/authorizations/'. $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'] .'/capture');
+        curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/payments/authorizations/'. $session_lsShopPaymentProcess['payPalCheckout']['authorizationId'] .'/capture');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
@@ -302,9 +324,13 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $this->payPalCheckout_resetSessionStatus();
     }
     public function getPaymentInfo() {
+
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
         $arrPaymentInfo = array(
-            'str_authorizationId' => $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'],
-            'str_orderId' => $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'],
+            'str_authorizationId' => $session_lsShopPaymentProcess['payPalCheckout']['authorizationId'],
+            'str_orderId' => $session_lsShopPaymentProcess['payPalCheckout']['orderId'],
         );
         return serialize($arrPaymentInfo);
     }
@@ -490,6 +516,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
      * pay pal authorization is obsolete.
      */
     protected function payPalCheckout_checkRelevantCalculationDataHash() {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
+
         $str_relevantCalculationDataHash = sha1(
             ls_shop_cartX::getInstance()->calculation['shippingFee'][0]
             .	ls_shop_cartX::getInstance()->calculation['paymentFee'][0]
@@ -510,10 +540,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
          * If the relevantCalculationDataHash has not been stored in the session yet, we store it now.
          */
         if (
-            !isset($_SESSION['lsShopPaymentProcess']['payPalCheckout']['relevantCalculationDataHash'])
-            ||	!$_SESSION['lsShopPaymentProcess']['payPalCheckout']['relevantCalculationDataHash']
+            !isset($session_lsShopPaymentProcess['payPalCheckout']['relevantCalculationDataHash'])
+            ||	!$session_lsShopPaymentProcess['payPalCheckout']['relevantCalculationDataHash']
         ) {
-            $_SESSION['lsShopPaymentProcess']['payPalCheckout']['relevantCalculationDataHash'] = $str_relevantCalculationDataHash;
+            $session_lsShopPaymentProcess['payPalCheckout']['relevantCalculationDataHash'] = $str_relevantCalculationDataHash;
         }
 
         /*
@@ -521,16 +551,21 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
          * session status which will eventually lead to a new pay pal order being created and a possibly existing
          * authorization being voided.
          */
-        if ($_SESSION['lsShopPaymentProcess']['payPalCheckout']['relevantCalculationDataHash'] != $str_relevantCalculationDataHash) {
+        if ($session_lsShopPaymentProcess['payPalCheckout']['relevantCalculationDataHash'] != $str_relevantCalculationDataHash) {
             $this->payPalCheckout_resetSessionStatus();
         }
+
+        $session->set('lsShop', $session_lsShopPaymentProcess);
     }
     protected function payPalCheckout_check_paymentIsAuthorized() {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
         return (
-            isset($_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorized'])
-            &&	$_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorized']
-            &&	$_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId']
-            &&	$_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId']
+            isset($session_lsShopPaymentProcess['payPalCheckout']['authorized'])
+            &&	$session_lsShopPaymentProcess['payPalCheckout']['authorized']
+            &&	$session_lsShopPaymentProcess['payPalCheckout']['authorizationId']
+            &&	$session_lsShopPaymentProcess['payPalCheckout']['orderId']
         );
     }
     protected function payPalCheckout_showAuthorizationStatus() {
@@ -551,9 +586,12 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         return $obj_template->parse();
     }
     protected function payPalCheckout_resetSessionStatus($bln_cancelPossiblyExistingAuthorization = true) {
-        if($bln_cancelPossiblyExistingAuthorization && $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId']){
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
+        if($bln_cancelPossiblyExistingAuthorization && $session_lsShopPaymentProcess['payPalCheckout']['authorizationId']){
             $access_token = $this->payPalCheckout_getaccessToken();
-            $authorizationID = $_SESSION['lsShopPaymentProcess']['payPalCheckout']['authorizationId'];
+            $authorizationID = $session_lsShopPaymentProcess['payPalCheckout']['authorizationId'];
 
             $ch = curl_init();
 
@@ -581,12 +619,14 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
 
 
-        $_SESSION['lsShopPaymentProcess']['payPalCheckout'] = array(
+        $session_lsShopPaymentProcess['payPalCheckout'] = array(
             'authorized' => false,
             'authorizationId' => null,
             'orderId' => null,
             'relevantCalculationDataHash' => null
         );
+
+        $session->set('lsShop', $session_lsShopPaymentProcess);
     }
     protected function payPalCheckout_getShippingFieldValue($str_fieldName) {
         $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';

@@ -225,23 +225,27 @@ namespace Merconis\Core;
 			global $objPage;
 			$msg = '';
 
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
+
 			// Only show messages if the checkout page displaying the payment selection is currently opened.
 			if (
 					($objPage->id ?? null) == ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id')
-				&&	isset($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])
+				&&	isset($session_lsShopPaymentProcess['standard']['messages'][$type])
 			) {
-				if (!is_array($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])) {
-					$msg = $_SESSION['lsShopPaymentProcess']['standard']['messages'][$type];
+				if (!is_array($session_lsShopPaymentProcess['standard']['messages'][$type])) {
+					$msg = $session_lsShopPaymentProcess['standard']['messages'][$type];
 				} else {
-					foreach ($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type] as $msgPart) {
+					foreach ($session_lsShopPaymentProcess['standard']['messages'][$type] as $msgPart) {
 						if ($msg) {
 							$msg .= '<br />';
 						}
 						$msg .= $msgPart;
 					}
 				}
-				unset($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type]);
+				unset($session_lsShopPaymentProcess['standard']['messages'][$type]);
 			}
+            $session->set('lsShop', $session_lsShopPaymentProcess);
 			return $msg;			
 		}
 		
@@ -257,17 +261,20 @@ namespace Merconis\Core;
 			if (!$msg) {
 				return;
 			}
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
 			
 			// Ist eine Fehlermeldung bereits enthalten, so wird sie nicht erneut hinzugefügt, da doppelte Meldungen sinnlos sind
 			if (
-					isset($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])
-				&&	is_array($_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])
-				&&	in_array($msg, $_SESSION['lsShopPaymentProcess']['standard']['messages'][$type])
+					isset($session_lsShopPaymentProcess['standard']['messages'][$type])
+				&&	is_array($session_lsShopPaymentProcess['standard']['messages'][$type])
+				&&	in_array($msg, $session_lsShopPaymentProcess['standard']['messages'][$type])
 			) {
 				return;
 			}
-			
-			$_SESSION['lsShopPaymentProcess']['standard']['messages'][$type][] = $msg;
+
+            $session_lsShopPaymentProcess['standard']['messages'][$type][] = $msg;
+            $session->set('lsShop', $session_lsShopPaymentProcess);
 		}
 		
 		public function setPaymentMethodSuccessMessage($msg = '') {
