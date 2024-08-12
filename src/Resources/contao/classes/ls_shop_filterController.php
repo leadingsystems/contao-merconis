@@ -7,6 +7,7 @@ use Contao\Environment;
 use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\StringUtil;
+use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
 /*
@@ -27,7 +28,9 @@ class ls_shop_filterController
 	 */
 	protected function __construct()
 	{
-		if (!isset($_SESSION['lsShop']['filter'])) {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop');
+		if (!isset($session_lsShop['filter'])) {
 			ls_shop_filterHelper::createEmptyFilterSession();
 		}
 	}
@@ -149,6 +152,9 @@ class ls_shop_filterController
 	{
         global $objPage;
         $str_currentLanguage = ($objPage->language ?? null) ?: ls_shop_languageHelper::getFallbackLanguage();
+        
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop');
 
 		/*
 		 * All widgets that base on a filter field entry will be
@@ -175,8 +181,8 @@ class ls_shop_filterController
 					 * we don't create a widget
 					 */
 					if (
-						!is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
-						|| !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])
+						!is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers'])
+						|| !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers'])
 					) {
 						continue 2;
 					}
@@ -194,7 +200,7 @@ class ls_shop_filterController
 						/*
 						 * In the widget we only insert the values that should be used as filter criteria based on the current product list
 						 */
-						if (!in_array($arrFieldValue['filterValue'], $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'])) {
+						if (!in_array($arrFieldValue['filterValue'], $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers'])) {
 							continue;
 						}
 
@@ -204,11 +210,11 @@ class ls_shop_filterController
 							'label' => $arrFieldValue['filterValue'],
 							'class' => (isset($arrFieldValue['classForFilterFormField']) && $arrFieldValue['classForFilterFormField'] ? ' ' . $arrFieldValue['classForFilterFormField'] : ''),
 							'important' => (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue'] ? true : false),
-							'matchEstimates' => isset($_SESSION['lsShop']['filter']['matchEstimates']['producers'][$md5Value]) ? $_SESSION['lsShop']['filter']['matchEstimates']['producers'][$md5Value] : null
+							'matchEstimates' => isset($session_lsShop['filter']['matchEstimates']['producers'][$md5Value]) ? $session_lsShop['filter']['matchEstimates']['producers'][$md5Value] : null
 						);
 					}
 
-					foreach ($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['producers'] as $value) {
+					foreach ($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['producers'] as $value) {
 						/*
 						 * values that exist as filter field values in the filter field values table
 						 * are skipped because if they also exist in the criteria to use in the filter form
@@ -223,7 +229,7 @@ class ls_shop_filterController
 							'label' => $value,
 							'class' => '',
 							'important' => false,
-							'matchEstimates' => isset($_SESSION['lsShop']['filter']['matchEstimates']['producers'][$md5Value]) ? $_SESSION['lsShop']['filter']['matchEstimates']['producers'][$md5Value] : null
+							'matchEstimates' => isset($session_lsShop['filter']['matchEstimates']['producers'][$md5Value]) ? $session_lsShop['filter']['matchEstimates']['producers'][$md5Value] : null
 						);
 					}
 					/*
@@ -249,7 +255,7 @@ class ls_shop_filterController
 								'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
 								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
 							),
-							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['producers']) ? $_SESSION['lsShop']['filter']['criteria']['producers'] : ''
+							'var_value' => isset($session_lsShop['filter']['criteria']['producers']) ? $session_lsShop['filter']['criteria']['producers'] : ''
 						)
 					);
 					break;
@@ -258,7 +264,7 @@ class ls_shop_filterController
 					/*
 					 * Skip the price field if there are no different prices (both are 0) in the result that should be filtered
 					 */
-					if (!$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'] && !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
+					if (!$session_lsShop['filter']['arrCriteriaToUseInFilterForm']['price']['low'] && !$session_lsShop['filter']['arrCriteriaToUseInFilterForm']['price']['high']) {
 						continue 2;
 					}
 
@@ -267,7 +273,7 @@ class ls_shop_filterController
 							'str_uniqueName' => 'priceLow',
 							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098'],
 							'str_allowedRequestMethod' => 'post',
-							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['price']['low']) ? $_SESSION['lsShop']['filter']['criteria']['price']['low'] : 0
+							'var_value' => isset($session_lsShop['filter']['criteria']['price']['low']) ? $session_lsShop['filter']['criteria']['price']['low'] : 0
 						)
 					);
 
@@ -276,7 +282,7 @@ class ls_shop_filterController
 							'str_uniqueName' => 'priceHigh',
 							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099'],
 							'str_allowedRequestMethod' => 'post',
-							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['price']['high']) ? $_SESSION['lsShop']['filter']['criteria']['price']['high'] : 0
+							'var_value' => isset($session_lsShop['filter']['criteria']['price']['high']) ? $session_lsShop['filter']['criteria']['price']['high'] : 0
 						)
 					);
 
@@ -287,8 +293,8 @@ class ls_shop_filterController
                         'str_template' => $arrFilterFieldInfo['templateToUseForPriceField'] ? $arrFilterFieldInfo['templateToUseForPriceField'] : 'template_formPriceFilterField_standard',
                         'arr_moreData' => array(
                             'filterSectionId' => $arrFilterFieldInfo['dataSource'],
-                            'minValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['low'],
-                            'maxValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['price']['high']
+                            'minValue' => $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['price']['low'],
+                            'maxValue' => $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['price']['high']
                         )
 					);
 					break;
@@ -299,11 +305,11 @@ class ls_shop_filterController
                      * or no values for the current flexContentLI, we don't create a widget
                      */
                     if (
-                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'])
-                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
-                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
+                        !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'])
+                        || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'])
+                        || !isset($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])
                     ) {
                         continue 2;
                     }
@@ -318,7 +324,7 @@ class ls_shop_filterController
                         /*
                          * In the widget we only insert the values that should be used as filter criteria based on the current product list
                          */
-                        if (!in_array($arrFieldValue['filterValue'], $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])) {
+                        if (!in_array($arrFieldValue['filterValue'], $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']])) {
                             continue;
                         }
 
@@ -327,7 +333,7 @@ class ls_shop_filterController
                             'label' => $arrFieldValue['filterValue'],
                             'class' => (isset($arrFieldValue['classForFilterFormField']) && $arrFieldValue['classForFilterFormField'] ? ' ' . $arrFieldValue['classForFilterFormField'] : ''),
                             'important' => (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue'] ? true : false),
-                            'matchEstimates' => isset($_SESSION['lsShop']['filter']['matchEstimates']['flexContentLIValues'][$arrFieldValue['filterValue']]) ? $_SESSION['lsShop']['filter']['matchEstimates']['flexContentLIValues'][$arrFieldValue['filterValue']] : null
+                            'matchEstimates' => isset($session_lsShop['filter']['matchEstimates']['flexContentLIValues'][$arrFieldValue['filterValue']]) ? $session_lsShop['filter']['matchEstimates']['flexContentLIValues'][$arrFieldValue['filterValue']] : null
                         );
                     }
                     /*
@@ -344,7 +350,7 @@ class ls_shop_filterController
                                 'filterSectionId' => $arrFilterFieldInfo['dataSource'] . '-' . $arrFilterFieldInfo['flexContentLIKey'],
                                 'arrOptions' => $arrOptions,
                                 'flexContentLIKey' => $arrFilterFieldInfo['flexContentLIKey'],
-                                'filterMode' => isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]) ? $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] : $arrFilterFieldInfo['filterMode'],
+                                'filterMode' => isset($session_lsShop['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]) ? $session_lsShop['filter']['filterModeSettingsByFlexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] : $arrFilterFieldInfo['filterMode'],
                                 'makeFilterModeUserAdjustable' => $arrFilterFieldInfo['makeFilterModeUserAdjustable'],
                                 'arrFieldInfo' => $arrFilterFieldInfo,
                                 'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
@@ -352,7 +358,7 @@ class ls_shop_filterController
                                 'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
                                 'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
                             ),
-                            'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]) ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] : ''
+                            'var_value' => isset($session_lsShop['filter']['criteria']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]) ? $session_lsShop['filter']['criteria']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] : ''
                         )
                     );
 
@@ -364,11 +370,11 @@ class ls_shop_filterController
                      * or no values for the current flexContentLD, we don't create a widget
                      */
                     if (
-                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
-                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
-                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                        !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
+                        || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage])
+                        || !isset($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
+                        || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])
                     ) {
                         continue 2;
                     }
@@ -383,7 +389,7 @@ class ls_shop_filterController
                         /*
                          * In the widget we only insert the values that should be used as filter criteria based on the current product list
                          */
-                        if (!in_array($arrFieldValue['filterValue'], $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])) {
+                        if (!in_array($arrFieldValue['filterValue'], $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']])) {
                             continue;
                         }
 
@@ -392,7 +398,7 @@ class ls_shop_filterController
                             'label' => $arrFieldValue['filterValue'],
                             'class' => (isset($arrFieldValue['classForFilterFormField']) && $arrFieldValue['classForFilterFormField'] ? ' ' . $arrFieldValue['classForFilterFormField'] : ''),
                             'important' => (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue'] ? true : false),
-                            'matchEstimates' => isset($_SESSION['lsShop']['filter']['matchEstimates']['flexContentLDValues'][$arrFieldValue['filterValue']]) ? $_SESSION['lsShop']['filter']['matchEstimates']['flexContentLDValues'][$arrFieldValue['filterValue']] : null
+                            'matchEstimates' => isset($session_lsShop['filter']['matchEstimates']['flexContentLDValues'][$arrFieldValue['filterValue']]) ? $session_lsShop['filter']['matchEstimates']['flexContentLDValues'][$arrFieldValue['filterValue']] : null
                         );
                     }
                     /*
@@ -409,7 +415,7 @@ class ls_shop_filterController
                                 'filterSectionId' => $arrFilterFieldInfo['dataSource'] . '-' . $arrFilterFieldInfo['flexContentLDKey'],
                                 'arrOptions' => $arrOptions,
                                 'flexContentLDKey' => $arrFilterFieldInfo['flexContentLDKey'],
-                                'filterMode' => isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']]) ? $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] : $arrFilterFieldInfo['filterMode'],
+                                'filterMode' => isset($session_lsShop['filter']['filterModeSettingsByFlexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']]) ? $session_lsShop['filter']['filterModeSettingsByFlexContentsLD'][$arrFilterFieldInfo['flexContentLDKey']] : $arrFilterFieldInfo['filterMode'],
                                 'makeFilterModeUserAdjustable' => $arrFilterFieldInfo['makeFilterModeUserAdjustable'],
                                 'arrFieldInfo' => $arrFilterFieldInfo,
                                 'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
@@ -417,7 +423,7 @@ class ls_shop_filterController
                                 'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
                                 'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
                             ),
-                            'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']]) ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']] : ''
+                            'var_value' => isset($session_lsShop['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']]) ? $session_lsShop['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']] : ''
                         )
                     );
 
@@ -430,13 +436,13 @@ class ls_shop_filterController
                      * Skip it if both rangevalues are 0
                      */
                     if (
-                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'])
-                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
-                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
-                        || (!$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low']
-                            && !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high'])
+                        !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'])
+                        || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'])
+                        || !isset($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']])
+                        || (!$session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low']
+                            && !$session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high'])
                     ) {
                         continue 2;
                     }
@@ -446,8 +452,8 @@ class ls_shop_filterController
 							'str_uniqueName' => $arrFilterFieldInfo['flexContentLIKey'].'_Low',
 							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098'],
 							'str_allowedRequestMethod' => 'post',
-							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low'])
-                                ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low']
+							'var_value' => isset($session_lsShop['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low'])
+                                ? $session_lsShop['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low']
                                 : 0
 						)
 					);
@@ -457,8 +463,8 @@ class ls_shop_filterController
 							'str_uniqueName' => $arrFilterFieldInfo['flexContentLIKey'].'_High',
 							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099'],
 							'str_allowedRequestMethod' => 'post',
-							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high'])
-                                ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high']
+							'var_value' => isset($session_lsShop['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high'])
+                                ? $session_lsShop['filter']['criteria']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high']
                                 : 0
 						)
 					);
@@ -471,8 +477,8 @@ class ls_shop_filterController
                         'str_template' => $arrFilterFieldInfo['templateToUseForFlexContentLIMinMaxField'] ?: 'template_formFlexContentLIMinMaxFilterField_standard',
                         'arr_moreData' => array(
                             'filterSectionId' => $arrFilterFieldInfo['dataSource'].'_'.$arrFilterFieldInfo['flexContentLIKey'],
-                            'minValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low'],
-                            'maxValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high']
+                            'minValue' => $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['low'],
+                            'maxValue' => $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['flexContentsLIMinMax'][$arrFilterFieldInfo['flexContentLIKey']]['high']
                         )
 					);
 
@@ -484,11 +490,11 @@ class ls_shop_filterController
 					 * or no values for the current attribute, we don't create a widget
 					 */
 					if (
-						!is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])
-						|| !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'])
-						|| !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
-						|| !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
-						|| !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+						!is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'])
+						|| !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'])
+						|| !isset($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+						|| !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
+						|| !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])
 					) {
 						continue 2;
 					}
@@ -503,7 +509,7 @@ class ls_shop_filterController
 						/*
 						 * In the widget we only insert the values that should be used as filter criteria based on the current product list
 						 */
-						if (!in_array($arrFieldValue['filterValue'], $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])) {
+						if (!in_array($arrFieldValue['filterValue'], $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributes'][$arrFilterFieldInfo['sourceAttribute']])) {
 							continue;
 						}
 
@@ -512,7 +518,7 @@ class ls_shop_filterController
 							'label' => $arrFieldValue['title'],
 							'class' => (isset($arrFieldValue['classForFilterFormField']) && $arrFieldValue['classForFilterFormField'] ? ' ' . $arrFieldValue['classForFilterFormField'] : ''),
 							'important' => (isset($arrFieldValue['importantFieldValue']) && $arrFieldValue['importantFieldValue'] ? true : false),
-							'matchEstimates' => isset($_SESSION['lsShop']['filter']['matchEstimates']['attributeValues'][$arrFieldValue['filterValue']]) ? $_SESSION['lsShop']['filter']['matchEstimates']['attributeValues'][$arrFieldValue['filterValue']] : null
+							'matchEstimates' => isset($session_lsShop['filter']['matchEstimates']['attributeValues'][$arrFieldValue['filterValue']]) ? $session_lsShop['filter']['matchEstimates']['attributeValues'][$arrFieldValue['filterValue']] : null
 						);
 					}
 					/*
@@ -529,7 +535,7 @@ class ls_shop_filterController
                                 'filterSectionId' => $arrFilterFieldInfo['dataSource'] . '-' . $arrFilterFieldInfo['sourceAttribute'],
 								'arrOptions' => $arrOptions,
 								'sourceAttribute' => $arrFilterFieldInfo['sourceAttribute'],
-								'filterMode' => isset($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$arrFilterFieldInfo['sourceAttribute']]) ? $_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'][$arrFilterFieldInfo['sourceAttribute']] : $arrFilterFieldInfo['filterMode'],
+								'filterMode' => isset($session_lsShop['filter']['filterModeSettingsByAttributes'][$arrFilterFieldInfo['sourceAttribute']]) ? $session_lsShop['filter']['filterModeSettingsByAttributes'][$arrFilterFieldInfo['sourceAttribute']] : $arrFilterFieldInfo['filterMode'],
 								'makeFilterModeUserAdjustable' => $arrFilterFieldInfo['makeFilterModeUserAdjustable'],
 								'arrFieldInfo' => $arrFilterFieldInfo,
 								'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
@@ -537,7 +543,7 @@ class ls_shop_filterController
 								'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
 								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
 							),
-							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['attributes'][$arrFilterFieldInfo['sourceAttribute']]) ? $_SESSION['lsShop']['filter']['criteria']['attributes'][$arrFilterFieldInfo['sourceAttribute']] : ''
+							'var_value' => isset($session_lsShop['filter']['criteria']['attributes'][$arrFilterFieldInfo['sourceAttribute']]) ? $session_lsShop['filter']['criteria']['attributes'][$arrFilterFieldInfo['sourceAttribute']] : ''
 						)
 					);
 
@@ -550,13 +556,13 @@ class ls_shop_filterController
                      * Skip it if both rangevalues are 0
                      */
                     if (
-                        !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
-                        || !isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
-                        || !is_array($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
-                        || !count($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
-                        || (!$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low']
-                            && !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high'])
+                        !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
+                        || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'])
+                        || !isset($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !is_array($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || !count($session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']])
+                        || (!$session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low']
+                            && !$session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high'])
                     ) {
                         continue 2;
                     }
@@ -566,8 +572,8 @@ class ls_shop_filterController
 							'str_uniqueName' => $arrFilterFieldInfo['sourceAttribute'].'_Low',
 							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText098'],
 							'str_allowedRequestMethod' => 'post',
-							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low'])
-                                ? $_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low']
+							'var_value' => isset($session_lsShop['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low'])
+                                ? $session_lsShop['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low']
                                 : 0
 						)
 					);
@@ -577,8 +583,8 @@ class ls_shop_filterController
 							'str_uniqueName' => $arrFilterFieldInfo['sourceAttribute'].'_High',
 							'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText099'],
 							'str_allowedRequestMethod' => 'post',
-							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high'])
-                                ? $_SESSION['lsShop']['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high']
+							'var_value' => isset($session_lsShop['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high'])
+                                ? $session_lsShop['filter']['criteria']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high']
                                 : 0
 						)
 					);
@@ -591,8 +597,8 @@ class ls_shop_filterController
                         'str_template' => $arrFilterFieldInfo['templateToUseForRangeField'] ?: 'template_formAttributesMinMaxFilterField_standard',
                         'arr_moreData' => array(
                             'filterSectionId' => $arrFilterFieldInfo['dataSource'].'_'.$arrFilterFieldInfo['sourceAttribute'],
-                            'minValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low'],
-                            'maxValue' => $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high']
+                            'minValue' => $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['low'],
+                            'maxValue' => $session_lsShop['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$arrFilterFieldInfo['sourceAttribute']]['high']
                         )
 					);
 

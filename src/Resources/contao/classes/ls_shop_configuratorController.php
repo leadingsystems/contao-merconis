@@ -24,28 +24,33 @@ class ls_shop_configuratorController
 			return;
 		}
 
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop');
+
 		/*
 		 * Memorize the product variant id in the array of product variant ids for which the configurator has already been used
 		 */
-		if (!isset($_SESSION['lsShop']['productVariantIDsAlreadyConfigured']) || !is_array($_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
-			$_SESSION['lsShop']['productVariantIDsAlreadyConfigured'] = array();
+		if (!isset($session_lsShop['productVariantIDsAlreadyConfigured']) || !is_array($session_lsShop['productVariantIDsAlreadyConfigured'])) {
+			$session_lsShop['productVariantIDsAlreadyConfigured'] = array();
 		}
-		if (!in_array($_POST['configurator_productVariantID'], $_SESSION['lsShop']['productVariantIDsAlreadyConfigured'])) {
-			$_SESSION['lsShop']['productVariantIDsAlreadyConfigured'][] = $_POST['configurator_productVariantID'];
+		if (!in_array($_POST['configurator_productVariantID'], $session_lsShop['productVariantIDsAlreadyConfigured'])) {
+			$session_lsShop['productVariantIDsAlreadyConfigured'][] = $_POST['configurator_productVariantID'];
 		}
 
 		// Wenn das Configurator-Session-Array noch keinen Key für die aktuell zu verarbeitende configurator-ProduktVarianten-ID enthält, so wird er erstellt
-		if (!isset($_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']])) {
-			$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']] = array();
+		if (!isset($session_lsShop['configurator'][$_POST['configurator_productVariantID']])) {
+			$session_lsShop['configurator'][$_POST['configurator_productVariantID']] = array();
 		}
 
 		// Setzen des Flags, das für die Konfigurator-Klasse kennzeichnet, dass zugehörige Daten empfangen wurden
-		$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['blnReceivedFormDataJustNow'] = true;
+		$session_lsShop['configurator'][$_POST['configurator_productVariantID']]['blnReceivedFormDataJustNow'] = true;
 
 
 
 		// Das Received-Post-Array wird zunächst geleert ...
-		$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['arrReceivedPost'] = array();
+		$session_lsShop['configurator'][$_POST['configurator_productVariantID']]['arrReceivedPost'] = array();
+
+        $session->set('lsShop', $session_lsShop);
 
 		// ... dann werden die Datenbankfelder für das aktuelle Formular ausgelesen ...
 		$objFormFields = Database::getInstance()->prepare("
@@ -66,11 +71,12 @@ class ls_shop_configuratorController
 		// ... dann Durchlaufen der ermittelten Formularfelder ...
 		while ($objFormFields->next()) {
 			// ... und für jedes ermittelte Formularfeld einen Eintrag im Received-Post-Array machen, welches die Feldinformationen sowie als Value den per Post übergebenen Wert enthält.
-			$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['arrReceivedPost'][$objFormFields->name] = array(
+            $session_lsShop['configurator'][$_POST['configurator_productVariantID']]['arrReceivedPost'][$objFormFields->name] = array(
 				'name' => $objFormFields->name,
 				'arrData' => $objFormFields->row(),
 				'value' => $arrSubmitted[$objFormFields->name] ? $arrSubmitted[$objFormFields->name] : ''
 			);
+			
 		}
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['onReceivingConfiguratorInput']) && is_array($GLOBALS['MERCONIS_HOOKS']['onReceivingConfiguratorInput'])) {
@@ -83,7 +89,9 @@ class ls_shop_configuratorController
 		/*
 		 * Generate the configuratorHash and write it to the session
 		 */
-		$_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['strConfiguratorHash'] = sha1(serialize($_SESSION['lsShop']['configurator'][$_POST['configurator_productVariantID']]['arrReceivedPost']));
+		$session_lsShop['configurator'][$_POST['configurator_productVariantID']]['strConfiguratorHash'] = sha1(serialize($session_lsShop['configurator'][$_POST['configurator_productVariantID']]['arrReceivedPost']));
+
+        $session->set('lsShop', $session_lsShop);
 	}
 	
 	/*

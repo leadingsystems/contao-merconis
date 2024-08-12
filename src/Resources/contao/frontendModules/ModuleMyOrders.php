@@ -34,6 +34,9 @@ class ModuleMyOrders extends Module {
 		$this->strTemplate = $this->ls_shop_myOrders_template;
 		$this->Template = new FrontendTemplate($this->strTemplate);
 		$this->Template->arrOrders = array();
+
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop');
 		
 		/*
 		 * Get the user's order from the database
@@ -50,12 +53,14 @@ class ModuleMyOrders extends Module {
 		")
 		->execute($this->User->id);
 		
-		if (!isset($_SESSION['lsShop']['myOrders']['sorting'])) {
-			$_SESSION['lsShop']['myOrders']['sorting'] = $this->strDefaultSorting;
+		if (!isset($session_lsShop['myOrders']['sorting'])) {
+			$session_lsShop['myOrders']['sorting'] = $this->strDefaultSorting;
+            $session->set('lsShop', $session_lsShop);
 		}
 		
-		if (!isset($_SESSION['lsShop']['myOrders']['sortingDirection'])) {
-			$_SESSION['lsShop']['myOrders']['sortingDirection'] = $this->strDefaultSortingDirection;
+		if (!isset($session_lsShop['myOrders']['sortingDirection'])) {
+			$session_lsShop['myOrders']['sortingDirection'] = $this->strDefaultSortingDirection;
+            $session->set('lsShop', $session_lsShop);
 		}
 		
 		
@@ -79,7 +84,7 @@ class ModuleMyOrders extends Module {
 			}
 			$objWidgetSorting->options = $tmpArrSortingOptions;
 			
-			$objWidgetSorting->value = $_SESSION['lsShop']['myOrders']['sorting'];
+			$objWidgetSorting->value = $session_lsShop['myOrders']['sorting'];
 			$this->Template->fflSorting = $objWidgetSorting->generate();
 			
 			/*
@@ -88,29 +93,31 @@ class ModuleMyOrders extends Module {
 			$objWidgetSortingDirection = new SelectMenu();
 			$objWidgetSortingDirection->name = 'sortingDirection';
 			$objWidgetSortingDirection->options = array(array('label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText093'], 'value' => 'ASC'), array('label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText094'], 'value' => 'DESC'));
-			$objWidgetSortingDirection->value = $_SESSION['lsShop']['myOrders']['sortingDirection'];
+			$objWidgetSortingDirection->value = $session_lsShop['myOrders']['sortingDirection'];
 			$this->Template->fflSortingDirection = $objWidgetSortingDirection->generate();
 		}		
 
 		
-		if (!isset($_SESSION['lsShop']['myOrders']['numPerPage'])) {
-			$_SESSION['lsShop']['myOrders']['numPerPage'] = $this->intDefaultNumPerPage;
+		if (!isset($session_lsShop['myOrders']['numPerPage'])) {
+			$session_lsShop['myOrders']['numPerPage'] = $this->intDefaultNumPerPage;
+            $session->set('lsShop', $session_lsShop);
 		}
 		
 		$objWidgetNumPerPage = new SelectMenu();
 		$objWidgetNumPerPage->name = 'numPerPage';
 		$objWidgetNumPerPage->options = array(array('label' => 1, 'value' => 1), array('label' => 2, 'value' => 2), array('label' => 3, 'value' => 3), array('label' => 10, 'value' => 10), array('label' => 20, 'value' => 20), array('label' => 50, 'value' => 50), array('label' => 100, 'value' => 100));
-		$objWidgetNumPerPage->value = $_SESSION['lsShop']['myOrders']['numPerPage'];
+		$objWidgetNumPerPage->value = $session_lsShop['myOrders']['numPerPage'];
 		$this->Template->fflNumPerPage = $objWidgetNumPerPage->generate();
 		
 		if (Input::post('FORM_SUBMIT') == 'myOrders_numPerPage') {
-			$_SESSION['lsShop']['myOrders']['numPerPage'] = Input::post('numPerPage') ? Input::post('numPerPage') : $this->intDefaultNumPerPage;
-			$_SESSION['lsShop']['myOrders']['sorting'] = Input::post('sorting') ? Input::post('sorting') : $this->strDefaultSorting;
-			$_SESSION['lsShop']['myOrders']['sortingDirection'] = Input::post('sortingDirection') ? Input::post('sortingDirection') : $this->strDefaultSortingDirection;
+			$session_lsShop['myOrders']['numPerPage'] = Input::post('numPerPage') ? Input::post('numPerPage') : $this->intDefaultNumPerPage;
+			$session_lsShop['myOrders']['sorting'] = Input::post('sorting') ? Input::post('sorting') : $this->strDefaultSorting;
+			$session_lsShop['myOrders']['sortingDirection'] = Input::post('sortingDirection') ? Input::post('sortingDirection') : $this->strDefaultSortingDirection;
+            $session->set('lsShop', $session_lsShop);
 			$this->redirect(ls_shop_generalHelper::getUrl(false, array('page')));
 		}
 
-		$objPagination = new Pagination($objOrdersAll->numRows, $_SESSION['lsShop']['myOrders']['numPerPage'], 7, 'page', new FrontendTemplate('merconisPagination'));
+		$objPagination = new Pagination($objOrdersAll->numRows, $session_lsShop['myOrders']['numPerPage'], 7, 'page', new FrontendTemplate('merconisPagination'));
 		$this->Template->pagination = $objPagination->generate();
 		$this->Template->request = StringUtil::ampersand(Environment::get('request'), true);
 		
@@ -144,9 +151,9 @@ class ModuleMyOrders extends Module {
 						CASE\r\n".$statusStatement05." ELSE '' END AS `status05_language`
 			FROM		`tl_ls_shop_orders`
 			WHERE		`customerNr` = ?
-			ORDER BY	`".$_SESSION['lsShop']['myOrders']['sorting'].(in_array($_SESSION['lsShop']['myOrders']['sorting'], array('status01', 'status02', 'status03', 'status04', 'status05')) ? '_language' : '')."` ".$_SESSION['lsShop']['myOrders']['sortingDirection']."
+			ORDER BY	`".$session_lsShop['myOrders']['sorting'].(in_array($session_lsShop['myOrders']['sorting'], array('status01', 'status02', 'status03', 'status04', 'status05')) ? '_language' : '')."` ".$session_lsShop['myOrders']['sortingDirection']."
 		")
-		->limit($_SESSION['lsShop']['myOrders']['numPerPage'], $currentPageOffset * $_SESSION['lsShop']['myOrders']['numPerPage'])
+		->limit($session_lsShop['myOrders']['numPerPage'], $currentPageOffset * $session_lsShop['myOrders']['numPerPage'])
 		->execute($this->User->id);
 		
 		$arrOrders = array();

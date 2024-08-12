@@ -402,8 +402,12 @@ class ls_shop_filter_fields extends Backend {
     }
 
     public function dataSource_unsetSession($value) {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop');
+
         if (in_array($value,array('flexContentLIMinMax', 'flexContentLI'))) {
-            unset($_SESSION['lsShop']['filter']['flexContentLIKeys']);
+            unset($session_lsShop['filter']['flexContentLIKeys']);
+            $session->set('lsShop', $session_lsShop);
         }
         return $value;
     }

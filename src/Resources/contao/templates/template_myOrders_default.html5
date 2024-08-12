@@ -3,6 +3,9 @@
 use Contao\Date;
 use Contao\System;
 
+$session = System::getContainer()->get('merconis.session')->getSession();
+$session_lsShop =  $session->get('lsShop');
+
 ?>
 <!-- indexer::stop -->
 <div class="<?php echo $this->strTemplate ?>">
@@ -19,7 +22,7 @@ use Contao\System;
                 <?php
                 foreach ($arr_numPerPageOptions as $int_numPerPageOption) {
                     ?>
-                    <option <?php echo $_SESSION['lsShop']['myOrders']['numPerPage'] == $int_numPerPageOption ? 'selected' : ''; ?> value="<?php echo $int_numPerPageOption; ?>"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText091'], $int_numPerPageOption); ?></option>
+                    <option <?php echo $session_lsShop['myOrders']['numPerPage'] == $int_numPerPageOption ? 'selected' : ''; ?> value="<?php echo $int_numPerPageOption; ?>"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText091'], $int_numPerPageOption); ?></option>
                     <?php
                 }
                 ?>

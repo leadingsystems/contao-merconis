@@ -6,6 +6,7 @@ namespace Merconis\Core;
 use Contao\Input;
 use Contao\PageModel;
 use Contao\StringUtil;
+use Contao\System;
 
 class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 		public $arrCurrentSettings = array();
@@ -305,6 +306,9 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 		public function onAfterCheckoutPage($arr_order = array()) {
 			$arr_moduleReturnData = $this->get_paymentMethod_moduleReturnData_forOrderId($arr_order['id']);
 
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop');
+
 			switch (Input::get('vrpay_action')) {
 				case 'abort':
 					$arr_moduleReturnData['arr_status'][] = array(
@@ -317,7 +321,8 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 					$this->update_paymentMethod_moduleReturnData_inOrder($arr_order['id'], $arr_moduleReturnData);
 					$this->update_fieldValue_inOrder($arr_order['id'], 'vrpay_currentStatus', 'ABORTED');
 
-					$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
+                    $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
+                    $session->set('lsShop', $session_lsShop);
 
 					/*
 					 * redirect in order to get rid of the "aborted" value for
@@ -356,13 +361,14 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 
 						switch ($arr_resultCodeGroupInfo['groupStatus']) {
 							case 'SUCCESS':
-								$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentSuccessAfterFinishedOrder'];
+                                $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentSuccessAfterFinishedOrder'];
 								break;
 
 							default:
-								$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
+                                $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['paymentErrorAfterFinishedOrder'];
 								break;
 						}
+                        $session->set('lsShop', $session_lsShop);
 
 						/*
 						 * redirect in order to get rid of the "resourcePath" parameter

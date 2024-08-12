@@ -2,6 +2,9 @@
 
 use Contao\System;
 
+$session = System::getContainer()->get('merconis.session')->getSession();
+$session_lsShop =  $session->get('lsShop');
+
 ?>
 <!-- indexer::stop -->
 <div class="<?php echo $this->class; ?> <?php echo $this->strTemplate ?> ls_searchBox<?php echo (isset($GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']) && $GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']) ? ' ls_advanced-productSearch' : ' ls_simple-productSearch'; ?>"<?= $this->cssID ?>>
@@ -15,8 +18,8 @@ use Contao\System;
             <?php
             if(isset($GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']) && $GLOBALS['TL_CONFIG']['ls_shop_userDecide_searchType']){
 
-                if(isset($_SESSION['lsShop']['productSearch']['searchType'])){
-                    $type = $_SESSION['lsShop']['productSearch']['searchType'];
+                if(isset($session_lsShop['productSearch']['searchType'])){
+                    $type = $session_lsShop['productSearch']['searchType'];
                 }else{
                     $type = $GLOBALS['TL_CONFIG']['ls_shop_searchType'];
                 }

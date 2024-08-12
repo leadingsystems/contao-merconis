@@ -1,12 +1,19 @@
 <?php
 
 use Contao\Input;
+use Contao\System;
 
 if (!isset($GLOBALS['merconis_globals']['formFieldUniqueIDCounter'])) {
 		$GLOBALS['merconis_globals']['formFieldUniqueIDCounter'] = 0;
 	}
 
 	$blnDetailMode = Input::get('product') ? true : false;
+
+
+$session = System::getContainer()->get('merconis.session')->getSession();
+$session_lsShop =  $session->get('lsShop');
+$session->set('lsShop', $session_lsShop);
+
 ?>
 <div data-lsjs-element="filterOptionsBox" data-lsjs-filter-section-id="<?php
 echo $this->arr_moreData['filterSectionId'];
@@ -24,7 +31,7 @@ echo $this->arr_moreData['filterSectionId'];
 					$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']++;
 					$count++;
 					?>
-					<div data-lsjs-element="optionsBox_filterOption" class="filterOption <?php echo isset($arrOption['class']) && $arrOption['class'] ? ' '.$arrOption['class'] : ''; ?><?php echo $count <= $this->arr_moreData['numItemsInReducedMode'] || $arrOption['important'] ? ' important' : ''; ?><?php echo isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) && $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] && !$_SESSION['lsShop']['filter']['noMatchEstimatesDetermined'] && (($blnDetailMode && $arrOption['matchEstimates']['variants'] == 0) || (!$blnDetailMode && $arrOption['matchEstimates']['products'] == 0)) ? ' noMatch' : ''; ?>">
+					<div data-lsjs-element="optionsBox_filterOption" class="filterOption <?php echo isset($arrOption['class']) && $arrOption['class'] ? ' '.$arrOption['class'] : ''; ?><?php echo $count <= $this->arr_moreData['numItemsInReducedMode'] || $arrOption['important'] ? ' important' : ''; ?><?php echo isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) && $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] && !$session_lsShop['filter']['noMatchEstimatesDetermined'] && (($blnDetailMode && $arrOption['matchEstimates']['variants'] == 0) || (!$blnDetailMode && $arrOption['matchEstimates']['products'] == 0)) ? ' noMatch' : ''; ?>">
 						<input type="<?php echo $this->arr_moreData['filterFormFieldType']; ?>" name="<?php echo $this->str_name.((count($this->arr_moreData['arrOptions']) > 1) ? '[]' : ''); ?>" id="opt_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" class="<?php echo $this->arr_moreData['filterFormFieldType']; ?> opt_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" value="<?php echo $arrOption['value']; ?>"<?php echo (is_array($this->var_value) && in_array($arrOption['value'], $this->var_value)) || $this->var_value == $arrOption['value'] ? ' checked' : '' ?> />
 						<label id="lbl_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" class="lbl_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" for="opt_<?php echo $this->str_name.'_'.$i.'_'.$GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>">
                             <span class="label-content">
@@ -82,9 +89,9 @@ echo $this->arr_moreData['filterSectionId'];
                             <label for="<?php echo $this->str_name.'_filterMode'; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterModeLabel']; ?></label>
                             <select id="<?php echo $this->str_name.'_filterMode'; ?>" name="filterModeForFlexContentLI[<?php echo $this->arr_moreData['flexContentLIKey']; ?>]">
                                 <?php
-                                    if (isset($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$this->arr_moreData['flexContentLIKey']])) {
-                                        $bln_orIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$this->arr_moreData['flexContentLIKey']] === 'or';
-                                        $bln_andIsSelected = $_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'][$this->arr_moreData['flexContentLIKey']] === 'and';
+                                    if (isset($session_lsShop['filter']['filterModeSettingsByFlexContentsLI'][$this->arr_moreData['flexContentLIKey']])) {
+                                        $bln_orIsSelected = $session_lsShop['filter']['filterModeSettingsByFlexContentsLI'][$this->arr_moreData['flexContentLIKey']] === 'or';
+                                        $bln_andIsSelected = $session_lsShop['filter']['filterModeSettingsByFlexContentsLI'][$this->arr_moreData['flexContentLIKey']] === 'and';
                                     } else {
                                         $bln_orIsSelected = $this->arr_moreData['filterMode'] === 'or';
                                         $bln_andIsSelected = $this->arr_moreData['filterMode'] === 'and';

@@ -18,13 +18,16 @@ namespace Merconis\Core;
 			 * that this function is being called directly from a payment module itself which means that the general logPaymentError function
 			 * in ls_shop_paymentModule is skipped and therefore can not set this flag itself.
 			 */
-			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop');
+            $session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShop);
 			## fixEndlessRecursionOnPaymentError end ##
 
 			error_log('Payment error in payment method "'.$this->arrCurrentSettings['title'].'" (type: '.$this->arrCurrentSettings['type'].') in context "'.$context.'"');
-			
+
 			ob_start();
-			
+
 			if ($errorInformation01) {
 				echo "======================== Extended error information no. 1: =============================\r\n";
 				if (is_array($errorInformation01)){
@@ -49,7 +52,7 @@ namespace Merconis\Core;
 					var_dump($errorInformation03);
 				}
 			}
-			
+
 			$outputBuffer = ob_get_contents();
 			ob_end_clean();
 
@@ -57,40 +60,40 @@ namespace Merconis\Core;
                 'MERCONIS: Payment error in payment method "'.$this->arrCurrentSettings['title'].'" (type: '.$this->arrCurrentSettings['type'].') in context "'.$context.'"'."\r\n\r\n".$outputBuffer,
                 ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
             );
-			
+
 			if ($bln_resetSelectedPaymentMethod) {
 				ls_shop_checkoutData::getInstance()->resetSelectedPaymentMethod();
 			}
 		}
-		
+
 		public function get_paymentMethod_moduleReturnData_forOrderId($int_orderID) {
 			if (!$int_orderID) {
 				return null;
 			}
-			
+
 			$obj_dbres_moduleReturnData = Database::getInstance()->prepare("
 				SELECT		`paymentMethod_moduleReturnData`
 				FROM		`tl_ls_shop_orders`
 				WHERE		`id` = ?
 			")
 			->execute($int_orderID);
-			
+
 			if (!$obj_dbres_moduleReturnData->numRows) {
 				return null;
 			}
-			
+
 			return StringUtil::deserialize($obj_dbres_moduleReturnData->first()->paymentMethod_moduleReturnData);
 		}
-		
+
 		public function update_paymentMethod_moduleReturnData_inOrder($int_orderID = 0, $var_paymentMethod_moduleReturnData = '') {
 			if (!$int_orderID) {
 				return;
 			}
-			
+
 			if (is_array($var_paymentMethod_moduleReturnData)) {
 				$var_paymentMethod_moduleReturnData = serialize($var_paymentMethod_moduleReturnData);
 			}
-			
+
 			$obj_dbquery = Database::getInstance()->prepare("
 				UPDATE	`tl_ls_shop_orders`
 				SET		`paymentMethod_moduleReturnData` = ?
@@ -99,16 +102,16 @@ namespace Merconis\Core;
 			->limit(1)
 			->execute($var_paymentMethod_moduleReturnData, $int_orderID);
 		}
-		
+
 		public function update_fieldValue_inOrder($int_orderID = 0, $str_fieldName = '', $var_fieldValue = '') {
 			if (!$int_orderID || !$str_fieldName) {
 				return;
 			}
-			
+
 			if (is_array($var_fieldValue)) {
 				$var_fieldValue = serialize($var_fieldValue);
 			}
-			
+
 			$obj_dbquery = Database::getInstance()->prepare("
 				UPDATE	`tl_ls_shop_orders`
 				SET		`".$str_fieldName."` = ?
@@ -122,18 +125,21 @@ namespace Merconis\Core;
 				$objOrderMessages->sendMessages();
 			}
 		}
-		
+
 		public function redirectToErrorPage($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '') {
 			/** @var PageModel $objPage */
 			global $objPage;
-			
+
 			## fixEndlessRecursionOnPaymentError begin ##
 			/*
 			 * Setting this flag in the redirectToErrorPage functions of special payment modules is very important because it is possible
 			 * that this function is being called directly from a payment module itself which means that the general redirectToErrorPage function
 			 * in ls_shop_paymentModule is skipped and therefore can not set this flag itself.
 			 */
-			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop');
+            $session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShop);
 			## fixEndlessRecursionOnPaymentError end ##
 			
 			$this->logPaymentError($context, $errorInformation01, $errorInformation02, $errorInformation03);
@@ -195,7 +201,10 @@ namespace Merconis\Core;
 		}
 				
 		public function afterCheckoutFinish() {
-			$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop');
+            $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session->set('lsShop', $session_lsShop);
 		}
 
 		public function check_usePaymentAfterCheckoutPage() {

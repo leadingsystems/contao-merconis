@@ -6,6 +6,7 @@ use Contao\Date;
 use Contao\Environment;
 use Contao\Input;
 use Contao\StringUtil;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -53,12 +54,16 @@ use function LeadingSystems\Helpers\ls_sub;
 		 */
 		public function afterCheckoutFinish($int_orderIdInDb = 0, $arr_order = array(), $afterCheckoutUrl = '', $oix = '') {
 			// Reset the special payment info
-			$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop');
+            $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = '';
+            $session->set('lsShop', $session_lsShop);
 			
 			// if there are insufficient parameters the payment execution is aborted
 			if (!$int_orderIdInDb || !is_array($arr_order) || !count($arr_order)) {
 				// write an error message to the special payment info and log the error
-				$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentErrorAfterFinishedOrder'];
+                $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentErrorAfterFinishedOrder'];
+                $session->set('lsShop', $session_lsShop);
 				$this->logPaymentError(__METHOD__, 'insufficient parameters given');
 				return;
 			}
@@ -320,6 +325,9 @@ use function LeadingSystems\Helpers\ls_sub;
 		 * situations, including notifications
 		 */
 		public function onAfterCheckoutPage($arr_order = array()) {
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop =  $session->get('lsShop');
+
 			if (Input::get('saferpay_action')) {
 				switch (Input::get('saferpay_action')) {
 					case 'abort':
@@ -327,7 +335,8 @@ use function LeadingSystems\Helpers\ls_sub;
 						 * write the error message to the special payment info
 						 * and update the payment status in the order record
 						 */
-						$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentErrorAfterFinishedOrder'];
+                        $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentErrorAfterFinishedOrder'];
+                        $session->set('lsShop', $session_lsShop);
 						
 						$arr_moduleReturnData = $this->get_paymentMethod_moduleReturnData_forOrderId($arr_order['id']);
 						$arr_moduleReturnData['arr_status'][] = array(
@@ -353,7 +362,8 @@ use function LeadingSystems\Helpers\ls_sub;
 						 * write the error message to the special payment info
 						 * and update the payment status in the order record
 						 */
-						$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentErrorAfterFinishedOrder'];
+                        $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentErrorAfterFinishedOrder'];
+                        $session->set('lsShop', $session_lsShop);
 						
 						$arr_moduleReturnData = $this->get_paymentMethod_moduleReturnData_forOrderId($arr_order['id']);
 						$arr_moduleReturnData['arr_status'][] = array(
@@ -375,7 +385,8 @@ use function LeadingSystems\Helpers\ls_sub;
 						break;
 					
 					case 'success':
-						$_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentSuccessAfterFinishedOrder'];
+                        $session_lsShop['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['paymentSuccessAfterFinishedOrder'];
+                        $session->set('lsShop', $session_lsShop);
 						break;
 
 					
