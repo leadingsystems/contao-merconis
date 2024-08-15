@@ -59,7 +59,7 @@ class xrechnung_core
 
         foreach ($this->listElementsTr as $elem) {
 
-            $infElem = new xrechnung_element($elem[0], $elem[1], $elem[2], $elem[3], $elem[4]);
+            $infElem = new xrechnung_element($elem);
             $infElem->setRef($this->arrOrder);
 
             $this->first = ($this->first === null) ? $infElem : $this->first;
@@ -69,14 +69,14 @@ class xrechnung_core
     }
 
 
-    public function callLEbyName($name): ?xrechnung_element
+    public function callIEbyId(string $elementId): ?xrechnung_element
     {
-        if ($name == '') {
+        if ($elementId == '') {
             return null;
         }
 
         foreach ($this->conta as $myobj ) {
-            if ($myobj->getName() == $name ) {
+            if ($myobj->getElementId() == $elementId ) {
                 return $myobj;
             }
         }
@@ -98,7 +98,7 @@ class xrechnung_core
 
             $nextElem = $IElem->getNextElement();
 
-            $IElem = $this->callLEbyName($nextElem);
+            $IElem = $this->callIEbyId($nextElem);
 
 
         } while ($IElem !== null);
