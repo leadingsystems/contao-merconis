@@ -2,7 +2,6 @@
 namespace Merconis\Core;
 
 
-#trait xrechnung_trait_1            // Erst in 8.2 gestattet
 abstract class xrechnung_trait_1
 {
     const SETSADMIN = 'setadmin';           //Name des Mitglieds (Tabelle tl_member) welches Standard Sets anlegen darf
@@ -11,8 +10,6 @@ abstract class xrechnung_trait_1
     const TYPEUSER = 2;
 
 }
-
-
 
 abstract class xrechnung_trait_2
 {
@@ -34,10 +31,12 @@ trait xrechnung_trait_func
     //5:    xml code mit Einrückung und evtl. Data Platzhalter
     //6:    nächstes Informations Element bzw. Nachfolger
     public $listElementsTr = array(
+/*
         array('name' => 'customizationId',
             'id' => '',
             'xml' => '  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</cbc:CustomizationID>',
             'next' => 'BT-1'),
+
         array('name' => 'Invoice Number',
             'id' => 'BT-1',
 //FALSCH dürfte eher
@@ -85,10 +84,9 @@ trait xrechnung_trait_func
         array('name' => '_Order Reference ID',
             'id' => 'BT-13_SUB-1',
             'source' => 'orderNr',
-            'xml' => '    <cbc:ID>MyOrderRef</cbc:ID>',
-            'parent' => ''
+            'xml' => '    <cbc:ID>[DATA]</cbc:ID>',
+            'parent' => 'BT-13'
             ),
-
 
         array('name' => 'Purchase order reference',
             'id' => 'BT-13',
@@ -97,14 +95,91 @@ trait xrechnung_trait_func
             'next' => 'dueDate',
             'firstSub' => 'BT-13_SUB-1'
             ),
+*/
 
+        array('name' => 'Payment means',
+            'id' => 'PAR_BT-81',
+            'xml' => '  <cac:PaymentMeans>[DATA]  </cac:PaymentMeans>',
+            'next' => 'dueDate',
+            'firstSub' => 'BT-81'
+            ),
+
+        array('name' => 'Payment means type code',
+            'id' => 'BT-81',
+//NOCH KLÄREN: wie kommt man von unserem Payment Method Title zum richtigen type code UNTDID_4461_3.xlsx
+            'source' => 'paymentMethod_title',
+            'transformation' => 'payment2Means',
+            'xml' => '    <cbc:PaymentMeansCode>[DATA]</cbc:PaymentMeansCode>',
+            'next' => 'BT-83',
+            'parent' => 'PAR_BT-81'
+            ),
+
+        #array('name' => 'Payment Id',
+            #'id' => 'BT-81_UNK-1',
+            #'source' => '',
+
+            #'xml' => '    <cbc:PaymentID>abc</cbc:PaymentID>',
+            #'next' => 'BT-82',
+            #'parent' => 'PAR_BT-81'
+            #),
+//NOCH KLÄREN: bei Peppol
+//  https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/tree/
+// steht bei ´Remittance Information´ der Knoten ´cbc:PaymentID´
+        array('name' => 'Remittance Information',
+            'id' => 'BT-83',
+//NOCH KLÄREN: was soll hier rein, als Daten ? BT-83
+            'source' => '',
+            'xml' => '    <cbc:PaymentID>abc</cbc:PaymentID>',
+            'parent' => 'PAR_BT-81'
+            ),
+
+        array('name' => 'Payment means text',
+            'id' => 'BT-82',
+            'source' => 'paymentMethod_title',
+//NOCH KLÄREN: wie sieht der richtige XML Text zu diesem Knoten aus ?
+            'xml' => '    <cbc:PaymentMeansText>[DATA]</cbc:PaymentID>',
+            'parent' => 'PAR_BT-81'
+            ),
+
+
+        array('name' => 'Payee Financial Account',
+            'id' => 'PAR_BT-84',
+            'xml' => '    <cac:PayeeFinancialAccount>[DATA]    </cac:PayeeFinancialAccount>',
+            'parent' => 'PAR_BT-81',
+            'firstSub' => 'BT-84'
+            ),
+
+        array('name' => 'Payment account identifier',
+            'id' => 'BT-84',
+//NOCH KLÄREN: Woher die Daten für IBAN
+            'source' => '',
+            'xml' => '      <cbc:ID>[DATA]</cbc:ID>',
+            'next' => 'BT-85',
+            'parent' => 'PAR_BT-84'
+            ),
+
+        array('name' => 'Payment account name',
+            'id' => 'BT-85',
+//NOCH KLÄREN: Woher die Daten für Kontoinhaber
+            'source' => '',
+            'xml' => '      <cbc:Name>[DATA]</cbc:Name>',
+            'parent' => 'PAR_BT-84'
+            ),
+
+        array('name' => 'Financial Institution Branch',
+            'id' => 'PAR_BT-86',
+            'source' => '',
+            'xml' => '      <cac:FinancialInstitutionBranch>[DATA]      </cac:FinancialInstitutionBranch>',
+            'parent' => 'PAR_BT-84'
+            ),
+
+        array('name' => 'Payment service provider identifier',
+            'id' => 'BT-86',
+            'source' => '',
+            'xml' => '        <cbc:ID>[DATA]</cbc:ID>',
+            'parent' => 'PAR_BT-86'
+            ),
 
     );
-
-    public function tes1()
-    {
-        return 'test1';
-    }
-
 
 }
