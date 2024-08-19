@@ -6,14 +6,19 @@ namespace Merconis\Core;
  *
  */
 
+use function LeadingSystems\Helpers\lsDebugLog;
+
 class xrechnung_element
 {
+
+    private $trans = null;
 
     private $arrOrder = [];
     private $name = '';
     private $elementId = '';
     private $dataSource = '';
     private $dataTransformation = '';
+    private $tabs = '';
     private $xml = '';
     private $nachfolger = '';
     private $firstSub = '';
@@ -22,16 +27,11 @@ class xrechnung_element
 
     public function __construct($element)
     {
-/*
-        $this->name = (isset($element['name'])) ? $element['name'] : '';
-        $this->elementId = $element['id'];
-        $this->dataSource = (isset($element['source'])) ? $element['source'] : '';
-        $this->dataTransformation = (isset($element['transformation'])) ? $element['transformation'] : '';
-        $this->xml = (isset($element['xml'])) ? $element['xml'] : '';
-        $this->nachfolger = (isset($element['next'])) ? $element['next'] : '';
-        $this->firstSub = (isset($element['firstSub'])) ? $element['firstSub'] : '';
-        $this->parent = (isset($element['parent'])) ? $element['parent'] : '';
-*/
+
+        #$obj1 = new \Merconis\Core\xrechnung_trait_datatransformation();
+        #$obj1 = new xrechnung_datatransformation();
+        $this->trans = new \Merconis\Core\xrechnung_datatransformation();
+
         $this->fillRemaining($element);
     }
 
@@ -50,6 +50,9 @@ class xrechnung_element
         if ($this->dataTransformation == '') {
             $this->dataTransformation = (isset($element['transformation'])) ? $element['transformation'] : '';
         }
+        if ($this->tabs == '') {
+            $this->tabs = (isset($element['tabs'])) ? $element['tabs'] : '';
+        }
         if ($this->xml == '') {
             $this->xml = (isset($element['xml'])) ? $element['xml'] : '';
         }
@@ -64,12 +67,6 @@ class xrechnung_element
         }
     }
 
-/*
-    public function getName(): string
-    {
-        return $this->name;
-    }
-*/
 
     public function getElementId(): string
     {
@@ -86,6 +83,7 @@ class xrechnung_element
     {
         $xmlResult = '';
         $xmlCode = '';
+        $data = null;
 #$this->arrOrder['status03'] = 'meintest';
 
         if ($this->firstSub != '') {
@@ -102,30 +100,40 @@ class xrechnung_element
 
         //Daten holen
         if ($this->dataSource) {
-            $data = $this->arrOrder[$this->dataSource];
-        } else {
-            $data = '';
+            if (isset($this->arrOrder[$this->dataSource])) {
+                $data = $this->arrOrder[$this->dataSource];
+            } else {
+                lsDebugLog('','Den geforderten Schlüssel '.$this->dataSource.' für '.$this->elementId.' gibts im Auftragsarray nicht!' );
+#echo 'Den geforderten Schlüssel '.$this->dataSource.' für '.$this->id.' gibts im Auftragsarray nicht!';
+            }
+
+
         }
 
         //Daten-Transformations-Funktionen
-        if ($data != '' && $this->dataTransformation) {
-            if (method_exists($this, $this->dataTransformation)) {
+        if ($this->dataTransformation) {
+            if (method_exists($this->trans, $this->dataTransformation)) {
                 $funcName =$this->dataTransformation;
-                $data = $this->{$funcName}($data);
+                $data = $this->trans->{$funcName}($data);
             }
         }
 
-        $data .= $xmlCode;
+        $xmlData = (is_null($data)) ? '' : $data;
+        $xmlData .= $xmlCode;
 
 
         //Einsatz ins Ergebnis-XML
-        if (str_contains($this->xml, '[DATA]')) {
-            $xmlResult = str_replace('[DATA]', $data, $this->xml );
+        $xmlResult = $this->tabs.'<'.$this->xml.'>'.$xmlData;
+
+        if ($this->firstSub == '') {
+            $xmlResult .= '';
         } else {
-            //Kein [DATA] Element zu ersetzen
-            $xmlResult = $this->xml;
+            $xmlResult .= $this->tabs;
         }
-        #$xmlResult .= '\r\n';
+
+        $xmlResult .= '</'.$this->xml.'>';
+
+        #$xmlResult .= '\r\n';              //GEHT NET
         $xmlResult .= '
 ';
         return $xmlResult;
@@ -147,7 +155,7 @@ class xrechnung_element
         $key = $elem->getElementId();
         $this->sub[$key] = $elem;
     }
-
+/*
 // Daten Transformations Funktionen
     private function ts2Date(int $timestamp): string
     {
@@ -164,4 +172,10 @@ class xrechnung_element
         return $result;
     }
 
+    private function customizationId(string $paymentTitle): string
+    {
+//TODO: hier prüfen, wie der String dynamisch zusammengebaut werden muss
+        return 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0';
+    }
+*/
 }

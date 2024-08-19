@@ -55,7 +55,7 @@ class xrechnung_core
 
 
 
-            if ($elem['parent'] != '') {
+            if (isset($elem['parent']) && $elem['parent'] != '') {
                 $parent = $this->callIEbyId($elem['parent']);
 
                 if (!$parent) {
@@ -115,6 +115,7 @@ class xrechnung_core
 
         echo '</ubl:Invoice>'. "\r\n";
         $result = ob_get_clean();
+        return $result;
     }
 
 }
