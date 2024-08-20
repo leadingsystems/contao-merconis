@@ -6,6 +6,35 @@ namespace Merconis\Core;
 class xrechnung_datatransformation
 {
 
+    public function repeatForEveryTaxKey($parent)
+    {
+        $xmlCode = '';
+
+        //reguläre Unter-Knoten Auswertung stoppen
+        $parent->setIgn(true);
+
+        //Für jeden Steuer-Kategorien Schlüssel soll die reguläre Unterknoten-Auswertung stattfinden
+        $taxCategories = array_keys($parent->arrOrder['totalTaxedWith']);
+        foreach ($taxCategories as $taxCategory)
+        {
+            $parent->addi = array('taxCategory' => $taxCategory);
+
+            if ($parent->firstSub != '') {
+
+                $xmlCode .= '
+    ';
+
+                foreach ($parent->sub as $subElementId => $subElement) {
+                    //Unter-Informations-Element muss die gleichen Parameter erhalten
+                    $subElement->addi = $parent->addi;
+                    $xmlCode .= $subElement->evalIE();
+                }
+            }
+        }
+
+        return $xmlCode;
+    }
+
 
     // Daten Transformations Funktionen
     public function ts2Date(?int $timestamp): string
@@ -45,6 +74,26 @@ class xrechnung_datatransformation
         •  877 (Final construction invoice)
 */
         return '380';
+    }
+
+    public function taxableAmountOfCategory(?array $anything, ?array $additionalData): string
+    {
+        $taxCategory = $additionalData['taxCategory'];
+        return $anything[$taxCategory]['amountTaxedHerewith'];
+    }
+
+    public function taxAmountOfCategory(?array $anything): string
+    {
+        $test = 1;
+
+        return '';
+    }
+
+    public function vatCategoryCode(?string $anything): string
+    {
+        $test = 1;
+
+        return '';
     }
 
 }

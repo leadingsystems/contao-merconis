@@ -13,7 +13,8 @@ class xrechnung_element
 
     private $trans = null;
 
-    private $arrOrder = [];
+    public $arrOrder = [];
+
     private $name = '';
     private $elementId = '';
     private $dataSource = '';
@@ -21,15 +22,15 @@ class xrechnung_element
     private $tabs = '';
     private $xml = '';
     private $nachfolger = '';
-    private $firstSub = '';
+    public $firstSub = '';
     private $parent = '';
-    private $sub = [];
+    public $sub = [];
+    private $specialfunc = '';
+    private $ign = false;
+    public $addi = null;
 
     public function __construct($element)
     {
-
-        #$obj1 = new \Merconis\Core\xrechnung_trait_datatransformation();
-        #$obj1 = new xrechnung_datatransformation();
         $this->trans = new \Merconis\Core\xrechnung_datatransformation();
 
         $this->fillRemaining($element);
@@ -65,6 +66,9 @@ class xrechnung_element
         if ($this->parent == '') {
             $this->parent = (isset($element['parent'])) ? $element['parent'] : '';
         }
+        if ($this->specialfunc == '') {
+            $this->specialfunc = (isset($element['specialfunc'])) ? $element['specialfunc'] : '';
+        }
     }
 
 
@@ -84,15 +88,25 @@ class xrechnung_element
         $xmlResult = '';
         $xmlCode = '';
         $data = null;
-#$this->arrOrder['status03'] = 'meintest';
 
-        if ($this->firstSub != '') {
+        if ($this->specialfunc != '') {
+
+            $xmlCode .= '
+';
+            $xmlCode .= $this->trans->repeatForEveryTaxKey($this);
+
+        }
+
+
+        if ($this->firstSub != '' && $this->ign == false) {
 
             $xmlCode .= '
 ';
 
-            foreach ($this->sub as $key => $subElem) {
-                $xmlCode .= $subElem->evalIE();
+            foreach ($this->sub as $subElementId => $subElement) {
+                //Unter-Informations-Element muss die gleichen Parameter erhalten
+                $subElement->addi = $this->addi;
+                $xmlCode .= $subElement->evalIE();
             }
         }
 
@@ -104,17 +118,21 @@ class xrechnung_element
                 $data = $this->arrOrder[$this->dataSource];
             } else {
                 lsDebugLog('','Den geforderten Schlüssel '.$this->dataSource.' für '.$this->elementId.' gibts im Auftragsarray nicht!' );
-#echo 'Den geforderten Schlüssel '.$this->dataSource.' für '.$this->id.' gibts im Auftragsarray nicht!';
             }
-
-
         }
 
         //Daten-Transformations-Funktionen
         if ($this->dataTransformation) {
+#$funcName = $this->dataTransformation;
+
             if (method_exists($this->trans, $this->dataTransformation)) {
-                $funcName =$this->dataTransformation;
-                $data = $this->trans->{$funcName}($data);
+                $funcName = $this->dataTransformation;
+                #$additionalData = null;
+#$addi = 'test234';
+                $data = $this->trans->{$funcName}($data
+                    #, $additionalData
+                    , $this->addi
+                );
             }
         }
 
@@ -149,33 +167,14 @@ class xrechnung_element
         return $this->parent != '';
     }
 
+    public function setIgn($val)
+    {
+        $this->ign = $val;
+    }
 
     public function addSub($elem)
     {
         $key = $elem->getElementId();
         $this->sub[$key] = $elem;
     }
-/*
-// Daten Transformations Funktionen
-    private function ts2Date(int $timestamp): string
-    {
-        return date('Y-m-d', $timestamp);
-    }
-
-
-    private function payment2Means(string $paymentTitle): string
-    {
-        $result = '';
-        if ($paymentTitle == 'PayPal Checkout') {
-            $result = 30;
-        }
-        return $result;
-    }
-
-    private function customizationId(string $paymentTitle): string
-    {
-//TODO: hier prüfen, wie der String dynamisch zusammengebaut werden muss
-        return 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0';
-    }
-*/
 }

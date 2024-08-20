@@ -34,6 +34,7 @@ trait xrechnung_trait_func
     //5:    xml: der Key des XML Elements
     //6:    next: nächstes Informations Element bzw. Nachfolger
     //7:    parent: id des Eltern Elements z.B. BT-2
+    //8:    specialfunc: Name einer speziellen Ablauf-Funktion
     public $listElementsTr = array(
 
         array('name' => 'customizationId',
@@ -244,7 +245,76 @@ trait xrechnung_trait_func
             'parent' => 'BT-20'
             ),
 
+        //Summe Steuern
+        array('name' => 'Tax Total',
+            'id' => 'PAR_BT-110',
+            'tabs' => '  ',
+            'xml' => 'cac:TaxTotal',
+            'firstSub' => 'BT-110'
+            ),
 
+        array('name' => 'Invoice total VAT amount',          //OPTIONAL
+//TODO: Klären: es könnte auch BT-111 sein
+            'id' => 'BT-110',
+            'source' => 'taxTotal',
+            'tabs' => '    ',
+            'xml' => 'cbc:TaxAmount',
+//TODO: Eigenschaften im XML Knoten umsetzen
+'xmlAttr' => 'currencyID="EUR"',
+            'parent' => 'PAR_BT-110',
+            'next' => 'PAR_BT-116',
+            ),
+
+        array('name' => 'Tax Subtotal',
+            //'id' => 'PAR_BT-110_SUB-1',
+            'id' => 'PAR_BT-116',
+            'tabs' => '    ',
+            'xml' => 'cac:TaxSubtotal',
+            'parent' => 'PAR_BT-110',
+            //'firstSub' => 'PAR_BT-110-SUB-1-SUB-1'
+            'firstSub' => 'BT-116',
+            'specialfunc' => 'repeatForEveryTaxKey'
+            ),
+
+        array('name' => 'VAT category taxable amount',
+            //'id' => 'PAR_BT-110-SUB-1-SUB-1',
+            'id' => 'BT-116',
+            'source' => 'totalTaxedWith',
+            'transformation' => 'taxableAmountOfCategory',
+            'tabs' => '      ',
+            'xml' => 'cbc:TaxableAmount',
+//TODO: Eigenschaften im XML Knoten umsetzen
+'xmlAttr' => 'currencyID="EUR"',
+            'parent' => 'PAR_BT-110_SUB-1'
+            ),
+
+        array('name' => 'VAT category tax amount',
+            //'id' => 'PAR_BT-110-SUB-1-SUB-2',
+            'id' => 'BT-117',
+            'source' => 'tax',
+            'transformation' => 'taxAmountOfCategory',
+            'tabs' => '      ',
+            'xml' => 'cbc:TaxAmount',
+//TODO: Eigenschaften im XML Knoten umsetzen
+'xmlAttr' => 'currencyID="EUR"',
+            ),
+
+        array('name' => 'VAT category tax',
+            'id' => 'PAR_BT-110_SUB-1',
+            'tabs' => '    ',
+            'xml' => 'cac:TaxCategory',
+            'parent' => 'PAR_BT-116',
+            'firstSub' => 'BT-118'
+            ),
+
+        array('name' => 'VAT category code',
+            'id' => 'BT-118',
+            'source' => '',
+            'transformation' => 'vatCategoryCode',
+            'tabs' => '        ',
+            'xml' => 'cbc:ID',
+            'parent' => 'PAR_BT-110_SUB-1'
+            ),
     );
 
 }
