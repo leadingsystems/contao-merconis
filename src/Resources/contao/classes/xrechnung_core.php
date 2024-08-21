@@ -62,18 +62,19 @@ class xrechnung_core
                     $parent = new xrechnung_element(
                         array('id' => $elem['parent'])
                     );
-                    $this->conta->attach($parent);
+                    #$this->conta->attach($parent);
                 }
                 $parent->addSub($IElem);
+                $this->conta->attach($parent);
                 unset($parent);
             }
 
+            //Beginnendes Element merken
             if ($this->first === null) {
                 if (!$IElem->hasParent()) {
                     $this->first = $IElem;
                 }
             }
-
         }
     }
 
@@ -100,29 +101,19 @@ class xrechnung_core
         echo '<ubl:Invoice xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2 http://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/maindoc/UBL-Invoice-2.1.xsd">' . "\r\n";
 
         do {
-
             if (!$IElem->hasParent()) {
                 $xml = $IElem->evalIE();
                 echo $xml;
             }
-
             $nextElem = $IElem->getNextElement();
-
             $IElem = $this->callIEbyId($nextElem);
-
 
         } while ($IElem !== null);
 
         echo '</ubl:Invoice>'. "\r\n";
         $result = ob_get_clean();
+
         return $result;
     }
 
 }
-
-abstract class eTaxCategories
-{
-    const STANDARDRATE = 'S';
-    const ZERORATEDGOODS = 'Z';
-}
-

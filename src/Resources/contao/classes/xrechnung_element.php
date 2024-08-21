@@ -19,15 +19,15 @@ class xrechnung_element
     private $elementId = '';
     private $dataSource = '';
     private $dataTransformation = '';
-    private $tabs = '';
-    private $xml = '';
+    public $tabs = '';
+    public $xml = '';
     private $nachfolger = '';
     public $firstSub = '';
     private $parent = '';
     public $sub = [];
-    private $specialfunc = '';
-    private $ign = false;
-    public $addi = null;
+    private $processFunction = '';
+    private $ignoreSubElements = false;
+    public $additionalParams = null;
 
     public function __construct($element)
     {
@@ -49,7 +49,7 @@ class xrechnung_element
             $this->dataSource = (isset($element['source'])) ? $element['source'] : '';
         }
         if ($this->dataTransformation == '') {
-            $this->dataTransformation = (isset($element['transformation'])) ? $element['transformation'] : '';
+            $this->dataTransformation = (isset($element['transform'])) ? $element['transform'] : '';
         }
         if ($this->tabs == '') {
             $this->tabs = (isset($element['tabs'])) ? $element['tabs'] : '';
@@ -66,8 +66,8 @@ class xrechnung_element
         if ($this->parent == '') {
             $this->parent = (isset($element['parent'])) ? $element['parent'] : '';
         }
-        if ($this->specialfunc == '') {
-            $this->specialfunc = (isset($element['specialfunc'])) ? $element['specialfunc'] : '';
+        if ($this->processFunction == '') {
+            $this->processFunction = (isset($element['processFunction'])) ? $element['processFunction'] : '';
         }
     }
 
@@ -83,31 +83,58 @@ class xrechnung_element
     }
 
 
+    public function subElems($obj )
+    {
+        $xmlSubCode = '';
+        if ($obj->firstSub != ''
+            //&& $this->ignoreSubElements == false
+            ) {
+
+            $xmlSubCode .= '
+';
+            foreach ($obj->sub as $subElementId => $subElement) {
+                //Unter-Informations-Element muss die gleichen Parameter erhalten
+                $subElement->additionalParams = $obj->additionalParams;
+                $xmlSubCode .= $subElement->evalIE();
+            }
+        }
+        return $xmlSubCode;
+    }
+
     public function evalIE(): string
     {
         $xmlResult = '';
-        $xmlCode = '';
+        $xmlSubCode = '';
         $data = null;
 
-        if ($this->specialfunc != '') {
+        if ($this->processFunction != '') {
 
-            $xmlCode .= '
+            $xmlSubCode .= '
 ';
-            $xmlCode .= $this->trans->repeatForEveryTaxKey($this);
-
+            if (method_exists($this->trans, $this->processFunction)) {
+                $funcName = $this->processFunction;
+                $xmlSubCode = $this->trans->{$funcName}($this);
+            }
         }
 
+        if ($this->ignoreSubElements == false) {
 
-        if ($this->firstSub != '' && $this->ign == false) {
+//TODO: Kann die Funktion ´subElems´ auch bei repeatForEveryTaxKey eingesetzt werden
+$xmlSubCode = $this->subElems($this);
+/*
+        if ($this->firstSub != ''
+            //&& $this->ignoreSubElements == false
+            ) {
 
-            $xmlCode .= '
+            $xmlSubCode .= '
 ';
-
             foreach ($this->sub as $subElementId => $subElement) {
                 //Unter-Informations-Element muss die gleichen Parameter erhalten
-                $subElement->addi = $this->addi;
-                $xmlCode .= $subElement->evalIE();
+                $subElement->additionalParams = $this->additionalParams;
+                $xmlSubCode .= $subElement->evalIE();
             }
+        }
+*/
         }
 
         //Zuerst alle Regeln auswerten
@@ -123,21 +150,17 @@ class xrechnung_element
 
         //Daten-Transformations-Funktionen
         if ($this->dataTransformation) {
-#$funcName = $this->dataTransformation;
 
             if (method_exists($this->trans, $this->dataTransformation)) {
                 $funcName = $this->dataTransformation;
-                #$additionalData = null;
-#$addi = 'test234';
                 $data = $this->trans->{$funcName}($data
-                    #, $additionalData
-                    , $this->addi
+                    , $this->additionalParams
                 );
             }
         }
 
         $xmlData = (is_null($data)) ? '' : $data;
-        $xmlData .= $xmlCode;
+        $xmlData .= $xmlSubCode;
 
 
         //Einsatz ins Ergebnis-XML
@@ -167,9 +190,9 @@ class xrechnung_element
         return $this->parent != '';
     }
 
-    public function setIgn($val)
+    public function setIgnoreSubElements($val)
     {
-        $this->ign = $val;
+        $this->ignoreSubElements = $val;
     }
 
     public function addSub($elem)
