@@ -2269,12 +2269,18 @@ This method can be used to call a function hooked with the "callingHookedProduct
     }
 
 	public function ls_getVariants() {
+        /*
+         * Sortierung nach id in zweiter Ebene einbauen (aufsteigend).
+         * Haben mehrere Varianten die gleiche Sortiernummer, so soll die mit der kleinsten ID zuerst kommen.
+         * ISSUE https://lsboard.de/project/232/task/7875
+         */
 		$objVariants = \Database::getInstance()->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_variant`
 			WHERE		`pid` = ?
 				".(System::getContainer()->get('merconis.routing.scope')->isBackend() && (strpos(\Environment::get('request'), 'tl_ls_shop_variant') !== false || strpos(\Environment::get('request'), 'ls_shop_stockManagement') !== false) ? "" : "AND		`published` = '1'")."
-			ORDER BY	`sorting` ASC
+			ORDER BY	`sorting` ASC,
+			            `id` ASC
 		");
 
 		$objVariants = $objVariants->execute($this->ls_ID);
