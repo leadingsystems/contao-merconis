@@ -62,7 +62,6 @@ class xrechnung_core
                     $parent = new xrechnung_element(
                         array('id' => $elem['parent'])
                     );
-                    #$this->conta->attach($parent);
                 }
                 $parent->addSub($IElem);
                 $this->conta->attach($parent);

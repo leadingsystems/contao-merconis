@@ -12,12 +12,14 @@ class xrechnung_element
 {
 
     private $trans = null;
+    private $process = null;
 
     public $arrOrder = [];
 
     private $name = '';
     private $elementId = '';
     private $dataSource = '';
+    private $dataSourceSub = '';
     private $dataTransformation = '';
     public $tabs = '';
     public $xml = '';
@@ -32,6 +34,7 @@ class xrechnung_element
     public function __construct($element)
     {
         $this->trans = new \Merconis\Core\xrechnung_datatransformation();
+        $this->process = new \Merconis\Core\xrechnung_processfunctions();
 
         $this->fillRemaining($element);
     }
@@ -47,6 +50,9 @@ class xrechnung_element
         }
         if ($this->dataSource == '') {
             $this->dataSource = (isset($element['source'])) ? $element['source'] : '';
+        }
+        if ($this->dataSourceSub == '') {
+            $this->dataSourceSub = (isset($element['sourceSub'])) ? $element['sourceSub'] : '';
         }
         if ($this->dataTransformation == '') {
             $this->dataTransformation = (isset($element['transform'])) ? $element['transform'] : '';
@@ -83,18 +89,16 @@ class xrechnung_element
     }
 
 
-    public function subElems($obj )
+    public function evalSubElements(xrechnung_element $IElem ): string
     {
         $xmlSubCode = '';
-        if ($obj->firstSub != ''
-            //&& $this->ignoreSubElements == false
-            ) {
+        if ($IElem->firstSub != '') {
 
             $xmlSubCode .= '
 ';
-            foreach ($obj->sub as $subElementId => $subElement) {
+            foreach ($IElem->sub as $subElementId => $subElement) {
                 //Unter-Informations-Element muss die gleichen Parameter erhalten
-                $subElement->additionalParams = $obj->additionalParams;
+                $subElement->additionalParams = $IElem->additionalParams;
                 $xmlSubCode .= $subElement->evalIE();
             }
         }
@@ -111,33 +115,19 @@ class xrechnung_element
 
             $xmlSubCode .= '
 ';
-            if (method_exists($this->trans, $this->processFunction)) {
-                $funcName = $this->processFunction;
-                $xmlSubCode = $this->trans->{$funcName}($this);
+            $funcName = $this->processFunction[0];
+            $funcParam = $this->processFunction[1];
+            if (method_exists($this->process, $funcName)) {
+                $xmlSubCode = $this->process->{$funcName}($this, $funcParam);
             }
         }
 
         if ($this->ignoreSubElements == false) {
-
-//TODO: Kann die Funktion ´subElems´ auch bei repeatForEveryTaxKey eingesetzt werden
-$xmlSubCode = $this->subElems($this);
-/*
-        if ($this->firstSub != ''
-            //&& $this->ignoreSubElements == false
-            ) {
-
-            $xmlSubCode .= '
-';
-            foreach ($this->sub as $subElementId => $subElement) {
-                //Unter-Informations-Element muss die gleichen Parameter erhalten
-                $subElement->additionalParams = $this->additionalParams;
-                $xmlSubCode .= $subElement->evalIE();
-            }
-        }
-*/
+            //TODO: Kann die Funktion ´evalSubElements´ auch bei repeatForEveryTaxKey eingesetzt werden
+            $xmlSubCode = $this->evalSubElements($this);
         }
 
-        //Zuerst alle Regeln auswerten
+        //Geschäftsregeln auswerten
 
         //Daten holen
         if ($this->dataSource) {
@@ -148,14 +138,18 @@ $xmlSubCode = $this->subElems($this);
             }
         }
 
+        //Daten aus tieferer Ebene
+        if ($this->dataSourceSub) {
+            $data = $this->getSubKeyData($this->dataSourceSub, $this->arrOrder);
+        }
+
+
         //Daten-Transformations-Funktionen
         if ($this->dataTransformation) {
 
             if (method_exists($this->trans, $this->dataTransformation)) {
                 $funcName = $this->dataTransformation;
-                $data = $this->trans->{$funcName}($data
-                    , $this->additionalParams
-                );
+                $data = $this->trans->{$funcName}($data, $this->additionalParams);
             }
         }
 
@@ -200,4 +194,34 @@ $xmlSubCode = $this->subElems($this);
         $key = $elem->getElementId();
         $this->sub[$key] = $elem;
     }
+
+    /*  liefert den Wert eines Arrays zurück wobei das Array mehr als eine Verschachtelungs-Ebene hat. Also
+     *  nicht $array['key'] sondern  $array['key1']['key2']['key3']
+     *  $keys enthält dabei eine
+     *  Liste von Teil-Schlüsseln anhand derer auf die nächst-tiefere Ebene des Quell Arrays zugegriffen wird.
+     *  Mit jedem rekursiven Aufruf wird die nächste Ebene angesprochen.
+     *
+     */
+    private function getSubKeyData(array $keys, $source): string
+    {
+        if (is_array($keys) && count($keys) > 0) {
+
+            //nächsten Teil des Schlüssels holen
+            $firstKey = array_shift($keys);
+
+            //Wenn der Schlüssel mit @ beginnt, dann ist ein Wert aus dem Array "additionalParams" gemeint
+            if (substr($firstKey, 0, 1) == '@') {
+                $additionalKey = substr($firstKey, 1);
+                $firstKey = $this->additionalParams[$additionalKey];
+            }
+
+            $sourcePart = $source[$firstKey];
+            $result = $this->getSubKeyData($keys, $sourcePart);
+        } else {
+            $result = $source;
+        }
+
+        return $result;
+    }
+
 }
