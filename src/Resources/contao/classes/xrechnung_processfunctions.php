@@ -8,7 +8,7 @@ namespace Merconis\Core;
 class xrechnung_processfunctions
 {
 
-    public function repeatForEveryKey(xrechnung_element $parent,string $node )
+    public function repeatForEveryKey(xrechnung_element $parent,string $node)
     {
         $xmlSubCode = '';
         $cnt = 0;
@@ -16,10 +16,11 @@ class xrechnung_processfunctions
         //reguläre Unter-Knoten Auswertung stoppen
         $parent->setIgnoreSubElements(true);
 
-        //Für jeden Steuer-Kategorien Schlüssel soll die reguläre Unterknoten-Auswertung stattfinden
+        //Für jeden Schlüssel soll die reguläre Unterknoten-Auswertung stattfinden
         $keyGroups = array_keys($parent->arrOrder[$node]);
-        foreach ($keyGroups as $groupKey)
-        {       //Schließen und öffnen der XML Tags läuft in der evalIE. Sobald es aber mehr als 1 Element ist müssen die XML Tags hier drin erneut geschlossen werden
+        foreach ($keyGroups as $groupKey) {
+
+            //Schließen und öffnen der XML Tags läuft in der evalIE. Sobald es aber mehr als 1 Element ist müssen die XML Tags hier drin erneut geschlossen werden
             $cnt++;
             if ($cnt > 1) {
                 $xmlSubCode .= $parent->tabs.'</'.$parent->xml.'>
@@ -29,7 +30,7 @@ class xrechnung_processfunctions
             $parent->additionalParams = array('groupKey' => $groupKey);
 
 //TODO: Kann die Funktion ´subElems´ auch bei repeatForEveryTaxKey eingesetzt werden
-#$xmlSubCode = $parent->subElems($parent);
+#$xmlSubCode = $parent->evalSubElements($parent);
 
             if ($parent->firstSub != '') {
 
