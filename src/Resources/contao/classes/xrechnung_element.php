@@ -24,6 +24,7 @@ class xrechnung_element
     private $dataTransformation = '';
     public $tabs = '';
     public $xml = '';
+    private $attributes = [];
     private $nachfolger = '';
     public $firstSub = '';
     private $parent = '';
@@ -64,6 +65,9 @@ class xrechnung_element
         }
         if ($this->xml == '') {
             $this->xml = (isset($element['xml'])) ? $element['xml'] : '';
+        }
+        if ($this->attributes == []) {
+            $this->attributes = (isset($element['xmlAttributes'])) ? $element['xmlAttributes'] : '';
         }
         if ($this->nachfolger == '') {
             $this->nachfolger = (isset($element['next'])) ? $element['next'] : '';
@@ -117,37 +121,52 @@ class xrechnung_element
     {
         try {
 
-        $xmlResult = '';
-        $xmlSubCode = '';
-        $data = null;
+            $xmlResult = '';
+            $xmlSubCode = '';
+            $xmlAttributeValue = '';
+            $xmlAttributeCode = '';
+            $data = null;
 
         if ($this->processFunction != '') {
 
-            $xmlSubCode .= '
+                $xmlSubCode .= '
 ';
-            $funcName = $this->processFunction[0];
-            $funcParam = $this->processFunction[1];
-            if (method_exists($this->process, $funcName)) {
-                $xmlSubCode = $this->process->{$funcName}($this, $funcParam);
+                $functionName = $this->processFunction[0];
+                $funcParam = $this->processFunction[1];
+                if (method_exists($this->process, $functionName)) {
+                    $xmlSubCode = $this->process->{$functionName}($this, $funcParam);
+                }
             }
-        }
 
-        if ($this->ignoreSubElements == false) {
-            //TODO: Kann die Funktion ´evalSubElements´ auch bei repeatForEveryTaxKey eingesetzt werden
-            $xmlSubCode = $this->evalSubElements($this);
-        }
-
-        //Geschäftsregeln auswerten
-
-
-        //Daten holen
-        if ($this->dataSource) {
-            $data = $this->getSubKeyData($this->dataSource, $this->arrOrder);
-            if ($this->evaluationError) {
-                lsDebugLog('',$this->evaluationError);
-                return $this->evaluationError;
+            if ($this->ignoreSubElements == false) {
+                //TODO: Kann die Funktion ´evalSubElements´ auch bei repeatForEveryTaxKey eingesetzt werden
+                $xmlSubCode = $this->evalSubElements($this);
             }
-        }
+
+            //Geschäftsregeln auswerten
+
+
+            //Attribute - Eigenschaften innerhalb eines XML Tags
+            if ($this->attributes) {
+                foreach ($this->attributes as $attribute ) {
+                    $xmlAttribute = $attribute[0];
+                    $functionName = $attribute[1];
+                    if (method_exists($this->calcu, $functionName)) {
+                        $xmlAttributeValue = $this->calcu->{$functionName}($this->additionalParams);
+                    }
+                    $xmlAttributeCode .= ' '.$xmlAttribute.'="'.$xmlAttributeValue.'"';
+                }
+            }
+
+
+            //Daten holen
+            if ($this->dataSource) {
+                $data = $this->getSubKeyData($this->dataSource, $this->arrOrder);
+                if ($this->evaluationError) {
+                    lsDebugLog('',$this->evaluationError);
+                    return $this->evaluationError;
+                }
+            }
 
 if ($this->elementId == 'BT-115') {
     $test = 1;
@@ -155,39 +174,40 @@ if ($this->elementId == 'BT-115') {
     #$this->ftest($data);
 }
 
-        //Berechnungs-Funktionen
-        if ($this->calculate) {
-            if (method_exists($this->calcu, $this->calculate)) {
-                $funcName = $this->calculate;
-                $data = $this->calcu->{$funcName}($data, $this->additionalParams);
+            //Berechnungs-Funktionen
+            if ($this->calculate) {
+                if (method_exists($this->calcu, $this->calculate)) {
+                    $functionName = $this->calculate;
+                    $data = $this->calcu->{$functionName}($data, $this->additionalParams);
+                }
             }
-        }
 
-        //Daten-Transformations-Funktionen
-        if ($this->dataTransformation) {
-            if (method_exists($this->trans, $this->dataTransformation)) {
-                $funcName = $this->dataTransformation;
-                $data = $this->trans->{$funcName}($data, $this->additionalParams);
+            //Daten-Transformations-Funktionen
+            if ($this->dataTransformation) {
+                if (method_exists($this->trans, $this->dataTransformation)) {
+                    $functionName = $this->dataTransformation;
+                    $data = $this->trans->{$functionName}($data, $this->additionalParams);
+                }
             }
-        }
 
-        $xmlData = (is_null($data)) ? '' : $data;
-        $xmlData .= $xmlSubCode;
+            $xmlData = (is_null($data)) ? '' : $data;
+            $xmlData .= $xmlSubCode;
 
 
-        //Einsatz ins Ergebnis-XML
-        $xmlResult = $this->tabs.'<'.$this->xml.'>'.$xmlData;
+            //Einsatz ins Ergebnis-XML
+            $xmlResult = $this->tabs.'<'.$this->xml.$xmlAttributeCode.'>'.$xmlData;
 
-        if ($this->firstSub == '') {
-            $xmlResult .= '';
-        } else {
-            $xmlResult .= $this->tabs;
-        }
+            if ($this->firstSub == '') {
+                $xmlResult .= '';
+            } else {
+                $xmlResult .= $this->tabs;
+            }
 
-        $xmlResult .= '</'.$this->xml.'>';
+            $xmlResult .= '</'.$this->xml.'>';
 
-        #$xmlResult .= '\r\n';              //GEHT NET
-        $xmlResult .= '
+            #$xmlResult .= '\r\n';              //GEHT NET
+//TODO: hier noch eine bessere Lösung finden. \r\n muss doch irgendwie gehen
+            $xmlResult .= '
 ';
         } catch (\Exception $e) {
             echo $e->getMessage();
