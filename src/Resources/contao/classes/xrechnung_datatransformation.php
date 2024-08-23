@@ -8,6 +8,11 @@ namespace Merconis\Core;
 class xrechnung_datatransformation
 {
 
+    /*  Anzahl Nachkommastellen beim Datentyp "Unit Price Amount" (Kapitel 8.10)
+     */
+    const UNITPRICEAMOUNT_DECIMALS = 4;
+
+
     public function ts2Date(?int $timestamp): string
     {
         return date('Y-m-d', $timestamp);
@@ -107,6 +112,9 @@ ZZZ	Mutually defined
         if ($paymentTitle == 'PayPal Checkout') {
             $result = 30;
         }
+        if ($paymentTitle == 'Vorkasse') {
+            $result = 30;
+        }
         return $result;
     }
 
@@ -131,19 +139,7 @@ ZZZ	Mutually defined
 */
         return '380';
     }
-/*
-    public function taxableAmountOfCategory(?array $taxCategoryNode, ?array $additionalData): string
-    {
-        $taxCategory = $additionalData['taxCategory'];
-        return $taxCategoryNode[$taxCategory]['amountTaxedHerewith'];
-    }
 
-    public function taxAmountOfCategory(?array $taxCategoryNode, ?array $additionalData): string
-    {
-        $taxCategory = $additionalData['taxCategory'];
-        return $taxCategoryNode[$taxCategory]['taxAmount'];
-    }
-*/
 
     /*  BT-118, BT-151
      *  UNTDID 5305
@@ -161,23 +157,11 @@ ZZZ	Mutually defined
 •  O (Services outside scope of tax)
 •  L (Canary Islands general indirect tax)
 •  M (Tax for production, services and importation in Ceuta and Melilla)
-
-abstract class eTaxCategories
-{
-    const STANDARDRATE = 'S';
-    const ZERORATEDGOODS = 'Z';
-}
 */
         $categoryCode = 'S';
         return $categoryCode;
     }
-/*
-    public function vatCategoryRate(?array $taxCategoryNode, ?array $additionalData): string
-    {
-        $taxCategory = $additionalData['taxCategory'];
-        return $taxCategoryNode[$taxCategory]['taxRate'];
-    }
-*/
+
 
     public function taxSchemeVat(?string $anything): string
     {
@@ -186,9 +170,57 @@ abstract class eTaxCategories
         return $result;
     }
 
-    public function calculateLineNetPrice()
-    {
 
+    /*  Formatiert den übergebenen Betrag nach dem Datentyp "Unit Price Amount"
+     *
+     * */
+    private function format_unitPriceAmount(float $amount): string
+    {
+//TODO: könnte hier ls_shop_generalHelper::outputPrice oder ls_shop_generalHelper::getDisplayPrice verwendet werden ?
+        $decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? '.');
+        $thousandsSeparator = ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? '');
+        return number_format($amount, self::UNITPRICEAMOUNT_DECIMALS, $decimalsSeparator, $thousandsSeparator);;
     }
+
+    /*  BT-146:
+     *  Berechnung item net price für die Rechnungszeile
+     *  Es wird der Bruttopreis genommen und durch die MwSt dividiert.
+     *  Unit Price Amount
+     */
+    public function calculateLineNetPrice(array $items, array $additionalParams): string
+    {
+//TODO: ist das was in arrOrder[items][1][price] steht immer der Bruttopreis ? Wenn nein, dann muss hier unterschieden werden
+        $invoiceLine = $items[$additionalParams['groupKey']];
+
+        $netPrice = 100 * $invoiceLine['price'] / (100 + (float) $invoiceLine['taxPercentage']);
+
+        return $this->format_unitPriceAmount($netPrice);
+    }
+
+
+    /*  BT-147:
+     *  Berechnung Item price discount für die Rechnungszeile
+     *  Es wird der Bruttopreis genommen und mit der MwSt multipliziert.
+     *  Unit Price Amount
+     */
+    public function calculateLineDiscount(array $items, array $additionalParams): string
+    {
+//TODO: ist das was in arrOrder[items][1][price] steht immer der Bruttopreis ? Wenn nein, dann muss hier unterschieden werden
+        $invoiceLine = $items[$additionalParams['groupKey']];
+
+        $discount = $invoiceLine['price'] * ((float) $invoiceLine['taxPercentage'] / 100);
+
+        return $this->format_unitPriceAmount($discount);
+    }
+
+    /*  BT-115
+     *  Ausstehende Restbeträge
+     */
+/*
+    public function amountDueForPayment($arrOrder)
+    {
+$test = 1;
+    }
+*/
 
 }

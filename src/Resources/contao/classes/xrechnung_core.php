@@ -23,6 +23,7 @@ class xrechnung_core
     private $conta = null;                       //Container für alle Einzelobjekte
     private $first = null;                      //erstes element (Ansatz 2)
 
+#    const AMOUNT_DECIMALS = 2;
 
     /*
      * The constructor function takes the order array and the messages counter nr as arguments
@@ -40,7 +41,7 @@ class xrechnung_core
     {
 
         $this->conta = new \SplObjectStorage();
-
+//TODO: dokumentieren
         foreach ($this->listElementsTr as $elem) {
 
             $IElem = $this->callIEbyId($elem['id']);
