@@ -23,7 +23,6 @@ class xrechnung_core
     private $conta = null;                       //Container für alle Einzelobjekte
     private $first = null;                      //erstes element (Ansatz 2)
 
-#    const AMOUNT_DECIMALS = 2;
 
     /*
      * The constructor function takes the order array and the messages counter nr as arguments
@@ -37,7 +36,7 @@ class xrechnung_core
 	}
 
 
-    public function initInformationElements()
+    public function initInformationElements(): void
     {
 
         $this->conta = new \SplObjectStorage();
@@ -92,7 +91,7 @@ class xrechnung_core
     }
 
     //Ansatz 2: jede Informationseinheit ist ein Objekt vom Typ "xrechnung_element" und die werden nacheinander abgearbeitet
-    public function create()
+    public function create(): string
     {
         $IElem = $this->first;
 
@@ -102,6 +101,7 @@ class xrechnung_core
 
         do {
             if (!$IElem->hasParent()) {
+                $IElem->setTabsOfParent('');
                 $xml = $IElem->evalIE();
                 echo $xml;
             }
@@ -115,5 +115,4 @@ class xrechnung_core
 
         return $result;
     }
-
 }

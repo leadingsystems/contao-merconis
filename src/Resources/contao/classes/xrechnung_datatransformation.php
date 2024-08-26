@@ -118,16 +118,20 @@ ZZZ	Mutually defined
         return $result;
     }
 
-    public function customizationId(?string $anything): string
+    public function customizationId(): string
     {
 //TODO: hier prüfen, wie der String dynamisch zusammengebaut werden muss
         return 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0';
     }
 
-    public function invoiceTypeCode(?string $anything): string
+    /*  BT-3
+     *  Ein Code, der den Funktionstyp der Rechnung angibt.
+     *  Anmerkung: Der Rechnungstyp muss gemäß UNTDID 1001, spezifiziert werden.
+     */
+    public function invoiceTypeCode(): string
     {
 //TODO: prüfen, anhand von was (aus arrOrder) man auf auf einen der richtigen folgenden Werte kommt
-/*
+/*      UNTDID 1001
          326 (Partial invoice)
         •  380 (Commercial invoice)
         •  384 (Corrected invoice)
@@ -137,7 +141,9 @@ ZZZ	Mutually defined
         •  876 (Partial final construction invoice)
         •  877 (Final construction invoice)
 */
-        return '380';
+        $invoiceTypeCode = '380';
+
+        return $invoiceTypeCode;
     }
 
 
@@ -174,7 +180,7 @@ ZZZ	Mutually defined
     /*  Formatiert den übergebenen Betrag nach dem Datentyp "Unit Price Amount"
      *
      * */
-    private function format_unitPriceAmount(float $amount): string
+    public static function format_unitPriceAmount(float $amount): string
     {
 //TODO: könnte hier ls_shop_generalHelper::outputPrice oder ls_shop_generalHelper::getDisplayPrice verwendet werden ?
         $decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? '.');

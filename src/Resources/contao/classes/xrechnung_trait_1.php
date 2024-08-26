@@ -24,22 +24,27 @@ trait xrechnung_trait_func
     //          Völlig unbekannte Knoten erhalten
     //3:    source: Datenquelle bzw. Schlüsselname im arrOrder Array   z.B. orderNr
     //3.1:  sourceSub: Datenquell bzw. Schlüsselname im arrOrder Array, wenn es um einen tiefer gelegenen Knoten geht z.B. items[1][itemPosition]
-    //              Wenn der Schlüssel mit @ beginnt, dann ist ein Wert aus dem Array "additionalParams" gemeint
+    //          Wenn der Schlüssel mit @ beginnt, dann ist ein Wert aus dem Array "additionalParams" gemeint
     //4:    transform: Daten-transforms-funktion  z.B. date('Ymd') für Zeitstempel
     //5:    tabs: String der die Einrückung im XML code bewirkt
     //5:    xml: der Key des XML Elements
+    //:     xmlAttributes: array für Eigenschaften innerhalb eines XML Tags. Jedes Attribut hat ein Array mit 2 Elementen
+    //              Erstes element ist der Name z.B. currencyID="EUR".
+    //              Das Zweite sind die Daten für das ein entsprechender Funktionsname
+    //              angegeben wird
     //      firstSub: erstes Child-Element von Gruppenelementen mit dem begonnen werden soll.
     //6:    next: nächstes Informations Element bzw. Nachfolger
     //7:    parent: id des Eltern Elements z.B. BT-2
-    //8:    processFunction: array mit dem Namen einer speziellen Ablauf-Funktion und dem Feldnamen
-    //          aus arrOrder [repeatForEveryKey, 'items']
+    //8:    repeat: das aktuelle Element wird wiederholt und zwar für jeden Key der unterhalb des angegebenen Keys in arrOrder steht
+    //              Bsp: ´items´. Hier stehen mehrere Ids (für jeden Artikel einen). Somit wird das ganze InformationElement
+    //              für jedes Item (Bestellposition) wiederholt
     public $listElementsTr = array(
 
         array('name' => 'customizationId',
             'id' => '',
             'transform' => 'customizationId',
             'tabs' => '  ',
-            'xml_alt' => '  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</cbc:CustomizationID>',
+            #'xml_alt' => '  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</cbc:CustomizationID>',
             'xml' => 'cbc:CustomizationID',
             'next' => 'BT-1'),
 
@@ -80,7 +85,6 @@ trait xrechnung_trait_func
             'next' => 'BG-1'),
 
 //TODO: sollen hier auch die weiteren notesLong oder freetext mit ausgegeben werden ? Dann gleich eine Gruppe machen
-
         array('name' => 'INVOICE NOTE',             //OPTIONAL
             'id' => 'BG-1',
             'source' => ['notesShort'],
@@ -157,20 +161,12 @@ trait xrechnung_trait_func
             'parent' => 'PAR_BT-81'
             ),
 
-        #array('name' => 'Payment Id',
-            #'id' => 'BT-81_UNK-1',
-            #'source' => [],
-            #'tabs' => '    ',
-            #'xml' => 'cbc:PaymentID',
-            #'next' => 'BT-82',
-            #'parent' => 'PAR_BT-81'
-            #),
 //NOCH KLÄREN: bei Peppol
 //  https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/tree/
 // steht bei ´Remittance Information´ der Knoten ´cbc:PaymentID´
         array('name' => 'Remittance Information',           //OPTIONAL
             'id' => 'BT-83',
-//NOCH KLÄREN: was soll hier rein, als Daten ? BT-83
+//NOCH KLÄREN: was soll hier rein, als Daten ?
             'source' => [],
             'tabs' => '    ',
             'xml' => 'cbc:PaymentID',
@@ -266,7 +262,7 @@ trait xrechnung_trait_func
             'tabs' => '    ',
             'xml' => 'cbc:TaxAmount',
 //TODO: Eigenschaften im XML Knoten umsetzen
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-23',
             'next' => 'PAR_BT-116',
             ),
@@ -277,7 +273,7 @@ trait xrechnung_trait_func
             'xml' => 'cac:TaxSubtotal',
             'parent' => 'BG-23',
             'firstSub' => 'BT-116',
-            'processFunction' => ['repeatForEveryKey', 'totalTaxedWith']
+            'repeat' => 'totalTaxedWith'
             ),
 
         array('name' => 'VAT category taxable amount',          //PFLICHT
@@ -288,7 +284,7 @@ trait xrechnung_trait_func
             'tabs' => '      ',
             'xml' => 'cbc:TaxableAmount',
 //TODO: Eigenschaften im XML Knoten umsetzen
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'PAR_BT-116'
             ),
 
@@ -300,7 +296,7 @@ trait xrechnung_trait_func
             'tabs' => '      ',
             'xml' => 'cbc:TaxAmount',
 //TODO: Eigenschaften im XML Knoten umsetzen
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'PAR_BT-116'
             ),
 
@@ -365,7 +361,7 @@ trait xrechnung_trait_func
             'source' => ['invoicedAmountNet'],
             'tabs' => '    ',
             'xml' => 'cbc:LineExtensionAmount',
-'xmlAttr' => 'currencyID="EUR"',
+            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-22'
             ),
 
@@ -375,7 +371,7 @@ trait xrechnung_trait_func
             'source' => ['invoicedAmountNet'],
             'tabs' => '    ',
             'xml' => 'cbc:TaxExclusiveAmount',
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-22'
             ),
 
@@ -385,7 +381,7 @@ trait xrechnung_trait_func
             'source' => ['invoicedAmount'],
             'tabs' => '    ',
             'xml' => 'cbc:TaxInclusiveAmount',
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-22'
             ),
 
@@ -396,7 +392,7 @@ trait xrechnung_trait_func
 #            'transform' => 'amountDueForPayment',
             'tabs' => '    ',
             'xml' => 'cbc:PrepaidAmount',
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-22'
             ),
 
@@ -406,7 +402,7 @@ trait xrechnung_trait_func
             'calculate' => 'amountDueForPayment',
             'tabs' => '    ',
             'xml' => 'cbc:PayableAmount',
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-22'
             ),
 
@@ -417,7 +413,7 @@ trait xrechnung_trait_func
             'tabs' => '  ',
             'xml' => 'cac:InvoiceLine',
             'firstSub' => 'BT-126',
-            'processFunction' => ['repeatForEveryKey', 'items']
+            'repeat' => 'items'
             ),
 
         array('name' => 'Invoice Line Identifier',                //PFLICHT
@@ -439,11 +435,10 @@ trait xrechnung_trait_func
 
         array('name' => 'Invoiced Quantity',                //OPTIONAL
             'id' => 'BT-129',
-            #'source' => [],
             'source' => ['items', '@groupKey', 'quantity'],
             'tabs' => '    ',
             'xml' => 'cbc:InvoicedQuantity',
-'xmlAttr' => 'unitCode="XPP"',
+            'xmlAttributes' => [['unitCode', 'getUnitCode']],
             'parent' => 'BG-25'
             ),
 
@@ -454,7 +449,7 @@ trait xrechnung_trait_func
             'transform' => 'calculateLineNetPrice',
             'tabs' => '    ',
             'xml' => 'cbc:LineExtensionAmount',
-'xmlAttr' => 'currencyID="EUR"',
+            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-25'
             ),
 
@@ -477,6 +472,7 @@ trait xrechnung_trait_func
 
         array('name' => 'Item Description',                //OPTIONAL
             'id' => 'BT-154',
+//TODO: vielleicht ausführlichere Beschreibung ?
             'source' => ['items', '@groupKey', 'productTitle'],
             'tabs' => '      ',
             'xml' => 'cbc:Description',
@@ -558,7 +554,7 @@ trait xrechnung_trait_func
             'transform' => 'calculateLineNetPrice',
             'tabs' => '      ',
             'xml' => 'cbc:PriceAmount',
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-29'
             ),
 
@@ -568,7 +564,7 @@ trait xrechnung_trait_func
             'transform' => 'calculateLineDiscount',
             'tabs' => '      ',
             'xml' => 'cbc:amount',
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-29'
             ),
 
@@ -577,7 +573,7 @@ trait xrechnung_trait_func
             'source' => ['items', '@groupKey', 'price'],
             'tabs' => '      ',
             'xml' => 'cbc:BaseAmount',
-'xmlAttr' => 'currencyID="EUR"',
+'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-29'
             ),
     );

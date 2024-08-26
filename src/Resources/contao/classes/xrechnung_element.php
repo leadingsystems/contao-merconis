@@ -12,7 +12,7 @@ class xrechnung_element
 {
 
     private $trans = null;
-    private $process = null;
+    #private $process = null;
     private $calcu = null;
 
     public $arrOrder = [];
@@ -20,16 +20,16 @@ class xrechnung_element
     private $name = '';
     private $elementId = '';
     private $dataSource = '';
-    #private $dataSourceSub = '';
     private $dataTransformation = '';
     public $tabs = '';
+    private $tabsParent = '';
     public $xml = '';
     private $attributes = [];
     private $nachfolger = '';
     public $firstSub = '';
     private $parent = '';
     public $sub = [];
-    private $processFunction = '';
+    private $repeat = '';
     private $calculate = '';
     private $ignoreSubElements = false;
     public $additionalParams = null;
@@ -39,7 +39,7 @@ class xrechnung_element
     public function __construct($element)
     {
         $this->trans = new \Merconis\Core\xrechnung_datatransformation();
-        $this->process = new \Merconis\Core\xrechnung_processfunctions();
+        #$this->process = new \Merconis\Core\xrechnung_processfunctions();
         $this->calcu = new \Merconis\Core\xrechnung_calculations();
 
         $this->fillRemaining($element);
@@ -78,8 +78,8 @@ class xrechnung_element
         if ($this->parent == '') {
             $this->parent = (isset($element['parent'])) ? $element['parent'] : '';
         }
-        if ($this->processFunction == '') {
-            $this->processFunction = (isset($element['processFunction'])) ? $element['processFunction'] : '';
+        if ($this->repeat == '') {
+            $this->repeat = (isset($element['repeat'])) ? $element['repeat'] : '';
         }
         if ($this->calculate == '') {
             $this->calculate = (isset($element['calculate'])) ? $element['calculate'] : '';
@@ -100,7 +100,7 @@ class xrechnung_element
 
     }
 
-
+/*
     public function evalSubElements(xrechnung_element $IElem ): string
     {
         $xmlSubCode = '';
@@ -116,13 +116,14 @@ class xrechnung_element
         }
         return $xmlSubCode;
     }
-
+*/
     public function evalIE(): string
     {
         try {
 
             $xmlResult = '';
             $xmlSubCode = '';
+            $repeatCnt = 0;
             $xmlAttributeValue = '';
             $xmlAttributeCode = '';
             $data = null;
@@ -142,6 +143,47 @@ class xrechnung_element
                 //TODO: Kann die Funktion ´evalSubElements´ auch bei repeatForEveryTaxKey eingesetzt werden
                 $xmlSubCode = $this->evalSubElements($this);
             }
+*/
+
+
+            if ($this->repeat != '') {
+                //die Foreach für jeden Eintrag wiederholen
+                $keyGroups = array_keys($this->arrOrder[$this->repeat]);
+            } else {
+                //die Foreach soll nur 1x ausgeführt werden
+                $keyGroups = [0];
+            }
+
+            foreach ($keyGroups as $groupKey) {
+
+                if ($groupKey != 0) {
+                    $this->additionalParams = array('groupKey' => $groupKey);
+                }
+
+                //Sobald es aber mehr als 1 Element ist müssen die XML Tags hier drin erneut geschlossen und wieder geöffnet werden
+                $repeatCnt++;
+                if ($repeatCnt > 1) {
+                    $xmlSubCode .= $this->tabsParent.'</'.$this->xml.'>
+';
+                    $xmlSubCode .= $this->tabsParent.'<'.$this->xml.'>';
+                }
+
+                #$xmlSubCode = '';
+                if ($this->firstSub != '') {
+
+                    $xmlSubCode .= '
+';
+                    foreach ($this->sub as $subElementId => $subElement) {
+                        //Unter-Informations-Element muss die gleichen Parameter erhalten
+                        $subElement->additionalParams = $this->additionalParams;
+                        $subElement->setTabsOfParent($this->tabsParent);
+                        $xmlSubCode .= $subElement->evalIE();
+                    }
+                }
+
+            }
+
+
 
             //Geschäftsregeln auswerten
 
@@ -168,11 +210,6 @@ class xrechnung_element
                 }
             }
 
-if ($this->elementId == 'BT-115') {
-    $test = 1;
-
-    #$this->ftest($data);
-}
 
             //Berechnungs-Funktionen
             if ($this->calculate) {
@@ -195,12 +232,12 @@ if ($this->elementId == 'BT-115') {
 
 
             //Einsatz ins Ergebnis-XML
-            $xmlResult = $this->tabs.'<'.$this->xml.$xmlAttributeCode.'>'.$xmlData;
+            $xmlResult = $this->tabsParent.'<'.$this->xml.$xmlAttributeCode.'>'.$xmlData;
 
-            if ($this->firstSub == '') {
-                $xmlResult .= '';
-            } else {
-                $xmlResult .= $this->tabs;
+            if ($this->firstSub != '') {
+                $xmlResult .= $this->tabsParent;
+            #} else {
+                #$xmlResult .= '';
             }
 
             $xmlResult .= '</'.$this->xml.'>';
@@ -216,12 +253,7 @@ if ($this->elementId == 'BT-115') {
         return $xmlResult;
     }
 
-/*
-    private function ftest($val)
-    {
-$test = 1;
-    }
-*/
+
 
     public function getNextElement(): string
     {
@@ -279,4 +311,11 @@ $test = 1;
         return $result;
     }
 
+    /*  Das Information Element erhält einen String mit den Tabs des Parents und für sich selbst werden 2 Spaces
+     *  dran gehängt
+     */
+    public function setTabsOfParent(string $tabs): void
+    {
+        $this->tabsParent = $tabs.'  ';
+    }
 }
