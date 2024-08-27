@@ -11,6 +11,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['steuerProzentPeriod2']						= array('Tax rate/tax zone (left side: tax rate in percent, right side: countries of the tax zone)', 'Please enter the countries of the tax zone as a list of two-digit country codes (ISO-3166-1 coding list) and separate the country codes with commas.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['startPeriod2']								= array('Valid from', 'Enter the date here from which the percentage value for this tax rate will be valid (from 0 o\'clock of the respective day).');
 	$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['stopPeriod2']								= array('Valid until', 'Enter the date here until which the percentage value for this tax rate will be valid (until 23:59 o\'clock of the respective day).');
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['vatCategoryCode']							= array('XRechnung tax code', 'Coded name of a sales tax category for the XRechnung (BT-118)');
 
 	/*
 	 * Legends
@@ -18,6 +19,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['title_legend']   = 'Designation';
 	$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['steuerPeriod1_legend']   = 'Period of validity 1';
 	$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['steuerPeriod2_legend']   = 'Period of validity 2';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['xrechnung']             = 'XRechnung';
 	
 	/*
 	 * Buttons

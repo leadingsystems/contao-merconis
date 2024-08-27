@@ -83,7 +83,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 	),
 
 	'palettes' => array(
-		'default' => '{title_legend},title,alias;{steuerPeriod1_legend},steuerProzentPeriod1,startPeriod1,stopPeriod1;{steuerPeriod2_legend},steuerProzentPeriod2,startPeriod2,stopPeriod2'
+		'default' => '{title_legend},title,alias;{steuerPeriod1_legend},steuerProzentPeriod1,startPeriod1,stopPeriod1;{steuerPeriod2_legend},steuerProzentPeriod2,startPeriod2,stopPeriod2;{xrechnung},vatCategoryCode'
 	),
 
 	'fields' => array(
@@ -207,6 +207,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 			'inputType'               => 'text',
 			'eval'                    => array('rgxp'=>'date', 'datepicker'=>$this->getDatePickerString(), 'tl_class'=>'w50 wizard'),
             'sql'                     => "varchar(10) NOT NULL default ''"
+		),
+
+		'vatCategoryCode' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['vatCategoryCode'],
+			'exclude' => true,
+			'inputType'               => 'text',
+			'eval'                    => array('rgxp'=>'alnum', 'doNotCopy'=>true, 'maxlength'=>2, 'tl_class'=>'w50'),
+			'search' => true,
+            'sql'                     => "varchar(2) BINARY NOT NULL default ''"
 		)
 	)
 );
