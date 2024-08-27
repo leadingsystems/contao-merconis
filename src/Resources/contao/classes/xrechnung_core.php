@@ -10,8 +10,8 @@ namespace Merconis\Core;
  * Der Einsatz von DOMDocument wurde verworfen, weil die Beispiele nicht dynamisch genug waren (2 hardcodierte Schlüssel/Stufen)
  */
 
-use Psr\Container\ContainerInterface;
-use Symfony\Component\DependencyInjection\Container;
+#use Psr\Container\ContainerInterface;
+#use Symfony\Component\DependencyInjection\Container;
 
 class xrechnung_core
 {
@@ -114,5 +114,18 @@ class xrechnung_core
         $result = ob_get_clean();
 
         return $result;
+    }
+
+
+    /*  Zusätzliche Werte für die Rechnung, die nicht in der Bestellung stehen
+     *  können hier nachträglich hinzugefügt werden
+     *
+     */
+    public function setAdditionalData(array $data)
+    {
+        foreach ($data as $key => $value) {
+            $this->arrOrder[$key] = $value;
+        }
+        return $this;
     }
 }

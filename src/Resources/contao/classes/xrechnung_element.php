@@ -12,7 +12,6 @@ class xrechnung_element
 {
 
     private $trans = null;
-    #private $process = null;
     private $calcu = null;
 
     public $arrOrder = [];
@@ -39,7 +38,6 @@ class xrechnung_element
     public function __construct($element)
     {
         $this->trans = new \Merconis\Core\xrechnung_datatransformation();
-        #$this->process = new \Merconis\Core\xrechnung_processfunctions();
         $this->calcu = new \Merconis\Core\xrechnung_calculations();
 
         $this->fillRemaining($element);
@@ -59,9 +57,6 @@ class xrechnung_element
         }
         if ($this->dataTransformation == '') {
             $this->dataTransformation = (isset($element['transform'])) ? $element['transform'] : '';
-        }
-        if ($this->tabs == '') {
-            $this->tabs = (isset($element['tabs'])) ? $element['tabs'] : '';
         }
         if ($this->xml == '') {
             $this->xml = (isset($element['xml'])) ? $element['xml'] : '';
@@ -100,23 +95,7 @@ class xrechnung_element
 
     }
 
-/*
-    public function evalSubElements(xrechnung_element $IElem ): string
-    {
-        $xmlSubCode = '';
-        if ($IElem->firstSub != '') {
 
-            $xmlSubCode .= '
-';
-            foreach ($IElem->sub as $subElementId => $subElement) {
-                //Unter-Informations-Element muss die gleichen Parameter erhalten
-                $subElement->additionalParams = $IElem->additionalParams;
-                $xmlSubCode .= $subElement->evalIE();
-            }
-        }
-        return $xmlSubCode;
-    }
-*/
     public function evalIE(): string
     {
         try {
@@ -127,23 +106,6 @@ class xrechnung_element
             $xmlAttributeValue = '';
             $xmlAttributeCode = '';
             $data = null;
-
-        if ($this->processFunction != '') {
-
-                $xmlSubCode .= '
-';
-                $functionName = $this->processFunction[0];
-                $funcParam = $this->processFunction[1];
-                if (method_exists($this->process, $functionName)) {
-                    $xmlSubCode = $this->process->{$functionName}($this, $funcParam);
-                }
-            }
-
-            if ($this->ignoreSubElements == false) {
-                //TODO: Kann die Funktion ´evalSubElements´ auch bei repeatForEveryTaxKey eingesetzt werden
-                $xmlSubCode = $this->evalSubElements($this);
-            }
-*/
 
 
             if ($this->repeat != '') {
@@ -168,9 +130,7 @@ class xrechnung_element
                     $xmlSubCode .= $this->tabsParent.'<'.$this->xml.'>';
                 }
 
-                #$xmlSubCode = '';
                 if ($this->firstSub != '') {
-
                     $xmlSubCode .= '
 ';
                     foreach ($this->sub as $subElementId => $subElement) {
@@ -180,7 +140,6 @@ class xrechnung_element
                         $xmlSubCode .= $subElement->evalIE();
                     }
                 }
-
             }
 
 
@@ -236,8 +195,6 @@ class xrechnung_element
 
             if ($this->firstSub != '') {
                 $xmlResult .= $this->tabsParent;
-            #} else {
-                #$xmlResult .= '';
             }
 
             $xmlResult .= '</'.$this->xml.'>';

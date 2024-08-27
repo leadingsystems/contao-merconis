@@ -19,9 +19,14 @@ class xrechnung_datatransformation
     }
 
 
+    /*  BT-81
+     *  Das als Code ausgedrückte erwartete oder genutzte Zahlungsmittel. Hierzu wird auf die Codeliste UNTDID 4461
+     *  verwiesen.
+     *  UNTDID 4461
+     *
+     */
     public function payment2Means(string $paymentTitle): string
     {
-        //UNTDID 4461
 //TODO: hier soll man anhand des paymentTitles (aus arrOrder) auf den richtigen Code kommen - VERVOLLSTÄNDIGEN
 /*
 1	Instrument not defined
@@ -108,15 +113,14 @@ class xrechnung_datatransformation
 97	Clearing between partners
 ZZZ	Mutually defined
 */
-        $result = '';
-        if ($paymentTitle == 'PayPal Checkout') {
-            $result = 30;
-        }
-        if ($paymentTitle == 'Vorkasse') {
-            $result = 30;
-        }
-        return $result;
+        $paymentMeans = match ($paymentTitle) {
+            'PayPal Checkout' => '30',
+            'Vorkasse', 'Vorauskasse.' => '30',
+            default => '30'
+        };
+        return $paymentMeans;
     }
+
 
     public function customizationId(): string
     {
@@ -130,7 +134,6 @@ ZZZ	Mutually defined
      */
     public function invoiceTypeCode(): string
     {
-//TODO: prüfen, anhand von was (aus arrOrder) man auf auf einen der richtigen folgenden Werte kommt
 /*      UNTDID 1001
          326 (Partial invoice)
         •  380 (Commercial invoice)
@@ -141,6 +144,8 @@ ZZZ	Mutually defined
         •  876 (Partial final construction invoice)
         •  877 (Final construction invoice)
 */
+        //ISSUE: 23.08.2024
+        //https://lsboard.de/project/18/task/6395#comment-3691
         $invoiceTypeCode = '380';
 
         return $invoiceTypeCode;
@@ -150,9 +155,15 @@ ZZZ	Mutually defined
     /*  BT-118, BT-151
      *  UNTDID 5305
      */
-    public function vatCategoryCode(?string $anything): string
+/*
+    public function vatCategoryCode(): string
     {
 //TODO: BT-118 Wie kommen wir von arrOrder auf den richtigen Code ?
+
+        $categoryCode = 'S';
+        return $categoryCode;
+    }
+*/
 /*      UNTDID 5305
 •  S (Standard rate)
 •  Z (Zero rated goods)
@@ -164,14 +175,12 @@ ZZZ	Mutually defined
 •  L (Canary Islands general indirect tax)
 •  M (Tax for production, services and importation in Ceuta and Melilla)
 */
-        $categoryCode = 'S';
-        return $categoryCode;
-    }
 
 
-    public function taxSchemeVat(?string $anything): string
+    public function taxSchemeVat(): string
     {
-//TODO: für Seller VAT identifier (BT-31) soll es "VAT" sein, für seller tax registration identifier (BT-32), soll es NICHT "VAT" sein
+//TODO: Vorgabe: für Seller VAT identifier (BT-31) soll es "VAT" sein,
+// für seller tax registration identifier (BT-32), soll es NICHT "VAT" sein
         $result = 'VAT';
         return $result;
     }
@@ -218,15 +227,5 @@ ZZZ	Mutually defined
 
         return $this->format_unitPriceAmount($discount);
     }
-
-    /*  BT-115
-     *  Ausstehende Restbeträge
-     */
-/*
-    public function amountDueForPayment($arrOrder)
-    {
-$test = 1;
-    }
-*/
 
 }
