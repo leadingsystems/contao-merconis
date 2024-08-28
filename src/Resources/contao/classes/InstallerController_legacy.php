@@ -319,13 +319,13 @@ class InstallerController_legacy extends Controller {
 
                     $arrThemeIDAndVersion = explode('|', Input::post('installer_selectedTheme'));
 
-                    $_SESSION['lsShop']['installer_selectedTheme']['id'] = $arrThemeIDAndVersion[0];
+                    $_SESSION['lsShop']['installer_selectedTheme']['id'] = ""; /*$arrThemeIDAndVersion[0];*/ //TODO vorrübergehend die id entfernt zB.10
                     $_SESSION['lsShop']['installer_selectedTheme']['version'] = $arrThemeIDAndVersion[1];
-                    $_SESSION['lsShop']['installer_selectedTheme']['srcPath'] = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'];
-                    $_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'] = 'merconisTemplatesTheme'.$_SESSION['lsShop']['installer_selectedTheme']['id'];
+                    $_SESSION['lsShop']['installer_selectedTheme']['srcPath'] = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/theme';
+                    $_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'] = 'templates';
                     $_SESSION['lsShop']['installer_selectedTheme']['srcPathTemplates'] = $_SESSION['lsShop']['installer_selectedTheme']['srcPath'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'];
-                    $_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat'] = $_SESSION['lsShop']['installer_selectedTheme']['srcPath'].'/data/exportTables.dat';
-                    $_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat'] = $_SESSION['lsShop']['installer_selectedTheme']['srcPath'].'/data/exportLocalconfig.dat';
+                    $_SESSION['lsShop']['installer_selectedTheme']['srcPathExportTablesDat'] = $_SESSION['lsShop']['installer_selectedTheme']['srcPath'].'/setup/exportTables.dat';
+                    $_SESSION['lsShop']['installer_selectedTheme']['srcPathExportLocalconfigDat'] = $_SESSION['lsShop']['installer_selectedTheme']['srcPath'].'/setup/exportLocalconfig.dat';
                 }
 
                 /*
@@ -552,7 +552,7 @@ class InstallerController_legacy extends Controller {
                     continue;
                 }
 
-                if ($themeFolder != 'theme'.$_SESSION['lsShop']['installer_selectedTheme']['id']) {
+                if ($themeFolder != 'theme10'.$_SESSION['lsShop']['installer_selectedTheme']['id']) {
                     $this->rmdirRecursively(System::getContainer()->getParameter('kernel.project_dir').'/files/merconisfiles/themes/'.$themeFolder);
                 }
             }
@@ -564,7 +564,7 @@ class InstallerController_legacy extends Controller {
          * to the contao templates folder and it might be irritating if it still existed in
          * the theme folder
          */
-        $unnecessaryTemplatesFolder = System::getContainer()->getParameter('kernel.project_dir').'/files/merconisfiles/themes/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'];
+        $unnecessaryTemplatesFolder = System::getContainer()->getParameter('kernel.project_dir').'/files/merconisfiles/themes/theme10'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['templateFolderName'];
         if (file_exists($unnecessaryTemplatesFolder) && is_dir($unnecessaryTemplatesFolder)) {
             $this->rmdirRecursively($unnecessaryTemplatesFolder);
         }
@@ -954,7 +954,8 @@ class InstallerController_legacy extends Controller {
         /*
          * Get the hash from the repository
          */
-        $url = 'http://themerepository.merconis.com/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['version'].'/merconisThemeExport/hash'.($_SESSION['lsShop']['merconisThemeRepositoryMode'] ? '.'.$_SESSION['lsShop']['merconisThemeRepositoryMode'] : '').'.dat';
+        //TODO fix: davor theme10 jetzt theme (suche durch file)
+        $url = 'http://themerepository.merconis.com/theme10'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['version'].'/merconisThemeExport/hash'.($_SESSION['lsShop']['merconisThemeRepositoryMode'] ? '.'.$_SESSION['lsShop']['merconisThemeRepositoryMode'] : '').'.dat';
 
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_FRESH_CONNECT, 1);
@@ -977,7 +978,8 @@ class InstallerController_legacy extends Controller {
         $unzipTargetPath = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/installerResources/merconisfiles/themes';
         $unzipTargetFoldername = $unzipTargetPath.'/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'];
 
-        $downloadUrl = 'http://themerepository.merconis.com/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['version'].'/merconisThemeExport/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].($_SESSION['lsShop']['merconisThemeRepositoryMode'] ? '.'.$_SESSION['lsShop']['merconisThemeRepositoryMode'] : '').'.zip';
+        //TODO fix: davor theme10 jetzt theme (suche durch file)
+        $downloadUrl = 'http://themerepository.merconis.com/theme10'.$_SESSION['lsShop']['installer_selectedTheme']['id'].'/'.$_SESSION['lsShop']['installer_selectedTheme']['version'].'/merconisThemeExport/theme'.$_SESSION['lsShop']['installer_selectedTheme']['id'].($_SESSION['lsShop']['merconisThemeRepositoryMode'] ? '.'.$_SESSION['lsShop']['merconisThemeRepositoryMode'] : '').'.zip';
 
         $fp = fopen(System::getContainer()->getParameter('kernel.project_dir').'/'.$zipTargetFilename, 'w+');
         $curl = curl_init($downloadUrl);
@@ -1033,7 +1035,7 @@ class InstallerController_legacy extends Controller {
 
     protected function getAvailableThemes() {
         if (!$GLOBALS['merconis_globals']['availableThemes']) {
-            $merconisVersion = InstalledVersions::getPrettyVersion('leadingsystems/contao-merconis');
+            $merconisVersion = ls_shop_generalHelper::getMerconisFilesVersion();
 
             // remove the "beta/rc/stable" part of the version string
             $merconisVersion = preg_replace('/^(\d{1,3}\.\d{1,3}\.\d{1,3}).*/', '$1', $merconisVersion);
@@ -1098,10 +1100,10 @@ class InstallerController_legacy extends Controller {
                             /*
                              * @toDo rewrite version control for Contao 5
                              */
-                            ||	version_compare(VERSION . '.' . BUILD, $arrThemeInfo['contaoCompatibilityFrom'], '>=')
+                            ||	version_compare('5.3.0', $arrThemeInfo['contaoCompatibilityFrom'], '>=')
                         ) && (
                             $arrThemeInfo['contaoCompatibilityTo'] == '0.0.0'
-                            ||	version_compare(VERSION . '.' . BUILD, $arrThemeInfo['contaoCompatibilityTo'], '<=')
+                            ||	version_compare('5.3.0', $arrThemeInfo['contaoCompatibilityTo'], '<=')
                         );
 
                     $arrThemeInfo['compatibleWithMerconisVersion'] = (

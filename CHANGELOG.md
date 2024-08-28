@@ -1,7 +1,7 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.1.0 (nry: 2023-12-13)
+### 5.1.0 (2023-12-13)
  * add feature productCode and alias to inserttag {{shopProductProperty::*}}, {{shopProductOutput::*}}
 
 ### 5.0.20 (2023-12-11)

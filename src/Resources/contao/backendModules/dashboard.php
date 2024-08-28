@@ -12,7 +12,7 @@ class dashboard extends BackendModule {
 	
 	protected function compile() {
 
-
+        //TODO: abfrage korregieren, aktuell nur test
         if(
             !empty(ls_shop_generalHelper::getInstalledThemeExtensions()) &&
             !!in_array('leadingsystems/merconis-theme-installer', InstalledVersions::getInstalledPackages() )

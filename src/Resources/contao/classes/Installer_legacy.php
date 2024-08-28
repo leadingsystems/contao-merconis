@@ -55,7 +55,7 @@ class Installer_legacy
 
     protected function getIncompleteInstallationMessage()
     {
-        /** @var \Merconis\Core\InstallerController $obj_installerController */
+        /** @var \Merconis\Core\InstallerController_legacy $obj_installerController */
         $obj_installerController = System::importStatic('Merconis\Core\InstallerController_legacy');
 
         // Installationsstatus zu Beginn abfragen
