@@ -30,8 +30,8 @@ class xrechnung_calculations
     }
 
     /*  BT-82
-     *  Liefert den Währungscode aus dem arrOrder Array.
-     *
+     *  Das in Textform ausgedrückte erwartete oder genutzte Zahlungsmittel. Es wird als XML Attribut
+     *  im Element BT-81 eingesetzt (deswegen keine Anwendung über Source)
      */
     public function getPaymentMeansText(): string
     {
@@ -99,5 +99,122 @@ class xrechnung_calculations
     public function currentDate(): string
     {
         return date('Y-m-d', time());
+    }
+
+
+
+    /*  BT-34
+     *  Gibt die elektronische Adresse des Verkäufers an, an die die Antwort der Anwendungsebene
+     *  auf eine Rechnung gesendet werden kann.
+     */
+    public function sellerEletronicAdress(): string
+    {
+//TODO: wo kriegen wir die eMail des Verkäufers her ?
+        return 'supplier@web.de';
+    }
+
+
+    /*  BT-34 -> Seller electronic address/Scheme identifier
+     *  Das Bildungsschema für "Seller electronic address" (BT-34). Es ist die Codeliste
+     *  Electronic Address Scheme code list (EAS) zu verwenden. Die Codeliste wird von der
+     *  Connecting Europe Facility gepflegt und herausgegeben.
+     */
+    public function sellerEletronicAdressScheme(mixed $data): string
+    {
+//TODO: kriegt noch keine Parameter ($data ist leer) und liefert daher immer EM zurück
+        $schemeId = match ($data) {
+            #'Stück', 'Stk.', 'ST' => 'XPP',
+            default => 'EM'
+        };
+        return $schemeId;
+    }
+
+    /*  BT-35
+     *  Seller address line 1
+     */
+    public function sellerStreetName(): string
+    {
+//TODO: Die Strasse des Verkäufers
+        return 'Königsstrasse 10/1';
+    }
+
+    /*  BT-37
+     *  Seller city
+     */
+    public function sellerCity(): string
+    {
+//TODO: hier brauchen wir die Stadt des Verkäufers/Händlers
+        return 'Sachsenheim';
+    }
+
+    /*  BT-38
+     *  Seller country code
+     */
+    public function sellerPostCode(): string
+    {
+//TODO: hier die PLZ des Verkäufers/Händlers
+        return '74320';
+    }
+
+    /*  BT-40
+     *  Seller country code
+     */
+    public function sellerCountryCode(): string
+    {
+//TODO: hier das Länderkürzel des Verkäufers/Händlers
+        return 'DE';
+    }
+
+    /*  BT-30
+     *  Seller legal registration identifier
+     */
+    public function sellerRegistrationName(): string
+    {
+//TODO: hier eingetragene Firmenname des Verkäufers/Händlers
+        return 'Kunde GmbH';
+    }
+
+    /*  BT-41
+     *  Angaben zu Ansprechpartner oder Kontaktstelle (wie z. B. Name einer Person, Abteilungs-
+     *  oder Bürobezeichnung).
+     */
+    public function sellerContactPoint(): string
+    {
+//TODO: hier Ansprechpartner Name des Verkäufers/Händlers
+        return 'ASP Max Mustermann';
+    }
+
+    /*  BT-42
+     *  Telefonnummer des Ansprechpartners oder der Kontaktstelle
+     */
+    public function sellerContactTelephone(): string
+    {
+//TODO: hier Ansprechpartner Telefonnummer des Verkäufers/Händlers
+        return '07354 4385748';
+    }
+
+    /*  BT-43
+     *  Eine E-Mail-Adresse des Ansprechpartners oder der Kontaktstelle.
+     */
+    public function sellerContactEmail(): string
+    {
+//TODO: hier Ansprechpartner eMail des Verkäufers/Händlers
+        return 'salescontact@supplier.com';
+    }
+
+
+    /*  BT-49 -> Buyer electronic address/Scheme identifier
+     *  Das Bildungsschema für "Seller electronic address" (BT-49). Es ist die Codeliste
+     *  Electronic Address Scheme code list (EAS) zu verwenden. Die Codeliste wird von der
+     *  Connecting Europe Facility gepflegt und herausgegeben.
+     */
+    public function buyerEletronicAdressScheme(mixed $data): string
+    {
+//TODO: kriegt noch keine Parameter ($data ist leer) und liefert daher immer EM zurück
+        $schemeId = match ($data) {
+            #'Stück', 'Stk.', 'ST' => 'XPP',
+            default => 'EM'
+        };
+        return $schemeId;
     }
 }

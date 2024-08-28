@@ -152,31 +152,6 @@ ZZZ	Mutually defined
     }
 
 
-    /*  BT-118, BT-151
-     *  UNTDID 5305
-     */
-/*
-    public function vatCategoryCode(): string
-    {
-//TODO: BT-118 Wie kommen wir von arrOrder auf den richtigen Code ?
-
-        $categoryCode = 'S';
-        return $categoryCode;
-    }
-*/
-/*      UNTDID 5305
-•  S (Standard rate)
-•  Z (Zero rated goods)
-•  E (Exempt from tax)
-•  AE (VAT Reverse Charge)
-•  K (VAT exempt for EEA intra-community supply of goods and services)
-•  G (Free export item, tax not charged)
-•  O (Services outside scope of tax)
-•  L (Canary Islands general indirect tax)
-•  M (Tax for production, services and importation in Ceuta and Melilla)
-*/
-
-
     public function taxSchemeVat(): string
     {
 //TODO: Vorgabe: für Seller VAT identifier (BT-31) soll es "VAT" sein,
@@ -226,6 +201,21 @@ ZZZ	Mutually defined
         $discount = $invoiceLine['price'] * ((float) $invoiceLine['taxPercentage'] / 100);
 
         return $this->format_unitPriceAmount($discount);
+    }
+
+
+    /*  BT-55
+     *  Liefert zum Ländernamen (aus CustomerData->personalData->country) den 2-stelligen Ländercode zurück
+     *
+     */
+    public function countryName2CountryCode(string $countryName): string
+    {
+        $countryCode = match ($countryName) {
+            'Deutschland' => 'DE',
+            'Frankreich' => 'FR',
+            default => 'DE'
+        };
+        return $countryCode;
     }
 
 }

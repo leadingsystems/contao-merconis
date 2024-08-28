@@ -118,7 +118,7 @@ trait xrechnung_trait_func
             'id' => 'PAR_BT-12',
             'xml' => 'cac:ContractDocumentReference',
             'firstSub' => 'BT-12',
-            'next' => 'PAR_BT-81'
+            'next' => 'PAR_BT-11'
             ),
 
         array('name' => 'Contract Reference',          //OPTIONAL
@@ -128,16 +128,261 @@ trait xrechnung_trait_func
             'parent' => 'PAR_BT-12'
             ),
 
+        //Bezug zu einem Projekt
+        array('name' => '_Project reference',     //OPTIONAL
+            'id' => 'PAR_BT-11',
+            'xml' => 'cac:ProjectReference',
+            'firstSub' => 'BT-11',
+            'next' => 'BG-4'
+#'next' => 'BG-7'
+            ),
 
-        array('name' => 'Seller',          //PFLICHT
-            'id' => 'BG-4',
+        array('name' => 'Project reference',          //OPTIONAL
+            'id' => 'BT-11',
+//TODO: haben wir Bezug zu Projekten ?
             'source' => [],
-            'xml' => 'cac:AccountingSupplierParty',
-            #'parent' => 'PAR_BT-12'
+'calculate' => 'getPaymentMeansText',
+            'xml' => 'cbc:ID',
+            'parent' => 'PAR_BT-11'
             ),
 
 
+        //Verkäufer
+        array('name' => 'Seller',          //PFLICHT
+            'id' => 'BG-4',
+            'xml' => 'cac:AccountingSupplierParty',
+            'firstSub' => 'BG-4_SUB-1',
+            'next' => 'BG-7',
+            ),
 
+        array('name' => 'Seller Party',          //PFLICHT
+            'id' => 'BG-4_SUB-1',
+            'xml' => 'cac:Party',
+            'parent' => 'BG-4',
+            'firstSub' => 'BT-34',
+            ),
+
+        array('name' => 'Seller electronic adress',          //PFLICHT
+            'id' => 'BT-34',
+            #'source' => [],
+            'xml' => 'cbc:EndpointID',
+            'xmlAttributes' => [['schemeID', 'sellerEletronicAdressScheme']],
+            'calculate' => 'sellerEletronicAdress',
+            'parent' => 'BG-4_SUB-1',
+'next' => 'BG-4_SUB-1',
+            ),
+
+        array('name' => 'Seller postal adress',          //PFLICHT
+            'id' => 'BG-5',
+            'xml' => 'cac:PostalAddress',
+            'parent' => 'BG-4_SUB-1',
+            'firstSub' => 'BT-35',
+            'next' => 'PAR_BT-30',
+            ),
+
+        array('name' => 'Seller address line 1',          //OPTIONAL
+            'id' => 'BT-35',
+            'xml' => 'cbc:StreetName',
+'calculate' => 'sellerStreetName',
+            'parent' => 'BG-5',
+            'next' => 'BT-37',
+            ),
+
+        array('name' => 'Seller city',          //PFLICHT
+            'id' => 'BT-37',
+            'xml' => 'cbc:CityName',
+'calculate' => 'sellerCity',
+            'parent' => 'BG-5',
+            'next' => 'BT-38',
+            ),
+
+        array('name' => 'Seller post code',          //PFLICHT
+            'id' => 'BT-38',
+            'xml' => 'cbc:PostalZone',
+'calculate' => 'sellerPostCode',
+            'parent' => 'BG-5',
+            'next' => 'PAR_BT-40',
+            ),
+
+        array('name' => '_Seller country code',          //PFLICHT
+            'id' => 'PAR_BT-40',
+            'xml' => 'cac:Country',
+            'parent' => 'BG-5',
+            'firstSub' => 'BT-40',
+            #'next' => 'PAR_BT-81',
+            ),
+
+        array('name' => 'Seller country code',          //PFLICHT
+            'id' => 'BT-40',
+            'xml' => 'cac:Country',
+'calculate' => 'sellerCountryCode',
+            'parent' => 'PAR_BT-40',
+            ),
+
+        array('name' => '_Seller legal registration identifier',          //OPTIONAL
+            'id' => 'PAR_BT-30',
+            'xml' => 'cac:PartyLegalEntity',
+            'parent' => 'BG-4_SUB-1',
+            'firstSub' => 'BT-30',
+            'next' => 'BG-6',
+            ),
+
+        array('name' => 'Seller legal registration identifier',          //OPTIONAL
+            'id' => 'BT-30',
+            'xml' => 'cbc:RegistrationName',
+'calculate' => 'sellerRegistrationName',
+            'parent' => 'PAR_BT-30',
+            ),
+
+
+        array('name' => 'Seller contact',          //PFLICHT
+            'id' => 'BG-6',
+            'xml' => 'cac:Contact',
+            'parent' => 'BG-4_SUB-1',
+            'firstSub' => 'BT-41',
+            ),
+
+        array('name' => 'Seller contact point',          //PFLICHT
+            'id' => 'BT-41',
+            'xml' => 'cbc:Name',
+'calculate' => 'sellerContactPoint',
+            'parent' => 'BG-6',
+            'next' => 'BT-42',
+            ),
+
+        array('name' => 'Seller contact telephone number',          //PFLICHT
+            'id' => 'BT-42',
+            'xml' => 'cbc:Telephone',
+'calculate' => 'sellerContactTelephone',
+            'parent' => 'BG-6',
+            'next' => 'BT-43',
+            ),
+
+        array('name' => 'Seller contact email address',          //PFLICHT
+            'id' => 'BT-43',
+            'xml' => 'cbc:ElectronicMail',
+'calculate' => 'sellerContactEmail',
+            'parent' => 'BG-6',
+            ),
+
+
+        //Käufer
+        array('name' => 'Buyer',          //PFLICHT
+            'id' => 'BG-7',
+            'xml' => 'cac:AccountingCustomerParty',
+            'firstSub' => 'BG-7_SUB-1',
+            'next' => 'PAR_BT-81',
+            ),
+
+        array('name' => 'Buyer Party',          //PFLICHT
+            'id' => 'BG-7_SUB-1',
+            'xml' => 'cac:Party',
+            'parent' => 'BG-7',
+            'firstSub' => 'BT-49',
+            ),
+
+        array('name' => 'Buyer electronic adress',          //PFLICHT
+            'id' => 'BT-49',
+            'source' => ['customerData', 'personalData', 'email'],
+            'xml' => 'cbc:EndpointID',
+            'xmlAttributes' => [['schemeID', 'buyerEletronicAdressScheme']],
+            'parent' => 'BG-7_SUB-1',
+            'next' => 'BG-8',
+            ),
+
+        array('name' => 'Buyer postal adress',          //PFLICHT
+            'id' => 'BG-8',
+            'xml' => 'cac:PostalAddress',
+            'parent' => 'BG-7_SUB-1',
+            'firstSub' => 'BT-50',
+            'next' => 'PAR_BT-47',
+            ),
+
+        array('name' => 'Buyer address line 1',          //OPTIONAL
+            'id' => 'BT-50',
+            'source' => ['customerData', 'personalData', 'street'],
+            'xml' => 'cbc:StreetName',
+            'parent' => 'BG-8',
+            'next' => 'BT-52',
+            ),
+
+        array('name' => 'Buyer city',          //PFLICHT
+            'id' => 'BT-52',
+            'source' => ['customerData', 'personalData', 'city'],
+            'xml' => 'cbc:CityName',
+            'parent' => 'BG-8',
+            'next' => 'BT-53',
+            ),
+
+        array('name' => 'Buyer post code',          //PFLICHT
+            'id' => 'BT-53',
+            'source' => ['customerData', 'personalData', 'postal'],
+            'xml' => 'cbc:PostalZone',
+            'parent' => 'BG-8',
+            'next' => 'PAR_BT-55',
+            ),
+
+        array('name' => '_Buyer country code',          //PFLICHT
+            'id' => 'PAR_BT-55',
+            'xml' => 'cac:Country',
+            'parent' => 'BG-8',
+            'firstSub' => 'BT-55',
+            #'next' => 'PAR_BT-81',
+            ),
+
+        array('name' => 'Buyer country code',          //PFLICHT
+            'id' => 'BT-55',
+            'source' => ['customerData', 'personalData', 'country'],
+            'transform' => 'countryName2CountryCode',
+            'xml' => 'cac:Country',
+            'parent' => 'PAR_BT-55',
+            ),
+
+        array('name' => '_Buyer legal registration identifier',          //OPTIONAL
+            'id' => 'PAR_BT-47',
+            'xml' => 'cac:PartyLegalEntity',
+            'parent' => 'BG-7_SUB-1',
+            'firstSub' => 'BT-47',
+            'next' => 'BG-9',
+            ),
+
+        array('name' => 'Buyer legal registration identifier',          //OPTIONAL
+            'id' => 'BT-47',
+            'source' => ['customerData', 'personalData', 'company'],
+            'xml' => 'cbc:RegistrationName',
+            'parent' => 'PAR_BT-47',
+            ),
+
+
+        array('name' => 'Buyer contact',          //OPTIONAL
+            'id' => 'BG-9',
+            'xml' => 'cac:Contact',
+            'parent' => 'BG-7_SUB-1',
+            'firstSub' => 'BT-56',
+            ),
+
+        array('name' => 'Buyer contact point',          //OPTIONAL
+            'id' => 'BT-56',
+            'source' => '',
+            'xml' => 'cbc:Name',
+            'parent' => 'BG-9',
+            'next' => 'BT-57',
+            ),
+
+        array('name' => 'Buyer contact telephone number',          //OPTIONAL
+            'id' => 'BT-57',
+            'source' => '',
+            'xml' => 'cbc:Telephone',
+            'parent' => 'BG-9',
+            'next' => 'BT-58',
+            ),
+
+        array('name' => 'Buyer contact email address',          //OPTIONAL
+            'id' => 'BT-58',
+            'source' => '',
+            'xml' => 'cbc:ElectronicMail',
+            'parent' => 'BG-9',
+            ),
 
         //Zahlungsweise
         array('name' => 'Payment means',
