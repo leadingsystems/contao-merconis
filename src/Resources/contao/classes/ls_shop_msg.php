@@ -16,6 +16,7 @@ class ls_shop_msg {
 	 */
 	public static function decreaseLifetime() {
 
+
         $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop');
 
@@ -148,7 +149,7 @@ class ls_shop_msg {
 
         $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShop =  $session->get('lsShop');
-		unset ($session_lsShop['ls_shop_msg'][$mode][$class][$reference]);
+		//unset ($session_lsShop['ls_shop_msg'][$mode][$class][$reference]);
 	}
 
 	public static function checkMsg() {
@@ -157,12 +158,14 @@ class ls_shop_msg {
 		$reference = isset($args[1]) ? $args[1] : '';
 		$mode = isset($args[2]) ? $args[2] : 'FE';
 
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShop =  $session->get('lsShop');
+
 		if (!self::checkParameters($class, $reference, $mode)) {
 			return false;
 		}
 
-        $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_lsShop =  $session->get('lsShop');
+
 
 		if (isset($session_lsShop['ls_shop_msg'][$mode][$class][$reference])) {
 			return true;

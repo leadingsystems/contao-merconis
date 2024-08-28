@@ -340,7 +340,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 			||	!$session_lsShopPaymentProcess['payPalPlus']['relevantCalculationDataHash']
 		) {
             $session_lsShopPaymentProcess['payPalPlus']['relevantCalculationDataHash'] = $str_relevantCalculationDataHash;
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 		}
 		
 		/*
@@ -569,7 +569,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
         $session_lsShopPaymentProcess['payPalPlus']['paymentId'] = Input::get('paymentId');
         $session_lsShopPaymentProcess['payPalPlus']['PayerID'] = Input::get('PayerID');
 
-        $session->set('lsShop', $session_lsShopPaymentProcess);
+        $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 		
 		$this->redirect($this->payPalPlus_arr_returnUrls['return'].'#checkoutStepPayment');
 	}
@@ -585,7 +585,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 			'relevantCalculationDataHash' => null
 		);
 
-        $session->set('lsShop', $session_lsShopPaymentProcess);
+        $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 	}
 	
 	protected function payPalPlus_getShippingFieldValue($str_fieldName) {

@@ -59,7 +59,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $session_lsShopPaymentProcess['payPalCheckout']['authorizationId'] = Input::post('payPalCheckout_authorizationId');
             $session_lsShopPaymentProcess['payPalCheckout']['authorized'] = true;
 
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 
             Controller::reload();
         }
@@ -234,7 +234,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
         $session_lsShopPaymentProcess['payPalCheckout']['orderId'] = $orderId;
-        $session->set('lsShop', $session_lsShopPaymentProcess);
+        $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 
         return $orderId;
     }
@@ -562,7 +562,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $this->payPalCheckout_resetSessionStatus();
         }
 
-        $session->set('lsShop', $session_lsShopPaymentProcess);
+        $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
     }
     protected function payPalCheckout_check_paymentIsAuthorized() {
         $session = System::getContainer()->get('merconis.session')->getSession();
@@ -633,7 +633,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             'relevantCalculationDataHash' => null
         );
 
-        $session->set('lsShop', $session_lsShopPaymentProcess);
+        $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
     }
     protected function payPalCheckout_getShippingFieldValue($str_fieldName) {
         $str_valueWildcardPattern = '/(?:#|&#35;){2}value::(.*)(?:#|&#35;){2}/';

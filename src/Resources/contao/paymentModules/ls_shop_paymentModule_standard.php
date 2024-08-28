@@ -254,7 +254,7 @@ namespace Merconis\Core;
 				}
 				unset($session_lsShopPaymentProcess['standard']['messages'][$type]);
 			}
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 			return $msg;			
 		}
 		
@@ -283,7 +283,7 @@ namespace Merconis\Core;
 			}
 
             $session_lsShopPaymentProcess['standard']['messages'][$type][] = $msg;
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 		}
 		
 		public function setPaymentMethodSuccessMessage($msg = '') {

@@ -156,4 +156,4 @@ use Contao\System;
 			<?php
 			break;
 	}
-    $session->set('lsShop', $session_lsShopPaymentProcess);
+    $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);

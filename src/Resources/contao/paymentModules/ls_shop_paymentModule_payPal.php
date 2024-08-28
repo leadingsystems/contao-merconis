@@ -45,7 +45,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			if (!isset($session_lsShopPaymentProcess['paypal']) || !is_array($session_lsShopPaymentProcess['paypal'])) {
                 $session_lsShopPaymentProcess['paypal'] = array();
 			}
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 			
 			if (!$specializedManually) {
 				$this->paypal_checkIfMethodAllowed();
@@ -88,7 +88,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			 */
 			unset($session_lsShopPaymentProcess['paypal']);
 
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 		}
 		
 		public function afterPaymentMethodSelection() {
@@ -102,7 +102,7 @@ use function LeadingSystems\Helpers\ls_sub;
             $session_lsShopPaymentProcess['paypal']['authorized'] = false;
             $session_lsShopPaymentProcess['paypal']['finishedSuccessfully'] = false;
 
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 
 			$this->paypal_setExpressCheckout();
 		}
@@ -266,7 +266,7 @@ use function LeadingSystems\Helpers\ls_sub;
 				}
                 $session_lsShopPaymentProcess['paypal']['setExpressCheckoutNVP'] = $arrCurrentNVP;
 			}
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 		}
 		
 		protected function paypal_checkIfRedirectedFromPayPal() {
@@ -294,7 +294,7 @@ use function LeadingSystems\Helpers\ls_sub;
 					&&	$session_lsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['PAYERID'] == Input::get('PayerID')
 				) {
                     $session_lsShopPaymentProcess['paypal']['authorized'] = true;
-                    $session->set('lsShop', $session_lsShopPaymentProcess);
+                    $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 
 					$this->setPaymentMethodSuccessMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['successfullyAuthorized']);
 					$this->redirect($this->returnUrl.'#checkoutStepPayment');
@@ -312,7 +312,7 @@ use function LeadingSystems\Helpers\ls_sub;
 				'TOKEN' => $session_lsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN']
 			);
             $session_lsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse'] = $this->paypal_hashCall('GetExpressCheckoutDetails', $arrNVP);
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 
 			if ($session_lsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] != 'Success') {
 				/*
@@ -449,7 +449,7 @@ use function LeadingSystems\Helpers\ls_sub;
             $session = System::getContainer()->get('merconis.session')->getSession();
             $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
             $session_lsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['TOKEN'] = $arrResultNVP['TOKEN'];
-            $session->set('lsShop', $session_lsShopPaymentProcess);
+            $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 
 			$this->paypal_renewExpressCheckoutDetailsResponse();
 		}
@@ -477,7 +477,7 @@ use function LeadingSystems\Helpers\ls_sub;
 				$this->paypal_renewExpressCheckoutDetailsResponse(false);
 				if ($session_lsShopPaymentProcess['paypal']['GetExpressCheckoutDetailsResponse']['ACK'] == 'Success') {
                     $session_lsShopPaymentProcess['paypal']['finishedSuccessfully'] = true;
-                    $session->set('lsShop', $session_lsShopPaymentProcess);
+                    $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 				}
 			}
 		}
@@ -531,7 +531,7 @@ use function LeadingSystems\Helpers\ls_sub;
                 $session_lsShopPaymentProcess =  $session->get('lsShopPaymentProcess');
                 $session_lsShopPaymentProcess['paypal']['curl_errno'] = curl_errno($ch);
                 $session_lsShopPaymentProcess['paypal']['curl_error'] = curl_error($ch);
-                $session->set('lsShop', $session_lsShopPaymentProcess);
+                $session->set('lsShopPaymentProcess', $session_lsShopPaymentProcess);
 
 				$this->redirectToErrorPage('curl_errno', 'curl_errno: '.$session_lsShopPaymentProcess['paypal']['curl_errno'].', curl_error: '.$session_lsShopPaymentProcess['paypal']['curl_error']);
 			} else {
