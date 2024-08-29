@@ -39,6 +39,50 @@ class xrechnung_calculations
         return $paymentMeansText;
     }
 
+    /*  BT-83
+     *  Das in Textform ausgedrückte erwartete oder genutzte Zahlungsmittel. Es wird als XML Attribut
+     *  im Element BT-81 eingesetzt (deswegen keine Anwendung über Source)
+     */
+    public function paymentMeansId(): string
+    {
+//TODO: den Wert dynamisch ermitteln
+        return 'abc';
+    }
+
+
+    /*  BT-84
+     *  Die Kennung des Kontos, auf das die Zahlung erfolgen soll: IBAN für Zahlungen im
+     *  SEPA-Raum, Kontonummer oder IBAN im Falle von Auslandszahlungen.
+     */
+    public function payeeFinancialAccount(): string
+    {
+//TODO: den Wert dynamisch ermitteln
+        #return 'SOLADEST600';
+        return 'DE20 1234 1234 1234';
+    }
+
+    /*  BT-85
+     *  Name des Kontos bei einem Zahlungsdienstleister, auf das die Zahlung erfolgen
+     *  soll. (z. B. Kontoinhaber)
+     */
+    public function paymentAccountName(): string
+    {
+        $firstname = $this->arrOrder['customerData']['personalData']['firstname'];
+        $lastname = $this->arrOrder['customerData']['personalData']['lastname'];
+        $accountName = ($firstname) ? $firstname.' ' : '';
+        $accountName .= $lastname;
+        return $accountName;
+    }
+
+    /*  BT-86
+     *  Die Kennung des Konto führenden Zahlungsdienstleisters. Diese Kennung ergibt sich bei
+     *  Zahlungen im SEPA-Raum im Regelfall aus der IBAN.
+     */
+    public function paymentProviderIdentifier(): string
+    {
+//TODO: den Wert dynamisch ermitteln
+        return 'SOLADEST600';
+    }
 
     /*  @unitCode   bzw. Invoiced quantity unit of measure
      *
@@ -89,7 +133,7 @@ class xrechnung_calculations
 //TODO: diesen hardcodierten Betrag wieder löschen und aus arrOrder den richtigen nehmen
 
         $amountDueForPayment = $invoiceTotalAmountWithVat - $prepaidAmount;
-        return xrechnung_datatransformation::format_unitPriceAmount($amountDueForPayment);;
+        return xrechnung_datatransformation::format_unitPriceAmount($amountDueForPayment);
     }
 
     /*
@@ -119,12 +163,12 @@ class xrechnung_calculations
      *  Electronic Address Scheme code list (EAS) zu verwenden. Die Codeliste wird von der
      *  Connecting Europe Facility gepflegt und herausgegeben.
      */
-    public function sellerEletronicAdressScheme(mixed $data): string
+    public function sellerEletronicAdressScheme(): string
     {
 //TODO: kriegt noch keine Parameter ($data ist leer) und liefert daher immer EM zurück
-        $schemeId = match ($data) {
+        $schemeId = match ([]) {
             #'Stück', 'Stk.', 'ST' => 'XPP',
-            default => 'EM'
+            default => 'EM'             //eMail
         };
         return $schemeId;
     }
@@ -208,13 +252,35 @@ class xrechnung_calculations
      *  Electronic Address Scheme code list (EAS) zu verwenden. Die Codeliste wird von der
      *  Connecting Europe Facility gepflegt und herausgegeben.
      */
-    public function buyerEletronicAdressScheme(mixed $data): string
+    public function buyerEletronicAdressScheme(): string
     {
 //TODO: kriegt noch keine Parameter ($data ist leer) und liefert daher immer EM zurück
-        $schemeId = match ($data) {
+        $schemeId = match ([]) {
             #'Stück', 'Stk.', 'ST' => 'XPP',
-            default => 'EM'
+            default => 'EM'             //eMail
         };
         return $schemeId;
+    }
+
+    /*  BT-31
+     *  Seller VAT identifier
+     *  Die Umsatzsteuer-Identifikationsnummer des Verkäufers.
+     */
+    public function sellerVATIdentifier(): string
+    {
+//TODO: den dynamischen Wert holen
+        return 'DE270370361';
+    }
+
+    /*  Untergruppe von BT-31
+     *
+     *  Mandatory element. For Seller VAT identifier (BT-31), use value “VAT”, for the seller
+     *  tax registration identifier (BT-32), use != "VAT"
+     *  Example value: VAT
+     */
+    public function sellerTAXSchemeId(): string
+    {
+//TODO: dynamischen ermitteln
+        return 'VAT';
     }
 }

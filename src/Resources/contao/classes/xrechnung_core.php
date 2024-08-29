@@ -121,7 +121,7 @@ class xrechnung_core
      *  können hier nachträglich hinzugefügt werden
      *
      */
-    public function setAdditionalData(array $data)
+    public function setAdditionalData(array $data): xrechnung_core
     {
         foreach ($data as $key => $value) {
             $this->arrOrder[$key] = $value;

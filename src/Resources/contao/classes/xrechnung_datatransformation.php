@@ -10,7 +10,7 @@ class xrechnung_datatransformation
 
     /*  Anzahl Nachkommastellen beim Datentyp "Unit Price Amount" (Kapitel 8.10)
      */
-    const UNITPRICEAMOUNT_DECIMALS = 4;
+    const UNITPRICEAMOUNT_DECIMALS = 2;
 
 
     public function ts2Date(?int $timestamp): string
@@ -164,12 +164,14 @@ ZZZ	Mutually defined
     /*  Formatiert den übergebenen Betrag nach dem Datentyp "Unit Price Amount"
      *
      * */
-    public static function format_unitPriceAmount(float $amount): string
+    public static function format_unitPriceAmount(mixed $amount): string
     {
+        $amount = (float) $amount;
+
 //TODO: könnte hier ls_shop_generalHelper::outputPrice oder ls_shop_generalHelper::getDisplayPrice verwendet werden ?
         $decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? '.');
         $thousandsSeparator = ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? '');
-        return number_format($amount, self::UNITPRICEAMOUNT_DECIMALS, $decimalsSeparator, $thousandsSeparator);;
+        return number_format($amount, self::UNITPRICEAMOUNT_DECIMALS, $decimalsSeparator, $thousandsSeparator);
     }
 
     /*  BT-146:
@@ -182,7 +184,7 @@ ZZZ	Mutually defined
 //TODO: ist das was in arrOrder[items][1][price] steht immer der Bruttopreis ? Wenn nein, dann muss hier unterschieden werden
         $invoiceLine = $items[$additionalParams['groupKey']];
 
-        $netPrice = 100 * $invoiceLine['price'] / (100 + (float) $invoiceLine['taxPercentage']);
+        $netPrice = 100 * (float) $invoiceLine['price'] / (100 + (float) $invoiceLine['taxPercentage']);
 
         return $this->format_unitPriceAmount($netPrice);
     }
@@ -193,6 +195,7 @@ ZZZ	Mutually defined
      *  Es wird der Bruttopreis genommen und mit der MwSt multipliziert.
      *  Unit Price Amount
      */
+/*
     public function calculateLineDiscount(array $items, array $additionalParams): string
     {
 //TODO: ist das was in arrOrder[items][1][price] steht immer der Bruttopreis ? Wenn nein, dann muss hier unterschieden werden
@@ -202,20 +205,14 @@ ZZZ	Mutually defined
 
         return $this->format_unitPriceAmount($discount);
     }
+*/
 
 
-    /*  BT-55
-     *  Liefert zum Ländernamen (aus CustomerData->personalData->country) den 2-stelligen Ländercode zurück
-     *
-     */
-    public function countryName2CountryCode(string $countryName): string
+    public function replaceTags(string $source): string
     {
-        $countryCode = match ($countryName) {
-            'Deutschland' => 'DE',
-            'Frankreich' => 'FR',
-            default => 'DE'
-        };
-        return $countryCode;
+        $result = strip_tags($source);
+        $result = str_replace(array("\r", "\n"), ' ', $result);
+        return $result;
     }
 
 }

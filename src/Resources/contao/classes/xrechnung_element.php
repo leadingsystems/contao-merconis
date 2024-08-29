@@ -189,6 +189,13 @@ class xrechnung_element
             $xmlData = (is_null($data)) ? '' : $data;
             $xmlData .= $xmlSubCode;
 
+            //leere Knoten werden bei validierung bemängelt
+            if ($xmlData == '') {
+                lsDebugLog('',$this->elementId.': Der Knoten bleibt leer weil Daten fehlen!');
+                $this->evaluationError = 'Fehler beim Element ´'.$this->elementId.'´, der Knoten bleibt leer weil Daten fehlen!';
+                return $this->evaluationError;
+                #throw new \Exception('Error on creation of XRechnung: empty data');
+            }
 
             //Einsatz ins Ergebnis-XML
             $xmlResult = $this->tabsParent.'<'.$this->xml.$xmlAttributeCode.'>'.$xmlData;
@@ -247,9 +254,9 @@ class xrechnung_element
             //nächsten Teil des Schlüssels holen
             $firstKey = array_shift($keys);
 
-            //Wenn der Schlüssel mit @ beginnt, dann ist ein Wert aus dem Array "additionalParams" gemeint
-            if (substr($firstKey, 0, 1) == '@') {
-                $additionalKey = substr($firstKey, 1);
+            //Wenn der Schlüssel selbst ein Array ist, dann ist ein Wert aus dem Array "additionalParams" gemeint
+            if (is_array($firstKey)) {
+                $additionalKey = $firstKey[0];
                 $firstKey = $this->additionalParams[$additionalKey];
             }
 
@@ -257,7 +264,6 @@ class xrechnung_element
                 $this->evaluationError = 'Fehler beim Element ´'.$this->elementId.'´,  Schlüssel ´'.$firstKey.'´ ist nicht vorhanden!';
                 return null;
             }
-
 
             $sourcePart = $source[$firstKey];
             $result = $this->getSubKeyData($keys, $sourcePart);

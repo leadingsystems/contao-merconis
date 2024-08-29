@@ -23,7 +23,7 @@ trait xrechnung_trait_func
     //          Jede weitere Stufe erhält weiter SUB Suffixe
     //          Völlig unbekannte Knoten erhalten
     //3.1:  source: Datenquell bzw. Schlüsselname im arrOrder Array, wenn es um einen tiefer gelegenen Knoten geht z.B. items[1][itemPosition]
-    //          Wenn der Schlüssel mit @ beginnt, dann ist ein Wert aus dem Array "additionalParams" gemeint
+    //          Wenn der Schlüssel selbst ein Array ist, dann ist ein Wert aus dem Array "additionalParams" gemeint
     //4:    transform: Daten-transforms-funktion  z.B. date('Ymd') für Zeitstempel
     //:     calculate: Berechnungs-funktion z.B. amountDueForPayment für Berechnung von Restbeträgen (wenn source als
     //              Quell-Feld Angabe nicht ausreicht)
@@ -79,7 +79,7 @@ trait xrechnung_trait_func
             'next' => 'BG-1'),
 
 //TODO: sollen hier auch die weiteren notesLong oder freetext mit ausgegeben werden ? Dann gleich eine Gruppe machen
-        array('name' => 'INVOICE NOTE',             //OPTIONAL
+        array('name' => 'Invoice Note',             //OPTIONAL
             'id' => 'BG-1',
             'source' => ['notesShort'],
             'xml' => 'cbc:Note',
@@ -134,7 +134,6 @@ trait xrechnung_trait_func
             'xml' => 'cac:ProjectReference',
             'firstSub' => 'BT-11',
             'next' => 'BG-4'
-#'next' => 'BG-7'
             ),
 
         array('name' => 'Project reference',          //OPTIONAL
@@ -164,12 +163,11 @@ trait xrechnung_trait_func
 
         array('name' => 'Seller electronic adress',          //PFLICHT
             'id' => 'BT-34',
-            #'source' => [],
             'xml' => 'cbc:EndpointID',
             'xmlAttributes' => [['schemeID', 'sellerEletronicAdressScheme']],
             'calculate' => 'sellerEletronicAdress',
             'parent' => 'BG-4_SUB-1',
-'next' => 'BG-4_SUB-1',
+            'next' => 'BG-5',
             ),
 
         array('name' => 'Seller postal adress',          //PFLICHT
@@ -177,7 +175,7 @@ trait xrechnung_trait_func
             'xml' => 'cac:PostalAddress',
             'parent' => 'BG-4_SUB-1',
             'firstSub' => 'BT-35',
-            'next' => 'PAR_BT-30',
+            'next' => 'PAR_BT-31',
             ),
 
         array('name' => 'Seller address line 1',          //OPTIONAL
@@ -209,14 +207,50 @@ trait xrechnung_trait_func
             'xml' => 'cac:Country',
             'parent' => 'BG-5',
             'firstSub' => 'BT-40',
-            #'next' => 'PAR_BT-81',
             ),
 
         array('name' => 'Seller country code',          //PFLICHT
             'id' => 'BT-40',
-            'xml' => 'cac:Country',
+            'xml' => 'cbc:IdentificationCode',
 'calculate' => 'sellerCountryCode',
             'parent' => 'PAR_BT-40',
+            ),
+
+
+        array('name' => 'Party VAT/Tax Identifiers',          //OPTIONAL, kann aber bemängelt werden
+            'id' => 'PAR_BT-31',
+            'xml' => 'cac:PartyTaxScheme',
+            'parent' => 'BG-4_SUB-1',
+            'firstSub' => 'BT-31',
+            ),
+
+        array('name' => 'Seller VAT identifier',          //BEDINGT, WENN vatCategoryCode = ´S´
+            'id' => 'BT-31',
+            'source' => '',
+            'calculate' => 'sellerVATIdentifier',
+            'xml' => 'cbc:CompanyID',
+            'parent' => 'PAR_BT-31',
+            'next' => 'PAR_BT-31_SUB-1',
+            ),
+
+        array('name' => 'Seller Tax Scheme',          //
+            'id' => 'PAR_BT-31_SUB-1',
+            #'source' => '',
+            #'calculate' => 'sellerVATIdentifier',
+            'xml' => 'cac:TaxScheme',
+            'parent' => 'PAR_BT-31',
+            'firstSub' => 'BT-31',
+            #'next' => 'BG-5',
+            ),
+
+        array('name' => 'Seller Tax Scheme Id',          //
+            'id' => 'PAR_BT-31_SUB-1_SUB-1',
+            #'source' => '',
+            'calculate' => 'sellerTAXSchemeId',
+            'xml' => 'cbc:ID',
+            'parent' => 'PAR_BT-31_SUB-1',
+            #'firstSub' => 'BT-31',
+            #'next' => 'BG-5',
             ),
 
         array('name' => '_Seller legal registration identifier',          //OPTIONAL
@@ -288,7 +322,25 @@ trait xrechnung_trait_func
             'xmlAttributes' => [['schemeID', 'buyerEletronicAdressScheme']],
             'parent' => 'BG-7_SUB-1',
             'next' => 'BG-8',
+#'next' => 'PAR_BT-44',
             ),
+
+/*
+            array('name' => '_Buyer Party Name',          //PFLICHT
+                'id' => 'PAR_BT-44',
+                'xml' => 'cac:PartyName',
+                'parent' => 'BG-7_SUB-1',
+                'firstSub' => 'BT-44',
+                'next' => 'BG-8',
+                ),
+
+            array('name' => 'Buyer Party Name',          //PFLICHT
+                'id' => 'BT-44',
+                'calculate' => 'buyerName',
+                'xml' => 'cbc:Name',
+                'parent' => 'PAR_BT-44',
+                ),
+*/
 
         array('name' => 'Buyer postal adress',          //PFLICHT
             'id' => 'BG-8',
@@ -327,14 +379,12 @@ trait xrechnung_trait_func
             'xml' => 'cac:Country',
             'parent' => 'BG-8',
             'firstSub' => 'BT-55',
-            #'next' => 'PAR_BT-81',
             ),
 
         array('name' => 'Buyer country code',          //PFLICHT
             'id' => 'BT-55',
-            'source' => ['customerData', 'personalData', 'country'],
-            'transform' => 'countryName2CountryCode',
-            'xml' => 'cac:Country',
+            'source' => ['customerData', 'personalData_originalOptionValues', 'country'],
+            'xml' => 'cbc:IdentificationCode',
             'parent' => 'PAR_BT-55',
             ),
 
@@ -354,7 +404,7 @@ trait xrechnung_trait_func
             ),
 
 
-        array('name' => 'Buyer contact',          //OPTIONAL
+        array('name' => 'Buyer contact',          //OPTIONAL - WENN FEHLEND, WERDEN SIE BEI VALIDIERUNG BEMÄNGELT
             'id' => 'BG-9',
             'xml' => 'cac:Contact',
             'parent' => 'BG-7_SUB-1',
@@ -363,7 +413,7 @@ trait xrechnung_trait_func
 
         array('name' => 'Buyer contact point',          //OPTIONAL
             'id' => 'BT-56',
-            'source' => '',
+            'calculate' => 'buyerName',
             'xml' => 'cbc:Name',
             'parent' => 'BG-9',
             'next' => 'BT-57',
@@ -371,7 +421,7 @@ trait xrechnung_trait_func
 
         array('name' => 'Buyer contact telephone number',          //OPTIONAL
             'id' => 'BT-57',
-            'source' => '',
+            'source' => ['customerData', 'personalData', 'phone'],
             'xml' => 'cbc:Telephone',
             'parent' => 'BG-9',
             'next' => 'BT-58',
@@ -379,7 +429,7 @@ trait xrechnung_trait_func
 
         array('name' => 'Buyer contact email address',          //OPTIONAL
             'id' => 'BT-58',
-            'source' => '',
+            'source' => ['customerData', 'personalData', 'email'],
             'xml' => 'cbc:ElectronicMail',
             'parent' => 'BG-9',
             ),
@@ -410,7 +460,8 @@ trait xrechnung_trait_func
         array('name' => 'Remittance Information',           //OPTIONAL
             'id' => 'BT-83',
 //NOCH KLÄREN: was soll hier rein, als Daten ?
-            'source' => [],
+            #'source' => [],
+            'calculate' => 'paymentMeansId',
             'xml' => 'cbc:PaymentID',
             'parent' => 'PAR_BT-81'
             ),
@@ -428,6 +479,7 @@ trait xrechnung_trait_func
             'id' => 'BT-84',
 //NOCH KLÄREN: Woher die Daten für IBAN
             'source' => [],
+            'calculate' => 'payeeFinancialAccount',
             'xml' => 'cbc:ID',
             'next' => 'BT-85',
             'parent' => 'PAR_BT-84'
@@ -436,21 +488,24 @@ trait xrechnung_trait_func
         array('name' => 'Payment account name',             //OPTIONAL
             'id' => 'BT-85',
 //NOCH KLÄREN: Woher die Daten für Kontoinhaber
-            'source' => [],
+            #'source' => [],
+            'calculate' => 'paymentAccountName',
             'xml' => 'cbc:Name',
             'parent' => 'PAR_BT-84'
             ),
 
         array('name' => 'Financial Institution Branch',
             'id' => 'PAR_BT-86',
-            'source' => [],
+            #'source' => [],
             'xml' => 'cac:FinancialInstitutionBranch',
-            'parent' => 'PAR_BT-84'
+            'parent' => 'PAR_BT-84',
+            'firstSub' => 'BT-86'
             ),
 
         array('name' => 'Payment service provider identifier',      //OPTIONAL
             'id' => 'BT-86',
-            'source' => [],
+            #'source' => [],
+            'calculate' => 'paymentProviderIdentifier',
             'xml' => 'cbc:ID',
             'parent' => 'PAR_BT-86'
             ),
@@ -468,7 +523,8 @@ trait xrechnung_trait_func
 //Eigentlich: Eine Textbeschreibung der Zahlungsbedingungen, die für den fälligen Zahlungsbetrag gelten (einschließlich
 //Beschreibung möglicher Skontobedingungen).
             'source' => ['paymentMethod_infoAfterCheckout'],
-            'xml' => 'cbc:NOTE',
+            'transform' => 'replaceTags',
+            'xml' => 'cbc:Note',
             'parent' => 'BT-20'
             ),
 
@@ -482,7 +538,6 @@ trait xrechnung_trait_func
 
         array('name' => 'Invoice total VAT amount',          //OPTIONAL
 //TODO: Klären: es könnte auch BT-111 sein
-
             'id' => 'BT-110',
             'source' => ['taxTotal'],
             'xml' => 'cbc:TaxAmount',
@@ -501,18 +556,20 @@ trait xrechnung_trait_func
 
         array('name' => 'VAT category taxable amount',          //PFLICHT
             'id' => 'BT-116',
-            'source' => ['totalTaxedWith', '@groupKey', 'amountTaxedHerewith'],
+            'source' => ['totalTaxedWith', ['groupKey'], 'amountTaxedHerewith'],
             'xml' => 'cbc:TaxableAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'PAR_BT-116'
+            'parent' => 'PAR_BT-116',
+            'next' => 'BT-117',
             ),
 
         array('name' => 'VAT category tax amount',            //PFLICHT
             'id' => 'BT-117',
-            'source' => ['tax', '@groupKey', 'taxAmount'],
+            'source' => ['tax', ['groupKey'], 'taxAmount'],
             'xml' => 'cbc:TaxAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'PAR_BT-116'
+            'parent' => 'PAR_BT-116',
+            'next' => 'PAR_BT-118_SUB-1',
             ),
 
         array('name' => 'VAT category tax',
@@ -525,16 +582,18 @@ trait xrechnung_trait_func
 
         array('name' => 'VAT category code',                //PFLICHT
             'id' => 'BT-118',
-            'source' => ['tax', '@groupKey', 'vatCategoryCode'],
+            'source' => ['tax', ['groupKey'], 'vatCategoryCode'],
             'xml' => 'cbc:ID',
-            'parent' => 'PAR_BT-118_SUB-1'
+            'parent' => 'PAR_BT-118_SUB-1',
+            'next' => 'BT-119',
             ),
 
         array('name' => 'VAT category rate',                //PFLICHT
             'id' => 'BT-119',
-            'source' => ['tax', '@groupKey', 'taxRate'],
+            'source' => ['tax', ['groupKey'], 'taxRate'],
             'xml' => 'cbc:Percent',
-            'parent' => 'PAR_BT-118_SUB-1'
+            'parent' => 'PAR_BT-118_SUB-1',
+            'next' => 'BT-118_SUB-1',
             ),
 
         //Nicht im PDF beschrieben
@@ -565,37 +624,44 @@ trait xrechnung_trait_func
         array('name' => 'Sum of Invoice line net amount',                //PFLICHT
             'id' => 'BT-106',
             'source' => ['invoicedAmountNet'],
+            'transform' => 'format_unitPriceAmount',
             'xml' => 'cbc:LineExtensionAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'BG-22'
+            'parent' => 'BG-22',
+            'next' => 'BT-109',
             ),
 
         array('name' => 'Invoice total amount without VAT',                //PFLICHT
-            'id' => 'BT-109',
+            'id' => '',
 //TODO: hier muss vermutlich entweder gerechnet werden oder es kommt ein brauchbarer Wert
             'source' => ['invoicedAmountNet'],
+            'transform' => 'format_unitPriceAmount',
             'xml' => 'cbc:TaxExclusiveAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'BG-22'
+            'parent' => 'BG-22',
+            'next' => 'BT-112',
             ),
 
         array('name' => 'Invoice total amount with VAT',                //PFLICHT
             'id' => 'BT-112',
 //TODO: könnte "invoicedAmount" sein oder "total"
             'source' => ['invoicedAmount'],
+            'transform' => 'format_unitPriceAmount',
             'xml' => 'cbc:TaxInclusiveAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'BG-22'
+            'parent' => 'BG-22',
+            'next' => 'BT-115',
             ),
 
-        array('name' => 'Paid amount',                //OPTIONAL
-            'id' => 'BT-113',
+//Auskommentiert, da leere Beträge zur Ungültigkeit führen
+        #array('name' => 'Paid amount',                //OPTIONAL
+            #'id' => 'BT-113',
 //TODO: Haben wir Teil-Rechnungen ? Dann wären hier bereits gezahlte Beträge drin
-            'source' => [],
-            'xml' => 'cbc:PrepaidAmount',
-            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'BG-22'
-            ),
+            #'source' => [],
+            #'xml' => 'cbc:PrepaidAmount',
+            #'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
+            #'parent' => 'BG-22'
+            #),
 
         array('name' => 'Amount due for payment',                //PFLICHT
             'id' => 'BT-115',
@@ -617,24 +683,26 @@ trait xrechnung_trait_func
 
         array('name' => 'Invoice Line Identifier',                //PFLICHT
             'id' => 'BT-126',
-            'source' => ['items', '@groupKey', 'itemPosition'],
+            'source' => ['items', ['groupKey'], 'itemPosition'],
             'xml' => 'cbc:ID',
-            'parent' => 'BG-25'
+            'parent' => 'BG-25',
+            'next' => 'BT-129',
             ),
 
         array('name' => 'Invoice Line Note',                //OPTIONAL
             'id' => 'BT-127',
-            'source' => ['items', '@groupKey', 'productTitle'],
+            'source' => ['items', ['groupKey'], 'productTitle'],
             'xml' => 'cbc:Note',
             'parent' => 'BG-25'
             ),
 
         array('name' => 'Invoiced Quantity',                //OPTIONAL
             'id' => 'BT-129',
-            'source' => ['items', '@groupKey', 'quantity'],
+            'source' => ['items', ['groupKey'], 'quantity'],
             'xml' => 'cbc:InvoicedQuantity',
             'xmlAttributes' => [['unitCode', 'getUnitCode']],
-            'parent' => 'BG-25'
+            'parent' => 'BG-25',
+            'next' => 'BT-131',
             ),
 
         array('name' => 'Invoice line net amount',                //PFLICHT
@@ -643,43 +711,48 @@ trait xrechnung_trait_func
             'transform' => 'calculateLineNetPrice',
             'xml' => 'cbc:LineExtensionAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'BG-25'
+            'parent' => 'BG-25',
+            'next' => 'BG-31',
             ),
 
         //ITEM
         array('name' => 'Item Information',                //PFLICHT
             'id' => 'BG-31',
             'xml' => 'cac:Item',
-            'firstSub' => 'BT-126',
-            'parent' => 'BG-25'
-            ),
-
-        array('name' => 'Item Name',                //PFLICHT
-            'id' => 'BT-153',
-            'source' => ['items', '@groupKey', 'productTitle'],
-            'xml' => 'cbc:Name',
-            'parent' => 'BG-31'
+            'firstSub' => 'BT-154',
+            'parent' => 'BG-25',
+            'next' => 'BG-29',
             ),
 
         array('name' => 'Item Description',                //OPTIONAL
             'id' => 'BT-154',
 //TODO: vielleicht ausführlichere Beschreibung ?
-            'source' => ['items', '@groupKey', 'productTitle'],
+            'source' => ['items', ['groupKey'], 'productTitle'],
             'xml' => 'cbc:Description',
-            'parent' => 'BG-31'
+            'parent' => 'BG-31',
+            'next' => 'BT-153',
+            ),
+
+        array('name' => 'Item Name',                //PFLICHT
+            'id' => 'BT-153',
+            'source' => ['items', ['groupKey'], 'productTitle'],
+            'xml' => 'cbc:Name',
+            'parent' => 'BG-31',
+            'next' => 'PAR_BT-155',
             ),
 
         array('name' => 'Sellers Item Identification',                //OPTIONAL
             'id' => 'PAR_BT-155',
             'xml' => 'cac:SellersItemIdentification',
             'firstSub' => 'BT-155',
-            'parent' => 'BG-31'
+            'parent' => 'BG-31',
+            'next' => 'BG-30',
             ),
 
         array('name' => 'Item Sellers identifier',                //OPTIONAL
             'id' => 'BT-155',
 //TODO: könnte productVariantID sein, aber auch productCartKey oder auch artNr
-            'source' => ['items', '@groupKey', 'productVariantID'],
+            'source' => ['items', ['groupKey'], 'productVariantID'],
             'xml' => 'cbc:ID',
             'parent' => 'PAR_BT-155'
             ),
@@ -693,17 +766,18 @@ trait xrechnung_trait_func
 
         array('name' => 'Item Sellers identifier',                //OPTIONAL
             'id' => 'BT-151',
-            #'transform' => 'vatCategoryCode',
-            'source' => ['items', '@groupKey', 'vatCategoryCode'],
+            'source' => ['items', ['groupKey'], 'vatCategoryCode'],
             'xml' => 'cbc:ID',
-            'parent' => 'BG-30'
+            'parent' => 'BG-30',
+            'next' => 'BT-152',
             ),
 
         array('name' => 'Invoiced item VAT rate',                //PFLICHT
             'id' => 'BT-152',
-            'source' => ['items', '@groupKey', 'taxPercentage'],
+            'source' => ['items', ['groupKey'], 'taxPercentage'],
             'xml' => 'cbc:Percent',
-            'parent' => 'BG-30'
+            'parent' => 'BG-30',
+            'next' => 'BG-30_SUB-1',
             ),
 
         array('name' => 'Tax scheme',                   //OPTIONAL
@@ -738,22 +812,24 @@ trait xrechnung_trait_func
             'parent' => 'BG-29'
             ),
 
-        array('name' => 'Item price discount',                //OPTIONAL
-            'id' => 'BT-147',
-            'source' => ['items'],
-            'transform' => 'calculateLineDiscount',
-            'xml' => 'cbc:amount',
-            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'BG-29'
-            ),
+        //Dieser Knoten wird von der Validierungsprüfung als ungültig gemeldet -> auskommentiert
+        #array('name' => 'Item price discount',                //OPTIONAL
+            #'id' => 'BT-147',
+            #'source' => ['items'],
+            #'transform' => 'calculateLineDiscount',
+            #'xml' => 'cbc:amount',
+            #'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
+            #'parent' => 'BG-29'
+            #),
 
-        array('name' => 'Item gross price',                //OPTIONAL
-            'id' => 'BT-148',
-            'source' => ['items', '@groupKey', 'price'],
-            'xml' => 'cbc:BaseAmount',
-            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'BG-29'
-            ),
+        //Dieser Knoten wird von der Validierungsprüfung als ungültig gemeldet -> auskommentiert
+        #array('name' => 'Item gross price',                //OPTIONAL
+            #'id' => 'BT-148',
+            #'source' => ['items', ['groupKey'], 'price'],
+            #'xml' => 'cbc:BaseAmount',
+            #'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
+            #'parent' => 'BG-29'
+            #),
     );
 
 }
