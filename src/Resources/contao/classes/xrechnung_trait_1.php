@@ -478,8 +478,8 @@ trait xrechnung_trait_func
         array('name' => 'Payment account identifier',       //PFLICHT
             'id' => 'BT-84',
 //NOCH KLÄREN: Woher die Daten für IBAN
-            'source' => [],
-            'calculate' => 'payeeFinancialAccount',
+            'source' => ['flexibleParams', 'iban'],
+            #'calculate' => 'payeeFinancialAccount',
             'xml' => 'cbc:ID',
             'next' => 'BT-85',
             'parent' => 'PAR_BT-84'
@@ -488,8 +488,8 @@ trait xrechnung_trait_func
         array('name' => 'Payment account name',             //OPTIONAL
             'id' => 'BT-85',
 //NOCH KLÄREN: Woher die Daten für Kontoinhaber
-            #'source' => [],
-            'calculate' => 'paymentAccountName',
+            'source' => ['flexibleParams', 'kontoinhaber'],
+            #'calculate' => 'paymentAccountName',
             'xml' => 'cbc:Name',
             'parent' => 'PAR_BT-84'
             ),
@@ -504,8 +504,8 @@ trait xrechnung_trait_func
 
         array('name' => 'Payment service provider identifier',      //OPTIONAL
             'id' => 'BT-86',
-            #'source' => [],
-            'calculate' => 'paymentProviderIdentifier',
+            'source' => ['flexibleParams', 'bic'],
+            #'calculate' => 'paymentProviderIdentifier',
             'xml' => 'cbc:ID',
             'parent' => 'PAR_BT-86'
             ),
