@@ -122,12 +122,6 @@ ZZZ	Mutually defined
     }
 
 
-    public function customizationId(): string
-    {
-//TODO: hier prüfen, wie der String dynamisch zusammengebaut werden muss
-        return 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0';
-    }
-
     /*  BT-3
      *  Ein Code, der den Funktionstyp der Rechnung angibt.
      *  Anmerkung: Der Rechnungstyp muss gemäß UNTDID 1001, spezifiziert werden.
@@ -164,14 +158,16 @@ ZZZ	Mutually defined
     /*  Formatiert den übergebenen Betrag nach dem Datentyp "Unit Price Amount"
      *
      * */
-    public static function format_unitPriceAmount(mixed $amount): string
+    public static function format_unitPriceAmount(mixed $amount, ?int $decimals = null): string
     {
         $amount = (float) $amount;
+
+        $decimals = $decimals ?? self::UNITPRICEAMOUNT_DECIMALS;
 
 //TODO: könnte hier ls_shop_generalHelper::outputPrice oder ls_shop_generalHelper::getDisplayPrice verwendet werden ?
         $decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? '.');
         $thousandsSeparator = ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? '');
-        return number_format($amount, self::UNITPRICEAMOUNT_DECIMALS, $decimalsSeparator, $thousandsSeparator);
+        return number_format($amount, $decimals, $decimalsSeparator, $thousandsSeparator);
     }
 
     /*  BT-146:
@@ -179,16 +175,16 @@ ZZZ	Mutually defined
      *  Es wird der Bruttopreis genommen und durch die MwSt dividiert.
      *  Unit Price Amount
      */
+/*
     public function calculateLineNetPrice(array $items, array $additionalParams): string
     {
-//TODO: ist das was in arrOrder[items][1][price] steht immer der Bruttopreis ? Wenn nein, dann muss hier unterschieden werden
         $invoiceLine = $items[$additionalParams['groupKey']];
 
         $netPrice = 100 * (float) $invoiceLine['price'] / (100 + (float) $invoiceLine['taxPercentage']);
 
         return $this->format_unitPriceAmount($netPrice);
     }
-
+*/
 
     /*  BT-147:
      *  Berechnung Item price discount für die Rechnungszeile
@@ -213,6 +209,12 @@ ZZZ	Mutually defined
         $result = strip_tags($source);
         $result = str_replace(array("\r", "\n"), ' ', $result);
         return $result;
+    }
+
+
+    public function strtoupper(string $source): string
+    {
+        return strtoupper($source);
     }
 
 }

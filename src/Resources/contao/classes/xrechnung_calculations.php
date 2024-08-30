@@ -20,6 +20,18 @@ class xrechnung_calculations
     }
 
 
+    public function customizationId(): string
+    {
+//TODO: hier prüfen, ob und wie der String dynamisch zusammengebaut werden muss
+        return 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0';
+    }
+
+    public function businessProcessType(): string
+    {
+//TODO: hier prüfen, ob und wie der String dynamisch zusammengebaut werden muss
+        return 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0';
+    }
+
     /*  BT-5
      *  Liefert den Währungscode aus dem arrOrder Array.
      */
@@ -54,17 +66,19 @@ class xrechnung_calculations
      *  Die Kennung des Kontos, auf das die Zahlung erfolgen soll: IBAN für Zahlungen im
      *  SEPA-Raum, Kontonummer oder IBAN im Falle von Auslandszahlungen.
      */
+/*
     public function payeeFinancialAccount(): string
     {
-//TODO: den Wert dynamisch ermitteln
         #return 'SOLADEST600';
         return 'DE20 1234 1234 1234';
     }
+*/
 
     /*  BT-85
      *  Name des Kontos bei einem Zahlungsdienstleister, auf das die Zahlung erfolgen
      *  soll. (z. B. Kontoinhaber)
      */
+/*
     public function paymentAccountName(): string
     {
         $firstname = $this->arrOrder['customerData']['personalData']['firstname'];
@@ -73,16 +87,18 @@ class xrechnung_calculations
         $accountName .= $lastname;
         return $accountName;
     }
+*/
 
     /*  BT-86
      *  Die Kennung des Konto führenden Zahlungsdienstleisters. Diese Kennung ergibt sich bei
      *  Zahlungen im SEPA-Raum im Regelfall aus der IBAN.
      */
+/*
     public function paymentProviderIdentifier(): string
     {
-//TODO: den Wert dynamisch ermitteln
         return 'SOLADEST600';
     }
+*/
 
     /*  @unitCode   bzw. Invoiced quantity unit of measure
      *
@@ -115,7 +131,7 @@ class xrechnung_calculations
 	XMB	Bag, multiply
 */
             'Stück', 'Stk.', 'ST' => 'XPP',
-            default => ''
+            default => 'XPP'
         };
 
         return $unitCode;
@@ -260,6 +276,16 @@ class xrechnung_calculations
             default => 'EM'             //eMail
         };
         return $schemeId;
+    }
+
+
+    public function buyerName(): string
+    {
+        $firstname = $this->arrOrder['customerData']['personalData']['firstname'];
+        $lastname = $this->arrOrder['customerData']['personalData']['lastname'];
+        $buyerName = ($firstname) ? $firstname.' ' : '';
+        $buyerName .= $lastname;
+        return $buyerName;
     }
 
     /*  BT-31

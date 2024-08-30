@@ -119,7 +119,7 @@ class xrechnung_core
 
     /*  Zusätzliche Werte für die Rechnung, die nicht in der Bestellung stehen
      *  können hier nachträglich hinzugefügt werden
-     *
+     *  Z.B. MessageCounterNr
      */
     public function setAdditionalData(array $data): xrechnung_core
     {
