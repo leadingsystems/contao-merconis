@@ -21,10 +21,9 @@ class xrechnung_element
     private $dataSource = '';
     private $dataTransformation = '';
     private $tabs = '';
-    private $tabsParent = '';
     private $xml = '';
     private $attributes = [];
-    private $nachfolger = '';
+    private $nextElement = '';
     private $firstSub = '';
     private $parent = '';
     private $sub = [];
@@ -64,8 +63,8 @@ class xrechnung_element
         if ($this->attributes == []) {
             $this->attributes = (isset($element['xmlAttributes'])) ? $element['xmlAttributes'] : '';
         }
-        if ($this->nachfolger == '') {
-            $this->nachfolger = (isset($element['next'])) ? $element['next'] : '';
+        if ($this->nextElement == '') {
+            $this->nextElement = (isset($element['next'])) ? $element['next'] : '';
         }
         if ($this->firstSub == '') {
             $this->firstSub = (isset($element['firstSub'])) ? $element['firstSub'] : '';
@@ -87,14 +86,20 @@ class xrechnung_element
         return $this->elementId;
     }
 
-    public function setRef(array &$arrOrder): void
+
+    /*  Sets a reference to the order array. Likewise for the calculation object
+     *
+     *  @param  array   $arrOrder   byreference, Array containing all the data of a Merconis order
+     *  @return void
+     */
+    public function setReference(array &$arrOrder): void
     {
         $this->arrOrder = &$arrOrder;
-        $this->calculations->setRef($arrOrder);
+        $this->calculations->setReference($arrOrder);
     }
 
 
-    public function evalIE(): string
+    public function evalInformationElement(): string
     {
         try {
 
@@ -114,7 +119,7 @@ class xrechnung_element
                 $groupKeys = [0];
             }
 
-            foreach ($keyGroups as $groupKey) {
+            foreach ($groupKeys as $groupKey) {
 
                 if ($groupKey != 0) {
                     $this->additionalParams = array('groupKey' => $groupKey);
@@ -123,8 +128,8 @@ class xrechnung_element
                 //Sobald es aber mehr als 1 Element ist müssen die XML Tags hier drin erneut geschlossen und wieder geöffnet werden
                 $repeatCnt++;
                 if ($repeatCnt > 1) {
-                    $xmlSubCode .= $this->tabsParent.'</'.$this->xml.'>'.PHP_EOL;
-                    $xmlSubCode .= $this->tabsParent.'<'.$this->xml.'>';
+                    $xmlSubCode .= $this->tabs.'</'.$this->xml.'>'.PHP_EOL;
+                    $xmlSubCode .= $this->tabs.'<'.$this->xml.'>';
                 }
 
                 if ($this->firstSub != '') {
@@ -132,8 +137,8 @@ class xrechnung_element
                     foreach ($this->sub as $subElementId => $subElement) {
                         //Unter-Informations-Element muss die gleichen Parameter erhalten
                         $subElement->additionalParams = $this->additionalParams;
-                        $subElement->setTabsOfParent($this->tabsParent);
-                        $xmlSubCode .= $subElement->evalIE();
+                        $subElement->setTabsOfParent($this->tabs);
+                        $xmlSubCode .= $subElement->evalInformationElement();
                     }
                 }
             }
@@ -189,6 +194,11 @@ class xrechnung_element
             }
 
             $xmlData = (is_null($data)) ? '' : $data;
+
+            /*  There is one object per business term but not one for each XML line. So we have an
+             *  object for BT-131 but one XML term per invoice line (groupkeys). In order to still
+             *  have the values ​​of all group keys, storage takes place at group key level
+             */
             if (isset($this->additionalParams['groupKey'])) {
                 //Wiederholungsgruppe -> Werte werden mit dem Groupkey geschlüsselt
                 $groupKey = $this->additionalParams['groupKey'];
@@ -211,14 +221,13 @@ class xrechnung_element
             }
 
             //Einsatz ins Ergebnis-XML
-            $xmlResult = $this->tabsParent.'<'.$this->xml.$xmlAttributeCode.'>'.$xmlData;
+            $xmlResult = $this->tabs.'<'.$this->xml.$xmlAttributeCode.'>'.$xmlData;
 
             if ($this->firstSub != '') {
-                $xmlResult .= $this->tabsParent;
+                $xmlResult .= $this->tabs;
             }
 
             $xmlResult .= '</'.$this->xml.'>'.PHP_EOL;
-            #$xmlResult .= PHP_EOL;
 
         } catch (\Exception $e) {
             echo $e->getMessage();
@@ -231,7 +240,7 @@ class xrechnung_element
 
     public function getNextElement(): string
     {
-        return $this->nachfolger;
+        return $this->nextElement;
     }
 
     public function hasParent(): bool
@@ -283,8 +292,9 @@ class xrechnung_element
     /*  Das Information Element erhält einen String mit den Tabs des Parents und für sich selbst werden 2 Spaces
      *  dran gehängt
      */
-    public function setTabsOfParent(string $tabs): void
+    public function setTabsOfParent(string $tabs)
     {
-        $this->tabsParent = $tabs.'  ';
+        $this->tabs = $tabs.'  ';
+        return $this;
     }
 }

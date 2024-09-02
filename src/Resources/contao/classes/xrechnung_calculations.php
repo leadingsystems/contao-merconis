@@ -2,19 +2,23 @@
 namespace Merconis\Core;
 
 
-/*  Enthält Funktionen zur Berechnung von Daten
- *  Nötig, wenn gerechnet werden muss und das eine angegebene Source-Feld nicht ausreicht z.B.
- *  Berechnung von Teilbeträgen
+/*  Contains functions for calculating data
+ *  Necessary if calculations have to be made and/or the one specified source field is not sufficient
  */
 class xrechnung_calculations
 {
+    /*  Array containing all the data of a Merconis order
+     *  @var    array
+     */
     private $arrOrder = [];
 
 
-    /*  Setzt einen Bezug auf das Auftragsarray.
+    /*  Sets a reference to the order array.
      *
+     *  @param  array   $arrOrder   byreference, Array containing all the data of a Merconis order
+     *  @return void
      */
-    public function setRef(array &$arrOrder): void
+    public function setReference(array &$arrOrder): void
     {
         $this->arrOrder = &$arrOrder;
     }
@@ -33,7 +37,14 @@ class xrechnung_calculations
     }
 
     /*  BT-5
-     *  Liefert den Währungscode aus dem arrOrder Array.
+     *  The currency in which all invoice amounts are stated, with the exception of the total sales tax amount.
+     *  amount to be stated in the billing currency.
+     *  Note: Only one currency is to be used in the invoice, the "Invoice total VAT amount in accounting
+     *  currency" (BT-111) must be shown in the billing currency. The valid currencies are ISO 4217
+     *  “Codes for the representation of currencies and funds” registered. Only the alpha 3 representation may be used
+     *  become.
+     *
+     *  @return     string      $currencyCode       e.g. "EUR"
      */
     public function getCurrencyCode(): string
     {
@@ -42,8 +53,10 @@ class xrechnung_calculations
     }
 
     /*  BT-82
-     *  Das in Textform ausgedrückte erwartete oder genutzte Zahlungsmittel. Es wird als XML Attribut
-     *  im Element BT-81 eingesetzt (deswegen keine Anwendung über Source)
+     *  The expected or used means of payment expressed in text form. It is used as an XML attribute
+     *  used in element BT-81 (therefore not used via source)
+     *
+     *  @return     string      $paymentMeansText
      */
     public function getPaymentMeansText(): string
     {
@@ -52,53 +65,19 @@ class xrechnung_calculations
     }
 
     /*  BT-83
-     *  Das in Textform ausgedrückte erwartete oder genutzte Zahlungsmittel. Es wird als XML Attribut
-     *  im Element BT-81 eingesetzt (deswegen keine Anwendung über Source)
+     *  A text value used to link the payment to the invoice issued by the seller.
+     *  Note: Specifying a intended purpose helps the seller assign an incoming payment
+     *  Payment for the respective payment process. If remittance information was provided in the invoice, then-
+     *  te these can therefore be used when making the payment.
+     *
+     *  @return     string      $paymentMeansText
      */
-    public function paymentMeansId(): string
+    public function remittanceInformation(): string
     {
 //TODO: den Wert dynamisch ermitteln
         return 'abc';
     }
 
-
-    /*  BT-84
-     *  Die Kennung des Kontos, auf das die Zahlung erfolgen soll: IBAN für Zahlungen im
-     *  SEPA-Raum, Kontonummer oder IBAN im Falle von Auslandszahlungen.
-     */
-/*
-    public function payeeFinancialAccount(): string
-    {
-        #return 'SOLADEST600';
-        return 'DE20 1234 1234 1234';
-    }
-*/
-
-    /*  BT-85
-     *  Name des Kontos bei einem Zahlungsdienstleister, auf das die Zahlung erfolgen
-     *  soll. (z. B. Kontoinhaber)
-     */
-/*
-    public function paymentAccountName(): string
-    {
-        $firstname = $this->arrOrder['customerData']['personalData']['firstname'];
-        $lastname = $this->arrOrder['customerData']['personalData']['lastname'];
-        $accountName = ($firstname) ? $firstname.' ' : '';
-        $accountName .= $lastname;
-        return $accountName;
-    }
-*/
-
-    /*  BT-86
-     *  Die Kennung des Konto führenden Zahlungsdienstleisters. Diese Kennung ergibt sich bei
-     *  Zahlungen im SEPA-Raum im Regelfall aus der IBAN.
-     */
-/*
-    public function paymentProviderIdentifier(): string
-    {
-        return 'SOLADEST600';
-    }
-*/
 
     /*  @unitCode   bzw. Invoiced quantity unit of measure
      *
@@ -107,13 +86,15 @@ class xrechnung_calculations
      *  descriptions in the "Intro" section of UN/ECE Recommendation 20, Revision 11 (2015)
      *  https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cbc-InvoicedQuantity/
      *
-     *  Zuordnung unserer arrOrder quantityUnit zum 3-stelligen Code aus ´UNECE Recommendation No. 21´
-     *  (z.B. für BT-129)
+     *  Assignment of our arrOrder quantityUnit to the 3-digit code from 'UNECE Recommendation No. 21´
+     *  (e.g. for BT-129)
+     *
+     * @param   array   $additionalParams       contains groupkey of current repeating group
+     * @return  string  $unitCode               string according to UN/ECE Recommendation 20, Revision 11
      */
     public function getUnitCode(array $additionalParams): string
     {
         $itemNo = $additionalParams['groupKey'];
-
         $quantityUnit = $this->arrOrder['items'][$itemNo]['quantityUnit'];
 
 //TODO: die Liste weiter ausbauen: Was für Mengeneinheiten haben wir alle ? (Stück, Beutel sind bereits bekannt, welche noch ?)
@@ -139,7 +120,13 @@ class xrechnung_calculations
 
 
     /*  BT-115
-     *  Ausstehende Restbeträge
+     *  The outstanding amount to be paid.
+     *  Note: This amount is the "Invoice total amount with VAT" (BT-112) minus the "Paid amount"
+     *  (BT-113). In the case of a fully paid invoice, this amount is zero. The amount is negative if
+     *  the “Paid amount” (BT-113) is greater than the “Invoice total amount with VAT” (BT-112).
+     *
+     *  @param      float   $invoiceTotalAmountWithVat  invoicedAmount
+     *  @return     string  $amountDueForPayment        The outstanding amount to be paid
      */
     public function amountDueForPayment(float $invoiceTotalAmountWithVat): string
     {
@@ -152,9 +139,10 @@ class xrechnung_calculations
         return xrechnung_datatransformation::format_unitPriceAmount($amountDueForPayment);
     }
 
-    /*
-     *  Gibt das aktuelle Datum zurück.
+    /*  Returns the current date.
+     *
      *  z.B. für BT-2
+     *  @return     string      current date e.g. 2024-08-30
      */
     public function currentDate(): string
     {

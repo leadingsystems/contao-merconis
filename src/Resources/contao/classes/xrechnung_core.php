@@ -15,60 +15,73 @@ namespace Merconis\Core;
 
 class xrechnung_core
 {
-    use \Merconis\Core\xrechnung_trait_func;
+    use \Merconis\Core\xrechnung_elementData;
 
 
+    /*  Array containing all the data of a Merconis order
+     *  @var    array
+     */
     private $arrOrder = array();
-    private $res = '';                          //der fertige XML String
-    private $conta = null;                       //Container für alle Einzelobjekte
+
+    /*  contains all information elements
+     *  @var    SplObjectStorage
+     */
+    private $container = null;
+
+    /*  the first information element with which the evaluation begins
+     *  @var    xrechnung_element
+     */
     private $first = null;                      //erstes element (Ansatz 2)
 
 
     /*
-     * The constructor function takes the order array and the messages counter nr as arguments
+     *  The constructor function takes the order array and the messages counter nr as arguments
+     *
+     *  @param  array   $arrOrder       Array containing all the data of a Merconis order
      */
 	public function __construct($arrOrder = array())
     {
         $this->arrOrder = $arrOrder;
-
-        //Alternativer Weg mit Objekten
         $this->initInformationElements();
 	}
 
 
+    /*  For each entry from the xRechnung data object, an object of type InformationElement
+     *  is created, filled with values ​​and assigned to the container. Child
+     *  elements are assigned to their parent elements.
+     *  Each element receives a reference (not a copy) to the arrOrder array.
+     *  The maintenance of the information elements should not be dependent on their position
+     *  or order in the php file. But via their firstSub or Parent properties
+     */
     public function initInformationElements(): void
     {
 
-        $this->conta = new \SplObjectStorage();
-//TODO: dokumentieren
-        foreach ($this->listElementsTr as $elem) {
+        $this->container = new \SplObjectStorage();
+        foreach ($this->listElements as $element) {
 
-            $IElem = $this->callIEbyId($elem['id']);
+            $IElem = $this->callIEbyId($element['id']);
 
             if ($IElem) {
-                $IElem->fillRemaining($elem);
+                $IElem->fillRemaining($element);
             } else {
-                $IElem = new xrechnung_element($elem);
-                $this->conta->attach($IElem);
+                $IElem = new xrechnung_element($element);
+                $this->container->attach($IElem);
             }
-            $IElem->setRef($this->arrOrder);
+            $IElem->setReference($this->arrOrder);
 
-
-
-            if (isset($elem['parent']) && $elem['parent'] != '') {
-                $parent = $this->callIEbyId($elem['parent']);
+            if (isset($element['parent']) && $element['parent'] != '') {
+                $parent = $this->callIEbyId($element['parent']);
 
                 if (!$parent) {
                     $parent = new xrechnung_element(
-                        array('id' => $elem['parent'])
+                        array('id' => $element['parent'])
                     );
                 }
                 $parent->addSub($IElem);
-                $this->conta->attach($parent);
+                $this->container->attach($parent);
                 unset($parent);
             }
 
-            //Beginnendes Element merken
             if ($this->first === null) {
                 if (!$IElem->hasParent()) {
                     $this->first = $IElem;
@@ -78,10 +91,16 @@ class xrechnung_core
     }
 
 
+    /*  Looks for the information element in the container using the unique ID
+     *  and returns the object from it
+     *
+     *  @param  string  $elementId      unique string key of InformationElement (e.g. BT-24)
+     *  @return object  $IElem          InformationElement if found, otherwise null
+     */
     public function callIEbyId(string $elementId): ?xrechnung_element
     {
         if ($elementId != '') {
-            foreach ($this->conta as $IElem ) {
+            foreach ($this->container as $IElem ) {
                 if ($IElem->getElementId() == $elementId ) {
                     return $IElem;
                 }
@@ -90,7 +109,13 @@ class xrechnung_core
         return null;
     }
 
-    //Ansatz 2: jede Informationseinheit ist ein Objekt vom Typ "xrechnung_element" und die werden nacheinander abgearbeitet
+
+    /*  Generation of the XML string based on the information elements. Only the top-level
+     *  elements (those without parents) are included in the loop. The child elements are processed 
+     *  recursively.
+     *
+     *  @return string          the complete xml code of XRechnung
+     */
     public function create(): string
     {
         $IElem = $this->first;
@@ -101,12 +126,10 @@ class xrechnung_core
 
         do {
             if (!$IElem->hasParent()) {
-                $IElem->setTabsOfParent('');
-                $xml = $IElem->evalIE();
-                echo $xml;
+                echo $IElem->setTabsOfParent('')
+                    ->evalInformationElement();
             }
-            $nextElem = $IElem->getNextElement();
-            $IElem = $this->callIEbyId($nextElem);
+            $IElem = $this->callIEbyId($IElem->getNextElement());
 
         } while ($IElem !== null);
 
@@ -117,9 +140,10 @@ class xrechnung_core
     }
 
 
-    /*  Zusätzliche Werte für die Rechnung, die nicht in der Bestellung stehen
-     *  können hier nachträglich hinzugefügt werden
-     *  Z.B. MessageCounterNr
+    /*  Additional values ​​for the invoice that are not in the order can be added here later
+     *  (to arrOrder array)
+     *  @param  array       $data       e.g. messagecounternr or bank account information
+     *  @return object                  xrechnung_core
      */
     public function setAdditionalData(array $data): xrechnung_core
     {
