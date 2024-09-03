@@ -1624,7 +1624,6 @@ class ls_shop_filterHelper {
 		ls_shop_filterHelper::adaptFilterCriteriaToCurrentFilterFormCriteria();
 	}
 
-
     /*  Checks whether in the active filter fields that match the transferred AttributeID the property
      *  'Deactivate filter field with only one characteristic' is checked and then returns a true
      *  Depending on this, such filter fields are hidden
@@ -1646,7 +1645,6 @@ class ls_shop_filterHelper {
 
         return $result;
     }
-
 
 	public static function filterReload() {
 	    $str_targetUrl = \Environment::get('request');
