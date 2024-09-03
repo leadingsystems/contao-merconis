@@ -101,8 +101,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
         'attributesMinMax' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},classForFilterFormField,priority,templateToUseForRangeField;{filterLogic_legend};{published_legend},published;',
 		'producer' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{published_legend},published;',
 		'price' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},classForFilterFormField,priority,templateToUseForPriceField;{published_legend},published;',
-        'flexContentLI' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLIField,disableFilterIfOnlyOneValue;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
-        'flexContentLD' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLDKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLDField,disableFilterIfOnlyOneValue;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
+        'flexContentLI' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLIField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
+        'flexContentLD' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLDKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLDField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
         'flexContentLIMinMax' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},classForFilterFormField,priority,templateToUseForFlexContentLIMinMaxField;{filterLogic_legend};{published_legend},published;'
 	),
 
@@ -269,7 +269,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['disableFilterIfOnlyOneValue'],
             'exclude'                 => true,
             'inputType'               => 'checkbox',
-            'eval'                    => array('tl_class'=>'w50 m12'),
+            'eval'                    => array('tl_class'=>'w50 m12', 'doNotCopy' => true),
             'sql'                     => "char(1) NOT NULL default '1'"
         ),
 
