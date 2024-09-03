@@ -30,6 +30,7 @@ trait xrechnung_elementData
     //          ist der Funktionsname, zweites Element ist für Parameter da z.B. "0" bei
     //:     calculate: Berechnungs-funktion z.B. amountDueForPayment für Berechnung von Restbeträgen (wenn source als
     //              Quell-Feld Angabe nicht ausreicht)
+    //      condition:  Berechnungsfunktionen für bedingte Abläufe
     //5:    xml: der Key des XML Elements
     //:     xmlAttributes: array für Eigenschaften innerhalb eines XML Tags. Jedes Attribut hat ein Array mit 2 Elementen
     //              Erstes element ist der Name z.B. currencyID="EUR".
@@ -309,23 +310,24 @@ trait xrechnung_elementData
             'next' => 'PAR_BT-81',
             ),
 
-        array('name' => 'Buyer Party',          //PFLICHT
-            'id' => 'BG-7_SUB-1',
-            'xml' => 'cac:Party',
-            'parent' => 'BG-7',
-            'firstSub' => 'BT-49',
-            ),
+            array('name' => 'Buyer Party',          //PFLICHT
+                'id' => 'BG-7_SUB-1',
+                'xml' => 'cac:Party',
+                'parent' => 'BG-7',
+                'firstSub' => 'BT-49',
+                ),
 
-        array('name' => 'Buyer electronic adress',          //PFLICHT
-            'id' => 'BT-49',
-            'source' => ['customerData', 'personalData', 'email'],
-            'xml' => 'cbc:EndpointID',
-            'xmlAttributes' => [['schemeID', 'buyerEletronicAdressScheme']],
-            'parent' => 'BG-7_SUB-1',
-            'next' => 'BG-8',
-            ),
+                array('name' => 'Buyer electronic adress',          //PFLICHT
+                    'id' => 'BT-49',
+                    'source' => ['customerData', 'personalData', 'email'],
+                    'xml' => 'cbc:EndpointID',
+                    'xmlAttributes' => [['schemeID', 'buyerEletronicAdressScheme']],
+                    'parent' => 'BG-7_SUB-1',
+                    'next' => 'BG-8',
+'next' => 'PAR_BT-44',
+                    ),
 
-/*
+
             array('name' => '_Buyer Party Name',          //PFLICHT
                 'id' => 'PAR_BT-44',
                 'xml' => 'cac:PartyName',
@@ -334,8 +336,16 @@ trait xrechnung_elementData
                 'next' => 'BG-8',
                 ),
 
-            array('name' => 'Buyer Party Name',          //PFLICHT
+            array('name' => 'Buyer Name',          //PFLICHT
                 'id' => 'BT-44',
+                'calculate' => 'buyerName',
+                'xml' => 'cbc:Name',
+                'parent' => 'PAR_BT-44',
+                'next' => 'BT-45',
+                ),
+/*
+            array('name' => 'Buyer Trading Name',          //PFLICHT
+                'id' => 'BT-45',
                 'calculate' => 'buyerName',
                 'xml' => 'cbc:Name',
                 'parent' => 'PAR_BT-44',
@@ -446,7 +456,7 @@ trait xrechnung_elementData
             array('name' => 'Payment means type code',          //PFLICHT
                 'id' => 'BT-81',
 //NOCH KLÄREN: wie kommt man von unserem Payment Method Title zum richtigen type code UNTDID_4461_3.xlsx
-                'source' => ['paymentMethod_title'],
+                'source' => ['paymentMethod_alias'],
                 'transform' => ['payment2Means'],
                 'xml' => 'cbc:PaymentMeansCode',
                 //BT-82     -> getPaymentMeansText
@@ -466,6 +476,7 @@ trait xrechnung_elementData
             //Bankverbindung empfangender Händler
             array('name' => 'Payee Financial Account',
                 'id' => 'PAR_BT-84',
+'condition' => 'accountDataByPayment',
                 'xml' => 'cac:PayeeFinancialAccount',
                 'parent' => 'PAR_BT-81',
                 'firstSub' => 'BT-84'

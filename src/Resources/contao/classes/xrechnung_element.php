@@ -13,6 +13,7 @@ class xrechnung_element
 
     private $transformations = null;
     private $calculations = null;
+    private $conditions = null;
 
     public $arrOrder = [];
 
@@ -29,6 +30,7 @@ class xrechnung_element
     private $sub = [];
     private $repeat = '';
     private $calculate = '';
+    private $condition = '';
     private $additionalParams = null;
     private $evaluationError = '';
     private $evaledValue = null;
@@ -38,6 +40,7 @@ class xrechnung_element
     {
         $this->transformations = new \Merconis\Core\xrechnung_datatransformation();
         $this->calculations = new \Merconis\Core\xrechnung_calculations();
+        $this->conditions = new \Merconis\Core\xrechnung_conditions();
 
         $this->fillRemaining($element);
     }
@@ -78,6 +81,9 @@ class xrechnung_element
         if ($this->calculate == '') {
             $this->calculate = (isset($element['calculate'])) ? $element['calculate'] : '';
         }
+        if ($this->condition == '') {
+            $this->condition = (isset($element['condition'])) ? $element['condition'] : '';
+        }
     }
 
 
@@ -96,6 +102,7 @@ class xrechnung_element
     {
         $this->arrOrder = &$arrOrder;
         $this->calculations->setReference($arrOrder);
+        $this->conditions->setReference($arrOrder);
     }
 
 
@@ -111,6 +118,17 @@ class xrechnung_element
             $data = null;
 
 
+            //conditional processing
+            if ($this->condition) {
+                if (method_exists($this->conditions, $this->condition)) {
+                    $functionName = $this->condition;
+                    if (!$this->conditions->{$functionName}()) {
+                        return '';
+                    }
+                }
+            }
+
+
             if ($this->repeat != '') {
                 //die Foreach für jeden Eintrag wiederholen
                 $groupKeys = array_keys($this->arrOrder[$this->repeat]);
@@ -121,9 +139,7 @@ class xrechnung_element
 
             foreach ($groupKeys as $groupKey) {
 
-                if ($groupKey != 0) {
-                    $this->additionalParams = array('groupKey' => $groupKey);
-                }
+                $this->additionalParams = ($groupKey != 0) ? array('groupKey' => $groupKey) : $this->additionalParams;
 
                 //Sobald es aber mehr als 1 Element ist müssen die XML Tags hier drin erneut geschlossen und wieder geöffnet werden
                 $repeatCnt++;
@@ -134,6 +150,7 @@ class xrechnung_element
 
                 if ($this->firstSub != '') {
                     $xmlSubCode .= PHP_EOL;
+//TODO: hier noch die next eigenschaft verwenden
                     foreach ($this->sub as $subElementId => $subElement) {
                         //Unter-Informations-Element muss die gleichen Parameter erhalten
                         $subElement->additionalParams = $this->additionalParams;
@@ -181,19 +198,14 @@ class xrechnung_element
 
             //Daten-Transformations-Funktionen
             if ($this->dataTransformation) {
-
                 $functionName = $this->dataTransformation[0];
                 $params = $this->dataTransformation[1] ?? null;
-
                 if (method_exists($this->transformations, $functionName)) {
-
-                    $data = $this->transformations->{$functionName}($data, $params
-                        #, $this->additionalParams
-                    );
+                    $data = $this->transformations->{$functionName}($data, $params);
                 }
             }
 
-            $xmlData = (is_null($data)) ? '' : $data;
+            $xmlData = $data ?? '';
 
             /*  There is one object per business term but not one for each XML line. So we have an
              *  object for BT-131 but one XML term per invoice line (groupkeys). In order to still
@@ -212,11 +224,7 @@ class xrechnung_element
 
             //leere Knoten werden bei validierung bemängelt. Trim, weil durch Sub-Knoten Umbrüche enthalten sein können
             if (trim($xmlData) == '') {
-                #$this->evaledValue = '';
                 lsDebugLog('',$this->elementId.': Der Knoten bleibt leer weil Daten fehlen!');
-                #$this->evaluationError = 'Fehler beim Element ´'.$this->elementId.'´, der Knoten bleibt leer weil Daten fehlen!';
-                #return $this->evaluationError;
-                #throw new \Exception('Error on creation of XRechnung: empty data');
                 return '';
             }
 
@@ -292,7 +300,7 @@ class xrechnung_element
     /*  Das Information Element erhält einen String mit den Tabs des Parents und für sich selbst werden 2 Spaces
      *  dran gehängt
      */
-    public function setTabsOfParent(string $tabs)
+    public function setTabsOfParent(string $tabs): xrechnung_element
     {
         $this->tabs = $tabs.'  ';
         return $this;

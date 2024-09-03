@@ -25,7 +25,7 @@ class xrechnung_datatransformation
      *  UNTDID 4461
      *
      */
-    public function payment2Means(string $paymentTitle): string
+    public function payment2Means(string $paymentAlias): string
     {
 //TODO: hier soll man anhand des paymentTitles (aus arrOrder) auf den richtigen Code kommen - VERVOLLSTÄNDIGEN
 /*
@@ -113,18 +113,27 @@ class xrechnung_datatransformation
 97	Clearing between partners
 ZZZ	Mutually defined
 */
-        $paymentMeans = match ($paymentTitle) {
-            'PayPal Checkout' => '30',
-            'Vorkasse', 'Vorauskasse.' => '30',
-            default => '30'
+        $paymentMeansCode = match ($paymentAlias) {
+            'paypal' => '68',                                   // =    Online payment service
+            'paypal-plus' => '68',                              // =    Online payment service
+            'PayPal Checkout', 'paypal-checkout' => '68',       // =    Online payment service
+            'saferpay' => '68',                                 // =    Online payment service
+            'payone' => '68',                                   // =    Online payment service
+            'santander-finanzierung' => '68',                   // =    Online payment service
+            'sofort' => '68',                                   // =    Online payment service
+            'vr-pay' => '54',                                   // =    Credit Card
+            'Vorkasse', 'Vorauskasse.', 'vorkasse', 'vorauskasse' => '30',
+            'Lastschrift', 'lastschrift' => '30',
+            default => '30'             // = (Credit transfer (non-SEPA)
         };
-        return $paymentMeans;
+        return $paymentMeansCode;
     }
 
 
     /*  BT-3
-     *  Ein Code, der den Funktionstyp der Rechnung angibt.
-     *  Anmerkung: Der Rechnungstyp muss gemäß UNTDID 1001, spezifiziert werden.
+     *  A code that indicates the function type of the invoice.
+     *  Note: The invoice type must be specified according to UNTDID 1001.
+     *  @return     string      $invoiceTypeCode        code for function of invoice
      */
     public function invoiceTypeCode(): string
     {
@@ -141,11 +150,14 @@ ZZZ	Mutually defined
         //ISSUE: 23.08.2024
         //https://lsboard.de/project/18/task/6395#comment-3691
         $invoiceTypeCode = '380';
-
         return $invoiceTypeCode;
     }
 
 
+    /*
+     *
+     *  @return     string      $result        either ´VAT´ or not ´VAT´
+     */
     public function taxSchemeVat(): string
     {
 //TODO: Vorgabe: für Seller VAT identifier (BT-31) soll es "VAT" sein,
@@ -155,9 +167,12 @@ ZZZ	Mutually defined
     }
 
 
-    /*  Formatiert den übergebenen Betrag nach dem Datentyp "Unit Price Amount"
+    /*  Formats the passed amount according to the “Unit Price Amount” data type
      *
-     * */
+     *  @param      mixed       $amount     float/string value to be formatted as number
+     *  @param      int         $decimals   number of decimals
+     *  @return     string                  formatted amount
+     */
     public static function format_unitPriceAmount(mixed $amount, ?int $decimals = null): string
     {
         $amount = (float) $amount;
@@ -170,40 +185,12 @@ ZZZ	Mutually defined
         return number_format($amount, $decimals, $decimalsSeparator, $thousandsSeparator);
     }
 
-    /*  BT-146:
-     *  Berechnung item net price für die Rechnungszeile
-     *  Es wird der Bruttopreis genommen und durch die MwSt dividiert.
-     *  Unit Price Amount
+
+    /*  Removes HTML tags and breaks from the passed text
+     *  E.g. BT-20_SUB-1
+     *  @param      string      $source     string to be cleared
+     *  @return     string      $result     xml compatible text (without tags/line feeds)
      */
-/*
-    public function calculateLineNetPrice(array $items, array $additionalParams): string
-    {
-        $invoiceLine = $items[$additionalParams['groupKey']];
-
-        $netPrice = 100 * (float) $invoiceLine['price'] / (100 + (float) $invoiceLine['taxPercentage']);
-
-        return $this->format_unitPriceAmount($netPrice);
-    }
-*/
-
-    /*  BT-147:
-     *  Berechnung Item price discount für die Rechnungszeile
-     *  Es wird der Bruttopreis genommen und mit der MwSt multipliziert.
-     *  Unit Price Amount
-     */
-/*
-    public function calculateLineDiscount(array $items, array $additionalParams): string
-    {
-//TODO: ist das was in arrOrder[items][1][price] steht immer der Bruttopreis ? Wenn nein, dann muss hier unterschieden werden
-        $invoiceLine = $items[$additionalParams['groupKey']];
-
-        $discount = $invoiceLine['price'] * ((float) $invoiceLine['taxPercentage'] / 100);
-
-        return $this->format_unitPriceAmount($discount);
-    }
-*/
-
-
     public function replaceTags(string $source): string
     {
         $result = strip_tags($source);
@@ -212,6 +199,11 @@ ZZZ	Mutually defined
     }
 
 
+    /*  Usage of built-in php function strtoupper
+     *  E.g. BT-55 (country code "de" to "DE")
+     *  @param      string      $source     string to be changed
+     *  @return     string      $result     ucase string
+     */
     public function strtoupper(string $source): string
     {
         return strtoupper($source);
