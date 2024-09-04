@@ -59,6 +59,10 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
             'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
         ),
 
+        'vatCategoryCode' => array (
+            'sql'                     => "varchar(2) NOT NULL default ''"
+        ),
+
         'isVariant' => array (
             'sql'                     => "char(1) NOT NULL default ''"
         ),

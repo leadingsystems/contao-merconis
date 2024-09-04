@@ -533,7 +533,9 @@ class ModuleCheckoutFinish extends \Module {
 				}
 				$arrOrder['paymentMethod']['amountTaxedWith'][$taxClassID] = array(
 					'taxRate' => ls_shop_generalHelper::getCurrentTax($taxClassID), // no language
-					'amountTaxedHerewith' => $value // no language
+					'amountTaxedHerewith' => $value, // no language
+//TODO: den Wert aus den Steuersätzen holen
+					'vatCategoryCode' => 'S' //XRechnung tax code from tl_ls_steuersaetze
 				);
 			}
 		}
@@ -557,7 +559,8 @@ class ModuleCheckoutFinish extends \Module {
 				}
 				$arrOrder['shippingMethod']['amountTaxedWith'][$taxClassID] = array(
 					'taxRate' => ls_shop_generalHelper::getCurrentTax($taxClassID), // no language
-					'amountTaxedHerewith' => $value // no language
+					'amountTaxedHerewith' => $value, // no language
+					'vatCategoryCode' => 'S' //XRechnung tax code from tl_ls_steuersaetze
 				);
 			}
 		}
@@ -590,7 +593,8 @@ class ModuleCheckoutFinish extends \Module {
 						
 						$arrOrder['couponsUsed'][$couponID]['amountTaxedWith'][$taxClassID] = array(
 							'taxRate' => ls_shop_generalHelper::getCurrentTax($taxClassID), // no language
-							'amountTaxedHerewith' => $value // no language
+							'amountTaxedHerewith' => $value, // no language
+							'vatCategoryCode' => 'S' //XRechnung tax code from tl_ls_steuersaetze
 						);
 					}
 				}
@@ -604,7 +608,8 @@ class ModuleCheckoutFinish extends \Module {
 				}
 				$arrOrder['totalValueOfGoodsTaxedWith'][$taxClassID] = array(
 					'taxRate' => ls_shop_generalHelper::getCurrentTax($taxClassID), // no language
-					'amountTaxedHerewith' => $totalValueOfGoodsTaxedWith // no language
+					'amountTaxedHerewith' => $totalValueOfGoodsTaxedWith, // no language
+					'vatCategoryCode' => 'S' //XRechnung tax code from tl_ls_steuersaetze
 				);
 			}
 		}
@@ -616,7 +621,8 @@ class ModuleCheckoutFinish extends \Module {
 				}
 				$arrOrder['totalTaxedWith'][$taxClassID] = array(
 					'taxRate' => ls_shop_generalHelper::getCurrentTax($taxClassID), // no language
-					'amountTaxedHerewith' => $totalTaxedWith // no language
+					'amountTaxedHerewith' => $totalTaxedWith, // no language
+					'vatCategoryCode' => 'S' //XRechnung tax code from tl_ls_steuersaetze
 				);
 			}
 		}
@@ -628,7 +634,8 @@ class ModuleCheckoutFinish extends \Module {
 				}
 				$arrOrder['tax'][$taxClassID] = array(
 					'taxRate' => ls_shop_generalHelper::getCurrentTax($taxClassID), // no language
-					'taxAmount' => $value // no language
+					'taxAmount' => $value, // no language
+					'vatCategoryCode' => 'S' //XRechnung tax code from tl_ls_steuersaetze
 				);
 			}
 		}
@@ -989,6 +996,7 @@ class ModuleCheckoutFinish extends \Module {
 							`weightCumulative` = ?,
 							`taxClass` = ?,
 							`taxPercentage` = ?,
+							`vatCategoryCode` = ?,
 							`isVariant` = ?,
 							`artNr` = ?,
 							`productTitle` = ?,
@@ -1019,6 +1027,7 @@ class ModuleCheckoutFinish extends \Module {
 				$arrItem['weightCumulative'],
 				$arrItem['taxClass'],
 				$arrItem['taxPercentage'],
+				$arrItem['vatCategoryCode'],
 				$arrItem['isVariant'],
 				$arrItem['artNr'],
 				$arrItem['productTitle'],
