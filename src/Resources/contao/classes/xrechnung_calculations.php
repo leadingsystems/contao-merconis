@@ -291,7 +291,7 @@ class xrechnung_calculations
         return 'DE270370361';
     }
 
-    /*  Untergruppe von BT-31
+    /*  Subgroup of BT-31
      *
      *  Mandatory element. For Seller VAT identifier (BT-31), use value “VAT”, for the seller
      *  tax registration identifier (BT-32), use != "VAT"
