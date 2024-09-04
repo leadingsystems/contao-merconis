@@ -17,6 +17,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['priority']								= array('Priority', 'This priority will be used to sort the fields in the filter form. Fields with higher priority will be shown above fields with lower priority.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode']							= array('Filter mode', 'Define the logic operation to use if multiple filter options are selected.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['makeFilterModeUserAdjustable']			= array('Make filter mode adjustable in the frontend');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['disableFilterIfOnlyOneValue']			= array('Deactivate filter field for only one feature attribute');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUse']						= array('Template');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForPriceField']           = array('Template');
     $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLIField']     = array('Template');
