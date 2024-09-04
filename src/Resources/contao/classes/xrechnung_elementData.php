@@ -2,46 +2,36 @@
 namespace Merconis\Core;
 
 
-/*
-abstract class xrechnung_trait_2
-{
-    const BT384 = 'Berichtigung';
-    const BT381 = 'Gutschein/Gutschrift';
-    const BT389 = 'Gutschrift nach UStG';
-}
-*/
-
-
-
 trait xrechnung_elementData
 {
 
     //Aufbau der Daten:
-    //1:    name: Bezeichnung des Informations Elements aus PDF Dokumentation z.B. Invoice Number
-    //          Hat keine funktionale Auswirkung
-    //2:    id: des Informations Elements    z.B. BT-2
-    //          Bei Parent Elementen die nicht beschrieben sind: PAR_BT-81
-    //          Bei Kind Elementen die nicht beschrieben sind:  BT-13_SUB-1
-    //          Jede weitere Stufe erhält weiter SUB Suffixe
-    //          Völlig unbekannte Knoten erhalten
-    //3.1:  source: Datenquell bzw. Schlüsselname im arrOrder Array, wenn es um einen tiefer gelegenen Knoten geht z.B. items[1][itemPosition]
-    //          Wenn der Schlüssel selbst ein Array ist, dann ist ein Wert aus dem Array "additionalParams" gemeint
-    //4:    transform: Daten-transforms-funktion  z.B. date('Ymd') für Zeitstempel. Angabe als Array. Erstes Element
-    //          ist der Funktionsname, zweites Element ist für Parameter da z.B. "0" bei
-    //:     calculate: Berechnungs-funktion z.B. amountDueForPayment für Berechnung von Restbeträgen (wenn source als
-    //              Quell-Feld Angabe nicht ausreicht)
-    //      condition:  Berechnungsfunktionen für bedingte Abläufe
-    //5:    xml: der Key des XML Elements
-    //:     xmlAttributes: array für Eigenschaften innerhalb eines XML Tags. Jedes Attribut hat ein Array mit 2 Elementen
-    //              Erstes element ist der Name z.B. currencyID="EUR".
-    //              Das Zweite sind die Daten für das ein entsprechender Funktionsname
-    //              angegeben wird
-    //      firstSub: erstes Child-Element von Gruppenelementen mit dem begonnen werden soll.
-    //6:    next: nächstes Informations Element bzw. Nachfolger
-    //7:    parent: id des Eltern Elements z.B. BT-2
-    //8:    repeat: das aktuelle Element wird wiederholt und zwar für jeden Key der unterhalb des angegebenen Keys in arrOrder steht
-    //              Bsp: ´items´. Hier stehen mehrere Ids (für jeden Artikel einen). Somit wird das ganze InformationElement
-    //              für jedes Item (Bestellposition) wiederholt
+    //    name: Name of the information element from PDF documentation, e.g. Invoice Number
+    //          Has no functional impact
+    //    id: of the information element e.g. BT-2
+    //          For parent elements that are not described: PAR_BT-81
+    //          For child elements that are not described: BT-13_SUB-1
+    //          Each additional level continues to receive SUB suffixes
+    //          Get completely unknown nodes
+    //    source: Data source or key name in the arrOrder array if it is a lower node
+    //          goes e.g. items[1][itemPosition]
+    //          If the key itself is an array, then it means a value from the "additionalParams" array
+    //    transform: Data transforms function e.g. date('Ymd') for timestamp. Specified as an array. First element
+    //          is the function name, second element is for parameters, e.g. "0".
+    //    calculate: Calculation function e.g. amountDueForPayment for calculating remaining amounts (if source as
+    //          Source field specification is not enough)
+    //    condition: Calculation functions for conditional processes
+    //    xml: the key of the XML element
+    //    xmlAttributes: array for properties within an XML tag. Each attribute has an array with 2 elements
+    //          First element is the name e.g. currencyID="EUR".
+    //          The second is the data for which a corresponding function name
+    //          is specified
+    //    firstSub: first child element of group elements to start with.
+    //    next: next information element or successor
+    //    parent: id of the parent element e.g. BT-2
+    //    repeat: the current element is repeated for every key that is below the specified key in arrOrder
+    //    Example: 'items'. There are several IDs here (one for each article). Thus the entire InformationElement
+    //          repeated for each item (order item).
     public $listElements = array(
 
         array('name' => 'customizationId',
@@ -65,18 +55,18 @@ trait xrechnung_elementData
             'next' => 'BT-2'
         ),
 
+        //das Ausstellungsdatum der Rechnung sein
         array('name' => 'Invoice issue Date',           //PFLICHT
             'id' => 'BT-2',
-//wahrscheinlich falsch - es müsste das Ausstellungsdatum der Rechnung sein
             'calculate' => 'currentDate',
             'xml' => 'cbc:IssueDate',
             'next' => 'BT-9'),
 
-        //Fälligkeitsdatum des Rechnungsbetrages, FEHLT
+        //Fälligkeitsdatum des Rechnungsbetrages
         array('name' => 'Payment Due Date',             //OPTIONAL
             'id' => 'BT-9',
             'source' => ['tstamp'],
-            'transform' => ['ts2Date'],
+            'transform' => ['timestamp2Date'],
             'xml' => 'cbc:DueDate',
             'next' => 'BT-3'),
 
@@ -105,20 +95,19 @@ trait xrechnung_elementData
             'xml' => 'cbc:BuyerReference',
             'next' => 'BT-13'),
 
-        //Bezug zu einem Auftrag
-        array('name' => '_Order Reference ID',
-            'id' => 'BT-13_SUB-1',
-            'source' => ['orderNr'],
-            'xml' => 'cbc:ID',
-            'parent' => 'BT-13'
+        array('name' => 'Purchase order reference',     //OPTIONAL
+            'id' => 'BT-13',
+            'xml' => 'cac:OrderReference',
+            'firstSub' => 'BT-13_SUB-1',
+            'next' => 'PAR_BT-12'
             ),
 
-            array('name' => 'Purchase order reference',     //OPTIONAL
-                'id' => 'BT-13',
-                'source' => [],
-                'xml' => 'cac:OrderReference',
-                'firstSub' => 'BT-13_SUB-1',
-                'next' => 'PAR_BT-12'
+            //Bezug zu einem Auftrag
+            array('name' => '_Order Reference ID',
+                'id' => 'BT-13_SUB-1',
+                'source' => ['orderNr'],
+                'xml' => 'cbc:ID',
+                'parent' => 'BT-13'
                 ),
 
         //Bezug zu einem Vertrag
@@ -131,7 +120,6 @@ trait xrechnung_elementData
 
             array('name' => 'Contract Reference',          //OPTIONAL
                 'id' => 'BT-12',
-                'source' => [],
                 'xml' => 'cbc:ID',
                 'parent' => 'PAR_BT-12'
                 ),
@@ -147,8 +135,7 @@ trait xrechnung_elementData
             array('name' => 'Project reference',          //OPTIONAL
                 'id' => 'BT-11',
 //TODO: haben wir Bezug zu Projekten ?
-                'source' => [],
-'calculate' => 'getPaymentMeansText',
+                'calculate' => 'getProjectName',
                 'xml' => 'cbc:ID',
                 'parent' => 'PAR_BT-11'
                 ),
@@ -189,7 +176,7 @@ trait xrechnung_elementData
         array('name' => 'Seller address line 1',          //OPTIONAL
             'id' => 'BT-35',
             'xml' => 'cbc:StreetName',
-'calculate' => 'sellerStreetName',
+            'calculate' => 'sellerStreetName',
             'parent' => 'BG-5',
             'next' => 'BT-37',
             ),
@@ -197,7 +184,7 @@ trait xrechnung_elementData
         array('name' => 'Seller city',          //PFLICHT
             'id' => 'BT-37',
             'xml' => 'cbc:CityName',
-'calculate' => 'sellerCity',
+            'calculate' => 'sellerCity',
             'parent' => 'BG-5',
             'next' => 'BT-38',
             ),
@@ -205,7 +192,7 @@ trait xrechnung_elementData
         array('name' => 'Seller post code',          //PFLICHT
             'id' => 'BT-38',
             'xml' => 'cbc:PostalZone',
-'calculate' => 'sellerPostCode',
+            'calculate' => 'sellerPostCode',
             'parent' => 'BG-5',
             'next' => 'PAR_BT-40',
             ),
@@ -220,7 +207,7 @@ trait xrechnung_elementData
         array('name' => 'Seller country code',          //PFLICHT
             'id' => 'BT-40',
             'xml' => 'cbc:IdentificationCode',
-'calculate' => 'sellerCountryCode',
+            'calculate' => 'sellerCountryCode',
             'parent' => 'PAR_BT-40',
             ),
 
@@ -230,6 +217,7 @@ trait xrechnung_elementData
             'xml' => 'cac:PartyTaxScheme',
             'parent' => 'BG-4_SUB-1',
             'firstSub' => 'BT-31',
+            'next' => 'PAR_BT-30',
             ),
 
             array('name' => 'Seller VAT identifier',          //BEDINGT, WENN vatCategoryCode = ´S´
@@ -245,15 +233,15 @@ trait xrechnung_elementData
                 'id' => 'PAR_BT-31_SUB-1',
                 'xml' => 'cac:TaxScheme',
                 'parent' => 'PAR_BT-31',
-                'firstSub' => 'BT-31',
+                'firstSub' => 'PAR_BT-31_SUB-1_SUB-1',
                 ),
 
-        array('name' => 'Seller Tax Scheme Id',          //
-            'id' => 'PAR_BT-31_SUB-1_SUB-1',
-            'calculate' => 'sellerTAXSchemeId',
-            'xml' => 'cbc:ID',
-            'parent' => 'PAR_BT-31_SUB-1',
-            ),
+                array('name' => 'Seller Tax Scheme Id',          //
+                    'id' => 'PAR_BT-31_SUB-1_SUB-1',
+                    'calculate' => 'sellerTAXSchemeId',
+                    'xml' => 'cbc:ID',
+                    'parent' => 'PAR_BT-31_SUB-1',
+                    ),
 
         array('name' => '_Seller legal registration identifier',          //OPTIONAL
             'id' => 'PAR_BT-30',
@@ -266,7 +254,7 @@ trait xrechnung_elementData
         array('name' => 'Seller legal registration identifier',          //OPTIONAL
             'id' => 'BT-30',
             'xml' => 'cbc:RegistrationName',
-'calculate' => 'sellerRegistrationName',
+            'calculate' => 'sellerRegistrationName',
             'parent' => 'PAR_BT-30',
             ),
 
@@ -281,7 +269,7 @@ trait xrechnung_elementData
         array('name' => 'Seller contact point',          //PFLICHT
             'id' => 'BT-41',
             'xml' => 'cbc:Name',
-'calculate' => 'sellerContactPoint',
+            'calculate' => 'sellerContactPoint',
             'parent' => 'BG-6',
             'next' => 'BT-42',
             ),
@@ -289,7 +277,7 @@ trait xrechnung_elementData
         array('name' => 'Seller contact telephone number',          //PFLICHT
             'id' => 'BT-42',
             'xml' => 'cbc:Telephone',
-'calculate' => 'sellerContactTelephone',
+            'calculate' => 'sellerContactTelephone',
             'parent' => 'BG-6',
             'next' => 'BT-43',
             ),
@@ -297,7 +285,7 @@ trait xrechnung_elementData
         array('name' => 'Seller contact email address',          //PFLICHT
             'id' => 'BT-43',
             'xml' => 'cbc:ElectronicMail',
-'calculate' => 'sellerContactEmail',
+            'calculate' => 'sellerContactEmail',
             'parent' => 'BG-6',
             ),
 
@@ -323,8 +311,7 @@ trait xrechnung_elementData
                     'xml' => 'cbc:EndpointID',
                     'xmlAttributes' => [['schemeID', 'buyerEletronicAdressScheme']],
                     'parent' => 'BG-7_SUB-1',
-                    'next' => 'BG-8',
-'next' => 'PAR_BT-44',
+                    'next' => 'PAR_BT-44',
                     ),
 
 
@@ -332,25 +319,16 @@ trait xrechnung_elementData
                 'id' => 'PAR_BT-44',
                 'xml' => 'cac:PartyName',
                 'parent' => 'BG-7_SUB-1',
-                'firstSub' => 'BT-44',
+                'firstSub' => 'BT-45',
                 'next' => 'BG-8',
                 ),
 
-            array('name' => 'Buyer Name',          //PFLICHT
-                'id' => 'BT-44',
-                'calculate' => 'buyerName',
-                'xml' => 'cbc:Name',
-                'parent' => 'PAR_BT-44',
-                'next' => 'BT-45',
-                ),
-/*
             array('name' => 'Buyer Trading Name',          //PFLICHT
                 'id' => 'BT-45',
                 'calculate' => 'buyerName',
                 'xml' => 'cbc:Name',
                 'parent' => 'PAR_BT-44',
                 ),
-*/
 
         array('name' => 'Buyer postal adress',          //PFLICHT
             'id' => 'BG-8',
@@ -403,17 +381,25 @@ trait xrechnung_elementData
             'id' => 'PAR_BT-47',
             'xml' => 'cac:PartyLegalEntity',
             'parent' => 'BG-7_SUB-1',
-            'firstSub' => 'BT-47',
+            'firstSub' => 'BT-44',
             'next' => 'BG-9',
+            ),
+
+        //Hier die gleichen Daten wie BT-45 ´Buyer Trading Name´
+        array('name' => 'Buyer name',          //OPTIONAL
+            'id' => 'BT-44',
+            'calculate' => 'buyerName',
+            'xml' => 'cbc:RegistrationName',
+            'parent' => 'PAR_BT-47',
+            'next' => 'BT-47',
             ),
 
         array('name' => 'Buyer legal registration identifier',          //OPTIONAL
             'id' => 'BT-47',
             'source' => ['customerData', 'personalData', 'company'],
-            'xml' => 'cbc:RegistrationName',
+            'xml' => 'cbc:CompanyID',
             'parent' => 'PAR_BT-47',
             ),
-
 
         array('name' => 'Buyer contact',          //OPTIONAL - WENN FEHLEND, WERDEN SIE BEI VALIDIERUNG BEMÄNGELT
             'id' => 'BG-9',
@@ -455,9 +441,8 @@ trait xrechnung_elementData
 
             array('name' => 'Payment means type code',          //PFLICHT
                 'id' => 'BT-81',
-//NOCH KLÄREN: wie kommt man von unserem Payment Method Title zum richtigen type code UNTDID_4461_3.xlsx
                 'source' => ['paymentMethod_alias'],
-                'transform' => ['payment2Means'],
+                'transform' => ['payment2MeansTypeCode'],
                 'xml' => 'cbc:PaymentMeansCode',
                 //BT-82     -> getPaymentMeansText
                 'xmlAttributes' => [['name', 'getPaymentMeansText']],
@@ -469,14 +454,15 @@ trait xrechnung_elementData
                 'id' => 'BT-83',
                 'calculate' => 'remittanceInformation',
                 'xml' => 'cbc:PaymentID',
-                'parent' => 'PAR_BT-81'
+                'parent' => 'PAR_BT-81',
+                'next' => 'PAR_BT-84',
                 ),
 
 
             //Bankverbindung empfangender Händler
             array('name' => 'Payee Financial Account',
                 'id' => 'PAR_BT-84',
-'condition' => 'accountDataByPayment',
+                'condition' => 'accountDataByPayment',
                 'xml' => 'cac:PayeeFinancialAccount',
                 'parent' => 'PAR_BT-81',
                 'firstSub' => 'BT-84'
@@ -609,7 +595,6 @@ trait xrechnung_elementData
 
         array('name' => 'Tax category scheme Id',                //PFLICHT
             'id' => 'BT-118_SUB-1_SUB-1',
-            'source' => [],
             'transform' => ['taxSchemeVat'],
             'xml' => 'cbc:ID',
             'parent' => 'BT-118_SUB-1'
@@ -635,7 +620,7 @@ trait xrechnung_elementData
             ),
 
         array('name' => 'Invoice total amount without VAT',                //PFLICHT
-            'id' => '',
+            'id' => 'BT-109',
             'source' => ['invoicedAmountNet'],                      //invoicedAmountNet ist IMMER der Nettobetrag
             'transform' => ['format_unitPriceAmount'],
             'xml' => 'cbc:TaxExclusiveAmount',
@@ -654,10 +639,9 @@ trait xrechnung_elementData
             'next' => 'BT-115',
             ),
 
-//Auskommentiert, da leere Beträge zur Ungültigkeit führen
+//TODO: Haben wir Teil-Rechnungen ? Dann wären hier bereits gezahlte Beträge drin
         #array('name' => 'Paid amount',                //OPTIONAL
             #'id' => 'BT-113',
-//TODO: Haben wir Teil-Rechnungen ? Dann wären hier bereits gezahlte Beträge drin
             #'source' => [],
             #'xml' => 'cbc:PrepaidAmount',
             #'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
@@ -791,7 +775,6 @@ trait xrechnung_elementData
 
         array('name' => 'Tax scheme Id',                //OPTIONAL
             'id' => 'BG-30_SUB-1_SUB-1',
-            'source' => [],
             'transform' => ['taxSchemeVat'],
             'xml' => 'cbc:ID',
             'parent' => 'BG-30_SUB-1'
@@ -812,7 +795,6 @@ trait xrechnung_elementData
                 'xml' => 'cbc:PriceAmount',
                 'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
                 'parent' => 'BG-29',
-#'next' => 'BT-148',
                 ),
 
         //Dieser Knoten wird von der Validierungsprüfung als ungültig gemeldet -> auskommentiert

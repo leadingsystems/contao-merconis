@@ -2,8 +2,8 @@
 
 namespace Merconis\Core;
 
-/*
- *
+/*  The class of information elements. An object can be created for each business term (e.g. BT-24) from XRechnung
+*
  */
 
 use function LeadingSystems\Helpers\lsDebugLog;
@@ -11,28 +11,109 @@ use function LeadingSystems\Helpers\lsDebugLog;
 class xrechnung_element
 {
 
+    /*  Object of data conversion functions
+     *  @var    object
+     */
     private $transformations = null;
+
+    /*  Object of the calculation functions
+     *  @var    object
+     */
     private $calculations = null;
+
+    /*  Object of functions for conditional flows
+     *  @var    xrechnung_conditions
+     */
     private $conditions = null;
 
+    /*  The order array
+     *  @var    array
+     */
     public $arrOrder = [];
 
+    /*  Meaningful name of the information element (no functional meaning)
+     *  @var    string
+     */
     private $name = '';
+
+    /*  the unique ID of the element
+     *  @var    string
+     */
     private $elementId = '';
+
+    /*  Field in the order array from which the data comes
+     *  @var    string
+     */
     private $dataSource = '';
+
+    /*  Name of data processing functions
+     *  @var    string
+     */
     private $dataTransformation = '';
+
+    /*  starting spacing characters in the output XML code
+     *  @var    string
+     */
     private $tabs = '';
+
+    /*  Name of the XML tag that is output for the information element
+     *  @var    string
+     */
     private $xml = '';
+
+    /*  array for properties within an XML tag
+     *  @var    array
+     */
     private $attributes = [];
+
+    /*  Name of the next element
+     *  @var    string
+     */
     private $nextElement = '';
+
+    /*  Name of the first child element
+     *  @var    string
+     */
     private $firstSub = '';
+
+    /*  Name of the father element
+     *  @var    string
+     */
     private $parent = '';
+
+    /*  Container for child elements
+     *  @var    array
+     */
     private $sub = [];
+
+    /*  Name of keys in the order array that need to be repeated
+     *  @var    string
+     */
     private $repeat = '';
+
+    /*  Name of calculation functions
+     *  @var    string
+     */
     private $calculate = '';
+
+    /*  Name of conditional functions
+     *  @var    string
+     */
     private $condition = '';
+
+    /*  further parameters for group keys
+     *  @var    array
+     */
     private $additionalParams = null;
+
+    /*  Return of evaluation errors
+     *  @var    string
+     */
     private $evaluationError = '';
+
+    /*  To save the evaluated results
+     *  @var    mixed
+     */
     private $evaledValue = null;
 
 
@@ -46,7 +127,12 @@ class xrechnung_element
     }
 
 
-    public function fillRemaining($element)
+    /*  Fills the object with the passed values
+     *
+     *  @param      string      $element        data of current information element (from elementData class)
+     *  @return     void
+     */
+    public function fillRemaining($element): void
     {
         if ($this->name == '') {
             $this->name = (isset($element['name'])) ? $element['name'] : '';
@@ -64,7 +150,7 @@ class xrechnung_element
             $this->xml = (isset($element['xml'])) ? $element['xml'] : '';
         }
         if ($this->attributes == []) {
-            $this->attributes = (isset($element['xmlAttributes'])) ? $element['xmlAttributes'] : '';
+            $this->attributes = (isset($element['xmlAttributes'])) ? $element['xmlAttributes'] : [];
         }
         if ($this->nextElement == '') {
             $this->nextElement = (isset($element['next'])) ? $element['next'] : '';
@@ -86,7 +172,10 @@ class xrechnung_element
         }
     }
 
-
+    /*  Returns the ID of the element
+     *
+     *  @return     string      $this->elementId        unique key of element
+     */
     public function getElementId(): string
     {
         return $this->elementId;
@@ -106,10 +195,24 @@ class xrechnung_element
     }
 
 
+    /*
+     *  This is where the actual evaluation of each individual information element takes place, which takes place in
+     *  several steps
+     *  - Checking conditions
+     *  - possible recursive calling of child elements
+     *  - Evaluation of attributes
+     *  - Extract data from the order array
+     *  - Execution of calculation functions
+     *  - Execution of the transformation functions
+     *  - Storage of results
+     *  - complete creation of the XML code and its return
+     *
+     *  @return     string      $xmlResult      xml code to be exported to file (for the information element)
+     */
+
     public function evalInformationElement(): string
     {
         try {
-
             $xmlResult = '';
             $xmlSubCode = '';
             $repeatCnt = 0;
@@ -130,10 +233,10 @@ class xrechnung_element
 
 
             if ($this->repeat != '') {
-                //die Foreach für jeden Eintrag wiederholen
+                //repeat the foreach for each entry
                 $groupKeys = array_keys($this->arrOrder[$this->repeat]);
             } else {
-                //die Foreach soll nur 1x ausgeführt werden
+                //the foreach should only be executed once
                 $groupKeys = [0];
             }
 
@@ -141,7 +244,7 @@ class xrechnung_element
 
                 $this->additionalParams = ($groupKey != 0) ? array('groupKey' => $groupKey) : $this->additionalParams;
 
-                //Sobald es aber mehr als 1 Element ist müssen die XML Tags hier drin erneut geschlossen und wieder geöffnet werden
+                //But as soon as there are more than 1 element, the XML tags in here have to be closed and reopened again
                 $repeatCnt++;
                 if ($repeatCnt > 1) {
                     $xmlSubCode .= $this->tabs.'</'.$this->xml.'>'.PHP_EOL;
@@ -150,22 +253,18 @@ class xrechnung_element
 
                 if ($this->firstSub != '') {
                     $xmlSubCode .= PHP_EOL;
-//TODO: hier noch die next eigenschaft verwenden
-                    foreach ($this->sub as $subElementId => $subElement) {
-                        //Unter-Informations-Element muss die gleichen Parameter erhalten
+
+                    $subElement = $this->getElementById($this->firstSub);
+                    while(is_object($subElement)) {
                         $subElement->additionalParams = $this->additionalParams;
                         $subElement->setTabsOfParent($this->tabs);
                         $xmlSubCode .= $subElement->evalInformationElement();
-                    }
+                        $subElement = $this->getElementById($subElement->nextElement);
+                    };
                 }
             }
 
 
-
-            //Geschäftsregeln auswerten
-
-
-            //Attribute - Eigenschaften innerhalb eines XML Tags
             if ($this->attributes) {
                 foreach ($this->attributes as $attribute ) {
                     $xmlAttribute = $attribute[0];
@@ -178,7 +277,6 @@ class xrechnung_element
             }
 
 
-            //Daten holen
             if ($this->dataSource) {
                 $data = $this->getSubKeyData($this->dataSource, $this->arrOrder);
                 if ($this->evaluationError) {
@@ -188,7 +286,6 @@ class xrechnung_element
             }
 
 
-            //Berechnungs-Funktionen
             if ($this->calculate) {
                 if (method_exists($this->calculations, $this->calculate)) {
                     $functionName = $this->calculate;
@@ -196,7 +293,7 @@ class xrechnung_element
                 }
             }
 
-            //Daten-Transformations-Funktionen
+
             if ($this->dataTransformation) {
                 $functionName = $this->dataTransformation[0];
                 $params = $this->dataTransformation[1] ?? null;
@@ -209,26 +306,24 @@ class xrechnung_element
 
             /*  There is one object per business term but not one for each XML line. So we have an
              *  object for BT-131 but one XML term per invoice line (groupkeys). In order to still
-             *  have the values ​​of all group keys, storage takes place at group key level
+             *  have the values of all group keys, storage takes place at group key level
              */
             if (isset($this->additionalParams['groupKey'])) {
-                //Wiederholungsgruppe -> Werte werden mit dem Groupkey geschlüsselt
+                //Repeating group -> Values are encoded with the group key
                 $groupKey = $this->additionalParams['groupKey'];
                 $this->evaledValue[$groupKey] = $xmlData;
             } else {
-                //einfacher Wert
                 $this->evaledValue = $xmlData;
             }
 
             $xmlData .= $xmlSubCode;
 
-            //leere Knoten werden bei validierung bemängelt. Trim, weil durch Sub-Knoten Umbrüche enthalten sein können
+            //empty nodes are criticized during validation. Trim because sub-nodes can contain breaks
             if (trim($xmlData) == '') {
                 lsDebugLog('',$this->elementId.': Der Knoten bleibt leer weil Daten fehlen!');
                 return '';
             }
 
-            //Einsatz ins Ergebnis-XML
             $xmlResult = $this->tabs.'<'.$this->xml.$xmlAttributeCode.'>'.$xmlData;
 
             if ($this->firstSub != '') {
@@ -246,38 +341,53 @@ class xrechnung_element
 
 
 
+    /*  Returns the id of the next element
+     *
+     *  @return     string      $this->nextElement      id of next element (next Attribute)
+     */
     public function getNextElement(): string
     {
         return $this->nextElement;
     }
 
+    /*  Indicates whether there is a parent element
+     *
+     *  @return     bool        true if parent exists
+     */
     public function hasParent(): bool
     {
         return $this->parent != '';
     }
 
 
-    public function addSub($elem)
+    /*  The passed element is included - with its elementId as key - in the 'sub' list of the current element
+     *
+     *  @param      xrechnung_element   $element        element to be included
+     *  @param      string              $elementId      if of element
+     *  @return     void
+     */
+    public function addSub(xrechnung_element $element, string $elementId): void
     {
-        $key = $elem->getElementId();
-        $this->sub[$key] = $elem;
+        $this->sub[$elementId] = $element;
     }
 
-    /*  liefert den Wert eines Arrays zurück wobei das Array mehr als eine Verschachtelungs-Ebene hat. Also
-     *  nicht $array['key'] sondern  $array['key1']['key2']['key3']
-     *  $keys enthält dabei eine
-     *  Liste von Teil-Schlüsseln anhand derer auf die nächst-tiefere Ebene des Quell Arrays zugegriffen wird.
-     *  Mit jedem rekursiven Aufruf wird die nächste Ebene angesprochen.
+    /*  returns the value of an array where the array has more than one nesting level. So
+     *  not $array['key'] but $array['key1']['key2']['key3']
+     *  $keys contains one
+     *  List of partial keys used to access the next lower level of the source array.
+     *  The next level is addressed with each recursive call.
      *
+     *  @param  array       $keys       list of keys to access the (part) arrOrder array
+     *  @param  mixed       $source     array of the whole or partial order
+     *  @return object      $result     The rest that is at the end of the key array
      */
     private function getSubKeyData(array $keys, mixed $source): mixed
     {
         if (is_array($keys) && count($keys) > 0) {
 
-            //nächsten Teil des Schlüssels holen
             $firstKey = array_shift($keys);
 
-            //Wenn der Schlüssel selbst ein Array ist, dann ist ein Wert aus dem Array "additionalParams" gemeint
+            //If the key itself is an array, then it means a value from the “additionalParams” array
             if (is_array($firstKey)) {
                 $additionalKey = $firstKey[0];
                 $firstKey = $this->additionalParams[$additionalKey];
@@ -297,12 +407,33 @@ class xrechnung_element
         return $result;
     }
 
-    /*  Das Information Element erhält einen String mit den Tabs des Parents und für sich selbst werden 2 Spaces
-     *  dran gehängt
+    /*  The information element receives a string with the parent's tabs and 2 spaces for itself
+     *  attached to it
+     *
+     *  @param  string      $tabs       string with spaces/tabs from parent information element
+     *  @return object      $this       current element object
      */
     public function setTabsOfParent(string $tabs): xrechnung_element
     {
         $this->tabs = $tabs.'  ';
         return $this;
+    }
+
+    /*  Returns the corresponding object for the passed element ID
+     *
+     *  @param  string      $elementId              id of an information element
+     *  @return object      $informationElement     object of information element
+     */
+    private function getElementById(string $elementId): ?xrechnung_element
+    {
+        $informationElement = null;
+        if ($elementId != '') {
+            if (isset($this->sub[$elementId])) {
+                $informationElement = $this->sub[$elementId];
+            } else {
+                lsDebugLog('','Im Element '.$this->elementId.' soll das sub Element ´'.$elementId.'´ hinzugefügt werden welches nicht existiert');
+            }
+        }
+        return $informationElement;
     }
 }

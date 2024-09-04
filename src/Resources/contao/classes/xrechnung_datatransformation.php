@@ -2,32 +2,36 @@
 namespace Merconis\Core;
 
 
-/*  Enthält Funktionen zur Nachbearbeitung von Daten aus dem arrOrder Array
- *
+/*  Contains functions for post-processing data from the arrOrder array
  */
 class xrechnung_datatransformation
 {
 
-    /*  Anzahl Nachkommastellen beim Datentyp "Unit Price Amount" (Kapitel 8.10)
+    /*  Number of decimal places for the “Unit Price Amount” data type (Chapter 8.10)
      */
     const UNITPRICEAMOUNT_DECIMALS = 2;
 
 
-    public function ts2Date(?int $timestamp): string
+    /*  returns a date accepted by xrechnung based on a timestamp
+     *
+     *  @param      int      $timestamp     time value from the order
+     *  @return     string                  date according to timestamp e.g. 2024-09-02
+     */
+    public function timestamp2Date(?int $timestamp): string
     {
         return date('Y-m-d', $timestamp);
     }
 
 
     /*  BT-81
-     *  Das als Code ausgedrückte erwartete oder genutzte Zahlungsmittel. Hierzu wird auf die Codeliste UNTDID 4461
-     *  verwiesen.
-     *  UNTDID 4461
+     *  The means of payment expected or used, expressed as a code. To do this, use the code list UNTDID 4461
+     *  referred
      *
+     *  @param  string      $paymentAlias       payment method alias from the order
+     *  @return string      $paymentMeansCode   codenumber according to UNTDID 4461
      */
-    public function payment2Means(string $paymentAlias): string
+    public function payment2MeansTypeCode(string $paymentAlias): string
     {
-//TODO: hier soll man anhand des paymentTitles (aus arrOrder) auf den richtigen Code kommen - VERVOLLSTÄNDIGEN
 /*
 1	Instrument not defined
 2	Automated clearing house credit
@@ -124,7 +128,7 @@ ZZZ	Mutually defined
             'vr-pay' => '54',                                   // =    Credit Card
             'Vorkasse', 'Vorauskasse.', 'vorkasse', 'vorauskasse' => '30',
             'Lastschrift', 'lastschrift' => '30',
-            default => '30'             // = (Credit transfer (non-SEPA)
+            default => '30'                                     // = (Credit transfer (non-SEPA))
         };
         return $paymentMeansCode;
     }
@@ -154,14 +158,14 @@ ZZZ	Mutually defined
     }
 
 
-    /*
+    /*  Default: for Seller VAT identifier (BT-31) it should be "VAT",
+     *  for seller tax registration identifier (BT-32), it should NOT be "VAT".
+     *  Since we only evaluate BT-31, 'VAT' always applies
      *
-     *  @return     string      $result        either ´VAT´ or not ´VAT´
+     *  @return     string      $result        always ´VAT´ (only BT-31)
      */
     public function taxSchemeVat(): string
     {
-//TODO: Vorgabe: für Seller VAT identifier (BT-31) soll es "VAT" sein,
-// für seller tax registration identifier (BT-32), soll es NICHT "VAT" sein
         $result = 'VAT';
         return $result;
     }

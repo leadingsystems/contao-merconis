@@ -141,7 +141,7 @@ class xrechnung_calculations
 
     /*  Returns the current date.
      *
-     *  z.B. für BT-2
+     *  e.g. for BT-2
      *  @return     string      current date e.g. 2024-08-30
      */
     public function currentDate(): string
@@ -150,10 +150,9 @@ class xrechnung_calculations
     }
 
 
-
     /*  BT-34
-     *  Gibt die elektronische Adresse des Verkäufers an, an die die Antwort der Anwendungsebene
-     *  auf eine Rechnung gesendet werden kann.
+     *  Specifies the seller's electronic address to which the application layer response will be sent
+     *  can be sent on an invoice
      */
     public function sellerEletronicAdress(): string
     {
@@ -163,9 +162,9 @@ class xrechnung_calculations
 
 
     /*  BT-34 -> Seller electronic address/Scheme identifier
-     *  Das Bildungsschema für "Seller electronic address" (BT-34). Es ist die Codeliste
-     *  Electronic Address Scheme code list (EAS) zu verwenden. Die Codeliste wird von der
-     *  Connecting Europe Facility gepflegt und herausgegeben.
+     *  The education scheme for "Seller electronic address" (BT-34). It's the code list
+     *  Use Electronic Address Scheme code list (EAS). The code list is provided by the
+     *  Connecting Europe Facility maintained and published.
      */
     public function sellerEletronicAdressScheme(): string
     {
@@ -223,8 +222,8 @@ class xrechnung_calculations
     }
 
     /*  BT-41
-     *  Angaben zu Ansprechpartner oder Kontaktstelle (wie z. B. Name einer Person, Abteilungs-
-     *  oder Bürobezeichnung).
+     *  Information about the contact person or point of contact (such as the name of a person, department
+     *  or office name)
      */
     public function sellerContactPoint(): string
     {
@@ -233,7 +232,7 @@ class xrechnung_calculations
     }
 
     /*  BT-42
-     *  Telefonnummer des Ansprechpartners oder der Kontaktstelle
+     *  Telephone number of the contact person or point of contact
      */
     public function sellerContactTelephone(): string
     {
@@ -242,7 +241,7 @@ class xrechnung_calculations
     }
 
     /*  BT-43
-     *  Eine E-Mail-Adresse des Ansprechpartners oder der Kontaktstelle.
+     *  An email address of the contact person or point of contact.
      */
     public function sellerContactEmail(): string
     {
@@ -252,13 +251,14 @@ class xrechnung_calculations
 
 
     /*  BT-49 -> Buyer electronic address/Scheme identifier
-     *  Das Bildungsschema für "Seller electronic address" (BT-49). Es ist die Codeliste
-     *  Electronic Address Scheme code list (EAS) zu verwenden. Die Codeliste wird von der
-     *  Connecting Europe Facility gepflegt und herausgegeben.
+     *  The education scheme for "Seller electronic address" (BT-49). It's the code list
+     *  Use Electronic Address Scheme code list (EAS). The code list is provided by the
+     *  Connecting Europe Facility maintained and published.
+     *
+     *  @return     string      $schemeId      id of scheme
      */
     public function buyerEletronicAdressScheme(): string
     {
-//TODO: kriegt noch keine Parameter ($data ist leer) und liefert daher immer EM zurück
         $schemeId = match ([]) {
             #'Stück', 'Stk.', 'ST' => 'XPP',
             default => 'EM'             //eMail
@@ -267,6 +267,11 @@ class xrechnung_calculations
     }
 
 
+    /*  BT-44, BT-45
+     *  Buyer Name, Buyer Trading Name
+     *
+     *  @return     string      $buyerName      firstname and lastname of buyer
+     */
     public function buyerName(): string
     {
         $firstname = $this->arrOrder['customerData']['personalData']['firstname'];
@@ -278,7 +283,7 @@ class xrechnung_calculations
 
     /*  BT-31
      *  Seller VAT identifier
-     *  Die Umsatzsteuer-Identifikationsnummer des Verkäufers.
+     *  The seller's VAT number.
      */
     public function sellerVATIdentifier(): string
     {
@@ -294,7 +299,17 @@ class xrechnung_calculations
      */
     public function sellerTAXSchemeId(): string
     {
-//TODO: dynamischen ermitteln
         return 'VAT';
     }
+
+
+    /*  BT-11
+     *  Project Reference
+     */
+    public function getProjectName(): string
+    {
+        return 'Dummy Projectname';
+    }
+
+
 }

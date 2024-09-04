@@ -24,16 +24,25 @@ class xrechnung_conditions
     }
 
 
-    /*  Abhängig von der Zahlungsweise wird entschieden, ob Bankkonto Informationen
-     *  ausgegeben werden sollen. Dies ist nur bei echten Banküberweisungen der Fall
-     *  Bei Online-Zahlungsweisen nicht
-     * */
-    public function accountDataByPayment()
+    /*  Depending on the payment method, it is decided whether bank account information
+     *  should be output. This is only the case with real bank transfers
+     *  Not for online payment methods
+     *
+     * @return  bool    $result
+     */
+    public function accountDataByPayment(): bool
     {
-//TODO: Alle Zahlungsweisen eintragen
         $paymentMethod = $this->arrOrder['paymentMethod_alias'];
 
         $result = match ($paymentMethod) {
+            'paypal' => false,
+            'paypal-plus' => false,
+            'PayPal Checkout', 'paypal-checkout' => false,
+            'saferpay' => false,
+            'payone' => false,
+            'santander-finanzierung' => false,
+            'sofort' => false,
+            'vr-pay' => false,
             'lastschrift' => true,
             'vorauskasse', 'vorkasse' => true,
             default => false
