@@ -17,6 +17,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['priority']								= array('Priorität', 'Die Priorität wird als Sortierkriterium für die Ausgabe der Felder im Filter-Formular verwendet. Felder mit höherer Priorität werden über Feldern mit niederer Priorität angezeigt.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode']							= array('Filter-Modus', 'Bestimmen Sie, mit welcher logischen Verknüpfung mehrere gewählte Filter-Optionen interpretiert werden.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['makeFilterModeUserAdjustable']			= array('Einstellung des Filter-Modus im Frontend ermöglichen');
+    $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['disableFilterIfOnlyOneValue']			= array('Filterfeld bei nur einer Ausprägung deaktivieren');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUse']						= array('Template');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForPriceField']           = array('Template');
     $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['templateToUseForFlexContentLIField']     = array('Template');
