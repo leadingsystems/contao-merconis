@@ -46,7 +46,8 @@
     "contao-manager-plugin": "LeadingSystems\\MerconisBundle\\ContaoManager\\Plugin",
     "branch-alias": {
       "dev-master": "5.0.x-dev",
-      "dev-develop-m5.1": "5.1.x-dev"
+      "dev-develop-m5.1": "5.1.x-dev",
+      "dev-improve-m5.1-themeinstaller-old-way": "5.1.x-dev"
     }
   }
 }
