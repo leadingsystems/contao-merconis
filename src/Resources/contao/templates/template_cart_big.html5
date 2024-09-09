@@ -9,9 +9,12 @@
         } else {
             include(__DIR__.'/template_cart--big_include_cart.html5');
             include(__DIR__.'/template_cart--big_include_calculation.html5');
-            include(__DIR__.'/template_cart--big_include_customer_data_form.html5');
-            include(__DIR__.'/template_cart--big_include_shipping_selection_form.html5');
-            include(__DIR__.'/template_cart--big_include_payment_selection_form.html5');
+            if(\Merconis\Core\ls_shop_generalHelper::check_minimumOrderValueIsReached())
+            {
+                include(__DIR__.'/template_cart--big_include_customer_data_form.html5');
+                include(__DIR__.'/template_cart--big_include_shipping_selection_form.html5');
+                include(__DIR__.'/template_cart--big_include_payment_selection_form.html5');
+            }
 
             // ########## LINK TO REVIEW AND CONFIRMATION PAGE ##########
             ?><div id="finishingOrderSubmitBox" class="finishingOrderSubmitBox"><?php

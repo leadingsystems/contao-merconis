@@ -2699,6 +2699,12 @@ class ls_shop_generalHelper
         $str_deliveryTimeMessage = preg_replace('/\{\{deliveryDate\}\}/siU', '{{shopDeliveryDate}}', $str_deliveryTimeMessage);
         $str_deliveryTimeMessage = preg_replace('/\{\{deliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays}}', $str_deliveryTimeMessage);
 
+        $int_productOrVariantId = $obj_productOrVariant->_productVariantID;
+
+        $str_deliveryTimeMessage = preg_replace('/\{\{shopDeliveryDate\}\}/siU', '{{shopDeliveryDate::'.$int_productOrVariantId.'}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{shopDeliveryTimeDays\}\}/siU', '{{shopDeliveryTimeDays::'.$int_productOrVariantId.'}}', $str_deliveryTimeMessage);
+        $str_deliveryTimeMessage = preg_replace('/\{\{shopAvailableFrom\}\}/siU', '{{shopAvailableFrom::'.$int_productOrVariantId.'}}', $str_deliveryTimeMessage);
+
         $str_deliveryTimeMessage = \Controller::replaceInserttags($str_deliveryTimeMessage);
 
         unset($GLOBALS['merconis_globals']['arr_dataForInsertTags']);

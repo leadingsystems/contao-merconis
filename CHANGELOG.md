@@ -1,6 +1,11 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.26 (2024-09-06)
+ * improve delivery insert tags
+ * improve filter field settings for single attributes values
+ * fix minimum goods value has been reached
+
 ### 5.0.25 (2024-07-31)
  * improve trigger for ls_shop_msg::decreaseLifetime()
 
