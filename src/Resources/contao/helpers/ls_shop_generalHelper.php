@@ -1337,37 +1337,7 @@ class ls_shop_generalHelper
 
     public static function getScalePriceQuantityForProductOrVariant($type = 'product', $obj_productOrVariant)
     {
-        /*
-         * Detect the configurator hash for the product whose price is currently requested
-         */
-        /*
-         * If the product object already has a configurator hash, we use it
-         */
-        $configuratorHash = $type == 'product' ? $obj_productOrVariant->ls_configuratorHash : $obj_productOrVariant->ls_objParentProduct->ls_configuratorHash;
-        if (!$configuratorHash) {
-            /*
-             * If we don't have a configurator hash yet, we look if there's a configurator entry in the session
-             * for the product's or variant's productVariantID, and if there is one, we use its configurator hash.
-             */
-            if (isset($_SESSION['lsShop']['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'])) {
-                $configuratorHash = $_SESSION['lsShop']['configurator'][$obj_productOrVariant->ls_productVariantID]['strConfiguratorHash'];
-            } /*
-			 * If we did not find a configurator hash in the session, we generate the default configurator hash.
-			 */
-            else {
-                /*
-                 * Generate the default configurator hash for the product's configurator id if the product object has no current variant id
-                 * or for the variant's configurator id
-                 */
-                if ($type == 'product') {
-                    $configuratorHash = $obj_productOrVariant->getDefaultConfiguratorHash(!$obj_productOrVariant->ls_currentVariantID ? $obj_productOrVariant->_configuratorID : $obj_productOrVariant->ls_variants[$obj_productOrVariant->ls_currentVariantID]->_configuratorID);
-                } else {
-                    $configuratorHash = $obj_productOrVariant->getDefaultConfiguratorHash($obj_productOrVariant->_configuratorID);
-                }
-            }
-        }
-
-        $cartKey = $obj_productOrVariant->ls_productVariantID . '_' . $configuratorHash;
+        $cartKey = $obj_productOrVariant->_cartKey;
 
         $scalePriceQuantity = 0;
 
