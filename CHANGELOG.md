@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.27 (2024-09-11)
+ * fix scale price quantity detection
+
 ### 5.0.26 (2024-09-06)
  * improve delivery insert tags
  * improve filter field settings for single attributes values
