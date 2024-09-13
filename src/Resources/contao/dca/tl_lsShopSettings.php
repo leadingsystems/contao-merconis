@@ -607,13 +607,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_importCsvEscape'],
 			'inputType' => 'text',
-			'eval' => array('mandatory' => false, 'maxlength' => 1, 'tl_class'=>'w50', 'decodeEntities' => true),
-			'save_callback' => array(
-				array('Merconis\Core\tl_lsShopSettings_controller', 'ls_escapeBackslash')
-			),
-			'load_callback' => array(
-				array('Merconis\Core\tl_lsShopSettings_controller', 'ls_unescapeBackslash')
-			)
+			'eval' => array('mandatory' => false, 'maxlength' => 1, 'tl_class'=>'w50', 'decodeEntities' => true)
 		),
 		
 		'ls_shop_importCsvLocale' => array(
@@ -988,13 +982,5 @@ class tl_lsShopSettings_controller extends Backend {
 
 	public function ls_html_entity_decode($value = '') {
 		return html_entity_decode($value);
-	}
-
-	public function ls_escapeBackslash($value = '') {
-        return $value;
-	}
-
-	public function ls_unescapeBackslash($value = '') {
-        return $value;
 	}
 }
