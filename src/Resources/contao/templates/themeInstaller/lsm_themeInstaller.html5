@@ -25,10 +25,12 @@ use Merconis\Core\themeInstallerStatus;
         <p></p>
         <p><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_007'] ?></p>
         <?php
-    } else if ($this->int_status === themeInstallerStatus::THEME_EXTENSION_NOT_INSTALLED) {
+    } else if ($this->int_status === themeInstallerStatus::THEME_EXTENSION_NOT_INSTALLED)
+    {
+        $urlToThemedownload = 'https://www.merconis.com/theme-donload.html';
         ?>
         <h2><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_001'] ?></h2>
-        <p><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_008'] ?></p>
+        <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_008'], $urlToThemedownload) ?></p>
         <?php
     } else if ($this->int_status === themeInstallerStatus::NO_API_KEY) {
         ?>
