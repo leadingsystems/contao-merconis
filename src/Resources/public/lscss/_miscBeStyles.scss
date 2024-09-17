@@ -209,15 +209,21 @@
   }
 
   svg {
-    width: 16px;
+    &.icon {
+      &.square-up-right {
+        width: 16px;
+      }
+    }
   }
 
   a {
-    text-decoration: underline;
-    font-weight: bold;
-    font-size: 1rem;
-    position: relative;
-    top: -0.25rem;
+    &.theme-download {
+      text-decoration: underline;
+      font-weight: bold;
+      font-size: 1rem;
+      position: relative;
+      top: -0.25rem;
+    }
   }
 }
 
