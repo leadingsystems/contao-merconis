@@ -27,7 +27,7 @@ use Merconis\Core\themeInstallerStatus;
         <?php
     } else if ($this->int_status === themeInstallerStatus::THEME_EXTENSION_NOT_INSTALLED)
     {
-        $urlToThemedownload = 'https://www.merconis.com/theme-donload.html';
+        $urlToThemedownload = 'https://www.merconis.com/theme-download.html';
         ?>
         <h2><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_001'] ?></h2>
         <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_008'], $urlToThemedownload) ?></p>
