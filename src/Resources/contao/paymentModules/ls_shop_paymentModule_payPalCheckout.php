@@ -279,8 +279,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $this->writeLog("Response", $result);
         $status = json_decode($result)->status;
 
+
         try {
-            if($status == "COMPLETED"){
+            //TODO wäre sauberer es nicht über session zu regeln
+            if($this->payPalCheckout_checkIfOrderValid($status, $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'])){ //AND Pending, wenn entsprechender status gesetzt ist der nochmal abgefragt werden muss, weil man den nicht direkt bekommt, wenn dann alles ok ist kann finished order angezeigt werden
+
                 // write the success message to the special payment info
                 $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
             }else{
@@ -380,6 +383,81 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
         return $arr_saleDetails;
     }
+
+    protected function payPalCheckout_checkIfOrderValid($status, $str_orderId) {
+
+        if ($status == "COMPLETED"){
+            return true;
+        }
+
+        $arr_saleDetails = array(
+            'str_orderId' => '',
+            'str_currentStatus' => '',
+            'str_authorizationId' => '',
+            'str_authorizationStatus' => '',
+            'str_captureId' => '',
+            'str_captureStatus' => ''
+        );
+        if (!$str_orderId) {
+            return $arr_saleDetails;
+        }
+        $access_token = $this->payPalCheckout_getaccessToken();
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/checkout/orders/'.$str_orderId);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        $headers[] = 'Authorization: Bearer '.$access_token;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+        $result = curl_exec($ch);
+
+        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+
+        $this->writeLog("Response", $result);
+
+
+
+
+        try{
+            $resultJson = json_decode($result);
+            //$captureStatus should normaly be complete or pending
+            $captureStatus = $resultJson->purchase_units[0]->payments->captures[0]->status;
+
+            //TODO: remove this line later
+            $captureStatus = 'PENDING';
+
+            if($captureStatus == 'COMPLETED'){
+                return true;
+            }
+
+            if($captureStatus == 'PENDING'){
+
+                $objStatusDetails = $resultJson->purchase_units[0]->payments->captures[0]->status_details;
+
+                //TODO: remove this line later
+                $objStatusDetails = [
+                    'reason' => "PENDING_REVIEW"
+                ];
+
+                if($objStatusDetails && $objStatusDetails['reason'] == 'PENDING_REVIEW'){
+                    return true;
+                }
+            }
+        }catch (\Exception $e) {
+            return false;
+        }
+        return false;
+    }
+
     public function showPaymentDetailsInBackendOrderDetailView($arrOrder = array(), $paymentMethod_moduleReturnData = '') {
         if (!count($arrOrder) || !$paymentMethod_moduleReturnData) {
             return null;
