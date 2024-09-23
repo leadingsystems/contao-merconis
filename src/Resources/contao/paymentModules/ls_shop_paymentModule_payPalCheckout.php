@@ -281,7 +281,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
 
         try {
-            //TODO wäre sauberer es nicht über session zu regeln
             if($this->payPalCheckout_checkIfOrderValid($status, $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'])){ //AND Pending, wenn entsprechender status gesetzt ist der nochmal abgefragt werden muss, weil man den nicht direkt bekommt, wenn dann alles ok ist kann finished order angezeigt werden
 
                 // write the success message to the special payment info
@@ -339,7 +338,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             'str_authorizationId' => '',
             'str_authorizationStatus' => '',
             'str_captureId' => '',
-            'str_captureStatus' => ''
+            'str_captureStatus' => '',
+            'str_captureStatusDetails' => ''
         );
         if (!$str_orderId) {
             return $arr_saleDetails;
@@ -378,6 +378,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
             $arr_saleDetails['str_captureId'] = $resultJson->purchase_units[0]->payments->captures[0]->id;
             $arr_saleDetails['str_captureStatus'] = $resultJson->purchase_units[0]->payments->captures[0]->status;
+
+            if($resultJson->purchase_units[0]->payments->captures[0]->status_details){
+                $arr_saleDetails['str_captureStatusDetails'] = $resultJson->purchase_units[0]->payments->captures[0]->status_details->reason;
+            }
+
         }catch (\Exception $e) {
             $arr_saleDetails['str_currentStatus'] = 'payment information could not be read correctly [ppc01]';
         }
@@ -386,75 +391,26 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
     protected function payPalCheckout_checkIfOrderValid($status, $str_orderId) {
 
+        if (!$str_orderId) {
+            return false;
+        }
         if ($status == "COMPLETED"){
             return true;
         }
 
-        $arr_saleDetails = array(
-            'str_orderId' => '',
-            'str_currentStatus' => '',
-            'str_authorizationId' => '',
-            'str_authorizationStatus' => '',
-            'str_captureId' => '',
-            'str_captureStatus' => ''
-        );
-        if (!$str_orderId) {
-            return $arr_saleDetails;
+        $arrSaleDetails = $this->payPalCheckout_getSaleDetailsForOrderId($str_orderId);
+
+        if($arrSaleDetails['str_captureStatus'] == 'COMPLETED'){
+            return true;
         }
-        $access_token = $this->payPalCheckout_getaccessToken();
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v2/checkout/orders/'.$str_orderId);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
-        $headers = array();
-        $headers[] = 'Content-Type: application/json';
-        $headers[] = 'Authorization: Bearer '.$access_token;
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-        $result = curl_exec($ch);
-
-        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
-
-        if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
-        }
-        curl_close($ch);
-
-        $this->writeLog("Response", $result);
-
-
-
-
-        try{
-            $resultJson = json_decode($result);
-            //$captureStatus should normaly be complete or pending
-            $captureStatus = $resultJson->purchase_units[0]->payments->captures[0]->status;
-
-            //TODO: remove this line later
-            $captureStatus = 'PENDING';
-
-            if($captureStatus == 'COMPLETED'){
+        if($arrSaleDetails['str_captureStatus'] == 'PENDING'){
+            
+            if($arrSaleDetails['str_captureStatusDetails'] == 'PENDING_REVIEW'){
                 return true;
             }
-
-            if($captureStatus == 'PENDING'){
-
-                $objStatusDetails = $resultJson->purchase_units[0]->payments->captures[0]->status_details;
-
-                //TODO: remove this line later
-                $objStatusDetails = [
-                    'reason' => "PENDING_REVIEW"
-                ];
-
-                if($objStatusDetails && $objStatusDetails['reason'] == 'PENDING_REVIEW'){
-                    return true;
-                }
-            }
-        }catch (\Exception $e) {
-            return false;
         }
+
         return false;
     }
 
