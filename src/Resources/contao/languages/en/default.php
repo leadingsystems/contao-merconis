@@ -1067,6 +1067,7 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['updateSta
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId'] = 'Order ID';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorMsgLabel'] = 'Error message';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status'] = 'Status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['statusDetails'] = 'Payment currently get checked by Paypal';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['updateStatus'] = 'Update status';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationId'] = 'Authorization ID';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationStatus'] = 'Authorization status';

@@ -405,10 +405,14 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
 
         if($arrSaleDetails['str_captureStatus'] == 'PENDING'){
-            
-            if($arrSaleDetails['str_captureStatusDetails'] == 'PENDING_REVIEW'){
-                return true;
+
+            switch ($arrSaleDetails['str_captureStatusDetails']){
+                case 'PENDING_REVIEW':
+                case 'ECHECK':
+                case 'INTERNATIONAL_WITHDRAWAL':
+                    return true;
             }
+
         }
 
         return false;
@@ -498,9 +502,13 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             <img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png" border="0" alt="PayPal Logo" />
             <div class="content">
                 <div class="details">
-                    <div class="detailItem">
+                    <div class="detailItem paypal-capture-completed">
                         <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status']; ?>:</span>
-                        <span class="value"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatus'] ?: $paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']); ?></span>
+                        <?php if($paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatusDetails']){ ?>
+                            <span class="value paypal-capture-pending"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatusDetails'] ?: $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['statusDetails'] ; ?></span>
+                        <?php }else{ ?>
+                            <span class="value paypal-capture-completed"><?php echo strtoupper($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatus'] ?: $paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus']); ?></span>
+                        <?php } ?>
                     </div>
                     <div class="detailItem">
                         <span class="label"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureId'] ? $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureId'] : $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId']; ?>:</span>
