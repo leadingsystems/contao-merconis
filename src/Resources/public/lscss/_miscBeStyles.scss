@@ -1720,6 +1720,72 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
   padding: 2px;
 }
 
+/*
+ * Styles for the PayPal Checkout payment module
+ */
+.paymentDetails.payPalCheckout {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #000000;
+  padding: 5px;
+}
+
+.paymentDetails.payPalCheckout a img {
+  border: 0;
+}
+
+.paymentDetails.payPalCheckout .content {
+  padding: 5px;
+}
+
+.paymentDetails.payPalCheckout .content div:not(:last-child) .label {
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.paymentDetails.payPalCheckout .content .label {
+  font-weight: bold;
+}
+
+.paymentStatusInOverview.payPalCheckout {
+  background-color: #FFFFFF;
+  border: 1px solid #000000;
+  padding: 6px 6px 20px;
+  margin-top: 10px;
+  display: inline-block;
+  //font-weight: bold;
+  position: relative;
+}
+
+.paymentStatusInOverview.payPalCheckout > img {
+  float: left;
+  margin: 5px;
+}
+
+.paymentStatusInOverview.payPalCheckout .content {
+  float: left;
+  padding: 5px;
+}
+
+.paymentStatusInOverview.payPalCheckout .content div:not(:last-child) .label {
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.paymentStatusInOverview.payPalCheckout .content .label {
+  font-weight: bold;
+}
+
+.paymentStatusInOverview.payPalCheckout .statusUpdate {
+  background-color: #eeeeee;
+  border: 1px solid #000000;
+  border-right: none;
+  border-bottom: none;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 6px 6px 8px;
+}
 
 /*
  * Styles for the santander web quick payment module
