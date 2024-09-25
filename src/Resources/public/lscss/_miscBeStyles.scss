@@ -1747,6 +1747,18 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
   font-weight: bold;
 }
 
+.paymentDetails.payPalCheckout.paypal-capture-status-details-valid {
+  background-color: #ffd080;
+}
+
+.paymentDetails.payPalCheckout.paypal-capture-status-details-invalid {
+  background-color: #ff8080;
+}
+
+.paymentDetails.payPalCheckout .payment-provider-message {
+  line-height: normal;
+}
+
 .paymentStatusInOverview.payPalCheckout {
   background-color: #FFFFFF;
   border: 1px solid #000000;
@@ -1760,6 +1772,7 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
 .paymentStatusInOverview.payPalCheckout > img {
   float: left;
   margin: 5px;
+  border: 0;
 }
 
 .paymentStatusInOverview.payPalCheckout .content {
@@ -1785,6 +1798,18 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
   right: 0;
   bottom: 0;
   padding: 6px 6px 8px;
+}
+
+.paymentStatusInOverview.payPalCheckout.paypal-capture-status-details-valid {
+  background-color: #ffd080;
+}
+
+.paymentStatusInOverview.payPalCheckout.paypal-capture-status-details-invalid {
+  background-color: #ff8080;
+}
+
+.paymentStatusInOverview.payPalCheckout .payment-provider-message {
+  line-height: normal;
 }
 
 /*
