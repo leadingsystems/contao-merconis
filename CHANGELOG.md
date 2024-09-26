@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.28 (2024-09-26)
+ * improve PayPal Checkout error handling
+
 ### 5.0.27 (2024-09-11)
  * fix scale price quantity detection
 
