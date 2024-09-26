@@ -1728,35 +1728,41 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
   margin-bottom: 20px;
   border: 1px solid #000000;
   padding: 5px;
-}
 
-.paymentDetails.payPalCheckout a img {
-  border: 0;
-}
+  .content {
+    padding: 5px;
 
-.paymentDetails.payPalCheckout .content {
-  padding: 5px;
-}
+    div {
+      &:not(:last-child) {
+        .label {
+          margin-bottom: 10px;
+          display: inline-block;
+        }
+      }
+    }
 
-.paymentDetails.payPalCheckout .content div:not(:last-child) .label {
-  margin-bottom: 10px;
-  display: inline-block;
-}
+    .label {
+      font-weight: bold;
+    }
+  }
 
-.paymentDetails.payPalCheckout .content .label {
-  font-weight: bold;
-}
+  .payment-provider-message {
+    line-height: normal;
+  }
 
-.paymentDetails.payPalCheckout.paypal-capture-status-details-valid {
-  background-color: #ffd080;
-}
+  a {
+    img {
+      border: 0;
+    }
+  }
 
-.paymentDetails.payPalCheckout.paypal-capture-status-details-invalid {
-  background-color: #ff8080;
-}
+  &.paypal-capture-status-details-valid {
+    background-color: #ffd080;
+  }
 
-.paymentDetails.payPalCheckout .payment-provider-message {
-  line-height: normal;
+  &.paypal-capture-status-details-invalid {
+    background-color: #ff8080;
+  }
 }
 
 .paymentStatusInOverview.payPalCheckout {
@@ -1765,51 +1771,54 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
   padding: 6px 6px 20px;
   margin-top: 10px;
   display: inline-block;
-  //font-weight: bold;
   position: relative;
-}
 
-.paymentStatusInOverview.payPalCheckout > img {
-  float: left;
-  margin: 5px;
-  border: 0;
-}
+  .content {
+    float: left;
+    padding: 5px;
 
-.paymentStatusInOverview.payPalCheckout .content {
-  float: left;
-  padding: 5px;
-}
+    div {
+      &:not(:last-child) {
+        .label {
+          margin-bottom: 10px;
+          display: inline-block;
+        }
+      }
+    }
 
-.paymentStatusInOverview.payPalCheckout .content div:not(:last-child) .label {
-  margin-bottom: 10px;
-  display: inline-block;
-}
+    .label {
+      font-weight: bold;
+    }
+  }
 
-.paymentStatusInOverview.payPalCheckout .content .label {
-  font-weight: bold;
-}
+  >img {
+    float: left;
+    margin: 5px;
+    border: 0;
+  }
 
-.paymentStatusInOverview.payPalCheckout .statusUpdate {
-  background-color: #eeeeee;
-  border: 1px solid #000000;
-  border-right: none;
-  border-bottom: none;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  padding: 6px 6px 8px;
-}
+  .statusUpdate {
+    background-color: #eeeeee;
+    border: 1px solid #000000;
+    border-right: none;
+    border-bottom: none;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 6px 6px 8px;
+  }
 
-.paymentStatusInOverview.payPalCheckout.paypal-capture-status-details-valid {
-  background-color: #ffd080;
-}
+  .payment-provider-message {
+    line-height: normal;
+  }
 
-.paymentStatusInOverview.payPalCheckout.paypal-capture-status-details-invalid {
-  background-color: #ff8080;
-}
+  &.paypal-capture-status-details-valid {
+    background-color: #ffd080;
+  }
 
-.paymentStatusInOverview.payPalCheckout .payment-provider-message {
-  line-height: normal;
+  &.paypal-capture-status-details-invalid {
+    background-color: #ff8080;
+  }
 }
 
 /*
