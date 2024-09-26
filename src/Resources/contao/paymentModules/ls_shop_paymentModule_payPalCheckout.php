@@ -9,6 +9,7 @@ use function LeadingSystems\Helpers\ls_sub;
 class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standard {
     const SANDBOX_URL = 'https://api-m.sandbox.paypal.com';
     const LIVE_URL = 'https://api-m.paypal.com';
+    const VALID_CAPTURESTATUSDETAILS = ['PENDING_REVIEW','ECHECK','INTERNATIONAL_WITHDRAWAL'];
     public $arrCurrentSettings = array();
     public function initialize($specializedManually = false) {
         if (!isset($_SESSION['lsShopPaymentProcess']['payPalCheckout']) || !is_array($_SESSION['lsShopPaymentProcess']['payPalCheckout'])) {
@@ -277,7 +278,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $status = json_decode($result)->status;
 
         try {
-            if($status == "COMPLETED"){
+            if($this->payPalCheckout_checkIfOrderValid($status, $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'])){
                 // write the success message to the special payment info
                 $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
             }else{
@@ -333,7 +334,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             'str_authorizationId' => '',
             'str_authorizationStatus' => '',
             'str_captureId' => '',
-            'str_captureStatus' => ''
+            'str_captureStatus' => '',
+            'str_captureStatusDetails' => ''
         );
         if (!$str_orderId) {
             return $arr_saleDetails;
@@ -372,11 +374,43 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
             $arr_saleDetails['str_captureId'] = $resultJson->purchase_units[0]->payments->captures[0]->id;
             $arr_saleDetails['str_captureStatus'] = $resultJson->purchase_units[0]->payments->captures[0]->status;
+
+            if($resultJson->purchase_units[0]->payments->captures[0]->status_details){
+                $arr_saleDetails['str_captureStatusDetails'] = $resultJson->purchase_units[0]->payments->captures[0]->status_details->reason;
+            }
+
         }catch (\Exception $e) {
             $arr_saleDetails['str_currentStatus'] = 'payment information could not be read correctly [ppc01]';
         }
         return $arr_saleDetails;
     }
+
+    protected function payPalCheckout_checkIfOrderValid($status, $str_orderId) {
+
+        if (!$str_orderId) {
+            return false;
+        }
+        if ($status == "COMPLETED"){
+            return true;
+        }
+
+        $arrSaleDetails = $this->payPalCheckout_getSaleDetailsForOrderId($str_orderId);
+
+        if($arrSaleDetails['str_captureStatus'] == 'COMPLETED'){
+            return true;
+        }
+
+        if($arrSaleDetails['str_captureStatus'] == 'PENDING'){
+
+            if (in_array($arrSaleDetails['str_captureStatusDetails'], self::VALID_CAPTURESTATUSDETAILS))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function showPaymentDetailsInBackendOrderDetailView($arrOrder = array(), $paymentMethod_moduleReturnData = '') {
         if (!count($arrOrder) || !$paymentMethod_moduleReturnData) {
             return null;
@@ -385,13 +419,15 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $paymentMethod_moduleReturnData = $this->payPalCheckout_updateSaleDetailsInOrderRecord($arrOrder['id']);
         ob_start();
         ?>
-        <div class="paymentDetails payPalCheckout">
-            <h2>
-                <a href="https://www.paypal.com/" target="_blank">
-                    <img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-150px.png" border="0" alt="PayPal Logo" />
+        <div class="paymentDetails payPalCheckout<?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatus'] == 'COMPLETED' ? ' paypal-capture-status-completed' : (in_array($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatusDetails'], self::VALID_CAPTURESTATUSDETAILS) ? ' paypal-capture-status-pending paypal-capture-status-details-valid' : ' paypal-capture-status-pending paypal-capture-status-details-invalid') ?>">
+            <div class="paymentProviderLink">
+                <a href="https://www.paypal.com/" target="_blank" rel="noopener noreferrer">
+                    <img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-150px.png" alt="PayPal Logo" />
                 </a>
+            </div>
+            <h3>
                 <?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['headlineBackendDetailsInfo']; ?>
-            </h2>
+            </h3>
             <div class="content">
                 <div class="details">
                     <?php
@@ -437,6 +473,15 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                         </div>
                     </div>
                 </div>
+                <?php if($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatus'] != 'COMPLETED'){ ?>
+                <div class="payment-provider-message">
+                    <?php if(in_array($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatusDetails'], self::VALID_CAPTURESTATUSDETAILS)){ ?>
+                        <span><?php echo sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatusDetailsValid'], $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatusDetails']) ?></span>
+                    <?php }else{ ?>
+                        <span><?php echo sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatusDetailsInvalid'], $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatusDetails']) ?></span>
+                    <?php } ?>
+                </div>
+                <?php } ?>
             </div>
         </div>
         <?php
@@ -457,8 +502,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $str_statusUpdateUrl = $str_statusUpdateUrl.(strpos($str_statusUpdateUrl, '?') !== false ? '&' : '?').'payPalCheckout_updateStatus='.$arrOrder['id'].'#payPalCheckout_order'.$arrOrder['id'];
         ob_start();
         ?>
-        <div id="payPalCheckout_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview payPalCheckout">
-            <img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png" border="0" alt="PayPal Logo" />
+        <div id="payPalCheckout_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview payPalCheckout<?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatus'] == 'COMPLETED' ? ' paypal-capture-status-completed' : (in_array($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatusDetails'], self::VALID_CAPTURESTATUSDETAILS) ? ' paypal-capture-status-pending paypal-capture-status-details-valid' : ' paypal-capture-status-pending paypal-capture-status-details-invalid') ?>">
+            <img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png" alt="PayPal Logo" />
             <div class="content">
                 <div class="details">
                     <div class="detailItem">
@@ -470,6 +515,15 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                         <span class="value"><?php echo $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureId'] ?: $paymentMethod_moduleReturnData['arr_saleDetails']['str_orderId']; ?></span>
                     </div>
                 </div>
+                <?php if($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatus'] != 'COMPLETED'){ ?>
+                <div class="payment-provider-message">
+                    <?php if(in_array($paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatusDetails'], self::VALID_CAPTURESTATUSDETAILS)){ ?>
+                        <span><?php echo sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatusDetailsValid'], $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatusDetails']) ?></span>
+                    <?php }else{ ?>
+                        <span><?php echo sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatusDetailsInvalid'], $paymentMethod_moduleReturnData['arr_saleDetails']['str_captureStatusDetails']) ?></span>
+                    <?php } ?>
+                </div>
+                <?php } ?>
             </div>
             <div class="statusUpdate">
                 <a href="<?php echo $str_statusUpdateUrl; ?>"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['updateStatus']; ?></a>

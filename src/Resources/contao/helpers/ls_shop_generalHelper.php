@@ -5277,7 +5277,7 @@ class ls_shop_generalHelper
 
         if ($str_pathToCompiledBackendLscssStyles) {
             ?>
-            <link rel="stylesheet" href="<?php echo $str_pathToCompiledBackendLscssStyles; ?>">
+            <link rel="stylesheet" href="<?php echo $str_pathToCompiledBackendLscssStyles; ?>?76e4805d">
             <?php
         }
 
