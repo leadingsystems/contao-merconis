@@ -1072,6 +1072,8 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['autho
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationStatus'] = 'Authorization status';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureId'] = 'Capture ID';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatus'] = 'Capture status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatusDetailsValid'] = 'Zahlung wurde angenommen. Ist aber auf Grund der Zahlungsmethode noch ausstehend.<br>(Zahlungsmeldung: %s)';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatusDetailsInvalid'] = 'Zahlung wurde nicht durchgeführt. Bitte entnehmen Sie weitere Informationen aus Ihrem PayPal-Account.<br>(Zahlungsmeldung: %s)';
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentReason'] = 'Bestellung Nr. %s';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['headlineBackendDetailsInfo'] = 'Informationen zum Zahlungsstatus';

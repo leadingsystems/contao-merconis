@@ -1735,6 +1735,106 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
   padding: 2px;
 }
 
+/*
+ * Styles for the PayPal Checkout payment module
+ */
+.paymentDetails.payPalCheckout {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #000000;
+  padding: 5px;
+
+  .content {
+    padding: 5px;
+
+    div {
+      &:not(:last-child) {
+        .label {
+          margin-bottom: 10px;
+          display: inline-block;
+        }
+      }
+    }
+
+    .label {
+      font-weight: bold;
+    }
+  }
+
+  .payment-provider-message {
+    line-height: normal;
+  }
+
+  a {
+    img {
+      border: 0;
+    }
+  }
+
+  &.paypal-capture-status-details-valid {
+    background-color: #ffd080;
+  }
+
+  &.paypal-capture-status-details-invalid {
+    background-color: #ff8080;
+  }
+}
+
+.paymentStatusInOverview.payPalCheckout {
+  background-color: #FFFFFF;
+  border: 1px solid #000000;
+  padding: 6px 6px 20px;
+  margin-top: 10px;
+  display: inline-block;
+  position: relative;
+
+  .content {
+    float: left;
+    padding: 5px;
+
+    div {
+      &:not(:last-child) {
+        .label {
+          margin-bottom: 10px;
+          display: inline-block;
+        }
+      }
+    }
+
+    .label {
+      font-weight: bold;
+    }
+  }
+
+  >img {
+    float: left;
+    margin: 5px;
+    border: 0;
+  }
+
+  .statusUpdate {
+    background-color: #eeeeee;
+    border: 1px solid #000000;
+    border-right: none;
+    border-bottom: none;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 6px 6px 8px;
+  }
+
+  .payment-provider-message {
+    line-height: normal;
+  }
+
+  &.paypal-capture-status-details-valid {
+    background-color: #ffd080;
+  }
+
+  &.paypal-capture-status-details-invalid {
+    background-color: #ff8080;
+  }
+}
 
 /*
  * Styles for the santander web quick payment module

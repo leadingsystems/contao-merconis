@@ -5301,8 +5301,8 @@ class ls_shop_generalHelper
         return $arr_pageIds;
     }
 
-    public static function merconis_getBackendLsjs($str_content, $str_template) {
-
+    public static function merconis_getBackendLsjs($str_content, $str_template)
+    {
         if ($str_template !== 'be_main') {
             return $str_content;
         }
@@ -5323,7 +5323,7 @@ class ls_shop_generalHelper
 
         if ($str_pathToCompiledBackendLscssStyles) {
             ?>
-            <link rel="stylesheet" href="<?php echo $str_pathToCompiledBackendLscssStyles; ?>">
+            <link rel="stylesheet" href="<?php echo $str_pathToCompiledBackendLscssStyles; ?>?76e4805d">
             <?php
         }
 
