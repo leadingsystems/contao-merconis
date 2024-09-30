@@ -70,6 +70,26 @@ class ls_shop_ajaxController
 				echo $arrMessageTypes[\Input::post('messageTypeID')]['button'];
 				exit;
 				break;
+
+            case 'sendMessage':
+                if (!\Input::post('messageTypeID')) {
+                    break;
+                }
+
+
+                $objOrderMessages = new ls_shop_messages(\Input::post('messageTypeID'), 'id', \Input::post('additionalData'));
+                $objOrderMessages->sendMessages();
+
+                /*
+                 * Generate the messageType button which is needed as the return value
+                 */
+                /*
+                $arrOrder = ls_shop_generalHelper::getOrder(\Input::post('orderID'), 'id', true);
+                $arrMessageTypes = ls_shop_generalHelper::getMessageTypesForOrderOverview($arrOrder, true);
+                echo $arrMessageTypes[\Input::post('messageTypeID')]['button'];*/
+                echo "message hier2";
+                exit;
+                break;
 				
 			case 'callImporterFunction':
 				$obj_importController = \System::importStatic('Merconis\Core\ls_shop_importController');

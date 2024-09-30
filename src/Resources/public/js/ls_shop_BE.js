@@ -247,7 +247,30 @@ var ls_shop_backend = {
 			data: 'REQUEST_TOKEN=' + Contao.request_token + '&isAjax=1&action=sendOrderMessage&messageTypeID=' + messageTypeID + '&orderID=' + orderID,
 			update: elToUpdate
 		}).send();
+
+
 		
+		return false;
+	},
+
+	sendMessage: function(elToUpdate, messageTypeID, additionalData) {
+
+		/*
+		elToUpdate.getElement('.messageIcon').adopt(
+			new Element('span.loadingOverlay')
+		);*/
+		console.log('REQUEST_TOKEN=' + Contao.request_token + '&isAjax=1&action=sendMessage&messageTypeID=' + messageTypeID + '&additionalData=' + additionalData)
+
+		let result = new Request.HTML({
+			url: window.location.href,
+			noCache: true,
+			data: 'REQUEST_TOKEN=' + Contao.request_token + '&isAjax=1&action=sendMessage&messageTypeID=' + messageTypeID + '&additionalData=' + additionalData,
+			update: elToUpdate
+		}).send();
+
+		console.log("result")
+		console.log(result)
+
 		return false;
 	},
 	
