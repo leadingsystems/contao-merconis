@@ -49,7 +49,7 @@
 					<tr class="<?php echo $oddEven ?>">
 						<td class="title">
 							<?php if ($cartItem['extendedInfo']['_mainImage']): ?>
-                                {{image::<?=$cartItem['extendedInfo']['_mainImage']?>?width=60&height=60&mode=box}}
+                                <?php echo Contao\System::getContainer()->get('contao.insert_tag.parser')->replace("{{image::".$cartItem['extendedInfo']['_mainImage']."?width=60&height=60&mode=box}}"); ?>
                             <?php endif; ?>
 							<?php echo $cartItem['extendedInfo']['_productTitle'].'<br />'.($cartItem['isVariant'] ? $cartItem['extendedInfo']['_title'] : ''); ?>
 							<?php if ($cartItem['extendedInfo']['_hasCode']) { echo ' ('.$cartItem['extendedInfo']['_code'].')'; } ?>
