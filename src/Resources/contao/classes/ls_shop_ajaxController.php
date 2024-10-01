@@ -83,11 +83,14 @@ class ls_shop_ajaxController
                 /*
                  * Generate the messageType button which is needed as the return value
                  */
+
+                echo $objOrderMessages->getButton();
+
                 /*
                 $arrOrder = ls_shop_generalHelper::getOrder(\Input::post('orderID'), 'id', true);
                 $arrMessageTypes = ls_shop_generalHelper::getMessageTypesForOrderOverview($arrOrder, true);
                 echo $arrMessageTypes[\Input::post('messageTypeID')]['button'];*/
-                echo "message hier2";
+                //echo "message hier2";
                 exit;
                 break;
 				

@@ -255,10 +255,10 @@ var ls_shop_backend = {
 
 	sendMessage: function(elToUpdate, messageTypeID, additionalData) {
 
-		/*
+
 		elToUpdate.getElement('.messageIcon').adopt(
 			new Element('span.loadingOverlay')
-		);*/
+		);
 		console.log('REQUEST_TOKEN=' + Contao.request_token + '&isAjax=1&action=sendMessage&messageTypeID=' + messageTypeID + '&additionalData=' + additionalData)
 
 		let result = new Request.HTML({

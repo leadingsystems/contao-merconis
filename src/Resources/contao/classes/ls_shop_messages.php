@@ -85,6 +85,32 @@ class ls_shop_messages
 		}
 	}
 
+    public function getButton()
+    {
+
+
+        foreach ($this->arrMessageModels as $arrMessageModel) {
+
+
+            //TODO: button muss über hook von CollectiveOrderMessages geladen werden
+
+            if (isset($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton']) && is_array($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'])) {
+                foreach ($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'] as $mccb) {
+                    $objMccb = \System::importStatic($mccb[0]);
+                    return $objMccb->{$mccb[1]}($arrMessageModel, $this->additionalData);
+                }
+            }
+
+        }
+
+
+
+        return "kein button";
+
+
+
+    }
+
     //bekomme alle Message Models und unterscheide dann je nach User welche geschickt werden
 	public function getMessageModels() {
 		$arrMessageModels = array();
@@ -160,9 +186,9 @@ class ls_shop_messages
                 if ($arrMessageModel['useHTML']) {
                     $objTemplate_emailHTML = new \FrontendTemplate($arrMessageModel['template_html']);
                     if (version_compare(VERSION . '.' . BUILD, '3.3.0', '<')) {
-                        $objTemplate_emailHTML->content = \Controller::replaceInsertTags($this->ls_replaceWildcards($arrReceiverAddresses['language'], \Controller::replaceInsertTags($arrMessageModel['content_html_'.$arrReceiverAddresses['language']])));
+                        $objTemplate_emailHTML->content = \Controller::replaceInsertTags($this->ls_replaceWildcards($arrReceiverAddresses['data'], \Controller::replaceInsertTags($arrMessageModel['content_html_'.$arrReceiverAddresses['data']['language']])));
                     } else {
-                        $objTemplate_emailHTML->content = \Controller::replaceInsertTags($this->ls_replaceWildcards($arrReceiverAddresses['language'], \StringUtil::insertTagToSrc(\Controller::replaceInsertTags($arrMessageModel['content_html_'.$arrReceiverAddresses['language']]))));
+                        $objTemplate_emailHTML->content = \Controller::replaceInsertTags($this->ls_replaceWildcards($arrReceiverAddresses['data'], \StringUtil::insertTagToSrc(\Controller::replaceInsertTags($arrMessageModel['content_html_'.$arrReceiverAddresses['data']['language']]))));
                     }
                     $objTemplate_emailHTML->arrMessageModel = $arrMessageModel;
                     $objTemplate_emailHTML->counterNr = $this->counterNr;
@@ -170,7 +196,7 @@ class ls_shop_messages
 
                 if ($arrMessageModel['useRawtext']) {
                     $objTemplate_rawtext = new \FrontendTemplate($arrMessageModel['template_rawtext']);
-                    $objTemplate_rawtext->content = \Controller::replaceInsertTags($this->ls_replaceWildcards($arrReceiverAddresses['language'], \Controller::replaceInsertTags($arrMessageModel['content_rawtext_'.$arrReceiverAddresses['language']])));
+                    $objTemplate_rawtext->content = \Controller::replaceInsertTags($this->ls_replaceWildcards($arrReceiverAddresses['data'], \Controller::replaceInsertTags($arrMessageModel['content_rawtext_'.$arrReceiverAddresses['data']['language']])));
                     $objTemplate_rawtext->arrMessageModel = $arrMessageModel;
                     $objTemplate_rawtext->counterNr = $this->counterNr;
                 }
@@ -185,11 +211,11 @@ class ls_shop_messages
                     'senderAddress' => $arrMessageModel['senderAddress'],
                     'receiverMainAddress' => $arrReceiverAddresses['main'],
                     'receiverBccAddress' => $arrReceiverAddresses['bcc'],
-                    'subject' => html_entity_decode($this->ls_replaceWildcards($arrReceiverAddresses['language'], \Controller::replaceInsertTags($arrMessageModel['subject_'.$arrReceiverAddresses['language']]))),
+                    'subject' => html_entity_decode($this->ls_replaceWildcards($arrReceiverAddresses['data'], \Controller::replaceInsertTags($arrMessageModel['subject_'.$arrReceiverAddresses['data']['language']]))),
                     'bodyHTML' => $arrMessageModel['useHTML'] ? $objTemplate_emailHTML->parse() : '',
                     'bodyRawtext' => $arrMessageModel['useRawtext'] ? $objTemplate_rawtext->parse() : '',
-                    'dynamicPdfAttachmentPaths' => StringUtil::deserialize($arrMessageModel['dynamicAttachments_'.$arrReceiverAddresses['language']]),
-                    'attachmentPaths' => StringUtil::deserialize($arrMessageModel['attachments_'.$arrReceiverAddresses['language']])
+                    'dynamicPdfAttachmentPaths' => StringUtil::deserialize($arrMessageModel['dynamicAttachments_'.$arrReceiverAddresses['data']['language']]),
+                    'attachmentPaths' => StringUtil::deserialize($arrMessageModel['attachments_'.$arrReceiverAddresses['data']['language']])
                 );
 
                 $objEmail = new \Email();
@@ -219,7 +245,10 @@ class ls_shop_messages
                              * and it has to return the file path of the saved file so that it can be attached to the email object
                              * directly.
                              */
-                            $objDynamicAttachment = new $dynamicAttachmentClassName(null, $this->counterNr, createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrMessageModel['flex_parameters'])), 2, 1));
+
+                            $flexParameters = createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrMessageModel['flex_parameters'])), 2, 1);
+
+                            $objDynamicAttachment = new $dynamicAttachmentClassName(null, $this->counterNr, array_merge($flexParameters, $arrReceiverAddresses['data']));
                             $dynamicAttachmentSavedFilename = $objDynamicAttachment->parse();
 
                             if ($dynamicAttachmentSavedFilename && file_exists(TL_ROOT . '/' . $dynamicAttachmentSavedFilename)) {
@@ -473,14 +502,22 @@ class ls_shop_messages
             $arrAllReceiverAddresses[] = array(
                 'main' => $arrMessageModel['specificAddress'],
                 'bcc' => null,
-                'language' => 'en'
+                'data' =>[
+                    'language' => $this->ls_language
+                ]
+
 		    );
+        }
+
+        //set default language if no language is set in data array
+        if (empty($arrReceiverAddresses['data']) || empty($arrReceiverAddresses['data']['language'])) {
+            $arrReceiverAddresses['data']['language'] = $this->ls_language;
         }
 
 		return $arrAllReceiverAddresses;
 	}
 
-	protected function ls_replaceWildcards($language, $text) {
+	protected function ls_replaceWildcards($data, $text) {
 		/*
 		 * Replace the counterNr wildcard
 		 */
@@ -492,7 +529,7 @@ class ls_shop_messages
         if (isset($GLOBALS['MERCONIS_HOOKS']['replaceWildcards']) && is_array($GLOBALS['MERCONIS_HOOKS']['replaceWildcards'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['replaceWildcards'] as $mccb) {
                 $objMccb = \System::importStatic($mccb[0]);
-                $text = $objMccb->{$mccb[1]}($text, $language, $this->additionalData);
+                $text = $objMccb->{$mccb[1]}($text, $data, $this->additionalData);
             }
         }
 
