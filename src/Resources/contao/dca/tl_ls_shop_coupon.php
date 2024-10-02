@@ -39,38 +39,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_coupon'] = array(
 		),
 		
 		'global_operations' => array(
-			'all' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
-				'href'                => 'act=select',
-				'class'               => 'header_edit_all',
-				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
-			)
+			'all'
 		),
 		
 		'operations' => array(
-			'edit' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['edit'],
-				'href'                => 'act=edit',
-				'icon'                => 'edit.svg'
-			),
-			'copy' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['copy'],
-				'href'                => 'act=copy',
-				'icon'                => 'copy.svg'
-			),
-			'delete' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['delete'],
-				'href'                => 'act=delete',
-				'icon'                => 'delete.svg',
-				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
-			),
-			'show' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['show'],
-				'href'                => 'act=show',
-				'icon'                => 'show.svg'
-			)
-		
+			'edit',
+			'copy',
+			'delete',
+			'show'
 		)	
 	),
 	

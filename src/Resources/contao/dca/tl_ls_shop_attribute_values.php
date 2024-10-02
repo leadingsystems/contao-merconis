@@ -50,45 +50,21 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attribute_values'] = array(
 		),
 		
 		'global_operations' => array(
-			'all' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
-				'href'                => 'act=select',
-				'class'               => 'header_edit_all',
-				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
-			)
+			'all'
 		),
 		
 		'operations' => array(
-			'edit' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['edit'],
-				'href'                => 'act=edit',
-				'icon'                => 'edit.svg'
-			),
-			'copy' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['copy'],
-				'href'                => 'act=copy',
-				'icon'                => 'copy.svg'
-			),
-			'cut' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['cut'],
-				'href'                => 'act=paste&amp;mode=cut',
-				'icon'                => 'cut.svg',
-				'attributes'          => 'onclick="Backend.getScrollOffset()"'
-			),
+			'edit',
+            'copy',
+			'cut',
 			'delete' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['delete'],
-				'href'                => 'act=delete',
-				'icon'                => 'delete.svg',
-				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
-				'button_callback'	=>	array('Merconis\Core\ls_shop_attribute_values','getDeleteButton')
-			),
-			'show' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['show'],
-				'href'                => 'act=show',
-				'icon'                => 'show.svg'
-			)
-		
+                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attribute_values']['delete'],
+                'href'                => 'act=delete',
+                'icon'                => 'delete.svg',
+                'attributes'          => 'data-action="contao--scroll-offset#store" onclick="if(!confirm(\''.($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null).'\'))return false"',
+                'button_callback'	=>	array('Merconis\Core\ls_shop_attribute_values','getDeleteButton')
+            ),
+			'show'
 		)	
 	),
 	
