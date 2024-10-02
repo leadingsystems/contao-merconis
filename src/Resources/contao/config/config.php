@@ -14,6 +14,15 @@ $GLOBALS['TL_HOOKS']['merconisCustomTaxRateCalculation'][] = array('Merconis\Cor
 $GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_regexp', 'customRegexp');
 $GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_regexp_fe', 'customRegexp');
 
+
+$GLOBALS['MERCONIS_HOOKS']['addReceiverAddresses'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'addReceiverAddresses');
+$GLOBALS['MERCONIS_HOOKS']['replaceWildcards'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'replaceWildcards');
+$GLOBALS['MERCONIS_HOOKS']['addMessageSendOption'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'addMessageSendOption');
+
+$GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'getMessageSendButton');
+
+
+
 /*
  * Include the lsjs app for the merconis backend
  */

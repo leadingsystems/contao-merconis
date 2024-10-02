@@ -89,15 +89,30 @@ class ls_shop_messages
     {
 
 
+
+
         foreach ($this->arrMessageModels as $arrMessageModel) {
+            foreach ($this->arrMessageTypes as $arrMessageType) {
+                //suche passendes MessageType zu message Model da der hook sendWhen prüfen muss, da er zum passenden hook den button liefern muss
+                if($arrMessageModel['pid'] == $arrMessageType['id']){
 
 
-            //TODO: button muss über hook von CollectiveOrderMessages geladen werden
 
-            if (isset($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton']) && is_array($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'])) {
-                foreach ($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'] as $mccb) {
-                    $objMccb = \System::importStatic($mccb[0]);
-                    return $objMccb->{$mccb[1]}($arrMessageModel, $this->additionalData);
+                    //TODO: button muss über hook von CollectiveOrderMessages geladen werden
+
+                    if (isset($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton']) && is_array($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'])) {
+                        foreach ($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'] as $mccb) {
+
+                            $objMccb = \System::importStatic($mccb[0]);
+
+                            //return value is false is button dont exist for this hook
+                            $returnValue = $objMccb->{$mccb[1]}($arrMessageType, $arrMessageModel, $this->additionalData);
+                            if($returnValue){
+                                return $returnValue;
+                            }
+
+                        }
+                    }
                 }
             }
 
