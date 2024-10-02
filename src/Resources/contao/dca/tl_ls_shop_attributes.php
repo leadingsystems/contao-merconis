@@ -50,44 +50,21 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 		),
 
 		'global_operations' => array(
-			'all' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
-				'href'                => 'act=select',
-				'class'               => 'header_edit_all',
-				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
-			)
+			'all'
 		),
 
 		'operations' => array(
-            'edit' => array (
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['edit'],
-                'href'                => 'act=edit',
-                'icon'                => 'edit.svg'
-            ),
-			'children' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['children'],
-				'href'                => 'table=tl_ls_shop_attribute_values',
-				'icon'                => 'children.svg'
-			),
-			'copy' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['copy'],
-				'href'                => 'act=copy',
-				'icon'                => 'copy.svg'
-			),
+            'edit',
+			'children',
+			'copy',
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['delete'],
 				'href'                => 'act=delete',
 				'icon'                => 'delete.svg',
-				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
+				'attributes'          => 'data-action="contao--scroll-offset#store" onclick="if(!confirm(\''.($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null).'\'))return false"',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_attributes','getDeleteButton')
 			),
-			'show' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_attributes']['show'],
-				'href'                => 'act=show',
-				'icon'                => 'show.svg'
-			)
-
+			'show'
 		)
 	),
 

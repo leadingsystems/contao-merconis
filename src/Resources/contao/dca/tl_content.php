@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\Backend;
+use Contao\CoreBundle\DataContainer\PaletteManipulator;
 
 /*
  * CrossSeller
@@ -20,7 +21,6 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopCrossSeller'] = array(
 
 
 $GLOBALS['TL_DCA']['tl_content']['config']['onload_callback'][] = array('Merconis\Core\tl_content', 'onloadCallback');
-
 			
 $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopOutputCondition'] = array(
 	'label'			=> &$GLOBALS['TL_LANG']['tl_content']['lsShopOutputCondition'],
@@ -35,17 +35,21 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['lsShopOutputCondition'] = array(
 
 class tl_content extends Backend
 {
-    
+
     public function onloadCallback()
     {
         /*
          * Conditional Output
          */
-        foreach ($GLOBALS['TL_DCA']['tl_content']['palettes'] as $paletteName => $palette)  {
-            if ($paletteName == '__selector__') {
+        foreach ($GLOBALS['TL_DCA']['tl_content']['palettes'] as $name => $palette)  {
+            if (!is_string($palette)) {
                 continue;
             }
-            $GLOBALS['TL_DCA']['tl_content']['palettes'][$paletteName] .= ';{lsShopConditionalOutput_legend},lsShopOutputCondition';
+            PaletteManipulator::create()
+                ->addLegend('lsShopConditionalOutput_legend')
+                ->addField('lsShopOutputCondition', 'lsShopConditionalOutput_legend')
+                ->applyToPalette($name, 'tl_content')
+            ;
         }
     }
 
