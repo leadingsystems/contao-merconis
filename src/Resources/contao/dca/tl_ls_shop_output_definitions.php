@@ -50,39 +50,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_output_definitions'] = array(
 		),
 
 		'global_operations' => array(
-			'all' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
-				'href'                => 'act=select',
-				'class'               => 'header_edit_all',
-				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
-			)
+			'all'
 		),
 
 		'operations' => array(
-			'edit' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['edit'],
-				'href'                => 'act=edit',
-				'icon'                => 'edit.svg'
-			),
-			'copy' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['copy'],
-				'href'                => 'act=copy',
-				'icon'                => 'copy.svg'
-			),
+			'edit',
+			'copy',
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['delete'],
 				'href'                => 'act=delete',
 				'icon'                => 'delete.svg',
-				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
+				'attributes'          => 'data-action="contao--scroll-offset#store" onclick="if(!confirm(\''.($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null).'\'))return false"',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_output_definitions','getDeleteButton')
 			),
-			'show' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_output_definitions']['show'],
-				'href'                => 'act=show',
-				'icon'                => 'show.svg'
-			)
-
+			'show'
 		)
 	),
 

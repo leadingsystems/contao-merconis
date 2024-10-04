@@ -6,14 +6,18 @@ use Contao\CoreBundle\DataContainer\PaletteManipulator;
 
 PaletteManipulator::create()
     ->addLegend('lsShopFilter_legend')
-    ->addField('ls_shop_activateFilter', 'lsShopFilter_legend')
-    ->addField('ls_shop_useFilterInStandardProductlist', 'lsShopFilter_legend')
-    ->addField('ls_shop_numFilterFieldsInSummary', 'lsShopFilter_legend')
-    ->addField('ls_shop_useFilterMatchEstimates', 'lsShopFilter_legend')
-    ->addField('ls_shop_matchEstimatesMaxNumProducts', 'lsShopFilter_legend')
-    ->addField('ls_shop_matchEstimatesMaxFilterValues', 'lsShopFilter_legend')
-    ->addField('ls_shop_useFilterInProductDetails', 'lsShopFilter_legend')
-    ->addField('ls_shop_hideFilterFormInProductDetails', 'lsShopFilter_legend')
+    ->addField(
+        [
+            'ls_shop_activateFilter',
+            'ls_shop_useFilterInStandardProductlist',
+            'ls_shop_numFilterFieldsInSummary',
+            'ls_shop_useFilterMatchEstimates',
+            'ls_shop_matchEstimatesMaxNumProducts',
+            'ls_shop_matchEstimatesMaxFilterValues',
+            'ls_shop_useFilterInProductDetails',
+            'ls_shop_hideFilterFormInProductDetails'
+        ], 'lsShopFilter_legend'
+    )
     ->applyToPalette('default', 'tl_layout')
 ;
 
