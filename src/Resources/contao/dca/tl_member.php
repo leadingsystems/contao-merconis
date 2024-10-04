@@ -2,9 +2,29 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\DataContainer\PaletteManipulator;
 use Contao\System;
 
-$GLOBALS['TL_DCA']['tl_member']['palettes']['default'] = preg_replace('/(\{groups_legend\})/siU', '{lsShop_legend:hide},VATID,firstname_alternative,lastname_alternative,company_alternative,street_alternative,postal_alternative,city_alternative,country_alternative,phone_alternative,mobile_alternative,fax_alternative,email_alternative;$1', $GLOBALS['TL_DCA']['tl_member']['palettes']['default']);
+PaletteManipulator::create()
+    ->addLegend('lsShop_legend:hide', 'contact_legend')
+    ->addField(
+        [
+            'VATID',
+            'firstname_alternative',
+            'lastname_alternative',
+            'company_alternative',
+            'street_alternative',
+            'postal_alternative',
+            'city_alternative',
+            'country_alternative',
+            'phone_alternative',
+            'mobile_phone_alternative',
+            'fax_alternative',
+            'email_alternative'
+        ],'lsShop_legend:hide', PaletteManipulator::POSITION_APPEND
+    )
+    ->applyToPalette('default', 'tl_member')
+;
 
 $GLOBALS['TL_DCA']['tl_member']['fields']['state_alternative'] = array (
     'sql'                     => "varchar(64) NOT NULL default ''"
