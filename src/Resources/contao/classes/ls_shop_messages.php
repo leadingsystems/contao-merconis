@@ -85,13 +85,40 @@ class ls_shop_messages
 		}
 	}
 
+    public static function getMessageTypesStatic($findBy, $identificationToken ) {
+        $arrMessageTypes = array();
+
+        /*
+         * Get the message type(s) that corresponds with the given identification token. Although it's not very likely
+         * to be used it's still possible to have multiple message types with the same "sendWhen" value so it's important
+         * that this function or even the whole class can deal with multiple message types and messages for one
+         * sending process.
+         */
+        $objMessageTypes = \Database::getInstance()->prepare("
+			SELECT		*
+			FROM		`tl_ls_shop_message_type`
+			WHERE		`".$findBy."` = ?
+		")
+            ->execute($identificationToken);
+
+        if (!$objMessageTypes->numRows) {
+            return false;
+        }
+
+        while ($objMessageTypes->next()) {
+            $arrMessageType = $objMessageTypes->row();
+
+            $arrMessageTypes[$objMessageTypes->id] = $arrMessageType;
+        }
+        return $arrMessageTypes;
+    }
+
 
 
 
 	//returns a list of buttons
-    public function getButton()
+    public function getButtonArray()
     {
-        $arrButtons = [];
 
         foreach ($this->arrMessageTypes as $arrMessageType) {
             if (isset($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton']) && is_array($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'])) {
@@ -102,8 +129,6 @@ class ls_shop_messages
                     //return value is false is button dont exist for this hook
                     $returnValue = $objMccb->{$mccb[1]}($arrMessageType, $this->additionalData);
 
-                    $arrButtons[] = $returnValue;
-
                     if ($returnValue) {
                         return $returnValue;
                     }
@@ -112,30 +137,7 @@ class ls_shop_messages
             }
         }
 
-
-        /*
-                foreach ($this->arrMessageModels as $arrMessageModel) {
-
-
-
-
-
-                    foreach ($this->arrMessageTypes as $arrMessageType) {
-                        //suche passendes MessageType zu message Model da der hook sendWhen prüfen muss, da er zum passenden hook den button liefern muss
-                        if($arrMessageModel['pid'] == $arrMessageType['id']){
-
-
-
-                        }
-                    }
-
-        }*/
-
-        //return $arrButtons;
-
-        return "kein button";
-
-
+        return [];
 
     }
 

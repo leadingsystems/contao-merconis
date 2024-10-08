@@ -4,15 +4,11 @@ namespace LeadingSystems\MerconisBundle\Mail;
 
 use Merconis\Core\ls_shop_generalHelper;
 use Merconis\Core\ls_shop_languageHelper;
+use Merconis\Core\ls_shop_messages;
 
 class OrderMessages
 {
 
-    /*
-     * //TODO: remove: is from copy
-    const COLLECTIVE_ORDER_COMPLETE = 'collectiveOrderComplete';
-    const COLLECTIVE_ORDER_CANCELED = 'collectiveOrderCanceled';
-    */
 
     public function __construct()
     {
@@ -24,41 +20,10 @@ class OrderMessages
         //TODO:tl_ls_shop_message_type dont get loaded in extension
         \System::loadLanguageFile('tl_ls_shop_message_type');
 
-        //self::COLLECTIVE_ORDER_COMPLETE, self::COLLECTIVE_ORDER_CANCELED
-
         //TODO: dont need return value because it is already set in the dca? maybe change?
         return [];
     }
 
-    public function getMessageTypes2($findBy, $identificationToken ) {
-        $arrMessageTypes = array();
-
-        /*
-         * Get the message type(s) that corresponds with the given identification token. Although it's not very likely
-         * to be used it's still possible to have multiple message types with the same "sendWhen" value so it's important
-         * that this function or even the whole class can deal with multiple message types and messages for one
-         * sending process.
-         */
-        $objMessageTypes = \Database::getInstance()->prepare("
-			SELECT		*
-			FROM		`tl_ls_shop_message_type`
-			WHERE		`".$findBy."` = ?
-		")
-            ->execute($identificationToken);
-
-        if (!$objMessageTypes->numRows) {
-            return false;
-        }
-
-        while ($objMessageTypes->next()) {
-            $arrMessageType = $objMessageTypes->row();
-
-            $arrMessageTypes[$objMessageTypes->id] = $arrMessageType;
-        }
-        return $arrMessageTypes;
-    }
-
-    //return button template //TODO: render the right button, currently only test button is rendered
     public function getMessageSendButton($arrMessageType, $additionalData)
     {
         if($arrMessageType['sendWhen'] != 'manual'){
@@ -70,9 +35,7 @@ class OrderMessages
         //order must be forceRefreshed to see if messageType is sent
         $arrOrder = $orderId ? ls_shop_generalHelper::getOrder($orderId, 'id', true) : null;
 
-
-        //TODO: optimieren und umbenennen
-        $arrMessageTypes = $this->getMessageTypes2("sendWhen", 'manual');
+        $arrMessageTypes = ls_shop_messages::getMessageTypesStatic("sendWhen", 'manual');
 
 
         $twig = \Contao\System::getContainer()->get('twig');
@@ -94,9 +57,9 @@ class OrderMessages
                     'headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],*/
 
                     //array with messages types that should be displayed in backend to send messages
-                    'sendWhen' => '',
-                    'messageType' => '',
-                    'lsShopProductCode' => '',
+                    'sendWhen' => $arrMessageType['sendWhen'],
+                    'messageType' => 'id',
+                    'lsShopProductCode' => $orderId,
                     'buttonTitle' => $arrMessageType['multilanguage']['title'], //button wurde gedrückt
 
 
@@ -129,8 +92,6 @@ class OrderMessages
         if($arrMessageType['sendWhen'] != 'manual'){
             return [];
         }
-
-        //TODO: add Receiver Addresses for orders
 
         $orderId = $additionalData;
 
@@ -173,8 +134,7 @@ class OrderMessages
             return $text;
         }
 
-        //TODO: add replace wildcards again
-        //TODO: currently no wildcard for order get replaced
+        //TODO: what wildcards need to be added for order messages?
 
         $orderId = $additionalData;
 

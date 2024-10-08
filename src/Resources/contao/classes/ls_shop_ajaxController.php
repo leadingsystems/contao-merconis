@@ -85,7 +85,7 @@ class ls_shop_ajaxController
                  */
 
 
-                $arrbutton = $objOrderMessages->getButton();
+                $arrbutton = $objOrderMessages->getButtonArray();
 
                 $twig = \Contao\System::getContainer()->get('twig');
 

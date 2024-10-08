@@ -4174,6 +4174,44 @@ class ls_shop_generalHelper
         return \Controller::getTemplateGroup('template_beOrderRepresentationDetails_');
     }
 
+    private static function getMessageTypesForCollectiveOrder($language)
+    {
+        $arrMessageTypes = [];
+
+        $arrMessageTypes = ls_shop_generalHelper::getMessageType(
+            $language,
+            $arrMessageTypes,
+            'sendWhen',
+            'manual'
+        );
+
+        return $arrMessageTypes;
+    }
+
+    private static function getMessageType($language, $arrMessageTypes, $findBy, $identificationToken)
+    {
+
+        $objMessageTypes = \Database::getInstance()->prepare("
+			SELECT		*
+			FROM		`tl_ls_shop_message_type`
+			WHERE		`".$findBy."` = ?
+		")
+            ->execute($identificationToken);
+
+        if (!$objMessageTypes->numRows) {
+            return $arrMessageTypes;
+        }
+
+        while ($objMessageTypes->next()) {
+            $arrMessageType = $objMessageTypes->row();
+            $arrMessageTypes[$objMessageTypes->id] = $arrMessageType;
+            $arrMessageTypes[$objMessageTypes->id]['title'] = $arrMessageTypes[$objMessageTypes->id]['title_'.$language];
+
+        }
+
+        return $arrMessageTypes;
+    }
+
     public static function getMessageTypesForOrderOverview($arrOrder = null, $isAjax = false)
     {
         //TODO: gleichbedeutend mit CollectiveOrderBackendController::show
@@ -4184,6 +4222,22 @@ class ls_shop_generalHelper
         if (!is_array($arrOrder) || !count($arrOrder)) {
             return $arrMessageTypes;
         }
+
+
+        $arrMessageTypes2 = ls_shop_generalHelper::getMessageTypesForCollectiveOrder('de');
+        $arrButtons = [];
+
+        foreach ($arrMessageTypes2 as $key2 => $messagetype) {
+            $ls_shop_messages = new ls_shop_messages($messagetype['id'], 'id', $arrOrder['id']);
+            $arrMessageTypes2[$key2]['button'] = $ls_shop_messages->getButtonArray();
+            $arrButtons = $ls_shop_messages->getButtonArray();
+        }
+        /*
+        foreach ($arrOrder as $key => $order) {
+
+        }*/
+        //$test = $arrInfosForCollectiveOrders;
+
 
         $objMessageTypes = \Database::getInstance()->prepare("
 				SELECT		*
@@ -4267,7 +4321,8 @@ class ls_shop_generalHelper
             //$arrMessageTypes[$objMessageTypes->id]['button'] = $objTemplateMessageTypeButton->parse();
         }
 
-        return $arrMessageTypes;
+        return $arrButtons;
+        //return $arrMessageTypes;
     }
 
     public static function sendMessagesOnStatusChangeCronDaily()
