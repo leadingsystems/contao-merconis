@@ -2,13 +2,10 @@
 
 namespace Merconis\Core;
 
-foreach ($GLOBALS['TL_DCA']['tl_user']['palettes'] as $k => $v) {
-	if ($k == '__selector__') {
-		continue;
-	}
+use Contao\Backend;
+use Contao\CoreBundle\DataContainer\PaletteManipulator;
 
-	$GLOBALS['TL_DCA']['tl_user']['palettes'][$k] .= ';{lsShop_legend:hide},lsShopBeOrderTemplateOverview,lsShopBeOrderTemplateDetails';
-}
+$GLOBALS['TL_DCA']['tl_user']['config']['onload_callback'][] = array('Merconis\Core\tl_user', 'onloadCallback');
 
 $GLOBALS['TL_DCA']['tl_user']['fields']['lsShopBeOrderTemplateOverview'] = array(
 	'exclude' => true,
@@ -28,4 +25,22 @@ $GLOBALS['TL_DCA']['tl_user']['fields']['lsShopBeOrderTemplateDetails'] = array(
 	'sql'                     => "varchar(64) NOT NULL default ''"
 );
 
-
+class tl_user extends Backend
+{
+    public function onloadCallback(): void
+    {
+        foreach ($GLOBALS['TL_DCA']['tl_user']['palettes'] as $name => $palette)  {
+            if (!is_string($palette)) {
+                continue;
+            }
+            PaletteManipulator::create()
+                ->addLegend('lsShop_legend', null, PaletteManipulator::POSITION_AFTER, true)
+                ->addField([
+                    'lsShopBeOrderTemplateOverview',
+                    'lsShopBeOrderTemplateDetails'
+                ], 'lsShop_legend')
+                ->applyToPalette($name, 'tl_user')
+            ;
+        }
+    }
+}

@@ -6,7 +6,7 @@ use Contao\CoreBundle\DataContainer\PaletteManipulator;
 use Contao\System;
 
 PaletteManipulator::create()
-    ->addLegend('lsShop_legend:hide', 'contact_legend')
+    ->addLegend('lsShop_legend', 'contact_legend', PaletteManipulator::POSITION_AFTER, true)
     ->addField(
         [
             'VATID',
@@ -21,7 +21,7 @@ PaletteManipulator::create()
             'mobile_phone_alternative',
             'fax_alternative',
             'email_alternative'
-        ],'lsShop_legend:hide', PaletteManipulator::POSITION_APPEND
+        ],'lsShop_legend', PaletteManipulator::POSITION_APPEND
     )
     ->applyToPalette('default', 'tl_member')
 ;
