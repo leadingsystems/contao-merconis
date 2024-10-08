@@ -68,51 +68,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		),
 
 		'global_operations' => array(
-			'all' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
-				'href'                => 'act=select',
-				'class'               => 'header_edit_all',
-				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
-			)
+			'all'
 		),
 
 		'operations' => array(
-			'edit' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['edit'],
-				'href'                => 'act=edit',
-				'icon'                => 'edit.svg'
-			),
-			'copy' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['copy'],
-				'href'                => 'act=copy',
-				'icon'                => 'copy.svg'
-			),
-			'cut' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['cut'],
-				'href'                => 'act=paste&amp;mode=cut',
-				'icon'                => 'cut.svg',
-				'attributes'          => 'onclick="Backend.getScrollOffset()"'
-			),
-			'delete' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['delete'],
-				'href'                => 'act=delete',
-				'icon'                => 'delete.svg',
-				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
-			),
-			'toggle' => array (
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['toggle'],
-				'icon'                => 'visible.svg',
-				'attributes'          => 'onclick="Backend.getScrollOffset(); return AjaxRequest.toggleVisibility(this,%s)"',
-				'button_callback'     => array('Merconis\Core\tl_ls_shop_variant_controller', 'toggleIcon')
-			),
-			'show' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['show'],
-				'href'                => 'act=show',
-				'icon'                => 'show.svg'
-			)
-
+			'edit',
+			'copy',
+			'cut',
+			'delete',
+			'toggle',
+			'show'
 		)
 	),
 	'palettes' => array(
@@ -286,6 +251,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		'published' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['published'],
 			'exclude' => true,
+            'toggle' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('doNotCopy'=>true),
 			'filter'		=> true,
@@ -1307,10 +1273,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'inputType'               => 'text',
             'eval'                    => array(
                 'rgxp'=>'date',
-                /*
-                 * @toDo check if 'datepicker'=>true works
-                 */
-//                'datepicker'=>$this->getDatePickerString(),
+                'datepicker'=>true,
                 'tl_class'=>'w50 wizard clr'),
             'sql'                     => "varchar(10) NOT NULL default ''"
         ),
@@ -1343,9 +1306,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		)
 	)
 );
-
-
-
 
 
 class tl_ls_shop_variant_controller extends Backend {
@@ -1442,50 +1402,5 @@ class tl_ls_shop_variant_controller extends Backend {
 		$objProductOutput = new ls_shop_productOutput($arrRow['pid'].'-'.$arrRow['id'], '', 'template_productBackendOverview_03');
 		$label = '<div class="productViewBEList">'.$objProductOutput->parseOutput().'</div>';
 		return $label;
-	}
-
-	public function toggleIcon($row, $href, $label, $title, $icon, $attributes) {
-		if (strlen(Input::get('tid'))) {
-			$this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1));
-			$this->redirect($this->getReferer());
-		}
-
-		// Check permissions AFTER checking the tid, so hacking attempts are logged
-		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_variant::published', 'alexf')) {
-			return '';
-		}
-
-		$href .= '&amp;tid='.$row['id'].'&amp;state='.($row['published'] ? '' : 1);
-
-		if (!$row['published']) {
-			$icon = 'invisible.svg';
-		}
-
-		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
-	}
-
-	public function toggleVisibility($intId, $blnVisible) {
-		// Check permissions to publish
-		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_variant::published', 'alexf')) {
-            System::getContainer()->get('monolog.logger.contao')->info(
-                'Not enough permissions to publish/unpublish variant ID "'.$intId.'"',
-                ['contao' => new ContaoContext('tl_ls_shop_variant toggleVisibility', ContaoContext::ERROR)]
-            );
-			$this->redirect('contao/main.php?act=error');
-		}
-
-		ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
-
-		// Trigger the save_callback
-		if (is_array($GLOBALS['TL_DCA']['tl_ls_shop_variant']['fields']['published']['save_callback'])) {
-			foreach ($GLOBALS['TL_DCA']['tl_ls_shop_variant']['fields']['published']['save_callback'] as $callback) {
-				$this->import($callback[0]);
-				$blnVisible = $this->{$callback[0]}->{$callback[1]}($blnVisible, $this);
-			}
-		}
-
-		// Update the database
-		Database::getInstance()->prepare("UPDATE tl_ls_shop_variant SET tstamp=". time() .", published='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
-					   ->execute($intId);
 	}
 }

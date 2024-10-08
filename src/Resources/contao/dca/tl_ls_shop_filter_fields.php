@@ -53,50 +53,26 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		),
 
 		'global_operations' => array(
-			'all' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
-				'href'                => 'act=select',
-				'class'               => 'header_edit_all',
-				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
-			)
+			'all'
 		),
 
 		'operations' => array(
-            'edit' => array (
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['edit'],
-                'href'                => 'act=edit',
-                'icon'                => 'edit.svg'
-            ),
+            'edit',
 			'children' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['children'],
 				'href'                => 'table=tl_ls_shop_filter_field_values',
 				'icon'                => 'children.svg',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_filter_fields','getEditButton')
 			),
-			'copy' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['copy'],
-				'href'                => 'act=copy',
-				'icon'                => 'copy.svg'
-			),
-			'delete' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['delete'],
-				'href'                => 'act=delete',
-				'icon'                => 'delete.svg',
-				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"'
-			),
+			'copy',
+			'delete',
 			'toggle' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['toggle'],
 				'icon'                => 'visible.svg',
 				'attributes'          => 'onclick="Backend.getScrollOffset(); return AjaxRequest.toggleVisibility(this,%s)"',
 				'button_callback'     => array('Merconis\Core\ls_shop_filter_fields', 'toggleIcon')
 			),
-			'show' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['show'],
-				'href'                => 'act=show',
-				'icon'                => 'show.svg'
-			)
-
+			'show'
 		)
 	),
 
