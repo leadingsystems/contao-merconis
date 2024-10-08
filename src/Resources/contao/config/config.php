@@ -21,6 +21,9 @@ $GLOBALS['MERCONIS_HOOKS']['addMessageSendOption'][] = array('LeadingSystems\Mer
 
 $GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'getMessageSendButton');
 
+$GLOBALS['MERCONIS_HOOKS']['manipulateMessageToSendAndSave'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'manipulateMessageToSendAndSave');
+
+
 
 
 /*

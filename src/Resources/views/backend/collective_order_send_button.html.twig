@@ -1,0 +1,6 @@
+
+{% block messageIconContainer %}
+    <div class="messageIconContainer">
+        <a class="messageIcon messageButton {{alreadySent}} {{ sendWhen }}" onclick="return ls_shop_backend.sendMessage(this.getParent('.messageIconContainer'), {{ messageType }}, '{{ lsShopProductCode }}' )" href="#"> {{ buttonTitle }}</a>
+    </div>
+{% endblock %}

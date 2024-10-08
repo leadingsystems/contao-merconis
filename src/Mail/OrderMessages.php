@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\Mail;
 
 use Merconis\Core\ls_shop_generalHelper;
+use Merconis\Core\ls_shop_languageHelper;
 
 class OrderMessages
 {
@@ -36,28 +37,60 @@ class OrderMessages
             return false;
         }
 
+        $orderId = $additionalData;
+
+        //order must be forceRefreshed to see if messageType is sent
+        $arrOrder = $orderId ? ls_shop_generalHelper::getOrder($orderId, 'id', true) : null;
+
+        $blnAlreadySent = in_array($arrMessageType['id'], $arrOrder['messageTypesSent']);
+
 
         $twig = \Contao\System::getContainer()->get('twig');
 
+        $arrMessageType['multilanguage']['title'] = ls_shop_languageHelper::getMultiLanguage($arrMessageType['id'], "tl_ls_shop_message_type_languages", array('title'), array($GLOBALS['TL_LANGUAGE']));
+
+
         return $twig->render(
-            '@LeadingSystemsMerconisCustom/backend/collective_order_send_button.html.twig',
+            '@LeadingSystemsMerconis/backend/collective_order_send_button.html.twig',
             [
                 /*'error' => 'test',*/
                 /*'title' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],
                 'headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],*/
 
                 //array with messages types that should be displayed in backend to send messages
-                'sendWhen' => 'collectiveOrderComplete',
-                'messageType' => 'id',
-                'lsShopProductCode' => 'lsShopProductCode',
-                'buttonTitle' => 'button wurde gedrückt'
+                'sendWhen' => '',
+                'messageType' => '',
+                'lsShopProductCode' => '',
+                'buttonTitle' => $arrMessageType['multilanguage']['title'], //button wurde gedrückt
+
+
+                'alreadySent' => $blnAlreadySent ? 'alreadySent' : '' //set class for alreadSent
             ]
         );
     }
 
-    //hier können die adressen hinzugefügt werden die versendet werden sollnen beim hook basierten
-    public function addReceiverAddresses($arrMessageModel, $additionalData)
+    public function manipulateMessageToSendAndSave($arrMessageToSendAndSave, $arrMessageType, $arrMessageModel, $additionalData)
     {
+
+        if($arrMessageType['sendWhen'] != 'manual'){
+            return $arrMessageToSendAndSave;
+        }
+
+        $orderId = $additionalData;
+
+        $arrMessageToSendAndSave['orderID'] = $orderId ?: 0;
+
+        return $arrMessageToSendAndSave;
+
+    }
+
+    //hier können die adressen hinzugefügt werden die versendet werden sollnen beim hook basierten
+    public function addReceiverAddresses($arrMessageType, $arrMessageModel, $additionalData)
+    {
+        if($arrMessageType['sendWhen'] != 'manual'){
+            return [];
+        }
+
         //TODO: add Receiver Addresses for orders
 
         $orderId = $additionalData;
@@ -95,11 +128,29 @@ class OrderMessages
     }
 
     //hier gibt es die möglichkeit Wildcards zu ersetzen
-    public function replaceWildcards($text, $data, $additionalData)
+    public function replaceWildcards($arrMessageType, $text, $data, $additionalData)
     {
+        if($arrMessageType['sendWhen'] != 'manual'){
+            return $text;
+        }
 
         //TODO: add replace wildcards again
         //TODO: currently no wildcard for order get replaced
+
+        $orderId = $additionalData;
+
+        //order must be forceRefreshed to see if messageType is sent
+        $arrOrder = $orderId ? ls_shop_generalHelper::getOrder($orderId, 'id', true) : null;
+
+        $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $arrOrder);
+
+        /*
+        if ($this->obj_product !== null) {
+            $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $this->obj_product, $this->ls_language);
+        }
+        if ($this->arr_memberData !== null) {
+            $text = ls_shop_generalHelper::ls_replaceMemberWildcards($text, $this->arr_memberData);
+        }*/
 
 
         return $text;

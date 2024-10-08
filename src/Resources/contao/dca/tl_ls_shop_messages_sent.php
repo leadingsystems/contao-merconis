@@ -5,6 +5,7 @@ namespace Merconis\Core;
 use Contao\DataContainer;
 use Contao\DC_Table;
 
+
 $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 	'config' => array(
 		'dataContainer' => DC_Table::class,
@@ -72,6 +73,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 	'fields' => array(
         'id' => array (
             'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+        ),
+        //TODO: remove later und pack es ist die dca der erweiterung
+        'collectiveOrderID' => array (
+            'sql'                     => "text NULL"
         ),
         'orderID' => array (
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
