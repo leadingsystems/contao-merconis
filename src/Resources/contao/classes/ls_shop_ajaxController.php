@@ -84,7 +84,17 @@ class ls_shop_ajaxController
                  * Generate the messageType button which is needed as the return value
                  */
 
-                echo $objOrderMessages->getButton();
+
+                $arrbutton = $objOrderMessages->getButton();
+
+                $twig = \Contao\System::getContainer()->get('twig');
+
+                echo $twig->render(
+                    '@LeadingSystemsMerconis/backend/send_button_list.html.twig',
+                    [
+                        'arrButtons' => $arrbutton,
+                    ]
+                );
 
                 /*
                 $arrOrder = ls_shop_generalHelper::getOrder(\Input::post('orderID'), 'id', true);

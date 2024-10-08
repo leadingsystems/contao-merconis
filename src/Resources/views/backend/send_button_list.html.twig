@@ -1,0 +1,11 @@
+
+{% block messageIconContainer %}
+    <div class="messageIcons">
+
+        {% for button in arrButtons %}
+
+            {{ button | raw }}
+
+        {% endfor %}
+    </div>
+{% endblock %}

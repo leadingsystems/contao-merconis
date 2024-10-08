@@ -50,7 +50,9 @@ class OrderMessages
         $arrMessageType['multilanguage']['title'] = ls_shop_languageHelper::getMultiLanguage($arrMessageType['id'], "tl_ls_shop_message_type_languages", array('title'), array($GLOBALS['TL_LANGUAGE']));
 
 
-        return $twig->render(
+        $buttons = [];
+
+        $buttons[] = $twig->render(
             '@LeadingSystemsMerconis/backend/collective_order_send_button.html.twig',
             [
                 /*'error' => 'test',*/
@@ -67,6 +69,8 @@ class OrderMessages
                 'alreadySent' => $blnAlreadySent ? 'alreadySent' : '' //set class for alreadSent
             ]
         );
+
+        return $buttons;
     }
 
     public function manipulateMessageToSendAndSave($arrMessageToSendAndSave, $arrMessageType, $arrMessageModel, $additionalData)

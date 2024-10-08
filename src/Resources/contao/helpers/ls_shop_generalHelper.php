@@ -4176,6 +4176,9 @@ class ls_shop_generalHelper
 
     public static function getMessageTypesForOrderOverview($arrOrder = null, $isAjax = false)
     {
+        //TODO: gleichbedeutend mit CollectiveOrderBackendController::show
+
+
         $arrMessageTypes = array();
 
         if (!is_array($arrOrder) || !count($arrOrder)) {

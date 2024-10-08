@@ -86,10 +86,11 @@ class ls_shop_messages
 	}
 
 
+
+
     public function getButton()
     {
-
-
+        $arrButtons = [];
 
 
         foreach ($this->arrMessageModels as $arrMessageModel) {
@@ -98,9 +99,6 @@ class ls_shop_messages
                 if($arrMessageModel['pid'] == $arrMessageType['id']){
 
 
-
-                    //TODO: button muss über hook von CollectiveOrderMessages geladen werden
-
                     if (isset($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton']) && is_array($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'])) {
                         foreach ($GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'] as $mccb) {
 
@@ -108,6 +106,9 @@ class ls_shop_messages
 
                             //return value is false is button dont exist for this hook
                             $returnValue = $objMccb->{$mccb[1]}($arrMessageType, $arrMessageModel, $this->additionalData);
+
+                            $arrButtons[] = $returnValue;
+
                             if($returnValue){
                                 return $returnValue;
                             }
@@ -119,7 +120,7 @@ class ls_shop_messages
 
         }
 
-
+        //return $arrButtons;
 
         return "kein button";
 
