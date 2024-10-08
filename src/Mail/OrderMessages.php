@@ -58,7 +58,7 @@ class OrderMessages
 
                     //array with messages types that should be displayed in backend to send messages
                     'sendWhen' => $arrMessageType['sendWhen'],
-                    'messageType' => 'id',
+                    'messageType' => $arrMessageType['id'],
                     'lsShopProductCode' => $orderId,
                     'buttonTitle' => $arrMessageType['multilanguage']['title'], //button wurde gedrückt
 
