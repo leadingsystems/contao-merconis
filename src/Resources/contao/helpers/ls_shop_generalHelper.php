@@ -2213,6 +2213,7 @@ class ls_shop_generalHelper
                 SELECT  flexContentLIKey
                 FROM    tl_ls_shop_filter_fields
                 WHERE   dataSource = 'flexContentLIMinMax'
+                AND IFNULL(flexContentLIKey, '') != ''
         ")
         ->execute();
 
