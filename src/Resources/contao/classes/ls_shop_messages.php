@@ -85,7 +85,7 @@ class ls_shop_messages
 		}
 	}
 
-    public static function getMessageTypesStatic($findBy, $identificationToken ) {
+    public static function getMessageTypesStatic($findBy, $identificationToken, $memberGroupInfo_id = false) {
         $arrMessageTypes = array();
 
         /*
@@ -94,6 +94,14 @@ class ls_shop_messages
          * that this function or even the whole class can deal with multiple message types and messages for one
          * sending process.
          */
+
+        $groupInfo = "";
+
+        if($memberGroupInfo_id){
+            $groupInfo = "AND	`tl_ls_shop_message_model`.`member_group` LIKE '%%" . $memberGroupInfo_id . "%'";
+        }
+
+
         $objMessageTypes = \Database::getInstance()->prepare("
 			SELECT		*
 			FROM		`tl_ls_shop_message_type`
@@ -103,7 +111,7 @@ class ls_shop_messages
 								FROM	`tl_ls_shop_message_model`
 								WHERE	`tl_ls_shop_message_model`.`pid` = `tl_ls_shop_message_type`.`id`
 									AND	`tl_ls_shop_message_model`.`published` = '1'
-									
+									".$groupInfo."
 							) > 0
 		")
             ->execute($identificationToken);

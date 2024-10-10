@@ -6,7 +6,7 @@ use Merconis\Core\ls_shop_generalHelper;
 use Merconis\Core\ls_shop_languageHelper;
 use Merconis\Core\ls_shop_messages;
 
-class OrderMessages
+class RestockInfoMessages
 {
 
 
@@ -28,7 +28,7 @@ class OrderMessages
 
     public function getMessageSendButton($arrMessageType, $additionalData)
     {
-        if($arrMessageType['sendWhen'] != 'manual'){
+        if($arrMessageType['sendWhen'] != 'onRestock'){
             return false;
         }
 
@@ -91,9 +91,16 @@ class OrderMessages
     //hier können die adressen hinzugefügt werden die versendet werden sollnen beim hook basierten
     public function addReceiverAddresses($arrMessageType, $arrMessageModel, $additionalData)
     {
-        if($arrMessageType['sendWhen'] != 'manual'){
+        if($arrMessageType['sendWhen'] != 'onRestock'){
             return [];
         }
+
+        $additionalData;
+
+        if ($arrMessageModel['sendToMemberAddress'] && $this->arr_memberData !== null && $this->arr_memberData['email']) {
+            $arrReceiverAddresses['main'] = $this->arr_memberData['email'];
+        }
+
 
         $orderId = $additionalData;
 
@@ -131,29 +138,61 @@ class OrderMessages
     //hier gibt es die möglichkeit Wildcards zu ersetzen
     public function replaceWildcards($arrMessageType, $text, $data, $additionalData)
     {
-        if($arrMessageType['sendWhen'] != 'manual'){
+        if($arrMessageType['sendWhen'] != 'onRestock'){
             return $text;
         }
 
         //TODO: what wildcards need to be added for order messages?
 
-        $orderId = $additionalData;
+        //$orderId = $additionalData;
 
+        $memberData = $this->getMemberData($additionalData['memberId']);
+
+        $objProduct = ls_shop_generalHelper::getObjProduct($additionalData['productVariantId']);
+
+        /*
         //order must be forceRefreshed to see if messageType is sent
         $arrOrder = $orderId ? ls_shop_generalHelper::getOrder($orderId, 'id', true) : null;
 
         $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $arrOrder);
 
-        /*
         if ($this->obj_product !== null) {
             $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $this->obj_product, $this->ls_language);
         }
+
         if ($this->arr_memberData !== null) {
             $text = ls_shop_generalHelper::ls_replaceMemberWildcards($text, $this->arr_memberData);
         }*/
 
 
+        if ($objProduct !== null) {
+            $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $objProduct, 'de'); //TODO: change language
+        }
+
+        if($memberData !== null) {
+            $text = ls_shop_generalHelper::ls_replaceMemberWildcards($text, $memberData);
+        }
+
+
         return $text;
+    }
+
+    private function getMemberData($int_memberId){
+
+        $obj_dbres_memberData = \Database::getInstance()
+            ->prepare("
+                    SELECT      *
+                    FROM        tl_member
+                    WHERE       id = ?
+                ")
+            ->limit(1)
+            ->execute(
+                $int_memberId
+            );
+
+        if ($obj_dbres_memberData->numRows) {
+            return $obj_dbres_memberData->row();
+        }
     }
 
 

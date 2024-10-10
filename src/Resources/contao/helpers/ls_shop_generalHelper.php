@@ -2649,6 +2649,8 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($obj_dbres_productsBackInStock->next()) {
+
+            /*
             $objOrderMessages = new ls_shop_orderMessages(
                 null,
                 'onRestock',
@@ -2657,6 +2659,15 @@ class ls_shop_generalHelper
                 false,
                 $obj_dbres_productsBackInStock->memberId,
                 $obj_dbres_productsBackInStock->productVariantId
+            );*/
+            $objOrderMessages = new ls_shop_messages(
+                'onRestock',
+                'sendWhen',
+                [
+                        'memberId' => $obj_dbres_productsBackInStock->memberId,
+                    'productVariantId' => $obj_dbres_productsBackInStock->productVariantId
+                ],
+                $obj_dbres_productsBackInStock->language,
             );
             $objOrderMessages->sendMessages();
 
@@ -4183,7 +4194,7 @@ class ls_shop_generalHelper
             return $arrMessageTypes;
         }
 
-        $arrMessageTypesTemp = ls_shop_messages::getMessageTypesStatic("sendWhen", OrderMessages::ORDER_MANUAL);
+        $arrMessageTypesTemp = ls_shop_messages::getMessageTypesStatic("sendWhen", OrderMessages::ORDER_MANUAL, $arrOrder['memberGroupInfo_id']);
 
         $arrButtons = [];
 
