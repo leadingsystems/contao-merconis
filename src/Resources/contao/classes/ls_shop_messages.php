@@ -98,8 +98,17 @@ class ls_shop_messages
 			SELECT		*
 			FROM		`tl_ls_shop_message_type`
 			WHERE		`".$findBy."` = ?
+			AND		(
+								SELECT	COUNT(*)
+								FROM	`tl_ls_shop_message_model`
+								WHERE	`tl_ls_shop_message_model`.`pid` = `tl_ls_shop_message_type`.`id`
+									AND	`tl_ls_shop_message_model`.`published` = '1'
+									
+							) > 0
 		")
             ->execute($identificationToken);
+
+        //TODO: für was wird das gebraucht?: AND	`tl_ls_shop_message_model`.`member_group` LIKE ?
 
         if (!$objMessageTypes->numRows) {
             return false;

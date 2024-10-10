@@ -10,6 +10,8 @@ class OrderMessages
 {
 
 
+    const ORDER_MANUAL = 'manual';
+
     public function __construct()
     {
 
@@ -35,7 +37,7 @@ class OrderMessages
         //order must be forceRefreshed to see if messageType is sent
         $arrOrder = $orderId ? ls_shop_generalHelper::getOrder($orderId, 'id', true) : null;
 
-        $arrMessageTypes = ls_shop_messages::getMessageTypesStatic("sendWhen", 'manual');
+        $arrMessageTypes = ls_shop_messages::getMessageTypesStatic("sendWhen", OrderMessages::ORDER_MANUAL);
 
 
         $twig = \Contao\System::getContainer()->get('twig');
@@ -50,7 +52,7 @@ class OrderMessages
             $arrMessageType['multilanguage']['title'] = ls_shop_languageHelper::getMultiLanguage($arrMessageType['id'], "tl_ls_shop_message_type_languages", array('title'), array($GLOBALS['TL_LANGUAGE']));
 
             $buttons[] = $twig->render(
-                '@LeadingSystemsMerconis/backend/collective_order_send_button.html.twig',
+                '@LeadingSystemsMerconis/backend/send_button.html.twig',
                 [
                     /*'error' => 'test',*/
                     /*'title' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],

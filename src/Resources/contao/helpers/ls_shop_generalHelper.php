@@ -10,6 +10,7 @@ use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
+use LeadingSystems\MerconisBundle\Mail\OrderMessages;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -4174,155 +4175,25 @@ class ls_shop_generalHelper
         return \Controller::getTemplateGroup('template_beOrderRepresentationDetails_');
     }
 
-    private static function getMessageTypesForCollectiveOrder($language)
-    {
-        $arrMessageTypes = [];
-
-        $arrMessageTypes = ls_shop_generalHelper::getMessageType(
-            $language,
-            $arrMessageTypes,
-            'sendWhen',
-            'manual'
-        );
-
-        return $arrMessageTypes;
-    }
-
-    private static function getMessageType($language, $arrMessageTypes, $findBy, $identificationToken)
-    {
-
-        $objMessageTypes = \Database::getInstance()->prepare("
-			SELECT		*
-			FROM		`tl_ls_shop_message_type`
-			WHERE		`".$findBy."` = ?
-		")
-            ->execute($identificationToken);
-
-        if (!$objMessageTypes->numRows) {
-            return $arrMessageTypes;
-        }
-
-        while ($objMessageTypes->next()) {
-            $arrMessageType = $objMessageTypes->row();
-            $arrMessageTypes[$objMessageTypes->id] = $arrMessageType;
-            $arrMessageTypes[$objMessageTypes->id]['title'] = $arrMessageTypes[$objMessageTypes->id]['title_'.$language];
-
-        }
-
-        return $arrMessageTypes;
-    }
-
     public static function getMessageTypesForOrderOverview($arrOrder = null, $isAjax = false)
     {
-        //TODO: gleichbedeutend mit CollectiveOrderBackendController::show
-
-
         $arrMessageTypes = array();
 
         if (!is_array($arrOrder) || !count($arrOrder)) {
             return $arrMessageTypes;
         }
 
+        $arrMessageTypesTemp = ls_shop_messages::getMessageTypesStatic("sendWhen", OrderMessages::ORDER_MANUAL);
 
-        $arrMessageTypes2 = ls_shop_generalHelper::getMessageTypesForCollectiveOrder('de');
         $arrButtons = [];
 
-        foreach ($arrMessageTypes2 as $key2 => $messagetype) {
+        foreach ($arrMessageTypesTemp as $keyTemp => $messagetype) {
             $ls_shop_messages = new ls_shop_messages($messagetype['id'], 'id', $arrOrder['id']);
-            $arrMessageTypes2[$key2]['button'] = $ls_shop_messages->getButtonArray();
+            $arrMessageTypesTemp[$keyTemp]['button'] = $ls_shop_messages->getButtonArray();
             $arrButtons = $ls_shop_messages->getButtonArray();
-        }
-        /*
-        foreach ($arrOrder as $key => $order) {
-
-        }*/
-        //$test = $arrInfosForCollectiveOrders;
-
-
-        $objMessageTypes = \Database::getInstance()->prepare("
-				SELECT		*
-				FROM		`tl_ls_shop_message_type`
-				WHERE		`sendWhen` = ?
-					AND		(
-								SELECT	COUNT(*)
-								FROM	`tl_ls_shop_message_model`
-								WHERE	`tl_ls_shop_message_model`.`pid` = `tl_ls_shop_message_type`.`id`
-									AND	`tl_ls_shop_message_model`.`published` = '1'
-									AND	`tl_ls_shop_message_model`.`member_group` LIKE ?
-							) > 0
-			")
-            ->execute('manual', '%%"' . $arrOrder['memberGroupInfo_id'] . '"%');
-        //'asOrderConfirmation', 'asOrderNotice', 'onRestock',
-
-
-        if (!$objMessageTypes->numRows) {
-            return $arrMessageTypes;
-        }
-
-        while ($objMessageTypes->next()) {
-            $arrMessageTypes[$objMessageTypes->id] = $objMessageTypes->row();
-            $arrMessageTypes[$objMessageTypes->id]['multilanguage']['title'] = ls_shop_languageHelper::getMultiLanguage($objMessageTypes->id, "tl_ls_shop_message_type_languages", array('title'), array($GLOBALS['TL_LANGUAGE']));
-
-
-            /*
-            $objTemplateMessageTypeButton = new \BackendTemplate('template_beMessageTypeButton_default');
-
-            $objTemplateMessageTypeButton->messageType = $arrMessageTypes[$objMessageTypes->id];
-            $objTemplateMessageTypeButton->arrOrder = $arrOrder;
-            $objTemplateMessageTypeButton->isAjax = $isAjax;
-            */
-
-            $twig = \Contao\System::getContainer()->get('twig');
-
-            $blnAlreadySent = in_array($arrMessageTypes[$objMessageTypes->id]['id'], $arrOrder['messageTypesSent']);
-
-            if($blnAlreadySent){
-                $arrMessageTypes[$objMessageTypes->id]['button'] =  $twig->render(
-                    '@LeadingSystemsMerconis/backend/collective_order_send_button.html.twig',
-                    [
-                        /*'error' => 'test',*/
-                        /*'title' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],
-                        'headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],*/
-
-                        //array with messages types that should be displayed in backend to send messages
-                        'sendWhen' => '', //can be empty //TODO: remove later
-
-                        'alreadySent' => $blnAlreadySent ? 'alreadySent' : '', //set class for alreadSent
-
-                        'messageType' => '',
-                        'lsShopProductCode' => '',
-
-                        'buttonTitle' => $arrMessageTypes[$objMessageTypes->id]['multilanguage']['title']
-                    ]
-                );
-            }else{
-                $arrMessageTypes[$objMessageTypes->id]['button'] =  $twig->render(
-                    '@LeadingSystemsMerconis/backend/collective_order_send_button.html.twig',
-                    [
-                        /*'error' => 'test',*/
-                        /*'title' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],
-                        'headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],*/
-
-                        //array with messages types that should be displayed in backend to send messages
-                        'sendWhen' => '', //can be empty //TODO: remove later
-
-                        'alreadySent' => $blnAlreadySent ? 'alreadySent' : '', //set class for alreadSent
-
-                        'messageType' => $arrMessageTypes[$objMessageTypes->id]['id'],
-                        'lsShopProductCode' => $arrOrder['id'],
-
-                        'buttonTitle' => $arrMessageTypes[$objMessageTypes->id]['multilanguage']['title']
-                    ]
-                );
-            }
-
-
-
-            //$arrMessageTypes[$objMessageTypes->id]['button'] = $objTemplateMessageTypeButton->parse();
         }
 
         return $arrButtons;
-        //return $arrMessageTypes;
     }
 
     public static function sendMessagesOnStatusChangeCronDaily()
