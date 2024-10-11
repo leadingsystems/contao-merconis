@@ -691,7 +691,7 @@ class ls_shop_filterHelper {
                 }
 
             } else if ($type == 'flex_contentsLanguageIndependent' && !self::isFCLIMinMax($flexContentLIKey)) {
-                $result = [$flexContentLIKey => $flexContentLIValues];
+                $result += [$flexContentLIKey => $flexContentLIValues];
             }
         }
         return $result;
