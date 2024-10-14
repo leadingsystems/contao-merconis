@@ -10,6 +10,7 @@ use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
+use LeadingSystems\MerconisBundle\Mail\OrderMessages;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -2648,14 +2649,15 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($obj_dbres_productsBackInStock->next()) {
-            $objOrderMessages = new ls_shop_orderMessages(
-                null,
+
+            $objOrderMessages = new ls_shop_messages(
                 'onRestock',
                 'sendWhen',
+                [
+                        'memberId' => $obj_dbres_productsBackInStock->memberId,
+                    'productVariantId' => $obj_dbres_productsBackInStock->productVariantId
+                ],
                 $obj_dbres_productsBackInStock->language,
-                false,
-                $obj_dbres_productsBackInStock->memberId,
-                $obj_dbres_productsBackInStock->productVariantId
             );
             $objOrderMessages->sendMessages();
 
@@ -2692,14 +2694,14 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($obj_dbres_variantsBackInStock->next()) {
-            $objOrderMessages = new ls_shop_orderMessages(
-                null,
+            $objOrderMessages = new ls_shop_messages(
                 'onRestock',
                 'sendWhen',
+                [
+                    'memberId' => $obj_dbres_variantsBackInStock->memberId,
+                    'productVariantId' => $obj_dbres_variantsBackInStock->productVariantId
+                ],
                 $obj_dbres_variantsBackInStock->language,
-                false,
-                $obj_dbres_variantsBackInStock->memberId,
-                $obj_dbres_variantsBackInStock->productVariantId
             );
             $objOrderMessages->sendMessages();
 
@@ -4182,38 +4184,17 @@ class ls_shop_generalHelper
             return $arrMessageTypes;
         }
 
-        $objMessageTypes = \Database::getInstance()->prepare("
-				SELECT		*
-				FROM		`tl_ls_shop_message_type`
-				WHERE		`sendWhen` != ?
-					AND		`sendWhen` != ?
-					AND		`sendWhen` != ?
-					AND		(
-								SELECT	COUNT(*)
-								FROM	`tl_ls_shop_message_model`
-								WHERE	`tl_ls_shop_message_model`.`pid` = `tl_ls_shop_message_type`.`id`
-									AND	`tl_ls_shop_message_model`.`published` = '1'
-									AND	`tl_ls_shop_message_model`.`member_group` LIKE ?
-							) > 0
-			")
-            ->execute('asOrderConfirmation', 'asOrderNotice', 'onRestock', '%%"' . $arrOrder['memberGroupInfo_id'] . '"%');
+        $arrMessageTypesTemp = ls_shop_messages::getMessageTypesStatic("sendWhen", OrderMessages::ORDER_MANUAL, $arrOrder['memberGroupInfo_id']);
 
-        if (!$objMessageTypes->numRows) {
-            return $arrMessageTypes;
+        $arrButtons = [];
+
+        foreach ($arrMessageTypesTemp as $keyTemp => $messagetype) {
+            $ls_shop_messages = new ls_shop_messages($messagetype['id'], 'id', $arrOrder['id']);
+            $arrMessageTypesTemp[$keyTemp]['button'] = $ls_shop_messages->getButtonArray();
+            $arrButtons = $ls_shop_messages->getButtonArray();
         }
 
-        while ($objMessageTypes->next()) {
-            $arrMessageTypes[$objMessageTypes->id] = $objMessageTypes->row();
-            $arrMessageTypes[$objMessageTypes->id]['multilanguage']['title'] = ls_shop_languageHelper::getMultiLanguage($objMessageTypes->id, "tl_ls_shop_message_type_languages", array('title'), array($GLOBALS['TL_LANGUAGE']));
-            $objTemplateMessageTypeButton = new \BackendTemplate('template_beMessageTypeButton_default');
-
-            $objTemplateMessageTypeButton->messageType = $arrMessageTypes[$objMessageTypes->id];
-            $objTemplateMessageTypeButton->arrOrder = $arrOrder;
-            $objTemplateMessageTypeButton->isAjax = $isAjax;
-            $arrMessageTypes[$objMessageTypes->id]['button'] = $objTemplateMessageTypeButton->parse();
-        }
-
-        return $arrMessageTypes;
+        return $arrButtons;
     }
 
     public static function sendMessagesOnStatusChangeCronDaily()
@@ -4225,7 +4206,12 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronDaily', 'sendWhen', null, true);
+            $objOrderMessages = new ls_shop_messages(
+                'onStatusChangeCronDaily',
+                'sendWhen',
+                $objOrders->id,
+                null,
+            );
             $objOrderMessages->sendMessages();
         }
     }
@@ -4239,7 +4225,13 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronHourly', 'sendWhen', null, true);
+
+            $objOrderMessages = new ls_shop_messages(
+                'onStatusChangeCronHourly',
+                'sendWhen',
+                $objOrders->id,
+                null,
+            );
             $objOrderMessages->sendMessages();
         }
     }

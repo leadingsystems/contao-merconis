@@ -14,6 +14,19 @@ $GLOBALS['TL_HOOKS']['merconisCustomTaxRateCalculation'][] = array('Merconis\Cor
 $GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_regexp', 'customRegexp');
 $GLOBALS['TL_HOOKS']['addCustomRegexp'][] = array('Merconis\Core\ls_shop_custom_regexp_fe', 'customRegexp');
 
+
+$GLOBALS['MERCONIS_HOOKS']['addReceiverAddresses'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'addReceiverAddresses');
+$GLOBALS['MERCONIS_HOOKS']['replaceWildcards'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'replaceWildcards');
+$GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'getMessageSendButton');
+$GLOBALS['MERCONIS_HOOKS']['manipulateMessageToSendAndSave'][] = array('LeadingSystems\MerconisBundle\Mail\OrderMessages', 'manipulateMessageToSendAndSave');
+
+$GLOBALS['MERCONIS_HOOKS']['addReceiverAddresses'][] = array('LeadingSystems\MerconisBundle\Mail\RestockInfoMessages', 'addReceiverAddresses');
+$GLOBALS['MERCONIS_HOOKS']['replaceWildcards'][] = array('LeadingSystems\MerconisBundle\Mail\RestockInfoMessages', 'replaceWildcards');
+$GLOBALS['MERCONIS_HOOKS']['getMessageSendButton'][] = array('LeadingSystems\MerconisBundle\Mail\RestockInfoMessages', 'getMessageSendButton');
+$GLOBALS['MERCONIS_HOOKS']['manipulateMessageToSendAndSave'][] = array('LeadingSystems\MerconisBundle\Mail\RestockInfoMessages', 'manipulateMessageToSendAndSave');
+
+
+
 /*
  * Include the lsjs app for the merconis backend
  */

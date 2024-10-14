@@ -163,10 +163,20 @@ class ModuleCheckoutFinish extends \Module {
 			/*
 			 * Sending the orderConfirmation and orderNotice messages
 			 */
-			$objOrderMessages = new ls_shop_orderMessages($orderIdInDb, 'asOrderConfirmation', 'sendWhen');
+			$obj_orderMessages = new ls_shop_messages(
+				'asOrderConfirmation',
+				'sendWhen',
+				$orderIdInDb,
+				null,
+			);
 			$objOrderMessages->sendMessages();
 
-			$objOrderMessages = new ls_shop_orderMessages($orderIdInDb, 'asOrderNotice', 'sendWhen', ls_shop_languageHelper::getFallbackLanguage());
+			$obj_orderMessages = new ls_shop_messages(
+				'asOrderNotice',
+				'sendWhen',
+				$orderIdInDb,
+				ls_shop_languageHelper::getFallbackLanguage(),
+			);
 			$objOrderMessages->sendMessages();
 		
 
