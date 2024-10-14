@@ -2648,13 +2648,8 @@ class ls_shop_generalHelper
             ")
             ->execute();
 
-        $myfile = fopen("newfile.txt", "a") or die("Unable to open file!");
-        $txt = "Step1\n";
-        fwrite($myfile, $txt);
-        fclose($myfile);
-
         while ($obj_dbres_productsBackInStock->next()) {
-            
+
             $objOrderMessages = new ls_shop_messages(
                 'onRestock',
                 'sendWhen',
@@ -3874,8 +3869,8 @@ class ls_shop_generalHelper
         /** @var \PageModel $objPage */
         global $objPage;
 
-        //$str_tmp_objPageLanguage = $objPage->language;
-        //$objPage->language = $str_language;
+        $str_tmp_objPageLanguage = $objPage->language;
+        $objPage->language = $str_language;
 
         if ($obj_product->_variantIsSelected) {
             $obj_tmp_productOrVariant = &$obj_product->_selectedVariant;
@@ -3906,7 +3901,7 @@ class ls_shop_generalHelper
             $str_text = preg_replace('/(&#35;&#35;|##)product::' . $str_keyword . '(&#35;&#35;|##)/', $str_replace, $str_text);
         }
 
-        //$objPage->language = $str_tmp_objPageLanguage;
+        $objPage->language = $str_tmp_objPageLanguage;
 
         return $str_text;
     }

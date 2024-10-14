@@ -188,10 +188,6 @@ class ls_shop_messages
 	}
 	
 	public function sendMessages() {
-        $myfile = fopen("newfile.txt", "a") or die("Unable to open file!");
-        $txt = "Step2\n";
-        fwrite($myfile, $txt);
-        fclose($myfile);
 
 		if (!is_array($this->arrMessageModels)) {
 			return false;

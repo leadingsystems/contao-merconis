@@ -60,15 +60,12 @@ class ls_shop_ajaxController
                     break;
                 }
 
-
                 $objOrderMessages = new ls_shop_messages(\Input::post('messageTypeID'), 'id', \Input::post('additionalData'));
                 $objOrderMessages->sendMessages();
 
                 /*
-                 * Generate the messageType button which is needed as the return value
+                 * Generate the messageType buttons which is needed as the return value
                  */
-
-
                 $arrbutton = $objOrderMessages->getButtonArray();
 
                 $twig = \Contao\System::getContainer()->get('twig');
@@ -80,11 +77,6 @@ class ls_shop_ajaxController
                     ]
                 );
 
-                /*
-                $arrOrder = ls_shop_generalHelper::getOrder(\Input::post('orderID'), 'id', true);
-                $arrMessageTypes = ls_shop_generalHelper::getMessageTypesForOrderOverview($arrOrder, true);
-                echo $arrMessageTypes[\Input::post('messageTypeID')]['button'];*/
-                //echo "message hier2";
                 exit;
                 break;
 				
