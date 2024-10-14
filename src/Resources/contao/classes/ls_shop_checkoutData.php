@@ -759,17 +759,24 @@ class ls_shop_checkoutData {
 			\Controller::redirect(\LeadingSystems\Helpers\getUrlWithoutParameters(array('selectPaymentOrShipping', 'id')));
 		}
 
-        $objMethod = \Database::getInstance()->prepare("
-			SELECT		*
-			FROM		`tl_ls_shop_shipping_methods`
-			WHERE		`id` = ?
-		")
-            ->execute($this->arrCheckoutData['selected'.ucfirst($what).'Method']);
+        if ($what === 'shipping')
+        {
+            $objMethod = \Database::getInstance()->prepare("
+                SELECT		*
+                FROM		`tl_ls_shop_shipping_methods`
+                WHERE		`id` = ?
+            ")
+                ->execute($this->arrCheckoutData['selected'.ucfirst($what).'Method']);
 
-        $first = $objMethod->fetchAssoc();
+            if ($objMethod->numRows)
+            {
+                $first = $objMethod->fetchAssoc();
 
-        if($first['notSelectable'] == 1){
-            $this->arrCheckoutData['selected'.ucfirst($what).'Method'] = "";
+                if ($first['notSelectable'] == 1)
+                {
+                    $this->arrCheckoutData['selected'.ucfirst($what).'Method'] = "";
+                }
+            }
         }
 
 		$obj_templateForPaymentOrShippingSelection = new \FrontendTemplate('template_paymentAndShippingSelect');
@@ -969,27 +976,15 @@ class ls_shop_checkoutData {
 			throw new \Exception('insufficient parameters given');
 		}
 
-            /*
-             * Wenn keine Zahlungs- bzw. Versandmethode gewählt ist, ist der Zustand auf jeden Fall NICHT valide
-             */
-            if (!$this->arrCheckoutData['selected'.ucfirst($what).'Method']) {
-                $blnIsValid = false;
-                return $blnIsValid;
-            } else {
-
-                $objMethod = \Database::getInstance()->prepare("
-                SELECT		*
-                FROM		`tl_ls_shop_shipping_methods`
-                WHERE		`id` = ?
-                ")
-                ->execute($this->arrCheckoutData['selected'.ucfirst($what).'Method']);
-
-                $first = $objMethod->fetchAssoc();
-
-                if($first['notSelectable'] == 1){
-                    return false;
-                }
-
+        /*
+         * Wenn keine Zahlungs- bzw. Versandmethode gewählt ist, ist der Zustand auf jeden Fall NICHT valide
+         */
+        if (!$this->arrCheckoutData['selected'.ucfirst($what).'Method'])
+        {
+            $blnIsValid = false;
+            return $blnIsValid;
+        } else
+        {
 			switch($what) {
 				case 'payment':
 					if (!ls_shop_generalHelper::checkIfPaymentMethodIsAllowed($this->arrCheckoutData['selectedPaymentMethod'])) {
@@ -1004,6 +999,24 @@ class ls_shop_checkoutData {
 					break;
 
 				case 'shipping':
+                    $objMethod = \Database::getInstance()
+                        ->prepare("
+                            SELECT		*
+                            FROM		`tl_ls_shop_shipping_methods`
+                            WHERE		`id` = ?
+                        ")
+                        ->execute($this->arrCheckoutData['selected'.ucfirst($what).'Method']);
+
+                    if ($objMethod->numRows)
+                    {
+                        $first = $objMethod->fetchAssoc();
+
+                        if($first['notSelectable'] == 1)
+                        {
+                            return false;
+                        }
+                    }
+
 					if (!ls_shop_generalHelper::checkIfShippingMethodIsAllowed($this->arrCheckoutData['selectedShippingMethod'])) {
 						$this->arrCheckoutData['selectedShippingMethod'] = '';
 						if (!System::getContainer()->get('merconis.routing.scope')->isBackend()) {

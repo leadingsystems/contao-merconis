@@ -1802,7 +1802,8 @@ class ls_shop_generalHelper
             if (!ls_shop_generalHelper::checkIfPaymentOrShippingMethodIsAllowed($tmpMethodInfo, $type)) {
                 continue;
             }
-            if($tmpMethodInfo["notSelectable"] != 1){
+            if(($tmpMethodInfo["notSelectable"] ?? null) != 1)
+            {
                 if (!is_array($cheapestMethod) || $cheapestMethod['feePrice'] > $tmpMethodInfo['feePrice']) {
                     $cheapestMethod = $tmpMethodInfo;
                 }
