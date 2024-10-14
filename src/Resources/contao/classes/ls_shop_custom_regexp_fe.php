@@ -2,6 +2,7 @@
 
 namespace Merconis\Core;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Input;
 use Contao\System;
 use Contao\Widget;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
@@ -46,11 +47,10 @@ use function LeadingSystems\Helpers\createMultidimensionalArray;
 					 * form validation process) the country code is not matched against the country because this would always faild under
 					 * these circumstances.
 					 */
-					if ($objWidget->Input->post('country') && $customerCountryCode != strtoupper($objWidget->Input->post('country'))) {
-						$objWidget->addError($GLOBALS['TL_LANG']['MSC']['ls_shop']['VATValidationMessages']['countryDoesNotMatch']);
-						return false;					
-					}
-					
+                    if (Input::post('country') && $customerCountryCode != strtoupper(Input::post('country'))) {
+                        $objWidget->addError($GLOBALS['TL_LANG']['MSC']['ls_shop']['VATValidationMessages']['countryDoesNotMatch']);
+                        return false;
+                    }
 					
 					/*
 					 * VATID online validation
