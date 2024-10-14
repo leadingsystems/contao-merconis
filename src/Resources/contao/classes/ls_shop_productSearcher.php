@@ -1665,6 +1665,16 @@ class ls_shop_productSearcher
                     }
 
         /*
+         * Get FlexContents for sorting
+         */
+        if (is_array($arrProductsComplete)) {
+            foreach ($arrProductsComplete as $key => $rowProductsComplete) {
+                $arrProductsComplete[$key]['flex_contentsLanguageIndependentForSorting'] = $rowProductsComplete['flex_contentsLanguageIndependent'] ?? null;
+                $arrProductsComplete[$key]['flex_contentsForSorting_' . $searchLanguage] = $rowProductsComplete['flex_contents_' . $searchLanguage] ?? null;
+            }
+        }
+
+        /*
          * If we use the filter we had a left join in our database query which leads to a result set
          * that has multiple entries for one product if there's more than one related row in the
          * left joined allocation table. In this case we have to transform the result set so that
@@ -1676,7 +1686,6 @@ class ls_shop_productSearcher
          * We also add some other information to the product/variant data that could not be retrieved
          * directly from the database, e.g. calculated prices.
          */
-
         if ($this->blnUseFilter && count($arrProductsComplete)) {
             $tmpArrProductsComplete = array();
             foreach ($arrProductsComplete as $rowProductsComplete) {
@@ -2110,7 +2119,7 @@ class ls_shop_productSearcher
                         return;
                     }
                     foreach ($arrProductsAfterFilter as $k => $arrProduct) {
-                        $arrFlexContents = createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrProduct['flex_contents'.($searchLanguage ? "_".$searchLanguage : "")])), 2, 1);
+                        $arrFlexContents = createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrProduct['flex_contentsForSorting'.($searchLanguage ? "_".$searchLanguage : "")])), 2, 1);
 
                         if (!isset($arrFlexContents[$sortingField['variableFieldKey']])) {
                             $arr_tmpProductsToPlaceBehindTheOthers[$k] = $arrProduct;
@@ -2128,7 +2137,7 @@ class ls_shop_productSearcher
                         return;
                     }
                     foreach ($arrProductsAfterFilter as $k => $arrProduct) {
-                        $arrFlexContents = createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrProduct['flex_contentsLanguageIndependent'])), 2, 1);
+                        $arrFlexContents = createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrProduct['flex_contentsLanguageIndependentForSorting'])), 2, 1);
 
                         if (!isset($arrFlexContents[$sortingField['variableFieldKey']])) {
                             $arr_tmpProductsToPlaceBehindTheOthers[$k] = $arrProduct;
