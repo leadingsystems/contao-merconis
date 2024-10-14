@@ -17,15 +17,6 @@ class RestockInfoMessages
 
     }
 
-    public function addMessageSendOption()
-    {
-        //TODO:tl_ls_shop_message_type dont get loaded in extension
-        \System::loadLanguageFile('tl_ls_shop_message_type');
-
-        //TODO: dont need return value because it is already set in the dca? maybe change?
-        return [];
-    }
-
     public function getMessageSendButton($arrMessageType, $additionalData)
     {
         if($arrMessageType['sendWhen'] != 'onRestock'){
@@ -34,14 +25,11 @@ class RestockInfoMessages
 
         $orderId = $additionalData;
 
-        //order must be forceRefreshed to see if messageType is sent
         $arrOrder = $orderId ? ls_shop_generalHelper::getOrder($orderId, 'id', true) : null;
 
         $arrMessageTypes = ls_shop_messages::getMessageTypesStatic("sendWhen", OrderMessages::ORDER_MANUAL, $arrOrder['memberGroupInfo_id']);
 
-
         $twig = \Contao\System::getContainer()->get('twig');
-
 
         $buttons = [];
 
@@ -54,16 +42,10 @@ class RestockInfoMessages
             $buttons[] = $twig->render(
                 '@LeadingSystemsMerconis/backend/send_button.html.twig',
                 [
-                    /*'error' => 'test',*/
-                    /*'title' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],
-                    'headline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['collectiveOrder'],*/
-
-                    //array with messages types that should be displayed in backend to send messages
                     'sendWhen' => $arrMessageType['sendWhen'],
                     'messageType' => $arrMessageType['id'],
                     'lsShopProductCode' => $orderId,
-                    'buttonTitle' => $arrMessageType['multilanguage']['title'], //button wurde gedrückt
-
+                    'buttonTitle' => $arrMessageType['multilanguage']['title'],
 
                     'alreadySent' => $blnAlreadySent ? 'alreadySent' : '' //set class for alreadSent
                 ]
@@ -95,30 +77,12 @@ class RestockInfoMessages
             return [];
         }
 
-        $additionalData;
-
-        if ($arrMessageModel['sendToMemberAddress'] && $this->arr_memberData !== null && $this->arr_memberData['email']) {
-            $arrReceiverAddresses['main'] = $this->arr_memberData['email'];
-        }
-
-
-        $orderId = $additionalData;
-
-        $blnForceOrderRefresh = false;
-
-        $arrOrder = $orderId ? ls_shop_generalHelper::getOrder($orderId, 'id', $blnForceOrderRefresh) : null;
+        $memberData = $this->getMemberData($additionalData['memberId']);
 
         $arrMails = [];
 
-
-        // use customer address no. 1 if it can be determined
-        if ($arrMessageModel['sendToCustomerAddress1'] && isset($arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) && $arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) {
-            $mailAddress = $arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']];
-        }
-
-        // overwrite the current main address with customer address no. 2 if it can be determined
-        if ($arrMessageModel['sendToCustomerAddress2'] && isset($arrOrder['customerData'][$arrMessageModel['customerDataType2']][$arrMessageModel['customerDataField2']]) && $arrOrder['customerData'][$arrMessageModel['customerDataType2']][$arrMessageModel['customerDataField2']]) {
-            $mailAddress = $arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField2']];
+        if ($arrMessageModel['sendToMemberAddress'] && $memberData !== null && $memberData['email']) {
+            $mailAddress = $memberData['email'];
         }
 
         $arrMails[] =
@@ -126,13 +90,11 @@ class RestockInfoMessages
                 'main' => $mailAddress,
                 'bcc' => null,
                 'data' => [
-                    'language' => $arrOrder['customerLanguage'],
+                    'language' => $memberData['country'],
                 ]
             ];
 
-
         return $arrMails;
-
     }
 
     //hier gibt es die möglichkeit Wildcards zu ersetzen
@@ -142,31 +104,12 @@ class RestockInfoMessages
             return $text;
         }
 
-        //TODO: what wildcards need to be added for order messages?
-
-        //$orderId = $additionalData;
-
         $memberData = $this->getMemberData($additionalData['memberId']);
 
         $objProduct = ls_shop_generalHelper::getObjProduct($additionalData['productVariantId']);
 
-        /*
-        //order must be forceRefreshed to see if messageType is sent
-        $arrOrder = $orderId ? ls_shop_generalHelper::getOrder($orderId, 'id', true) : null;
-
-        $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $arrOrder);
-
-        if ($this->obj_product !== null) {
-            $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $this->obj_product, $this->ls_language);
-        }
-
-        if ($this->arr_memberData !== null) {
-            $text = ls_shop_generalHelper::ls_replaceMemberWildcards($text, $this->arr_memberData);
-        }*/
-
-
         if ($objProduct !== null) {
-            $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $objProduct, 'de'); //TODO: change language
+            $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $objProduct, $memberData['country']);
         }
 
         if($memberData !== null) {

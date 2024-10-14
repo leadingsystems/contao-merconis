@@ -2648,18 +2648,13 @@ class ls_shop_generalHelper
             ")
             ->execute();
 
-        while ($obj_dbres_productsBackInStock->next()) {
+        $myfile = fopen("newfile.txt", "a") or die("Unable to open file!");
+        $txt = "Step1\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
 
-            /*
-            $objOrderMessages = new ls_shop_orderMessages(
-                null,
-                'onRestock',
-                'sendWhen',
-                $obj_dbres_productsBackInStock->language,
-                false,
-                $obj_dbres_productsBackInStock->memberId,
-                $obj_dbres_productsBackInStock->productVariantId
-            );*/
+        while ($obj_dbres_productsBackInStock->next()) {
+            
             $objOrderMessages = new ls_shop_messages(
                 'onRestock',
                 'sendWhen',
@@ -2704,14 +2699,14 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($obj_dbres_variantsBackInStock->next()) {
-            $objOrderMessages = new ls_shop_orderMessages(
-                null,
+            $objOrderMessages = new ls_shop_messages(
                 'onRestock',
                 'sendWhen',
+                [
+                    'memberId' => $obj_dbres_variantsBackInStock->memberId,
+                    'productVariantId' => $obj_dbres_variantsBackInStock->productVariantId
+                ],
                 $obj_dbres_variantsBackInStock->language,
-                false,
-                $obj_dbres_variantsBackInStock->memberId,
-                $obj_dbres_variantsBackInStock->productVariantId
             );
             $objOrderMessages->sendMessages();
 
@@ -3879,8 +3874,8 @@ class ls_shop_generalHelper
         /** @var \PageModel $objPage */
         global $objPage;
 
-        $str_tmp_objPageLanguage = $objPage->language;
-        $objPage->language = $str_language;
+        //$str_tmp_objPageLanguage = $objPage->language;
+        //$objPage->language = $str_language;
 
         if ($obj_product->_variantIsSelected) {
             $obj_tmp_productOrVariant = &$obj_product->_selectedVariant;
@@ -3911,7 +3906,7 @@ class ls_shop_generalHelper
             $str_text = preg_replace('/(&#35;&#35;|##)product::' . $str_keyword . '(&#35;&#35;|##)/', $str_replace, $str_text);
         }
 
-        $objPage->language = $str_tmp_objPageLanguage;
+        //$objPage->language = $str_tmp_objPageLanguage;
 
         return $str_text;
     }
@@ -4216,7 +4211,12 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronDaily', 'sendWhen', null, true);
+            $objOrderMessages = new ls_shop_messages(
+                'onStatusChangeCronDaily',
+                'sendWhen',
+                $objOrders->id,
+                null,
+            );
             $objOrderMessages->sendMessages();
         }
     }
@@ -4230,7 +4230,13 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronHourly', 'sendWhen', null, true);
+
+            $objOrderMessages = new ls_shop_messages(
+                'onStatusChangeCronHourly',
+                'sendWhen',
+                $objOrders->id,
+                null,
+            );
             $objOrderMessages->sendMessages();
         }
     }

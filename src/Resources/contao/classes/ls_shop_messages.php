@@ -188,6 +188,11 @@ class ls_shop_messages
 	}
 	
 	public function sendMessages() {
+        $myfile = fopen("newfile.txt", "a") or die("Unable to open file!");
+        $txt = "Step2\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
+
 		if (!is_array($this->arrMessageModels)) {
 			return false;
 		}
@@ -341,7 +346,7 @@ class ls_shop_messages
 
                 try {
                     //TODO: works fine, add later again to send mails
-                    //$objEmail->sendTo($arrMessageToSendAndSave['receiverMainAddress']);
+                    $objEmail->sendTo($arrMessageToSendAndSave['receiverMainAddress']);
                     \System::log('MERCONIS: message sent using message model with id ' . $arrMessageModel['id'], 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);
                 } catch (\Exception $e) {
                     \System::log('MERCONIS: Swift Exception, message "' . $this->arrMessageTypes[$arrMessageModel['pid']]['alias'] . '"using message model with id ' . $arrMessageModel['id'] . ' could not be sent (' . StringUtil::standardize($e->getMessage()) . ')', 'MERCONIS MESSAGES', TL_MERCONIS_MESSAGES);

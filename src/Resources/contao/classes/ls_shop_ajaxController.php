@@ -54,22 +54,6 @@ class ls_shop_ajaxController
 				$nodes[$this->strAjaxId] = intval(\Input::post('state'));
 				\Session::getInstance()->set($this->strAjaxKey, $nodes);
 				break;
-				
-			case 'sendOrderMessage':
-				if (!\Input::post('orderID') || !\Input::post('messageTypeID')) {
-					break;
-				}
-				$objOrderMessages = new ls_shop_orderMessages(\Input::post('orderID'), \Input::post('messageTypeID'), 'id');
-				$objOrderMessages->sendMessages();
-				
-				/*
-				 * Generate the messageType button which is needed as the return value
-				 */
-				$arrOrder = ls_shop_generalHelper::getOrder(\Input::post('orderID'), 'id', true);
-				$arrMessageTypes = ls_shop_generalHelper::getMessageTypesForOrderOverview($arrOrder, true);
-				echo $arrMessageTypes[\Input::post('messageTypeID')]['button'];
-				exit;
-				break;
 
             case 'sendMessage':
                 if (!\Input::post('messageTypeID')) {
