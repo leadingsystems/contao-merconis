@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\BackendTemplate;
+use Contao\CoreBundle\Routing\ResponseContext\HtmlHeadBag\HtmlHeadBag;
 use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\Module;
@@ -69,20 +70,24 @@ class ModuleProductSingleview extends Module {
 		 * Product-specific customization of page title and description
 		 */
 		// Overwrite the page title
+
+        $responseContext = System::getContainer()->get('contao.routing.response_context_accessor')->getResponseContext();
+        $htmlHeadBag = $responseContext->get(HtmlHeadBag::class);
+
         if ($objProduct->_hasPageTitle) {
-            $objPage->pageTitle = $objProduct->_pageTitle;
+            $htmlHeadBag->setTitle($objProduct->_pageTitle);
         } else {
-            $objPage->pageTitle = StringUtil::stripInsertTags($objProduct->_title) . ' - ' . ($objPage->pageTitle ? $objPage->pageTitle : $objPage->title);
+            $htmlHeadBag->setTitle(StringUtil::stripInsertTags($objProduct->_title) . ' - ' . ($htmlHeadBag->getTitle() ? $htmlHeadBag->getTitle() : $htmlHeadBag->getTitle()));
         }
 
         if ($objProduct->_hasPageDescription) {
-            $objPage->description = $objProduct->_pageDescription;
+            $htmlHeadBag->setMetaDescription($objProduct->_pageDescription);
         } else {
             if (
                 isset($GLOBALS['TL_CONFIG']['ls_shop_useProductDescriptionAsSeoDescription'])
                 && $GLOBALS['TL_CONFIG']['ls_shop_useProductDescriptionAsSeoDescription']
             ) {
-                $objPage->description = ($objProduct->_shortDescription || $objProduct->_description) ? substr(StringUtil::stripInsertTags(strip_tags($objProduct->_shortDescription ? $objProduct->_shortDescription : $objProduct->_description)), 0, 350) : $objPage->description;
+                $htmlHeadBag->setMetaDescription(($objProduct->_shortDescription || $objProduct->_description) ? substr(StringUtil::stripInsertTags(strip_tags($objProduct->_shortDescription ? $objProduct->_shortDescription : $objProduct->_description)), 0, 350) :  $htmlHeadBag->getMetaDescription());
             }
         }
 		/*
