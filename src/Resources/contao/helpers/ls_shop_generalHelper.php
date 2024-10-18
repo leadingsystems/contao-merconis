@@ -3234,7 +3234,7 @@ class ls_shop_generalHelper
 
             if ($objVariants->numRows) {
                 while ($objVariants->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(StringUtil::deserialize($objVariants->lsShopProductVariantAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(json_decode($objVariants->lsShopProductVariantAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
@@ -3258,7 +3258,7 @@ class ls_shop_generalHelper
 
             if ($objProducts->numRows) {
                 while ($objProducts->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(StringUtil::deserialize($objProducts->lsShopProductAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(json_decode($objProducts->lsShopProductAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
