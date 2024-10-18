@@ -522,36 +522,36 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
 /*
  * Start: Legend-Icons (Backend)
  */
-#pal_lscss4c_legend,
-#pal_lsjs4c_legend,
-#pal_lsShopConditionalOutput_legend,
-#pal_lsShopCrossSeller_legend,
-#pal_lsShop_legend,
-#pal_lsShopFilter_legend,
-#pal_lsShopJsComponents_legend,
-#pal_lsShopCart_legend,
-#pal_lsShopLoginSwitch_legend,
-#pal_lsShopCheckoutConfirm_legend,
-#pal_lsShopCheckoutConfirm_legend,
-#pal_lsShopCrossSeller_legend {
+fieldset[data-contao--toggle-fieldset-id-value="lscss4c_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShopConditionalOutput_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShop_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShopFilter_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShopJsComponents_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCart_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShopLoginSwitch_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCheckoutConfirm_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCheckoutConfirm_legend"],
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"]{
   padding-top: 0px;
   position: relative;
   margin-bottom: 6px;
   margin-top: 20px;
 }
 
-#pal_lscss4c_legend > legend,
-#pal_lsjs4c_legend > legend,
-#pal_lsShopConditionalOutput_legend > legend,
-#pal_lsShopCrossSeller_legend > legend,
-#pal_lsShop_legend > legend,
-#pal_lsShopFilter_legend > legend,
-#pal_lsShopJsComponents_legend > legend,
-#pal_lsShopCart_legend > legend,
-#pal_lsShopLoginSwitch_legend > legend,
-#pal_lsShopCheckoutConfirm_legend > legend,
-#pal_lsShopCheckoutConfirm_legend > legend,
-#pal_lsShopCrossSeller_legend > legend {
+fieldset[data-contao--toggle-fieldset-id-value="lscss4c_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopConditionalOutput_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShop_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopFilter_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopJsComponents_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCart_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopLoginSwitch_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCheckoutConfirm_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCheckoutConfirm_legend"] > legend,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"] > legend{
   background-color: #FFFFFF;
   background-image: url("/bundles/leadingsystemsmerconis/images/icons/palOpenLS_32.png");
   padding-bottom: 0px;
@@ -563,23 +563,23 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
   top: -25px;
 }
 
-#pal_lscss4c_legend.collapsed > legend,
-#pal_lsjs4c_legend.collapsed > legend,
-#pal_lsShopConditionalOutput_legend.collapsed > legend,
-#pal_lsShopCrossSeller_legend.collapsed > legend,
-#pal_lsShop_legend.collapsed > legend,
-#pal_lsShopFilter_legend.collapsed > legend,
-#pal_lsShopJsComponents_legend.collapsed > legend,
-#pal_lsShopCart_legend.collapsed > legend,
-#pal_lsShopLoginSwitch_legend.collapsed > legend,
-#pal_lsShopCheckoutConfirm_legend.collapsed > legend,
-#pal_lsShopCheckoutConfirm_legend.collapsed > legend,
-#pal_lsShopCrossSeller_legend.collapsed > legend {
+fieldset[data-contao--toggle-fieldset-id-value="lscss4c_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopConditionalOutput_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShop_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopFilter_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopJsComponents_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCart_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopLoginSwitch_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCheckoutConfirm_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCheckoutConfirm_legend"].collapsed,
+fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"].collapsed{
   background-image: url("/bundles/leadingsystemsmerconis/images/icons/palCollapsedLS_32.png");
 }
 
-#pal_lscss4c_legend > legend::before,
-#pal_lsjs4c_legend > legend::before {
+fieldset[data-contao--toggle-fieldset-id-value="lscss4c_legend"] > legend::before,
+fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend::before{
   content: "MERCONIS: ";
 }
 /*
