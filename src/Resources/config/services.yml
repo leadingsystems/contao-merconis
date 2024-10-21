@@ -162,3 +162,10 @@ services:
     class: LeadingSystems\MerconisBundle\Migration\FilterMigration
     tags:
       - { name: contao.migration, priority: 0 }
+
+  merconis.migration.country_uppercase_migration:
+    class: LeadingSystems\MerconisBundle\Migration\CountryUppercaseMigration
+    tags:
+      - { name: contao.migration, priority: 0 }
+    arguments:
+      - '@database_connection'

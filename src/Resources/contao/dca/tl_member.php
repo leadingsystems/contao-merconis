@@ -91,15 +91,7 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['country_alternative'] = array(
     'filter'                  => true,
     'sorting'                 => true,
     'inputType'               => 'select',
-    /*
-     * @toDo to remove for Contao 5.
-     * use instead: 'options_callback' => static fn () => System::getContainer()->get('contao.intl.countries')->getCountries(),
-     */
-    'options_callback' => static function ()
-        {
-            $countries = System::getContainer()->get('contao.intl.countries')->getCountries();
-            return array_combine(array_map('strtolower', array_keys($countries)), $countries);
-        },
+    'options_callback'        => static fn () => System::getContainer()->get('contao.intl.countries')->getCountries(),
     'eval'                    => array('includeBlankOption'=>true, 'chosen'=>true, 'feEditable'=>true, 'feViewable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50'),
     'sql'                     => "varchar(2) NOT NULL default ''"
 );
