@@ -76,7 +76,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'copy',
 			'cut',
 			'delete',
-			'toggle',
+            'toggle' => array
+            (
+                'href'                => 'act=toggle&amp;field=published',
+                'icon'                => 'visible.svg',
+                'reverse'             => true,
+                'button_callback'     => array('Merconis\Core\tl_ls_shop_product_controller', 'toggleIcon')
+            ),
 			'show'
 		)
 	),

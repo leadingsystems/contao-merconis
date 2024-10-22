@@ -1444,18 +1444,18 @@ class tl_ls_shop_product_controller extends Backend {
 
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
     {
-
         $security = System::getContainer()->get('security.helper');
-        
-        if (!$security->isGranted(ContaoCorePermissions::USER_CAN_EDIT_FIELD_OF_TABLE, 'tl_ls_shop_product::invisible'))
+
+        //if the user dont have permissions to change the published status, it is still shown but unchangeable
+        if (!$security->isGranted(ContaoCorePermissions::USER_CAN_EDIT_FIELD_OF_TABLE, 'tl_ls_shop_product::published'))
         {
-            return '';
+            if (!$row['published']) {
+                return Image::getHtml(str_replace('.svg', '--disabled.svg', $icon)) . ' ';
+            }
+            return Image::getHtml($icon) . ' ';
         }
 
-        if (!$security->isGranted(ContaoCorePermissions::USER_CAN_ACCESS_FIELD_TYPE, $row['type']))
-        {
-            return Image::getHtml(str_replace('.svg', '--disabled.svg', $icon)) . ' ';
-        }
+        ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
 
         $href .= '&amp;id=' . $row['id'];
 
@@ -1464,8 +1464,23 @@ class tl_ls_shop_product_controller extends Backend {
             $icon = 'invisible.svg';
         }
 
-        $titleDisabled = (is_array($GLOBALS['TL_DCA']['tl_ls_shop_product']['list']['operations']['toggle']['label']) && isset($GLOBALS['TL_DCA']['tl_ls_shop_product']['list']['operations']['toggle']['label'][2])) ? sprintf($GLOBALS['TL_DCA']['tl_ls_shop_product']['list']['operations']['toggle']['label'][2], $row['id']) : $title;
+        $titleDisabled = (
+            is_array($GLOBALS['TL_DCA']['tl_ls_shop_product']['list']['operations']['toggle']['label'])
+            && isset($GLOBALS['TL_DCA']['tl_ls_shop_product']['list']['operations']['toggle']['label'][2])
+        ) ? sprintf($GLOBALS['TL_DCA']['tl_ls_shop_product']['list']['operations']['toggle']['label'][2], $row['id']) : $title;
 
-        return '<a href="' . $this->addToUrl($href) . '" title="' . StringUtil::specialchars(!$row['invisible'] ? $title : $titleDisabled) . '" data-title="' . StringUtil::specialchars($title) . '" data-title-disabled="' . StringUtil::specialchars($titleDisabled) . '" data-action="contao--scroll-offset#store" onclick="return AjaxRequest.toggleField(this,true)">' . Image::getHtml($icon, $label, 'data-icon="visible.svg" data-icon-disabled="invisible.svg" data-state="' . ($row['invisible'] ? 0 : 1) . '"') . '</a> ';
+        return '<a '
+            .'href="' . $this->addToUrl($href)
+            . '" title="' . StringUtil::specialchars($row['published'] ? $title : $titleDisabled)
+            . '" data-title="' . StringUtil::specialchars($title)
+            . '" data-title-disabled="'
+            . StringUtil::specialchars($titleDisabled)
+            . '" data-action="contao--scroll-offset#store" onclick="return AjaxRequest.toggleField(this,true)">'
+            . Image::getHtml(
+                $icon,
+                $label,
+                'data-icon="visible.svg" data-icon-disabled="invisible.svg" data-state="' . (!$row['published'] ? 0 : 1) . '"'
+            )
+            . '</a> ';
     }
 }	
