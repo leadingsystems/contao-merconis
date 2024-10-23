@@ -2,11 +2,31 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\DataContainer\PaletteManipulator;
+
 $GLOBALS['TL_DCA']['tl_member_group']['config']['onsubmit_callback'][] = array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp');
 $GLOBALS['TL_DCA']['tl_member_group']['config']['ondelete_callback'][] = array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp');
 $GLOBALS['TL_DCA']['tl_member_group']['config']['onrestore_version_callback'][] = array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp');
 
-$GLOBALS['TL_DCA']['tl_member_group']['palettes']['default'] = preg_replace('/,redirect;/siU', ',redirect;{lsShop_legend:hide},lsShopOutputPriceType, lsShopPriceAdjustment, lsShopMinimumOrderValue, lsShopMinimumOrderValueAddCouponToValueOfGoods, lsShopFormCustomerData, lsShopFormConfirmOrder, lsShopEmailText01, lsShopEmailText02, lsShopAttachments, lsShopStandardPaymentMethod, lsShopStandardShippingMethod;', $GLOBALS['TL_DCA']['tl_member_group']['palettes']['default']);
+PaletteManipulator::create()
+    ->addLegend('lsShop_legend:hide', 'redirect_legend')
+    ->addField(
+        [
+            'lsShopOutputPriceType',
+            'lsShopPriceAdjustment',
+            'lsShopMinimumOrderValue',
+            'lsShopMinimumOrderValueAddCouponToValueOfGoods',
+            'lsShopFormCustomerData',
+            'lsShopFormConfirmOrder',
+            'lsShopEmailText01',
+            'lsShopEmailText02',
+            'lsShopAttachments',
+            'lsShopStandardPaymentMethod',
+            'lsShopStandardShippingMethod'
+        ],'lsShop_legend:hide', PaletteManipulator::POSITION_APPEND
+    )
+    ->applyToPalette('default', 'tl_member_group')
+;
 
 $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopStandardPaymentMethod'] = array(
     'exclude' => true,
