@@ -1802,7 +1802,8 @@ class ls_shop_generalHelper
             if (!ls_shop_generalHelper::checkIfPaymentOrShippingMethodIsAllowed($tmpMethodInfo, $type)) {
                 continue;
             }
-            if($tmpMethodInfo["notSelectable"] != 1){
+            if(($tmpMethodInfo["notSelectable"] ?? null) != 1)
+            {
                 if (!is_array($cheapestMethod) || $cheapestMethod['feePrice'] > $tmpMethodInfo['feePrice']) {
                     $cheapestMethod = $tmpMethodInfo;
                 }
@@ -2213,6 +2214,7 @@ class ls_shop_generalHelper
                 SELECT  flexContentLIKey
                 FROM    tl_ls_shop_filter_fields
                 WHERE   dataSource = 'flexContentLIMinMax'
+                AND IFNULL(flexContentLIKey, '') != ''
         ")
         ->execute();
 
@@ -3171,7 +3173,7 @@ class ls_shop_generalHelper
 
             if ($objVariants->numRows) {
                 while ($objVariants->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(StringUtil::deserialize($objVariants->lsShopProductVariantAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(json_decode($objVariants->lsShopProductVariantAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
@@ -3195,7 +3197,7 @@ class ls_shop_generalHelper
 
             if ($objProducts->numRows) {
                 while ($objProducts->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(StringUtil::deserialize($objProducts->lsShopProductAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(json_decode($objProducts->lsShopProductAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
