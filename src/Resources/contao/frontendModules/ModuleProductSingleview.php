@@ -93,10 +93,10 @@ class ModuleProductSingleview extends Module {
                     $htmlHeadBag->setMetaDescription(($objProduct->_shortDescription || $objProduct->_description) ? substr($htmlDecoder->htmlToPlainText($objProduct->_shortDescription ? $objProduct->_shortDescription : $objProduct->_description, true), 0, 350) :  $htmlHeadBag->getMetaDescription());
                 }
             }
-            /*
-             * End: Product-specific customization of page title and description
-             */
         }
+        /*
+         * End: Product-specific customization of page title and description
+         */
 
 		$this->Template = new FrontendTemplate('productSingleview');
 		
