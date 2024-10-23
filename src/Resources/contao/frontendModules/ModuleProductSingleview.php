@@ -3,6 +3,8 @@
 namespace Merconis\Core;
 
 use Contao\BackendTemplate;
+use Contao\CoreBundle\Routing\ResponseContext\HtmlHeadBag\HtmlHeadBag;
+use Contao\CoreBundle\String\HtmlDecoder;
 use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\Module;
@@ -68,26 +70,33 @@ class ModuleProductSingleview extends Module {
 		/*
 		 * Product-specific customization of page title and description
 		 */
-		// Overwrite the page title
-        if ($objProduct->_hasPageTitle) {
-            $objPage->pageTitle = $objProduct->_pageTitle;
-        } else {
-            $objPage->pageTitle = StringUtil::stripInsertTags($objProduct->_title) . ' - ' . ($objPage->pageTitle ? $objPage->pageTitle : $objPage->title);
-        }
+        $responseContext = System::getContainer()->get('contao.routing.response_context_accessor')->getResponseContext();
 
-        if ($objProduct->_hasPageDescription) {
-            $objPage->description = $objProduct->_pageDescription;
-        } else {
-            if (
-                isset($GLOBALS['TL_CONFIG']['ls_shop_useProductDescriptionAsSeoDescription'])
-                && $GLOBALS['TL_CONFIG']['ls_shop_useProductDescriptionAsSeoDescription']
-            ) {
-                $objPage->description = ($objProduct->_shortDescription || $objProduct->_description) ? substr(StringUtil::stripInsertTags(strip_tags($objProduct->_shortDescription ? $objProduct->_shortDescription : $objProduct->_description)), 0, 350) : $objPage->description;
+        if ($responseContext?->has(HtmlHeadBag::class))
+        {
+            $htmlHeadBag = $responseContext->get(HtmlHeadBag::class);
+            $htmlDecoder = System::getContainer()->get('contao.string.html_decoder');
+
+            if ($objProduct->_hasPageTitle) {
+                $htmlHeadBag->setTitle($htmlDecoder->inputEncodedToPlainText($objProduct->_pageTitle));
+            } else {
+                $htmlHeadBag->setTitle(StringUtil::stripInsertTags($objProduct->_title) . ($htmlHeadBag->getTitle() ? ' - ' . $htmlHeadBag->getTitle() : ''));
+            }
+
+            if ($objProduct->_hasPageDescription) {
+                $htmlHeadBag->setMetaDescription($htmlDecoder->inputEncodedToPlainText($objProduct->_pageDescription));
+            } else {
+                if (
+                    isset($GLOBALS['TL_CONFIG']['ls_shop_useProductDescriptionAsSeoDescription'])
+                    && $GLOBALS['TL_CONFIG']['ls_shop_useProductDescriptionAsSeoDescription']
+                ) {
+                    $htmlHeadBag->setMetaDescription(($objProduct->_shortDescription || $objProduct->_description) ? substr($htmlDecoder->htmlToPlainText($objProduct->_shortDescription ? $objProduct->_shortDescription : $objProduct->_description, true), 0, 350) :  $htmlHeadBag->getMetaDescription());
+                }
             }
         }
-		/*
-		 * End: Product-specific customization of page title and description
-		 */
+        /*
+         * End: Product-specific customization of page title and description
+         */
 
 		$this->Template = new FrontendTemplate('productSingleview');
 		
