@@ -6,7 +6,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['title']	= array('Designation');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['member_group']	= array('Member group');
 
-    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters']								= array('Flexible Content', 'You can add as many parameters as you like and they can be used in templates by referencing them with their keyword.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters']								= array('Flexible Content', 'Here you can store as much content as you like, which can be referenced in the dynamic attachments (PHP file) via the keyword.');
     $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters_label01']						= 'Parameter key';
     $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['flex_parameters_label02']						= 'Parameter value';
 	
