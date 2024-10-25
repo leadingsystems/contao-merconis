@@ -1135,13 +1135,18 @@ class ls_shop_generalHelper
          * Durchführen der Preisanpassung (für Rabatte bei bestimmten User-Gruppen)
          */
         if ($usePriceAdjustment) {
-            /*
-             * Do me! Add a hook here that is only executed, if $productCode and/or $variantCode is not null
-             *  and that allows to skip the price adjustment
-             */
             $groupInfo = ls_shop_generalHelper::getGroupSettings4User();
-            if ($groupInfo['lsShopPriceAdjustment'] !== false) {
-                $price = ls_mul(ls_div($price, 100), ls_add(100, $groupInfo['lsShopPriceAdjustment']));
+            $priceAdjustment = $groupInfo['lsShopPriceAdjustment'];
+
+            if (isset($GLOBALS['MERCONIS_HOOKS']['manipulatePriceAdjustment']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulatePriceAdjustment'])) {
+                foreach ($GLOBALS['MERCONIS_HOOKS']['manipulatePriceAdjustment'] as $mccb) {
+                    $objMccb = \System::importStatic($mccb[0]);
+                    $priceAdjustment = $objMccb->{$mccb[1]}($priceAdjustment, $productCode, $variantCode);
+                }
+            }
+
+            if ($priceAdjustment !== false) {
+                $price = ls_mul(ls_div($price, 100), ls_add(100, $priceAdjustment));
             }
         }
 
