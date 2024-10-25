@@ -1126,7 +1126,7 @@ class ls_shop_generalHelper
      * entsprechenden Wert zurück. Auch die Rundung auf die für die Darstellung
      * verwendeten Dezimalstellen wird hier bereits durchgeführt.
      */
-    public static function getDisplayPrice($price, $steuersatzIdProduct, $usePriceAdjustment = true)
+    public static function getDisplayPrice($price, $steuersatzIdProduct, $usePriceAdjustment = true, $productCode = null, $variantCode = null)
     {
         $steuersatz = ls_shop_generalHelper::getCurrentTax($steuersatzIdProduct, true, false);
         $steuersatzShopCountry = ls_shop_generalHelper::getCurrentTax($steuersatzIdProduct, true, false, true);
@@ -1135,6 +1135,10 @@ class ls_shop_generalHelper
          * Durchführen der Preisanpassung (für Rabatte bei bestimmten User-Gruppen)
          */
         if ($usePriceAdjustment) {
+            /*
+             * Do me! Add a hook here that is only executed, if $productCode and/or $variantCode is not null
+             *  and that allows to skip the price adjustment
+             */
             $groupInfo = ls_shop_generalHelper::getGroupSettings4User();
             if ($groupInfo['lsShopPriceAdjustment'] !== false) {
                 $price = ls_mul(ls_div($price, 100), ls_add(100, $groupInfo['lsShopPriceAdjustment']));

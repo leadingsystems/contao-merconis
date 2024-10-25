@@ -1653,7 +1653,7 @@ filter context, NULL will be returned.
         if ($this->_isCollectiveOrderProduct) {
             $usePriceAdjustment = false;
         }
-        return ls_shop_generalHelper::getDisplayPrice($price, $steuersatzIdProduct, $usePriceAdjustment);
+        return ls_shop_generalHelper::getDisplayPrice($price, $steuersatzIdProduct, $usePriceAdjustment, $this->_code, $this->_variantIsSelected ? $this->_selectedVariant->_code : null);
     }
 
     /*  Determines the min price of the scale prices

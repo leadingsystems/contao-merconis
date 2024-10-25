@@ -1047,6 +1047,14 @@ class ls_shop_productSearcher
             }
         }
 
+        /*
+         * Always request the product code field, because we have to pass it when calling ls_shop_generalHelper::getDisplayPrice.
+         * We have to add it here, so that it doesn't affect which fields are actually returned by the productSearcher.
+         */
+        if (!in_array('lsShopProductCode', $this->arrRequestFields)) {
+            $this->arrRequestFields[] = 'lsShopProductCode';
+        }
+
         foreach ($this->arrRequestFields as $requestField) {
             if ($fieldSelectionPart) {
                 $fieldSelectionPart .= ",
@@ -1138,7 +1146,7 @@ class ls_shop_productSearcher
                     if ($this->bln_useGroupPrices) {
                         $rowProductsComplete = $this->updateProductRowWithGroupPrice($rowProductsComplete);
                     }
-                    $tmpArrProductsComplete[$productId]['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz']);
+                    $tmpArrProductsComplete[$productId]['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz'], true, $rowProductsComplete['lsShopProductCode']);
                     $tmpArrProductsComplete[$productId]['lowestPrice'] = null;
                     $tmpArrProductsComplete[$productId]['highestPrice'] = null;
                 }
@@ -1150,6 +1158,7 @@ class ls_shop_productSearcher
             $objVariants = \Database::getInstance()->prepare("
 				SELECT			`tl_ls_shop_variant`.`id`,
 								`tl_ls_shop_variant`.`pid`,
+								`tl_ls_shop_variant`.`lsShopVariantCode`,
 								`tl_ls_shop_variant`.`lsShopVariantPrice`,
 								`tl_ls_shop_variant`.`lsShopVariantPriceType`,
 				".
@@ -1230,7 +1239,10 @@ class ls_shop_productSearcher
                             $tmpArrProductsComplete[$productId]['lsShopProductPrice'],
                             $rowVariants['lsShopVariantPrice']
                         ),
-                        $tmpArrProductsComplete[$productId]['lsShopProductSteuersatz']
+                        $tmpArrProductsComplete[$productId]['lsShopProductSteuersatz'],
+                        true,
+                        $tmpArrProductsComplete[$productId]['lsShopProductCode'],
+                        $rowVariants['lsShopVariantCode']
                     );
 
                     /*
@@ -1440,7 +1452,7 @@ class ls_shop_productSearcher
                                 $arrProduct = $this->updateProductRowWithGroupPrice($arrProduct);
                             }
 
-                            $arrOrder[$k] = ls_shop_generalHelper::getDisplayPrice($arrProduct['lsShopProductPrice'], $arrProduct['lsShopProductSteuersatz']);
+                            $arrOrder[$k] = ls_shop_generalHelper::getDisplayPrice($arrProduct['lsShopProductPrice'], $arrProduct['lsShopProductSteuersatz'], true, $arrProduct['lsShopProductCode']);
                         }
 
                         $arr_tmpProductsToSort[$k] = $arrProduct;
