@@ -66,12 +66,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 			),
 			'copy',
 			'delete',
-			'toggle' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['toggle'],
-				'icon'                => 'visible.svg',
-				'attributes'          => 'onclick="Backend.getScrollOffset(); return AjaxRequest.toggleVisibility(this,%s)"',
-				'button_callback'     => array('Merconis\Core\ls_shop_filter_fields', 'toggleIcon')
-			),
+			'toggle',
 			'show'
 		)
 	),
@@ -276,6 +271,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 		'published' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['published'],
 			'exclude' => true,
+            'toggle' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50'),
             'sql'                     => "char(1) NOT NULL default ''"
@@ -321,48 +317,6 @@ class ls_shop_filter_fields extends Backend {
 		}
 
 		return $button;
-	}
-
-	public function toggleIcon($row, $href, $label, $title, $icon, $attributes) {
-		if (strlen(Input::get('tid'))) {
-			$this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1));
-			$this->redirect($this->getReferer());
-		}
-
-		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_filter_fields::published', 'alexf')) {
-			return '';
-		}
-
-		$href .= '&amp;tid='.$row['id'].'&amp;state='.($row['published'] ? '' : 1);
-
-		if (!$row['published']) {
-			$icon = 'invisible.svg';
-		}
-
-		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
-	}
-
-	public function toggleVisibility($intId, $blnVisible) {
-		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_filter_fields::published', 'alexf')) {
-            System::getContainer()->get('monolog.logger.contao')->info(
-                'Not enough permissions to publish/unpublish filter field ID "'.$intId.'"',
-                ['contao' => new ContaoContext('tl_ls_shop_filter_fields toggleVisibility', ContaoContext::ERROR)]
-            );
-			$this->redirect('contao/main.php?act=error');
-		}
-
-		ls_shop_generalHelper::saveLastBackendDataChangeTimestamp();
-
-		if (is_array($GLOBALS['TL_DCA']['tl_ls_shop_filter_fields']['fields']['published']['save_callback'])) {
-			foreach ($GLOBALS['TL_DCA']['tl_ls_shop_filter_fields']['fields']['published']['save_callback'] as $callback) {
-				$this->import($callback[0]);
-				$blnVisible = $this->{$callback[0]}->{$callback[1]}($blnVisible, $this);
-			}
-		}
-
-		// Update the database
-		Database::getInstance()->prepare("UPDATE tl_ls_shop_filter_fields SET tstamp=". time() .", published='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
-					   ->execute($intId);
 	}
 
 	public function getFilterFieldTemplates() {
