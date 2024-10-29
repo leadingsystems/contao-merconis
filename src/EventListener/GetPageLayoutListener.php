@@ -32,6 +32,13 @@ class GetPageLayoutListener
         $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = $arr_pageData['ls_shop_decimalsSeparator'];
         $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] = $arr_pageData['ls_shop_thousandsSeparator'];
         $GLOBALS['merconis_globals']['ls_shop_currencyBeforeValue'] = $arr_pageData['ls_shop_currencyBeforeValue'];
+
+        if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateLayoutSettingsForGlobalUse']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateLayoutSettingsForGlobalUse'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateLayoutSettingsForGlobalUse'] as $mccb) {
+                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb->{$mccb[1]}($pageModel, $layout, $pageRegular);
+            }
+        }
     }
 
     /*
