@@ -509,7 +509,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductMoreImages'],
 			'exclude' => true,
 			'inputType'		=>	'fileTree',
-			'eval'			=> array('multiple' => true, 'fieldType'=>'checkbox', 'files'=>true, 'filesOnly' => true, 'extensions'=>'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF,webp,WEBP,flv,mp4,mp2,swf,mov,avi', 'tl_class'=>'clr'),
+			'eval'			=> [
+                'isGallery' => true,
+                'multiple' => true,
+                'fieldType' => 'checkbox',
+                'files' => true,
+                'filesOnly' => true,
+                'extensions' => 'jpg,JPG,jpeg,JPEG,png,PNG,gif,GIF,webp,WEBP,flv,mp4,mp2,swf,mov,avi',
+                'tl_class' => 'clr'
+            ],
             'sql'                     => "blob NULL"
 		),
 
