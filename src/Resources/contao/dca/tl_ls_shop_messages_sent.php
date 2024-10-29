@@ -5,6 +5,10 @@ namespace Merconis\Core;
 use Contao\DataContainer;
 use Contao\DC_Table;
 
+
+
+
+
 $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
 	'config' => array(
 		'dataContainer' => DC_Table::class,

@@ -650,7 +650,12 @@ class ls_shop_orders extends \Backend {
 
     public function createLabel($row, $label) {
         if (\Input::get('orderID') && \Input::get('messageTypeID')) {
-            $objOrderMessages = new ls_shop_orderMessages(\Input::get('orderID'), \Input::get('messageTypeID'), 'id');
+            $objOrderMessages = new ls_shop_messages(
+                \Input::get('messageTypeID'),
+                'id',
+                \Input::get('orderID'),
+                null,
+            );
             $objOrderMessages->sendMessages();
             $this->redirect($this->getReferer());
         }
@@ -727,7 +732,12 @@ class ls_shop_orders extends \Backend {
     }
 
     public function sendMessagesOnStatusChange($dc) {
-        $objOrderMessages = new ls_shop_orderMessages($dc->activeRecord->id, 'onStatusChangeImmediately', 'sendWhen', null, true);
+        $objOrderMessages = new ls_shop_messages(
+            'onStatusChangeImmediately',
+            'sendWhen',
+            $dc->activeRecord->id,
+            null,
+        );
         $objOrderMessages->sendMessages();
     }
 

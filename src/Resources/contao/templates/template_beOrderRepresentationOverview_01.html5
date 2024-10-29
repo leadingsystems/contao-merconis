@@ -1,14 +1,17 @@
 <?php $this->loadLanguageFile('languages'); ?>
 <div class="be_orderRepresentationOverview be_orderRepresentationOverview_01 <?php echo $this->arrOrder['status01']; ?> <?php echo $this->arrOrder['status02']; ?> <?php echo $this->arrOrder['status03']; ?> <?php echo $this->arrOrder['status04']; ?> <?php echo $this->arrOrder['status05']; ?>">
-	<div class="messageIcons">
-		<?php
-			if (is_array($this->arrMessageTypes)) {
-				foreach ($this->arrMessageTypes as $messageType) {
-					echo $messageType['button'];
-				}
-			}
-		?>
-	</div>
+
+    <?php
+    $twig = \Contao\System::getContainer()->get('twig');
+
+    echo $twig->render(
+        '@LeadingSystemsMerconis/backend/send_button_list.html.twig',
+        [
+            'arrButtons' => $this->arrMessageTypes,
+        ]
+    );
+    ?>
+
 	<div class="message">
 		<ul>
 			<li><strong><?php echo $GLOBALS['TL_LANG']['tl_ls_shop_orders']['orderNr'][0]; ?>: <?php echo $this->arrOrder['orderNr']; ?></strong></li>
