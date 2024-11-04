@@ -30,6 +30,7 @@ class ModuleCart extends \Module {
 			$obj_FlexWidget_inputQuantity = new FlexWidget(
 				array(
 					'str_uniqueName' => 'quantity_item',
+                    'str_template' => 'ls_flexWidget_defaultNumber',
 
 					/*
 					 * This is necessary because ModuleCart could be compiled twice, e.g. if the mini cart and the big
@@ -57,7 +58,7 @@ class ModuleCart extends \Module {
 				)
 			);
 
-			$arrWidgets[$productCartKey]['inputQuantity'] =  str_replace('type="text"', 'type="number" min="1" step="any"', $obj_FlexWidget_inputQuantity->getOutput());
+			$arrWidgets[$productCartKey]['inputQuantity'] =  $obj_FlexWidget_inputQuantity->getOutput();
 
 			/*
 			 * Aktualisieren des Warenkorbs, sofern angefordert
