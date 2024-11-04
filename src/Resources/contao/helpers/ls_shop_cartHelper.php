@@ -20,8 +20,7 @@ class ls_shop_cartHelper {
 
 	/*
 	 * Diese Funktion bereinigt die eingegebene Menge entsprechend der für das Produkt definierten Bestimmungen.
-	 * Diese Funktion gibt dabei vor allem eine für Berechnungen verwertbare Zahl zurück. Tausendertrennzeichen
-	 * werden dabei verworfen.
+	 * Diese Funktion gibt dabei vor allem eine für Berechnungen verwertbare Zahl zurück.
 	 * Diese Funktion kann mit allen Werten gefüttert werden, die der reguläre Ausdruck des Widgets durchlässt,
 	 * also Zahlen mit Punkt oder Komma als Dezimaltrenner, sowie auch vorgenullte Zahlen.
 	 * Es wird geprüft, welche Mengenangaben für ein Produkt erlaubt sind und die eingegebene Menge dementsprechend korrigiert.
