@@ -29,9 +29,6 @@ class ls_shop_cartHelper {
 	 * Bsp. (Produkt, das nur in ganzen Stück verkauft wird): Aus "10,6" wird "11", "10.6" wird "11", aus "056,4" wird "56" usw.
 	 */
 	public static function cleanQuantity(&$objProduct, $quantity) {
-		if ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator']) {
-			$quantity = preg_replace('/\\'.$GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'].'/siU', '', $quantity); // Entfernen des Tausendertrennzeichens
-		}
 		$quantity = preg_replace('/\\'.$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'].'/siU', '.', $quantity); // Ersetzen der Dezimaltrennzeichen durch den Punkt
 		$quantity = number_format($quantity, $objProduct->_quantityDecimals, '.', '');
 		return $quantity;

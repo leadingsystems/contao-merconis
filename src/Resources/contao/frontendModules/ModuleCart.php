@@ -50,11 +50,14 @@ class ModuleCart extends \Module {
 
 					'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
 					'str_allowedRequestMethod' => 'post',
-					'var_value' => ls_shop_generalHelper::outputQuantity($cartItem['quantity'],$cartItem['objProduct']->_quantityDecimals)
+					'var_value' => ls_shop_cartHelper::cleanQuantity(
+					    $cartItem['objProduct'],
+                        $cartItem['quantity']
+                    )
 				)
 			);
 
-			$arrWidgets[$productCartKey]['inputQuantity'] = $obj_FlexWidget_inputQuantity->getOutput();
+			$arrWidgets[$productCartKey]['inputQuantity'] =  str_replace('type="text"', 'type="number" min="1" step="any"', $obj_FlexWidget_inputQuantity->getOutput());
 
 			/*
 			 * Aktualisieren des Warenkorbs, sofern angefordert
