@@ -4972,7 +4972,8 @@ class ls_shop_generalHelper
                         )
                     ),
                     'arr_moreData' => [
-                        'class' => 'quantity-input'
+                        'class' => 'quantity-input',
+                        'decimalsAmount' => $obj_productOrVariant->_quantityDecimals
                     ],
                     'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
                     'str_allowedRequestMethod' => 'post',

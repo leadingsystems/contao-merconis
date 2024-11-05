@@ -46,7 +46,8 @@ class ModuleCart extends \Module {
 					),
 
 					'arr_moreData' => array(
-						'class' => 'quantity-item'
+						'class' => 'quantity-item',
+                        'decimalsAmount' => $cartItem['objProduct']->_quantityDecimals
 					),
 
 					'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
