@@ -468,6 +468,8 @@ $ls-product-list-field-space: 2%;
         input[name="quantity_item"] {
           width: 10rem;
           text-align: right;
+          -moz-appearance: textfield;
+          appearance: textfield;
         }
 
         .errors {
