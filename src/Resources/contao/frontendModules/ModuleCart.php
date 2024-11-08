@@ -59,7 +59,7 @@ class ModuleCart extends \Module {
 				)
 			);
 
-			$arrWidgets[$productCartKey]['inputQuantity'] =  $obj_FlexWidget_inputQuantity->getOutput();
+			$arrWidgets[$productCartKey]['inputQuantity'] = $obj_FlexWidget_inputQuantity->getOutput();
 
 			/*
 			 * Aktualisieren des Warenkorbs, sofern angefordert
