@@ -15,7 +15,9 @@
     }
     input {
       max-width: 7.5rem;
+      -webkit-appearance: textfield;
       -moz-appearance: textfield;
+      appearance: textfield;
     }
   }
 }

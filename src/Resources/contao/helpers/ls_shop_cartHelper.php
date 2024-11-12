@@ -15,19 +15,11 @@ class ls_shop_cartHelper {
 
 	/*
 	 * Diese Funktion bereinigt die eingegebene Menge entsprechend der für das Produkt definierten Bestimmungen.
-	 * Diese Funktion gibt dabei vor allem eine für Berechnungen verwertbare Zahl zurück. Tausendertrennzeichen
-	 * werden dabei verworfen.
-	 * Diese Funktion kann mit allen Werten gefüttert werden, die der reguläre Ausdruck des Widgets durchlässt,
-	 * also Zahlen mit Punkt oder Komma als Dezimaltrenner, sowie auch vorgenullte Zahlen.
+	 * Diese Funktion gibt dabei vor allem eine für Berechnungen verwertbare Zahl zurück.
+	 * Diese Funktion kann mit allen Werten gefüttert werden, auch vorgenullte Zahlen.
 	 * Es wird geprüft, welche Mengenangaben für ein Produkt erlaubt sind und die eingegebene Menge dementsprechend korrigiert.
-	 *
-	 * Bsp. (Produkt, das nur in ganzen Stück verkauft wird): Aus "10,6" wird "11", "10.6" wird "11", aus "056,4" wird "56" usw.
 	 */
 	public static function cleanQuantity(&$objProduct, $quantity) {
-		if ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator']) {
-			$quantity = preg_replace('/\\'.$GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'].'/siU', '', $quantity); // Entfernen des Tausendertrennzeichens
-		}
-		$quantity = preg_replace('/\\'.$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'].'/siU', '.', $quantity); // Ersetzen der Dezimaltrennzeichen durch den Punkt
 		$quantity = number_format($quantity, $objProduct->_quantityDecimals, '.', '');
 		return $quantity;
 	}
