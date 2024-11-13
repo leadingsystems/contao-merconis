@@ -652,7 +652,10 @@ use Contao\System;
 		public function redirectToErrorPage($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '') {
 			$methodName = __FUNCTION__;
 			## fixEndlessRecursionOnPaymentError begin ##
-			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
+			$session = System::getContainer()->get('merconis.session')->getSession();
+			$session_lsShop=  $session->get('lsShop');
+			$session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
+			$session->set('lsShop', $session_lsShop);
 			## fixEndlessRecursionOnPaymentError end ##
 			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($context, $errorInformation01, $errorInformation02, $errorInformation03);
@@ -664,7 +667,10 @@ use Contao\System;
 		public function logPaymentError($context = '', $errorInformation01 = '', $errorInformation02 = '', $errorInformation03 = '') {
 			$methodName = __FUNCTION__;
 			## fixEndlessRecursionOnPaymentError begin ##
-			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
+			$session = System::getContainer()->get('merconis.session')->getSession();
+			$session_lsShop=  $session->get('lsShop');
+			$session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
+			$session->set('lsShop', $session_lsShop);
 			## fixEndlessRecursionOnPaymentError end ##
 			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}($context, $errorInformation01, $errorInformation02, $errorInformation03);
