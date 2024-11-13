@@ -37,6 +37,7 @@ class ModuleCart extends Module {
 			$obj_FlexWidget_inputQuantity = new FlexWidget(
 				array(
 					'str_uniqueName' => 'quantity_item',
+                    'str_template' => 'ls_flexWidget_defaultNumber',
 
 					/*
 					 * This is necessary because ModuleCart could be compiled twice, e.g. if the mini cart and the big
@@ -52,12 +53,16 @@ class ModuleCart extends Module {
 					),
 
 					'arr_moreData' => array(
-						'class' => 'quantity-item'
+						'class' => 'quantity-item',
+                        'decimalsAmount' => $cartItem['objProduct']->_quantityDecimals
 					),
 
 					'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
 					'str_allowedRequestMethod' => 'post',
-					'var_value' => ls_shop_generalHelper::outputQuantity($cartItem['quantity'],$cartItem['objProduct']->_quantityDecimals)
+					'var_value' => ls_shop_cartHelper::cleanQuantity(
+					    $cartItem['objProduct'],
+                        $cartItem['quantity']
+                    )
 				)
 			);
 

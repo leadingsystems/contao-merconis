@@ -5005,6 +5005,7 @@ class ls_shop_generalHelper
             $obj_flexWidget_inputQuantity = new FlexWidget(
                 array(
                     'str_uniqueName' => 'quantity_' . $productID . '-' . $variantID,
+                    'str_template' => 'ls_flexWidget_defaultNumber',
                     'arr_validationFunctions' => array(
                         array(
                             'str_className' => '\Merconis\Core\FlexWidgetValidator',
@@ -5012,7 +5013,8 @@ class ls_shop_generalHelper
                         )
                     ),
                     'arr_moreData' => [
-                        'class' => 'quantity-input'
+                        'class' => 'quantity-input',
+                        'decimalsAmount' => $obj_productOrVariant->_quantityDecimals
                     ],
                     'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
                     'str_allowedRequestMethod' => 'post',
