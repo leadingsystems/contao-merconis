@@ -1,9 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.0.29 (2024-10-25)
+### 5.0.29 (2024-11-11)
  * fix sorting functionality for FlexContents
  * fix ls_shop_generalHelper::getAttributesAndValuesCurrentlyInUse()
+ * fix partial quantity put in cart
 
 ### 5.0.28 (2024-09-26)
  * improve PayPal Checkout error handling
