@@ -3,8 +3,7 @@
 namespace LeadingSystems\MerconisBundle\InsertTag\AsBlockInsertTag;
 
 use Contao\CoreBundle\DependencyInjection\Attribute\AsBlockInsertTag;
-use Contao\PageModel;
-use Merconis\Core\ls_shop_languageHelper;
+use Merconis\Core\ls_shop_generalHelper;
 
 #[AsBlockInsertTag(name: 'shopifincheckout', endTag: 'shopifincheckout')]
 #[AsBlockInsertTag('shopifnotincheckout', endTag: 'shopifnotincheckout')]
@@ -20,22 +19,7 @@ class IfInCheckout extends BlockInsertTag
 
     public function customInserttags($insertTag): bool
     {
-        /** @var PageModel $objPage */
-        global $objPage;
-
-        if (in_array(
-            $objPage->id,
-            [
-                ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
-                ls_shop_languageHelper::getLanguagePage('ls_shop_reviewPages', false, 'id'),
-                ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutFinishPages', false, 'id'),
-                ls_shop_languageHelper::getLanguagePage('ls_shop_paymentAfterCheckoutPages', false, 'id'),
-                ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
-            ]
-        )) {
-            return true;
-        }
-        return false;
+        ls_shop_generalHelper::isInCheckout();
     }
 
 }

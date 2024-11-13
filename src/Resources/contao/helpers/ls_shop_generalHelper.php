@@ -5393,4 +5393,24 @@ class ls_shop_generalHelper
 
         return $arr_installedThemeExtensions;
     }
+
+    public static function isInCheckout(): bool
+    {
+        /** @var PageModel $objPage */
+        global $objPage;
+
+        if (in_array(
+            $objPage->id,
+            [
+                ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
+                ls_shop_languageHelper::getLanguagePage('ls_shop_reviewPages', false, 'id'),
+                ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutFinishPages', false, 'id'),
+                ls_shop_languageHelper::getLanguagePage('ls_shop_paymentAfterCheckoutPages', false, 'id'),
+                ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
+            ]
+        )) {
+            return true;
+        }
+        return false;
+    }
 }
