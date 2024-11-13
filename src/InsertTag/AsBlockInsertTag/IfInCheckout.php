@@ -19,7 +19,7 @@ class IfInCheckout extends BlockInsertTag
 
     public function customInserttags($insertTag): bool
     {
-        ls_shop_generalHelper::isInCheckout();
+        return ls_shop_generalHelper::isInCheckout();
     }
 
 }
