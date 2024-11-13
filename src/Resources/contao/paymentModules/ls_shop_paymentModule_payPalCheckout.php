@@ -59,6 +59,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
     private function getAddress(){
 
+        $street = '';
+        $city = '';
+        $countryCode = '';
+        $postalCode = '';
+
         if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameStreet'])) { //street
             $street = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameStreet']);
         }
@@ -605,7 +610,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $arr_adress = $this->getAddress();
 
         //address is not set correctly so no order should be created
-        if(!$arr_adress['address_line_1'] || !$arr_adress['admin_area_2'] || !$arr_adress['postal_code'] || !$arr_adress['country_code']){
+        if(empty($arr_adress['address_line_1']) || empty($arr_adress['admin_area_2']) || empty($arr_adress['postal_code']) || empty($arr_adress['country_code'])){
             return;
         }
 
