@@ -1512,7 +1512,6 @@ class ls_shop_filterHelper {
             }
         }
 
-//TODO: diesen Block prüfen,
         foreach($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']['attributesMinMax'] as $attributeID => $attributeValues) {
             if (
                 !$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']['attributesMinMax'][$attributeID]['low'] &&
