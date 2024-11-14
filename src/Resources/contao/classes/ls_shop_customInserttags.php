@@ -65,16 +65,7 @@ class ls_shop_customInserttags
                 break;
 
             case 'IfInCheckout':
-                if (!in_array(
-                    $objPage->id,
-                    [
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_reviewPages', false, 'id'),
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutFinishPages', false, 'id'),
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_paymentAfterCheckoutPages', false, 'id'),
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
-                    ]
-                )) {
+                if (!ls_shop_generalHelper::isInCheckout()) {
                     for (; $_rit<$_cnt; $_rit+=2) {
                         if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
                             break;
@@ -86,16 +77,7 @@ class ls_shop_customInserttags
                 break;
 
             case 'IfNotInCheckout':
-                if (in_array(
-                    $objPage->id,
-                    [
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_reviewPages', false, 'id'),
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutFinishPages', false, 'id'),
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_paymentAfterCheckoutPages', false, 'id'),
-                        ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
-                    ]
-                )) {
+                if (ls_shop_generalHelper::isInCheckout()) {
                     for (; $_rit<$_cnt; $_rit+=2) {
                         if ($tags[$_rit+1] == 'shop' . $tag . '::end') {
                             break;

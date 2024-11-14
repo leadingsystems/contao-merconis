@@ -276,6 +276,11 @@ class ls_shop_checkoutData {
 		if ($what != 'payment' && $what != 'shipping') {
 			return '';
 		}
+
+        if (!ls_shop_generalHelper::isInCheckout()) {
+            return '';
+        }
+
 		
 		if (!isset($GLOBALS['merconis_globals']['checkoutData']['customPaymentOrShippingMethodUserInterface'][$what])) {
 			switch ($what) {
