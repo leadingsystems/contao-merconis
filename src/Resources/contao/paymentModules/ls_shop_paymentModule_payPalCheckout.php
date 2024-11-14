@@ -59,6 +59,36 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             return $this->payPalCheckout_showPaymentWall();
         }
     }
+
+    private function getAddress(): array
+    {
+        $street = '';
+        $city = '';
+        $countryCode = '';
+        $postalCode = '';
+
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameStreet'])) { //street
+            $street = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameStreet']);
+        }
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCity'])) { //city
+            $city = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCity']);
+        }
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCountryCode'])) { //country
+            $countryCode = strtoupper($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCountryCode']));
+        }
+        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNamePostal'])) { //postal
+            $postalCode = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNamePostal']);
+        }
+
+        return [
+            "address_line_1"=>  $street,
+            "admin_area_2"=>  $city,
+            "postal_code"=>  $postalCode,
+            "country_code"=>  $countryCode,
+        ];
+
+    }
+
     private function payPalCheckout_createOrder(){
         if ($_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId']) {
             return $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'];
@@ -114,27 +144,11 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameLastname'])) { //lastname
             $lastname = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameLastname']);
         }
-        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameStreet'])) { //street
-            $street = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameStreet']);
-        }
-        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCity'])) { //city
-            $city = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCity']);
-        }
-        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCountryCode'])) { //country
-            $countryCode = strtoupper($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameCountryCode']));
-        }
-        if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNamePostal'])) { //postal
-            $postalCode = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNamePostal']);
-        }
         if ($this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameState'])) { //state
             $state = $this->payPalCheckout_getShippingFieldValue($this->arrCurrentSettings['payPalCheckout_shipToFieldNameState']);
         }
-        $arr_adress = [
-            "address_line_1"=>  $street,
-            "admin_area_2"=>  $city,
-            "postal_code"=>  $postalCode,
-            "country_code"=>  $countryCode,
-        ];
+        $arr_adress = $this->getAddress();
+
         //add state if exist
         if($state){
             $arr_adress["admin_area_1"] = $state;
@@ -595,6 +609,14 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     protected function payPalCheckout_showPaymentWall() {
         /** @var PageModel $objPage */
         global $objPage;
+
+        $arr_adress = $this->getAddress();
+
+        //address is not set correctly so no order should be created
+        if(empty($arr_adress['address_line_1']) || empty($arr_adress['admin_area_2']) || empty($arr_adress['postal_code']) || empty($arr_adress['country_code'])){
+            return;
+        }
+
         $orderId = $this->payPalCheckout_createOrder();
         $obj_template = new FrontendTemplate('payPalCheckoutCustomUserInterface');
         $obj_template->clientId = $this->arrCurrentSettings['payPalCheckout_clientID'];
