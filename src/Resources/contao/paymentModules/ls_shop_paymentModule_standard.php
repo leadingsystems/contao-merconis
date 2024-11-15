@@ -18,7 +18,10 @@ namespace Merconis\Core;
 			 * that this function is being called directly from a payment module itself which means that the general logPaymentError function
 			 * in ls_shop_paymentModule is skipped and therefore can not set this flag itself.
 			 */
-			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop=  $session->get('lsShop');
+            $session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShop);
 			## fixEndlessRecursionOnPaymentError end ##
 
 			error_log('Payment error in payment method "'.$this->arrCurrentSettings['title'].'" (type: '.$this->arrCurrentSettings['type'].') in context "'.$context.'"');
@@ -133,7 +136,10 @@ namespace Merconis\Core;
 			 * that this function is being called directly from a payment module itself which means that the general redirectToErrorPage function
 			 * in ls_shop_paymentModule is skipped and therefore can not set this flag itself.
 			 */
-			$_SESSION['lsShop']['blnPaymentOrShippingErrorOccured'] = true;
+            $session = System::getContainer()->get('merconis.session')->getSession();
+            $session_lsShop=  $session->get('lsShop');
+            $session_lsShop['blnPaymentOrShippingErrorOccured'] = true;
+            $session->set('lsShop', $session_lsShop);
 			## fixEndlessRecursionOnPaymentError end ##
 			
 			$this->logPaymentError($context, $errorInformation01, $errorInformation02, $errorInformation03);
