@@ -2382,6 +2382,12 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $addReturnPageToUrl = '/calledBy/searchResult';
         }
 
+        //redirect to productNotFound Published Page if no categorie/site is set for this product
+        if(empty($MainLanguagePageIDForLink)){
+            return ls_shop_languageHelper::getLanguagePage('ls_shop_productNotFound');
+        }
+
+
         $this->ls_linkToProduct = \Controller::generateFrontendUrl($objProductPage->row(), '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl);
 
 		return $this->ls_linkToProduct;
