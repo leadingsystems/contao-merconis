@@ -1802,7 +1802,8 @@ class ls_shop_generalHelper
             if (!ls_shop_generalHelper::checkIfPaymentOrShippingMethodIsAllowed($tmpMethodInfo, $type)) {
                 continue;
             }
-            if($tmpMethodInfo["notSelectable"] != 1){
+            if(($tmpMethodInfo["notSelectable"] ?? null) != 1)
+            {
                 if (!is_array($cheapestMethod) || $cheapestMethod['feePrice'] > $tmpMethodInfo['feePrice']) {
                     $cheapestMethod = $tmpMethodInfo;
                 }
@@ -2213,6 +2214,7 @@ class ls_shop_generalHelper
                 SELECT  flexContentLIKey
                 FROM    tl_ls_shop_filter_fields
                 WHERE   dataSource = 'flexContentLIMinMax'
+                AND IFNULL(flexContentLIKey, '') != ''
         ")
         ->execute();
 
@@ -3171,7 +3173,7 @@ class ls_shop_generalHelper
 
             if ($objVariants->numRows) {
                 while ($objVariants->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(StringUtil::deserialize($objVariants->lsShopProductVariantAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(json_decode($objVariants->lsShopProductVariantAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
@@ -3195,7 +3197,7 @@ class ls_shop_generalHelper
 
             if ($objProducts->numRows) {
                 while ($objProducts->next()) {
-                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(StringUtil::deserialize($objProducts->lsShopProductAttributesValues));
+                    $arrAttributesAndValues = ls_shop_generalHelper::processProductAttributesValues(json_decode($objProducts->lsShopProductAttributesValues));
                     foreach ($arrAttributesAndValues as $arrAttributeAndValues) {
                         if (is_array($arrAttributeAndValues)) {
                             foreach ($arrAttributeAndValues as $arrAttributeAndValue) {
@@ -4962,6 +4964,7 @@ class ls_shop_generalHelper
             $obj_flexWidget_inputQuantity = new FlexWidget(
                 array(
                     'str_uniqueName' => 'quantity_' . $productID . '-' . $variantID,
+                    'str_template' => 'ls_flexWidget_defaultNumber',
                     'arr_validationFunctions' => array(
                         array(
                             'str_className' => '\Merconis\Core\FlexWidgetValidator',
@@ -4969,7 +4972,8 @@ class ls_shop_generalHelper
                         )
                     ),
                     'arr_moreData' => [
-                        'class' => 'quantity-input'
+                        'class' => 'quantity-input',
+                        'decimalsAmount' => $obj_productOrVariant->_quantityDecimals
                     ],
                     'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
                     'str_allowedRequestMethod' => 'post',
@@ -5325,5 +5329,25 @@ class ls_shop_generalHelper
         }
 
         return $str_url;
+    }
+
+    public static function isInCheckout(){
+
+        /** @var \PageModel $objPage */
+		global $objPage;
+
+        if (in_array(
+            $objPage->id,
+            [
+                ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
+                ls_shop_languageHelper::getLanguagePage('ls_shop_reviewPages', false, 'id'),
+                ls_shop_languageHelper::getLanguagePage('ls_shop_checkoutFinishPages', false, 'id'),
+                ls_shop_languageHelper::getLanguagePage('ls_shop_paymentAfterCheckoutPages', false, 'id'),
+                ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages', false, 'id'),
+            ]
+        )) {
+            return true;
+        }
+        return false;
     }
 }
