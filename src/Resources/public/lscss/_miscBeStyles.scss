@@ -1,16 +1,3 @@
-.w33 {
-  width: calc(33% - 30px);
-  float: left;
-  min-height: 80px;
-}
-
-.w33-cbx-middle {
-  width: calc(33% - 30px);
-  float: left;
-  min-height: 55px;
-  margin-top: 25px;
-}
-
 #tl_navigation .group-merconis {
   background: url("/bundles/leadingsystemsmerconis/icons/be/default.svg") 3px 1px no-repeat;
 }
@@ -337,15 +324,7 @@
   border-bottom: 1px solid #DDDDDD;
 }
 
-.beModule_productSearch .widgetContainer.left {
-  float: left;
-  width: 350px;
-}
 
-.beModule_productSearch .widgetContainer.right {
-  float: right;
-  width: 350px;
-}
 
 .beModule_productSearch .widgetContainer label {
   display: block;
@@ -360,24 +339,64 @@
   text-align: right;
 }
 
+.beModule_productSearch .submitContainer input {
+  line-height: inherit;
+  width: 150px;
+  margin-right: 0;
+}
+
 .beModule_productSearch .searchResults table {
   border-collapse: collapse;
+  width: 100%;
+}
+
+.beModule_productSearch .searchResults table tbody tr:nth-child(2n) {
+  background-color: #F0F0F0;
 }
 
 .beModule_productSearch .searchResults table td,
 .beModule_productSearch .searchResults table th {
-  border: 1px solid #DDDDDD;
+  border: 1px solid #D3D3D3;
   padding: 5px;
+  height: 50px;
 }
 
 .beModule_productSearch .searchResults table th {
   font-weight: bold;
   background-color: #A4A4A4;
   color: #FFFFFF;
+  height: 25px;
 }
 
 .beModule_productSearch .searchResults table th a {
   color: #FFFFFF;
+}
+
+.beModule_productSearch .searchResults table td a {
+  display: inline-block;
+  line-height: inherit;
+  background: var(--form-bg);
+  border: 1px solid var(--form-border);
+  border-radius: 2px;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 30px;
+  padding: 7px 12px;
+  transition: background .2s ease;
+}
+.beModule_productSearch .searchResults table td a:hover {
+  background: var(--form-bg-hover);
+  color: #000000;
+}
+
+.beModule_productSearch .searchResults table td:last-of-type {
+  text-align: center;
+}
+
+@media (max-width: 615px) {
+  .searchResultTable {
+    overflow-x: auto;
+  }
 }
 
 .beModule_productSearch .setNumPerPage {
@@ -390,7 +409,7 @@
 }
 
 .beModule_productSearch #submitNumPerPage {
-  margin-top: 1px;
+  line-height: inherit;
 }
 
 .beModule_productSearch .msgNumSearchResults {
