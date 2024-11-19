@@ -34,11 +34,11 @@ use Contao\System;
 					<input type="hidden" name="FORM_SUBMIT" value="beModule_productSearch_numPerPage">
 					<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
 					<?php echo $GLOBALS['TL_LANG']['be_productSearch']['text009']; ?>: <?php echo $this->fflNumPerPage; ?>
-					<input type="submit" name="submitNumPerPage" id="submitNumPerPage" class="tl_limit tl_submit" value="<?php echo $GLOBALS['TL_LANG']['be_productSearch']['text010']; ?>">
+					<input type="submit" name="submitNumPerPage" id="submitNumPerPage" class="tl_submit" value="<?php echo $GLOBALS['TL_LANG']['be_productSearch']['text010']; ?>">
 				</form>
 			</div>
 			<div class="msgNumSearchResults"><?php echo $this->msgNumSearchResults; ?> </div>
-            <div class="searchResultTable">
+            <div class="widget searchResultTable">
                 <table>
                     <thead>
                         <tr>
