@@ -332,9 +332,6 @@
   display: block;
 }
 
-.beModule_productSearch .widgetContainer input.tl_text {
-  width: 344px;
-}
 
 .beModule_productSearch .submitContainer {
   margin-top: 20px;
@@ -352,7 +349,7 @@
   width: 100%;
 }
 
-.beModule_productSearch .searchResults table tbody tr:nth-child(2n) {
+.beModule_productSearch:not(.beModule_stockManagement) .searchResults table tbody tr:nth-child(2n) {
   background-color: #F0F0F0;
 }
 
@@ -391,7 +388,7 @@
   color: #000000;
 }
 
-.beModule_productSearch .searchResults table td:last-of-type {
+.beModule_productSearch:not(.beModule_stockManagement) .searchResults table td:last-of-type {
   text-align: center;
 }
 
@@ -430,9 +427,6 @@
   margin-left: 15px;
 }
 
-.beModule_productSearch .widgetContainer.pages .tl_select {
-  width: 344px;
-}
 
 .beModule_productSearch table th a {
   background-repeat: no-repeat;
@@ -661,6 +655,10 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
 
 .popup #container {
   padding: 0px;
+}
+
+.beModule_stockManagement .msgInfoLegend {
+  margin: 0 15px 15px;
 }
 
 .beModule_stockManagement tr.space td {

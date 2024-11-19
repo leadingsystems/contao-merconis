@@ -3,20 +3,19 @@ use Contao\System;
 ?>
 <div class="beModule_productSearch">
 	<div class="searchForm">
-
 		<form action="<?php echo $this->request; ?>" class="tl_form" method="post">
 			<input type="hidden" name="FORM_SUBMIT" value="beModule_productSearch">
 			<input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
-			<div class="w33 widget _widgetContainer title">
+			<div class="w33 widget widgetContainer title">
 				<?php echo $this->widgets['title']['widget']; ?>
 			</div>
-            <div class="w33 widget _widgetContainer keywords">
+            <div class="w33 widget widgetContainer keywords">
                 <?php echo $this->widgets['keywords']['widget']; ?>
             </div>
-			<div class="w33 widget _widgetContainer productCode">
+			<div class="w33 widget widgetContainer productCode">
 				<?php echo $this->widgets['productCode']['widget']; ?>
 			</div>
-			<div class="w33 widget _widgetContainer pages">
+			<div class="w33 widget widgetContainer pages">
 				<?php echo $this->widgets['pages']['widget']; ?>
 			</div>
 			<div class="clearFloat">&nbsp;</div>
