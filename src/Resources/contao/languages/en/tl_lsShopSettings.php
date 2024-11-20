@@ -53,7 +53,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchResultPages'] = array('Page "Product search results"', 'Select the page on which the product search results shall be displayed here. Should you run a multilingual shop, please select the corresponding page for each language.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrdersPages'] = array('Page "My orders"', 'Select the page which contains the module "My orders". Should you run a multilingual shop, please select the corresponding page for each language.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrderDetailsPages'] = array('Page "My orders - details"', 'Select the page which contains the module "My orders - details". Should you run a multilingual shop, please select the corresponding page for each language.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_productNotFound'] = array('Page "Product not found"', 'Select the page which gets shown if no product could be found');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_defaultProductPage'] = array('Page "Standard Product Page"', 'Select the page on which products are displayed that are not assigned to any pages or are only assigned to unpublished pages');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover']	= array('Default cover for videos', 'Select a graphic to be used as cover image for videos if no cover graphic matching the video can be found.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_noProductImage']	= array('Default product image', 'Select a graphic to be used as product image if no product image can be found.');
