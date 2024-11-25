@@ -42,6 +42,8 @@ $str_html_price = $this->objProduct->_useCustomTemplate('template_productInclude
 $str_html_addedToCartInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_addedToCartInfo_01');
 $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productIncludes_filterMatch_01');
 // $str_html_ajaxTest = $this->objProduct->_useCustomTemplate('template_productIncludes_ajaxTest_01');
+
+$str_html_productSaftyRegulation = $this->objProduct->_useCustomTemplate('template_productSaftyRegulation');
 ?>
 
 <?php echo isset($str_html_ajaxTest) ? $str_html_ajaxTest : ''; ?>
@@ -234,6 +236,10 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
                     ?>
                 </div>
                 <?php // <- ##### DESCRIPTION ###### ?>
+
+                <?php // ##### productSaftyRegulation ###### -> ?>
+                <?php echo isset($str_html_productSaftyRegulation) ? $str_html_productSaftyRegulation : ''; ?>
+                <?php // <- ##### productSaftyRegulation ###### ?>
 
                 <?php // ##### CONFIGURATOR ###### -> ?>
 
