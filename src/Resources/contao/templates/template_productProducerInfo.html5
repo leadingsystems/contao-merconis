@@ -3,6 +3,8 @@ $alias = System::getContainer()->get('contao.slug')->generate($this->objProduct-
 $html_article= Controller::getArticle($alias, false, true);
 
 ?>
-<div class="producer-info">
-    <?= $html_article ?>
-</div>
+<?php if(!empty($html_article)): ?>
+    <div class="producer-info">
+        <?= $html_article ?>
+    </div>
+<?php endif; ?>
