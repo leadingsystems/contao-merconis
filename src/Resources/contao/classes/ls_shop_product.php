@@ -2363,7 +2363,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $objProductPage = \PageModel::findWithDetails($currentLanguagePageIDForLink);
         }
 
-        //redirect to productNotFound Published Page if no categorie/site is set for this product
+        //redirect to product default Page if no categorie/site is set for this product
         if(empty($MainLanguagePageIDForLink)){
             $idDefaultProductPage = ls_shop_languageHelper::getLanguagePage('ls_shop_defaultProductPage', false, 'id');
             $objProductPage = \PageModel::findWithDetails($idDefaultProductPage);
@@ -2381,9 +2381,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
         if ($objPage->id == ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages', false, 'id')) {
             $addReturnPageToUrl = '/calledBy/searchResult';
         }
-
-
-
 
         $this->ls_linkToProduct = \Controller::generateFrontendUrl($objProductPage->row(), '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl);
 
