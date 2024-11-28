@@ -2351,7 +2351,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $MainLanguagePageIDForLink = null;
             foreach ($this->_pages as $int_pageID) {
                 $pageInfo = \PageModel::findWithDetails($int_pageID);
-                if ($pageInfo->published == "1") {
+                if ($pageInfo !== null && $pageInfo->published == "1") {
                     $MainLanguagePageIDForLink = $int_pageID;
                     break;
                 }
@@ -2369,10 +2369,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $objProductPage = \PageModel::findWithDetails($idDefaultProductPage);
         }
 
-        /*-->
-         * If $objProductPage is not an object, which would be the case if the product has been assigned to a page that doesn't exist (anymore),
-         * it will be overwritten with $objPage because we definitely need an existing page
-         <--*/
         if (!is_object($objProductPage)) {
             $objProductPage = $objPage;
         }
