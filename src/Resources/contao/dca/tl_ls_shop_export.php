@@ -7,7 +7,6 @@ use Contao\Controller;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
-use Contao\Environment;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
@@ -918,7 +917,7 @@ class ls_shop_export_dc extends Backend {
 
                     $arr_existingExportFiles[] = array(
                         'fileName' => $str_fileName,
-                        'url' => Environment::get('base').$str_pathToFileExportFolder.'/'.$str_fileName,
+                        'url' => ls_shop_generalHelper::getEnvironmentBase(true).$str_pathToFileExportFolder.'/'.$str_fileName,
                         'dateTime' => date($GLOBALS['TL_CONFIG']['datimFormat'], filemtime($str_projectDir.'/'.$str_pathToFileExportFolder.'/'.$str_fileName)),
                         'fileSize' => Controller::getReadableSize(filesize($str_projectDir.'/'.$str_pathToFileExportFolder.'/'.$str_fileName))
                     );

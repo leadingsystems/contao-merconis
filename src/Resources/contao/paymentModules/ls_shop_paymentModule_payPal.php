@@ -34,7 +34,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			/*
 			 * ###### Create the return url #######
 			 */
-			$this->returnUrl = Environment::get('base').ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
+			$this->returnUrl = ls_shop_generalHelper::getEnvironmentBase(true).ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
 			/*
 			 * #######################################
 			 */
@@ -280,9 +280,9 @@ use function LeadingSystems\Helpers\ls_sub;
 		protected function paypal_createSetExpressCheckoutNVP() {
 			$cancelUrl = $this->returnUrl.(preg_match('/\?/', $this->returnUrl) ? '&' : '?').'cancelPaypal=1';
 			
-			$giropaysuccesUrl = Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropaySuccessPages', StringUtil::deserialize($this->arrCurrentSettings['paypalGiropaySuccessPages']));
-			$giropaycancelUrl = Environment::get('base').ls_shop_languageHelper::getLanguagePage('giropayCancelPages', StringUtil::deserialize($this->arrCurrentSettings['paypalGiropayCancelPages']));
-			$banktxnpendingUrl = Environment::get('base').ls_shop_languageHelper::getLanguagePage('banktransferPendingPages', StringUtil::deserialize($this->arrCurrentSettings['paypalBanktransferPendingPages']));
+			$giropaysuccesUrl = ls_shop_generalHelper::getEnvironmentBase(true).ls_shop_languageHelper::getLanguagePage('giropaySuccessPages', StringUtil::deserialize($this->arrCurrentSettings['paypalGiropaySuccessPages']));
+			$giropaycancelUrl = ls_shop_generalHelper::getEnvironmentBase(true).ls_shop_languageHelper::getLanguagePage('giropayCancelPages', StringUtil::deserialize($this->arrCurrentSettings['paypalGiropayCancelPages']));
+			$banktxnpendingUrl = ls_shop_generalHelper::getEnvironmentBase(true).ls_shop_languageHelper::getLanguagePage('banktransferPendingPages', StringUtil::deserialize($this->arrCurrentSettings['paypalBanktransferPendingPages']));
 
 			/*
 			 * Hinzufügen der allgemeinen Bestellinformationen zum NVP-Array

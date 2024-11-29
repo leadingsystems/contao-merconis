@@ -2,7 +2,7 @@
 
 namespace Merconis\Core;
 
-	use Contao\Environment;
+use Contao\Environment;
 use Contao\Input;
 use Contao\PageModel;
 use Contao\StringUtil;
@@ -152,7 +152,7 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 
 			// make an absolute URL
 			if (!preg_match('@^https?://@i', $str_afterCheckoutUrl)) {
-				$str_afterCheckoutUrl = Environment::get('base') . $str_afterCheckoutUrl;
+				$str_afterCheckoutUrl = ls_shop_generalHelper::getEnvironmentBase(true) . $str_afterCheckoutUrl;
 			}
 			/*
 			 * ----------

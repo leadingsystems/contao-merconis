@@ -79,7 +79,6 @@ class SitemapListener
                 continue;
             } else {
                 while ($objPagesForProduct->next()) {
-                    $domain = Environment::get('base');
                     $arrLanguagePages = ls_shop_languageHelper::getLanguagePages($objPagesForProduct->id);
                     foreach ($arrLanguagePages as $languagePageInfo) {
                         $objPageForProduct = PageModel::findWithDetails($languagePageInfo['id']);
