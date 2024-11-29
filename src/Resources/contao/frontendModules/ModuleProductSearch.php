@@ -155,7 +155,7 @@ class ModuleProductSearch extends Module {
 									break;
 									
 								case '_linkToProduct':
-									$arrHit[$liveHitField] = Environment::get('base').$objProduct->_linkToProduct;
+									$arrHit[$liveHitField] = $objProduct->_linkToProduct;
 									break;
 									
 								default:
