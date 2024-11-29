@@ -5413,4 +5413,9 @@ class ls_shop_generalHelper
         }
         return false;
     }
+
+    public static function getEnvironmentBase($trailSlash = false): string
+    {
+        return Environment::get('url') . Environment::get('path') . ($trailSlash ? '/' : '');
+    }
 }
