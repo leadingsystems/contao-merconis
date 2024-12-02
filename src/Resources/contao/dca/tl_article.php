@@ -30,7 +30,7 @@ $GLOBALS['TL_DCA']['tl_article']['fields']['lsShopIsProductInfo'] = array(
     'label'			=> &$GLOBALS['TL_LANG']['tl_article']['lsShopIsProductInfo'],
     'exclude'       => true,
     'inputType'		=> 'checkbox',
-    'eval'			=> array('submitOnChange'=>true, 'tl_class' => 'w33-cbx-middle'),
+    'eval'			=> array('submitOnChange'=>true, 'tl_class' => 'w33-cbx-middle testcssx'),
     'sql'           => "char(1) NOT NULL default ''"
 );
 
@@ -41,7 +41,7 @@ $GLOBALS['TL_DCA']['tl_article']['fields']['lsShopIsProductInfoTextfield'] = arr
     'eval'			=> array('tl_class' => 'w33'),
     'save_callback' => array
     (
-        array('Merconis\Core\tl_article', 'generateAlias')
+        array('Merconis\Core\tl_article', 'generateAlias2')
     ),
     'sql'           => "varchar(255) NOT NULL default ''"
 );
@@ -49,10 +49,18 @@ $GLOBALS['TL_DCA']['tl_article']['fields']['lsShopIsProductInfoTextfield'] = arr
 
 
 
-array_unshift($GLOBALS['TL_DCA']['tl_article']['fields']['alias']['save_callback'], array('Merconis\Core\tl_article', 'generateAlias2'));
+array_unshift($GLOBALS['TL_DCA']['tl_article']['fields']['alias']['save_callback'], array('Merconis\Core\tl_article', 'generateAlias'));
+
+//TODO: test?
+$GLOBALS['TL_DCA']['tl_article']['fields']['alias']['eval']['tl_class'] = $GLOBALS['TL_DCA']['tl_article']['fields']['alias']['eval']['tl_class'].' testcss';
 
 
-/*$GLOBALS['TL_DCA']['tl_article']['fields']['alias']['eval']['disabled'] = true;*/
+
+
+
+
+
+//$GLOBALS['TL_DCA']['tl_article']['fields']['alias']['eval']['disabled'] = 'disabled';
 
 /*
 
@@ -69,6 +77,8 @@ $GLOBALS['TL_DCA']['tl_article']['subpalettes']['lsShopIsProductInfo'] = array(
 
 use Contao\Backend;
 use Contao\CoreBundle\DataContainer\PaletteManipulator;
+use Contao\Database;
+use Contao\Input;
 
 PaletteManipulator::create()
     // adding the field as usual
@@ -135,11 +145,28 @@ class tl_article extends Backend
 
     public function generateAlias($varValue, \DataContainer $dc)
     {
+        //return $varValue;
 
+        dump("+generateAlia!!!");
+
+        $lsShopIsProductInfo = false;
+        if($this->getDcaFieldValue($dc, 'lsShopIsProductInfo', false) == '1'){
+            $lsShopIsProductInfo = true;
+        }
+
+        dump("+generateAlias");
         dump($dc);
         dump($dc->activeRecord);
         dump($dc->activeRecord->id);
         dump($dc->activeRecord->alias);
+
+        dump($this->getDcaFieldValue($dc, 'lsShopIsProductInfo')); //this
+
+
+        dump($this->getDcaFieldValue($dc, 'lsShopIsProductInfoTextfield'));
+        dump("-generateAlias");
+
+
 
         $aliasExists = function (string $alias) use ($dc): bool
         {
@@ -152,25 +179,30 @@ class tl_article extends Backend
         };
 
         // Generate an alias if there is none
-        if ($dc->activeRecord->lsShopIsProductInfo == "1")
+        if ($lsShopIsProductInfo)
         {
             //dump("generate slug");
-            $generatedAlias = \System::getContainer()->get('contao.slug')->generate($dc->activeRecord->title, $dc->activeRecord->pid, $aliasExists);
+            $generatedAlias = \System::getContainer()->get('contao.slug')->generate($this->getDcaFieldValue($dc, 'lsShopIsProductInfoTextfield'), $dc->activeRecord->pid);
 
+            dump("return ".$generatedAlias);
+
+
+            if (preg_match('/^[1-9]\d*$/', $varValue))
+            {
+                throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $varValue));
+
+            }
+            if ($aliasExists($varValue))
+            {
+                throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+
+            }
+
+            return $generatedAlias;
             //overwrite Alias
             /*
             \Database::getInstance()->prepare("UPDATE tl_article SET alias=? WHERE id=?")
                 ->execute($generatedAlias, $dc->activeRecord->id);*/
-        }
-        elseif (preg_match('/^[1-9]\d*$/', $varValue))
-        {
-            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $varValue));
-
-        }
-        elseif ($aliasExists($varValue))
-        {
-            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
-
         }
 
         return $varValue;
@@ -178,6 +210,13 @@ class tl_article extends Backend
 
     public function generateAlias2($varValue, \DataContainer $dc)
     {
+        //return $varValue;
+
+
+        $lsShopIsProductInfo = false;
+        if($this->getDcaFieldValue($dc, 'lsShopIsProductInfo', false) == '1'){
+            $lsShopIsProductInfo = true;
+        }
 
         dump("generateAlias2");
         dump($dc);
@@ -198,29 +237,32 @@ class tl_article extends Backend
         };
 
         // Generate an alias if there is none
-        if ($dc->activeRecord->lsShopIsProductInfo == "1")
+        if ($lsShopIsProductInfo)
         {
             //dump("generate slug");
-            $generatedAlias = \System::getContainer()->get('contao.slug')->generate($dc->activeRecord->lsShopIsProductInfoTextfield, $dc->activeRecord->pid, $aliasExists);
+            $generatedAlias = \System::getContainer()->get('contao.slug')->generate($this->getDcaFieldValue($dc, 'lsShopIsProductInfoTextfield'), $dc->activeRecord->pid);
             dump("generated Alias2: ".$generatedAlias);
 
-        }
-        elseif (preg_match('/^[1-9]\d*$/', $varValue))
-        {
-            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $varValue));
+            if ($aliasExists($generatedAlias))
+            {
+                throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
 
-        }
-        elseif ($aliasExists($varValue))
-        {
-            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+            }
 
+            if (preg_match('/^[1-9]\d*$/', $varValue))
+            {
+                throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $varValue));
+
+            }
         }
 
-        return $generatedAlias;
+        return $varValue;
     }
 
     public function onSubmitCallback(\DataContainer $dc)
     {
+        return;
+
         // Return if there is no ID
         /*
         if (!$dc->activeRecord || !$dc->activeRecord->id)
@@ -228,11 +270,13 @@ class tl_article extends Backend
             return;
         }*/
 
-        /*
+
         dump($dc);
         dump($dc->activeRecord);
         dump($dc->activeRecord->id);
-        dump($dc->activeRecord->alias);*/
+        dump($dc->activeRecord->alias);
+        dump($dc->activeRecord->lsShopIsProductInfo);
+        dump($dc->activeRecord->lsShopIsProductInfoTextfield);
 
         if($dc->activeRecord->lsShopIsProductInfo == '1'){
             $producer = $dc->activeRecord->lsShopIsProductInfoTextfield;
@@ -241,10 +285,11 @@ class tl_article extends Backend
 
             dump("createAliasAndSave");
             $generatedAlias = \System::getContainer()->get('contao.slug')->generate($producer, ['locale' => 'de']);
+            dump($generatedAlias);
 
-            /*
+
             \Database::getInstance()->prepare("UPDATE tl_article SET alias=? WHERE id=?")
-                ->execute($generatedAlias, $dc->activeRecord->id);*/
+                ->execute($generatedAlias, $dc->activeRecord->id);
         }
 
 
@@ -280,5 +325,43 @@ class tl_article extends Backend
 
     }
 
+
+    protected static function getDcaFieldValue($dc, $fieldName, $fromDb = false)
+    {
+        $value = null;
+
+        if (Input::post('FORM_SUBMIT') === $dc->table && !$fromDb) {
+            $value = Input::post($fieldName);
+            if ($value !== null) {
+                return $value;
+            }
+        }
+
+        if ($dc->activeRecord) {
+            $value = $dc->activeRecord->$fieldName;
+        }
+        else {
+
+            $table = $dc->table;
+            $id = $dc->id;
+
+            if (Input::get('target')) {
+                $table = explode('.', Input::get('target'), 2)[0];
+                $id = (int) explode('.', Input::get('target'), 3)[2];
+            }
+
+            if ($table && $id) {
+                $record = Database::getInstance()
+                    ->prepare("SELECT * FROM {$table} WHERE id=?")
+                    ->execute($id);
+                if ($record->next()) {
+                    $value = $record->$fieldName;
+                }
+            }
+
+        }
+
+        return $value;
+    }
 
 }
