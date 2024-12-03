@@ -1138,6 +1138,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_preis'] = 'Neuer Warenwert mi
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_discount'] = 'Rabatt';
 
 
+$GLOBALS['TL_LANG']['ERR']['blubtest'] = 'The alias %s already exists!xxxxx';
+$GLOBALS['TL_LANG']['ERR']['producerExists'] = 'Für den Hersteller "%s" gibt es schon ein Artikel';
+
 /*
  * <- Backend
  */		

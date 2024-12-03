@@ -13,3 +13,6 @@ $GLOBALS['TL_LANG']['tl_article']['lsShopOutputCondition']['options']					= arra
     'onlyIfFeUserLoggedIn' => array('Only if front-end user is logged in', 'The article is only displayed if a front-end user (member/customer) is logged in.'),
     'onlyIfFeUserNotLoggedIn' => array('Only if no front-end user is logged in', 'The article is only displayed if a front-end user (member/customer) is logged in.')
 );
+
+$GLOBALS['TL_LANG']['tl_article']['lsShopProducerInfoText'] = array('Producer', 'Enter the name of the producer here where this information should be displayed, each producer only has one article');
+$GLOBALS['TL_LANG']['tl_article']['lsShopIsProducerInfo'] = array('Producer information', 'Whether the article refers to the producer information or not');

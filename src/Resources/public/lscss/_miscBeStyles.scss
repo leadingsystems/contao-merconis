@@ -2280,8 +2280,8 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
  * <- LSJS backend widgets
  */
 
-.tl_tbox:has(.testcssx input[type="checkbox"]:checked){
-  .testcss input{
+.tl_tbox:has(.aliasClassForProducerInfoCheckbox input[type="checkbox"]:checked){
+  .aliasClassForProducerInfoText input{
     color: #bbb;
     background-color: #f9f9f9;
     border: 1px solid #c8c8c8;
