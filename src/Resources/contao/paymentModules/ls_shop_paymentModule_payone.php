@@ -376,7 +376,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			
 			// make an absolute URL
 			if (!preg_match('@^https?://@i', $afterCheckoutUrl)) {
-				$afterCheckoutUrl = Environment::get('base') . $afterCheckoutUrl;
+				$afterCheckoutUrl = ls_shop_generalHelper::getEnvironmentBase(true) . $afterCheckoutUrl;
 			}
 			/*
 			 * ----------

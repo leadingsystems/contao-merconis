@@ -9,7 +9,7 @@
  * - make sure to check "create product objects"
  */
 
-use Contao\Environment;
+use Merconis\Core\ls_shop_generalHelper;
 
 if (is_array($this->arr_data) && count($this->arr_data)) {
     /*
@@ -31,8 +31,8 @@ if (is_array($this->arr_data) && count($this->arr_data)) {
         if(strlen($var_description) > 5000) {
             $var_description = substr($var_description, 0, 5000);
         }
-        $var_link = Environment::get('base') . $obj_product->_linkToProduct;
-        $var_imageLink = $obj_product->_hasMainImage ? Environment::get('base') . $obj_product->_mainImage : '';
+        $var_link = ls_shop_generalHelper::getEnvironmentBase() . $obj_product->_linkToProduct;
+        $var_imageLink = $obj_product->_hasMainImage ? ls_shop_generalHelper::getEnvironmentBase(true) . $obj_product->_mainImage : '';
         $var_price = $obj_product->_unscaledPriceAfterTax . ' ' . $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'];
         $var_availability = $obj_product->_stock > 0 ? 'in stock' : 'out of stock';
         $var_condition = 'new';
@@ -65,8 +65,8 @@ if (is_array($this->arr_data) && count($this->arr_data)) {
                 if(strlen($var_description) > 5000) {
                     $var_description = substr($var_description, 0, 5000);
                 }
-                $var_link = Environment::get('base') . $obj_variant->_linkToVariant;
-                $var_imageLink = $obj_variant->_hasMainImage ? Environment::get('base') . $obj_variant->_mainImage : '';
+                $var_link = ls_shop_generalHelper::getEnvironmentBase() . $obj_variant->_linkToVariant;
+                $var_imageLink = $obj_variant->_hasMainImage ? ls_shop_generalHelper::getEnvironmentBase(true) . $obj_variant->_mainImage : '';
                 $var_price = $obj_variant->_unscaledPriceAfterTax . ' ' . $GLOBALS['TL_CONFIG']['ls_shop_currencyCode'];
                 $var_availability = $obj_variant->_stock > 0 ? 'in stock' : 'out of stock';
 

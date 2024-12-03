@@ -4039,7 +4039,7 @@ class ls_shop_generalHelper
                     break;
 
                 case '_link':
-                    $str_replace = Environment::get('base') . $obj_tmp_productOrVariant->{$str_keyword};
+                    $str_replace = self::getEnvironmentBase() . $obj_tmp_productOrVariant->{$str_keyword};
                     break;
 
                 default:
@@ -4095,7 +4095,7 @@ class ls_shop_generalHelper
          * Replace the wildcards for the link to the after checkout page using the order identification hash
          */
         if ($arrOrder['orderIdentificationHash']) {
-            $afterCheckoutUrl = ($arrOrder['miscData']['domain'] ?: Environment::get('base')) . ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages') . (preg_match('/\?/', ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages')) ? '&' : '?') . 'oih=' . $arrOrder['orderIdentificationHash'];
+            $afterCheckoutUrl = ($arrOrder['miscData']['domain'] ?: self::getEnvironmentBase(true)) . ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages') . (preg_match('/\?/', ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages')) ? '&' : '?') . 'oih=' . $arrOrder['orderIdentificationHash'];
             $text = preg_replace('/(&#35;&#35;afterCheckoutUrl&#35;&#35;)|(##afterCheckoutUrl##)/siU', $afterCheckoutUrl, $text);
         }
 
@@ -5412,5 +5412,10 @@ class ls_shop_generalHelper
             return true;
         }
         return false;
+    }
+
+    public static function getEnvironmentBase($trailSlash = false): string
+    {
+        return Environment::get('url') . Environment::get('path') . ($trailSlash ? '/' : '');
     }
 }

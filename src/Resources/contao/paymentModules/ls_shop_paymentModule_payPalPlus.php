@@ -1,7 +1,6 @@
 <?php
 
 namespace Merconis\Core;
-use Contao\Environment;
 use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\PageModel;
@@ -517,7 +516,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 	}
 	
 	protected function payPalPlus_determineRedirectUrls() {
-		$this->payPalPlus_arr_returnUrls['return'] = Environment::get('base').ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
+		$this->payPalPlus_arr_returnUrls['return'] = ls_shop_generalHelper::getEnvironmentBase(true).ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
 		$this->payPalPlus_arr_returnUrls['notAuthorized'] = $this->payPalPlus_arr_returnUrls['return'].(preg_match('/\?/', $this->payPalPlus_arr_returnUrls['return']) ? '&' : '?').'&approvedPayPalPlusPayment=no';
 		$this->payPalPlus_arr_returnUrls['authorized'] = $this->payPalPlus_arr_returnUrls['return'].(preg_match('/\?/', $this->payPalPlus_arr_returnUrls['return']) ? '&' : '?').'approvedPayPalPlusPayment=yes';
 	}

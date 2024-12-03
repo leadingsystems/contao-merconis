@@ -521,43 +521,67 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 				break;
 
 			case '_mainImageUnprocessed'
-				/* ## DESCRIPTION:
-returns the main image that has been selected explicitly or null if none has been selected
+				/** ## DESCRIPTION:
+				 * returns the main image that has been selected explicitly or null if none has been selected
+                 *
+				 * @deprecated Using _mainImageUnprocessed has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0.
+                 * Use Merconis\ls_shop_product\getImageGallery()->getMainImageUnprocessed() instead.
 				 */
 				 :
-                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMainImage()->singleSRC instead', E_USER_DEPRECATED);
+                trigger_deprecation('LeadingSystems/contao-merconis', '5.1.0', 'Using "_mainImageUnprocessed" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use Merconis\ls_shop_product\getImageGallery()->getMainImageUnprocessed() instead.');
+
 				return isset($this->mainData['lsShopProductMainImage']) && $this->mainData['lsShopProductMainImage'] ? ls_getFilePathFromVariableSources($this->mainData['lsShopProductMainImage']) : null;
 				break;
 
             case '_mainImage'
-				/*
-				 * ## DESCRIPTION:
+				/** ## DESCRIPTION:
 				 * Returns the image that will be used as the main image if images are processed in an alphabetical ascending order.
-				 * If a main image has been selected explicitly, it will always be returned here. Otherwise the image sorted on top will be returned.
+				 * If a main image has been selected explicitly, it will always be returned here. Otherwise, the image sorted on top will be returned.
+                 *
+                 * @deprecated Using _mainImage has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0.
+                 * Use Merconis\ls_shop_product\getImageGallery()->getMainImage()->singleSRC instead.
 				 */
 				 :
-                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMainImage() instead', E_USER_DEPRECATED);
+                trigger_deprecation('LeadingSystems/contao-merconis', '5.1.0', 'Using "_mainImage" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use Merconis\ls_shop_product\getImageGallery()->getMainImage()->singleSRC instead.');
+
                 $objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
                 $allImagesSortedAndWithVideoCovers = $objTmpGallery->imagesSortedAndWithVideoCovers();
                 return isset($allImagesSortedAndWithVideoCovers[0]) && $allImagesSortedAndWithVideoCovers[0] && isset($allImagesSortedAndWithVideoCovers[0]['singleSRC']) && $allImagesSortedAndWithVideoCovers[0]['singleSRC'] ? $allImagesSortedAndWithVideoCovers[0]['singleSRC'] : null;
 				break;
 
-			case '_hasMainImage':
-                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->hasMainImage() instead', E_USER_DEPRECATED);
+            case '_hasMainImage'
+                /**
+                 * @deprecated Using _hasMainImage has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0.
+                 * Use Merconis\ls_shop_product\getImageGallery()->hasMainImage() instead.
+                 */
+                :
+                trigger_deprecation('LeadingSystems/contao-merconis', '5.1.0', 'Using "_hasMainImage" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use Merconis\ls_shop_product\getImageGallery()->hasMainImage() instead.');
+
 				return $this->_mainImage ? true : false;
 				break;
 
-			case '_moreImagesUnprocessed':
-				/*-->
+            case '_moreImagesUnprocessed'
+				/**
 				 * Using null as the parameter for the main image results in getAllProductImages() returning
 				 * all images except for the main image which is exactly what we want here.
-				 <--*/
-                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMoreImagesUnprocessed() instead', E_USER_DEPRECATED);
+                 *
+                 * @deprecated Using _moreImagesUnprocessed has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0.
+                 * Use Merconis\ls_shop_product\getImageGallery()->getMoreImagesUnprocessed() instead.
+                 */
+                :
+                trigger_deprecation('LeadingSystems/contao-merconis', '5.1.0', 'Using "_moreImagesUnprocessed" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use Merconis\ls_shop_product\getImageGallery()->getMoreImagesUnprocessed() instead.');
+
 				return ls_shop_generalHelper::getAllProductImages($this, $this->_code, null, $this->mainData['lsShopProductMoreImages']);
 				break;
 
-			case '_moreImages':
-                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->getMoreImages() instead', E_USER_DEPRECATED);
+			case '_moreImages'
+                /**
+                 * @deprecated Using _moreImages has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0.
+                 * Use Merconis\ls_shop_product\getImageGallery()->getMoreImages() instead.
+                 */
+                :
+                trigger_deprecation('LeadingSystems/contao-merconis', '5.1.0', 'Using "_moreImages" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use Merconis\ls_shop_product\getImageGallery()->getMoreImages() instead.');
+
 				if (!isset($GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID])) {
 					$arrMoreImages = array();
 					$objTmpGallery = new ls_shop_moreImagesGallery($this->_mainImageUnprocessed, $this->_moreImagesUnprocessed, false);
@@ -580,13 +604,25 @@ returns the main image that has been selected explicitly or null if none has bee
 				return $GLOBALS['merconis_globals']['_moreImages'][$this->_productVariantID];
 				break;
 
-			case '_hasMoreImages':
-                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->hasMoreImages() instead', E_USER_DEPRECATED);
+			case '_hasMoreImages'
+                /**
+                 * @deprecated Using _hasMoreImages has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0.
+                 * Use Merconis\ls_shop_product\getImageGallery()->hasMoreImages() instead.
+                 */
+                :
+                trigger_deprecation('LeadingSystems/contao-merconis', '5.1.0', 'Using "_hasMoreImages" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use Merconis\ls_shop_product\getImageGallery()->hasMoreImages() instead.');
+
 				return is_array($this->_moreImages) && count($this->_moreImages) ? true : false;
 				break;
 
-			case '_hasImages':
-                trigger_error('Case ' . $what . ' is deprecated use $obj_product->getImageGallery()->hasImages() instead', E_USER_DEPRECATED);
+			case '_hasImages'
+                /**
+                 * @deprecated Using _hasMoreImages has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0.
+                 * Use Merconis\ls_shop_product\getImageGallery()->hasImages() instead.
+                 */
+                :
+                trigger_deprecation('LeadingSystems/contao-merconis', '5.1.0', 'Using "_hasImages" has been deprecated and will no longer work in Leading Systems Contao Merconis bundle 6.0. Use Merconis\ls_shop_product\getImageGallery()->hasImages() instead.');
+
 				return $this->_hasMainImage || $this->_hasMoreImages;
 				break;
 
