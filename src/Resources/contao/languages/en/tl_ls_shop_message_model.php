@@ -32,7 +32,7 @@
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['attachments'] = array('File attachments');
 	
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['dynamicAttachments'] = array('Dynamically generated PDF attachment', 'Select a PHP file which is used for the creation of a dynamically generated PDF attachment here. If you do not select a file, then no dynamically generated PDF will be attached.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['dynamicAttachments'] = array('Dynamically generated attachment', 'Select a PHP file which is used for the creation of a dynamically generated attachment here. If you do not select a file, then no dynamically generated attachment will be created.');
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['published']	= array('Active');
 	
