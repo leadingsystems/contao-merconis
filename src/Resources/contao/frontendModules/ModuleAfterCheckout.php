@@ -21,7 +21,7 @@ class ModuleAfterCheckout extends \Module {
 	public function compile() {
 		$this->strTemplate = $this->ls_shop_afterCheckout_template;
 
-		$obj_paymentModule = new ls_shop_paymentModule();
+		$obj_paymentModule = ls_shop_paymentModule::getInstance();
 		
 		/**
 		 * Nach dem Umbau des Bestellabschlusshandlings wird hier nicht mehr mit einer in der Session abgelegten Bestellung gearbeitet.
