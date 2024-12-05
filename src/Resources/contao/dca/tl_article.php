@@ -36,18 +36,15 @@ $GLOBALS['TL_DCA']['tl_article']['fields']['lsShopIsProducerInfo'] = array(
 $GLOBALS['TL_DCA']['tl_article']['fields']['lsShopProducerInfoText'] = array(
     'label'			=> &$GLOBALS['TL_LANG']['tl_article']['lsShopProducerInfoText'],
     'exclude'       => true,
-    'inputType'		=> 'text',
-    'eval'			=> array('tl_class' => 'w33', 'mandatory' => true),
+    'inputType' => 'select',
+    'eval'			=> array('tl_class' => 'w33', 'mandatory' => true, 'chosen' => true),
     'save_callback' => array
     (
         array('Merconis\Core\tl_article', 'saveCallbackProducer')
     ),
+    'options_callback' => array('Merconis\Core\tl_article', 'buttonCallbackSelectProducer'),
     'sql'           => "varchar(255) NOT NULL default ''"
 );
-
-
-
-
 
 
 array_unshift($GLOBALS['TL_DCA']['tl_article']['fields']['alias']['save_callback'], array('Merconis\Core\tl_article', 'saveCallbackAlias'));
@@ -59,6 +56,7 @@ use Contao\Backend;
 use Contao\CoreBundle\DataContainer\PaletteManipulator;
 use Contao\Database;
 use Contao\Input;
+use Contao\PageModel;
 
 PaletteManipulator::create()
     ->addField('lsShopIsProducerInfo', 'alias')
@@ -75,6 +73,22 @@ class tl_article extends Backend
     {
         parent::__construct();
         $this->import(\BackendUser::class, 'User');
+    }
+
+
+    public function buttonCallbackSelectProducer()
+    {
+        //get all Product producer names from the database and make an array with every unique name
+        $objRow = $this->Database->prepare("SELECT DISTINCT lsShopProductProducer FROM tl_ls_shop_product")
+            ->execute();
+        $arDBResult = $objRow->fetchAllAssoc();
+
+        $arrProductProducerNames = array();
+        foreach ($arDBResult as $result){
+            array_push($arrProductProducerNames, $result['lsShopProductProducer']);
+        }
+
+        return $arrProductProducerNames;
     }
 
     public function saveCallbackAlias($varValue, \DataContainer $dc)
@@ -99,8 +113,6 @@ class tl_article extends Backend
 
         return $varValue;
     }
-
-
 
     public function saveCallbackProducer($varValue, \DataContainer $dc)
     {
