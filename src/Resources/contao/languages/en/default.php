@@ -1137,6 +1137,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValueLeft'] = 'Coupon v
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_preis'] = 'New value of goods after discount';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_discount'] = 'Discount';
 
+$GLOBALS['TL_LANG']['ERR']['blubtest'] = 'The alias %s already exists!xxxxx';
+
 /*
  * <- Backend
  */		

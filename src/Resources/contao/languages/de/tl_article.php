@@ -13,3 +13,10 @@ $GLOBALS['TL_LANG']['tl_article']['lsShopOutputCondition']['options']					= arra
 	'onlyIfFeUserLoggedIn' => array('Nur wenn FE-User eingeloggt', 'Der Artikel wird nur angezeigt, wenn ein Frontend-User (Mitglied/Kunde) angemeldet ist.'),
 	'onlyIfFeUserNotLoggedIn' => array('Nur wenn kein FE-User eingeloggt', 'Der Artikel wird nur angezeigt, wenn kein Frontend-User (Mitglied/Kunde) angemeldet ist.')
 );
+
+
+$GLOBALS['TL_LANG']['tl_article']['lsShopProducerInfoText'] = array('Hersteller', 'Hinterlege hier den Namen des Herstellers wo diese Information angezeigt werden soll, jedem Hersteller kann nur ein Artikel hinterlegt werden');
+$GLOBALS['TL_LANG']['tl_article']['lsShopIsProducerInfo'] = array('Hersteller Informationen', 'Ob der Artikel sich auf die Herstellerinformation bezieht oder nicht');
+
+
+
