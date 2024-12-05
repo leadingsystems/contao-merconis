@@ -2357,16 +2357,15 @@ This method can be used to call a function hooked with the "callingHookedProduct
                 }
             }
 
+            if(empty($MainLanguagePageIDForLink)){
+                $idDefaultProductPage = ls_shop_languageHelper::getLanguagePage('ls_shop_defaultProductPage', false, 'id');
+                $MainLanguagePageIDForLink = ls_shop_languageHelper::getMainlanguagePageIDForPageID($idDefaultProductPage);
+            }
+
             $languagePages = ls_shop_languageHelper::getLanguagePages($MainLanguagePageIDForLink);
             $currentLanguagePageIDForLink = $languagePages[$objPage->language]['id'];
 
             $objProductPage = \PageModel::findWithDetails($currentLanguagePageIDForLink);
-        }
-
-        //redirect to product default Page if no categorie/site is set for this product
-        if(empty($MainLanguagePageIDForLink)){
-            $idDefaultProductPage = ls_shop_languageHelper::getLanguagePage('ls_shop_defaultProductPage', false, 'id');
-            $objProductPage = \PageModel::findWithDetails($idDefaultProductPage);
         }
 
         if (!is_object($objProductPage)) {
