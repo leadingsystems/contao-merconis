@@ -2,12 +2,39 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\DataContainer\PaletteManipulator;
+
 $GLOBALS['TL_DCA']['tl_page']['config']['onsubmit_callback'][] = array('Merconis\Core\ls_shop_languageHelper', 'multilanguageInitialization');
 
 $GLOBALS['TL_DCA']['tl_page']['palettes']['__selector__'][] = 'lsShopIncludeLayoutForDetailsView';
-$GLOBALS['TL_DCA']['tl_page']['palettes']['root'] = preg_replace('/(;\{cache_legend:.*\})/siU',';{lsShop_legend},ls_shop_currencyBeforeValue,ls_shop_decimalsSeparator,ls_shop_thousandsSeparator,lsShopOutputDefinitionSet,lsShopIncludeLayoutForDetailsView\\1',$GLOBALS['TL_DCA']['tl_page']['palettes']['root']);
-$GLOBALS['TL_DCA']['tl_page']['palettes']['rootfallback'] = preg_replace('/(;\{cache_legend:.*\})/siU',';{lsShop_legend},ls_shop_currencyBeforeValue,ls_shop_decimalsSeparator,ls_shop_thousandsSeparator,lsShopOutputDefinitionSet,lsShopIncludeLayoutForDetailsView\\1',$GLOBALS['TL_DCA']['tl_page']['palettes']['rootfallback']);
-$GLOBALS['TL_DCA']['tl_page']['palettes']['regular'] = preg_replace('/(;\{cache_legend:.*\})/siU',';{lsShop_legend},lsShopOutputDefinitionSet,lsShopIncludeLayoutForDetailsView,ls_shop_useAsCategoryForErp\\1',$GLOBALS['TL_DCA']['tl_page']['palettes']['regular']);
+
+PaletteManipulator::create()
+    ->addLegend('lsShop_legend','cache_legend', PaletteManipulator::POSITION_BEFORE)
+    ->addField(
+        [
+            'ls_shop_currencyBeforeValue',
+            'ls_shop_decimalsSeparator',
+            'ls_shop_thousandsSeparator',
+            'lsShopOutputDefinitionSet',
+            'lsShopIncludeLayoutForDetailsView'
+        ], 'lsShop_legend', PaletteManipulator::POSITION_APPEND
+    )
+    ->applyToPalette('root', 'tl_page')
+    ->applyToPalette('rootfallback', 'tl_page')
+;
+
+PaletteManipulator::create()
+    ->addLegend('lsShop_legend','cache_legend', PaletteManipulator::POSITION_BEFORE)
+    ->addField(
+        [
+            'lsShopOutputDefinitionSet',
+            'lsShopIncludeLayoutForDetailsView',
+            'ls_shop_useAsCategoryForErp'
+        ], 'lsShop_legend', PaletteManipulator::POSITION_APPEND
+    )
+    ->applyToPalette('regular', 'tl_page')
+;
+
 $GLOBALS['TL_DCA']['tl_page']['subpalettes']['lsShopIncludeLayoutForDetailsView'] = 'lsShopLayoutForDetailsView';
 
 
@@ -16,7 +43,7 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['ls_shop_useAsCategoryForErp'] = array (
     'label'                   => &$GLOBALS['TL_LANG']['tl_page']['ls_shop_useAsCategoryForErp'],
     'exclude'                 => true,
     'inputType'               => 'checkbox',
-    'eval'                    => array('tl_class'=>'w50'),
+    'eval'                    => array('tl_class'=>'clr w50'),
     'sql'                     => "char(1) NOT NULL default ''"
 );
 
@@ -59,7 +86,7 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['lsShopIncludeLayoutForDetailsView'] = a
 	'label'                   => &$GLOBALS['TL_LANG']['tl_page']['lsShopIncludeLayoutForDetailsView'],
 	'exclude'                 => true,
 	'inputType'               => 'checkbox',
-	'eval'                    => array('tl_class'=>'w50', 'submitOnChange'=>true),
+	'eval'                    => array('tl_class'=>'m12 w50', 'submitOnChange'=>true),
 	'sql'                     => "char(1) NOT NULL default ''"
 );
 
@@ -72,6 +99,3 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['lsShopLayoutForDetailsView'] = array (
 	'sql'                     => "int(10) unsigned NOT NULL default '0'",
 	'relation'                => array('type'=>'hasOne', 'load'=>'lazy')
 );
-
-
-

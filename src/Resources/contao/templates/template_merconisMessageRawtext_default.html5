@@ -1,1 +1,1 @@
-<?php echo $this->content; ?>
+<?php echo strip_tags(preg_replace('/<br\s?\/?>/i', "\r\n", $this->content)); ?>

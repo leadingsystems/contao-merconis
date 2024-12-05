@@ -23,7 +23,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionCategory']					= 
 $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionProducer']					= array('Manufacturer', 'The following place holders which are based on certain features of a product opened in the product detail view are available for the search: "{{currentProduct_name}}" (Product designation), "{{currentProduct_articleNr}}" (Product code), "{{currentProduct_producer}}" (Manufacturer)');
 $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionProductName']					= array('Product designation', 'The following place holders which are based on certain features of a product opened in the product detail view are available for the search: "{{currentProduct_name}}" (Product designation), "{{currentProduct_articleNr}}" (Product code), "{{currentProduct_producer}}" (Manufacturer)');
 $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionArticleNr']					= array('Product code', 'The following place holders which are based on certain features of a product opened in the product detail view are available for the search: "{{currentProduct_name}}" (Product designation), "{{currentProduct_articleNr}}" (Product code), "{{currentProduct_producer}}" (Manufacturer)');
-$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionTags']						= array('Search keys', 'The following place holders which are based on certain features of a product opened in the product detail view are available for the search: "{{currentProduct_name}}" (Product designation), "{{currentProduct_articleNr}}" (Product code), "{{currentProduct_producer}}" (Manufacturer)');
+$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['searchSelectionTags']						= array('Keywords', 'Search for the keywords stored in the products. The following place holders which are based on certain features of a product opened in the product detail view are available for the search: "{{currentProduct_name}}" (Product designation), "{{currentProduct_articleNr}}" (Product code), "{{currentProduct_producer}}" (Manufacturer)');
 
 $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['canBeFiltered']								= array('Can be filtered');
 $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['doNotUseCrossSellerOutputDefinitions']		= array('Use product overview display settings', 'Use the display settings for the product overview instead of those for CrossSellers.');
@@ -38,7 +38,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['subHeadlineSearchSelectionCatego
 $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['headlineSearchSelectionProducer'] = 'Search criterion "Manufacturer"';
 $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['headlineSearchSelectionProductName'] = 'Search criterion "Product designation"';
 $GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['headlineSearchSelectionArticleNr'] = 'Search criterion "Product code"';
-$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['headlineSearchSelectionTags'] = 'Search criterion "Search terms"';
+$GLOBALS['TL_LANG']['tl_ls_shop_cross_seller']['headlineSearchSelectionTags'] = 'Search criterion "Product keywords"';
 
 /*
  * Legends

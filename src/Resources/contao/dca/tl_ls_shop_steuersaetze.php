@@ -49,39 +49,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 		),
 
 		'global_operations' => array(
-			'all' => array
-			(
-				'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
-				'href'                => 'act=select',
-				'class'               => 'header_edit_all',
-				'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
-			)
+			'all'
 		),
 
 		'operations' => array(
-			'edit' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['edit'],
-				'href'                => 'act=edit',
-				'icon'                => 'edit.svg'
-			),
-			'copy' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['copy'],
-				'href'                => 'act=copy',
-				'icon'                => 'copy.svg'
-			),
+			'edit',
+			'copy',
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['delete'],
 				'href'                => 'act=delete',
 				'icon'                => 'delete.svg',
-				'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
+				'attributes'          => 'data-action="contao--scroll-offset#store" onclick="if(!confirm(\''.($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null).'\'))return false"',
 				'button_callback'	=>	array('Merconis\Core\ls_shop_steuersaetze','getDeleteButton')
 			),
-			'show' => array(
-				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['show'],
-				'href'                => 'act=show',
-				'icon'                => 'show.svg'
-			)
-
+			'show'
 		)
 	),
 
@@ -225,9 +206,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 		)
 	)
 );
-
-
-
 
 
 class ls_shop_steuersaetze extends Backend {
