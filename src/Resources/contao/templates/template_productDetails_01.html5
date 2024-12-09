@@ -215,6 +215,12 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
 
         <div class="wrapper-description">
             <div>
+                <?php // ##### producer-info ###### -> ?>
+                    <div class="producer-info">
+                        <?= $obj_tmp_productOrVariant->_hasProducerExtendedInfo ? $this->objProduct->_producerExtendedInfo : ""; ?>
+                    </div>
+                <?php // <- ##### producer-info ###### ?>
+
                 <?php // ##### DESCRIPTION ###### -> ?>
 
                 <div
