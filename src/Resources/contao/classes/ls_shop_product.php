@@ -605,6 +605,86 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				return $this->_shortDescription ? true : false;
 				break;
 
+            case '_hasProducerShortInfo':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                        return true;
+                    }
+                }
+
+                return false;
+                break;
+
+            case '_producerShortInfo':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                        return $arrProducerInfo['description_'.$objPage->language];
+                    }
+                }
+
+                return "";
+                break;
+
+
+            case '_hasProducerExtendedInfo':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['article']) && $arrProducerInfo['article'] != ""){
+                        return true;
+                    }
+                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                        return true;
+                    }
+                }
+
+                return false;
+                break;
+
+            case '_producerExtendedInfo':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['article']) && $arrProducerInfo['article'] != ""){
+                        return \Controller::getArticle($arrProducerInfo['article'], false, true);
+                    }
+
+                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                        return $arrProducerInfo['description_'.$objPage->language];
+                    }
+                }
+
+                return "";
+                break;
+
 			case '_flexContents':
 				$flexContents = $this->currentLanguageData['flex_contents'] ? $this->currentLanguageData['flex_contents'] : $this->mainData['flex_contents'];
 				if (!$flexContents) {
@@ -2458,5 +2538,14 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $int_deliveryInfoSetID = $int_deliveryInfoSetID ?: $GLOBALS['TL_CONFIG']['ls_shop_delivery_infoSet'];
 
         return $int_deliveryInfoSetID;
+    }
+
+    /**
+     * @param $article1
+     * @return mixed
+     */
+    public function getArticle($article1): mixed
+    {
+        return $article1;
     }
 }

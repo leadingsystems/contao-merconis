@@ -42,7 +42,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
 
 		'label' => array(
 			'fields' => array('producer'),
-			'format' => '<strong>%s</strong>'
+			'format' => '%s'
 		),
 
 		'global_operations' => array(
@@ -101,7 +101,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
             'foreignKey' => 'tl_ls_shop_product.lsShopProductProducer',
 			'eval' => array('mandatory' => true, 'chosen' => true, 'tl_class' => 'w50', 'maxlength'=>255),
 			'search' => true,
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''",
+            'options_callback' => array('Merconis\Core\tl_ls_shop_producer', 'buttonCallbackSelectProducer'),
+            'save_callback' => array(
+                array('Merconis\Core\tl_ls_shop_producer', 'saveCallBackSelectProducer')
+            )
 		),
 
         'article' => array(
@@ -109,7 +113,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['article'],
             'inputType' => 'select',
             'foreignKey' => 'tl_article.title',
-            'eval' => array('chosen' => true, 'tl_class' => 'w50', 'maxlength'=>255),
+            'eval' => array('chosen' => true, 'tl_class' => 'w50', 'maxlength'=>255, 'includeBlankOption' => true),
             'search' => true,
             'sql'                     => "varchar(255) NOT NULL default ''"
         ),
@@ -130,55 +134,60 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
 
 
 
-class producer extends \Backend {
-	public function generateAlias($varValue, \DataContainer $dc) {
-		$autoAlias = false;
+class tl_ls_shop_producer extends \Backend {
 
-		// Generate an alias if there is none
-		if ($varValue == '') {
-			$autoAlias = true;
-			$varValue = \StringUtil::generateAlias($dc->activeRecord->title);
-		}
+    public function saveCallBackSelectProducer($varValue, DataContainer $dc)
+    {
+        $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+            ->limit(1)
+            ->execute($varValue);
 
-		$objAlias = \Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_producer WHERE id=? OR alias=?")
-								   ->execute($dc->id, $varValue);
+        //if the data record with the manufacturer does not yet exist or the data record is the same as the one currently being saved
+        if ($obj_article->numRows > 0 || $obj_article->fetchAllAssoc()['id'] == $dc->id)
+        {
+            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+        }
 
-		// Check whether the alias exists
-		if ($objAlias->numRows > 1) {
-			if (!$autoAlias) {
-				throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
-			}
-			$varValue .= '-' . $dc->id;
-		}
+        return $varValue;
+    }
 
-		return $varValue;
-	}
+    public function buttonCallbackSelectProducer()
+    {
+        //get all Product producer names from the database and make an array with every unique name
+        $objRow = $this->Database->prepare("SELECT DISTINCT lsShopProductProducer FROM tl_ls_shop_product")
+            ->execute();
+        $arDBResult = $objRow->fetchAllAssoc();
 
-	/*
-	 * In order to understand what this function is all about, take a look at ls_shop_generalHelper::parseSteuersatz(),
-	 * $GLOBALS['MERCONIS_HOOKS']['customTaxRateCalculation'] and the comments for this hook!
-	 *
-	 * This function checks if this tax class is used with one or more products and if it
-	 * is it checks if a wildcard is used as a tax value because that is not allowed
-	 * for tax classes used with products.
-	 */
-	public function checkIfWildcardsUsedAndAllowed($varValue, \DataContainer $dc) {
-		$objProducts = \Database::getInstance()->prepare("
-			SELECT	`id`
-			FROM	`tl_ls_shop_product`
-			WHERE	`lsShopProductSteuersatz` = ?
-		")
-		->execute($dc->id);
+        /*
+        $objRow = $this->Database->prepare("SELECT DISTINCT producer FROM tl_ls_shop_producer")
+            ->execute();
+        $arDBResult2 = $objRow->fetchAllAssoc();
+        */
 
-		if (!$objProducts->numRows) {
-			// return the value without further checks if the tax class is not used with at least one product
-			return $varValue;
-		}
+        $arrProductProducerNames = array();
+        foreach ($arDBResult as $result){
 
-		if (strpos($varValue, '#') !== false) {
-			throw new \Exception($GLOBALS['TL_LANG']['tl_ls_shop_producer']['wildcardNotAllowed']);
-		} else {
-			return $varValue;
-		}
-	}
+            array_push($arrProductProducerNames, $result['lsShopProductProducer']);
+
+            /*
+            $alreadyExists = false;
+            foreach ($arDBResult2 as $result2){
+                if($result2['producer'] == $result['lsShopProductProducer']) {
+                    $alreadyExists = true;
+                }
+            }
+            if($alreadyExists){
+                array_push($arrProductProducerNames, ['value' => $result['lsShopProductProducer'], 'label' => $result['lsShopProductProducer']." (exists)"]);
+            }else{
+                array_push($arrProductProducerNames, $result['lsShopProductProducer']);
+            }*/
+        }
+
+
+        return $arrProductProducerNames;
+    }
+
+
+
+
 }
