@@ -19,9 +19,10 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_producer']['toggle']        = array('Hersteller veröffentlichen', 'Hersteller mit ID %s veröffentlichen');
 	$GLOBALS['TL_LANG']['tl_ls_shop_producer']['copy']        = array('Hersteller kopieren', 'Hersteller mit ID %s kopieren');
 	$GLOBALS['TL_LANG']['tl_ls_shop_producer']['show']        = array('Details anzeigen', 'Details des Herstellers mit ID %s anzeigen');
-    $GLOBALS['TL_LANG']['tl_ls_shop_producer']['show']        = array('Hersteller bearbeiten', 'Hersteller mit ID %s bearbeiten');
+    $GLOBALS['TL_LANG']['tl_ls_shop_producer']['edit']        = array('Hersteller bearbeiten', 'Hersteller mit ID %s bearbeiten');
 
 	/*
 	 * Misc
 	 */
-    $GLOBALS['TL_LANG']['ERR']['producerExists'] = "Der Hersteller %s existiert bereits";
+    $GLOBALS['TL_LANG']['ERR']['producerExists'] = 'Der Hersteller "%s" existiert bereits';
+    $GLOBALS['TL_LANG']['ERR']['selectProducerExists'] = '(Exestiert bereits)';

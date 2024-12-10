@@ -25,4 +25,4 @@
      * Misc
      */
     $GLOBALS['TL_LANG']['ERR']['producerExists'] = "The producer %s already exists.";
-
+    $GLOBALS['TL_LANG']['ERR']['selectProducerExists'] = '(Already exists)';

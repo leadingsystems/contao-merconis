@@ -98,7 +98,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['producer'],
             'inputType' => 'select',
-            'foreignKey' => 'tl_ls_shop_product.lsShopProductProducer',
 			'eval' => array('mandatory' => true, 'chosen' => true, 'tl_class' => 'w50', 'maxlength'=>255),
 			'search' => true,
             'sql'                     => "varchar(255) NOT NULL default ''",
@@ -111,8 +110,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
         'article' => array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['article'],
-            'inputType' => 'select',
-            'foreignKey' => 'tl_article.title',
+            'inputType' => 'picker',
+            'relation' => [
+                'table' => 'tl_article',
+            ],
             'eval' => array('chosen' => true, 'tl_class' => 'w50', 'maxlength'=>255, 'includeBlankOption' => true),
             'search' => true,
             'sql'                     => "varchar(255) NOT NULL default ''"
@@ -142,10 +143,10 @@ class tl_ls_shop_producer extends \Backend {
             ->limit(1)
             ->execute($varValue);
 
-        //if the data record with the manufacturer does not yet exist or the data record is the same as the one currently being saved
-        if ($obj_article->numRows > 0 || $obj_article->fetchAllAssoc()['id'] == $dc->id)
+        //if the data record already has this producer and it's not the same currently edited
+        if ($obj_article->numRows > 0 && $obj_article->fetchAssoc()['id'] != $dc->id)
         {
-            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['producerExists'], $varValue));
         }
 
         return $varValue;
@@ -158,18 +159,13 @@ class tl_ls_shop_producer extends \Backend {
             ->execute();
         $arDBResult = $objRow->fetchAllAssoc();
 
-        /*
         $objRow = $this->Database->prepare("SELECT DISTINCT producer FROM tl_ls_shop_producer")
             ->execute();
         $arDBResult2 = $objRow->fetchAllAssoc();
-        */
 
         $arrProductProducerNames = array();
         foreach ($arDBResult as $result){
 
-            array_push($arrProductProducerNames, $result['lsShopProductProducer']);
-
-            /*
             $alreadyExists = false;
             foreach ($arDBResult2 as $result2){
                 if($result2['producer'] == $result['lsShopProductProducer']) {
@@ -177,10 +173,10 @@ class tl_ls_shop_producer extends \Backend {
                 }
             }
             if($alreadyExists){
-                array_push($arrProductProducerNames, ['value' => $result['lsShopProductProducer'], 'label' => $result['lsShopProductProducer']." (exists)"]);
+                $arrProductProducerNames[$result['lsShopProductProducer']] = $result['lsShopProductProducer']." ".$GLOBALS['TL_LANG']['ERR']['selectProducerExists'];
             }else{
-                array_push($arrProductProducerNames, $result['lsShopProductProducer']);
-            }*/
+                $arrProductProducerNames[$result['lsShopProductProducer']] = $result['lsShopProductProducer']."";
+            }
         }
 
 
