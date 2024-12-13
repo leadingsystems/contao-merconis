@@ -440,7 +440,7 @@ class ls_shop_productConfigurator {
 		 * die empfangenen Daten der richtigen Konfigurator-Instanz zuzuweisen.
 		 */
 		$form = preg_replace('/(<form.*>)/', '\\1'."\r\n".'<div><input type="hidden" name="configurator_productVariantID" value="'.$this->configuratorCacheKey.'" /></div>', $form);
-		$form = preg_replace('/(<form.*action=")(.*)(")/siU', '\\1'.Environment::get('request').'#'.$this->arrProductOrVariantData['anchor'].'\\3', $form);
+		$form = preg_replace('/(<form)(.*)(>)/siU', '\\1 action="'.Environment::get('request').'#'.$this->arrProductOrVariantData['anchor'].'" \\2\\3', $form);
 		$template->form = $form;
 
 		$template->blnIsValid = $this->blnIsValid;
