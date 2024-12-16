@@ -65,8 +65,8 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $output = $logModeInfoText."\n".$output;
         }
 
-        $str_filename = 'paypalCheckout_'.date("Y-m-d").'.log';
-        lsDebugLog($output, $outputType, 'regular', false, '', false, $str_filename);
+        $str_filename = 'paypalCheckout_'.$this->arrCurrentSettings['payPalCheckout_logMode'].'_'.date("Y-m-d").'.log';
+        lsDebugLog($output, "[".date("d-m-Y h:i:sa")."] [".$outputType."]", 'regular', false, '', false, $str_filename);
 
     }
 
