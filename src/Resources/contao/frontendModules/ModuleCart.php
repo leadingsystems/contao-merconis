@@ -88,7 +88,7 @@ class ModuleCart extends Module {
 
 		$formConfirmOrder = ls_shop_checkoutData::getInstance()->formConfirmOrder;
 		// ### paymentMethod callback ########################
-		$obj_paymentModule = new ls_shop_paymentModule();
+		$obj_paymentModule = ls_shop_paymentModule::getInstance();
 		$formConfirmOrder = $obj_paymentModule->modifyConfirmOrderForm($formConfirmOrder);
 		// ###################################################
 		$this->Template->formConfirmOrder = $formConfirmOrder;

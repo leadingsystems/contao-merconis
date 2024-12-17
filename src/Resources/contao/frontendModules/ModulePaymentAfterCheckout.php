@@ -41,7 +41,7 @@ class ModulePaymentAfterCheckout extends Module {
 		}
 
 		// ### paymentMethod callback ########################
-		$obj_paymentModule = new ls_shop_paymentModule();
+		$obj_paymentModule = ls_shop_paymentModule::getInstance();
 		$obj_paymentModule->specializeManuallyWithPaymentID($arr_order['paymentMethod_id']);
 		$arr_paymentModuleReturn = $obj_paymentModule->onPaymentAfterCheckoutPage($arr_order);
 		// ###################################################

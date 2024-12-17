@@ -866,7 +866,7 @@ class ls_shop_payment_methods extends Backend {
      */
     public function modifyDCA($dc)
     {
-        $obj_paymentModule = new ls_shop_paymentModule();
+        $obj_paymentModule = ls_shop_paymentModule::getInstance();
         if (!$dc->id) {
             /*
              * Handelt es sich bei dem Aufruf nicht um einen datensatzbezogenen Aufruf,
@@ -894,7 +894,7 @@ class ls_shop_payment_methods extends Backend {
     }
 
     protected function addBeFormFields($str_paymentMethodType) {
-        $obj_paymentModule = new ls_shop_paymentModule();
+        $obj_paymentModule = ls_shop_paymentModule::getInstance();
         if (!is_array($obj_paymentModule->types[$str_paymentMethodType]['BE_formFields'])) {
             return;
         }
@@ -912,7 +912,7 @@ class ls_shop_payment_methods extends Backend {
     }
 
     protected function addBeFormFieldSubpalettes($str_paymentMethodType) {
-        $obj_paymentModule = new ls_shop_paymentModule();
+        $obj_paymentModule =ls_shop_paymentModule::getInstance();
         if (!is_array($obj_paymentModule->types[$str_paymentMethodType]['BE_formFields_subpalettes'])) {
             return;
         }
@@ -944,7 +944,7 @@ class ls_shop_payment_methods extends Backend {
 
     public function getPaymentModulesAsOptions() {
         $paymentModules = array();
-        $obj_paymentModule = new ls_shop_paymentModule();
+        $obj_paymentModule = ls_shop_paymentModule::getInstance();
         foreach ($obj_paymentModule->types as $paymentModuleName => $paymentModuleInfo) {
             $paymentModules[$paymentModuleName] = $paymentModuleInfo['title'];
         }

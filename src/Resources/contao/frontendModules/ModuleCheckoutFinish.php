@@ -41,7 +41,7 @@ class ModuleCheckoutFinish extends Module {
 	}
 	
 	public function compile() {
-		$obj_paymentModule = new ls_shop_paymentModule();
+		$obj_paymentModule = ls_shop_paymentModule::getInstance();
 
 		// ### paymentMethod callback ########################
 		$obj_paymentModule->beforeCheckoutFinish();
@@ -350,7 +350,7 @@ class ModuleCheckoutFinish extends Module {
 	}
 	
 	public function createOrder() {
-		$obj_paymentModule = new ls_shop_paymentModule();
+		$obj_paymentModule = ls_shop_paymentModule::getInstance();
 		$obj_shippingModule = new ls_shop_shippingModule();
 
 		/** @var PageModel $objPage */
