@@ -162,3 +162,7 @@ services:
     class: LeadingSystems\MerconisBundle\Migration\FilterMigration
     tags:
       - { name: contao.migration, priority: 0 }
+
+  LeadingSystems\MerconisBundle\EventListener\Post:
+    tags:
+      - { name: contao.hook, hook: initializeSystem }
