@@ -10,12 +10,17 @@ use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
 use function LeadingSystems\Helpers\ls_sub;
+use function LeadingSystems\Helpers\lsDebugLog;
 
 class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standard {
     const SANDBOX_URL = 'https://api-m.sandbox.paypal.com';
     const LIVE_URL = 'https://api-m.paypal.com';
     const VALID_CAPTURESTATUSDETAILS = ['PENDING_REVIEW','ECHECK','INTERNATIONAL_WITHDRAWAL'];
     public $arrCurrentSettings = array();
+
+    private $arrPastLogs = [];
+    private $isError =  false;
+
     public function initialize($specializedManually = false) {
         if (!isset($_SESSION['lsShopPaymentProcess']['payPalCheckout']) || !is_array($_SESSION['lsShopPaymentProcess']['payPalCheckout'])) {
             $this->payPalCheckout_resetSessionStatus();
@@ -26,19 +31,48 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         return ls_shop_cartX::getInstance()->calculation['invoicedAmount'] > 0 ? true : false;
     }
 
-    private function writeLog($outputType, $output){
+    function __destruct() {
 
-        if (is_array($output) || is_object($output)) {
-            ob_start();
-            print_r($output);
-            $output = ob_get_clean();
+        //if there is an error and logMode = ERROR, Every Past Request gets logged
+        if($this->arrCurrentSettings['payPalCheckout_logMode'] == 'ERROR' && $this->isError){
+
+            $arrPastLogs = $this->arrPastLogs;
+
+            foreach ($arrPastLogs as $arrLog){
+                //log mode needs to be bypassed because logMode ERROR normaly dont get logged
+                $this->writeLog($arrLog[0], $arrLog[1], "",true);
+            }
+        }
+    }
+
+
+    private function writeLog($outputType, $output, $logModeInfoText, $bypassLogMode = false){
+
+        if($bypassLogMode == false){
+
+            //the log mode info is checked beforehand and $bypassLogMode=true must be used to log it
+            if($this->arrCurrentSettings['payPalCheckout_logMode'] == 'ERROR'){
+                $this->arrPastLogs[] = [$outputType, $output];
+                return;
+            }
+
+            if($this->arrCurrentSettings['payPalCheckout_logMode'] == 'NONE') {
+                return;
+            }
         }
 
-        if($this->arrCurrentSettings['payPalCheckout_logMode'] !== 'NONE') {
-            $myfile = fopen(System::getContainer()->getParameter('kernel.project_dir') . '/system/logs/paypalCheckout.log', "a");
-            fwrite($myfile, "[".date("d-m-Y h:i:sa")."] [".$outputType."] ".$output."\n");
-            fclose($myfile);
+        //Request Data will not get logged on INFO logMode only Request and Response Header
+        if($this->arrCurrentSettings['payPalCheckout_logMode'] == 'INFO' && $outputType == 'Request Data'){
+            return;
         }
+
+        if($this->arrCurrentSettings['payPalCheckout_logMode'] == 'INFO'){
+            $output = $logModeInfoText."\n".$output;
+        }
+
+        $str_filename = 'paypalCheckout_'.$this->arrCurrentSettings['payPalCheckout_logMode'].'_'.date("Y-m-d").'.log';
+        lsDebugLog($output, "[".date("d-m-Y h:i:sa")."] [".$outputType."]", 'regular', false, '', false, $str_filename);
+
     }
 
     public function getCustomUserInterface() {
@@ -119,7 +153,9 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             }
 
             //negativ value items can not be added to paypaly itemlist, so we remove this list entirely if this happens
-            if($price < 0) $showItemlist = false;
+            if ($price < 0) {
+                $showItemlist = false;
+            }
 
             $itemlist[] = [
                 "name"=> $name,
@@ -209,7 +245,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $arr_requestBody["purchase_units"][0]["items"] = $itemlist;
         }
 
-        $this->writeLog('Request Data', $arr_requestBody);
+        $this->writeLog('Request Data', $arr_requestBody,'Log the data used to create a new order');
 
         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($arr_requestBody));
         $headers = array();
@@ -220,18 +256,26 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $result = curl_exec($ch);
 
-        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+        $this->writeLog("Request", curl_getinfo($ch)['request_header'], 'Send the Request Data to create a new order');
+
 
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
 
-        $this->writeLog("Response", $result);
+        $objResult = json_decode($result);
 
-        $orderId = json_decode($result)->id;
+        $orderId = $objResult->id;
 
         $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'] = $orderId;
+
+        if(isset($orderId)){
+            $this->writeLog("Response", $result, 'A new Order with the orderId '.$orderId.' was created');
+        }else{
+            $this->writeLog("Response", $result, 'There was an error creating a new order, no orderId was created');
+            $this->isError = true;
+        }
 
         return $orderId;
     }
@@ -256,15 +300,25 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $result = curl_exec($ch);
 
-        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+        $this->writeLog("Request", curl_getinfo($ch)['request_header'],'Send Request to create a new Access Token');
+
+        $objResonse = json_decode($result);
+        $accessToken = $objResonse->access_token;
+
+        if(isset($accessToken)){
+            $this->writeLog("Response", $result, 'A new AccessToken '.$accessToken.' was created');
+        }else{
+            $this->writeLog("Response", $result, 'There was an Error creating a new AccessToken');
+            $this->isError = true;
+        }
+
 
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
 
-        $this->writeLog("Response", $result);
-        return json_decode($result)->access_token;
+        return $accessToken;
     }
 
     public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
@@ -284,15 +338,21 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $result = curl_exec($ch);
 
-        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+        $this->writeLog("Request", curl_getinfo($ch)['request_header'], 'Send Request to authorize order');
 
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
 
-        $this->writeLog("Response", $result);
         $status = json_decode($result)->status;
+
+        if(isset($status)){
+            $this->writeLog("Response", $result, 'The Order got Authorized with status '.$status);
+        }else{
+            $this->writeLog("Response", $result, 'There was an Error Authorizing Order');
+            $this->isError = true;
+        }
 
         try {
             if($this->payPalCheckout_checkIfOrderValid($status, $_SESSION['lsShopPaymentProcess']['payPalCheckout']['orderId'])){
@@ -371,18 +431,24 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         $result = curl_exec($ch);
 
-        $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+        $this->writeLog("Request", curl_getinfo($ch)['request_header'], 'Try To get Details For Order Id: '.$str_orderId);
 
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
 
-        $this->writeLog("Response", $result);
+        $resultJson = json_decode($result);
+
+        if(isset($resultJson->id) && isset($resultJson->status)){
+            $this->writeLog("Response", $result, 'Got Order Data orderId:'.$resultJson->id.' current Status:'.$resultJson->status);
+        }else{
+            $this->writeLog("Response", $result, 'There was an error getting payment informations');
+            $this->isError = true;
+        }
 
 
-        try{
-            $resultJson = json_decode($result);
+        try {
             $arr_saleDetails['str_orderId'] = $resultJson->id;
             $arr_saleDetails['str_currentStatus'] = $resultJson->status;
 
@@ -645,14 +711,14 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             curl_setopt($ch, CURLINFO_HEADER_OUT, true);
             $result = curl_exec($ch);
 
-            $this->writeLog("Request", curl_getinfo($ch)['request_header']);
+            $this->writeLog("Request", curl_getinfo($ch)['request_header'], 'Send request to reset session status');
 
             if (curl_errno($ch)) {
                 echo 'Error:' . curl_error($ch);
             }
             curl_close($ch);
 
-            $this->writeLog("Response", $result);
+            $this->writeLog("Response", $result, 'Result of reseting session status');
             $this->setPaymentMethodErrorMessage($GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationObsolete']);
         }
 

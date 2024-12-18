@@ -272,7 +272,7 @@ use Contao\System;
 					'payPalCheckout_logMode' => array(
 						'label' => '',
 						'inputType' => 'select',
-						'options' => array('NONE', 'INFO'),
+						'options' => array('NONE', 'DEBUG', 'INFO', 'ERROR'),
 						'default' => 'NONE'
 					),
 					'payPalCheckout_shipToFieldNameFirstname' => array(
@@ -540,9 +540,20 @@ use Contao\System;
 		protected $arrCurrentSettings = array();
 		protected $paymentFinished = false;
 		protected $isAuthorized = false;
+
+		protected static $objInstance;
+
+		private function __clone() {}
+
+		public static function getInstance() {
+			if (!is_object(self::$objInstance))	{
+				self::$objInstance = new self();
+			}
+			return self::$objInstance;
+		}
+
 		
-		
-		public function __construct() {
+		protected function __construct() {
 			$this->types['payone']['BE_formFields']['payone_clearingtype']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_clearingtype']['options'] ?? null;
 			
 			$this->types['saferpay']['BE_formFields']['saferpay_paymentMethods']['reference'] = $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['saferpay_paymentMethods']['options'] ?? null;

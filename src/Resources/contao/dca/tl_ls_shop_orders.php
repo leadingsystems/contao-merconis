@@ -666,7 +666,7 @@ class ls_shop_orders extends Backend {
         $objTemplate->arrMessageTypes = ls_shop_generalHelper::getMessageTypesForOrderOverview($arrOrder);
 
         // ### paymentMethod callback ########################
-        $obj_paymentModule = new ls_shop_paymentModule();
+        $obj_paymentModule = ls_shop_paymentModule::getInstance();
         $obj_paymentModule->specializeManuallyWithPaymentID($arrOrder['paymentMethod_id']);
         $paymentModuleOutput = $obj_paymentModule->showPaymentStatusInOverview($arrOrder, $arrOrder['paymentMethod_moduleReturnData']);
         $objTemplate->paymentModuleOutput = !is_null($paymentModuleOutput) ? $paymentModuleOutput : '';
@@ -686,7 +686,7 @@ class ls_shop_orders extends Backend {
 
         // ### paymentMethod callback ########################
         try {
-            $obj_paymentModule = new ls_shop_paymentModule();
+            $obj_paymentModule = ls_shop_paymentModule::getInstance();
             $obj_paymentModule->specializeManuallyWithPaymentID($arrOrder['paymentMethod_id']);
             $paymentModuleOutput = $obj_paymentModule->showPaymentDetailsInBackendOrderDetailView($arrOrder, $varValue);
         } catch (\Exception $e) {
