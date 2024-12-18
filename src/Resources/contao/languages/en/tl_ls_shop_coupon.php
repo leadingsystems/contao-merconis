@@ -28,7 +28,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionProducer']					= array('Manufacturer');
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionProductName']					= array('Product designation');
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionArticleNr']					= array('Product code');
-	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionTags']						= array('Search keys');
+	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['searchSelectionTags']						= array('Keywords');
 
 	/*
 	 * Misc
@@ -40,7 +40,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionProducer'] = 'Search criterion "Manufacturer"';
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionProductName'] = 'Search criterion "Product designation"';
 	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionArticleNr'] = 'Search criterion "Product code"';
-	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionTags'] = 'Search criterion "Search keys"';
+	$GLOBALS['TL_LANG']['tl_ls_shop_coupon']['headlineSearchSelectionTags'] = 'Search criterion "Product keywords"';
 
 	/*
 	 * Legends

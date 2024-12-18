@@ -315,7 +315,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_numDecimals'],
 			'inputType' => 'text',
-			'eval' => array('rgxp' => 'oneNumber', 'tl_class'=>'w50')
+			'eval' => array('mandatory' => true, 'rgxp' => 'oneNumber', 'tl_class'=>'w50')
 		),
 		
 		'ls_shop_priceRoundingFactor' => array(
