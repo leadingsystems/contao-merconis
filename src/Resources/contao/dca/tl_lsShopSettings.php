@@ -30,7 +30,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{liveHits_legend},ls_shop_liveHitImageSizeWidth,ls_shop_liveHitImageSizeHeight,ls_shop_liveHitsMaxNumHits,ls_shop_liveHitsMinLengthSearchTerm;
 		
 		{systemImages_legend},ls_shop_systemImages_videoDummyCover,ls_shop_systemImages_noProductImage;
-		{pageSettings_legend},ls_shop_shippingInfoPages,ls_shop_cartPages,ls_shop_reviewPages,ls_shop_signUpPages,ls_shop_checkoutPaymentErrorPages,ls_shop_checkoutShippingErrorPages,ls_shop_checkoutFinishPages,ls_shop_paymentAfterCheckoutPages,ls_shop_afterCheckoutPages,ls_shop_ajaxPages,ls_shop_searchResultPages,ls_shop_myOrdersPages,ls_shop_myOrderDetailsPages;
+		{pageSettings_legend},ls_shop_shippingInfoPages,ls_shop_cartPages,ls_shop_reviewPages,ls_shop_signUpPages,ls_shop_checkoutPaymentErrorPages,ls_shop_checkoutShippingErrorPages,ls_shop_checkoutFinishPages,ls_shop_paymentAfterCheckoutPages,ls_shop_afterCheckoutPages,ls_shop_ajaxPages,ls_shop_searchResultPages,ls_shop_myOrdersPages,ls_shop_myOrderDetailsPages,ls_shop_defaultProductPage;
 		{systemSettings_legend},ls_shop_loginModuleID,ls_shop_miniCartModuleID,ls_shop_useAjaxForPaginationAndSorting;
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch,ls_shop_alwaysAddIdToAliasDuringProductImport;
 
@@ -459,6 +459,13 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'inputType' => 'pageTree',
 			'eval' => array('fieldType'=>'checkbox', 'multiple' => true)
 		),
+
+        'ls_shop_defaultProductPage' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_defaultProductPage'],
+            'exclude' => true,
+            'inputType' => 'pageTree',
+            'eval' => array('fieldType'=>'checkbox', 'multiple' => true)
+        ),
 		
 		'ls_shop_systemImages_videoDummyCover' => array(
 			'exclude'		=>	true,

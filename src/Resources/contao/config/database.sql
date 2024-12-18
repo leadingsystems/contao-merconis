@@ -43,6 +43,7 @@ localconfig foreign key relations are also noted here although their parent tabl
 @localconfig.ls_shop_searchResultPages@tl_page.id=array@
 @localconfig.ls_shop_myOrdersPages@tl_page.id=array@
 @localconfig.ls_shop_myOrderDetailsPages@tl_page.id=array@
+@localconfig.ls_shop_defaultProductPage@tl_page.id=array@
 @localconfig.ls_shop_loginModuleID@tl_module.id=single@
 @localconfig.ls_shop_miniCartModuleID@tl_module.id=single@
 @localconfig.ls_shop_standardGroup@tl_member_group.id=single@

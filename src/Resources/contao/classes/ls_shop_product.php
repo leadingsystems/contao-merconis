@@ -2344,21 +2344,30 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $objProductPage = $objPage;
         } else {
             /*-->
-             * Wenn nein, so zielt der Link auf die erstbeste, dem Produkt zugeordnete Seite. Da die auf diese Art ermittelte
+             * Wenn nein, so zielt der Link auf die erstbeste, dem Produkt zugeordnete Seite die Published ist. Da die auf diese Art ermittelte
              * Seiten-ID allerdings eine Hauptsprachseiten-ID ist, muss zu dieser Seite die Seite ermittelt werden, die der
              * Sprache der aktuell aufgerufenen Seite entspricht.
              <--*/
-            $MainLanguagePageIDForLink = $this->_pages[0];
+            $MainLanguagePageIDForLink = null;
+            foreach ($this->_pages as $int_pageID) {
+                $pageInfo = \PageModel::findWithDetails($int_pageID);
+                if ($pageInfo !== null && $pageInfo->published == "1") {
+                    $MainLanguagePageIDForLink = $int_pageID;
+                    break;
+                }
+            }
+
+            if(empty($MainLanguagePageIDForLink)){
+                $idDefaultProductPage = ls_shop_languageHelper::getLanguagePage('ls_shop_defaultProductPage', false, 'id');
+                $MainLanguagePageIDForLink = ls_shop_languageHelper::getMainlanguagePageIDForPageID($idDefaultProductPage);
+            }
+
             $languagePages = ls_shop_languageHelper::getLanguagePages($MainLanguagePageIDForLink);
             $currentLanguagePageIDForLink = $languagePages[$objPage->language]['id'];
 
             $objProductPage = \PageModel::findWithDetails($currentLanguagePageIDForLink);
         }
 
-        /*-->
-         * If $objProductPage is not an object, which would be the case if the product has been assigned to a page that doesn't exist (anymore),
-         * it will be overwritten with $objPage because we definitely need an existing page
-         <--*/
         if (!is_object($objProductPage)) {
             $objProductPage = $objPage;
         }
