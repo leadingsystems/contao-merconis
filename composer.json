@@ -26,7 +26,8 @@
     "leadingsystems/contao-datacollector": "^2.0",
     "leadingsystems/lsce": "^1.0",
     "paypal/rest-api-sdk-php": "^1.13",
-    "tecnickcom/tcpdf": "^6.2.22"
+    "tecnickcom/tcpdf": "^6.2.22",
+    "elasticsearch/elasticsearch": "~8.17.0"
   },
   "autoload": {
     "psr-4": {
@@ -46,7 +47,8 @@
     "contao-manager-plugin": "LeadingSystems\\MerconisBundle\\ContaoManager\\Plugin",
     "branch-alias": {
       "dev-master": "5.0.x-dev",
-      "dev-live-m5sep": "5.0.x-dev"
+      "dev-live-m5sep": "5.0.x-dev",
+      "dev-feature-m5sep-elasticsearch": "5.0.x-dev"
     }
   }
 }
