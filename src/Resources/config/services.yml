@@ -5,9 +5,26 @@ services:
     autoconfigure: true
     public: false
 
+  _instanceof:
+    LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface:
+      tags: [ 'merconis.search_engine_adapters' ]
+
   merconis.routing.scope:
     class: LeadingSystems\MerconisBundle\Services\Scope
     public: true
+
+  LeadingSystems\MerconisBundle\SearchEngine\SearchEngine:
+    # must be public because we have to use it in Merconis legacy code where we can't inject it properly
+    public: true
+    shared: false
+    arguments:
+      - !tagged_iterator merconis.search_engine_adapters
+
+  # Search engine adapter/client services, auto tagged with _instanceof, therefore depending on implementing Adapters\ClientInterface -->
+  LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch\Client:
+  LeadingSystems\MerconisBundle\SearchEngine\Adapters\OpenSearch\Client:
+  LeadingSystems\MerconisBundle\SearchEngine\Adapters\Solr\Client:
+  # <--
     
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
