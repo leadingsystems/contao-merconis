@@ -8,7 +8,7 @@ class OperationResult
     private string $message;
     private ?\Exception $exception;
 
-    public function __construct(?bool $success = null, string $message = '', ?\Exception $exception)
+    public function __construct(?bool $success = null, string $message = '', ?\Exception $exception = null)
     {
         $this->success = $success;
         $this->message = $message;
