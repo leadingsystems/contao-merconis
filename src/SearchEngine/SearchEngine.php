@@ -26,9 +26,14 @@ class SearchEngine
         }
     }
 
-    public function test(): string
+    public function runTests(): array
     {
-        return $this->clientAdapterService->testConnection() . ' ||| ' . $this->clientAdapterService->testProductsIndex();
+        $testResults = [
+            'Connection' => $this->clientAdapterService->testConnection()->getResultString(),
+            'Index (products)' => $this->clientAdapterService->testIndex('products')->getResultString()
+        ];
+
+        return  $testResults;
     }
 
     public function getAvailableClientAdapters(): array

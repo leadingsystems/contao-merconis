@@ -47,7 +47,7 @@ class ls_shop_apiController_searchEngine {
             $searchEngine = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchEngine\SearchEngine');
 
             $this->obj_apiReceiver->success();
-            $this->obj_apiReceiver->set_data($searchEngine->test());
+            $this->obj_apiReceiver->set_data($searchEngine->runTests());
         } catch (\Throwable $e) {
             $this->obj_apiReceiver->error();
             $this->obj_apiReceiver->set_message($e->getMessage());

@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters\OpenSearch;
 
 use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
+use LeadingSystems\MerconisBundle\SearchEngine\Adapters\TestResult;
 
 class Client implements ClientInterface
 {
@@ -21,13 +22,20 @@ class Client implements ClientInterface
         // TODO: Implement initialize() method.
     }
 
-    public function testConnection(): string
+    public function testConnection(): TestResult
     {
-        return '';
+        $testResult = new TestResult();
+        return $testResult;
     }
 
-    public function testProductsIndex(): string
+    public function testIndex(string $indexName): TestResult
     {
-        return '';
+        $testResult = new TestResult();
+        return $testResult;
+    }
+
+    public function getNumProductsInIndex(string $indexName): int
+    {
+        return 0;
     }
 }

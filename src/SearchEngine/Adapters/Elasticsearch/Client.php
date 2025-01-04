@@ -5,6 +5,7 @@ namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch;
 use Elastic\Elasticsearch\Client as ElasticsearchClient;
 use Elastic\Elasticsearch\ClientBuilder;
 use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
+use LeadingSystems\MerconisBundle\SearchEngine\Adapters\TestResult;
 
 class Client implements ClientInterface
 {
@@ -34,46 +35,69 @@ class Client implements ClientInterface
             ->build();
     }
 
-    public function testConnection(): string
+    public function testConnection(): TestResult
     {
-        // Try to get the status of the cluster
+        $testResult = new TestResult();
+
         try {
             $response = $this->client->ping();
             if ($response) {
-                return 'Elasticsearch is reachable!';
+                $testResult->setSuccess(true);
+                $testResult->setMessage('Elasticsearch is reachable');
             } else {
-                return 'Failed to reach Elasticsearch.';
+                $testResult->setSuccess(false);
+                $testResult->setMessage('Failed to reach Elasticsearch');
             }
         } catch (\Exception $e) {
-            return 'Error: ' . $e->getMessage();
+            $testResult->setException($e);
         }
+
+        return $testResult;
     }
 
-    public function testProductsIndex(): string
+    public function testIndex(string $indexName): TestResult
     {
+        $testResult = new TestResult();
+
         try {
-            // Make a simple search request on the 'product' index
-            $params = [
-                'index' => 'products',  // Your index name
-                'body'  => [
-                    'query' => [
-                        'match_all' => new \stdClass(),
-                    ]
-                ]
-            ];
+            if ($this->client->indices()->exists(['index' => $indexName])) {
+                $testResult->setSuccess(true);
 
-            // Search the 'product' index
-            $response = $this->client->search($params);
+                if ($numProductsInIndex = $this->getNumProductsInIndex($indexName)) {
+                    $numDocumentsMessage = 'Found ' . $numProductsInIndex . ' documents in the index.';
+                } else {
+                    $numDocumentsMessage = 'No documents found in the index.';
+                }
 
-            // Check if any hits were returned
-            if ($response['hits']['total']['value'] > 0) {
-                return 'Found ' . $response['hits']['total']['value'] . ' documents in the product index.';
+                $testResult->setMessage('The index "' . $indexName . '" exists. ' . $numDocumentsMessage);
             } else {
-                return 'No documents found in the product index.';
+                $testResult->setSuccess(false);
+                $testResult->setMessage('The index "' . $indexName . '" does not exist.');
             }
         } catch (\Exception $e) {
-            return 'Error during query: ' . $e->getMessage();
+            $testResult->setException($e);
         }
+
+        return $testResult;
+    }
+
+    public function getNumProductsInIndex(string $indexName): int
+    {
+        $params = [
+            'index' => $indexName,
+            'body'  => [
+                'query' => [
+                    'match_all' => new \stdClass(),
+                ]
+            ]
+        ];
+
+        $response = $this->client->search($params);
+        return $response['hits']['total']['value'] ?? 0;
+    }
+
+    public function createProductsIndex(): void
+    {
     }
 
     public function getAdapterName(): string
