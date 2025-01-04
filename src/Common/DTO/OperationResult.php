@@ -1,54 +1,50 @@
 <?php
 
-namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters;
+namespace LeadingSystems\MerconisBundle\Common\DTO;
 
-class TestResult
+class OperationResult
 {
     private ?bool $success;
     private string $message;
+    private ?\Exception $exception;
 
-    public function __construct(?bool $success = null, string $message = '')
+    public function __construct(?bool $success = null, string $message = '', ?\Exception $exception)
     {
         $this->success = $success;
         $this->message = $message;
+        $this->exception = $exception;
     }
 
-    /**
-     * Get the success status.
-     */
     public function getSuccess(): ?bool
     {
         return $this->success;
     }
 
-    /**
-     * Set the success status.
-     */
     public function setSuccess(?bool $success): void
     {
         $this->success = $success;
     }
 
-    /**
-     * Get the message.
-     */
     public function getMessage(): string
     {
         return $this->message;
     }
 
-    /**
-     * Set the message.
-     */
     public function setMessage(string $message): void
     {
         $this->message = $message;
+    }
+
+    public function getException(): ?\Exception
+    {
+        return $this->exception;
     }
 
     public function setException(\Exception $e): void
     {
         $this->success = false;
         $this->message = 'EXCEPTION: ' . $e->getMessage();
+        $this->exception = $e;
     }
 
     public function getResultString(): string

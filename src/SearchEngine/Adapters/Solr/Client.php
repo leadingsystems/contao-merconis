@@ -3,7 +3,7 @@
 namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters\Solr;
 
 use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
-use LeadingSystems\MerconisBundle\SearchEngine\Adapters\TestResult;
+use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
 
 class Client implements ClientInterface
 {
@@ -22,15 +22,15 @@ class Client implements ClientInterface
         // TODO: Implement initialize() method.
     }
 
-    public function testConnection(): TestResult
+    public function testConnection(): OperationResult
     {
-        $testResult = new TestResult();
+        $testResult = new OperationResult();
         return $testResult;
     }
 
-    public function testIndex(string $indexName): TestResult
+    public function testIndex(string $indexName): OperationResult
     {
-        $testResult = new TestResult();
+        $testResult = new OperationResult();
         return $testResult;
     }
 
@@ -39,9 +39,9 @@ class Client implements ClientInterface
         return 0;
     }
 
-    public function createIndex(string $indexName): TestResult
+    public function createIndex(string $indexName): OperationResult
     {
-        $testResult = new TestResult();
+        $testResult = new OperationResult();
         return $testResult;
     }
 }
