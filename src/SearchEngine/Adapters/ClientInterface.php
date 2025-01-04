@@ -10,4 +10,5 @@ interface ClientInterface
     public function testConnection(): TestResult;
     public function testIndex(string $indexName): TestResult;
     public function getNumProductsInIndex(string $indexName): int;
+    public function createIndex(string $indexName): TestResult;
 }

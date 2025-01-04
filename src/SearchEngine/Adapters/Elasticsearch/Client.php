@@ -96,8 +96,66 @@ class Client implements ClientInterface
         return $response['hits']['total']['value'] ?? 0;
     }
 
-    public function createProductsIndex(): void
+    public function createIndex(string $indexName): TestResult
     {
+        $testResult = new TestResult();
+
+        if ($this->testIndex($indexName)->getSuccess()) {
+            $testResult->setSuccess(false);
+            $testResult->setMessage('Index "' . $indexName . '" already exists!');
+            return $testResult;
+        }
+
+        $requestBody = [];
+
+        switch ($indexName) {
+            case 'products':
+                $requestBody = [
+                    'mappings' => [
+                        'properties' => [
+                            'id' => ['type' => 'keyword'],
+                            'article_number' => ['type' => 'text'],
+                            'title' => [
+                                'type' => 'text',
+                                'analyzer' => 'standard',
+                            ],
+                            'description' => [
+                                'type' => 'text',
+                                'analyzer' => 'standard',
+                            ],
+                            'categories' => ['type' => 'keyword'],
+                            'prices' => [
+                                'type' => 'nested',
+                                'properties' => [
+                                    'customer_id' => ['type' => 'keyword'],
+                                    'price' => ['type' => 'float'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ];
+                break;
+        }
+
+        try {
+            $response = $this->client->indices()->create([
+                'index' => $indexName,
+                'body' => $requestBody
+            ]);
+
+
+            if ($response['acknowledged'] ?? false) {
+                $testResult->setSuccess(true);
+                $testResult->setMessage('Index "' . $indexName . '" was created successfully');
+            } else {
+                $testResult->setSuccess(true);
+                $testResult->setMessage('Failed to create the "' . $indexName . '" index');
+            }
+        } catch (\Exception $e) {
+            $testResult->setException($e);
+        }
+
+        return $testResult;
     }
 
     public function getAdapterName(): string
