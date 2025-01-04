@@ -5,7 +5,7 @@ namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch;
 use Elastic\Elasticsearch\Client as ElasticsearchClient;
 use Elastic\Elasticsearch\ClientBuilder;
 use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
-use LeadingSystems\MerconisBundle\SearchEngine\Adapters\TestResult;
+use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
 
 class Client implements ClientInterface
 {
@@ -35,9 +35,9 @@ class Client implements ClientInterface
             ->build();
     }
 
-    public function testConnection(): TestResult
+    public function testConnection(): OperationResult
     {
-        $testResult = new TestResult();
+        $testResult = new OperationResult();
 
         try {
             $response = $this->client->ping();
@@ -55,9 +55,9 @@ class Client implements ClientInterface
         return $testResult;
     }
 
-    public function testIndex(string $indexName): TestResult
+    public function testIndex(string $indexName): OperationResult
     {
-        $testResult = new TestResult();
+        $testResult = new OperationResult();
 
         try {
             if ($this->client->indices()->exists(['index' => $indexName])) {
@@ -96,9 +96,9 @@ class Client implements ClientInterface
         return $response['hits']['total']['value'] ?? 0;
     }
 
-    public function createIndex(string $indexName): TestResult
+    public function createIndex(string $indexName): OperationResult
     {
-        $testResult = new TestResult();
+        $testResult = new OperationResult();
 
         if ($this->testIndex($indexName)->getSuccess()) {
             $testResult->setSuccess(false);
