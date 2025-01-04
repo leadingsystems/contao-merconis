@@ -36,6 +36,11 @@ class SearchEngine
         return  $testResults;
     }
 
+    public function createProductsIndex(): string
+    {
+        return $this->clientAdapterService->createIndex('products')->getResultString();
+    }
+
     public function getAvailableClientAdapters(): array
     {
         $availableClientAdapters = [];

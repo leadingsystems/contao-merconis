@@ -38,4 +38,10 @@ class Client implements ClientInterface
     {
         return 0;
     }
+
+    public function createIndex(string $indexName): TestResult
+    {
+        $testResult = new TestResult();
+        return $testResult;
+    }
 }
