@@ -114,7 +114,7 @@ class Client implements ClientInterface
                     'mappings' => [
                         'properties' => [
                             'id' => ['type' => 'keyword'],
-                            'article_number' => ['type' => 'text'],
+                            'product_code' => ['type' => 'text'],
                             'title' => [
                                 'type' => 'text',
                                 'analyzer' => 'standard',
@@ -123,14 +123,7 @@ class Client implements ClientInterface
                                 'type' => 'text',
                                 'analyzer' => 'standard',
                             ],
-                            'categories' => ['type' => 'keyword'],
-                            'prices' => [
-                                'type' => 'nested',
-                                'properties' => [
-                                    'customer_id' => ['type' => 'keyword'],
-                                    'price' => ['type' => 'float'],
-                                ],
-                            ],
+                            'pages' => ['type' => 'keyword'],
                         ],
                     ],
                 ];
