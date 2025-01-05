@@ -34,7 +34,7 @@ class Client implements ClientInterface
         return $testResult;
     }
 
-    public function getNumProductsInIndex(string $indexName): int
+    public function getNumDocumentsInIndex(string $indexName): int
     {
         return 0;
     }

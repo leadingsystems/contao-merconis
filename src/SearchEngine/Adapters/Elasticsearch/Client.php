@@ -63,8 +63,8 @@ class Client implements ClientInterface
             if ($this->client->indices()->exists(['index' => $indexName])) {
                 $testResult->setSuccess(true);
 
-                if ($numProductsInIndex = $this->getNumProductsInIndex($indexName)) {
-                    $numDocumentsMessage = 'Found ' . $numProductsInIndex . ' documents in the index.';
+                if ($numDocumentsInIndex = $this->getNumDocumentsInIndex($indexName)) {
+                    $numDocumentsMessage = 'Found ' . $numDocumentsInIndex . ' documents in the index.';
                 } else {
                     $numDocumentsMessage = 'No documents found in the index.';
                 }
@@ -81,7 +81,7 @@ class Client implements ClientInterface
         return $testResult;
     }
 
-    public function getNumProductsInIndex(string $indexName): int
+    public function getNumDocumentsInIndex(string $indexName): int
     {
         $params = [
             'index' => $indexName,
