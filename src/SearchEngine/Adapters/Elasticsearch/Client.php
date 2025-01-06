@@ -37,31 +37,31 @@ class Client implements ClientInterface
 
     public function testConnection(): OperationResult
     {
-        $testResult = new OperationResult();
+        $operationResult = new OperationResult();
 
         try {
             $response = $this->client->ping();
             if ($response) {
-                $testResult->setSuccess(true);
-                $testResult->setMessage('Elasticsearch is reachable');
+                $operationResult->setSuccess(true);
+                $operationResult->setMessage('Elasticsearch is reachable');
             } else {
-                $testResult->setSuccess(false);
-                $testResult->setMessage('Failed to reach Elasticsearch');
+                $operationResult->setSuccess(false);
+                $operationResult->setMessage('Failed to reach Elasticsearch');
             }
         } catch (\Exception $e) {
-            $testResult->setException($e);
+            $operationResult->setException($e);
         }
 
-        return $testResult;
+        return $operationResult;
     }
 
     public function testIndex(string $indexName): OperationResult
     {
-        $testResult = new OperationResult();
+        $operationResult = new OperationResult();
 
         try {
             if ($this->client->indices()->exists(['index' => $indexName])) {
-                $testResult->setSuccess(true);
+                $operationResult->setSuccess(true);
 
                 if ($numDocumentsInIndex = $this->getNumDocumentsInIndex($indexName)) {
                     $numDocumentsMessage = 'Found ' . $numDocumentsInIndex . ' documents in the index.';
@@ -69,16 +69,16 @@ class Client implements ClientInterface
                     $numDocumentsMessage = 'No documents found in the index.';
                 }
 
-                $testResult->setMessage('The index "' . $indexName . '" exists. ' . $numDocumentsMessage);
+                $operationResult->setMessage('The index "' . $indexName . '" exists. ' . $numDocumentsMessage);
             } else {
-                $testResult->setSuccess(false);
-                $testResult->setMessage('The index "' . $indexName . '" does not exist.');
+                $operationResult->setSuccess(false);
+                $operationResult->setMessage('The index "' . $indexName . '" does not exist.');
             }
         } catch (\Exception $e) {
-            $testResult->setException($e);
+            $operationResult->setException($e);
         }
 
-        return $testResult;
+        return $operationResult;
     }
 
     public function getNumDocumentsInIndex(string $indexName): int
@@ -98,12 +98,12 @@ class Client implements ClientInterface
 
     public function createIndex(string $indexName): OperationResult
     {
-        $testResult = new OperationResult();
+        $operationResult = new OperationResult();
 
         if ($this->testIndex($indexName)->getSuccess()) {
-            $testResult->setSuccess(false);
-            $testResult->setMessage('Index "' . $indexName . '" already exists!');
-            return $testResult;
+            $operationResult->setSuccess(false);
+            $operationResult->setMessage('Index "' . $indexName . '" already exists!');
+            return $operationResult;
         }
 
         $requestBody = [];
@@ -138,17 +138,17 @@ class Client implements ClientInterface
 
 
             if ($response['acknowledged'] ?? false) {
-                $testResult->setSuccess(true);
-                $testResult->setMessage('Index "' . $indexName . '" was created successfully');
+                $operationResult->setSuccess(true);
+                $operationResult->setMessage('Index "' . $indexName . '" was created successfully');
             } else {
-                $testResult->setSuccess(true);
-                $testResult->setMessage('Failed to create the "' . $indexName . '" index');
+                $operationResult->setSuccess(true);
+                $operationResult->setMessage('Failed to create the "' . $indexName . '" index');
             }
         } catch (\Exception $e) {
-            $testResult->setException($e);
+            $operationResult->setException($e);
         }
 
-        return $testResult;
+        return $operationResult;
     }
 
     public function getAdapterName(): string

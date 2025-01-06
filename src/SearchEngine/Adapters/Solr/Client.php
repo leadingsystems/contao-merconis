@@ -24,14 +24,14 @@ class Client implements ClientInterface
 
     public function testConnection(): OperationResult
     {
-        $testResult = new OperationResult();
-        return $testResult;
+        $operationResult = new OperationResult();
+        return $operationResult;
     }
 
     public function testIndex(string $indexName): OperationResult
     {
-        $testResult = new OperationResult();
-        return $testResult;
+        $operationResult = new OperationResult();
+        return $operationResult;
     }
 
     public function getNumDocumentsInIndex(string $indexName): int
@@ -41,7 +41,13 @@ class Client implements ClientInterface
 
     public function createIndex(string $indexName): OperationResult
     {
-        $testResult = new OperationResult();
-        return $testResult;
+        $operationResult = new OperationResult();
+        return $operationResult;
+    }
+
+    public function addAllProductsToIndex(): OperationResult
+    {
+        $operationResult = new OperationResult();
+        return $operationResult;
     }
 }
