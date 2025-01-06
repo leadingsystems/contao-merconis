@@ -43,7 +43,7 @@ class SearchEngine
 
     public function addAllProductsToIndex(): string
     {
-        return $this->clientAdapterService->addAllProductsToIndex->getResultString();
+        return $this->clientAdapterService->addAllProductsToIndex()->getResultString();
     }
 
     public function getAvailableClientAdapters(): array
