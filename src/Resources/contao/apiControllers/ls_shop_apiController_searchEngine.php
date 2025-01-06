@@ -66,4 +66,24 @@ class ls_shop_apiController_searchEngine {
             $this->obj_apiReceiver->set_message($e->getMessage());
         }
 	}
+
+	protected function apiResource_searchEngine_addAllProductsToIndex() {
+        /*
+         * Do me! Indexing all products probably takes much time and can probably not be done all at once.
+         *  Find a better solution.
+         *  Idea: The search engine client class could take care of splitting up adding the products into multiple
+         *  requests and it could say in its result message whether there are still more products to add so that
+         *  the api resource would have to be called again.
+         */
+        try {
+            /** @var $searchEngine SearchEngine */
+            $searchEngine = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchEngine\SearchEngine');
+
+            $this->obj_apiReceiver->success();
+            $this->obj_apiReceiver->set_data($searchEngine->addAllProductsToIndex());
+        } catch (\Throwable $e) {
+            $this->obj_apiReceiver->error();
+            $this->obj_apiReceiver->set_message($e->getMessage());
+        }
+	}
 }

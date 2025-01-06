@@ -125,6 +125,8 @@ class Client implements ClientInterface
                             ],
                             'pages' => ['type' => 'keyword'],
                         ],
+
+                        'dynamic' => 'strict'
                     ],
                 ];
                 break;
@@ -145,6 +147,81 @@ class Client implements ClientInterface
                 $operationResult->setMessage('Failed to create the "' . $indexName . '" index');
             }
         } catch (\Exception $e) {
+            $operationResult->setException($e);
+        }
+
+        return $operationResult;
+    }
+
+    public function addAllProductsToIndex(): OperationResult
+    {
+        $operationResult = new OperationResult();
+
+        $indexName = 'products';
+
+        if (!$this->testIndex($indexName)->getSuccess()) {
+            $operationResult->setSuccess(false);
+            $operationResult->setMessage('Index "' . $indexName . '" does not exist. Create it!');
+            return $operationResult;
+        }
+
+        try {
+            $dbres_productsToIndex = \Database::getInstance()
+                ->prepare("SELECT id, lsShopProductCode, title_de, description_de, pages FROM `tl_ls_shop_product` LIMIT 1000")
+                ->execute();
+
+            $bulkData = [];
+
+            while ($dbres_productsToIndex->next()) {
+                $bulkData[] = [
+                    'index' => [
+                        '_index' => $indexName,
+                        '_id'    => $dbres_productsToIndex->id, // Using product ID as the document ID
+                    ]
+                ];
+
+                $bulkData[] = [
+                    'id' => (string)$dbres_productsToIndex->id,
+                    'product_code' => $dbres_productsToIndex->lsShopProductCode,
+                    'title' => $dbres_productsToIndex->title_de ?: '',
+                    'description' => $dbres_productsToIndex->description_de ?: '',
+
+                    /*
+                     * Do me! Make sure to add multiple pages as an array!
+                     */
+                    'pages' => $dbres_productsToIndex->pages
+                ];
+            }
+
+            if (!empty($bulkData)) {
+                $chunks = array_chunk($bulkData, 100); // Process 100 actions per batch
+                $allFailedItems = [];
+
+                foreach ($chunks as $chunk) {
+                    $response = $this->client->bulk(['body' => $chunk]);
+
+                    if (isset($response['errors']) && $response['errors']) {
+                        $failedItems = array_filter($response['items'], function($item) {
+                            return isset($item['index']['error']);
+                        });
+                        $allFailedItems = array_merge($allFailedItems, $failedItems);
+                    }
+                }
+
+                if (!empty($allFailedItems)) {
+                    $failedItemsText = json_encode($allFailedItems, JSON_PRETTY_PRINT);
+                    $operationResult->setSuccess(false);
+                    $operationResult->setMessage("Some products failed to be indexed: \n" . $failedItemsText);
+                } else {
+                    $operationResult->setSuccess(true);
+                    $operationResult->setMessage('All products were indexed successfully.');
+                }
+            } else {
+                $operationResult->setSuccess(false);
+                $operationResult->setMessage('No products found to index.');
+            }
+        } catch (\Exception $e) {
+            $operationResult->setSuccess(false);
             $operationResult->setException($e);
         }
 
