@@ -41,7 +41,7 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['lsShop_mandatoryOnConditionBoolea
     'label'			=> &$GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionBoolean'],
     'exclude' => true,
     'inputType' => 'checkbox',
-    'eval'			=> array('tl_class' => 'w33-cbx-middle'),
+    'eval'			=> array('tl_class' => 'w33 cbx m12'),
     'sql'                     => "char(1) NOT NULL default ''"
 );
 
@@ -50,7 +50,7 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['lsShop_mandatoryOnConditionField2
     'exclude' => true,
     'inputType'		=> 'select',
     'options_callback'	=> array('Merconis\Core\ls_shop_generalHelper', 'getOtherFieldsInFormAsOptions'),
-    'eval'			=> array('includeBlankOption' => true, 'tl_class' => 'w33'),
+    'eval'			=> array('includeBlankOption' => true, 'tl_class' => 'clr w33'),
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
@@ -66,7 +66,7 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['lsShop_mandatoryOnConditionBoolea
     'label'			=> &$GLOBALS['TL_LANG']['tl_form_field']['lsShop_mandatoryOnConditionBoolean'],
     'exclude' => true,
     'inputType' => 'checkbox',
-    'eval'			=> array('tl_class' => 'w33-cbx-middle'),
+    'eval'			=> array('tl_class' => 'w33 cbx m12'),
     'sql'                     => "char(1) NOT NULL default ''"
 );
 
@@ -75,7 +75,7 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['lsShop_ShowOnConditionField'] = a
     'exclude' => true,
     'inputType'		=> 'select',
     'options_callback'	=> array('Merconis\Core\ls_shop_generalHelper', 'getOtherFieldsInFormAsOptions'),
-    'eval'			=> array('includeBlankOption' => true, 'tl_class' => 'w33'),
+    'eval'			=> array('includeBlankOption' => true, 'tl_class' => 'clr w33'),
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
@@ -91,7 +91,7 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['lsShop_ShowOnConditionBoolean'] =
     'label'			=> &$GLOBALS['TL_LANG']['tl_form_field']['lsShop_ShowOnConditionBoolean'],
     'exclude' => true,
     'inputType' => 'checkbox',
-    'eval'			=> array('tl_class' => 'w33-cbx-middle'),
+    'eval'			=> array('tl_class' => 'w33 cbx m12'),
     'sql'                     => "char(1) NOT NULL default ''"
 );
 

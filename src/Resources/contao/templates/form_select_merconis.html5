@@ -42,7 +42,7 @@ $GLOBALS['merconis_globals']['formFieldUniqueIDCounter']++;
   <?php endif; ?>
 
   <?php if ($this->multiple): ?>
-    <input type="hidden" name="<?= '[]' == substr($this->name, -2) ? substr($this->name, 0, -2) : $this->name ?>" value="">
+    <input type="hidden" name="<?= str_ends_with($this->name, '[]') ? substr($this->name, 0, -2) : $this->name ?>" value="">
   <?php endif; ?>
 
   <select name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>_<?php echo $GLOBALS['merconis_globals']['formFieldUniqueIDCounter']; ?>" class="<?= $this->class ?>"<?= $this->getAttributes() ?>>

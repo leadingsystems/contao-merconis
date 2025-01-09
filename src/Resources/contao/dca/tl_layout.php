@@ -2,7 +2,24 @@
 
 namespace Merconis\Core;
 
-$GLOBALS['TL_DCA']['tl_layout']['palettes']['default'] .= ';{lsShopFilter_legend},ls_shop_activateFilter,ls_shop_useFilterInStandardProductlist,ls_shop_numFilterFieldsInSummary,ls_shop_useFilterMatchEstimates,ls_shop_matchEstimatesMaxNumProducts,ls_shop_matchEstimatesMaxFilterValues,ls_shop_useFilterInProductDetails,ls_shop_hideFilterFormInProductDetails';
+use Contao\CoreBundle\DataContainer\PaletteManipulator;
+
+PaletteManipulator::create()
+    ->addLegend('lsShopFilter_legend')
+    ->addField(
+        [
+            'ls_shop_activateFilter',
+            'ls_shop_useFilterInStandardProductlist',
+            'ls_shop_numFilterFieldsInSummary',
+            'ls_shop_useFilterMatchEstimates',
+            'ls_shop_matchEstimatesMaxNumProducts',
+            'ls_shop_matchEstimatesMaxFilterValues',
+            'ls_shop_useFilterInProductDetails',
+            'ls_shop_hideFilterFormInProductDetails'
+        ], 'lsShopFilter_legend'
+    )
+    ->applyToPalette('default', 'tl_layout')
+;
 
 $GLOBALS['TL_DCA']['tl_layout']['fields']['lsShopOutputDefinitionSet'] = array (
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
@@ -74,6 +91,3 @@ $GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_hideFilterFormInProductDetail
     'eval'                    => array('tl_class'=>'w50 m12'),
     'sql'                     => "char(1) NOT NULL default ''"
 );
-
-
-

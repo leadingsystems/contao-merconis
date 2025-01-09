@@ -2,15 +2,16 @@
 
 namespace Merconis\Core;
 
+use Contao\CoreBundle\DataContainer\PaletteManipulator;
+
 /*
  * Conditional Output
  */
-foreach ($GLOBALS['TL_DCA']['tl_article']['palettes'] as $paletteName => $palette)  {
-	if ($paletteName == '__selector__') {
-		continue;
-	}
-	$GLOBALS['TL_DCA']['tl_article']['palettes'][$paletteName] .= ';{lsShopConditionalOutput_legend},lsShopOutputCondition';
-}
+PaletteManipulator::create()
+    ->addLegend('lsShopConditionalOutput_legend')
+    ->addField('lsShopOutputCondition', 'lsShopConditionalOutput_legend')
+    ->applyToPalette('default', 'tl_article')
+;
 			
 $GLOBALS['TL_DCA']['tl_article']['fields']['lsShopOutputCondition'] = array(
 	'label'			=> &$GLOBALS['TL_LANG']['tl_article']['lsShopOutputCondition'],

@@ -8,9 +8,9 @@ use Contao\Date;
 use Contao\PageModel;
 use Contao\System;
 
-#[AsInsertTag('shopavailableform')]
-#[AsInsertTag('shop_available_form')]
-class AvailableForm extends InsertTag
+#[AsInsertTag('shopavailablefrom')]
+#[AsInsertTag('shop_available_from')]
+class AvailableFrom extends InsertTag
 {
 
 	public function customInserttags($strTag, $params) {

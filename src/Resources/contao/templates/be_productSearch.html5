@@ -31,8 +31,85 @@ use Contao\System;
             body.ls_shop_popup {
                 padding: 0.75rem;
             }
-            .searchResults tbody a[onclick] {
+            body.ls_shop_popup .clearFloat {
+                display: none;
+            }
+            body.ls_shop_popup .searchForm {
+                margin-bottom: 25px;
+            }
+            body.ls_shop_popup .setNumPerPage {
+                text-align: right;
+                margin-bottom: 5px;
+            }
+            body.ls_shop_popup .setNumPerPage .tl_select {
+                width: 65px;
+            }
+            body.ls_shop_popup .msgNumSearchResults {
+                margin-bottom: 10px;
+                margin-left: 15px;
+            }
+            body.ls_shop_popup .beModule_productSearch .searchResultTable {
+                margin-bottom: 15px;
+            }
+            body.ls_shop_popup .beModule_productSearch .searchResults table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+            body.ls_shop_popup .beModule_productSearch .searchResults table td,
+            body.ls_shop_popup .beModule_productSearch .searchResults table th {
+                border: 1px solid #D3D3D3;
+                padding: 5px;
+                height: 50px;
+            }
+            body.ls_shop_popup .beModule_productSearch .searchResults table th {
+                font-weight: bold;
+                background-color: #A4A4A4;
+                color: #FFFFFF;
+                height: 25px;
+            }
+            body.ls_shop_popup .beModule_productSearch .searchResults table th a {
+                color: #FFFFFF;
+                letter-spacing: 0.5px;
+            }
+            body.ls_shop_popup .beModule_productSearch:not(.beModule_stockManagement) .searchResults table tbody tr:nth-child(2n) {
+                background-color: #F0F0F0;
+            }
+            body.ls_shop_popup .beModule_productSearch .searchResults table td a {
+                display:inline-block;
+                line-height:inherit;
+                background:var(--form-bg);
+                border:1px solid var(--form-border);
+                border-radius:2px;
+                box-sizing:border-box;
+                cursor:pointer;
+                height:30px;
+                padding:7px 12px;
+                transition:background 0.2s ease
+            }
+            body.ls_shop_popup .beModule_productSearch .searchResults table td a:hover {
+                background:var(--form-bg-hover);
+                color:#000000
+            }
+            body.ls_shop_popup .beModule_productSearch:not(.beModule_stockManagement) .searchResults table td:last-of-type {
+                text-align:center
+            }
+
+            body.ls_shop_popup .searchResults tbody a[onclick] {
                 cursor: pointer;
+            }
+
+            body.ls_shop_popup .tl_submit {
+                padding: 7px 12px;
+                margin-left: 0;
+                line-height: inherit;
+            }
+
+            body.ls_shop_popup .w25,
+            body.ls_shop_popup .w33,
+            body.ls_shop_popup .w50,
+            body.ls_shop_popup .w66,
+            body.ls_shop_popup .w75 {
+                min-height: 65px;
             }
 
             /* Pagination */

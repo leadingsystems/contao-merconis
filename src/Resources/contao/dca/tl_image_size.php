@@ -3,17 +3,15 @@
 namespace Merconis\Core;
 
 use Contao\Backend;
+use Contao\CoreBundle\DataContainer\PaletteManipulator;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\System;
 
-// Anpassung der Palette
-$GLOBALS['TL_DCA']['tl_image_size']['palettes']['default'] = str_replace
-(
-    'name,',
-    'name,merconis_alias,',
-    $GLOBALS['TL_DCA']['tl_image_size']['palettes']['default']
-);
+PaletteManipulator::create()
+    ->addField('merconis_alias', 'name')
+    ->applyToPalette('default', 'tl_image_size')
+;
 
 // Hinzufügen der Feld-Konfiguration
 $GLOBALS['TL_DCA']['tl_image_size']['fields']['merconis_alias'] = array
