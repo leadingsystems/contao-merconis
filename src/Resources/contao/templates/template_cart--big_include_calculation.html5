@@ -60,10 +60,10 @@ $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
                         "
                     <?php } ?>
                 >
-                    <div class="field">
+                    <div class="field" data-lsjs-element="toggler">
                         <div class="field-label">
                             <?php if (!$bln_reviewMode) { ?>
-                                <span data-lsjs-element="toggler"><i class="fas fa-pencil-alt"></i></span>
+                                <span><i class="fas fa-pencil-alt"></i></span>
                             <?php } ?>
                             <?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['coupon']['text012']; ?>
                         </div>
