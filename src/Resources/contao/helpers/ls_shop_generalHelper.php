@@ -32,6 +32,7 @@ use Contao\System;
 use Contao\Validator;
 use Contao\Widget;
 use LeadingSystems\Helpers\FlexWidget;
+use LeadingSystems\MerconisBundle\EventListener\Post;
 
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -3426,7 +3427,7 @@ class ls_shop_generalHelper
         $obj_dbres_mandatoryOnConditionSettings->first();
 
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField) {
-            if (Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
+            if (Post::getFromKey(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
             }
@@ -3441,7 +3442,7 @@ class ls_shop_generalHelper
         }
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2) {
 
-            if (Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2) {
+            if (Post::getFromKey(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2) {
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';
             }
