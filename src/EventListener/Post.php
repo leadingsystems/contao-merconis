@@ -10,7 +10,7 @@ class Post
 
     public static function getFromKey($key)
     {
-        return Post::$postCache[$key];
+        return Post::$postCache[$key] ?? null;
     }
 
     private static function savePostInput() : void
