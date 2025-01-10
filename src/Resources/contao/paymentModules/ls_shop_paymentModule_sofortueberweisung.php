@@ -315,7 +315,7 @@ namespace Merconis\Core;
 			?>
 			<div class="paymentDetails sofortbanking">
 				<h2>
-					<a href="https://www.sofort.com/" target="_blank">
+					<a href="https://www.sofort.com/" target="_blank" rel="noreferrer noopener">
 						<img src="https://images.sofort.com/de/su/75x28.png" alt="SOFORT Überweisung - Einfach, Schnell, Sicher" height="28" width="75">
 					</a>
 					<?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['headlineBackendDetailsInfo']; ?>

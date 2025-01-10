@@ -72,7 +72,7 @@ use function LeadingSystems\Helpers\ls_sub;
 			?>
 			<div class="paymentDetails payone">
 				<h2>
-					<a href="https://www.payone.de/" target="_blank">
+					<a href="https://www.payone.de/" target="_blank" rel="noreferrer noopener">
 						<img src="bundles/leadingsystemsmerconis/images/payment/payone_logo_small.png" alt="PAYONE">
 					</a>
 					<?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['headlineBackendDetailsInfo']; ?>

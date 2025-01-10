@@ -213,7 +213,7 @@ use function LeadingSystems\Helpers\ls_sub;
 					<?php
 					$str_backofficeUrl = $this->arr_saferpay_backofficeUrls[$this->arrCurrentSettings['saferpay_liveMode'] ? 'live' : 'test'];
 					?>
-					<a href="<?php echo $str_backofficeUrl; ?>" target="_blank">
+					<a href="<?php echo $str_backofficeUrl; ?>" target="_blank" rel="noreferrer noopener">
 						<img src="bundles/leadingsystemsmerconis/images/payment/saferpay_logo_small.png" alt="SAFERPAY">
 					</a>
 					<?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['saferpay']['headlineBackendDetailsInfo']; ?>

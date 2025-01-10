@@ -224,7 +224,7 @@ class ls_shop_paymentModule_vrpay extends ls_shop_paymentModule_standard {
 					<?php
 					$str_backofficeUrl = $this->arr_vrpay_backofficeUrls[$this->arrCurrentSettings['vrpay_liveMode'] ? 'live' : 'test'];
 					?>
-					<a href="<?php echo $str_backofficeUrl; ?>" target="_blank">
+					<a href="<?php echo $str_backofficeUrl; ?>" target="_blank" rel="noreferrer noopener">
 						<img src="bundles/leadingsystemsmerconis/images/payment/vrpay_logo_medium.png" alt="VR Pay">
 					</a>
 					<?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['vrpay']['headlineBackendDetailsInfo']; ?>

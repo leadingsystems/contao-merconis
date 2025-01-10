@@ -10,7 +10,7 @@ use Contao\System;
 				?>
 				<div class="redirectToSantander">
 					<p><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc01']; ?></p>
-					<p><a class="button" target="_blank" href="<?php echo $this->linkToSantander; ?>"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc11']; ?></a></p>
+					<p><a class="button" target="_blank" rel="noreferrer noopener" href="<?php echo $this->linkToSantander; ?>"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc11']; ?></a></p>
 				</div>
 				<div class="checkStatus">
 					<?php
