@@ -222,7 +222,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 		?>
 		<div class="paymentDetails payPalPlus">
 			<h2>
-				<a href="https://www.paypal.com/" target="_blank">
+				<a href="https://www.paypal.com/" target="_blank" rel="noreferrer noopener">
 					<img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-150px.png" border="0" alt="PayPal Logo" />
 				</a>
 				<?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['headlineBackendDetailsInfo']; ?>

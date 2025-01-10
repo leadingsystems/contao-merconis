@@ -4,7 +4,7 @@
 	if ($this->arr_row['feedActive']) {
 		?>
 		<h3><?php echo $GLOBALS['TL_LANG']['tl_ls_shop_export']['overview']['feedUrl']; ?></h3>
-		<p><a href="<?php echo $this->str_ajaxUrl; ?>" target="_blank"><?php echo $this->str_ajaxUrl; ?></a></p>
+		<p><a href="<?php echo $this->str_ajaxUrl; ?>" target="_blank" rel="noreferrer noopener"><?php echo $this->str_ajaxUrl; ?></a></p>
 		<?php
 	}
 	?>
@@ -27,7 +27,7 @@
 							?>
 							<li>
 								<button data-lsjs-element="btn_deleteFile"></button>
-								<a href="<?php echo $arr_exportFileInfo['url']; ?>" target="_blank">
+								<a href="<?php echo $arr_exportFileInfo['url']; ?>" target="_blank" rel="noreferrer noopener">
 									<?php echo $arr_exportFileInfo['fileName']; ?>
 								</a>
 								<span class="fileInfo">(<?php echo $arr_exportFileInfo['dateTime']; ?>, <?php echo $arr_exportFileInfo['fileSize']; ?>)</span>

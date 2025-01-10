@@ -10,7 +10,7 @@
 		<?php
 		foreach ($this->value as $v) {
 			?>
-			<li><a href="<?php echo $v; ?>" target="_blank"><?php echo $v; ?></a></li>
+			<li><a href="<?php echo $v; ?>" target="_blank" rel="noreferrer noopener"><?php echo $v; ?></a></li>
 			<?php
 		}
 		?>
