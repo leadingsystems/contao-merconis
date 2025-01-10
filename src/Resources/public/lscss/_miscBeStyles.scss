@@ -525,7 +525,6 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
 fieldset[data-contao--toggle-fieldset-id-value="lscss4c_legend"],
 fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"],
 fieldset[data-contao--toggle-fieldset-id-value="lsShopConditionalOutput_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"],
 fieldset[data-contao--toggle-fieldset-id-value="lsShop_legend"],
 fieldset[data-contao--toggle-fieldset-id-value="lsShopFilter_legend"],
 fieldset[data-contao--toggle-fieldset-id-value="lsShopJsComponents_legend"],
@@ -539,7 +538,7 @@ fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"]{
   margin-bottom: 6px;
   margin-top: 20px;
 
-  > legend::before{
+  > legend button::before{
     background-image: url("/bundles/leadingsystemsmerconis/icons/be/merconis-backend.svg");
     background-size: contain;
     background-repeat: no-repeat;
@@ -555,8 +554,8 @@ fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"]{
 
 
 
-fieldset[data-contao--toggle-fieldset-id-value="lscss4c_legend"] > legend::before,
-fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend::before{
+fieldset[data-contao--toggle-fieldset-id-value="lscss4c_legend"] > legend button::before,
+fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button::before{
   content: "MERCONIS: ";
 }
 /*
