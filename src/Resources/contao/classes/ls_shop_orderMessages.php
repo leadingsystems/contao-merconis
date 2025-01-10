@@ -113,7 +113,7 @@ class ls_shop_orderMessages
 			 * If the messageType has already be sent for the current order,
 			 * it has to be skipped
 			 */
-			if (in_array($arrMessageType['id'], $this->arrOrder['messageTypesSent'])) {
+			if (isset($this->arrOrder['messageTypesSent']) && in_array($arrMessageType['id'], $this->arrOrder['messageTypesSent'])) {
 				continue;
 			}
 			
