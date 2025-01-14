@@ -5,7 +5,7 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_productManagementApiHelper {
 	public static $int_numImportableGroupPrices = 5;
-	public static $int_numImportableAttributesAndValues = 20;
+	public static $int_numImportableAttributesAndValues = 100;
 	public static $dataRowTypesInOrderToProcess = array('product', 'variant', 'productLanguage', 'variantLanguage');
 	public static $modificationTypesTranslationMap = array('independent' => 'standalone', 'percentaged' => 'adjustmentPercentaged', 'fixed' => 'adjustmentFix');
 	public static $arr_scalePriceQuantityDetectionMethods = array('separatedVariantsAndConfigurations', 'separatedVariants', 'separatedProducts', 'separatedScalePriceKeywords');
