@@ -42,6 +42,7 @@ $str_html_price = $this->objProduct->_useCustomTemplate('template_productInclude
 $str_html_addedToCartInfo = $this->objProduct->_useCustomTemplate('template_productIncludes_addedToCartInfo_01');
 $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productIncludes_filterMatch_01');
 // $str_html_ajaxTest = $this->objProduct->_useCustomTemplate('template_productIncludes_ajaxTest_01');
+$str_html_productProducerInfo = $this->objProduct->_useCustomTemplate('template_productProducerInfo');
 ?>
 
 <?php echo isset($str_html_ajaxTest) ? $str_html_ajaxTest : ''; ?>
@@ -216,9 +217,7 @@ $str_html_filterMatch = $this->objProduct->_useCustomTemplate('template_productI
         <div class="wrapper-description">
             <div>
                 <?php // ##### producer-info ###### -> ?>
-                    <div class="producer-info">
-                        <?= $obj_tmp_productOrVariant->_hasProducerExtendedInfo ? $this->objProduct->_producerExtendedInfo : ""; ?>
-                    </div>
+                    <?php echo isset($str_html_productProducerInfo) ? $str_html_productProducerInfo : ''; ?>
                 <?php // <- ##### producer-info ###### ?>
 
                 <?php // ##### DESCRIPTION ###### -> ?>

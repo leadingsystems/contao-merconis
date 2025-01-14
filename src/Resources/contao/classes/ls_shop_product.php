@@ -605,7 +605,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				return $this->_shortDescription ? true : false;
 				break;
 
-            case '_hasProducerShortInfo':
+            case '_hasProducerInfoShort':
 
                 $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
                     ->limit(1)
@@ -623,7 +623,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
                 return false;
                 break;
 
-            case '_producerShortInfo':
+            case '_producerInfoShort':
 
                 $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
                     ->limit(1)
@@ -642,7 +642,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
                 break;
 
 
-            case '_hasProducerExtendedInfo':
+            case '_hasProducerInfoExtended':
 
                 $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
                     ->limit(1)
@@ -663,7 +663,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
                 return false;
                 break;
 
-            case '_producerExtendedInfo':
+            case '_producerInfoExtended':
 
                 $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
                     ->limit(1)

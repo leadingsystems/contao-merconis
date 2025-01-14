@@ -82,7 +82,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
 	),
 
 	'palettes' => array(
-		'default' => '{producer_legend},producer,article,description;'
+		'default' => '{producer_legend},producer,producerInfoShort,producerInfoExtended;'
 	),
 
 	'fields' => array(
@@ -107,9 +107,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
             )
 		),
 
-        'article' => array(
+        'producerInfoShort' => array (
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['producerInfoShort'],
             'exclude' => true,
-            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['article'],
+            'inputType'               => 'textarea',
+            'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true),
+            'search' => true,
+            'sql'                     => "text NULL"
+        ),
+
+        'producerInfoExtended' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['producerInfoExtended'],
             'inputType' => 'picker',
             'relation' => [
                 'table' => 'tl_article',
@@ -117,15 +126,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
             'eval' => array('chosen' => true, 'tl_class' => 'w50', 'maxlength'=>255, 'includeBlankOption' => true),
             'search' => true,
             'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-
-        'description' => array (
-            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['description'],
-            'exclude' => true,
-            'inputType'               => 'textarea',
-            'eval'                    => array('rte'=>'tinyMCE', 'tl_class'=>'clr', 'merconis_multilanguage' => true),
-            'search' => true,
-            'sql'                     => "text NULL"
         ),
 
 	)

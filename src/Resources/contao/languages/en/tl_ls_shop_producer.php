@@ -3,7 +3,7 @@
     /*
      * Fields
      */
-    $GLOBALS['TL_LANG']['tl_ls_shop_producer']['article'] = array('Article', 'Select an article that will be assigned to each product with this producer.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_producer']['producerInfoExtended'] = array('Article', 'Select an article that will be assigned to each product with this producer.');
     $GLOBALS['TL_LANG']['tl_ls_shop_producer']['producer'] = array('Producer');
 
     /*

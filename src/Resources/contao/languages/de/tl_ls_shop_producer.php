@@ -3,7 +3,7 @@
 	/*
 	 * Fields
 	 */
-    $GLOBALS['TL_LANG']['tl_ls_shop_producer']['article']									=	array('Artikel','Wählen sie einen Artikel aus der jedem Produkt mit dem Hersteller hinterlegt wird');
+    $GLOBALS['TL_LANG']['tl_ls_shop_producer']['producerInfoExtended']									=	array('Artikel','Wählen sie einen Artikel aus der jedem Produkt mit dem Hersteller hinterlegt wird');
 	$GLOBALS['TL_LANG']['tl_ls_shop_producer']['producer'] 					=	array('Hersteller');
 
 	/*
