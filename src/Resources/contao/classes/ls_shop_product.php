@@ -615,7 +615,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
                 {
                     $arrProducerInfo = $obj_article->fetchAssoc();
 
-                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                    if(isset($arrProducerInfo['producerInfoShort_'.$objPage->language]) && $arrProducerInfo['producerInfoShort_'.$objPage->language] != ""){
                         return true;
                     }
                 }
@@ -633,8 +633,8 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
                 {
                     $arrProducerInfo = $obj_article->fetchAssoc();
 
-                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
-                        return $arrProducerInfo['description_'.$objPage->language];
+                    if(isset($arrProducerInfo['producerInfoShort_'.$objPage->language]) && $arrProducerInfo['producerInfoShort_'.$objPage->language] != ""){
+                        return $arrProducerInfo['producerInfoShort_'.$objPage->language];
                     }
                 }
 
@@ -652,10 +652,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
                 {
                     $arrProducerInfo = $obj_article->fetchAssoc();
 
-                    if(isset($arrProducerInfo['article']) && $arrProducerInfo['article'] != ""){
-                        return true;
-                    }
-                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                    if(isset($arrProducerInfo['producerInfoExtended']) && $arrProducerInfo['producerInfoExtended'] != ""){
                         return true;
                     }
                 }
@@ -673,12 +670,8 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
                 {
                     $arrProducerInfo = $obj_article->fetchAssoc();
 
-                    if(isset($arrProducerInfo['article']) && $arrProducerInfo['article'] != ""){
-                        return \Controller::getArticle($arrProducerInfo['article'], false, true);
-                    }
-
-                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
-                        return $arrProducerInfo['description_'.$objPage->language];
+                    if(isset($arrProducerInfo['producerInfoExtended']) && $arrProducerInfo['producerInfoExtended'] != ""){
+                        return \Controller::getArticle($arrProducerInfo['producerInfoExtended'], false, true);
                     }
                 }
 

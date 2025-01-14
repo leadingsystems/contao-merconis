@@ -6,12 +6,12 @@ if ($this->objProduct->_variantIsSelected) {
 	$obj_tmp_productOrVariant = &$this->objProduct;
 }
 
-if ($obj_tmp_productOrVariant !== null && ($obj_tmp_productOrVariant->_hasProducerInfoShort || $obj_tmp_productOrVariant->_hasProducerInfoExtended)) {
+if ($obj_tmp_productOrVariant !== null && ($this->objProduct->_hasProducerInfoShort || $this->objProduct->_hasProducerInfoExtended)) {
     ?>
-        <div class="producer-info">
-            <?= $obj_tmp_productOrVariant->_hasProducerInfoShort ? $this->objProduct->_producerInfoShort : ""; ?>
-            <?= $obj_tmp_productOrVariant->_hasProducerInfoExtended ? $this->objProduct->_producerInfoExtended : ""; ?>
-        </div>
+    <div class="producer-info">
+        <?= $this->objProduct->_hasProducerInfoShort ? $this->objProduct->_producerInfoShort : ""; ?>
+        <?= $this->objProduct->_hasProducerInfoExtended ? $this->objProduct->_producerInfoExtended : ""; ?>
+    </div>
     <?php
 }
 
