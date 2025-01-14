@@ -3367,23 +3367,6 @@ class ls_shop_generalHelper
 
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField) {
 
-            //TODO: country wird nicht übertragen in post
-            //löscht hier: Input::setPost($objField->name, null); // see #5474
-
-            if($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField == 10){
-                $test = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField;
-                $test2 = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField);
-                $test3 = Input::post($test2);;
-                Input::post($test2);
-            }
-
-            if(Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) == null){
-                $test = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField;
-                $test2 = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField);
-                $test3 = "xx";
-                Input::post($test2);
-            }
-
             if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
                 $objWidget->{'data-misc-required'} = $objWidget->mandatory;
                 $objWidget->mandatory = '';

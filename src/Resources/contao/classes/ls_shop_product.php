@@ -2540,12 +2540,4 @@ This method can be used to call a function hooked with the "callingHookedProduct
         return $int_deliveryInfoSetID;
     }
 
-    /**
-     * @param $article1
-     * @return mixed
-     */
-    public function getArticle($article1): mixed
-    {
-        return $article1;
-    }
 }
