@@ -642,6 +642,86 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 				return $this->_shortDescription ? true : false;
 				break;
 
+            case '_hasProducerInfoShort':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                        return true;
+                    }
+                }
+
+                return false;
+                break;
+
+            case '_producerInfoShort':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                        return $arrProducerInfo['description_'.$objPage->language];
+                    }
+                }
+
+                return "";
+                break;
+
+
+            case '_hasProducerInfoExtended':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['article']) && $arrProducerInfo['article'] != ""){
+                        return true;
+                    }
+                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                        return true;
+                    }
+                }
+
+                return false;
+                break;
+
+            case '_producerInfoExtended':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['article']) && $arrProducerInfo['article'] != ""){
+                        return \Controller::getArticle($arrProducerInfo['article'], false, true);
+                    }
+
+                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                        return $arrProducerInfo['description_'.$objPage->language];
+                    }
+                }
+
+                return "";
+                break;
+
 			case '_flexContents':
 				$flexContents = $this->currentLanguageData['flex_contents'] ? $this->currentLanguageData['flex_contents'] : $this->mainData['flex_contents'];
 				if (!$flexContents) {

@@ -1,0 +1,18 @@
+<?php
+$obj_tmp_productOrVariant = null;
+if ($this->objProduct->_variantIsSelected) {
+    $obj_tmp_productOrVariant = &$this->objProduct->_selectedVariant;
+} else {
+    $obj_tmp_productOrVariant = &$this->objProduct;
+}
+
+if ($obj_tmp_productOrVariant !== null && ($obj_tmp_productOrVariant->_hasProducerInfoShort || $obj_tmp_productOrVariant->_hasProducerInfoExtended)) {
+    ?>
+    <div class="producer-info">
+        <?= $obj_tmp_productOrVariant->_hasProducerInfoShort ? $this->objProduct->_producerInfoShort : ""; ?>
+        <?= $obj_tmp_productOrVariant->_hasProducerInfoExtended ? $this->objProduct->_producerInfoExtended : ""; ?>
+    </div>
+    <?php
+}
+
+?>
