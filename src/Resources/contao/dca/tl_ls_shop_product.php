@@ -1402,8 +1402,18 @@ class tl_ls_shop_product_controller extends Backend {
 	}
 
 	public function insertAttributeValueAllocationsInAllocationTable($str_value, DataContainer $dc) {
-		ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable(json_decode($str_value), $dc->id, 0);
-		return $str_value;
+
+        $data = json_decode($str_value, true);
+
+        //If an attribute does not exist, remove it so that it is not saved.
+        $data = array_filter($data, function($item) {
+            return !empty($item[1]);
+        });
+
+        ls_shop_generalHelper::insertAttributeValueAllocationsInAllocationTable($data, $dc->id, 0);
+
+        //return array with removed empty attributes
+        return json_encode(array_values($data));
 	}
 
 	public function createLabel ($row, $label) {
