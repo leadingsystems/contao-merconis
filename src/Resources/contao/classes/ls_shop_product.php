@@ -644,7 +644,7 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 
             case '_hasProducerInfoShort':
 
-                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                $obj_article = \Contao\Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
                     ->limit(1)
                     ->execute($this->_producer);
 
@@ -652,7 +652,7 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
                 {
                     $arrProducerInfo = $obj_article->fetchAssoc();
 
-                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                    if(isset($arrProducerInfo['producerInfoShort_'.$objPage->language]) && $arrProducerInfo['producerInfoShort_'.$objPage->language] != ""){
                         return true;
                     }
                 }
@@ -662,7 +662,7 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 
             case '_producerInfoShort':
 
-                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                $obj_article = \Contao\Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
                     ->limit(1)
                     ->execute($this->_producer);
 
@@ -670,8 +670,8 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
                 {
                     $arrProducerInfo = $obj_article->fetchAssoc();
 
-                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
-                        return $arrProducerInfo['description_'.$objPage->language];
+                    if(isset($arrProducerInfo['producerInfoShort_'.$objPage->language]) && $arrProducerInfo['producerInfoShort_'.$objPage->language] != ""){
+                        return $arrProducerInfo['producerInfoShort_'.$objPage->language];
                     }
                 }
 
@@ -681,7 +681,7 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 
             case '_hasProducerInfoExtended':
 
-                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                $obj_article = \Contao\Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
                     ->limit(1)
                     ->execute($this->_producer);
 
@@ -689,10 +689,7 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
                 {
                     $arrProducerInfo = $obj_article->fetchAssoc();
 
-                    if(isset($arrProducerInfo['article']) && $arrProducerInfo['article'] != ""){
-                        return true;
-                    }
-                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
+                    if(isset($arrProducerInfo['producerInfoExtended']) && $arrProducerInfo['producerInfoExtended'] != ""){
                         return true;
                     }
                 }
@@ -702,7 +699,7 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 
             case '_producerInfoExtended':
 
-                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                $obj_article = \Contao\Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
                     ->limit(1)
                     ->execute($this->_producer);
 
@@ -710,12 +707,8 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
                 {
                     $arrProducerInfo = $obj_article->fetchAssoc();
 
-                    if(isset($arrProducerInfo['article']) && $arrProducerInfo['article'] != ""){
-                        return \Controller::getArticle($arrProducerInfo['article'], false, true);
-                    }
-
-                    if(isset($arrProducerInfo['description_'.$objPage->language]) && $arrProducerInfo['description_'.$objPage->language] != ""){
-                        return $arrProducerInfo['description_'.$objPage->language];
+                    if(isset($arrProducerInfo['producerInfoExtended']) && $arrProducerInfo['producerInfoExtended'] != ""){
+                        return \Contao\Controller::getArticle($arrProducerInfo['producerInfoExtended'], false, true);
                     }
                 }
 

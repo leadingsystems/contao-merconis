@@ -1,5 +1,4 @@
 <?php
-
 namespace Merconis\Core;
 
 use Contao\DataContainer;
@@ -135,11 +134,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
 
 
 
-class tl_ls_shop_producer extends \Backend {
+class tl_ls_shop_producer extends \Contao\Backend {
 
     public function saveCallBackSelectProducer($varValue, DataContainer $dc)
     {
-        $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+        $obj_article = \Contao\Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
             ->limit(1)
             ->execute($varValue);
 
