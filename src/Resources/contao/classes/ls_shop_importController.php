@@ -1593,9 +1593,11 @@ class ls_shop_importController
 				}
 				$arrAttributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 				for ($i=1; $i <= ls_shop_productManagementApiHelper::$int_numImportableAttributesAndValues; $i++) {
-					if ($row['property'.$i] && !in_array($row['property'.$i], $arrAttributeAndValueAliases['attributeAliases'])) {
-						return true;
-					}
+                    if (array_key_exists('property'.$i, $row)) {
+                        if ($row['property'.$i] && !in_array($row['property'.$i], $arrAttributeAndValueAliases['attributeAliases'])) {
+                            return true;
+                        }
+                    }
 				}
 				break;
 				
@@ -1608,9 +1610,11 @@ class ls_shop_importController
 				}
 				$arrAttributeAndValueAliases = ls_shop_productManagementApiHelper::getAttributeAndValueAliases();
 				for ($i=1; $i <= ls_shop_productManagementApiHelper::$int_numImportableAttributesAndValues; $i++) {
-					if ($row['property'.$i] && !in_array($row['value'.$i], $arrAttributeAndValueAliases['attributeValueAliases'])) {
-						return true;
-					}
+                    if (array_key_exists('property'.$i, $row)) {
+                        if ($row['property' . $i] && !in_array($row['value' . $i], $arrAttributeAndValueAliases['attributeValueAliases'])) {
+                            return true;
+                        }
+                    }
 				}
 				break;
 				
@@ -1626,7 +1630,9 @@ class ls_shop_importController
 					/*
 					 * Translate the attribute's alias into it's id
 					 */
-					$attributeID = ls_shop_productManagementApiHelper::getAttributeIDForAlias($row['property'.$i]);
+                    if (array_key_exists('property'.$i, $row)) {
+                        $attributeID = ls_shop_productManagementApiHelper::getAttributeIDForAlias($row['property'.$i]);
+                    }
 
 					if (!$attributeID) {
 						/*
