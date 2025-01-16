@@ -4,7 +4,7 @@ namespace Merconis\Core;
 
 use Contao\DataContainer;
 use Contao\DC_Table;
-use Contao\StringUtil;
+use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
 	'config' => array(
@@ -121,11 +121,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['producerInfoExtended'],
             'inputType' => 'picker',
             'relation' => [
-                'table' => 'tl_article',
+                'type' => 'hasOne',
+                'load' => 'lazy',
+                'table' => 'tl_article'
             ],
-            'eval' => array('chosen' => true, 'tl_class' => 'w50', 'maxlength'=>255, 'includeBlankOption' => true),
-            'search' => true,
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'eval' => ['tl_class' => 'clr'],
+            'sql' => [
+                'type' => 'integer',
+                'unsigned' => true,
+                'default' => 0,
+            ],
         ),
 
 	)
@@ -157,28 +162,26 @@ class tl_ls_shop_producer extends \Backend {
         //get all Product producer names from the database and make an array with every unique name
         $objRow = $this->Database->prepare("SELECT DISTINCT lsShopProductProducer FROM tl_ls_shop_product")
             ->execute();
-        $arDBResult = $objRow->fetchAllAssoc();
+        $arrDBProductProducer = $objRow->fetchAllAssoc();
 
         $objRow = $this->Database->prepare("SELECT DISTINCT producer FROM tl_ls_shop_producer")
             ->execute();
-        $arDBResult2 = $objRow->fetchAllAssoc();
+
+        $arrProducer = createOneDimensionalArrayFromTwoDimensionalArray($objRow->fetchAllAssoc());
 
         $arrProductProducerNames = array();
-        foreach ($arDBResult as $result){
-
-            $alreadyExists = false;
-            foreach ($arDBResult2 as $result2){
-                if($result2['producer'] == $result['lsShopProductProducer']) {
-                    $alreadyExists = true;
-                }
+        foreach ($arrDBProductProducer as $productProducer)
+        {
+            if($productProducer['lsShopProductProducer'] === '')
+            {
+                continue;
             }
-            if($alreadyExists){
-                $arrProductProducerNames[$result['lsShopProductProducer']] = $result['lsShopProductProducer']." ".$GLOBALS['TL_LANG']['ERR']['selectProducerExists'];
+            if(in_array($productProducer['lsShopProductProducer'], $arrProducer)){
+                $arrProductProducerNames[$productProducer['lsShopProductProducer']] = $productProducer['lsShopProductProducer']." ".$GLOBALS['TL_LANG']['ERR']['selectProducerExists'];
             }else{
-                $arrProductProducerNames[$result['lsShopProductProducer']] = $result['lsShopProductProducer']."";
+                $arrProductProducerNames[$productProducer['lsShopProductProducer']] = $productProducer['lsShopProductProducer']."";
             }
         }
-
 
         return $arrProductProducerNames;
     }
