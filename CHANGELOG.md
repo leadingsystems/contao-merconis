@@ -4,6 +4,7 @@ Leading Systems Contao Merconis bundle changelog
 ### 5.0.31 (2025-01-17)
  * increase number of importable attributes and values because of MPM v1.64
  * add feature producer information
+ * fix backend-widget attributes-values
 
 ### 5.0.30 (2024-12-20)
  * improvement of the product detail view without active page assignment
