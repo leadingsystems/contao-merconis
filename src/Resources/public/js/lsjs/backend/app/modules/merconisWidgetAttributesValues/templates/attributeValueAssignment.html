@@ -10,7 +10,7 @@ Array.each(
 					arg.__models.config.data.obj_allAttributesAndValues,
 					function(obj_attribute) {
 						?>
-						<option value="<?= obj_attribute.id =?>"<?= (obj_attribute.id == arr_singleAttributeValueAssignment[0] ? 'selected' : '') =?>><?= obj_attribute.label =?></option>
+						<option <?= ( (Array.isArray(obj_attribute.values) && obj_attribute.values.length === 0) ? 'disabled' : '') =?> value="<?= obj_attribute.id =?>"<?= (obj_attribute.id == arr_singleAttributeValueAssignment[0] ? 'selected' : '') =?>><?= obj_attribute.label =?></option>
 						<?
 					}
 				);

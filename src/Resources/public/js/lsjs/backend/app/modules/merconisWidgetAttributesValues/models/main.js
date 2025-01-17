@@ -71,10 +71,34 @@ var obj_classdef_model = {
 	},
 
 	getDefaultRowValue: function() {
+
+		const arr_allAttributesAndValues = this.__models.config.data.obj_allAttributesAndValues;
+
+		//Iterate through the array until a valid attribute with a value is found
+		for (let i = 0; i < arr_allAttributesAndValues.length; i++) {
+
+			let attribute = arr_allAttributesAndValues[i]
+
+			if(attribute.values.length > 0){
+				for (let j = 0; j < attribute.values.length; j++) {
+
+					let value = attribute.values[j]
+					if ( value && value.id !== null && value.id !== undefined) {
+						return [
+							attribute.id,
+							value.id
+						];
+					}
+				}
+			}
+		}
+
+		const firstAttribute = this.__models.config.data.obj_allAttributesAndValues[0];
+
 		return [
-			this.__models.config.data.obj_allAttributesAndValues[0].id,
-			this.__models.config.data.obj_allAttributesAndValues[0].values[0].id
-		]
+			firstAttribute.id,
+			null
+		];
 	},
 
 	addDataRow: function() {
