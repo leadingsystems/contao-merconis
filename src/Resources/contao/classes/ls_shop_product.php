@@ -607,20 +607,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 
             case '_hasProducerInfoShort':
 
-                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
-                    ->limit(1)
-                    ->execute($this->_producer);
-
-                if ($obj_article->numRows > 0 )
-                {
-                    $arrProducerInfo = $obj_article->fetchAssoc();
-
-                    if(isset($arrProducerInfo['producerInfoShort_'.$objPage->language]) && $arrProducerInfo['producerInfoShort_'.$objPage->language] != ""){
-                        return true;
-                    }
-                }
-
-                return false;
+                return $this->_producerInfoShort ? true : false;
                 break;
 
             case '_producerInfoShort':
@@ -644,20 +631,7 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 
             case '_hasProducerInfoExtended':
 
-                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
-                    ->limit(1)
-                    ->execute($this->_producer);
-
-                if ($obj_article->numRows > 0 )
-                {
-                    $arrProducerInfo = $obj_article->fetchAssoc();
-
-                    if(isset($arrProducerInfo['producerInfoExtended']) && $arrProducerInfo['producerInfoExtended'] != ""){
-                        return true;
-                    }
-                }
-
-                return false;
+                return $this->_producerInfoExtended ? true : false;
                 break;
 
             case '_producerInfoExtended':
