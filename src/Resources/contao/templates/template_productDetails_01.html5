@@ -216,17 +216,13 @@ $str_html_productProducerInfo = $this->objProduct->_useCustomTemplate('template_
 
         <div class="wrapper-description">
             <div>
-                <?php // ##### producer-info ###### -> ?>
-                    <?php echo isset($str_html_productProducerInfo) ? $str_html_productProducerInfo : ''; ?>
-                <?php // <- ##### producer-info ###### ?>
-
                 <?php // ##### DESCRIPTION ###### -> ?>
 
                 <div
                     class="description ajax-reload-by-customizer_<?php echo $this->objProduct->_productVariantID; ?> ajax-reload-by-configurator_<?php echo $this->objProduct->_productVariantID; ?> ajaxReloadByVariantSelector_<?php echo $this->objProduct->_id; ?>"
                     id="ajaxReloadByVariantSelector_5_<?php echo $this->objProduct->_id; ?>"
                 >
-                    <p><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></p>
+                    <div class="inside-description"><?php echo $obj_tmp_productOrVariant->_description ?: $this->objProduct->_description; ?></div>
                     <?php
                     if ($obj_tmp_productOrVariant->_hasCustomizer) {
                         ?>
@@ -239,6 +235,10 @@ $str_html_productProducerInfo = $this->objProduct->_useCustomTemplate('template_
                     ?>
                 </div>
                 <?php // <- ##### DESCRIPTION ###### ?>
+
+                <?php // ##### productProducerInfo ###### -> ?>
+                <?php echo isset($str_html_productProducerInfo) ? $str_html_productProducerInfo : ''; ?>
+                <?php // <- ##### productProducerInfo ###### ?>
 
                 <?php // ##### CONFIGURATOR ###### -> ?>
 
