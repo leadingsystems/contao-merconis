@@ -1,9 +1,10 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
-use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
     'config' => array(
@@ -45,38 +46,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
         ),
 
         'global_operations' => array(
-            'all' => array
-            (
-                'label'               => &$GLOBALS['TL_LANG']['MSC']['all'],
-                'href'                => 'act=select',
-                'class'               => 'header_edit_all',
-                'attributes'          => 'onclick="Backend.getScrollOffset();" accesskey="e"'
-            )
+            'all'
         ),
 
         'operations' => array(
-            'edit' => array(
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['edit'],
-                'href'                => 'act=edit',
-                'icon'                => 'edit.svg'
-            ),
-            'copy' => array(
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['copy'],
-                'href'                => 'act=copy',
-                'icon'                => 'copy.svg'
-            ),
-            'delete' => array(
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['delete'],
-                'href'                => 'act=delete',
-                'icon'                => 'delete.svg',
-                'attributes'          => 'onclick="if (!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null) . '\')) return false; Backend.getScrollOffset();"',
-            ),
-            'show' => array(
-                'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['show'],
-                'href'                => 'act=show',
-                'icon'                => 'show.svg'
-            )
-
+            'edit',
+            'copy',
+            'delete',
+            'show'
         )
     ),
 
@@ -120,11 +97,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_producer']['producerInfoExtended'],
             'inputType' => 'picker',
             'relation' => [
-                'table' => 'tl_article',
+                'type' => 'hasOne',
+                'load' => 'lazy',
+                'table' => 'tl_article'
             ],
-            'eval' => array('chosen' => true, 'tl_class' => 'w50', 'maxlength'=>255, 'includeBlankOption' => true),
-            'search' => true,
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'eval' => ['tl_class' => 'clr'],
+            'sql' => [
+                'type' => 'integer',
+                'unsigned' => true,
+                'default' => 0,
+            ],
         ),
 
     )
@@ -134,11 +116,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
 
 
 
-class tl_ls_shop_producer extends \Contao\Backend {
+class tl_ls_shop_producer extends Backend {
 
     public function saveCallBackSelectProducer($varValue, DataContainer $dc)
     {
-        $obj_article = \Contao\Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+        $obj_article = Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
             ->limit(1)
             ->execute($varValue);
 
@@ -151,38 +133,30 @@ class tl_ls_shop_producer extends \Contao\Backend {
         return $varValue;
     }
 
-    public function buttonCallbackSelectProducer()
+    public function buttonCallbackSelectProducer(DataContainer $dc)
     {
-        //get all Product producer names from the database and make an array with every unique name
-        $objRow = $this->Database->prepare("SELECT DISTINCT lsShopProductProducer FROM tl_ls_shop_product")
+        $activeRecord = $dc->activeRecord;
+
+        $arrProductProducerNames = [];
+
+        $dbres_producersWithAlreadyExistsFlag = Database::getInstance()->prepare("
+            SELECT 
+                DISTINCT p.lsShopProductProducer AS producerName, 
+                CASE 
+                    WHEN pr.producer IS NOT NULL THEN 1 
+                    ELSE '' 
+                END AS alreadyExists
+            FROM 
+                tl_ls_shop_product p
+            LEFT JOIN 
+                tl_ls_shop_producer pr ON p.lsShopProductProducer = pr.producer
+            HAVING producerName != ''
+        ")
             ->execute();
-        $arDBResult = $objRow->fetchAllAssoc();
-
-        $objRow = $this->Database->prepare("SELECT DISTINCT producer FROM tl_ls_shop_producer")
-            ->execute();
-        $arDBResult2 = $objRow->fetchAllAssoc();
-
-        $arrProductProducerNames = array();
-        foreach ($arDBResult as $result){
-
-            $alreadyExists = false;
-            foreach ($arDBResult2 as $result2){
-                if($result2['producer'] == $result['lsShopProductProducer']) {
-                    $alreadyExists = true;
-                }
-            }
-            if($alreadyExists){
-                $arrProductProducerNames[$result['lsShopProductProducer']] = $result['lsShopProductProducer']." ".$GLOBALS['TL_LANG']['ERR']['selectProducerExists'];
-            }else{
-                $arrProductProducerNames[$result['lsShopProductProducer']] = $result['lsShopProductProducer']."";
-            }
+        while ($dbres_producersWithAlreadyExistsFlag->next()) {
+            $arrProductProducerNames[$dbres_producersWithAlreadyExistsFlag->producerName] = $dbres_producersWithAlreadyExistsFlag->producerName . ($dbres_producersWithAlreadyExistsFlag->alreadyExists && $activeRecord->producer != $dbres_producersWithAlreadyExistsFlag->producerName ? ' '.$GLOBALS['TL_LANG']['ERR']['selectProducerExists'] : '');
         }
-
 
         return $arrProductProducerNames;
     }
-
-
-
-
 }
