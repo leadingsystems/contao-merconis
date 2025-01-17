@@ -1,6 +1,7 @@
 <?php
 namespace Merconis\Core;
 
+use Contao\Controller;
 use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\Database;
 use Contao\Environment;
@@ -641,6 +642,51 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 			case '_hasShortDescription':
 				return $this->_shortDescription ? true : false;
 				break;
+
+            case '_hasProducerInfoShort':
+                return $this->_producerInfoShort ? true : false;
+                break;
+
+            case '_producerInfoShort':
+
+                $obj_article = Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['producerInfoShort_'.$objPage->language]) && $arrProducerInfo['producerInfoShort_'.$objPage->language] != ""){
+                        return $arrProducerInfo['producerInfoShort_'.$objPage->language];
+                    }
+                }
+
+                return "";
+                break;
+
+
+            case '_hasProducerInfoExtended':
+                return $this->_producerInfoExtended ? true : false;
+                break;
+
+            case '_producerInfoExtended':
+
+                $obj_article = Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['producerInfoExtended']) && $arrProducerInfo['producerInfoExtended'] != ""){
+                        return Controller::getArticle($arrProducerInfo['producerInfoExtended'], false, true);
+                    }
+                }
+
+                return "";
+                break;
 
 			case '_flexContents':
 				$flexContents = $this->currentLanguageData['flex_contents'] ? $this->currentLanguageData['flex_contents'] : $this->mainData['flex_contents'];

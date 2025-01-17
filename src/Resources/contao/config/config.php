@@ -128,7 +128,11 @@ if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendReques
 
 		'ls_shop_messages_sent' => array(
 			'tables' => array('tl_ls_shop_messages_sent'),
-		)
+		),
+
+        'ls_shop_producer' => array(
+            'tables' => array('tl_ls_shop_producer'),
+        )
 	)
 ));
 
