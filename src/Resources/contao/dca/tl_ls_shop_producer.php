@@ -1,10 +1,9 @@
 <?php
-
 namespace Merconis\Core;
 
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
-use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_producer'] = array(
 	'config' => array(
@@ -144,7 +143,7 @@ class tl_ls_shop_producer extends \Backend {
 
     public function saveCallBackSelectProducer($varValue, DataContainer $dc)
     {
-        $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+        $obj_article = Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
             ->limit(1)
             ->execute($varValue);
 
@@ -157,36 +156,30 @@ class tl_ls_shop_producer extends \Backend {
         return $varValue;
     }
 
-    public function buttonCallbackSelectProducer()
+    public function buttonCallbackSelectProducer(DataContainer $dc)
     {
-        //get all Product producer names from the database and make an array with every unique name
-        $objRow = $this->Database->prepare("SELECT DISTINCT lsShopProductProducer FROM tl_ls_shop_product")
+        $activeRecord = $dc->activeRecord;
+
+        $arrProductProducerNames = [];
+
+        $dbres_producersWithAlreadyExistsFlag = Database::getInstance()->prepare("
+            SELECT 
+                DISTINCT p.lsShopProductProducer AS producerName, 
+                CASE 
+                    WHEN pr.producer IS NOT NULL THEN 1 
+                    ELSE '' 
+                END AS alreadyExists
+            FROM 
+                tl_ls_shop_product p
+            LEFT JOIN 
+                tl_ls_shop_producer pr ON p.lsShopProductProducer = pr.producer
+            HAVING producerName != ''
+        ")
             ->execute();
-        $arrDBProductProducer = $objRow->fetchAllAssoc();
-
-        $objRow = $this->Database->prepare("SELECT DISTINCT producer FROM tl_ls_shop_producer")
-            ->execute();
-
-        $arrProducer = createOneDimensionalArrayFromTwoDimensionalArray($objRow->fetchAllAssoc());
-
-        $arrProductProducerNames = array();
-        foreach ($arrDBProductProducer as $productProducer)
-        {
-            if($productProducer['lsShopProductProducer'] === '')
-            {
-                continue;
-            }
-            if(in_array($productProducer['lsShopProductProducer'], $arrProducer)){
-                $arrProductProducerNames[$productProducer['lsShopProductProducer']] = $productProducer['lsShopProductProducer']." ".$GLOBALS['TL_LANG']['ERR']['selectProducerExists'];
-            }else{
-                $arrProductProducerNames[$productProducer['lsShopProductProducer']] = $productProducer['lsShopProductProducer']."";
-            }
+        while ($dbres_producersWithAlreadyExistsFlag->next()) {
+            $arrProductProducerNames[$dbres_producersWithAlreadyExistsFlag->producerName] = $dbres_producersWithAlreadyExistsFlag->producerName . ($dbres_producersWithAlreadyExistsFlag->alreadyExists && $activeRecord->producer != $dbres_producersWithAlreadyExistsFlag->producerName ? ' '.$GLOBALS['TL_LANG']['ERR']['selectProducerExists'] : '');
         }
 
         return $arrProductProducerNames;
     }
-
-
-
-
 }
