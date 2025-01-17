@@ -24,6 +24,7 @@
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_import']				= array('Product import', 'Use the possibility to quickly and comfortably import an extensive product inventory into your online shop.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_message_type']			= array('Message models', 'Manage the models for MERCONIS messages here.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_messages_sent']			= array('Sent messages', 'Here you will find an overview of the messages sent by MERCONIS');
+    $GLOBALS['TL_LANG']['MOD']['ls_shop_producer']			    = array('Producer', 'Here you can enter information on the individual producers.');
 
 	/*
 	 * Frontend-Modules
