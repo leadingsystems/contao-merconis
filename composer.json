@@ -17,14 +17,13 @@
   "require": {
     "php": "^8.1",
     "contao/core-bundle": "^5.3",
-    "leadingsystems/contao-helpers": "^2.1.4",
+    "leadingsystems/contao-helpers": "^3.0.0",
     "leadingsystems/contao-lsjs4c": "^3.0.2",
     "leadingsystems/contao-lscss4c": "^1.0.0",
     "leadingsystems/contao-api": "^2.0.2",
-    "leadingsystems/contao-cajax": "^2.0",
+    "leadingsystems/contao-cajax": "^3.0",
     "leadingsystems/merconis-languageselector": "^3.0",
-    "leadingsystems/contao-datacollector": "^2.0",
-    "leadingsystems/lsce": "^1.0",
+    "leadingsystems/contao-datacollector": "^3.0",
     "paypal/rest-api-sdk-php": "^1.13",
     "tecnickcom/tcpdf": "^6.2.22"
   },
