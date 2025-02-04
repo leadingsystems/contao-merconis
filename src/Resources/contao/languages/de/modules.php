@@ -24,6 +24,8 @@
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_import']				= array('Produkt-Import', 'Nutzen Sie die Möglichkeit, einen umfassenden Produktbestand schnell und komfortabel in den Online-Shop zu importieren.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_message_type']			= array('Nachrichtenvorlagen', 'Verwalten Sie hier die Vorlagen für MERCONIS-Nachrichten.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_messages_sent']			= array('Gesendete Nachrichten', 'Hier erhalten Sie einen Überblick über die von MERCONIS gesendeten Nachrichten.');
+	$GLOBALS['TL_LANG']['MOD']['ls_shop_producer']			    = array('Hersteller', 'Hier können Sie informationen zu den einzelnen Herstellern hinterlegen.');
+
 
 	/*
 	 * Frontend-Modules

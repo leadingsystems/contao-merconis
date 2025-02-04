@@ -605,6 +605,53 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				return $this->_shortDescription ? true : false;
 				break;
 
+            case '_hasProducerInfoShort':
+
+                return $this->_producerInfoShort ? true : false;
+                break;
+
+            case '_producerInfoShort':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['producerInfoShort_'.$objPage->language]) && $arrProducerInfo['producerInfoShort_'.$objPage->language] != ""){
+                        return $arrProducerInfo['producerInfoShort_'.$objPage->language];
+                    }
+                }
+
+                return "";
+                break;
+
+
+            case '_hasProducerInfoExtended':
+
+                return $this->_producerInfoExtended ? true : false;
+                break;
+
+            case '_producerInfoExtended':
+
+                $obj_article = \Database::getInstance()->prepare("SELECT * FROM tl_ls_shop_producer WHERE producer=?")
+                    ->limit(1)
+                    ->execute($this->_producer);
+
+                if ($obj_article->numRows > 0 )
+                {
+                    $arrProducerInfo = $obj_article->fetchAssoc();
+
+                    if(isset($arrProducerInfo['producerInfoExtended']) && $arrProducerInfo['producerInfoExtended'] != ""){
+                        return \Controller::getArticle($arrProducerInfo['producerInfoExtended'], false, true);
+                    }
+                }
+
+                return "";
+                break;
+
 			case '_flexContents':
 				$flexContents = $this->currentLanguageData['flex_contents'] ? $this->currentLanguageData['flex_contents'] : $this->mainData['flex_contents'];
 				if (!$flexContents) {
@@ -2459,4 +2506,5 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
         return $int_deliveryInfoSetID;
     }
+
 }
