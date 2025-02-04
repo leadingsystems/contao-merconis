@@ -144,37 +144,6 @@ use Contao\System;
                 border-bottom: 0;
                 padding: 15px 12px;
             }
-
-            /*Loading Indicator*/
-            @keyframes loadingIndicator-spinner {
-                to {transform: rotate(360deg);}
-            }
-            .moduleContainer.loadingIndicator {
-                display: none;
-            }
-            .moduleContainer.loadingIndicator.show {
-                display: block;
-            }
-            .main.loadingIndicator {
-                position: fixed;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                background-color: rgba(255,255,255,0.5);
-                z-index: 100000;
-                display: flex;
-            }
-            .main.loadingIndicator::before {
-                content: '-----';
-                animation: loadingIndicator-spinner 1.5s linear infinite;
-                color: #000000;
-                font-size: 4rem;
-                margin: auto;
-            }
-            .main.loadingIndicator [data-lsjs-element="loadingText"] {
-                display: none;
-            }
         </style>
 	</head>
 	<body class="__ua__ popup ls_shop_popup">

@@ -5307,7 +5307,7 @@ class ls_shop_generalHelper
 
     public static function merconis_getBackendLsjs($str_content, $str_template)
     {
-        if ($str_template !== 'be_main' && $str_template !== 'be_popup') {
+        if ($str_template !== 'be_main' && $str_template !== 'be_popup' && $str_template !== 'be_productSearch') {
             return $str_content;
         }
 
