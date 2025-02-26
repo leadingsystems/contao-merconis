@@ -1405,6 +1405,9 @@ class tl_ls_shop_product_controller extends Backend {
 
         $data = json_decode($str_value, true);
 
+        //if json_decode returns no valid array, this normally happens if str_value ist empty
+        if(!is_array($str_value)) $data = array();
+
         //If an attribute does not exist, remove it so that it is not saved.
         $data = array_filter($data, function($item) {
             return !empty($item[1]);
