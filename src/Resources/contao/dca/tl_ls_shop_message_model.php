@@ -75,7 +75,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	'subpalettes' => array(
 		'sendToCustomerAddress1' => 'customerDataType1,customerDataField1,sendToCustomerAddress2',
 		'sendToCustomerAddress2' => 'customerDataType2,customerDataField2',
-		'sendToSpecificAddress' => 'specificAddress',
+		'sendToSpecificAddress' => 'specificAddress,mailerTransport,replyToName,replyTo',
 		'useHTML' => 'template_html,content_html',
 		'useRawtext' => 'template_rawtext,content_rawtext'
 	),
@@ -106,6 +106,32 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'rgxp' => 'email', 'maxlength'=>255),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
+
+        'replyTo' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'rgxp' => 'email', 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'replyToName' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyToName'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('tl_class'=>'w50', 'maxlength'=>255),
+            'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'mailerTransport' => array
+        (
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'],
+            'inputType'               => 'select',
+            'options_callback'        => array('contao.mailer.available_transports', 'getTransportOptions'),
+            'eval'                    => array('tl_class'=>'w50', 'includeBlankOption'=>true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
 		
 		'senderName' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderName'],

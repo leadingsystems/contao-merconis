@@ -380,6 +380,26 @@ class ls_shop_orderMessages
 			if ($arrMessageToSendAndSave['receiverBccAddress']) {
 				$objEmail->sendBcc($arrMessageToSendAndSave['receiverBccAddress']);
 			}
+
+
+            if(!empty($arrMessageModel['sendToSpecificAddress'])) {
+                // Get the "reply to" address
+                if (!empty($arrMessageModel['replyTo'])) {
+                    $replyTo = $arrMessageModel['replyTo'];
+
+                    // Add the name
+                    if (!empty($arrMessageModel['replyToName'])) {
+                        $replyTo = '"' . $arrMessageModel['replyToName'] . '" <' . $replyTo . '>';
+                    }
+
+                    $objEmail->replyTo($replyTo);
+                }
+
+                // Set the transport
+                if (!empty($arrMessageModel['mailerTransport'])) {
+                    $objEmail->addHeader('X-Transport', $arrMessageModel['mailerTransport']);
+                }
+            }
 			
 			try {
 				$objEmail->sendTo($arrMessageToSendAndSave['receiverMainAddress']);

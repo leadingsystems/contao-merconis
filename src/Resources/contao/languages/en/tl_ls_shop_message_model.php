@@ -21,7 +21,11 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['subject'] = array('Subject');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderName'] = array('Sender name');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderAddress'] = array('Sender address');
-	
+
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'] = array('Reply-To');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'] = array('Mailer Transport');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyToName'] = array('Reply-To-Name');
+
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToCustomerAddress1'] = array('Customer address', 'Please activate this checkbox if this message shall be sent to an e-mail address of the customer that was stored with the order. Ideally, the input field for this should be a mandatory field because, otherwise, the message cannot be sent.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToCustomerAddress2'] = array('Alternative customer address', 'Please activate this checkbox if this message shall be sent to a different e-mail address of the customer that was stored with the order. If the customer has not entered an address in the respective input field, the message will be sent to the address that was defined in the field above by default.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType'] = array('Type of customer data input field', 'Select the form to which this input field belongs.');

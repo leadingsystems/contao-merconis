@@ -21,7 +21,11 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['subject'] = array('Betreff');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderName'] = array('Absender-Name');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderAddress'] = array('Absender-Adresse');
-	
+
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'] = array('Antwort an');
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'] = array('Mailer-Transport');
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyToName'] = array('Antwort an Name');
+
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToCustomerAddress1'] = array('Kunden-Adresse', 'Bitte aktivieren Sie diese Checkbox, wenn diese Nachricht an eine der Bestellung hinterlegte E-Mail-Adresse des Kunden gesendet werden soll. Das hierfür angegebene Eingabefeld sollte idealerweise ein Pflichtfeld sein, da die Nachricht ansonsten nicht versandt werden kann.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToCustomerAddress2'] = array('Alternative Kunden-Adresse', 'Bitte aktivieren Sie diese Checkbox, wenn diese Nachricht an eine andere der Bestellung hinterlegte E-Mail-Adresse des Kunden gesendet werden soll. Sofern der Kunde in dem hierfür angegebenen Eingabefeld keine Adresse angegeben hat, wird standardmäß an die im weiter oben definierten Feld angegebene Adresse versandt.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType'] = array('Art des Kundendaten-Eingabefelds', 'Wählen Sie hier, zu welchem Formular das Eingabefeld gehört.');
