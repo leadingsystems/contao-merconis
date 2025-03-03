@@ -382,7 +382,7 @@ class ls_shop_orderMessages
 			}
 
 
-            if(!empty($arrMessageModel['sendToSpecificAddress'])) {
+            if(!empty($arrMessageModel['sendWithMailerTransport'])) {
                 // Get the "reply to" address
                 if (!empty($arrMessageModel['replyTo'])) {
                     $replyTo = $arrMessageModel['replyTo'];

@@ -46,7 +46,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	),
 	
 	'palettes' => array(
-		'__selector__' => array('sendToCustomerAddress1', 'sendToCustomerAddress2', 'sendToSpecificAddress', 'useHTML', 'useRawtext'),
+		'__selector__' => array('sendToCustomerAddress1', 'sendToCustomerAddress2', 'sendToSpecificAddress', 'sendWithMailerTransport', 'useHTML', 'useRawtext'),
 		'default' => '
 			{group_legend},
 			member_group;
@@ -57,6 +57,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			{receiver_legend},
 			sendToCustomerAddress1,
 			sendToSpecificAddress,
+			sendWithMailerTransport,
 			sendToMemberAddress;
 			{content_legend},
 			useHTML,
@@ -75,7 +76,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	'subpalettes' => array(
 		'sendToCustomerAddress1' => 'customerDataType1,customerDataField1,sendToCustomerAddress2',
 		'sendToCustomerAddress2' => 'customerDataType2,customerDataField2',
-		'sendToSpecificAddress' => 'specificAddress,mailerTransport,replyToName,replyTo',
+		'sendToSpecificAddress' => 'specificAddress',
+		'sendWithMailerTransport' => 'replyToName,replyTo,mailerTransport',
 		'useHTML' => 'template_html,content_html',
 		'useRawtext' => 'template_rawtext,content_rawtext'
 	),
@@ -214,6 +216,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 		
 		'sendToSpecificAddress' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToSpecificAddress'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+        'sendWithMailerTransport' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendWithMailerTransport'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
