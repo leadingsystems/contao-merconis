@@ -7,8 +7,6 @@
     var obj_classdef = {
         els_allFormFields: null,
 
-        el_checkbox_useDeviantShippingAddress: null,
-
         start: function() {
             this.registerElements(this.__el_container, 'main');
             this.initializeFunctionality();

@@ -187,7 +187,6 @@ var obj_classdef = 	{
         /*
          * Don't hide anything if there are no important options
          */
-
         if (typeOf(this.__autoElements.main.optionsBox_filterOption) === "elements") {
             var arr_importantOptions = this.__autoElements.main.optionsBox_filterOption.filter('.important');
             if (arr_importantOptions.length <= 0) {

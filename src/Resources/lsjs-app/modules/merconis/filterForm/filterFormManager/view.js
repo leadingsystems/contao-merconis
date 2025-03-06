@@ -226,6 +226,9 @@ var obj_classdef = 	{
             }.bind(this));
         }
 
+        /*
+         * This section is required to be backvalue-compatible with the templates template_formPriceFilterField_...
+         */
         if (this.__autoElements.main.filterPriceBox !== undefined) {
             Array.each(this.__autoElements.main.filterPriceBox, function(el_filterPriceBox) {
                 this.obj_filterOptionsBoxes[el_filterPriceBox.getProperty('data-lsjs-filter-section-id')] = lsjs.createModule({

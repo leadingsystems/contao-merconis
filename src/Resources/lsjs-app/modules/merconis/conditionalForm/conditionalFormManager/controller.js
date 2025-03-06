@@ -3,7 +3,6 @@
  *
  * To activate this module, the following code has to be put in the app.js:
  *
- * //rename customerDataFormManager to conditionalFormManager
      lsjs.__moduleHelpers.conditionalFormManager.start({
          el_domReference: el_domReference
      });
@@ -14,26 +13,17 @@
  *
  * -- FUNCTIONALITY AND USAGE: --
  *
- * This module's purpose is to hide or show the customer data form fields for the deviant shipping address considering
- * whether or not a checkbox, which indicates whether or not a deviant shipping address should be used, is activated.
+ * This module's purpose is to dynamically control whether a form field should be displayed or hidden or whether it
+ * should be mandatory based on another field's value. In Merconis it is by default being used to display all fields
+ * for a deviant shipping address only when a checkbox, indicating that a deviant shipping address should be used,
+ * is checked and to only display select fields which offer provinces only when in another select field a country where
+ * provinces are relevant, is selected.
  *
  * Add the following attribute to a DOM element to apply this module:
  * data-lsjs-component="conditionalForm"
  *
- * The customer data form has to have a checkbox field with the field name "useDeviantShippingAddress". This checkbox
- * is the one that this module checks when determining whether the deviant shipping address should be used or not.
- *
- * This module also needs to identify all form fields that should be hidden if the above mentioned checkbox is not activated
- * and therefore it requires a DOM element with the following attribute as a container for all those form fields:
- *
- * data-lsjs-element="deviantShippingAddress"
- *
- * In the contao form generator we can add a form element of the type "html code" with the following code before all
- * the deviant shipping address form fields to achieve this
- *
- * <div data-lsjs-element="deviantShippingAddress">
- *
- * Of course, we also need to add another form element of the type "html code" after all those form fields, containing the closing tag.
+ * In the Contao backend Merconis adds specific controls to configure form fields to be visible or mandatory based
+ * on other fields.
  *
  */
 

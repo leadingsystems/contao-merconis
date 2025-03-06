@@ -212,25 +212,24 @@
                 /* ->
                  * reinitialize mediabox
                  */
-                el_domReference.getElements('a[data-lightbox]').mediabox({
-                        // Put custom options here
-                    },
-                    function(el) {
-                        return [el.href, el.title, el.getAttribute('data-lightbox')];
-                    },
-                    function(el) {
-                        var data = this.getAttribute('data-lightbox').split(' ');
-                        return (this == el) || (data[0] && el.getAttribute('data-lightbox').match(data[0]));
-                    });
+                if (typeof el_domReference.getElements('a[data-lightbox]').mediabox === "function") {
+                    el_domReference.getElements('a[data-lightbox]').mediabox({
+                            // Put custom options here
+                        },
+                        function (el) {
+                            return [el.href, el.title, el.getAttribute('data-lightbox')];
+                        },
+                        function (el) {
+                            var data = this.getAttribute('data-lightbox').split(' ');
+                            return (this == el) || (data[0] && el.getAttribute('data-lightbox').match(data[0]));
+                        });
+                }
                 /*
                  * <-
                  */
 
-                //auskommentiert
-                //lsjs.__moduleHelpers.customerDataFormManager.start({el_domReference: el_domReference});
-                //new anfang
                 lsjs.__moduleHelpers.conditionalFormManager.start({el_domReference: el_domReference});
-                //new ende
+
                 lsjs.__moduleHelpers.formReviewerManager.start({el_domReference: el_domReference});
 
                 lsjs.__moduleHelpers.statusTogglerManager.start({el_domReference: el_domReference});
