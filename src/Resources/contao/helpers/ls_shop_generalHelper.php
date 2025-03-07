@@ -4794,18 +4794,13 @@ class ls_shop_generalHelper
 
     public static function ls_shop_loadThemeLanguageFiles($filename, $language)
     {
-        $themesPath = 'files/merconisfiles/theme';
-        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath) || !is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath)) {
+        $themePath = 'files/merconisfiles/theme';
+        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themePath) || !is_dir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themePath)) {
             return;
         }
-        $themeFolders = array_diff(scandir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $themesPath), array('.', '..'));
-        if (is_array($themeFolders)) {
-            foreach ($themeFolders as $themeFolder) {
-                $languageFileToLoad = $themesPath . '/' . $themeFolder . '/languages/' . $language . '/' . $filename . '.php';
-                if (file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad)) {
-                    include(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad);
-                }
-            }
+        $languageFileToLoad = $themePath . '/languages/' . $language . '/' . $filename . '.php';
+        if (file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad)) {
+            include(System::getContainer()->getParameter('kernel.project_dir') . '/' . $languageFileToLoad);
         }
     }
 
