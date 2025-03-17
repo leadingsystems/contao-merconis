@@ -46,7 +46,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	),
 	
 	'palettes' => array(
-		'__selector__' => array('sendToCustomerAddress1', 'sendToCustomerAddress2', 'sendToSpecificAddress', 'sendWithMailerTransport', 'useHTML', 'useRawtext'),
+		'__selector__' => array('sendToCustomerAddress1', 'sendToCustomerAddress2', 'sendToSpecificAddress', 'useHTML', 'useRawtext'),
 		'default' => '
 			{group_legend},
 			member_group;
@@ -55,7 +55,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			senderName,
 			subject;
 			{mailertransport_legend:hide},
-			sendWithMailerTransport;
+			mailerTransport,
+			replyTo,
+			replyToName;
 			{receiver_legend},
 			sendToCustomerAddress1,
 			sendToSpecificAddress,
@@ -78,7 +80,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 		'sendToCustomerAddress1' => 'customerDataType1,customerDataField1,sendToCustomerAddress2',
 		'sendToCustomerAddress2' => 'customerDataType2,customerDataField2',
 		'sendToSpecificAddress' => 'specificAddress',
-		'sendWithMailerTransport' => 'mailerTransport,replyTo,replyToName',
 		'useHTML' => 'template_html,content_html',
 		'useRawtext' => 'template_rawtext,content_rawtext'
 	),

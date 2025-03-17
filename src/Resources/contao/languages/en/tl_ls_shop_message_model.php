@@ -22,9 +22,8 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderName'] = array('Sender name');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderAddress'] = array('Sender address');
 
-    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendWithMailerTransport'] = array('Overwrite mailer transporter', 'Set a mailer transporter via which these messages are to be sent.');
     $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'] = array('Mailer Transport', 'Here you can overwrite the mailer transport that is used to send the message template by e-mail.');
-    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'] = array('Reply address', 'Here you can enter the reply-to address to which replies to these messages should be sent.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'] = array('Reply address', 'Here you can enter a reply-to address to which replies to these messages should be sent.');
     $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyToName'] = array('Name of the reply address', 'Set a name here to be displayed instead of the sender e-mail address.');
 
 
@@ -55,7 +54,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['attachments_legend']   = 'Attachments';
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['published_legend']   = 'Activation';
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['expert_legend']     = 'Expert settings';
-    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailertransport_legend'] = 'Mailer transport';
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailertransport_legend'] = 'Mailer transport and reply address';
 	
 	/*
 	 * Reference
