@@ -381,24 +381,21 @@ class ls_shop_orderMessages
 				$objEmail->sendBcc($arrMessageToSendAndSave['receiverBccAddress']);
 			}
 
-
-            if(!empty($arrMessageModel['sendWithMailerTransport'])) {
-                // Get the "reply to" address
-                if (!empty($arrMessageModel['replyTo'])) {
-                    $replyTo = $arrMessageModel['replyTo'];
-
-                    // Add the name
-                    if (!empty($arrMessageModel['replyToName'])) {
-                        $replyTo = '"' . $arrMessageModel['replyToName'] . '" <' . $replyTo . '>';
-                    }
-
-                    $objEmail->replyTo($replyTo);
-                }
-
+            if(!empty($arrMessageModel['mailerTransport'])) {
                 // Set the transport
-                if (!empty($arrMessageModel['mailerTransport'])) {
-                    $objEmail->addHeader('X-Transport', $arrMessageModel['mailerTransport']);
+                $objEmail->addHeader('X-Transport', $arrMessageModel['mailerTransport']);
+            }
+
+            // Get the "reply to" address
+            if (!empty($arrMessageModel['replyTo'])) {
+                $replyTo = $arrMessageModel['replyTo'];
+
+                // Add the name
+                if (!empty($arrMessageModel['replyToName'])) {
+                    $replyTo = '"' . $arrMessageModel['replyToName'] . '" <' . $replyTo . '>';
                 }
+
+                $objEmail->replyTo($replyTo);
             }
 			
 			try {
