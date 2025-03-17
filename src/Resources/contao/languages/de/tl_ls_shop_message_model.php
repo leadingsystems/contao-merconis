@@ -22,16 +22,16 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderName'] = array('Absender-Name');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderAddress'] = array('Absender-Adresse');
 
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'] = array('Antwort an', 'Setze hier die e-mail an die geantwortet wird');
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'] = array('Mailer-Transport', 'Hier können Sie den Mailer-Transport überschreiben, der für den Versand des Formulars per E-Mail verwendet wird.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyToName'] = array('Antwort an Name', 'Setze hier den Namen der bei der e-mail an die geantwortet wird dabei steht');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendWithMailerTransport'] = array('Mailer-Transporter überschreiben', 'Setze Sie einen Mailer-Transporter über den diese Nachrichten versendet werden sollen.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'] = array('Mailer-Transport', 'Hier können Sie den Mailer-Transport überschreiben, der für den Versand der Nachrichtenvorlage per E-Mail verwendet wird.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'] = array('Antwort-Adresse', 'Hier können Sie Antwort-Adresse (Reply-to-Adresse) hinterlegen, an die die Antworten auf diese Nachrichten gesendet werden soll.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyToName'] = array('Name der Antwort-Adresse', 'Setze hier einen Namen, der anstelle der Absender-E-Mail-Adresse angezeigt werden soll.');
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToCustomerAddress1'] = array('Kunden-Adresse', 'Bitte aktivieren Sie diese Checkbox, wenn diese Nachricht an eine der Bestellung hinterlegte E-Mail-Adresse des Kunden gesendet werden soll. Das hierfür angegebene Eingabefeld sollte idealerweise ein Pflichtfeld sein, da die Nachricht ansonsten nicht versandt werden kann.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToCustomerAddress2'] = array('Alternative Kunden-Adresse', 'Bitte aktivieren Sie diese Checkbox, wenn diese Nachricht an eine andere der Bestellung hinterlegte E-Mail-Adresse des Kunden gesendet werden soll. Sofern der Kunde in dem hierfür angegebenen Eingabefeld keine Adresse angegeben hat, wird standardmäß an die im weiter oben definierten Feld angegebene Adresse versandt.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType'] = array('Art des Kundendaten-Eingabefelds', 'Wählen Sie hier, zu welchem Formular das Eingabefeld gehört.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataField'] = array('Name des Kundendaten-Eingabefelds', 'Geben Sie hier den Namen des Eingabefeldes, welches die E-Mail-Adresse enthält, an.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToSpecificAddress'] = array('Spezielle Adresse', 'Bitte aktivieren Sie diese Checkbox, wenn diese Nachricht an eine spezielle hier fest hinterlegte Adresse gesendet werden soll. Dies ist z. B. für eine Bestellbenachrichtigung Ihre eigene E-Mail-Adresse sinnvoll. Sofern Sie auch den Versand an eine Kunden-Adresse aktiviert haben, wird die hier angegebene Adresse als BCC verwendet.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendWithMailerTransport'] = array('Mailer-Transporter', 'Setze einen Mailer-Transporter über die diese e-mails versendet werden sollen');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['specificAddress'] = array('Spezielle Empfängeradresse');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToMemberAddress'] = array('Mitglieder-Adresse', 'Bitte aktivieren Sie diese Checkbox, wenn die Nachricht an die E-Mail-Adresse des Mitglieds versendet werden soll. Diese Option ist nur im Zusammenhang mit Wiederverfügbarkeitsbenachrichtigungen nutzbar.');
 
@@ -54,6 +54,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['attachments_legend']   = 'Anhänge';
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['published_legend']   = 'Aktivierung';
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['expert_legend']     = 'Experten-Einstellungen';
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailertransport_legend'] = 'Mailer-Transport';
 	
 	/*
 	 * Reference

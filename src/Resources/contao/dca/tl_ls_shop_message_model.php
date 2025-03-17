@@ -54,10 +54,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			senderAddress,
 			senderName,
 			subject;
+			{mailertransport_legend:hide},
+			sendWithMailerTransport;
 			{receiver_legend},
 			sendToCustomerAddress1,
 			sendToSpecificAddress,
-			sendWithMailerTransport,
 			sendToMemberAddress;
 			{content_legend},
 			useHTML,
@@ -77,7 +78,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 		'sendToCustomerAddress1' => 'customerDataType1,customerDataField1,sendToCustomerAddress2',
 		'sendToCustomerAddress2' => 'customerDataType2,customerDataField2',
 		'sendToSpecificAddress' => 'specificAddress',
-		'sendWithMailerTransport' => 'replyToName,replyTo,mailerTransport',
+		'sendWithMailerTransport' => 'mailerTransport,replyTo,replyToName',
 		'useHTML' => 'template_html,content_html',
 		'useRawtext' => 'template_rawtext,content_rawtext'
 	),
@@ -109,11 +110,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
+        'mailerTransport' => array
+        (
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'],
+            'inputType'               => 'select',
+            'options_callback'        => array('contao.mailer.available_transports', 'getTransportOptions'),
+            'eval'                    => array('tl_class'=>'w50', 'includeBlankOption'=>true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
         'replyTo' => array(
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'],
             'exclude' => true,
             'inputType' => 'text',
-            'eval' => array('tl_class' => 'w50', 'rgxp' => 'email', 'maxlength'=>255),
+            'eval' => array('tl_class' => 'w50 clr', 'rgxp' => 'email', 'maxlength'=>255),
             'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
@@ -126,15 +136,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
             'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
-        'mailerTransport' => array
-        (
-            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'],
-            'inputType'               => 'select',
-            'options_callback'        => array('contao.mailer.available_transports', 'getTransportOptions'),
-            'eval'                    => array('tl_class'=>'w50', 'includeBlankOption'=>true),
-            'sql'                     => "varchar(255) NOT NULL default ''"
-        ),
-		
 		'senderName' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderName'],
 			'exclude' => true,

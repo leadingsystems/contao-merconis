@@ -22,9 +22,10 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderName'] = array('Sender name');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderAddress'] = array('Sender address');
 
-    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'] = array('Reply To', 'Set the email address to which replies should be sent.');
-    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'] = array('Mailer Transport', 'Here you can override the mailer transport used to send the form via email.');
-    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyToName'] = array('Reply To Name', 'Set the name that appears alongside the reply-to email address.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendWithMailerTransport'] = array('Overwrite mailer transporter', 'Set a mailer transporter via which these messages are to be sent.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'] = array('Mailer Transport', 'Here you can overwrite the mailer transport that is used to send the message template by e-mail.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'] = array('Reply address', 'Here you can enter the reply-to address to which replies to these messages should be sent.');
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyToName'] = array('Name of the reply address', 'Set a name here to be displayed instead of the sender e-mail address.');
 
 
     $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToCustomerAddress1'] = array('Customer address', 'Please activate this checkbox if this message shall be sent to an e-mail address of the customer that was stored with the order. Ideally, the input field for this should be a mandatory field because, otherwise, the message cannot be sent.');
@@ -32,7 +33,6 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType'] = array('Type of customer data input field', 'Select the form to which this input field belongs.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataField'] = array('Name of customer data input field', 'Enter the name of the input field that contains the e-mail address here.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToSpecificAddress'] = array('Special address', 'Please activate this checkbox if this message shall be sent to a special address that has been permanently stored here. If it is, for example, an order notification, it makes sense to indicate your own e-mail address. Should you also have activated the option to send a message to a customer address, then the address indicated here will be used as BCC.');
-    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendWithMailerTransport'] = array('Mailer transport', 'Set a mailer transport through which these emails should be sent');
     $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['specificAddress'] = array('Special receiving address');
     $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToMemberAddress'] = array('Member address', 'Please activate this checkbox if the message should be sent to the member\'s e-mail address. This option can only be used in connection with notifications about renewed availibility.');
 	
@@ -55,6 +55,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['attachments_legend']   = 'Attachments';
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['published_legend']   = 'Activation';
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['expert_legend']     = 'Expert settings';
+    $GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailertransport_legend'] = 'Mailer transport';
 	
 	/*
 	 * Reference
