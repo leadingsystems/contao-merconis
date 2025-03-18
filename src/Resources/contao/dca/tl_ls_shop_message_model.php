@@ -54,6 +54,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			senderAddress,
 			senderName,
 			subject;
+			{mailertransport_legend:hide},
+			mailerTransport,
+			replyTo,
+			replyToName;
 			{receiver_legend},
 			sendToCustomerAddress1,
 			sendToSpecificAddress,
@@ -106,7 +110,33 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50', 'rgxp' => 'email', 'maxlength'=>255),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
-		
+
+        'mailerTransport' => array
+        (
+            'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['mailerTransport'],
+            'inputType'               => 'select',
+            'options_callback'        => array('contao.mailer.available_transports', 'getTransportOptions'),
+            'eval'                    => array('tl_class'=>'w50', 'includeBlankOption'=>true),
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'replyTo' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyTo'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50 clr', 'rgxp' => 'email', 'maxlength'=>255),
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'replyToName' => array(
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['replyToName'],
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => array('tl_class'=>'w50', 'maxlength'=>255),
+            'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
 		'senderName' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['senderName'],
 			'exclude' => true,
@@ -188,6 +218,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 		
 		'sendToSpecificAddress' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendToSpecificAddress'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
+			'filter'				  => true,
+            'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+        'sendWithMailerTransport' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['sendWithMailerTransport'],
 			'exclude'                 => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr', 'submitOnChange' => true),
