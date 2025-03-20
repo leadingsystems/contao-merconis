@@ -4964,6 +4964,7 @@ class ls_shop_generalHelper
             $obj_flexWidget_inputQuantity = new FlexWidget(
                 array(
                     'str_uniqueName' => 'quantity_' . $productID . '-' . $variantID,
+                    'bln_multipleWidgetsWithSameNameAllowed' => true,
                     'str_template' => 'ls_flexWidget_defaultNumber',
                     'arr_validationFunctions' => array(
                         array(
