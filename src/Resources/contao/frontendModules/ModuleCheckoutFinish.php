@@ -61,24 +61,41 @@ class ModuleCheckoutFinish extends Module {
 			 * und der Bestellabschluss abgebrochen und mit einer entsprechenden Meldung wieder auf die Checkout-Seite
 			 * geleitet.
 			 */
+
+			$tlCurrent = [
+				'tl_files' => 'READ',
+				'tl_layout' => 'READ',
+				'tl_form' => 'READ',
+				'tl_form_field' => 'READ',
+				'tl_ls_shop_configurator' => 'READ',
+				'tl_page' => 'READ',
+				'tl_ls_shop_coupon' => 'WRITE',
+				'tl_ls_shop_product' => 'WRITE',
+				'tl_ls_shop_variant' => 'WRITE',
+				'tl_ls_shop_delivery_info' => 'READ',
+				'tl_ls_shop_steuersaetze' => 'READ',
+				'tl_ls_shop_attributes' => 'READ',
+				'tl_ls_shop_attribute_values' => 'READ',
+			];
+
+			// HOOK: lock tables in checkout
+			if (isset($GLOBALS['TL_HOOKS']['lockTablesInCheckout']) && is_array($GLOBALS['TL_HOOKS']['lockTablesInCheckout'])) {
+				foreach ($GLOBALS['TL_HOOKS']['lockTablesInCheckout'] as $callback) {
+					$arr_tlToAdd = System::importStatic($callback[0])->{$callback[1]}($this);
+					$tlCurrent = array_merge($tlCurrent, $arr_tlToAdd);
+				}
+			}
+
 			$useTableLock = true;
 			if ($useTableLock) {
-				Database::getInstance()->prepare("
-					LOCK TABLES
-									`tl_files` READ,
-									`tl_layout` READ,
-									`tl_form` READ,
-									`tl_form_field` READ,
-									`tl_ls_shop_configurator` READ,
-									`tl_page` READ,
-									`tl_ls_shop_coupon` WRITE,
-									`tl_ls_shop_product` WRITE,
-									`tl_ls_shop_variant` WRITE,
-									`tl_ls_shop_delivery_info` READ,
-									`tl_ls_shop_steuersaetze` READ,
-									`tl_ls_shop_attributes` READ,
-									`tl_ls_shop_attribute_values` READ
-				")->execute();
+				$lockStatements = [];
+				foreach ($tlCurrent as $table => $lockType) {
+					$lockStatements[] = "`$table` $lockType";
+				}
+
+				$lockQuery = "LOCK TABLES " . implode(", ", $lockStatements);
+
+				Database::getInstance()->prepare($lockQuery)->execute();
 			}
 			
 			$cartPositionsStockSufficient = ls_shop_cartHelper::checkCartPositionsStockSufficient();
