@@ -88,14 +88,7 @@ class ModuleCheckoutFinish extends Module {
 
 			$useTableLock = true;
 			if ($useTableLock) {
-				$lockStatements = [];
-				foreach ($tlCurrent as $table => $lockType) {
-					$lockStatements[] = "`$table` $lockType";
-				}
-
-				$lockQuery = "LOCK TABLES " . implode(", ", $lockStatements);
-
-				Database::getInstance()->prepare($lockQuery)->execute();
+				Database::getInstance()->lockTables($tlCurrent);
 			}
 			
 			$cartPositionsStockSufficient = ls_shop_cartHelper::checkCartPositionsStockSufficient();
