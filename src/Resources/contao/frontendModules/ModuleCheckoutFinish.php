@@ -79,8 +79,8 @@ class ModuleCheckoutFinish extends Module {
 			];
 
 			// HOOK: lock tables in checkout
-			if (isset($GLOBALS['TL_HOOKS']['lockTablesInCheckout']) && is_array($GLOBALS['TL_HOOKS']['lockTablesInCheckout'])) {
-				foreach ($GLOBALS['TL_HOOKS']['lockTablesInCheckout'] as $callback) {
+			if (isset($GLOBALS['MERCONIS_HOOKS']['lockTablesInCheckout']) && is_array($GLOBALS['MERCONIS_HOOKS']['lockTablesInCheckout'])) {
+				foreach ($GLOBALS['MERCONIS_HOOKS']['lockTablesInCheckout'] as $callback) {
 					$arr_tlToAdd = System::importStatic($callback[0])->{$callback[1]}($this);
 					$tlCurrent = array_merge($tlCurrent, $arr_tlToAdd);
 				}
@@ -112,7 +112,7 @@ class ModuleCheckoutFinish extends Module {
 				 * Lagerbestand für mindestens eine Position nicht ausreichend, daher Bestellabschluss abbrechen und zurück zur Checkout-Seite
 				 */
 				if ($useTableLock) {
-					Database::getInstance()->prepare("UNLOCK TABLES")->execute();
+					Database::getInstance()->unlockTables();
 				}
 				ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
 				$urlCart = $GLOBALS['merconis_globals']['ls_shop_cartPagesUrl'];
@@ -145,7 +145,7 @@ class ModuleCheckoutFinish extends Module {
 			}
 			
 			if ($useTableLock) {
-				Database::getInstance()->prepare("UNLOCK TABLES")->execute();
+				Database::getInstance()->unlockTables();
 			}
 			/*
 			 * Ende Verfügbarkeitsprüfung
@@ -331,7 +331,7 @@ class ModuleCheckoutFinish extends Module {
 		$this->Config->update("\$GLOBALS['TL_CONFIG']['ls_shop_orderNrCounter']", $nextCounter);
 		$this->Config->save();
 		if ($useTableLock) {
-			Database::getInstance()->prepare("UNLOCK TABLES")->execute();
+			Database::getInstance()->unlockTables();
 		}
 		
 		/*
