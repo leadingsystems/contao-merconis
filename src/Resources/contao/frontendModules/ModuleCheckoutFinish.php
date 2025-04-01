@@ -61,24 +61,34 @@ class ModuleCheckoutFinish extends Module {
 			 * und der Bestellabschluss abgebrochen und mit einer entsprechenden Meldung wieder auf die Checkout-Seite
 			 * geleitet.
 			 */
+
+			$tlCurrent = [
+				'tl_files' => 'READ',
+				'tl_layout' => 'READ',
+				'tl_form' => 'READ',
+				'tl_form_field' => 'READ',
+				'tl_ls_shop_configurator' => 'READ',
+				'tl_page' => 'READ',
+				'tl_ls_shop_coupon' => 'WRITE',
+				'tl_ls_shop_product' => 'WRITE',
+				'tl_ls_shop_variant' => 'WRITE',
+				'tl_ls_shop_delivery_info' => 'READ',
+				'tl_ls_shop_steuersaetze' => 'READ',
+				'tl_ls_shop_attributes' => 'READ',
+				'tl_ls_shop_attribute_values' => 'READ',
+			];
+
+			// HOOK: lock tables in checkout
+			if (isset($GLOBALS['MERCONIS_HOOKS']['lockTablesInCheckout']) && is_array($GLOBALS['MERCONIS_HOOKS']['lockTablesInCheckout'])) {
+				foreach ($GLOBALS['MERCONIS_HOOKS']['lockTablesInCheckout'] as $callback) {
+					$arr_tlToAdd = System::importStatic($callback[0])->{$callback[1]}($this);
+					$tlCurrent = array_merge($tlCurrent, $arr_tlToAdd);
+				}
+			}
+
 			$useTableLock = true;
 			if ($useTableLock) {
-				Database::getInstance()->prepare("
-					LOCK TABLES
-									`tl_files` READ,
-									`tl_layout` READ,
-									`tl_form` READ,
-									`tl_form_field` READ,
-									`tl_ls_shop_configurator` READ,
-									`tl_page` READ,
-									`tl_ls_shop_coupon` WRITE,
-									`tl_ls_shop_product` WRITE,
-									`tl_ls_shop_variant` WRITE,
-									`tl_ls_shop_delivery_info` READ,
-									`tl_ls_shop_steuersaetze` READ,
-									`tl_ls_shop_attributes` READ,
-									`tl_ls_shop_attribute_values` READ
-				")->execute();
+				Database::getInstance()->lockTables($tlCurrent);
 			}
 			
 			$cartPositionsStockSufficient = ls_shop_cartHelper::checkCartPositionsStockSufficient();
@@ -102,7 +112,7 @@ class ModuleCheckoutFinish extends Module {
 				 * Lagerbestand für mindestens eine Position nicht ausreichend, daher Bestellabschluss abbrechen und zurück zur Checkout-Seite
 				 */
 				if ($useTableLock) {
-					Database::getInstance()->prepare("UNLOCK TABLES")->execute();
+					Database::getInstance()->unlockTables();
 				}
 				ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
 				$urlCart = $GLOBALS['merconis_globals']['ls_shop_cartPagesUrl'];
@@ -135,7 +145,7 @@ class ModuleCheckoutFinish extends Module {
 			}
 			
 			if ($useTableLock) {
-				Database::getInstance()->prepare("UNLOCK TABLES")->execute();
+				Database::getInstance()->unlockTables();
 			}
 			/*
 			 * Ende Verfügbarkeitsprüfung
@@ -321,7 +331,7 @@ class ModuleCheckoutFinish extends Module {
 		$this->Config->update("\$GLOBALS['TL_CONFIG']['ls_shop_orderNrCounter']", $nextCounter);
 		$this->Config->save();
 		if ($useTableLock) {
-			Database::getInstance()->prepare("UNLOCK TABLES")->execute();
+			Database::getInstance()->unlockTables();
 		}
 		
 		/*
