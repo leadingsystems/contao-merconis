@@ -935,6 +935,7 @@ class ls_shop_checkoutData {
 		 * if a payment or shipping error occured earlier. This way we prevent the endless recursion that would
 		 * take place if the method that just threw the error would be selected again instantly.
 		 */
+        $session_lsShop =  $session->get('lsShop', []);
         if (isset($session_lsShop['blnPaymentOrShippingErrorOccured']) && $session_lsShop['blnPaymentOrShippingErrorOccured']) {
 			$this->writeCheckoutDataToSession();
 			return;
