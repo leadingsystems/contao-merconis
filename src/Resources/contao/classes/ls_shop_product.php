@@ -1203,6 +1203,11 @@ returns the product price or the cheapest variant price.
                     if (is_array($this->_scalePricesOutputUnconfigured)) {
                         $this->getMinScalePrice($this->_scalePricesOutputUnconfigured,$float_cheapestPrice, $str_cheapestPriceOutput, $str_minQuantityInfo, $bln_cheapestPriceComesFromScalePrices);
                         $str_cheapestPriceQuantityComparison = $this->_getQuantityComparisonText($float_cheapestPrice);
+                    } else {
+                        // quantity comparison for products without variants and scale prices
+                        $float_cheapestPrice = $this->_priceAfterTax;
+                        $str_cheapestPriceOutput = ls_shop_generalHelper::outputPrice($float_cheapestPrice);
+                        $str_cheapestPriceQuantityComparison = $this->_getQuantityComparisonText('_priceAfterTax');
                     }
                 }
 
