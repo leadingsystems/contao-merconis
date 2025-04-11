@@ -36,6 +36,10 @@ class Image
 
     public function getSrc(array $config){
 
+        if($this->filesModel === null){
+            return '';
+        }
+
         return System::getContainer()->get('contao.image.studio')
             ->createFigureBuilder()
             ->fromFilesModel($this->filesModel)

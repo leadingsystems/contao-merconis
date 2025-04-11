@@ -159,7 +159,7 @@ class ModuleProductSearch extends Module {
 									break;
 									
 								default:
-									$arrHit[$liveHitField] = System::getContainer()->get('contao.insert_tag.parser')->replace($objProduct->{$liveHitField});
+									$arrHit[$liveHitField] = System::getContainer()->get('contao.insert_tag.parser')->replace($objProduct->{$liveHitField} ?: '');
 									break;
 							}
 						}
