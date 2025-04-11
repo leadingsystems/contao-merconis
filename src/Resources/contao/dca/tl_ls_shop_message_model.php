@@ -17,7 +17,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
         (
             'keys' => array
             (
-                'id' => 'primary'
+                'id' => 'primary',
+                'pid' => 'index'
             )
         )
 	),
