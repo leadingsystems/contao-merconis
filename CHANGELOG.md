@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.1.2 (2025-04-11)
+ * add indices
+
 ### 5.1.1 (2025-04-08)
  * fix session handling
 
