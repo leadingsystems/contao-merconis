@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.33 (2025-04-14)
+ * add quantity comparison output for productoverview and CS
+
 ### 5.0.32 (2025-02-28)
  * fix backend-widget attributes-values
 

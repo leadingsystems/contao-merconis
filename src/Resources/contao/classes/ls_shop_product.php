@@ -1148,25 +1148,34 @@ returns the product price or the cheapest variant price.
                 $str_cheapestPriceOutput = null;
                 $str_minQuantityInfo = null;
                 $bln_cheapestPriceComesFromScalePrices = false;
+                $str_cheapestPriceQuantityComparison = null;
 
                 if ($this->_hasVariants) {
                     foreach ($this->_variants as $obj_variant){
                         if (is_array($obj_variant->_scalePricesOutputUnconfigured)) {
                             $this->getMinScalePrice($obj_variant->_scalePricesOutputUnconfigured,$float_cheapestPrice, $str_cheapestPriceOutput, $str_minQuantityInfo, $bln_cheapestPriceComesFromScalePrices);
+                            $str_cheapestPriceQuantityComparison = $obj_variant->_getQuantityComparisonText($float_cheapestPrice);
                         } else {
                             if (!$float_cheapestPrice || $obj_variant->_priceAfterTax < $float_cheapestPrice) {
                                 $float_cheapestPrice = $obj_variant->_priceAfterTax;
                                 $str_cheapestPriceOutput = ls_shop_generalHelper::outputPrice($float_cheapestPrice);
+                                $str_cheapestPriceQuantityComparison = $obj_variant->_getQuantityComparisonText('_priceAfterTax');
                             }
                         }
                     }
                 } else {
                     if (is_array($this->_scalePricesOutputUnconfigured)) {
                         $this->getMinScalePrice($this->_scalePricesOutputUnconfigured,$float_cheapestPrice, $str_cheapestPriceOutput, $str_minQuantityInfo, $bln_cheapestPriceComesFromScalePrices);
+                        $str_cheapestPriceQuantityComparison = $this->_getQuantityComparisonText($float_cheapestPrice);
+                    } else {
+                        // quantity comparison for products without variants and scale prices
+                        $float_cheapestPrice = $this->_priceAfterTax;
+                        $str_cheapestPriceOutput = ls_shop_generalHelper::outputPrice($float_cheapestPrice);
+                        $str_cheapestPriceQuantityComparison = $this->_getQuantityComparisonText('_priceAfterTax');
                     }
                 }
 
-                return array($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo);
+                return array($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison);
                 break;
 
 			case '_priceMinimumAfterTax':
