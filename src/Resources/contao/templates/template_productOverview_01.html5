@@ -114,7 +114,7 @@
 					<span class="currentPrice<?php echo $this->objProduct->_isOnSale ? ' isOnSale' : ''; ?>">
                         <?php
 
-                        list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                        list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
 
                         if (!$bln_cheapestPriceComesFromScalePrices) {
                             // Standard-Ausgabe
@@ -135,7 +135,13 @@
 						</span>
 					<?php } ?>
 				<?php // <- ##### OLD PRICE ##### ?>
-
+                <?php // ##### QUANTITY COMPARISON ##### -> ?>
+                <?php if($str_cheapestPriceQuantityComparison) { ?>
+                <div class="quantityComparison">
+                    <?php echo $str_cheapestPriceQuantityComparison; ?>
+                </div>
+                <?php } ?>
+                <?php // <- ##### QUANTITY COMPARISON ##### -> ?>
 				<div class="clear"></div>
 
 				<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
