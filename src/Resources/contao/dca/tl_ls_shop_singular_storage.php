@@ -29,7 +29,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_singular_storage'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
         ),
         'arr_value' => array (
-            'sql'                     => "blob NULL"
+            'sql'                     => "longblob NULL"
         )
     )
 );
