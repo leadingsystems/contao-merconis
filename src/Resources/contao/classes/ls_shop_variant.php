@@ -786,20 +786,7 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 
 			case '_priceBeforeTax':
 				$priceBeforeTax = $this->mainData['lsShopVariantPrice'];
-                if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateVariantPriceBeforeTaxBeforeScalePriceCalculation']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateVariantPriceBeforeTaxBeforeScalePriceCalculation'])) {
-                    foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateVariantPriceBeforeTaxBeforeScalePriceCalculation'] as $mccb) {
-                        $objMccb = \System::importStatic($mccb[0]);
-                        $priceBeforeTax = $objMccb->{$mccb[1]}($priceBeforeTax, $this);
-                    }
-                }
-
 				$priceBeforeTax = ls_shop_generalHelper::calculateScaledPrice($priceBeforeTax, $this);
-                if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateVariantPriceBeforeTaxAfterScalePriceCalculation']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateVariantPriceBeforeTaxAfterScalePriceCalculation'])) {
-                    foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateVariantPriceBeforeTaxAfterScalePriceCalculation'] as $mccb) {
-                        $objMccb = \System::importStatic($mccb[0]);
-                        $priceBeforeTax = $objMccb->{$mccb[1]}($priceBeforeTax, $this);
-                    }
-                }
 
 				/*
 				 * Memorize the current variant id of the parent product object,
@@ -812,12 +799,6 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				$this->_objParentProduct->ls_setVariantID($this->_id);
 
 				$priceBeforeTax = ls_shop_generalHelper::ls_calculateVariantPriceRegardingPriceType($this->_priceType, $this->_objParentProduct->_priceBeforeTax, $priceBeforeTax);
-                if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateVariantPriceBeforeTaxAfterPriceTypeCalculation']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateVariantPriceBeforeTaxAfterPriceTypeCalculation'])) {
-                    foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateVariantPriceBeforeTaxAfterPriceTypeCalculation'] as $mccb) {
-                        $objMccb = \System::importStatic($mccb[0]);
-                        $priceBeforeTax = $objMccb->{$mccb[1]}($priceBeforeTax, $this);
-                    }
-                }
 
 				$this->_objParentProduct->ls_setVariantID($tmpPreviousParentCurrentVariantID);
 				return $priceBeforeTax;

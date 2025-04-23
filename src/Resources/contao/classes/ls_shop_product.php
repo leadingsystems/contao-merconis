@@ -947,21 +947,7 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 
 			case '_priceBeforeTax':
 				$priceBeforeTax = $this->mainData['lsShopProductPrice'];
-                if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateProductPriceBeforeTaxBeforeScalePriceCalculation']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateProductPriceBeforeTaxBeforeScalePriceCalculation'])) {
-                    foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateProductPriceBeforeTaxBeforeScalePriceCalculation'] as $mccb) {
-                        $objMccb = \System::importStatic($mccb[0]);
-                        $priceBeforeTax = $objMccb->{$mccb[1]}($priceBeforeTax, $this);
-                    }
-                }
-
 				$priceBeforeTax = ls_shop_generalHelper::calculateScaledPrice($priceBeforeTax, $this);
-                if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateProductPriceBeforeTaxAfterScalePriceCalculation']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateProductPriceBeforeTaxAfterScalePriceCalculation'])) {
-                    foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateProductPriceBeforeTaxAfterScalePriceCalculation'] as $mccb) {
-                        $objMccb = \System::importStatic($mccb[0]);
-                        $priceBeforeTax = $objMccb->{$mccb[1]}($priceBeforeTax, $this);
-                    }
-                }
-
 				return $priceBeforeTax;
 				break;
 
