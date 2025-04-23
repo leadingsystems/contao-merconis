@@ -1128,6 +1128,13 @@ class ls_shop_generalHelper
      */
     public static function getDisplayPrice($price, $steuersatzIdProduct, $usePriceAdjustment = true, $productCode = null, $variantCode = null)
     {
+        if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateGetDisplayPriceParameters']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateGetDisplayPriceParameters'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateGetDisplayPriceParameters'] as $mccb) {
+                $objMccb = \System::importStatic($mccb[0]);
+                $objMccb->{$mccb[1]}($price, $steuersatzIdProduct, $usePriceAdjustment, $productCode, $variantCode);
+            }
+        }
+
         $steuersatz = ls_shop_generalHelper::getCurrentTax($steuersatzIdProduct, true, false);
         $steuersatzShopCountry = ls_shop_generalHelper::getCurrentTax($steuersatzIdProduct, true, false, true);
 
