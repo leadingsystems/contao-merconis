@@ -250,21 +250,14 @@ class ls_shop_generalHelper
      */
     public static function getImagesFromStandardFolder(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true) {
 
-        // Zeitmessung starten
-        $startTime = microtime(true);
-
         $arr_productImages = array();
         if (!$str_productOrVariantCode) {
             return $arr_productImages;
         }
 
-
-
         $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $str_productOrVariantCode;
 
         $str_fullPathToSpecificProductImageFolder = System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToSpecificProductImageFolder;
-
-        //dump($str_fullPathToSpecificProductImageFolder);
 
         if (!file_exists($str_fullPathToSpecificProductImageFolder) || !is_dir($str_fullPathToSpecificProductImageFolder)) {
             error_log("the standard folder for product images possibly doesn't exist.");
@@ -307,13 +300,6 @@ class ls_shop_generalHelper
                 $arr_productImages[] = ($bln_addStandardImageFolderPath ? $str_pathToSpecificProductImageFolder . '/' : '') . $str_imageFile;
             }
         }
-
-        // Zeitmessung beenden
-        $endTime = microtime(true);
-        $duration = $endTime - $startTime;
-
-        // Dauer ausgeben
-        dump('Zeit benötigt für getImagesFromStandardFolder: ' . $duration . ' Sekunden');
 
         return $arr_productImages;
     }
