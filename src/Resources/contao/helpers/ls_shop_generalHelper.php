@@ -248,27 +248,32 @@ class ls_shop_generalHelper
      * all images found in the folder will be returned, regardless of whether or not there's
      * a product to which the image belongs.
      */
-    public static function getImagesFromStandardFolder(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true)
-    {
+    public static function getImagesFromStandardFolder(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true) {
         $arr_productImages = array();
         if (!$str_productOrVariantCode) {
             return $arr_productImages;
         }
 
-        $str_pathToStandardProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']);
+        // Zeitmessung starten
+        $startTime = microtime(true);
 
-        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder)) {
-            error_log("the standard folder for product images possibly doesn't exist.");
+        $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $str_productOrVariantCode;
+
+        $str_fullPathToSpecificProductImageFolder = System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToSpecificProductImageFolder;
+
+        dump($str_fullPathToSpecificProductImageFolder);
+
+        if (!file_exists($str_fullPathToSpecificProductImageFolder) || !is_dir($str_fullPathToSpecificProductImageFolder)) {
             return $arr_productImages;
         }
 
-        $arr_tmpImageFiles = scandir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder);
+        $arr_tmpImageFiles = scandir($str_fullPathToSpecificProductImageFolder);
 
         if (is_array($arr_tmpImageFiles)) {
             foreach ($arr_tmpImageFiles as $str_imageFile) {
                 if (
-                    $str_imageFile == '.'
-                    || $str_imageFile == '..'
+                    $str_imageFile === '.'
+                    || $str_imageFile === '..'
                 ) {
                     continue;
                 }
@@ -280,25 +285,32 @@ class ls_shop_generalHelper
                     $str_filenameWithoutSuffix = basename($str_imageFile, $str_tmpFilenameSuffix);
 
                     if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct'])) {
+                        $bln_imageBelongsToProduct = true;
                         foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct'] as $mccb) {
                             $objMccb = System::importStatic($mccb[0]);
+
                             $bln_imageBelongsToProduct = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $str_imageFile, $str_filenameWithoutSuffix);
+                            if (!$bln_imageBelongsToProduct) {
+                                break;
+                            }
                         }
                         if (!$bln_imageBelongsToProduct) {
-                            continue;
-                        }
-                    } else {
-                        if (
-                        !preg_match('/^' . preg_quote($str_productOrVariantCode, '/') . '(' . preg_quote($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageDelimiter'], '/') . '|$)/', $str_filenameWithoutSuffix)
-                        ) {
                             continue;
                         }
                     }
                 }
 
-                $arr_productImages[] = ($bln_addStandardImageFolderPath ? $str_pathToStandardProductImageFolder . '/' : '') . $str_imageFile;
+                $arr_productImages[] = ($bln_addStandardImageFolderPath ? $str_pathToSpecificProductImageFolder . '/' : '') . $str_imageFile;
             }
         }
+
+        // Zeitmessung beenden
+        $endTime = microtime(true);
+        $duration = $endTime - $startTime;
+
+        // Dauer ausgeben
+        dump('Zeit benötigt für getImagesFromStandardFolder: ' . $duration . ' Sekunden');
+
         return $arr_productImages;
     }
 
