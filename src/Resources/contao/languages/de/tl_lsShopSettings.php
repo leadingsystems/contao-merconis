@@ -234,3 +234,11 @@
         'And-Search' => 'Finde alle Wörter',
         'Or-Search' => 'Finde irgendein Wort'
     );
+
+
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType'] = array('Bilderverwaltung', 'Wählen Sie, wie Produktbilder im Standardordner behandelt werden sollen (Ordnerstruktur oder Dateisystem).');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType']['options'] = array(
+    'folders' => 'Ordnerstruktur',
+    'files' => 'Dateisystem'
+);
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['imageHandling_legend'] = 'Bilderverwaltung';

@@ -248,7 +248,17 @@ class ls_shop_generalHelper
      * all images found in the folder will be returned, regardless of whether or not there's
      * a product to which the image belongs.
      */
-    public static function getImagesFromStandardFolder(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true) {
+    public static function getImagesFromStandardFolder(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true)
+    {
+        $imageHandlingType = $GLOBALS['TL_CONFIG']['ls_shop_imageHandlingType'];
+
+        if($imageHandlingType === 'folders'){
+            return self::getImagesFromStandardFolderFromFolders($obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath);
+        }
+        return self::getImagesFromStandardFolderFromFiles($obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath);
+    }
+
+    public static function getImagesFromStandardFolderFromFolders(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true) {
 
         $arr_productImages = array();
         if (!$str_productOrVariantCode) {
@@ -281,9 +291,9 @@ class ls_shop_generalHelper
                     $str_tmpFilenameSuffix = '.' . $arr_tmpFilenameExploded[count($arr_tmpFilenameExploded) - 1];
                     $str_filenameWithoutSuffix = basename($str_imageFile, $str_tmpFilenameSuffix);
 
-                    if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct'])) {
+                    if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct'])) {
                         $bln_imageBelongsToProduct = true;
-                        foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct'] as $mccb) {
+                        foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct'] as $mccb) {
                             $objMccb = System::importStatic($mccb[0]);
 
                             $bln_imageBelongsToProduct = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $str_imageFile, $str_filenameWithoutSuffix);
@@ -301,6 +311,60 @@ class ls_shop_generalHelper
             }
         }
 
+        return $arr_productImages;
+    }
+
+    public static function getImagesFromStandardFolderFromFiles(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true)
+    {
+        $arr_productImages = array();
+        if (!$str_productOrVariantCode) {
+            return $arr_productImages;
+        }
+
+        $str_pathToStandardProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']);
+
+        if (!file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder)) {
+            error_log("the standard folder for product images possibly doesn't exist.");
+            return $arr_productImages;
+        }
+
+        $arr_tmpImageFiles = scandir(System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToStandardProductImageFolder);
+
+        if (is_array($arr_tmpImageFiles)) {
+            foreach ($arr_tmpImageFiles as $str_imageFile) {
+                if (
+                    $str_imageFile == '.'
+                    || $str_imageFile == '..'
+                ) {
+                    continue;
+                }
+
+                if ($str_productOrVariantCode !== '__ALL_IMAGES__') {
+                    // Determine the pure filename without suffix
+                    $arr_tmpFilenameExploded = explode('.', $str_imageFile);
+                    $str_tmpFilenameSuffix = '.' . $arr_tmpFilenameExploded[count($arr_tmpFilenameExploded) - 1];
+                    $str_filenameWithoutSuffix = basename($str_imageFile, $str_tmpFilenameSuffix);
+
+                    if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct'])) {
+                        foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfImageBelongsToProduct'] as $mccb) {
+                            $objMccb = System::importStatic($mccb[0]);
+                            $bln_imageBelongsToProduct = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $str_imageFile, $str_filenameWithoutSuffix);
+                        }
+                        if (!$bln_imageBelongsToProduct) {
+                            continue;
+                        }
+                    } else {
+                        if (
+                            !preg_match('/^' . preg_quote($str_productOrVariantCode, '/') . '(' . preg_quote($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageDelimiter'], '/') . '|$)/', $str_filenameWithoutSuffix)
+                        ) {
+                            continue;
+                        }
+                    }
+                }
+
+                $arr_productImages[] = ($bln_addStandardImageFolderPath ? $str_pathToStandardProductImageFolder . '/' : '') . $str_imageFile;
+            }
+        }
         return $arr_productImages;
     }
 
