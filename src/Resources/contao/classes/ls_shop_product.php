@@ -39,6 +39,7 @@ class ls_shop_product
      * @var customizer
      */
 	public $obj_customizer = null;
+    private $bln_alreadyAttemptedToCreateCustomizerObject = false;
 
 	public $ls_configuratorHash = '';
 
@@ -75,13 +76,14 @@ class ls_shop_product
 
 		$this->ls_getVariants();
 
-		$this->createCustomizerObject();
+		//$this->createCustomizerObject();
 	}
 
 	protected function createCustomizerObject() {
         if (!$this->_hasVariants) {
             $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
         }
+        $this->bln_alreadyAttemptedToCreateCustomizerObject = true;
     }
 
 	protected function createObjConfigurator() {
@@ -280,6 +282,10 @@ class ls_shop_product
                 return $this->_customizerLogicFile && is_file(System::getContainer()->getParameter('kernel.project_dir')."/".$this->_customizerLogicFile);
 
             case '_customizer':
+
+                if(!$this->bln_alreadyAttemptedToCreateCustomizerObject){
+                    $this->createCustomizerObject();
+                }
                 return $this->obj_customizer;
 
             case '_hasCustomizer':
