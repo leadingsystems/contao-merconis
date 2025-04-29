@@ -266,13 +266,18 @@ class ls_shop_generalHelper
             return $arr_productImages;
         }
 
-        $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $str_productOrVariantCode;
+        if($obj_product->_objectType === 'variant'){
+            $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $obj_product->_objParentProduct->_code . '/' . $str_productOrVariantCode;
+        }else{
+            $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $str_productOrVariantCode;
+        }
+
         if (!is_dir($str_pathToSpecificProductImageFolder)) {
             error_log("the article folder for product images possibly doesn't exist.");
             return $arr_productImages;
         }
 
-        $finder = (new Finder())->files()->in($str_pathToSpecificProductImageFolder);
+        $finder = (new Finder())->files()->in($str_pathToSpecificProductImageFolder)->depth('== 0');
         if($finder->hasResults())
         {
             foreach ($finder as $file)
