@@ -349,6 +349,7 @@ class ls_shop_generalHelper
                 if (
                     $str_imageFile == '.'
                     || $str_imageFile == '..'
+                    || $str_imageFile == $str_productOrVariantCode
                 ) {
                     continue;
                 }
