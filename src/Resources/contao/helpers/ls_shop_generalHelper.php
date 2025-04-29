@@ -34,6 +34,7 @@ use Contao\Widget;
 use LeadingSystems\Helpers\FlexWidget;
 use LeadingSystems\MerconisBundle\EventListener\Post;
 
+use Symfony\Component\Finder\Finder;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -266,50 +267,63 @@ class ls_shop_generalHelper
         }
 
         $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $str_productOrVariantCode;
-
-        $str_fullPathToSpecificProductImageFolder = System::getContainer()->getParameter('kernel.project_dir') . '/' . $str_pathToSpecificProductImageFolder;
-
-        if (!file_exists($str_fullPathToSpecificProductImageFolder) || !is_dir($str_fullPathToSpecificProductImageFolder)) {
-            error_log("the standard folder for product images possibly doesn't exist.");
+        if (!is_dir($str_pathToSpecificProductImageFolder)) {
+            error_log("the article folder for product images possibly doesn't exist.");
             return $arr_productImages;
         }
 
-        $arr_tmpImageFiles = scandir($str_fullPathToSpecificProductImageFolder);
-
-        if (is_array($arr_tmpImageFiles)) {
-            foreach ($arr_tmpImageFiles as $str_imageFile) {
-                if (
-                    $str_imageFile === '.'
-                    || $str_imageFile === '..'
-                ) {
-                    continue;
-                }
-
-                if ($str_productOrVariantCode !== '__ALL_IMAGES__') {
-                    // Determine the pure filename without suffix
-                    $arr_tmpFilenameExploded = explode('.', $str_imageFile);
-                    $str_tmpFilenameSuffix = '.' . $arr_tmpFilenameExploded[count($arr_tmpFilenameExploded) - 1];
-                    $str_filenameWithoutSuffix = basename($str_imageFile, $str_tmpFilenameSuffix);
-
-                    if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct'])) {
-                        $bln_imageBelongsToProduct = true;
-                        foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct'] as $mccb) {
-                            $objMccb = System::importStatic($mccb[0]);
-
-                            $bln_imageBelongsToProduct = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $str_imageFile, $str_filenameWithoutSuffix);
-                            if (!$bln_imageBelongsToProduct) {
-                                break;
-                            }
-                        }
-                        if (!$bln_imageBelongsToProduct) {
-                            continue;
-                        }
-                    }
-                }
-
-                $arr_productImages[] = ($bln_addStandardImageFolderPath ? $str_pathToSpecificProductImageFolder . '/' : '') . $str_imageFile;
+        $finder = (new Finder())->files()->in($str_pathToSpecificProductImageFolder);
+        if($finder->hasResults())
+        {
+            foreach ($finder as $file)
+            {
+                $arr_productImages[] = $file->getPathname();
             }
+            // HOOK
+            /*
+             * An den Hook soll das Ergebnis vom Finder ($arr_productImages) übergeben werden.
+             * und gibt einfach wieder ein "manipuliertes" Array zurück.
+             */
+        } else {
+            error_log("product images possibly doesn't exist.");
+            return $arr_productImages;
         }
+
+//        $arr_tmpImageFiles =[];
+//        if (is_array($arr_tmpImageFiles)) {
+//            foreach ($arr_tmpImageFiles as $str_imageFile) {
+//                if (
+//                    $str_imageFile === '.'
+//                    || $str_imageFile === '..'
+//                ) {
+//                    continue;
+//                }
+//
+//                if ($str_productOrVariantCode !== '__ALL_IMAGES__') {
+//                    // Determine the pure filename without suffix
+//                    $arr_tmpFilenameExploded = explode('.', $str_imageFile);
+//                    $str_tmpFilenameSuffix = '.' . $arr_tmpFilenameExploded[count($arr_tmpFilenameExploded) - 1];
+//                    $str_filenameWithoutSuffix = basename($str_imageFile, $str_tmpFilenameSuffix);
+//
+//                    if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct'])) {
+//                        $bln_imageBelongsToProduct = true;
+//                        foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct'] as $mccb) {
+//                            $objMccb = System::importStatic($mccb[0]);
+//
+//                            $bln_imageBelongsToProduct = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $str_imageFile, $str_filenameWithoutSuffix);
+//                            if (!$bln_imageBelongsToProduct) {
+//                                break;
+//                            }
+//                        }
+//                        if (!$bln_imageBelongsToProduct) {
+//                            continue;
+//                        }
+//                    }
+//                }
+//
+//                $arr_productImages[] = ($bln_addStandardImageFolderPath ? $str_pathToSpecificProductImageFolder . '/' : '') . $str_imageFile;
+//            }
+//        }
 
         return $arr_productImages;
     }
