@@ -65,8 +65,6 @@ class ls_shop_variant
 		$this->ls_objParentProduct = &$objParentProduct;
 
 		$this->ls_getData();
-
-        //$this->createCustomizerObject();
 	}
 
     protected function createCustomizerObject() {

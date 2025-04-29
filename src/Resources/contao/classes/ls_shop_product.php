@@ -75,8 +75,6 @@ class ls_shop_product
 		$this->ls_getData();
 
 		$this->ls_getVariants();
-
-		//$this->createCustomizerObject();
 	}
 
 	protected function createCustomizerObject() {
