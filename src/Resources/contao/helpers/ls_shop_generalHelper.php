@@ -244,22 +244,28 @@ class ls_shop_generalHelper
     /*
      * This function returns all images that could be found in the default product image folder
      * for a given product or variant code.
+     * The function encapsulates the actual image transmission as it is set in the Merconis basic settings.
+     *
+     * There are currently two strategies for determining the images for a product or variant:
+     * - Standard (files): This mode does not expect a file structure but checks all images in the folder to see if they belong to a product or variant.
+     * - Folder: This mode expects a file structure in which the images are stored in folders that correspond to the product or variant code by name.
      *
      * If the special value "__ALL_IMAGES__" is given instead of a product or variant code,
      * all images found in the folder will be returned, regardless of whether or not there's
      * a product to which the image belongs.
+     * This value only applies if the image determination is running in Standard (files) mode.
      */
     public static function getImagesFromStandardFolder(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true)
     {
         $imageHandlingType = $GLOBALS['TL_CONFIG']['ls_shop_imageHandlingType'];
 
         if($imageHandlingType === 'folders'){
-            return self::getImagesFromStandardFolderFromFolders($obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath);
+            return self::getImagesFromStandardFolderWithFolders($obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath);
         }
-        return self::getImagesFromStandardFolderFromFiles($obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath);
+        return self::getImagesFromStandardFolderWithFiles($obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath);
     }
 
-    public static function getImagesFromStandardFolderFromFolders(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true) {
+    public static function getImagesFromStandardFolderWithFolders(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true) {
 
         $arr_productImages = array();
         if (!$str_productOrVariantCode) {
@@ -285,8 +291,8 @@ class ls_shop_generalHelper
                 $arr_productImages[] = $file->getPathname();
             }
 
-            if (isset($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct'])) {
-                foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfImageFromFolderBelongsToProduct'] as $mccb) {
+            if (isset($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder']) && is_array($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'])) {
+                foreach ($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'] as $mccb) {
                     $objMccb = System::importStatic($mccb[0]);
                     $arr_productImages = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $arr_productImages);
                 }
@@ -300,7 +306,7 @@ class ls_shop_generalHelper
         return $arr_productImages;
     }
 
-    public static function getImagesFromStandardFolderFromFiles(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true)
+    public static function getImagesFromStandardFolderWithFiles(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true)
     {
         $arr_productImages = array();
         if (!$str_productOrVariantCode) {
