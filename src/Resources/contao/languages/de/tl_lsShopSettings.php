@@ -214,7 +214,8 @@
 		'name_desc' => 'Dateiname (absteigend)',
 		'date_asc' => 'Datum (aufsteigend)',
 		'date_desc' => 'Datum (absteigend)',
-		'random' => 'Zufällige Reihenfolge'
+		'random' => 'Zufällige Reihenfolge',
+        'none' => 'Keine Sortierung'
 	);
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_priceType']['options'] = array(

@@ -121,7 +121,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageSortingStandardDirection'],
 			'exclude'                 => true,
 			'inputType'               => 'select',
-			'options'                 => array('name_asc', 'name_desc', 'date_asc', 'date_desc', 'random'),
+			'options'                 => array('name_asc', 'name_desc', 'date_asc', 'date_desc', 'random', 'none'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageSortingStandardDirection']['options'],
 			'eval'                    => array('tl_class'=>'w50')
 		),
