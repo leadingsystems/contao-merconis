@@ -483,6 +483,16 @@ class ls_shop_cartHelper {
 			return $arrErrors;
 		}
 
+        if (isset($GLOBALS['MERCONIS_HOOKS']['validateCoupon']) && is_array($GLOBALS['MERCONIS_HOOKS']['validateCoupon'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['validateCoupon'] as $mccb) {
+                $objMccb = \System::importStatic($mccb[0]);
+                $arrErrorMessage = $objMccb->{$mccb[1]}($objCoupon);
+                if($arrErrorMessage){
+                    $arrErrors = array_merge($arrErrors, $arrErrorMessage);
+                }
+            }
+        }
+
 		/*
 		 * Prüfen, ob das Einlösen des Gutscheins eine Gutschein-Kombination bedeutet (sprich: ob damit 2 oder mehr Gutscheine
 		 * gleichzeitig eingetragen sind) und diese erlaubt ist
