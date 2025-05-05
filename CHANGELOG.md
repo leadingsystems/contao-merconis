@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.33 (2025-05-05)
+ * add hook 'validateCoupon'
+
 ### 5.0.33 (2025-04-14)
  * add quantity comparison output for productoverview and CS
 
