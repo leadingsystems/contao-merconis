@@ -237,9 +237,8 @@
     );
 
 
-$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType'] = array('Bilderverwaltung', 'Wählen Sie, wie Produktbilder im Standardordner behandelt werden sollen (Ordnerstruktur oder Dateisystem).');
-$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType']['options'] = array(
-    'folders' => 'Ordnerstruktur',
-    'files' => 'Dateisystem'
-);
-$GLOBALS['TL_LANG']['tl_lsShopSettings']['imageHandling_legend'] = 'Bilderverwaltung';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType'] = array('Bilderverwaltung', 'Wählen Sie, wie Produktbilder im Standardordner behandelt werden sollen (Ordnerstruktur oder Dateisystem). Bei Einstellung „Ordnerstruktur“ müssen die Produktbilder in Ordnern mit entsprechendem Namen gleichlautend der Artikelnummer des jeweiligen Produkts abgelegt werden.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType']['options'] = array(
+        'folders' => 'Ordnerstruktur',
+        'files' => 'Dateisystem'
+    );

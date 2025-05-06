@@ -16,9 +16,9 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	),
 	
 	'palettes' => array(
-		'__selector__' => array('ls_shop_useVATIDValidation'),
+		'__selector__' => array('ls_shop_useVATIDValidation','ls_shop_imageHandlingType'),
 		'default' => '
-		{basic_legend},ls_shop_serial,ls_shop_country,ls_shop_currency,ls_shop_currencyCode,ls_shop_numDecimals,ls_shop_priceRoundingFactor,ls_shop_priceType,ls_shop_numDecimalsWeight,ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_versandkostenType,ls_shop_autoSelectCheapestPossibleShippingAndPaymentMethods,ls_shop_useProductDescriptionAsSeoDescription,ls_shop_ownEmailAddress,ls_shop_output_definitionset,ls_shop_delivery_infoSet,ls_shop_productDetailsTemplate,ls_shop_standardProductImageFolder,ls_shop_imageHandlingType,ls_shop_standardProductImageDelimiter,ls_shop_imageSortingStandardDirection,ls_shop_beOrderTemplateOverview,ls_shop_beOrderTemplateDetails;
+		{basic_legend},ls_shop_serial,ls_shop_country,ls_shop_currency,ls_shop_currencyCode,ls_shop_numDecimals,ls_shop_priceRoundingFactor,ls_shop_priceType,ls_shop_numDecimalsWeight,ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_versandkostenType,ls_shop_autoSelectCheapestPossibleShippingAndPaymentMethods,ls_shop_useProductDescriptionAsSeoDescription,ls_shop_ownEmailAddress,ls_shop_output_definitionset,ls_shop_delivery_infoSet,ls_shop_productDetailsTemplate,ls_shop_standardProductImageFolder,ls_shop_imageSortingStandardDirection,ls_shop_imageHandlingType,ls_shop_beOrderTemplateOverview,ls_shop_beOrderTemplateDetails;
 		
 		{euSettings_legend},ls_shop_ownVATID,ls_shop_euCountrycodes,ls_shop_useVATIDValidation;
 
@@ -77,29 +77,17 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	),
 
 	'subpalettes' => array(
-		'ls_shop_useVATIDValidation' => 'ls_shop_VATIDValidationSOAPOptions'
+		'ls_shop_useVATIDValidation' => 'ls_shop_VATIDValidationSOAPOptions',
+        'ls_shop_imageHandlingType_files' => 'ls_shop_standardProductImageDelimiter'
 	),
 	
 	'fields' => array(
-        'ls_shop_imageHandlingType' => array(
-            'exclude' => true,
-            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType'],
-            'inputType' => 'select',
-            'options' => array(
-                'folders',
-                'files'
-            ),
-            'default' => 'files',
-            'reference' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType']['options'],
-            'eval' => array('tl_class' => 'w50')
-        ),
-
 		'ls_shop_beOrderTemplateOverview' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_beOrderTemplateOverview'],
 			'inputType' => 'select',
 			'options_callback' => array('Merconis\Core\ls_shop_generalHelper', 'getTemplates_beOrderOverview'),
-			'eval' => array('includeBlankOption' => false, 'tl_class' => 'w50')
+			'eval' => array('includeBlankOption' => false, 'tl_class' => 'clr w50')
 		),
 		
 		'ls_shop_ownEmailAddress' => array(
@@ -566,7 +554,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'label'					  => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImageFolder'],
 			'exclude'                 => true,
 			'inputType'				  => 'fileTree',
-			'eval'					  => array('fieldType' => 'radio', 'files' => false, 'tl_class' => 'clr'),
+			'eval'					  => array('fieldType' => 'radio', 'files' => false, 'tl_class' => 'clr w50'),
 			'save_callback' => array(
 				array('LeadingSystems\Helpers\ls_helpers_controller', 'idFromUuid')
 			),
@@ -574,6 +562,18 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 				array('LeadingSystems\Helpers\ls_helpers_controller', 'uuidFromId')
 			)
 		),
+
+        'ls_shop_imageHandlingType' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType'],
+            'inputType' => 'select',
+            'options' => array(
+                'files',
+                'folders'
+            ),
+            'reference' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType']['options'],
+            'eval' => array('submitOnChange' => true, 'tl_class' => 'clr w50')
+        ),
 		
 		'ls_shop_standardProductImageDelimiter' => array(
 			'exclude' => true,

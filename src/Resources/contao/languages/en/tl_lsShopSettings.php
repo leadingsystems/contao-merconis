@@ -214,7 +214,7 @@
 		'date_asc' => 'Date (ascending)',
 		'date_desc' => 'Date (descending)',
 		'random' => 'Random order',
-		'none' => 'None'
+		'none' => 'No sorting'
 	);
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_priceType']['options'] = array(
@@ -233,4 +233,10 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType']['options'] = array(
         'And-Search' => 'Match all words',
         'Or-Search' => 'Match any word'
+    );
+
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType'] = array('Image management', 'Select how product images are to be handled in the default folder (folder structure or file system). If “Folder structure” is selected, the product images must be stored in folders with the same name as the article number of the respective product.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType']['options'] = array(
+        'folders' => 'Folder structure',
+        'files' => 'File system'
     );
