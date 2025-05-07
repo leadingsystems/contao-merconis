@@ -5399,7 +5399,7 @@ class ls_shop_generalHelper
     public static function getBackendLscssStyles() {
         $obj_lscss4cController = \LeadingSystems\Lscss4c\lscss4C_controller::getInstance();
         return $obj_lscss4cController->getLscss(
-            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.dab2cfe3.scss',
+            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.6f6251e3.scss',
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoCacheMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoMinifierMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssDebugMode']
