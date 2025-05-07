@@ -166,3 +166,14 @@ services:
   LeadingSystems\MerconisBundle\EventListener\Post:
     tags:
       - { name: contao.hook, hook: initializeSystem }
+
+  LeadingSystems\MerconisBundle\EventListener\SelectButtonsRemoveListener:
+    tags:
+      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_steuersaetze' }
+      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_attributes_values' }
+      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_attributes' }
+      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_configurator' }
+      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_delivery_info' }
+      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_output_definitions' }
+      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_shipping_methods' }
+      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_payment_methods' }
