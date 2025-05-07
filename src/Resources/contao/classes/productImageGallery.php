@@ -225,6 +225,9 @@ class productImageGallery extends Frontend {
                     return strcmp($a->randomSortingValue, $b->randomSortingValue);
                 });
                 break;
+
+            case 'none':
+                break;
         }
 
         //sort videos to end of image list

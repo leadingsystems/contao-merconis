@@ -73,8 +73,8 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_delivery_infoSet']		= array('Standardeinstellung für Lagerbestand/Lieferzeit', 'Bitte wählen Sie hier die Vorgabe für Lagerbestand und Lieferzeit, die standardmäßig verwendet wird.');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_productDetailsTemplate'] =	array('Standard-Template für Produkt-Detaildarstellung');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImageFolder'] =	array('Standardordner für Produktbilder', 'Definieren Sie hier den Ordner, in dem der Shop anhand der Artikelnummern automatisch nach passenden Produktabbildungen suchen soll. Erkannt werden Bilder, deren Dateiname mit der Artikelnummer gefolgt von einem Trennzeichen (siehe nächstes Eingabefeld) beginnt (z. B. 1234_bildname.jpg) oder deren Dateiname lediglich die Artikelnummer enthält (z. B. 123.jpg)');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImageDelimiter'] =	array('Trennzeichen für Artikelnummer in Produktbildern', 'Bestimmen Sie hier, welches Trennzeichen die Artikelnummer in einem Bildnamen vom restlichen Dateinamen abgrenzt.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImageFolder'] =	array('Standardordner für Produktbilder', 'Definieren Sie hier den Ordner, in dem der Shop automatisch nach passenden Produktabbildungen suchen soll. Unter „Bilderverwaltung“ können Sie einstellen wie die Produktbilder ermittelt werden sollen.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImageDelimiter'] =	array('Trennzeichen für Artikelnummer in Produktbildern', 'Bestimmen Sie hier, welches Trennzeichen die Artikelnummer in einem Bildnamen vom restlichen Dateinamen abgrenzt. Erkannt werden Bilder, deren Dateiname mit der Artikelnummer gefolgt vom Trennzeichen beginnt (z. B. 1234_bildname.jpg) oder deren Dateiname lediglich die Artikelnummer enthält (z. B. 123.jpg).');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageSortingStandardDirection'] = array('Standardsortierung für Produktbilder');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImportFolder'] =	array('Standardordner für Import-Dateien', 'Definieren Sie hier den Ordner, in den die Importfunktion eine zu importierende Datei nach dem Upload ablegt.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_importCsvDelimiter'] = array('CSV-Trennzeichen');
@@ -99,7 +99,7 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ignoreGroupRestrictionsInSearch'] = array('Gruppeneinschränkungen in Suche ignorieren', 'Gibt es keine Produkte mit Gruppeneinschränkungen, so kann es die Suchperformance verbessern, wenn dieses Suchkriterium vollständig ignoriert wird. Falls diese Einstellung gewählt wird, es aber doch Produkte mit Gruppeneinschränkungen gibt, so werden diese Produkte gefunden aber dennoch nicht dargestellt. Stattdessen entstehen Lücken in ausgegebenen Produktlisten.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_alwaysAddIdToAliasDuringProductImport'] = array('Bei Produkt-Import Alias immer mit ID ergänzen', 'Mit dieser Einstellung wird beim Produkt-Import auf die Eindeutigkeitsprüfung von Aliasen verzichtet und damit ein deutlicher Performance-Vorteil erreicht. Die Eindeutigkeit wird hierbei durch das automatische Anhängen der internen Produkt-ID an den Alias erreicht.');
 
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'] = array('Standard-Abfragetyp bei der Produktsuche', 'Bitte wählen Sie den Abfragetyp aus. \'Finde alle Wörter\', findet nur Produkte, die alle gesuchten Begriffe enthalten. \'Finde irgendein Wort\', findet alle Produkte, die einen der Suchbegriffe enthalten.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType'] = array('Standard-Abfragetyp bei der Produktsuche', 'Bitte wählen Sie den Abfragetyp aus. „Finde alle Wörter“, findet nur Produkte, die alle gesuchten Begriffe enthalten. „Finde irgendein Wort“, findet alle Produkte, die einen der Suchbegriffe enthalten.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_userDecide_searchType'] = array('Aktiviere Eingabefeld für und/oder Suche', 'Mit dieser Option aktivieren Sie das Eingabefeld für den Abfragetyp bei der Produktsuche.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchWeighting_debug'] = array('Debug Modus für die Treffer-Gewichtung bei Produktsuche', '<em>Ausgabe ist nur verfügbar, wenn als Backend-User eingeloggt</em>. Schaltet die Ausgabe der Gewichtung bei der Produktsuche ein. Sie erhalten so Rückmeldung wie ein einzelner Suchtreffer und dessen Metadaten bei der Suche gewichtet wurde.');
 
@@ -214,7 +214,8 @@
 		'name_desc' => 'Dateiname (absteigend)',
 		'date_asc' => 'Datum (aufsteigend)',
 		'date_desc' => 'Datum (absteigend)',
-		'random' => 'Zufällige Reihenfolge'
+		'random' => 'Zufällige Reihenfolge',
+        'none' => 'Keine Sortierung'
 	);
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_priceType']['options'] = array(
@@ -233,4 +234,11 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType']['options'] = array(
         'And-Search' => 'Finde alle Wörter',
         'Or-Search' => 'Finde irgendein Wort'
+    );
+
+
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType'] = array('Bilderverwaltung', 'Wählen Sie, wie Produktbilder im Standardordner behandelt werden sollen (Ordnerstruktur oder Dateiname). Bei Einstellung „Ordnerstruktur“ müssen die Produktbilder in Ordnern mit entsprechendem Namen gleichlautend der Artikelnummer des jeweiligen Produkts abgelegt werden.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType']['options'] = array(
+        'folders' => 'Ordnerstruktur',
+        'files' => 'Dateiname'
     );

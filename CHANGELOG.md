@@ -3,6 +3,7 @@ Leading Systems Contao Merconis bundle changelog
 
 ### 5.1.3 (2025-05-09)
  * add hook 'validateCoupon'
+ * improve product images identification
 
 ### 5.1.2 (2025-04-11)
  * add indices

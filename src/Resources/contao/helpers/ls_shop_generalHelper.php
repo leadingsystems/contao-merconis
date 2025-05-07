@@ -34,6 +34,7 @@ use Contao\Widget;
 use LeadingSystems\Helpers\FlexWidget;
 use LeadingSystems\MerconisBundle\EventListener\Post;
 
+use Symfony\Component\Finder\Finder;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -243,12 +244,69 @@ class ls_shop_generalHelper
     /*
      * This function returns all images that could be found in the default product image folder
      * for a given product or variant code.
+     * The function encapsulates the actual image transmission as it is set in the Merconis basic settings.
+     *
+     * There are currently two strategies for determining the images for a product or variant:
+     * - Standard (files): This mode does not expect a file structure but checks all images in the folder to see if they belong to a product or variant.
+     * - Folder: This mode expects a file structure in which the images are stored in folders that correspond to the product or variant code by name.
      *
      * If the special value "__ALL_IMAGES__" is given instead of a product or variant code,
      * all images found in the folder will be returned, regardless of whether or not there's
      * a product to which the image belongs.
+     * This value only applies if the image determination is running in Standard (files) mode.
      */
     public static function getImagesFromStandardFolder(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true)
+    {
+        $imageHandlingType = $GLOBALS['TL_CONFIG']['ls_shop_imageHandlingType'];
+
+        if($imageHandlingType === 'folders'){
+            return self::getImagesFromStandardFolderWithFolders($obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath);
+        }
+        return self::getImagesFromStandardFolderWithFiles($obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath);
+    }
+
+    public static function getImagesFromStandardFolderWithFolders(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true) {
+
+        $arr_productImages = array();
+        if (!$str_productOrVariantCode) {
+            return $arr_productImages;
+        }
+
+        if($obj_product->_objectType === 'variant'){
+            $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $obj_product->_objParentProduct->_code . '/' . $str_productOrVariantCode;
+        }else{
+            $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $str_productOrVariantCode;
+        }
+
+        if (!is_dir($str_pathToSpecificProductImageFolder)) {
+            error_log("the article folder for product images possibly doesn't exist.");
+            return $arr_productImages;
+        }
+
+        $finder = (new Finder())->files()->in($str_pathToSpecificProductImageFolder)->depth('== 0');
+        if($finder->hasResults())
+        {
+            foreach ($finder as $file)
+            {
+                $arr_productImages[] = $file->getPathname();
+            }
+
+            if (isset($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder']) && is_array($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'])) {
+                foreach ($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'] as $mccb) {
+                    $objMccb = System::importStatic($mccb[0]);
+                    $arr_productImages = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $arr_productImages);
+                }
+            }
+
+        } else {
+            error_log("product images possibly doesn't exist.");
+            return $arr_productImages;
+        }
+
+        return $arr_productImages;
+    }
+
+    public static function getImagesFromStandardFolderWithFiles(&$obj_product, $str_productOrVariantCode, $bln_addStandardImageFolderPath = true)
     {
         $arr_productImages = array();
         if (!$str_productOrVariantCode) {
@@ -269,6 +327,7 @@ class ls_shop_generalHelper
                 if (
                     $str_imageFile == '.'
                     || $str_imageFile == '..'
+                    || $str_imageFile == $str_productOrVariantCode
                 ) {
                     continue;
                 }
@@ -289,7 +348,7 @@ class ls_shop_generalHelper
                         }
                     } else {
                         if (
-                        !preg_match('/^' . preg_quote($str_productOrVariantCode, '/') . '(' . preg_quote($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageDelimiter'], '/') . '|$)/', $str_filenameWithoutSuffix)
+                            !preg_match('/^' . preg_quote($str_productOrVariantCode, '/') . '(' . preg_quote($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageDelimiter'], '/') . '|$)/', $str_filenameWithoutSuffix)
                         ) {
                             continue;
                         }
