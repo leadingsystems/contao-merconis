@@ -73,8 +73,8 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_delivery_infoSet']		= array('Standard setting for goods in stock/delivery time', 'Please select the default setting for goods in stock and delivery time to be used as standard.');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_productDetailsTemplate'] =	array('Standard template for product detail view');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImageFolder'] =	array('Standard folder for product images', 'Define the folder that is automatically searched for matching product images on the basis of product codes by the shop. The shop is capable of finding images of which the file name starts with the product code followed by a separator (see next input field) (e.g. 1234_imagename.jpg) or of which the file name contains only the product code (e.g. 123.jpg).');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImageDelimiter'] =	array('Separator for product codes in product images', 'Define here which separator you use to separate the product code in an image name from the rest of the file name.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImageFolder'] =	array('Standard folder for product images', 'Define the folder in which the store should automatically search for suitable product images. Under \'Image management\' you can set how the product images should be determined.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImageDelimiter'] =	array('Separator for product codes in product images', 'Define here which separator you use to separate the product code in an image name from the rest of the file name. Images whose file name begins with the article number followed by the separator (e.g. 1234_image_name.jpg) or whose file name contains only the article number (e.g. 123.jpg) are recognized.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageSortingStandardDirection'] = array('Default sorting of product images');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_standardProductImportFolder'] =	array('Standard folder for import files', 'Define the folder here in which the import function will store a file to be imported after the upload.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_importCsvDelimiter'] = array('CSV delimiter character');
@@ -235,8 +235,8 @@
         'Or-Search' => 'Match any word'
     );
 
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType'] = array('Image management', 'Select how product images are to be handled in the default folder (folder structure or file system). If “Folder structure” is selected, the product images must be stored in folders with the same name as the article number of the respective product.');
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType'] = array('Image management', 'Select how product images are to be handled in the default folder (folder structure or File name). If “Folder structure” is selected, the product images must be stored in folders with the same name as the article number of the respective product.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_imageHandlingType']['options'] = array(
         'folders' => 'Folder structure',
-        'files' => 'File system'
+        'files' => 'File name'
     );
