@@ -156,6 +156,10 @@
   margin-top: 10px;
   margin-bottom: 10px;
 
+  html[data-color-scheme="dark"] & {
+    border: 1px solid var(--border);
+  }
+
   h2 {
     font-size: 1.2rem;
     margin-bottom: 16px;
@@ -186,6 +190,10 @@
   margin-bottom: 10px;
   margin-top: 20px;
   clear: both;
+
+  html[data-color-scheme="dark"] & {
+    border: 1px solid var(--content-border);
+  }
 }
 
 .ls_shop_beSubGroup h3 {
@@ -249,8 +257,13 @@
 
 .topLinedGroup {
   border-top: 1px solid #DDDDDD;
-  margin-top: 15px;
+  margin-top: 20px;
   padding-top: 0px;
+  display: inline-block;
+
+  html[data-color-scheme="dark"] & {
+    border-top: 1px solid var(--border);
+  }
 }
 
 .ls_shop_multilanguage_fieldsWrapper {
@@ -290,6 +303,9 @@
   border-bottom: 1px solid #DDDDDD;
 }
 
+html[data-color-scheme="dark"] .beModule_productSearch .searchForm {
+  border-bottom: 1px solid var(--border);
+}
 
 
 .beModule_productSearch .widgetContainer label {
@@ -317,6 +333,10 @@
   background-color: #F0F0F0;
 }
 
+html[data-color-scheme="dark"] .beModule_productSearch:not(.beModule_stockManagement) .searchResults table tbody tr:nth-child(2n) {
+  background-color: #444444;
+}
+
 .beModule_productSearch .searchResults table td,
 .beModule_productSearch .searchResults table th {
   border: 1px solid #D3D3D3;
@@ -324,11 +344,20 @@
   height: 50px;
 }
 
+html[data-color-scheme="dark"] .beModule_productSearch .searchResults table td,
+html[data-color-scheme="dark"] .beModule_productSearch .searchResults table th {
+  border: 1px solid #555555;
+}
+
 .beModule_productSearch .searchResults table th {
   font-weight: bold;
   background-color: #A4A4A4;
   color: #FFFFFF;
   height: 25px;
+}
+
+html[data-color-scheme="dark"] .beModule_productSearch .searchResults table th {
+  background-color: #333333;
 }
 
 .beModule_productSearch .searchResults table th a {
@@ -432,18 +461,22 @@ ul.ls_shop_productSelectionWizard li {
   padding-top: 5px;
   border-top: 1px solid #DDDDDD;
   position: relative;
+
+  html[data-color-scheme="dark"] & {
+    border-top: 1px solid var(--border);
+  }
 }
 
 ul.ls_shop_productSelectionWizard li .widgetProductSelection a {
   position: absolute;
-  top: 2px;
+  top: 7px;
   right: 0px;
   z-index: 1000;
 }
 
 ul.ls_shop_productSelectionWizard li .listWizardButtons {
   position: absolute;
-  top: 0px;
+  top: 5px;
   right: 30px;
 }
 
@@ -618,19 +651,35 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
   border: 1px solid transparent;
   margin-bottom: 20px;
   background-color: #FFFFFF;
+
+  html[data-color-scheme="dark"] & {
+    background-color: #272a30;
+  }
 }
+
+
 
 .be_orderRepresentation table td {
   border: 1px solid #CCCCCC;
   vertical-align: top;
   text-align: left;
   padding: 5px;
+
+  html[data-color-scheme="dark"] & {
+    border-color: #555555;
+    color: #FFFFFF;
+  }
 }
 
 .be_orderRepresentation table tr.header td {
   border-bottom: 3px double #000000;
   background-color: #EEEEEE;
   font-weight: bold;
+
+  html[data-color-scheme="dark"] & {
+    background-color: #363b43;
+    border-bottom-color: #777777;
+  }
 }
 
 .be_orderRepresentation table td.quantity {
@@ -650,6 +699,11 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
 .be_orderRepresentation table td.quantity input.quantity {
   background-color: #EEEEEE;
   border: 1px outset #000000;
+
+  html[data-color-scheme="dark"] & {
+    background-color: #4D4D4D;
+    border-color: #888888;
+  }
 }
 
 .be_orderRepresentation table td.quantity input.submit,
@@ -666,6 +720,10 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
 .be_orderRepresentation table tr.sumTotal td {
   border-top: 3px double #000000;
   font-weight: bold;
+
+  html[data-color-scheme="dark"] & {
+    border-top-color: #777777;
+  }
 }
 
 .be_orderRepresentation table tr.addCoupon td {
@@ -724,6 +782,10 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
   font-size: 18px;
   font-weight: bold;
   background-color: #EEEEEE;
+
+  html[data-color-scheme="dark"] & {
+    background-color: #363b43;
+  }
 }
 
 .be_orderRepresentation table tr.form fieldset {
@@ -899,6 +961,15 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
  * Ende Backend-Bestelldarstellug
  */
 
+#tl_ls_shop_messages_sent,
+#tl_ls_shop_orders {
+  html[data-color-scheme="dark"] & {
+    .tl_text[disabled] {
+      color: var(--text);
+    }
+  }
+}
+
 .template_beMessageRepresentationDetails .htmlBody {
   padding: 0px;
   background-color: #FFFFFF;
@@ -918,6 +989,12 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
   overflow: scroll;
   background-color: #FFFFFF;
   border: 1px solid #CCCCCC;
+
+  html[data-color-scheme="dark"] & {
+    background-color: #272a30;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
 }
 
 .template_beMessageRepresentationDetails h4 {
@@ -1169,12 +1246,15 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
   margin-left: 5px;
   margin-right: 5px;
   margin-top: 5px;
-  padding: 2px;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding: 5px 10px;
   text-align: center;
   cursor: pointer;
   display: inline-block;
+}
+
+html[data-color-scheme="dark"] #shopImport .actionButton {
+  background-color: #333333;
+  border: 1px outset var(--border);
 }
 
 #shopImport .actionButton.continueImport {
