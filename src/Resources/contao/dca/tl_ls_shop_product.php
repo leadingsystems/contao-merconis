@@ -1406,7 +1406,7 @@ class tl_ls_shop_product_controller extends Backend {
         $data = json_decode($str_value, true);
 
         //if json_decode returns no valid array, this normally happens if str_value ist empty
-        if(!is_array($str_value))
+        if(!is_array($data))
         {
             $data = array();
         }
