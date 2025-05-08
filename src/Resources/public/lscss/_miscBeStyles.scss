@@ -156,6 +156,10 @@
   margin-top: 10px;
   margin-bottom: 10px;
 
+  html[data-color-scheme="dark"] & {
+    border: 1px solid var(--border);
+  }
+
   h2 {
     font-size: 1.2rem;
     margin-bottom: 16px;
@@ -186,6 +190,10 @@
   margin-bottom: 10px;
   margin-top: 20px;
   clear: both;
+
+  html[data-color-scheme="dark"] & {
+    border: 1px solid var(--content-border);
+  }
 }
 
 .ls_shop_beSubGroup h3 {
@@ -249,8 +257,13 @@
 
 .topLinedGroup {
   border-top: 1px solid #DDDDDD;
-  margin-top: 15px;
+  margin-top: 20px;
   padding-top: 0px;
+  display: inline-block;
+
+  html[data-color-scheme="dark"] & {
+    border-top: 1px solid var(--border);
+  }
 }
 
 .ls_shop_multilanguage_fieldsWrapper {
@@ -448,22 +461,22 @@ ul.ls_shop_productSelectionWizard li {
   padding-top: 5px;
   border-top: 1px solid #DDDDDD;
   position: relative;
-}
 
-html[data-color-scheme="dark"] ul.ls_shop_productSelectionWizard li {
-  border-top: 1px solid #444444;
+  html[data-color-scheme="dark"] & {
+    border-top: 1px solid var(--border);
+  }
 }
 
 ul.ls_shop_productSelectionWizard li .widgetProductSelection a {
   position: absolute;
-  top: 2px;
+  top: 7px;
   right: 0px;
   z-index: 1000;
 }
 
 ul.ls_shop_productSelectionWizard li .listWizardButtons {
   position: absolute;
-  top: 0px;
+  top: 5px;
   right: 30px;
 }
 
@@ -948,6 +961,15 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
  * Ende Backend-Bestelldarstellug
  */
 
+#tl_ls_shop_messages_sent,
+#tl_ls_shop_orders {
+  html[data-color-scheme="dark"] & {
+    .tl_text[disabled] {
+      color: var(--text);
+    }
+  }
+}
+
 .template_beMessageRepresentationDetails .htmlBody {
   padding: 0px;
   background-color: #FFFFFF;
@@ -970,7 +992,7 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
 
   html[data-color-scheme="dark"] & {
     background-color: #272a30;
-    color: #FFFFFF;
+    color: var(--text);
     border: 1px solid var(--border);
   }
 }
