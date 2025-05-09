@@ -6,6 +6,7 @@ Leading Systems Contao Merconis bundle changelog
  * improve product images identification
  * fix customizer instanz
  * fix darkmode backend
+ * fix insertAttributeValueAllocationsInAllocationTable()
 
 ### 5.1.2 (2025-04-11)
  * add indices
