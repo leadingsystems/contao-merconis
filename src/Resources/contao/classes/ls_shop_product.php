@@ -38,7 +38,8 @@ class ls_shop_product
     /**
      * @var customizer
      */
-	public $obj_customizer = null;
+	private $obj_customizer = null;
+    private $bln_alreadyAttemptedToCreateCustomizerObject = false;
 
 	public $ls_configuratorHash = '';
 
@@ -74,14 +75,13 @@ class ls_shop_product
 		$this->ls_getData();
 
 		$this->ls_getVariants();
-
-		$this->createCustomizerObject();
 	}
 
 	protected function createCustomizerObject() {
         if (!$this->_hasVariants) {
             $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
         }
+        $this->bln_alreadyAttemptedToCreateCustomizerObject = true;
     }
 
 	protected function createObjConfigurator() {
@@ -279,7 +279,13 @@ class ls_shop_product
             case '_hasCustomizerLogicFile':
                 return $this->_customizerLogicFile && is_file(System::getContainer()->getParameter('kernel.project_dir')."/".$this->_customizerLogicFile);
 
+            case 'obj_customizer':
+                trigger_error('obj_customizer is deprecated and will be removed in a future version. Use _customizer instead.', E_USER_DEPRECATED);
             case '_customizer':
+
+                if(!$this->bln_alreadyAttemptedToCreateCustomizerObject){
+                    $this->createCustomizerObject();
+                }
                 return $this->obj_customizer;
 
             case '_hasCustomizer':
@@ -1705,6 +1711,18 @@ filter context, NULL will be returned.
 
 		return null;
 	}
+
+    public function __set($what = '', $value) {
+
+        switch ($what) {
+            case 'obj_customizer':
+                $this->obj_customizer = $value;
+                break;
+        }
+
+        return null;
+    }
+
 
     /*  Determines the min price of the scale prices
      *  Because the function can be called for all variants of a product, some arguments are passed byref and thus retain their values

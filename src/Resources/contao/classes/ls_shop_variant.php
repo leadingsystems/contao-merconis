@@ -36,7 +36,8 @@ class ls_shop_variant
     /**
      * @var customizer
      */
-    public $obj_customizer = null;
+    private $obj_customizer = null;
+    private $bln_alreadyAttemptedToCreateCustomizerObject = false;
 
 	protected $ls_mainLanguageMode = false;
 
@@ -64,12 +65,11 @@ class ls_shop_variant
 		$this->ls_objParentProduct = &$objParentProduct;
 
 		$this->ls_getData();
-
-        $this->createCustomizerObject();
 	}
 
     protected function createCustomizerObject() {
         $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
+        $this->bln_alreadyAttemptedToCreateCustomizerObject = true;
     }
 
 	public function createObjConfigurator() {
@@ -251,7 +251,12 @@ class ls_shop_variant
             case '_hasCustomizerLogicFile':
                 return $this->_customizerLogicFile && is_file(System::getContainer()->getParameter('kernel.project_dir')."/".$this->_customizerLogicFile);
 
+            case 'obj_customizer':
+                trigger_error('obj_customizer is deprecated and will be removed in a future version. Use _customizer instead.', E_USER_DEPRECATED);
             case '_customizer':
+                if(!$this->bln_alreadyAttemptedToCreateCustomizerObject){
+                    $this->createCustomizerObject();
+                }
                 if(is_object($this->obj_customizer)){
                     return $this->obj_customizer;
                 }
@@ -1190,6 +1195,17 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 
 		return null;
 	}
+
+    public function __set($what = '', $value) {
+
+        switch ($what) {
+            case 'obj_customizer':
+                $this->obj_customizer = $value;
+                break;
+        }
+
+        return null;
+    }
 
 	/*
 	 * Getter- (bzw. Caller-)Funktion. Durch die Kommentare für AUTO DOCUMENTATION und DESCRIPTION können die
