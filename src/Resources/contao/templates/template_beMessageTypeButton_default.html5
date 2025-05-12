@@ -4,7 +4,7 @@
 <?php if (!$this->isAjax): ?><div class="messageIconContainer"><?php endif; ?>
 	<div class="messageIcon <?php echo $this->messageType['alias']; ?> <?php echo $this->messageType['sendWhen']; ?><?php echo $blnAlreadySent ? ' alreadySent' : ''; ?>">
 		<?php if ($this->messageType['sendWhen'] == 'manual' && !$blnAlreadySent): ?>
-			<a onclick="return ls_shop_backend.sendOrderMessage(this.getParent('.messageIconContainer'), <?php echo $this->messageType['id']; ?>, <?php echo $this->arrOrder['id']; ?>)" href="<?php echo $this->addToUrl("&messageTypeID=".$this->messageType['id']."&orderID=".$this->arrOrder['id']); ?>">
+			<a onclick="return ls_shop_backend.sendMessage(this.getParent('.messageIconContainer'), <?php echo $this->messageType['id']; ?>, <?php echo $this->arrOrder['id']; ?>)" href="<?php echo $this->addToUrl("&messageTypeID=".$this->messageType['id']."&orderID=".$this->arrOrder['id']); ?>">
 		<?php endif; ?>
 		<?php echo $this->messageType['multilanguage']['title']; ?>
 		<?php if ($this->messageType['sendWhen'] == 'manual' && !$blnAlreadySent): ?></a><?php endif;

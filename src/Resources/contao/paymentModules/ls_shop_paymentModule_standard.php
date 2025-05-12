@@ -109,7 +109,12 @@ namespace Merconis\Core;
 			->execute($var_fieldValue, $int_orderID);
 
 			if (strpos($str_fieldName, '_currentStatus') !== false) {
-				$objOrderMessages = new ls_shop_orderMessages($int_orderID, 'onStatusChangeImmediately', 'sendWhen', null, true);
+                $objOrderMessages = new ls_shop_messages(
+                    'onStatusChangeImmediately',
+                    'sendWhen',
+                    $int_orderID,
+                    null,
+                );
 				$objOrderMessages->sendMessages();
 			}
 		}

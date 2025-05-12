@@ -783,7 +783,12 @@ class ls_shop_export
 
 		if ($this->arr_exportRecord['sendOrderMailsOnStatusChange']) {
 			foreach ($arr_orderIds as $int_orderId) {
-				$obj_orderMessages = new ls_shop_orderMessages($int_orderId, 'onStatusChangeImmediately', 'sendWhen', null, true);
+				$obj_orderMessages = new ls_shop_messages(
+                    'onStatusChangeImmediately',
+                    'sendWhen',
+                    $int_orderId,
+                    null,
+                );
 				$obj_orderMessages->sendMessages();
 			}
 		}

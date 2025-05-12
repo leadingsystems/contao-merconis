@@ -18,7 +18,7 @@ class ls_shop_orderMessages
 
 	protected $arr_memberData = null;
 	protected $obj_product = null;
-	
+
 	protected $counterNr = null;
 	
 	public function __construct($orderID = null, $identificationToken = null, $findBy = null, $language = null, $blnForceOrderRefresh = false, $int_memberId = null, $str_productVariantId = null) {

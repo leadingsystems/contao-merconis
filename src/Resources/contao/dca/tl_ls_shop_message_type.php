@@ -257,7 +257,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_type'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['sendWhen'],
 			'exclude'                 => true,
 			'inputType'				  => 'select',
-			'options'				  => array('manual','onStatusChangeImmediately','onStatusChangeCronDaily','onStatusChangeCronHourly','asOrderConfirmation','asOrderNotice','onRestock'),
+			'options'				  => tl_ls_shop_message_type_controller::getMoreOptionsFromHook(['manual','onStatusChangeImmediately','onStatusChangeCronDaily','onStatusChangeCronHourly','asOrderConfirmation','asOrderNotice','onRestock']),
 			'reference'				  => &$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['sendWhen']['options'],
 			'eval'					  => array('tl_class' => 'clr', 'submitOnChange' => true),
 			'filter'				  => true,
@@ -392,6 +392,20 @@ class tl_ls_shop_message_type_controller extends \Backend {
 		parent::__construct();
 		$this->import('BackendUser', 'User');
 	}
+
+
+    public static function getMoreOptionsFromHook($options = [])
+    {
+
+        if (isset($GLOBALS['MERCONIS_HOOKS']['addMessageSendOption']) && is_array($GLOBALS['MERCONIS_HOOKS']['addMessageSendOption'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['addMessageSendOption'] as $mccb) {
+                $objMccb = \System::importStatic($mccb[0]);
+                $options = array_merge($options, $objMccb->{$mccb[1]}());
+            }
+        }
+
+        return $options;
+    }
 
 	public function generateAlias($varValue, \DataContainer $dc) {
 		$autoAlias = false;
