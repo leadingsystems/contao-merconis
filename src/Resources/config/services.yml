@@ -170,7 +170,7 @@ services:
   LeadingSystems\MerconisBundle\EventListener\SelectButtonsRemoveListener:
     tags:
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_steuersaetze' }
-      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_attributes_values' }
+      - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_attribute_values' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_attributes' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_configurator' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_delivery_info' }
