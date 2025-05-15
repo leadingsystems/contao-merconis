@@ -89,6 +89,21 @@
              * automatically be fired again.
              */
             window.addEvent('cajax_domUpdate', function(el_domReference) {
+
+                var arr_libraries = [];
+
+                for (const key in lsjs.__moduleHelpers) {
+                    if (Object.prototype.hasOwnProperty.call(lsjs.__moduleHelpers, key)) {
+                        if (key.startsWith("customCode")) {
+                            console.log(lsjs.__moduleHelpers[key].getLibraryToLoad())
+                            arr_libraries.push(... lsjs.__moduleHelpers[key].getLibraryToLoad())
+                        }
+                    }
+                }
+
+                lsjs.__moduleHelpers.libraryLoader.start(arr_libraries);
+
+
                 lsjs.__moduleHelpers.sliderInputManager.start({
                     el_domReference: el_domReference
                 });
