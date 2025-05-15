@@ -1179,29 +1179,31 @@ returns the product price or the cheapest variant price.
                 }
 				break;
 
-
-
-
+                /*
+                 * @toDo rework suggest
+                 */
             case '_cheapestPriceComesFromScalePrices':
-		list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
-		return $bln_cheapestPriceComesFromScalePrices;
-
+		        list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+		        return $bln_cheapestPriceComesFromScalePrices;
+			
             case '_cheapestPriceOutput':
-		list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
-		return $str_cheapestPriceOutput;
-
+                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                return $str_cheapestPriceOutput;
+			
             case '_minQuantityInfo':
-		list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
-		return $str_minQuantityInfo;
-
+                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                return $str_minQuantityInfo;
+			
             case '_cheapestPriceQuantityComparison':
-		list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
-		return $str_cheapestPriceQuantityComparison;
+                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                return $str_cheapestPriceQuantityComparison;
 
-
-
-
-
+            case '_cheapestPriceRaw':
+                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison, $float_cheapestPrice) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                return $float_cheapestPrice;
+                /*
+                 * end @toDo
+                 */
 
             case '_scaledOrVariantsPriceMinimum'
                 /* ## DESCRIPTION:
@@ -1217,7 +1219,7 @@ returns the product price or the cheapest variant price.
 	                $str_minQuantityInfo = null;
 	                $bln_cheapestPriceComesFromScalePrices = false;
 	                $str_cheapestPriceQuantityComparison = null;
-
+	
 	                if ($this->_hasVariants) {
 	                    foreach ($this->_variants as $obj_variant){
 	                        if (is_array($obj_variant->_scalePricesOutputUnconfigured)) {
@@ -1242,8 +1244,8 @@ returns the product price or the cheapest variant price.
 	                        $str_cheapestPriceQuantityComparison = $this->_getQuantityComparisonText('_priceAfterTax');
 	                    }
 	                }
-
-	                $this->arr_scaledOrVariantsPriceMinimum = array($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison);
+	
+	                $this->arr_scaledOrVariantsPriceMinimum = array($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison, $float_cheapestPrice);
 		}
 		return $this->arr_scaledOrVariantsPriceMinimum;
                 break;
