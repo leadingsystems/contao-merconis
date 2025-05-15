@@ -1217,7 +1217,7 @@ returns the product price or the cheapest variant price.
                     }
                 }
 
-                return array($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison);
+                return array($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison, $float_cheapestPrice);
                 break;
 
 			case '_priceMinimumAfterTax':
