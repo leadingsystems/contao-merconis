@@ -2104,8 +2104,16 @@ class ls_shop_productSearcher
 
                         if (!$bln_cheapestPriceComesFromScalePrices) {
                             $arrOrder[$k] = $objProduct->_unscaledPriceMinimumAfterTaxFormatted;
+
+                        $objProduct = ls_shop_generalHelper::getObjProduct($arrProduct['id']);
+
+                        list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison, $float_cheapestPrice) = $objProduct->_scaledOrVariantsPriceMinimum;
+
+                        if (!$bln_cheapestPriceComesFromScalePrices) {
+                            $arrOrder[$k] = $objProduct->_unscaledPriceMinimumAfterTax;
                         } else {
                             $arrOrder[$k] = $str_cheapestPriceOutput;
+                            $arrOrder[$k] = $float_cheapestPrice;
                         }
 
                         $arr_tmpProductsToSort[$k] = $arrProduct;

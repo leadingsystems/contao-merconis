@@ -3031,7 +3031,7 @@ class ls_shop_generalHelper
         $headline = isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline']) ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['merconis_picker_headline'] : '';
         $requestedTable = $dc->table;
         $requestedValue = $dc->field;
-        return ' ' . Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.gif', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="vertical-align:top;cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . StringUtil::specialchars($headline) . '\')"');
+        return ' ' . Image::getHtml('bundles/leadingsystemsmerconis/images/inputHelp.svg', $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['inputHelp'], 'style="cursor:pointer" onclick="ls_shop_backend.pickValue(\'ctrl_' . $dc->inputName . '\', \'' . $requestedTable . '\', \'' . $requestedValue . '\', \'' . StringUtil::specialchars($headline) . '\')"');
     }
 
     public static function createValueList($requestedTable = false, $requestedValue = false, $requestedLanguage = false)
@@ -5399,7 +5399,7 @@ class ls_shop_generalHelper
     public static function getBackendLscssStyles() {
         $obj_lscss4cController = \LeadingSystems\Lscss4c\lscss4C_controller::getInstance();
         return $obj_lscss4cController->getLscss(
-            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.dab2cfe3.scss',
+            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.6f6251e3.scss',
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoCacheMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoMinifierMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssDebugMode']

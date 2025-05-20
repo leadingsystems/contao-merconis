@@ -1,10 +1,15 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.1.4 (2025-05-16)
+ * fix delete button 'Mehrere bearbeiten'
+
 ### 5.1.3 (2025-05-09)
  * add hook 'validateCoupon'
  * improve product images identification
  * fix customizer instanz
+ * fix darkmode backend
+ * fix insertAttributeValueAllocationsInAllocationTable()
 
 ### 5.1.2 (2025-04-11)
  * add indices
