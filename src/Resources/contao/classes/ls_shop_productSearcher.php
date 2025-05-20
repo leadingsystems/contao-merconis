@@ -2100,14 +2100,9 @@ class ls_shop_productSearcher
 
                         $objProduct = ls_shop_generalHelper::getObjProduct($arrProduct['id']);
 
-                        list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $objProduct->_scaledOrVariantsPriceMinimum;
-
-                        if (!$bln_cheapestPriceComesFromScalePrices) {
-                            $arrOrder[$k] = $objProduct->_unscaledPriceMinimumAfterTaxFormatted;
-
-                        $objProduct = ls_shop_generalHelper::getObjProduct($arrProduct['id']);
-
-                        list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison, $float_cheapestPrice) = $objProduct->_scaledOrVariantsPriceMinimum;
+                        $bln_cheapestPriceComesFromScalePrices = $objProduct->_cheapestPriceComesFromScalePrices;
+                        $str_cheapestPriceOutput = $objProduct->_cheapestPriceOutput;
+                        $float_cheapestPrice = $objProduct->_scaledOrVariantsPriceMinimum;
 
                         if (!$bln_cheapestPriceComesFromScalePrices) {
                             $arrOrder[$k] = $objProduct->_unscaledPriceMinimumAfterTax;

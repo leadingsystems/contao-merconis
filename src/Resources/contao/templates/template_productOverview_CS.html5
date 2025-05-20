@@ -31,7 +31,10 @@
 				<p class="currentPrice">
                     <?php
 
-                    list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                    $bln_cheapestPriceComesFromScalePrices = $this->objProduct->_cheapestPriceComesFromScalePrices;
+                    $str_cheapestPriceOutput = $this->objProduct->_cheapestPriceOutput;
+                    $str_minQuantityInfo = $this->objProduct->_minQuantityInfo;
+                    $str_cheapestPriceQuantityComparison = $this->objProduct->_cheapestPriceQuantityComparison;
 
                     if (!$bln_cheapestPriceComesFromScalePrices) {
                         // Standard-Ausgabe
