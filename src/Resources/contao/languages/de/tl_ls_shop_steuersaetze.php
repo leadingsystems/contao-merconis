@@ -32,3 +32,12 @@
 	 * Misc
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['wildcardNotAllowed'] = 'Da Sie diesen Steuersatz bereits mindestens einem Produkt zugeordnet haben, können Sie keine dynamischen Werte verwenden.';
+
+
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_missingStopDatePeriod1'] = 'Für Gültigkeitsraum 1 wurde ein Startdatum, aber kein Enddatum eingegeben.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_missingStartDatePeriod1'] = 'Für Gültigkeitsraum 1 wurde ein Enddatum, aber kein Startdatum eingegeben.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_stopDateBeforeStartDatePeriod1'] = 'Das Enddatum von Gültigkeitsraum 1 darf nicht vor dem Startdatum liegen.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_missingStopDatePeriod2'] = 'Für Gültigkeitsraum 2 wurde ein Startdatum, aber kein Enddatum eingegeben.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_missingStartDatePeriod2'] = 'Für Gültigkeitsraum 2 wurde ein Enddatum, aber kein Startdatum eingegeben.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_stopDateBeforeStartDatePeriod2'] = 'Das Enddatum von Gültigkeitsraum 2 darf nicht vor dem Startdatum liegen.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_periodsOverlap'] = 'Die Zeiträume für Gültigkeitsraum 1 und Gültigkeitsraum 2 dürfen sich nicht überschneiden.';
