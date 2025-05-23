@@ -1181,23 +1181,24 @@ returns the product price or the cheapest variant price.
 
 
             case '_cheapestPriceComesFromScalePrices':
-                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->_scaledOrVariantsPriceMinimum;
+
                 return $bln_cheapestPriceComesFromScalePrices;
 
             case '_cheapestPriceOutput':
-                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->_scaledOrVariantsPriceMinimum;
                 return $str_cheapestPriceOutput;
 
             case '_minQuantityInfo':
-                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->_scaledOrVariantsPriceMinimum;
                 return $str_minQuantityInfo;
 
             case '_cheapestPriceQuantityComparison':
-                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison) = $this->_scaledOrVariantsPriceMinimum;
                 return $str_cheapestPriceQuantityComparison;
 
             case '_cheapestPriceRaw':
-                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison, $float_cheapestPrice) = $this->objProduct->_scaledOrVariantsPriceMinimum;
+                list($bln_cheapestPriceComesFromScalePrices, $str_cheapestPriceOutput, $str_minQuantityInfo, $str_cheapestPriceQuantityComparison, $float_cheapestPrice) = $this->_scaledOrVariantsPriceMinimum;
                 return $float_cheapestPrice;
 
             case '_scaledOrVariantsPriceMinimum'
