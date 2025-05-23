@@ -113,7 +113,6 @@
 				<?php // ##### CURRENT PRICE ##### -> ?>
 					<span class="currentPrice<?php echo $this->objProduct->_isOnSale ? ' isOnSale' : ''; ?>">
                         <?php
-
                         if (!$this->objProduct->_cheapestPriceComesFromScalePrices) {
                             // Standard-Ausgabe
                             if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php }

@@ -2097,17 +2097,14 @@ class ls_shop_productSearcher
                         /*
                          * Calculates the cheapest price for this product, checks variants and scale prices
                          */
-
                         $objProduct = ls_shop_generalHelper::getObjProduct($arrProduct['id']);
 
                         $bln_cheapestPriceComesFromScalePrices = $objProduct->_cheapestPriceComesFromScalePrices;
-                        $str_cheapestPriceOutput = $objProduct->_cheapestPriceOutput;
-                        $float_cheapestPrice = $objProduct->_scaledOrVariantsPriceMinimum;
+                        $float_cheapestPrice = $objProduct->_cheapestPriceRaw;
 
                         if (!$bln_cheapestPriceComesFromScalePrices) {
                             $arrOrder[$k] = $objProduct->_unscaledPriceMinimumAfterTax;
                         } else {
-                            $arrOrder[$k] = $str_cheapestPriceOutput;
                             $arrOrder[$k] = $float_cheapestPrice;
                         }
 
