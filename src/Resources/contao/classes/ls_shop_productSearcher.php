@@ -2095,18 +2095,17 @@ class ls_shop_productSearcher
                     $sortingTypeFlag = SORT_NUMERIC;
                     foreach ($arrProductsAfterFilter as $k => $arrProduct) {
                         /*
-                         * If the displayPrice already exists because it has been
-                         * calculated before for the filter, we use it.
-                         * If not, we calculate it now.
+                         * Calculates the cheapest price for this product, checks variants and scale prices
                          */
-                        if (isset($arrProduct['price'])) {
-                            $arrOrder[$k] = $arrProduct['price'];
-                        } else {
-                            if ($this->bln_useGroupPrices) {
-                                $arrProduct = $this->updateProductRowWithGroupPrice($arrProduct);
-                            }
+                        $objProduct = ls_shop_generalHelper::getObjProduct($arrProduct['id']);
 
-                            $arrOrder[$k] = ls_shop_generalHelper::getDisplayPrice($arrProduct['lsShopProductPrice'], $arrProduct['lsShopProductSteuersatz']);
+                        $bln_cheapestPriceComesFromScalePrices = $objProduct->_cheapestPriceComesFromScalePrices;
+                        $float_cheapestPrice = $objProduct->_cheapestPriceRaw;
+
+                        if (!$bln_cheapestPriceComesFromScalePrices) {
+                            $arrOrder[$k] = $objProduct->_unscaledPriceMinimumAfterTax;
+                        } else {
+                            $arrOrder[$k] = $float_cheapestPrice;
                         }
 
                         $arr_tmpProductsToSort[$k] = $arrProduct;
