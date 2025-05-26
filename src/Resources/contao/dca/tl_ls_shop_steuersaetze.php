@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\Backend;
+use Contao\Controller;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
@@ -16,7 +17,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 		'dataContainer' => DC_Table::class,
         'enableVersioning' => true,
 		'onsubmit_callback' => array(
-			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
+			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp'),
+			array('Merconis\Core\ls_shop_steuersaetze', 'blockRedirectIfErrorsExist')
 		),
 		'ondelete_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -312,17 +314,17 @@ class ls_shop_steuersaetze extends Backend {
     {
 
         $startPeriod1Raw = Input::post('startPeriod1');
-        $stopPeriod1Raw = Input::post('stopPeriod1');
+        $stopPeriod1Raw  = Input::post('stopPeriod1');
         $startPeriod2Raw = Input::post('startPeriod2');
-        $stopPeriod2Raw = Input::post('stopPeriod2');
+        $stopPeriod2Raw  = Input::post('stopPeriod2');
 
         $currentFieldName = $dc->field;
 
         switch ($currentFieldName) {
             case 'startPeriod1': $startPeriod1Raw = $varValue; break;
-            case 'stopPeriod1':  $stopPeriod1Raw = $varValue;  break;
+            case 'stopPeriod1':  $stopPeriod1Raw  = $varValue; break;
             case 'startPeriod2': $startPeriod2Raw = $varValue; break;
-            case 'stopPeriod2':  $stopPeriod2Raw = $varValue;  break;
+            case 'stopPeriod2':  $stopPeriod2Raw  = $varValue; break;
         }
 
         $getTimestamp = function($value) {
@@ -375,8 +377,8 @@ class ls_shop_steuersaetze extends Backend {
         if ($start1 !== null && $stop1 !== null && $start2 !== null && $stop2 !== null) {
             if ($start1 <= $stop2 && $start2 <= $stop1) {
                 $addErrorOnce('err_periodsOverlap');
-            }
         }
+            }
 
         if (self::$periodValidationErrorOccurred) {
             return $dc->activeRecord->$currentFieldName;
@@ -385,13 +387,12 @@ class ls_shop_steuersaetze extends Backend {
         return $varValue;
     }
 
-    public function preventSubmitAfterSaveCallbacks(string $strAction, DataContainer $dc): void
+
+    public function blockRedirectIfErrorsExist(DataContainer $dc): void
     {
-        if ($dc->table === 'tl_ls_shop_steuersaetze' && self::$periodValidationErrorOccurred) {
-            if ($strAction === 'save' || $strAction === 'saveNclose' || $strAction === 'saveNcreate' || $strAction === 'saveNedit') {
-                $dc->blnSubmit = false;
-            }
+        // Force a page reload to block redirection and display errors
+        if (!empty(self::$errorMessagesAdded)) {
+            Controller::reload();
         }
-        unset($GLOBALS['TL_HOOKS']['executePostActions'][__CLASS__]);
     }
 }
