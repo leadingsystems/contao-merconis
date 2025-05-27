@@ -1381,6 +1381,12 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $this->setDataReferences();
     }
 
+    public function loadCustomizer() {
+        if(!$this->bln_alreadyAttemptedToCreateCustomizerObject){
+            $this->createCustomizerObject();
+        }
+    }
+
 	public function calculateWeightRegardingWeightType() {
 		$weight = $this->mainData['lsShopVariantWeight'];
 		switch($this->_weightType) {
