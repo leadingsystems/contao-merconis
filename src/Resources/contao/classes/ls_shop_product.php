@@ -2226,6 +2226,12 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $this->setDataReferences();
     }
 
+    public function loadCustomizer() {
+        if(!$this->bln_alreadyAttemptedToCreateCustomizerObject){
+            $this->createCustomizerObject();
+        }
+    }
+
 	public function ls_getVariants() {
 		$objVariants = Database::getInstance()->prepare("
 			SELECT		`id`
