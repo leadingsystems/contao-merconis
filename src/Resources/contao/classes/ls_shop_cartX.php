@@ -106,10 +106,6 @@ class ls_shop_cartX {
 				 * because otherwise detecting payment and shipping methods' price limits won't work.
 				 */
 				$objProduct = ls_shop_generalHelper::getObjProduct($productCartKey, __METHOD__, true);
-                $objProduct->loadCustomizer();
-                if ($objProduct->_variantIsSelected) {
-                    $objProduct->_selectedVariant->loadCustomizer();
-                }
 				$this->itemsExtended[$productCartKey] = array(
 					'objProduct' => $objProduct,
 					'price' => !$objProduct->_variantIsSelected ? $objProduct->_priceAfterTax : $objProduct->_selectedVariant->_priceAfterTax,
