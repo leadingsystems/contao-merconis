@@ -58,12 +58,25 @@ class ls_shop_variant
     // Holds image galleries created with getImageGallery()
     protected $arr_imageGalleries = [];
 
-    private array $modifiedDataKeys = [];
+    public array $modifiedDataKeys = [];
 
 	public function __construct($intID = 0, $productID = 0, &$objParentProduct = null) {
 		$this->ls_ID = $intID;
 		$this->ls_productID = $productID;
 		$this->ls_productVariantID = $this->ls_productID.'-'.$this->ls_ID;
+
+//        $session = System::getContainer()->get('merconis.session')->getSession();
+//        $session_modifiedDataKeys =  $session->get('merconis_modifiedDataKeys');
+//        if (isset($session_modifiedDataKeys[$this->ls_productVariantID])) {
+//            $this->modifiedDataKeys = $session_modifiedDataKeys[$this->ls_productVariantID];
+//        }
+//        $session_modifiedDataKeys[$this->ls_productVariantID] = &$this->modifiedDataKeys;
+//        $session->set('merconis_modifiedDataKeys', $session_modifiedDataKeys);
+
+        if (isset($_SESSION['merconis_modifiedDataKeys'][$this->ls_productVariantID])) {
+            $this->modifiedDataKeys = $_SESSION['merconis_modifiedDataKeys'][$this->ls_productVariantID];
+        }
+        $_SESSION['merconis_modifiedDataKeys'][$this->ls_productVariantID] = &$this->modifiedDataKeys;
 
 		$this->ls_objParentProduct = &$objParentProduct;
 
