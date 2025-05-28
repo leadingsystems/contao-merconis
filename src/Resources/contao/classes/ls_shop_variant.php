@@ -6,6 +6,7 @@ use Contao\Database;
 use Contao\FrontendTemplate;
 use Contao\PageModel;
 use Contao\System;
+use LeadingSystems\MerconisBundle\Proxy\ProductDataAccessProxy;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -1352,7 +1353,11 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			}
 		}
 
-        $this->arr_customizableData = $this->arr_originalData;
+        $this->arr_customizableData = [];
+
+        foreach ($this->arr_originalData as $langCode => $languageSubArray) {
+            $this->arr_customizableData[$langCode] = new ProductDataAccessProxy($languageSubArray);
+        }
 
         $this->ls_data = &$this->arr_customizableData;
 
