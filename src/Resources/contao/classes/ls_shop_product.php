@@ -66,6 +66,8 @@ class ls_shop_product
 
     private ?array $arr_scaledOrVariantsPriceMinimum = null;
 
+    public array $modifiedDataKeys = [];
+
     public function __construct($intID = false, $configuratorHash = '') {
 		$this->ls_ID = $intID;
 
@@ -2201,7 +2203,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $this->arr_customizableData = [];
 
         foreach ($this->arr_originalData as $langCode => $languageSubArray) {
-            $this->arr_customizableData[$langCode] = new ProductDataAccessProxy($languageSubArray);
+            $this->arr_customizableData[$langCode] = new ProductDataAccessProxy($languageSubArray, $this);
         }
 
 		$this->ls_data = &$this->arr_customizableData;

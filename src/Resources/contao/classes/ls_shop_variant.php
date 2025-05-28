@@ -58,6 +58,8 @@ class ls_shop_variant
     // Holds image galleries created with getImageGallery()
     protected $arr_imageGalleries = [];
 
+    private array $modifiedDataKeys = [];
+
 	public function __construct($intID = 0, $productID = 0, &$objParentProduct = null) {
 		$this->ls_ID = $intID;
 		$this->ls_productID = $productID;
@@ -1356,7 +1358,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $this->arr_customizableData = [];
 
         foreach ($this->arr_originalData as $langCode => $languageSubArray) {
-            $this->arr_customizableData[$langCode] = new ProductDataAccessProxy($languageSubArray);
+            $this->arr_customizableData[$langCode] = new ProductDataAccessProxy($languageSubArray, $this);
         }
 
         $this->ls_data = &$this->arr_customizableData;
