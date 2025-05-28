@@ -1,11 +1,15 @@
 <?php
 global $objPage;
 $obj_tmp_productOrVariant = null;
-if ($this->objProduct->_variantIsSelected) {
+if ($this->objVariant !== null) {
+    $obj_tmp_productOrVariant = $this->objVariant;
+} else if ($this->objProduct->_variantIsSelected) {
 	$obj_tmp_productOrVariant = $this->objProduct->_selectedVariant;
 } else {
 	$obj_tmp_productOrVariant = $this->objProduct;
 }
+
+//$obj_tmp_productOrVariant->loadCustomizer();
 ?>
 
 <div class="priceContainer">

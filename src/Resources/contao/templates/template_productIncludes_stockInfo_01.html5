@@ -1,6 +1,8 @@
 <?php
 $obj_tmp_productOrVariant = null;
-if ($this->objProduct->_variantIsSelected && $this->objProduct->_selectedVariant->_useStock) {
+if ($this->objVariant !== null && $this->objVariant->_useStock) {
+    $obj_tmp_productOrVariant = $this->objVariant;
+} else if ($this->objProduct->_variantIsSelected && $this->objProduct->_selectedVariant->_useStock) {
 	$obj_tmp_productOrVariant = $this->objProduct->_selectedVariant;
 } else if (!$this->objProduct->_hasVariants && $this->objProduct->_useStock) {
 	$obj_tmp_productOrVariant = $this->objProduct;
