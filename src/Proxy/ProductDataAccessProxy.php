@@ -19,6 +19,13 @@ class ProductDataAccessProxy implements ArrayAccess, Iterator, Countable
     private array $data;
 
     /**
+     * True copy of the array being proxied, NOT a reference.
+     * This array is used to check whether the referenced data array has been changed.
+     * @var array
+     */
+    private array $originalData;
+
+    /**
      * A snapshot of keys from the proxied array, used for iteration.
      * This list is established when `rewind()` is called (e.g., at the start of a `foreach` loop)
      * and remains fixed for the duration of that iteration sequence. Modifications to the
@@ -39,6 +46,7 @@ class ProductDataAccessProxy implements ArrayAccess, Iterator, Countable
     public function __construct(array &$arr, ls_shop_product|ls_shop_variant &$productOrVariant)
     {
         $this->data = &$arr;
+        $this->originalData = $arr;
         // Initialize keys and iterator's internal pointer for $this->keys.
         // rewind() is the designated method for this setup.
         $this->rewind();
@@ -66,6 +74,14 @@ class ProductDataAccessProxy implements ArrayAccess, Iterator, Countable
     {
         if (isset($this->productOrVariant->modifiedDataKeys[$offset])) {
             $this->productOrVariant->loadCustomizer();
+
+            /*
+             * The value of a data offset might have been changed before but than changed back to the original value.
+             * In this case, we don't want access to this data offset to trigger loading the customizer anymore.
+             */
+            if ($this->data[$offset] === $this->originalData[$offset]) {
+                unset($this->productOrVariant->modifiedDataKeys[$offset]);
+            }
         }
         return $this->data[$offset] ?? null;
     }
