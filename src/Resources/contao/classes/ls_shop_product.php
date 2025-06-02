@@ -97,9 +97,9 @@ class ls_shop_product
 
 	protected function createCustomizerObject() {
         if (!$this->_hasVariants) {
+            $this->bln_alreadyAttemptedToCreateCustomizerObject = true;
             $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
         }
-        $this->bln_alreadyAttemptedToCreateCustomizerObject = true;
     }
 
 	protected function createObjConfigurator() {
