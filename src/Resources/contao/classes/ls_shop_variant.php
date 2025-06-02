@@ -84,8 +84,8 @@ class ls_shop_variant
 	}
 
     protected function createCustomizerObject() {
-        $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
         $this->bln_alreadyAttemptedToCreateCustomizerObject = true;
+        $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
     }
 
 	public function createObjConfigurator() {
