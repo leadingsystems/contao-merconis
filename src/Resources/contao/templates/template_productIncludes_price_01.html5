@@ -182,7 +182,7 @@ if ($this->objVariant !== null) {
                                                 <span class="value"><?php echo $arrStep['priceConfigurator']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
                                             </div>
                                         <?php } ?>
-                                        <div class="finalPrice">
+                                        <div class="finalPrice scalePrice<?php echo $count; ?>">
                                             <?php
                                             if (
                                                 // we have a configuration which affects the price
