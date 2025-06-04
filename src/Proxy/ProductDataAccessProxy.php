@@ -70,14 +70,6 @@ class ProductDataAccessProxy implements ArrayAccess, Iterator, Countable
     {
         if (isset($this->productOrVariant->modifiedDataKeys[$offset])) {
             $this->productOrVariant->loadCustomizer();
-
-            /*
-             * The value of a data offset might have been changed before but than changed back to the original value.
-             * In this case, we don't want access to this data offset to trigger loading the customizer anymore.
-             */
-            if ($this->data[$offset] === $this->originalData[$offset]) {
-                unset($this->productOrVariant->modifiedDataKeys[$offset]);
-            }
         }
         return $this->data[$offset] ?? null;
     }
@@ -90,12 +82,23 @@ class ProductDataAccessProxy implements ArrayAccess, Iterator, Countable
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->productOrVariant->modifiedDataKeys[$offset] = true;
         if (is_null($offset)) {
-            $this->data[] = $value;
-        } else {
-            $this->data[$offset] = $value;
+            /*
+             * This must never happen because it would basically mean to overwrite the complete product data array.
+             */
+            throw new \Exception('overwriting product data completely is not allowed!');
         }
+
+        $this->productOrVariant->modifiedDataKeys[$offset] = true;
+        $this->data[$offset] = $value;
+
+        /*
+         * If the data equals the original data, we remove the modified flag immediately
+         */
+        if ($this->data[$offset] === $this->originalData[$offset]) {
+            unset($this->productOrVariant->modifiedDataKeys[$offset]);
+        }
+
         // Note: $this->keys is NOT updated here.
         // This ensures that an ongoing iteration (e.g., a foreach loop)
         // operates on a consistent snapshot of keys taken at the start of the loop (via rewind()).
