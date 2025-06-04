@@ -73,18 +73,13 @@ class ls_shop_product
 
 		$this->ls_productVariantID = $this->ls_ID.'-0';
 
-//        $session = System::getContainer()->get('merconis.session')->getSession();
-//        $session_modifiedDataKeys =  $session->get('merconis_modifiedDataKeys');
-//        if (isset($session_modifiedDataKeys[$this->ls_productVariantID])) {
-//            $this->modifiedDataKeys = $session_modifiedDataKeys[$this->ls_productVariantID];
-//        }
-//        $session_modifiedDataKeys[$this->ls_productVariantID] = &$this->modifiedDataKeys;
-//        $session->set('merconis_modifiedDataKeys', $session_modifiedDataKeys);
-
-        if (isset($_SESSION['merconis_modifiedDataKeys'][$this->ls_productVariantID])) {
-            $this->modifiedDataKeys = $_SESSION['merconis_modifiedDataKeys'][$this->ls_productVariantID];
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_modifiedDataKeys =  $session->get('merconis_modifiedDataKeys');
+        if (isset($session_modifiedDataKeys[$this->ls_productVariantID])) {
+            $this->modifiedDataKeys = $session_modifiedDataKeys[$this->ls_productVariantID];
         }
-        $_SESSION['merconis_modifiedDataKeys'][$this->ls_productVariantID] = &$this->modifiedDataKeys;
+        $session_modifiedDataKeys[$this->ls_productVariantID] = &$this->modifiedDataKeys;
+        $session->set('merconis_modifiedDataKeys', $session_modifiedDataKeys);
 
 		if ($configuratorHash) {
 			$this->ls_configuratorHash = $configuratorHash;
