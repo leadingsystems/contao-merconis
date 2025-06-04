@@ -37,13 +37,9 @@ class ProductDataAccessProxy implements ArrayAccess, Iterator, Countable
     private ls_shop_variant|ls_shop_product $productOrVariant;
 
     /**
-     * Constructor.
-     *
-     * @param array &$arr The array to be proxied. It is taken by reference,
-     *                    meaning external modifications to the original array
-     *                    will be reflected in this proxy.
+     * @param array &$arr The array to be proxied.
      */
-    public function __construct(array &$arr, ls_shop_product|ls_shop_variant &$productOrVariant)
+    public function __construct(array $arr, ls_shop_product|ls_shop_variant &$productOrVariant)
     {
         $this->data = &$arr;
         $this->originalData = $arr;
