@@ -13,14 +13,14 @@ use Merconis\Core\ls_shop_variant;
 class ProductDataAccessProxy implements ArrayAccess, Iterator, Countable
 {
     /**
-     * The array being proxied, passed by reference.
+     * The array being proxied
      * @var array
      */
     private array $data;
 
     /**
-     * True copy of the array being proxied, NOT a reference.
-     * This array is used to check whether the referenced data array has been changed.
+     * Copy of the array being proxied
+     * This array is used to check whether the proxied data array has been changed.
      * @var array
      */
     private array $originalData;
@@ -37,7 +37,7 @@ class ProductDataAccessProxy implements ArrayAccess, Iterator, Countable
     private ls_shop_variant|ls_shop_product $productOrVariant;
 
     /**
-     * @param array &$arr The array to be proxied.
+     * @param array $arr The array to be proxied.
      */
     public function __construct(array $arr, ls_shop_product|ls_shop_variant &$productOrVariant)
     {
