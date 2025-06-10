@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.1.5 (2025-06-13)
+ * improve user input for 'Steuersätze'
+
 ### 5.1.4 (2025-05-16)
  * fix delete button 'Mehrere bearbeiten'
  * fix price sorting product list

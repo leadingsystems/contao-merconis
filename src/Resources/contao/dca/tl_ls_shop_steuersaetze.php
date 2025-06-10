@@ -3,10 +3,13 @@
 namespace Merconis\Core;
 
 use Contao\Backend;
+use Contao\Controller;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\Image;
+use Contao\Input;
+use Contao\Message;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
@@ -14,7 +17,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 		'dataContainer' => DC_Table::class,
         'enableVersioning' => true,
 		'onsubmit_callback' => array(
-			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
+			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp'),
+			array('Merconis\Core\ls_shop_steuersaetze', 'blockRedirectIfErrorsExist')
 		),
 		'ondelete_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -139,6 +143,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
                 'rgxp'=>'date',
                 'datepicker'=>true,
                 'tl_class'=>'w50 wizard clr'),
+            'save_callback' => array(
+                array('Merconis\Core\ls_shop_steuersaetze', 'validateDatePeriodField')
+            ),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
@@ -150,6 +157,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
                 'rgxp'=>'date',
                 'datepicker'=>true,
                 'tl_class'=>'w50 wizard'),
+            'save_callback' => array(
+                array('Merconis\Core\ls_shop_steuersaetze', 'validateDatePeriodField')
+            ),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
@@ -191,6 +201,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
                 'rgxp'=>'date',
                 'datepicker'=>true,
                 'tl_class'=>'w50 wizard clr'),
+            'save_callback' => array(
+                array('Merconis\Core\ls_shop_steuersaetze', 'validateDatePeriodField')
+            ),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		),
 
@@ -202,6 +215,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
                 'rgxp'=>'date',
                 'datepicker'=>true,
                 'tl_class'=>'w50 wizard'),
+            'save_callback' => array(
+                array('Merconis\Core\ls_shop_steuersaetze', 'validateDatePeriodField')
+            ),
             'sql'                     => "varchar(10) NOT NULL default ''"
 		)
 	)
@@ -209,6 +225,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'] = array(
 
 
 class ls_shop_steuersaetze extends Backend {
+
+    private static bool $periodValidationErrorOccurred = false;
+    private static array $errorMessagesAdded = [];
+
+    public function __construct()
+    {
+        parent::__construct();
+        self::$periodValidationErrorOccurred = false;
+        self::$errorMessagesAdded = [];
+    }
+
+
 	public function generateAlias($varValue, DataContainer $dc) {
 		$autoAlias = false;
 
@@ -280,4 +308,91 @@ class ls_shop_steuersaetze extends Backend {
 			return $varValue;
 		}
 	}
+
+
+    public function validateDatePeriodField($varValue, DataContainer $dc)
+    {
+
+        $startPeriod1Raw = Input::post('startPeriod1');
+        $stopPeriod1Raw  = Input::post('stopPeriod1');
+        $startPeriod2Raw = Input::post('startPeriod2');
+        $stopPeriod2Raw  = Input::post('stopPeriod2');
+
+        $currentFieldName = $dc->field;
+
+        switch ($currentFieldName) {
+            case 'startPeriod1': $startPeriod1Raw = $varValue; break;
+            case 'stopPeriod1':  $stopPeriod1Raw  = $varValue; break;
+            case 'startPeriod2': $startPeriod2Raw = $varValue; break;
+            case 'stopPeriod2':  $stopPeriod2Raw  = $varValue; break;
+        }
+
+        $getTimestamp = function($value) {
+            if ($value !== null && $value !== '' && is_numeric($value)) return (int) $value;
+            if (is_string($value) && !empty($value)) {
+                try {
+                    $date = new \DateTime($value);
+                    return $date->getTimestamp();
+                } catch (\Exception $e) {
+                }
+            }
+            return null;
+        };
+
+        $start1 = $getTimestamp($startPeriod1Raw);
+        $stop1  = $getTimestamp($stopPeriod1Raw);
+        $start2 = $getTimestamp($startPeriod2Raw);
+        $stop2  = $getTimestamp($stopPeriod2Raw);
+
+
+        $addErrorOnce = function($messageKey) {
+            if (!isset(self::$errorMessagesAdded[$messageKey])) {
+                Message::addError($GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze'][$messageKey]);
+                self::$errorMessagesAdded[$messageKey] = true;
+                self::$periodValidationErrorOccurred = true;
+            }
+        };
+
+
+        if ($start1 !== null && $stop1 === null) {
+            $addErrorOnce('err_missingStopDatePeriod1');
+        }
+        if ($start1 === null && $stop1 !== null) {
+            $addErrorOnce('err_missingStartDatePeriod1');
+        }
+        if ($start1 !== null && $stop1 !== null && $stop1 < $start1) {
+            $addErrorOnce('err_stopDateBeforeStartDatePeriod1');
+        }
+
+        if ($start2 !== null && $stop2 === null) {
+            $addErrorOnce('err_missingStopDatePeriod2');
+        }
+        if ($start2 === null && $stop2 !== null) {
+            $addErrorOnce('err_missingStartDatePeriod2');
+        }
+        if ($start2 !== null && $stop2 !== null && $stop2 < $start2) {
+            $addErrorOnce('err_stopDateBeforeStartDatePeriod2');
+        }
+
+        if ($start1 !== null && $stop1 !== null && $start2 !== null && $stop2 !== null) {
+            if ($start1 <= $stop2 && $start2 <= $stop1) {
+                $addErrorOnce('err_periodsOverlap');
+        }
+            }
+
+        if (self::$periodValidationErrorOccurred) {
+            return $dc->activeRecord->$currentFieldName;
+        }
+
+        return $varValue;
+    }
+
+
+    public function blockRedirectIfErrorsExist(DataContainer $dc): void
+    {
+        // Force a page reload to block redirection and display errors
+        if (!empty(self::$errorMessagesAdded)) {
+            Controller::reload();
+        }
+    }
 }
