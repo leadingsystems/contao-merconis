@@ -1044,6 +1044,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_quantityComparisonDivisor' => 'Feldwert für "quantityComparisonDivisor" ist ungültig (muss ein Dezimalwert sein (0-9, Dezimalpunkt und Minuszeichen sind erlaubt)): Zeile(n) Nr. %s',
 	'productValueInvalid_template' => 'Feldwert für "template" ist ungültig (max. 64 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'productValueInvalid_producer' => 'Feldwert für "producer" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
+
+	'valueInvalid_pageTitle' => 'Feldwert für "pageTitle" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
+	'valueInvalid_metaDescription' => 'Feldwert für "metaDescription" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
+
 	'valueInvalid_productcode' => 'Feldwert für "productcode" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'variantValueInvalid_productcode' => 'Feldwert für "productcode" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'valueInvalid_scalePriceType' => 'Feldwert für "scalePriceType" ist ungültig: Zeile(n) Nr. %s',
