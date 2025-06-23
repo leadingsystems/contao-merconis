@@ -278,29 +278,21 @@ class ls_shop_generalHelper
             $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $str_productOrVariantCode;
         }
 
-        if (!is_dir($str_pathToSpecificProductImageFolder)) {
-            error_log("the article folder for product images possibly doesn't exist.");
-            return $arr_productImages;
-        }
-
-        $finder = (new Finder())->files()->in($str_pathToSpecificProductImageFolder)->depth('== 0');
-        if($finder->hasResults())
-        {
-            foreach ($finder as $file)
-            {
-                $arr_productImages[] = $file->getPathname();
-            }
-
-            if (isset($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder']) && is_array($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'])) {
-                foreach ($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'] as $mccb) {
-                    $objMccb = System::importStatic($mccb[0]);
-                    $arr_productImages = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $arr_productImages);
+        //If no image is set directly, search for images in folder
+        if(is_dir($str_pathToSpecificProductImageFolder)) {
+            $finder = (new Finder())->files()->in($str_pathToSpecificProductImageFolder)->depth('== 0');
+            if ($finder->hasResults()) {
+                foreach ($finder as $file) {
+                    $arr_productImages[] = $file->getPathname();
                 }
             }
+        }
 
-        } else {
-            error_log("product images possibly doesn't exist.");
-            return $arr_productImages;
+        if (isset($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder']) && is_array($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'] as $mccb) {
+                $objMccb = System::importStatic($mccb[0]);
+                $arr_productImages = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $arr_productImages);
+            }
         }
 
         return $arr_productImages;
