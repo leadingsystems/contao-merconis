@@ -911,7 +911,9 @@ class ls_shop_productManagementApiHelper {
 					'lsShopProductQuantityUnit',
 					'lsShopProductMengenvergleichUnit',
 					'shortDescription',
-					'flex_contents'
+					'flex_contents',
+                    'pageTitle',
+                    'pageDescription'
 				),
 				array(
 					$arr_preprocessedDataRow['name'],
@@ -926,7 +928,9 @@ class ls_shop_productManagementApiHelper {
 					$arr_preprocessedDataRow['unit'],
 					$arr_preprocessedDataRow['quantityComparisonUnit'],
 					$arr_preprocessedDataRow['shortDescription'],
-					$arr_preprocessedDataRow['flex_contents']
+					$arr_preprocessedDataRow['flex_contents'],
+                    $arr_preprocessedDataRow['pageTitle'], // String, maxlength 255
+                    $arr_preprocessedDataRow['metaDescription'], // String, maxlength 255
 				)
 			);
 		}
@@ -1058,7 +1062,9 @@ class ls_shop_productManagementApiHelper {
 					'lsShopProductQuantityUnit',
 					'lsShopProductMengenvergleichUnit',
 					'shortDescription',
-					'flex_contents'
+					'flex_contents',
+                    'pageTitle',
+                    'pageDescription'
 				),
 				array(
 					$arr_preprocessedDataRow['name'],
@@ -1073,7 +1079,9 @@ class ls_shop_productManagementApiHelper {
 					$arr_preprocessedDataRow['unit'],
 					$arr_preprocessedDataRow['quantityComparisonUnit'],
 					$arr_preprocessedDataRow['shortDescription'],
-					$arr_preprocessedDataRow['flex_contents']
+					$arr_preprocessedDataRow['flex_contents'],
+                    $arr_preprocessedDataRow['pageTitle'], // String, maxlength 255
+                    $arr_preprocessedDataRow['metaDescription'], // String, maxlength 255
 				)
 			);
 		}
@@ -1391,7 +1399,9 @@ class ls_shop_productManagementApiHelper {
 				'lsShopProductQuantityUnit',
 				'lsShopProductMengenvergleichUnit',
 				'shortDescription',
-				'flex_contents'
+				'flex_contents',
+                'pageTitle',
+                'pageDescription'
 			),
 			array(
 				$arr_preprocessedDataRow['name'],
@@ -1406,7 +1416,9 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['unit'],
 				$arr_preprocessedDataRow['quantityComparisonUnit'],
 				$arr_preprocessedDataRow['shortDescription'],
-				$arr_preprocessedDataRow['flex_contents']
+				$arr_preprocessedDataRow['flex_contents'],
+                $arr_preprocessedDataRow['pageTitle'], // String, maxlength 255
+                $arr_preprocessedDataRow['metaDescription'], // String, maxlength 255
 			)
 		);
 	}
