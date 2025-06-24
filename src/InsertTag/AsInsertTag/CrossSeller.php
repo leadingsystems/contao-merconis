@@ -19,6 +19,7 @@ class CrossSeller extends InsertTag
         }
         $objCrossSeller = new ls_shop_cross_seller($crossSellerID);
         $str_output = $objCrossSeller->parseCrossSeller();
+        $str_output = $str_output === null ? '' : $str_output;
         if ($arrParams[1]) {
             unset($GLOBALS['merconis_globals']['str_currentProductAliasForCrossSeller']);
         }

@@ -5,6 +5,7 @@ Leading Systems Contao Merconis bundle changelog
  * improve user input for 'Steuersätze'
  * improve hook 'getImagesFromProductFolder' if empty image array
  * add new fields for product importer
+ * fix crossSeller inserttag
 
 ### 5.1.4 (2025-05-16)
  * fix delete button 'Mehrere bearbeiten'
