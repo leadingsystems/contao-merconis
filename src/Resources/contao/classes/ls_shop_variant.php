@@ -1472,7 +1472,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 		if (is_array($this->ls_data)) {
 			foreach ($this->ls_data as $languageKey => $arrLanguageData) {
-                if (isset($arrLanguageData['lsShopProductStock'])) {
+                if (array_key_exists('lsShopVariantStock', ls_shop_generalHelper::ensureArray($arrLanguageData))) {
 					$this->ls_data[$languageKey]['lsShopVariantStock'] = $objFreshestStock->lsShopVariantStock;
 				}
 			}

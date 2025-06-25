@@ -5473,4 +5473,33 @@ class ls_shop_generalHelper
     {
         return Environment::get('url') . Environment::get('path') . ($trailSlash ? '/' : '');
     }
+
+    /**
+     * Converts an array-like variable into a real array.
+     *
+     * This is necessary in situations where a function expects an array (e.g. array_key_exists)
+     * and might get either a real array (which is okay, of course) or an instance of ProductDataAccessProxy
+     * (which would fail).
+     *
+     * Handles real arrays and any Traversable object (Iterators, Generators, etc.).
+     * Throws an exception for unsupported types.
+     *
+     * @param mixed $input The variable to convert.
+     * @return array
+     * @throws \InvalidArgumentException If the input is not array-like.
+     */
+    public static function ensureArray($input): array
+    {
+        if (is_array($input)) {
+            return $input;
+        }
+
+        if ($input instanceof \Traversable) {
+            return iterator_to_array($input);
+        }
+
+        throw new \InvalidArgumentException(
+            'Input could not be converted to an array. Expected an array or a Traversable object, but got ' . gettype($input)
+        );
+    }
 }
