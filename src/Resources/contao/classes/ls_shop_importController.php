@@ -788,8 +788,8 @@ class ls_shop_importController
                     $row['quantityComparisonUnit'],
                     $row['shortDescription'],
                     $row['flex_contents'],
-                    $row['pageTitle'], // String, maxlength 255
-                    $row['metaDescription'], // String, maxlength 255
+                    is_null($row['pageTitle']) ? '' : $row['pageTitle'], // String, maxlength 255
+                    is_null($row['metaDescription']) ? '' : $row['metaDescription'], // String, maxlength 255
                 )
 			);
 			
@@ -947,8 +947,8 @@ class ls_shop_importController
                     $row['quantityComparisonUnit'],
                     $row['shortDescription'],
                     $row['flex_contents'],
-                    $row['pageTitle'], // String, maxlength 255
-                    $row['metaDescription'], // String, maxlength 255
+                    is_null($row['pageTitle']) ? '' : $row['pageTitle'], // String, maxlength 255
+                    is_null($row['metaDescription']) ? '' : $row['metaDescription'], // String, maxlength 255
                 )
             );
 
@@ -1430,8 +1430,8 @@ class ls_shop_importController
                 $row['quantityComparisonUnit'],
                 $row['shortDescription'],
                 $row['flex_contents'],
-                $row['pageTitle'], // String, maxlength 255
-                $row['metaDescription'], // String, maxlength 255
+                is_null($row['pageTitle']) ? '' : $row['pageTitle'], // String, maxlength 255
+                is_null($row['metaDescription']) ? '' : $row['metaDescription'], // String, maxlength 255
             )
         );
 			
