@@ -32,3 +32,12 @@
 	 * Misc
 	 */
 	$GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['wildcardNotAllowed'] = 'You can not use dynamic values because you already assigned this tax rate to at least one product.';
+
+
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_missingStopDatePeriod1'] = 'For period 1, a start date was entered, but no end date.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_missingStartDatePeriod1'] = 'For period 1, a end date was entered, but no start date.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_stopDateBeforeStartDatePeriod1'] = 'The end date for period 1 must not be before the start date.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_missingStopDatePeriod2'] = 'For period 2, a start date was entered, but no end date.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_missingStartDatePeriod2'] = 'For period 2, a end date was entered, but no start date.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_stopDateBeforeStartDatePeriod2'] = 'The end date for period 2 must not be before the start date.';
+    $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']['err_periodsOverlap'] = 'The date ranges for period 1 and period 2 must not overlap.';
