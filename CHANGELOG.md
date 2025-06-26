@@ -6,6 +6,7 @@ Leading Systems Contao Merconis bundle changelog
  * improve hook 'getImagesFromProductFolder' if empty image array
  * add new fields for product importer
  * fix crossSeller inserttag
+ * add a data proxy because of the Customizer
 
 ### 5.1.4 (2025-05-16)
  * fix delete button 'Mehrere bearbeiten'
