@@ -229,6 +229,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText155'] = 'Edit';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText156'] = 'Send message';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['currentlyNotAvailable'] = 'Currently not in stock';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline'] = 'Product settings';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['workingDays'] = 'working days';
