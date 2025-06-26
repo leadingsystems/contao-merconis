@@ -8,8 +8,6 @@ if ($this->objVariant !== null) {
 } else {
 	$obj_tmp_productOrVariant = $this->objProduct;
 }
-
-//$obj_tmp_productOrVariant->loadCustomizer();
 ?>
 
 <div class="priceContainer">
