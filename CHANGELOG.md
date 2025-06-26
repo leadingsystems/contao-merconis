@@ -1,7 +1,7 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.1.5 (2025-06-27)
+### 5.1.5 (2025-06-26)
  * improve user input for 'Steuersätze'
  * improve hook 'getImagesFromProductFolder' if empty image array
  * add new fields for product importer
