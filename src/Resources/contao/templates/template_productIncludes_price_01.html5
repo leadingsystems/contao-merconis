@@ -1,7 +1,9 @@
 <?php
 global $objPage;
 $obj_tmp_productOrVariant = null;
-if ($this->objProduct->_variantIsSelected) {
+if ($this->objVariant !== null) {
+    $obj_tmp_productOrVariant = $this->objVariant;
+} else if ($this->objProduct->_variantIsSelected) {
 	$obj_tmp_productOrVariant = $this->objProduct->_selectedVariant;
 } else {
 	$obj_tmp_productOrVariant = $this->objProduct;
@@ -178,7 +180,7 @@ if ($this->objProduct->_variantIsSelected) {
                                                 <span class="value"><?php echo $arrStep['priceConfigurator']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
                                             </div>
                                         <?php } ?>
-                                        <div class="finalPrice">
+                                        <div class="finalPrice scalePrice<?php echo $count; ?>">
                                             <?php
                                             if (
                                                 // we have a configuration which affects the price

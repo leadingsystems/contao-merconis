@@ -278,29 +278,21 @@ class ls_shop_generalHelper
             $str_pathToSpecificProductImageFolder = ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_standardProductImageFolder']) . '/' . $str_productOrVariantCode;
         }
 
-        if (!is_dir($str_pathToSpecificProductImageFolder)) {
-            error_log("the article folder for product images possibly doesn't exist.");
-            return $arr_productImages;
-        }
-
-        $finder = (new Finder())->files()->in($str_pathToSpecificProductImageFolder)->depth('== 0');
-        if($finder->hasResults())
-        {
-            foreach ($finder as $file)
-            {
-                $arr_productImages[] = $file->getPathname();
-            }
-
-            if (isset($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder']) && is_array($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'])) {
-                foreach ($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'] as $mccb) {
-                    $objMccb = System::importStatic($mccb[0]);
-                    $arr_productImages = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $arr_productImages);
+        //If no image is set directly, search for images in folder
+        if(is_dir($str_pathToSpecificProductImageFolder)) {
+            $finder = (new Finder())->files()->in($str_pathToSpecificProductImageFolder)->depth('== 0');
+            if ($finder->hasResults()) {
+                foreach ($finder as $file) {
+                    $arr_productImages[] = $file->getPathname();
                 }
             }
+        }
 
-        } else {
-            error_log("product images possibly doesn't exist.");
-            return $arr_productImages;
+        if (isset($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder']) && is_array($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['getImagesFromProductFolder'] as $mccb) {
+                $objMccb = System::importStatic($mccb[0]);
+                $arr_productImages = $objMccb->{$mccb[1]}($obj_product, $str_productOrVariantCode, $arr_productImages);
+            }
         }
 
         return $arr_productImages;
@@ -5480,5 +5472,34 @@ class ls_shop_generalHelper
     public static function getEnvironmentBase($trailSlash = false): string
     {
         return Environment::get('url') . Environment::get('path') . ($trailSlash ? '/' : '');
+    }
+
+    /**
+     * Converts an array-like variable into a real array.
+     *
+     * This is necessary in situations where a function expects an array (e.g. array_key_exists)
+     * and might get either a real array (which is okay, of course) or an instance of ProductDataAccessProxy
+     * (which would fail).
+     *
+     * Handles real arrays and any Traversable object (Iterators, Generators, etc.).
+     * Throws an exception for unsupported types.
+     *
+     * @param mixed $input The variable to convert.
+     * @return array
+     * @throws \InvalidArgumentException If the input is not array-like.
+     */
+    public static function ensureArray($input): array
+    {
+        if (is_array($input)) {
+            return $input;
+        }
+
+        if ($input instanceof \Traversable) {
+            return iterator_to_array($input);
+        }
+
+        throw new \InvalidArgumentException(
+            'Input could not be converted to an array. Expected an array or a Traversable object, but got ' . gettype($input)
+        );
     }
 }

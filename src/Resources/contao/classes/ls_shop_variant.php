@@ -6,6 +6,7 @@ use Contao\Database;
 use Contao\FrontendTemplate;
 use Contao\PageModel;
 use Contao\System;
+use LeadingSystems\MerconisBundle\Proxy\ProductDataAccessProxy;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -57,10 +58,20 @@ class ls_shop_variant
     // Holds image galleries created with getImageGallery()
     protected $arr_imageGalleries = [];
 
+    public array $modifiedDataKeys = [];
+
 	public function __construct($intID = 0, $productID = 0, &$objParentProduct = null) {
 		$this->ls_ID = $intID;
 		$this->ls_productID = $productID;
 		$this->ls_productVariantID = $this->ls_productID.'-'.$this->ls_ID;
+
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_modifiedDataKeys =  $session->get('merconis_modifiedDataKeys');
+        if (isset($session_modifiedDataKeys[$this->ls_productVariantID])) {
+            $this->modifiedDataKeys = $session_modifiedDataKeys[$this->ls_productVariantID];
+        }
+        $session_modifiedDataKeys[$this->ls_productVariantID] = &$this->modifiedDataKeys;
+        $session->set('merconis_modifiedDataKeys', $session_modifiedDataKeys);
 
 		$this->ls_objParentProduct = &$objParentProduct;
 
@@ -68,8 +79,8 @@ class ls_shop_variant
 	}
 
     protected function createCustomizerObject() {
-        $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
         $this->bln_alreadyAttemptedToCreateCustomizerObject = true;
+        $this->obj_customizer = ls_shop_generalHelper::getCustomizerObject($this);
     }
 
 	public function createObjConfigurator() {
@@ -1352,7 +1363,11 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			}
 		}
 
-        $this->arr_customizableData = $this->arr_originalData;
+        $this->arr_customizableData = [];
+
+        foreach ($this->arr_originalData as $langCode => $languageSubArray) {
+            $this->arr_customizableData[$langCode] = new ProductDataAccessProxy($languageSubArray, $this);
+        }
 
         $this->ls_data = &$this->arr_customizableData;
 
@@ -1379,6 +1394,12 @@ This method can be used to call a function hooked with the "callingHookedProduct
     public function useCustomizableData() {
         $this->ls_data = &$this->arr_customizableData;
         $this->setDataReferences();
+    }
+
+    public function loadCustomizer() {
+        if(!$this->bln_alreadyAttemptedToCreateCustomizerObject){
+            $this->createCustomizerObject();
+        }
     }
 
 	public function calculateWeightRegardingWeightType() {
@@ -1451,7 +1472,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 
 		if (is_array($this->ls_data)) {
 			foreach ($this->ls_data as $languageKey => $arrLanguageData) {
-				if (array_key_exists('lsShopVariantStock', $arrLanguageData)) {
+                if (array_key_exists('lsShopVariantStock', ls_shop_generalHelper::ensureArray($arrLanguageData))) {
 					$this->ls_data[$languageKey]['lsShopVariantStock'] = $objFreshestStock->lsShopVariantStock;
 				}
 			}

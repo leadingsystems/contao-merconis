@@ -330,7 +330,10 @@ class ls_shop_importController
 			'productValueInvalid_quantityDecimals' => false,
 			'productValueInvalid_template' => false,
 			'productValueInvalid_producer' => false,
-			
+
+            'valueInvalid_pageTitle' => false,
+            'valueInvalid_metaDescription' => false,
+
 			'valueInvalid_scalePriceType' => false,
 			'valueInvalid_scalePriceQuantityDetectionMethod' => false,
 			'valueInvalid_scalePriceKeyword' => false,
@@ -764,8 +767,30 @@ class ls_shop_importController
 				$alreadyExistsAsID,
 				$row['language'],
 				'tl_ls_shop_product_languages',
-				array('title', 'alias', 'keywords', 'description', 'lsShopProductQuantityUnit', 'lsShopProductMengenvergleichUnit', 'shortDescription', 'flex_contents'),
-				array($row['name'], ls_shop_productManagementApiHelper::generateProductAlias($row['name'], $row['alias'], $alreadyExistsAsID, $row['language']), $row['keywords'],$row['description'],$row['unit'],$row['quantityComparisonUnit'],$row['shortDescription'],$row['flex_contents'])
+				array(
+                    'title',
+                    'alias',
+                    'keywords',
+                    'description',
+                    'lsShopProductQuantityUnit',
+                    'lsShopProductMengenvergleichUnit',
+                    'shortDescription',
+                    'flex_contents',
+                    'pageTitle',
+                    'pageDescription'
+                ),
+				array(
+                    $row['name'],
+                    ls_shop_productManagementApiHelper::generateProductAlias($row['name'], $row['alias'], $alreadyExistsAsID, $row['language']),
+                    $row['keywords'],
+                    $row['description'],
+                    $row['unit'],
+                    $row['quantityComparisonUnit'],
+                    $row['shortDescription'],
+                    $row['flex_contents'],
+                    is_null($row['pageTitle']) ? '' : $row['pageTitle'], // String, maxlength 255
+                    is_null($row['metaDescription']) ? '' : $row['metaDescription'], // String, maxlength 255
+                )
 			);
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData'])) {
@@ -897,13 +922,38 @@ class ls_shop_importController
 			/*
 			 * Spracheinträge schreiben
 			 */
-			ls_shop_languageHelper::saveMultilanguageValue(
-				$newProductID,
-				$row['language'],
-				'tl_ls_shop_product_languages',
-				array('title', 'alias', 'keywords', 'description', 'lsShopProductQuantityUnit', 'lsShopProductMengenvergleichUnit', 'shortDescription', 'flex_contents'),
-				array($row['name'], ls_shop_productManagementApiHelper::generateProductAlias($row['name'], $row['alias'], $newProductID, $row['language']),$row['keywords'],$row['description'],$row['unit'],$row['quantityComparisonUnit'],$row['shortDescription'],$row['flex_contents'])
-			);
+            ls_shop_languageHelper::saveMultilanguageValue(
+                $newProductID,
+                $row['language'],
+                'tl_ls_shop_product_languages',
+                array(
+                    'title',
+                    'alias',
+                    'keywords',
+                    'description',
+                    'lsShopProductQuantityUnit',
+                    'lsShopProductMengenvergleichUnit',
+                    'shortDescription',
+                    'flex_contents',
+                    'pageTitle',
+                    'pageDescription'
+                ),
+                array(
+                    $row['name'],
+                    ls_shop_productManagementApiHelper::generateProductAlias($row['name'], $row['alias'], $newProductID, $row['language']),
+                    $row['keywords'],
+                    $row['description'],
+                    $row['unit'],
+                    $row['quantityComparisonUnit'],
+                    $row['shortDescription'],
+                    $row['flex_contents'],
+                    is_null($row['pageTitle']) ? '' : $row['pageTitle'], // String, maxlength 255
+                    is_null($row['metaDescription']) ? '' : $row['metaDescription'], // String, maxlength 255
+                )
+            );
+
+
+
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData'] as $mccb) {
@@ -1355,13 +1405,35 @@ class ls_shop_importController
 		/*
 		 * Datensatz in Sprachtabelle schreiben
 		 */
-		ls_shop_languageHelper::saveMultilanguageValue(
-			$parentProductID,
-			$row['language'],
-			'tl_ls_shop_product_languages',
-			array('title', 'alias', 'keywords', 'description', 'lsShopProductQuantityUnit', 'lsShopProductMengenvergleichUnit', 'shortDescription', 'flex_contents'),
-			array($row['name'], ls_shop_productManagementApiHelper::generateProductAlias($row['name'], $row['alias'], $parentProductID, $row['language']), $row['keywords'],$row['description'],$row['unit'],$row['quantityComparisonUnit'],$row['shortDescription'],$row['flex_contents'])
-		);
+        ls_shop_languageHelper::saveMultilanguageValue(
+            $parentProductID,
+            $row['language'],
+            'tl_ls_shop_product_languages',
+            array(
+                'title',
+                'alias',
+                'keywords',
+                'description',
+                'lsShopProductQuantityUnit',
+                'lsShopProductMengenvergleichUnit',
+                'shortDescription',
+                'flex_contents',
+                'pageTitle',
+                'pageDescription'
+            ),
+            array(
+                $row['name'],
+                ls_shop_productManagementApiHelper::generateProductAlias($row['name'], $row['alias'], $parentProductID, $row['language']),
+                $row['keywords'],
+                $row['description'],
+                $row['unit'],
+                $row['quantityComparisonUnit'],
+                $row['shortDescription'],
+                $row['flex_contents'],
+                is_null($row['pageTitle']) ? '' : $row['pageTitle'], // String, maxlength 255
+                is_null($row['metaDescription']) ? '' : $row['metaDescription'], // String, maxlength 255
+            )
+        );
 			
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterWritingProductLanguageData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterWritingProductLanguageData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterWritingProductLanguageData'] as $mccb) {
@@ -1950,6 +2022,22 @@ class ls_shop_importController
 				
 				return strlen($row['producer']) > 255;
 				break;
+
+            case 'valueInvalid_pageTitle':
+                if ($row['delete'] || $row['type'] != 'product') {
+                    break;
+                }
+
+                return strlen($row['pageTitle']) > 255;
+                break;
+
+            case 'valueInvalid_metaDescription':
+                if ($row['delete'] || $row['type'] != 'product') {
+                    break;
+                }
+
+                return strlen($row['metaDescription']) > 255;
+                break;
 			
 			case 'valueInvalid_productcode':
 				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {

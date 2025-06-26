@@ -86,7 +86,16 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-
+                'pageTitle' => array(
+                    'preprocessor' => 'preprocess_string_maxlength_255',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
+                'metaDescription' => array(
+                    'preprocessor' => 'preprocess_string_maxlength_255',
+                    'description' => '',
+                    'fieldType' => 'input_output'
+                ),
 				'price' => array(
 					'preprocessor' => 'preprocess_price',
 					'description' => '',
