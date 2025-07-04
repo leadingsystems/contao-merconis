@@ -68,6 +68,11 @@ class ls_shop_product
 
     public array $modifiedDataKeys = [];
 
+    // Cache of Array containing the pages which the product is assigned to use _pages
+    private $cache_pages = [];
+    // Cache for ids for pageModel
+    private static array $pageModelCache = [];
+
     public function __construct($intID = false, $configuratorHash = '') {
 		$this->ls_ID = $intID;
 
@@ -824,23 +829,26 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
                 return StringUtil::deserialize($this->mainData['allowedGroups'], true);
                 break;
 
-			case '_pages'
-				/* ## DESCRIPTION:
-Returns an Array containing the pages which the product is assigned to
-				 */
-				:
-				$arr_pages = StringUtil::deserialize($this->mainData['pages']);
+            case '_pages':
+                /* ## DESCRIPTION:
+                Returns an Array containing the pages which the product is assigned to
+                                 */
 
-				$arr_pagesForDomain = array();
-				foreach ($arr_pages as $int_pageID) {
-					$pageInfo = PageModel::findWithDetails($int_pageID);
-					if (!is_object($objPage) || $pageInfo->domain == $objPage->domain) {
-						$arr_pagesForDomain[] = $int_pageID;
-					}
-				}
-				$arr_pages = $arr_pagesForDomain;
+                if (!isset($this->cache_pages)) {
+                    $arr_pages = StringUtil::deserialize($this->mainData['pages'] ?? '');
 
-				return $arr_pages;
+                    $arr_pagesForDomain = array();
+                    foreach ($arr_pages as $int_pageID) {
+                        $pageInfo = PageModel::findWithDetails($int_pageID);
+                        if (!is_object($objPage) || $pageInfo->domain == $objPage->domain) {
+                            $arr_pagesForDomain[] = $int_pageID;
+                        }
+                    }
+
+                    $this->cache_pages = $arr_pagesForDomain;
+                }
+
+                return $this->cache_pages;
 				break;
 
 			case '_variants'
@@ -2494,7 +2502,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
         /** @var PageModel $objPage */
         global $objPage;
         $currentMainLanguagePageID = ls_shop_languageHelper::getMainlanguagePageIDForPageID($objPage->id);
-
         /*-->
          * Prüfen, ob die aktuelle Hauptsprachseite dem Produkt hinterlegt ist
          <--*/
@@ -2511,7 +2518,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
              <--*/
             $MainLanguagePageIDForLink = null;
             foreach ($this->_pages as $int_pageID) {
-                $pageInfo = PageModel::findWithDetails($int_pageID);
+                $pageInfo = $this->getPageDetails($int_pageID);
                 if ($pageInfo !== null && $pageInfo->published == "1") {
                     $MainLanguagePageIDForLink = $int_pageID;
                     break;
@@ -2526,7 +2533,8 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $languagePages = ls_shop_languageHelper::getLanguagePages($MainLanguagePageIDForLink);
             $currentLanguagePageIDForLink = $languagePages[$objPage->language]['id'];
 
-            $objProductPage = PageModel::findWithDetails($currentLanguagePageIDForLink);
+            $objProductPage = $this->getPageDetails($currentLanguagePageIDForLink);
+
         }
 
         if (!is_object($objProductPage)) {
@@ -2538,12 +2546,20 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $addReturnPageToUrl = '/calledBy/searchResult';
         }
 
-        $pageModel = PageModel::findWithDetails($objProductPage->row()['id']);
+        $pageModel = $this->getPageDetails($objProductPage->row()['id']);
         $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
         $this->ls_linkToProduct = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl));
 
 		return $this->ls_linkToProduct;
 	}
+
+    //caches the id for PageModel::findWithDetails so it can be used again
+    protected function getPageDetails(int $pageId): ?PageModel {
+        if (!isset(self::$pageModelCache[$pageId])) {
+            self::$pageModelCache[$pageId] = PageModel::findWithDetails($pageId);
+        }
+        return self::$pageModelCache[$pageId];
+    }
 
 
 	protected function getScalePricesOutput($mode = 'unconfigured') {
