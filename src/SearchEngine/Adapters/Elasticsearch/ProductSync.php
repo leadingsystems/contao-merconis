@@ -54,16 +54,24 @@ class ProductSync
             $esBatch = $this->getProductSyncBatchFromElasticsearch($lastId, $batchLastId);
 
             // Insert missing/update changed
+            $numOperations = [
+                'insert' => 0,
+                'update' => 0,
+                'delete' => 0
+            ];
+
             $bulkOps = [];
             foreach ($mysqlBatch as $productId => $product) {
                 if (!isset($esBatch[$productId])) {
                     // New to ES: Insert
                     $bulkOps[] = ['index' => ['_index' => $this->elasticsearchAdapterClient->productIndexName, '_id' => $productId]];
                     $bulkOps[] = $product;
+                    $numOperations['insert']++;
                 } elseif ($esBatch[$productId] !== $product['content_hash']) {
                     // Changed: Update
                     $bulkOps[] = ['index' => ['_index' => $this->elasticsearchAdapterClient->productIndexName, '_id' => $productId]];
                     $bulkOps[] = $product;
+                    $numOperations['update']++;
                 }
             }
 
@@ -71,6 +79,7 @@ class ProductSync
             foreach ($esBatch as $productId => $hash) {
                 if (!isset($mysqlBatch[$productId])) {
                     $bulkOps[] = ['delete' => ['_index' => $this->elasticsearchAdapterClient->productIndexName, '_id' => $productId]];
+                    $numOperations['delete']++;
                 }
             }
 
@@ -95,7 +104,10 @@ class ProductSync
             ls_shop_singularStorage::getInstance()->{$syncStatusSingularStorageKey} = $batchLastId;
 
             $message = "Batch {$batchFirstId} - {$batchLastId} processed. "
-                . count($bulkOps) . ' ES actions. ';
+                . ' Insert: ' . $numOperations['insert']
+                . ', Update: ' . $numOperations['update']
+                . ', Delete: ' . $numOperations['delete'];
+
             if (!empty($allFailedItems)) {
                 $message .= "Some failures (" . count($allFailedItems) . ")";
                 $operationResult->setSuccess(false);
