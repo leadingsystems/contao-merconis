@@ -22,10 +22,15 @@ services:
 
   # Search engine adapter/client services, auto tagged with _instanceof, therefore depending on implementing Adapters\ClientInterface -->
   LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch\Client:
+    arguments:
+      - '@LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch\ProductSync'
+
   LeadingSystems\MerconisBundle\SearchEngine\Adapters\OpenSearch\Client:
   LeadingSystems\MerconisBundle\SearchEngine\Adapters\Solr\Client:
   # <--
-    
+
+  LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch\ProductSync:
+
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
       - '@contao.framework'
