@@ -21,6 +21,8 @@ class ProductSync
         $syncStatusSingularStorageKey = 'int_elasticSearchProductSyncPosition';
 
         try {
+            $highestProductIdFromMySQL = $this->getHighestProductIdFromMySQL();
+
             $lastId = ls_shop_singularStorage::getInstance()->{$syncStatusSingularStorageKey} ?? 0;
 
             $mysqlBatch = $this->getProductSyncBatchFromMySQL($lastId, $batchSize);
@@ -31,19 +33,6 @@ class ProductSync
                 $operationResult->setSuccess(true);
                 $operationResult->setMessage('No more batches to process. Sync completed. Will start over in the next run.');
 
-                /*
-                 * Do me! It is possible that there are documents in elasticsearch with ids higher than what was
-                 *  in the last MySQL batch. If so, they would be orphaned. But still, they would need to be read
-                 *  from elasticsearch and then processed here in order to be deleted from the elasticsearch index.
-                 *  .
-                 *  Possible solution:
-                 *  - Read the highest id from the product table first in this method and then
-                 *    detect the mysql batch that contains this record and therefore must be the last batch.
-                 *  - Then pass the info that it is the last batch to the elasticsearch batch getter function
-                 *    and in this function, eliminate the lte condition in this case.
-                 *
-                 */
-
                 return $operationResult;
             }
 
@@ -51,7 +40,9 @@ class ProductSync
             $batchFirstId = array_key_first($mysqlBatch);
             $batchLastId = array_key_last($mysqlBatch);
 
-            $esBatch = $this->getProductSyncBatchFromElasticsearch($lastId, $batchLastId);
+            $isLastBatch = (int) $batchLastId === $highestProductIdFromMySQL;
+
+            $esBatch = $this->getProductSyncBatchFromElasticsearch($lastId, $batchLastId, $isLastBatch);
 
             // Insert missing/update changed
             $numOperations = [
@@ -123,6 +114,24 @@ class ProductSync
         return $operationResult;
     }
 
+    private function getHighestProductIdFromMySQL(): int
+    {
+        $dbres = \Database::getInstance()
+            ->prepare("
+                SELECT id
+                FROM tl_ls_shop_product
+                ORDER BY id DESC
+            ")
+            ->limit(1)
+            ->execute();
+
+        if (!$dbres->numRows) {
+            return 0;
+        }
+
+        return (int) $dbres->first()->id;
+    }
+
     private function getProductSyncBatchFromMySQL($lastIdFromPreviousBatch, $batchSize): array
     {
         $batch = [];
@@ -157,9 +166,19 @@ class ProductSync
         return $batch;
     }
 
-    private function getProductSyncBatchFromElasticsearch($lastIdFromPreviousBatch, $lastIdFromCurrentBatch): array
+    private function getProductSyncBatchFromElasticsearch($lastIdFromPreviousBatch, $lastIdFromCurrentBatch, $isLastBatch = false): array
     {
         $batch = [];
+
+        $range = [
+            'gt' => $lastIdFromPreviousBatch
+        ];
+
+        // Only add 'lte' if this is NOT the last batch
+        if (!$isLastBatch) {
+            $range['lte'] = $lastIdFromCurrentBatch;
+        }
+
         $esParams = [
             'index' => $this->elasticsearchAdapterClient->productIndexName,
             'scroll' => '2m',
@@ -167,10 +186,7 @@ class ProductSync
                 '_source' => ['id', 'content_hash'],
                 'query' => [
                     'range' => [
-                        'id' => [
-                            'gt' => $lastIdFromPreviousBatch,
-                            'lte' => $lastIdFromCurrentBatch,
-                        ]
+                        'id' => $range
                     ]
                 ],
 
