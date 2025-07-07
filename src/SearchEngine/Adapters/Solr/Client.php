@@ -45,7 +45,7 @@ class Client implements ClientInterface
         return $operationResult;
     }
 
-    public function addAllProductsToIndex(): OperationResult
+    public function syncProducts(): OperationResult
     {
         $operationResult = new OperationResult();
         return $operationResult;
