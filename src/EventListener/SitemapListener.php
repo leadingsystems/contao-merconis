@@ -81,7 +81,7 @@ class SitemapListener
                 while ($objPagesForProduct->next()) {
                     $arrLanguagePages = ls_shop_languageHelper::getLanguagePages($objPagesForProduct->id);
                     foreach ($arrLanguagePages as $languagePageInfo) {
-                        $objPageForProduct = PageModel::findWithDetails($languagePageInfo['id']);
+                        $objPageForProduct = ls_shop_generalHelper::getPageDetails($languagePageInfo['id']);
 
                         $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
                         if ($str_languageAlias == '') {
