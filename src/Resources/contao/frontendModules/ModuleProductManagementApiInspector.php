@@ -36,7 +36,7 @@ class ModuleProductManagementApiInspector extends Module {
 		foreach ($arr_allRawResourceNames as $str_rawResourceName => $void) {
 			$str_resourceName = str_replace('apiResource_', '', $str_rawResourceName);
 
-            $pageModel = PageModel::findWithDetails($objPage->row()['id']);
+            $pageModel = ls_shop_generalHelper::getPageDetails($objPage->row()['id']);
             $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
             $str_href = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/selectedResource/'.$str_resourceName));
 
@@ -69,7 +69,7 @@ class ModuleProductManagementApiInspector extends Module {
 
 		$obj_apiPage->first();
 
-        $pageModel = PageModel::findWithDetails($obj_apiPage->row()['id']);
+        $pageModel = ls_shop_generalHelper::getPageDetails($obj_apiPage->row()['id']);
         $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
         $str_apiResourceUrl = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/resource/'.$str_selectedResource));
 

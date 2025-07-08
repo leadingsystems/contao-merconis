@@ -351,7 +351,7 @@ class ls_shop_checkoutData {
 			default:
 				if (!$this->blnCheckoutDataIsValid) {
 
-                    $pageModel = PageModel::findWithDetails($objPage->row()['id']);
+                    $pageModel = ls_shop_generalHelper::getPageDetails($objPage->row()['id']);
                     $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
 
 					Controller::redirect($objContentUrlGenerator->generate($pageModel));

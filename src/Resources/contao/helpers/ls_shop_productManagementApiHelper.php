@@ -370,7 +370,7 @@ class ls_shop_productManagementApiHelper {
 
             while ($obj_dbres_pages->next()) {
                 // Check whether root page is fallback language or not and only then add the page to the pageAliases array
-                $obj_pageDetails = PageModel::findWithDetails($obj_dbres_pages->id);
+                $obj_pageDetails = ls_shop_generalHelper::getPageDetails($obj_dbres_pages->id);
                 $obj_rootPage = Database::getInstance()
                     ->prepare("
                         SELECT * FROM `tl_page` WHERE `id` = ?

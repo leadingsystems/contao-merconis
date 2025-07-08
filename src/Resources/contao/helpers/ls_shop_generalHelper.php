@@ -45,6 +45,11 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_generalHelper
 {
+
+
+    // Cache for ids for pageModel
+    private static array $cache_pageModel = [];
+
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
      * and writes them into the allocation table
@@ -3440,7 +3445,7 @@ class ls_shop_generalHelper
 
         while ($objPages->next()) {
             // Check whether root page is fallback language or not and only then add the page to the options array
-            $objPageDetails = PageModel::findWithDetails($objPages->id);
+            $objPageDetails = ls_shop_generalHelper::getPageDetails($objPages->id);
             $objRootPage = Database::getInstance()->prepare("
 					SELECT * FROM `tl_page` WHERE `id` = ?
 				")
@@ -5501,5 +5506,13 @@ class ls_shop_generalHelper
         throw new \InvalidArgumentException(
             'Input could not be converted to an array. Expected an array or a Traversable object, but got ' . gettype($input)
         );
+    }
+
+    //caches the id for ls_shop_generalHelper::getPageDetails so it can be used again
+    public static function getPageDetails(int $pageId): ?PageModel {
+        if (!isset(self::$cache_pageModel[$pageId])) {
+            self::$cache_pageModel[$pageId] = ls_shop_generalHelper::getPageDetails($pageId);
+        }
+        return self::$cache_pageModel[$pageId];
     }
 }

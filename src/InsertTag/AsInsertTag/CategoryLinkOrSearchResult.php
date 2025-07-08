@@ -17,7 +17,7 @@ class CategoryLinkOrSearchResult extends InsertTag
 		/** @var PageModel $objPage */
 		global $objPage;
 
-        $pageModel = PageModel::findWithDetails($objPage->row()['id']);
+        $pageModel = ls_shop_generalHelper::getPageDetails($objPage->row()['id']);
         $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
 
         return Input::get('calledBy') == 'searchResult' ? ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages') : $objContentUrlGenerator->generate($pageModel);
