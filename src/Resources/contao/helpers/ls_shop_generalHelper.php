@@ -5511,7 +5511,7 @@ class ls_shop_generalHelper
     //caches the id for ls_shop_generalHelper::getPageDetails so it can be used again
     public static function getPageDetails(int $pageId): ?PageModel {
         if (!isset(self::$cache_pageModel[$pageId])) {
-            self::$cache_pageModel[$pageId] = ls_shop_generalHelper::getPageDetails($pageId);
+            self::$cache_pageModel[$pageId] = PageModel::findWithDetails($pageId);
         }
         return self::$cache_pageModel[$pageId];
     }
