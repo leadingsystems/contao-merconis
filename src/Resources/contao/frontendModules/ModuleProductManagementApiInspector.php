@@ -36,7 +36,7 @@ class ModuleProductManagementApiInspector extends Module {
 		foreach ($arr_allRawResourceNames as $str_rawResourceName => $void) {
 			$str_resourceName = str_replace('apiResource_', '', $str_rawResourceName);
 
-            $pageModel = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($objPage->row()['id']);
+            $pageModel = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetails($objPage->row()['id']);
             $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
             $str_href = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/selectedResource/'.$str_resourceName));
 
@@ -69,7 +69,7 @@ class ModuleProductManagementApiInspector extends Module {
 
 		$obj_apiPage->first();
 
-        $pageModel = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($obj_apiPage->row()['id']);
+        $pageModel = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetails($obj_apiPage->row()['id']);
         $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
         $str_apiResourceUrl = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/resource/'.$str_selectedResource));
 

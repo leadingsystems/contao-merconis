@@ -177,7 +177,3 @@ services:
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_output_definitions' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_shipping_methods' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_payment_methods' }
-
-  merconis.controller.page_controller:
-    class: LeadingSystems\MerconisBundle\Controller\PageController
-    public: true
