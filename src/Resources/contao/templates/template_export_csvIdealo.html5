@@ -51,7 +51,7 @@ if (is_array($this->arr_data) && count($this->arr_data)) {
 		$var_sku = $obj_product->_code;
 		$var_brand = $obj_product->_producer;
 		$var_title = $obj_product->_title;
-		$var_categoryPath = !is_array($obj_product->_pages) || !count($obj_product->_pages) ? '' : (System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetails($obj_product->_pages[0])->title);
+		$var_categoryPath = !is_array($obj_product->_pages) || !count($obj_product->_pages) ? '' : (System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached($obj_product->_pages[0])->title);
 		$var_url = ls_shop_generalHelper::getEnvironmentBase() . $obj_product->_linkToProduct;
 
         $var_description = str_replace('  ', ' ', strip_tags(str_replace('<', ' <', ($obj_product->_description ?: $obj_product->_shortDescription))));

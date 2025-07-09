@@ -81,7 +81,7 @@ class SitemapListener
                 while ($objPagesForProduct->next()) {
                     $arrLanguagePages = ls_shop_languageHelper::getLanguagePages($objPagesForProduct->id);
                     foreach ($arrLanguagePages as $languagePageInfo) {
-                        $objPageForProduct = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetails($languagePageInfo['id']);
+                        $objPageForProduct = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached($languagePageInfo['id']);
 
                         $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
                         if ($str_languageAlias == '') {

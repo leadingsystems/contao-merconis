@@ -371,7 +371,7 @@ class ls_shop_productManagementApiHelper {
 
             while ($obj_dbres_pages->next()) {
                 // Check whether root page is fallback language or not and only then add the page to the pageAliases array
-                $obj_pageDetails = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetails($obj_dbres_pages->id);
+                $obj_pageDetails = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached($obj_dbres_pages->id);
                 $obj_rootPage = Database::getInstance()
                     ->prepare("
                         SELECT * FROM `tl_page` WHERE `id` = ?

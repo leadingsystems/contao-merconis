@@ -3442,7 +3442,7 @@ class ls_shop_generalHelper
 
         while ($objPages->next()) {
             // Check whether root page is fallback language or not and only then add the page to the options array
-            $objPageDetails = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetails($objPages->id);
+            $objPageDetails = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached($objPages->id);
             $objRootPage = Database::getInstance()->prepare("
 					SELECT * FROM `tl_page` WHERE `id` = ?
 				")
