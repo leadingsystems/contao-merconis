@@ -891,7 +891,7 @@ class ls_shop_languageHelper {
 					/*
 					 * Zu jeder Seite wird eingetragen, welche Sprache sie hat.
 					 */
-					$pageInfo = ls_shop_generalHelper::getPageDetails($languagePageID);
+					$pageInfo = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($languagePageID);
 
 					/*
 					 * Skip pages with non-matching domains
@@ -961,7 +961,7 @@ class ls_shop_languageHelper {
 
 			if ($objLanguagePage->numRows) {
 				$GLOBALS['merconis_globals'][$key.'Array'] = $objLanguagePage->row();
-                $pageModel = ls_shop_generalHelper::getPageDetails($GLOBALS['merconis_globals'][$key.'Array']['id']);
+                $pageModel = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($GLOBALS['merconis_globals'][$key.'Array']['id']);
                 /*
                  * remove the leading slash, as Merconis does not expect it
                  */

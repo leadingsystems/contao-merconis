@@ -4,6 +4,7 @@ use Contao\Database;
 use Contao\FilesModel;
 use Contao\PageModel;
 use Contao\StringUtil;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_productManagementApiHelper {
@@ -370,7 +371,7 @@ class ls_shop_productManagementApiHelper {
 
             while ($obj_dbres_pages->next()) {
                 // Check whether root page is fallback language or not and only then add the page to the pageAliases array
-                $obj_pageDetails = ls_shop_generalHelper::getPageDetails($obj_dbres_pages->id);
+                $obj_pageDetails = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($obj_dbres_pages->id);
                 $obj_rootPage = Database::getInstance()
                     ->prepare("
                         SELECT * FROM `tl_page` WHERE `id` = ?

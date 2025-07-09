@@ -631,7 +631,7 @@ class ls_shop_cartHelper {
 			}
 		}
 
-        $pageModel = ls_shop_generalHelper::getPageDetails($objPage->row()['id']);
+        $pageModel = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($objPage->row()['id']);
         $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
         $str_url = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/deleteCoupon/'.$couponID));
 

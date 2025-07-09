@@ -104,7 +104,7 @@ class ModuleCart extends Module {
 		if (Input::get('deleteCoupon')) {
 			ls_shop_cartHelper::deleteUsedCoupon(Input::get('deleteCoupon'));
 
-            $pageModel = ls_shop_generalHelper::getPageDetails($objPage->row()['id']);
+            $pageModel = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($objPage->row()['id']);
             $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
 
             $this->redirect($objContentUrlGenerator->generate($pageModel));

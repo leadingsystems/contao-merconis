@@ -834,7 +834,7 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 
                 $arr_pagesForDomain = array();
                 foreach ($arr_pages as $int_pageID) {
-                    $pageInfo = ls_shop_generalHelper::getPageDetails($int_pageID);
+                    $pageInfo = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($int_pageID);
                     if (!is_object($objPage) || $pageInfo->domain == $objPage->domain) {
                         $arr_pagesForDomain[] = $int_pageID;
                     }
@@ -2510,7 +2510,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
              <--*/
             $MainLanguagePageIDForLink = null;
             foreach ($this->_pages as $int_pageID) {
-                $pageInfo = ls_shop_generalHelper::getPageDetails($int_pageID);
+                $pageInfo = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($int_pageID);
                 if ($pageInfo !== null && $pageInfo->published == "1") {
                     $MainLanguagePageIDForLink = $int_pageID;
                     break;
@@ -2525,7 +2525,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $languagePages = ls_shop_languageHelper::getLanguagePages($MainLanguagePageIDForLink);
             $currentLanguagePageIDForLink = $languagePages[$objPage->language]['id'];
 
-            $objProductPage = ls_shop_generalHelper::getPageDetails($currentLanguagePageIDForLink);
+            $objProductPage = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($currentLanguagePageIDForLink);
 
         }
 
@@ -2538,7 +2538,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $addReturnPageToUrl = '/calledBy/searchResult';
         }
 
-        $pageModel = ls_shop_generalHelper::getPageDetails($objProductPage->row()['id']);
+        $pageModel = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($objProductPage->row()['id']);
         $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
         $this->ls_linkToProduct = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/product/'.$this->_alias.($var_useVariantAliasOrID ? '/selectVariant/'.$var_useVariantAliasOrID : '').$addReturnPageToUrl));
 

@@ -47,9 +47,6 @@ class ls_shop_generalHelper
 {
 
 
-    // Cache for ids for pageModel
-    private static array $cache_pageModel = [];
-
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
      * and writes them into the allocation table
@@ -3445,7 +3442,7 @@ class ls_shop_generalHelper
 
         while ($objPages->next()) {
             // Check whether root page is fallback language or not and only then add the page to the options array
-            $objPageDetails = ls_shop_generalHelper::getPageDetails($objPages->id);
+            $objPageDetails = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($objPages->id);
             $objRootPage = Database::getInstance()->prepare("
 					SELECT * FROM `tl_page` WHERE `id` = ?
 				")
@@ -5508,11 +5505,4 @@ class ls_shop_generalHelper
         );
     }
 
-    //caches the id for ls_shop_generalHelper::getPageDetails so it can be used again
-    public static function getPageDetails(int $pageId): ?PageModel {
-        if (!isset(self::$cache_pageModel[$pageId])) {
-            self::$cache_pageModel[$pageId] = PageModel::findWithDetails($pageId);
-        }
-        return self::$cache_pageModel[$pageId];
-    }
 }

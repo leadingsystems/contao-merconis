@@ -81,7 +81,7 @@ class SitemapListener
                 while ($objPagesForProduct->next()) {
                     $arrLanguagePages = ls_shop_languageHelper::getLanguagePages($objPagesForProduct->id);
                     foreach ($arrLanguagePages as $languagePageInfo) {
-                        $objPageForProduct = ls_shop_generalHelper::getPageDetails($languagePageInfo['id']);
+                        $objPageForProduct = System::getContainer()->get('merconis.controller.page_controller')->getPageDetails($languagePageInfo['id']);
 
                         $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
                         if ($str_languageAlias == '') {
