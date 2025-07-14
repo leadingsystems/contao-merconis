@@ -1,6 +1,8 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\System;
+use LeadingSystems\MerconisBundle\ProductSearch\Helper;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 
 class ls_shop_productSearcher
@@ -49,7 +51,13 @@ class ls_shop_productSearcher
     protected $cancelSearchIfMoreThanTruncateLimit = false;
     protected $str_productListID = null;
 
+    private Helper $productSearchHelper;
+
+    private bool $isLegacyUsage = true;
+
     public function __construct($blnUseFilter = false, $str_productListID = null) {
+        $this->productSearchHelper = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Helper');
+
         $this->getSearchLanguage();
 
         $this->arr_groupSettingsForUser = ls_shop_generalHelper::getGroupSettings4User();
@@ -75,6 +83,11 @@ class ls_shop_productSearcher
 
     public function __destruct() {
         $this->setCache();
+    }
+
+    public function setNonLegacyUsage(): void
+    {
+        $this->isLegacyUsage = false;
     }
 
     protected function getCache() {
@@ -302,7 +315,19 @@ class ls_shop_productSearcher
         }
     }
 
+    private function warnWhenLegacyCall(string $methodName): void
+    {
+        if ($this->isLegacyUsage) {
+            trigger_error(
+                $methodName . " must only be called through LeadingSystems\MerconisBundle\ProductSearch\Adapter",
+                E_USER_WARNING
+            );
+        }
+    }
+
     public function setSearchCriterion($fieldName = '', $criteria = '') {
+        $this->warnWhenLegacyCall(__METHOD__);
+
         if (!$fieldName) {
             return;
         }
@@ -345,15 +370,7 @@ class ls_shop_productSearcher
     }
 
     protected function getSearchLanguage() {
-        // Use the fallback language for the search by default
-        $this->searchLanguage = ls_shop_languageHelper::getFallbackLanguage();
-
-        // Use the language of the current page if we have a fronted call
-        if (TL_MODE == 'FE') {
-            /** @var \PageModel $objPage */
-            global $objPage;
-            $this->searchLanguage = $objPage->language;
-        }
+        $this->searchLanguage = $this->productSearchHelper->getSearchLanguage();
     }
 
     protected function checkIfLanguageFieldsExist($searchLanguage) {

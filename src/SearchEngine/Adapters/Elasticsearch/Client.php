@@ -17,7 +17,7 @@ class Client implements ClientInterface
      */
     private $host = 'https://localhost:9200';
     private $username = 'elastic';
-    private $password = '7+3JVkR_XqSRohMRb-*s';
+    private $password = 'p+6FezswTw96zzK5rrlc';
     private $cert;
 
     public string $productIndexName = 'products';

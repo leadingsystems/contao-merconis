@@ -2,7 +2,10 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 
 class ls_shop_productList
 {
@@ -150,24 +153,33 @@ class ls_shop_productList
 				}
 			}
 		}
-		
+
+
+        /** @var Adapter $productSearchAdapter */
+        $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+        $productSearchAdapter->setMode(Mode::Standard);
+        $productSearchAdapter->initialize($this->blnUseFilter, $this->productListID);
+
 		$objProductSearch = new ls_shop_productSearcher($this->blnUseFilter, $this->productListID);
 		
 		foreach ($this->arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
+            $productSearchAdapter->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
 			$objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
 		}
 
 		$objProductSearch->numPerPage = $this->outputDefinition['overviewPagination'] ? $this->outputDefinition['overviewPagination'] : 0;
+        $productSearchAdapter->setNumPerPage($this->outputDefinition['overviewPagination'] ?: 0);
 		$objProductSearch->currentPage = $this->currentPage;
+        $productSearchAdapter->setCurrentPage($this->currentPage);
 
 		$sortingDefinition = $this->outputDefinition['overviewSorting'];
 		if ($this->outputDefinition['overviewUserSorting'] == 'yes' && isset($_SESSION['lsShop']['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID])) {
 			$sortingDefinition = $_SESSION['lsShop']['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID];
 		}
-			
+
 		$sortingField = 'title';
 		$sortingDirection = 'ASC';
-		
+
 		if ($sortingDefinition) {
 			$tmpSplitSortingDefinition = explode('_sortDir_', $sortingDefinition);
 			if ($tmpSplitSortingDefinition[0] && $tmpSplitSortingDefinition[1]) {
@@ -175,12 +187,16 @@ class ls_shop_productList
 				$sortingDirection = $tmpSplitSortingDefinition[1];
 			}
 		}
-		
+
 		$arrSortingDefinition = array(
 			0 => array('field' => $sortingField, 'direction' => $sortingDirection)
 		);
-		
+
 		$objProductSearch->sorting = $arrSortingDefinition;
+        $productSearchAdapter->setSorting([]);
+        /*
+         * Do me! Hier weiter!
+         */
 		$objProductSearch->fixedSorting = $this->fixedSorting;
 		
 		

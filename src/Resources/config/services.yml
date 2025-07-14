@@ -16,7 +16,6 @@ services:
   LeadingSystems\MerconisBundle\SearchEngine\SearchEngine:
     # must be public because we have to use it in Merconis legacy code where we can't inject it properly
     public: true
-    shared: false
     arguments:
       - !tagged_iterator merconis.search_engine_adapters
 
@@ -30,6 +29,16 @@ services:
   # <--
 
   LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch\ProductSync:
+
+  LeadingSystems\MerconisBundle\ProductSearch\Adapter:
+    # must be public because we have to use it in Merconis legacy code where we can't inject it properly
+    public: true
+    shared: false
+
+  LeadingSystems\MerconisBundle\ProductSearch\Helper:
+    # must be public because we have to use it in Merconis legacy code where we can't inject it properly
+    public: true
+
 
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
