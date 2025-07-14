@@ -8,7 +8,7 @@ abstract class customizer {
      */
     protected $obj_productOrVariant;
     protected $str_storageKey;
-    protected $obj_storage;
+    public $obj_storage;
 
     public function __construct($obj_productOrVariant, $str_customizerHash)
     {
