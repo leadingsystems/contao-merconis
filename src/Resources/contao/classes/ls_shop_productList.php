@@ -193,33 +193,35 @@ class ls_shop_productList
 		);
 
 		$objProductSearch->sorting = $arrSortingDefinition;
-        $productSearchAdapter->setSorting([]);
-        /*
-         * Do me! Hier weiter!
-         */
+        $productSearchAdapter->setSorting($arrSortingDefinition);
 		$objProductSearch->fixedSorting = $this->fixedSorting;
-		
-		
+
+
 		###
 		#.
 		if ($this->maxNumProducts > 0) {
 			$objProductSearch->truncateResultsIfMoreThan = $this->maxNumProducts;
+            $productSearchAdapter->setTruncateResultsIfMoreThan($this->maxNumProducts);
 		}
-		
+
 		if($this->noOutputIfMoreThanMaxResults) {
 			$objProductSearch->cancelSearchIfMoreThanTruncateLimit = true;
+            $productSearchAdapter->setCancelSearchIfMoreThanTruncateLimit(true);
 		}
 		#.
 		###
-		
+
 		$objProductSearch->search();
+        $productSearchAdapter->search();
 		$arrProducts = $objProductSearch->productResultsCurrentPage;
+        $arrProducts = $productSearchAdapter->getProductResultsCurrentPage();
 
         if ($this->blnUseFilter) {
             $_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] = $arrProducts;
         }
 
 		$this->numProducts = $objProductSearch->numProductsBeforeFilter;
+        $this->numProducts = $productSearchAdapter->getNumProductsBeforeFilter();
 		
 		if ($this->blnIsFrontendSearch) {
 			if (isset($GLOBALS['MERCONIS_HOOKS']['afterSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterSearch'])) {
@@ -250,7 +252,8 @@ class ls_shop_productList
 		 * Ende Durchführen der Suche
 		 */
 
-		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$objProductSearch->blnNotAllProductsMatch)) {
+//		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$objProductSearch->blnNotAllProductsMatch)) {
+		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$productSearchAdapter->hasMismatchedProducts())) {
 			return '';
 		}
 		
@@ -258,12 +261,20 @@ class ls_shop_productList
 		
 		$objTemplate->blnUseFilter = $this->blnUseFilter;
 		$objTemplate->blnNotAllProductsMatchFilter = $objProductSearch->blnNotAllProductsMatch;
+		$objTemplate->blnNotAllProductsMatchFilter = $productSearchAdapter->hasMismatchedProducts;
 		$objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;
+		$objTemplate->numProductsNotMatching = $productSearchAdapter->getNumProductsNotMatching();
+
 		$objTemplate->numProductsBeforeFilter = $objProductSearch->numProductsBeforeFilter;
+		$objTemplate->numProductsBeforeFilter = $productSearchAdapter->getNumProductsBeforeFilter();
 
 		$obj_paginationTemplate = new \FrontendTemplate('merconisPagination');
 		$obj_paginationTemplate->productListID = $this->productListID;
-		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
+        /*
+         * Do me! Hier weiter!
+         */
+//		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
+		$objPagination = new \Pagination($productSearchAdapter->getNumResultsComplete(), $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
 		$paginationHTML = $objPagination->generate(' ');
 				
 		$objTemplate->pagination = $paginationHTML;

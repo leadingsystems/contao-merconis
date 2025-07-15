@@ -17,6 +17,9 @@ class Adapter
     private int $numPerPage = 0;
     private int $currentPage = 1;
     private array $sorting = [['field' => 'title', 'direction' => 'ASC']];
+    private array $fixedSorting = [];
+    private int $truncateResultsIfMoreThan = 0;
+    private bool $cancelSearchIfMoreThanTruncateLimit = false;
 
     public function __construct(LoggerInterface $logger)
     {
@@ -66,6 +69,63 @@ class Adapter
 
         $this->sorting = $sortingDefinition;
         $this->searchClient->sorting = $this->sorting;
+    }
+
+    public function setFixedSorting(array $fixedSorting): void
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        $this->fixedSorting = $fixedSorting;
+        $this->searchClient->fixedSorting = $this->fixedSorting;
+    }
+
+    public function setTruncateResultsIfMoreThan($num): void
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        $this->truncateResultsIfMoreThan = $num;
+        $this->searchClient->truncateResultsIfMoreThan = $this->truncateResultsIfMoreThan;
+    }
+
+    public function setCancelSearchIfMoreThanTruncateLimit(bool $cancel): void
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        $this->cancelSearchIfMoreThanTruncateLimit = $cancel;
+        $this->searchClient->cancelSearchIfMoreThanTruncateLimit = $this->cancelSearchIfMoreThanTruncateLimit;
+    }
+
+    public function search(): void
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        $this->searchClient->search();
+    }
+
+    public function getProductResultsCurrentPage(): array
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        return $this->searchClient->productResultsCurrentPage;
+    }
+
+    public function getNumProductsBeforeFilter(): int
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        return $this->searchClient->numProductsBeforeFilter;
+    }
+
+    public function hasMismatchedProducts(): bool
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        return $this->searchClient->blnNotAllProductsMatch;
+    }
+
+    public function getNumProductsNotMatching(): int
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        return $this->searchClient->numProductsNotMatching;
+    }
+
+    public function getNumResultsComplete(): int
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        return $this->searchClient->numResultsComplete;
     }
 
     private function notAllowedIn(Mode $mode): void
