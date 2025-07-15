@@ -68,7 +68,6 @@ class ls_shop_product
 
     public array $modifiedDataKeys = [];
 
-
     public function __construct($intID = false, $configuratorHash = '') {
 		$this->ls_ID = $intID;
 
@@ -826,9 +825,10 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
                 break;
 
             case '_pages':
-                /* ## DESCRIPTION:
-                Returns an Array containing the pages which the product is assigned to
-                                 */
+                /*
+                 * ## DESCRIPTION:
+                 * Returns an Array containing the pages which the product is assigned to
+                */
 
                 $arr_pages = StringUtil::deserialize($this->mainData['pages'] ?? '');
 

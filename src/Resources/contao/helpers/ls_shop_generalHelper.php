@@ -45,8 +45,6 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_generalHelper
 {
-
-
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
      * and writes them into the allocation table
@@ -5504,5 +5502,4 @@ class ls_shop_generalHelper
             'Input could not be converted to an array. Expected an array or a Traversable object, but got ' . gettype($input)
         );
     }
-
 }
