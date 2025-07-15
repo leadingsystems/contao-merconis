@@ -13,7 +13,12 @@ use Contao\System;
             <input type="hidden" name="productVariantID" value="<?php echo $this->str_productVariantId; ?>">
 
             <?php echo $this->str_widget_inputQuantity; ?>
-            <button type="submit" class="submit"><?php echo $this->obj_productOrVariant->_isPreorderable ? $GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderButtonText'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText005']; ?></button>
+            <?php if($this->obj_productOrVariant->_stockIsInsufficient == true && $this->obj_productOrVariant->_isPreorderable == false){ ?>
+                <button type="submit" class="submit outOfStock" disabled><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['currentlyNotAvailable']; ?></button>
+            <?php
+            }else{ ?>
+                <button type="submit" class="submit"><?php echo $this->obj_productOrVariant->_isPreorderable ? $GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderButtonText'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText005']; ?></button>
+            <?php }?>
 		</form>
 	<?php endif; ?>
 </div>
