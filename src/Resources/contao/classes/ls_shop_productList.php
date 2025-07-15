@@ -164,12 +164,13 @@ class ls_shop_productList
 		
 		foreach ($this->arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
             $productSearchAdapter->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
-			$objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+//			$objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
 		}
 
-		$objProductSearch->numPerPage = $this->outputDefinition['overviewPagination'] ? $this->outputDefinition['overviewPagination'] : 0;
+//		$objProductSearch->numPerPage = $this->outputDefinition['overviewPagination'] ? $this->outputDefinition['overviewPagination'] : 0;
         $productSearchAdapter->setNumPerPage($this->outputDefinition['overviewPagination'] ?: 0);
-		$objProductSearch->currentPage = $this->currentPage;
+
+//		$objProductSearch->currentPage = $this->currentPage;
         $productSearchAdapter->setCurrentPage($this->currentPage);
 
 		$sortingDefinition = $this->outputDefinition['overviewSorting'];
@@ -192,35 +193,38 @@ class ls_shop_productList
 			0 => array('field' => $sortingField, 'direction' => $sortingDirection)
 		);
 
-		$objProductSearch->sorting = $arrSortingDefinition;
+//		$objProductSearch->sorting = $arrSortingDefinition;
         $productSearchAdapter->setSorting($arrSortingDefinition);
-		$objProductSearch->fixedSorting = $this->fixedSorting;
+
+//		$objProductSearch->fixedSorting = $this->fixedSorting;
+        $productSearchAdapter->setFixedSorting($this->fixedSorting);
 
 
 		###
 		#.
 		if ($this->maxNumProducts > 0) {
-			$objProductSearch->truncateResultsIfMoreThan = $this->maxNumProducts;
+//			$objProductSearch->truncateResultsIfMoreThan = $this->maxNumProducts;
             $productSearchAdapter->setTruncateResultsIfMoreThan($this->maxNumProducts);
 		}
 
 		if($this->noOutputIfMoreThanMaxResults) {
-			$objProductSearch->cancelSearchIfMoreThanTruncateLimit = true;
+//			$objProductSearch->cancelSearchIfMoreThanTruncateLimit = true;
             $productSearchAdapter->setCancelSearchIfMoreThanTruncateLimit(true);
 		}
 		#.
 		###
 
-		$objProductSearch->search();
+//		$objProductSearch->search();
         $productSearchAdapter->search();
-		$arrProducts = $objProductSearch->productResultsCurrentPage;
+
+//		$arrProducts = $objProductSearch->productResultsCurrentPage;
         $arrProducts = $productSearchAdapter->getProductResultsCurrentPage();
 
         if ($this->blnUseFilter) {
             $_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] = $arrProducts;
         }
 
-		$this->numProducts = $objProductSearch->numProductsBeforeFilter;
+//		$this->numProducts = $objProductSearch->numProductsBeforeFilter;
         $this->numProducts = $productSearchAdapter->getNumProductsBeforeFilter();
 		
 		if ($this->blnIsFrontendSearch) {
@@ -260,21 +264,22 @@ class ls_shop_productList
 		$objTemplate = new \FrontendTemplate('productList');
 		
 		$objTemplate->blnUseFilter = $this->blnUseFilter;
-		$objTemplate->blnNotAllProductsMatchFilter = $objProductSearch->blnNotAllProductsMatch;
-		$objTemplate->blnNotAllProductsMatchFilter = $productSearchAdapter->hasMismatchedProducts;
-		$objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;
+
+//		$objTemplate->blnNotAllProductsMatchFilter = $objProductSearch->blnNotAllProductsMatch;
+		$objTemplate->blnNotAllProductsMatchFilter = $productSearchAdapter->hasMismatchedProducts();
+
+//        $objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;
 		$objTemplate->numProductsNotMatching = $productSearchAdapter->getNumProductsNotMatching();
 
-		$objTemplate->numProductsBeforeFilter = $objProductSearch->numProductsBeforeFilter;
+//		$objTemplate->numProductsBeforeFilter = $objProductSearch->numProductsBeforeFilter;
 		$objTemplate->numProductsBeforeFilter = $productSearchAdapter->getNumProductsBeforeFilter();
 
 		$obj_paginationTemplate = new \FrontendTemplate('merconisPagination');
 		$obj_paginationTemplate->productListID = $this->productListID;
-        /*
-         * Do me! Hier weiter!
-         */
-//		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
+
+        //		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
 		$objPagination = new \Pagination($productSearchAdapter->getNumResultsComplete(), $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
+
 		$paginationHTML = $objPagination->generate(' ');
 				
 		$objTemplate->pagination = $paginationHTML;

@@ -14,12 +14,14 @@ class Adapter
     private string $productListId;
     private ls_shop_productSearcher $searchClient;
 
+    private array $searchCriteria =  ['title' => '*', 'published' => '1'];
     private int $numPerPage = 0;
     private int $currentPage = 1;
     private array $sorting = [['field' => 'title', 'direction' => 'ASC']];
     private array $fixedSorting = [];
     private int $truncateResultsIfMoreThan = 0;
     private bool $cancelSearchIfMoreThanTruncateLimit = false;
+    private bool $emptyFieldMatchesPerDefault = false;
 
     public function __construct(LoggerInterface $logger)
     {
@@ -42,7 +44,27 @@ class Adapter
     public function setSearchCriterion(string $fieldName, $criterion): void
     {
         $this->notAllowedIn(Mode::SearchEngine);
+
+        if (!$fieldName) {
+            return;
+        }
+
+        $this->searchCriteria[$fieldName] = $criterion;
+
         $this->searchClient->setSearchCriterion($fieldName, $criterion);
+    }
+
+    public function setSearchCriteria(array $searchCriteria): void
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+
+        if (!count($searchCriteria)) {
+            $this->logger->warning('Search criteria array must not be empty');
+        }
+
+        $this->searchCriteria = $searchCriteria;
+
+        $this->searchClient->setSearchCriteria($this->searchCriteria);
     }
 
     public function setNumPerPage(int $num): void
@@ -69,6 +91,13 @@ class Adapter
 
         $this->sorting = $sortingDefinition;
         $this->searchClient->sorting = $this->sorting;
+    }
+
+    public function setEmptyFieldMatchesPerDefault(bool $emptyFieldMatchesPerDefault): void
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        $this->emptyFieldMatchesPerDefault = $emptyFieldMatchesPerDefault;
+        $this->searchClient->emptyFieldMatchesPerDefault = $this->emptyFieldMatchesPerDefault;
     }
 
     public function setFixedSorting(array $fixedSorting): void
@@ -98,10 +127,22 @@ class Adapter
         $this->searchClient->search();
     }
 
+    public function getNumPagesTotal(): int
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        return $this->searchClient->numPagesTotal;
+    }
+
     public function getProductResultsCurrentPage(): array
     {
         $this->notAllowedIn(Mode::SearchEngine);
         return $this->searchClient->productResultsCurrentPage;
+    }
+
+    public function getProductResultsComplete(): array
+    {
+        $this->notAllowedIn(Mode::SearchEngine);
+        return $this->searchClient->productResultsComplete;
     }
 
     public function getNumProductsBeforeFilter(): int

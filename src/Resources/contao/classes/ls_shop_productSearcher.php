@@ -193,6 +193,11 @@ class ls_shop_productSearcher
     }
 
     public function __get($what) {
+        /*
+         * OK: Alles Notwendige in Adapter verfügbar!
+         */
+        $this->warnWhenLegacyCall(__METHOD__);
+
         switch ($what) {
             case 'numPagesTotal':
                 return $this->intNumPerPage > 0 ? ceil($this->numResultsComplete / $this->intNumPerPage) : 1;
@@ -266,6 +271,11 @@ class ls_shop_productSearcher
     }
 
     public function __set($key, $value) {
+        /*
+         * OK: Alles Notwendige in Adapter verfügbar!
+         */
+        $this->warnWhenLegacyCall(__METHOD__);
+
         switch ($key) {
             case 'numPerPage':
                 $this->intNumPerPage = $value;
@@ -318,8 +328,9 @@ class ls_shop_productSearcher
     private function warnWhenLegacyCall(string $methodName): void
     {
         if ($this->isLegacyUsage) {
+            throw new \Exception($methodName . ' must only be called through LeadingSystems\MerconisBundle\ProductSearch\Adapter');
             trigger_error(
-                $methodName . " must only be called through LeadingSystems\MerconisBundle\ProductSearch\Adapter",
+                $methodName . ' must only be called through LeadingSystems\MerconisBundle\ProductSearch\Adapter',
                 E_USER_WARNING
             );
         }
@@ -335,6 +346,8 @@ class ls_shop_productSearcher
     }
 
     public function setSearchCriteria($arrSearchCriteria = array()) {
+        $this->warnWhenLegacyCall(__METHOD__);
+
         if (!is_array($arrSearchCriteria) || !count($arrSearchCriteria)) {
             return;
         }
@@ -342,6 +355,8 @@ class ls_shop_productSearcher
     }
 
     public function search() {
+        $this->warnWhenLegacyCall(__METHOD__);
+
         $this->ls_performSearch();
 
         /*
