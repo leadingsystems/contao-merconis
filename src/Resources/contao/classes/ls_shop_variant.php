@@ -843,9 +843,7 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				break;
 
 			case '_priceAfterTax':
-
-                $returnvalue = ls_add($this->_priceBeforeConfiguratorAfterTax, $this->_priceModificationByConfigurator);
-				return $returnvalue;
+				return ls_add($this->_priceBeforeConfiguratorAfterTax, $this->_priceModificationByConfigurator);
 				break;
 
 			case '_unscaledPriceAfterTax':
