@@ -11,7 +11,7 @@ class Adapter
     private LoggerInterface $logger;
     private Mode $mode;
     private bool $useFilter;
-    private string $productListId;
+    private ?string $productListId;
     private ls_shop_productSearcher $searchClient;
 
     private array $searchCriteria =  ['title' => '*', 'published' => '1'];
@@ -33,7 +33,7 @@ class Adapter
         $this->mode = $mode;
     }
 
-    public function initialize(bool $useFilter, string $productListId): void
+    public function initialize(bool $useFilter = false, ?string $productListId = null): void
     {
         $this->useFilter = $useFilter;
         $this->productListId = $productListId;

@@ -3,6 +3,9 @@
 namespace Merconis\Core;
 
 use Contao\StringUtil;
+use Contao\System;
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 
 class ls_shop_beModule_productSearch extends \BackendModule
 {
@@ -102,29 +105,35 @@ class ls_shop_beModule_productSearch extends \BackendModule
 		/*
 		 * Durchführen der Suche
 		 */
-		$objProductSearch = new ls_shop_productSearcher();
+        /** @var Adapter $productSearchAdapter */
+        $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+        $productSearchAdapter->setMode(Mode::Standard);
+        $productSearchAdapter->initialize();
 		
 		// Standardmäßig das Suchkriterium für published auf Wildcard setzen, damit der ProductSearcher auch unveröffentlichte Produkte findet
-		$objProductSearch->setSearchCriterion('published', '%');
+        $productSearchAdapter->setSearchCriterion('published', '%');
 		
 		if (is_array($_SESSION['lsShop']['beModule_productSearch']['values'] ?? null)) {
 			foreach ($_SESSION['lsShop']['beModule_productSearch']['values'] as $searchCriteriaFieldName => $searchCriteriaValue) {
-				$objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+                $productSearchAdapter->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
 			}
 		}
 
-		$objProductSearch->numPerPage = ($_SESSION['lsShop']['beModule_productSearch']['numPerPage'] ?? null) ? $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] : $this->intDefaultNumPerPage;
-		$objProductSearch->currentPage = \Input::get('page') ? \Input::get('page') : 1;
+        $productSearchAdapter->setNumPerPage(($_SESSION['lsShop']['beModule_productSearch']['numPerPage'] ?? null) ? $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] : $this->intDefaultNumPerPage);
+
+        $productSearchAdapter->setCurrentPage(\Input::get('page') ? \Input::get('page') : 1);
 
 		if (is_array($_SESSION['lsShop']['beModule_productSearch']['sorting'])) {
-			$objProductSearch->sorting = array($_SESSION['lsShop']['beModule_productSearch']['sorting']);
+            $productSearchAdapter->setSorting([$_SESSION['lsShop']['beModule_productSearch']['sorting']]);
 		}
 		
-		$objProductSearch->emptyFieldMatchesPerDefault = true;
-		$objProductSearch->search();
-		$arrProducts = $objProductSearch->productResultsCurrentPage;
+        $productSearchAdapter->setEmptyFieldMatchesPerDefault(true);
+
+        $productSearchAdapter->search();
+
+        $arrProducts = $productSearchAdapter->getProductResultsCurrentPage();
 		
-		$this->Template->msgNumSearchResults = sprintf($objProductSearch->numResultsComplete == 1 ? $GLOBALS['TL_LANG']['be_productSearch']['text011'] : $GLOBALS['TL_LANG']['be_productSearch']['text012'], $objProductSearch->numResultsComplete);
+		$this->Template->msgNumSearchResults = sprintf($productSearchAdapter->getNumResultsComplete() == 1 ? $GLOBALS['TL_LANG']['be_productSearch']['text011'] : $GLOBALS['TL_LANG']['be_productSearch']['text012'], $productSearchAdapter->getNumResultsComplete());
 		/*
 		 * Ende Durchführen der Suche
 		 */
@@ -143,7 +152,7 @@ class ls_shop_beModule_productSearch extends \BackendModule
 			\Controller::redirect(ls_shop_generalHelper::getUrl(false, array('page')));
 		}
 		
-		$objPagination = new \Pagination($objProductSearch->numResultsComplete, isset($_SESSION['lsShop']['beModule_productSearch']['numPerPage']) ? $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] : 10);
+		$objPagination = new \Pagination($productSearchAdapter->getNumResultsComplete(), isset($_SESSION['lsShop']['beModule_productSearch']['numPerPage']) ? $_SESSION['lsShop']['beModule_productSearch']['numPerPage'] : 10);
 		$this->Template->pagination = $objPagination->generate();
 
 		/*

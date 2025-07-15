@@ -5,6 +5,8 @@ namespace Merconis\Core;
 use Contao\StringUtil;
 use Contao\System;
 
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -492,13 +494,16 @@ class ls_shop_export
 		$arr_data = array();
 		$arr_searchCriteria = array();
 
-		$obj_productSearch = new ls_shop_productSearcher();
+        /** @var Adapter $productSearchAdapter */
+        $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+        $productSearchAdapter->setMode(Mode::Standard);
+        $productSearchAdapter->initialize();
 		
 		switch ($this->arr_exportRecord['dataSource']) {
 			case 'directSelection':
 				$arr_products = $this->ls_getDirectSelection();
 				$arr_searchCriteria = array('id' => $arr_products);
-				$obj_productSearch->fixedSorting = $arr_products;
+                $productSearchAdapter->setFixedSorting($arr_products);
 				break;
 				
 			case 'searchSelection':
@@ -507,38 +512,38 @@ class ls_shop_export
 				break;
 		}
 
-		$obj_productSearch->setSearchCriteria($arr_searchCriteria);
+        $productSearchAdapter->setSearchCriteria($arr_searchCriteria);
 
 		if (is_object($this->obj_segmentizer)) {
-			$obj_productSearch->numPerPage = $this->arr_exportRecord['numberOfRecordsPerSegment'];
-			$obj_productSearch->currentPage = $this->obj_segmentizer->currentSegment;
+            $productSearchAdapter->setNumPerPage($this->arr_exportRecord['numberOfRecordsPerSegment']);
+            $productSearchAdapter->setCurrentPage($this->obj_segmentizer->currentSegment);
 		}
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['exporter_manipulateProductSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['exporter_manipulateProductSearch'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['exporter_manipulateProductSearch'] as $mccb) {
 				$objMccb = \System::importStatic($mccb[0]);
-				$objMccb->{$mccb[1]}($obj_productSearch, $arr_searchCriteria);
+				$objMccb->{$mccb[1]}($productSearchAdapter, $arr_searchCriteria);
 			}
 		}
 
-		$obj_productSearch->search();
+        $productSearchAdapter->search();
 
 		if (is_object($this->obj_segmentizer)) {
-			$this->obj_segmentizer->numSegmentsTotal = $obj_productSearch->numPagesTotal;
-			$arr_productIds = $obj_productSearch->productResultsCurrentPage;
+			$this->obj_segmentizer->numSegmentsTotal = $productSearchAdapter->getNumPagesTotal();
+			$arr_productIds = $productSearchAdapter->getProductResultsCurrentPage();
 
 			/*
 			 *  ->
 			 * Force an empty output if we currently have to deliver the segmentizer's extra segment
 			 */
-			if ($this->obj_segmentizer->currentSegment > $obj_productSearch->numPagesTotal) {
+			if ($this->obj_segmentizer->currentSegment > $productSearchAdapter->getNumPagesTotal()) {
 				$arr_productIds = array();
 			}
 			/*
 			 * <-
 			 */
 		} else {
-			$arr_productIds = $obj_productSearch->productResultsComplete;
+			$arr_productIds = $productSearchAdapter->getProductResultsComplete();
 		}
 
 		if ($this->arr_exportRecord['createProductObjects']) {

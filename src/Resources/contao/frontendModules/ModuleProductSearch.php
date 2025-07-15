@@ -5,6 +5,8 @@ namespace Merconis\Core;
 use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 
 /**
  * If the form that has just been submitted can be identified as the merconisProductSearch form, it's
@@ -91,21 +93,27 @@ class ModuleProductSearch extends \Module {
 					/*
 					 * Ende Erstellung des Suchkriterien-Arrays für productSearcher
 					 */
-					$objProductSearch = new ls_shop_productSearcher();
-					$objProductSearch->setSearchCriteria($arrSearchCriteria);					
-					$objProductSearch->arrRequestFields = array('id');
-					
-					/*
-					 * FIXME: Making this sorting definition user-adjustable (probably in the merconis settings)
-					 * might be a good idea!
-					 */
-					$objProductSearch->sorting = array(
-						0 => array('field' => 'priority', 'direction' => 'DESC')
-					);
 
-					$objProductSearch->search();
-					$arrProducts = $objProductSearch->productResultsComplete;
-					
+                    /** @var Adapter $productSearchAdapter */
+                    $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+                    $productSearchAdapter->setMode(Mode::Standard);
+                    $productSearchAdapter->initialize();
+
+                    $productSearchAdapter->setSearchCriteria($arrSearchCriteria);
+
+					/*
+					 * TODO: Making this sorting definition user-adjustable (probably in the merconis settings)
+					 *  might be a good idea!
+					 */
+                    $productSearchAdapter->setSorting(
+                        [
+                            0 => ['field' => 'priority', 'direction' => 'DESC']
+                        ]
+                    );
+
+                    $productSearchAdapter->search();
+					$arrProducts = $productSearchAdapter->getProductResultsComplete();
+
 					if (isset($GLOBALS['MERCONIS_HOOKS']['afterAjaxSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterAjaxSearch'])) {
 						foreach ($GLOBALS['MERCONIS_HOOKS']['afterAjaxSearch'] as $mccb) {
 							$objMccb = \System::importStatic($mccb[0]);

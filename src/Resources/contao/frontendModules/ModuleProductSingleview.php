@@ -4,6 +4,8 @@ namespace Merconis\Core;
 
 use Contao\StringUtil;
 use Contao\System;
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 
 class ModuleProductSingleview extends \Module {
 	public function generate() {
@@ -46,9 +48,12 @@ class ModuleProductSingleview extends \Module {
 		 */
 		if (isset($GLOBALS['merconis_globals']['ls_shop_activateFilter']) && $GLOBALS['merconis_globals']['ls_shop_activateFilter']) {
 			if (isset($GLOBALS['merconis_globals']['ls_shop_useFilterInProductDetails']) && $GLOBALS['merconis_globals']['ls_shop_useFilterInProductDetails']) {
-				$objProductSearch = new ls_shop_productSearcher(true);
-				$objProductSearch->setSearchCriterion('id', array($int_productId));
-				$objProductSearch->search();
+                /** @var Adapter $productSearchAdapter */
+                $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+                $productSearchAdapter->setMode(Mode::Standard);
+                $productSearchAdapter->initialize(true);
+                $productSearchAdapter->setSearchCriterion('id', [$int_productId]);
+                $productSearchAdapter->search();
 			} else {
 				unset($_SESSION['lsShop']['filter']['matchedProducts']);
 				unset($_SESSION['lsShop']['filter']['matchedVariants']);

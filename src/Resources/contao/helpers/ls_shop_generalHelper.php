@@ -10,6 +10,8 @@ use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -885,10 +887,15 @@ class ls_shop_generalHelper
     {
         $int_pageID = (int)$int_pageID;
         $int_pageID = ls_shop_languageHelper::getMainlanguagePageIDForPageID($int_pageID);
-        $obj_productSearch = new ls_shop_productSearcher();
-        $obj_productSearch->setSearchCriterion('pages', $int_pageID);
-        $obj_productSearch->search();
-        return $obj_productSearch->numProductsBeforeFilter;
+
+        /** @var Adapter $productSearchAdapter */
+        $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+        $productSearchAdapter->setMode(Mode::Standard);
+        $productSearchAdapter->initialize();
+
+        $productSearchAdapter->setSearchCriterion('pages', $int_pageID);
+        $productSearchAdapter->search();
+        return $productSearchAdapter->getNumProductsBeforeFilter();
     }
 
     /*

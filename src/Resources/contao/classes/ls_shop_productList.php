@@ -160,17 +160,12 @@ class ls_shop_productList
         $productSearchAdapter->setMode(Mode::Standard);
         $productSearchAdapter->initialize($this->blnUseFilter, $this->productListID);
 
-		$objProductSearch = new ls_shop_productSearcher($this->blnUseFilter, $this->productListID);
-		
 		foreach ($this->arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
             $productSearchAdapter->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
-//			$objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
 		}
 
-//		$objProductSearch->numPerPage = $this->outputDefinition['overviewPagination'] ? $this->outputDefinition['overviewPagination'] : 0;
         $productSearchAdapter->setNumPerPage($this->outputDefinition['overviewPagination'] ?: 0);
 
-//		$objProductSearch->currentPage = $this->currentPage;
         $productSearchAdapter->setCurrentPage($this->currentPage);
 
 		$sortingDefinition = $this->outputDefinition['overviewSorting'];
@@ -193,38 +188,31 @@ class ls_shop_productList
 			0 => array('field' => $sortingField, 'direction' => $sortingDirection)
 		);
 
-//		$objProductSearch->sorting = $arrSortingDefinition;
         $productSearchAdapter->setSorting($arrSortingDefinition);
 
-//		$objProductSearch->fixedSorting = $this->fixedSorting;
         $productSearchAdapter->setFixedSorting($this->fixedSorting);
 
 
 		###
 		#.
 		if ($this->maxNumProducts > 0) {
-//			$objProductSearch->truncateResultsIfMoreThan = $this->maxNumProducts;
             $productSearchAdapter->setTruncateResultsIfMoreThan($this->maxNumProducts);
 		}
 
 		if($this->noOutputIfMoreThanMaxResults) {
-//			$objProductSearch->cancelSearchIfMoreThanTruncateLimit = true;
             $productSearchAdapter->setCancelSearchIfMoreThanTruncateLimit(true);
 		}
 		#.
 		###
 
-//		$objProductSearch->search();
         $productSearchAdapter->search();
 
-//		$arrProducts = $objProductSearch->productResultsCurrentPage;
         $arrProducts = $productSearchAdapter->getProductResultsCurrentPage();
 
         if ($this->blnUseFilter) {
             $_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] = $arrProducts;
         }
 
-//		$this->numProducts = $objProductSearch->numProductsBeforeFilter;
         $this->numProducts = $productSearchAdapter->getNumProductsBeforeFilter();
 		
 		if ($this->blnIsFrontendSearch) {

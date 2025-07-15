@@ -3,6 +3,9 @@ namespace Merconis\Core;
 
 use Contao\FrontendUser;
 use Contao\StringUtil;
+use Contao\System;
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -782,11 +785,16 @@ class ls_shop_cartHelper {
                 $arrResult = [];
 
                 foreach ($productDirectSelectionId as $productId) {
+                    /** @var Adapter $productSearchAdapter */
+                    $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+                    $productSearchAdapter->setMode(Mode::Standard);
+                    $productSearchAdapter->initialize();
 
-                    $objProductSearch = new ls_shop_productSearcher();
-                    $objProductSearch->setSearchCriterion("id", $productId);
-                    $objProductSearch->search();
-                    $resultProductId = $objProductSearch->productResultsCurrentPage[0];
+                    $productSearchAdapter->setSearchCriterion('id', $productId);
+
+                    $productSearchAdapter->search();
+
+                    $resultProductId = $productSearchAdapter->getProductResultsCurrentPage()[0];
                     array_push($arrResult, $resultProductId);
                 }
 
@@ -795,13 +803,17 @@ class ls_shop_cartHelper {
             case 'searchSelection':
                 // search criteria available
                 $arrSearchCriteria = ls_shop_cartHelper::ls_getSearchSelection($couponInfo['extendedInfo']);
-                $objProductSearch = new ls_shop_productSearcher();
+
+                /** @var Adapter $productSearchAdapter */
+                $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+                $productSearchAdapter->setMode(Mode::Standard);
+                $productSearchAdapter->initialize();
 
                 foreach ($arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
-                    $objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+                    $productSearchAdapter->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
                 }
-                $objProductSearch->search();
-                $arrProducts = $objProductSearch->productResultsCurrentPage;
+                $productSearchAdapter->search();
+                $arrProducts = $productSearchAdapter->getProductResultsCurrentPage();
                 $couponInfo['useableProducts'] = $arrProducts;
                 break;
         }
