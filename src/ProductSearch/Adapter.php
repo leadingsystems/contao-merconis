@@ -4,9 +4,11 @@ namespace LeadingSystems\MerconisBundle\ProductSearch;
 
 use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 use Merconis\Core\ls_shop_productSearcher;
+use Psr\Log\LoggerInterface;
 
 class Adapter
 {
+    private LoggerInterface $logger;
     private Mode $mode;
     private bool $useFilter;
     private string $productListId;
@@ -15,6 +17,11 @@ class Adapter
     private int $numPerPage = 0;
     private int $currentPage = 1;
     private array $sorting = [['field' => 'title', 'direction' => 'ASC']];
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
 
     public function setMode(Mode $mode): void
     {
@@ -54,10 +61,7 @@ class Adapter
         $this->notAllowedIn(Mode::SearchEngine);
 
         if (!count($sortingDefinition)) {
-            trigger_error (
-                'Sorting definition array must not be empty',
-                E_USER_WARNING
-            );
+            $this->logger->warning('Sorting definition array must not be empty');
         }
 
         $this->sorting = $sortingDefinition;
