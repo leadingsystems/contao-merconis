@@ -840,7 +840,9 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
                     }
                 }
 
-                return $this->cache_pages;
+                $arr_pages = $arr_pagesForDomain;
+
+                return $arr_pages;
 				break;
 
 			case '_variants'
