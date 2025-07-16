@@ -71,7 +71,7 @@ class SitemapListener
 						AND			published = 1
 						AND			noSearch != 1 AND sitemap!='map_never'"
             )
-                ->execute($whereConditionValues);
+                ->execute(...$whereConditionValues);
 
 
             // Determine domain
@@ -93,7 +93,7 @@ class SitemapListener
                         $frontendUrl = $objPageForProduct->getFrontendUrl('/product/' . $str_languageAlias/*, $objPageForProduct->language*/);
 
                         if(!(strpos($frontendUrl, "http://") === 0 || strpos($frontendUrl, "https://") === 0)){
-                            $frontendUrl = (Environment::get('ssl') ? 'https://' : 'http://').$objRouter->getContext()->getHost()."/".$frontendUrl;
+                            $frontendUrl = (Environment::get('ssl') ? 'https://' : 'http://').$objRouter->getContext()->getHost().$frontendUrl;
                         }
 
                         $loc->appendChild($sitemap->createTextNode($frontendUrl));
