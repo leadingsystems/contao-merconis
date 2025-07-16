@@ -839,7 +839,6 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
                         $arr_pagesForDomain[] = $int_pageID;
                     }
                 }
-
                 $arr_pages = $arr_pagesForDomain;
 
                 return $arr_pages;
