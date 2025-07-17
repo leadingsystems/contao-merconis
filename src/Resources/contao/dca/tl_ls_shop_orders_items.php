@@ -105,23 +105,23 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
         ),
 
         'customizer_summary' => array (
-            'sql'                     => "blob NULL"
+            'sql'                     => "MEDIUMBLOB NULL"
         ),
 
         'customizer_summaryForCart' => array (
-            'sql'                     => "blob NULL"
+            'sql'                     => "MEDIUMBLOB NULL"
         ),
 
         'customizer_summaryForMerchant' => array (
-            'sql'                     => "blob NULL"
+            'sql'                     => "MEDIUMBLOB NULL"
         ),
 
         'customizer_flexData' => array (
-            'sql'                     => "blob NULL"
+            'sql'                     => "MEDIUMBLOB NULL"
         ),
 
         'extendedInfo' => array (
-            'sql'                     => "blob NULL"
+            'sql'                     => "MEDIUMBLOB NULL"
         )
     )
 );
