@@ -16,6 +16,7 @@ services:
   LeadingSystems\MerconisBundle\SearchEngine\SearchEngine:
     # must be public because we have to use it in Merconis legacy code where we can't inject it properly
     public: true
+    lazy: true
     arguments:
       - !tagged_iterator merconis.search_engine_adapters
 
@@ -36,6 +37,7 @@ services:
     shared: false
     arguments:
       $logger: '@logger'
+      $searchEngine: '@LeadingSystems\MerconisBundle\SearchEngine\SearchEngine'
 
   LeadingSystems\MerconisBundle\ProductSearch\Helper:
     # must be public because we have to use it in Merconis legacy code where we can't inject it properly
