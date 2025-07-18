@@ -15,7 +15,7 @@ class CategoryLink extends InsertTag
 		/** @var PageModel $objPage */
 		global $objPage;
 
-        $pageModel = PageModel::findWithDetails($objPage->row()['id']);
+        $pageModel = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached($objPage->row()['id']);
         $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
 
         return $objContentUrlGenerator->generate($pageModel);

@@ -631,7 +631,7 @@ class ls_shop_cartHelper {
 			}
 		}
 
-        $pageModel = PageModel::findWithDetails($objPage->row()['id']);
+        $pageModel = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached($objPage->row()['id']);
         $objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
         $str_url = $objContentUrlGenerator->generate($pageModel, array('parameters' => '/deleteCoupon/'.$couponID));
 
