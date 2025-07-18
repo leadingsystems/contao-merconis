@@ -5,6 +5,7 @@ Leading Systems Contao Merconis bundle changelog
  * improve customizer public storage
  * improve UX 'Shopping cart button'
  * improve performance getPageDetailsCached
+ * extend customizer DB fields
 
 ### 5.1.5 (2025-06-26)
  * improve user input for 'Steuersätze'

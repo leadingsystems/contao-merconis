@@ -17,7 +17,7 @@
   "require": {
     "php": "^8.1",
     "contao/core-bundle": "^5.3",
-    "leadingsystems/contao-helpers": "^3.0.0",
+    "leadingsystems/contao-helpers": "^3.1.0",
     "leadingsystems/contao-lsjs4c": "^3.0.2",
     "leadingsystems/contao-lscss4c": "^1.0.0",
     "leadingsystems/contao-api": "^2.0.2",
