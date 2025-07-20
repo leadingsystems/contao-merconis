@@ -25,6 +25,8 @@ class Adapter
     private bool $cancelSearchIfMoreThanTruncateLimit = false;
     private bool $emptyFieldMatchesPerDefault = false;
 
+    private array $productResultsComplete = [];
+
     public function __construct(SearchEngine $searchEngine, LoggerInterface $logger)
     {
         $this->searchEngine = $searchEngine;
@@ -44,6 +46,7 @@ class Adapter
         switch ($this->mode) {
             case Mode::Standard:
                 $this->standardSearchClient = new ls_shop_productSearcher($this->useFilter, $this->productListId);
+                $this->standardSearchClient->setNonLegacyUsage();
                 break;
 
             case Mode::SearchEngine:
@@ -52,119 +55,241 @@ class Adapter
                  *  it here. We can simply use it when we need to. So there's probably nothin to do in this switch case.
                  *  If so, decide whether to keep this case anyway and place a comment here to make this more clear.
                  */
-                throw new \Exception('Mode "' . $this->mode->name . '" not implemented yet.');
+//                throw new \Exception('Mode "' . $this->mode->name . '" not implemented yet.');
                 break;
 
             default:
                 throw new \Exception('Unexpected mode "' . $this->mode->name . '" not implemented yet.');
                 break;
         }
-
-        $this->standardSearchClient->setNonLegacyUsage();
     }
 
     public function setSearchCriterion(string $fieldName, $criterion): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
-
         if (!$fieldName) {
             return;
         }
 
         $this->searchCriteria[$fieldName] = $criterion;
 
-        $this->standardSearchClient->setSearchCriterion($fieldName, $criterion);
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->setSearchCriterion($fieldName, $criterion);
+                break;
+
+            case Mode::SearchEngine:
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function setSearchCriteria(array $searchCriteria): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
-
         if (!count($searchCriteria)) {
             $this->logger->warning('Search criteria array must not be empty');
         }
 
         $this->searchCriteria = $searchCriteria;
 
-        $this->standardSearchClient->setSearchCriteria($this->searchCriteria);
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->setSearchCriteria($this->searchCriteria);
+                break;
+
+            case Mode::SearchEngine:
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function setNumPerPage(int $num): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
         $this->numPerPage = $num;
-        $this->standardSearchClient->numPerPage = $this->numPerPage;
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->numPerPage = $this->numPerPage;
+                break;
+
+            case Mode::SearchEngine:
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function setCurrentPage(int $num): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
+        if ($num < 1) {
+            $this->logger->warning('Setting current page to less than 1. This is most likely unintended. Please check!');
+        }
         $this->currentPage = $num;
-        $this->standardSearchClient->currentPage = $this->currentPage;
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->currentPage = $this->currentPage;
+                break;
+
+            case Mode::SearchEngine:
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function setSorting(array $sortingDefinition): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
-
         if (!count($sortingDefinition)) {
             $this->logger->warning('Sorting definition array must not be empty');
         }
 
         $this->sorting = $sortingDefinition;
-        $this->standardSearchClient->sorting = $this->sorting;
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->sorting = $this->sorting;
+                break;
+
+            case Mode::SearchEngine:
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function setEmptyFieldMatchesPerDefault(bool $emptyFieldMatchesPerDefault): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
         $this->emptyFieldMatchesPerDefault = $emptyFieldMatchesPerDefault;
-        $this->standardSearchClient->emptyFieldMatchesPerDefault = $this->emptyFieldMatchesPerDefault;
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->emptyFieldMatchesPerDefault = $this->emptyFieldMatchesPerDefault;
+                break;
+
+            case Mode::SearchEngine:
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function setFixedSorting(array $fixedSorting): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
         $this->fixedSorting = $fixedSorting;
-        $this->standardSearchClient->fixedSorting = $this->fixedSorting;
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->fixedSorting = $this->fixedSorting;
+                break;
+
+            case Mode::SearchEngine:
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function setTruncateResultsIfMoreThan($num): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
         $this->truncateResultsIfMoreThan = $num;
-        $this->standardSearchClient->truncateResultsIfMoreThan = $this->truncateResultsIfMoreThan;
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->truncateResultsIfMoreThan = $this->truncateResultsIfMoreThan;
+                break;
+
+            case Mode::SearchEngine:
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function setCancelSearchIfMoreThanTruncateLimit(bool $cancel): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
         $this->cancelSearchIfMoreThanTruncateLimit = $cancel;
-        $this->standardSearchClient->cancelSearchIfMoreThanTruncateLimit = $this->cancelSearchIfMoreThanTruncateLimit;
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->cancelSearchIfMoreThanTruncateLimit = $this->cancelSearchIfMoreThanTruncateLimit;
+                break;
+
+            case Mode::SearchEngine:
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function search(): void
     {
-        $this->notAllowedIn(Mode::SearchEngine);
-        $this->standardSearchClient->search();
-    }
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->search();
+                $this->productResultsComplete = $this->standardSearchClient->productResultsComplete;
+                break;
 
-    public function getNumPagesTotal(): int
-    {
-        $this->notAllowedIn(Mode::SearchEngine);
-        return $this->standardSearchClient->numPagesTotal;
-    }
+            case Mode::SearchEngine:
+                $this->searchEngine->dummySearch();
+                break;
 
-    public function getProductResultsCurrentPage(): array
-    {
-        $this->notAllowedIn(Mode::SearchEngine);
-        return $this->standardSearchClient->productResultsCurrentPage;
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
     }
 
     public function getProductResultsComplete(): array
     {
-        $this->notAllowedIn(Mode::SearchEngine);
-        return $this->standardSearchClient->productResultsComplete;
+        return $this->productResultsComplete;
+    }
+
+    public function getNumResultsComplete(): int
+    {
+        return count($this->productResultsComplete);
+    }
+
+    public function getNumPagesTotal(): int
+    {
+        return $this->numPerPage > 0 ? ceil ($this->getNumResultsComplete() / $this->numPerPage) : 1;
+    }
+
+    public function getProductResultsCurrentPage(): array
+    {
+        if ($this->numPerPage <= 0 || !$this->getNumResultsComplete()) {
+            return $this->productResultsComplete;
+        }
+
+        if ($this->currentPage < 1 || $this->currentPage > $this->getNumPagesTotal()) {
+            /*
+             * If requested page is out of range, return empty array.
+             */
+            return [];
+        }
+
+        $offset = ($this->currentPage - 1) * $this->numPerPage;
+        $productResultsCurrentPage = array_slice($this->productResultsComplete, $offset, $this->numPerPage);
+        return $productResultsCurrentPage;
     }
 
     public function getNumProductsBeforeFilter(): int
@@ -183,12 +308,6 @@ class Adapter
     {
         $this->notAllowedIn(Mode::SearchEngine);
         return $this->standardSearchClient->numProductsNotMatching;
-    }
-
-    public function getNumResultsComplete(): int
-    {
-        $this->notAllowedIn(Mode::SearchEngine);
-        return $this->standardSearchClient->numResultsComplete;
     }
 
     private function notAllowedIn(Mode $mode): void

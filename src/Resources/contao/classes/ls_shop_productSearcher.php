@@ -38,6 +38,10 @@ class ls_shop_productSearcher
     );
 
     protected $arrProductResultsComplete = array();
+
+    /*
+     * Do me! Remove if possible. Should not be used at all anymore.
+     */
     protected $arrProductResultsCurrentPage = null;
 
     protected $arrCache = null;
@@ -208,6 +212,11 @@ class ls_shop_productSearcher
                 break;
 
             case 'productResultsCurrentPage':
+                /*
+                 * Do me! Remove if possible. Should not be used at all anymore.
+                 */
+                throw new \Exception('unexpected getter call for "' . $what . '"');
+
                 $this->getProductResultsCurrentPage();
                 return $this->arrProductResultsCurrentPage;
                 break;
@@ -1408,6 +1417,11 @@ class ls_shop_productSearcher
     }
 
     protected function getProductResultsCurrentPage() {
+        /*
+         * Do me! Remove if possible. Should not be used at all anymore.
+         */
+        throw new \Exception('unexpected call of "' . __METHOD__ . '"');
+
         if ($this->arrProductResultsCurrentPage === null) {
             if ($this->intNumPerPage && is_array($this->productResultsComplete) && count($this->productResultsComplete)) {
                 /*
