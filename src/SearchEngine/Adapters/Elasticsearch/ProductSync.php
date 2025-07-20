@@ -157,7 +157,7 @@ class ProductSync
                 'product_code' => $dbres_productBatch->lsShopProductCode,
                 'title' => $dbres_productBatch->title_de ?: '',
                 'description' => $dbres_productBatch->description_de ?: '',
-                'pages' => StringUtil::deserialize($dbres_productBatch->pages, true),
+                'pages' => array_map('intval', StringUtil::deserialize($dbres_productBatch->pages, true)),
             ];
             $product['content_hash'] = $this->createProductDataHash($product);
             $batch[$dbres_productBatch->id] = $product;

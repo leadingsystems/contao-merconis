@@ -134,7 +134,7 @@ class Client implements ClientInterface
                                 'type' => 'text',
                                 'analyzer' => 'standard',
                             ],
-                            'pages'        => ['type' => 'keyword'],
+                            'pages'        => ['type' => 'integer'],
 
                             'content_hash' => [
                                 'type' => 'keyword',
