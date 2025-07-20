@@ -197,4 +197,27 @@ class Client implements ClientInterface
     {
         return 'This SearchEngine works with a self-hosted version of Elasticsearch. Elasticsearch as a cloud service is currently not supported.';
     }
+
+    public function dummySearch(): array
+    {
+        $params = [
+            'index' => $this->productIndexName,
+            'body' => [
+                'query' => [
+                    'term' => [
+                        'id' => 59952 // Use as integer
+                    ]
+                ]
+            ]
+        ];
+        try {
+            $response = $this->client->search($params);
+
+            $productResultIds = array_column(array_column($response['hits']['hits'], '_source'), 'id');
+
+            return $productResultIds;
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
 }

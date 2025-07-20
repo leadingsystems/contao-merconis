@@ -14,4 +14,6 @@ interface ClientInterface
     public function getNumDocumentsInIndex(string $indexName): int;
     public function syncProducts(): OperationResult;
     public function createIndex(string $indexName): OperationResult;
+
+    public function dummySearch(): array;
 }

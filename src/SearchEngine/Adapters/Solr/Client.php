@@ -50,4 +50,10 @@ class Client implements ClientInterface
         $operationResult = new OperationResult();
         return $operationResult;
     }
+
+    public function dummySearch(): array
+    {
+        // TODO: Implement dummySearch() method.
+        return [];
+    }
 }

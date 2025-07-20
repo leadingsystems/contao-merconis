@@ -56,4 +56,9 @@ class SearchEngine
 
         return $availableClientAdapters;
     }
+
+    public function dummySearch()
+    {
+        return $this->clientAdapterService->dummySearch();
+    }
 }
