@@ -246,7 +246,7 @@ class ls_shop_productList
 		 */
 
 //		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$objProductSearch->blnNotAllProductsMatch)) {
-		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$productSearchAdapter->hasMismatchedProducts())) {
+		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$productSearchAdapter->hasUnmatchedProducts())) {
 			return '';
 		}
 		
@@ -255,7 +255,7 @@ class ls_shop_productList
 		$objTemplate->blnUseFilter = $this->blnUseFilter;
 
 //		$objTemplate->blnNotAllProductsMatchFilter = $objProductSearch->blnNotAllProductsMatch;
-		$objTemplate->blnNotAllProductsMatchFilter = $productSearchAdapter->hasMismatchedProducts();
+		$objTemplate->blnNotAllProductsMatchFilter = $productSearchAdapter->hasUnmatchedProducts();
 
 //        $objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;
 		$objTemplate->numProductsNotMatching = $productSearchAdapter->getNumProductsNotMatching();

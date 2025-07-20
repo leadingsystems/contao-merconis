@@ -250,7 +250,7 @@ class Adapter
                 break;
 
             case Mode::SearchEngine:
-                $this->searchEngine->dummySearch();
+                $this->productResultsComplete = $this->searchEngine->dummySearch();
                 break;
 
             default:
@@ -294,20 +294,62 @@ class Adapter
 
     public function getNumProductsBeforeFilter(): int
     {
-        $this->notAllowedIn(Mode::SearchEngine);
-        return $this->standardSearchClient->numProductsBeforeFilter;
+        switch ($this->mode) {
+            case Mode::Standard:
+                return $this->standardSearchClient->numProductsBeforeFilter;
+                break;
+
+            case Mode::SearchEngine:
+                return $this->getNumResultsComplete();
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                return 0;
+                break;
+        }
     }
 
-    public function hasMismatchedProducts(): bool
+    public function hasUnmatchedProducts(): bool
     {
-        $this->notAllowedIn(Mode::SearchEngine);
-        return $this->standardSearchClient->blnNotAllProductsMatch;
+        switch ($this->mode) {
+            case Mode::Standard:
+                return $this->standardSearchClient->blnNotAllProductsMatch;
+                break;
+
+            case Mode::SearchEngine:
+                /*
+                 * Implement real functionality here instead of placeholder
+                 */
+                return false;
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                return false;
+                break;
+        }
     }
 
     public function getNumProductsNotMatching(): int
     {
-        $this->notAllowedIn(Mode::SearchEngine);
-        return $this->standardSearchClient->numProductsNotMatching;
+        switch ($this->mode) {
+            case Mode::Standard:
+                return $this->standardSearchClient->numProductsNotMatching;
+                break;
+
+            case Mode::SearchEngine:
+                /*
+                 * Implement real functionality here instead of placeholder
+                 */
+                return 0;
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                return 0;
+                break;
+        }
     }
 
     private function notAllowedIn(Mode $mode): void
