@@ -2,6 +2,7 @@
 
 namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters\OpenSearch;
 
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
 use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
 use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
 
@@ -51,7 +52,7 @@ class Client implements ClientInterface
         return $operationResult;
     }
 
-    public function dummySearch(): array
+    public function dummySearch(Adapter &$productSearchAdapter): array
     {
         // TODO: Implement dummySearch() method.
         return [];

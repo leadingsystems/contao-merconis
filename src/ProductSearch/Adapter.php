@@ -250,7 +250,7 @@ class Adapter
                 break;
 
             case Mode::SearchEngine:
-                $this->productResultsComplete = $this->searchEngine->dummySearch();
+                $this->productResultsComplete = $this->searchEngine->dummySearch($this);
                 break;
 
             default:

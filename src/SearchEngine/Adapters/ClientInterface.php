@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters;
 
 use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
 
 interface ClientInterface
 {
@@ -15,5 +16,5 @@ interface ClientInterface
     public function syncProducts(): OperationResult;
     public function createIndex(string $indexName): OperationResult;
 
-    public function dummySearch(): array;
+    public function dummySearch(Adapter &$productSearchAdapter): array;
 }

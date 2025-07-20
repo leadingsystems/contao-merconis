@@ -2,6 +2,7 @@
 
 namespace LeadingSystems\MerconisBundle\SearchEngine;
 
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
 use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
 
 class SearchEngine
@@ -57,8 +58,8 @@ class SearchEngine
         return $availableClientAdapters;
     }
 
-    public function dummySearch()
+    public function dummySearch(Adapter &$productSearchAdapter)
     {
-        return $this->clientAdapterService->dummySearch();
+        return $this->clientAdapterService->dummySearch($productSearchAdapter);
     }
 }

@@ -5,6 +5,7 @@ namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch;
 use Contao\StringUtil;
 use Elastic\Elasticsearch\Client as ElasticsearchClient;
 use Elastic\Elasticsearch\ClientBuilder;
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
 use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
 use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
 
@@ -198,7 +199,7 @@ class Client implements ClientInterface
         return 'This SearchEngine works with a self-hosted version of Elasticsearch. Elasticsearch as a cloud service is currently not supported.';
     }
 
-    public function dummySearch(): array
+    public function dummySearch(Adapter &$productSearchAdapter): array
     {
         $params = [
             'index' => $this->productIndexName,
