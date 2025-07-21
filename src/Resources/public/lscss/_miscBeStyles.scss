@@ -1073,7 +1073,20 @@ fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"] > legend button:
   background-color: #BBBBBB;
 }
 
+.be_orderRepresentation {
+  .configuration-image {
+    max-width: 300px;
 
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  .oih {
+    line-break: anywhere;
+  }
+}
 
 /*
  * ###

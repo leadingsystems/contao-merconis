@@ -3440,7 +3440,7 @@ class ls_shop_generalHelper
 
         while ($objPages->next()) {
             // Check whether root page is fallback language or not and only then add the page to the options array
-            $objPageDetails = PageModel::findWithDetails($objPages->id);
+            $objPageDetails = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached($objPages->id);
             $objRootPage = Database::getInstance()->prepare("
 					SELECT * FROM `tl_page` WHERE `id` = ?
 				")
@@ -5391,7 +5391,7 @@ class ls_shop_generalHelper
     public static function getBackendLscssStyles() {
         $obj_lscss4cController = \LeadingSystems\Lscss4c\lscss4C_controller::getInstance();
         return $obj_lscss4cController->getLscss(
-            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.6f6251e3.scss',
+            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.4a54aeee.scss',
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoCacheMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoMinifierMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssDebugMode']

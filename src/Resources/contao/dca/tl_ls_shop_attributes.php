@@ -49,9 +49,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_attributes'] = array(
 			'format' => '<strong>%s</strong> <span style="font-style: italic;">(Alias: %s)</span>'
 		),
 
-		'global_operations' => array(
-			'all'
-		),
+        'global_operations' => array(
+            'all'
+        ),
 
 		'operations' => array(
             'edit',
