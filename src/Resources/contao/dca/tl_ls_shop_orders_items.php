@@ -8,7 +8,8 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
         (
             'keys' => array
             (
-                'id' => 'primary'
+                'id' => 'primary',
+                'pid' => 'index'
             )
         )
     ),

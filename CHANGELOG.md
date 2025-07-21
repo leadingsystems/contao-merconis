@@ -1,7 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.0.33 (2025-05-05)
+### 5.0.35 (2025-07-21)
+ * add indices
+
+### 5.0.34 (2025-05-05)
  * add hook 'validateCoupon'
 
 ### 5.0.33 (2025-04-14)
