@@ -8,7 +8,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders_customer_data'] = array(
         (
             'keys' => array
             (
-                'id' => 'primary'
+                'id' => 'primary',
+                'pid' => 'index'
             )
         )
     ),
