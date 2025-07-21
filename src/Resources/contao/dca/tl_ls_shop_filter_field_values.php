@@ -29,7 +29,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_field_values'] = array(
         (
             'keys' => array
             (
-                'id' => 'primary'
+                'id' => 'primary',
+                'pid' => 'index'
             )
         )
 	),
