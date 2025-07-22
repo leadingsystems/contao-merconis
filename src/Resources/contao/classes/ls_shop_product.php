@@ -2519,7 +2519,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
             }
 
             if(empty($MainLanguagePageIDForLink)){
-                $idDefaultProductPage = ls_shop_languageHelper::getLanguagePage('ls_shop_defaultProductPage', false, 'id');
+                $idDefaultProductPage = ls_shop_languageHelper::getLanguagePage('ls_shop_defaultProductPages', false, 'id');
                 $MainLanguagePageIDForLink = ls_shop_languageHelper::getMainlanguagePageIDForPageID($idDefaultProductPage);
             }
 

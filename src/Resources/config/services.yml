@@ -158,6 +158,11 @@ services:
     class: LeadingSystems\MerconisBundle\Services\Session
     public: true
 
+  merconis.migration.update_shop_product_page_config_migration:
+    class: LeadingSystems\MerconisBundle\Migration\UpdateShopProductPageConfigMigration
+    tags:
+      - { name: contao.migration, priority: 0 }
+
   merconis.migration.filter_migration:
     class: LeadingSystems\MerconisBundle\Migration\FilterMigration
     tags:
