@@ -1,6 +1,6 @@
 <?php
 
-namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch;
+namespace LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch;
 
 use Contao\StringUtil;
 use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;

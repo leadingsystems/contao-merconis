@@ -1,11 +1,11 @@
 <?php
 
-namespace LeadingSystems\MerconisBundle\SearchEngine;
+namespace LeadingSystems\MerconisBundle\SearchServer;
 
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
-use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\ClientInterface;
 
-class SearchEngine
+class SearchServer
 {
     private iterable $availableClientAdapterServices;
     private ?ClientInterface $clientAdapterService = null;

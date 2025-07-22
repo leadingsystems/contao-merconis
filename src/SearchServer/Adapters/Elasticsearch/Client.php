@@ -1,12 +1,12 @@
 <?php
 
-namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters\Elasticsearch;
+namespace LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch;
 
 use Contao\StringUtil;
 use Elastic\Elasticsearch\Client as ElasticsearchClient;
 use Elastic\Elasticsearch\ClientBuilder;
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
-use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\ClientInterface;
 use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
 
 class Client implements ClientInterface

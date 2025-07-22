@@ -1,9 +1,9 @@
 <?php
 
-namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters\Solr;
+namespace LeadingSystems\MerconisBundle\SearchServer\Adapters\Solr;
 
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
-use LeadingSystems\MerconisBundle\SearchEngine\Adapters\ClientInterface;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\ClientInterface;
 use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
 
 class Client implements ClientInterface

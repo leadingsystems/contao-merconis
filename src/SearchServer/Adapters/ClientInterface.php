@@ -1,6 +1,6 @@
 <?php
 
-namespace LeadingSystems\MerconisBundle\SearchEngine\Adapters;
+namespace LeadingSystems\MerconisBundle\SearchServer\Adapters;
 
 use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;

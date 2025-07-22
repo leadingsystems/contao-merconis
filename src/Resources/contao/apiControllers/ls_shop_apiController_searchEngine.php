@@ -3,7 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\System;
-use LeadingSystems\MerconisBundle\SearchEngine\SearchEngine;
+use LeadingSystems\MerconisBundle\SearchServer\SearchServer;
 
 class ls_shop_apiController_searchEngine {
 	protected static $objInstance;
@@ -43,7 +43,7 @@ class ls_shop_apiController_searchEngine {
 	
 	protected function apiResource_searchEngine_test01() {
         try {
-            /** @var $searchEngine SearchEngine */
+            /** @var $searchEngine SearchServer */
             $searchEngine = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchEngine\SearchEngine');
 
             $this->obj_apiReceiver->success();
@@ -56,7 +56,7 @@ class ls_shop_apiController_searchEngine {
 
 	protected function apiResource_searchEngine_createProductsIndex() {
         try {
-            /** @var $searchEngine SearchEngine */
+            /** @var $searchEngine SearchServer */
             $searchEngine = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchEngine\SearchEngine');
 
             $this->obj_apiReceiver->success();
@@ -76,7 +76,7 @@ class ls_shop_apiController_searchEngine {
          *  the api resource would have to be called again.
          */
         try {
-            /** @var $searchEngine SearchEngine */
+            /** @var $searchEngine SearchServer */
             $searchEngine = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchEngine\SearchEngine');
 
             $this->obj_apiReceiver->success();

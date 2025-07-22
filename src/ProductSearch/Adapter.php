@@ -3,14 +3,14 @@
 namespace LeadingSystems\MerconisBundle\ProductSearch;
 
 use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
-use LeadingSystems\MerconisBundle\SearchEngine\SearchEngine;
+use LeadingSystems\MerconisBundle\SearchServer\SearchServer;
 use Merconis\Core\ls_shop_productSearcher;
 use Psr\Log\LoggerInterface;
 
 class Adapter
 {
     private LoggerInterface $logger;
-    private SearchEngine $searchEngine;
+    private SearchServer $searchEngine;
     private ls_shop_productSearcher $standardSearchClient;
     private Mode $mode;
     private bool $useFilter;
@@ -27,9 +27,9 @@ class Adapter
 
     private array $productResultsComplete = [];
 
-    public function __construct(SearchEngine $searchEngine, LoggerInterface $logger)
+    public function __construct(SearchServer $searchServer, LoggerInterface $logger)
     {
-        $this->searchEngine = $searchEngine;
+        $this->searchEngine = $searchServer;
         $this->logger = $logger;
     }
 
