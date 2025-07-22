@@ -352,6 +352,11 @@ class Adapter
         }
     }
 
+    public function getSearchCriteria(): array
+    {
+        return $this->searchCriteria;
+    }
+
     private function notAllowedIn(Mode $mode): void
     {
         if ($this->mode === $mode) {

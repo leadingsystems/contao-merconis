@@ -201,20 +201,54 @@ class Client implements ClientInterface
 
     public function dummySearch(Adapter &$productSearchAdapter): array
     {
-        $params = [
-            'index' => $this->productIndexName,
-            'body' => [
-                'query' => [
-                    'term' => [
-                        'id' => 59952 // Use as integer
+        /*
+         * Do me! Rename the dummySearch method.
+         */
+        $pageIds = $productSearchAdapter->getSearchCriteria()['pages'];
+        $size = 1000; // Batch size per scroll request
+        $productResultIds = [];
+
+        try {
+            // Initial search with scroll context
+            $params = [
+                'index' => $this->productIndexName,
+                'scroll' => '2m', // Scroll context valid for 2 minutes
+                'body' => [
+                    'size' => $size,
+                    'query' => [
+                        'terms' => [
+                            'pages' => $pageIds
+                        ]
                     ]
                 ]
-            ]
-        ];
-        try {
+            ];
             $response = $this->client->search($params);
 
-            $productResultIds = array_column(array_column($response['hits']['hits'], '_source'), 'id');
+            do {
+                // Extract products from this batch
+                if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
+                    $batchIds = array_column(array_column($response['hits']['hits'], '_source'), 'id');
+                    $productResultIds = array_merge($productResultIds, $batchIds);
+                }
+
+                // Get the next batch if there are more results
+                $scrollId = $response['_scroll_id'] ?? null;
+                $numHits = count($response['hits']['hits']);
+
+                if ($scrollId && $numHits > 0) {
+                    $response = $this->client->scroll([
+                        'scroll_id' => $scrollId,
+                        'scroll' => '2m'
+                    ]);
+                } else {
+                    break; // No more results
+                }
+            } while (true);
+
+            // Optionally clear the scroll context (good practice!)
+            if (isset($scrollId)) {
+                $this->client->clearScroll(['scroll_id' => $scrollId]);
+            }
 
             return $productResultIds;
         } catch (\Exception $e) {
