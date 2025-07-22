@@ -6,12 +6,20 @@ use Contao\StringUtil;
 use Elastic\Elasticsearch\Client as ElasticsearchClient;
 use Elastic\Elasticsearch\ClientBuilder;
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
-use LeadingSystems\MerconisBundle\SearchServer\Adapters\ClientInterface;
+use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\ClientInterface;
 use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
+use LeadingSystems\MerconisBundle\SearchServer\Traits\AdapterCommonTrait;
+
+/*
+ * IMPORTANT NOTE:
+ * This SearchEngine works with a self-hosted version of Elasticsearch. Elasticsearch as a cloud service is currently not supported.
+ */
 
 class Client implements ClientInterface
 {
-    public ?ElasticsearchClient $client = null;
+    use AdapterCommonTrait;
+
+    public ?ElasticsearchClient $elasticsearchClient = null;
 
     /*
      * Do me! Must not be hard-coded. Instead, make it configurable with a backend module!
@@ -33,7 +41,7 @@ class Client implements ClientInterface
 
     public function initialize(): void
     {
-        $this->client = ClientBuilder::create()
+        $this->elasticsearchClient = ClientBuilder::create()
             ->setHosts([$this->host])
             ->setBasicAuthentication($this->username, $this->password)
 
@@ -45,67 +53,6 @@ class Client implements ClientInterface
             ->setSSLVerification(false)
 
             ->build();
-    }
-
-    public function testConnection(): OperationResult
-    {
-        $operationResult = new OperationResult();
-
-        try {
-            $response = $this->client->ping();
-            if ($response) {
-                $operationResult->setSuccess(true);
-                $operationResult->setMessage('Elasticsearch is reachable');
-            } else {
-                $operationResult->setSuccess(false);
-                $operationResult->setMessage('Failed to reach Elasticsearch');
-            }
-        } catch (\Exception $e) {
-            $operationResult->setException($e);
-        }
-
-        return $operationResult;
-    }
-
-    public function testIndex(string $indexName): OperationResult
-    {
-        $operationResult = new OperationResult();
-
-        try {
-            if ($this->client->indices()->exists(['index' => $indexName])) {
-                $operationResult->setSuccess(true);
-
-                if ($numDocumentsInIndex = $this->getNumDocumentsInIndex($indexName)) {
-                    $numDocumentsMessage = 'Found ' . $numDocumentsInIndex . ' documents in the index.';
-                } else {
-                    $numDocumentsMessage = 'No documents found in the index.';
-                }
-
-                $operationResult->setMessage('The index "' . $indexName . '" exists. ' . $numDocumentsMessage);
-            } else {
-                $operationResult->setSuccess(false);
-                $operationResult->setMessage('The index "' . $indexName . '" does not exist.');
-            }
-        } catch (\Exception $e) {
-            $operationResult->setException($e);
-        }
-
-        return $operationResult;
-    }
-
-    public function getNumDocumentsInIndex(string $indexName): int
-    {
-        $params = [
-            'index' => $indexName,
-            'body'  => [
-                'query' => [
-                    'match_all' => new \stdClass(),
-                ]
-            ]
-        ];
-
-        $response = $this->client->search($params);
-        return $response['hits']['total']['value'] ?? 0;
     }
 
     public function createIndex(string $indexName): OperationResult
@@ -156,7 +103,7 @@ class Client implements ClientInterface
         }
 
         try {
-            $response = $this->client->indices()->create([
+            $response = $this->elasticsearchClient->indices()->create([
                 'index' => $indexName,
                 'body' => $requestBody
             ]);
@@ -189,16 +136,6 @@ class Client implements ClientInterface
         return $operationResult;
     }
 
-    public function getAdapterName(): string
-    {
-        return basename(__DIR__);
-    }
-
-    public function getAdapterDescription(): string
-    {
-        return 'This SearchEngine works with a self-hosted version of Elasticsearch. Elasticsearch as a cloud service is currently not supported.';
-    }
-
     public function dummySearch(Adapter &$productSearchAdapter): array
     {
         /*
@@ -222,7 +159,7 @@ class Client implements ClientInterface
                     ]
                 ]
             ];
-            $response = $this->client->search($params);
+            $response = $this->elasticsearchClient->search($params);
 
             do {
                 // Extract products from this batch
@@ -236,7 +173,7 @@ class Client implements ClientInterface
                 $numHits = count($response['hits']['hits']);
 
                 if ($scrollId && $numHits > 0) {
-                    $response = $this->client->scroll([
+                    $response = $this->elasticsearchClient->scroll([
                         'scroll_id' => $scrollId,
                         'scroll' => '2m'
                     ]);
@@ -247,7 +184,7 @@ class Client implements ClientInterface
 
             // Optionally clear the scroll context (good practice!)
             if (isset($scrollId)) {
-                $this->client->clearScroll(['scroll_id' => $scrollId]);
+                $this->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
             }
 
             return $productResultIds;

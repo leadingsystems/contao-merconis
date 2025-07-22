@@ -5,31 +5,64 @@ services:
     autoconfigure: true
     public: false
 
-  _instanceof:
-    LeadingSystems\MerconisBundle\SearchServer\Adapters\ClientInterface:
-      tags: [ 'merconis.search_engine_adapters' ]
-
   merconis.routing.scope:
     class: LeadingSystems\MerconisBundle\Services\Scope
     public: true
+
+  _instanceof:
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\ClientInterface:
+      tags: [ 'merconis.search_server_adapters_client' ]
+
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\TestsInterface:
+      tags: [ 'merconis.search_server_adapters_tests' ]
+
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexManageInterface:
+      tags: [ 'merconis.search_server_adapters_index_manage' ]
+
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSearchInterface:
+      tags: [ 'merconis.search_server_adapters_index_search' ]
+
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSyncInterface:
+      tags: [ 'merconis.search_server_adapters_index_sync' ]
 
   LeadingSystems\MerconisBundle\SearchServer\SearchServer:
     # must be public because we have to use it in Merconis legacy code where we can't inject it properly
     public: true
     lazy: true
     arguments:
-      - !tagged_iterator merconis.search_engine_adapters
+      - !tagged_iterator merconis.search_server_adapters_client
+      - !tagged_iterator merconis.search_server_adapters_tests
+      - !tagged_iterator merconis.search_server_adapters_index_manage
+      - !tagged_iterator merconis.search_server_adapters_index_search
+      - !tagged_iterator merconis.search_server_adapters_index_sync
 
-  # Search engine adapter/client services, auto tagged with _instanceof, therefore depending on implementing Adapters\ClientInterface -->
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\ClientInterface -->
   LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client:
+
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\TestsInterface -->
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Tests:
     arguments:
-      - '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\ProductSync'
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
 
-  LeadingSystems\MerconisBundle\SearchServer\Adapters\OpenSearch\Client:
-  LeadingSystems\MerconisBundle\SearchServer\Adapters\Solr\Client:
-  # <--
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\IndexManageInterface -->
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product\Manage:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
 
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\IndexSearchInterface -->
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product\Search:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
+
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\IndexSyncInterface -->
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product\Sync:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
+
+  # Do me! Dieses Interface gibt es noch nicht und ProductSync sowie das Zusammenspiel mit dem Client muss noch umgebaut werden
+  # Search server adapter/client services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\ProductSyncInterface -->
   LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\ProductSync:
+  # <--
 
   LeadingSystems\MerconisBundle\ProductSearch\Adapter:
     # must be public because we have to use it in Merconis legacy code where we can't inject it properly

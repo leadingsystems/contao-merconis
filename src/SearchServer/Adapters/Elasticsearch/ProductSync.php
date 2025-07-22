@@ -79,7 +79,7 @@ class ProductSync
             if (!empty($bulkOps)) {
                 $chunks = array_chunk($bulkOps, 100);
                 foreach ($chunks as $chunk) {
-                    $response = $this->elasticsearchAdapterClient->client->bulk(['body' => $chunk]);
+                    $response = $this->elasticsearchAdapterClient->elasticsearchClient->bulk(['body' => $chunk]);
                     if (isset($response['errors']) && $response['errors']) {
                         $failedItems = array_filter($response['items'], function ($item) {
                             return
@@ -197,7 +197,7 @@ class ProductSync
                 'sort' => [['id' => 'asc']]
             ]
         ];
-        $response = $this->elasticsearchAdapterClient->client->search($esParams);
+        $response = $this->elasticsearchAdapterClient->elasticsearchClient->search($esParams);
         while (true) {
             if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
                 foreach ($response['hits']['hits'] as $hit) {
@@ -206,7 +206,7 @@ class ProductSync
 
                 if (isset($response['_scroll_id'])) {
                     $scrollId = $response['_scroll_id'];
-                    $response = $this->elasticsearchAdapterClient->client->scroll([
+                    $response = $this->elasticsearchAdapterClient->elasticsearchClient->scroll([
                         'scroll_id' => $scrollId,
                         'scroll' => '2m'
                     ]);
@@ -219,7 +219,7 @@ class ProductSync
         }
 
         if (isset($scrollId)) {
-            $this->elasticsearchAdapterClient->client->clearScroll(['scroll_id' => $scrollId]);
+            $this->elasticsearchAdapterClient->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
         }
 
         return $batch;

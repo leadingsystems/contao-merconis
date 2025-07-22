@@ -5,7 +5,7 @@ namespace Merconis\Core;
 use Contao\System;
 use LeadingSystems\MerconisBundle\SearchServer\SearchServer;
 
-class ls_shop_apiController_searchEngine {
+class ls_shop_apiController_searchServer {
 	protected static $objInstance;
 
 	/** @var \LeadingSystems\Api\ls_apiController $obj_apiReceiver */
@@ -41,33 +41,33 @@ class ls_shop_apiController_searchEngine {
 		}
 	}
 	
-	protected function apiResource_searchEngine_test01() {
+	protected function apiResource_searchServer_test01() {
         try {
-            /** @var $searchEngine SearchServer */
-            $searchEngine = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchEngine\SearchEngine');
+            /** @var $searchServer SearchServer */
+            $searchServer = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchServer\SearchServer');
 
             $this->obj_apiReceiver->success();
-            $this->obj_apiReceiver->set_data($searchEngine->runTests());
+            $this->obj_apiReceiver->set_data($searchServer->runTests());
         } catch (\Throwable $e) {
             $this->obj_apiReceiver->error();
             $this->obj_apiReceiver->set_message($e->getMessage());
         }
 	}
 
-	protected function apiResource_searchEngine_createProductsIndex() {
+	protected function apiResource_searchServer_createProductsIndex() {
         try {
-            /** @var $searchEngine SearchServer */
-            $searchEngine = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchEngine\SearchEngine');
+            /** @var $searchServer SearchServer */
+            $searchServer = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchServer\SearchServer');
 
             $this->obj_apiReceiver->success();
-            $this->obj_apiReceiver->set_data($searchEngine->createProductsIndex());
+            $this->obj_apiReceiver->set_data($searchServer->createProductsIndex());
         } catch (\Throwable $e) {
             $this->obj_apiReceiver->error();
             $this->obj_apiReceiver->set_message($e->getMessage());
         }
 	}
 
-	protected function apiResource_searchEngine_addAllProductsToIndex() {
+	protected function apiResource_searchServer_addAllProductsToIndex() {
         /*
          * Do me! Indexing all products probably takes much time and can probably not be done all at once.
          *  Find a better solution.
@@ -76,11 +76,11 @@ class ls_shop_apiController_searchEngine {
          *  the api resource would have to be called again.
          */
         try {
-            /** @var $searchEngine SearchServer */
-            $searchEngine = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchEngine\SearchEngine');
+            /** @var $searchServer SearchServer */
+            $searchServer = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchServer\SearchServer');
 
             $this->obj_apiReceiver->success();
-            $this->obj_apiReceiver->set_data($searchEngine->addAllProductsToIndex());
+            $this->obj_apiReceiver->set_data($searchServer->addAllProductsToIndex());
         } catch (\Throwable $e) {
             $this->obj_apiReceiver->error();
             $this->obj_apiReceiver->set_message($e->getMessage());
