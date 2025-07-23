@@ -113,8 +113,8 @@
 
                 lsjs.__moduleHelpers.bottomPaginationScrollBehaviour.start({
                     el_domReference: el_domReference,
-                    var_bottom_pagination: '.bottom-pagination',
-                    var_top_pagination: '.top-pagination'
+                    //var_topPagination: '.product-list-container',
+                    //var_topOffset: '0'
                 });
 
 

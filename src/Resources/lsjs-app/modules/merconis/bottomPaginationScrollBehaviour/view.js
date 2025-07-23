@@ -16,41 +16,56 @@ var obj_classdef = 	{
 
         this.setBottomPaginationScrollBehaviour(
             this.__models.options.data.el_domReference,
-            this.__models.options.data.var_bottom_pagination,
-            this.__models.options.data.var_top_pagination
+            this.__models.options.data.var_topPagination,
+            this.__models.options.data.var_bottomPagination,
+            this.__models.options.data.var_topOffset,
+            this.__models.options.data.var_header
         )
 
     },
 
-    setBottomPaginationScrollBehaviour: function(el_domReference, var_bottom_pagination, var_top_pagination) {
-        var el_bottomPagination = el_domReference.getElement(var_bottom_pagination);
+    setBottomPaginationScrollBehaviour: function(el_domReference, var_topPagination, var_bottomPagination, var_topOffset, var_header) {
+        var el_bottomPagination = el_domReference.getElement(var_bottomPagination);
         if (typeOf(el_bottomPagination) !== 'element') {
             return;
         }
 
-        var el_topPagination = el_domReference.getElement(var_top_pagination);
+        var el_topPagination = el_domReference.getElement(var_topPagination);
         if (typeOf(el_topPagination) !== 'element') {
-            return;
+            // Wenn es keine obere Paginierung gibt, scrollen wir einfach ganz nach oben.
+            el_topPagination = $$('body')[0];
         }
 
-        var obj_scroll = new Fx.Scroll($$('body')[0]);
-
-        var int_scrollTargetPositionY = el_topPagination.getPosition().y - (window.innerHeight / 2);
-        if (int_scrollTargetPositionY < 0) {
-            int_scrollTargetPositionY = 0;
-        }
+        var el_header = document.querySelector(var_header);
+        var headerHeight = 0;
 
         el_bottomPagination.getElements('a').addEvent(
             'click',
-            function() {
-                if (window.scrollY < int_scrollTargetPositionY) {
-                    /*
-                     * If the current scroll position is already closer to the top than the target scroll position,
-                     * we don't scroll.
-                     */
+            function(e) {
+                e.preventDefault(); // Verhindert, dass der Link tatsächlich navigiert (falls href="#" als Fallback wenn kein js vorhanden ist oder sonst was)
+
+                // getBoundingClientRect().top gibt die Position relativ zum sichtbaren Fenster (Viewport) an, window.scrollY ist, wie weit bereits gescrollt wurde
+                var elementTopPosition = el_topPagination.getBoundingClientRect().top + window.scrollY;
+
+                let int_headerHeight = 0
+                if (el_header) {
+                    int_headerHeight = parseInt(el_header.offsetHeight)
+                }
+
+                let int_topOffset = parseInt(var_topOffset) + int_headerHeight;
+
+                var int_scrollTargetPositionY = elementTopPosition - int_topOffset;
+
+
+                //sollte man schon über dem element sein wird nicht gescrollt
+                if (window.scrollY < int_scrollTargetPositionY + 1) {
                     return;
                 }
-                obj_scroll.start(0, int_scrollTargetPositionY);
+
+                window.scrollTo({
+                    top: int_scrollTargetPositionY,
+                    behavior: 'smooth'
+                });
             }
         )
     }
