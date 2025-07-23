@@ -108,13 +108,9 @@
 
                 this.showAddedToCartInfoIfNecessary(el_domReference);
 
-                //this.setBottomPaginationScrollBehaviour(el_domReference);
-
 
                 lsjs.__moduleHelpers.bottomPaginationScrollBehaviour.start({
                     el_domReference: el_domReference,
-                    //var_topPagination: '.product-list-container',
-                    //var_topOffset: '0'
                 });
 
 
@@ -316,44 +312,6 @@
                 lsjs.__moduleHelpers.ocFlex.self['off-canvas-added-to-cart-info'].__view.toggle();
             }
         },
-
-        /*
-         * If a pagination is used with ajax, the next page is loaded and the scroll position remains unchanged.
-         * This is okay for the top pagination but if the bottom pagination is used, the page should scroll to
-         * the top of content that has been changed.
-         */
-        setBottomPaginationScrollBehaviour: function(el_domReference) {
-            var el_bottomPagination = el_domReference.getElement('.bottom-pagination');
-            if (typeOf(el_bottomPagination) !== 'element') {
-                return;
-            }
-
-            var el_topPagination = el_domReference.getElement('.top-pagination');
-            if (typeOf(el_topPagination) !== 'element') {
-                return;
-            }
-
-            var obj_scroll = new Fx.Scroll($$('body')[0]);
-
-            var int_scrollTargetPositionY = el_topPagination.getPosition().y - (window.innerHeight / 2);
-            if (int_scrollTargetPositionY < 0) {
-                int_scrollTargetPositionY = 0;
-            }
-
-            el_bottomPagination.getElements('a').addEvent(
-                'click',
-                function() {
-                    if (window.scrollY < int_scrollTargetPositionY) {
-                        /*
-                         * If the current scroll position is already closer to the top than the target scroll position,
-                         * we don't scroll.
-                         */
-                        return;
-                    }
-                    obj_scroll.start(0, int_scrollTargetPositionY);
-                }
-            )
-        }
 
     };
 

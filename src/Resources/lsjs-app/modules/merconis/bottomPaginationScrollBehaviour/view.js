@@ -32,7 +32,7 @@ var obj_classdef = 	{
 
         var el_topPagination = el_domReference.getElement(var_topPagination);
         if (typeOf(el_topPagination) !== 'element') {
-            // Wenn es keine obere Paginierung gibt, scrollen wir einfach ganz nach oben.
+            // If no top pagination exists, just scroll to the top.
             el_topPagination = $$('body')[0];
         }
 
@@ -42,9 +42,9 @@ var obj_classdef = 	{
         el_bottomPagination.getElements('a').addEvent(
             'click',
             function(e) {
-                e.preventDefault(); // Verhindert, dass der Link tatsächlich navigiert (falls href="#" als Fallback wenn kein js vorhanden ist oder sonst was)
+                e.preventDefault(); // Prevent the default anchor behavior (e.g., for href="#" as a no-js fallback).
 
-                // getBoundingClientRect().top gibt die Position relativ zum sichtbaren Fenster (Viewport) an, window.scrollY ist, wie weit bereits gescrollt wurde
+                // getBoundingClientRect().top gives the position relative to what's currently visible (the viewport), while window.scrollY is the total amount scrolled from the very top of the page.
                 var elementTopPosition = el_topPagination.getBoundingClientRect().top + window.scrollY;
 
                 let int_headerHeight = 0
@@ -57,7 +57,7 @@ var obj_classdef = 	{
                 var int_scrollTargetPositionY = elementTopPosition - int_topOffset;
 
 
-                //sollte man schon über dem element sein wird nicht gescrollt
+                // Don't scroll if already above the element.
                 if (window.scrollY < int_scrollTargetPositionY + 1) {
                     return;
                 }

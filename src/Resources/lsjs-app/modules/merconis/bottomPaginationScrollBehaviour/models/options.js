@@ -2,14 +2,14 @@ var obj_classdef_model = {
     name: 'options',
 
     data: {
-        //wird nicht zwingend benötigt, springt falls es nicht exestiert zum top des documents
+        // Not strictly required; if it doesn't exist, it defaults to the top of the document.
         var_topPagination: '.top-pagination',
 
-        //wird zwingend benötigt da darauf das scrollverhalten liegt
+        // Strictly required as the scroll behavior depends on it.
         var_bottomPagination: '.bottom-pagination',
 
-        //offset wird berechnet aus der größe des elements var_header und dem offset
-        var_topOffset: '25', //offset in pixel
+        // The offset is calculated from the height of the 'var_header' element and the initial offset.
+        var_topOffset: '25', // Offset in pixel
         var_header: '#header-part-2'
     },
 
