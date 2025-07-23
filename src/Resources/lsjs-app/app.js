@@ -108,7 +108,15 @@
 
                 this.showAddedToCartInfoIfNecessary(el_domReference);
 
-                this.setBottomPaginationScrollBehaviour(el_domReference);
+                //this.setBottomPaginationScrollBehaviour(el_domReference);
+
+
+                lsjs.__moduleHelpers.bottomPaginationScrollBehaviour.start({
+                    el_domReference: el_domReference,
+                    var_bottom_pagination: '.bottom-pagination',
+                    var_top_pagination: '.top-pagination'
+                });
+
 
                 lsjs.__moduleHelpers.touchNaviManager.start({
                     el_domReference: el_domReference,
