@@ -68,13 +68,6 @@ class ls_shop_apiController_searchServer {
 	}
 
 	protected function apiResource_searchServer_addAllProductsToIndex() {
-        /*
-         * Do me! Indexing all products probably takes much time and can probably not be done all at once.
-         *  Find a better solution.
-         *  Idea: The search engine client class could take care of splitting up adding the products into multiple
-         *  requests and it could say in its result message whether there are still more products to add so that
-         *  the api resource would have to be called again.
-         */
         try {
             /** @var $searchServer SearchServer */
             $searchServer = System::getContainer()->get('LeadingSystems\MerconisBundle\SearchServer\SearchServer');

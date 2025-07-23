@@ -74,12 +74,12 @@ class SearchServer
 
     public function createProductsIndex(): string
     {
-        return $this->clientService->createIndex('products')->getResultString();
+        return $this->serviceIndexProductManage->create()->getResultString();
     }
 
     public function addAllProductsToIndex(): string
     {
-        return $this->clientService->syncProducts()->getResultString();
+        return $this->serviceIndexProductSync->sync()->getResultString();
     }
 
     public function dummySearch(Adapter &$productSearchAdapter)

@@ -8,8 +8,7 @@ use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
 interface ClientInterface
 {
     public function initialize(): void;
-    public function syncProducts(): OperationResult;
-    public function createIndex(string $indexName): OperationResult;
+    public function createIndex(string $indexName, array $indexDefinition): OperationResult;
 
     public function dummySearch(Adapter &$productSearchAdapter): array;
 }

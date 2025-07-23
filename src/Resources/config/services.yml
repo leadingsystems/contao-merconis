@@ -59,10 +59,7 @@ services:
     arguments:
       $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
 
-  # Do me! Dieses Interface gibt es noch nicht und ProductSync sowie das Zusammenspiel mit dem Client muss noch umgebaut werden
-  # Search server adapter/client services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\ProductSyncInterface -->
-  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\ProductSync:
-  # <--
+
 
   LeadingSystems\MerconisBundle\ProductSearch\Adapter:
     # must be public because we have to use it in Merconis legacy code where we can't inject it properly
