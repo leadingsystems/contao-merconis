@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 class Adapter
 {
     private LoggerInterface $logger;
-    private SearchServer $searchEngine;
+    private SearchServer $searchServer;
     private ls_shop_productSearcher $standardSearchClient;
     private Mode $mode;
     private bool $useFilter;
@@ -29,7 +29,7 @@ class Adapter
 
     public function __construct(SearchServer $searchServer, LoggerInterface $logger)
     {
-        $this->searchEngine = $searchServer;
+        $this->searchServer = $searchServer;
         $this->logger = $logger;
     }
 
@@ -250,7 +250,7 @@ class Adapter
                 break;
 
             case Mode::SearchEngine:
-                $this->productResultsComplete = $this->searchEngine->dummySearch($this);
+                $this->productResultsComplete = $this->searchServer->dummySearch($this);
                 break;
 
             default:

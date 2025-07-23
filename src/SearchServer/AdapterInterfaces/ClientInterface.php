@@ -9,6 +9,4 @@ interface ClientInterface
 {
     public function initialize(): void;
     public function createIndex(string $indexName, array $indexDefinition): OperationResult;
-
-    public function dummySearch(Adapter &$productSearchAdapter): array;
 }

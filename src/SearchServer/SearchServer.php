@@ -84,6 +84,6 @@ class SearchServer
 
     public function dummySearch(Adapter &$productSearchAdapter)
     {
-        return $this->clientService->dummySearch($productSearchAdapter);
+        return $this->serviceIndexProductSearch->search($productSearchAdapter);
     }
 }
