@@ -148,7 +148,10 @@ class Sync implements CommonInterface, IndexSyncInterface
                     SELECT
                         id,
                         lsShopProductCode,
+                        lsShopProductProducer,
                         title_de,
+                        keywords_de,
+                        shortDescription_de,
                         description_de,
                         pages
                     FROM tl_ls_shop_product
@@ -160,14 +163,17 @@ class Sync implements CommonInterface, IndexSyncInterface
 
         while ($dbres_productBatch->next()) {
             $product = [
-                'id' => $dbres_productBatch->id,
-                'product_code' => $dbres_productBatch->lsShopProductCode,
+                'id' => (int)$dbres_productBatch->id,
+                'product_code' => $dbres_productBatch->lsShopProductCode ?: '',
+                'producer' => $dbres_productBatch->lsShopProductProducer ?: '',
                 'title' => $dbres_productBatch->title_de ?: '',
+                'keywords' => $dbres_productBatch->keywords_de ?: '',
+                'shortDescription' => $dbres_productBatch->shortDescription_de ?: '',
                 'description' => $dbres_productBatch->description_de ?: '',
-                'pages' => array_map('intval', StringUtil::deserialize($dbres_productBatch->pages, true)),
+                'pages' => array_map('intval', StringUtil::deserialize($dbres_productBatch->pages, true))
             ];
             $product['content_hash'] = $this->createProductDataHash($product);
-            $batch[$dbres_productBatch->id] = $product;
+            $batch[$product['id']] = $product;
         }
 
         return $batch;
@@ -234,6 +240,9 @@ class Sync implements CommonInterface, IndexSyncInterface
 
     private function createProductDataHash(array $productData): string
     {
-        return md5(json_encode($productData));
+        $tmp = $productData;
+        unset($tmp['content_hash']);
+        ksort($tmp);
+        return md5(json_encode($tmp));
     }
 }

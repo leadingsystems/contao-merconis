@@ -16,27 +16,58 @@ class Manage implements CommonInterface, IndexManageInterface
     private string $indexName = 'products';
     private array $indexDefinition = [
         'mappings' => [
+            'dynamic' => 'strict',
             'properties' => [
-                'id' => ['type' => 'integer'],
-                'product_code' => ['type' => 'text'],
+                'id' => [
+                    'type' => 'integer'
+                ],
+                'product_code' => [
+                    'type' => 'keyword',
+                    'fields' => [
+                        'text' => ['type' => 'text']
+                    ]
+                ],
                 'title' => [
                     'type' => 'text',
+                    'fields' => [
+                        'raw' => ['type' => 'keyword']
+                    ],
                     'analyzer' => 'standard',
+                ],
+                'keywords' => [
+                    'type' => 'text',
+                    'fields' => [
+                        'raw' => ['type' => 'keyword']
+                    ]
+                ],
+                'short_description' => [
+                    'type' => 'text',
+                    'fields' => [
+                        'raw' => ['type' => 'keyword']
+                    ]
                 ],
                 'description' => [
                     'type' => 'text',
-                    'analyzer' => 'standard',
+                    'fields' => [
+                        'raw' => ['type' => 'keyword']
+                    ],
+                    'analyzer' => 'standard'
                 ],
-                'pages'        => ['type' => 'integer'],
-
+                'producer' => [
+                    'type' => 'keyword',
+                    'fields' => [
+                        'text' => ['type' => 'text']
+                    ]
+                ],
+                'pages' => [
+                    'type' => 'integer'
+                ],
                 'content_hash' => [
                     'type' => 'keyword',
                     'index' => false
                 ]
-            ],
-
-            'dynamic' => 'strict'
-        ],
+            ]
+        ]
     ];
 
     public function __construct(Client $client)
