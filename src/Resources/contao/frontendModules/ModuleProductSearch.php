@@ -105,7 +105,7 @@ class ModuleProductSearch extends \Module {
 					 * TODO: Making this sorting definition user-adjustable (probably in the merconis settings)
 					 *  might be a good idea!
 					 */
-                    $productSearchAdapter->setSorting(
+                    $productSearchAdapter->setSortingCriteria(
                         [
                             0 => ['field' => 'priority', 'direction' => 'DESC']
                         ]

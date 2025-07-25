@@ -124,7 +124,7 @@ class ls_shop_beModule_productSearch extends \BackendModule
         $productSearchAdapter->setCurrentPage(\Input::get('page') ? \Input::get('page') : 1);
 
 		if (is_array($_SESSION['lsShop']['beModule_productSearch']['sorting'])) {
-            $productSearchAdapter->setSorting([$_SESSION['lsShop']['beModule_productSearch']['sorting']]);
+            $productSearchAdapter->setSortingCriteria([$_SESSION['lsShop']['beModule_productSearch']['sorting']]);
 		}
 		
         $productSearchAdapter->setEmptyFieldMatchesPerDefault(true);

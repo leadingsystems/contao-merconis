@@ -19,7 +19,7 @@ class Adapter
     private array $searchCriteria =  ['title' => '*', 'published' => '1'];
     private int $numPerPage = 0;
     private int $currentPage = 1;
-    private array $sorting = [['field' => 'title', 'direction' => 'ASC']];
+    private array $sortingCriteria = [['field' => 'title', 'direction' => 'ASC']];
     private array $fixedSorting = [];
     private int $truncateResultsIfMoreThan = 0;
     private bool $cancelSearchIfMoreThanTruncateLimit = false;
@@ -127,17 +127,17 @@ class Adapter
         $this->currentPage = $num;
     }
 
-    public function setSorting(array $sortingDefinition): void
+    public function setSortingCriteria(array $sortingCriteria): void
     {
-        if (!count($sortingDefinition)) {
-            $this->logger->warning('Sorting definition array must not be empty');
+        if (!count($sortingCriteria)) {
+            $this->logger->warning('Sorting criteria array must not be empty');
         }
 
-        $this->sorting = $sortingDefinition;
+        $this->sortingCriteria = $sortingCriteria;
 
         switch ($this->mode) {
             case Mode::Standard:
-                $this->standardSearchClient->sorting = $this->sorting;
+                $this->standardSearchClient->sorting = $this->sortingCriteria;
                 break;
 
             case Mode::SearchEngine:

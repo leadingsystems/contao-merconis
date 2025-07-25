@@ -189,7 +189,7 @@ class ls_shop_productList
 			0 => array('field' => $sortingField, 'direction' => $sortingDirection)
 		);
 
-        $productSearchAdapter->setSorting($arrSortingDefinition);
+        $productSearchAdapter->setSortingCriteria($arrSortingDefinition);
 
         $productSearchAdapter->setFixedSorting($this->fixedSorting);
 
