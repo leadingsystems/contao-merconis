@@ -22,12 +22,30 @@ class Search implements CommonInterface, IndexSearchInterface
 
     public function search(Adapter &$productSearchAdapter): array
     {
+        // --- 1. Prepare ---
         // Get ALL search criteria (works with same input as the standard MySQL based productSearcher)
         $criteria = $productSearchAdapter->getSearchCriteria();
-        $size = 1000; // Batch size per scroll request
+        $size = 1000;
         $productResultIds = [];
 
         // === 1. Build Elasticsearch Query ===
+        // Map search criteria fields to ES field names
+        $fieldMap = [
+            // DB field          => ES field
+            'lsShopProductCode'    => 'product_code',
+            'lsShopProductProducer'=> 'producer',
+            'shortDescription'     => 'short_description',
+            // Add other mappings as needed
+            // Synced fields for new booleans:
+            'is_published'         => 'is_published',
+            'is_new'               => 'is_new',
+            'is_sale'              => 'is_sale',
+            // main fields already match: id, pages, title, keywords, description
+            // if not, map them here!
+        ];
+        $booleanFields = ['is_published', 'is_new', 'is_sale'];
+
+        // --- 2. Build ES Query ---
         $must = [];
 
         // ID filter (exact match or list)
@@ -43,6 +61,7 @@ class Search implements CommonInterface, IndexSearchInterface
         }
 
         // Fulltext search (multi-field, with boosting factors)
+        // Fulltext search with boosting factors
         if (!empty($criteria['fulltext'])) {
             $fulltext = $criteria['fulltext'];
             $must[] = [
@@ -61,21 +80,34 @@ class Search implements CommonInterface, IndexSearchInterface
             ];
         }
 
-        // Handle any other fields generically (LIKE/term/wildcard, based on input style)
+        // All other fields
         foreach ($criteria as $field => $value) {
-            if (\in_array($field, ['id', 'pages', 'fulltext'])) continue;
+            if (in_array($field, ['id', 'pages', 'fulltext'])) continue;
             if ($value === '' || $value === null) continue;
 
-            // Map field names to ES names if different
-            // $fieldMap = ['lsShopProductCode' => 'productCode', ...];
-            // $esField = $fieldMap[$field] ?? $field;
-            $esField = $field;
+            $esField = $fieldMap[$field] ?? $field;
 
+            // Boolean criteria
+            if (in_array($esField, $booleanFields, true)) {
+                // Normalize MySQL '1' or true or 1 into bool true, else false
+                $boolValue = ($value === '1' || $value === 1 || $value === true);
+                $must[] = ['term' => [$esField => $boolValue]];
+                continue;
+            }
+
+            // List/array filter
             if (is_array($value)) {
                 $must[] = ['terms' => [$esField => $value]];
                 continue;
             }
-            // Wildcard pattern support
+
+            // Wildcard support: if value is ONLY "*" or "%" then skip clause (would match all)
+            if (is_string($value) && preg_replace('/[%*]/', '', $value) === '') {
+                // Value is only "*" and/or "%" -- skip, would be must-always match.
+                continue;
+            }
+
+            // Wildcard (partial) match
             if (strpos($value, '%') !== false || strpos($value, '*') !== false) {
                 $pattern = str_replace(['%', '*'], '*', $value);
                 $must[] = [
@@ -86,20 +118,18 @@ class Search implements CommonInterface, IndexSearchInterface
                         ]
                     ]
                 ];
-            } else {
-                // Use ".raw" if the field is defined as keyword (for exact)
-                $must[] = ['term' => [$esField . '.raw' => $value]];
+                continue;
             }
+
+            // Exact match on ".raw" subfield if available, otherwise use term
+            // (You may want to check mapping for availability of .raw)
+            $must[] = ['term' => [$esField . '.raw' => $value]];
         }
 
-        $esQuery = [
-            'bool' => [
-                'must' => $must
-            ]
-        ];
+        $esQuery = ['bool' => ['must' => $must]];
 
+        // --- 3. Query/scroll extraction ---
         try {
-            // === 2. Scroll search for all matching IDs ===
             $params = [
                 'index' => $this->indexName,
                 'scroll' => '2m',
@@ -134,8 +164,6 @@ class Search implements CommonInterface, IndexSearchInterface
             if (isset($scrollId)) {
                 $this->client->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
             }
-
-            // Optional: unique IDs (if necessary)
             $productResultIds = array_values(array_unique($productResultIds));
             return $productResultIds;
         } catch (\Exception $e) {
