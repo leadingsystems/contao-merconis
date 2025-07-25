@@ -15,6 +15,23 @@ class Manage implements CommonInterface, IndexManageInterface
     private Client $client;
     private string $indexName = 'products';
     private array $indexDefinition = [
+        'settings' => [
+            'analysis' => [
+                'tokenizer' => [
+                    'comma_tokenizer' => [
+                        'type' => 'pattern',
+                        'pattern' => ','
+                    ]
+                ],
+                'analyzer' => [
+                    'comma_analyzer' => [
+                        'type' => 'custom',
+                        'tokenizer' => 'comma_tokenizer',
+                        'filter' => ['lowercase']
+                    ]
+                ]
+            ]
+        ],
         'mappings' => [
             'dynamic' => 'strict',
             'properties' => [
@@ -38,7 +55,8 @@ class Manage implements CommonInterface, IndexManageInterface
                     'type' => 'text',
                     'fields' => [
                         'raw' => ['type' => 'keyword']
-                    ]
+                    ],
+                    'analyzer' => 'comma_analyzer'
                 ],
                 'short_description' => [
                     'type' => 'text',
@@ -62,7 +80,6 @@ class Manage implements CommonInterface, IndexManageInterface
                 'pages' => [
                     'type' => 'integer'
                 ],
-
                 'is_published' => [
                     'type' => 'boolean'
                 ],
@@ -72,7 +89,6 @@ class Manage implements CommonInterface, IndexManageInterface
                 'is_sale' => [
                     'type' => 'boolean'
                 ],
-
                 'content_hash' => [
                     'type' => 'keyword',
                     'index' => false
