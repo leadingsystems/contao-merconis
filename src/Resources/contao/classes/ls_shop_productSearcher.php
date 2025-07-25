@@ -12,8 +12,6 @@ class ls_shop_productSearcher
     protected $arr_groupSettingsForUser = null;
 
     protected $arrSearchCriteria = array('title' => '*', 'published' => '1');
-    protected $intNumPerPage = 0;
-    protected $intCurrentPage = 1;
     protected $blnEmptyFieldMatchesPerDefault = false;
     protected $fixedSorting = array();
     protected $arrRequestFields = array('id');
@@ -38,11 +36,6 @@ class ls_shop_productSearcher
     );
 
     protected $arrProductResultsComplete = array();
-
-    /*
-     * Do me! Remove if possible. Should not be used at all anymore.
-     */
-    protected $arrProductResultsCurrentPage = null;
 
     protected $arrCache = null;
     protected $strCacheKey = null;
@@ -203,22 +196,8 @@ class ls_shop_productSearcher
         $this->warnWhenLegacyCall(__METHOD__);
 
         switch ($what) {
-            case 'numPagesTotal':
-                return $this->intNumPerPage > 0 ? ceil($this->numResultsComplete / $this->intNumPerPage) : 1;
-                break;
-
             case 'productResultsComplete':
                 return $this->checkIfCacheCanBeUsed() ? $this->arrCache['productResultsComplete'] : $this->arrProductResultsComplete;
-                break;
-
-            case 'productResultsCurrentPage':
-                /*
-                 * Do me! Remove if possible. Should not be used at all anymore.
-                 */
-                throw new \Exception('unexpected getter call for "' . $what . '"');
-
-                $this->getProductResultsCurrentPage();
-                return $this->arrProductResultsCurrentPage;
                 break;
 
             case 'numResultsComplete':
@@ -286,14 +265,6 @@ class ls_shop_productSearcher
         $this->warnWhenLegacyCall(__METHOD__);
 
         switch ($key) {
-            case 'numPerPage':
-                $this->intNumPerPage = $value;
-                break;
-
-            case 'currentPage':
-                $this->intCurrentPage = $value;
-                break;
-
             case 'sorting':
                 if (is_array($value) && count($value)) {
                     $this->arrSorting = $value;
@@ -1413,36 +1384,6 @@ class ls_shop_productSearcher
             }
 
             $this->arrProductResultsComplete = $arrProductIDsTempComplete;
-        }
-    }
-
-    protected function getProductResultsCurrentPage() {
-        /*
-         * Do me! Remove if possible. Should not be used at all anymore.
-         */
-        throw new \Exception('unexpected call of "' . __METHOD__ . '"');
-
-        if ($this->arrProductResultsCurrentPage === null) {
-            if ($this->intNumPerPage && is_array($this->productResultsComplete) && count($this->productResultsComplete)) {
-                /*
-                 * Check whether the currently requested page contains any products. If the requested page is higher than what could possibly create
-                 * any results given the number of $this->arrProductResultsComplete the biggest useful page number is calculated and then used.
-                 */
-                $tmpNumProductsRequiredToGetAResult = (($this->intCurrentPage - 1) * $this->intNumPerPage) + 1;
-                $tmpNumDifferenceBetweenRequiredProductsAndExistingResults = $tmpNumProductsRequiredToGetAResult - count($this->productResultsComplete);
-
-                /*
-                 * The currently existing results are not enough to create a result for the requested page
-                 */
-                if ($tmpNumDifferenceBetweenRequiredProductsAndExistingResults > 0) {
-                    $tmpNumPagesWithoutResults =  ceil($tmpNumDifferenceBetweenRequiredProductsAndExistingResults/$this->intNumPerPage);
-                    $this->intCurrentPage = $this->intCurrentPage - $tmpNumPagesWithoutResults;
-                }
-
-                $this->arrProductResultsCurrentPage = array_slice($this->productResultsComplete, ($this->intCurrentPage - 1) * $this->intNumPerPage, $this->intNumPerPage);
-            } else {
-                $this->arrProductResultsCurrentPage = $this->productResultsComplete;
-            }
         }
     }
 

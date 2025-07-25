@@ -51,11 +51,9 @@ class Adapter
 
             case Mode::SearchEngine:
                 /*
-                 * Do me! Since we're receiving the searchEngine service through DI, we don't have to instantiate
-                 *  it here. We can simply use it when we need to. So there's probably nothin to do in this switch case.
-                 *  If so, decide whether to keep this case anyway and place a comment here to make this more clear.
+                 * The searchEngine service is received through DI and does not need to be instantiated.
+                 * Therefore, just break.
                  */
-//                throw new \Exception('Mode "' . $this->mode->name . '" not implemented yet.');
                 break;
 
             default:
@@ -78,6 +76,10 @@ class Adapter
                 break;
 
             case Mode::SearchEngine:
+                /*
+                 * The SearchEngine receives a reference to this adapter when the search method is executed and can
+                 * access search criteria directly from the adapter. Therefore, just break in this case.
+                 */
                 break;
 
             default:
@@ -100,6 +102,10 @@ class Adapter
                 break;
 
             case Mode::SearchEngine:
+                /*
+                 * The SearchEngine receives a reference to this adapter when the search method is executed and can
+                 * access search criteria directly from the adapter. Therefore, just break in this case.
+                 */
                 break;
 
             default:
@@ -111,19 +117,6 @@ class Adapter
     public function setNumPerPage(int $num): void
     {
         $this->numPerPage = $num;
-
-        switch ($this->mode) {
-            case Mode::Standard:
-                $this->standardSearchClient->numPerPage = $this->numPerPage;
-                break;
-
-            case Mode::SearchEngine:
-                break;
-
-            default:
-                $this->notAllowedIn($this->mode);
-                break;
-        }
     }
 
     public function setCurrentPage(int $num): void
@@ -132,19 +125,6 @@ class Adapter
             $this->logger->warning('Setting current page to less than 1. This is most likely unintended. Please check!');
         }
         $this->currentPage = $num;
-
-        switch ($this->mode) {
-            case Mode::Standard:
-                $this->standardSearchClient->currentPage = $this->currentPage;
-                break;
-
-            case Mode::SearchEngine:
-                break;
-
-            default:
-                $this->notAllowedIn($this->mode);
-                break;
-        }
     }
 
     public function setSorting(array $sortingDefinition): void
