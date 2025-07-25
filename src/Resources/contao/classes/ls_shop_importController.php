@@ -1783,23 +1783,17 @@ class ls_shop_importController
 				 * We count from 0 because we also have to check the non-group-specific field
 				 */
 				for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
-					/*
-					 * If no value is given at all, that's okay because we will
-					 * assign a default value in this case during the import
-					 */
-					if (!$row['priceType'.($i === 0 ? '' : ('_'.$i))]) {
-						continue;
-					}
 
                     /* make sure priceType is empty or a valid priceType */
-                    if (!empty($row['priceType']) && !array_key_exists($row['priceType'], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+                    if (!empty($row['priceType'.($i === 0 ? '' : ('_'.$i))]) && !array_key_exists($row['priceType'.($i === 0 ? '' : ('_'.$i))], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
                         return true;
                     }
 
                     /* If price exists and priceType is empty */
-                    if (!empty($row['price']) && empty($row['priceType'])) {
+                    if (!empty($row['price'.($i === 0 ? '' : ('_'.$i))]) && empty($row['priceType'.($i === 0 ? '' : ('_'.$i))])) {
                         return true;
                     }
+
 				}
 				
 				return false;
