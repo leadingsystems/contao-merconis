@@ -22,113 +22,147 @@ class Search implements CommonInterface, IndexSearchInterface
 
     public function search(Adapter &$productSearchAdapter): array
     {
-        // --- 1. Prepare ---
-        // Get ALL search criteria (works with same input as the standard MySQL based productSearcher)
+        // 1. Supported search criteria and how they are mapped/queried in ES
+        $criteriaMap = [
+            'id' => [
+                'esField' => 'id',
+                'queryType' => 'terms',      // always array condition
+            ],
+            'pages' => [
+                'esField' => 'pages',
+                'queryType' => 'terms',      // always array condition
+            ],
+            'lsShopProductCode' => [
+                'esField' => 'product_code',
+                'queryType' => 'term',       // exact (keyword)
+            ],
+            'lsShopProductProducer' => [
+                'esField' => 'producer',
+                'queryType' => 'term',       // exact (keyword)
+            ],
+            'shortDescription' => [
+                'esField' => 'short_description',
+                'queryType' => 'match',      // analyzed (text)
+            ],
+            'title' => [
+                'esField' => 'title',
+                'queryType' => 'match',      // analyzed (text)
+            ],
+            'keywords' => [
+                'esField' => 'keywords',
+                'queryType' => 'match',
+            ],
+            'description' => [
+                'esField' => 'description',
+                'queryType' => 'match',
+            ],
+            'published' => [
+                'esField' => 'is_published',
+                'queryType' => 'boolean',    // handled as boolean
+            ],
+            'lsShopProductIsNew' => [
+                'esField' => 'is_new',
+                'queryType' => 'boolean',
+            ],
+            'lsShopProductIsOnSale' => [
+                'esField' => 'is_sale',
+                'queryType' => 'boolean',
+            ],
+            // Special fulltext search across multiple fields:
+            'fulltext' => [
+                'queryType' => 'multi_match',
+                'esFields' => [
+                    'title^3',
+                    'keywords^2',
+                    'short_description^2',
+                    'description',
+                    'product_code^2',
+                    'producer^2'
+                ]
+            ],
+        ];
+
         $criteria = $productSearchAdapter->getSearchCriteria();
         $size = 1000;
         $productResultIds = [];
-
-        // === 1. Build Elasticsearch Query ===
-        // Map search criteria fields to ES field names
-        $fieldMap = [
-            // DB field          => ES field
-            'lsShopProductCode'    => 'product_code',
-            'lsShopProductProducer'=> 'producer',
-            'shortDescription'     => 'short_description',
-            // Add other mappings as needed
-            // Synced fields for new booleans:
-            'is_published'         => 'is_published',
-            'is_new'               => 'is_new',
-            'is_sale'              => 'is_sale',
-            // main fields already match: id, pages, title, keywords, description
-            // if not, map them here!
-        ];
-        $booleanFields = ['is_published', 'is_new', 'is_sale'];
-
-        // --- 2. Build ES Query ---
         $must = [];
 
-        // ID filter (exact match or list)
-        if (!empty($criteria['id'])) {
-            $ids = is_array($criteria['id']) ? $criteria['id'] : [$criteria['id']];
-            $must[] = ['terms' => ['id' => $ids]];
-        }
-
-        // Pages filter
-        if (!empty($criteria['pages'])) {
-            $pages = is_array($criteria['pages']) ? $criteria['pages'] : [$criteria['pages']];
-            $must[] = ['terms' => ['pages' => $pages]];
-        }
-
-        // Fulltext search (multi-field, with boosting factors)
-        // Fulltext search with boosting factors
-        if (!empty($criteria['fulltext'])) {
-            $fulltext = $criteria['fulltext'];
-            $must[] = [
-                'multi_match' => [
-                    'query' => $fulltext,
-                    'fields' => [
-                        'title^3',
-                        'keywords^2',
-                        'short_description^2',
-                        'description',
-                        'product_code^2',
-                        'producer^2'
-                    ],
-                    'type' => 'best_fields'
-                ]
-            ];
-        }
-
-        // All other fields
-        foreach ($criteria as $field => $value) {
-            if (in_array($field, ['id', 'pages', 'fulltext'])) continue;
-            if ($value === '' || $value === null) continue;
-
-            $esField = $fieldMap[$field] ?? $field;
-
-            // Boolean criteria
-            if (in_array($esField, $booleanFields, true)) {
-                // Normalize MySQL '1' or true or 1 into bool true, else false
-                $boolValue = ($value === '1' || $value === 1 || $value === true);
-                $must[] = ['term' => [$esField => $boolValue]];
-                continue;
+        // 2. Build ES Query
+        foreach ($criteria as $criterion => $value) {
+            if (!isset($criteriaMap[$criterion]) || $value === '' || $value === null) {
+                continue; // Ignore unmapped or empty criteria
             }
 
-            // List/array filter
-            if (is_array($value)) {
-                $must[] = ['terms' => [$esField => $value]];
-                continue;
-            }
+            $map = $criteriaMap[$criterion];
 
-            // Wildcard support: if value is ONLY "*" or "%" then skip clause (would match all)
-            if (is_string($value) && preg_replace('/[%*]/', '', $value) === '') {
-                // Value is only "*" and/or "%" -- skip, would be must-always match.
-                continue;
-            }
-
-            // Wildcard (partial) match
-            if (strpos($value, '%') !== false || strpos($value, '*') !== false) {
-                $pattern = str_replace(['%', '*'], '*', $value);
-                $must[] = [
-                    'wildcard' => [
-                        $esField => [
-                            'value' => $pattern,
-                            'case_insensitive' => true
+            switch ($map['queryType']) {
+                case 'multi_match':
+                    // Special handling for "fulltext"
+                    $must[] = [
+                        'multi_match' => [
+                            'query' => $value,
+                            'fields' => $map['esFields'],
+                            'type' => 'best_fields'
                         ]
-                    ]
-                ];
-                continue;
+                    ];
+                    break;
+                case 'terms':
+                    // Accept array or scalar (wrap scalar)
+                    $values = is_array($value) ? $value : [$value];
+                    $must[] = [
+                        'terms' => [
+                            $map['esField'] => $values
+                        ]
+                    ];
+                    break;
+                case 'boolean':
+                    // Normalize MySQL-like booleans ('1', 1, true) to ES booleans
+                    $must[] = [
+                        'term' => [
+                            $map['esField'] => ($value === '1' || $value === 1 || $value === true)
+                        ]
+                    ];
+                    break;
+                case 'match':
+                    // If value is only wildcard(s), skip (would match everything)
+                    if (is_string($value) && preg_replace('/[%*]/', '', $value) === '') {
+                        break;
+                    }
+                    // If value contains wildcards, use a wildcard query instead of match
+                    if (is_string($value) && (strpos($value, '%') !== false || strpos($value, '*') !== false)) {
+                        $pattern = str_replace(['%', '*'], '*', $value);
+                        $must[] = [
+                            'wildcard' => [
+                                $map['esField'] . '.raw' => [
+                                    'value' => $pattern,
+                                    'case_insensitive' => true
+                                ]
+                            ]
+                        ];
+                    } else {
+                        // Natural language search on analyzed field
+                        $must[] = [
+                            'match' => [$map['esField'] => $value]
+                        ];
+                    }
+                    break;
+                case 'term':
+                    // For product_code, producer (type keyword)
+                    $must[] = [
+                        'term' => [
+                            $map['esField'] => $value
+                        ]
+                    ];
+                    break;
+                default:
+                    // Unknown or unsupported query type (shouldn't happen in strict mapping)
+                    break;
             }
-
-            // Exact match on ".raw" subfield if available, otherwise use term
-            // (You may want to check mapping for availability of .raw)
-            $must[] = ['term' => [$esField . '.raw' => $value]];
         }
 
         $esQuery = ['bool' => ['must' => $must]];
 
-        // --- 3. Query/scroll extraction ---
+        // 3. Query/scroll extraction
         try {
             $params = [
                 'index' => $this->indexName,

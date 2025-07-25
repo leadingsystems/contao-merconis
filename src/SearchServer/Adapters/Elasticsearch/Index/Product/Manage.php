@@ -62,6 +62,17 @@ class Manage implements CommonInterface, IndexManageInterface
                 'pages' => [
                     'type' => 'integer'
                 ],
+
+                'is_published' => [
+                    'type' => 'boolean'
+                ],
+                'is_new' => [
+                    'type' => 'boolean'
+                ],
+                'is_sale' => [
+                    'type' => 'boolean'
+                ],
+
                 'content_hash' => [
                     'type' => 'keyword',
                     'index' => false

@@ -153,7 +153,10 @@ class Sync implements CommonInterface, IndexSyncInterface
                         keywords_de,
                         shortDescription_de,
                         description_de,
-                        pages
+                        pages,
+                        published,
+                        lsShopProductIsNew,
+                        lsShopProductIsOnSale
                     FROM tl_ls_shop_product
                     WHERE id > ?
                     ORDER BY id ASC
@@ -170,7 +173,10 @@ class Sync implements CommonInterface, IndexSyncInterface
                 'keywords' => $dbres_productBatch->keywords_de ?: '',
                 'short_description' => $dbres_productBatch->shortDescription_de ?: '',
                 'description' => $dbres_productBatch->description_de ?: '',
-                'pages' => array_map('intval', StringUtil::deserialize($dbres_productBatch->pages, true))
+                'pages' => array_map('intval', StringUtil::deserialize($dbres_productBatch->pages, true)),
+                'is_published' => ($dbres_productBatch->published === '1'),
+                'is_new' => ($dbres_productBatch->lsShopProductIsNew === '1'),
+                'is_sale' => ($dbres_productBatch->lsShopProductIsOnSale === '1'),
             ];
             $product['content_hash'] = $this->createProductDataHash($product);
             $batch[$product['id']] = $product;
