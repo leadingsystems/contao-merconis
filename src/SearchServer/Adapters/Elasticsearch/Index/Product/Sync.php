@@ -168,7 +168,7 @@ class Sync implements CommonInterface, IndexSyncInterface
                 'producer' => $dbres_productBatch->lsShopProductProducer ?: '',
                 'title' => $dbres_productBatch->title_de ?: '',
                 'keywords' => $dbres_productBatch->keywords_de ?: '',
-                'shortDescription' => $dbres_productBatch->shortDescription_de ?: '',
+                'short_description' => $dbres_productBatch->shortDescription_de ?: '',
                 'description' => $dbres_productBatch->description_de ?: '',
                 'pages' => array_map('intval', StringUtil::deserialize($dbres_productBatch->pages, true))
             ];
