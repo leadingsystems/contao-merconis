@@ -162,6 +162,28 @@ class Search implements CommonInterface, IndexSearchInterface
 
         $esQuery = ['bool' => ['must' => $must]];
 
+        // --- Sorting support ---
+        $sort = [];
+        $sortingCriteria = $productSearchAdapter->getSortingCriteria();
+        foreach ($sortingCriteria as $sortingRule) {
+            $field = $sortingRule['field'] ?? null;
+            $direction = strtolower($sortingRule['direction'] ?? 'ASC');
+
+            // Map adapter field to ES field (reuse the search map if possible, else fallback)
+            // For text fields, sort on .raw subfield; for keyword, boolean, integer, use field as-is
+            if (isset($criteriaMap[$field])) {
+                $esField = $criteriaMap[$field]['esField'];
+                $queryType = $criteriaMap[$field]['queryType'];
+                // If match type (i.e. ES field is text) sort on .raw, otherwise use ES field directly
+                if ($queryType === 'match') {
+                    $esField = $esField . '.raw';
+                }
+                // ES boolean/int/keyword are sortable as-is
+                $sort[] = [$esField => ['order' => $direction]];
+            }
+            // else: ignore unknown sort fields for safety
+        }
+
         // 3. Query/scroll extraction
         try {
             $params = [
@@ -172,6 +194,9 @@ class Search implements CommonInterface, IndexSearchInterface
                     'query' => $esQuery
                 ]
             ];
+            if (!empty($sort)) {
+                $params['body']['sort'] = $sort;
+            }
             $response = $this->client->elasticsearchClient->search($params);
 
             do {

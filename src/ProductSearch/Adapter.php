@@ -337,6 +337,11 @@ class Adapter
         return $this->searchCriteria;
     }
 
+    public function getSortingCriteria(): array
+    {
+        return $this->sortingCriteria;
+    }
+
     private function notAllowedIn(Mode $mode): void
     {
         if ($this->mode === $mode) {
