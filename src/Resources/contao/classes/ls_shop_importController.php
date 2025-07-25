@@ -1790,10 +1790,16 @@ class ls_shop_importController
 					if (!$row['priceType'.($i === 0 ? '' : ('_'.$i))]) {
 						continue;
 					}
-                    /* If price exists and priceType is none of the defined Types(normally happens if empty)*/
-					if (!empty($row['price']) && !array_key_exists($row['priceType'.($i === 0 ? '' : ('_'.$i))], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
-						return true;
-					}
+
+                    /* make sure priceType is empty or a valid priceType */
+                    if (!empty($row['priceType']) && !array_key_exists($row['priceType'], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+                        return true;
+                    }
+
+                    /* If price exists and priceType is empty */
+                    if (!empty($row['price']) && empty($row['priceType'])) {
+                        return true;
+                    }
 				}
 				
 				return false;
@@ -1835,8 +1841,14 @@ class ls_shop_importController
 				if ($row['type'] != 'variant') {
 					break;
 				}
-                /* If weight exists and weightType is none of the defined Types(normally happens if empty)*/
-				if (!empty($row['weight']) && !array_key_exists($row['weightType'], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+
+                /* make sure weightType is empty or a valid weightType */
+                if (!empty($row['weightType']) && !array_key_exists($row['weightType'], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+                    return true;
+                }
+
+                /* If weight exists and weightType is empty */
+				if (!empty($row['weight']) && empty($row['weightType'])) {
 					return true;
 				}
 				break;
