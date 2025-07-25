@@ -1046,7 +1046,7 @@ class ls_shop_importController
         $row['customizer'] = ls_shop_productManagementApiHelper::getCustomizerLogicFileReference($str_configuratorOrCustomizerValue);
 		
 		$row['weightType'] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['weightType']];
-		$row['weightType'] = $row['weightType'] ? $row['weightType'] : '';
+		$row['weightType'] = $row['weightType'] ?: 'adjustmentPercentaged';
 		
 		$row['moreImages'] = ls_shop_productManagementApiHelper::prepareMoreImages($row['moreImages']);
 		
@@ -1067,7 +1067,7 @@ class ls_shop_importController
 			}
 			
 			$row['priceType'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['priceType'.$str_multipriceFieldSuffix]];
-			$row['priceType'.$str_multipriceFieldSuffix] = $row['priceType'.$str_multipriceFieldSuffix] ? $row['priceType'.$str_multipriceFieldSuffix] : '';
+			$row['priceType'.$str_multipriceFieldSuffix] = $row['priceType'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
 			$row['oldPriceType'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['oldPriceType'.$str_multipriceFieldSuffix]];
 			$row['oldPriceType'.$str_multipriceFieldSuffix] = $row['oldPriceType'.$str_multipriceFieldSuffix] ? $row['oldPriceType'.$str_multipriceFieldSuffix] : '';
 			$row['scalePriceType'.$str_multipriceFieldSuffix] = $row['scalePriceType'.$str_multipriceFieldSuffix] ? $row['scalePriceType'.$str_multipriceFieldSuffix] : 'scalePriceStandalone';
@@ -1790,8 +1790,8 @@ class ls_shop_importController
 					if (!$row['priceType'.($i === 0 ? '' : ('_'.$i))]) {
 						continue;
 					}
-					
-					if (!array_key_exists($row['priceType'.($i === 0 ? '' : ('_'.$i))], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+                    /* If price exists and priceType is none of the defined Types(normally happens if empty)*/
+					if (!empty($row['price']) && !array_key_exists($row['priceType'.($i === 0 ? '' : ('_'.$i))], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
 						return true;
 					}
 				}
@@ -1807,7 +1807,7 @@ class ls_shop_importController
 					break;
 				}
 				
-				
+
 				/*
 				 * We count from 0 because we also have to check the non-group-specific field
 				 */
@@ -1835,7 +1835,8 @@ class ls_shop_importController
 				if ($row['type'] != 'variant') {
 					break;
 				}
-				if (!array_key_exists($row['weightType'], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+                /* If weight exists and weightType is none of the defined Types(normally happens if empty)*/
+				if (!empty($row['weight']) && !array_key_exists($row['weightType'], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
 					return true;
 				}
 				break;
