@@ -82,7 +82,7 @@ class SearchServer
         return $this->serviceIndexProductSync->sync()->getResultString();
     }
 
-    public function dummySearch(Adapter &$productSearchAdapter)
+    public function search(Adapter &$productSearchAdapter)
     {
         return $this->serviceIndexProductSearch->search($productSearchAdapter);
     }
