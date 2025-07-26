@@ -169,6 +169,12 @@ class Search implements CommonInterface, IndexSearchInterface
             $field = $sortingRule['field'] ?? null;
             $direction = strtolower($sortingRule['direction'] ?? 'ASC');
 
+            if ($field === 'priority') {
+                // Sort by ES score (relevance)
+                $sort[] = ['_score' => ['order' => $direction]];
+                continue;
+            }
+
             // Map adapter field to ES field (reuse the search map if possible, else fallback)
             // For text fields, sort on .raw subfield; for keyword, boolean, integer, use field as-is
             if (isset($criteriaMap[$field])) {
@@ -191,7 +197,8 @@ class Search implements CommonInterface, IndexSearchInterface
                 'scroll' => '2m',
                 'body' => [
                     'size' => $size,
-                    'query' => $esQuery
+                    'query' => $esQuery,
+                    '_source' => ['id'],
                 ]
             ];
             if (!empty($sort)) {
