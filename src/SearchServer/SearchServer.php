@@ -11,12 +11,13 @@ use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\TestsInterface;
 
 class SearchServer
 {
-    private iterable $availableClientAdapterServices;
-    private ?ClientInterface $clientAdapterService = null;
+    private ?ClientInterface $clientService = null;
 
     /*
-     * Do me! This must not be hard-coded. Instead, there must be a backend module to configure which adapter
-     *  to use with which credentials.
+     * Todo: This should probably not be hard-coded. Instead, there should be a backend module to configure which adapter
+     *  to use with which credentials. However, this is not important unless there are actually more adapters than
+     *  just elasticsearch. OpenSearch and Solr are only placeholders for now (or even removed), so at the moment,
+     *  hard-coding the elasticsearch adapter here, is fine.
      */
     private $clientAdapterToUse = 'Elasticsearch';
 
