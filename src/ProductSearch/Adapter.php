@@ -49,7 +49,7 @@ class Adapter
                 $this->standardSearchClient->setNonLegacyUsage();
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 /*
                  * The searchEngine service is received through DI and does not need to be instantiated.
                  * Therefore, just break.
@@ -75,7 +75,7 @@ class Adapter
                 $this->standardSearchClient->setSearchCriterion($fieldName, $criterion);
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 /*
                  * The SearchEngine receives a reference to this adapter when the search method is executed and can
                  * access search criteria directly from the adapter. Therefore, just break in this case.
@@ -101,7 +101,7 @@ class Adapter
                 $this->standardSearchClient->setSearchCriteria($this->searchCriteria);
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 /*
                  * The SearchEngine receives a reference to this adapter when the search method is executed and can
                  * access search criteria directly from the adapter. Therefore, just break in this case.
@@ -140,7 +140,7 @@ class Adapter
                 $this->standardSearchClient->sorting = $this->sortingCriteria;
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 break;
 
             default:
@@ -158,7 +158,7 @@ class Adapter
                 $this->standardSearchClient->emptyFieldMatchesPerDefault = $this->emptyFieldMatchesPerDefault;
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 break;
 
             default:
@@ -176,7 +176,7 @@ class Adapter
                 $this->standardSearchClient->fixedSorting = $this->fixedSorting;
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 break;
 
             default:
@@ -194,7 +194,7 @@ class Adapter
                 $this->standardSearchClient->truncateResultsIfMoreThan = $this->truncateResultsIfMoreThan;
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 break;
 
             default:
@@ -212,7 +212,7 @@ class Adapter
                 $this->standardSearchClient->cancelSearchIfMoreThanTruncateLimit = $this->cancelSearchIfMoreThanTruncateLimit;
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 break;
 
             default:
@@ -229,7 +229,7 @@ class Adapter
                 $this->productResultsComplete = $this->standardSearchClient->productResultsComplete;
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 $this->productResultsComplete = $this->searchServer->search($this);
                 break;
 
@@ -279,7 +279,7 @@ class Adapter
                 return $this->standardSearchClient->numProductsBeforeFilter;
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 return $this->getNumResultsComplete();
                 break;
 
@@ -297,7 +297,7 @@ class Adapter
                 return $this->standardSearchClient->blnNotAllProductsMatch;
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 /*
                  * Implement real functionality here instead of placeholder
                  */
@@ -318,7 +318,7 @@ class Adapter
                 return $this->standardSearchClient->numProductsNotMatching;
                 break;
 
-            case Mode::SearchEngine:
+            case Mode::SearchServer:
                 /*
                  * Implement real functionality here instead of placeholder
                  */

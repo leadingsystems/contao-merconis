@@ -158,7 +158,7 @@ class ls_shop_productList
         /** @var Adapter $productSearchAdapter */
         $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
 //        $productSearchAdapter->setMode(Mode::Standard);
-        $productSearchAdapter->setMode(Mode::SearchEngine);
+        $productSearchAdapter->setMode(Mode::SearchServer);
         $productSearchAdapter->initialize($this->blnUseFilter, $this->productListID);
 
 		foreach ($this->arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
