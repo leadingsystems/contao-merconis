@@ -11,9 +11,6 @@ var obj_classdef = 	{
 
     start: function() {
 
-        console.log("start bottompage")
-        console.log(this.__models.options.data)
-
         this.setBottomPaginationScrollBehaviour(
             this.__models.options.data.el_domReference,
             this.__models.options.data.var_topPagination,
@@ -21,7 +18,6 @@ var obj_classdef = 	{
             this.__models.options.data.var_topOffset,
             this.__models.options.data.var_header
         )
-
     },
 
     setBottomPaginationScrollBehaviour: function(el_domReference, var_topPagination, var_bottomPagination, var_topOffset, var_header) {

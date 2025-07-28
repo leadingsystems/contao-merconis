@@ -9,7 +9,7 @@ var obj_classdef_model = {
         var_bottomPagination: '.bottom-pagination',
 
         // The offset is calculated from the height of the 'var_header' element and the initial offset.
-        var_topOffset: '25', // Offset in pixel
+        var_topOffset: '50', // Offset in pixel
         var_header: '#header-part-2'
     },
 
