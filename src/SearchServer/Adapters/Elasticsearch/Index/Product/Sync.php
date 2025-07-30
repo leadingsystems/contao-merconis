@@ -156,7 +156,9 @@ class Sync implements CommonInterface, IndexSyncInterface
                         pages,
                         published,
                         lsShopProductIsNew,
-                        lsShopProductIsOnSale
+                        lsShopProductIsOnSale,
+                        lsShopProductStock,
+                        lsShopProductAttributesValues
                     FROM tl_ls_shop_product
                     WHERE id > ?
                     ORDER BY id ASC
@@ -164,9 +166,37 @@ class Sync implements CommonInterface, IndexSyncInterface
             ->limit($batchSize)
             ->execute($lastIdFromPreviousBatch);
 
+        $dbres_variantsForProductBatch = \Database::getInstance()
+            ->prepare("
+                SELECT
+                    v.id,
+                    v.pid,
+                    v.lsShopVariantCode,
+                    v.lsShopProductVariantAttributesValues,
+                    v.lsShopVariantStock,
+                    v.published
+                FROM tl_ls_shop_variant v
+                INNER JOIN (
+                    SELECT id
+                    FROM tl_ls_shop_product
+                    WHERE id > ?
+                    ORDER BY id ASC
+                    LIMIT " . $batchSize . "
+                ) p ON v.pid = p.id
+            ")
+            ->execute(
+                $lastIdFromPreviousBatch
+            );
+
+         $variantsForProductBatch = [];
+
+        while ($dbres_variantsForProductBatch->next()) {
+            $variantsForProductBatch[$dbres_variantsForProductBatch->pid][] = $dbres_variantsForProductBatch->row();
+        }
+
         while ($dbres_productBatch->next()) {
             $product = [
-                'id' => (int)$dbres_productBatch->id,
+                'id' => (int) $dbres_productBatch->id,
                 'product_code' => $dbres_productBatch->lsShopProductCode ?: '',
                 'producer' => $dbres_productBatch->lsShopProductProducer ?: '',
                 'title' => $dbres_productBatch->title_de ?: '',
@@ -177,7 +207,10 @@ class Sync implements CommonInterface, IndexSyncInterface
                 'is_published' => ($dbres_productBatch->published === '1'),
                 'is_new' => ($dbres_productBatch->lsShopProductIsNew === '1'),
                 'is_sale' => ($dbres_productBatch->lsShopProductIsOnSale === '1'),
+                'stock' => (float) $dbres_productBatch->lsShopProductStock,
+                'attributes' => $this->getAttributesForESPayload($dbres_productBatch->lsShopProductAttributesValues)
             ];
+            $product['variants'] = $this->getVariantsForESPayload($product['id'], $variantsForProductBatch);
             $product['content_hash'] = $this->createProductDataHash($product);
             $batch[$product['id']] = $product;
         }
@@ -248,7 +281,95 @@ class Sync implements CommonInterface, IndexSyncInterface
     {
         $tmp = $productData;
         unset($tmp['content_hash']);
-        ksort($tmp);
+        $tmp = $this->deepSortForHash($tmp);
         return md5(json_encode($tmp));
+    }
+
+    private function deepSortForHash($val): mixed
+    {
+        if (is_array($val)) {
+            // If associative (string keys), ksort
+            if ($this->isAssoc($val)) {
+                ksort($val);
+                foreach ($val as &$v) {
+                    $v = $this->deepSortForHash($v);
+                }
+            } else {
+                // Numerically indexed: sort by a unique subfield if present
+                if (!empty($val) && isset($val[0]['variant_id'])) {
+                    usort($val, function($a, $b) {
+                        return strcmp($a['variant_id'], $b['variant_id']);
+                    });
+                    foreach ($val as &$v) {
+                        $v = $this->deepSortForHash($v);
+                    }
+                } elseif (!empty($val) && isset($val[0]['attribute_id'], $val[0]['value_id'])) {
+                    usort($val, function($a, $b) {
+                        return strcmp($a['attribute_id'], $b['attribute_id'])
+                            ?: strcmp($a['value_id'], $b['value_id']);
+                    });
+                    foreach ($val as &$v) {
+                        $v = $this->deepSortForHash($v);
+                    }
+                } else {
+                    // Default: sort values if possible, then recurse
+                    sort($val);
+                    foreach ($val as &$v) {
+                        $v = $this->deepSortForHash($v);
+                    }
+                }
+            }
+        }
+        return $val;
+    }
+
+    private function isAssoc(array $arr): bool
+    {
+        if ([] === $arr) return false;
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
+    private function getAttributesForESPayload(string $attributesJson): array
+    {
+        $attributes = json_decode($attributesJson, true);
+
+        $attributesForES = [];
+
+        if (!is_array($attributes)) {
+            return $attributesForES;
+        }
+
+        foreach ($attributes as $attributeValueAssignment) {
+            if (!is_array($attributeValueAssignment) || count($attributeValueAssignment) < 2) {
+                continue;
+            }
+            $attributesForES[] = [
+                'attribute_id' => (int)$attributeValueAssignment[0],
+                'value_id'     => (int)$attributeValueAssignment[1],
+            ];
+        }
+
+        return $attributesForES;
+    }
+
+    private function getVariantsForESPayload(int $productId, array $variantsForProductBatch): array
+    {
+        $variantsForES = [];
+
+        if (!isset($variantsForProductBatch[$productId]) || !is_array($variantsForProductBatch[$productId])) {
+            return $variantsForES;
+        }
+
+        foreach($variantsForProductBatch[$productId] as $variant) {
+            $variantsForES[] = [
+                'id' => (int) $variant['id'],
+                'variant_code' => $variant['lsShopVariantCode'],
+                'attributes' => $this->getAttributesForESPayload($variant['lsShopProductVariantAttributesValues']),
+                'stock' => (float) $variant['lsShopVariantStock'],
+                'is_published' => ($variant['published'] === '1'),
+            ];
+        }
+
+        return $variantsForES;
     }
 }
