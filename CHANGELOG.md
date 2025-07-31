@@ -4,6 +4,7 @@ Leading Systems Contao Merconis bundle changelog
 ### 5.1.7 (2025-08-01)
  * fix scroll to top-pagination
  * fix sitemap output
+ * fix default Product Page
 
 ### 5.1.6 (2025-07-18)
  * improve customizer public storage
