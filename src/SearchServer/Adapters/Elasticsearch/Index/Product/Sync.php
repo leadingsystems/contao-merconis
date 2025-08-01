@@ -210,12 +210,57 @@ class Sync implements CommonInterface, IndexSyncInterface
                 'stock' => (float) $dbres_productBatch->lsShopProductStock,
                 'attributes' => $this->getAttributesForESPayload($dbres_productBatch->lsShopProductAttributesValues)
             ];
-            $product['variants'] = $this->getVariantsForESPayload($product['id'], $variantsForProductBatch);
+            $product['variants'] = $this->getVariantsForESPayload($product['id'], $variantsForProductBatch, $dbres_productBatch->lsShopProductAttributesValues);
             $product['content_hash'] = $this->createProductDataHash($product);
             $batch[$product['id']] = $product;
         }
 
         return $batch;
+    }
+
+    private function getVariantsEffectiveAttributesAndValues(?string $variantAttributesAndValuesJSON = null, ?string $productAttributesAndValuesJSON = null): string
+    {
+        if ($variantAttributesAndValuesJSON === null || $productAttributesAndValuesJSON === null) {
+            return $variantAttributesAndValuesJSON;
+        }
+
+        $productAttributesAndValues = json_decode($productAttributesAndValuesJSON, true);
+
+        if (!is_array($productAttributesAndValues) || !count($productAttributesAndValues)) {
+            /*
+             * If the product does not have attributes/values, there's nothing to merge and therefore
+             * we return the variant's attributes/values as the original JSON
+             */
+            return $variantAttributesAndValuesJSON;
+        }
+
+        $variantAttributesAndValues = json_decode($variantAttributesAndValuesJSON, true);
+        if (!is_array($variantAttributesAndValues) || !count($variantAttributesAndValues)) {
+            /*
+             * If the variant does not have attributes/values, its effective attributes/values would be exactly
+             * what the product itself has. Since this variant would never match any attribute/value requirements
+             * that the product itself wouldn't match, there's no point in writing these effective attributes/values
+             * to the variant. This would only bloat the index for no benefit.
+             */
+            return $variantAttributesAndValuesJSON;
+        }
+
+        $effectiveAttributesAndValues = array_merge($variantAttributesAndValues, $productAttributesAndValues);
+
+        // Remove duplicate assignments
+        $unique = [];
+        foreach ($effectiveAttributesAndValues as $assignment) {
+            if (
+                is_array($assignment) &&
+                isset($assignment[0]) && isset($assignment[1])
+            ) {
+                $unique[$assignment[0] . ':' . $assignment[1]] = $assignment;
+            }
+        }
+        $effectiveAttributesAndValues = array_values($unique);
+
+        $effectiveAttributesAndValuesJSON = json_encode($effectiveAttributesAndValues);
+        return $effectiveAttributesAndValuesJSON;
     }
 
     private function getProductSyncBatchFromElasticsearch($lastIdFromPreviousBatch, $lastIdFromCurrentBatch, $isLastBatch = false): array
@@ -352,7 +397,7 @@ class Sync implements CommonInterface, IndexSyncInterface
         return $attributesForES;
     }
 
-    private function getVariantsForESPayload(int $productId, array $variantsForProductBatch): array
+    private function getVariantsForESPayload(int $productId, array $variantsForProductBatch, ?string $productAttributesAndValuesJSON = null): array
     {
         $variantsForES = [];
 
@@ -361,6 +406,8 @@ class Sync implements CommonInterface, IndexSyncInterface
         }
 
         foreach($variantsForProductBatch[$productId] as $variant) {
+            $variant['lsShopProductVariantAttributesValues'] = $this->getVariantsEffectiveAttributesAndValues($variant['lsShopProductVariantAttributesValues'], $productAttributesAndValuesJSON);
+
             $variantsForES[] = [
                 'id' => (int) $variant['id'],
                 'variant_code' => $variant['lsShopVariantCode'],
