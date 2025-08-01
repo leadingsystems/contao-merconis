@@ -16,11 +16,6 @@ class DynamicAttachmentPathsMigration extends AbstractMigration
         $this->connection = $connection;
     }
 
-    public function getName(): string
-    {
-        return 'MERCONIS: DynamicAttachmentPathsMigration';
-    }
-
     public function shouldRun(): bool
     {
         $schemaManager = $this->connection->createSchemaManager();
