@@ -80,12 +80,17 @@ class Search implements CommonInterface, IndexSearchInterface
                     'producer^2'
                 ]
             ],
+            'attributes' => [
+                'queryType' => 'product_and_variant_attributes'
+            ],
         ];
 
         $criteria = $productSearchAdapter->getSearchCriteria();
         $size = 1000;
         $productResultIds = [];
         $must = [];
+        $productAttrFilters = [];
+        $variantAttrFilters = [];
 
         // 2. Build ES Query
         foreach ($criteria as $criterion => $value) {
@@ -147,12 +152,45 @@ class Search implements CommonInterface, IndexSearchInterface
                     }
                     break;
                 case 'term':
-                    // For product_code, producer (type keyword)
                     $must[] = [
                         'term' => [
                             $map['esField'] => $value
                         ]
                     ];
+                    break;
+                case 'product_and_variant_attributes':
+                    // expects array of ['attribute_id'=>..., 'value_id'=>...]
+                    foreach ($value as $filter) {
+                        if (!isset($filter['attribute_id']) || !isset($filter['value_id'])) continue;
+                        // Product-level 'must' (all present)
+                        $productAttrFilters[] = [
+                            'nested' => [
+                                'path' => 'attributes',
+                                'query' => [
+                                    'bool' => [
+                                        'must' => [
+                                            [ 'term' => [ 'attributes.attribute_id' => $filter['attribute_id'] ] ],
+                                            [ 'term' => [ 'attributes.value_id' => $filter['value_id'] ] ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ];
+                        // Variant-level ('must' all in same variant)
+                        $variantAttrFilters[] = [
+                            'nested' => [
+                                'path' => 'variants.attributes',
+                                'query' => [
+                                    'bool' => [
+                                        'must' => [
+                                            [ 'term' => [ 'variants.attributes.attribute_id' => $filter['attribute_id'] ] ],
+                                            [ 'term' => [ 'variants.attributes.value_id' => $filter['value_id'] ] ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ];
+                    }
                     break;
                 default:
                     // Unknown or unsupported query type (shouldn't happen in strict mapping)
@@ -160,7 +198,51 @@ class Search implements CommonInterface, IndexSearchInterface
             }
         }
 
-        $esQuery = ['bool' => ['must' => $must]];
+        // ---- Attribute filter handling: build query to match product if EITHER product attributes OR a variant matches ----
+        $attributesMatchShould = [];
+        if (!empty($productAttrFilters)) {
+            // Product matches if ALL attribute filters match directly (i.e., "must" all in one bool)
+            $attributesMatchShould[] = [
+                'bool' => ['must' => $productAttrFilters]
+            ];
+        }
+        if (!empty($variantAttrFilters)) {
+            // At least one VARIANT must have ALL attribute filters -> do a nested query with inner_hits
+            $attributesMatchShould[] = [
+                'nested' => [
+                    'path' => 'variants',
+                    'query' => [
+                        'bool' => [
+                            'must' => $variantAttrFilters
+                        ]
+                    ],
+                    'inner_hits' => [
+                        'name' => 'matching_variants',
+                        'size' => 100,
+                        '_source' => ['id', 'attributes']
+                    ]
+                ]
+            ];
+        }
+
+        // Main must/should structure
+        $esQuery = [];
+        if (!empty($attributesMatchShould)) {
+            // Both: mandatory non-attribute filters (in must), attribute-lax filter in should (must match attributes via product or variant)
+            $esQuery = [
+                'bool' => [
+                    'must' => $must,
+                    'should' => $attributesMatchShould,
+                    'minimum_should_match' => 1
+                ]
+            ];
+        } else {
+            $esQuery = [
+                'bool' => [
+                    'must' => $must
+                ]
+            ];
+        }
 
         // --- Sorting support ---
         $sort = [];
@@ -209,8 +291,29 @@ class Search implements CommonInterface, IndexSearchInterface
             do {
                 // Extract products from this batch
                 if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
-                    $batchIds = array_column(array_column($response['hits']['hits'], '_source'), 'id');
-                    $productResultIds = array_merge($productResultIds, $batchIds);
+                    foreach ($response['hits']['hits'] as $hit) {
+                        $productId = $hit['_source']['id'];
+                        // Determine match type & variants:
+                        $isProductMatch = true;
+                        $matchingVariantIds = [];
+                        $matchingVariantCount = 0;
+                        if (isset($hit['inner_hits']['matching_variants']['hits']['hits']) && count($hit['inner_hits']['matching_variants']['hits']['hits']) > 0) {
+                            $isProductMatch = false;
+                            foreach ($hit['inner_hits']['matching_variants']['hits']['hits'] as $variantHit) {
+                                $variantSource = $variantHit['_source'] ?? [];
+                                if (isset($variantSource['id'])) {
+                                    $matchingVariantIds[] = $variantSource['id'];
+                                }
+                            }
+                            $matchingVariantCount = count($matchingVariantIds);
+                        }
+                        $productResultIds[] = [
+                            'id' => $productId,
+                            'match_type' => $isProductMatch ? 'product' : 'variant',
+                            'matching_variant_ids' => $matchingVariantIds,
+                            'matching_variant_count' => $matchingVariantCount,
+                        ];
+                    }
                 }
 
                 // Get the next batch if there are more results
@@ -232,6 +335,9 @@ class Search implements CommonInterface, IndexSearchInterface
             }
             $productResultIds = array_values(array_unique($productResultIds));
             return $productResultIds;
+
+//            return array_values($productResultIds);
+            return array_column($productResultIds, 'id');
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
