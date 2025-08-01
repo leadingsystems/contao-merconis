@@ -88,80 +88,18 @@ class Search implements CommonInterface, IndexSearchInterface
         $criteria = $productSearchAdapter->getSearchCriteria();
 
         // --- Split out attribute filters for the two queries ---
+        // Prepare base criteria for facets query (i.e. no 'attributes')
         $baseCriteria = $criteria;
-        $attributeFilters = [];
-        if (!empty($baseCriteria['attributes'])) {
-            $attributeFilters = $baseCriteria['attributes'];
+        if (isset($baseCriteria['attributes'])) {
             unset($baseCriteria['attributes']);
         }
 
-        // ---------------
         $size = 1000;
-        $must = [];
-        // For the "facets" search – no attribute filters included
-        foreach ($baseCriteria as $criterion => $value) {
-            if (!isset($criteriaMap[$criterion]) || $value === '' || $value === null) {
-                continue; // Ignore unmapped or empty criteria
-            }
-            $map = $criteriaMap[$criterion];
-            switch ($map['queryType']) {
-                case 'multi_match':
-                    $must[] = [
-                        'multi_match' => [
-                            'query' => $value,
-                            'fields' => $map['esFields'],
-                            'type' => 'best_fields'
-                        ]
-                    ];
-                    break;
-                case 'terms':
-                    $values = is_array($value) ? $value : [$value];
-                    $must[] = [
-                        'terms' => [
-                            $map['esField'] => $values
-                        ]
-                    ];
-                    break;
-                case 'boolean':
-                    $must[] = [
-                        'term' => [
-                            $map['esField'] => ($value === '1' || $value === 1 || $value === true)
-                        ]
-                    ];
-                    break;
-                case 'match':
-                    if (is_string($value) && preg_replace('/[%*]/', '', $value) === '') {
-                        break;
-                    }
-                    if (is_string($value) && (strpos($value, '%') !== false || strpos($value, '*') !== false)) {
-                        $pattern = str_replace(['%', '*'], '*', $value);
-                        $must[] = [
-                            'wildcard' => [
-                                $map['esField'] . '.raw' => [
-                                    'value' => $pattern,
-                                    'case_insensitive' => true
-                                ]
-                            ]
-                        ];
-                    } else {
-                        $must[] = [
-                            'match' => [$map['esField'] => $value]
-                        ];
-                    }
-                    break;
-                case 'term':
-                    $must[] = [
-                        'term' => [
-                            $map['esField'] => $value
-                        ]
-                    ];
-                    break;
-                default:
-                    break;
-            }
-        }
 
-        // -- AGGREGATION DEFINITION: as before
+        // ------ 1. Query for FACETS ------
+        $baseQuery = $this->buildQueryForCriteria($baseCriteria, $criteriaMap);
+
+        // -- AGGREGATION DEFINITION
         $aggs = [
             'attributes' => [
                 'nested' => [
@@ -195,18 +133,13 @@ class Search implements CommonInterface, IndexSearchInterface
             ]
         ];
 
-        // ----------- 1. "BASE" QUERY for FACETS --------------
         $facetAttributePairs = [];
         try {
             $facetParams = [
                 'index' => $this->indexName,
                 'body' => [
                     'size' => 0, // Only aggregations!
-                    'query' => [
-                        'bool' => [
-                            'must' => $must
-                        ]
-                    ],
+                    'query' => $baseQuery,
                     'aggs' => $aggs,
                 ]
             ];
@@ -244,17 +177,109 @@ class Search implements CommonInterface, IndexSearchInterface
                 }
             }
         } catch (\Exception $e) {
-            // fallback if facets query fails
             $facetAttributePairs = [];
         }
 
-        // ----------- 2. FULL QUERY (with attribute filters for actual results and inner_hits) --------------
+        // ------ 2. Query for ACTUAL RESULTS ------
+        $mainQuery = $this->buildQueryForCriteria($criteria, $criteriaMap);
+
+        // Sorting support (unchanged)
+        $sort = [];
+        $sortingCriteria = $productSearchAdapter->getSortingCriteria();
+        foreach ($sortingCriteria as $sortingRule) {
+            $field = $sortingRule['field'] ?? null;
+            $direction = strtolower($sortingRule['direction'] ?? 'ASC');
+            if ($field === 'priority') {
+                $sort[] = ['_score' => ['order' => $direction]];
+                continue;
+            }
+            if (isset($criteriaMap[$field])) {
+                $esField = $criteriaMap[$field]['esField'];
+                $queryType = $criteriaMap[$field]['queryType'];
+                if ($queryType === 'match') {
+                    $esField = $esField . '.raw';
+                }
+                $sort[] = [$esField => ['order' => $direction]];
+            }
+        }
+
         $productResultIds = [];
+        try {
+            $params = [
+                'index' => $this->indexName,
+                'scroll' => '2m',
+                'body' => [
+                    'size' => $size,
+                    'query' => $mainQuery,
+                    '_source' => ['id'],
+                ]
+            ];
+            if (!empty($sort)) {
+                $params['body']['sort'] = $sort;
+            }
+
+            $response = $this->client->elasticsearchClient->search($params);
+            do {
+                if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
+                    foreach ($response['hits']['hits'] as $hit) {
+                        $productId = $hit['_source']['id'];
+                        $isProductMatch = true;
+                        $matchingVariantIds = [];
+                        $matchingVariantCount = 0;
+                        if (isset($hit['inner_hits']['matching_variants']['hits']['hits']) && count($hit['inner_hits']['matching_variants']['hits']['hits']) > 0) {
+                            $isProductMatch = false;
+                            foreach ($hit['inner_hits']['matching_variants']['hits']['hits'] as $variantHit) {
+                                $variantSource = $variantHit['_source'] ?? [];
+                                if (isset($variantSource['id'])) {
+                                    $matchingVariantIds[] = $variantSource['id'];
+                                }
+                            }
+                            $matchingVariantCount = count($matchingVariantIds);
+                        }
+                        $productResultIds[] = [
+                            'id' => $productId,
+                            'match_type' => $isProductMatch ? 'product' : 'variant',
+                            'matching_variant_ids' => $matchingVariantIds,
+                            'matching_variant_count' => $matchingVariantCount,
+                        ];
+                    }
+                }
+                $scrollId = $response['_scroll_id'] ?? null;
+                $numHits = count($response['hits']['hits']);
+                if ($scrollId && $numHits > 0) {
+                    $response = $this->client->elasticsearchClient->scroll([
+                        'scroll_id' => $scrollId,
+                        'scroll' => '2m'
+                    ]);
+                } else {
+                    break;
+                }
+            } while (true);
+            if (isset($scrollId)) {
+                $this->client->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
+            }
+
+            $fullResultInfo = [
+                'ids' => array_column($productResultIds, 'id'),
+                'results' => $productResultIds,
+                'facets' => $facetAttributePairs
+            ];
+            return $fullResultInfo['ids'];
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    // ---------- Helper function below ----------
+
+    /**
+     * Given search criteria, builds the full ES query (bool/must/should etc.)
+     */
+    private function buildQueryForCriteria(array $criteria, array $criteriaMap): array
+    {
         $must = [];
         $productAttrFilters = [];
         $variantAttrFilters = [];
-
-        // 2. Build ES Query
         foreach ($criteria as $criterion => $value) {
             if (!isset($criteriaMap[$criterion]) || $value === '' || $value === null) {
                 continue; // Ignore unmapped or empty criteria
@@ -387,11 +412,10 @@ class Search implements CommonInterface, IndexSearchInterface
             ];
         }
 
-        // Main must/should structure
-        $esQuery = [];
+        $query = [];
+
         if (!empty($attributesMatchShould)) {
-            // Both: mandatory non-attribute filters (in must), attribute-lax filter in should (must match attributes via product or variant)
-            $esQuery = [
+            $query = [
                 'bool' => [
                     'must' => $must,
                     'should' => $attributesMatchShould,
@@ -399,112 +423,13 @@ class Search implements CommonInterface, IndexSearchInterface
                 ]
             ];
         } else {
-            $esQuery = [
+            $query = [
                 'bool' => [
                     'must' => $must
                 ]
             ];
         }
 
-        // --- Sorting support ---
-        $sort = [];
-        $sortingCriteria = $productSearchAdapter->getSortingCriteria();
-        foreach ($sortingCriteria as $sortingRule) {
-            $field = $sortingRule['field'] ?? null;
-            $direction = strtolower($sortingRule['direction'] ?? 'ASC');
-
-            if ($field === 'priority') {
-                // Sort by ES score (relevance)
-                $sort[] = ['_score' => ['order' => $direction]];
-                continue;
-            }
-
-            // Map adapter field to ES field (reuse the search map if possible, else fallback)
-            // For text fields, sort on .raw subfield; for keyword, boolean, integer, use field as-is
-            if (isset($criteriaMap[$field])) {
-                $esField = $criteriaMap[$field]['esField'];
-                $queryType = $criteriaMap[$field]['queryType'];
-                // If match type (i.e. ES field is text) sort on .raw, otherwise use ES field directly
-                if ($queryType === 'match') {
-                    $esField = $esField . '.raw';
-                }
-                // ES boolean/int/keyword are sortable as-is
-                $sort[] = [$esField => ['order' => $direction]];
-            }
-            // else: ignore unknown sort fields for safety
-        }
-
-        // 3. Query/scroll extraction
-        try {
-            $params = [
-                'index' => $this->indexName,
-                'scroll' => '2m',
-                'body' => [
-                    'size' => $size,
-                    'query' => $esQuery,
-                    '_source' => ['id'],
-                ]
-            ];
-            if (!empty($sort)) {
-                $params['body']['sort'] = $sort;
-            }
-            $response = $this->client->elasticsearchClient->search($params);
-
-            do {
-                // Extract products from this batch
-                if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
-                    foreach ($response['hits']['hits'] as $hit) {
-                        $productId = $hit['_source']['id'];
-                        // Determine match type & variants:
-                        $isProductMatch = true;
-                        $matchingVariantIds = [];
-                        $matchingVariantCount = 0;
-                        if (isset($hit['inner_hits']['matching_variants']['hits']['hits']) && count($hit['inner_hits']['matching_variants']['hits']['hits']) > 0) {
-                            $isProductMatch = false;
-                            foreach ($hit['inner_hits']['matching_variants']['hits']['hits'] as $variantHit) {
-                                $variantSource = $variantHit['_source'] ?? [];
-                                if (isset($variantSource['id'])) {
-                                    $matchingVariantIds[] = $variantSource['id'];
-                                }
-                            }
-                            $matchingVariantCount = count($matchingVariantIds);
-                        }
-                        $productResultIds[] = [
-                            'id' => $productId,
-                            'match_type' => $isProductMatch ? 'product' : 'variant',
-                            'matching_variant_ids' => $matchingVariantIds,
-                            'matching_variant_count' => $matchingVariantCount,
-                        ];
-                    }
-                }
-
-                // Get the next batch if there are more results
-                $scrollId = $response['_scroll_id'] ?? null;
-                $numHits = count($response['hits']['hits']);
-
-                if ($scrollId && $numHits > 0) {
-                    $response = $this->client->elasticsearchClient->scroll([
-                        'scroll_id' => $scrollId,
-                        'scroll' => '2m'
-                    ]);
-                } else {
-                    break; // No more results
-                }
-            } while (true);
-
-            if (isset($scrollId)) {
-                $this->client->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
-            }
-
-            $fullResultInfo = [
-                'ids' => array_column($productResultIds, 'id'),
-                'results' => $productResultIds,
-                'facets' => $facetAttributePairs
-            ];
-
-            return $fullResultInfo['ids'];
-        } catch (\Exception $e) {
-            return ['error' => $e->getMessage()];
-        }
+        return $query;
     }
 }
