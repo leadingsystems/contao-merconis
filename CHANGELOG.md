@@ -5,6 +5,7 @@ Leading Systems Contao Merconis bundle changelog
  * fix scroll to top-pagination
  * fix sitemap output
  * fix default Product Page
+ * rename dynamicAttachmentPdfPaths to dynamicAttachmentPaths
 
 ### 5.1.6 (2025-07-18)
  * improve customizer public storage
