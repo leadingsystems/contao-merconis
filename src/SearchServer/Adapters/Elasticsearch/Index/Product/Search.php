@@ -86,7 +86,169 @@ class Search implements CommonInterface, IndexSearchInterface
         ];
 
         $criteria = $productSearchAdapter->getSearchCriteria();
+
+        // --- Split out attribute filters for the two queries ---
+        $baseCriteria = $criteria;
+        $attributeFilters = [];
+        if (!empty($baseCriteria['attributes'])) {
+            $attributeFilters = $baseCriteria['attributes'];
+            unset($baseCriteria['attributes']);
+        }
+
+        // ---------------
         $size = 1000;
+        $must = [];
+        // For the "facets" search – no attribute filters included
+        foreach ($baseCriteria as $criterion => $value) {
+            if (!isset($criteriaMap[$criterion]) || $value === '' || $value === null) {
+                continue; // Ignore unmapped or empty criteria
+            }
+            $map = $criteriaMap[$criterion];
+            switch ($map['queryType']) {
+                case 'multi_match':
+                    $must[] = [
+                        'multi_match' => [
+                            'query' => $value,
+                            'fields' => $map['esFields'],
+                            'type' => 'best_fields'
+                        ]
+                    ];
+                    break;
+                case 'terms':
+                    $values = is_array($value) ? $value : [$value];
+                    $must[] = [
+                        'terms' => [
+                            $map['esField'] => $values
+                        ]
+                    ];
+                    break;
+                case 'boolean':
+                    $must[] = [
+                        'term' => [
+                            $map['esField'] => ($value === '1' || $value === 1 || $value === true)
+                        ]
+                    ];
+                    break;
+                case 'match':
+                    if (is_string($value) && preg_replace('/[%*]/', '', $value) === '') {
+                        break;
+                    }
+                    if (is_string($value) && (strpos($value, '%') !== false || strpos($value, '*') !== false)) {
+                        $pattern = str_replace(['%', '*'], '*', $value);
+                        $must[] = [
+                            'wildcard' => [
+                                $map['esField'] . '.raw' => [
+                                    'value' => $pattern,
+                                    'case_insensitive' => true
+                                ]
+                            ]
+                        ];
+                    } else {
+                        $must[] = [
+                            'match' => [$map['esField'] => $value]
+                        ];
+                    }
+                    break;
+                case 'term':
+                    $must[] = [
+                        'term' => [
+                            $map['esField'] => $value
+                        ]
+                    ];
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // -- AGGREGATION DEFINITION: as before
+        $aggs = [
+            'attributes' => [
+                'nested' => [
+                    'path' => 'attributes'
+                ],
+                'aggs' => [
+                    'attribute_ids' => [
+                        'terms' => ['field' => 'attributes.attribute_id', 'size' => 1000],
+                        'aggs' => [
+                            'value_ids' => [
+                                'terms' => ['field' => 'attributes.value_id', 'size' => 1000]
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            'variant_attributes' => [
+                'nested' => [
+                    'path' => 'variants.attributes'
+                ],
+                'aggs' => [
+                    'attribute_ids' => [
+                        'terms' => ['field' => 'variants.attributes.attribute_id', 'size' => 1000],
+                        'aggs' => [
+                            'value_ids' => [
+                                'terms' => ['field' => 'variants.attributes.value_id', 'size' => 1000]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        // ----------- 1. "BASE" QUERY for FACETS --------------
+        $facetAttributePairs = [];
+        try {
+            $facetParams = [
+                'index' => $this->indexName,
+                'body' => [
+                    'size' => 0, // Only aggregations!
+                    'query' => [
+                        'bool' => [
+                            'must' => $must
+                        ]
+                    ],
+                    'aggs' => $aggs,
+                ]
+            ];
+            $facetResponse = $this->client->elasticsearchClient->search($facetParams);
+
+            // Collect facets
+            // Product attributes
+            if (isset($facetResponse['aggregations']['attributes']['attribute_ids']['buckets'])) {
+                foreach ($facetResponse['aggregations']['attributes']['attribute_ids']['buckets'] as $attrBucket) {
+                    $attributeId = $attrBucket['key'];
+                    foreach ($attrBucket['value_ids']['buckets'] as $valBucket) {
+                        $valueId = $valBucket['key'];
+                        $facetAttributePairs[] = [
+                            'location' => 'product',
+                            'attribute_id' => $attributeId,
+                            'value_id' => $valueId,
+                            'doc_count' => $valBucket['doc_count']
+                        ];
+                    }
+                }
+            }
+            // Variant attributes
+            if (isset($facetResponse['aggregations']['variant_attributes']['attribute_ids']['buckets'])) {
+                foreach ($facetResponse['aggregations']['variant_attributes']['attribute_ids']['buckets'] as $attrBucket) {
+                    $attributeId = $attrBucket['key'];
+                    foreach ($attrBucket['value_ids']['buckets'] as $valBucket) {
+                        $valueId = $valBucket['key'];
+                        $facetAttributePairs[] = [
+                            'location' => 'variant',
+                            'attribute_id' => $attributeId,
+                            'value_id' => $valueId,
+                            'doc_count' => $valBucket['doc_count']
+                        ];
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // fallback if facets query fails
+            $facetAttributePairs = [];
+        }
+
+        // ----------- 2. FULL QUERY (with attribute filters for actual results and inner_hits) --------------
         $productResultIds = [];
         $must = [];
         $productAttrFilters = [];
@@ -333,11 +495,14 @@ class Search implements CommonInterface, IndexSearchInterface
             if (isset($scrollId)) {
                 $this->client->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
             }
-            $productResultIds = array_values(array_unique($productResultIds));
-            return $productResultIds;
 
-//            return array_values($productResultIds);
-            return array_column($productResultIds, 'id');
+            $fullResultInfo = [
+                'ids' => array_column($productResultIds, 'id'),
+                'results' => $productResultIds,
+                'facets' => $facetAttributePairs
+            ];
+
+            return $fullResultInfo['ids'];
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
