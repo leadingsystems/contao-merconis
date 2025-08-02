@@ -86,10 +86,27 @@ class Search implements CommonInterface, IndexSearchInterface
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
         $baseCriteria = $this->prepareBaseCriteria($criteria);
 
-        $facetAttributePairs = $this->getFacets($baseCriteria);
-        $productResultIds = $this->getSearchResults($criteria, $productSearchAdapter);
+        // Get both search results and filtered facets in a single query
+        $searchAndFacetsResult = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter);
 
-        return $productResultIds;
+        // Get unfiltered facets separately (only if needed)
+        $unfilteredFacets = $this->getFacets($baseCriteria, 'unfiltered');
+
+        // Combine facet data
+        $facetData = [
+            'unfiltered' => $unfilteredFacets,
+            'filtered' => $searchAndFacetsResult['filtered_facets'],
+            'combined' => $this->combineFacetData($unfilteredFacets, $searchAndFacetsResult['filtered_facets'])
+        ];
+
+        /*
+         * Do me! Check out if this is a good way to get the facet data to the UI
+         *
+        // Store facet data in the adapter for later retrieval
+        $productSearchAdapter->setFacetData($facetData);
+        /* */
+
+        return $searchAndFacetsResult['product_ids'];
     }
 
     private function prepareCriteria(array $criteria): array
@@ -106,9 +123,124 @@ class Search implements CommonInterface, IndexSearchInterface
         return $baseCriteria;
     }
 
-    private function getFacets(array $baseCriteria): array
+    /**
+     * Combine unfiltered and filtered facet data to determine which options should be greyed out
+     */
+    private function combineFacetData(array $unfilteredFacets, array $filteredFacets): array
     {
-        $baseQuery = $this->buildQueryForCriteria($baseCriteria);
+        $combined = [];
+
+        // Create a lookup array for filtered facets
+        $filteredLookup = [];
+        foreach ($filteredFacets as $facet) {
+            $key = $facet['location'] . '_' . $facet['attribute_id'] . '_' . $facet['value_id'];
+            $filteredLookup[$key] = $facet['doc_count'];
+        }
+
+        // Process unfiltered facets and mark availability
+        foreach ($unfilteredFacets as $facet) {
+            $key = $facet['location'] . '_' . $facet['attribute_id'] . '_' . $facet['value_id'];
+            $filteredCount = $filteredLookup[$key] ?? 0;
+
+            $combined[] = [
+                'location' => $facet['location'],
+                'attribute_id' => $facet['attribute_id'],
+                'value_id' => $facet['value_id'],
+                'total_doc_count' => $facet['doc_count'], // Count without filters
+                'filtered_doc_count' => $filteredCount,   // Count with current filters
+                'is_available' => $filteredCount > 0,     // Can be used for greying out
+                'is_filtered_out' => $filteredCount === 0 && $facet['doc_count'] > 0
+            ];
+        }
+
+        return $combined;
+    }
+
+    /**
+     * OPTIMIZED: Get search results AND filtered facets in a single query
+     */
+    private function getSearchResultsWithFilteredFacets(array $criteria, Adapter $productSearchAdapter): array
+    {
+        $mainQuery = $this->buildQueryForCriteria($criteria);
+        $sort = $this->buildSortCriteria($productSearchAdapter->getSortingCriteria());
+        $aggs = $this->buildAggregations();
+
+        try {
+            $params = [
+                'index' => $this->indexName,
+                'scroll' => self::SCROLL_TIMEOUT,
+                'body' => [
+                    'size' => self::DEFAULT_SIZE,
+                    'query' => $mainQuery,
+                    '_source' => ['id'],
+                    'aggs' => $aggs, // Add aggregations to the search query
+                ]
+            ];
+
+            if (!empty($sort)) {
+                $params['body']['sort'] = $sort;
+            }
+
+            return $this->executeScrollSearchWithFacets($params);
+        } catch (\Exception $e) {
+            return [
+                'product_ids' => ['error' => $e->getMessage()],
+                'filtered_facets' => []
+            ];
+        }
+    }
+
+    /**
+     * OPTIMIZED: Execute scroll search and extract both results and facets
+     */
+    private function executeScrollSearchWithFacets(array $params): array
+    {
+        $productResultIds = [];
+        $filteredFacets = [];
+
+        $response = $this->client->elasticsearchClient->search($params);
+        $scrollId = null;
+        $isFirstResponse = true;
+
+        do {
+            // Extract facets only from the first response (they're the same across all scroll pages)
+            if ($isFirstResponse && isset($response['aggregations'])) {
+                $filteredFacets = $this->processFacetResponse($response);
+                $isFirstResponse = false;
+            }
+
+            if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
+                foreach ($response['hits']['hits'] as $hit) {
+                    $productResultIds[] = $this->processSearchHit($hit);
+                }
+            }
+
+            $scrollId = $response['_scroll_id'] ?? null;
+            $numHits = count($response['hits']['hits']);
+
+            if ($scrollId && $numHits > 0) {
+                $response = $this->client->elasticsearchClient->scroll([
+                    'scroll_id' => $scrollId,
+                    'scroll' => self::SCROLL_TIMEOUT
+                ]);
+            } else {
+                break;
+            }
+        } while (true);
+
+        if (isset($scrollId)) {
+            $this->client->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
+        }
+
+        return [
+            'product_ids' => array_column($productResultIds, 'id'),
+            'filtered_facets' => $filteredFacets
+        ];
+    }
+
+    private function getFacets(array $criteria, string $context = ''): array
+    {
+        $query = $this->buildQueryForCriteria($criteria);
         $aggs = $this->buildAggregations();
 
         try {
@@ -116,7 +248,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 'index' => $this->indexName,
                 'body' => [
                     'size' => 0, // Only aggregations!
-                    'query' => $baseQuery,
+                    'query' => $query,
                     'aggs' => $aggs,
                 ]
             ];
@@ -204,32 +336,6 @@ class Search implements CommonInterface, IndexSearchInterface
         return $pairs;
     }
 
-    private function getSearchResults(array $criteria, Adapter $productSearchAdapter): array
-    {
-        $mainQuery = $this->buildQueryForCriteria($criteria);
-        $sort = $this->buildSortCriteria($productSearchAdapter->getSortingCriteria());
-
-        try {
-            $params = [
-                'index' => $this->indexName,
-                'scroll' => self::SCROLL_TIMEOUT,
-                'body' => [
-                    'size' => self::DEFAULT_SIZE,
-                    'query' => $mainQuery,
-                    '_source' => ['id'],
-                ]
-            ];
-
-            if (!empty($sort)) {
-                $params['body']['sort'] = $sort;
-            }
-
-            return $this->executeScrollSearch($params);
-        } catch (\Exception $e) {
-            return ['error' => $e->getMessage()];
-        }
-    }
-
     private function buildSortCriteria(array $sortingCriteria): array
     {
         $sort = [];
@@ -252,39 +358,6 @@ class Search implements CommonInterface, IndexSearchInterface
             }
         }
         return $sort;
-    }
-
-    private function executeScrollSearch(array $params): array
-    {
-        $productResultIds = [];
-        $response = $this->client->elasticsearchClient->search($params);
-        $scrollId = null;
-
-        do {
-            if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
-                foreach ($response['hits']['hits'] as $hit) {
-                    $productResultIds[] = $this->processSearchHit($hit);
-                }
-            }
-
-            $scrollId = $response['_scroll_id'] ?? null;
-            $numHits = count($response['hits']['hits']);
-
-            if ($scrollId && $numHits > 0) {
-                $response = $this->client->elasticsearchClient->scroll([
-                    'scroll_id' => $scrollId,
-                    'scroll' => self::SCROLL_TIMEOUT
-                ]);
-            } else {
-                break;
-            }
-        } while (true);
-
-        if (isset($scrollId)) {
-            $this->client->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
-        }
-
-        return array_column($productResultIds, 'id');
     }
 
     private function processSearchHit(array $hit): array
