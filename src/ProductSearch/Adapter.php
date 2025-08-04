@@ -25,12 +25,13 @@ class Adapter
     private bool $cancelSearchIfMoreThanTruncateLimit = false;
     private bool $emptyFieldMatchesPerDefault = false;
 
-    private array $productResultsComplete = [];
+    private SearchResult $searchResult;
 
     public function __construct(SearchServer $searchServer, LoggerInterface $logger)
     {
         $this->searchServer = $searchServer;
         $this->logger = $logger;
+        $this->searchResult = new SearchResult([], null);
     }
 
     public function setMode(Mode $mode): void
@@ -239,11 +240,11 @@ class Adapter
         switch ($this->mode) {
             case Mode::Standard:
                 $this->standardSearchClient->search();
-                $this->productResultsComplete = $this->standardSearchClient->productResultsComplete;
+                $this->searchResult->setResults($this->standardSearchClient->productResultsComplete);
                 break;
 
             case Mode::SearchServer:
-                $this->productResultsComplete = $this->searchServer->search($this);
+                $this->searchResult = $this->searchServer->search($this);
                 break;
 
             default:
@@ -254,17 +255,17 @@ class Adapter
 
     public function getProductResultsComplete(): array
     {
-        return $this->productResultsComplete;
+        return $this->searchResult->getResults();
     }
 
-    public function getFacetData(): array
+    public function getFacets(): Facets
     {
-        return $this->searchServer->getFacetData();
+        return $this->searchResult->getFacets();
     }
 
     public function getNumResultsComplete(): int
     {
-        return count($this->productResultsComplete);
+        return count($this->searchResult->getResults());
     }
 
     public function getNumPagesTotal(): int
@@ -275,7 +276,7 @@ class Adapter
     public function getProductResultsCurrentPage(): array
     {
         if ($this->numPerPage <= 0 || !$this->getNumResultsComplete()) {
-            return $this->productResultsComplete;
+            return $this->searchResult->getResults();
         }
 
         if ($this->currentPage < 1 || $this->currentPage > $this->getNumPagesTotal()) {
@@ -286,7 +287,7 @@ class Adapter
         }
 
         $offset = ($this->currentPage - 1) * $this->numPerPage;
-        $productResultsCurrentPage = array_slice($this->productResultsComplete, $offset, $this->numPerPage);
+        $productResultsCurrentPage = array_slice($this->searchResult->getResults(), $offset, $this->numPerPage);
         return $productResultsCurrentPage;
     }
 

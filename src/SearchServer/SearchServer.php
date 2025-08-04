@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\SearchServer;
 
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\SearchResult;
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\ClientInterface;
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexManageInterface;
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSearchInterface;
@@ -83,13 +84,8 @@ class SearchServer
         return $this->serviceIndexProductSync->sync()->getResultString();
     }
 
-    public function search(Adapter &$productSearchAdapter): array
+    public function search(Adapter &$productSearchAdapter): SearchResult
     {
         return $this->serviceIndexProductSearch->search($productSearchAdapter);
-    }
-
-    public function getFacetData(): array
-    {
-        return $this->serviceIndexProductSearch->getFacetData();
     }
 }

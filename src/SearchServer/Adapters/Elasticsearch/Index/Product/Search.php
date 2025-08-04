@@ -2,6 +2,8 @@
 namespace LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product;
 use Elastic\Elasticsearch\Response\Elasticsearch as ElasticsearchResponse;
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Facets;
+use LeadingSystems\MerconisBundle\ProductSearch\SearchResult;
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\CommonInterface;
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSearchInterface;
 use LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client;
@@ -76,19 +78,12 @@ class Search implements CommonInterface, IndexSearchInterface
         ],
     ];
 
-    private array $facetData = [];
-
     public function __construct(Client $client)
     {
         $this->client = $client;
     }
 
-    public function getFacetData(): array
-    {
-        return $this->facetData;
-    }
-
-    public function search(Adapter &$productSearchAdapter): array
+    public function search(Adapter &$productSearchAdapter): SearchResult
     {
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
         $baseCriteria = $this->prepareBaseCriteria($criteria);
@@ -99,17 +94,15 @@ class Search implements CommonInterface, IndexSearchInterface
         // Get unfiltered facets separately (only if needed)
         $unfilteredFacets = $this->getFacets($baseCriteria, 'unfiltered');
 
-        // Combine facet data
-        $facetData = [
-            'unfiltered' => $unfilteredFacets,
-            'filtered' => $searchAndFacetsResult['filtered_facets'],
-            'combined' => $this->combineFacetData($unfilteredFacets, $searchAndFacetsResult['filtered_facets'])
-        ];
+        $facetData = new Facets(
+            $unfilteredFacets,
+            $searchAndFacetsResult['filtered_facets'],
+            $this->combineFacetData($unfilteredFacets, $searchAndFacetsResult['filtered_facets'])
+        );
 
-        // Store facet data for later retrieval
-        $this->facetData = $facetData;
+        $result = new SearchResult($searchAndFacetsResult['product_ids'], $facetData);
 
-        return $searchAndFacetsResult['product_ids'];
+        return $result;
     }
 
     private function prepareCriteria(array $criteria): array

@@ -3,10 +3,10 @@
 namespace LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces;
 
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\SearchResult;
 
 interface IndexSearchInterface
 {
     public function initialize(): void;
-    public function search(Adapter &$productSearchAdapter): array;
-    public function getFacetData(): array;
+    public function search(Adapter &$productSearchAdapter): SearchResult;
 }
