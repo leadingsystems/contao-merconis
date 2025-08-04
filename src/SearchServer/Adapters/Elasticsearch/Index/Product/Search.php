@@ -76,9 +76,16 @@ class Search implements CommonInterface, IndexSearchInterface
         ],
     ];
 
+    private array $facetData = [];
+
     public function __construct(Client $client)
     {
         $this->client = $client;
+    }
+
+    public function getFacetData(): array
+    {
+        return $this->facetData;
     }
 
     public function search(Adapter &$productSearchAdapter): array
@@ -99,12 +106,8 @@ class Search implements CommonInterface, IndexSearchInterface
             'combined' => $this->combineFacetData($unfilteredFacets, $searchAndFacetsResult['filtered_facets'])
         ];
 
-        /*
-         * Do me! Check out if this is a good way to get the facet data to the UI
-         *
-        // Store facet data in the adapter for later retrieval
-        $productSearchAdapter->setFacetData($facetData);
-        /* */
+        // Store facet data for later retrieval
+        $this->facetData = $facetData;
 
         return $searchAndFacetsResult['product_ids'];
     }

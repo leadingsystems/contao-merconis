@@ -244,6 +244,11 @@ class Adapter
         return $this->productResultsComplete;
     }
 
+    public function getFacetData(): array
+    {
+        return $this->searchServer->getFacetData();
+    }
+
     public function getNumResultsComplete(): int
     {
         return count($this->productResultsComplete);
