@@ -890,7 +890,6 @@ class ls_shop_generalHelper
 
         /** @var Adapter $productSearchAdapter */
         $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
-        $productSearchAdapter->setMode(Mode::Standard);
         $productSearchAdapter->initialize();
 
         $productSearchAdapter->setSearchCriterion('pages', $int_pageID);

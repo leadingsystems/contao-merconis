@@ -787,7 +787,6 @@ class ls_shop_cartHelper {
                 foreach ($productDirectSelectionId as $productId) {
                     /** @var Adapter $productSearchAdapter */
                     $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
-                    $productSearchAdapter->setMode(Mode::Standard);
                     $productSearchAdapter->initialize();
 
                     $productSearchAdapter->setSearchCriterion('id', $productId);
@@ -806,7 +805,6 @@ class ls_shop_cartHelper {
 
                 /** @var Adapter $productSearchAdapter */
                 $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
-                $productSearchAdapter->setMode(Mode::Standard);
                 $productSearchAdapter->initialize();
 
                 foreach ($arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {

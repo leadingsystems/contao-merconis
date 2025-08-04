@@ -50,7 +50,6 @@ class ModuleProductSingleview extends \Module {
 			if (isset($GLOBALS['merconis_globals']['ls_shop_useFilterInProductDetails']) && $GLOBALS['merconis_globals']['ls_shop_useFilterInProductDetails']) {
                 /** @var Adapter $productSearchAdapter */
                 $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
-                $productSearchAdapter->setMode(Mode::Standard);
                 $productSearchAdapter->initialize(true);
                 $productSearchAdapter->setSearchCriterion('id', [$int_productId]);
                 $productSearchAdapter->search();

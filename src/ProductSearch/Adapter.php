@@ -12,7 +12,7 @@ class Adapter
     private LoggerInterface $logger;
     private SearchServer $searchServer;
     private ls_shop_productSearcher $standardSearchClient;
-    private Mode $mode;
+    private ?Mode $mode = null;
     private bool $useFilter;
     private ?string $productListId;
 
@@ -38,10 +38,23 @@ class Adapter
         $this->mode = $mode;
     }
 
+    private function setDefaultMode(): void
+    {
+        /*
+         * Do me! The default mode should be defined as a system/environment setting.
+         *  Maybe it should be configurable in the Contao backend?
+         */
+        $this->setMode(Mode::SearchServer);
+    }
+
     public function initialize(bool $useFilter = false, ?string $productListId = null): void
     {
         $this->useFilter = $useFilter;
         $this->productListId = $productListId;
+
+        if ($this->mode === null) {
+            $this->setDefaultMode();
+        }
 
         switch ($this->mode) {
             case Mode::Standard:

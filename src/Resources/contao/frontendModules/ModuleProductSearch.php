@@ -96,7 +96,6 @@ class ModuleProductSearch extends \Module {
 
                     /** @var Adapter $productSearchAdapter */
                     $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
-                    $productSearchAdapter->setMode(Mode::SearchServer);
                     $productSearchAdapter->initialize();
 
                     $productSearchAdapter->setSearchCriteria($arrSearchCriteria);

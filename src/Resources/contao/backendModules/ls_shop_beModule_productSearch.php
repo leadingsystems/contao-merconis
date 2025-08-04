@@ -107,7 +107,6 @@ class ls_shop_beModule_productSearch extends \BackendModule
 		 */
         /** @var Adapter $productSearchAdapter */
         $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
-        $productSearchAdapter->setMode(Mode::Standard);
         $productSearchAdapter->initialize();
 		
 		// Standardmäßig das Suchkriterium für published auf Wildcard setzen, damit der ProductSearcher auch unveröffentlichte Produkte findet
