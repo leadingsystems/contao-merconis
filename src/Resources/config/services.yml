@@ -66,8 +66,9 @@ services:
     public: true
     shared: false
     arguments:
-      $logger: '@logger'
       $searchServer: '@LeadingSystems\MerconisBundle\SearchServer\SearchServer'
+      $twig: '@twig'
+      $logger: '@logger'
 
   LeadingSystems\MerconisBundle\ProductSearch\Helper:
     # must be public because we have to use it in Merconis legacy code where we can't inject it properly

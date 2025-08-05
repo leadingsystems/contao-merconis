@@ -1,0 +1,103 @@
+<style>
+    .filter-ui {
+        padding: 1em;
+        border: 1px solid #ddd;
+        background: #fcfcfc;
+        margin-bottom: 2em;
+    }
+    .filter-columns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2em;
+    }
+    .filter-attribute {
+        flex: 1 1 220px;
+        min-width: 220px;
+        max-width: 320px;
+        margin-bottom: 1.2em;
+        background: #f8f8f8;
+        padding: 1em;
+        border-radius: 6px;
+        border: 1px solid #eee;
+    }
+    .filter-attribute strong {
+        display: block;
+        margin-bottom: 0.5em;
+    }
+    .filter-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    .filter-value {
+        margin: 0.2em 0;
+    }
+    .filter-value--out {
+        color: #aaa;
+    }
+    .badge {
+        display: inline-block;
+        margin-left: 0.3em;
+        padding: 0.1em 0.7em;
+        border-radius: 1em;
+        font-size: 90%;
+    }
+    .badge--active {
+        background: #47a247;
+        color: #fff;
+    }
+    .badge--inactive {
+        background: #bbb;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .filter-columns {
+            flex-direction: column;
+            gap: 0.7em;
+        }
+        .filter-attribute {
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+        }
+    }
+</style>
+
+<div class="filter-ui">
+    <form method="get" id="product-filters">
+        <div class="filter-columns">
+            {% for attribute_id, values in filters %}
+                <div class="filter-attribute">
+                    <strong>Attribute {{ attribute_id }}</strong>
+                    <ul class="filter-list">
+                        {% for value_id, facet in values %}
+                            {% set totalCount = facet.total_doc_count %}
+                            {% set filteredCount = facet.filtered_doc_count %}
+                            {% set isAvailable = facet.is_available %}
+                            {% set isFilteredOut = facet.is_filtered_out %}
+                            {% set disabled = isFilteredOut ? 'disabled' : '' %}
+                            {% set checked = isAvailable ? 'checked' : '' %}
+                            {% set countText = filteredCount > 0
+                                ? "<span class='badge badge--active'>" ~ filteredCount ~ "</span>"
+                                : "<span class='badge badge--inactive'>" ~ totalCount ~ "</span>"
+                            %}
+                            {% set liClass = isFilteredOut ? 'filter-value filter-value--out' : 'filter-value' %}
+                            <li class="{{ liClass }}">
+                                <label>
+                                    <input
+                                            type="checkbox"
+                                            name="filter[{{ attribute_id }}][]"
+                                            value="{{ value_id }}"
+                                            {{ checked }} {{ disabled }}
+                                    />
+                                    Value {{ value_id }}
+                                    {{ countText|raw }}
+                                </label>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    </form>
+</div>

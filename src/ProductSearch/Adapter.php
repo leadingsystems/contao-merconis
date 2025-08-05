@@ -6,6 +6,7 @@ use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 use LeadingSystems\MerconisBundle\SearchServer\SearchServer;
 use Merconis\Core\ls_shop_productSearcher;
 use Psr\Log\LoggerInterface;
+use Twig\Environment;
 
 class Adapter
 {
@@ -26,12 +27,14 @@ class Adapter
     private bool $emptyFieldMatchesPerDefault = false;
 
     private SearchResult $searchResult;
+    private Environment $twig;
 
-    public function __construct(SearchServer $searchServer, LoggerInterface $logger)
+    public function __construct(SearchServer $searchServer, LoggerInterface $logger, Environment $twig)
     {
         $this->searchServer = $searchServer;
         $this->logger = $logger;
         $this->searchResult = new SearchResult([], null);
+        $this->twig = $twig;
     }
 
     public function setMode(Mode $mode): void
@@ -359,6 +362,29 @@ class Adapter
     public function getSortingCriteria(): array
     {
         return $this->sortingCriteria;
+    }
+
+    public function getFilterUI(): string
+    {
+        $combinedFacets = $this->getFacets()->getCombinedFacets();
+        $filters = [];
+        foreach ($combinedFacets as $facet) {
+            $filters[$facet['attribute_id']][$facet['value_id']] = $facet;
+        }
+        ksort($filters);
+        foreach ($filters as &$values) {
+            ksort($values);
+        }
+        unset($values);
+        return $this->twig->render(
+            '@LeadingSystemsMerconis/frontend/product-search/filter/ui.html.twig',
+            [
+                'filters' => $filters,
+                /*
+                 * Do me! Pass attribute and value names!
+                 */
+            ]
+        );
     }
 
     private function notAllowedIn(Mode $mode): void
