@@ -9,7 +9,7 @@ class Helper
     public function getSearchLanguage() {
         $searchLanguage = null;
 
-        // Use the language of the current page if we have a fronted call
+        // Use the language of the current page if we have a frontend call
         if (TL_MODE == 'FE') {
             /** @var \PageModel $objPage */
             global $objPage;

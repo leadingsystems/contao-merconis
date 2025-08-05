@@ -4,6 +4,7 @@ namespace LeadingSystems\MerconisBundle\ProductSearch;
 
 use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 use LeadingSystems\MerconisBundle\SearchServer\SearchServer;
+use Merconis\Core\ls_shop_generalHelper;
 use Merconis\Core\ls_shop_productSearcher;
 use Psr\Log\LoggerInterface;
 use Twig\Environment;
@@ -376,13 +377,18 @@ class Adapter
             ksort($values);
         }
         unset($values);
+
+        $attributes = ls_shop_generalHelper::getProductAttributes();
+        $attributeNames = array_column($attributes, 'title', 'id');
+        $values = ls_shop_generalHelper::getAttributeValues();
+        $valueNames = array_column($values, 'title', 'id');
+
         return $this->twig->render(
             '@LeadingSystemsMerconis/frontend/product-search/filter/ui.html.twig',
             [
                 'filters' => $filters,
-                /*
-                 * Do me! Pass attribute and value names!
-                 */
+                'attributeNames' => $attributeNames,
+                'attributeValueNames' => $valueNames
             ]
         );
     }

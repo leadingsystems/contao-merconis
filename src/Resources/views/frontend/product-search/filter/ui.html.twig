@@ -68,7 +68,7 @@
         <div class="filter-columns">
             {% for attribute_id, values in filters %}
                 <div class="filter-attribute">
-                    <strong>Attribute {{ attribute_id }}</strong>
+                    <strong>{{ attributeNames[attribute_id]|default('Attribute ' ~ attribute_id) }}</strong>
                     <ul class="filter-list">
                         {% for value_id, facet in values %}
                             {% set totalCount = facet.total_doc_count %}
@@ -90,7 +90,7 @@
                                             value="{{ value_id }}"
                                             {{ checked }} {{ disabled }}
                                     />
-                                    Value {{ value_id }}
+                                    {{ attributeValueNames[value_id]|default('Value ' ~ value_id) }}
                                     {{ countText|raw }}
                                 </label>
                             </li>
