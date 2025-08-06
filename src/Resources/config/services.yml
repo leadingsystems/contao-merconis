@@ -135,3 +135,12 @@ services:
     class: LeadingSystems\MerconisBundle\Cronjob\Daily
     tags:
       - { name: contao.cronjob, interval: daily }
+
+  LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\ObjectStatePersistorController:
+    public: true
+
+  LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\EventSubscriber\ObjectStatePersistorEventSubscriber:
+    arguments:
+      - '@LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\ObjectStatePersistorController'
+    tags:
+      - { name: kernel.event_subscriber }
