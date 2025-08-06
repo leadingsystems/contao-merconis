@@ -416,13 +416,59 @@ class Adapter
         $values = ls_shop_generalHelper::getAttributeValues();
         $valueNames = array_column($values, 'title', 'id');
 
+        // User settings for checked/unchecked state
+        $userFilterSettings = $this->searchCriteria['attributes'] ?? [];
+
+        // Convert user filters to quick lookup for performance
+        $userSelected = [];
+        foreach ($userFilterSettings as $uf) {
+            $userSelected[$uf['attribute_id']][$uf['value_id']] = true;
+        }
+
+        // Prepare final array for Twig
+        $preparedFilters = [];
+        foreach ($filters as $attribute_id => $values) {
+            $attributeTitle = $attributeNames[$attribute_id] ?? ('Attribute ' . $attribute_id);
+            $preparedFilters[$attribute_id] = [
+                'title' => $attributeTitle,
+                'values' => []
+            ];
+            foreach ($values as $value_id => $facet) {
+                $valueTitle = $valueNames[$value_id] ?? ('Value ' . $value_id);
+                $isChecked = !empty($userSelected[$attribute_id][$value_id]);
+                $isFilteredOut = $facet['is_filtered_out'] ?? false;
+                $liClass = $isFilteredOut ? 'filter-value filter-value--out' : 'filter-value';
+                $checked = $isChecked ? 'checked' : '';
+                $disabled = $isFilteredOut ? 'disabled' : '';
+                $filteredCount = $facet['filtered_doc_count'] ?? 0;
+                $totalCount    = $facet['total_doc_count'] ?? 0;
+
+                if ($filteredCount > 0) {
+                    $activeStateClass = 'active';
+                    $matchEstimateCount = $filteredCount;
+                } else {
+                    $activeStateClass = 'inactive';
+                    $matchEstimateCount = $totalCount;
+                }
+
+                $encodedValue = json_encode(['attribute_id' => $attribute_id, 'value_id' => $value_id]);
+
+                $preparedFilters[$attribute_id]['values'][$value_id] = [
+                    'title'        => $valueTitle,
+                    'liClass'     => $liClass,
+                    'checked'      => $checked,
+                    'disabled'     => $disabled,
+                    'activeStateClass'  => $activeStateClass,
+                    'matchEstimateCount' => $matchEstimateCount,
+                    'encodedValue'=> $encodedValue,
+                ];
+            }
+        }
+
         return $this->twig->render(
             '@LeadingSystemsMerconis/frontend/product-search/filter/ui.html.twig',
             [
-                'filters' => $filters,
-                'attributeNames' => $attributeNames,
-                'attributeValueNames' => $valueNames,
-                'userFilterSettings' => $this->searchCriteria['attributes'] ?? [],
+                'filters' => $preparedFilters,
                 'productListId' => $this->productListId
             ]
         );

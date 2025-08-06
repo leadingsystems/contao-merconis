@@ -42,11 +42,11 @@
         border-radius: 1em;
         font-size: 90%;
     }
-    .badge--active {
+    .badge.active {
         background: #47a247;
         color: #fff;
     }
-    .badge--inactive {
+    .badge.inactive {
         background: #bbb;
         color: #fff;
     }
@@ -67,34 +67,21 @@
     <form method="post" id="product-filters" action="">
         <input type="hidden" name="FORM_SUBMIT" value="filterUI::{{ productListId }}">
         <div class="filter-columns">
-            {% for attribute_id, values in filters %}
+            {% for attribute_id, attribute in filters %}
                 <div class="filter-attribute">
-                    <strong>{{ attributeNames[attribute_id]|default('Attribute ' ~ attribute_id) }}</strong>
+                    <strong>{{ attribute.title }}</strong>
                     <ul class="filter-list">
-                        {% for value_id, facet in values %}
-                            {% set totalCount = facet.total_doc_count %}
-                            {% set filteredCount = facet.filtered_doc_count %}
-                            {% set isAvailable = facet.is_available %}
-                            {% set isFilteredOut = facet.is_filtered_out %}
-                            {% set disabled = isFilteredOut ? 'disabled' : '' %}
-                            {% set isChecked = userFilterSettings|filter(v => v.attribute_id == attribute_id and v.value_id == value_id)|length > 0 %}
-                            {% set checked = isChecked ? 'checked' : '' %}
-
-                            {% set countText = filteredCount > 0
-                                ? "<span class='badge badge--active'>" ~ filteredCount ~ "</span>"
-                                : "<span class='badge badge--inactive'>" ~ totalCount ~ "</span>"
-                            %}
-                            {% set liClass = isFilteredOut ? 'filter-value filter-value--out' : 'filter-value' %}
-                            <li class="{{ liClass }}">
+                        {% for value_id, value in attribute.values %}
+                            <li class="{{ value.liClass }}">
                                 <label>
                                     <input
                                         type="checkbox"
                                         name="filter[]"
-                                        value='{{ {"attribute_id": attribute_id, "value_id": value_id} | json_encode }}'
-                                        {{ checked }} {{ disabled }}
+                                        value='{{ value.encodedValue }}'
+                                        {{ value.checked }} {{ value.disabled }}
                                     />
-                                    {{ attributeValueNames[value_id]|default('Value ' ~ value_id) }}
-                                    {{ countText|raw }}
+                                    {{ value.title }}
+                                    <span class="badge {{ value.activeStateClass }}">{{ value.matchEstimateCount }}</span>
                                 </label>
                             </li>
                         {% endfor %}
@@ -104,4 +91,12 @@
         </div>
         <input type="submit" value="OK" style="display:none;">
     </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('product-filters').addEventListener('change', function(e) {
+                setTimeout(() => this.submit(), 80);
+            });
+        });
+    </script>
 </div>
