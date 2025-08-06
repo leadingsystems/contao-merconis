@@ -107,6 +107,16 @@ class Search implements CommonInterface, IndexSearchInterface
 
     private function prepareCriteria(array $criteria): array
     {
+        /* -->
+         * Do me! This is only for tests. Remove afterwards!
+         *
+        $criteria['attributes'] = [
+            ['attribute_id' => 1000000, 'value_id' => 1000012],
+            ['attribute_id' => 2000000, 'value_id' => 2000012],
+        ];
+        /*
+         * <--
+         */
         return $criteria;
     }
 

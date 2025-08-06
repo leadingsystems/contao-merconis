@@ -2,15 +2,20 @@
 
 namespace LeadingSystems\MerconisBundle\ProductSearch;
 
+use Contao\Controller;
+use LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\ObjectStatePersistorTrait;
 use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 use LeadingSystems\MerconisBundle\SearchServer\SearchServer;
 use Merconis\Core\ls_shop_generalHelper;
 use Merconis\Core\ls_shop_productSearcher;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 
 class Adapter
 {
+    use ObjectStatePersistorTrait;
+
     private LoggerInterface $logger;
     private SearchServer $searchServer;
     private ls_shop_productSearcher $standardSearchClient;
@@ -29,13 +34,15 @@ class Adapter
 
     private SearchResult $searchResult;
     private Environment $twig;
+    private RequestStack $requestStack;
 
-    public function __construct(SearchServer $searchServer, LoggerInterface $logger, Environment $twig)
+    public function __construct(SearchServer $searchServer, LoggerInterface $logger, Environment $twig, RequestStack $requestStack)
     {
         $this->searchServer = $searchServer;
         $this->logger = $logger;
         $this->searchResult = new SearchResult([], null);
         $this->twig = $twig;
+        $this->requestStack = $requestStack;
     }
 
     public function setMode(Mode $mode): void
@@ -78,6 +85,32 @@ class Adapter
                 throw new \Exception('Unexpected mode "' . $this->mode->name . '" not implemented yet.');
                 break;
         }
+
+
+        $this->initializePersistor(['searchCriteria'], $this->productListId . '::' . $this->useFilter . '::' . $this->mode->name);
+
+        $this->receiveUserInput();
+    }
+
+    public function receiveUserInput(): void
+    {
+        $request = $this->requestStack->getCurrentRequest()->request;
+        if ($request->get('FORM_SUBMIT') !== 'filterUI::' . $this->productListId) {
+            return;
+        }
+
+        $filter = $request->get('filter', []);
+
+        $filterAsSearchCriterion = array_map(
+            function($item) {
+                return json_decode($item, true);
+            },
+            $filter ?? []
+        );
+
+        $this->setSearchCriterion('attributes', $filterAsSearchCriterion);
+
+        Controller::reload();
     }
 
     public function setSearchCriterion(string $fieldName, $criterion): void
@@ -388,7 +421,9 @@ class Adapter
             [
                 'filters' => $filters,
                 'attributeNames' => $attributeNames,
-                'attributeValueNames' => $valueNames
+                'attributeValueNames' => $valueNames,
+                'userFilterSettings' => $this->searchCriteria['attributes'] ?? [],
+                'productListId' => $this->productListId
             ]
         );
     }

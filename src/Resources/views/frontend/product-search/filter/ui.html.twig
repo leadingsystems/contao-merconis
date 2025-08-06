@@ -64,7 +64,8 @@
 </style>
 
 <div class="filter-ui">
-    <form method="get" id="product-filters">
+    <form method="post" id="product-filters" action="">
+        <input type="hidden" name="FORM_SUBMIT" value="filterUI::{{ productListId }}">
         <div class="filter-columns">
             {% for attribute_id, values in filters %}
                 <div class="filter-attribute">
@@ -76,7 +77,9 @@
                             {% set isAvailable = facet.is_available %}
                             {% set isFilteredOut = facet.is_filtered_out %}
                             {% set disabled = isFilteredOut ? 'disabled' : '' %}
-                            {% set checked = isAvailable ? 'checked' : '' %}
+                            {% set isChecked = userFilterSettings|filter(v => v.attribute_id == attribute_id and v.value_id == value_id)|length > 0 %}
+                            {% set checked = isChecked ? 'checked' : '' %}
+
                             {% set countText = filteredCount > 0
                                 ? "<span class='badge badge--active'>" ~ filteredCount ~ "</span>"
                                 : "<span class='badge badge--inactive'>" ~ totalCount ~ "</span>"
@@ -85,10 +88,10 @@
                             <li class="{{ liClass }}">
                                 <label>
                                     <input
-                                            type="checkbox"
-                                            name="filter[{{ attribute_id }}][]"
-                                            value="{{ value_id }}"
-                                            {{ checked }} {{ disabled }}
+                                        type="checkbox"
+                                        name="filter[]"
+                                        value='{{ {"attribute_id": attribute_id, "value_id": value_id} | json_encode }}'
+                                        {{ checked }} {{ disabled }}
                                     />
                                     {{ attributeValueNames[value_id]|default('Value ' ~ value_id) }}
                                     {{ countText|raw }}
@@ -99,5 +102,6 @@
                 </div>
             {% endfor %}
         </div>
+        <input type="submit" value="OK" style="display:none;">
     </form>
 </div>
