@@ -85,34 +85,47 @@ class Search implements CommonInterface, IndexSearchInterface
     public function search(Adapter &$productSearchAdapter, bool $activateFacets = true, bool $activateMatchEstimates = false): SearchResult
     {
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
-        if (!$activateFacets) {
-            // If facets are deactivated, perform a streamlined search without any aggregations
-            $searchResult = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, false);
-            $emptyFacetData = new Facets([], [], []);
-            return new SearchResult($searchResult['product_ids'], $emptyFacetData);
-        }
-        $baseCriteria = $this->prepareBaseCriteria($criteria);
         // Determine if we need to run aggregations on the main, filtered query.
         // This is only necessary if both facets and match estimates are active.
         $runAggsOnMainQuery = $activateFacets && $activateMatchEstimates;
-        // Get search results. Aggregations will only be calculated if $runAggsOnMainQuery is true.
-        $searchAndFacetsResult = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, $runAggsOnMainQuery);
-        // Always get the unfiltered (total) facet counts if facets are active.
+        // Get primary search results (product IDs, total hit count, and optionally filtered facets)
+        $searchResultData = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, $runAggsOnMainQuery);
+        // Initialize unmatched product data
+        $hasUnmatchedProducts = false;
+        $numUnmatchedProducts = 0;
+        // If attribute filters were used, we must check for a mismatch between
+        // the count with and without the attribute filters.
+        if (!empty($criteria['attributes'])) {
+            $baseCriteria = $this->prepareBaseCriteria($criteria);
+            $countWithAttributes = $searchResultData['total_hits'];
+            $countWithoutAttributes = $this->getProductCountForCriteria($baseCriteria);
+            if ($countWithoutAttributes > $countWithAttributes) {
+                $hasUnmatchedProducts = true;
+                $numUnmatchedProducts = $countWithoutAttributes - $countWithAttributes;
+            }
+        }
+        // Prepare facet data if required
+        if (!$activateFacets) {
+            $facetData = new Facets([], [], []);
+        } else {
+            $baseCriteria = $this->prepareBaseCriteria($criteria);
         $unfilteredFacets = $this->getFacets($baseCriteria);
         // If match estimates are off, the "filtered" view is the same as the "unfiltered" view.
-        // Otherwise, use the filtered facets that were returned from the main query.
-        $filteredFacets = $activateMatchEstimates ? $searchAndFacetsResult['filtered_facets'] : $unfilteredFacets;
+            $filteredFacets = $activateMatchEstimates ? $searchResultData['filtered_facets'] : $unfilteredFacets;
         $facetData = new Facets(
             $unfilteredFacets,
             $filteredFacets,
             $this->combineFacetData($unfilteredFacets, $filteredFacets)
         );
-
-        $result = new SearchResult($searchAndFacetsResult['product_ids'], $facetData);
-
-        return $result;
     }
-
+        // Instantiate the final result object with all required data
+        return new SearchResult(
+            $searchResultData['product_ids'],
+            $facetData,
+            $hasUnmatchedProducts,
+            $numUnmatchedProducts
+        );
+    }
     private function prepareCriteria(array $criteria): array
     {
         /* -->
@@ -181,6 +194,7 @@ class Search implements CommonInterface, IndexSearchInterface
                     'size' => self::DEFAULT_SIZE,
                     'query' => $mainQuery,
                     '_source' => ['id'],
+                    'track_total_hits' => true, // Essential for getting accurate hit counts
                 ]
             ];
             if ($activateFacets) {
@@ -194,6 +208,7 @@ class Search implements CommonInterface, IndexSearchInterface
             return [
                 'product_ids' => ['error' => $e->getMessage()],
                 'filtered_facets' => [],
+                'total_hits' => 0,
             ];
         }
     }
@@ -201,15 +216,18 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         $productResultIds = [];
         $filteredFacets = [];
-
+        $totalHits = 0;
         $response = $this->client->elasticsearchClient->search($params);
         $scrollId = null;
         $isFirstResponse = true;
 
         do {
-            // Extract facets only from the first response (they're the same across all scroll pages)
-            if ($isFirstResponse && $activateFacets && isset($response['aggregations'])) {
+            // Extract facets and total hit count only from the first response (they're the same across all scroll pages)
+            if ($isFirstResponse) {
+                if ($activateFacets && isset($response['aggregations'])) {
                 $filteredFacets = $this->processFacetResponse($response, $criteria);
+            }
+                $totalHits = $response['hits']['total']['value'] ?? 0;
             }
             $isFirstResponse = false; // Ensure this is only checked once
             if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
@@ -237,7 +255,8 @@ class Search implements CommonInterface, IndexSearchInterface
 
         return [
             'product_ids' => array_column($productResultIds, 'id'),
-            'filtered_facets' => $filteredFacets
+            'filtered_facets' => $filteredFacets,
+            'total_hits' => $totalHits,
         ];
     }
 
@@ -260,7 +279,29 @@ class Search implements CommonInterface, IndexSearchInterface
             return [];
         }
     }
-
+    /**
+     * Executes a lightweight search to get only the total number of matching documents.
+     */
+    private function getProductCountForCriteria(array $criteria): int
+    {
+        try {
+            $query = $this->buildQueryForCriteria($criteria);
+            $params = [
+                'index' => $this->indexName,
+                'body' => [
+                    'size' => 0, // We only need the count, not the hits
+                    'query' => $query,
+                    'track_total_hits' => true // Ensure we get an accurate total count
+                ]
+            ];
+            $response = $this->client->elasticsearchClient->search($params);
+            return $response['hits']['total']['value'] ?? 0;
+        } catch (\Exception $e) {
+            // In case of an error, return 0 as a safe fallback.
+            // Consider logging the exception $e->getMessage() for debugging.
+            return 0;
+        }
+    }
     /**
      * AGGREGATIONS FOR DISTINCT PRODUCT-LEVEL ATTRIBUTE/VALUE PAIRS (both nested product and variant attrs).
      * Uses composite aggregation to support pagination for >DEFAULT_SIZE buckets.
