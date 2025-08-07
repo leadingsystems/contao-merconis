@@ -123,7 +123,9 @@ class Search implements CommonInterface, IndexSearchInterface
             $searchResultData['product_ids'],
             $facetData,
             $hasUnmatchedProducts,
-            $numUnmatchedProducts
+            $numUnmatchedProducts,
+            $countWithoutAttributes,
+            $countWithAttributes
         );
     }
     private function prepareCriteria(array $criteria): array

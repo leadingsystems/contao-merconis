@@ -278,6 +278,10 @@ class Adapter
             case Mode::Standard:
                 $this->standardSearchClient->search();
                 $this->searchResult->setResults($this->standardSearchClient->productResultsComplete);
+                $this->searchResult->setHasUnmatchedProducts($this->standardSearchClient->blnNotAllProductsMatch);
+                $this->searchResult->setNumUnmatchedProducts($this->standardSearchClient->numProductsNotMatching);
+                $this->searchResult->setNumProductsUnfiltered($this->standardSearchClient->numProductsBeforeFilter);
+                $this->searchResult->setNumProductsFiltered($this->searchResult->getNumProductsUnfiltered() - $this->searchResult->getNumUnmatchedProducts());
                 break;
 
             case Mode::SearchServer:
@@ -330,62 +334,17 @@ class Adapter
 
     public function getNumProductsBeforeFilter(): int
     {
-        switch ($this->mode) {
-            case Mode::Standard:
-                return $this->standardSearchClient->numProductsBeforeFilter;
-                break;
-
-            case Mode::SearchServer:
-                return $this->getNumResultsComplete();
-                break;
-
-            default:
-                $this->notAllowedIn($this->mode);
-                return 0;
-                break;
-        }
+        return $this->searchResult->getNumProductsUnfiltered();
     }
 
     public function hasUnmatchedProducts(): bool
     {
-        switch ($this->mode) {
-            case Mode::Standard:
-                return $this->standardSearchClient->blnNotAllProductsMatch;
-                break;
-
-            case Mode::SearchServer:
-                /*
-                 * Implement real functionality here instead of placeholder
-                 */
-                return false;
-                break;
-
-            default:
-                $this->notAllowedIn($this->mode);
-                return false;
-                break;
-        }
+        return $this->searchResult->getHasUnmatchedProducts();
     }
 
     public function getNumProductsNotMatching(): int
     {
-        switch ($this->mode) {
-            case Mode::Standard:
-                return $this->standardSearchClient->numProductsNotMatching;
-                break;
-
-            case Mode::SearchServer:
-                /*
-                 * Implement real functionality here instead of placeholder
-                 */
-                return 0;
-                break;
-
-            default:
-                $this->notAllowedIn($this->mode);
-                return 0;
-                break;
-        }
+        return $this->searchResult->getNumUnmatchedProducts();
     }
 
     public function getSearchCriteria(): array
