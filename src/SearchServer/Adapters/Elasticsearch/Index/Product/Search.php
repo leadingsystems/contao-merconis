@@ -82,15 +82,19 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         $this->client = $client;
     }
-
-    public function search(Adapter &$productSearchAdapter): SearchResult
+    public function search(Adapter &$productSearchAdapter, bool $activateFacets = true): SearchResult
     {
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
+        if (!$activateFacets) {
+            // If facets are deactivated, perform a streamlined search without aggregations
+            $searchResult = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, false);
+            $emptyFacetData = new Facets([], [], []);
+            return new SearchResult($searchResult['product_ids'], $emptyFacetData);
+        }
         $baseCriteria = $this->prepareBaseCriteria($criteria);
 
         // Get both search results and filtered facets in a single query
-        $searchAndFacetsResult = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter);
-
+        $searchAndFacetsResult = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, true);
         // Get unfiltered facets separately (only if needed)
         $unfilteredFacets = $this->getFacets($baseCriteria, 'unfiltered');
 
@@ -160,12 +164,11 @@ class Search implements CommonInterface, IndexSearchInterface
 
         return $combined;
     }
-
-    private function getSearchResultsWithFilteredFacets(array $criteria, Adapter $productSearchAdapter): array
+    private function getSearchResultsWithFilteredFacets(array $criteria, Adapter $productSearchAdapter, bool $activateFacets): array
     {
         $mainQuery = $this->buildQueryForCriteria($criteria);
         $sort = $this->buildSortCriteria($productSearchAdapter->getSortingCriteria());
-        $aggs = $this->buildAggregations($criteria);
+        $aggs = $activateFacets ? $this->buildAggregations($criteria) : [];
         try {
             $params = [
                 'index' => $this->indexName,
@@ -174,14 +177,15 @@ class Search implements CommonInterface, IndexSearchInterface
                     'size' => self::DEFAULT_SIZE,
                     'query' => $mainQuery,
                     '_source' => ['id'],
-                    'aggs' => $aggs,
                 ]
             ];
-
+            if ($activateFacets) {
+                $params['body']['aggs'] = $aggs;
+            }
             if (!empty($sort)) {
                 $params['body']['sort'] = $sort;
             }
-            return $this->executeScrollSearchWithFacets($params, $criteria);
+            return $this->executeScrollSearchWithFacets($params, $criteria, $activateFacets);
         } catch (\Exception $e) {
             return [
                 'product_ids' => ['error' => $e->getMessage()],
@@ -189,7 +193,7 @@ class Search implements CommonInterface, IndexSearchInterface
             ];
         }
     }
-    private function executeScrollSearchWithFacets(array $params, array $criteria): array
+    private function executeScrollSearchWithFacets(array $params, array $criteria, bool $activateFacets): array
     {
         $productResultIds = [];
         $filteredFacets = [];
@@ -200,11 +204,10 @@ class Search implements CommonInterface, IndexSearchInterface
 
         do {
             // Extract facets only from the first response (they're the same across all scroll pages)
-            if ($isFirstResponse && isset($response['aggregations'])) {
+            if ($isFirstResponse && $activateFacets && isset($response['aggregations'])) {
                 $filteredFacets = $this->processFacetResponse($response, $criteria);
-                $isFirstResponse = false;
             }
-
+            $isFirstResponse = false; // Ensure this is only checked once
             if (isset($response['hits']['hits']) && count($response['hits']['hits']) > 0) {
                 foreach ($response['hits']['hits'] as $hit) {
                     $productResultIds[] = $this->processSearchHit($hit);
