@@ -440,9 +440,8 @@ class Adapter
                 $liClass = $isFilteredOut ? 'filter-value filter-value--out' : 'filter-value';
                 $checked = $isChecked ? 'checked' : '';
                 $disabled = $isFilteredOut ? 'disabled' : '';
-                $filteredCount = $facet['filtered_doc_count'] ?? 0;
-                $totalCount    = $facet['total_doc_count'] ?? 0;
-
+                $filteredCount = $facet['filtered_product_count'] ?? 0;
+                $totalCount    = $facet['total_product_count'] ?? 0;
                 if ($filteredCount > 0) {
                     $activeStateClass = 'active';
                     $matchEstimateCount = $filteredCount;
