@@ -82,26 +82,30 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         $this->client = $client;
     }
-    public function search(Adapter &$productSearchAdapter, bool $activateFacets = true): SearchResult
+    public function search(Adapter &$productSearchAdapter, bool $activateFacets = true, bool $activateMatchEstimates = false): SearchResult
     {
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
         if (!$activateFacets) {
-            // If facets are deactivated, perform a streamlined search without aggregations
+            // If facets are deactivated, perform a streamlined search without any aggregations
             $searchResult = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, false);
             $emptyFacetData = new Facets([], [], []);
             return new SearchResult($searchResult['product_ids'], $emptyFacetData);
         }
         $baseCriteria = $this->prepareBaseCriteria($criteria);
-
-        // Get both search results and filtered facets in a single query
-        $searchAndFacetsResult = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, true);
-        // Get unfiltered facets separately (only if needed)
-        $unfilteredFacets = $this->getFacets($baseCriteria, 'unfiltered');
-
+        // Determine if we need to run aggregations on the main, filtered query.
+        // This is only necessary if both facets and match estimates are active.
+        $runAggsOnMainQuery = $activateFacets && $activateMatchEstimates;
+        // Get search results. Aggregations will only be calculated if $runAggsOnMainQuery is true.
+        $searchAndFacetsResult = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, $runAggsOnMainQuery);
+        // Always get the unfiltered (total) facet counts if facets are active.
+        $unfilteredFacets = $this->getFacets($baseCriteria);
+        // If match estimates are off, the "filtered" view is the same as the "unfiltered" view.
+        // Otherwise, use the filtered facets that were returned from the main query.
+        $filteredFacets = $activateMatchEstimates ? $searchAndFacetsResult['filtered_facets'] : $unfilteredFacets;
         $facetData = new Facets(
             $unfilteredFacets,
-            $searchAndFacetsResult['filtered_facets'],
-            $this->combineFacetData($unfilteredFacets, $searchAndFacetsResult['filtered_facets'])
+            $filteredFacets,
+            $this->combineFacetData($unfilteredFacets, $filteredFacets)
         );
 
         $result = new SearchResult($searchAndFacetsResult['product_ids'], $facetData);
