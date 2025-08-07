@@ -212,7 +212,7 @@ class ls_shop_productList
             $_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] = $arrProducts;
         }
 
-        $this->numProducts = $productSearchAdapter->getNumProductsBeforeFilter();
+        $this->numProducts = $productSearchAdapter->getNumProductsUnfiltered();
 		
 		if ($this->blnIsFrontendSearch) {
 			if (isset($GLOBALS['MERCONIS_HOOKS']['afterSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterSearch'])) {
@@ -243,7 +243,6 @@ class ls_shop_productList
 		 * Ende Durchführen der Suche
 		 */
 
-//		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$objProductSearch->blnNotAllProductsMatch)) {
 		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$productSearchAdapter->hasUnmatchedProducts())) {
 			return '';
 		}
@@ -254,14 +253,11 @@ class ls_shop_productList
 
 		$objTemplate->blnUseFilter = $this->blnUseFilter;
 
-//		$objTemplate->blnNotAllProductsMatchFilter = $objProductSearch->blnNotAllProductsMatch;
 		$objTemplate->blnNotAllProductsMatchFilter = $productSearchAdapter->hasUnmatchedProducts();
 
-//        $objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;
-		$objTemplate->numProductsNotMatching = $productSearchAdapter->getNumProductsNotMatching();
+		$objTemplate->numProductsNotMatching = $productSearchAdapter->getNumUnmatchedProducts();
 
-//		$objTemplate->numProductsBeforeFilter = $objProductSearch->numProductsBeforeFilter;
-		$objTemplate->numProductsBeforeFilter = $productSearchAdapter->getNumProductsBeforeFilter();
+		$objTemplate->numProductsBeforeFilter = $productSearchAdapter->getNumProductsUnfiltered();
 
 		$obj_paginationTemplate = new \FrontendTemplate('merconisPagination');
 		$obj_paginationTemplate->productListID = $this->productListID;

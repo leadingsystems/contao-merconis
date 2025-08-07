@@ -332,17 +332,17 @@ class Adapter
         return $productResultsCurrentPage;
     }
 
-    public function getNumProductsBeforeFilter(): int
+    public function getNumProductsUnfiltered(): int
     {
         return $this->searchResult->getNumProductsUnfiltered();
     }
 
     public function hasUnmatchedProducts(): bool
     {
-        return $this->searchResult->getHasUnmatchedProducts();
+        return $this->searchResult->hasUnmatchedProducts();
     }
 
-    public function getNumProductsNotMatching(): int
+    public function getNumUnmatchedProducts(): int
     {
         return $this->searchResult->getNumUnmatchedProducts();
     }

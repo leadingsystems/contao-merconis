@@ -894,7 +894,7 @@ class ls_shop_generalHelper
 
         $productSearchAdapter->setSearchCriterion('pages', $int_pageID);
         $productSearchAdapter->search();
-        return $productSearchAdapter->getNumProductsBeforeFilter();
+        return $productSearchAdapter->getNumProductsUnfiltered();
     }
 
     /*

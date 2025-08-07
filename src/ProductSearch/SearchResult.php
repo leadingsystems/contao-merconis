@@ -41,7 +41,7 @@ class SearchResult
         $this->facets = $facets;
     }
 
-    public function getHasUnmatchedProducts(): bool
+    public function hasUnmatchedProducts(): bool
     {
         return $this->hasUnmatchedProducts;
     }
