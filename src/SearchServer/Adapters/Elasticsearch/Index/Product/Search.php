@@ -93,6 +93,8 @@ class Search implements CommonInterface, IndexSearchInterface
         // Initialize unmatched product data
         $hasUnmatchedProducts = false;
         $numUnmatchedProducts = 0;
+        $countWithAttributes = 0;
+        $countWithoutAttributes = 0;
         // If attribute filters were used, we must check for a mismatch between
         // the count with and without the attribute filters.
         if (!empty($criteria['attributes'])) {
