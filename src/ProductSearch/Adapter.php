@@ -35,14 +35,16 @@ class Adapter
     private SearchResult $searchResult;
     private Environment $twig;
     private RequestStack $requestStack;
+    private Helper $helper;
 
-    public function __construct(SearchServer $searchServer, LoggerInterface $logger, Environment $twig, RequestStack $requestStack)
+    public function __construct(SearchServer $searchServer, Helper $helper, LoggerInterface $logger, Environment $twig, RequestStack $requestStack)
     {
         $this->searchServer = $searchServer;
         $this->logger = $logger;
         $this->searchResult = new SearchResult([], null);
         $this->twig = $twig;
         $this->requestStack = $requestStack;
+        $this->helper = $helper;
     }
 
     public function setMode(Mode $mode): void
@@ -285,7 +287,7 @@ class Adapter
                 break;
 
             case Mode::SearchServer:
-                $this->searchResult = $this->searchServer->search($this);
+                $this->searchResult = $this->searchServer->search($this, $this->helper->getSearchLanguage());
                 break;
 
             default:

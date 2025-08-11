@@ -84,8 +84,8 @@ class SearchServer
         return $this->serviceIndexProductSync->sync()->getResultString();
     }
 
-    public function search(Adapter &$productSearchAdapter): SearchResult
+    public function search(Adapter &$productSearchAdapter, string $language): SearchResult
     {
-        return $this->serviceIndexProductSearch->search($productSearchAdapter);
+        return $this->serviceIndexProductSearch->search($productSearchAdapter, $language);
     }
 }

@@ -6,7 +6,8 @@ use Merconis\Core\ls_shop_languageHelper;
 
 class Helper
 {
-    public function getSearchLanguage() {
+    public function getSearchLanguage(): string
+    {
         $searchLanguage = null;
 
         // Use the language of the current page if we have a frontend call

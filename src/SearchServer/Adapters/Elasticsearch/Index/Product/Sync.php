@@ -8,6 +8,7 @@ use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\CommonInterface
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSyncInterface;
 use LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client;
 use LeadingSystems\MerconisBundle\SearchServer\Traits\AdapterCommonTrait;
+use Merconis\Core\ls_shop_languageHelper;
 use Merconis\Core\ls_shop_singularStorage;
 
 class Sync implements CommonInterface, IndexSyncInterface
@@ -142,27 +143,42 @@ class Sync implements CommonInterface, IndexSyncInterface
     private function getProductSyncBatchFromMySQL($lastIdFromPreviousBatch, $batchSize): array
     {
         $batch = [];
+        $allLanguages = ls_shop_languageHelper::getAllLanguages();
+
+        // map: ES field => MySQL base field
+        $multiLangFieldMapping = [
+            'title' => 'title',
+            'keywords' => 'keywords',
+            'short_description' => 'shortDescription',
+            'description' => 'description'
+        ];
+
+        // Build SELECT fields
+        $fieldsToSelect = [
+            'id',
+            'lsShopProductCode',
+            'lsShopProductProducer',
+            'pages',
+            'published',
+            'lsShopProductIsNew',
+            'lsShopProductIsOnSale',
+            'lsShopProductStock',
+            'lsShopProductAttributesValues'
+        ];
+
+        foreach ($multiLangFieldMapping as $esField => $dbField) {
+            foreach ($allLanguages as $lang) {
+                $fieldsToSelect[] = "{$dbField}_{$lang}";
+            }
+            $fieldsToSelect[] = $dbField; // fallback, no suffix
+        }
+
+        $fieldsToSelect = array_unique($fieldsToSelect);
+
+        $sql = "SELECT " . implode(",\n", $fieldsToSelect) . "\nFROM tl_ls_shop_product WHERE id > ? ORDER BY id ASC";
 
         $dbres_productBatch = \Database::getInstance()
-            ->prepare("
-                    SELECT
-                        id,
-                        lsShopProductCode,
-                        lsShopProductProducer,
-                        title_de,
-                        keywords_de,
-                        shortDescription_de,
-                        description_de,
-                        pages,
-                        published,
-                        lsShopProductIsNew,
-                        lsShopProductIsOnSale,
-                        lsShopProductStock,
-                        lsShopProductAttributesValues
-                    FROM tl_ls_shop_product
-                    WHERE id > ?
-                    ORDER BY id ASC
-                ")
+            ->prepare($sql)
             ->limit($batchSize)
             ->execute($lastIdFromPreviousBatch);
 
@@ -201,10 +217,6 @@ class Sync implements CommonInterface, IndexSyncInterface
                 'id' => (int) $dbres_productBatch->id,
                 'product_code' => $dbres_productBatch->lsShopProductCode ?: '',
                 'producer' => $dbres_productBatch->lsShopProductProducer ?: '',
-                'title' => $dbres_productBatch->title_de ?: '',
-                'keywords' => $dbres_productBatch->keywords_de ?: '',
-                'short_description' => $dbres_productBatch->shortDescription_de ?: '',
-                'description' => $dbres_productBatch->description_de ?: '',
                 'pages' => array_map('intval', StringUtil::deserialize($dbres_productBatch->pages, true)),
                 'is_published' => ($dbres_productBatch->published === '1'),
                 'is_new' => ($dbres_productBatch->lsShopProductIsNew === '1'),
@@ -285,6 +297,22 @@ class Sync implements CommonInterface, IndexSyncInterface
                  */
                 'attributes' => $productHasVariants ? [] : $this->getAttributesForESPayload($dbres_productBatch->lsShopProductAttributesValues)
             ];
+            // Multilanguage fields mapping, using $multiLangFieldMapping!
+            foreach ($multiLangFieldMapping as $esField => $dbField) {
+                $mlField = [];
+                foreach ($allLanguages as $lang) {
+                    $colName = "{$dbField}_{$lang}";
+                    if (isset($dbres_productBatch->$colName) && $dbres_productBatch->$colName !== '' && $dbres_productBatch->$colName !== null) {
+                        $mlField[$lang] = $dbres_productBatch->$colName;
+                    }
+                }
+                // Fallback field (no suffix)
+                if (isset($dbres_productBatch->$dbField) && $dbres_productBatch->$dbField !== '' && $dbres_productBatch->$dbField !== null) {
+                    $mlField['fallback'] = $dbres_productBatch->$dbField;
+                }
+                $product[$esField] = $mlField; // Always use ES/snake_case as key
+            }
+
             $product['variants'] = $this->getVariantsForESPayload($product['id'], $variantsForProductBatch, $dbres_productBatch->lsShopProductAttributesValues);
             $product['content_hash'] = $this->createProductDataHash($product);
             $batch[$product['id']] = $product;

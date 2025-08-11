@@ -54,33 +54,93 @@ class Manage implements CommonInterface, IndexManageInterface
                 'stock' => [
                     'type' => 'double'
                 ],
+
+                // ==== MULTI-LANGUAGE FIELDS ====
                 'title' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'raw' => ['type' => 'keyword']
-                    ],
-                    'analyzer' => 'standard',
-                ],
-                'keywords' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'raw' => ['type' => 'keyword']
-                    ],
-                    'analyzer' => 'comma_analyzer'
-                ],
-                'short_description' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'raw' => ['type' => 'keyword']
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'de' => [
+                            'type' => 'text',
+                            'analyzer' => 'german',
+                            'fields' => [
+                                'raw' => ['type' => 'keyword']
+                            ]
+                        ],
+                        'en' => [
+                            'type' => 'text',
+                            'analyzer' => 'english',
+                            'fields' => [
+                                'raw' => ['type' => 'keyword']
+                            ]
+                        ],
                     ]
                 ],
-                'description' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'raw' => ['type' => 'keyword']
-                    ],
-                    'analyzer' => 'standard'
+
+                'keywords' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'de' => [
+                            'type' => 'text',
+                            'analyzer' => 'comma_analyzer',
+                            'fields' => [
+                                'raw' => ['type' => 'keyword']
+                            ]
+                        ],
+                        'en' => [
+                            'type' => 'text',
+                            'analyzer' => 'comma_analyzer',
+                            'fields' => [
+                                'raw' => ['type' => 'keyword']
+                            ]
+                        ],
+                    ]
                 ],
+
+                'short_description' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'de' => [
+                            'type' => 'text',
+                            'analyzer' => 'german',
+                            'fields' => [
+                                'raw' => ['type' => 'keyword']
+                            ]
+                        ],
+                        'en' => [
+                            'type' => 'text',
+                            'analyzer' => 'english',
+                            'fields' => [
+                                'raw' => ['type' => 'keyword']
+                            ]
+                        ],
+                    ]
+                ],
+
+                'description' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'de' => [
+                            'type' => 'text',
+                            'analyzer' => 'german',
+                            'fields' => [
+                                'raw' => ['type' => 'keyword']
+                            ]
+                        ],
+                        'en' => [
+                            'type' => 'text',
+                            'analyzer' => 'english',
+                            'fields' => [
+                                'raw' => ['type' => 'keyword']
+                            ]
+                        ],
+                    ]
+                ],
+                // ==== END MULTI-LANGUAGE FIELDS ====
+
                 'producer' => [
                     'type' => 'keyword',
                     'fields' => [

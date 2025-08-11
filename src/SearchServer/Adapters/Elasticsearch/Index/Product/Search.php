@@ -8,13 +8,17 @@ use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\CommonInterface
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSearchInterface;
 use LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client;
 use LeadingSystems\MerconisBundle\SearchServer\Traits\AdapterCommonTrait;
+
 class Search implements CommonInterface, IndexSearchInterface
 {
     use AdapterCommonTrait;
+
     private Client $client;
     private string $indexName = 'products';
     private const DEFAULT_SIZE = 1000;
     private const SCROLL_TIMEOUT = '2m';
+    // Language is injected into this property at search() entry
+    protected string $language = 'de';
 
     private array $criteriaMap = [
         'id' => [
@@ -78,12 +82,23 @@ class Search implements CommonInterface, IndexSearchInterface
         ],
     ];
 
+    private array $multiLangFields = [
+        'title',
+        'keywords',
+        'short_description',
+        'description'
+        // If you ever add something like 'category', add it here
+    ];
+
     public function __construct(Client $client)
     {
         $this->client = $client;
     }
-    public function search(Adapter &$productSearchAdapter, bool $activateFacets = true, bool $activateMatchEstimates = false): SearchResult
+
+    public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true): SearchResult
     {
+        $this->language = $language; // Set the search language context for this execution!
+
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
         // Determine if we need to run aggregations on the main, filtered query.
         // This is only necessary if both facets and match estimates are active.
@@ -111,16 +126,16 @@ class Search implements CommonInterface, IndexSearchInterface
             $facetData = new Facets([], [], []);
         } else {
             $baseCriteria = $this->prepareBaseCriteria($criteria);
-        $unfilteredFacets = $this->getFacets($baseCriteria);
-        // If match estimates are off, the "filtered" view is the same as the "unfiltered" view.
+            $unfilteredFacets = $this->getFacets($baseCriteria);
+            // If match estimates are off, the "filtered" view is the same as the "unfiltered" view.
             $filteredFacets = $activateMatchEstimates ? $searchResultData['filtered_facets'] : $unfilteredFacets;
-        $facetData = new Facets(
-            $unfilteredFacets,
-            $filteredFacets,
-            $this->combineFacetData($unfilteredFacets, $filteredFacets)
-        );
-    }
-        // Instantiate the final result object with all required data
+            $facetData = new Facets(
+                $unfilteredFacets,
+                $filteredFacets,
+                $this->combineFacetData($unfilteredFacets, $filteredFacets)
+            );
+        }
+
         return new SearchResult(
             $searchResultData['product_ids'],
             $facetData,
@@ -130,18 +145,9 @@ class Search implements CommonInterface, IndexSearchInterface
             $countWithAttributes
         );
     }
+
     private function prepareCriteria(array $criteria): array
     {
-        /* -->
-         * Do me! This is only for tests. Remove afterwards!
-         *
-        $criteria['attributes'] = [
-            ['attribute_id' => 1000000, 'value_id' => 1000012],
-            ['attribute_id' => 2000000, 'value_id' => 2000012],
-        ];
-        /*
-         * <--
-         */
         return $criteria;
     }
 
@@ -172,7 +178,6 @@ class Search implements CommonInterface, IndexSearchInterface
         foreach ($unfilteredFacets as $facet) {
             $key = $facet['attribute_id'] . '_' . $facet['value_id'];
             $filteredCount = $filteredLookup[$key] ?? 0;
-
             $combined[] = [
                 'attribute_id' => $facet['attribute_id'],
                 'value_id' => $facet['value_id'],
@@ -182,7 +187,6 @@ class Search implements CommonInterface, IndexSearchInterface
                 'is_filtered_out' => $filteredCount === 0 && $facet['product_count'] > 0,
             ];
         }
-
         return $combined;
     }
     private function getSearchResultsWithFilteredFacets(array $criteria, Adapter $productSearchAdapter, bool $activateFacets): array
@@ -216,6 +220,7 @@ class Search implements CommonInterface, IndexSearchInterface
             ];
         }
     }
+
     private function executeScrollSearchWithFacets(array $params, array $criteria, bool $activateFacets): array
     {
         $productResultIds = [];
@@ -229,8 +234,8 @@ class Search implements CommonInterface, IndexSearchInterface
             // Extract facets and total hit count only from the first response (they're the same across all scroll pages)
             if ($isFirstResponse) {
                 if ($activateFacets && isset($response['aggregations'])) {
-                $filteredFacets = $this->processFacetResponse($response, $criteria);
-            }
+                    $filteredFacets = $this->processFacetResponse($response, $criteria);
+                }
                 $totalHits = $response['hits']['total']['value'] ?? 0;
             }
             $isFirstResponse = false; // Ensure this is only checked once
@@ -306,6 +311,7 @@ class Search implements CommonInterface, IndexSearchInterface
             return 0;
         }
     }
+
     /**
      * AGGREGATIONS FOR DISTINCT PRODUCT-LEVEL ATTRIBUTE/VALUE PAIRS (both nested product and variant attrs).
      * Uses composite aggregation to support pagination for >DEFAULT_SIZE buckets.
@@ -532,7 +538,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 $esField = $this->criteriaMap[$field]['esField'];
                 $queryType = $this->criteriaMap[$field]['queryType'];
                 if ($queryType === 'match') {
-                    $esField = $esField . '.raw';
+                    $esField = $esField . '.' . $this->language . '.raw';
                 }
                 $sort[] = [$esField => ['order' => $direction]];
             }
@@ -586,22 +592,51 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         switch ($map['queryType']) {
             case 'multi_match':
+                $fields = [];
+                foreach ($map['esFields'] as $fieldSpec) {
+                    preg_match('/^([a-z_]+)(\^(\d+))?$/i', $fieldSpec, $matches);
+                    $fieldBase = $matches[1] ?? $fieldSpec;
+                    $boost = isset($matches[3]) ? '^' . $matches[3] : '';
+                    if (in_array($fieldBase, $this->multiLangFields, true)) {
+                        $fields[] = $fieldBase . '.' . $this->language . $boost;
+                    } else {
+                        $fields[] = $fieldSpec;
+                    }
+                }
                 $must[] = [
                     'multi_match' => [
                         'query' => $value,
-                        'fields' => $map['esFields'],
+                        'fields' => $fields,
                         'type' => 'best_fields'
                     ]
                 ];
                 break;
+
             case 'terms':
+                $esField = $map['esField'];
+                if (in_array($esField, $this->multiLangFields, true)) {
+                    $esField .= '.' . $this->language;
+                }
                 $values = is_array($value) ? $value : [$value];
                 $must[] = [
                     'terms' => [
-                        $map['esField'] => $values
+                        $esField => $values
                     ]
                 ];
                 break;
+
+            case 'term':
+                $esField = $map['esField'];
+                if (in_array($esField, $this->multiLangFields, true)) {
+                    $esField .= '.' . $this->language;
+                }
+                $must[] = [
+                    'term' => [
+                        $esField => $value
+                    ]
+                ];
+                break;
+
             case 'boolean':
                 $must[] = [
                     'term' => [
@@ -610,14 +645,11 @@ class Search implements CommonInterface, IndexSearchInterface
                 ];
                 break;
             case 'match':
-                $this->addMatchQuery($map['esField'], $value, $must);
-                break;
-            case 'term':
-                $must[] = [
-                    'term' => [
-                        $map['esField'] => $value
-                    ]
-                ];
+                $esField = $map['esField'];
+                if (in_array($esField, $this->multiLangFields, true)) {
+                    $esField .= '.' . $this->language;
+                }
+                $this->addMatchQuery($esField, $value, $must);
                 break;
             case 'product_and_variant_attributes':
                 $this->addAttributeFilters($value, $productAttrFilters, $variantAttrFilters);

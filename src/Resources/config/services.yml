@@ -67,6 +67,7 @@ services:
     shared: false
     arguments:
       $searchServer: '@LeadingSystems\MerconisBundle\SearchServer\SearchServer'
+      $helper: '@LeadingSystems\MerconisBundle\ProductSearch\Helper'
       $twig: '@twig'
       $logger: '@logger'
       $requestStack: '@request_stack'
