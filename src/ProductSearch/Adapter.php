@@ -301,7 +301,7 @@ class Adapter
         return $this->searchResult->getResults();
     }
 
-    public function getFacets(): Facets
+    public function getFacets(): ?Facets
     {
         return $this->searchResult->getFacets();
     }
@@ -361,6 +361,10 @@ class Adapter
 
     public function getFilterUI(): string
     {
+        if ($this->getFacets() === null) {
+            return '';
+        }
+
         $combinedFacets = $this->getFacets()->getCombinedFacets();
         $filters = [];
         foreach ($combinedFacets as $facet) {

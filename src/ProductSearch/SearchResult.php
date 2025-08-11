@@ -31,7 +31,7 @@ class SearchResult
         $this->results = $results;
     }
 
-    public function getFacets(): Facets
+    public function getFacets(): ?Facets
     {
         return $this->facets;
     }
