@@ -402,7 +402,8 @@ class Adapter
                 $valueTitle = $valueNames[$value_id] ?? ('Value ' . $value_id);
                 $isChecked = !empty($userSelected[$attribute_id][$value_id]);
                 $isFilteredOut = $facet['is_filtered_out'] ?? false;
-                $liClass = $isFilteredOut ? 'filter-value filter-value--out' : 'filter-value';
+                $invalid = $facet['is_invalid'] ?? false;
+                $liClass = ($isFilteredOut ? 'filter-value filter-value--out' : 'filter-value') . ($invalid ? ' invalid' : '');
                 $checked = $isChecked ? 'checked' : '';
                 $disabled = $isFilteredOut ? 'disabled' : '';
                 $filteredCount = $facet['filtered_product_count'] ?? 0;
@@ -422,6 +423,7 @@ class Adapter
                     'liClass'     => $liClass,
                     'checked'      => $checked,
                     'disabled'     => $disabled,
+                    'invalid'     => $invalid,
                     'activeStateClass'  => $activeStateClass,
                     'matchEstimateCount' => $matchEstimateCount,
                     'encodedValue'=> $encodedValue,

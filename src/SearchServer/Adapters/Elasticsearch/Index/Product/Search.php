@@ -100,6 +100,9 @@ class Search implements CommonInterface, IndexSearchInterface
 
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
 
+        // Get possibly reduced criteria and dismissed filters
+        [$criteria, $dismissedFilters] = $this->dismissInvalidAttributeFilters($criteria);
+
         $runAggsOnMainQuery = $activateFacets && $activateMatchEstimates;
 
         $searchResultData = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, $runAggsOnMainQuery);
@@ -128,7 +131,7 @@ class Search implements CommonInterface, IndexSearchInterface
             $facetData = new Facets(
                 $unfilteredFacets,
                 $filteredFacets,
-                $this->combineFacetData($unfilteredFacets, $filteredFacets)
+                $this->combineFacetData($unfilteredFacets, $filteredFacets, $dismissedFilters)
             );
         }
 
@@ -154,7 +157,40 @@ class Search implements CommonInterface, IndexSearchInterface
         return $baseCriteria;
     }
 
-    private function combineFacetData(array $unfilteredFacets, array $filteredFacets): array
+    private function dismissInvalidAttributeFilters(array $criteria): array
+    {
+        $dismissed = [];
+        if (empty($criteria['attributes'])) {
+            return [$criteria, $dismissed];
+        }
+
+        // Get base query without attribute filters
+        $baseCriteria = $this->prepareBaseCriteria($criteria);
+
+        // Get available facets for base query
+        $availableFacets = $this->getFacets($baseCriteria);
+
+        // Build lookup table of "attribute_id:value_id"
+        $availableKeys = [];
+        foreach ($availableFacets as $facet) {
+            $availableKeys[$facet['attribute_id'] . ':' . $facet['value_id']] = true;
+        }
+
+        // Filter attribute filters to only keep possible ones
+        $criteria['attributes'] = array_filter($criteria['attributes'], function ($filter) use ($availableKeys, &$dismissed) {
+            if (!isset($filter['attribute_id'], $filter['value_id'])) {
+                return false;
+            }
+            $key = $filter['attribute_id'] . ':' . $filter['value_id'];
+            if (!isset($availableKeys[$key])) {
+                $dismissed[] = $filter;
+                return false;
+            }
+            return true;
+        });
+        return [$criteria, $dismissed];
+    }
+    private function combineFacetData(array $unfilteredFacets, array $filteredFacets, array $dismissedFilters = []): array
     {
         $combined = [];
         $filteredLookup = [];
@@ -172,6 +208,19 @@ class Search implements CommonInterface, IndexSearchInterface
                 'filtered_product_count' => $filteredCount,
                 'is_available' => $filteredCount > 0,
                 'is_filtered_out' => $filteredCount === 0 && $facet['product_count'] > 0,
+                'is_invalid' => false
+            ];
+        }
+        // Add dismissed filters as invalid entries
+        foreach ($dismissedFilters as $filter) {
+            $combined[] = [
+                'attribute_id' => $filter['attribute_id'],
+                'value_id' => $filter['value_id'],
+                'total_product_count' => 0,
+                'filtered_product_count' => 0,
+                'is_available' => false,
+                'is_filtered_out' => false,
+                'is_invalid' => true
             ];
         }
         return $combined;

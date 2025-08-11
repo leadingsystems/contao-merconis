@@ -24,6 +24,13 @@
         display: block;
         margin-bottom: 0.5em;
     }
+    /*.filter-attribute:not(:has(.filter-value:not(.invalid))) {*/
+    /*    opacity: 0.4;*/
+    /*}*/
+    .filter-attribute:not(:has(.filter-value:not(.invalid))) strong {
+        color: #AA0000;
+        text-decoration: line-through;
+    }
     .filter-list {
         list-style: none;
         margin: 0;
@@ -34,6 +41,13 @@
     }
     .filter-value--out {
         color: #aaa;
+    }
+    /*.filter-value.invalid {*/
+    /*    opacity: 0.4;*/
+    /*}*/
+    .filter-value.invalid label {
+        color: #AA0000;
+        text-decoration: line-through;
     }
     .badge {
         display: inline-block;
