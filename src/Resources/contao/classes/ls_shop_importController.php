@@ -967,7 +967,28 @@ class ls_shop_importController
 	}
 
 	protected function processVariantData($row) {
-		if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToIgnore'])) {
+
+        if (empty($row['weight'])) {
+            $row['weightType'] = 'adjustmentPercentaged';
+        }
+
+        for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
+
+            if (empty($row['price'.($i === 0 ? '' : ('_'.$i))])) {
+                $row['priceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
+            }
+
+            if (empty($row['oldPrice'.($i === 0 ? '' : ('_'.$i))])) {
+                $row['oldPriceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
+            }
+
+
+            if (empty($row['scalePrice'.($i === 0 ? '' : ('_'.$i))])) {
+                $row['scalePriceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
+            }
+        }
+
+        if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToIgnore'])) {
 			$row['ignore'] = 'x';
 		}
 		
@@ -1069,7 +1090,7 @@ class ls_shop_importController
 			$row['priceType'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['priceType'.$str_multipriceFieldSuffix]];
 			$row['priceType'.$str_multipriceFieldSuffix] = $row['priceType'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
 			$row['oldPriceType'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['oldPriceType'.$str_multipriceFieldSuffix]];
-			$row['oldPriceType'.$str_multipriceFieldSuffix] = $row['oldPriceType'.$str_multipriceFieldSuffix] ? $row['oldPriceType'.$str_multipriceFieldSuffix] : '';
+			$row['oldPriceType'.$str_multipriceFieldSuffix] = $row['oldPriceType'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
 			$row['scalePriceType'.$str_multipriceFieldSuffix] = $row['scalePriceType'.$str_multipriceFieldSuffix] ? $row['scalePriceType'.$str_multipriceFieldSuffix] : 'scalePriceStandalone';
 			$row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] = $row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] ? $row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] : 'separatedVariantsAndConfigurations';
 			$row['scalePrice'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::generateScalePriceArray($row['scalePrice'.$str_multipriceFieldSuffix]);
@@ -1772,61 +1793,10 @@ class ls_shop_importController
 				break;
 				
 			case 'notExistingPriceType':
-				if ($row['delete']) {
-					break;
-				}
-				if ($row['type'] != 'variant') {
-					break;
-				}
-				
-				/*
-				 * We count from 0 because we also have to check the non-group-specific field
-				 */
-				for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
-
-                    /* make sure priceType is empty or a valid priceType */
-                    if (!empty($row['priceType'.($i === 0 ? '' : ('_'.$i))]) && !array_key_exists($row['priceType'.($i === 0 ? '' : ('_'.$i))], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
-                        return true;
-                    }
-
-                    /* If price exists and priceType is empty */
-                    if (!empty($row['price'.($i === 0 ? '' : ('_'.$i))]) && empty($row['priceType'.($i === 0 ? '' : ('_'.$i))])) {
-                        return true;
-                    }
-
-				}
-				
-				return false;
-				break;
+                return $this->notExistingPriceType($row, 'priceType', 'price');
 
 			case 'notExistingPriceTypeOld':
-				if ($row['delete']) {
-					break;
-				}
-				if ($row['type'] != 'variant') {
-					break;
-				}
-				
-
-				/*
-				 * We count from 0 because we also have to check the non-group-specific field
-				 */
-				for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
-					/*
-					 * If no value is given at all, that's okay because we will
-					 * assign a default value in this case during the import
-					 */
-					if (!$row['oldPriceType'.($i === 0 ? '' : ('_'.$i))]) {
-						continue;
-					}
-					
-					if (!array_key_exists($row['oldPriceType'.($i === 0 ? '' : ('_'.$i))], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
-						return true;
-					}
-				}
-				
-				return false;
-				break;
+                return $this->notExistingPriceType($row, 'oldPriceType', 'oldPrice');
 
 			case 'notExistingWeightType':
 				if ($row['delete']) {
@@ -2170,4 +2140,36 @@ class ls_shop_importController
 		}
 		return $string; 
 	}
+
+
+    private function notExistingPriceType($row, $aliasPriceType, $aliasPrice){
+
+
+        if ($row['delete']) {
+            return false;
+        }
+        if ($row['type'] != 'variant') {
+            return false;
+        }
+
+        /*
+         * We count from 0 because we also have to check the non-group-specific field
+         */
+        for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
+
+            /* make sure priceType is empty or a valid priceType */
+            if (!empty($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))]) && !array_key_exists($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+                return true;
+            }
+
+            /* If price exists and priceType is empty */
+            if (!empty($row[$aliasPrice.($i === 0 ? '' : ('_'.$i))]) && empty($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))])) {
+                return true;
+            }
+
+        }
+
+        return false;
+
+    }
 }
