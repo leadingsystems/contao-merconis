@@ -248,7 +248,28 @@ class Search implements CommonInterface, IndexSearchInterface
             if (!empty($sort)) {
                 $params['body']['sort'] = $sort;
             }
-            return $this->executeScrollSearchWithFacets($params, $criteria, $activateFacets);
+            $result = $this->executeScrollSearchWithFacets($params, $criteria, $activateFacets);
+
+            // Adjust filtered facets so that, for attributes that have selections,
+            // the counts are computed excluding that attribute (OR behavior within attribute)
+            if ($activateFacets && !empty($criteria['attributes'])) {
+                $selectedAttributeIds = $this->getSelectedAttributeIds($criteria);
+                if (!empty($selectedAttributeIds)) {
+                    foreach ($selectedAttributeIds as $selectedAttributeId) {
+                        $criteriaExcludingAttr = $this->removeAttributeFromCriteria($criteria, $selectedAttributeId);
+                        $facetsExcludingAttr = $this->getFacets($criteriaExcludingAttr, 'exclude_attr_' . $selectedAttributeId);
+                        // Override counts for this attribute only
+                        foreach ($facetsExcludingAttr as $facetKey => $facetData) {
+                            if ((int)$facetData['attribute_id'] === (int)$selectedAttributeId) {
+                                $overrideKey = $facetData['attribute_id'] . ':' . $facetData['value_id'];
+                                $result['filtered_facets'][$overrideKey] = $facetData;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return $result;
         } catch (\Exception $e) {
             return [
                 'product_ids' => ['error' => $e->getMessage()],
@@ -256,6 +277,35 @@ class Search implements CommonInterface, IndexSearchInterface
                 'total_hits' => 0,
             ];
         }
+    }
+
+    private function getSelectedAttributeIds(array $criteria): array
+    {
+        if (empty($criteria['attributes']) || !is_array($criteria['attributes'])) {
+            return [];
+        }
+        $ids = [];
+        foreach ($criteria['attributes'] as $filter) {
+            if (isset($filter['attribute_id'])) {
+                $ids[] = (int)$filter['attribute_id'];
+            }
+        }
+        return array_values(array_unique($ids));
+    }
+
+    private function removeAttributeFromCriteria(array $criteria, int $attributeId): array
+    {
+        if (empty($criteria['attributes']) || !is_array($criteria['attributes'])) {
+            return $criteria;
+        }
+        $criteriaCopy = $criteria;
+        $criteriaCopy['attributes'] = array_values(array_filter($criteria['attributes'], function ($filter) use ($attributeId) {
+            return isset($filter['attribute_id']) && (int)$filter['attribute_id'] !== $attributeId;
+        }));
+        if (empty($criteriaCopy['attributes'])) {
+            unset($criteriaCopy['attributes']);
+        }
+        return $criteriaCopy;
     }
 
     private function executeScrollSearchWithFacets(array $params, array $criteria, bool $activateFacets): array
