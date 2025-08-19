@@ -97,42 +97,27 @@ class Search implements CommonInterface, IndexSearchInterface
     public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true): SearchResult
     {
         $this->language = $language;
-
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
+        
+        // Use single request approach with post_filter for attribute filters
+        $searchResultData = $this->executeUnifiedSearch($criteria, $productSearchAdapter, $activateFacets);
 
-        // Get possibly reduced criteria and dismissed filters
-        [$criteria, $dismissedFilters] = $this->dismissInvalidAttributeFilters($criteria);
-
-        $runAggsOnMainQuery = $activateFacets && $activateMatchEstimates;
-
-        $searchResultData = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, $runAggsOnMainQuery);
-
+        // Calculate unmatched products from single response
         $hasUnmatchedProducts = false;
         $numUnmatchedProducts = 0;
-        $countWithAttributes = 0;
-        $countWithoutAttributes = 0;
-
-        if (!empty($criteria['attributes'])) {
-            $baseCriteria = $this->prepareBaseCriteria($criteria);
-            $countWithAttributes = $searchResultData['total_hits'];
-            $countWithoutAttributes = $this->getProductCountForCriteria($baseCriteria);
-            if ($countWithoutAttributes > $countWithAttributes) {
-                $hasUnmatchedProducts = true;
-                $numUnmatchedProducts = $countWithoutAttributes - $countWithAttributes;
-            }
+        $countWithAttributes = $searchResultData['total_hits_filtered'];
+        $countWithoutAttributes = $searchResultData['total_hits_unfiltered'];
+        
+        if ($countWithoutAttributes > $countWithAttributes) {
+            $hasUnmatchedProducts = true;
+            $numUnmatchedProducts = $countWithoutAttributes - $countWithAttributes;
         }
 
         if (!$activateFacets) {
             $facetData = new Facets([], [], []);
         } else {
-            $baseCriteria = $this->prepareBaseCriteria($criteria);
-            $unfilteredFacets = $this->getFacets($baseCriteria);
-            $filteredFacets = $activateMatchEstimates ? $searchResultData['filtered_facets'] : $unfilteredFacets;
-            $facetData = new Facets(
-                $unfilteredFacets,
-                $filteredFacets,
-                $this->combineFacetData($unfilteredFacets, $filteredFacets, $dismissedFilters)
-            );
+            // Process facets from single response - no need to combine multiple sources
+            $facetData = $this->processFacetsFromUnifiedResponse($searchResultData);
         }
 
         return new SearchResult(
@@ -150,135 +135,238 @@ class Search implements CommonInterface, IndexSearchInterface
         return $criteria;
     }
 
-    private function prepareBaseCriteria(array $criteria): array
+    /**
+     * Execute a single unified search that combines query, filters, and aggregations
+     */
+    private function executeUnifiedSearch(array $criteria, Adapter $productSearchAdapter, bool $activateFacets): array
     {
+        // Separate attribute filters from other criteria
+        $attributeFilters = $criteria['attributes'] ?? [];
         $baseCriteria = $criteria;
         unset($baseCriteria['attributes']);
-        return $baseCriteria;
-    }
-
-    private function dismissInvalidAttributeFilters(array $criteria): array
-    {
-        $dismissed = [];
-        if (empty($criteria['attributes'])) {
-            return [$criteria, $dismissed];
-        }
-
-        // Get base query without attribute filters
-        $baseCriteria = $this->prepareBaseCriteria($criteria);
-
-        // Get available facets for base query
-        $availableFacets = $this->getFacets($baseCriteria);
-
-        // Build lookup table of "attribute_id:value_id"
-        $availableKeys = [];
-        foreach ($availableFacets as $facet) {
-            $availableKeys[$facet['attribute_id'] . ':' . $facet['value_id']] = true;
-        }
-
-        // Filter attribute filters to only keep possible ones
-        $criteria['attributes'] = array_filter($criteria['attributes'], function ($filter) use ($availableKeys, &$dismissed) {
-            if (!isset($filter['attribute_id'], $filter['value_id'])) {
-                return false;
-            }
-            $key = $filter['attribute_id'] . ':' . $filter['value_id'];
-            if (!isset($availableKeys[$key])) {
-                $dismissed[] = $filter;
-                return false;
-            }
-            return true;
-        });
-        return [$criteria, $dismissed];
-    }
-    private function combineFacetData(array $unfilteredFacets, array $filteredFacets, array $dismissedFilters = []): array
-    {
-        $combined = [];
-        $filteredLookup = [];
-        foreach ($filteredFacets as $facet) {
-            $key = $facet['attribute_id'] . '_' . $facet['value_id'];
-            $filteredLookup[$key] = $facet['product_count'];
-        }
-        foreach ($unfilteredFacets as $facet) {
-            $key = $facet['attribute_id'] . '_' . $facet['value_id'];
-            $filteredCount = $filteredLookup[$key] ?? 0;
-            $combined[] = [
-                'attribute_id' => $facet['attribute_id'],
-                'value_id' => $facet['value_id'],
-                'total_product_count' => $facet['product_count'],
-                'filtered_product_count' => $filteredCount,
-                'is_available' => $filteredCount > 0,
-                'is_filtered_out' => $filteredCount === 0 && $facet['product_count'] > 0,
-                'is_invalid' => false
-            ];
-        }
-        // Add dismissed filters as invalid entries
-        foreach ($dismissedFilters as $filter) {
-            $combined[] = [
-                'attribute_id' => $filter['attribute_id'],
-                'value_id' => $filter['value_id'],
-                'total_product_count' => 0,
-                'filtered_product_count' => 0,
-                'is_available' => false,
-                'is_filtered_out' => false,
-                'is_invalid' => true
-            ];
-        }
-        return $combined;
-    }
-
-    private function getSearchResultsWithFilteredFacets(array $criteria, Adapter $productSearchAdapter, bool $activateFacets): array
-    {
-        $mainQuery = $this->buildQueryForCriteria($criteria);
+        
+        // Build base query (without attribute filters)
+        $baseQuery = $this->buildQueryForCriteria($baseCriteria);
+        
+        // Build post_filter for attribute filters
+        $postFilter = $this->buildAttributePostFilter($attributeFilters);
+        
+        // Build sorting
         $sort = $this->buildSortCriteria($productSearchAdapter->getSortingCriteria());
-        $aggs = $activateFacets ? $this->buildAggregations($criteria) : [];
+        
+        // Build aggregations that will show available facets based on base query
+        $aggs = $activateFacets ? $this->buildUnifiedAggregations() : [];
+        
         try {
             $params = [
                 'index' => $this->indexName,
                 'scroll' => self::SCROLL_TIMEOUT,
                 'body' => [
                     'size' => self::DEFAULT_SIZE,
-                    'query' => $mainQuery,
+                    'query' => $baseQuery,
                     '_source' => ['id'],
                     'track_total_hits' => true,
                 ]
             ];
+            
+            if (!empty($postFilter)) {
+                $params['body']['post_filter'] = $postFilter;
+            }
+            
             if ($activateFacets) {
                 $params['body']['aggs'] = $aggs;
             }
+            
             if (!empty($sort)) {
                 $params['body']['sort'] = $sort;
             }
-            return $this->executeScrollSearchWithFacets($params, $criteria, $activateFacets);
+            
+            return $this->executeScrollSearchUnified($params);
+            
         } catch (\Exception $e) {
             return [
                 'product_ids' => ['error' => $e->getMessage()],
-                'filtered_facets' => [],
-                'total_hits' => 0,
+                'facets' => [],
+                'total_hits_filtered' => 0,
+                'total_hits_unfiltered' => 0,
             ];
         }
     }
-
-    private function executeScrollSearchWithFacets(array $params, array $criteria, bool $activateFacets): array
+    
+    /**
+     * Build post_filter for attribute filters to be applied after aggregations
+     */
+    private function buildAttributePostFilter(array $attributeFilters): array
+    {
+        if (empty($attributeFilters)) {
+            return [];
+        }
+        
+        $productAttrFilters = [];
+        $variantAttrFilters = [];
+        
+        foreach ($attributeFilters as $filter) {
+            if (!isset($filter['attribute_id'], $filter['value_id'])) {
+                continue;
+            }
+            
+            $productAttrFilters[] = [
+                'nested' => [
+                    'path' => 'attributes',
+                    'query' => [
+                        'bool' => [
+                            'must' => [
+                                ['term' => ['attributes.attribute_id' => $filter['attribute_id']]],
+                                ['term' => ['attributes.value_id' => $filter['value_id']]]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+            
+            $variantAttrFilters[] = [
+                'nested' => [
+                    'path' => 'variants.attributes',
+                    'query' => [
+                        'bool' => [
+                            'must' => [
+                                ['term' => ['variants.attributes.attribute_id' => $filter['attribute_id']]],
+                                ['term' => ['variants.attributes.value_id' => $filter['value_id']]]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+        }
+        
+        $should = [];
+        if (!empty($productAttrFilters)) {
+            $should[] = ['bool' => ['must' => $productAttrFilters]];
+        }
+        if (!empty($variantAttrFilters)) {
+            $should[] = [
+                'nested' => [
+                    'path' => 'variants',
+                    'query' => ['bool' => ['must' => $variantAttrFilters]],
+                    'inner_hits' => [
+                        'name' => 'matching_variants',
+                        'size' => 100,
+                        '_source' => ['id', 'attributes']
+                    ]
+                ]
+            ];
+        }
+        
+        return [
+            'bool' => [
+                'should' => $should,
+                'minimum_should_match' => 1
+            ]
+        ];
+    }
+    
+    /**
+     * Build simplified aggregations that return available facets
+     */
+    private function buildUnifiedAggregations(): array
+    {
+        return [
+            'product_attributes' => [
+                'nested' => ['path' => 'attributes'],
+                'aggs' => [
+                    'attribute_values' => [
+                        'composite' => [
+                            'sources' => [
+                                ['attribute_id' => ['terms' => ['field' => 'attributes.attribute_id']]],
+                                ['value_id' => ['terms' => ['field' => 'attributes.value_id']]]
+                            ],
+                            'size' => self::DEFAULT_SIZE
+                        ],
+                        'aggs' => [
+                            'product_count' => [
+                                'reverse_nested' => new \stdClass(),
+                                'aggs' => [
+                                    'unique_products' => ['cardinality' => ['field' => 'id']]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            'variant_attributes' => [
+                'nested' => ['path' => 'variants.attributes'],
+                'aggs' => [
+                    'attribute_values' => [
+                        'composite' => [
+                            'sources' => [
+                                ['attribute_id' => ['terms' => ['field' => 'variants.attributes.attribute_id']]],
+                                ['value_id' => ['terms' => ['field' => 'variants.attributes.value_id']]]
+                            ],
+                            'size' => self::DEFAULT_SIZE
+                        ],
+                        'aggs' => [
+                            'product_count' => [
+                                'reverse_nested' => new \stdClass(),
+                                'aggs' => [
+                                    'unique_products' => ['cardinality' => ['field' => 'id']]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    }
+    
+    /**
+     * Execute scroll search with unified approach
+     */
+    private function executeScrollSearchUnified(array $params): array
     {
         $productResultIds = [];
-        $filteredFacets = [];
-        $totalHits = 0;
+        $facets = [];
+        $totalHitsFiltered = 0;
+        $totalHitsUnfiltered = 0;
+        
         $response = $this->client->elasticsearchClient->search($params);
         $scrollId = null;
         $isFirstResponse = true;
+        
         do {
             if ($isFirstResponse) {
-                if ($activateFacets && isset($response['aggregations'])) {
-                    $filteredFacets = $this->processFacetResponse($response, $criteria);
+                // Get total hits (before post_filter applied = unfiltered)
+                $totalHitsUnfiltered = $response['hits']['total']['value'] ?? 0;
+                
+                // Get filtered hits by executing a count query with post_filter
+                if (isset($params['body']['post_filter'])) {
+                    $countParams = [
+                        'index' => $this->indexName,
+                        'body' => [
+                            'size' => 0,
+                            'query' => $params['body']['query'],
+                            'post_filter' => $params['body']['post_filter'],
+                            'track_total_hits' => true
+                        ]
+                    ];
+                    $countResponse = $this->client->elasticsearchClient->search($countParams);
+                    $totalHitsFiltered = $countResponse['hits']['total']['value'] ?? 0;
+                } else {
+                    $totalHitsFiltered = $totalHitsUnfiltered;
                 }
-                $totalHits = $response['hits']['total']['value'] ?? 0;
+                
+                // Process aggregations if present
+                if (isset($response['aggregations'])) {
+                    $facets = $this->processUnifiedFacetResponse($response['aggregations']);
+                }
             }
             $isFirstResponse = false;
+            
             if (!empty($response['hits']['hits'])) {
                 foreach ($response['hits']['hits'] as $hit) {
                     $productResultIds[] = $this->processSearchHit($hit);
                 }
             }
+            
             $scrollId = $response['_scroll_id'] ?? null;
             if ($scrollId && !empty($response['hits']['hits'])) {
                 $response = $this->client->elasticsearchClient->scroll([
@@ -289,212 +377,96 @@ class Search implements CommonInterface, IndexSearchInterface
                 break;
             }
         } while (true);
+        
         if ($scrollId) {
             $this->client->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
         }
+        
         return [
             'product_ids' => array_column($productResultIds, 'id'),
-            'filtered_facets' => $filteredFacets,
-            'total_hits' => $totalHits,
+            'facets' => $facets,
+            'total_hits_filtered' => $totalHitsFiltered,
+            'total_hits_unfiltered' => $totalHitsUnfiltered,
         ];
     }
-
-    private function getFacets(array $criteria, string $context = ''): array
-    {
-        $query = $this->buildQueryForCriteria($criteria);
-        $aggs = $this->buildAggregations($criteria);
-        try {
-            $facetParams = [
-                'index' => $this->indexName,
-                'body' => [
-                    'size' => 0,
-                    'query' => $query,
-                    'aggs' => $aggs,
-                ]
-            ];
-            $facetResponse = $this->client->elasticsearchClient->search($facetParams);
-            return $this->processFacetResponse($facetResponse, $criteria);
-        } catch (\Exception $e) {
-            return [];
-        }
-    }
-
+    
     /**
-     * Executes a lightweight search to get only the total number of matching documents.
+     * Process facet response from unified aggregations
      */
-    private function getProductCountForCriteria(array $criteria): int
+    private function processUnifiedFacetResponse(array $aggregations): array
     {
-        try {
-            $query = $this->buildQueryForCriteria($criteria);
-            $params = [
-                'index' => $this->indexName,
-                'body' => [
-                    'size' => 0,
-                    'query' => $query,
-                    'track_total_hits' => true
-                ]
-            ];
-            $response = $this->client->elasticsearchClient->search($params);
-            return $response['hits']['total']['value'] ?? 0;
-        } catch (\Exception $e) {
-            return 0;
-        }
-    }
-
-    private function buildAggregations(array $criteria = []): array
-    {
-        $variantAttrFilters = [];
-        if (!empty($criteria['attributes'])) {
-            foreach ($criteria['attributes'] as $filter) {
-                if (!isset($filter['attribute_id'], $filter['value_id'])) continue;
-                $variantAttrFilters[] = [
-                    'nested' => [
-                        'path' => 'variants.attributes',
-                        'query' => [
-                            'bool' => [
-                                'must' => [
-                                    ['term' => ['variants.attributes.attribute_id' => $filter['attribute_id']]],
-                                    ['term' => ['variants.attributes.value_id' => $filter['value_id']]]
-                                ]
-                            ]
-                        ]
-                    ]
-                ];
-            }
-        }
-        $variantCompositeAggregation = [
-            'attrs' => [
-                'composite' => [
-                    'sources' => [
-                        ['attribute_id' => ['terms' => ['field' => 'variants.attributes.attribute_id', 'missing_bucket' => true]]],
-                        ['value_id' => ['terms' => ['field' => 'variants.attributes.value_id', 'missing_bucket' => true]]]
-                    ],
-                    'size' => self::DEFAULT_SIZE
-                ],
-                'aggs' => [
-                    'back_to_product' => [
-                        'reverse_nested' => new \stdClass(),
-                        'aggs' => [
-                            'product_ids' => ['cardinality' => ['field' => 'id']]
-                        ]
-                    ]
-                ]
-            ]
-        ];
-        $variantAggregation = empty($variantAttrFilters)
-            ? ['nested' => ['path' => 'variants.attributes'], 'aggs' => $variantCompositeAggregation]
-            : [
-                'nested' => ['path' => 'variants'],
-                'aggs' => [
-                    'matching_variants_only' => [
-                        'filter' => ['bool' => ['must' => $variantAttrFilters]],
-                        'aggs' => [
-                            'attributes_of_matching_variants' => [
-                                'nested' => ['path' => 'variants.attributes'],
-                                'aggs' => $variantCompositeAggregation
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-        return [
-            'product_attribute_pairs' => [
-                'nested' => ['path' => 'attributes'],
-                'aggs' => [
-                    'attrs' => [
-                        'composite' => [
-                            'sources' => [
-                                ['attribute_id' => ['terms' => ['field' => 'attributes.attribute_id', 'missing_bucket' => true]]],
-                                ['value_id' => ['terms' => ['field' => 'attributes.value_id', 'missing_bucket' => true]]]
-                            ],
-                            'size' => self::DEFAULT_SIZE
-                        ],
-                        'aggs' => [
-                            'to_product' => ['reverse_nested' => new \stdClass()],
-                            'unique_products' => [
-                                'reverse_nested' => new \stdClass(),
-                                'aggs' => ['product_ids' => ['cardinality' => ['field' => 'id']]]
-                            ]
-                        ]
-                    ]
-                ]
-            ],
-            'variant_attribute_pairs' => $variantAggregation
-        ];
-    }
-
-    private function processFacetResponse($facetResponse, array $criteria = []): array
-    {
-        $productAttrBuckets = [];
-        $after = null;
-        do {
-            $agg = $facetResponse['aggregations']['product_attribute_pairs']['attrs'];
-            $productAttrBuckets = array_merge($productAttrBuckets, $agg['buckets']);
-            $after = $agg['after_key'] ?? null;
-            if ($after !== null) {
-                $mainQuery = $this->buildQueryForCriteria($criteria);
-                $aggs = $this->buildAggregations($criteria);
-                $aggs['product_attribute_pairs']['aggs']['attrs']['composite']['after'] = $after;
-                $facetResponse = $this->client->elasticsearchClient->search([
-                    'index' => $this->indexName,
-                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs]
-                ]);
-            }
-        } while ($after !== null);
-
-        $facetResponse = is_array($facetResponse) ? $facetResponse : $facetResponse->asArray();
-        $variantAttrBuckets = [];
-        $after = null;
-        $facetResponseVar = $facetResponse;
-        do {
-            $aggPath = $facetResponseVar['aggregations']['variant_attribute_pairs'];
-            $agg = isset($aggPath['matching_variants_only'])
-                ? $aggPath['matching_variants_only']['attributes_of_matching_variants']['attrs']
-                : $aggPath['attrs'];
-            $variantAttrBuckets = array_merge($variantAttrBuckets, $agg['buckets']);
-            $after = $agg['after_key'] ?? null;
-            if ($after !== null) {
-                $mainQuery = $this->buildQueryForCriteria($criteria);
-                $aggs = $this->buildAggregations($criteria);
-                if (isset($aggs['variant_attribute_pairs']['aggs']['matching_variants_only'])) {
-                    $aggs['variant_attribute_pairs']['aggs']['matching_variants_only']['aggs']['attributes_of_matching_variants']['aggs']['attrs']['composite']['after'] = $after;
-                } else {
-                    $aggs['variant_attribute_pairs']['aggs']['attrs']['composite']['after'] = $after;
-                }
-                $facetResponseVar = $this->client->elasticsearchClient->search([
-                    'index' => $this->indexName,
-                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs]
-                ]);
-            }
-        } while ($after !== null);
-
-        $facetAttributePairs = [];
-        foreach ($productAttrBuckets as $bucket) {
-            $attributeId = $bucket['key']['attribute_id'];
-            $valueId = $bucket['key']['value_id'];
-            $product_count = $bucket['unique_products']['product_ids']['value'] ?? 0;
-            $facetAttributePairs[$attributeId . ':' . $valueId] = [
-                'attribute_id' => $attributeId,
-                'value_id' => $valueId,
-                'product_count' => $product_count,
-            ];
-        }
-        foreach ($variantAttrBuckets as $bucket) {
-            $attributeId = $bucket['key']['attribute_id'];
-            $valueId = $bucket['key']['value_id'];
-            $product_count = $bucket['back_to_product']['product_ids']['value'] ?? 0;
-            if (isset($facetAttributePairs[$attributeId . ':' . $valueId])) {
-                $facetAttributePairs[$attributeId . ':' . $valueId]['product_count'] += $product_count;
-            } else {
-                $facetAttributePairs[$attributeId . ':' . $valueId] = [
+        $facets = [];
+        
+        // Process product attributes
+        if (isset($aggregations['product_attributes']['attribute_values']['buckets'])) {
+            foreach ($aggregations['product_attributes']['attribute_values']['buckets'] as $bucket) {
+                $attributeId = $bucket['key']['attribute_id'];
+                $valueId = $bucket['key']['value_id'];
+                $productCount = $bucket['product_count']['unique_products']['value'] ?? 0;
+                
+                $key = $attributeId . ':' . $valueId;
+                $facets[$key] = [
                     'attribute_id' => $attributeId,
                     'value_id' => $valueId,
-                    'product_count' => $product_count,
+                    'product_count' => $productCount,
                 ];
             }
         }
-        return $facetAttributePairs;
+        
+        // Process variant attributes
+        if (isset($aggregations['variant_attributes']['attribute_values']['buckets'])) {
+            foreach ($aggregations['variant_attributes']['attribute_values']['buckets'] as $bucket) {
+                $attributeId = $bucket['key']['attribute_id'];
+                $valueId = $bucket['key']['value_id'];
+                $productCount = $bucket['product_count']['unique_products']['value'] ?? 0;
+                
+                $key = $attributeId . ':' . $valueId;
+                if (isset($facets[$key])) {
+                    $facets[$key]['product_count'] += $productCount;
+                } else {
+                    $facets[$key] = [
+                        'attribute_id' => $attributeId,
+                        'value_id' => $valueId,
+                        'product_count' => $productCount,
+                    ];
+                }
+            }
+        }
+        
+        return array_values($facets);
     }
+    
+    /**
+     * Process facets from unified response - replaces the complex combineFacetData method
+     */
+    private function processFacetsFromUnifiedResponse(array $searchResultData): Facets
+    {
+        $availableFacets = $searchResultData['facets'];
+        
+        // Transform facets to the expected format
+        $combinedFacets = [];
+        foreach ($availableFacets as $facet) {
+            $combinedFacets[] = [
+                'attribute_id' => $facet['attribute_id'],
+                'value_id' => $facet['value_id'],
+                'total_product_count' => $facet['product_count'],
+                'filtered_product_count' => $facet['product_count'], // Same as total since these are already filtered
+                'is_available' => $facet['product_count'] > 0,
+                'is_filtered_out' => false, // No items are filtered out in this approach
+                'is_invalid' => false
+            ];
+        }
+        
+        return new Facets(
+            $availableFacets,  // unfiltered facets (same as available in this approach)
+            $availableFacets,  // filtered facets (same as available)
+            $combinedFacets    // combined data
+        );
+    }
+    
+
+
+
 
     private function buildSortCriteria(array $sortingCriteria): array
     {
@@ -543,19 +515,24 @@ class Search implements CommonInterface, IndexSearchInterface
     private function buildQueryForCriteria(array $criteria): array
     {
         $must = [];
-        $productAttrFilters = [];
-        $variantAttrFilters = [];
         foreach ($criteria as $criterion => $value) {
             if (!isset($this->criteriaMap[$criterion]) || $value === '' || $value === null) {
                 continue;
             }
+            // Skip attributes as they are now handled via post_filter
+            if ($criterion === 'attributes') {
+                continue;
+            }
             $map = $this->criteriaMap[$criterion];
-            $this->addQueryClause($map, $value, $must, $productAttrFilters, $variantAttrFilters);
+            $this->addSimpleQueryClause($map, $value, $must);
         }
-        return $this->buildFinalQuery($must, $productAttrFilters, $variantAttrFilters);
+        return empty($must) ? ['match_all' => new \stdClass()] : ['bool' => ['must' => $must]];
     }
 
-    private function addQueryClause(array $map, $value, array &$must, array &$productAttrFilters, array &$variantAttrFilters): void
+    /**
+     * Simplified query clause building without attribute handling
+     */
+    private function addSimpleQueryClause(array $map, $value, array &$must): void
     {
         switch ($map['queryType']) {
             case 'multi_match':
@@ -597,9 +574,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 }
                 $this->addMatchQuery($esField, $value, $must);
                 break;
-            case 'product_and_variant_attributes':
-                $this->addAttributeFilters($value, $productAttrFilters, $variantAttrFilters);
-                break;
+            // Skip product_and_variant_attributes - handled via post_filter
         }
     }
 
@@ -616,67 +591,5 @@ class Search implements CommonInterface, IndexSearchInterface
         }
     }
 
-    private function addAttributeFilters($value, array &$productAttrFilters, array &$variantAttrFilters): void
-    {
-        foreach ($value as $filter) {
-            if (!isset($filter['attribute_id'], $filter['value_id'])) continue;
-            $productAttrFilters[] = [
-                'nested' => [
-                    'path' => 'attributes',
-                    'query' => [
-                        'bool' => [
-                            'must' => [
-                                ['term' => ['attributes.attribute_id' => $filter['attribute_id']]],
-                                ['term' => ['attributes.value_id' => $filter['value_id']]]
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-            $variantAttrFilters[] = [
-                'nested' => [
-                    'path' => 'variants.attributes',
-                    'query' => [
-                        'bool' => [
-                            'must' => [
-                                ['term' => ['variants.attributes.attribute_id' => $filter['attribute_id']]],
-                                ['term' => ['variants.attributes.value_id' => $filter['value_id']]]
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-        }
-    }
 
-    private function buildFinalQuery(array $must, array $productAttrFilters, array $variantAttrFilters): array
-    {
-        $attributesMatchShould = [];
-        if (!empty($productAttrFilters)) {
-            $attributesMatchShould[] = ['bool' => ['must' => $productAttrFilters]];
-        }
-        if (!empty($variantAttrFilters)) {
-            $attributesMatchShould[] = [
-                'nested' => [
-                    'path' => 'variants',
-                    'query' => ['bool' => ['must' => $variantAttrFilters]],
-                    'inner_hits' => [
-                        'name' => 'matching_variants',
-                        'size' => 100,
-                        '_source' => ['id', 'attributes']
-                    ]
-                ]
-            ];
-        }
-        if (!empty($attributesMatchShould)) {
-            return [
-                'bool' => [
-                    'must' => $must,
-                    'should' => $attributesMatchShould,
-                    'minimum_should_match' => 1
-                ]
-            ];
-        }
-        return ['bool' => ['must' => $must]];
-    }
 }
