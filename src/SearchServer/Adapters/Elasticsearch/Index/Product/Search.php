@@ -248,28 +248,7 @@ class Search implements CommonInterface, IndexSearchInterface
             if (!empty($sort)) {
                 $params['body']['sort'] = $sort;
             }
-            $result = $this->executeScrollSearchWithFacets($params, $criteria, $activateFacets);
-
-            // Adjust filtered facets so that, for attributes that have selections,
-            // the counts are computed excluding that attribute (OR behavior within attribute)
-            if ($activateFacets && !empty($criteria['attributes'])) {
-                $selectedAttributeIds = $this->getSelectedAttributeIds($criteria);
-                if (!empty($selectedAttributeIds)) {
-                    foreach ($selectedAttributeIds as $selectedAttributeId) {
-                        $criteriaExcludingAttr = $this->removeAttributeFromCriteria($criteria, $selectedAttributeId);
-                        $facetsExcludingAttr = $this->getFacets($criteriaExcludingAttr, 'exclude_attr_' . $selectedAttributeId);
-                        // Override counts for this attribute only
-                        foreach ($facetsExcludingAttr as $facetKey => $facetData) {
-                            if ((int)$facetData['attribute_id'] === (int)$selectedAttributeId) {
-                                $overrideKey = $facetData['attribute_id'] . ':' . $facetData['value_id'];
-                                $result['filtered_facets'][$overrideKey] = $facetData;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return $result;
+            return $this->executeScrollSearchWithFacets($params, $criteria, $activateFacets);
         } catch (\Exception $e) {
             return [
                 'product_ids' => ['error' => $e->getMessage()],
@@ -277,35 +256,6 @@ class Search implements CommonInterface, IndexSearchInterface
                 'total_hits' => 0,
             ];
         }
-    }
-
-    private function getSelectedAttributeIds(array $criteria): array
-    {
-        if (empty($criteria['attributes']) || !is_array($criteria['attributes'])) {
-            return [];
-        }
-        $ids = [];
-        foreach ($criteria['attributes'] as $filter) {
-            if (isset($filter['attribute_id'])) {
-                $ids[] = (int)$filter['attribute_id'];
-            }
-        }
-        return array_values(array_unique($ids));
-    }
-
-    private function removeAttributeFromCriteria(array $criteria, int $attributeId): array
-    {
-        if (empty($criteria['attributes']) || !is_array($criteria['attributes'])) {
-            return $criteria;
-        }
-        $criteriaCopy = $criteria;
-        $criteriaCopy['attributes'] = array_values(array_filter($criteria['attributes'], function ($filter) use ($attributeId) {
-            return isset($filter['attribute_id']) && (int)$filter['attribute_id'] !== $attributeId;
-        }));
-        if (empty($criteriaCopy['attributes'])) {
-            unset($criteriaCopy['attributes']);
-        }
-        return $criteriaCopy;
     }
 
     private function executeScrollSearchWithFacets(array $params, array $criteria, bool $activateFacets): array
@@ -395,56 +345,21 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         $variantAttrFilters = [];
         if (!empty($criteria['attributes'])) {
-            // Group filters by attribute_id to apply OR logic within the same attribute
-            $groupedVariantFilters = [];
-            
             foreach ($criteria['attributes'] as $filter) {
                 if (!isset($filter['attribute_id'], $filter['value_id'])) continue;
-                
-                $attributeId = $filter['attribute_id'];
-                $valueId = $filter['value_id'];
-                
-                // Group by attribute_id
-                if (!isset($groupedVariantFilters[$attributeId])) {
-                    $groupedVariantFilters[$attributeId] = [];
-                }
-                
-                $groupedVariantFilters[$attributeId][] = [
+                $variantAttrFilters[] = [
                     'nested' => [
                         'path' => 'variants.attributes',
                         'query' => [
                             'bool' => [
                                 'must' => [
-                                    ['term' => ['variants.attributes.attribute_id' => $attributeId]],
-                                    ['term' => ['variants.attributes.value_id' => $valueId]]
+                                    ['term' => ['variants.attributes.attribute_id' => $filter['attribute_id']]],
+                                    ['term' => ['variants.attributes.value_id' => $filter['value_id']]]
                                 ]
                             ]
                         ]
                     ]
                 ];
-            }
-            
-            // Build OR queries for each attribute group
-            foreach ($groupedVariantFilters as $attributeFilters) {
-                if (count($attributeFilters) === 1) {
-                    // Single filter, no need for OR logic
-                    $variantAttrFilters[] = $attributeFilters[0];
-                } else {
-                    // Multiple filters for same attribute, use OR logic
-                    $variantAttrFilters[] = [
-                        'nested' => [
-                            'path' => 'variants.attributes',
-                            'query' => [
-                                'bool' => [
-                                    'should' => array_map(function($filter) {
-                                        return $filter['nested']['query'];
-                                    }, $attributeFilters),
-                                    'minimum_should_match' => 1
-                                ]
-                            ]
-                        ]
-                    ];
-                }
             }
         }
         $variantCompositeAggregation = [
@@ -703,96 +618,34 @@ class Search implements CommonInterface, IndexSearchInterface
 
     private function addAttributeFilters($value, array &$productAttrFilters, array &$variantAttrFilters): void
     {
-        // Group filters by attribute_id to apply OR logic within the same attribute
-        $groupedProductFilters = [];
-        $groupedVariantFilters = [];
-        
         foreach ($value as $filter) {
             if (!isset($filter['attribute_id'], $filter['value_id'])) continue;
-            
-            $attributeId = $filter['attribute_id'];
-            $valueId = $filter['value_id'];
-            
-            // Group by attribute_id
-            if (!isset($groupedProductFilters[$attributeId])) {
-                $groupedProductFilters[$attributeId] = [];
-            }
-            if (!isset($groupedVariantFilters[$attributeId])) {
-                $groupedVariantFilters[$attributeId] = [];
-            }
-            
-            $groupedProductFilters[$attributeId][] = [
+            $productAttrFilters[] = [
                 'nested' => [
                     'path' => 'attributes',
                     'query' => [
                         'bool' => [
                             'must' => [
-                                ['term' => ['attributes.attribute_id' => $attributeId]],
-                                ['term' => ['attributes.value_id' => $valueId]]
+                                ['term' => ['attributes.attribute_id' => $filter['attribute_id']]],
+                                ['term' => ['attributes.value_id' => $filter['value_id']]]
                             ]
                         ]
                     ]
                 ]
             ];
-            
-            $groupedVariantFilters[$attributeId][] = [
+            $variantAttrFilters[] = [
                 'nested' => [
                     'path' => 'variants.attributes',
                     'query' => [
                         'bool' => [
                             'must' => [
-                                ['term' => ['variants.attributes.attribute_id' => $attributeId]],
-                                ['term' => ['variants.attributes.value_id' => $valueId]]
+                                ['term' => ['variants.attributes.attribute_id' => $filter['attribute_id']]],
+                                ['term' => ['variants.attributes.value_id' => $filter['value_id']]]
                             ]
                         ]
                     ]
                 ]
             ];
-        }
-        
-        // Build OR queries for each attribute group
-        foreach ($groupedProductFilters as $attributeFilters) {
-            if (count($attributeFilters) === 1) {
-                // Single filter, no need for OR logic
-                $productAttrFilters[] = $attributeFilters[0];
-            } else {
-                // Multiple filters for same attribute, use OR logic
-                $productAttrFilters[] = [
-                    'nested' => [
-                        'path' => 'attributes',
-                        'query' => [
-                            'bool' => [
-                                'should' => array_map(function($filter) {
-                                    return $filter['nested']['query'];
-                                }, $attributeFilters),
-                                'minimum_should_match' => 1
-                            ]
-                        ]
-                    ]
-                ];
-            }
-        }
-        
-        foreach ($groupedVariantFilters as $attributeFilters) {
-            if (count($attributeFilters) === 1) {
-                // Single filter, no need for OR logic
-                $variantAttrFilters[] = $attributeFilters[0];
-            } else {
-                // Multiple filters for same attribute, use OR logic
-                $variantAttrFilters[] = [
-                    'nested' => [
-                        'path' => 'variants.attributes',
-                        'query' => [
-                            'bool' => [
-                                'should' => array_map(function($filter) {
-                                    return $filter['nested']['query'];
-                                }, $attributeFilters),
-                                'minimum_should_match' => 1
-                            ]
-                        ]
-                    ]
-                ];
-            }
         }
     }
 
