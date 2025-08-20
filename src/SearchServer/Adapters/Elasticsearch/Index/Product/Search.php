@@ -126,16 +126,22 @@ class Search implements CommonInterface, IndexSearchInterface
             $facetData = new Facets([], [], []);
         } else {
             $baseCriteria = $this->prepareBaseCriteria($criteria);
-            $unfilteredFacets = $this->getFacets($baseCriteria);
-            $filteredFacets = $activateMatchEstimates ? $searchResultData['filtered_facets'] : $unfilteredFacets;
-            $facetData = new Facets(
-                $unfilteredFacets,
-                $filteredFacets,
-                $this->combineFacetData($unfilteredFacets, $filteredFacets, $dismissedFilters)
-            );
+            if ($activateMatchEstimates) {
+                $unfilteredFacets = $this->getFacets($baseCriteria, '', false);
+                $filteredFacets = $searchResultData['filtered_facets'];
+                $combined = $this->combineFacetData($unfilteredFacets, $filteredFacets, $dismissedFilters);
+                $facetData = new Facets($unfilteredFacets, $filteredFacets, $combined);
+            } else {
+                // Keys-only mode: do not compute counts in Elasticsearch when match estimates are disabled
+                $unfilteredFacets = $this->getFacets($baseCriteria, '', true);
+                $filteredFacets = $unfilteredFacets;
+                $combined = $this->combineFacetDataKeysOnly($unfilteredFacets, $dismissedFilters);
+                $facetData = new Facets($unfilteredFacets, $filteredFacets, $combined);
+            }
         }
 
-        if ($removeImpossibleOptions) {
+        if ($removeImpossibleOptions && $activateMatchEstimates) {
+            // Only remove options based on counts when match estimates are active
             $facetData = $this->removeImpossibleOptions($facetData);
         }
 
@@ -301,7 +307,7 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         $mainQuery = $this->buildQueryForCriteria($criteria);
         $sort = $this->buildSortCriteria($productSearchAdapter->getSortingCriteria());
-        $aggs = $activateFacets ? $this->buildAggregations($criteria) : [];
+        $aggs = $activateFacets ? $this->buildAggregations($criteria, false) : [];
         try {
             $params = [
                 'index' => $this->indexName,
@@ -340,7 +346,7 @@ class Search implements CommonInterface, IndexSearchInterface
         do {
             if ($isFirstResponse) {
                 if ($activateFacets && isset($response['aggregations'])) {
-                    $filteredFacets = $this->processFacetResponse($response, $criteria);
+                    $filteredFacets = $this->processFacetResponse($response, $criteria, false);
                 }
                 $totalHits = $response['hits']['total']['value'] ?? 0;
             }
@@ -370,10 +376,10 @@ class Search implements CommonInterface, IndexSearchInterface
         ];
     }
 
-    private function getFacets(array $criteria, string $context = ''): array
+    private function getFacets(array $criteria, string $context = '', bool $keysOnly = false): array
     {
         $query = $this->buildQueryForCriteria($criteria);
-        $aggs = $this->buildAggregations($criteria);
+        $aggs = $this->buildAggregations($criteria, $keysOnly);
         try {
             $facetParams = [
                 'index' => $this->indexName,
@@ -384,7 +390,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 ]
             ];
             $facetResponse = $this->client->elasticsearchClient->search($facetParams);
-            return $this->processFacetResponse($facetResponse, $criteria);
+            return $this->processFacetResponse($facetResponse, $criteria, $keysOnly);
         } catch (\Exception $e) {
             return [];
         }
@@ -412,7 +418,7 @@ class Search implements CommonInterface, IndexSearchInterface
         }
     }
 
-    private function buildAggregations(array $criteria = []): array
+    private function buildAggregations(array $criteria = [], bool $keysOnly = false): array
     {
         $variantAttrFilters = [];
         if (!empty($criteria['attributes'])) {
@@ -434,23 +440,27 @@ class Search implements CommonInterface, IndexSearchInterface
             }
         }
         $variantCompositeAggregation = [
-            'attrs' => [
-                'composite' => [
-                    'sources' => [
-                        ['attribute_id' => ['terms' => ['field' => 'variants.attributes.attribute_id', 'missing_bucket' => true]]],
-                        ['value_id' => ['terms' => ['field' => 'variants.attributes.value_id', 'missing_bucket' => true]]]
-                    ],
-                    'size' => self::DEFAULT_SIZE
+            'attrs' => array_merge(
+                [
+                    'composite' => [
+                        'sources' => [
+                            ['attribute_id' => ['terms' => ['field' => 'variants.attributes.attribute_id', 'missing_bucket' => true]]],
+                            ['value_id' => ['terms' => ['field' => 'variants.attributes.value_id', 'missing_bucket' => true]]]
+                        ],
+                        'size' => self::DEFAULT_SIZE
+                    ]
                 ],
-                'aggs' => [
-                    'back_to_product' => [
-                        'reverse_nested' => new \stdClass(),
-                        'aggs' => [
-                            'product_ids' => ['cardinality' => ['field' => 'id']]
+                $keysOnly ? [] : [
+                    'aggs' => [
+                        'back_to_product' => [
+                            'reverse_nested' => new \stdClass(),
+                            'aggs' => [
+                                'product_ids' => ['cardinality' => ['field' => 'id']]
+                            ]
                         ]
                     ]
                 ]
-            ]
+            )
         ];
         $variantAggregation = empty($variantAttrFilters)
             ? ['nested' => ['path' => 'variants.attributes'], 'aggs' => $variantCompositeAggregation]
@@ -472,29 +482,62 @@ class Search implements CommonInterface, IndexSearchInterface
             'product_attribute_pairs' => [
                 'nested' => ['path' => 'attributes'],
                 'aggs' => [
-                    'attrs' => [
-                        'composite' => [
-                            'sources' => [
-                                ['attribute_id' => ['terms' => ['field' => 'attributes.attribute_id', 'missing_bucket' => true]]],
-                                ['value_id' => ['terms' => ['field' => 'attributes.value_id', 'missing_bucket' => true]]]
-                            ],
-                            'size' => self::DEFAULT_SIZE
+                    'attrs' => array_merge(
+                        [
+                            'composite' => [
+                                'sources' => [
+                                    ['attribute_id' => ['terms' => ['field' => 'attributes.attribute_id', 'missing_bucket' => true]]],
+                                    ['value_id' => ['terms' => ['field' => 'attributes.value_id', 'missing_bucket' => true]]]
+                                ],
+                                'size' => self::DEFAULT_SIZE
+                            ]
                         ],
-                        'aggs' => [
-                            'to_product' => ['reverse_nested' => new \stdClass()],
-                            'unique_products' => [
-                                'reverse_nested' => new \stdClass(),
-                                'aggs' => ['product_ids' => ['cardinality' => ['field' => 'id']]]
+                        $keysOnly ? [] : [
+                            'aggs' => [
+                                'to_product' => ['reverse_nested' => new \stdClass()],
+                                'unique_products' => [
+                                    'reverse_nested' => new \stdClass(),
+                                    'aggs' => ['product_ids' => ['cardinality' => ['field' => 'id']]]
+                                ]
                             ]
                         ]
-                    ]
+                    )
                 ]
             ],
             'variant_attribute_pairs' => $variantAggregation
         ];
     }
 
-    private function processFacetResponse($facetResponse, array $criteria = []): array
+
+    private function combineFacetDataKeysOnly(array $unfilteredFacets, array $dismissedFilters = []): array
+    {
+        $combined = [];
+        foreach ($unfilteredFacets as $facet) {
+            $combined[] = [
+                'attribute_id' => $facet['attribute_id'],
+                'value_id' => $facet['value_id'],
+                'total_product_count' => 0,
+                'filtered_product_count' => 0,
+                'is_available' => true,
+                'is_filtered_out' => false,
+                'is_invalid' => false
+            ];
+        }
+        foreach ($dismissedFilters as $filter) {
+            $combined[] = [
+                'attribute_id' => $filter['attribute_id'],
+                'value_id' => $filter['value_id'],
+                'total_product_count' => 0,
+                'filtered_product_count' => 0,
+                'is_available' => false,
+                'is_filtered_out' => false,
+                'is_invalid' => true
+            ];
+        }
+        return $combined;
+    }
+
+    private function processFacetResponse($facetResponse, array $criteria = [], bool $keysOnly = false): array
     {
         $productAttrBuckets = [];
         $after = null;
@@ -504,7 +547,7 @@ class Search implements CommonInterface, IndexSearchInterface
             $after = $agg['after_key'] ?? null;
             if ($after !== null) {
                 $mainQuery = $this->buildQueryForCriteria($criteria);
-                $aggs = $this->buildAggregations($criteria);
+                $aggs = $this->buildAggregations($criteria, $keysOnly);
                 $aggs['product_attribute_pairs']['aggs']['attrs']['composite']['after'] = $after;
                 $facetResponse = $this->client->elasticsearchClient->search([
                     'index' => $this->indexName,
@@ -526,7 +569,7 @@ class Search implements CommonInterface, IndexSearchInterface
             $after = $agg['after_key'] ?? null;
             if ($after !== null) {
                 $mainQuery = $this->buildQueryForCriteria($criteria);
-                $aggs = $this->buildAggregations($criteria);
+                $aggs = $this->buildAggregations($criteria, $keysOnly);
                 if (isset($aggs['variant_attribute_pairs']['aggs']['matching_variants_only'])) {
                     $aggs['variant_attribute_pairs']['aggs']['matching_variants_only']['aggs']['attributes_of_matching_variants']['aggs']['attrs']['composite']['after'] = $after;
                 } else {
@@ -543,7 +586,7 @@ class Search implements CommonInterface, IndexSearchInterface
         foreach ($productAttrBuckets as $bucket) {
             $attributeId = $bucket['key']['attribute_id'];
             $valueId = $bucket['key']['value_id'];
-            $product_count = $bucket['unique_products']['product_ids']['value'] ?? 0;
+            $product_count = $keysOnly ? 0 : ($bucket['unique_products']['product_ids']['value'] ?? 0);
             $facetAttributePairs[$attributeId . ':' . $valueId] = [
                 'attribute_id' => $attributeId,
                 'value_id' => $valueId,
@@ -553,15 +596,25 @@ class Search implements CommonInterface, IndexSearchInterface
         foreach ($variantAttrBuckets as $bucket) {
             $attributeId = $bucket['key']['attribute_id'];
             $valueId = $bucket['key']['value_id'];
-            $product_count = $bucket['back_to_product']['product_ids']['value'] ?? 0;
-            if (isset($facetAttributePairs[$attributeId . ':' . $valueId])) {
-                $facetAttributePairs[$attributeId . ':' . $valueId]['product_count'] += $product_count;
+            if ($keysOnly) {
+                if (!isset($facetAttributePairs[$attributeId . ':' . $valueId])) {
+                    $facetAttributePairs[$attributeId . ':' . $valueId] = [
+                        'attribute_id' => $attributeId,
+                        'value_id' => $valueId,
+                        'product_count' => 0,
+                    ];
+                }
             } else {
-                $facetAttributePairs[$attributeId . ':' . $valueId] = [
-                    'attribute_id' => $attributeId,
-                    'value_id' => $valueId,
-                    'product_count' => $product_count,
-                ];
+                $product_count = $bucket['back_to_product']['product_ids']['value'] ?? 0;
+                if (isset($facetAttributePairs[$attributeId . ':' . $valueId])) {
+                    $facetAttributePairs[$attributeId . ':' . $valueId]['product_count'] += $product_count;
+                } else {
+                    $facetAttributePairs[$attributeId . ':' . $valueId] = [
+                        'attribute_id' => $attributeId,
+                        'value_id' => $valueId,
+                        'product_count' => $product_count,
+                    ];
+                }
             }
         }
         return $facetAttributePairs;

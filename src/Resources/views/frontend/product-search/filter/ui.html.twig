@@ -16,7 +16,7 @@
                                         {{ value.checked }} {{ value.disabled }}
                                     />
                                     {{ value.title }}
-                                    {% if not value.checked and not value.disabled %}
+                                    {% if value.showCount and not value.checked and not value.disabled %}
                                         <span class="badge {{ value.activeStateClass }}">{{ value.matchEstimateCount }}</span>
                                     {% endif %}
                                 </label>

@@ -381,6 +381,9 @@ class Adapter
         $values = ls_shop_generalHelper::getAttributeValues();
         $valueNames = array_column($values, 'title', 'id');
 
+        // Determine whether match estimates should be shown (layout setting)
+        $useMatchEstimates = isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) ? (bool)$GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] : true;
+
         // User settings for checked/unchecked state
         $userFilterSettings = $this->searchCriteria['attributes'] ?? [];
 
@@ -406,14 +409,22 @@ class Adapter
                 $liClass = ($isFilteredOut ? 'filter-value filter-value--out' : 'filter-value') . ($invalid ? ' invalid' : '');
                 $checked = $isChecked ? 'checked' : '';
                 $disabled = $isFilteredOut && !$isChecked ? 'disabled' : '';
-                $filteredCount = $facet['filtered_product_count'] ?? 0;
-                $totalCount    = $facet['total_product_count'] ?? 0;
-                if ($filteredCount > 0) {
-                    $activeStateClass = 'active';
-                    $matchEstimateCount = $filteredCount;
+                if ($useMatchEstimates) {
+                    $filteredCount = $facet['filtered_product_count'] ?? 0;
+                    $totalCount    = $facet['total_product_count'] ?? 0;
+                    if ($filteredCount > 0) {
+                        $activeStateClass = 'active';
+                        $matchEstimateCount = $filteredCount;
+                    } else {
+                        $activeStateClass = 'inactive';
+                        $matchEstimateCount = $totalCount;
+                    }
+                    $showCount = true;
                 } else {
-                    $activeStateClass = 'inactive';
-                    $matchEstimateCount = $totalCount;
+                    // When match estimates are disabled, do not compute or show counts
+                    $activeStateClass = '';
+                    $matchEstimateCount = null;
+                    $showCount = false;
                 }
 
                 $encodedValue = json_encode(['attribute_id' => $attribute_id, 'value_id' => $value_id]);
@@ -426,6 +437,7 @@ class Adapter
                     'invalid'     => $invalid,
                     'activeStateClass'  => $activeStateClass,
                     'matchEstimateCount' => $matchEstimateCount,
+                    'showCount'    => $showCount,
                     'encodedValue'=> $encodedValue,
                 ];
             }
