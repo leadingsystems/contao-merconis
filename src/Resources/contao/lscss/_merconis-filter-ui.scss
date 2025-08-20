@@ -1,0 +1,86 @@
+[data-merconis-component="product-filter-ui"] {
+  padding: 1em;
+  border: 1px solid #ddd;
+  background: #fcfcfc;
+  margin-bottom: 2em;
+
+  .filter-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2em;
+
+    @media (max-width: 700px) {
+      flex-direction: column;
+      gap: 0.7em;
+    }
+  }
+
+  .filter-attribute {
+    flex: 1 1 220px;
+    min-width: 220px;
+    max-width: 320px;
+    margin-bottom: 1.2em;
+    background: #f8f8f8;
+    padding: 1em;
+    border-radius: 6px;
+    border: 1px solid #eee;
+
+    strong {
+      display: block;
+      margin-bottom: 0.5em;
+    }
+
+    // Attribute without a valid value
+    &:not(:has(.filter-value:not(.invalid))) {
+      strong {
+        color: #AA0000;
+        text-decoration: line-through;
+      }
+    }
+
+    @media (max-width: 700px) {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+  }
+
+  .filter-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .filter-value {
+    margin: 0.2em 0;
+
+    &--out {
+      color: #aaa;
+    }
+
+    &.invalid {
+      label {
+        color: #AA0000;
+        text-decoration: line-through;
+      }
+    }
+  }
+
+  .badge {
+    display: inline-block;
+    margin-left: 0.3em;
+    padding: 0.1em 0.7em;
+    border-radius: 1em;
+    font-size: 90%;
+
+    &.active {
+      background: #47a247;
+      color: #fff;
+    }
+
+    &.inactive {
+      background: #bbb;
+      color: #fff;
+    }
+  }
+}
