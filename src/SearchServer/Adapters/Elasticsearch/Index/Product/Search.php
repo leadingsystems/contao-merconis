@@ -94,7 +94,7 @@ class Search implements CommonInterface, IndexSearchInterface
         $this->client = $client;
     }
 
-    public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true): SearchResult
+    public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true, bool $removeImpossibleOptions = true): SearchResult
     {
         $this->language = $language;
 
@@ -135,6 +135,10 @@ class Search implements CommonInterface, IndexSearchInterface
             );
         }
 
+        if ($removeImpossibleOptions) {
+            $facetData = $this->removeImpossibleOptions($facetData);
+        }
+
         return new SearchResult(
             $searchResultData['product_ids'],
             $facetData,
@@ -143,6 +147,72 @@ class Search implements CommonInterface, IndexSearchInterface
             $countWithoutAttributes,
             $countWithAttributes
         );
+    }
+
+    /**
+     * Remove facet options that are "impossible" for the current result set.
+     *
+     * Definition of "impossible":
+     * - combined facet entry is marked as invalid (e.g., dismissed filters)
+     * - OR the filtered_product_count is 0 (selecting it cannot yield any result)
+     *
+     * We compute the set of allowed attribute/value pairs based on combined facet information
+     * and then filter unfiltered/filtered/combined representations consistently so the UI and
+     * downstream logic do not see impossible choices.
+     */
+    private function removeImpossibleOptions(Facets $facetData): Facets
+    {
+        // Read the merged/combined view which contains availability flags and counts
+        $combinedFacets = $facetData->getCombinedFacets();
+
+        // Build a lookup of attribute_id:value_id pairs that are actually selectable
+        // (not invalid and with a filtered count > 0)
+        $allowedKeys = [];
+        foreach ($combinedFacets as $entry) {
+            $attributeId = $entry['attribute_id'] ?? null;
+            $valueId = $entry['value_id'] ?? null;
+            $isInvalid = $entry['is_invalid'] ?? false;
+            $filteredCount = $entry['filtered_product_count'] ?? 0;
+            if ($attributeId === null || $valueId === null) {
+                continue;
+            }
+            if ($isInvalid) {
+                continue;
+            }
+            if ($filteredCount > 0) {
+                $allowedKeys[$attributeId . ':' . $valueId] = true;
+            }
+        }
+
+        // Filter both raw facet maps to only keep allowed options.
+        // These arrays are keyed as attribute_id:value_id (see processFacetResponse())
+        $unfiltered = $facetData->getUnfilteredFacets();
+        $filtered = $facetData->getFilteredFacets();
+
+        $unfiltered = array_filter(
+            $unfiltered,
+            function ($_, $key) use ($allowedKeys) {
+                return isset($allowedKeys[$key]);
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        $filtered = array_filter(
+            $filtered,
+            function ($_, $key) use ($allowedKeys) {
+                return isset($allowedKeys[$key]);
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        // Also remove impossible entries from the combined list itself
+        $combinedFiltered = array_values(array_filter($combinedFacets, function ($entry) use ($allowedKeys) {
+            $key = ($entry['attribute_id'] ?? '') . ':' . ($entry['value_id'] ?? '');
+            return isset($allowedKeys[$key]);
+        }));
+
+        // Return a brand new Facets instance with the pruned data sets
+        return new Facets($unfiltered, $filtered, $combinedFiltered);
     }
 
     private function prepareCriteria(array $criteria): array
