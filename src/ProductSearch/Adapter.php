@@ -405,7 +405,7 @@ class Adapter
                 $invalid = $facet['is_invalid'] ?? false;
                 $liClass = ($isFilteredOut ? 'filter-value filter-value--out' : 'filter-value') . ($invalid ? ' invalid' : '');
                 $checked = $isChecked ? 'checked' : '';
-                $disabled = $isFilteredOut ? 'disabled' : '';
+                $disabled = $isFilteredOut && !$isChecked ? 'disabled' : '';
                 $filteredCount = $facet['filtered_product_count'] ?? 0;
                 $totalCount    = $facet['total_product_count'] ?? 0;
                 if ($filteredCount > 0) {
