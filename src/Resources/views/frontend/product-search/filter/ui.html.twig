@@ -1,84 +1,5 @@
-<style>
-    .filter-ui {
-        padding: 1em;
-        border: 1px solid #ddd;
-        background: #fcfcfc;
-        margin-bottom: 2em;
-    }
-    .filter-columns {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 2em;
-    }
-    .filter-attribute {
-        flex: 1 1 220px;
-        min-width: 220px;
-        max-width: 320px;
-        margin-bottom: 1.2em;
-        background: #f8f8f8;
-        padding: 1em;
-        border-radius: 6px;
-        border: 1px solid #eee;
-    }
-    .filter-attribute strong {
-        display: block;
-        margin-bottom: 0.5em;
-    }
-    /*.filter-attribute:not(:has(.filter-value:not(.invalid))) {*/
-    /*    opacity: 0.4;*/
-    /*}*/
-    .filter-attribute:not(:has(.filter-value:not(.invalid))) strong {
-        color: #AA0000;
-        text-decoration: line-through;
-    }
-    .filter-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
-    .filter-value {
-        margin: 0.2em 0;
-    }
-    .filter-value--out {
-        color: #aaa;
-    }
-    /*.filter-value.invalid {*/
-    /*    opacity: 0.4;*/
-    /*}*/
-    .filter-value.invalid label {
-        color: #AA0000;
-        text-decoration: line-through;
-    }
-    .badge {
-        display: inline-block;
-        margin-left: 0.3em;
-        padding: 0.1em 0.7em;
-        border-radius: 1em;
-        font-size: 90%;
-    }
-    .badge.active {
-        background: #47a247;
-        color: #fff;
-    }
-    .badge.inactive {
-        background: #bbb;
-        color: #fff;
-    }
-    @media (max-width: 700px) {
-        .filter-columns {
-            flex-direction: column;
-            gap: 0.7em;
-        }
-        .filter-attribute {
-            width: 100%;
-            min-width: 0;
-            max-width: 100%;
-        }
-    }
-</style>
-
-<div class="filter-ui">
-    <form method="post" id="product-filters" action="">
+<div id="test-product-filter-ui-outside-container" class="ajax-reload-by-filter" data-merconis-component="product-filter-ui">
+    <form method="post" id="product-filters" action="{{ app.request.pathInfo|slice(1) }}">
         <input type="hidden" name="FORM_SUBMIT" value="filterUI::{{ productListId }}">
         <div class="filter-columns">
             {% for attribute_id, attribute in filters %}
@@ -95,7 +16,9 @@
                                         {{ value.checked }} {{ value.disabled }}
                                     />
                                     {{ value.title }}
-                                    <span class="badge {{ value.activeStateClass }}">{{ value.matchEstimateCount }}</span>
+                                    {% if not value.checked and not value.disabled %}
+                                        <span class="badge {{ value.activeStateClass }}">{{ value.matchEstimateCount }}</span>
+                                    {% endif %}
                                 </label>
                             </li>
                         {% endfor %}
@@ -103,14 +26,6 @@
                 </div>
             {% endfor %}
         </div>
-        <input type="submit" value="OK" style="display:none;">
+        <input type="submit" value="OK">
     </form>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('product-filters').addEventListener('change', function(e) {
-                setTimeout(() => this.submit(), 80);
-            });
-        });
-    </script>
 </div>
