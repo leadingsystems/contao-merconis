@@ -22,6 +22,7 @@ class GetPageLayoutListener
         $GLOBALS['merconis_globals']['ls_shop_matchEstimatesMaxFilterValues'] = $layout->ls_shop_matchEstimatesMaxFilterValues;
         $GLOBALS['merconis_globals']['ls_shop_useFilterInProductDetails'] = $layout->ls_shop_useFilterInProductDetails;
         $GLOBALS['merconis_globals']['ls_shop_hideFilterFormInProductDetails'] = $layout->ls_shop_hideFilterFormInProductDetails;
+        $GLOBALS['merconis_globals']['ls_shop_removeImpossibleFilterOptions'] = $layout->ls_shop_removeImpossibleFilterOptions;
 
         $arr_themeData = ls_shop_generalHelper::ls_shop_getThemeDataForID($layout->pid);
         $GLOBALS['merconis_globals']['contaoThemeFolders'] = isset($arr_themeData) ? StringUtil::deserialize($arr_themeData['folders'], true) : array();

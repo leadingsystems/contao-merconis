@@ -2,7 +2,7 @@
 
 namespace Merconis\Core;
 
-$GLOBALS['TL_DCA']['tl_layout']['palettes']['default'] .= ';{lsShopFilter_legend},ls_shop_activateFilter,ls_shop_useFilterInStandardProductlist,ls_shop_numFilterFieldsInSummary,ls_shop_useFilterMatchEstimates,ls_shop_matchEstimatesMaxNumProducts,ls_shop_matchEstimatesMaxFilterValues,ls_shop_useFilterInProductDetails,ls_shop_hideFilterFormInProductDetails';
+$GLOBALS['TL_DCA']['tl_layout']['palettes']['default'] .= ';{lsShopFilter_legend},ls_shop_activateFilter,ls_shop_useFilterInStandardProductlist,ls_shop_numFilterFieldsInSummary,ls_shop_useFilterMatchEstimates,ls_shop_matchEstimatesMaxNumProducts,ls_shop_matchEstimatesMaxFilterValues,ls_shop_useFilterInProductDetails,ls_shop_hideFilterFormInProductDetails,ls_shop_removeImpossibleFilterOptions';
 
 $GLOBALS['TL_DCA']['tl_layout']['fields']['lsShopOutputDefinitionSet'] = array (
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
@@ -76,4 +76,12 @@ $GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_hideFilterFormInProductDetail
 );
 
 
+
+$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_removeImpossibleFilterOptions'] = array(
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_removeImpossibleFilterOptions'],
+    'exclude'                 => true,
+    'inputType'               => 'checkbox',
+    'eval'                    => array('tl_class'=>'clr m12'),
+    'sql'                     => "char(1) NOT NULL default '1'"
+);
 
