@@ -179,9 +179,10 @@ class Search implements CommonInterface, IndexSearchInterface
             if ($isInvalid) {
                 continue;
             }
-            if ($filteredCount > 0) {
-                $allowedKeys[$attributeId . ':' . $valueId] = true;
+            if ($filteredCount <= 0) {
+                continue;
             }
+            $allowedKeys[$attributeId . ':' . $valueId] = true;
         }
 
         // Filter both raw facet maps to only keep allowed options.
