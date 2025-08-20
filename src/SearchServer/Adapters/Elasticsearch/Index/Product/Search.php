@@ -100,8 +100,8 @@ class Search implements CommonInterface, IndexSearchInterface
 
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
 
-        // Get possibly reduced criteria and dismissed filters
-        [$criteria, $dismissedFilters] = $this->dismissInvalidAttributeFilters($criteria);
+        // Get possibly reduced criteria and dismissed filters; also reuse base facet keys when available
+        [$criteria, $dismissedFilters, $availableFacetKeys] = $this->dismissInvalidAttributeFilters($criteria);
 
         $runAggsOnMainQuery = $activateFacets && $activateMatchEstimates;
 
@@ -133,7 +133,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 $facetData = new Facets($unfilteredFacets, $filteredFacets, $combined);
             } else {
                 // Keys-only mode: do not compute counts in Elasticsearch when match estimates are disabled
-                $unfilteredFacets = $this->getFacets($baseCriteria, '', true);
+                $unfilteredFacets = !empty($availableFacetKeys) ? $availableFacetKeys : $this->getFacets($baseCriteria, '', true);
                 $filteredFacets = $unfilteredFacets;
                 $combined = $this->combineFacetDataKeysOnly($unfilteredFacets, $dismissedFilters);
                 $facetData = new Facets($unfilteredFacets, $filteredFacets, $combined);
@@ -238,14 +238,14 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         $dismissed = [];
         if (empty($criteria['attributes'])) {
-            return [$criteria, $dismissed];
+            return [$criteria, $dismissed, []];
         }
 
         // Get base query without attribute filters
         $baseCriteria = $this->prepareBaseCriteria($criteria);
 
-        // Get available facets for base query
-        $availableFacets = $this->getFacets($baseCriteria);
+        // Get available facets for base query (keys only for performance)
+        $availableFacets = $this->getFacets($baseCriteria, '', true);
 
         // Build lookup table of "attribute_id:value_id"
         $availableKeys = [];
@@ -265,7 +265,7 @@ class Search implements CommonInterface, IndexSearchInterface
             }
             return true;
         });
-        return [$criteria, $dismissed];
+        return [$criteria, $dismissed, $availableFacets];
     }
     private function combineFacetData(array $unfilteredFacets, array $filteredFacets, array $dismissedFilters = []): array
     {
