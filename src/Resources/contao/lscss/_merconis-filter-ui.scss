@@ -1,50 +1,50 @@
 [data-merconis-component="product-filter-ui"] {
-  padding: 1em;
-  border: 1px solid #ddd;
-  background: #fcfcfc;
-  margin-bottom: 2em;
+  padding: 1rem;
+  border: 0.1rem solid $ls-border-color-1;
+  background: lighten($ls-color-light-grey, 3%);
+  margin-bottom: 2rem;
 
   .filter-columns {
     display: flex;
     flex-wrap: wrap;
-    gap: 2em;
+    gap: 2rem;
 
-    @media (max-width: 700px) {
+    @media (max-width: 70rem) {
       flex-direction: column;
-      gap: 0.7em;
+      gap: 0.7rem;
     }
   }
 
   .filter-attribute {
-    flex: 1 1 220px;
-    min-width: 220px;
-    max-width: 320px;
-    margin-bottom: 1.2em;
-    background: #f8f8f8;
-    padding: 1em;
-    border-radius: 6px;
-    border: 1px solid #eee;
+    flex: 1 1 22rem;
+    min-width: 22rem;
+    max-width: 32rem;
+    margin-bottom: 1.2rem;
+    background: $ls-color-white;
+    padding: 1rem;
+    border-radius: 0.6rem;
+    border: 0.1rem solid lighten($ls-border-color-1, 10%);
 
     strong {
       display: block;
-      margin-bottom: 0.5em;
+      margin-bottom: 0.5rem;
     }
 
     .filter-summary {
-      font-size: 0.9em;
-      color: #666;
-      margin: 0.25em 0 0.5em;
+      font-size: $ls-font-size-body * 0.9;
+      color: $ls-color-dark-grey;
+      margin: 0.25rem 0 0.5rem;
     }
 
     // Attribute without a valid value
     &:not(:has(.filter-value:not(.invalid))) {
       strong {
-        color: #AA0000;
+        color: $ls-color-red;
         text-decoration: line-through;
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 70rem) {
       width: 100%;
       min-width: 0;
       max-width: 100%;
@@ -58,15 +58,15 @@
   }
 
   .filter-value {
-    margin: 0.2em 0;
+    margin: 0.2rem 0;
 
     &--out {
-      color: #aaa;
+      color: darken($ls-color-grey, 15%);
     }
 
     &.invalid {
       label {
-        color: #AA0000;
+        color: $ls-color-red;
         text-decoration: line-through;
       }
     }
@@ -74,19 +74,19 @@
 
   .badge {
     display: inline-block;
-    margin-left: 0.3em;
-    padding: 0.1em 0.7em;
-    border-radius: 1em;
-    font-size: 90%;
+    margin-left: 0.3rem;
+    padding: 0.1rem 0.7rem;
+    border-radius: 1rem;
+    font-size: $ls-font-size-body * 0.9;
 
     &.active {
-      background: #47a247;
-      color: #fff;
+      background: $ls-color-green;
+      color: $ls-color-white;
     }
 
     &.inactive {
-      background: #bbb;
-      color: #fff;
+      background: darken($ls-color-grey, 10%);
+      color: $ls-color-white;
     }
   }
 }
