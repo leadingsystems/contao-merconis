@@ -30,6 +30,12 @@
       margin-bottom: 0.5em;
     }
 
+    .filter-summary {
+      font-size: 0.9em;
+      color: #666;
+      margin: 0.25em 0 0.5em;
+    }
+
     // Attribute without a valid value
     &:not(:has(.filter-value:not(.invalid))) {
       strong {

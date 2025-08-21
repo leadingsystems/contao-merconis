@@ -11,6 +11,7 @@ use Merconis\Core\ls_shop_productSearcher;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Adapter
 {
@@ -36,8 +37,9 @@ class Adapter
     private Environment $twig;
     private RequestStack $requestStack;
     private Helper $helper;
+    private TranslatorInterface $translator;
 
-    public function __construct(SearchServer $searchServer, Helper $helper, LoggerInterface $logger, Environment $twig, RequestStack $requestStack)
+    public function __construct(SearchServer $searchServer, Helper $helper, LoggerInterface $logger, Environment $twig, RequestStack $requestStack, TranslatorInterface $translator)
     {
         $this->searchServer = $searchServer;
         $this->logger = $logger;
@@ -45,6 +47,7 @@ class Adapter
         $this->twig = $twig;
         $this->requestStack = $requestStack;
         $this->helper = $helper;
+        $this->translator = $translator;
     }
 
     public function setMode(Mode $mode): void
@@ -365,6 +368,9 @@ class Adapter
             return '';
         }
 
+        // Translator for localized conjunctions (e.g., "and")
+        $andWord = $this->translator->trans('MSC.ls_shop.general.and', [], 'contao_default');
+
         $combinedFacets = $this->getFacets()->getCombinedFacets();
         $filters = [];
         foreach ($combinedFacets as $facet) {
@@ -401,6 +407,7 @@ class Adapter
                 'title' => $attributeTitle,
                 'values' => []
             ];
+            $selectedTitles = [];
             foreach ($values as $value_id => $facet) {
                 $valueTitle = $valueNames[$value_id] ?? ('Value ' . $value_id);
                 $isChecked = !empty($userSelected[$attribute_id][$value_id]);
@@ -409,6 +416,9 @@ class Adapter
                 $liClass = ($isFilteredOut ? 'filter-value filter-value--out' : 'filter-value') . ($invalid ? ' invalid' : '');
                 $checked = $isChecked ? 'checked' : '';
                 $disabled = $isFilteredOut && !$isChecked ? 'disabled' : '';
+                if ($isChecked) {
+                    $selectedTitles[] = $valueTitle;
+                }
                 if ($useMatchEstimates) {
                     $filteredCount = $facet['filtered_product_count'] ?? 0;
                     $totalCount    = $facet['total_product_count'] ?? 0;
@@ -441,6 +451,18 @@ class Adapter
                     'encodedValue'=> $encodedValue,
                 ];
             }
+
+            // Create human-readable summary of selected values per attribute
+            $summary = '';
+            $countSelected = count($selectedTitles);
+            if ($countSelected === 1) {
+                $summary = $selectedTitles[0];
+            } elseif ($countSelected === 2) {
+                $summary = implode(' ' . $andWord . ' ', $selectedTitles);
+            } elseif ($countSelected > 2) {
+                $summary = implode(', ', array_slice($selectedTitles, 0, -1)) . ' ' . $andWord . ' ' . end($selectedTitles);
+            }
+            $preparedFilters[$attribute_id]['summary'] = $summary;
         }
 
         return $this->twig->render(
