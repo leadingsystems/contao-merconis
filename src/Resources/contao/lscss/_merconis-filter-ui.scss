@@ -24,6 +24,7 @@
     padding: 1rem;
     border-radius: 0.6rem;
     border: 0.1rem solid lighten($ls-border-color-1, 10%);
+    cursor: pointer;
 
     strong {
       display: block;
@@ -34,6 +35,21 @@
       font-size: $ls-font-size-body * 0.9;
       color: $ls-color-dark-grey;
       margin: 0.25rem 0 0.5rem;
+    }
+
+    // Hide list by default; show summary only
+    .filter-list {
+      display: none;
+    }
+
+    // When opened, show list and hide summary
+    &.is-open {
+      .filter-summary {
+        display: none;
+      }
+      .filter-list {
+        display: block;
+      }
     }
 
     // Attribute without a valid value
