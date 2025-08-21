@@ -61,7 +61,7 @@
     margin: 0.2rem 0;
 
     &--out {
-      color: darken($ls-color-grey, 15%);
+      color: lighten($ls-color-grey, 25%);
     }
 
     &.invalid {
