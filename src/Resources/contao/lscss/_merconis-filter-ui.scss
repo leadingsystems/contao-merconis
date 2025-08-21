@@ -93,6 +93,14 @@
       .filter-list {
         display: block;
       }
+      // Chevron points down when open
+      strong::before {
+        content: fa-content($fa-var-chevron-circle-down);
+      }
+      // Hide the X icon while open
+      .filter-close {
+        display: none;
+      }
     }
 
     // Attribute without a valid value
