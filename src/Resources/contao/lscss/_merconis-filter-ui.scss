@@ -21,20 +21,63 @@
     max-width: 32rem;
     margin-bottom: 1.2rem;
     background: $ls-color-white;
-    padding: 1rem;
+    padding: 1rem 2.2rem 0.9rem 1rem;
     border-radius: 0.6rem;
     border: 0.1rem solid lighten($ls-border-color-1, 10%);
     cursor: pointer;
+    position: relative;
 
     strong {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      position: relative;
+      padding-left: 2rem; // space for FA chevron icon
+
+      // left chevron icon (Font Awesome), vertically centered to the label
+      &::before {
+        @extend .fas;
+        content: fa-content($fa-var-chevron-circle-right);
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translate(0, -50%);
+        color: darken($ls-color-grey, 10%);
+        font-size: $ls-font-size-body * 1.1;
+      }
     }
 
     .filter-summary {
-      font-size: $ls-font-size-body * 0.9;
-      color: $ls-color-dark-grey;
-      margin: 0.25rem 0 0.5rem;
+      font-size: $ls-font-size-body * 0.85;
+      color: $ls-color-red;
+      margin: 0.1rem 0 0.2rem;
+    }
+
+    // right close icon element (real clickable element)
+    .filter-close {
+      position: absolute;
+      right: 0.7rem;
+      top: 0.6rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+
+      &::after {
+        @extend .fas;
+        content: fa-content($fa-var-times);
+        color: darken($ls-color-grey, 10%);
+        font-size: $ls-font-size-body * 1.2;
+        line-height: 1;
+      }
+    }
+
+    // subtle hover to hint interactivity
+    &:hover {
+      border-color: $ls-border-color-1;
+      box-shadow: 0 0 0 0.1rem rgba($ls-color-black, 0.02);
     }
 
     // Hide list by default; show summary only
