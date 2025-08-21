@@ -1,9 +1,9 @@
-<div id="test-product-filter-ui-outside-container" class="ajax-reload-by-filter" data-merconis-component="product-filter-ui">
+<div id="test-product-filter-ui-outside-container" class="ajax-reload-by-filter" data-merconis-component="product-filter-ui" data-product-list-id="{{ productListId }}">
     <form method="post" id="product-filters" action="{{ app.request.pathInfo|slice(1) }}">
         <input type="hidden" name="FORM_SUBMIT" value="filterUI::{{ productListId }}">
         <div class="filter-columns">
             {% for attribute_id, attribute in filters %}
-                <div class="filter-attribute">
+                <div class="filter-attribute" data-attribute-id="{{ attribute_id }}">
                     <strong>{{ attribute.title }}</strong>
                     {% if attribute.summary %}
                         <div class="filter-summary">{{ attribute.summary }}</div>
