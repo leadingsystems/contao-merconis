@@ -7,7 +7,7 @@
                     <strong>{{ attribute.title }}</strong>
                     {% if attribute.summary %}
                         <div class="filter-summary">{{ attribute.summary }}</div>
-                        <button type="button" class="filter-close" aria-label="Reset"></button>
+                        <button type="button" class="filter-reset" aria-label="Reset"></button>
                     {% endif %}
                     <ul class="filter-list">
                         {% for value_id, value in attribute.values %}

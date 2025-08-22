@@ -53,8 +53,8 @@
       margin: 0.1rem 0 0.2rem;
     }
 
-    // right close icon element (real clickable element)
-    .filter-close {
+    // right reset icon element (real clickable element)
+    .filter-reset {
       position: absolute;
       right: 0.7rem;
       top: 0.6rem;
@@ -98,7 +98,7 @@
         content: fa-content($fa-var-chevron-circle-down);
       }
       // Hide the X icon while open
-      .filter-close {
+      .filter-reset {
         display: none;
       }
     }
