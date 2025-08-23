@@ -10,6 +10,7 @@
                         <button type="button" class="filter-reset" aria-label="Reset"></button>
                     {% endif %}
                     <ul class="filter-list">
+                        <li class="filter-oc-title">{{ attribute.title }}</li>
                         {% for value_id, value in attribute.values %}
                             <li class="{{ value.liClass }}">
                                 <label>
