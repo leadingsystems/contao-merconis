@@ -67,8 +67,8 @@ class ls_shop_variant
 
         $session = System::getContainer()->get('merconis.session')->getSession();
         /*
-         * Diese Funktion wird auch vom Cornjob ausgeführt, für einen Cronjob gibt es keine Session deswegen
-         * können wir diesen hier nicht verwenden
+         * This function is also executed by a cronjob, which does not have a session.
+         * Therefore, we must check if a session exists before using it.
          */
         if($session) {
             $session_modifiedDataKeys = $session->get('merconis_modifiedDataKeys');

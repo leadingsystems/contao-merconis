@@ -74,6 +74,10 @@ class ls_shop_product
 		$this->ls_productVariantID = $this->ls_ID.'-0';
 
         $session = System::getContainer()->get('merconis.session')->getSession();
+        /*
+         * This function is also executed by a cronjob, which does not have a session.
+         * Therefore, we must check if a session exists before using it.
+         */
         if($session){
             $session_modifiedDataKeys =  $session->get('merconis_modifiedDataKeys');
             if (isset($session_modifiedDataKeys[$this->ls_productVariantID])) {
