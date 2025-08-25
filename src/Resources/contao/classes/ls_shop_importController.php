@@ -982,8 +982,11 @@ class ls_shop_importController
                 $row['oldPriceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
             }
 
-
-            if (empty($row['scalePrice'.($i === 0 ? '' : ('_'.$i))])) {
+            /*
+             * Ensure ScalePrice is a proper scale price array, not just a number.
+             * generateScalePriceArray returns the array as a string, so we must json_decode it first.
+             */
+            if(empty(json_decode(ls_shop_productManagementApiHelper::generateScalePriceArray($row['scalePrice'.($i === 0 ? '' : ('_'.$i))])))){
                 $row['scalePriceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
             }
         }
