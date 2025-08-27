@@ -97,14 +97,14 @@ class ThemeInstaller
         $container = System::getContainer();
         $cacheDir = $container->getParameter('kernel.cache_dir');
 
-        // Symfony-Cache und Contao-Unterordner löschen
+        // Remove Symfony cache and Contao subdirectories
         $fs = new Filesystem();
         $fs->remove($cacheDir . '/contao');
         $fs->remove($cacheDir . '/config');
         $fs->remove($cacheDir . '/trans');
         $fs->remove($cacheDir . '/url_generator');
 
-        // Neu aufbauen
+        // Warm up again
         $warmer = $container->get('cache_warmer');
         $warmer->warmUp($cacheDir);
     }
