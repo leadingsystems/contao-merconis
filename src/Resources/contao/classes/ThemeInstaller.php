@@ -17,6 +17,7 @@ use Contao\Input;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\Widget;
+use Symfony\Component\Filesystem\Filesystem;
 
 class ThemeInstaller
 {
@@ -88,6 +89,24 @@ class ThemeInstaller
     {
         $this->writeLocalconfig();
         $this->writeDatabase();
+        $this->hardClearCache();
+    }
+
+    private function hardClearCache()
+    {
+        $container = System::getContainer();
+        $cacheDir = $container->getParameter('kernel.cache_dir');
+
+        // Symfony-Cache und Contao-Unterordner löschen
+        $fs = new Filesystem();
+        $fs->remove($cacheDir . '/contao');
+        $fs->remove($cacheDir . '/config');
+        $fs->remove($cacheDir . '/trans');
+        $fs->remove($cacheDir . '/url_generator');
+
+        // Neu aufbauen
+        $warmer = $container->get('cache_warmer');
+        $warmer->warmUp($cacheDir);
     }
 
     private function writeLocalconfig()
