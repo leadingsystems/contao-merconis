@@ -168,7 +168,7 @@ class xrechnung_calculations
      *  Use Electronic Address Scheme code list (EAS). The code list is provided by the
      *  Connecting Europe Facility maintained and published.
      */
-    public function sellerEletronicAdressScheme(): string
+    public function sellerElectronicAdressScheme(): string
     {
 //TODO: kriegt noch keine Parameter ($data ist leer) und liefert daher immer EM zurück
         $schemeId = match ([]) {

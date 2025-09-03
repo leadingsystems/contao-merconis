@@ -159,7 +159,7 @@ trait xrechnung_elementData
         array('name' => 'Seller electronic adress',          //PFLICHT
             'id' => 'BT-34',
             'xml' => 'cbc:EndpointID',
-            'xmlAttributes' => [['schemeID', 'sellerEletronicAdressScheme']],
+            'xmlAttributes' => [['schemeID', 'sellerElectronicAdressScheme']],
             'calculate' => 'sellerEletronicAdress',
             'parent' => 'BG-4_SUB-1',
             'next' => 'BG-5',
