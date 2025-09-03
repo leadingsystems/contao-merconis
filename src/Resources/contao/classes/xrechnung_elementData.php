@@ -175,24 +175,27 @@ trait xrechnung_elementData
 
         array('name' => 'Seller address line 1',          //OPTIONAL
             'id' => 'BT-35',
+            'source' => ['flexibleParams', 'adresse_strasse'],
             'xml' => 'cbc:StreetName',
-            'calculate' => 'sellerStreetName',
+            #'calculate' => 'sellerStreetName',
             'parent' => 'BG-5',
             'next' => 'BT-37',
             ),
 
         array('name' => 'Seller city',          //PFLICHT
             'id' => 'BT-37',
+            'source' => ['flexibleParams', 'adresse_stadt'],
             'xml' => 'cbc:CityName',
-            'calculate' => 'sellerCity',
+            #'calculate' => 'sellerCity',
             'parent' => 'BG-5',
             'next' => 'BT-38',
             ),
 
         array('name' => 'Seller post code',          //PFLICHT
             'id' => 'BT-38',
+            'source' => ['flexibleParams', 'adresse_plz'],
             'xml' => 'cbc:PostalZone',
-            'calculate' => 'sellerPostCode',
+            #'calculate' => 'sellerPostCode',
             'parent' => 'BG-5',
             'next' => 'PAR_BT-40',
             ),
@@ -206,8 +209,9 @@ trait xrechnung_elementData
 
         array('name' => 'Seller country code',          //PFLICHT
             'id' => 'BT-40',
+            'source' => ['flexibleParams', 'adresse_laenderkuerzel'],
             'xml' => 'cbc:IdentificationCode',
-            'calculate' => 'sellerCountryCode',
+            #'calculate' => 'sellerCountryCode',
             'parent' => 'PAR_BT-40',
             ),
 
@@ -253,8 +257,9 @@ trait xrechnung_elementData
 
         array('name' => 'Seller legal registration identifier',          //OPTIONAL
             'id' => 'BT-30',
+            'source' => ['flexibleParams', 'kennung_juristische_person'],
             'xml' => 'cbc:RegistrationName',
-            'calculate' => 'sellerRegistrationName',
+#            'calculate' => 'sellerRegistrationName',
             'parent' => 'PAR_BT-30',
             ),
 
@@ -268,24 +273,27 @@ trait xrechnung_elementData
 
         array('name' => 'Seller contact point',          //PFLICHT
             'id' => 'BT-41',
+            'source' => ['flexibleParams', 'ansprechpartner_name'],
             'xml' => 'cbc:Name',
-            'calculate' => 'sellerContactPoint',
+#            'calculate' => 'sellerContactPoint',
             'parent' => 'BG-6',
             'next' => 'BT-42',
             ),
 
         array('name' => 'Seller contact telephone number',          //PFLICHT
             'id' => 'BT-42',
+            'source' => ['flexibleParams', 'ansprechpartner_telefon'],
             'xml' => 'cbc:Telephone',
-            'calculate' => 'sellerContactTelephone',
+#            'calculate' => 'sellerContactTelephone',
             'parent' => 'BG-6',
             'next' => 'BT-43',
             ),
 
         array('name' => 'Seller contact email address',          //PFLICHT
             'id' => 'BT-43',
+            'source' => ['flexibleParams', 'ansprechpartner_email'],
             'xml' => 'cbc:ElectronicMail',
-            'calculate' => 'sellerContactEmail',
+#            'calculate' => 'sellerContactEmail',
             'parent' => 'BG-6',
             ),
 

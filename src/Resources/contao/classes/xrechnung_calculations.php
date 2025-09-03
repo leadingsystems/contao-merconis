@@ -181,75 +181,82 @@ class xrechnung_calculations
     /*  BT-35
      *  Seller address line 1
      */
+/*
     public function sellerStreetName(): string
     {
-//TODO: Die Strasse des Verkäufers
         return 'Königsstrasse 10/1';
     }
+*/
 
     /*  BT-37
      *  Seller city
      */
+/*
     public function sellerCity(): string
     {
-//TODO: hier brauchen wir die Stadt des Verkäufers/Händlers
         return 'Sachsenheim';
     }
+*/
 
     /*  BT-38
      *  Seller country code
      */
+/*
     public function sellerPostCode(): string
     {
-//TODO: hier die PLZ des Verkäufers/Händlers
         return '74320';
     }
+*/
 
     /*  BT-40
      *  Seller country code
      */
+/*
     public function sellerCountryCode(): string
     {
-//TODO: hier das Länderkürzel des Verkäufers/Händlers
         return 'DE';
     }
+*/
 
     /*  BT-30
      *  Seller legal registration identifier
      */
+/*      02.09.2025, entfernt, da nun über flexible Parameter gelöst
     public function sellerRegistrationName(): string
     {
-//TODO: hier eingetragene Firmenname des Verkäufers/Händlers
         return 'Kunde GmbH';
     }
+*/
 
     /*  BT-41
      *  Information about the contact person or point of contact (such as the name of a person, department
      *  or office name)
      */
+/*      02.09.2025, entfernt, da nun über flexible Parameter gelöst
     public function sellerContactPoint(): string
     {
-//TODO: hier Ansprechpartner Name des Verkäufers/Händlers
         return 'ASP Max Mustermann';
     }
 
     /*  BT-42
      *  Telephone number of the contact person or point of contact
      */
+/*      02.09.2025, entfernt, da nun über flexible Parameter gelöst
     public function sellerContactTelephone(): string
     {
-//TODO: hier Ansprechpartner Telefonnummer des Verkäufers/Händlers
         return '07354 4385748';
     }
+*/
 
     /*  BT-43
      *  An email address of the contact person or point of contact.
      */
+/*      02.09.2025, entfernt, da nun über flexible Parameter gelöst
     public function sellerContactEmail(): string
     {
-//TODO: hier Ansprechpartner eMail des Verkäufers/Händlers
         return 'salescontact@supplier.com';
     }
+*/
 
 
     /*  BT-49 -> Buyer electronic address/Scheme identifier
