@@ -252,6 +252,75 @@ use Contao\System;
 					)
 				)
 			),
+			'stripe' => array(
+				'typeCode' => 'stripe', // Dieser Wert muss dem Array-Key im $types-Array entsprechen, da er z. B. für die Legend-Bezeichnung, also als Array-Key, Verwendung findet
+				'title' => 'Stripe', // Der Title wird als Options-Name im Select-Feld (DCA) verwendet. Mit diesem Namen können im Options-Referenz-Sprach Array eine mehrsprachige Bezeichnung sowie eine Erklärung für den helpwizard hinterlegt werden
+				'className' => 'Merconis\Core\ls_shop_paymentModule_stripe',
+				'BE_formFields' => array(
+					'stripe_privateKey' => array(
+						'label' => '', // Wird hier kein Label eingetragen, so wird automatisch ein Label-Verweis zur Sprachdatei mit dem Feldnamen (Array-Key) verwendet (Standard)
+						'inputType' => 'text'
+					),
+					'stripe_publicKey' => array(
+						'label' => '', // Wird hier kein Label eingetragen, so wird automatisch ein Label-Verweis zur Sprachdatei mit dem Feldnamen (Array-Key) verwendet (Standard)
+						'inputType' => 'text'
+					),
+					'stripe_paymentMethods' => array(
+						'label'                   => array('Aktive Bezahlmethode', 'Wählen Sie die eine Bezahlmethode aus, die dem Kunden angeboten werden soll.'),
+						'inputType'               => 'select',
+						'options'                 => array(
+							// Karten
+							'card'                => 'Card (Visa, Mastercard, Amex, Google-pay, Apple-pay, etc.,)',
+
+							// Bankzahlung (Europa)
+							'giropay'             => 'Giropay',
+							'sepa_debit'          => 'SEPA-Debit',
+							'bancontact'          => 'Bancontact',
+							'ideal'               => 'iDEAL',
+							'eps'                 => 'EPS',
+							'p24'                 => 'Przelewy24',
+
+							// BNPL & Ratenzahlung
+							'klarna'              => 'Klarna',
+
+							// Wallets
+							'paypal'              => 'PayPal',
+						),
+						'eval'                    => array(
+							'mandatory'           => true,
+							'includeBlankOption'  => true,
+						),
+					),
+					'stripe_shipToFieldNameFirstname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameLastname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameStreet' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNamePostal' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameCity' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameCountryCode' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameState' => array(
+						'label' => '',
+						'inputType' => 'text'
+					)
+				)
+			),
 			'payPalCheckout' => array(
 				'typeCode' => 'payPalCheckout', // Dieser Wert muss dem Array-Key im $types-Array entsprechen, da er z. B. für die Legend-Bezeichnung, also als Array-Key, Verwendung findet
 				'title' => 'Paypal Checkout', // Der Title wird als Options-Name im Select-Feld (DCA) verwendet. Mit diesem Namen können im Options-Referenz-Sprach Array eine mehrsprachige Bezeichnung sowie eine Erklärung für den helpwizard hinterlegt werden

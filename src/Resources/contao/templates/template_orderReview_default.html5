@@ -48,8 +48,6 @@ echo $this->strTemplate ?>">
 
         if (\Merconis\Core\ls_shop_generalHelper::check_finishingOrderIsAllowed()) {
             ?>
-
-
             <div id="checkoutStepFinalConfirmation">
                 <p class="error" id="payment-error-message"></p>
                 <?php echo $this->formConfirmOrder; ?>

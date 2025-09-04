@@ -279,6 +279,48 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'sql'                     => "tinytext NULL"
         ),
 
+        'stripe_privateKey' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'stripe_publicKey' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'stripe_paymentMethods' => array (
+            'sql'                     => "text NULL"
+        ),
+        'stripe_shipToFieldNameFirstname' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameLastname' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameStreet' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameCity' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNamePostal' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameState' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameCountryCode' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+
+
+
         'payPalCheckout_clientID' => array (
             'sql'                     => "text NULL"
         ),
