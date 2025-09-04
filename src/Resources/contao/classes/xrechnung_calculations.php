@@ -320,32 +320,23 @@ class xrechnung_calculations
         return 'Dummy Projectname';
     }
 
+
     /*  Erhält einen Preis aus der Bestellungszeile und liefert den Nettopreis zurück.
      *
      *  Im Feld tl_ls_shop_orders_items->price wird offensichtlich IMMER der Bruttopreis eingetragen - unabhängig
      *  von der Einstellung ´inputPriceType´ auf Rechnungsebene. (Dieser Wert kommt aus Backend->Grundeinstellungen->Art der
      *  eingegebenen Preise brutto/netto)
      *
-     *
+     *  @param      string      $price          Feld ´price´ aus der Auftragsposition
+     *  @param      string      $itemNo         Position der Bestellung
+     *  @return     string      $netPrice       Nettopreis der Position
      */
-    Public function itemNetPrice(string $price, string $itemNo): string
+    public function deductVATFromPrice(string $price, array $additionalParams): string
     {
         $netPrice = '';
-#$itemNo = 1;
-
-        $priceType = $this->arrOrder['inputPriceType'];
-
-        if ($priceType == 'net') {
-            $netPrice = $price;
-
-        } elseif ($priceType == 'gross') {
-
-            $tax = $this->arrOrder['items'][$itemNo]['quantityUnit'];
-
-            $netPrice = $price / $tax;
-        }
-
-
+        $orderPosition = $additionalParams['groupKey'];
+        $tax = $this->arrOrder['items'][$orderPosition]['taxPercentage'];
+        $netPrice = 100 * (float) $price / (100 + (float) $tax);
 
         return $netPrice;
     }

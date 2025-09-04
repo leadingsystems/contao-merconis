@@ -694,6 +694,7 @@ trait xrechnung_elementData
         array('name' => 'Invoice line net amount',                //PFLICHT
             'id' => 'BT-131',
             'source' => ['items', ['groupKey'], 'priceCumulative'],
+            'calculate' => 'deductVATFromPrice',
             'transform' => ['format_unitPriceAmount'],
             'xml' => 'cbc:LineExtensionAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
@@ -791,6 +792,7 @@ trait xrechnung_elementData
             array('name' => 'Item net price',                //PFLICHT
                 'id' => 'BT-146',
                 'source' => ['items', ['groupKey'], 'price'],
+                'calculate' => 'deductVATFromPrice',
                 'transform' => ['format_unitPriceAmount'],
                 'xml' => 'cbc:PriceAmount',
                 'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
