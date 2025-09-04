@@ -213,4 +213,18 @@ ZZZ	Mutually defined
         return strtoupper($source);
     }
 
+
+    /* Sanitizes the passed text to be valid for XML
+     *
+     *  @param      string      $source         input string
+     *  @return     string      $result         sanitized string
+
+     */
+    public function replaceSpecialChars(string $source): string
+    {
+        #$result =  htmlentities($source);                  //nicht ausreichend
+        $result = htmlspecialchars($source, ENT_XML1, 'UTF-8');
+
+        return $result;
+    }
 }

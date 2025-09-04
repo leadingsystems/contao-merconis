@@ -176,6 +176,7 @@ trait xrechnung_elementData
         array('name' => 'Seller address line 1',          //OPTIONAL
             'id' => 'BT-35',
             'source' => ['flexibleParams', 'adresse_strasse'],
+            'transform' => ['replaceSpecialChars'],
             'xml' => 'cbc:StreetName',
             'parent' => 'BG-5',
             'next' => 'BT-37',
@@ -184,6 +185,7 @@ trait xrechnung_elementData
         array('name' => 'Seller city',          //PFLICHT
             'id' => 'BT-37',
             'source' => ['flexibleParams', 'adresse_stadt'],
+            'transform' => ['replaceSpecialChars'],
             'xml' => 'cbc:CityName',
             'parent' => 'BG-5',
             'next' => 'BT-38',
@@ -192,6 +194,7 @@ trait xrechnung_elementData
         array('name' => 'Seller post code',          //PFLICHT
             'id' => 'BT-38',
             'source' => ['flexibleParams', 'adresse_plz'],
+            'transform' => ['replaceSpecialChars'],
             'xml' => 'cbc:PostalZone',
             'parent' => 'BG-5',
             'next' => 'PAR_BT-40',
@@ -207,6 +210,7 @@ trait xrechnung_elementData
         array('name' => 'Seller country code',          //PFLICHT
             'id' => 'BT-40',
             'source' => ['flexibleParams', 'adresse_laenderkuerzel'],
+            'transform' => ['replaceSpecialChars'],
             'xml' => 'cbc:IdentificationCode',
             'parent' => 'PAR_BT-40',
             ),
@@ -254,6 +258,7 @@ trait xrechnung_elementData
         array('name' => 'Seller legal registration identifier',          //OPTIONAL
             'id' => 'BT-30',
             'source' => ['flexibleParams', 'kennung_juristische_person'],
+            'transform' => ['replaceSpecialChars'],
             'xml' => 'cbc:RegistrationName',
             'parent' => 'PAR_BT-30',
             ),
@@ -269,6 +274,7 @@ trait xrechnung_elementData
         array('name' => 'Seller contact point',          //PFLICHT
             'id' => 'BT-41',
             'source' => ['flexibleParams', 'ansprechpartner_name'],
+            'transform' => ['replaceSpecialChars'],
             'xml' => 'cbc:Name',
             'parent' => 'BG-6',
             'next' => 'BT-42',
@@ -285,6 +291,7 @@ trait xrechnung_elementData
         array('name' => 'Seller contact email address',          //PFLICHT
             'id' => 'BT-43',
             'source' => ['flexibleParams', 'ansprechpartner_email'],
+            'transform' => ['replaceSpecialChars'],
             'xml' => 'cbc:ElectronicMail',
             'parent' => 'BG-6',
             ),
@@ -471,6 +478,7 @@ trait xrechnung_elementData
                 array('name' => 'Payment account identifier',       //PFLICHT
                     'id' => 'BT-84',
                     'source' => ['flexibleParams', 'iban'],
+                    'transform' => ['replaceSpecialChars'],
                     'xml' => 'cbc:ID',
                     'next' => 'BT-85',
                     'parent' => 'PAR_BT-84'
@@ -479,6 +487,7 @@ trait xrechnung_elementData
                 array('name' => 'Payment account name',             //OPTIONAL
                     'id' => 'BT-85',
                     'source' => ['flexibleParams', 'kontoinhaber'],
+                    'transform' => ['replaceSpecialChars'],
                     'xml' => 'cbc:Name',
                     'parent' => 'PAR_BT-84'
                     ),
@@ -493,6 +502,7 @@ trait xrechnung_elementData
             array('name' => 'Payment service provider identifier',      //OPTIONAL
                 'id' => 'BT-86',
                 'source' => ['flexibleParams', 'bic'],
+                'transform' => ['replaceSpecialChars'],
                 'xml' => 'cbc:ID',
                 'parent' => 'PAR_BT-86'
                 ),
