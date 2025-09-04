@@ -1,5 +1,8 @@
 <!-- indexer::stop -->
-<div id="cart-big" class="<?php echo $this->strTemplate ?>">
+<div id="cart-big" class="<?php
+use Merconis\Core\ls_shop_paymentModule;
+
+echo $this->strTemplate ?>">
     <div id="checkout-content" class="order-overview">
         <div class="back-button-box">
             <a href="{{shop_link::cartPage}}"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['checkoutFlow']['goToPreviousStep']; ?></a>
@@ -47,10 +50,20 @@
             ?>
             <div id="checkoutStepFinalConfirmation">
                 <?php echo $this->formConfirmOrder; ?>
+
+
+                <?= ls_shop_paymentModule::getInstance()->getCheckoutJavascript();?>
+
             </div>
             <?php
         }
         ?>
+    </div>
+</div>
+
+<div id="loading-overlay">
+    <div class="loading-content">
+        <p id="loading-message"></p>
     </div>
 </div>
 <!-- indexer::continue -->

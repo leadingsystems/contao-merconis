@@ -26,7 +26,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['notesLong']										= array('Note');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['freetext']										= array('Free text');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['paymentMethod_moduleReturnData']					= array('Information from the payment module');
-	
+
+    $GLOBALS['TL_LANG']['tl_ls_shop_orders']['stripe_paymentIntent']								= array('Stripe PaymentIntent');
+
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_saleId']								= array('PayPal Plus transaction code');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_currentStatus']						= array('PayPal Plus status');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payone_currentStatus']							= array('PAYONE status');

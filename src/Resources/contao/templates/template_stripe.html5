@@ -1,0 +1,255 @@
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // --- Helper functions for the loading overlay ---
+        const loadingOverlay = document.querySelector('.moduleContainer.loadingIndicator');
+        const loadingMessage = document.getElementById('loading-message');
+        const stripeCardErrorMessage = document.getElementById('stripe-card-error-message');
+
+
+        const showLoadingOverlay = (message) => {
+            if (loadingOverlay && loadingMessage) {
+                loadingMessage.textContent = message;
+                loadingOverlay.style.display = 'flex';
+                loadingMessage.style.display = 'flex';
+            }
+        };
+        const hideLoadingOverlay = () => {
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+            if (loadingMessage) {
+                loadingMessage.style.display = 'none';
+            }
+        };
+        const updateLoadingMessage = (message) => {
+            if (loadingMessage) {
+                loadingMessage.textContent = message;
+            }
+        };
+        const updateStripeCardErrorMessage = (message) => {
+            if (stripeCardErrorMessage) {
+                stripeCardErrorMessage.textContent = message;
+            }
+        };
+        // Helper function to wait for a certain amount of time
+        const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        // Initialization and data retrieval
+        let paymentMethodType;
+        let stripePublicKey;
+        let billing_details;
+
+        try {
+            const response = await fetch('/de/merconis-ajax/resource/paymentapi/?function=get-payment-info', {
+                method: 'GET',
+                headers: {},
+            });
+            const jsonResponse = await response.json();
+            const data = jsonResponse.data;
+
+            // Check if all fields exist
+            const requiredFields = ['paymentMethodType', 'publicKey', 'billing_details'];
+
+            for (const field of requiredFields) {
+                if (!(field in data)) {
+                    throw new Error(`One field is missing in request`);
+                }
+            }
+
+            paymentMethodType = data.paymentMethodType;
+            stripePublicKey = data.publicKey;
+            billing_details = data.billing_details;
+        } catch (error) {
+            console.error('Fehler bei der Initialisierung der Zahlung:', error);
+            if (stripeCardErrorMessage) {
+                stripeCardErrorMessage.textContent = '<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['errorCreatingPaymentIntent']?>';
+            }
+            return;
+        }
+
+        const stripe = Stripe(stripePublicKey);
+
+        let cardElement = null;
+
+        // Create card element if needed
+        if(paymentMethodType === 'card') {
+
+            // start element
+            const elements = stripe.elements();
+
+            // Create Stripe card element
+            cardElement = elements.create('card');
+
+            // Insert the card element into the DIV
+            cardElement.mount('#card-element');
+            // End element
+
+            console.log(cardElement)
+        }
+
+        const paymentButton = document.getElementById('ctrl_27');
+        const form = paymentButton.closest('form');
+        const termsCheckbox = document.querySelector('#ctrl_54 input[type="checkbox"]');
+
+        let paymentMessage = document.getElementById('stripe-payment-message');
+        if (!paymentMessage) {
+            paymentMessage = document.createElement('div');
+            paymentMessage.id = 'stripe-payment-message';
+            paymentMessage.setAttribute('role', 'alert');
+            paymentMessage.style.marginTop = '15px';
+            paymentButton.parentElement.appendChild(paymentMessage);
+        }
+
+        if (!form || !paymentButton || !termsCheckbox) {
+            console.error('Stripe integration: One of the required form elements was not found.');
+            return;
+        }
+
+        paymentButton.disabled = !termsCheckbox.checked;
+        termsCheckbox.addEventListener('change', () => {
+            paymentButton.disabled = !termsCheckbox.checked;
+        });
+
+        // --- Logic for payment processing when submitting the form ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            paymentButton.disabled = true;
+
+            try {
+                showLoadingOverlay('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['prepareOrder']?>');
+                await wait(2000);
+
+                const response = await fetch('/de/merconis-ajax/resource/paymentapi/?function=finish-order', {
+                    method: 'GET',
+                    headers: {
+                    },
+                });
+
+                let result;
+                result = await response.json();
+
+
+                const clientSecret = result.data.clientSecret;
+
+                if (result.status === "success" && result.data.afterCheckoutUrl) {
+                    // This message is only displayed at the beginning
+                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['preparePayment']?>');
+                    await wait(2000);
+
+                    const afterCheckoutUrl = result.data.afterCheckoutUrl;
+                    const fullUrlAfterCheckoutUrl = new URL(afterCheckoutUrl, window.location.origin).href;
+
+                    const maxTries = 3;
+                    let error;
+
+                    for (let attempt = 1; attempt <= maxTries; attempt++) {
+                        // On repetitions (from the 2nd attempt onward), update the message
+                        if (attempt > 1) {
+                            updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['tryToPayAgain']?>');
+                            await wait(1500); // Short pause before the next attempt
+                        }
+
+                        error = undefined;
+
+                        switch (paymentMethodType) {
+
+                            case 'card':
+                                ({ error } = await stripe.confirmCardPayment(clientSecret, {
+                                    payment_method: {
+                                        card: cardElement,
+                                        billing_details: billing_details
+                                    }
+                                }));
+                                break;
+
+                            case 'giropay':
+                                ({ error } = await stripe.confirmGiropayPayment(clientSecret, {
+                                    payment_method: { billing_details },
+                                    return_url: fullUrlAfterCheckoutUrl,
+                                }));
+                                break;
+
+                            case 'sepa_debit':
+                                ({ error } = await stripe.confirmSepaDebitPayment(clientSecret, {
+                                    payment_method: { billing_details },
+                                }));
+                                break;
+
+                            case 'bancontact':
+                                ({ error } = await stripe.confirmBancontactPayment(clientSecret, {
+                                    payment_method: { billing_details },
+                                    return_url: fullUrlAfterCheckoutUrl,
+                                }));
+                                break;
+
+                            case 'ideal':
+                                ({ error } = await stripe.confirmIdealPayment(clientSecret, {
+                                    payment_method: { billing_details },
+                                    return_url: fullUrlAfterCheckoutUrl,
+                                }));
+                                break;
+
+
+                            case 'eps':
+                                ({ error } = await stripe.confirmEpsPayment(clientSecret, {
+                                    payment_method: { billing_details },
+                                    return_url: fullUrlAfterCheckoutUrl,
+                                }));
+                                break;
+
+                            case 'p24':
+                                ({ error } = await stripe.confirmP24Payment(clientSecret, {
+                                    payment_method: { billing_details },
+                                    return_url: fullUrlAfterCheckoutUrl,
+                                }));
+                                break;
+
+
+                            case 'klarna':
+                                ({ error } = await stripe.confirmKlarnaPayment(clientSecret, {
+                                    payment_method: { billing_details },
+                                    return_url: fullUrlAfterCheckoutUrl,
+                                }));
+                                break;
+
+                            case 'paypal':
+                                ({ error } = await stripe.confirmPayPalPayment(clientSecret, {
+                                    payment_method: { billing_details },
+                                    return_url: fullUrlAfterCheckoutUrl,
+                                }));
+                                break;
+
+                            default:
+                                error = { message: `Unknown payment method: ${paymentMethodType}` };
+                                break;
+                        }
+
+                        // If the attempt was successful (no error), exit the loop
+                        if (!error) {
+                            break;
+                        }
+
+                        // Log the error of the current attempt
+                        console.warn(`Versuch ${attempt} fehlgeschlagen:`, error.message);
+                    }
+
+                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderRedirectToFinishPage']?>');
+                    await wait(1000); // A small delay so the user can see the message
+                    window.location.href = fullUrlAfterCheckoutUrl;
+
+                } else {
+                    // This block is executed when result.status is NOT "success"
+                    hideLoadingOverlay();
+                    updateStripeCardErrorMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderServerFailedMessage']?>')
+                    console.error("Failed in Checkout:", result);
+                }
+
+            } catch (err) {
+                // Server error
+                hideLoadingOverlay();
+                updateStripeCardErrorMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderServerErrorMessage']?>')
+                console.error("Error in Checkout:", err);
+            }
+        });
+    });
+</script>

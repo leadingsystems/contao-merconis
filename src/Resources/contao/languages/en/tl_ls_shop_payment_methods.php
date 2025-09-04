@@ -91,6 +91,42 @@
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payPalCheckout_shipToFieldNameCountryCode']			= array('Field name in checkout form for "Country"', 'Please enter the field name of the respective input field in the checkout form here. If you use fields for an alternative dispatch address, please make sure to use the same field names for corresponding fields with the appended character string "_alternative" at the end. If these values are not correctly transferred to PayPal, it might happen that you cannot take advantage of various PayPal service options. In this connection, please also make sure to define reasonable mandatory fields in the checkout form and to only permit values for the respective fields of which you know that PayPal will accept them.');
 
     /*
+    * Stripe-Bezeichnungen
+    */
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_privateKey'] = array('Private Key', '');
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_publicKey'] = array('Public Key', '');
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_paymentMethods'] = array('Payment Method', 'Select a payment method');
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameFirstname'] = array(
+        'Checkout field name for "First Name"',
+        'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameLastname'] = array(
+        'Checkout field name for "Last Name"',
+        'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameStreet'] = array(
+        'Checkout field name for "Street"',
+        'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameCity'] = array(
+        'Checkout field name for "City"',
+        'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNamePostal'] = array(
+        'Checkout field name for "Postal Code"',
+        'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameState'] = array(
+        'Checkout field name for "State/Region" (placeholders possible)',
+        'Enter the field name of the corresponding input field in the checkout form here. The placeholder "##value::fieldname##" allows you to specify a dynamic field name based on the value of another form field. Example: entering "province_##value::country##" results in the field name "province_us" if "USA" is selected in the "country" field, or "province_ca" if "Canada" is selected. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameCountryCode'] = array(
+        'Checkout field name for "Country"',
+        'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
+
+
+    /*
      * PayOne-Bezeichnungen
      */
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_legend']						= 'PAYONE settings';

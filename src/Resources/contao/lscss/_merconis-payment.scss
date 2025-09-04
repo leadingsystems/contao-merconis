@@ -1,0 +1,34 @@
+#loading-overlay {
+  position: fixed; /* Bleibt an einer festen Position im Fenster */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999999; /* Stellt sicher, dass das Overlay über allem liegt */
+  display: flex; /* Nutzt Flexbox zur einfachen Zentrierung */
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-family: sans-serif;
+  pointer-events: none;
+}
+
+#loading-overlay.hidden {
+  /*display: none;  Zum einfachen Ausblenden */
+}
+
+.loading-content {
+  text-align: center;
+}
+
+#loading-message {
+  margin-top: 10rem;
+  font-size: 1em;
+  color: black;
+}
+
+/* Keyframe-Animation für die Drehung des Spinners */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
