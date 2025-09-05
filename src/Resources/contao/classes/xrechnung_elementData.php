@@ -627,7 +627,28 @@ trait xrechnung_elementData
             'xml' => 'cbc:LineExtensionAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-22',
-            'next' => 'BT-107',                     #'next' => 'BT-109',
+            'next' => 'BT-109'
+            ),
+
+        array('name' => 'Invoice total amount without VAT',                //PFLICHT
+            'id' => 'BT-109',
+            #'source' => ['invoicedAmountNet'],                      //invoicedAmountNet ist IMMER der Nettobetrag
+            'calculate' => 'invoiceTotalAmountWithoutVAT',
+            'transform' => ['format_unitPriceAmount'],
+            'xml' => 'cbc:TaxExclusiveAmount',
+            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
+            'parent' => 'BG-22',
+            'next' => 'BT-112',
+            ),
+
+        array('name' => 'Invoice total amount with VAT',                //PFLICHT
+            'id' => 'BT-112',
+            'source' => ['invoicedAmount'],                         //invoicedAmount ist IMMER der Bruttobetrag
+            'transform' => ['format_unitPriceAmount'],
+            'xml' => 'cbc:TaxInclusiveAmount',
+            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
+            'parent' => 'BG-22',
+            'next' => 'BT-107',
             ),
 
         array('name' => 'Sum of allowances on document level',                //OPTIONAL
@@ -649,29 +670,9 @@ trait xrechnung_elementData
             'xml' => 'cbc:ChargeTotalAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-22',
-            'next' => 'BT-109',
-            ),
-
-        array('name' => 'Invoice total amount without VAT',                //PFLICHT
-            'id' => 'BT-109',
-            #'source' => ['invoicedAmountNet'],                      //invoicedAmountNet ist IMMER der Nettobetrag
-            'calculate' => 'invoiceTotalAmountWithoutVAT',
-            'transform' => ['format_unitPriceAmount'],
-            'xml' => 'cbc:TaxExclusiveAmount',
-            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'BG-22',
-            'next' => 'BT-112',
-            ),
-
-        array('name' => 'Invoice total amount with VAT',                //PFLICHT
-            'id' => 'BT-112',
-            'source' => ['invoicedAmount'],                         //invoicedAmount ist IMMER der Bruttobetrag
-            'transform' => ['format_unitPriceAmount'],
-            'xml' => 'cbc:TaxInclusiveAmount',
-            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
-            'parent' => 'BG-22',
             'next' => 'BT-115',
             ),
+
 
 //TODO: Haben wir Teil-Rechnungen ? Dann wären hier bereits gezahlte Beträge drin
         #array('name' => 'Paid amount',                //OPTIONAL

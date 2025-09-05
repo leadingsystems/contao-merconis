@@ -276,8 +276,6 @@ class xrechnung_calculations
             $sumPositions += 100 * $position['priceCumulative'] / (100 + (float) $position['taxPercentage']);
         }
 
-        //Alternativ:
-
         return (string) $sumPositions;
     }
 
@@ -293,25 +291,32 @@ class xrechnung_calculations
         }
 
         //Alle Abzüge subtrahieren - BT-107
+//TODO: gibt es Abzüge ? Wenn ja woher kriegen wir die ?
         $sumAllowances = 0;
         $sumPositions -= $sumAllowances;
 
         //Alle Gebühren addieren    - BT-108
-        $sumCharges = $this->arrOrder['shippingMethod_amount'];
+
+        //shippingMethod_amount enthält die MwSt!
+        #$sumCharges = $this->arrOrder['shippingMethod_amount'];
+
+//TODO: ist die MwSt bei Versandmethoden immer 19% - wenn ja, könnte die Abfrage gespart werden
+        #$vatShipping = (float) 19;
+
+        //Details zum Versand holen
+        $shippingMethodInfo = \Merconis\Core\ls_shop_generalHelper::getShippingMethodInfo($this->arrOrder['shippingMethod_id']);
+
+        //Lösung 1: aus dem Betrag wird die MwSt rausgerechnet
+
+            //Welcher MwSt Satz wurde für die Versandmethode angewendet ?
+            #$vatShipping = ((float) $this->arrOrder['shippingMethod_amount'] / (float) $shippingMethodInfo['feeValue']) ;
+            #$sumCharges = $this->arrOrder['shippingMethod_amount'] / $vatShipping;
+
+        //Lösung 2: es wird einfach nur der Wert aus ´feeValue´ genommen
+//TODO: steht in feeValue bei den Versandmethoden immer der Nettobetrag ?
+            $sumCharges = (float) $shippingMethodInfo['feeValue'];
+
         $sumPositions += $sumCharges;
-
-        //Gesamtbetrag brutto abzgl. Versandkosten = Summe der Positionen brutto
-        #$rest = $this->arrOrder['total'] - $this->arrOrder['shippingMethod_amount'];
-
-        //Welcher MwSt Satz wurde für die Versandmethode angewendet ?
-        #$res = \Merconis\Core\ls_shop_generalHelper::getShippingMethodInfo($this->arrOrder['shippingMethod_id']);
-
-        #$vat = ((float) $this->arrOrder['shippingMethod_amount'] / (float) $res['feeValue']) ;
-
-        //davon noch die MwSt abziehen
-        #$vat = (float) 19;
-
-        #$result = 100 * $rest / (100 + $vat);
 
         return $sumPositions;
     }
@@ -333,11 +338,14 @@ class xrechnung_calculations
      */
     public function sumOfCharges(): string
     {
+        #$shippingMethodInfo = \Merconis\Core\ls_shop_generalHelper::getShippingMethodInfo($this->arrOrder['shippingMethod_id']);
+        #$sumCharges = $shippingMethodInfo['feeValue'];
+//TODO: das kann nicht richtig sein, weil man immer den Wert zum Zeitpunkt der Bestellung braucht
 
         $sumCharges = $this->arrOrder['shippingMethod_amount'];
 
         //Abzüglich der MwSt
-        #$sumCharges = $sumCharges / 1.19;
+        $sumCharges = $sumCharges / 1.19;
 
         return $sumCharges;
     }
