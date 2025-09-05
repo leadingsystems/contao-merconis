@@ -341,4 +341,58 @@ class xrechnung_calculations
         return $netPrice;
     }
 
+
+    /*  Für BT-106 LegalMonetaryTotal->LineExtensionAmount wird die Summe aller Position Netto benötigt
+     *  Dies geht entweder indem man von ´priceCumulative´ (=Brutto Einzelpreis * Menge) die MwSt abzieht
+     *  und davon die Summe bildet oder
+     *  von ´total´ die Lieferkosten ´shippingMethod_amount´ abzieht und anschließend die MwSt abzieht.
+     *
+     *
+     */
+    public function sumOfInvoiceLineNetAmount(): string
+    {
+        //Summenbildung (Einzelpositionen ohne MwSt)
+        foreach ($this->arrOrder['items'] as $position) {
+            $sumPositions += 100 * $position['priceCumulative'] / (100 + (float) $position['taxPercentage']);
+        }
+
+        //Alternativ:
+
+        return (string) $sumPositions;
+    }
+
+
+    /*  Ermittelt den Gesamtbetrag Netto inklusive aller Abzüge und Gebühren
+     *
+     * */
+    public function invoiceTotalAmountWithoutVAT(): string
+    {
+        //Summenbildung (Einzelpositionen ohne MwSt)
+        foreach ($this->arrOrder['items'] as $position) {
+            $sumPositions += 100 * $position['priceCumulative'] / (100 + (float) $position['taxPercentage']);
+        }
+
+        //Alle Abzüge subtrahieren - BT-107
+        $sumAllowances = 0;
+        $sumPositions -= $sumAllowances;
+
+        //Alle Gebühren addieren    - BT-108
+        $sumCharges = $this->arrOrder['shippingMethod_amount'];
+        $sumPositions += $sumCharges;
+
+        //Gesamtbetrag brutto abzgl. Versandkosten = Summe der Positionen brutto
+        #$rest = $this->arrOrder['total'] - $this->arrOrder['shippingMethod_amount'];
+
+        //Welcher MwSt Satz wurde für die Versandmethode angewendet ?
+        #$res = \Merconis\Core\ls_shop_generalHelper::getShippingMethodInfo($this->arrOrder['shippingMethod_id']);
+
+        #$vat = ((float) $this->arrOrder['shippingMethod_amount'] / (float) $res['feeValue']) ;
+
+        //davon noch die MwSt abziehen
+        #$vat = (float) 19;
+
+        #$result = 100 * $rest / (100 + $vat);
+
+        return $sumPositions;
+    }
 }

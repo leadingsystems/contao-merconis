@@ -621,7 +621,8 @@ trait xrechnung_elementData
 
         array('name' => 'Sum of Invoice line net amount',                //PFLICHT
             'id' => 'BT-106',
-            'source' => ['invoicedAmountNet'],
+            #'source' => ['invoicedAmountNet'],
+            'calculate' => 'sumOfInvoiceLineNetAmount',
             'transform' => ['format_unitPriceAmount'],
             'xml' => 'cbc:LineExtensionAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
@@ -631,7 +632,8 @@ trait xrechnung_elementData
 
         array('name' => 'Invoice total amount without VAT',                //PFLICHT
             'id' => 'BT-109',
-            'source' => ['invoicedAmountNet'],                      //invoicedAmountNet ist IMMER der Nettobetrag
+            #'source' => ['invoicedAmountNet'],                      //invoicedAmountNet ist IMMER der Nettobetrag
+            'calculate' => 'invoiceTotalAmountWithoutVAT',
             'transform' => ['format_unitPriceAmount'],
             'xml' => 'cbc:TaxExclusiveAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
