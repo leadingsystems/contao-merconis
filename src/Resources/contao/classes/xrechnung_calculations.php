@@ -315,4 +315,31 @@ class xrechnung_calculations
 
         return $sumPositions;
     }
+
+
+    /*  Ermittelt den Gesamtbetrag Netto inklusive aller Abzüge und Gebühren
+     *
+     */
+    public function sumOfAllowances(): string
+    {
+//TODO: woher kriegen wir die Summe aller Abzüge ?
+
+        return '0';
+    }
+
+
+    /*  Ermittelt den Gesamtbetrag Netto inklusive aller Abzüge und Gebühren
+     *
+     */
+    public function sumOfCharges(): string
+    {
+
+        $sumCharges = $this->arrOrder['shippingMethod_amount'];
+
+        //Abzüglich der MwSt
+        #$sumCharges = $sumCharges / 1.19;
+
+        return $sumCharges;
+    }
+
 }

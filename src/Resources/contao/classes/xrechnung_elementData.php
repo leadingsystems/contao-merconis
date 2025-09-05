@@ -627,6 +627,28 @@ trait xrechnung_elementData
             'xml' => 'cbc:LineExtensionAmount',
             'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
             'parent' => 'BG-22',
+            'next' => 'BT-107',                     #'next' => 'BT-109',
+            ),
+
+        array('name' => 'Sum of allowances on document level',                //OPTIONAL
+            'id' => 'BT-107',
+            #'source' => ['invoicedAmountNet'],
+            'calculate' => 'sumOfAllowances',
+            'transform' => ['format_unitPriceAmount'],
+            'xml' => 'cbc:AllowanceTotalAmount',
+            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
+            'parent' => 'BG-22',
+            'next' => 'BT-108',
+            ),
+
+        array('name' => 'Sum of charges on document level',                //OPTIONAL
+            'id' => 'BT-108',
+            #'source' => ['invoicedAmountNet'],
+            'calculate' => 'sumOfCharges',
+            'transform' => ['format_unitPriceAmount'],
+            'xml' => 'cbc:ChargeTotalAmount',
+            'xmlAttributes' => [['currencyID', 'getCurrencyCode']],
+            'parent' => 'BG-22',
             'next' => 'BT-109',
             ),
 
