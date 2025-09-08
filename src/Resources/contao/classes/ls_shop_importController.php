@@ -987,7 +987,7 @@ class ls_shop_importController
              * generateScalePriceArray returns the array as a string, so we must json_decode it first.
              */
             if(empty(json_decode(ls_shop_productManagementApiHelper::generateScalePriceArray($row['scalePrice'.($i === 0 ? '' : ('_'.$i))])))){
-                $row['scalePriceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
+                $row['scalePriceType'.($i === 0 ? '' : ('_'.$i))] = 'scalePriceStandalone';
             }
         }
 
