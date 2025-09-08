@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.1.8 (2025-09-12)
+ * improve product import: priceType & weightType
+
 ### 5.1.7 (2025-08-01)
  * fix scroll to top-pagination
  * fix sitemap output
