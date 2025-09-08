@@ -29,8 +29,8 @@ class DeliveryDate extends InsertTag
 
         $deliveryTimeDays = $obj_productOrVariant->getDeliveryTimeDays($GLOBALS['merconis_globals']['arr_dataForInsertTags']['float_requestedQuantity']);
 
-        if (isset($GLOBALS['MERCONIS_HOOKS']['getDeliveryTimeOptions']) && is_array($GLOBALS['MERCONIS_HOOKS']['getDeliveryTimeOptions'])) {
-            foreach ($GLOBALS['MERCONIS_HOOKS']['getDeliveryTimeOptions'] as $mccb) {
+        if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeShown']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeShown'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeShown'] as $mccb) {
                 $objMccb = System::importStatic($mccb[0]);
                 $deliveryTimeDays = $objMccb->{$mccb[1]}($deliveryTimeDays, $obj_productOrVariant);
             }
