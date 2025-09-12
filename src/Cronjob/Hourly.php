@@ -2,12 +2,22 @@
 
 namespace LeadingSystems\MerconisBundle\Cronjob;
 
-use Merconis\Core\ls_shop_generalHelper;
+use Doctrine\DBAL\Connection;
+use LeadingSystems\MerconisBundle\Helpers\RestockInfoMessenger;
 
 class Hourly
 {
+    private Connection $connection;
+
+    public function __construct(Connection $connection)
+    {
+        $this->connection = $connection;
+    }
+
     public function __invoke(): void
     {
-        ls_shop_generalHelper::sendMessagesOnStatusChangeCronHourly();
+        $restockInfoMessenger = new RestockInfoMessenger($this->connection);
+
+        $restockInfoMessenger->sendMessagesOnStatusChangeCronHourly();
     }
 }

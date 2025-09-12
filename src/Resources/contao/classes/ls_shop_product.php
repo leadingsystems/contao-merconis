@@ -891,16 +891,7 @@ returns the id of the variant that has currently been selected
 				return $this->currentLanguageData['alias'] ? $this->currentLanguageData['alias'] : $this->mainData['alias'];
 				break;
 
-			case '_linkToProduct':
-				if (!isset($objPage) || !is_object($objPage)) {
-					return '';
-				}
-				return $this->getlinkToProduct();
-				break;
 
-			case '_link':
-				return $this->_linkToProduct;
-				break;
 
 			case '_quantityComparisonText':
 				return $this->getMengenvergleichsangabe($this->_priceMinimumAfterTax, $this->_quantityComparisonUnit, $this->_quantityComparisonDivisor);
@@ -1800,6 +1791,18 @@ filter context, NULL will be returned.
 	 */
 	public function __call($what, $args) {
 		switch ($what) {
+
+            case '_linkToProduct':
+                if (!isset($objPage) || !is_object($objPage)) {
+                    return '';
+                }
+                return $this->getlinkToProduct('', $args[0]);
+                break;
+
+            case '_link':
+                return $this->_linkToProduct($args[0]);
+                break;
+
 			/* ## START AUTO DOCUMENTATION METHODS PRODUCT ## */
 			case '_createGallery'
 				/* ## DESCRIPTION:
@@ -2498,9 +2501,14 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	 * benutzerdefinierte Sortierung bzw. Kennzeichnung der Hauptseite möglich ist. Solange
 	 * das nicht der Fall ist, wird einfach die erstbeste hinterlegte Seite verwendet.
 	 */
-	public function getlinkToProduct($var_useVariantAliasOrID = '') {
+	public function getlinkToProduct($var_useVariantAliasOrID = '', $str_language) {
         /** @var PageModel $objPage */
         global $objPage;
+
+        if(!$objPage){
+            $test = true;
+        }
+
         $currentMainLanguagePageID = ls_shop_languageHelper::getMainlanguagePageIDForPageID($objPage->id);
         /*-->
          * Prüfen, ob die aktuelle Hauptsprachseite dem Produkt hinterlegt ist
@@ -2531,7 +2539,9 @@ This method can be used to call a function hooked with the "callingHookedProduct
             }
 
             $languagePages = ls_shop_languageHelper::getLanguagePages($MainLanguagePageIDForLink);
-            $currentLanguagePageIDForLink = $languagePages[$objPage->language]['id'];
+
+
+            $currentLanguagePageIDForLink = $languagePages[$str_language]['id'];
 
             $objProductPage = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached($currentLanguagePageIDForLink);
 
