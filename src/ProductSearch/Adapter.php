@@ -99,6 +99,9 @@ class Adapter
 
     public function receiveUserInput(): void
     {
+        if (!$this->useFilter) {
+            return;
+        }
         $request = $this->requestStack->getCurrentRequest()->request;
         if ($request->get('FORM_SUBMIT') !== 'filterUI::' . $this->productListId) {
             return;
@@ -364,6 +367,9 @@ class Adapter
 
     public function getFilterUI(): string
     {
+        if (!$this->useFilter) {
+            return '';
+        }
         if ($this->getFacets() === null) {
             return '';
         }

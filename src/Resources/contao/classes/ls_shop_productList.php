@@ -249,7 +249,7 @@ class ls_shop_productList
 		
 		$objTemplate = new \FrontendTemplate('productList');
 
-        $objTemplate->filterUI = $productSearchAdapter->getFilterUI();
+        $objTemplate->filterUI = $this->blnUseFilter ? $productSearchAdapter->getFilterUI() : '';
 
 		$objTemplate->blnUseFilter = $this->blnUseFilter;
 
