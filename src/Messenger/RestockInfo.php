@@ -1,16 +1,45 @@
 <?php
 
-namespace LeadingSystems\MerconisBundle\Helpers;
 
+namespace LeadingSystems\MerconisBundle\Messenger;
+
+use Cron\CronExpression;
+use Doctrine\DBAL\Connection;
 use Merconis\Core\ls_shop_orderMessages;
 
-class RestockInfoMessenger
-{
-    public $connection;
 
-    public function __construct($connection)
+class RestockInfo
+{
+
+    private Connection $connection;
+    private string $executionResultMessage = '';
+    private string $cronExpression;
+
+    public function __construct(Connection $connection, string $cronExpression)
     {
+        if (!CronExpression::isValidExpression($cronExpression)) {
+            throw new \Exception($GLOBALS['TL_LANG']['tl_ls_scheduler_job']['misc']['invalidCronExpressionErrorMessage']);
+        }
+
         $this->connection = $connection;
+        $this->cronExpression = $cronExpression;
+    }
+
+
+    public function getCronExpression(): string{
+
+        return $this->cronExpression;
+    }
+
+
+    public function run(): void
+    {
+        $this->sendRestockInfo();
+    }
+
+    public function getExecutionResultMessage(): string
+    {
+        return $this->executionResultMessage ?: 'Executed successfully without returning specific execution result message.';
     }
 
 
@@ -76,28 +105,12 @@ class RestockInfoMessenger
                 ]
             );
         }
+
+        $this->executionResultMessage = 'Executed successfully without returning specific execution result message.';
     }
 
-    public function sendMessagesOnStatusChangeCronDaily(): void
-    {
-        $this->sendMessagesOnStatusChange('onStatusChangeCronDaily');
-    }
 
-    public function sendMessagesOnStatusChangeCronHourly(): void
-    {
-        $this->sendMessagesOnStatusChange('onStatusChangeCronHourly');
-    }
 
-    private function sendMessagesOnStatusChange(string $changeType): void
-    {
-        $orders = $this->connection->fetchAllAssociative("SELECT id FROM tl_ls_shop_orders");
-
-        foreach ($orders as $order) {
-
-            $objOrderMessages = new ls_shop_orderMessages($order['id'], $changeType, 'sendWhen', null, true);
-            $objOrderMessages->sendMessages();
-        }
-    }
 
 
 }
