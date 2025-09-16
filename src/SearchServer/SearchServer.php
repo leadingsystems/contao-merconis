@@ -86,7 +86,7 @@ class SearchServer
 
     public function search(Adapter &$productSearchAdapter, string $language): SearchResult
     {
-        $activateFacets = true; // facets are needed for UI when filter is active
+        $activateFacets = $productSearchAdapter->isUsingFilter();
         $activateMatchEstimates = isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) ? (bool)$GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] : true;
         $removeImpossibleOptions = isset($GLOBALS['merconis_globals']['ls_shop_removeImpossibleFilterOptions']) ? (bool)$GLOBALS['merconis_globals']['ls_shop_removeImpossibleFilterOptions'] : true;
 

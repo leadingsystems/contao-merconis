@@ -365,6 +365,11 @@ class Adapter
         return $this->sortingCriteria;
     }
 
+    public function isUsingFilter(): bool
+    {
+        return (bool)$this->useFilter;
+    }
+
     public function getFilterUI(): string
     {
         if (!$this->useFilter) {
