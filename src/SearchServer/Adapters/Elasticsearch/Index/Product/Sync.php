@@ -338,15 +338,6 @@ class Sync implements CommonInterface, IndexSyncInterface
         }
 
         $variantAttributesAndValues = json_decode($variantAttributesAndValuesJSON, true);
-        if (!is_array($variantAttributesAndValues) || !count($variantAttributesAndValues)) {
-            /*
-             * If the variant does not have attributes/values, its effective attributes/values would be exactly
-             * what the product itself has. Since this variant would never match any attribute/value requirements
-             * that the product itself wouldn't match, there's no point in writing these effective attributes/values
-             * to the variant. This would only bloat the index for no benefit.
-             */
-            return $variantAttributesAndValuesJSON;
-        }
 
         $effectiveAttributesAndValues = array_merge($variantAttributesAndValues, $productAttributesAndValues);
 
