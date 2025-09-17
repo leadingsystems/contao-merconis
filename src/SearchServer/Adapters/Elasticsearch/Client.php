@@ -44,10 +44,16 @@ class Client implements ClientInterface
     {
         $httpClient = InstrumentedGuzzleFactory::create([
             'verify' => false,
-        ], null, $this->projectDir, $this->environment);
+		], null, $this->projectDir, $this->environment);
+
+		// Also pass the handler and on_stats via httpClientOptions so the ES client adapter retains them
+		$httpClientOptions = InstrumentedGuzzleFactory::buildHttpClientOptions([
+			'verify' => false,
+		], null, $this->projectDir, $this->environment);
 
         $this->elasticsearchClient = ClientBuilder::create()
-            ->setHttpClient($httpClient)
+			->setHttpClient($httpClient)
+			->setHttpClientOptions($httpClientOptions)
             ->setHosts([$this->host])
             ->setBasicAuthentication($this->username, $this->password)
             // ->setCABundle($this->cert)

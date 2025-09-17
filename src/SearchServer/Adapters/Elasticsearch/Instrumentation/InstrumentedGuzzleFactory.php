@@ -19,11 +19,24 @@ class InstrumentedGuzzleFactory
 	 */
     public static function create(array $baseConfig = [], ?LoggerInterface $logger = null, ?string $projectRoot = null, ?string $environment = null): Client
 	{
-		$stack = HandlerStack::create();
-
         if (empty($projectRoot) || empty($environment)) {
             throw new \InvalidArgumentException('InstrumentedGuzzleFactory requires projectRoot and environment via DI.');
         }
+        $config = self::buildHttpClientOptions($baseConfig, $logger, $projectRoot, $environment);
+        return new Client($config);
+    }
+
+    /**
+     * Build Guzzle client options including handler and on_stats callback.
+     */
+    public static function buildHttpClientOptions(array $baseConfig = [], ?LoggerInterface $logger = null, ?string $projectRoot = null, ?string $environment = null): array
+    {
+        if (empty($projectRoot) || empty($environment)) {
+            throw new \InvalidArgumentException('InstrumentedGuzzleFactory requires projectRoot and environment via DI.');
+        }
+
+        $stack = HandlerStack::create();
+
         // We only accept a file name from settings (no absolute paths). Logs go to <project>/var/logs.
         $fileNameOnly = isset($GLOBALS['TL_CONFIG']['ls_shop_esLogFile']) ? (string) $GLOBALS['TL_CONFIG']['ls_shop_esLogFile'] : '';
         $logFile = self::resolveLogFilePath($fileNameOnly, $projectRoot, $environment);
@@ -33,14 +46,14 @@ class InstrumentedGuzzleFactory
         $slowServerMs = self::cfgInt('ls_shop_esSlowServerMs', 'MERCONIS_ES_SLOW_SERVER_MS', 300);
         $slowNetworkMs = self::cfgInt('ls_shop_esSlowNetworkMs', 'MERCONIS_ES_SLOW_NETWORK_MS', 200);
 
-		$config = $baseConfig + [
-			'handler' => $stack,
-			// Always set decode_content to true so Content-Length reflects decoded sizes if possible
-			'decode_content' => true,
-		];
+        $config = $baseConfig + [
+            'handler' => $stack,
+            // Always set decode_content to true so Content-Length reflects decoded sizes if possible
+            'decode_content' => true,
+        ];
 
-		// Attach on_stats to capture transfer timings and sizes after each request
-		$config['on_stats'] = function (TransferStats $stats) use ($logger, $enabled, $sampleRate, $logFile, $slowTotalMs, $slowServerMs, $slowNetworkMs) {
+        // Attach on_stats to capture transfer timings and sizes after each request
+        $config['on_stats'] = function (TransferStats $stats) use ($logger, $enabled, $sampleRate, $logFile, $slowTotalMs, $slowServerMs, $slowNetworkMs) {
 			if (!$enabled) {
 				return;
 			}
@@ -172,9 +185,9 @@ class InstrumentedGuzzleFactory
                     @error_log($line);
                 }
 			}
-		};
+        };
 
-		return new Client($config);
+        return $config;
 	}
 
 	private static function guessOperation(string $path): string
