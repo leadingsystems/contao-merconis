@@ -320,7 +320,8 @@ class Search implements CommonInterface, IndexSearchInterface
                     'track_total_hits' => true,
                 ]
             ];
-            $params['headers'] = ['X-Opaque-Id' => $opaqueIdBase . ';part=main;seq=0'];
+            // Set per-request opaque id header via transport (endpoint params don't support arbitrary headers)
+            $this->client->elasticsearchClient->getTransport()->setHeader('X-Opaque-Id', $opaqueIdBase . ';part=main;seq=0');
             if ($activateFacets) {
                 $params['body']['aggs'] = $aggs;
             }
@@ -362,19 +363,19 @@ class Search implements CommonInterface, IndexSearchInterface
             $scrollId = $response['_scroll_id'] ?? null;
             if ($scrollId && !empty($response['hits']['hits'])) {
                 $seq++;
+                $this->client->elasticsearchClient->getTransport()->setHeader('X-Opaque-Id', $opaqueIdBase . ';part=scroll;seq=' . $seq);
                 $response = $this->client->elasticsearchClient->scroll([
                     'scroll_id' => $scrollId,
-                    'scroll' => self::SCROLL_TIMEOUT,
-                    'headers' => ['X-Opaque-Id' => $opaqueIdBase . ';part=scroll;seq=' . $seq]
+                    'scroll' => self::SCROLL_TIMEOUT
                 ]);
             } else {
                 break;
             }
         } while (true);
         if ($scrollId) {
+            $this->client->elasticsearchClient->getTransport()->setHeader('X-Opaque-Id', $opaqueIdBase . ';part=clear');
             $this->client->elasticsearchClient->clearScroll([
-                'scroll_id' => $scrollId,
-                'headers' => ['X-Opaque-Id' => $opaqueIdBase . ';part=clear']
+                'scroll_id' => $scrollId
             ]);
         }
         return [
@@ -398,7 +399,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 ]
             ];
             if ($opaqueIdBase !== '') {
-                $facetParams['headers'] = ['X-Opaque-Id' => $opaqueIdBase . ';part=facets;page=0'];
+                $this->client->elasticsearchClient->getTransport()->setHeader('X-Opaque-Id', $opaqueIdBase . ';part=facets;page=0');
             }
             $facetResponse = $this->client->elasticsearchClient->search($facetParams);
             return $this->processFacetResponse($facetResponse, $criteria, $keysOnly, $opaqueIdBase);
@@ -423,7 +424,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 ]
             ];
             if ($opaqueIdBase !== '') {
-                $params['headers'] = ['X-Opaque-Id' => $opaqueIdBase . ';part=count'];
+                $this->client->elasticsearchClient->getTransport()->setHeader('X-Opaque-Id', $opaqueIdBase . ';part=count');
             }
             $response = $this->client->elasticsearchClient->search($params);
             return $response['hits']['total']['value'] ?? 0;
@@ -563,10 +564,10 @@ class Search implements CommonInterface, IndexSearchInterface
                 $mainQuery = $this->buildQueryForCriteria($criteria);
                 $aggs = $this->buildAggregations($criteria, $keysOnly);
                 $aggs['product_attribute_pairs']['aggs']['attrs']['composite']['after'] = $after;
+                $this->client->elasticsearchClient->getTransport()->setHeader('X-Opaque-Id', $opaqueIdBase . ';part=facets;page=next');
                 $facetResponse = $this->client->elasticsearchClient->search([
                     'index' => $this->indexName,
-                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs],
-                    'headers' => $opaqueIdBase !== '' ? ['X-Opaque-Id' => $opaqueIdBase . ';part=facets;page=next'] : []
+                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs]
                 ]);
             }
         } while ($after !== null);
@@ -590,10 +591,10 @@ class Search implements CommonInterface, IndexSearchInterface
                 } else {
                     $aggs['variant_attribute_pairs']['aggs']['attrs']['composite']['after'] = $after;
                 }
+                $this->client->elasticsearchClient->getTransport()->setHeader('X-Opaque-Id', $opaqueIdBase . ';part=facets;page=next');
                 $facetResponseVar = $this->client->elasticsearchClient->search([
                     'index' => $this->indexName,
-                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs],
-                    'headers' => $opaqueIdBase !== '' ? ['X-Opaque-Id' => $opaqueIdBase . ';part=facets;page=next'] : []
+                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs]
                 ]);
             }
         } while ($after !== null);
