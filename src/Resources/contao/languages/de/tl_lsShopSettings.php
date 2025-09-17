@@ -176,6 +176,17 @@
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menü';
 
+// ES logging legend
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['esLogging_legend'] = 'Elasticsearch Request-Logging';
+
+// ES logging fields
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogTimings'] = array('ES-Timing-Logs aktivieren', 'Erfasse detaillierte Zeiten für jeden Elasticsearch-Request (geringer Overhead).');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogSampleRate'] = array('Sampling-Rate (0..1)', 'Anteil der Requests, die geloggt werden (z. B. 0.1 für 10%). 1 für alle.');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowTotalMs'] = array('Schwellwert „langsam gesamt“ (ms)', 'Warnen, wenn die End-to-End-Requestzeit diesen Wert überschreitet.');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowServerMs'] = array('Schwellwert „langsam Server“ (ms)', 'Warnen, wenn die ES-Serverausführungszeit diesen Wert überschreitet.');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowNetworkMs'] = array('Schwellwert „langsam Netzwerk“ (ms)', 'Warnen, wenn die geschätzte Netzwerk-/Overheadzeit diesen Wert überschreitet.');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogFile'] = array('Logdatei-Pfad (optional)', 'Wenn leer, werden Logs in PHP error_log geschrieben. Absoluten Pfad angeben, um JSON-Zeilen zu schreiben.');
+
 
 	/*
 	 * References

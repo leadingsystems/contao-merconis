@@ -69,6 +69,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{backendLsjs_legend},ls_shop_lsjsDebugMode,ls_shop_lsjsNoMinifierMode;
 		{backendLscss_legend},ls_shop_lscssFileToLoad,ls_shop_lscssDebugMode,ls_shop_lscssNoCacheMode,ls_shop_lscssNoMinifierMode;
 		{misc_legend},ls_shop_sortingCharacterTranslationTable,ls_shop_dcaNamesWithoutMultilanguageSupport;
+		{esLogging_legend},ls_shop_esLogTimings,ls_shop_esLogSampleRate,ls_shop_esSlowTotalMs,ls_shop_esSlowServerMs,ls_shop_esSlowNetworkMs,ls_shop_esLogFile;
 		{debug_menu},ls_shop_coupon_debug'
 	),
 
@@ -942,6 +943,49 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dcaNamesWithoutMultilanguageSupport'],
 			'inputType' => 'text',
 			'eval' => array('tl_class'=>'w50')
+		),
+
+		// Elasticsearch logging settings
+		'ls_shop_esLogTimings' => array(
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogTimings'],
+			'inputType' => 'checkbox',
+			'eval' => array('tl_class'=>'w50 m12')
+		),
+
+		'ls_shop_esLogSampleRate' => array(
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogSampleRate'],
+			'inputType' => 'text',
+			'eval' => array('tl_class'=>'w50', 'maxlength' => 6)
+		),
+
+		'ls_shop_esSlowTotalMs' => array(
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowTotalMs'],
+			'inputType' => 'text',
+			'eval' => array('tl_class'=>'w50', 'rgxp' => 'digit')
+		),
+
+		'ls_shop_esSlowServerMs' => array(
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowServerMs'],
+			'inputType' => 'text',
+			'eval' => array('tl_class'=>'w50', 'rgxp' => 'digit')
+		),
+
+		'ls_shop_esSlowNetworkMs' => array(
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowNetworkMs'],
+			'inputType' => 'text',
+			'eval' => array('tl_class'=>'w50', 'rgxp' => 'digit')
+		),
+
+		'ls_shop_esLogFile' => array(
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogFile'],
+			'inputType' => 'text',
+			'eval' => array('tl_class'=>'w50', 'decodeEntities' => true)
 		),
 
         'ls_shop_coupon_debug' => array(

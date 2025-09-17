@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 
 class InstrumentedGuzzleFactory
 {
+	use InstrumentedGuzzleFactoryConfig;
 	/**
 	 * Create a Guzzle client configured to emit per-request timing and size logs via on_stats.
 	 *
@@ -20,12 +21,12 @@ class InstrumentedGuzzleFactory
 	{
 		$stack = HandlerStack::create();
 
-		$logFile = getenv('MERCONIS_ES_LOG_FILE') ?: '';
-		$enabled = self::envFlag('MERCONIS_ES_LOG_TIMINGS', false);
-		$sampleRate = self::envFloat('MERCONIS_ES_LOG_SAMPLE_RATE', 1.0);
-		$slowTotalMs = self::envInt('MERCONIS_ES_SLOW_TOTAL_MS', 500);
-		$slowServerMs = self::envInt('MERCONIS_ES_SLOW_SERVER_MS', 300);
-		$slowNetworkMs = self::envInt('MERCONIS_ES_SLOW_NETWORK_MS', 200);
+        $logFile = self::cfgString('ls_shop_esLogFile', 'MERCONIS_ES_LOG_FILE', '');
+        $enabled = self::cfgFlag('ls_shop_esLogTimings', 'MERCONIS_ES_LOG_TIMINGS', false);
+        $sampleRate = self::cfgFloat('ls_shop_esLogSampleRate', 'MERCONIS_ES_LOG_SAMPLE_RATE', 1.0);
+        $slowTotalMs = self::cfgInt('ls_shop_esSlowTotalMs', 'MERCONIS_ES_SLOW_TOTAL_MS', 500);
+        $slowServerMs = self::cfgInt('ls_shop_esSlowServerMs', 'MERCONIS_ES_SLOW_SERVER_MS', 300);
+        $slowNetworkMs = self::cfgInt('ls_shop_esSlowNetworkMs', 'MERCONIS_ES_SLOW_NETWORK_MS', 200);
 
 		$config = $baseConfig + [
 			'handler' => $stack,
@@ -38,7 +39,7 @@ class InstrumentedGuzzleFactory
 			if (!$enabled) {
 				return;
 			}
-			if ($sampleRate < 1.0 && mt_rand() / mt_getrandmax() > $sampleRate) {
+            if ($sampleRate < 1.0 && mt_rand() / mt_getrandmax() > $sampleRate) {
 				return;
 			}
 
@@ -199,6 +200,55 @@ class InstrumentedGuzzleFactory
 		$val = getenv($name);
 		if ($val === false) return $default;
 		return (int) $val;
+	}
+}
+
+// Configuration helpers reading from Merconis settings first (TL_CONFIG), then env, then default
+namespace LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Instrumentation;
+
+trait InstrumentedGuzzleFactoryConfig
+{
+	private static function cfgFlag(string $cfgKey, string $envName, bool $default): bool
+	{
+		if (isset($GLOBALS['TL_CONFIG'][$cfgKey])) {
+			$val = $GLOBALS['TL_CONFIG'][$cfgKey];
+			if (is_bool($val)) return $val;
+			$val = strtolower((string) $val);
+			return in_array($val, ['1', 'true', 'yes', 'on'], true);
+		}
+		return self::envFlag($envName, $default);
+	}
+
+	private static function cfgFloat(string $cfgKey, string $envName, float $default): float
+	{
+		if (isset($GLOBALS['TL_CONFIG'][$cfgKey])) {
+			$val = (float) $GLOBALS['TL_CONFIG'][$cfgKey];
+			if (!is_finite($val)) return $default;
+			// clamp sample rate between 0 and 1 for the dedicated field
+			if ($cfgKey === 'ls_shop_esLogSampleRate') {
+				return max(0.0, min(1.0, $val));
+			}
+			return $val;
+		}
+		return self::envFloat($envName, $default);
+	}
+
+	private static function cfgInt(string $cfgKey, string $envName, int $default): int
+	{
+		if (isset($GLOBALS['TL_CONFIG'][$cfgKey])) {
+			$val = (int) $GLOBALS['TL_CONFIG'][$cfgKey];
+			return $val > 0 ? $val : $default;
+		}
+		return self::envInt($envName, $default);
+	}
+
+	private static function cfgString(string $cfgKey, string $envName, string $default): string
+	{
+		if (!empty($GLOBALS['TL_CONFIG'][$cfgKey])) {
+			return (string) $GLOBALS['TL_CONFIG'][$cfgKey];
+		}
+		$env = getenv($envName);
+		return $env !== false ? (string) $env : $default;
 	}
 }
 
