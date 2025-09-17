@@ -38,6 +38,9 @@ services:
 
   # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\ClientInterface -->
   LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client:
+    arguments:
+      $projectDir: '%kernel.project_dir%'
+      $environment: '%kernel.environment%'
 
   # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\TestsInterface -->
   LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Tests:

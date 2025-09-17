@@ -17,13 +17,16 @@ class InstrumentedGuzzleFactory
 	 * @param LoggerInterface|null $logger Optional PSR-3 logger; if null, logs go to error_log.
 	 * @return Client
 	 */
-	public static function create(array $baseConfig = [], ?LoggerInterface $logger = null): Client
+    public static function create(array $baseConfig = [], ?LoggerInterface $logger = null, ?string $projectRoot = null, ?string $environment = null): Client
 	{
 		$stack = HandlerStack::create();
 
+        if (empty($projectRoot) || empty($environment)) {
+            throw new \InvalidArgumentException('InstrumentedGuzzleFactory requires projectRoot and environment via DI.');
+        }
         // We only accept a file name from settings (no absolute paths). Logs go to <project>/var/logs.
         $fileNameOnly = isset($GLOBALS['TL_CONFIG']['ls_shop_esLogFile']) ? (string) $GLOBALS['TL_CONFIG']['ls_shop_esLogFile'] : '';
-        $logFile = self::resolveLogFilePath($fileNameOnly);
+        $logFile = self::resolveLogFilePath($fileNameOnly, $projectRoot, $environment);
         $enabled = self::cfgFlag('ls_shop_esLogTimings', 'MERCONIS_ES_LOG_TIMINGS', false);
         $sampleRate = self::cfgFloat('ls_shop_esLogSampleRate', 'MERCONIS_ES_LOG_SAMPLE_RATE', 1.0);
         $slowTotalMs = self::cfgInt('ls_shop_esSlowTotalMs', 'MERCONIS_ES_SLOW_TOTAL_MS', 500);
@@ -254,11 +257,9 @@ trait InstrumentedGuzzleFactoryConfig
 		return $env !== false ? (string) $env : $default;
 	}
 
-	private static function resolveLogFilePath(string $fileNameOnly): string
+    private static function resolveLogFilePath(string $fileNameOnly, string $projectRoot, string $environment): string
 	{
-		$projectRoot = self::detectProjectRoot();
-		$logDir = rtrim($projectRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'logs';
-		$env = getenv('APP_ENV') ?: 'prod';
+        $logDir = rtrim($projectRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'logs';
 		$date = date('Y-m-d');
 		// Sanitize: accept only simple file names (no directories)
 		$sanitized = trim($fileNameOnly);
@@ -268,28 +269,9 @@ trait InstrumentedGuzzleFactoryConfig
 			return $logDir . DIRECTORY_SEPARATOR . $base . '-' . $date . '.log';
 		}
 		// Default to Symfony/Contao daily env log file
-		return $logDir . DIRECTORY_SEPARATOR . $env . '-' . $date . '.log';
+        return $logDir . DIRECTORY_SEPARATOR . $environment . '-' . $date . '.log';
 	}
 
-	private static function detectProjectRoot(): string
-	{
-		// Prefer Contao's TL_ROOT if available
-		if (defined('TL_ROOT')) {
-			return TL_ROOT;
-		}
-		// Traverse up from current file to find vendor dir, then take parent
-		$dir = __DIR__;
-		for ($i = 0; $i < 10; $i++) {
-			if (is_dir($dir . DIRECTORY_SEPARATOR . 'vendor')) {
-				return dirname($dir);
-			}
-			$parent = dirname($dir);
-			if ($parent === $dir) break;
-			$dir = $parent;
-		}
-		// Fallback to working directory
-		return getcwd() ?: __DIR__;
-	}
 }
 
 

@@ -21,6 +21,8 @@ class Client implements ClientInterface
     use AdapterCommonTrait;
 
     public ?ElasticsearchClient $elasticsearchClient = null;
+    private string $projectDir;
+    private string $environment;
 
     /*
      * Do me! Must not be hard-coded. Instead, make it configurable with a backend module!
@@ -32,11 +34,17 @@ class Client implements ClientInterface
 
     public string $productIndexName = 'products';
 
+    public function __construct(string $projectDir, string $environment)
+    {
+        $this->projectDir = $projectDir;
+        $this->environment = $environment;
+    }
+
     public function initialize(): void
     {
         $httpClient = InstrumentedGuzzleFactory::create([
             'verify' => false,
-        ]);
+        ], null, $this->projectDir, $this->environment);
 
         $this->elasticsearchClient = ClientBuilder::create()
             ->setHttpClient($httpClient)
