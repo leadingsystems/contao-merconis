@@ -44,13 +44,6 @@ class Manage implements CommonInterface, IndexManageInterface
                         'text' => ['type' => 'text']
                     ]
                 ],
-                'attributes' => [
-                    'type' => 'nested',
-                    'properties' => [
-                        'attribute_id' => ['type' => 'integer'],
-                        'value_id' => ['type' => 'integer']
-                    ]
-                ],
                 'stock' => [
                     'type' => 'double'
                 ],
@@ -162,33 +155,6 @@ class Manage implements CommonInterface, IndexManageInterface
                 'content_hash' => [
                     'type' => 'keyword',
                     'index' => false
-                ],
-                'variants' => [
-                    'type' => 'nested',
-                    'properties' => [
-                        'id' => [
-                            'type' => 'integer'
-                        ],
-                        'variant_code' => [
-                            'type' => 'keyword',
-                            'fields' => [
-                                'text' => ['type' => 'text']
-                            ]
-                        ],
-                        'attributes' => [
-                            'type' => 'nested',
-                            'properties' => [
-                                'attribute_id' => ['type' => 'integer'],
-                                'value_id' => ['type' => 'integer']
-                            ]
-                        ],
-                        'stock' => [
-                            'type' => 'double'
-                        ],
-                        'is_published' => [
-                            'type' => 'boolean'
-                        ]
-                    ]
                 ],
             ]
         ]

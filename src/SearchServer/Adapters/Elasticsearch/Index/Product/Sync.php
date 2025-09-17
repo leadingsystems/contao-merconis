@@ -10,6 +10,7 @@ use LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client;
 use LeadingSystems\MerconisBundle\SearchServer\Traits\AdapterCommonTrait;
 use Merconis\Core\ls_shop_languageHelper;
 use Merconis\Core\ls_shop_singularStorage;
+use Contao\Database;
 
 class Sync implements CommonInterface, IndexSyncInterface
 {
@@ -124,7 +125,7 @@ class Sync implements CommonInterface, IndexSyncInterface
 
     private function getHighestProductIdFromMySQL(): int
     {
-        $dbres = \Database::getInstance()
+        $dbres = Database::getInstance()
             ->prepare("
                 SELECT id
                 FROM tl_ls_shop_product
@@ -162,8 +163,7 @@ class Sync implements CommonInterface, IndexSyncInterface
             'published',
             'lsShopProductIsNew',
             'lsShopProductIsOnSale',
-            'lsShopProductStock',
-            'lsShopProductAttributesValues'
+            'lsShopProductStock'
         ];
 
         foreach ($multiLangFieldMapping as $esField => $dbField) {
@@ -177,41 +177,14 @@ class Sync implements CommonInterface, IndexSyncInterface
 
         $sql = "SELECT " . implode(",\n", $fieldsToSelect) . "\nFROM tl_ls_shop_product WHERE id > ? ORDER BY id ASC";
 
-        $dbres_productBatch = \Database::getInstance()
+        $dbres_productBatch = Database::getInstance()
             ->prepare($sql)
             ->limit($batchSize)
             ->execute($lastIdFromPreviousBatch);
 
-        $dbres_variantsForProductBatch = \Database::getInstance()
-            ->prepare("
-                SELECT
-                    v.id,
-                    v.pid,
-                    v.lsShopVariantCode,
-                    v.lsShopProductVariantAttributesValues,
-                    v.lsShopVariantStock,
-                    v.published
-                FROM tl_ls_shop_variant v
-                INNER JOIN (
-                    SELECT id
-                    FROM tl_ls_shop_product
-                    WHERE id > ?
-                    ORDER BY id ASC
-                    LIMIT " . $batchSize . "
-                ) p ON v.pid = p.id
-            ")
-            ->execute(
-                $lastIdFromPreviousBatch
-            );
-
-         $variantsForProductBatch = [];
-
-        while ($dbres_variantsForProductBatch->next()) {
-            $variantsForProductBatch[$dbres_variantsForProductBatch->pid][] = $dbres_variantsForProductBatch->row();
-        }
+        // Variants are not indexed in the baseline; skip variant fetching entirely
 
         while ($dbres_productBatch->next()) {
-            $productHasVariants = isset($variantsForProductBatch[$dbres_productBatch->id]);
 
             $product = [
                 'id' => (int) $dbres_productBatch->id,
@@ -221,81 +194,7 @@ class Sync implements CommonInterface, IndexSyncInterface
                 'is_published' => ($dbres_productBatch->published === '1'),
                 'is_new' => ($dbres_productBatch->lsShopProductIsNew === '1'),
                 'is_sale' => ($dbres_productBatch->lsShopProductIsOnSale === '1'),
-                'stock' => (float) $dbres_productBatch->lsShopProductStock,
-
-                /*
-                 * If the product has variants, its attributes will not be indexed at product level because its attributes
-                 * are inherited to all its variants therefore, during query time, the variants will deliver appropriate
-                 * matches when filtering for attributes and we don't want the main product to also match itself because
-                 * that would make it impossible to get the correct number of estimated matches in the aggregations/facets
-                 * without performing a very performance-heavy union calculation.
-                 *
-                 * The following example shows the problem that we would have if we indexed attributes at the product level
-                 * for products that have variants:
-                 *
-                 * Situation 1:
-                 *
-                 * - We have 4 products, 2 products with no variants and 2 products with 3 variants each.
-                 * - All products have color:green.
-                 * - Because of the attribute inheritance, we have
-                 *   - 4 products that have color:green
-                 *   - 6 variants that have color:green because they inherited it.
-                 *
-                 * When we get the ES  aggregations, we then find out that for color:green, we have
-                 * - 4 matching products in the product-level aggs
-                 * - 2 matching products in the variant-level aggs (because the aggs can identify
-                 *   multiple variant matches inside a product as one product match)
-                 *
-                 * The information we want to get from the aggs is the number of unique products that will match when
-                 * filtering for color:green. But there is no way to know whether we have to add the 4 matching products
-                 * from the product-level aggs to the 2 products from the variant-level aggs or if the 2 products from
-                 * the variant-level aggs are already included in the 4 products from the product-level aggs.
-                 *
-                 * To understand this, consider another scenario as described below.
-                 *
-                 * Situation 2:
-                 *
-                 * - We have 4 products, 2 products with no variants and 2 products with 3 variants each, exactly as before
-                 * - But on a product level (meaning in the main product data) the 2 products without variants have
-                 *   color:green and one of the products with variants also has color:green because all variants have
-                 *   the same color and therefore color isn't set as an attribute in the variant records. But the
-                 *   second product that has variants, has not set color as an attribute on the product level because
-                 *   the variants have different colors. And one of the three variants of this product has color:green.
-                 * - Because of the attribute inheritance, we have
-                 *   - 3 products with color:green
-                 *   - 4 variants with color:green, 3 of which inherited it and 1 that actually has color:green itself.
-                 *
-                 * Now, when we get the ES aggs, we find out, that for color:green, we have
-                 * - 3 matching products in the product-level aggs
-                 * - 2 matching products in the variant-level aggs (because, again, the aggs can identify
-                 *   multiple variant matches inside a product as one product match)
-                 *
-                 * In both situations, the correct number of unique product matches for color:green would be 4 but as
-                 * the second described situation shows, we can't expect the number of matching products in the
-                 * product-level aggs to be what we need and we can't just add both numbers. We would need a real union.
-                 *
-                 * The problem with the real union is, that we would have to get product ids along with the aggs from
-                 * ES to be able to determine unique product match numbers and that doesn't scale well. With millions
-                 * of product and variant records and attributes that possibly could appear in most of them, this is
-                 * a huge performance issue.
-                 *
-                 * What happens if we don't index attributes at the product level if a product has variants?
-                 *
-                 * Situation 1:
-                 * - 2 matching products in the product-level aggs
-                 *   (the 2 products with variants won't match on a product level)
-                 * - 2 matching products in the variant-level aggs
-                 * - Adding both numbers gives us the correct total of 4 products
-                 *
-                 * Situation 2:
-                 * - 2 matching products in the product-level aggs
-                 *   (the 2 products with variants won't match on a product level)
-                 * - 2 matching products in the variant-level aggs
-                 * - Adding both numbers gives us the correct total of 4 products
-                 *
-                 * In both situations, we can simply add the numbers from the product-level and variant-level aggs!
-                 */
-                'attributes' => $productHasVariants ? [] : $this->getAttributesForESPayload($dbres_productBatch->lsShopProductAttributesValues)
+                'stock' => (float) $dbres_productBatch->lsShopProductStock
             ];
             // Multilanguage fields mapping, using $multiLangFieldMapping!
             foreach ($multiLangFieldMapping as $esField => $dbField) {
@@ -313,7 +212,7 @@ class Sync implements CommonInterface, IndexSyncInterface
                 $product[$esField] = $mlField; // Always use ES/snake_case as key
             }
 
-            $product['variants'] = $this->getVariantsForESPayload($product['id'], $variantsForProductBatch, $dbres_productBatch->lsShopProductAttributesValues);
+            // Variants are not part of the baseline index
             $product['content_hash'] = $this->createProductDataHash($product);
             $batch[$product['id']] = $product;
         }
