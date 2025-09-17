@@ -21,7 +21,9 @@ class InstrumentedGuzzleFactory
 	{
 		$stack = HandlerStack::create();
 
-        $logFile = self::cfgString('ls_shop_esLogFile', 'MERCONIS_ES_LOG_FILE', '');
+        // We only accept a file name from settings (no absolute paths). Logs go to <project>/var/logs.
+        $fileNameOnly = isset($GLOBALS['TL_CONFIG']['ls_shop_esLogFile']) ? (string) $GLOBALS['TL_CONFIG']['ls_shop_esLogFile'] : '';
+        $logFile = self::resolveLogFilePath($fileNameOnly);
         $enabled = self::cfgFlag('ls_shop_esLogTimings', 'MERCONIS_ES_LOG_TIMINGS', false);
         $sampleRate = self::cfgFloat('ls_shop_esLogSampleRate', 'MERCONIS_ES_LOG_SAMPLE_RATE', 1.0);
         $slowTotalMs = self::cfgInt('ls_shop_esSlowTotalMs', 'MERCONIS_ES_SLOW_TOTAL_MS', 500);
@@ -156,15 +158,16 @@ class InstrumentedGuzzleFactory
 			];
 
 			$line = \json_encode($payload, JSON_UNESCAPED_SLASHES);
-			if ($logger) {
+            if ($logger) {
 				$level = ($payload['duration_checks']['slow_total'] || $payload['duration_checks']['slow_server'] || $payload['duration_checks']['slow_network']) ? 'warning' : 'info';
 				$logger->log($level, $line);
 			} else {
-				if (!empty($logFile)) {
-					@file_put_contents($logFile, $line . "\n", FILE_APPEND);
-				} else {
-					@error_log($line);
-				}
+                // Try writing into our resolved log file. Fallback to error_log if not possible.
+                if (!empty($logFile)) {
+                    @file_put_contents($logFile, $line . "\n", FILE_APPEND);
+                } else {
+                    @error_log($line);
+                }
 			}
 		};
 
@@ -249,6 +252,43 @@ trait InstrumentedGuzzleFactoryConfig
 		}
 		$env = getenv($envName);
 		return $env !== false ? (string) $env : $default;
+	}
+
+	private static function resolveLogFilePath(string $fileNameOnly): string
+	{
+		$projectRoot = self::detectProjectRoot();
+		$logDir = rtrim($projectRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'logs';
+		$env = getenv('APP_ENV') ?: 'prod';
+		$date = date('Y-m-d');
+		// Sanitize: accept only simple file names (no directories)
+		$sanitized = trim($fileNameOnly);
+		if ($sanitized !== '' && preg_match('/^[A-Za-z0-9._-]+$/', $sanitized)) {
+			// Strip a trailing extension if user provided one; we always append daily suffix and .log
+			$base = preg_replace('/\.(log|txt)$/i', '', $sanitized);
+			return $logDir . DIRECTORY_SEPARATOR . $base . '-' . $date . '.log';
+		}
+		// Default to Symfony/Contao daily env log file
+		return $logDir . DIRECTORY_SEPARATOR . $env . '-' . $date . '.log';
+	}
+
+	private static function detectProjectRoot(): string
+	{
+		// Prefer Contao's TL_ROOT if available
+		if (defined('TL_ROOT')) {
+			return TL_ROOT;
+		}
+		// Traverse up from current file to find vendor dir, then take parent
+		$dir = __DIR__;
+		for ($i = 0; $i < 10; $i++) {
+			if (is_dir($dir . DIRECTORY_SEPARATOR . 'vendor')) {
+				return dirname($dir);
+			}
+			$parent = dirname($dir);
+			if ($parent === $dir) break;
+			$dir = $parent;
+		}
+		// Fallback to working directory
+		return getcwd() ?: __DIR__;
 	}
 }
 

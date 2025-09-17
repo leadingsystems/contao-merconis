@@ -185,7 +185,7 @@ $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogSampleRate'] = array('Sam
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowTotalMs'] = array('Schwellenwert „langsam gesamt“ (ms)', 'Warnen, wenn die End-to-End-Requestzeit diesen Wert überschreitet.');
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowServerMs'] = array('Schwellenwert „langsam Server“ (ms)', 'Warnen, wenn die ES-Serverausführungszeit diesen Wert überschreitet.');
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowNetworkMs'] = array('Schwellenwert „langsam Netzwerk“ (ms)', 'Warnen, wenn die geschätzte Netzwerk-/Overheadzeit diesen Wert überschreitet.');
-$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogFile'] = array('Logdatei-Pfad (optional)', 'Wenn leer, werden Logs in PHP error_log geschrieben. Absoluten Pfad angeben, um JSON-Zeilen zu schreiben.');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogFile'] = array('Basisname der Logdatei (optional)', 'Nur ein Dateiname ohne Endung; gespeichert in var/logs. Das System hängt automatisch -YYYY-MM-DD.log an (z. B. my-es-log-2025-09-17.log). Wenn leer, Standard: <env>-YYYY-MM-DD.log.');
 
 
 	/*
