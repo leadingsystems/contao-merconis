@@ -97,6 +97,7 @@ class Search implements CommonInterface, IndexSearchInterface
     public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true, bool $removeImpossibleOptions = true): SearchResult
     {
         $this->language = $language;
+        $opaqueIdBase = 'search:' . bin2hex(random_bytes(8));
 
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
 
@@ -105,7 +106,7 @@ class Search implements CommonInterface, IndexSearchInterface
 
         $runAggsOnMainQuery = $activateFacets && $activateMatchEstimates;
 
-        $searchResultData = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, $runAggsOnMainQuery);
+        $searchResultData = $this->getSearchResultsWithFilteredFacets($criteria, $productSearchAdapter, $runAggsOnMainQuery, $opaqueIdBase);
 
         $hasUnmatchedProducts = false;
         $numUnmatchedProducts = 0;
@@ -115,7 +116,7 @@ class Search implements CommonInterface, IndexSearchInterface
         if (!empty($criteria['attributes'])) {
             $baseCriteria = $this->prepareBaseCriteria($criteria);
             $countWithAttributes = $searchResultData['total_hits'];
-            $countWithoutAttributes = $this->getProductCountForCriteria($baseCriteria);
+            $countWithoutAttributes = $this->getProductCountForCriteria($baseCriteria, $opaqueIdBase);
             if ($countWithoutAttributes > $countWithAttributes) {
                 $hasUnmatchedProducts = true;
                 $numUnmatchedProducts = $countWithoutAttributes - $countWithAttributes;
@@ -127,13 +128,13 @@ class Search implements CommonInterface, IndexSearchInterface
         } else {
             $baseCriteria = $this->prepareBaseCriteria($criteria);
             if ($activateMatchEstimates) {
-                $unfilteredFacets = $this->getFacets($baseCriteria, '', false);
+                $unfilteredFacets = $this->getFacets($baseCriteria, '', false, $opaqueIdBase);
                 $filteredFacets = $searchResultData['filtered_facets'];
                 $combined = $this->combineFacetData($unfilteredFacets, $filteredFacets, $dismissedFilters);
                 $facetData = new Facets($unfilteredFacets, $filteredFacets, $combined);
             } else {
                 // Keys-only mode: do not compute counts in Elasticsearch when match estimates are disabled
-                $unfilteredFacets = !empty($availableFacetKeys) ? $availableFacetKeys : $this->getFacets($baseCriteria, '', true);
+                $unfilteredFacets = !empty($availableFacetKeys) ? $availableFacetKeys : $this->getFacets($baseCriteria, '', true, $opaqueIdBase);
                 $filteredFacets = $unfilteredFacets;
                 $combined = $this->combineFacetDataKeysOnly($unfilteredFacets, $dismissedFilters);
                 $facetData = new Facets($unfilteredFacets, $filteredFacets, $combined);
@@ -303,7 +304,7 @@ class Search implements CommonInterface, IndexSearchInterface
         return $combined;
     }
 
-    private function getSearchResultsWithFilteredFacets(array $criteria, Adapter $productSearchAdapter, bool $activateFacets): array
+    private function getSearchResultsWithFilteredFacets(array $criteria, Adapter $productSearchAdapter, bool $activateFacets, string $opaqueIdBase): array
     {
         $mainQuery = $this->buildQueryForCriteria($criteria);
         $sort = $this->buildSortCriteria($productSearchAdapter->getSortingCriteria());
@@ -319,13 +320,14 @@ class Search implements CommonInterface, IndexSearchInterface
                     'track_total_hits' => true,
                 ]
             ];
+            $params['headers'] = ['X-Opaque-Id' => $opaqueIdBase . ';part=main;seq=0'];
             if ($activateFacets) {
                 $params['body']['aggs'] = $aggs;
             }
             if (!empty($sort)) {
                 $params['body']['sort'] = $sort;
             }
-            return $this->executeScrollSearchWithFacets($params, $criteria, $activateFacets);
+            return $this->executeScrollSearchWithFacets($params, $criteria, $activateFacets, $opaqueIdBase);
         } catch (\Exception $e) {
             return [
                 'product_ids' => ['error' => $e->getMessage()],
@@ -335,7 +337,7 @@ class Search implements CommonInterface, IndexSearchInterface
         }
     }
 
-    private function executeScrollSearchWithFacets(array $params, array $criteria, bool $activateFacets): array
+    private function executeScrollSearchWithFacets(array $params, array $criteria, bool $activateFacets, string $opaqueIdBase): array
     {
         $productResultIds = [];
         $filteredFacets = [];
@@ -343,6 +345,7 @@ class Search implements CommonInterface, IndexSearchInterface
         $response = $this->client->elasticsearchClient->search($params);
         $scrollId = null;
         $isFirstResponse = true;
+        $seq = 0;
         do {
             if ($isFirstResponse) {
                 if ($activateFacets && isset($response['aggregations'])) {
@@ -358,16 +361,21 @@ class Search implements CommonInterface, IndexSearchInterface
             }
             $scrollId = $response['_scroll_id'] ?? null;
             if ($scrollId && !empty($response['hits']['hits'])) {
+                $seq++;
                 $response = $this->client->elasticsearchClient->scroll([
                     'scroll_id' => $scrollId,
-                    'scroll' => self::SCROLL_TIMEOUT
+                    'scroll' => self::SCROLL_TIMEOUT,
+                    'headers' => ['X-Opaque-Id' => $opaqueIdBase . ';part=scroll;seq=' . $seq]
                 ]);
             } else {
                 break;
             }
         } while (true);
         if ($scrollId) {
-            $this->client->elasticsearchClient->clearScroll(['scroll_id' => $scrollId]);
+            $this->client->elasticsearchClient->clearScroll([
+                'scroll_id' => $scrollId,
+                'headers' => ['X-Opaque-Id' => $opaqueIdBase . ';part=clear']
+            ]);
         }
         return [
             'product_ids' => array_column($productResultIds, 'id'),
@@ -376,7 +384,7 @@ class Search implements CommonInterface, IndexSearchInterface
         ];
     }
 
-    private function getFacets(array $criteria, string $context = '', bool $keysOnly = false): array
+    private function getFacets(array $criteria, string $context = '', bool $keysOnly = false, string $opaqueIdBase = ''): array
     {
         $query = $this->buildQueryForCriteria($criteria);
         $aggs = $this->buildAggregations($criteria, $keysOnly);
@@ -389,8 +397,11 @@ class Search implements CommonInterface, IndexSearchInterface
                     'aggs' => $aggs,
                 ]
             ];
+            if ($opaqueIdBase !== '') {
+                $facetParams['headers'] = ['X-Opaque-Id' => $opaqueIdBase . ';part=facets;page=0'];
+            }
             $facetResponse = $this->client->elasticsearchClient->search($facetParams);
-            return $this->processFacetResponse($facetResponse, $criteria, $keysOnly);
+            return $this->processFacetResponse($facetResponse, $criteria, $keysOnly, $opaqueIdBase);
         } catch (\Exception $e) {
             return [];
         }
@@ -399,7 +410,7 @@ class Search implements CommonInterface, IndexSearchInterface
     /**
      * Executes a lightweight search to get only the total number of matching documents.
      */
-    private function getProductCountForCriteria(array $criteria): int
+    private function getProductCountForCriteria(array $criteria, string $opaqueIdBase = ''): int
     {
         try {
             $query = $this->buildQueryForCriteria($criteria);
@@ -411,6 +422,9 @@ class Search implements CommonInterface, IndexSearchInterface
                     'track_total_hits' => true
                 ]
             ];
+            if ($opaqueIdBase !== '') {
+                $params['headers'] = ['X-Opaque-Id' => $opaqueIdBase . ';part=count'];
+            }
             $response = $this->client->elasticsearchClient->search($params);
             return $response['hits']['total']['value'] ?? 0;
         } catch (\Exception $e) {
@@ -537,7 +551,7 @@ class Search implements CommonInterface, IndexSearchInterface
         return $combined;
     }
 
-    private function processFacetResponse($facetResponse, array $criteria = [], bool $keysOnly = false): array
+    private function processFacetResponse($facetResponse, array $criteria = [], bool $keysOnly = false, string $opaqueIdBase = ''): array
     {
         $productAttrBuckets = [];
         $after = null;
@@ -551,7 +565,8 @@ class Search implements CommonInterface, IndexSearchInterface
                 $aggs['product_attribute_pairs']['aggs']['attrs']['composite']['after'] = $after;
                 $facetResponse = $this->client->elasticsearchClient->search([
                     'index' => $this->indexName,
-                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs]
+                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs],
+                    'headers' => $opaqueIdBase !== '' ? ['X-Opaque-Id' => $opaqueIdBase . ';part=facets;page=next'] : []
                 ]);
             }
         } while ($after !== null);
@@ -577,7 +592,8 @@ class Search implements CommonInterface, IndexSearchInterface
                 }
                 $facetResponseVar = $this->client->elasticsearchClient->search([
                     'index' => $this->indexName,
-                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs]
+                    'body' => ['size' => 0, 'query' => $mainQuery, 'aggs' => $aggs],
+                    'headers' => $opaqueIdBase !== '' ? ['X-Opaque-Id' => $opaqueIdBase . ';part=facets;page=next'] : []
                 ]);
             }
         } while ($after !== null);

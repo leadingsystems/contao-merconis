@@ -4,10 +4,12 @@ namespace LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch;
 
 use Elastic\Elasticsearch\Client as ElasticsearchClient;
 use Elastic\Elasticsearch\ClientBuilder;
+use GuzzleHttp\Client as GuzzleHttpClient;
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\ClientInterface;
 use LeadingSystems\MerconisBundle\Common\DTO\OperationResult;
 use LeadingSystems\MerconisBundle\SearchServer\Traits\AdapterCommonTrait;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Instrumentation\InstrumentedGuzzleFactory;
 
 /*
  * IMPORTANT NOTE:
@@ -32,17 +34,16 @@ class Client implements ClientInterface
 
     public function initialize(): void
     {
+        $httpClient = InstrumentedGuzzleFactory::create([
+            'verify' => false,
+        ]);
+
         $this->elasticsearchClient = ClientBuilder::create()
+            ->setHttpClient($httpClient)
             ->setHosts([$this->host])
             ->setBasicAuthentication($this->username, $this->password)
-
-            /*
-             * Do me! Do not bypass SSL verification but instead provide a certificate.
-             *  At the moment, we set the ssl verification to false only for a quick test.
-             */
             // ->setCABundle($this->cert)
             ->setSSLVerification(false)
-
             ->build();
     }
 
