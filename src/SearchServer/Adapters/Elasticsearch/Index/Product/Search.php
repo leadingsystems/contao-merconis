@@ -16,7 +16,8 @@ class Search implements CommonInterface, IndexSearchInterface
 
     private Client $client;
     private string $indexName = 'products';
-    private const DEFAULT_SIZE = 1000;
+    private const SCROLL_PAGE_SIZE = 10000; // docs per page when scrolling main hits
+    private const COMPOSITE_PAGE_SIZE = 1000; // buckets per page in composite aggs
     private const SCROLL_TIMEOUT = '2m';
 
     protected string $language = 'de';
@@ -314,7 +315,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 'index' => $this->indexName,
                 'scroll' => self::SCROLL_TIMEOUT,
                 'body' => [
-                    'size' => self::DEFAULT_SIZE,
+                    'size' => self::SCROLL_PAGE_SIZE,
                     'query' => $mainQuery,
                     '_source' => ['id'],
                     'track_total_hits' => true,
@@ -462,7 +463,7 @@ class Search implements CommonInterface, IndexSearchInterface
                             ['attribute_id' => ['terms' => ['field' => 'variants.attributes.attribute_id', 'missing_bucket' => true]]],
                             ['value_id' => ['terms' => ['field' => 'variants.attributes.value_id', 'missing_bucket' => true]]]
                         ],
-                        'size' => self::DEFAULT_SIZE
+                        'size' => self::COMPOSITE_PAGE_SIZE
                     ]
                 ],
                 $keysOnly ? [] : [
@@ -504,7 +505,7 @@ class Search implements CommonInterface, IndexSearchInterface
                                     ['attribute_id' => ['terms' => ['field' => 'attributes.attribute_id', 'missing_bucket' => true]]],
                                     ['value_id' => ['terms' => ['field' => 'attributes.value_id', 'missing_bucket' => true]]]
                                 ],
-                                'size' => self::DEFAULT_SIZE
+                                'size' => self::COMPOSITE_PAGE_SIZE
                             ]
                         ],
                         $keysOnly ? [] : [
