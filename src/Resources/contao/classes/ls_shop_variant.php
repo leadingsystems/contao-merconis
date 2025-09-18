@@ -1550,7 +1550,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
 					unset($GLOBALS['merconis_globals']['temporarilyFixedScalePriceQuantity']);
 				}
 			}
-
 			$this->scalePricesOutput[$mode] = $arrScalePriceOutput;
 			$this->blnAlreadyGeneratedScalePricesOutput[$mode] = true;
 		}
@@ -1565,12 +1564,38 @@ This method can be used to call a function hooked with the "callingHookedProduct
     public function getDeliveryTimeDays($float_requestedQuantity = 1) {
         $int_deliveryTimeDays = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
 
+        $unixtimestamp_baseDate = time();
+
         if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
-            $int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+            //$int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+            $unixtimestamp_baseDate = $this->_availableFrom;
+        }
+
+        if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays'] as $mccb) {
+                $objMccb = System::importStatic($mccb[0]);
+                /*
+                 * base date wird mitgegeben, da nur die Feiertage usw. ab diesem Datum für die Manipulation relevant sind.
+                 */
+                $int_deliveryTimeDays = $objMccb->{$mccb[1]}($int_deliveryTimeDays, $unixtimestamp_baseDate, $this);
+            }
         }
 
         return (int) $int_deliveryTimeDays;
     }
+
+    public function getUnixtimestampBaseDate() {
+
+        $unixtimestamp_baseDate = time();
+
+        if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
+            //$int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+            $unixtimestamp_baseDate = $this->_availableFrom;
+        }
+
+        return $unixtimestamp_baseDate;
+    }
+
 
     public function getDeliveryInfoSetID() {
 	    $int_deliveryInfoSetID = 0;
