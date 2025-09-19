@@ -1567,15 +1567,17 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $unixtimestamp_baseDate = time();
 
         if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
+            //$int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
             $unixtimestamp_baseDate = $this->_availableFrom;
         }
+
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays'] as $mccb) {
                 $objMccb = System::importStatic($mccb[0]);
-                /*
-                 * base date wird mitgegeben, da nur die Feiertage usw. ab diesem Datum für die Manipulation relevant sind.
-                 */
+
+                //base date wird mitgegeben, da nur die Feiertage usw. ab diesem Datum für die Manipulation relevant sind.
+
                 $int_deliveryTimeDays = $objMccb->{$mccb[1]}($int_deliveryTimeDays, $unixtimestamp_baseDate, $this);
             }
         }
