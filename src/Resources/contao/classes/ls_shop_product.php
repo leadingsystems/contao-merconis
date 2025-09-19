@@ -2614,7 +2614,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $unixtimestamp_baseDate = time();
 
         if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
-            $int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
             $unixtimestamp_baseDate = $this->_availableFrom;
         }
 
@@ -2636,7 +2635,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $unixtimestamp_baseDate = time();
 
         if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
-            //$int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
             $unixtimestamp_baseDate = $this->_availableFrom;
         }
 

@@ -12,7 +12,7 @@ use Merconis\Core\ls_shop_variant;
 
 #[AsInsertTag('shopdeliverydate')]
 #[AsInsertTag('shop_delivery_date')]
-class DeliveryDate extends InsertTag //TODO
+class DeliveryDate extends InsertTag
 {
 
 	public function customInserttags($strTag, $params) {
@@ -29,17 +29,8 @@ class DeliveryDate extends InsertTag //TODO
 
         $deliveryTimeDays = $obj_productOrVariant->getDeliveryTimeDays($GLOBALS['merconis_globals']['arr_dataForInsertTags']['float_requestedQuantity']);
 
-        /*
-        if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays'])) {
-            foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays'] as $mccb) {
-                $objMccb = System::importStatic($mccb[0]);
-                $deliveryTimeDays = $objMccb->{$mccb[1]}($deliveryTimeDays, $obj_productOrVariant);
-            }
-        }*/
-
         $baseDate = $obj_productOrVariant->getUnixtimestampBaseDate();
 
-        //TODO: hier falsch weil time() also current time
         $str_deliveryDate = Date::parse($objPage->dateFormat,  $baseDate+ 86400 * $deliveryTimeDays);
         return $str_deliveryDate;
 
