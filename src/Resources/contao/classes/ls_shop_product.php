@@ -2505,10 +2505,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
         /** @var PageModel $objPage */
         global $objPage;
 
-        if(!$objPage){
-            $test = true;
-        }
-
         $currentMainLanguagePageID = ls_shop_languageHelper::getMainlanguagePageIDForPageID($objPage->id);
         /*-->
          * Prüfen, ob die aktuelle Hauptsprachseite dem Produkt hinterlegt ist
