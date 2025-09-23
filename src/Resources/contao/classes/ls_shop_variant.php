@@ -1567,9 +1567,10 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $unixtimestamp_baseDate = time();
 
         if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
-            //$int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+
             $unixtimestamp_baseDate = $this->_availableFrom;
         }
+
 
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays'])) {
@@ -1582,18 +1583,13 @@ This method can be used to call a function hooked with the "callingHookedProduct
             }
         }
 
-        return (int) $int_deliveryTimeDays;
-    }
-
-    public function getUnixtimestampBaseDate() {
-
-        $unixtimestamp_baseDate = time();
-
         if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
-            $unixtimestamp_baseDate = $this->_availableFrom;
+            //erst hier draufrechnen da die übergebenen timedays ab dem $unixtimestamp_baseDate sind also die vom Preorder nicht berücksichtigen
+            $int_deliveryTimeDaysFromPreorder = ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+            $int_deliveryTimeDays += $int_deliveryTimeDaysFromPreorder;
         }
 
-        return $unixtimestamp_baseDate;
+        return (int) $int_deliveryTimeDays;
     }
 
 

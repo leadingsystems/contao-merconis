@@ -29,9 +29,7 @@ class DeliveryDate extends InsertTag
 
         $deliveryTimeDays = $obj_productOrVariant->getDeliveryTimeDays($GLOBALS['merconis_globals']['arr_dataForInsertTags']['float_requestedQuantity']);
 
-        $baseDate = $obj_productOrVariant->getUnixtimestampBaseDate();
-
-        $str_deliveryDate = Date::parse($objPage->dateFormat,  $baseDate+ 86400 * $deliveryTimeDays);
+        $str_deliveryDate = Date::parse($objPage->dateFormat,  time()+ 86400 * $deliveryTimeDays);
         return $str_deliveryDate;
 
 	}

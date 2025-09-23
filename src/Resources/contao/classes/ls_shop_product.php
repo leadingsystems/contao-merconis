@@ -2630,17 +2630,6 @@ This method can be used to call a function hooked with the "callingHookedProduct
         return (int) $int_deliveryTimeDays;
     }
 
-    public function getUnixtimestampBaseDate() {
-
-        $unixtimestamp_baseDate = time();
-
-        if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
-            $unixtimestamp_baseDate = $this->_availableFrom;
-        }
-
-        return $unixtimestamp_baseDate;
-    }
-
     public function getDeliveryInfoSetID() {
         $int_deliveryInfoSetID = 0;
 
