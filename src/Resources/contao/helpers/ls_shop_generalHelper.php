@@ -22,6 +22,26 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_generalHelper
 {
+    /**
+     * Return PageModel with details using an in-request cache.
+     * This mirrors the idea from PR #492 for Contao 5 but stays compatible with Contao 4.13.
+     */
+    public static function getPageDetailsCached($pageId)
+    {
+        if (!$pageId) {
+            return null;
+        }
+
+        if (!isset($GLOBALS['merconis_globals']['cache']['pageDetails'])) {
+            $GLOBALS['merconis_globals']['cache']['pageDetails'] = array();
+        }
+
+        if (!isset($GLOBALS['merconis_globals']['cache']['pageDetails'][$pageId])) {
+            $GLOBALS['merconis_globals']['cache']['pageDetails'][$pageId] = \PageModel::findWithDetails($pageId);
+        }
+
+        return $GLOBALS['merconis_globals']['cache']['pageDetails'][$pageId];
+    }
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
      * and writes them into the allocation table
@@ -3253,7 +3273,7 @@ class ls_shop_generalHelper
 
         while ($objPages->next()) {
             // Check whether root page is fallback language or not and only then add the page to the options array
-            $objPageDetails = \PageModel::findWithDetails($objPages->id);
+            $objPageDetails = self::getPageDetailsCached($objPages->id);
             $objRootPage = \Database::getInstance()->prepare("
 					SELECT * FROM `tl_page` WHERE `id` = ?
 				")

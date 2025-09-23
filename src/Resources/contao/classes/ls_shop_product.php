@@ -732,8 +732,8 @@ Returns an Array containing the pages which the product is assigned to
 				$arr_pages = StringUtil::deserialize($this->mainData['pages']);
 
 				$arr_pagesForDomain = array();
-				foreach ($arr_pages as $int_pageID) {
-					$pageInfo = \PageModel::findWithDetails($int_pageID);
+                foreach ($arr_pages as $int_pageID) {
+                    $pageInfo = ls_shop_generalHelper::getPageDetailsCached($int_pageID);
 					if (!is_object($objPage) || $pageInfo->domain == $objPage->domain) {
 						$arr_pagesForDomain[] = $int_pageID;
 					}
@@ -2611,7 +2611,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
             $languagePages = ls_shop_languageHelper::getLanguagePages($MainLanguagePageIDForLink);
             $currentLanguagePageIDForLink = $languagePages[$objPage->language]['id'];
 
-            $objProductPage = \PageModel::findWithDetails($currentLanguagePageIDForLink);
+            $objProductPage = ls_shop_generalHelper::getPageDetailsCached($currentLanguagePageIDForLink);
         }
 
         /*-->
