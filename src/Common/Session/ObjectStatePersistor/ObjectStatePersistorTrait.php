@@ -64,6 +64,10 @@ trait ObjectStatePersistorTrait
         /** @var  $requestStack RequestStack */
         $requestStack = System::getContainer()->get('request_stack');
         $session = $requestStack->getSession();
+        // Do not implicitly start the session here. If it's not started, skip restoring to avoid re-locking.
+        if (!$session || (method_exists($session, 'isStarted') && !$session->isStarted())) {
+            return;
+        }
         $allStates = $session->get($this->persistorSessionNamespace, []);
         $state = $allStates[$this->persistorSessionKey] ?? null;
         if (!is_array($state)) {
@@ -84,6 +88,10 @@ trait ObjectStatePersistorTrait
         /** @var  $requestStack RequestStack */
         $requestStack = System::getContainer()->get('request_stack');
         $session = $requestStack->getSession();
+        // Do not implicitly start the session here. If it's not started, skip persisting to avoid re-locking.
+        if (!$session || (method_exists($session, 'isStarted') && !$session->isStarted())) {
+            return;
+        }
         $allStates = $session->get($this->persistorSessionNamespace, []);
         $state = [];
         foreach ($this->persistedProperties as $property) {

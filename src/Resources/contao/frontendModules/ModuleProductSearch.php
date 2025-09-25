@@ -75,6 +75,12 @@ class ModuleProductSearch extends \Module {
 					break;
 					
 				case 'getPossibleHits':
+					// Release session lock early to avoid blocking subsequent AJAX requests
+					$session = System::getContainer()->get('session');
+					if ($session && method_exists($session, 'isStarted') && $session->isStarted()) {
+//						$session->save();
+					}
+
 					/*
 					 * Erstellung des Suchkriterien-Arrays für productSearcher
 					 */
