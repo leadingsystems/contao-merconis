@@ -524,18 +524,22 @@ class ls_shop_productSearcher
                     if (!is_array($criterionValue)) {
                         $criterionValue = array($criterionValue);
                     }
-                    $searchConditionPagesPart = '';
-                    foreach ($criterionValue as $pageID) {
-                        if ($searchConditionPagesPart) {
-                            $searchConditionPagesPart .= "
-								OR";
-                        }
-                        $searchConditionPagesPart .= $this->getQualifiedFieldName($criterionFieldName)." LIKE ?
-						";
 
-                        $searchConditionValues[] = $pageID ? '%%"'.$pageID.'"%' : ($this->blnEmptyFieldMatchesPerDefault ? '%' : '');
+                    $pageIds = array();
+                    foreach ($criterionValue as $pageID) {
+                        $pageID = (int) $pageID;
+                        if ($pageID > 0) {
+                            $pageIds[] = $pageID;
+                        }
                     }
-                    $searchCondition .= "	(".$searchConditionPagesPart.")";
+
+                    if (count($pageIds)) {
+                        $placeholders = implode(',', array_fill(0, count($pageIds), '?'));
+                        $searchCondition .= " (EXISTS (SELECT 1 FROM `tl_ls_shop_product_page_map` m WHERE m.`pid` = `tl_ls_shop_product`.`id` AND m.`page_id` IN (".$placeholders.") ))";
+                        foreach ($pageIds as $v) { $searchConditionValues[] = $v; }
+                    } else {
+                        $searchCondition .= " (1 = 2)";
+                    }
                     break;
 
                 case 'fulltext':
