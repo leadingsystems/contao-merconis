@@ -14,6 +14,19 @@ use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
  */
 class ModuleProductSearch extends \Module {
 	public $arrLiveHitFields = array();
+
+	/**
+	 * Returns true if the client disconnected (browser aborted request)
+	 */
+	private function clientDisconnected() {
+		if (function_exists('connection_aborted') && connection_aborted() == 1) {
+			return true;
+		}
+		if (function_exists('connection_status') && connection_status() !== CONNECTION_NORMAL) {
+			return true;
+		}
+		return false;
+	}
 	
 	public function generate() {
 		if (\System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
@@ -78,7 +91,16 @@ class ModuleProductSearch extends \Module {
 					// Release session lock early to avoid blocking subsequent AJAX requests
 					$session = System::getContainer()->get('session');
 					if ($session && method_exists($session, 'isStarted') && $session->isStarted()) {
-//						$session->save();
+						$session->save();
+					}
+
+					// If client already aborted, short-circuit to save CPU/DB
+					if ($this->clientDisconnected()) {
+						return json_encode(array(
+							'success' => true,
+							'value' => array(),
+							'error' => null
+						));
 					}
 
 					/*
@@ -116,7 +138,16 @@ class ModuleProductSearch extends \Module {
                         ]
                     );
 
-                    $productSearchAdapter->search();
+					// Check again before starting the expensive search
+					if ($this->clientDisconnected()) {
+						return json_encode(array(
+							'success' => true,
+							'value' => array(),
+							'error' => null
+						));
+					}
+
+					$productSearchAdapter->search();
 					$arrProducts = $productSearchAdapter->getProductResultsComplete();
 
 					if (isset($GLOBALS['MERCONIS_HOOKS']['afterAjaxSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterAjaxSearch'])) {
@@ -132,7 +163,13 @@ class ModuleProductSearch extends \Module {
 					$count = 0;
 					$numProducts = count($arrProductsTmp);
 					
+					$iterationCounter = 0;
 					foreach ($arrProductsTmp as $productID) {
+						$iterationCounter++;
+						// Periodically check if client disconnected to break early
+						if (($iterationCounter % 5) === 0 && $this->clientDisconnected()) {
+							break;
+						}
 						$count++;
 						if ($count > $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMaxNumHits']) {
 						    break;
