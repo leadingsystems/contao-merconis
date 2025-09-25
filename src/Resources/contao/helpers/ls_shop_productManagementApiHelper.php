@@ -994,6 +994,12 @@ class ls_shop_productManagementApiHelper {
 
 
         $obj_dbres_prod->execute($arr_queryParams);
+
+        // Keep page map in sync after API upsert
+        $pid = self::getProductIdForProductCode($arr_preprocessedDataRow['productcode']);
+        if ($pid) {
+            ls_shop_generalHelper::syncProductPageMap($pid, $arr_preprocessedDataRow['category']);
+        }
         $productID = (int) $obj_dbres_prod->insertId;
 
 

@@ -22,6 +22,32 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_generalHelper
 {
+    public static function syncProductPageMap($productId, $serializedPages): void
+    {
+        if (!$productId) { return; }
+        $pageIds = \Contao\StringUtil::deserialize($serializedPages, true);
+        \Database::getInstance()->prepare("DELETE FROM tl_ls_shop_product_page_map WHERE pid=?")->execute($productId);
+        if (!is_array($pageIds) || !count($pageIds)) { return; }
+        $values = array();
+        $params = array();
+        foreach ($pageIds as $pageId) {
+            $pageId = (int) $pageId;
+            if ($pageId <= 0) { continue; }
+            $values[] = '(?, ?)';
+            $params[] = (int) $productId;
+            $params[] = $pageId;
+        }
+        if (!empty($values)) {
+            $sql = 'INSERT IGNORE INTO tl_ls_shop_product_page_map (pid, page_id) VALUES ' . implode(',', $values);
+            \Database::getInstance()->prepare($sql)->execute(...$params);
+        }
+    }
+
+    public static function deleteProductFromPageMap($productId): void
+    {
+        if (!$productId) { return; }
+        \Database::getInstance()->prepare("DELETE FROM tl_ls_shop_product_page_map WHERE pid=?")->execute($productId);
+    }
     /**
      * Return PageModel with details using an in-request cache.
      * This mirrors the idea from PR #492 for Contao 5 but stays compatible with Contao 4.13.
