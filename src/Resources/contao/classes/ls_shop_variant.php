@@ -472,7 +472,13 @@ returns the main image that has been selected explicitly or null if none has bee
 				return $this->currentLanguageData['alias'] ? $this->currentLanguageData['alias'] : $this->mainData['alias'];
 				break;
 
+            case '_linkToVariant':
+                return $this->_objParentProduct->getlinkToProduct($this->_alias ? $this->_alias : $this->ls_ID);
+                break;
 
+            case '_link':
+                return $this->_linkToVariant;
+                break;
 
             case '_originalTitle':
                 $title = $this->currentLanguageData['title'] ? $this->currentLanguageData['title'] : $this->mainData['title'];
@@ -1224,14 +1230,6 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 	 */
 	public function __call($what, $args) {
 		switch ($what) {
-
-            case '_linkToVariant':
-                return $this->_objParentProduct->getlinkToProduct($this->_alias ? $this->_alias : $this->ls_ID, $args[0]);
-                break;
-
-            case '_link':
-                return $this->_linkToVariant($args[0]);
-                break;
 
 			/* ## START AUTO DOCUMENTATION METHODS VARIANT ## */
 			case '_createGallery'
