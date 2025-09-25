@@ -142,6 +142,11 @@ services:
     tags:
       - { name: contao.cronjob, interval: daily }
 
+  # Schedulable job to rebuild the product→page mapping table
+  LeadingSystems\MerconisBundle\Scheduler\Jobs\BuildProductPageMap:
+    tags:
+      - { name: merconis_custom.schedulable }
+
   LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\ObjectStatePersistorController:
     public: true
 
