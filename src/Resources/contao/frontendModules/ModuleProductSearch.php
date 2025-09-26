@@ -16,19 +16,6 @@ class ModuleProductSearch extends \Module {
 	public $arrLiveHitFields = array();
 
 	/**
-	 * Returns true if the client disconnected (browser aborted request)
-	 */
-	private function clientDisconnected() {
-		if (function_exists('connection_aborted') && connection_aborted() == 1) {
-			return true;
-		}
-		if (function_exists('connection_status') && connection_status() !== CONNECTION_NORMAL) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Build a user-specific key without starting the session.
 	 */
 	private function getUserRequestKey() {
@@ -36,13 +23,6 @@ class ModuleProductSearch extends \Module {
 		$session = System::getContainer()->get('session');
 		if ($session && method_exists($session, 'isStarted') && $session->isStarted()) {
 			$userKey = session_id();
-		}
-		if (!$userKey) {
-			$ip = \Environment::get('ip');
-			$ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-//			$requestId = \Environment::get('request');
-//			$userKey = hash('sha256', $ip.'|'.$ua.'|'.$requestId);
-			$userKey = hash('sha256', $ip.'|'.$ua);
 		}
 		return $userKey;
 	}
@@ -52,31 +32,14 @@ class ModuleProductSearch extends \Module {
 	 */
 	private function fetchLatestSeq($userKey) {
 		$cacheKey = 'livehits_latest_seq_'.md5($userKey);
-		// Try APCu fast path
-		if (function_exists('apcu_fetch')) {
-			try {
-				$success = null;
-				$value = apcu_fetch($cacheKey, $success);
-				return (int)($success ? $value : 0);
-			} catch (\Throwable $e) {
-				// ignore
-			}
-		}
 		$container = System::getContainer();
 		if ($container->has('cache.app')) {
 			$cache = $container->get('cache.app');
 			try {
-				// Prefer PSR-6 CacheItemPoolInterface
+				// Expect to work with PSR-6 CacheItemPoolInterface
 				if ($cache instanceof \Psr\Cache\CacheItemPoolInterface) {
 					$item = $cache->getItem($cacheKey);
 					return $item->isHit() ? (int)$item->get() : 0;
-				}
-				// Fallback: Symfony Contracts CacheInterface
-				if ($cache instanceof \Symfony\Contracts\Cache\CacheInterface) {
-					return (int)$cache->get($cacheKey, function($item) {
-						if (method_exists($item, 'expiresAfter')) { $item->expiresAfter(60); }
-						return 0;
-					});
 				}
 			} catch (\Throwable $e) {
 				// ignore and fall through
@@ -90,50 +53,22 @@ class ModuleProductSearch extends \Module {
 	 */
 	private function storeLatestSeq($userKey, $seq) {
 		$cacheKey = 'livehits_latest_seq_'.md5($userKey);
-		// Try APCu fast path
-		if (function_exists('apcu_store')) {
-			try {
-				apcu_store($cacheKey, (int)$seq, 60);
-				return;
-			} catch (\Throwable $e) {
-				// ignore and continue to other backends
-			}
-		}
 		$container = System::getContainer();
 		if ($container->has('cache.app')) {
 			$cache = $container->get('cache.app');
 			try {
-				// Prefer PSR-6 CacheItemPoolInterface for reliable set
+				// Expect to work with PSR-6 CacheItemPoolInterface for reliable set
 				if ($cache instanceof \Psr\Cache\CacheItemPoolInterface) {
 					$item = $cache->getItem($cacheKey);
 					$current = $item->isHit() ? (int)$item->get() : 0;
 					if ((int)$seq > $current) {
 						$item->set((int)$seq);
-						if (method_exists($item, 'expiresAfter')) { $item->expiresAfter(60); }
+						if (method_exists($item, 'expiresAfter')) {
+                            $item->expiresAfter(10);
+                        }
 						$cache->save($item);
 					}
 					return;
-				}
-				// Fallback: Symfony Contracts CacheInterface (best-effort)
-				if ($cache instanceof \Symfony\Contracts\Cache\CacheInterface) {
-					$latest = (int)$cache->get($cacheKey, function($item) {
-						if (method_exists($item, 'expiresAfter')) { $item->expiresAfter(60); }
-						return 0;
-					});
-					if ((int)$seq <= $latest) {
-						return;
-					}
-					// Try to force update if delete method exists
-					if (method_exists($cache, 'deleteItem')) {
-						$cache->deleteItem($cacheKey);
-					}
-					if (method_exists($cache, 'delete')) {
-						$cache->delete($cacheKey);
-					}
-					$cache->get($cacheKey, function($item) use ($seq) {
-						if (method_exists($item, 'expiresAfter')) { $item->expiresAfter(60); }
-						return (int)$seq;
-					});
 				}
 			} catch (\Throwable $e) {
 				// ignore failures silently
@@ -201,32 +136,21 @@ class ModuleProductSearch extends \Module {
 					break;
 
 				case 'getPossibleHits':
+                    $userKey = $this->getUserRequestKey();
+
 					// Release session lock early to avoid blocking subsequent AJAX requests
 					$session = System::getContainer()->get('session');
 					if ($session && method_exists($session, 'isStarted') && $session->isStarted()) {
 						$session->save();
 					}
 
-					// If client already aborted, short-circuit to save CPU/DB
-					if ($this->clientDisconnected()) {
-						return json_encode(array(
-							'success' => true,
-							'value' => array(),
-							'error' => 'aborted 1'
-						));
-					}
-
 					// Short-circuit superseded requests using seq
+                    /* Do me! Throw an exception if seq is not posted. This is important because otherwise
+                     *  we will never know if the LSJS module hasn't been updated accordingly in a project to
+                     *  make this work.
+                     */
 					$seq = (int)\Input::post('seq');
-					$userKey = $this->getUserRequestKey();
 					$latestSeq = $this->fetchLatestSeq($userKey);
-					if ($seq < $latestSeq) {
-						return json_encode(array(
-							'success' => true,
-							'value' => array(),
-							'error' => 'aborted 2'
-						));
-					}
 					$this->storeLatestSeq($userKey, $seq);
 
 					/*
@@ -264,21 +188,17 @@ class ModuleProductSearch extends \Module {
                         ]
                     );
 
-					// Check again before starting the expensive search
-					$latestSeq = $this->fetchLatestSeq($userKey);
-					if ($seq < $latestSeq) {
-						return json_encode(array(
-							'success' => true,
-							'value' => array(),
-							'error' => 'aborted 3'
-						));
-					}
-					if ($this->clientDisconnected()) {
-						return json_encode(array(
-							'success' => true,
-							'value' => array(),
-							'error' => 'aborted 4'
-						));
+					// Grace window: allow slightly newer requests to publish their seq before starting search
+					for ($i = 0; $i < 3; $i++) {
+						$latestSeq = $this->fetchLatestSeq($userKey);
+						if ($seq < $latestSeq) {
+							return json_encode(array(
+								'success' => true,
+								'value' => array(),
+								'error' => 'aborted 3'
+							));
+						}
+						usleep(500000); // 500ms
 					}
 
 					$productSearchAdapter->search();
@@ -295,14 +215,6 @@ class ModuleProductSearch extends \Module {
                             'error' => 'aborted 5'
                         ));
                     }
-                    if ($this->clientDisconnected()) {
-                        return json_encode(array(
-                            'success' => true,
-                            'value' => array(),
-                            'error' => 'aborted 6'
-                        ));
-                    }
-
 
                     $arrProducts = $productSearchAdapter->getProductResultsComplete();
 
@@ -319,21 +231,7 @@ class ModuleProductSearch extends \Module {
 					$count = 0;
 					$numProducts = count($arrProductsTmp);
 
-					$iterationCounter = 0;
 					foreach ($arrProductsTmp as $productID) {
-						$iterationCounter++;
-						// Periodically check if client disconnected to break early
-						if (($iterationCounter % 5) === 0) {
-							// Short-circuit if a newer request exists
-							$latestSeq = $this->fetchLatestSeq($userKey);
-							if ($seq < $latestSeq) {
-								break;
-							}
-							if ($this->clientDisconnected()) {
-								break;
-							}
-						}
-
 						$count++;
 						if ($count > $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMaxNumHits']) {
 						    break;
