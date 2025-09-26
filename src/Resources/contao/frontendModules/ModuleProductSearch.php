@@ -24,6 +24,13 @@ class ModuleProductSearch extends \Module {
 		if ($session && method_exists($session, 'isStarted') && $session->isStarted()) {
 			$userKey = session_id();
 		}
+
+        if (!$userKey) {
+            $ip = \Environment::get('ip');
+            $ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+            $userKey = hash('sha256', $ip.'|'.$ua);
+        }
+
 		return $userKey;
 	}
 
