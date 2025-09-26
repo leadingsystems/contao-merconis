@@ -4007,6 +4007,12 @@ class ls_shop_generalHelper
                     $str_replace = self::getEnvironmentBase() . $obj_tmp_productOrVariant->{$str_keyword};
                     break;
 
+                case '_linkcomplete':
+                    $url = self::getEnvironmentBase() . $obj_tmp_productOrVariant->_link;
+                    $linkText = self::getEnvironmentBase() . $obj_tmp_productOrVariant->_link;
+                    $str_replace = '<a href="' . $url . '" rel=“noopener noreferrer“>' . $linkText . '</a>';
+                    break;
+
                 default:
                     $str_replace = $obj_tmp_productOrVariant->{$str_keyword};
                     break;
