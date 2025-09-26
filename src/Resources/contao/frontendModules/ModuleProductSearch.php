@@ -152,11 +152,11 @@ class ModuleProductSearch extends \Module {
 					}
 
 					// Short-circuit superseded requests using seq
-                    /* Do me! Throw an exception if seq is not posted. This is important because otherwise
-                     *  we will never know if the LSJS module hasn't been updated accordingly in a project to
-                     *  make this work.
-                     */
-					$seq = (int)\Input::post('seq');
+					$seqRaw = \Input::post('seq');
+					if ($seqRaw === null || $seqRaw === '') {
+						throw new \RuntimeException('Missing "seq" in live-hits request. The client must send a monotonically increasing seq parameter.');
+					}
+					$seq = (int)$seqRaw;
 					$latestSeq = $this->fetchLatestSeq($userKey);
 					$this->storeLatestSeq($userKey, $seq);
 
