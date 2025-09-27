@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use LeadingSystems\MerconisBundle\ProductSearch\SearchTermMappingService;
 
 class Adapter
 {
@@ -38,8 +39,9 @@ class Adapter
     private RequestStack $requestStack;
     private Helper $helper;
     private TranslatorInterface $translator;
+    private SearchTermMappingService $termMappingService;
 
-    public function __construct(SearchServer $searchServer, Helper $helper, LoggerInterface $logger, Environment $twig, RequestStack $requestStack, TranslatorInterface $translator)
+    public function __construct(SearchServer $searchServer, Helper $helper, LoggerInterface $logger, Environment $twig, RequestStack $requestStack, TranslatorInterface $translator, SearchTermMappingService $termMappingService)
     {
         $this->searchServer = $searchServer;
         $this->logger = $logger;
@@ -48,6 +50,7 @@ class Adapter
         $this->requestStack = $requestStack;
         $this->helper = $helper;
         $this->translator = $translator;
+        $this->termMappingService = $termMappingService;
     }
 
     public function setMode(Mode $mode): void
@@ -151,6 +154,21 @@ class Adapter
     {
         if (!count($searchCriteria)) {
             $this->logger->warning('Search criteria array must not be empty');
+        }
+
+        // Augment fulltext using search term mapping service if enabled
+        if (isset($searchCriteria['fulltext']) && is_string($searchCriteria['fulltext']) && $searchCriteria['fulltext'] !== '') {
+            try {
+                $mode = $this->mode ?? null;
+                $applyAugmentation = $this->termMappingService->isEnabled() && (
+                    $mode === null || $mode === Mode::Standard || ($mode === Mode::SearchServer && $this->termMappingService->isApplyInElasticsearch())
+                );
+                if ($applyAugmentation) {
+                    $searchCriteria['fulltext'] = $this->termMappingService->augment($searchCriteria['fulltext']);
+                }
+            } catch (\Throwable $e) {
+                $this->logger->error('Search term augmentation failed: ' . $e->getMessage());
+            }
         }
 
         $this->searchCriteria = $searchCriteria;

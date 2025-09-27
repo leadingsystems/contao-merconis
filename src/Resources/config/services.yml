@@ -76,6 +76,12 @@ services:
       $requestStack: '@request_stack'
       $translator: '@translator'
 
+  LeadingSystems\MerconisBundle\ProductSearch\SearchTermMappingService:
+    public: true
+    arguments:
+      $enabled: '%merconis.search.input_mapping.enabled%'
+      $applyInElasticsearch: '%merconis.search.input_mapping.apply_in_elasticsearch%'
+
   LeadingSystems\MerconisBundle\ProductSearch\Helper:
     # must be public because we have to use it in Merconis legacy code where we can't inject it properly
     public: true

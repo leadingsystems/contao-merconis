@@ -1,0 +1,5 @@
+parameters:
+  merconis.search.input_mapping.enabled: true
+  merconis.search.input_mapping.apply_in_elasticsearch: false
+
+
