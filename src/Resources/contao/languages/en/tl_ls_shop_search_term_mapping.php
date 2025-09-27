@@ -3,6 +3,7 @@
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sourceTerm'] = ['Source term', 'User input token to map'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sourceNormalized'] = ['Source (normalized)', 'Lowercased source term for uniqueness'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['targetTerm'] = ['Target term', 'Token to append to search input'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSource'] = ['Remove source term', 'If enabled, the source token will be removed from the query and only the target token will be used'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['active'] = ['Active', 'Enable or disable this mapping'];
 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Edit mapping', 'Edit mapping ID %s'];

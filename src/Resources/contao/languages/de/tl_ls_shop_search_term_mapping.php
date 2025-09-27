@@ -3,6 +3,7 @@
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sourceTerm'] = ['Quellbegriff', 'Benutzereingabe-Token, das abgebildet werden soll'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sourceNormalized'] = ['Quelle (normalisiert)', 'Kleingeschriebener Quellbegriff für Eindeutigkeit'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['targetTerm'] = ['Zielbegriff', 'Token, das zur Suche hinzugefügt wird'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSource'] = ['Quellbegriff entfernen', 'Wenn aktiviert, wird der Quellbegriff aus der Suche entfernt und nur der Zielbegriff verwendet'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['active'] = ['Aktiv', 'Mapping aktivieren oder deaktivieren'];
 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Mapping bearbeiten', 'Mapping ID %s bearbeiten'];

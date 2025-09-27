@@ -89,7 +89,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 		)
 	),
 	'palettes' => array(
-		'default' => '{general_legend},sourceTerm,targetTerm,active'
+		'default' => '{general_legend},sourceTerm,targetTerm,removeSource,active'
 	),
 
 	'fields' => array(
@@ -131,6 +131,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 			'filter' => true,
 			'search' => true,
 			'sql' => "varchar(255) NOT NULL default ''"
+		),
+		'removeSource' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSource'],
+			'exclude' => true,
+			'inputType' => 'checkbox',
+			'eval' => array('tl_class' => 'w50 m12'),
+			'filter' => true,
+			'sql' => "char(1) NOT NULL default '1'"
 		),
 		'active' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['active'],

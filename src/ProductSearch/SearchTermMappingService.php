@@ -6,7 +6,7 @@ use Contao\Database;
 
 class SearchTermMappingService
 {
-    private static ?array $cache = null; // normalized source => target term
+    private static ?array $cache = null; // normalized source => ['target' => string, 'remove' => bool]
 
     private bool $enabled;
     private bool $applyInElasticsearch;
@@ -38,13 +38,14 @@ class SearchTermMappingService
             return;
         }
         self::$cache = [];
-        $result = Database::getInstance()->prepare("SELECT sourceNormalized, targetTerm FROM tl_ls_shop_search_term_mapping WHERE active = '1'")
+        $result = Database::getInstance()->prepare("SELECT sourceNormalized, targetTerm, removeSource FROM tl_ls_shop_search_term_mapping WHERE active = '1'")
             ->execute();
         while ($result->next()) {
             $normalized = (string) $result->sourceNormalized;
             $target = (string) $result->targetTerm;
+            $remove = (string) $result->removeSource === '1';
             if ($normalized !== '' && $target !== '') {
-                self::$cache[$normalized] = $target;
+                self::$cache[$normalized] = ['target' => $target, 'remove' => $remove];
             }
         }
     }
@@ -75,27 +76,40 @@ class SearchTermMappingService
             $existingLower[mb_strtolower($tStr)] = true;
         }
 
-        $toAppend = [];
+        $resultTokens = [];
         foreach ($tokens as $t) {
-            $tNorm = mb_strtolower(trim((string) $t));
+            $raw = (string) $t;
+            $tNorm = mb_strtolower(trim($raw));
             if ($tNorm === '') {
                 continue;
             }
             if (isset(self::$cache[$tNorm])) {
-                $target = (string) self::$cache[$tNorm];
+                $target = (string) self::$cache[$tNorm]['target'];
+                $remove = (bool) self::$cache[$tNorm]['remove'];
                 $targetLower = mb_strtolower($target);
-                if ($targetLower !== '' && !isset($existingLower[$targetLower])) {
-                    $toAppend[] = $target;
-                    $existingLower[$targetLower] = true;
+                if ($remove) {
+                    // Replace source with target
+                    if ($targetLower !== '' && !isset($existingLower[$targetLower])) {
+                        $resultTokens[] = $target;
+                        $existingLower[$targetLower] = true;
+                    }
+                    // Do not add original token
+                    continue;
+                } else {
+                    // Keep original and append target if not present
+                    $resultTokens[] = $raw;
+                    if ($targetLower !== '' && !isset($existingLower[$targetLower])) {
+                        $resultTokens[] = $target;
+                        $existingLower[$targetLower] = true;
+                    }
+                    continue;
                 }
             }
+            // No mapping: keep original
+            $resultTokens[] = $raw;
         }
 
-        if (!empty($toAppend)) {
-            return array_values(array_filter(array_merge($tokens, $toAppend), static fn($v) => $v !== null && $v !== ''));
-        }
-
-        return $tokens;
+        return array_values(array_filter($resultTokens, static fn($v) => $v !== null && $v !== ''));
     }
 }
 
