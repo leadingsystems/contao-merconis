@@ -6,7 +6,7 @@ use Contao\Database;
 
 class SearchTermMappingService
 {
-    private static ?array $cache = null; // normalized source => ['target' => string, 'remove' => bool]
+    private static ?array $cache = null; // normalized source => ['targets' => string[], 'removeAny' => bool]
 
     private bool $enabled;
     private bool $applyInElasticsearch;
@@ -38,14 +38,21 @@ class SearchTermMappingService
             return;
         }
         self::$cache = [];
-        $result = Database::getInstance()->prepare("SELECT sourceNormalized, targetTerm, removeSource FROM tl_ls_shop_search_term_mapping WHERE active = '1'")
+        $result = Database::getInstance()->prepare("SELECT sourceNormalized, targetTerm, removeSource FROM tl_ls_shop_search_term_mapping WHERE active = '1' ORDER BY sorting, id")
             ->execute();
         while ($result->next()) {
             $normalized = (string) $result->sourceNormalized;
             $target = (string) $result->targetTerm;
             $remove = (string) $result->removeSource === '1';
             if ($normalized !== '' && $target !== '') {
-                self::$cache[$normalized] = ['target' => $target, 'remove' => $remove];
+                if (!isset(self::$cache[$normalized])) {
+                    self::$cache[$normalized] = ['targets' => [], 'removeAny' => false];
+                }
+                // Append unique targets (case-insensitive uniqueness handled later during augmentation)
+                self::$cache[$normalized]['targets'][] = $target;
+                if ($remove) {
+                    self::$cache[$normalized]['removeAny'] = true;
+                }
             }
         }
     }
@@ -84,26 +91,25 @@ class SearchTermMappingService
                 continue;
             }
             if (isset(self::$cache[$tNorm])) {
-                $target = (string) self::$cache[$tNorm]['target'];
-                $remove = (bool) self::$cache[$tNorm]['remove'];
-                $targetLower = mb_strtolower($target);
-                if ($remove) {
-                    // Replace source with target
-                    if ($targetLower !== '' && !isset($existingLower[$targetLower])) {
-                        $resultTokens[] = $target;
-                        $existingLower[$targetLower] = true;
-                    }
-                    // Do not add original token
-                    continue;
-                } else {
-                    // Keep original and append target if not present
+                $targets = (array) self::$cache[$tNorm]['targets'];
+                $removeAny = (bool) self::$cache[$tNorm]['removeAny'];
+                if (!$removeAny) {
+                    // Keep original token
                     $resultTokens[] = $raw;
-                    if ($targetLower !== '' && !isset($existingLower[$targetLower])) {
-                        $resultTokens[] = $target;
+                }
+                // Append all mapped targets, ensuring uniqueness case-insensitively
+                foreach ($targets as $target) {
+                    $targetStr = (string) $target;
+                    if ($targetStr === '') {
+                        continue;
+                    }
+                    $targetLower = mb_strtolower($targetStr);
+                    if (!isset($existingLower[$targetLower])) {
+                        $resultTokens[] = $targetStr;
                         $existingLower[$targetLower] = true;
                     }
-                    continue;
                 }
+                continue;
             }
             // No mapping: keep original
             $resultTokens[] = $raw;

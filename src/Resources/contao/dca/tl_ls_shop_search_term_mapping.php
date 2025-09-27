@@ -24,7 +24,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 		'sql' => array(
 			'keys' => array(
 				'id' => 'primary',
-				'sourceNormalized' => 'unique',
+				'sourceNormalized' => 'index',
 				'active' => 'index'
 			)
 		)
