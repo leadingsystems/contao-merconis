@@ -121,20 +121,3 @@ localconfig foreign key relations are also noted here although their parent tabl
 @tl_layout.lsShopOutputDefinitionSet@tl_ls_shop_output_definitions.id=single@
 */
 
-#
-# Table `tl_ls_shop_search_term_mapping`
-#
-
-CREATE TABLE `tl_ls_shop_search_term_mapping` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `tstamp` int(10) unsigned NOT NULL default '0',
-  `sorting` int(10) unsigned NOT NULL default '0',
-  `sourceTerm` varchar(255) NOT NULL default '',
-  `sourceNormalized` varchar(255) NOT NULL default '',
-  `targetTerm` varchar(255) NOT NULL default '',
-  `active` char(1) NOT NULL default '',
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `sourceNormalized` (`sourceNormalized`),
-  KEY `active` (`active`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
