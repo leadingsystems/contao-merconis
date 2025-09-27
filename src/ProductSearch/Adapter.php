@@ -53,6 +53,25 @@ class Adapter
         $this->termMappingService = $termMappingService;
     }
 
+    private function maybeAugmentFulltext(string $fulltext): string
+    {
+        if ($fulltext === '') {
+            return $fulltext;
+        }
+        try {
+            $mode = $this->mode ?? null;
+            $applyAugmentation = $this->termMappingService->isEnabled() && (
+                $mode === null || $mode === Mode::Standard || ($mode === Mode::SearchServer && $this->termMappingService->isApplyInElasticsearch())
+            );
+            if ($applyAugmentation) {
+                return $this->termMappingService->augment($fulltext);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error('Search term augmentation failed: ' . $e->getMessage());
+        }
+        return $fulltext;
+    }
+
     public function setMode(Mode $mode): void
     {
         $this->mode = $mode;
@@ -130,6 +149,10 @@ class Adapter
             return;
         }
 
+        if ($fieldName === 'fulltext' && is_string($criterion) && $criterion !== '') {
+            $criterion = $this->maybeAugmentFulltext($criterion);
+        }
+
         $this->searchCriteria[$fieldName] = $criterion;
 
         switch ($this->mode) {
@@ -158,17 +181,7 @@ class Adapter
 
         // Augment fulltext using search term mapping service if enabled
         if (isset($searchCriteria['fulltext']) && is_string($searchCriteria['fulltext']) && $searchCriteria['fulltext'] !== '') {
-            try {
-                $mode = $this->mode ?? null;
-                $applyAugmentation = $this->termMappingService->isEnabled() && (
-                    $mode === null || $mode === Mode::Standard || ($mode === Mode::SearchServer && $this->termMappingService->isApplyInElasticsearch())
-                );
-                if ($applyAugmentation) {
-                    $searchCriteria['fulltext'] = $this->termMappingService->augment($searchCriteria['fulltext']);
-                }
-            } catch (\Throwable $e) {
-                $this->logger->error('Search term augmentation failed: ' . $e->getMessage());
-            }
+            $searchCriteria['fulltext'] = $this->maybeAugmentFulltext($searchCriteria['fulltext']);
         }
 
         $this->searchCriteria = $searchCriteria;
