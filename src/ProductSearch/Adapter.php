@@ -53,7 +53,7 @@ class Adapter
         $this->termMappingService = $termMappingService;
     }
 
-    private function maybeAugmentFulltext(string $fulltext): string
+    private function augmentFulltextIfApplicable(string $fulltext): string
     {
         if ($fulltext === '') {
             return $fulltext;
@@ -150,7 +150,7 @@ class Adapter
         }
 
         if ($fieldName === 'fulltext' && is_string($criterion) && $criterion !== '') {
-            $criterion = $this->maybeAugmentFulltext($criterion);
+            $criterion = $this->augmentFulltextIfApplicable($criterion);
         }
 
         $this->searchCriteria[$fieldName] = $criterion;
@@ -181,7 +181,7 @@ class Adapter
 
         // Augment fulltext using search term mapping service if enabled
         if (isset($searchCriteria['fulltext']) && is_string($searchCriteria['fulltext']) && $searchCriteria['fulltext'] !== '') {
-            $searchCriteria['fulltext'] = $this->maybeAugmentFulltext($searchCriteria['fulltext']);
+            $searchCriteria['fulltext'] = $this->augmentFulltextIfApplicable($searchCriteria['fulltext']);
         }
 
         $this->searchCriteria = $searchCriteria;
