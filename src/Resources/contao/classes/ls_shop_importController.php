@@ -549,6 +549,9 @@ class ls_shop_importController
 				")
 				->limit(1)
 				->execute($alreadyExistsAsID);
+
+				// Also delete page map rows for this product
+				ls_shop_generalHelper::deleteProductFromPageMap($alreadyExistsAsID);
 				
 				// Löschen der Varianten zum Produkt
 				$this->deleteVariantsForProduct($alreadyExistsAsID);
@@ -767,6 +770,9 @@ class ls_shop_importController
 				}
 			}
 			
+			// Sync page map on update
+			ls_shop_generalHelper::syncProductPageMap($alreadyExistsAsID, $row['category']);
+			
 			return true;
 		}
 		
@@ -903,6 +909,9 @@ class ls_shop_importController
 					$objMccb->{$mccb[1]}($newProductID);
 				}
 			}
+			
+			// Sync page map on insert
+			ls_shop_generalHelper::syncProductPageMap($newProductID, $row['category']);
 			
 			return true;
 		}

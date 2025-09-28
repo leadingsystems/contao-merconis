@@ -377,7 +377,7 @@ class ls_shop_productManagementApiHelper {
 
             while ($obj_dbres_pages->next()) {
                 // Check whether root page is fallback language or not and only then add the page to the pageAliases array
-                $obj_pageDetails = \PageModel::findWithDetails($obj_dbres_pages->id);
+                $obj_pageDetails = ls_shop_generalHelper::getPageDetailsCached($obj_dbres_pages->id);
                 $obj_rootPage = \Database::getInstance()
                     ->prepare("
                         SELECT * FROM `tl_page` WHERE `id` = ?
@@ -994,6 +994,12 @@ class ls_shop_productManagementApiHelper {
 
 
         $obj_dbres_prod->execute($arr_queryParams);
+
+        // Keep page map in sync after API upsert
+        $pid = self::getProductIdForProductCode($arr_preprocessedDataRow['productcode']);
+        if ($pid) {
+            ls_shop_generalHelper::syncProductPageMap($pid, $arr_preprocessedDataRow['category']);
+        }
         $productID = (int) $obj_dbres_prod->insertId;
 
 

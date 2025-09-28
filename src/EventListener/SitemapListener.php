@@ -8,6 +8,7 @@ use Contao\CoreBundle\Event\SitemapEvent;
 use Contao\CoreBundle\ServiceAnnotation\Page;
 use Contao\StringUtil;
 use Contao\System;
+use Merconis\Core\ls_shop_generalHelper;
 use Merconis\Core\ls_shop_languageHelper;
 
 /*
@@ -81,7 +82,7 @@ class SitemapListener
                     $domain = \Environment::get('base');
                     $arrLanguagePages = ls_shop_languageHelper::getLanguagePages($objPagesForProduct->id);
                     foreach ($arrLanguagePages as $languagePageInfo) {
-                        $objPageForProduct = \PageModel::findWithDetails($languagePageInfo['id']);
+                        $objPageForProduct = ls_shop_generalHelper::getPageDetailsCached($languagePageInfo['id']);
 
                         $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
                         if ($str_languageAlias == '') {

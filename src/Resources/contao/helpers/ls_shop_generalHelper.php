@@ -10,6 +10,8 @@ use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -20,6 +22,52 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_generalHelper
 {
+    public static function syncProductPageMap($productId, $serializedPages): void
+    {
+        if (!$productId) { return; }
+        $pageIds = \Contao\StringUtil::deserialize($serializedPages, true);
+        \Database::getInstance()->prepare("DELETE FROM tl_ls_shop_product_page_map WHERE pid=?")->execute($productId);
+        if (!is_array($pageIds) || !count($pageIds)) { return; }
+        $values = array();
+        $params = array();
+        foreach ($pageIds as $pageId) {
+            $pageId = (int) $pageId;
+            if ($pageId <= 0) { continue; }
+            $values[] = '(?, ?)';
+            $params[] = (int) $productId;
+            $params[] = $pageId;
+        }
+        if (!empty($values)) {
+            $sql = 'INSERT IGNORE INTO tl_ls_shop_product_page_map (pid, page_id) VALUES ' . implode(',', $values);
+            \Database::getInstance()->prepare($sql)->execute(...$params);
+        }
+    }
+
+    public static function deleteProductFromPageMap($productId): void
+    {
+        if (!$productId) { return; }
+        \Database::getInstance()->prepare("DELETE FROM tl_ls_shop_product_page_map WHERE pid=?")->execute($productId);
+    }
+    /**
+     * Return PageModel with details using an in-request cache.
+     * This mirrors the idea from PR #492 for Contao 5 but stays compatible with Contao 4.13.
+     */
+    public static function getPageDetailsCached($pageId)
+    {
+        if (!$pageId) {
+            return null;
+        }
+
+        if (!isset($GLOBALS['merconis_globals']['cache']['pageDetails'])) {
+            $GLOBALS['merconis_globals']['cache']['pageDetails'] = array();
+        }
+
+        if (!isset($GLOBALS['merconis_globals']['cache']['pageDetails'][$pageId])) {
+            $GLOBALS['merconis_globals']['cache']['pageDetails'][$pageId] = \PageModel::findWithDetails($pageId);
+        }
+
+        return $GLOBALS['merconis_globals']['cache']['pageDetails'][$pageId];
+    }
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
      * and writes them into the allocation table
@@ -885,10 +933,14 @@ class ls_shop_generalHelper
     {
         $int_pageID = (int)$int_pageID;
         $int_pageID = ls_shop_languageHelper::getMainlanguagePageIDForPageID($int_pageID);
-        $obj_productSearch = new ls_shop_productSearcher();
-        $obj_productSearch->setSearchCriterion('pages', $int_pageID);
-        $obj_productSearch->search();
-        return $obj_productSearch->numProductsBeforeFilter;
+
+        /** @var Adapter $productSearchAdapter */
+        $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+        $productSearchAdapter->initialize();
+
+        $productSearchAdapter->setSearchCriterion('pages', $int_pageID);
+        $productSearchAdapter->search();
+        return $productSearchAdapter->getNumProductsUnfiltered();
     }
 
     /*
@@ -3247,7 +3299,7 @@ class ls_shop_generalHelper
 
         while ($objPages->next()) {
             // Check whether root page is fallback language or not and only then add the page to the options array
-            $objPageDetails = \PageModel::findWithDetails($objPages->id);
+            $objPageDetails = self::getPageDetailsCached($objPages->id);
             $objRootPage = \Database::getInstance()->prepare("
 					SELECT * FROM `tl_page` WHERE `id` = ?
 				")

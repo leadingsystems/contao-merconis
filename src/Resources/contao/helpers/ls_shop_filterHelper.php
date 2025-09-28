@@ -64,7 +64,7 @@ class ls_shop_filterHelper {
         /*
          * Get product and variant data for all products in display, containing the attribute/value allocations
          */
-        $productsInDisplay = array_intersect_key($_SESSION['lsShop']['filter']['allProductsInfluencingFilterForm'], array_flip($productIds));
+        $productsInDisplay = array_intersect_key($_SESSION['lsShop']['filter']['allProductsInfluencingFilterForm'] ?? [], array_flip($productIds));
 
         /*
          * Iterating over all products and their variants, collecting their attribute ids and the number that those

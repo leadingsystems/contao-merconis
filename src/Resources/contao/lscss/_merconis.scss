@@ -1,7 +1,17 @@
 @import "_merconis-variables.scss";
 @import "_merconis-add-to-cart.scss";
 @import "_merconis-added-to-cart-info.scss";
+
+/*
+ Legacy filter
+ */
 @import "_merconis-filter.scss";
+
+/*
+ New filter
+ */
+@import "_merconis-filter-ui.scss";
+
 @import "_merconis-product-list.scss";
 @import "_merconis-product.scss";
 @import "_merconis-productOverview.scss";

@@ -24,7 +24,8 @@
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_dashboard']				= array(!$GLOBALS['TL_CONFIG']['ls_shop_installedCompletely'] ? 'SETUP' : 'Info', '');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_import']				= array('Product import', 'Use the possibility to quickly and comfortably import an extensive product inventory into your online shop.');
 	$GLOBALS['TL_LANG']['MOD']['ls_shop_message_type']			= array('Message models', 'Manage the models for MERCONIS messages here.');
-	$GLOBALS['TL_LANG']['MOD']['ls_shop_messages_sent']			= array('Sent messages', 'Here you will find an overview of the messages sent by MERCONIS');
+$GLOBALS['TL_LANG']['MOD']['ls_shop_messages_sent']			= array('Sent messages', 'Here you will find an overview of the messages sent by MERCONIS');
+$GLOBALS['TL_LANG']['MOD']['ls_shop_search_term_mapping']		= array('Search term mappings', 'Configure mappings for search augmentation');
 
 	/*
 	 * Frontend-Modules

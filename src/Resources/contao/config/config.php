@@ -78,7 +78,7 @@ $GLOBALS['TL_HOOKS']['outputFrontendTemplate'][] = array('Merconis\Core\ls_shop_
 /*
  * Hook for the multiLanguage DCA manipulation
  */
-if (\Input::get('do') != 'themes' || \Input::get('key') != 'importTheme') {
+if (\Contao\Input::get('do') != 'themes' || \Contao\Input::get('key') != 'importTheme') {
 	$GLOBALS['TL_HOOKS']['loadDataContainer'][] = array('Merconis\Core\ls_shop_languageHelper', 'createMultiLanguageDCAFields');
 }
 $GLOBALS['TL_HOOKS']['loadDataContainer'][] = array('Merconis\Core\ls_shop_generalHelper', 'removeFieldsForEditAll');
@@ -117,6 +117,7 @@ if (TL_MODE === 'FE') {
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_exportFrontend', 'processRequest');
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_productManagement', 'processRequest');
 	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_cart', 'processRequest');
+	$GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\ls_shop_apiController_searchServer', 'processRequest');
 }
 
 if (TL_MODE === 'BE') {
@@ -181,6 +182,10 @@ if (TL_MODE == 'BE') {
 
 		'ls_shop_product' => array(
 			'tables' => array('tl_ls_shop_product', 'tl_ls_shop_variant'),
+		),
+
+		'ls_shop_search_term_mapping' => array(
+			'tables' => array('tl_ls_shop_search_term_mapping'),
 		),
 
 		'ls_shop_import' => array(

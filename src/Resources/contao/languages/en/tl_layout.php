@@ -11,6 +11,7 @@
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_matchEstimatesMaxFilterValues'] = array('Filter value limit for estimated matches', 'Depending on the performance of your server it might be useful to limit the number of filter values in your filter form for which the estimated number of matches will be determined.');
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_useFilterInProductDetails'] = array('Use filter in product details', 'Select this option if you want to use the filter in the product details which enables variant filtering.');
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_hideFilterFormInProductDetails'] = array('Hide filter form in product details');
+    $GLOBALS['TL_LANG']['tl_layout']['ls_shop_removeImpossibleFilterOptions'] = array('Hide impossible filter options', 'Removes filter options that cannot yield matches given the current selection.');
 
 	/*
 	 * Legends

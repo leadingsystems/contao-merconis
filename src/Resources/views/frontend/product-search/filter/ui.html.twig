@@ -1,0 +1,36 @@
+<div id="test-product-filter-ui-outside-container" class="ajax-reload-by-filter" data-merconis-component="product-filter-ui" data-product-list-id="{{ productListId }}">
+    <form method="post" id="product-filters" action="{{ app.request.pathInfo|slice(1) }}">
+        <input type="hidden" name="FORM_SUBMIT" value="filterUI::{{ productListId }}">
+        <div class="filter-columns">
+            {% for attribute_id, attribute in filters %}
+                <div class="filter-attribute" data-attribute-id="{{ attribute_id }}">
+                    <strong>{{ attribute.title }}</strong>
+                    {% if attribute.summary %}
+                        <div class="filter-summary">{{ attribute.summary }}</div>
+                        <button type="button" class="filter-reset" aria-label="Reset"></button>
+                    {% endif %}
+                    <ul class="filter-list">
+                        <li class="filter-oc-title">{{ attribute.title }}</li>
+                        {% for value_id, value in attribute.values %}
+                            <li class="{{ value.liClass }}">
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        name="filter[]"
+                                        value='{{ value.encodedValue }}'
+                                        {{ value.checked }} {{ value.disabled }}
+                                    />
+                                    {{ value.title }}
+                                    {% if value.showCount and not value.checked and not value.disabled %}
+                                        <span class="badge {{ value.activeStateClass }}">{{ value.matchEstimateCount }}</span>
+                                    {% endif %}
+                                </label>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+        <input type="submit" value="OK">
+    </form>
+</div>

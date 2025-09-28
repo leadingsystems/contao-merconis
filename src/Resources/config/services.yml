@@ -8,7 +8,85 @@ services:
   merconis.routing.scope:
     class: LeadingSystems\MerconisBundle\Services\Scope
     public: true
-    
+
+  _instanceof:
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\ClientInterface:
+      tags: [ 'merconis.search_server_adapters_client' ]
+
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\TestsInterface:
+      tags: [ 'merconis.search_server_adapters_tests' ]
+
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexManageInterface:
+      tags: [ 'merconis.search_server_adapters_index_manage' ]
+
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSearchInterface:
+      tags: [ 'merconis.search_server_adapters_index_search' ]
+
+    LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSyncInterface:
+      tags: [ 'merconis.search_server_adapters_index_sync' ]
+
+  LeadingSystems\MerconisBundle\SearchServer\SearchServer:
+    # must be public because we have to use it in Merconis legacy code where we can't inject it properly
+    public: true
+    lazy: true
+    arguments:
+      - !tagged_iterator merconis.search_server_adapters_client
+      - !tagged_iterator merconis.search_server_adapters_tests
+      - !tagged_iterator merconis.search_server_adapters_index_manage
+      - !tagged_iterator merconis.search_server_adapters_index_search
+      - !tagged_iterator merconis.search_server_adapters_index_sync
+
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\ClientInterface -->
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client:
+    arguments:
+      $projectDir: '%kernel.project_dir%'
+      $environment: '%kernel.environment%'
+
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\TestsInterface -->
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Tests:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
+
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\IndexManageInterface -->
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product\Manage:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
+
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\IndexSearchInterface -->
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product\Search:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
+
+  # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\IndexSyncInterface -->
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product\Sync:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
+
+
+
+  LeadingSystems\MerconisBundle\ProductSearch\Adapter:
+    # must be public because we have to use it in Merconis legacy code where we can't inject it properly
+    public: true
+    shared: false
+    arguments:
+      $searchServer: '@LeadingSystems\MerconisBundle\SearchServer\SearchServer'
+      $helper: '@LeadingSystems\MerconisBundle\ProductSearch\Helper'
+      $twig: '@twig'
+      $logger: '@logger'
+      $requestStack: '@request_stack'
+      $translator: '@translator'
+
+  LeadingSystems\MerconisBundle\ProductSearch\SearchTermMappingService:
+    public: true
+    arguments:
+      $enabled: '%merconis.search.input_mapping.enabled%'
+      $applyInElasticsearch: '%merconis.search.input_mapping.apply_in_elasticsearch%'
+
+  LeadingSystems\MerconisBundle\ProductSearch\Helper:
+    # must be public because we have to use it in Merconis legacy code where we can't inject it properly
+    public: true
+
+
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
       - '@contao.framework'
@@ -69,3 +147,17 @@ services:
     class: LeadingSystems\MerconisBundle\Cronjob\Daily
     tags:
       - { name: contao.cronjob, interval: daily }
+
+  # Schedulable job to rebuild the product→page mapping table
+  LeadingSystems\MerconisBundle\Scheduler\Jobs\BuildProductPageMap:
+    tags:
+      - { name: merconis_custom.schedulable }
+
+  LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\ObjectStatePersistorController:
+    public: true
+
+  LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\EventSubscriber\ObjectStatePersistorEventSubscriber:
+    arguments:
+      - '@LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\ObjectStatePersistorController'
+    tags:
+      - { name: kernel.event_subscriber }

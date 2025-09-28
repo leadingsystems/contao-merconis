@@ -2,7 +2,10 @@
 
 namespace Merconis\Core;
 
+use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
+use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 
 class ls_shop_productList
 {
@@ -150,24 +153,28 @@ class ls_shop_productList
 				}
 			}
 		}
-		
-		$objProductSearch = new ls_shop_productSearcher($this->blnUseFilter, $this->productListID);
-		
+
+
+        /** @var Adapter $productSearchAdapter */
+        $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+        $productSearchAdapter->initialize($this->blnUseFilter, $this->productListID);
+
 		foreach ($this->arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
-			$objProductSearch->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
+            $productSearchAdapter->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
 		}
 
-		$objProductSearch->numPerPage = $this->outputDefinition['overviewPagination'] ? $this->outputDefinition['overviewPagination'] : 0;
-		$objProductSearch->currentPage = $this->currentPage;
+        $productSearchAdapter->setNumPerPage($this->outputDefinition['overviewPagination'] ?: 0);
+
+        $productSearchAdapter->setCurrentPage($this->currentPage);
 
 		$sortingDefinition = $this->outputDefinition['overviewSorting'];
 		if ($this->outputDefinition['overviewUserSorting'] == 'yes' && isset($_SESSION['lsShop']['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID])) {
 			$sortingDefinition = $_SESSION['lsShop']['userSortingDefinition'][$this->outputDefinition['outputDefinitionID'].'-'.$this->outputDefinition['outputDefinitionMode'].'-'.$this->productListID];
 		}
-			
+
 		$sortingField = 'title';
 		$sortingDirection = 'ASC';
-		
+
 		if ($sortingDefinition) {
 			$tmpSplitSortingDefinition = explode('_sortDir_', $sortingDefinition);
 			if ($tmpSplitSortingDefinition[0] && $tmpSplitSortingDefinition[1]) {
@@ -175,35 +182,37 @@ class ls_shop_productList
 				$sortingDirection = $tmpSplitSortingDefinition[1];
 			}
 		}
-		
+
 		$arrSortingDefinition = array(
 			0 => array('field' => $sortingField, 'direction' => $sortingDirection)
 		);
-		
-		$objProductSearch->sorting = $arrSortingDefinition;
-		$objProductSearch->fixedSorting = $this->fixedSorting;
-		
-		
+
+        $productSearchAdapter->setSortingCriteria($arrSortingDefinition);
+
+        $productSearchAdapter->setFixedSorting($this->fixedSorting);
+
+
 		###
 		#.
 		if ($this->maxNumProducts > 0) {
-			$objProductSearch->truncateResultsIfMoreThan = $this->maxNumProducts;
+            $productSearchAdapter->setTruncateResultsIfMoreThan($this->maxNumProducts);
 		}
-		
+
 		if($this->noOutputIfMoreThanMaxResults) {
-			$objProductSearch->cancelSearchIfMoreThanTruncateLimit = true;
+            $productSearchAdapter->setCancelSearchIfMoreThanTruncateLimit(true);
 		}
 		#.
 		###
-		
-		$objProductSearch->search();
-		$arrProducts = $objProductSearch->productResultsCurrentPage;
+
+        $productSearchAdapter->search();
+
+        $arrProducts = $productSearchAdapter->getProductResultsCurrentPage();
 
         if ($this->blnUseFilter) {
             $_SESSION['lsShop']['filter']['productsCurrentlyDisplayed'] = $arrProducts;
         }
 
-		$this->numProducts = $objProductSearch->numProductsBeforeFilter;
+        $this->numProducts = $productSearchAdapter->getNumProductsUnfiltered();
 		
 		if ($this->blnIsFrontendSearch) {
 			if (isset($GLOBALS['MERCONIS_HOOKS']['afterSearch']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterSearch'])) {
@@ -234,20 +243,28 @@ class ls_shop_productList
 		 * Ende Durchführen der Suche
 		 */
 
-		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$objProductSearch->blnNotAllProductsMatch)) {
+		if ((!is_array($arrProducts) || !count($arrProducts)) && (!$this->blnUseFilter || !$productSearchAdapter->hasUnmatchedProducts())) {
 			return '';
 		}
 		
 		$objTemplate = new \FrontendTemplate('productList');
-		
+
+        $objTemplate->filterUI = $this->blnUseFilter ? $productSearchAdapter->getFilterUI() : '';
+
 		$objTemplate->blnUseFilter = $this->blnUseFilter;
-		$objTemplate->blnNotAllProductsMatchFilter = $objProductSearch->blnNotAllProductsMatch;
-		$objTemplate->numProductsNotMatching = $objProductSearch->numProductsNotMatching;
-		$objTemplate->numProductsBeforeFilter = $objProductSearch->numProductsBeforeFilter;
+
+		$objTemplate->blnNotAllProductsMatchFilter = $productSearchAdapter->hasUnmatchedProducts();
+
+		$objTemplate->numProductsNotMatching = $productSearchAdapter->getNumUnmatchedProducts();
+
+		$objTemplate->numProductsBeforeFilter = $productSearchAdapter->getNumProductsUnfiltered();
 
 		$obj_paginationTemplate = new \FrontendTemplate('merconisPagination');
 		$obj_paginationTemplate->productListID = $this->productListID;
-		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
+
+        //		$objPagination = new \Pagination($objProductSearch->numResultsComplete, $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
+		$objPagination = new \Pagination($productSearchAdapter->getNumResultsComplete(), $this->outputDefinition['overviewPagination'], $GLOBALS['TL_CONFIG']['maxPaginationLinks'], 'page_'.$this->productListID, $obj_paginationTemplate);
+
 		$paginationHTML = $objPagination->generate(' ');
 				
 		$objTemplate->pagination = $paginationHTML;

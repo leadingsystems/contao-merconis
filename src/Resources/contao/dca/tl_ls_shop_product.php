@@ -15,13 +15,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			array('Merconis\Core\ls_shop_generalHelper', 'attributeValueAllocationCopy'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
-		'ondelete_callback' => array (
-			array('Merconis\Core\ls_shop_generalHelper', 'attributeValueAllocationRemoveOrphanedRecords'),
-			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		),
-		'onsubmit_callback' => array(
-			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		),
+        'ondelete_callback' => array (
+            array('Merconis\\Core\\ls_shop_generalHelper', 'attributeValueAllocationRemoveOrphanedRecords'),
+            array('Merconis\\Core\\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp'),
+            array('Merconis\\Core\\tl_ls_shop_product_controller', 'deleteFromPageMap')
+        ),
+        'onsubmit_callback' => array(
+            array('Merconis\\Core\\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp'),
+            array('Merconis\\Core\\tl_ls_shop_product_controller', 'syncPageMapOnSubmit')
+        ),
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),

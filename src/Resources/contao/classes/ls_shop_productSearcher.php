@@ -1,6 +1,8 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\System;
+use LeadingSystems\MerconisBundle\ProductSearch\Helper;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 
 class ls_shop_productSearcher
@@ -10,8 +12,6 @@ class ls_shop_productSearcher
     protected $arr_groupSettingsForUser = null;
 
     protected $arrSearchCriteria = array('title' => '*', 'published' => '1');
-    protected $intNumPerPage = 0;
-    protected $intCurrentPage = 1;
     protected $blnEmptyFieldMatchesPerDefault = false;
     protected $fixedSorting = array();
     protected $arrRequestFields = array('id');
@@ -36,7 +36,6 @@ class ls_shop_productSearcher
     );
 
     protected $arrProductResultsComplete = array();
-    protected $arrProductResultsCurrentPage = null;
 
     protected $arrCache = null;
     protected $strCacheKey = null;
@@ -49,7 +48,13 @@ class ls_shop_productSearcher
     protected $cancelSearchIfMoreThanTruncateLimit = false;
     protected $str_productListID = null;
 
+    private Helper $productSearchHelper;
+
+    private bool $isLegacyUsage = true;
+
     public function __construct($blnUseFilter = false, $str_productListID = null) {
+        $this->productSearchHelper = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Helper');
+
         $this->getSearchLanguage();
 
         $this->arr_groupSettingsForUser = ls_shop_generalHelper::getGroupSettings4User();
@@ -75,6 +80,11 @@ class ls_shop_productSearcher
 
     public function __destruct() {
         $this->setCache();
+    }
+
+    public function setNonLegacyUsage(): void
+    {
+        $this->isLegacyUsage = false;
     }
 
     protected function getCache() {
@@ -180,18 +190,14 @@ class ls_shop_productSearcher
     }
 
     public function __get($what) {
-        switch ($what) {
-            case 'numPagesTotal':
-                return $this->intNumPerPage > 0 ? ceil($this->numResultsComplete / $this->intNumPerPage) : 1;
-                break;
+        /*
+         * OK: Alles Notwendige in Adapter verfügbar!
+         */
+        $this->warnWhenLegacyCall(__METHOD__);
 
+        switch ($what) {
             case 'productResultsComplete':
                 return $this->checkIfCacheCanBeUsed() ? $this->arrCache['productResultsComplete'] : $this->arrProductResultsComplete;
-                break;
-
-            case 'productResultsCurrentPage':
-                $this->getProductResultsCurrentPage();
-                return $this->arrProductResultsCurrentPage;
                 break;
 
             case 'numResultsComplete':
@@ -253,15 +259,12 @@ class ls_shop_productSearcher
     }
 
     public function __set($key, $value) {
+        /*
+         * OK: Alles Notwendige in Adapter verfügbar!
+         */
+        $this->warnWhenLegacyCall(__METHOD__);
+
         switch ($key) {
-            case 'numPerPage':
-                $this->intNumPerPage = $value;
-                break;
-
-            case 'currentPage':
-                $this->intCurrentPage = $value;
-                break;
-
             case 'sorting':
                 if (is_array($value) && count($value)) {
                     $this->arrSorting = $value;
@@ -302,7 +305,20 @@ class ls_shop_productSearcher
         }
     }
 
+    private function warnWhenLegacyCall(string $methodName): void
+    {
+        if ($this->isLegacyUsage) {
+            throw new \Exception($methodName . ' must only be called through LeadingSystems\MerconisBundle\ProductSearch\Adapter');
+            trigger_error(
+                $methodName . ' must only be called through LeadingSystems\MerconisBundle\ProductSearch\Adapter',
+                E_USER_WARNING
+            );
+        }
+    }
+
     public function setSearchCriterion($fieldName = '', $criteria = '') {
+        $this->warnWhenLegacyCall(__METHOD__);
+
         if (!$fieldName) {
             return;
         }
@@ -310,6 +326,8 @@ class ls_shop_productSearcher
     }
 
     public function setSearchCriteria($arrSearchCriteria = array()) {
+        $this->warnWhenLegacyCall(__METHOD__);
+
         if (!is_array($arrSearchCriteria) || !count($arrSearchCriteria)) {
             return;
         }
@@ -317,6 +335,8 @@ class ls_shop_productSearcher
     }
 
     public function search() {
+        $this->warnWhenLegacyCall(__METHOD__);
+
         $this->ls_performSearch();
 
         /*
@@ -345,15 +365,7 @@ class ls_shop_productSearcher
     }
 
     protected function getSearchLanguage() {
-        // Use the fallback language for the search by default
-        $this->searchLanguage = ls_shop_languageHelper::getFallbackLanguage();
-
-        // Use the language of the current page if we have a fronted call
-        if (TL_MODE == 'FE') {
-            /** @var \PageModel $objPage */
-            global $objPage;
-            $this->searchLanguage = $objPage->language;
-        }
+        $this->searchLanguage = $this->productSearchHelper->getSearchLanguage();
     }
 
     protected function checkIfLanguageFieldsExist($searchLanguage) {
@@ -512,18 +524,22 @@ class ls_shop_productSearcher
                     if (!is_array($criterionValue)) {
                         $criterionValue = array($criterionValue);
                     }
-                    $searchConditionPagesPart = '';
-                    foreach ($criterionValue as $pageID) {
-                        if ($searchConditionPagesPart) {
-                            $searchConditionPagesPart .= "
-								OR";
-                        }
-                        $searchConditionPagesPart .= $this->getQualifiedFieldName($criterionFieldName)." LIKE ?
-						";
 
-                        $searchConditionValues[] = $pageID ? '%%"'.$pageID.'"%' : ($this->blnEmptyFieldMatchesPerDefault ? '%' : '');
+                    $pageIds = array();
+                    foreach ($criterionValue as $pageID) {
+                        $pageID = (int) $pageID;
+                        if ($pageID > 0) {
+                            $pageIds[] = $pageID;
+                        }
                     }
-                    $searchCondition .= "	(".$searchConditionPagesPart.")";
+
+                    if (count($pageIds)) {
+                        $placeholders = implode(',', array_fill(0, count($pageIds), '?'));
+                        $searchCondition .= " (EXISTS (SELECT 1 FROM `tl_ls_shop_product_page_map` m WHERE m.`pid` = `tl_ls_shop_product`.`id` AND m.`page_id` IN (".$placeholders.") ))";
+                        foreach ($pageIds as $v) { $searchConditionValues[] = $v; }
+                    } else {
+                        $searchCondition .= " (1 = 2)";
+                    }
                     break;
 
                 case 'fulltext':
@@ -713,6 +729,16 @@ class ls_shop_productSearcher
                         $addToSelectStatement .= " + ";
                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ? ESCAPE '\\\\' THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['productCode']." ELSE 0 END
+						";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%\\_'.$criterionValue));
+
+
+
+
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+
                         $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductProducer')." LIKE ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['producer']." ELSE 0 END
 						";
                         array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
@@ -843,6 +869,16 @@ class ls_shop_productSearcher
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode']." ELSE 0 END
 								";
                                 array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ? ESCAPE '\\\\' THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode']." ELSE 0 END
+								";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%\\_'.$criterionValue));
 
 
 
@@ -1372,31 +1408,6 @@ class ls_shop_productSearcher
             }
 
             $this->arrProductResultsComplete = $arrProductIDsTempComplete;
-        }
-    }
-
-    protected function getProductResultsCurrentPage() {
-        if ($this->arrProductResultsCurrentPage === null) {
-            if ($this->intNumPerPage && is_array($this->productResultsComplete) && count($this->productResultsComplete)) {
-                /*
-                 * Check whether the currently requested page contains any products. If the requested page is higher than what could possibly create
-                 * any results given the number of $this->arrProductResultsComplete the biggest useful page number is calculated and then used.
-                 */
-                $tmpNumProductsRequiredToGetAResult = (($this->intCurrentPage - 1) * $this->intNumPerPage) + 1;
-                $tmpNumDifferenceBetweenRequiredProductsAndExistingResults = $tmpNumProductsRequiredToGetAResult - count($this->productResultsComplete);
-
-                /*
-                 * The currently existing results are not enough to create a result for the requested page
-                 */
-                if ($tmpNumDifferenceBetweenRequiredProductsAndExistingResults > 0) {
-                    $tmpNumPagesWithoutResults =  ceil($tmpNumDifferenceBetweenRequiredProductsAndExistingResults/$this->intNumPerPage);
-                    $this->intCurrentPage = $this->intCurrentPage - $tmpNumPagesWithoutResults;
-                }
-
-                $this->arrProductResultsCurrentPage = array_slice($this->productResultsComplete, ($this->intCurrentPage - 1) * $this->intNumPerPage, $this->intNumPerPage);
-            } else {
-                $this->arrProductResultsCurrentPage = $this->productResultsComplete;
-            }
         }
     }
 
