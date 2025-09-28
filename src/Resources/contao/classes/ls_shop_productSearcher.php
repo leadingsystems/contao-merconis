@@ -729,6 +729,16 @@ class ls_shop_productSearcher
                         $addToSelectStatement .= " + ";
                         $addToSelectStatementConditionValuesArrayInsertPosition++;
 
+                        $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ? ESCAPE '\\\\' THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['productCode']." ELSE 0 END
+						";
+                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%\\_'.$criterionValue));
+
+
+
+
+                        $addToSelectStatement .= " + ";
+                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+
                         $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductProducer')." LIKE ? THEN ".$arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['producer']." ELSE 0 END
 						";
                         array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
@@ -859,6 +869,16 @@ class ls_shop_productSearcher
                                 $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode']." ELSE 0 END
 								";
                                 array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ? ESCAPE '\\\\' THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode']." ELSE 0 END
+								";
+                                array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%\\_'.$criterionValue));
 
 
 
