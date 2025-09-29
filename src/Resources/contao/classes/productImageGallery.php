@@ -181,9 +181,9 @@ class productImageGallery extends Frontend {
 
         // Get all images
         foreach ($this->multiSRC as $file) {
-            $newImageToAdd = $this->processSingleImage($file);
-            if($newImageToAdd){
-                $this->ls_images[] = $this->processSingleImage($file);
+            $processedImage = $this->processSingleImage($file);
+            if ($processedImage) {
+                $this->ls_images[] = $processedImage;
             }
         }
 
@@ -230,20 +230,25 @@ class productImageGallery extends Frontend {
                 break;
         }
 
-        //sort videos to end of image list
-        $videos = [];
-        for ($i = 0; count($this->ls_images) > $i; $i++) {
-            //test if video (originalSRC is false for all images)
-            if ($this->ls_images[$i]->originalSRC != false){
-                $videos[] = $this->ls_images[$i];
-                unset($this->ls_images[$i]);
+        // sort videos to end of image list (stable partition)
+        $images = array();
+        $videos = array();
+        foreach ($this->ls_images as $image) {
+            // test if video (originalSRC is false for all images)
+            if ($image->originalSRC !== false) {
+                $videos[] = $image;
+            } else {
+                $images[] = $image;
             }
         }
-        $this->ls_images = array_merge($this->ls_images, $videos);
+        $this->ls_images = array_merge($images, $videos);
 
     }
 
     protected function processSingleImage($file) {
+        if (isset($GLOBALS['merconis_globals']['cache'][__METHOD__][$file])) {
+            return $GLOBALS['merconis_globals']['cache'][__METHOD__][$file];
+        }
         /** @var PageModel $objPage */
         global $objPage;
         $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
@@ -253,18 +258,21 @@ class productImageGallery extends Frontend {
             $parts = explode("_cover.", $file);
             //check of there is a image for this cover or not, if not then this will be used as a normal product image
             if (!preg_match('/\.mp4/siU', $file) && file_exists($str_projectDir.'/'.$parts[0].".mp4")) {
-                return false;
+                $GLOBALS['merconis_globals']['cache'][__METHOD__][$file] = false;
+                return $GLOBALS['merconis_globals']['cache'][__METHOD__][$file];
 
             }
         }
 
         if (isset($this->ls_images[$file]) || !file_exists($str_projectDir.'/'.$file)) {
-            return false;
+            $GLOBALS['merconis_globals']['cache'][__METHOD__][$file] = false;
+            return $GLOBALS['merconis_globals']['cache'][__METHOD__][$file];
         }
 
 
         if (!is_file($str_projectDir . '/' . $file)) {
-            return false;
+            $GLOBALS['merconis_globals']['cache'][__METHOD__][$file] = false;
+            return $GLOBALS['merconis_globals']['cache'][__METHOD__][$file];
         }
 
         $arrOverlays = $this->arrOverlays;
@@ -326,11 +334,13 @@ class productImageGallery extends Frontend {
             $objImage->caption = $arrMeta['caption'] ?? '';
             $objImage->mtime = $objFile->mtime;
             $objImage->randomSortingValue = md5($objFile->basename.$this->sortingRandomizer);
-            return $objImage;
+            $GLOBALS['merconis_globals']['cache'][__METHOD__][$file] = $objImage;
+            return $GLOBALS['merconis_globals']['cache'][__METHOD__][$file];
 
         }
 
-        return false;
+        $GLOBALS['merconis_globals']['cache'][__METHOD__][$file] = false;
+        return $GLOBALS['merconis_globals']['cache'][__METHOD__][$file];
     }
 
     /*
