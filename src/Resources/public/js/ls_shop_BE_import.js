@@ -450,7 +450,6 @@ var class_ls_shop_BE_import = new Class({
 	},
 	
 	importFile: function() {
-console.log('Aufruf importFile');
 		this.hideTlConfirmMessage();
 		this.showImportLockOverlay();
 		this.updateImportProcessMessage();
@@ -475,18 +474,15 @@ console.log('Aufruf importFile');
 				}
 				
 				if (this.objConfiguration.fileInfo.status == 'importFinished') {
-//console.log('Status importFinished');
 
+					//Create an event for a Message
 					const event = new CustomEvent("ImportFinished", {
 						detail: {
 							timestamp: Date.now(),
-							info: "Der Import wurde abgeschlossen"
+							info: "Import finished"
 						}
 					});
 					window.dispatchEvent(event);
-console.log('Status importFinished - nach Event');
-
-
 
 					this.hideLockOverlay();
 				}
