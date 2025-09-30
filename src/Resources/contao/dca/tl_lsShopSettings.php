@@ -35,6 +35,8 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{systemSettings_legend},ls_shop_loginModuleID,ls_shop_miniCartModuleID,ls_shop_useAjaxForPaginationAndSorting;
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch,ls_shop_alwaysAddIdToAliasDuringProductImport;
 
+		{galleryCache_legend},ls_shop_galleryCache_enabled,ls_shop_galleryCache_ttlHours,ls_shop_galleryCache_includeMainImage,ls_shop_galleryCache_skipRandomSort,ls_shop_galleryCache_disableForBEUsers,ls_shop_galleryCache_warmOnBE,ls_shop_galleryCache_warmOnlyProd,ls_shop_galleryCache_exposeServerTiming,ls_shop_galleryCache_version;
+
 		{productSearchSettings_legend},
 		    ls_shop_searchType,
 		    ls_shop_userDecide_searchType,
@@ -82,6 +84,68 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	),
 	
 	'fields' => array(
+		'ls_shop_galleryCache_enabled' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_enabled'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'w50 m12')
+		),
+
+		'ls_shop_galleryCache_ttlHours' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_ttlHours'],
+			'exclude'                 => true,
+			'inputType'               => 'text',
+			'eval'                    => array('rgxp'=>'digit','tl_class'=>'w50')
+		),
+
+		'ls_shop_galleryCache_includeMainImage' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_includeMainImage'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'w50 m12')
+		),
+
+		'ls_shop_galleryCache_skipRandomSort' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_skipRandomSort'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'w50 m12')
+		),
+
+		'ls_shop_galleryCache_disableForBEUsers' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_disableForBEUsers'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'w50 m12')
+		),
+
+		'ls_shop_galleryCache_warmOnBE' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_warmOnBE'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'w50 m12')
+		),
+
+		'ls_shop_galleryCache_warmOnlyProd' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_warmOnlyProd'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'w50 m12')
+		),
+
+		'ls_shop_galleryCache_exposeServerTiming' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_exposeServerTiming'],
+			'exclude'                 => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'w50 m12')
+		),
+
+		'ls_shop_galleryCache_version' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_version'],
+			'exclude'                 => true,
+			'inputType'               => 'text',
+			'eval'                    => array('tl_class'=>'w50')
+		),
 		'ls_shop_beOrderTemplateOverview' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_beOrderTemplateOverview'],

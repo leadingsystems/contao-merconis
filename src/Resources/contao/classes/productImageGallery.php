@@ -180,8 +180,16 @@ class productImageGallery extends Frontend {
 
 
     protected function lsShopGetProcessedImages() {
-        // Skip persistent cache if random sorting is requested to preserve randomness across requests
-        $usePersistentCache = ($this->ls_moreImagesSortBy !== 'random');
+        // Settings and timing
+        $settings = $this->getGalleryCacheSettings();
+        $exposeServerTiming = $settings['exposeServerTiming'];
+        $timeStart = microtime(true);
+
+        $isRandomSort = ($this->ls_moreImagesSortBy === 'random');
+        $skipForRandom = $settings['skipRandomSort'] && $isRandomSort;
+        $isBeUser = defined('BE_USER_LOGGED_IN') && \BE_USER_LOGGED_IN;
+        $bypassRead = $settings['disableForBEUsers'] && $isBeUser;
+        $usePersistentCache = $settings['enabled'] && !$bypassRead && !$skipForRandom;
 
         if ($usePersistentCache) {
             try {
@@ -190,8 +198,8 @@ class productImageGallery extends Frontend {
                 $cacheItem = $cachePool->getItem($cacheKey);
                 if ($cacheItem->isHit()) {
                     $cached = $cacheItem->get();
-                    if (is_array($cached)) {
-                        foreach ($cached as $imgArr) {
+                    if (is_array($cached) && isset($cached['images'])) {
+                        foreach ($cached['images'] as $imgArr) {
                             $imgObj = new \stdClass();
                             $imgObj->name = $imgArr['name'];
                             $imgObj->originalSRC = $imgArr['originalSRC'];
@@ -204,6 +212,25 @@ class productImageGallery extends Frontend {
                             $imgObj->mtime = $imgArr['mtime'];
                             $imgObj->randomSortingValue = $imgArr['randomSortingValue'];
                             $this->ls_images[] = $imgObj;
+                        }
+                        if (isset($cached['mainImage']) && is_array($cached['mainImage'])) {
+                            $mi = $cached['mainImage'];
+                            $miObj = new \stdClass();
+                            $miObj->name = $mi['name'];
+                            $miObj->originalSRC = $mi['originalSRC'];
+                            $miObj->arrOverlays = $mi['arrOverlays'];
+                            $miObj->singleSRC = $mi['singleSRC'];
+                            $miObj->alt = $mi['alt'];
+                            $miObj->title = $mi['title'];
+                            $miObj->imageUrl = $mi['imageUrl'];
+                            $miObj->caption = $mi['caption'];
+                            $miObj->mtime = $mi['mtime'];
+                            $miObj->randomSortingValue = $mi['randomSortingValue'];
+                            $this->mainImage = $miObj;
+                        }
+                        if ($exposeServerTiming) {
+                            $durMs = (microtime(true) - $timeStart) * 1000;
+                            @header('Server-Timing: gallery;desc="cache-hit";dur=' . number_format($durMs, 1, '.', ''));
                         }
                         return;
                     }
@@ -277,15 +304,28 @@ class productImageGallery extends Frontend {
         }
         $this->ls_images = array_merge($images, $videos);
 
-        // Store in persistent cache if applicable
-        if ($usePersistentCache) {
+        // Determine main image now if not set so we can store it in cache as well
+        if (!$this->mainImage) {
+            if ($this->mainImageSRC) {
+                $this->mainImage = $this->processSingleImage($this->mainImageSRC);
+            } else if (!empty($this->ls_images)) {
+                $this->mainImage = $this->ls_images[0];
+            } else if (isset($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])) {
+                $this->mainImage = $this->processSingleImage(FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
+            }
+        }
+
+        // Store in persistent cache if applicable (also when bypassing read but warming on BE)
+        $shouldWarmOnBE = $isBeUser && $settings['warmOnBE'] && (!$settings['warmOnlyProd'] || System::getContainer()->getParameter('kernel.environment') === 'prod');
+        $canWriteCache = $settings['enabled'] && !$skipForRandom && ($usePersistentCache || $shouldWarmOnBE);
+        if ($canWriteCache) {
             try {
                 $cachePool = isset($cachePool) ? $cachePool : System::getContainer()->get('cache.app');
                 $cacheKey = isset($cacheKey) ? $cacheKey : $this->buildGalleryCacheKey();
                 $cacheItem = isset($cacheItem) && $cacheItem->getKey() === $cacheKey ? $cacheItem : $cachePool->getItem($cacheKey);
-                $toStore = array();
+                $toStoreImages = array();
                 foreach ($this->ls_images as $imgObj) {
-                    $toStore[] = array(
+                    $toStoreImages[] = array(
                         'name' => $imgObj->name,
                         'originalSRC' => $imgObj->originalSRC,
                         'arrOverlays' => $imgObj->arrOverlays,
@@ -298,12 +338,35 @@ class productImageGallery extends Frontend {
                         'randomSortingValue' => $imgObj->randomSortingValue
                     );
                 }
-                $cacheItem->set($toStore);
-                $cacheItem->expiresAfter(21600); // 6 hours
+                $mainImageArr = null;
+                if ($settings['includeMainImage'] && $this->mainImage) {
+                    $mi = $this->mainImage;
+                    $mainImageArr = array(
+                        'name' => $mi->name,
+                        'originalSRC' => $mi->originalSRC,
+                        'arrOverlays' => $mi->arrOverlays,
+                        'singleSRC' => $mi->singleSRC,
+                        'alt' => $mi->alt,
+                        'title' => $mi->title,
+                        'imageUrl' => $mi->imageUrl,
+                        'caption' => $mi->caption,
+                        'mtime' => $mi->mtime,
+                        'randomSortingValue' => $mi->randomSortingValue
+                    );
+                }
+                $cacheItem->set(array('images' => $toStoreImages, 'mainImage' => $mainImageArr));
+                $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
+                $cacheItem->expiresAfter($ttlSeconds);
                 $cachePool->save($cacheItem);
             } catch (\Throwable $t) {
                 // Ignore cache store errors
             }
+        }
+
+        if ($exposeServerTiming) {
+            $durMs = (microtime(true) - $timeStart) * 1000;
+            $label = ($settings['enabled'] && !$skipForRandom) ? ($bypassRead ? 'bypass' : 'cache-miss') : 'disabled';
+            @header('Server-Timing: gallery;desc="' . $label . '";dur=' . number_format($durMs, 1, '.', ''));
         }
 
     }
@@ -326,16 +389,51 @@ class productImageGallery extends Frontend {
             $mtime = is_file($abs) ? @filemtime($abs) : 0;
             $signature[] = array('p' => $path, 'm' => (int) $mtime);
         }
+        // main image signature (optional in key for safety)
+        $mainSig = null;
+        if ($this->mainImageSRC) {
+            $miAbs = $str_projectDir . '/' . $this->mainImageSRC;
+            $mainSig = array('p' => $this->mainImageSRC, 'm' => is_file($miAbs) ? (int)@filemtime($miAbs) : 0);
+        }
+
+        $settings = $this->getGalleryCacheSettings();
 
         $keySeed = json_encode(array(
-            'v' => self::CACHE_VERSION,
+            'v' => (string) ($settings['version'] ?: self::CACHE_VERSION),
             'lang' => $language,
             'sort' => $sortBy,
             'ov' => $overlays,
-            'sig' => $signature
+            'sig' => $signature,
+            'mis' => $mainSig,
+            'incMain' => (bool)$settings['includeMainImage']
         ));
 
         return 'merconis.gallery.' . sha1($keySeed);
+    }
+
+    protected function getGalleryCacheSettings() {
+        // Defaults
+        $enabled = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_enabled']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_enabled'] : true;
+        $ttlHours = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_ttlHours']) && (int)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_ttlHours'] > 0 ? (int)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_ttlHours'] : 6;
+        $includeMainImage = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_includeMainImage']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_includeMainImage'] : true;
+        $skipRandomSort = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_skipRandomSort']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_skipRandomSort'] : true;
+        $disableForBEUsers = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_disableForBEUsers']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_disableForBEUsers'] : false;
+        $warmOnBE = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_warmOnBE']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_warmOnBE'] : true;
+        $warmOnlyProd = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_warmOnlyProd']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_warmOnlyProd'] : false;
+        $exposeServerTiming = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_exposeServerTiming']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_exposeServerTiming'] : false;
+        $version = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_version']) && $GLOBALS['TL_CONFIG']['ls_shop_galleryCache_version'] !== '' ? (string)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_version'] : '';
+
+        return array(
+            'enabled' => $enabled,
+            'ttlHours' => $ttlHours,
+            'includeMainImage' => $includeMainImage,
+            'skipRandomSort' => $skipRandomSort,
+            'disableForBEUsers' => $disableForBEUsers,
+            'warmOnBE' => $warmOnBE,
+            'warmOnlyProd' => $warmOnlyProd,
+            'exposeServerTiming' => $exposeServerTiming,
+            'version' => $version
+        );
     }
 
     protected function processSingleImage($file) {

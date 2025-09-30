@@ -481,6 +481,10 @@ class ls_shop_productSearcher
          */
         $this->setCurrentCacheKey();
 
+//        $mode = 'new';
+        $mode = 'old';
+
+
         //get searchType and/or-search
         if(isset($this->arrSearchCriteria["searchType"])){
             $this->bln_andSearch = $this->arrSearchCriteria["searchType"];
@@ -572,18 +576,35 @@ class ls_shop_productSearcher
                     if (!is_array($criterionValue)) {
                         $criterionValue = array($criterionValue);
                     }
-                    $searchConditionPagesPart = '';
-                    foreach ($criterionValue as $pageID) {
-                        if ($searchConditionPagesPart) {
-                            $searchConditionPagesPart .= "
-								OR";
-                        }
-                        $searchConditionPagesPart .= $this->getQualifiedFieldName($criterionFieldName)." LIKE ?
-						";
 
-                        $searchConditionValues[] = $pageID ? '%%"'.$pageID.'"%' : ($this->blnEmptyFieldMatchesPerDefault ? '%' : '');
+                    if ($mode === 'new') {
+                        $pageIds = array();
+                        foreach ($criterionValue as $pageID) {
+                            $pageID = (int) $pageID;
+                            if ($pageID > 0) {
+                                $pageIds[] = $pageID;
+                            }
+                        }
+
+                        if (count($pageIds)) {
+                            $placeholders = implode(',', array_fill(0, count($pageIds), '?'));
+                            $searchCondition .= " (EXISTS (SELECT 1 FROM `tl_ls_shop_product_page_map` m WHERE m.`pid` = `tl_ls_shop_product`.`id` AND m.`page_id` IN (".$placeholders.") ))";
+                            foreach ($pageIds as $v) { $searchConditionValues[] = $v; }
+                        } else {
+                            $searchCondition .= " (1 = 2)";
+                        }
+                    } else {
+                        $searchConditionPagesPart = '';
+                        foreach ($criterionValue as $pageID) {
+                            if ($searchConditionPagesPart) {
+                                $searchConditionPagesPart .= "\n\t\t\t\t\t\t\t\t\t\tOR";
+                            }
+                            $searchConditionPagesPart .= $this->getQualifiedFieldName($criterionFieldName)." LIKE ?\n\t\t\t\t\t\t\t\t\t";
+
+                            $searchConditionValues[] = $pageID ? '%%\"'.$pageID.'\"%' : ($this->blnEmptyFieldMatchesPerDefault ? '%' : '');
+                        }
+                        $searchCondition .= "\t(".$searchConditionPagesPart.")";
                     }
-                    $searchCondition .= "	(".$searchConditionPagesPart.")";
                     break;
 
                 case 'fulltext':
