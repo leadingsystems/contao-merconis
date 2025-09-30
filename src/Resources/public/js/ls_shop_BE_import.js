@@ -477,13 +477,13 @@ console.log('Aufruf importFile');
 				if (this.objConfiguration.fileInfo.status == 'importFinished') {
 //console.log('Status importFinished');
 
-	const event = new CustomEvent("ImportFinished", {
-        detail: {
-            timestamp: Date.now(),
-            info: "Der Import wurde abgeschlossen"
-        }
-    });
-	window.dispatchEvent(event);
+					const event = new CustomEvent("ImportFinished", {
+						detail: {
+							timestamp: Date.now(),
+							info: "Der Import wurde abgeschlossen"
+						}
+					});
+					window.dispatchEvent(event);
 console.log('Status importFinished - nach Event');
 
 
