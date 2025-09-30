@@ -499,11 +499,30 @@ class productImageGallery extends Frontend {
             $this->originalSRC = false;
         }
 
-        $objFileModel = FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
+        // Metadata cache per file+language to avoid repeated DB lookups
+        $metaCacheKey = 'merconis.gallery.filemeta.' . sha1(($this->originalSRC ? $this->originalSRC : $file) . '|' . $objPage->language);
         $arrMeta = array();
-        if (is_object($objFileModel)) {
-            $objFileModel->first();
-            $arrMeta = $this->getMetaData($objFileModel->meta, $objPage->language);
+        try {
+            $poolMeta = System::getContainer()->get('cache.app');
+            $itemMeta = $poolMeta->getItem($metaCacheKey);
+            if ($itemMeta->isHit()) {
+                $arrMeta = (array) $itemMeta->get();
+            } else {
+                $objFileModel = FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
+                if (is_object($objFileModel)) {
+                    $objFileModel->first();
+                    $arrMeta = $this->getMetaData($objFileModel->meta, $objPage->language);
+                }
+                $itemMeta->set($arrMeta);
+                $itemMeta->expiresAfter(21600); // 6h
+                $poolMeta->save($itemMeta);
+            }
+        } catch (\Throwable $t) {
+            $objFileModel = FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
+            if (is_object($objFileModel)) {
+                $objFileModel->first();
+                $arrMeta = $this->getMetaData($objFileModel->meta, $objPage->language);
+            }
         }
 
         /*
