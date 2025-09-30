@@ -53,12 +53,6 @@ if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendReques
 {
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_shop_BE.js';
 	$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconis/js/ls_x_controller.js';
-
-//1. wir hängen hier die Registrierung für das Modul
-
-    //$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/leadingsystemsmerconiscustom/js/myListener.js';
-
-
 }
 
 \Contao\ArrayUtil::arrayInsert($GLOBALS['BE_MOD'], 0, array(

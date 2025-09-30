@@ -8,11 +8,7 @@
 		},
 		
 		start: function() {
-//console.log('app.js -> start');
 			lsjs.apiInterface.str_apiUrl = 'contao?do=be_mod_ls_apiReceiver';
-
-//lsjs.__moduleHelpers.mytest.start({});
-//console.log('app.js -> mytest');
 
 			window.addEvent(
 				'ajax_change',

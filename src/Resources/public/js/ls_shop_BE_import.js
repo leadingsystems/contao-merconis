@@ -475,7 +475,7 @@ var class_ls_shop_BE_import = new Class({
 				
 				if (this.objConfiguration.fileInfo.status == 'importFinished') {
 
-					//Create an event for a Message
+					// trigger for external listener
 					const event = new CustomEvent("ImportFinished", {
 						detail: {
 							timestamp: Date.now(),
