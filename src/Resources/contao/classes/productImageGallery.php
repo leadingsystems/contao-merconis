@@ -13,6 +13,8 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class productImageGallery extends Frontend {
 
+    const CACHE_VERSION = 'gallery_v1';
+
     //src for unprocessed Images
     protected $mainImageSRC = false;
     protected $multiSRC = array();
@@ -178,8 +180,40 @@ class productImageGallery extends Frontend {
 
 
     protected function lsShopGetProcessedImages() {
+        // Skip persistent cache if random sorting is requested to preserve randomness across requests
+        $usePersistentCache = ($this->ls_moreImagesSortBy !== 'random');
 
-        // Get all images
+        if ($usePersistentCache) {
+            try {
+                $cachePool = System::getContainer()->get('cache.app');
+                $cacheKey = $this->buildGalleryCacheKey();
+                $cacheItem = $cachePool->getItem($cacheKey);
+                if ($cacheItem->isHit()) {
+                    $cached = $cacheItem->get();
+                    if (is_array($cached)) {
+                        foreach ($cached as $imgArr) {
+                            $imgObj = new \stdClass();
+                            $imgObj->name = $imgArr['name'];
+                            $imgObj->originalSRC = $imgArr['originalSRC'];
+                            $imgObj->arrOverlays = $imgArr['arrOverlays'];
+                            $imgObj->singleSRC = $imgArr['singleSRC'];
+                            $imgObj->alt = $imgArr['alt'];
+                            $imgObj->title = $imgArr['title'];
+                            $imgObj->imageUrl = $imgArr['imageUrl'];
+                            $imgObj->caption = $imgArr['caption'];
+                            $imgObj->mtime = $imgArr['mtime'];
+                            $imgObj->randomSortingValue = $imgArr['randomSortingValue'];
+                            $this->ls_images[] = $imgObj;
+                        }
+                        return;
+                    }
+                }
+            } catch (\Throwable $t) {
+                // Fallback silently to non-cached processing on any cache error
+            }
+        }
+
+        // Get all images (non-cached or cache miss)
         foreach ($this->multiSRC as $file) {
             $processedImage = $this->processSingleImage($file);
             if ($processedImage) {
@@ -243,6 +277,65 @@ class productImageGallery extends Frontend {
         }
         $this->ls_images = array_merge($images, $videos);
 
+        // Store in persistent cache if applicable
+        if ($usePersistentCache) {
+            try {
+                $cachePool = isset($cachePool) ? $cachePool : System::getContainer()->get('cache.app');
+                $cacheKey = isset($cacheKey) ? $cacheKey : $this->buildGalleryCacheKey();
+                $cacheItem = isset($cacheItem) && $cacheItem->getKey() === $cacheKey ? $cacheItem : $cachePool->getItem($cacheKey);
+                $toStore = array();
+                foreach ($this->ls_images as $imgObj) {
+                    $toStore[] = array(
+                        'name' => $imgObj->name,
+                        'originalSRC' => $imgObj->originalSRC,
+                        'arrOverlays' => $imgObj->arrOverlays,
+                        'singleSRC' => $imgObj->singleSRC,
+                        'alt' => $imgObj->alt,
+                        'title' => $imgObj->title,
+                        'imageUrl' => $imgObj->imageUrl,
+                        'caption' => $imgObj->caption,
+                        'mtime' => $imgObj->mtime,
+                        'randomSortingValue' => $imgObj->randomSortingValue
+                    );
+                }
+                $cacheItem->set($toStore);
+                $cacheItem->expiresAfter(21600); // 6 hours
+                $cachePool->save($cacheItem);
+            } catch (\Throwable $t) {
+                // Ignore cache store errors
+            }
+        }
+
+    }
+
+    protected function buildGalleryCacheKey() {
+        /** @var PageModel $objPage */
+        global $objPage;
+        $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
+        $sortBy = (string) $this->ls_moreImagesSortBy;
+        $overlays = $this->arrOverlays;
+        if (!is_array($overlays)) {
+            $overlays = array();
+        }
+        sort($overlays);
+
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+        $signature = array();
+        foreach ((array) $this->multiSRC as $path) {
+            $abs = $str_projectDir . '/' . $path;
+            $mtime = is_file($abs) ? @filemtime($abs) : 0;
+            $signature[] = array('p' => $path, 'm' => (int) $mtime);
+        }
+
+        $keySeed = json_encode(array(
+            'v' => self::CACHE_VERSION,
+            'lang' => $language,
+            'sort' => $sortBy,
+            'ov' => $overlays,
+            'sig' => $signature
+        ));
+
+        return 'merconis.gallery.' . sha1($keySeed);
     }
 
     protected function processSingleImage($file) {
