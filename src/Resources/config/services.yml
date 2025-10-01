@@ -189,3 +189,16 @@ services:
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_output_definitions' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_shipping_methods' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_payment_methods' }
+
+  LeadingSystems\MerconisBundle\Cache\MerconisCache:
+    arguments:
+      - '@cache.app'
+      - 'merconis.custom.cache.'
+    public: true
+
+  LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer:
+    arguments:
+      - '@LeadingSystems\MerconisBundle\Cache\MerconisCache'
+      - '@cache.app'
+      - 'merconis.custom.cache.'
+    public: true
