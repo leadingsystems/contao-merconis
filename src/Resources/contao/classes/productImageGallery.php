@@ -10,6 +10,7 @@ use Contao\PageModel;
 use Contao\System;
 use LeadingSystems\Helpers\ls_helpers_controller;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
+use LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer;
 
 class productImageGallery extends Frontend {
 
@@ -191,14 +192,49 @@ class productImageGallery extends Frontend {
         $bypassRead = $settings['disableForBEUsers'] && $isBeUser;
         $usePersistentCache = $settings['enabled'] && !$bypassRead && !$skipForRandom;
 
-        if ($usePersistentCache) {
-            try {
-                $cachePool = System::getContainer()->get('cache.app');
-                $cacheKey = $this->buildGalleryCacheKey();
-                $cacheItem = $cachePool->getItem($cacheKey);
-                if ($cacheItem->isHit()) {
-                    $cached = $cacheItem->get();
-                    if (is_array($cached) && isset($cached['images'])) {
+        // Prepare cache tags/session (MerconisCacheBuffer value mode)
+        $cacheBufferSession = null;
+        try {
+            if ($settings['enabled']) {
+                /** @var MerconisCacheBuffer $buffer */
+                $buffer = System::getContainer()->get(MerconisCacheBuffer::class);
+                /** @var PageModel $objPage */
+                global $objPage;
+                $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
+                $overlays = $this->arrOverlays;
+                if (!is_array($overlays)) {
+                    $overlays = array();
+                }
+                sort($overlays);
+                $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+                $signature = array();
+                foreach ((array) $this->multiSRC as $path) {
+                    $abs = $str_projectDir . '/' . $path;
+                    $mtime = is_file($abs) ? @filemtime($abs) : 0;
+                    $signature[] = array('p' => $path, 'm' => (int) $mtime);
+                }
+                $mainSig = null;
+                if ($this->mainImageSRC) {
+                    $miAbs = $str_projectDir . '/' . $this->mainImageSRC;
+                    $mainSig = array('p' => $this->mainImageSRC, 'm' => is_file($miAbs) ? (int)@filemtime($miAbs) : 0);
+                }
+                $version = (string) ($settings['version'] ?: self::CACHE_VERSION);
+                $tags = array(
+                    'ns' => 'gallery.images',
+                    'v' => $version,
+                    'lang' => $language,
+                    'sort' => (string) $this->ls_moreImagesSortBy,
+                    'ov' => $overlays,
+                    'sig' => $signature,
+                    'mis' => $mainSig,
+                    'incMain' => (bool) $settings['includeMainImage']
+                );
+                $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
+
+                if ($usePersistentCache) {
+                    $cacheBufferSession = $buffer->create($ttlSeconds, $tags);
+                    list($hit, $cached) = $cacheBufferSession->getValueOrStart();
+                    if ($hit && is_array($cached) && isset($cached['images'])) {
                         foreach ($cached['images'] as $imgArr) {
                             $imgObj = new \stdClass();
                             $imgObj->name = $imgArr['name'];
@@ -235,9 +271,10 @@ class productImageGallery extends Frontend {
                         return;
                     }
                 }
-            } catch (\Throwable $t) {
-                // Fallback silently to non-cached processing on any cache error
             }
+        } catch (\Throwable $t) {
+            // Ignore cache service errors and continue without cache
+            $cacheBufferSession = null;
         }
 
         // Get all images (non-cached or cache miss)
@@ -320,9 +357,6 @@ class productImageGallery extends Frontend {
         $canWriteCache = $settings['enabled'] && !$skipForRandom && ($usePersistentCache || $shouldWarmOnBE);
         if ($canWriteCache) {
             try {
-                $cachePool = isset($cachePool) ? $cachePool : System::getContainer()->get('cache.app');
-                $cacheKey = isset($cacheKey) ? $cacheKey : $this->buildGalleryCacheKey();
-                $cacheItem = isset($cacheItem) && $cacheItem->getKey() === $cacheKey ? $cacheItem : $cachePool->getItem($cacheKey);
                 $toStoreImages = array();
                 foreach ($this->ls_images as $imgObj) {
                     $toStoreImages[] = array(
@@ -354,10 +388,51 @@ class productImageGallery extends Frontend {
                         'randomSortingValue' => $mi->randomSortingValue
                     );
                 }
-                $cacheItem->set(array('images' => $toStoreImages, 'mainImage' => $mainImageArr));
-                $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
-                $cacheItem->expiresAfter($ttlSeconds);
-                $cachePool->save($cacheItem);
+                $payload = array('images' => $toStoreImages, 'mainImage' => $mainImageArr);
+                if ($cacheBufferSession) {
+                    $cacheBufferSession->storeValue($payload);
+                } else {
+                    // If we didn't create a session above (e.g. read bypassed), create one now for warming
+                    try {
+                        /** @var MerconisCacheBuffer $buffer */
+                        $buffer = System::getContainer()->get(MerconisCacheBuffer::class);
+                        /** @var PageModel $objPage */
+                        global $objPage;
+                        $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
+                        $overlays = $this->arrOverlays;
+                        if (!is_array($overlays)) {
+                            $overlays = array();
+                        }
+                        sort($overlays);
+                        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+                        $signature = array();
+                        foreach ((array) $this->multiSRC as $path) {
+                            $abs = $str_projectDir . '/' . $path;
+                            $mtime = is_file($abs) ? @filemtime($abs) : 0;
+                            $signature[] = array('p' => $path, 'm' => (int) $mtime);
+                        }
+                        $mainSig = null;
+                        if ($this->mainImageSRC) {
+                            $miAbs = $str_projectDir . '/' . $this->mainImageSRC;
+                            $mainSig = array('p' => $this->mainImageSRC, 'm' => is_file($miAbs) ? (int)@filemtime($miAbs) : 0);
+                        }
+                        $version = (string) ($settings['version'] ?: self::CACHE_VERSION);
+                        $tags = array(
+                            'ns' => 'gallery.images',
+                            'v' => $version,
+                            'lang' => $language,
+                            'sort' => (string) $this->ls_moreImagesSortBy,
+                            'ov' => $overlays,
+                            'sig' => $signature,
+                            'mis' => $mainSig,
+                            'incMain' => (bool) $settings['includeMainImage']
+                        );
+                        $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
+                        $buffer->create($ttlSeconds, $tags)->storeValue($payload);
+                    } catch (\Throwable $t2) {
+                        // ignore warming errors
+                    }
+                }
             } catch (\Throwable $t) {
                 // Ignore cache store errors
             }
@@ -499,23 +574,28 @@ class productImageGallery extends Frontend {
             $this->originalSRC = false;
         }
 
-        // Metadata cache per file+language to avoid repeated DB lookups
-        $metaCacheKey = 'merconis.gallery.filemeta.' . sha1(($this->originalSRC ? $this->originalSRC : $file) . '|' . $objPage->language);
+        // Metadata cache per file+language using MerconisCacheBuffer to avoid repeated DB lookups
         $arrMeta = array();
         try {
-            $poolMeta = System::getContainer()->get('cache.app');
-            $itemMeta = $poolMeta->getItem($metaCacheKey);
-            if ($itemMeta->isHit()) {
-                $arrMeta = (array) $itemMeta->get();
+            /** @var MerconisCacheBuffer $buffer */
+            $buffer = System::getContainer()->get(MerconisCacheBuffer::class);
+            $metaTags = array(
+                'ns' => 'gallery.filemeta',
+                'file' => ($this->originalSRC ? $this->originalSRC : $file),
+                'lang' => $objPage->language,
+                'v' => 'v1'
+            );
+            $metaSession = $buffer->create(21600, $metaTags);
+            list($metaHit, $metaVal) = $metaSession->getValueOrStart();
+            if ($metaHit) {
+                $arrMeta = (array) $metaVal;
             } else {
                 $objFileModel = FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
                 if (is_object($objFileModel)) {
                     $objFileModel->first();
                     $arrMeta = $this->getMetaData($objFileModel->meta, $objPage->language);
                 }
-                $itemMeta->set($arrMeta);
-                $itemMeta->expiresAfter(21600); // 6h
-                $poolMeta->save($itemMeta);
+                $metaSession->storeValue($arrMeta);
             }
         } catch (\Throwable $t) {
             $objFileModel = FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));
