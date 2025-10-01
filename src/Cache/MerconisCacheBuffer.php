@@ -80,6 +80,9 @@ class MerconisCacheBufferSession
     // Echo-mode helpers
     public function tryEcho(): bool
     {
+        if (!CacheToggle::$enabled) {
+            return false;
+        }
         try {
             echo $this->element->getContent();
             return true;
@@ -102,6 +105,10 @@ class MerconisCacheBufferSession
 
     public function start(): bool
     {
+        if (!CacheToggle::$enabled) {
+            ob_start();
+            return false;
+        }
         if ($this->tryEcho()) {
             return true;
         }
@@ -111,7 +118,9 @@ class MerconisCacheBufferSession
 
     public function storeAndEcho($content): void
     {
-        $this->element->storeContent($content);
+        if (CacheToggle::$enabled) {
+            $this->element->storeContent($content);
+        }
         if ($this->locked) {
             $this->service->releaseComputeLock($this->tags);
             $this->locked = false;
@@ -128,6 +137,10 @@ class MerconisCacheBufferSession
     // Capture-mode helpers (no echo)
     public function startCapture(): ?string
     {
+        if (!CacheToggle::$enabled) {
+            ob_start();
+            return null;
+        }
         try {
             return (string) $this->element->getContent();
         } catch (CacheElementNoHitException $e) {
@@ -151,7 +164,9 @@ class MerconisCacheBufferSession
     public function finishCapture(): string
     {
         $content = ob_get_clean();
-        $this->element->storeContent($content);
+        if (CacheToggle::$enabled) {
+            $this->element->storeContent($content);
+        }
         if ($this->locked) {
             $this->service->releaseComputeLock($this->tags);
             $this->locked = false;
@@ -166,6 +181,9 @@ class MerconisCacheBufferSession
      */
     public function getValueOrStart(): array
     {
+        if (!CacheToggle::$enabled) {
+            return [false, null];
+        }
         try {
             return [true, $this->element->getContent()];
         } catch (CacheElementNoHitException $e) {
@@ -186,7 +204,9 @@ class MerconisCacheBufferSession
 
     public function storeValue($value): void
     {
-        $this->element->storeContent($value);
+        if (CacheToggle::$enabled) {
+            $this->element->storeContent($value);
+        }
         if ($this->locked) {
             $this->service->releaseComputeLock($this->tags);
             $this->locked = false;

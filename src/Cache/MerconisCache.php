@@ -4,6 +4,7 @@ namespace LeadingSystems\MerconisBundle\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use LeadingSystems\MerconisBundle\Cache\CacheElementNoHitException;
+use LeadingSystems\MerconisBundle\Cache\CacheToggle;
 
 class MerconisCache
 {
@@ -21,6 +22,10 @@ class MerconisCache
 
     public function getCacheElement(int $ttlSeconds, array $tags): MerconisCacheElement
     {
+        if (!CacheToggle::$enabled) {
+            // Fake element with zero TTL so callers can still call storeContent/getContent paths if they choose
+            return new MerconisCacheElement($this->cachePool, $this->namespacePrefix, $this->namespacePrefix.'disabled.'.uniqid('', true), 0, $this->normalizeTags($tags));
+        }
         $normalizedTags = $this->normalizeTags($tags);
         $tagHash = sha1(json_encode($normalizedTags));
         $elementKey = $this->namespacePrefix . 'element.' . $tagHash;
@@ -69,6 +74,10 @@ class MerconisCache
      */
     public function compute(int $ttlSeconds, array $tags, callable $producer, int $maxWaitMs = 2000, int $retryEveryMs = 50)
     {
+        if (!CacheToggle::$enabled) {
+            // Bypass: just run producer immediately
+            return $producer();
+        }
         $element = $this->getCacheElement($ttlSeconds, $tags);
         try {
             return $element->getContent();
@@ -119,6 +128,9 @@ class MerconisCache
      */
     public function acquireComputeLock(array $tags, int $lockTtlSeconds = 5): bool
     {
+        if (!CacheToggle::$enabled) {
+            return true; // pretend we own the lock to allow straight produce/store without waits
+        }
         $lockKey = $this->computeLockKey($tags);
         $lockItem = $this->cachePool->getItem($lockKey);
         if ($lockItem->isHit()) {
@@ -135,6 +147,9 @@ class MerconisCache
      */
     public function releaseComputeLock(array $tags): void
     {
+        if (!CacheToggle::$enabled) {
+            return;
+        }
         $lockKey = $this->computeLockKey($tags);
         $this->cachePool->deleteItem($lockKey);
     }
@@ -144,6 +159,9 @@ class MerconisCache
      */
     public function waitForContent(int $ttlSeconds, array $tags, int $maxWaitMs = 2000, int $retryEveryMs = 50)
     {
+        if (!CacheToggle::$enabled) {
+            return null;
+        }
         $element = $this->getCacheElement($ttlSeconds, $tags);
         $t0 = (int) (microtime(true) * 1000);
         while (true) {
