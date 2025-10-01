@@ -2370,7 +2370,7 @@ class ls_shop_generalHelper
             throw new \Exception('insufficient parameters given');
         }
 
-        if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
+        if (System::getContainer()->get('merconis.routing.scope')->hasRequest() && System::getContainer()->get('merconis.routing.scope')->isBackend()) {
             return null;
         }
 
@@ -3956,8 +3956,10 @@ class ls_shop_generalHelper
         /** @var \PageModel $objPage */
         global $objPage;
 
-        $str_tmp_objPageLanguage = $objPage->language;
-        $objPage->language = $str_language;
+        if($objPage){
+            $str_tmp_objPageLanguage = $objPage->language;
+            $objPage->language = $str_language;
+        }
 
         if ($obj_product->_variantIsSelected) {
             $obj_tmp_productOrVariant = &$obj_product->_selectedVariant;
@@ -3981,6 +3983,10 @@ class ls_shop_generalHelper
                     $str_replace = \Environment::get('base') . $obj_tmp_productOrVariant->{$str_keyword};
                     break;
 
+                case '_linkcomplete':
+                    $str_replace = '<a href="'.\Environment::get('base') . $obj_tmp_productOrVariant->_linkcomplete($str_language).'" >'.\Environment::get('base') . $obj_tmp_productOrVariant->_linkcomplete($str_language).'</a>';
+                    break;
+
                 default:
                     $str_replace = $obj_tmp_productOrVariant->{$str_keyword};
                     break;
@@ -3988,7 +3994,9 @@ class ls_shop_generalHelper
             $str_text = preg_replace('/(&#35;&#35;|##)product::' . $str_keyword . '(&#35;&#35;|##)/', $str_replace, $str_text);
         }
 
-        $objPage->language = $str_tmp_objPageLanguage;
+        if($objPage){
+            $objPage->language = $str_tmp_objPageLanguage;
+        }
 
         return $str_text;
     }

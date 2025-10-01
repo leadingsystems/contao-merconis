@@ -450,6 +450,9 @@ you can use the method "\Image::get" to get the image in the size you need: \Ima
 				break;
 
 			case '_linkToVariant':
+                if (!isset($objPage) || !is_object($objPage)) {
+                    return '';
+                }
 				return $this->_objParentProduct->getlinkToProduct($this->_alias ? $this->_alias : $this->ls_ID);
 				break;
 
@@ -1196,6 +1199,11 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 	 */
 	public function __call($what, $args) {
 		switch ($what) {
+            /* ## START AUTO DOCUMENTATION METHODS PRODUCT ## */
+            case '_linkcomplete':
+                $link = $this->_objParentProduct->getlinkToProduct($this->_alias ? $this->_alias : $this->ls_ID, $args[0]);
+                return $link;
+                break;
 			/* ## START AUTO DOCUMENTATION METHODS VARIANT ## */
 			case '_createGallery'
 				/* ## DESCRIPTION:

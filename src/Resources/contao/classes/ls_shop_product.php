@@ -1701,6 +1701,12 @@ filter context, NULL will be returned.
 	public function __call($what, $args) {
 		switch ($what) {
 			/* ## START AUTO DOCUMENTATION METHODS PRODUCT ## */
+            case '_linkcomplete':
+
+                $link = $this->getlinkToProduct('', $args[0]);
+                return $link;
+                break;
+
 			case '_createGallery'
 				/* ## DESCRIPTION:
 use like this:
@@ -2146,11 +2152,22 @@ This method can be used to call a function hooked with the "callingHookedProduct
     }
 
 	public function ls_getVariants() {
+
+        /*
+         * If it does not have a Request it means it was called by an cronjob, we want only published products in our cronjob
+        */
+
+        $bln_includeNotPublished = false;
+
+        if(System::getContainer()->get('merconis.routing.scope')->hasRequest()){
+            $bln_includeNotPublished = (System::getContainer()->get('merconis.routing.scope')->isBackend() && (strpos(\Environment::get('request'), 'tl_ls_shop_variant') !== false || strpos(\Environment::get('request'), 'ls_shop_stockManagement') !== false));
+        }
+
 		$objVariants = \Database::getInstance()->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_variant`
 			WHERE		`pid` = ?
-				".(System::getContainer()->get('merconis.routing.scope')->isBackend() && (strpos(\Environment::get('request'), 'tl_ls_shop_variant') !== false || strpos(\Environment::get('request'), 'ls_shop_stockManagement') !== false) ? "" : "AND		`published` = '1'")."
+				".($bln_includeNotPublished ? "" : "AND		`published` = '1'")."
 			ORDER BY	`sorting` ASC
 		");
 
@@ -2385,7 +2402,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	 * benutzerdefinierte Sortierung bzw. Kennzeichnung der Hauptseite möglich ist. Solange
 	 * das nicht der Fall ist, wird einfach die erstbeste hinterlegte Seite verwendet.
 	 */
-	public function getlinkToProduct($var_useVariantAliasOrID = '') {
+	public function getlinkToProduct($var_useVariantAliasOrID = '', $str_language ='') {
         /** @var \PageModel $objPage */
         global $objPage;
         $currentMainLanguagePageID = ls_shop_languageHelper::getMainlanguagePageIDForPageID($objPage->id);
@@ -2419,7 +2436,13 @@ This method can be used to call a function hooked with the "callingHookedProduct
             }
 
             $languagePages = ls_shop_languageHelper::getLanguagePages($MainLanguagePageIDForLink);
-            $currentLanguagePageIDForLink = $languagePages[$objPage->language]['id'];
+
+            // If $str_language is not set we use $objPage->language as language
+            if(!$str_language){
+                $str_language = $objPage->language;
+            }
+
+            $currentLanguagePageIDForLink = $languagePages[$str_language]['id'];
 
             $objProductPage = \PageModel::findWithDetails($currentLanguagePageIDForLink);
         }
