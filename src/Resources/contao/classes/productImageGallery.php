@@ -10,7 +10,7 @@ use Contao\PageModel;
 use Contao\System;
 use LeadingSystems\Helpers\ls_helpers_controller;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
-use LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer;
+use LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler;
 
 class productImageGallery extends Frontend {
 
@@ -192,12 +192,12 @@ class productImageGallery extends Frontend {
         $bypassRead = $settings['disableForBEUsers'] && $isBeUser;
         $usePersistentCache = $settings['enabled'] && !$bypassRead && !$skipForRandom;
 
-        // Prepare cache tags/session (MerconisCacheBuffer value mode)
-        $cacheBufferSession = null;
+        // Prepare cache tags/handle (MerconisCacheHandler value mode)
+        $cacheHandle = null;
         try {
             if ($settings['enabled']) {
-                /** @var MerconisCacheBuffer $buffer */
-                $buffer = System::getContainer()->get(MerconisCacheBuffer::class);
+                /** @var MerconisCacheHandler $cacheHandler */
+                $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
                 /** @var PageModel $objPage */
                 global $objPage;
                 $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
@@ -232,8 +232,8 @@ class productImageGallery extends Frontend {
                 $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
 
                 if ($usePersistentCache) {
-                    $cacheBufferSession = $buffer->create($ttlSeconds, $tags);
-                    list($hit, $cached) = $cacheBufferSession->getValueOrStart();
+                    $cacheHandle = $cacheHandler->create($ttlSeconds, $tags);
+                    list($hit, $cached) = $cacheHandle->getValueOrStart();
                     if ($hit && is_array($cached) && isset($cached['images'])) {
                         foreach ($cached['images'] as $imgArr) {
                             $imgObj = new \stdClass();
@@ -274,7 +274,7 @@ class productImageGallery extends Frontend {
             }
         } catch (\Throwable $t) {
             // Ignore cache service errors and continue without cache
-            $cacheBufferSession = null;
+            $cacheHandle = null;
         }
 
         // Get all images (non-cached or cache miss)
@@ -389,13 +389,13 @@ class productImageGallery extends Frontend {
                     );
                 }
                 $payload = array('images' => $toStoreImages, 'mainImage' => $mainImageArr);
-                if ($cacheBufferSession) {
-                    $cacheBufferSession->storeValue($payload);
+                if ($cacheHandle) {
+                    $cacheHandle->storeValue($payload);
                 } else {
-                    // If we didn't create a session above (e.g. read bypassed), create one now for warming
+                    // If we didn't create a handle above (e.g. read bypassed), create one now for warming
                     try {
-                        /** @var MerconisCacheBuffer $buffer */
-                        $buffer = System::getContainer()->get(MerconisCacheBuffer::class);
+                        /** @var MerconisCacheHandler $cacheHandler */
+                        $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
                         /** @var PageModel $objPage */
                         global $objPage;
                         $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
@@ -428,7 +428,7 @@ class productImageGallery extends Frontend {
                             'incMain' => (bool) $settings['includeMainImage']
                         );
                         $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
-                        $buffer->create($ttlSeconds, $tags)->storeValue($payload);
+                        $cacheHandler->create($ttlSeconds, $tags)->storeValue($payload);
                     } catch (\Throwable $t2) {
                         // ignore warming errors
                     }
@@ -574,19 +574,19 @@ class productImageGallery extends Frontend {
             $this->originalSRC = false;
         }
 
-        // Metadata cache per file+language using MerconisCacheBuffer to avoid repeated DB lookups
+        // Metadata cache per file+language using MerconisCacheHandler to avoid repeated DB lookups
         $arrMeta = array();
         try {
-            /** @var MerconisCacheBuffer $buffer */
-            $buffer = System::getContainer()->get(MerconisCacheBuffer::class);
+            /** @var MerconisCacheHandler $cacheHandler */
+            $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
             $metaTags = array(
                 'ns' => 'gallery.filemeta',
                 'file' => ($this->originalSRC ? $this->originalSRC : $file),
                 'lang' => $objPage->language,
                 'v' => 'v1'
             );
-            $metaSession = $buffer->create(21600, $metaTags);
-            list($metaHit, $metaVal) = $metaSession->getValueOrStart();
+            $cacheHandle = $cacheHandler->create(21600, $metaTags);
+            list($metaHit, $metaVal) = $cacheHandle->getValueOrStart();
             if ($metaHit) {
                 $arrMeta = (array) $metaVal;
             } else {
@@ -595,7 +595,7 @@ class productImageGallery extends Frontend {
                     $objFileModel->first();
                     $arrMeta = $this->getMetaData($objFileModel->meta, $objPage->language);
                 }
-                $metaSession->storeValue($arrMeta);
+                $cacheHandle->storeValue($arrMeta);
             }
         } catch (\Throwable $t) {
             $objFileModel = FilesModel::findMultipleByPaths(array($this->originalSRC ? $this->originalSRC : $file));

@@ -196,7 +196,7 @@ services:
       - 'merconis.custom.cache.'
     public: true
 
-  LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer:
+  LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler:
     arguments:
       - '@LeadingSystems\MerconisBundle\Cache\MerconisCache'
       - '@cache.app'

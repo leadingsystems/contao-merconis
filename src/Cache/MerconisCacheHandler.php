@@ -4,7 +4,7 @@ namespace LeadingSystems\MerconisBundle\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 
-class MerconisCacheBuffer
+class MerconisCacheHandler
 {
     /** @var MerconisCache */
     private $service;
@@ -30,9 +30,9 @@ class MerconisCacheBuffer
         $this->defaultRetryEveryMs = $defaultRetryEveryMs;
     }
 
-    public function create(int $ttlSeconds, array $tags, ?int $maxWaitMs = null, ?int $retryEveryMs = null): MerconisCacheBufferSession
+    public function create(int $ttlSeconds, array $tags, ?int $maxWaitMs = null, ?int $retryEveryMs = null): MerconisCacheHandle
     {
-        return new MerconisCacheBufferSession(
+        return new MerconisCacheHandle(
             $this->service,
             $this->cachePool,
             $this->namespacePrefix,
@@ -44,7 +44,7 @@ class MerconisCacheBuffer
     }
 }
 
-class MerconisCacheBufferSession
+class MerconisCacheHandle
 {
     /** @var MerconisCache */
     private $service;

@@ -33,7 +33,7 @@ MerconisCache services
 ----------------------
 MERCONIS centralizes caching via two services:
 - `LeadingSystems\MerconisBundle\Cache\MerconisCache`: low-level API for value computation with stampede protection and tag-based invalidation.
-- `LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer`: ergonomic helper with three usage modes and built-in compute locks.
+- `LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler`: ergonomic helper with three usage modes and built-in compute locks.
 
 Service registration (excerpt)
 - Service IDs are public and autowired (see `Resources/config/services.yml`).
@@ -46,10 +46,10 @@ The buffer exposes three ways to use the cache, matching typical rendering patte
 1) Echo mode (streaming with fallback)
 - Use when you want to immediately echo cached HTML if present, otherwise compute and echo while storing.
 - Flow:
-  - `$session = $buffer->create($ttlSeconds, $tags);`
-  - `if ($session->start()) { return; }` // cache hit already echoed
+  - `$cacheHandle = $cacheHandler->create($ttlSeconds, $tags);`
+  - `if ($cacheHandle->start()) { return; }` // cache hit already echoed
   - Output content into an output buffer
-  - `$session->finish();` // stores and echoes
+  - `$cacheHandle->finish();` // stores and echoes
 - Guarantees:
   - Avoids duplicate echo.
   - Protects against stampedes (compute lock).
@@ -57,20 +57,20 @@ The buffer exposes three ways to use the cache, matching typical rendering patte
 2) Capture mode (get or build string)
 - Use when you need the string result for further handling.
 - Flow:
-  - `$session = $buffer->create($ttlSeconds, $tags);`
-  - `$cached = $session->startCapture();`
+  - `$cacheHandle = $cacheHandler->create($ttlSeconds, $tags);`
+  - `$cached = $cacheHandle->startCapture();`
   - `if ($cached !== null) { return $cached; }`
   - Output content into an output buffer
-  - `$html = $session->finishCapture();` // returns and stores the string
+  - `$html = $cacheHandle->finishCapture();` // returns and stores the string
 
 3) Value mode (arbitrary data)
 - Use for any non-echo value (arrays, DTOs, etc.).
 - Flow:
-  - `$session = $buffer->create($ttlSeconds, $tags);`
-  - `list($hit, $value) = $session->getValueOrStart();`
+  - `$cacheHandle = $cacheHandler->create($ttlSeconds, $tags);`
+  - `list($hit, $value) = $cacheHandle->getValueOrStart();`
   - `if ($hit) { return $value; }`
   - Compute `$value`
-  - `$session->storeValue($value);`
+  - `$cacheHandle->storeValue($value);`
 
 Tags and keying
 ---------------
@@ -86,9 +86,9 @@ Stampede protection
 Integration points
 ------------------
 - `Resources/contao/classes/productImageGallery.php`
-  - Gallery payload (value mode) and file metadata (value mode) now use `MerconisCacheBuffer`.
+  - Gallery payload (value mode) and file metadata (value mode) now use `MerconisCacheHandler`.
 - `Resources/contao/templates/template_productIncludes_imageOutput_01.html5`
-  - HTML fragment caching switched to `MerconisCacheBuffer` echo mode, with warming when configured.
+  - HTML fragment caching switched to `MerconisCacheHandler` echo mode, with warming when configured.
 
 Backend settings
 ----------------
@@ -107,31 +107,31 @@ Examples
 --------
 Echo mode (HTML fragment):
 ```php
-$buffer = System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer::class);
+$cacheHandler = System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
 $tags = ['ns' => 'gallery.fragment', 'v' => 'v1', 'lang' => $lang, 'prod' => $code, 'sig' => $sig];
-$session = $buffer->create(6*3600, $tags);
-if ($session->start()) { return; }
+$cacheHandle = $cacheHandler->create(6*3600, $tags);
+if ($cacheHandle->start()) { return; }
 // ... echo HTML into buffer ...
-$session->finish();
+$cacheHandle->finish();
 ```
 
 Capture mode:
 ```php
-$session = $buffer->create(3600, $tags);
-$cached = $session->startCapture();
+$cacheHandle = $cacheHandler->create(3600, $tags);
+$cached = $cacheHandle->startCapture();
 if ($cached !== null) { return $cached; }
 // ... echo HTML into buffer ...
-$html = $session->finishCapture();
+$html = $cacheHandle->finishCapture();
 return $html;
 ```
 
 Value mode (payload):
 ```php
-$session = $buffer->create(6*3600, $tags);
-list($hit, $payload) = $session->getValueOrStart();
+$cacheHandle = $cacheHandler->create(6*3600, $tags);
+list($hit, $payload) = $cacheHandle->getValueOrStart();
 if ($hit) { return $payload; }
 $payload = ['images' => $images, 'mainImage' => $mainImage];
-$session->storeValue($payload);
+$cacheHandle->storeValue($payload);
 return $payload;
 ```
 

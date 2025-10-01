@@ -50,12 +50,12 @@ if ($obj_tmp_productOrVariant !== null) {
     $useCache = $enabled && !$bypassRead;
     $shouldWarm = $enabled && ($warmOnBE && $isBeUser) && (!$warmOnlyProd || \Contao\System::getContainer()->getParameter('kernel.environment') === 'prod');
 
-    // MerconisCacheBuffer echo/capture mode
-    $bufferSession = null;
+    // MerconisCacheHandler echo/capture mode
+    $cacheHandle = null;
     if ($useCache) {
         try {
-            /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer $buffer */
-            $buffer = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer::class);
+            /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
+            $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
             $tags = array(
                 'ns' => 'gallery.fragment',
                 'v' => $version,
@@ -67,8 +67,8 @@ if ($obj_tmp_productOrVariant !== null) {
                 'mis' => $mainSig
             );
             $ttlSeconds = max(1, (int)$ttlHours) * 3600;
-            $bufferSession = $buffer->create($ttlSeconds, $tags);
-            if ($bufferSession->start()) {
+            $cacheHandle = $cacheHandler->create($ttlSeconds, $tags);
+            if ($cacheHandle->start()) {
                 if ($exposeServerTiming) {
                     $durMs = (microtime(true) - $timeStart) * 1000;
                     @header('Server-Timing: gallery-fragment;desc="cache-hit";dur=' . number_format($durMs, 1, '.', ''));
@@ -76,7 +76,7 @@ if ($obj_tmp_productOrVariant !== null) {
                 return;
             }
         } catch (\Throwable $t) {
-            $bufferSession = null;
+            $cacheHandle = null;
         }
     }
 
@@ -103,15 +103,15 @@ if ($obj_tmp_productOrVariant !== null) {
     <?php
     $html = ob_get_clean();
 
-    if ($bufferSession) {
+    if ($cacheHandle) {
         // Finish echo-mode: store and echo
-        $bufferSession->storeAndEcho($html);
+        $cacheHandle->storeAndEcho($html);
     } else {
         // If reads were bypassed but warming allowed, warm without echo duplication
         if ($enabled && $shouldWarm) {
             try {
-                /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer $buffer */
-                $buffer = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheBuffer::class);
+                /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
+                $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
                 $tags = array(
                     'ns' => 'gallery.fragment',
                     'v' => $version,
@@ -123,7 +123,7 @@ if ($obj_tmp_productOrVariant !== null) {
                     'mis' => $mainSig
                 );
                 $ttlSeconds = max(1, (int)$ttlHours) * 3600;
-                $buffer->create($ttlSeconds, $tags)->storeValue($html);
+                $cacheHandler->create($ttlSeconds, $tags)->storeValue($html);
             } catch (\Throwable $t) {
                 // ignore
             }
