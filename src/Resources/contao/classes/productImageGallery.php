@@ -487,27 +487,17 @@ class productImageGallery extends Frontend {
     }
 
     protected function getGalleryCacheSettings() {
-        // Defaults
-        $enabled = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_enabled']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_enabled'] : true;
-        $ttlHours = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_ttlHours']) && (int)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_ttlHours'] > 0 ? (int)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_ttlHours'] : 6;
-        $includeMainImage = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_includeMainImage']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_includeMainImage'] : true;
-        $skipRandomSort = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_skipRandomSort']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_skipRandomSort'] : true;
-        $disableForBEUsers = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_disableForBEUsers']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_disableForBEUsers'] : false;
-        $warmOnBE = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_warmOnBE']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_warmOnBE'] : true;
-        $warmOnlyProd = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_warmOnlyProd']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_warmOnlyProd'] : false;
-        $exposeServerTiming = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_exposeServerTiming']) ? (bool)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_exposeServerTiming'] : false;
-        $version = isset($GLOBALS['TL_CONFIG']['ls_shop_galleryCache_version']) && $GLOBALS['TL_CONFIG']['ls_shop_galleryCache_version'] !== '' ? (string)$GLOBALS['TL_CONFIG']['ls_shop_galleryCache_version'] : '';
-
+        // Internal defaults (no backend settings)
         return array(
-            'enabled' => $enabled,
-            'ttlHours' => $ttlHours,
-            'includeMainImage' => $includeMainImage,
-            'skipRandomSort' => $skipRandomSort,
-            'disableForBEUsers' => $disableForBEUsers,
-            'warmOnBE' => $warmOnBE,
-            'warmOnlyProd' => $warmOnlyProd,
-            'exposeServerTiming' => $exposeServerTiming,
-            'version' => $version
+            'enabled' => true,
+            'ttlHours' => 6,
+            'includeMainImage' => true,
+            'skipRandomSort' => true,
+            'disableForBEUsers' => false,
+            'warmOnBE' => true,
+            'warmOnlyProd' => false,
+            'exposeServerTiming' => false,
+            'version' => ''
         );
     }
 

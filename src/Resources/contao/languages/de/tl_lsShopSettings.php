@@ -148,17 +148,6 @@
 	
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_coupon_debug'] = array('Debug Modus für Coupon', 'Schaltet die Debug anzeige im Frontend an');
 
-    // Galerie-Cache Legende und Felder
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['galleryCache_legend'] = 'Einstellungen für Galerie-Cache';
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_enabled'] = array('Galerie-Cache aktivieren', 'Cross-Request-Caching für Produktbilder-Galerien aktivieren.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_ttlHours'] = array('Cache-TTL (Stunden)', 'Lebensdauer der Galerie-Cache-Einträge.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_includeMainImage'] = array('Hauptbild cachen', 'Auch das aufbereitete Hauptbild zusammen mit der Galerie cachen.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_skipRandomSort'] = array('Bei Sortierung "zufällig" nicht cachen', 'Bei zufälliger Sortierung weder aus dem Cache lesen noch speichern.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_disableForBEUsers'] = array('Cache für Backend-Benutzer deaktivieren', 'Cache-Lesezugriffe überspringen, wenn ein Backend-Benutzer eingeloggt ist.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_warmOnBE'] = array('Cache bei Backend-Aufrufen vorwärmen', 'Nach der Verarbeitung das Ergebnis speichern, um den Cache bei Backend-Aufrufen zu wärmen.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_warmOnlyProd'] = array('Nur in Produktion vorwärmen', 'Cache nur im Produktionsmodus vorwärmen.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_exposeServerTiming'] = array('Server-Timing-Header ausgeben', 'Server-Timing-Metrik für Galerie-Verarbeitung und Cache-Treffer/Miss ausgeben.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_version'] = array('Cache-Version', 'Durch Änderung dieses Wertes werden alle Galerie-Cache-Einträge ungültig.');
 
 
 	/*

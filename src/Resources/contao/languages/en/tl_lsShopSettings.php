@@ -148,17 +148,6 @@
 	
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_coupon_debug'] = array('Debug mode for coupon', 'Activate the debug mode for the Frontend');
 
-    // Gallery cache legend and fields
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['galleryCache_legend'] = 'Gallery cache settings';
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_enabled'] = array('Enable gallery cache', 'Enable cross-request caching for product image galleries.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_ttlHours'] = array('Cache TTL (hours)', 'Lifetime of the gallery cache entries.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_includeMainImage'] = array('Cache main image', 'Also cache the processed main image together with the gallery.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_skipRandomSort'] = array('Skip cache when sort=random', 'Do not use cache and do not store entries when random sorting is active.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_disableForBEUsers'] = array('Disable cache for backend users', 'Bypass cache reads when a backend user is logged in.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_warmOnBE'] = array('Warm cache on backend requests', 'After processing, store the result to warm the cache on backend requests.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_warmOnlyProd'] = array('Warm only in production', 'Only warm the cache when the application runs in production environment.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_exposeServerTiming'] = array('Expose Server-Timing header', 'Emit a Server-Timing metric for gallery processing and cache hit/miss.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_galleryCache_version'] = array('Cache version', 'Any change to this value will invalidate all gallery cache entries.');
 
 	/*
 	 * Legends
