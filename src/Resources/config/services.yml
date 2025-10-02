@@ -30,6 +30,7 @@ services:
     public: true
     lazy: true
     arguments:
+      - '%merconis.search.server.adapter%'
       - !tagged_iterator merconis.search_server_adapters_client
       - !tagged_iterator merconis.search_server_adapters_tests
       - !tagged_iterator merconis.search_server_adapters_index_manage
@@ -42,6 +43,10 @@ services:
       $projectDir: '%kernel.project_dir%'
       $environment: '%kernel.environment%'
 
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Client:
+    arguments:
+      $connection: '@database_connection'
+
   # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\TestsInterface -->
   LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Tests:
     arguments:
@@ -52,15 +57,31 @@ services:
     arguments:
       $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
 
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Manage:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Client'
+
   # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\IndexSearchInterface -->
   LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product\Search:
     arguments:
       $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
 
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Search:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Client'
+
   # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\IndexSyncInterface -->
   LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product\Sync:
     arguments:
       $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Client'
+
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Sync:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Client'
+
+  LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Tests:
+    arguments:
+      $client: '@LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Client'
 
 
 

@@ -24,5 +24,6 @@ class LeadingSystemsMerconisExtension extends Extension
 		// Set parameters from config tree (with defaults applied by Configuration)
 		$container->setParameter('merconis.search.input_mapping.enabled', (bool)($config['search']['input_mapping']['enabled'] ?? true));
 		$container->setParameter('merconis.search.input_mapping.apply_in_elasticsearch', (bool)($config['search']['input_mapping']['apply_in_elasticsearch'] ?? false));
+		$container->setParameter('merconis.search.server.adapter', (string)($config['search']['server']['adapter'] ?? 'DirectMySQL'));
 	}
 }
