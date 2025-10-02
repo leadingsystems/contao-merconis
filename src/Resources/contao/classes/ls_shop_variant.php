@@ -225,6 +225,20 @@ class ls_shop_variant
 		global $objPage;
 		switch ($what) {
 			/* ## START AUTO DOCUMENTATION PROPERTIES VARIANT ## */
+            case '_linkcomplete':
+
+                if($GLOBALS['merconis_globals']['sendRestockInfo']['language']){
+                    $language = $GLOBALS['merconis_globals']['sendRestockInfo']['language'];
+                    $url = $this->_objParentProduct->getlinkToProduct($this->_alias ? $this->_alias : $this->ls_ID, $language);
+                }else{
+                    $url = $this->_objParentProduct->getlinkToProduct($this->_alias ? $this->_alias : $this->ls_ID);
+                }
+
+                $link = '<a href="'.\Environment::get('base') . $url.'" >'.\Environment::get('base') . $url.'</a>';
+
+                return $link;
+                break;
+
 			case '_outputOptions':
 				return $this->ls_outputOptions();
 				break;
@@ -1199,12 +1213,8 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 	 */
 	public function __call($what, $args) {
 		switch ($what) {
-            /* ## START AUTO DOCUMENTATION METHODS PRODUCT ## */
-            case '_linkcomplete':
-                $link = $this->_objParentProduct->getlinkToProduct($this->_alias ? $this->_alias : $this->ls_ID, $args[0]);
-                return $link;
-                break;
-			/* ## START AUTO DOCUMENTATION METHODS VARIANT ## */
+            /* ## START AUTO DOCUMENTATION METHODS VARIANT ## */
+
 			case '_createGallery'
 				/* ## DESCRIPTION:
 use like this:
@@ -1353,7 +1363,13 @@ This method can be used to call a function hooked with the "callingHookedProduct
     private function setDataReferences() {
         global $objPage;
 
-        $this->mainData = &$this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
+        $language = ls_shop_languageHelper::getFallbackLanguage();
+
+        if(isset($GLOBALS['merconis_globals']['sendRestockInfo']['language'])){
+            $language = $GLOBALS['merconis_globals']['sendRestockInfo']['language'];
+        }
+
+        $this->mainData = &$this->ls_data[$language];
 
         if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage) || !isset($this->ls_data[$objPage->language])) {
             $this->currentLanguageData = &$this->mainData;

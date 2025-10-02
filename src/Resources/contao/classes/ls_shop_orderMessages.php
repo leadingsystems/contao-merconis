@@ -48,6 +48,8 @@ class ls_shop_orderMessages
             }
         }
 
+        $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = $language;
+
 		if ($str_productVariantId) {
 		    $this->obj_product = ls_shop_generalHelper::getObjProduct($str_productVariantId);
         }

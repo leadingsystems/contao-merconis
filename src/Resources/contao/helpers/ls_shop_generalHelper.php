@@ -3983,10 +3983,6 @@ class ls_shop_generalHelper
                     $str_replace = \Environment::get('base') . $obj_tmp_productOrVariant->{$str_keyword};
                     break;
 
-                case '_linkcomplete':
-                    $str_replace = '<a href="'.\Environment::get('base') . $obj_tmp_productOrVariant->_linkcomplete($str_language).'" >'.\Environment::get('base') . $obj_tmp_productOrVariant->_linkcomplete($str_language).'</a>';
-                    break;
-
                 default:
                     $str_replace = $obj_tmp_productOrVariant->{$str_keyword};
                     break;
