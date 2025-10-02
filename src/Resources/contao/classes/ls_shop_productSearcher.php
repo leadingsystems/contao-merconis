@@ -850,9 +850,6 @@ class ls_shop_productSearcher
                     }
 
                     if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
-                        $priorityFragments = array();
-                        $priorityValues = array();
-
                         foreach ($arrCriterionValues as $criterionValue) {
                             $tokens = $this->parseFulltextWithModifiers($criterionValue);
                             $defaultFields = array('title','keywords','shortDescription','description','lsShopProductCode','lsShopProductProducer');
@@ -884,29 +881,23 @@ class ls_shop_productSearcher
                                         $likeWeight = (int) $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches'][$weightKey];
                                         $eqWeight = (int) $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches'][$weightKey];
 
-                                        $priorityFragments[] = "CASE WHEN " . $this->getQualifiedFieldName($fieldName) . " LIKE ? THEN " . ($likeWeight * $boost) . " ELSE 0 END";
-                                        $priorityValues[] = $fieldValues[$idx];
+                                        $exprLike = "CASE WHEN " . $this->getQualifiedFieldName($fieldName) . " LIKE ? THEN " . ($likeWeight * $boost) . " ELSE 0 END";
+                                        $addToSelectStatement = $addToSelectStatement === '' ? ', ' . $exprLike : $addToSelectStatement . ' + ' . $exprLike;
+                                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($fieldValues[$idx]));
+                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                        $priorityFragments[] = "CASE WHEN " . $this->getQualifiedFieldName($fieldName) . " = ? THEN " . ($eqWeight * $boost) . " ELSE 0 END";
-                                        $priorityValues[] = $termForToken;
+                                        $exprEqual = "CASE WHEN " . $this->getQualifiedFieldName($fieldName) . " = ? THEN " . ($eqWeight * $boost) . " ELSE 0 END";
+                                        $addToSelectStatement .= ' + ' . $exprEqual;
+                                        array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($termForToken));
+                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
 
                                         if ($f === 'lsShopProductCode') {
-                                            $priorityFragments[] = "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? ESCAPE '\\' THEN " . ($arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode'] * $boost) . " ELSE 0 END";
-                                            $priorityValues[] = '%\\_' . $termForToken;
+                                            $exprEscaped = "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? ESCAPE '\\' THEN " . ($arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode'] * $boost) . " ELSE 0 END";
+                                            $addToSelectStatement .= ' + ' . $exprEscaped;
+                                            array_insert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%\\_' . $termForToken));
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
                                         }
                                     }
-                                }
-                            }
-
-                            if ($this->blnUsePriority() && count($priorityFragments)) {
-                                $prioritySql = implode(' + ', $priorityFragments);
-                                if ($addToSelectStatement === '' || $addToSelectStatement === null) {
-                                    $addToSelectStatement = ', ' . $prioritySql;
-                                } else {
-                                    $addToSelectStatement .= ' + ' . $prioritySql;
-                                }
-                                for ($i = count($priorityValues) - 1; $i >= 0; $i--) {
-                                    array_unshift($searchConditionValues, $priorityValues[$i]);
                                 }
                             }
                         }
