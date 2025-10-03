@@ -261,31 +261,23 @@ class Search implements CommonInterface, IndexSearchInterface
             return [];
         }
 
-        $tokens = [];
-        $matchCount = @preg_match_all('/"([^"\\]*(?:\\.[^"\\]*)*)"|\'([^\'\\]*(?:\\.[^\'\\]*)*)\'|[^\s]+/', $raw, $matches, PREG_SET_ORDER);
-        if ($matchCount === false || $matchCount === 0) {
-            // Fallback: simple whitespace split if the complex regex fails for any reason
-            $simpleParts = preg_split('/\s+/', $raw, -1, PREG_SPLIT_NO_EMPTY);
-            $matches = array_map(static function ($p) { return [$p]; }, $simpleParts ?? []);
-        }
+        // Manual tokenizer keeps quoted phrases intact and supports escapes
+        $rawTokens = $this->tokenizeFulltextRaw($raw);
+
+        // Debug: log tokenization result to help diagnose empty parsing
+        try {
+            $this->logger->notice('DirectMySQL parse debug', [
+                'raw' => $raw,
+                'rawTokens' => $rawTokens,
+            ]);
+        } catch (\Throwable $e) {}
+        try {
+            $debugLine = json_encode(['ts' => gmdate('c'), 'parse_debug' => ['raw' => $raw, 'rawTokens' => $rawTokens]], JSON_UNESCAPED_SLASHES);
+            @file_put_contents($this->resolveFallbackLogFilePath(), $debugLine . "\n", FILE_APPEND);
+        } catch (\Throwable $e) {}
 
         $terms = [];
-        foreach ($matches as $match) {
-            $token = $match[0];
-            $termText = '';
-            if (isset($match[1]) && $match[1] !== '') {
-                $termText = stripcslashes($match[1]);
-            } elseif (isset($match[2]) && $match[2] !== '') {
-                $termText = stripcslashes($match[2]);
-            } else {
-                $termText = $token;
-            }
-
-            if ($token !== $termText) {
-                $tokens[] = $termText;
-                continue;
-            }
-
+        foreach ($rawTokens as $token) {
             $currentTerm = $token;
             $attachedModifiers = '';
             if (preg_match('/^(?<term>[^{}]+)(?<mods>(\{[^}]+\})+)$/', $token, $termWithMods)) {
@@ -309,23 +301,43 @@ class Search implements CommonInterface, IndexSearchInterface
             }
         }
 
-        // Handle standalone modifiers (e.g., term {field:foo} {boost:2})
+        // Apply standalone {field:..}/{boost:..} tokens to the previous term
         $previousIndex = null;
-        foreach ($matches as $match) {
-            $token = $match[0];
+        foreach ($rawTokens as $token) {
             if ($token === '' || $token[0] !== '{' || substr($token, -1) !== '}') {
                 $previousIndex = array_key_last($terms);
                 continue;
             }
-
             if ($previousIndex === null) {
                 continue;
             }
-
             $this->applyModifierToken($terms[$previousIndex], $token);
         }
 
         return $terms;
+    }
+
+    private function tokenizeFulltextRaw(string $raw): array
+    {
+        $tokens = [];
+        $buffer = '';
+        $inQuote = '';
+        $escape = false;
+        $len = strlen($raw);
+        for ($i = 0; $i < $len; $i++) {
+            $ch = $raw[$i];
+            if ($escape) { $buffer .= $ch; $escape = false; continue; }
+            if ($ch === '\\') { $escape = true; continue; }
+            if ($inQuote !== '') {
+                if ($ch === $inQuote) { $inQuote = ''; } else { $buffer .= $ch; }
+                continue;
+            }
+            if ($ch === '"' || $ch === "'") { $inQuote = $ch; continue; }
+            if (ctype_space($ch)) { if ($buffer !== '') { $tokens[] = $buffer; $buffer=''; } continue; }
+            $buffer .= $ch;
+        }
+        if ($buffer !== '') { $tokens[] = $buffer; }
+        return $tokens;
     }
 
     private function applyInlineModifiers(array &$term, string $modifiersString): void
