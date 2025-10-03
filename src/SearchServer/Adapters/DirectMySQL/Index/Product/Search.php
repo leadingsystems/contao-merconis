@@ -262,7 +262,12 @@ class Search implements CommonInterface, IndexSearchInterface
         }
 
         $tokens = [];
-        preg_match_all("/\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\"|'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'|[^\s]+/", $raw, $matches, PREG_SET_ORDER);
+        $matchCount = @preg_match_all('/"([^"\\]*(?:\\.[^"\\]*)*)"|\'([^\'\\]*(?:\\.[^\'\\]*)*)\'|[^\s]+/', $raw, $matches, PREG_SET_ORDER);
+        if ($matchCount === false || $matchCount === 0) {
+            // Fallback: simple whitespace split if the complex regex fails for any reason
+            $simpleParts = preg_split('/\s+/', $raw, -1, PREG_SPLIT_NO_EMPTY);
+            $matches = array_map(static function ($p) { return [$p]; }, $simpleParts ?? []);
+        }
 
         $terms = [];
         foreach ($matches as $match) {
@@ -288,7 +293,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 $attachedModifiers = $termWithMods['mods'];
             }
 
-            $currentTerm = trim($currentTerm, '\"\'');
+            $currentTerm = trim($currentTerm, "\"' ");
             if ($currentTerm === '') {
                 continue;
             }
