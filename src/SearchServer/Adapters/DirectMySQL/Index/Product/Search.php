@@ -10,6 +10,7 @@ use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\CommonInterface
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSearchInterface;
 use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Client;
 use LeadingSystems\MerconisBundle\SearchServer\Traits\AdapterCommonTrait;
+use Psr\Log\LoggerInterface;
 
 class Search implements CommonInterface, IndexSearchInterface
 {
@@ -18,6 +19,9 @@ class Search implements CommonInterface, IndexSearchInterface
     private Connection $connection;
     private int $parameterCounter = 0;
     private ?array $productTableColumns = null;
+    private LoggerInterface $logger;
+    private string $projectDir;
+    private string $environment;
 
     /**
      * Canonical field configuration keyed by lower-case identifiers.
@@ -63,9 +67,12 @@ class Search implements CommonInterface, IndexSearchInterface
         'lsshopproductproducer',
     ];
 
-    public function __construct(Client $client)
+    public function __construct(Client $client, LoggerInterface $logger, string $projectDir, string $environment)
     {
         $this->connection = $client->getConnection();
+        $this->logger = $logger;
+        $this->projectDir = $projectDir;
+        $this->environment = $environment;
     }
 
     public function initialize(): void
@@ -164,6 +171,8 @@ class Search implements CommonInterface, IndexSearchInterface
             $type = $parameterTypes[$name] ?? ParameterType::STRING;
             $qb->setParameter($name, $value, $type);
         }
+
+        $this->logDebugInformation($criteria, $fulltextComponents, $qb);
 
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -430,6 +439,47 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         $this->parameterCounter++;
         return 'ftTerm' . $this->parameterCounter;
+    }
+
+    private function logDebugInformation(array $criteria, array $fulltextComponents, \Doctrine\DBAL\Query\QueryBuilder $qb): void
+    {
+        $isDebugEnabled = (bool) ($GLOBALS['TL_CONFIG']['ls_shop_debugSearch'] ?? false);
+        if (!$isDebugEnabled) {
+            return;
+        }
+
+        $payload = [
+            'ts' => gmdate('c'),
+            'criteria' => $criteria,
+            'parsed_fulltext_terms' => $fulltextComponents,
+            'sql' => $qb->getSQL(),
+            'parameters' => $qb->getParameters(),
+        ];
+
+        try {
+            $this->logger->notice('DirectMySQL search diagnostic', $payload);
+        } catch (\Throwable $e) {
+            // Prevent logging issues from breaking searches
+        }
+
+        // File-based fallback: write a line to var/logs/merconis-search-debug-YYYY-MM-DD.log
+        try {
+            $logFile = $this->resolveFallbackLogFilePath();
+            $dir = \dirname($logFile);
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0777, true);
+            }
+            @file_put_contents($logFile, json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
+        } catch (\Throwable $e) {
+            // Swallow to avoid impacting requests
+        }
+    }
+
+    private function resolveFallbackLogFilePath(): string
+    {
+        $logDir = rtrim($this->projectDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'logs';
+        $date = date('Y-m-d');
+        return $logDir . DIRECTORY_SEPARATOR . 'merconis-search-debug-' . $date . '.log';
     }
 }
 

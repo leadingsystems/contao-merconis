@@ -61,7 +61,8 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		    ls_shop_searchWeighting_partialSearchStringMatchesPartialField_shortDescription,
 		    ls_shop_searchWeighting_partialSearchStringMatchesPartialField_description,
 		    ls_shop_searchWeighting_partialSearchStringMatchesPartialField_productCode,
-		    ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer;		    
+		    ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer,
+		    ls_shop_debugSearch; 	    
 		    
 		{importSettings_legend},ls_shop_standardProductImportFolder,ls_shop_importFlexFieldKeys,ls_shop_importFlexFieldKeysLanguageIndependent,ls_shop_importCsvDelimiter,ls_shop_importCsvEnclosure,ls_shop_importCsvEscape,ls_shop_importCsvLocale,ls_shop_numMaxImportRecordsPerRound;
 		{compatSettings_legend},ls_shop_blnCompatMode2-1-4;
@@ -78,6 +79,12 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	),
 	
 	'fields' => array(
+		'ls_shop_debugSearch' => array(
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_debugSearch'],
+			'inputType' => 'checkbox',
+			'eval' => array('tl_class' => 'w50 m12')
+		),
 		'ls_shop_beOrderTemplateOverview' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_beOrderTemplateOverview'],
