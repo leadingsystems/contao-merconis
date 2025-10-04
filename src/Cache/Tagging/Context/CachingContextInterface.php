@@ -14,24 +14,13 @@ namespace LeadingSystems\MerconisBundle\Cache\Tagging\Context;
  */
 interface CachingContextInterface
 {
-    public function isUserLoggedIn(): bool;
-    public function getUserId(): ?int;
-    public function getUserGroupIds(): array;
-    public function getCountryCode(): ?string;
-    public function getShippingCountryCode(): ?string;
-    public function getCurrency(): ?string;
+    /** Current language code (e.g., 'de', 'en'). */
     public function getLanguage(): ?string;
-    public function getPriceDisplayMode(): ?string;
-    public function getSalesChannelId(): ?string;
-    public function getTaxZoneId(): ?string;
-    public function getCustomerType(): ?string;
-    public function isPreviewMode(): bool;
-    public function getDeviceType(): ?string;
 
-    /** Build a deterministic variant hash for the given dimensions. */
-    public function buildVariantHash(array $dimensions): string;
+    /** Build a deterministic, stable key from the given dimensions (order-insensitive). */
+    public function buildContextKey(array $dimensions): string;
 
-    /** Build standardized `ctx:*` tags for the given dimensions. */
+    /** Build standardized context tags for the given dimensions (currently supports 'language'). */
     public function buildContextTags(array $dimensions): array;
 }
 

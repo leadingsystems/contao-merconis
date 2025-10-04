@@ -202,3 +202,14 @@ services:
       - '@cache.app'
       - 'merconis.custom.cache.'
     public: true
+
+  # Cache Tagging: context and recipes
+  LeadingSystems\MerconisBundle\Cache\Tagging\Context\CachingContext:
+    public: true
+
+  LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe: ~
+
+  LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\TagRecipeRegistry:
+    arguments:
+      $recipes:
+        cross_seller: '@LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe'

@@ -4,32 +4,37 @@ namespace LeadingSystems\MerconisBundle\Cache\Tagging;
 
 final class TagSet
 {
+    /** @var array<string, scalar|array> */
     private $tags = array();
 
-    public function add(string $tag): self
+    /** Add a key/value tag (value should be scalar for best compatibility). */
+    public function add(string $key, $value): self
     {
-        $tag = trim($tag);
-        if ($tag !== '') {
-            $this->tags[] = $tag;
+        $key = trim($key);
+        if ($key === '') {
+            return $this;
         }
+        $this->tags[$key] = $value;
         return $this;
     }
 
-    public function addMany(array $tags): self
+    /** Merge an associative array of tags. */
+    public function addMany(array $assoc): self
     {
-        foreach ($tags as $tag) {
-            if (is_string($tag)) {
-                $this->add($tag);
+        foreach ($assoc as $k => $v) {
+            if (!is_string($k)) {
+                continue;
             }
+            $this->add($k, $v);
         }
         return $this;
     }
 
+    /** Return a stable, key-sorted associative array of tags. */
     public function toArray(): array
     {
-        $unique = array_values(array_unique($this->tags));
-        sort($unique, SORT_STRING);
-        return $unique;
+        ksort($this->tags, SORT_STRING);
+        return $this->tags;
     }
 }
 
