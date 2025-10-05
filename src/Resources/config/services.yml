@@ -190,16 +190,23 @@ services:
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_shipping_methods' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_payment_methods' }
 
+  # Dedicated Merconis cache pool service (separate from cache.app)
+  merconis.cache:
+    parent: cache.adapter.filesystem
+    public: true
+    tags:
+      - { name: cache.pool, clearer: cache.app_clearer }
+
   LeadingSystems\MerconisBundle\Cache\MerconisCache:
     arguments:
-      - '@cache.app'
+      - '@merconis.cache'
       - 'merconis.custom.cache.'
     public: true
 
   LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler:
     arguments:
       - '@LeadingSystems\MerconisBundle\Cache\MerconisCache'
-      - '@cache.app'
+      - '@merconis.cache'
       - 'merconis.custom.cache.'
     public: true
 
@@ -213,3 +220,4 @@ services:
     arguments:
       $recipes:
         cross_seller: '@LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe'
+    public: true
