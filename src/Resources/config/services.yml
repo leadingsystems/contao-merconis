@@ -282,9 +282,9 @@ services:
   LeadingSystems\MerconisBundle\Cache\Tagging\Context\CachingContext:
     public: true
 
-  LeadingSystems\MerconisBundle\Cache\Tagging\Context\CachingContextInterface: '@LeadingSystems\\MerconisBundle\\Cache\\Tagging\\Context\\CachingContext'
-
-  LeadingSystems\MerconisBundle\Cache\Tagging\CacheTags: ~
+  LeadingSystems\MerconisBundle\Cache\Tagging\CacheTags:
+    arguments:
+      $context: '@LeadingSystems\MerconisBundle\Cache\Tagging\Context\CachingContext'
 
   LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe: ~
 
