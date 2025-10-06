@@ -41,6 +41,7 @@ if ($obj_tmp_productOrVariant !== null) {
             'sig' => is_array($sig) ? $sig : array(),
             'mis' => $mis,
             'ov' => $ov,
+            'tpl' => (string) $this->getName(),
         );
         $handle = $fragmentCacheHandler->createForRecipe('gallery_fragment', $params, 86400);
         $cachedOutput = $handle->startCapture();

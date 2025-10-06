@@ -17,6 +17,8 @@ final class FragmentGalleryTagRecipe extends AbstractContextVaryingRecipe
         $sort = isset($entityParams['sort']) ? (string) $entityParams['sort'] : '';
         $signature = $entityParams['sig'] ?? [];
         $mainSig = $entityParams['mis'] ?? null;
+        $template = isset($entityParams['tpl']) ? (string) $entityParams['tpl'] : '';
+        $overlays = $entityParams['ov'] ?? [];
 
         $tags->add('ns', 'gallery.fragment');
         if ($product !== '') {
@@ -31,6 +33,12 @@ final class FragmentGalleryTagRecipe extends AbstractContextVaryingRecipe
         }
         if (is_array($mainSig) || $mainSig === null) {
             $tags->add('mis', $mainSig);
+        }
+        if ($template !== '') {
+            $tags->add('tpl', $template);
+        }
+        if (is_array($overlays)) {
+            $tags->add('ov', array_values($overlays));
         }
     }
 }
