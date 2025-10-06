@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
+use LeadingSystems\MerconisBundle\Cache\Tagging\CacheTags;
 
 class MerconisCacheHandler
 {
@@ -21,13 +22,17 @@ class MerconisCacheHandler
     /** @var int */
     private $defaultRetryEveryMs;
 
-    public function __construct(MerconisCache $service, CacheItemPoolInterface $cachePool, string $namespacePrefix, int $defaultMaxWaitMs = 2000, int $defaultRetryEveryMs = 50)
+    /** @var CacheTags|null */
+    private $cacheTags;
+
+    public function __construct(MerconisCache $service, CacheItemPoolInterface $cachePool, string $namespacePrefix, int $defaultMaxWaitMs = 2000, int $defaultRetryEveryMs = 50, ?CacheTags $cacheTags = null)
     {
         $this->service = $service;
         $this->cachePool = $cachePool;
         $this->namespacePrefix = $namespacePrefix;
         $this->defaultMaxWaitMs = $defaultMaxWaitMs;
         $this->defaultRetryEveryMs = $defaultRetryEveryMs;
+        $this->cacheTags = $cacheTags;
     }
 
     public function create(int $ttlSeconds, array $tags, ?int $maxWaitMs = null, ?int $retryEveryMs = null): MerconisCacheHandle
@@ -41,6 +46,18 @@ class MerconisCacheHandler
             $maxWaitMs ?? $this->defaultMaxWaitMs,
             $retryEveryMs ?? $this->defaultRetryEveryMs
         );
+    }
+
+    /**
+     * Convenience: build tags via recipe and create a cache handle. Falls back to empty tags if CacheTags not available.
+     */
+    public function createForRecipe(string $recipeName, array $options, int $ttlSeconds, ?int $maxWaitMs = null, ?int $retryEveryMs = null): MerconisCacheHandle
+    {
+        $tags = array();
+        if ($this->cacheTags instanceof CacheTags) {
+            $tags = $this->cacheTags->getTagsFor($recipeName, $options);
+        }
+        return $this->create($ttlSeconds, $tags, $maxWaitMs, $retryEveryMs);
     }
 }
 

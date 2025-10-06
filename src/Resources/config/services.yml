@@ -224,9 +224,10 @@ services:
 
   LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler:
     arguments:
-      - '@LeadingSystems\MerconisBundle\Cache\MerconisCache'
-      - '@merconis.cache'
-      - 'merconis.custom.cache.'
+      $service: '@LeadingSystems\MerconisBundle\Cache\MerconisCache'
+      $cachePool: '@merconis.cache'
+      $namespacePrefix: 'merconis.custom.cache.'
+      $cacheTags: '@LeadingSystems\MerconisBundle\Cache\Tagging\CacheTags'
     public: true
 
   # Gallery-specific cache service and handler
@@ -280,6 +281,8 @@ services:
   # Cache Tagging: context and recipes
   LeadingSystems\MerconisBundle\Cache\Tagging\Context\CachingContext:
     public: true
+
+  LeadingSystems\MerconisBundle\Cache\Tagging\CacheTags: ~
 
   LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe: ~
 
