@@ -55,7 +55,7 @@ if ($obj_tmp_productOrVariant !== null) {
     if ($useCache) {
         try {
             /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
-            $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
+            $cacheHandler = \Contao\System::getContainer()->get('merconis.cache_handler.gallery');
             $tags = array(
                 'ns' => 'gallery.fragment',
                 'v' => $version,
@@ -111,7 +111,7 @@ if ($obj_tmp_productOrVariant !== null) {
         if ($enabled && $shouldWarm) {
             try {
                 /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
-                $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
+                $cacheHandler = \Contao\System::getContainer()->get('merconis.cache_handler.gallery');
                 $tags = array(
                     'ns' => 'gallery.fragment',
                     'v' => $version,

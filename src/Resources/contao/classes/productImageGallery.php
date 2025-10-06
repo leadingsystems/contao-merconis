@@ -197,7 +197,7 @@ class productImageGallery extends Frontend {
         try {
             if ($settings['enabled']) {
                 /** @var MerconisCacheHandler $cacheHandler */
-                $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
+                $cacheHandler = System::getContainer()->get('merconis.cache_handler.gallery');
                 /** @var PageModel $objPage */
                 global $objPage;
                 $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
@@ -395,7 +395,7 @@ class productImageGallery extends Frontend {
                     // If we didn't create a handle above (e.g. read bypassed), create one now for warming
                     try {
                         /** @var MerconisCacheHandler $cacheHandler */
-                        $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
+                        $cacheHandler = System::getContainer()->get('merconis.cache_handler.gallery');
                         /** @var PageModel $objPage */
                         global $objPage;
                         $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
@@ -568,7 +568,7 @@ class productImageGallery extends Frontend {
         $arrMeta = array();
         try {
             /** @var MerconisCacheHandler $cacheHandler */
-            $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
+            $cacheHandler = System::getContainer()->get('merconis.cache_handler.gallery');
             $metaTags = array(
                 'ns' => 'gallery.filemeta',
                 'file' => ($this->originalSRC ? $this->originalSRC : $file),
