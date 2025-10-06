@@ -90,7 +90,7 @@
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_importFlexFieldKeys'] = array('Import-Spalten für flexible Produktinformationen','Geben Sie hier als kommagetrennte Liste die Spaltenüberschriften der Felder an, die als flexible Produktinformationen importiert werden sollen. Bitte beachten Sie, dass die Spaltenüberschriften als Schlüsselworte für die flexiblen Produktinformationen verwendet werden.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_importFlexFieldKeysLanguageIndependent'] = array('Import-Spalten für flexible Produktinform. (sprachunabhängig)','Geben Sie hier als kommagetrennte Liste die Spaltenüberschriften der Felder an, die als flexible Produktinformationen importiert werden sollen. Bitte beachten Sie, dass die Spaltenüberschriften als Schlüsselworte für die flexiblen Produktinformationen verwendet werden.');
-	
+
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownEmailAddress'] = array('Eigene E-Mail-Adresse', 'Wird zum Empfang diverser Systemmeldungen verwendet.');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_maxNumParallelSearchCaches'] = array('Maximale Anzahl parallel möglicher Suchcaches');
@@ -133,26 +133,25 @@
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ipWhitelist'] = array('IP-Whitelist', 'Tragen Sie hier kommagetrennt alle IPs bzw. IP-Ranges ein, denen Sie den Aufruf Ihres Systems zur Übermittlung z. B. von Zahlungsinformationen ohne Referrer-Check erlauben wollen. IP-Ranges können in CIDR-Schreibweise angegeben werden (z. B. 88.130.218.0/24) oder als von/bis-Angabe (z. B. 88.130.218.0 - 88.130.218.255).');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_urlWhitelist'] = array('URL-Whitelist', 'Tragen Sie hier einen regulären Ausdruck ein, der als Suchmuster auf die Request-URL angewandt wird. Bei einem Treffer in der URL wird der Referrer-Check übergangen.');
-	
+
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_blnCompatMode2-1-4'] = array('Kompatibilitätsmodus für Updates von Versionen < 2.1.5', 'Mit der Version 2.1.5 hat sich die Dateiablagestruktur teilweise verändert. Dieser Kompatibilitätsmodus veranlasst Merconis dazu, die alte Dateiablagestruktur anstatt der neuen zu erwarten.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_sortingCharacterTranslationTable'] = array('Ersetzungstabelle für Sortierung', 'Um die Berücksichtigung von Sonderzeichen bei der Sortierung zu kontrollieren, können Sie hier definieren, mit welchem Zeichen bzw. welcher Zeichenfolge Sonderzeichen bei der Sortierung ersetzt werden.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dcaNamesWithoutMultilanguageSupport'] = array('Bei Mehrsprachinitialisierung auszulassende DCAs', 'Kommagetrennte Liste von DCA-Namen, die bei der Mehrsprachinitialisierung übersprungen werden sollen.');
-	
+
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsDebugMode'] = array('Debug-Modus');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lsjsNoMinifierMode'] = array('Komprimierung deaktivieren');
-	
+
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssFileToLoad'] = array('Zu ladende SCSS-Datei', 'Standardmäßig wird eine von Merconis mitgelieferte SCSS-Datei verwendet und es muss/soll hier keine andere Datei ausgewählt werden. Eine abweichende Auswahl ist nur nötig, wenn z. B. aufgrund eigener Erweiterungen zusätzliche/geänderte Styles eingesetzt werden sollen. Achtung: Durch die Auswahl einer eigenen SCSS-Datei wird die von Merconis standardmäßig mitgelieferte Datei nicht mehr geladen. Es ist daher sinnvoll, die eigene Datei als Kopie der Merconis-Original-Datei zu erstellen und dann zu ergänzen/ändern.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssDebugMode'] = array('Debug-Modus');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssNoCacheMode'] = array('Caching deaktivieren');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_lscssNoMinifierMode'] = array('Komprimierung deaktivieren');
-	
+
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_coupon_debug'] = array('Debug Modus für Coupon', 'Schaltet die Debug anzeige im Frontend an');
 
 
-
-	/*
-	 * Legends
-	 */
+    /*
+     * Legends
+     */
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['basic_legend']   = 'Grundlegende Angaben';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['euSettings_legend'] = 'Einstellungen bzgl. der Europäischen Union';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['userSettings_legend']   = 'Benutzerbezogene Einstellungen';
