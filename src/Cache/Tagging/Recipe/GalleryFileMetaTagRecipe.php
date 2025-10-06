@@ -7,7 +7,7 @@ use LeadingSystems\MerconisBundle\Cache\Tagging\TagSet;
 
 final class GalleryFileMetaTagRecipe extends AbstractContextVaryingRecipe
 {
-    protected array $defaultVaryOn = array('language');
+    protected array $defaultVaryOn = ['language'];
 
     protected function buildIdentityTags(array $entityParams, TagSet $tags): void
     {

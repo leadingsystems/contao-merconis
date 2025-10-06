@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Cache\Tagging\Recipe;
 
@@ -14,7 +15,7 @@ use LeadingSystems\MerconisBundle\Cache\Tagging\TagSet;
  */
 final class CrossSellerTagRecipe extends AbstractContextVaryingRecipe
 {
-    protected array $defaultVaryOn = array('language');
+    protected array $defaultVaryOn = ['language'];
 
     protected function buildIdentityTags(array $entityParams, TagSet $tags): void
     {

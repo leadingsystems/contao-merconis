@@ -1,12 +1,13 @@
 <?php
+declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Cache\Tagging\Recipe;
 
 final class TagRecipeRegistry
 {
-    private $recipes;
+    private array $recipes;
 
-    public function __construct(array $recipes = array())
+    public function __construct(array $recipes = [])
     {
         $this->recipes = $recipes;
     }

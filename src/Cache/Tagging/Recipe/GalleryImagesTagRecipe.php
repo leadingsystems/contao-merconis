@@ -10,16 +10,16 @@ final class GalleryImagesTagRecipe extends AbstractContextVaryingRecipe
     /**
      * Vary by frontend language to mirror previous behavior.
      */
-    protected array $defaultVaryOn = array('language');
+    protected array $defaultVaryOn = ['language'];
 
     protected function buildIdentityTags(array $entityParams, TagSet $tags): void
     {
         $version = isset($entityParams['v']) ? (string) $entityParams['v'] : '';
         $sort = isset($entityParams['sort']) ? (string) $entityParams['sort'] : '';
-        $overlays = isset($entityParams['ov']) ? $entityParams['ov'] : array();
-        $signature = isset($entityParams['sig']) ? $entityParams['sig'] : array();
+        $overlays = $entityParams['ov'] ?? [];
+        $signature = $entityParams['sig'] ?? [];
         $mainSig = $entityParams['mis'] ?? null;
-        $includeMain = isset($entityParams['incMain']) ? (bool) $entityParams['incMain'] : true;
+        $includeMain = !isset($entityParams['incMain']) || (bool)$entityParams['incMain'];
 
         $tags->add('ns', 'gallery.images');
         if ($sort !== '') {

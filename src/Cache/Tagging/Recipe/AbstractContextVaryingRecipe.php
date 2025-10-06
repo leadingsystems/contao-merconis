@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Cache\Tagging\Recipe;
 
@@ -8,9 +9,9 @@ use LeadingSystems\MerconisBundle\Cache\Tagging\TagSet;
 abstract class AbstractContextVaryingRecipe implements TagRecipeInterface
 {
     /** @var string[] */
-    protected array $defaultVaryOn = array('');
+    protected array $defaultVaryOn = [];
 
-    final public function getTags(CachingContextInterface $ctx, array $entityParams = array(), ?array $varyOnOverride = null): array
+    final public function getTags(CachingContextInterface $ctx, array $entityParams = [], ?array $varyOnOverride = null): array
     {
         $tags = new TagSet();
 

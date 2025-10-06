@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Cache;
 
@@ -7,20 +8,15 @@ use LeadingSystems\MerconisBundle\Cache\CacheElementNoHitException;
 
 class MerconisCacheElement
 {
-    /** @var CacheItemPoolInterface */
-    private $cachePool;
+    private CacheItemPoolInterface $cachePool;
 
-    /** @var string */
-    private $namespacePrefix;
+    private string $namespacePrefix;
 
-    /** @var string */
-    private $elementKey;
+    private string $elementKey;
 
-    /** @var int */
-    private $ttlSeconds;
+    private int $ttlSeconds;
 
-    /** @var array */
-    private $tags;
+    private array $tags;
 
     public function __construct(CacheItemPoolInterface $cachePool, string $namespacePrefix, string $elementKey, int $ttlSeconds, array $tags)
     {
@@ -31,7 +27,7 @@ class MerconisCacheElement
         $this->tags = $tags;
     }
 
-    public function getContent()
+    public function getContent(): mixed
     {
         $item = $this->cachePool->getItem($this->elementKey);
         if (!$item->isHit()) {
@@ -40,7 +36,7 @@ class MerconisCacheElement
         return $item->get();
     }
 
-    public function storeContent($content): void
+    public function storeContent(mixed $content): void
     {
         $item = $this->cachePool->getItem($this->elementKey);
         $item->set($content);
@@ -53,7 +49,7 @@ class MerconisCacheElement
         foreach ($this->tags as $key => $value) {
             $tokenKey = $this->tagIndexKey($key, $value);
             $idxItem = $this->cachePool->getItem($tokenKey);
-            $list = $idxItem->isHit() ? (array) $idxItem->get() : array();
+            $list = $idxItem->isHit() ? (array) $idxItem->get() : [];
             if (!in_array($this->elementKey, $list, true)) {
                 $list[] = $this->elementKey;
             }
@@ -65,13 +61,13 @@ class MerconisCacheElement
         }
     }
 
-    private function tagIndexKey(string $key, $value): string
+    private function tagIndexKey(string $key, mixed $value): string
     {
         if (is_bool($value)) {
             $v = $value ? '1' : '0';
-        } else if (is_int($value) || is_float($value)) {
+        } elseif (is_int($value) || is_float($value)) {
             $v = (string) $value;
-        } else if (is_null($value)) {
+        } elseif (is_null($value)) {
             $v = 'null';
         } else {
             $v = (string) $value;

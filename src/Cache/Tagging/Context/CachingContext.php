@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Cache\Tagging\Context;
 
@@ -7,10 +8,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 final class CachingContext implements CachingContextInterface
 {
-    private $language;
+    private ?string $language = null;
 
-    /** @var RequestStack */
-    private $requestStack;
+    private RequestStack $requestStack;
 
     public function __construct(RequestStack $requestStack)
     {
@@ -56,13 +56,13 @@ final class CachingContext implements CachingContextInterface
         $normalizedNames = array_map(static function ($d) { return strtolower(trim((string) $d)); }, $dimensions);
         $normalizedNames = array_values(array_unique($normalizedNames));
         sort($normalizedNames, SORT_STRING);
-        $map = array();
+        $map = [];
         foreach ($normalizedNames as $name) {
             // Translate dimension name (e.g., "language", "customer_group") to getter (e.g., getLanguage, getCustomerGroup)
             $method = 'get' . str_replace(' ', '', ucwords(str_replace(array('-', '_', ' '), ' ', $name)));
-            if (is_callable(array($this, $method))) {
+            if (is_callable([$this, $method])) {
                 $value = $this->$method();
-                if ($value !== null && $value !== '' && $value !== array()) {
+                if ($value !== null && $value !== '' && $value !== []) {
                     $map[$name] = $value;
                 }
             }

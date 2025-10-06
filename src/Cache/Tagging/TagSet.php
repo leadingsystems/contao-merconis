@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Cache\Tagging;
 
 final class TagSet
 {
     /** @var array<string, scalar|array> */
-    private $tags = array();
+    private array $tags = [];
 
     /** Add a key/value tag (value should be scalar for best compatibility). */
-    public function add(string $key, $value): self
+    public function add(string $key, mixed $value): self
     {
         $key = trim($key);
         if ($key === '') {

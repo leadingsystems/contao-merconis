@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Cache;
 
@@ -8,11 +9,9 @@ use LeadingSystems\MerconisBundle\Cache\CacheToggle;
 
 class MerconisCache
 {
-    /** @var CacheItemPoolInterface */
-    private $cachePool;
+    private CacheItemPoolInterface $cachePool;
 
-    /** @var string */
-    private $namespacePrefix;
+    private string $namespacePrefix;
 
     public function __construct(CacheItemPoolInterface $cachePool, string $namespacePrefix = 'merconis.custom.cache.')
     {
@@ -39,15 +38,15 @@ class MerconisCache
             return;
         }
 
-        $tokenKeys = array();
+        $tokenKeys = [];
         foreach ($normalizedTags as $key => $value) {
             $tokenKeys[] = $this->tagIndexKey($key, $value);
         }
 
-        $lists = array();
+        $lists = [];
         foreach ($tokenKeys as $tokenKey) {
             $item = $this->cachePool->getItem($tokenKey);
-            $lists[] = $item->isHit() ? (array) $item->get() : array();
+            $lists[] = $item->isHit() ? (array) $item->get() : [];
         }
 
         if (!$lists) {
@@ -72,7 +71,7 @@ class MerconisCache
     /**
      * Compute with stampede protection.
      */
-    public function compute(int $ttlSeconds, array $tags, callable $producer, int $maxWaitMs = 2000, int $retryEveryMs = 50)
+    public function compute(int $ttlSeconds, array $tags, callable $producer, int $maxWaitMs = 2000, int $retryEveryMs = 50): mixed
     {
         if (!CacheToggle::$enabled) {
             // Bypass: just run producer immediately
@@ -157,7 +156,7 @@ class MerconisCache
     /**
      * Wait briefly for content to appear (another process is computing) and return it if available; null otherwise.
      */
-    public function waitForContent(int $ttlSeconds, array $tags, int $maxWaitMs = 2000, int $retryEveryMs = 50)
+    public function waitForContent(int $ttlSeconds, array $tags, int $maxWaitMs = 2000, int $retryEveryMs = 50): mixed
     {
         if (!CacheToggle::$enabled) {
             return null;
@@ -184,19 +183,19 @@ class MerconisCache
         return $this->namespacePrefix . 'lock.' . $tagHash;
     }
 
-    private function tagIndexKey(string $key, $value): string
+    private function tagIndexKey(string $key, mixed $value): string
     {
         $token = $this->encodeScalarToken($key, $value);
         return $this->namespacePrefix . 'tagindex.' . sha1($token);
     }
 
-    private function encodeScalarToken(string $key, $value): string
+    private function encodeScalarToken(string $key, mixed $value): string
     {
         if (is_bool($value)) {
             $v = $value ? '1' : '0';
-        } else if (is_int($value) || is_float($value)) {
+        } elseif (is_int($value) || is_float($value)) {
             $v = (string) $value;
-        } else if (is_null($value)) {
+        } elseif (is_null($value)) {
             $v = 'null';
         } else {
             $v = (string) $value;
@@ -206,7 +205,7 @@ class MerconisCache
 
     private function normalizeTags(array $tags): array
     {
-        $normalized = array();
+        $normalized = [];
         foreach ($tags as $k => $v) {
             if (is_array($v)) {
                 $v = $this->normalizeArray($v);
@@ -219,7 +218,7 @@ class MerconisCache
 
     private function normalizeArray(array $arr): array
     {
-        $out = array();
+        $out = [];
         foreach ($arr as $k => $v) {
             $key = (string) $k;
             if (is_array($v)) {
