@@ -230,6 +230,19 @@ class productImageGallery extends Frontend {
         return $this->multiSRC;
     }
 
+	/** Public wrappers for caching tag computations and sort mode */
+	public function getMultiSrcSignature() {
+		return $this->buildMultiSrcSignature($this->multiSRC);
+	}
+
+	public function getMainImageSignature() {
+		return $this->buildFileSignature($this->mainImageSRC);
+	}
+
+	public function getSortMode() {
+		return (string) $this->ls_moreImagesSortBy;
+	}
+
 
     protected function lsShopGetProcessedImages() {
 
