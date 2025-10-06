@@ -182,9 +182,9 @@ class productImageGallery extends Frontend {
         // Get all images
         foreach ($this->multiSRC as $file) {
             $newImageToAdd = $this->processSingleImage($file);
-            if($newImageToAdd){
-                $this->ls_images[] = $this->processSingleImage($file);
-            }
+			if($newImageToAdd){
+				$this->ls_images[] = $newImageToAdd;
+			}
         }
 
         // Sort array
