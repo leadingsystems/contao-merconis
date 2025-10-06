@@ -46,19 +46,9 @@ final class CachingContext implements CachingContextInterface
 
     public function buildContextTags(array $dimensions): array
     {
-        $map = $this->collectDimensionMap($dimensions);
-        $tags = new TagSet();
-        foreach ($map as $name => $value) {
-            if ($value === null || $value === '' || $value === array()) {
-                continue;
-            }
-            switch ($name) {
-                case 'language':
-                    $tags->add('language', strtolower((string) $value));
-                    break;
-            }
-        }
-        return $tags->toArray();
+        // Values are normalized in the getters and empty values are filtered
+        // in collectDimensionMap already, so we can return the map directly.
+        return $this->collectDimensionMap($dimensions);
     }
 
     private function collectDimensionMap(array $dimensions): array
@@ -68,10 +58,13 @@ final class CachingContext implements CachingContextInterface
         sort($normalizedNames, SORT_STRING);
         $map = array();
         foreach ($normalizedNames as $name) {
-            switch ($name) {
-                case 'language':
-                    $map[$name] = $this->getLanguage();
-                    break;
+            // Translate dimension name (e.g., "language", "customer_group") to getter (e.g., getLanguage, getCustomerGroup)
+            $method = 'get' . str_replace(' ', '', ucwords(str_replace(array('-', '_', ' '), ' ', $name)));
+            if (is_callable(array($this, $method))) {
+                $value = $this->$method();
+                if ($value !== null && $value !== '' && $value !== array()) {
+                    $map[$name] = $value;
+                }
             }
         }
         return $map;
