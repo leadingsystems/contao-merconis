@@ -83,6 +83,9 @@ class productImageGallery extends Frontend {
 
         $this->Template->images = array();
 
+        /*
+         * Do me! Duplicate call of lsShopGetProcessedImages()?
+         */
         $this->lsShopGetProcessedImages();
 
         if(!$this->ls_images && !$this->mainImageSRC && $obj_productOrVariant->_objectType === 'variant'){
@@ -110,8 +113,47 @@ class productImageGallery extends Frontend {
     public function getMainImage(){
         if(!$this->mainImage){
             if($this->mainImageSRC){
-                $this->mainImage = $this->processSingleImage($this->mainImageSRC);
+                // Try cache for main image first
+                $objCached = null;
+                try {
+                    $container = System::getContainer();
+                    if ($container->has('merconis.cache_handler.gallery')) {
+                        $handler = $container->get('merconis.cache_handler.gallery');
+                        $params = array(
+                            'sort' => 'none',
+                            'ov' => array_values($this->arrOverlays),
+                            'sig' => array(),
+                            'mis' => $this->buildFileSignature($this->mainImageSRC),
+                            'incMain' => true
+                        );
+                        $handle = $handler->createForRecipe('gallery_images', $params, 86400);
+                        list($hit, $payload) = $handle->getValueOrStart();
+                        if ($hit && is_array($payload)) {
+                            $rehydrated = $this->rehydrateImagesFromCache(array($payload));
+                            $objCached = isset($rehydrated[0]) ? $rehydrated[0] : null;
+                        }
+                    }
+                } catch (\Throwable $e) {}
+
+                if ($objCached) {
+                    $this->mainImage = $objCached;
+                } else {
+                    $this->mainImage = $this->processSingleImage($this->mainImageSRC);
+                    // Store to cache if possible
+                    try {
+                        if (isset($handle)) {
+                            $payload = $this->serializeImagesForCache(array($this->mainImage));
+                            $row = isset($payload[0]) ? $payload[0] : null;
+                            if (is_array($row)) {
+                                $handle->storeValue($row);
+                            }
+                        }
+                    } catch (\Throwable $e) {}
+                }
             }else if(!empty($this->getMoreImages())){
+                /*
+                 * Do me! Check: Is this an expensive double call of $this->getMoreImages()?
+                 */
                 $this->mainImage = $this->getMoreImages()[0];
             }else if(isset($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])){
                 $this->mainImage = $this->processSingleImage(FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
@@ -179,12 +221,52 @@ class productImageGallery extends Frontend {
 
     protected function lsShopGetProcessedImages() {
 
-        // Get all images
-        foreach ($this->multiSRC as $file) {
-            $newImageToAdd = $this->processSingleImage($file);
-			if($newImageToAdd){
-				$this->ls_images[] = $newImageToAdd;
-			}
+        // Gallery cache: try to load processed images list from cache
+        $__cacheEnabled = false;
+        $__cacheHit = false;
+        $__cacheHandle = null;
+        $__sortIsRandom = ($this->ls_moreImagesSortBy === 'random');
+        $__ttl = 86400; // 24h default
+        try {
+            $__container = System::getContainer();
+            if ($__container->has('merconis.cache_handler.gallery')) {
+                $__cacheEnabled = true;
+                $__handler = $__container->get('merconis.cache_handler.gallery');
+                $__params = array(
+                    'sort' => (string) $this->ls_moreImagesSortBy,
+                    'ov' => array_values($this->arrOverlays),
+                    'sig' => $this->buildMultiSrcSignature($this->multiSRC),
+                    'mis' => $this->buildFileSignature($this->mainImageSRC),
+                    'incMain' => false
+                );
+                $__cacheHandle = $__handler->createForRecipe('gallery_images', $__params, $__ttl);
+                list($__hit, $__payload) = $__cacheHandle->getValueOrStart();
+                if ($__hit && is_array($__payload)) {
+                    $this->ls_images = $this->rehydrateImagesFromCache($__payload);
+                    $__cacheHit = true;
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore cache errors
+        }
+
+        // Compute images on cache miss
+        if (!$__cacheHit) {
+            // Get all images
+            foreach ($this->multiSRC as $file) {
+                $newImageToAdd = $this->processSingleImage($file);
+                if($newImageToAdd){
+                    $this->ls_images[] = $newImageToAdd;
+                }
+            }
+
+            // For random sort, store processed-but-unsorted list so each request can randomize freshly
+            if ($__cacheEnabled && $__cacheHandle && $__sortIsRandom) {
+                try {
+                    $__payloadToStore = $this->serializeImagesForCache($this->ls_images);
+                    $__cacheHandle->storeValue($__payloadToStore);
+                } catch (\Throwable $e) {}
+            }
         }
 
         // Sort array
@@ -220,11 +302,14 @@ class productImageGallery extends Frontend {
                 });
                 break;
 
-            case 'random':
-                uasort($this->ls_images, function($a, $b) {
-                    return strcmp($a->randomSortingValue, $b->randomSortingValue);
-                });
-                break;
+			case 'random':
+				$__keys = array();
+				foreach ($this->ls_images as $i => $img) {
+					$__keys[$i] = md5((isset($img->name) ? (string) $img->name : '') . $this->sortingRandomizer);
+				}
+				// Sort images by the ephemeral keys without mutating objects
+				array_multisort($__keys, SORT_ASC, $this->ls_images);
+				break;
 
             case 'none':
                 break;
@@ -240,6 +325,14 @@ class productImageGallery extends Frontend {
             }
         }
         $this->ls_images = array_merge($this->ls_images, $videos);
+
+        // After final ordering, store non-random results in cache
+        if (!$__cacheHit && $__cacheEnabled && $__cacheHandle && !$__sortIsRandom) {
+            try {
+                $__payloadToStore = $this->serializeImagesForCache($this->ls_images);
+                $__cacheHandle->storeValue($__payloadToStore);
+            } catch (\Throwable $e) {}
+        }
 
     }
 
@@ -324,8 +417,7 @@ class productImageGallery extends Frontend {
             $objImage->title = $arrMeta['title'] ?? '';
             $objImage->imageUrl = $arrMeta['link'] ?? '';
             $objImage->caption = $arrMeta['caption'] ?? '';
-            $objImage->mtime = $objFile->mtime;
-            $objImage->randomSortingValue = md5($objFile->basename.$this->sortingRandomizer);
+			$objImage->mtime = $objFile->mtime;
             return $objImage;
 
         }
@@ -348,7 +440,7 @@ class productImageGallery extends Frontend {
         $coverFilename = preg_replace('(\..*$)', '_cover', $filename);
 
         /*
-         * Walk throught the image suffix array and check whether there's
+         * Walk through the image suffix array and check whether there's
          * a file named with the coverFilename and the respective image suffix.
          */
         foreach ($this->arrImgSuffixes as $suffix) {
@@ -378,4 +470,93 @@ class productImageGallery extends Frontend {
         $filename = $coverFile;
         return new File($coverFile, true);
     }
+
+	/**
+	 * Build a signature array for a list of file paths using path and filemtime.
+	 */
+	protected function buildMultiSrcSignature($multiSRC) {
+		if (!is_array($multiSRC)) {
+			return array();
+		}
+		$arr = array();
+		foreach ($multiSRC as $p) {
+			$sig = $this->buildFileSignature($p);
+			if ($sig !== null) {
+				$arr[] = $sig;
+			}
+		}
+		sort($arr, SORT_STRING);
+		return $arr;
+	}
+
+	/**
+	 * Build a signature string for a single file path using path and filemtime, or null if not applicable.
+	 */
+	protected function buildFileSignature($path) {
+		if (!$path) {
+			return null;
+		}
+		$str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+		$abs = $str_projectDir . '/' . ltrim((string) $path, '/');
+		if (!is_file($abs)) {
+			return (string) $path . ':na';
+		}
+		$mtime = @filemtime($abs);
+		$mtime = $mtime === false ? '0' : (string) $mtime;
+		return (string) $path . ':' . $mtime;
+	}
+
+	/**
+	 * Serialize list of image objects to an array suitable for cache storage.
+	 */
+	protected function serializeImagesForCache($images) {
+		$out = array();
+		if (!is_array($images)) {
+			return $out;
+		}
+		foreach ($images as $img) {
+			if (!is_object($img)) {
+				continue;
+			}
+			$out[] = array(
+				'name' => isset($img->name) ? (string) $img->name : '',
+				'originalSRC' => isset($img->originalSRC) ? $img->originalSRC : false,
+				'arrOverlays' => isset($img->arrOverlays) && is_array($img->arrOverlays) ? array_values($img->arrOverlays) : array(),
+				'singleSRC' => isset($img->singleSRC) ? (string) $img->singleSRC : '',
+				'alt' => isset($img->alt) ? (string) $img->alt : '',
+				'title' => isset($img->title) ? (string) $img->title : '',
+				'imageUrl' => isset($img->imageUrl) ? (string) $img->imageUrl : '',
+				'caption' => isset($img->caption) ? (string) $img->caption : '',
+				'mtime' => isset($img->mtime) ? (int) $img->mtime : 0
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * Rehydrate cached array payload back into list of image objects.
+	 */
+	protected function rehydrateImagesFromCache($payload) {
+		$out = array();
+		if (!is_array($payload)) {
+			return $out;
+		}
+		foreach ($payload as $row) {
+			if (!is_array($row)) {
+				continue;
+			}
+			$objImage = new \stdClass();
+			$objImage->name = isset($row['name']) ? (string) $row['name'] : '';
+			$objImage->originalSRC = isset($row['originalSRC']) ? $row['originalSRC'] : false;
+			$objImage->arrOverlays = isset($row['arrOverlays']) && is_array($row['arrOverlays']) ? array_values($row['arrOverlays']) : array();
+			$objImage->singleSRC = isset($row['singleSRC']) ? (string) $row['singleSRC'] : '';
+			$objImage->alt = isset($row['alt']) ? (string) $row['alt'] : '';
+			$objImage->title = isset($row['title']) ? (string) $row['title'] : '';
+			$objImage->imageUrl = isset($row['imageUrl']) ? (string) $row['imageUrl'] : '';
+			$objImage->caption = isset($row['caption']) ? (string) $row['caption'] : '';
+			$objImage->mtime = isset($row['mtime']) ? (int) $row['mtime'] : 0;
+			$out[] = $objImage;
+		}
+		return $out;
+	}
 }
