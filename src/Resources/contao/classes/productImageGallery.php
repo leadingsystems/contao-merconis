@@ -34,6 +34,9 @@ class productImageGallery extends Frontend {
 
     protected $ls_moreImagesSortBy = '';
 
+	// Cached service reference to avoid repeated container lookups
+	protected $cacheHandlerGallery = null;
+
 
     public function __construct($obj_productOrVariant, $ls_moreImagesSortBy = false, $ls_imageLimit = 0) {
         parent::__construct();
@@ -81,6 +84,14 @@ class productImageGallery extends Frontend {
 
         $this->arrOverlays = $arrOverlays;
 
+		// Initialize gallery cache handler once per instance
+		try {
+			$__container = System::getContainer();
+			if ($__container->has('merconis.cache_handler.gallery')) {
+				$this->cacheHandlerGallery = $__container->get('merconis.cache_handler.gallery');
+			}
+		} catch (\Throwable $e) {}
+
         $this->Template->images = array();
 
 		/*
@@ -118,23 +129,22 @@ class productImageGallery extends Frontend {
                 // Try cache for main image first
                 $objCached = null;
                 try {
-                    $container = System::getContainer();
-                    if ($container->has('merconis.cache_handler.gallery')) {
-                        $handler = $container->get('merconis.cache_handler.gallery');
-                        $params = array(
-                            'sort' => 'none',
-                            'ov' => array_values($this->arrOverlays),
-                            'sig' => array(),
-                            'mis' => $this->buildFileSignature($this->mainImageSRC),
-                            'incMain' => true
-                        );
-                        $handle = $handler->createForRecipe('gallery_images', $params, 86400);
-                        list($hit, $payload) = $handle->getValueOrStart();
-                        if ($hit && is_array($payload)) {
-                            $rehydrated = $this->rehydrateImagesFromCache(array($payload));
-                            $objCached = isset($rehydrated[0]) ? $rehydrated[0] : null;
-                        }
-                    }
+					if ($this->cacheHandlerGallery) {
+						$handler = $this->cacheHandlerGallery;
+						$params = array(
+							'sort' => 'none',
+							'ov' => array_values($this->arrOverlays),
+							'sig' => array(),
+							'mis' => $this->buildFileSignature($this->mainImageSRC),
+							'incMain' => true
+						);
+						$handle = $handler->createForRecipe('gallery_images', $params, 86400);
+						list($hit, $payload) = $handle->getValueOrStart();
+						if ($hit && is_array($payload)) {
+							$rehydrated = $this->rehydrateImagesFromCache(array($payload));
+							$objCached = isset($rehydrated[0]) ? $rehydrated[0] : null;
+						}
+					}
                 } catch (\Throwable $e) {}
 
                 if ($objCached) {
@@ -230,27 +240,26 @@ class productImageGallery extends Frontend {
         $__sortIsRandom = ($this->ls_moreImagesSortBy === 'random');
         $__ttl = 86400; // 24h default
         try {
-            $__container = System::getContainer();
-            if ($__container->has('merconis.cache_handler.gallery')) {
-                $__cacheEnabled = true;
-                $__handler = $__container->get('merconis.cache_handler.gallery');
-                $__params = array(
-                    'sort' => (string) $this->ls_moreImagesSortBy,
-                    'ov' => array_values($this->arrOverlays),
-                    'sig' => $this->buildMultiSrcSignature($this->multiSRC),
-                    'mis' => $this->buildFileSignature($this->mainImageSRC),
-                    'incMain' => false
-                );
-                $__cacheHandle = $__handler->createForRecipe('gallery_images', $__params, $__ttl);
-                list($__hit, $__payload) = $__cacheHandle->getValueOrStart();
-                if ($__hit && is_array($__payload)) {
-                    $this->ls_images = $this->rehydrateImagesFromCache($__payload);
-                    $__cacheHit = true;
-                }
-            }
-        } catch (\Throwable $e) {
-            // ignore cache errors
-        }
+			if ($this->cacheHandlerGallery) {
+				$__cacheEnabled = true;
+				$__handler = $this->cacheHandlerGallery;
+				$__params = array(
+					'sort' => (string) $this->ls_moreImagesSortBy,
+					'ov' => array_values($this->arrOverlays),
+					'sig' => $this->buildMultiSrcSignature($this->multiSRC),
+					'mis' => $this->buildFileSignature($this->mainImageSRC),
+					'incMain' => false
+				);
+				$__cacheHandle = $__handler->createForRecipe('gallery_images', $__params, $__ttl);
+				list($__hit, $__payload) = $__cacheHandle->getValueOrStart();
+				if ($__hit && is_array($__payload)) {
+					$this->ls_images = $this->rehydrateImagesFromCache($__payload);
+					$__cacheHit = true;
+				}
+			}
+		} catch (\Throwable $e) {
+			// ignore cache errors
+		}
 
         // Compute images on cache miss
         if (!$__cacheHit) {
