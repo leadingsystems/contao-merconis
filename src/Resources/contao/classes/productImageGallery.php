@@ -83,12 +83,12 @@ class productImageGallery extends Frontend {
 
         $this->Template->images = array();
 
-        /*
-         * Do me! Duplicate call of lsShopGetProcessedImages()?
-         */
-        $this->lsShopGetProcessedImages();
-
-        if(!$this->ls_images && !$this->mainImageSRC && $obj_productOrVariant->_objectType === 'variant'){
+		/*
+		 * If this is a variant without its own main image and without any more-images,
+		 * immediately fall back to the parent product sources and process once.
+		 * Otherwise, process the initially provided sources.
+		 */
+		if ($obj_productOrVariant->_objectType === 'variant' && !$this->mainImageSRC && empty($this->multiSRC)){
             $str_mainImageKey = 'lsShopProductMainImage';
 
             $mainImageSRC = isset($obj_productOrVariant->_objParentProduct->mainData[$str_mainImageKey]) && $obj_productOrVariant->_objParentProduct->mainData[$str_mainImageKey] ? ls_getFilePathFromVariableSources($obj_productOrVariant->_objParentProduct->mainData[$str_mainImageKey]) : null;
@@ -104,8 +104,10 @@ class productImageGallery extends Frontend {
 
             $this->multiSRC = $multiSRC;
 
-            $this->lsShopGetProcessedImages();
-        }
+			$this->lsShopGetProcessedImages();
+		} else {
+			$this->lsShopGetProcessedImages();
+		}
         
     }
 
