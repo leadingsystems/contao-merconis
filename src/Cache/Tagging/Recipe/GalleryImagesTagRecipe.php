@@ -1,0 +1,42 @@
+<?php
+declare(strict_types=1);
+
+namespace LeadingSystems\MerconisBundle\Cache\Tagging\Recipe;
+
+use LeadingSystems\MerconisBundle\Cache\Tagging\TagSet;
+
+final class GalleryImagesTagRecipe extends AbstractContextVaryingRecipe
+{
+    /**
+     * Vary by frontend language to mirror previous behavior.
+     */
+    protected array $defaultVaryOn = array('language');
+
+    protected function buildIdentityTags(array $entityParams, TagSet $tags): void
+    {
+        $version = isset($entityParams['v']) ? (string) $entityParams['v'] : 'v1';
+        $sort = isset($entityParams['sort']) ? (string) $entityParams['sort'] : '';
+        $overlays = isset($entityParams['ov']) ? $entityParams['ov'] : array();
+        $signature = isset($entityParams['sig']) ? $entityParams['sig'] : array();
+        $mainSig = $entityParams['mis'] ?? null;
+        $includeMain = isset($entityParams['incMain']) ? (bool) $entityParams['incMain'] : true;
+
+        $tags->add('ns', 'gallery.images');
+        $tags->add('v', $version);
+        if ($sort !== '') {
+            $tags->add('sort', $sort);
+        }
+        if (is_array($overlays)) {
+            $tags->add('ov', array_values($overlays));
+        }
+        if (is_array($signature)) {
+            $tags->add('sig', $signature);
+        }
+        if (is_array($mainSig) || $mainSig === null) {
+            $tags->add('mis', $mainSig);
+        }
+        $tags->add('incMain', $includeMain);
+    }
+}
+
+

@@ -287,9 +287,15 @@ services:
       $context: '@LeadingSystems\MerconisBundle\Cache\Tagging\Context\CachingContext'
 
   LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe: ~
+  LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\GalleryImagesTagRecipe: ~
+  LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\GalleryFileMetaTagRecipe: ~
+  LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\FragmentGalleryTagRecipe: ~
 
   LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\TagRecipeRegistry:
     arguments:
       $recipes:
         cross_seller: '@LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe'
+        gallery_images: '@LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\GalleryImagesTagRecipe'
+        gallery_filemeta: '@LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\GalleryFileMetaTagRecipe'
+        gallery_fragment: '@LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\FragmentGalleryTagRecipe'
     public: true

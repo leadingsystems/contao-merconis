@@ -55,11 +55,9 @@ if ($obj_tmp_productOrVariant !== null) {
     if ($useCache) {
         try {
             /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
-            $cacheHandler = \Contao\System::getContainer()->get('merconis.cache_handler.gallery');
-            $tags = array(
-                'ns' => 'gallery.fragment',
+            $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
+            $entityParams = array(
                 'v' => $version,
-                'lang' => $lang,
                 'prod' => $this->objProduct->_code,
                 'isVariant' => (bool) $this->objProduct->_variantIsSelected,
                 'sort' => $sortBy,
@@ -67,7 +65,7 @@ if ($obj_tmp_productOrVariant !== null) {
                 'mis' => $mainSig
             );
             $ttlSeconds = max(1, (int)$ttlHours) * 3600;
-            $cacheHandle = $cacheHandler->create($ttlSeconds, $tags);
+            $cacheHandle = $cacheHandler->createForRecipe('gallery_fragment', $entityParams, $ttlSeconds);
             if ($cacheHandle->start()) {
                 if ($exposeServerTiming) {
                     $durMs = (microtime(true) - $timeStart) * 1000;
@@ -111,11 +109,9 @@ if ($obj_tmp_productOrVariant !== null) {
         if ($enabled && $shouldWarm) {
             try {
                 /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
-                $cacheHandler = \Contao\System::getContainer()->get('merconis.cache_handler.gallery');
-                $tags = array(
-                    'ns' => 'gallery.fragment',
+                $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
+                $entityParams = array(
                     'v' => $version,
-                    'lang' => $lang,
                     'prod' => $this->objProduct->_code,
                     'isVariant' => (bool) $this->objProduct->_variantIsSelected,
                     'sort' => $sortBy,
@@ -123,7 +119,7 @@ if ($obj_tmp_productOrVariant !== null) {
                     'mis' => $mainSig
                 );
                 $ttlSeconds = max(1, (int)$ttlHours) * 3600;
-                $cacheHandler->create($ttlSeconds, $tags)->storeValue($html);
+                $cacheHandler->createForRecipe('gallery_fragment', $entityParams, $ttlSeconds)->storeValue($html);
             } catch (\Throwable $t) {
                 // ignore
             }

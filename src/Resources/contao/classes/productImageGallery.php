@@ -197,7 +197,7 @@ class productImageGallery extends Frontend {
         try {
             if ($settings['enabled']) {
                 /** @var MerconisCacheHandler $cacheHandler */
-                $cacheHandler = System::getContainer()->get('merconis.cache_handler.gallery');
+                $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
                 /** @var PageModel $objPage */
                 global $objPage;
                 $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
@@ -219,10 +219,8 @@ class productImageGallery extends Frontend {
                     $mainSig = array('p' => $this->mainImageSRC, 'm' => is_file($miAbs) ? (int)@filemtime($miAbs) : 0);
                 }
                 $version = (string) ($settings['version'] ?: self::CACHE_VERSION);
-                $tags = array(
-                    'ns' => 'gallery.images',
+                $entityParams = array(
                     'v' => $version,
-                    'lang' => $language,
                     'sort' => (string) $this->ls_moreImagesSortBy,
                     'ov' => $overlays,
                     'sig' => $signature,
@@ -232,7 +230,7 @@ class productImageGallery extends Frontend {
                 $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
 
                 if ($usePersistentCache) {
-                    $cacheHandle = $cacheHandler->create($ttlSeconds, $tags);
+                    $cacheHandle = $cacheHandler->createForRecipe('gallery_images', $entityParams, $ttlSeconds);
                     list($hit, $cached) = $cacheHandle->getValueOrStart();
                     if ($hit && is_array($cached) && isset($cached['images'])) {
                         foreach ($cached['images'] as $imgArr) {
@@ -395,7 +393,7 @@ class productImageGallery extends Frontend {
                     // If we didn't create a handle above (e.g. read bypassed), create one now for warming
                     try {
                         /** @var MerconisCacheHandler $cacheHandler */
-                        $cacheHandler = System::getContainer()->get('merconis.cache_handler.gallery');
+                        $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
                         /** @var PageModel $objPage */
                         global $objPage;
                         $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
@@ -417,10 +415,8 @@ class productImageGallery extends Frontend {
                             $mainSig = array('p' => $this->mainImageSRC, 'm' => is_file($miAbs) ? (int)@filemtime($miAbs) : 0);
                         }
                         $version = (string) ($settings['version'] ?: self::CACHE_VERSION);
-                        $tags = array(
-                            'ns' => 'gallery.images',
+                        $entityParams = array(
                             'v' => $version,
-                            'lang' => $language,
                             'sort' => (string) $this->ls_moreImagesSortBy,
                             'ov' => $overlays,
                             'sig' => $signature,
@@ -428,7 +424,7 @@ class productImageGallery extends Frontend {
                             'incMain' => (bool) $settings['includeMainImage']
                         );
                         $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
-                        $cacheHandler->create($ttlSeconds, $tags)->storeValue($payload);
+                        $cacheHandler->createForRecipe('gallery_images', $entityParams, $ttlSeconds)->storeValue($payload);
                     } catch (\Throwable $t2) {
                         // ignore warming errors
                     }
@@ -568,14 +564,12 @@ class productImageGallery extends Frontend {
         $arrMeta = array();
         try {
             /** @var MerconisCacheHandler $cacheHandler */
-            $cacheHandler = System::getContainer()->get('merconis.cache_handler.gallery');
-            $metaTags = array(
-                'ns' => 'gallery.filemeta',
+            $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
+            $entityParams = array(
                 'file' => ($this->originalSRC ? $this->originalSRC : $file),
-                'lang' => $objPage->language,
                 'v' => 'v1'
             );
-            $cacheHandle = $cacheHandler->create(21600, $metaTags);
+            $cacheHandle = $cacheHandler->createForRecipe('gallery_filemeta', $entityParams, 21600);
             list($metaHit, $metaVal) = $cacheHandle->getValueOrStart();
             if ($metaHit) {
                 $arrMeta = (array) $metaVal;

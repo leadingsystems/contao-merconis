@@ -1,0 +1,39 @@
+<?php
+declare(strict_types=1);
+
+namespace LeadingSystems\MerconisBundle\Cache\Tagging\Recipe;
+
+use LeadingSystems\MerconisBundle\Cache\Tagging\TagSet;
+
+final class FragmentGalleryTagRecipe extends AbstractContextVaryingRecipe
+{
+    protected array $defaultVaryOn = array('language');
+
+    protected function buildIdentityTags(array $entityParams, TagSet $tags): void
+    {
+        $version = isset($entityParams['v']) ? (string) $entityParams['v'] : 'v1';
+        $product = isset($entityParams['prod']) ? (string) $entityParams['prod'] : '';
+        $isVariant = isset($entityParams['isVariant']) ? (bool) $entityParams['isVariant'] : false;
+        $sort = isset($entityParams['sort']) ? (string) $entityParams['sort'] : '';
+        $signature = isset($entityParams['sig']) ? $entityParams['sig'] : array();
+        $mainSig = $entityParams['mis'] ?? null;
+
+        $tags->add('ns', 'gallery.fragment');
+        $tags->add('v', $version);
+        if ($product !== '') {
+            $tags->add('prod', $product);
+        }
+        $tags->add('isVariant', $isVariant);
+        if ($sort !== '') {
+            $tags->add('sort', $sort);
+        }
+        if (is_array($signature)) {
+            $tags->add('sig', $signature);
+        }
+        if (is_array($mainSig) || $mainSig === null) {
+            $tags->add('mis', $mainSig);
+        }
+    }
+}
+
+
