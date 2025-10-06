@@ -19,15 +19,15 @@ final class CacheTags
         $this->registry = $registry;
     }
 
-    /** Return tags for a named recipe with options; returns [] if recipe not found. */
-    public function getTagsFor(string $recipeName, array $options = array()): array
+    /** Return tags for a named recipe with params and optional vary_on override; returns [] if recipe not found. */
+    public function getTagsFor(string $recipeName, array $entityParams = array(), ?array $varyOnOverride = null): array
     {
         /** @var TagRecipeInterface|null $recipe */
         $recipe = $this->registry->get($recipeName);
         if (!$recipe) {
             return array();
         }
-        return $recipe->getTags($this->context, $options);
+        return $recipe->getTags($this->context, $entityParams, $varyOnOverride);
     }
 }
 

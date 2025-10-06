@@ -51,11 +51,11 @@ class MerconisCacheHandler
     /**
      * Convenience: build tags via recipe and create a cache handle. Falls back to empty tags if CacheTags not available.
      */
-    public function createForRecipe(string $recipeName, array $options, int $ttlSeconds, ?int $maxWaitMs = null, ?int $retryEveryMs = null): MerconisCacheHandle
+    public function createForRecipe(string $recipeName, array $entityParams, int $ttlSeconds, ?array $varyOnOverride = null, ?int $maxWaitMs = null, ?int $retryEveryMs = null): MerconisCacheHandle
     {
         $tags = array();
         if ($this->cacheTags instanceof CacheTags) {
-            $tags = $this->cacheTags->getTagsFor($recipeName, $options);
+            $tags = $this->cacheTags->getTagsFor($recipeName, $entityParams, $varyOnOverride);
         }
         return $this->create($ttlSeconds, $tags, $maxWaitMs, $retryEveryMs);
     }

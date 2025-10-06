@@ -28,11 +28,12 @@ class ls_shop_cross_sellerCTE extends ContentElement {
 	 * Generate module
 	 */
 	protected function compile() {
-		$objCrossSeller = new ls_shop_cross_seller($this->lsShopCrossSeller);
-		$this->Template->output = $objCrossSeller->parseCrossSeller();
-		/** @var MerconisCacheHandler $cacheHandler */
-		$cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
-		$session = $cacheHandler->create(600, array('id' => (string) $this->lsShopCrossSeller));
+		// PerfGuard (optional, avoid static reference for linters)
+		$__pg = null;
+		if (class_exists('\\LeadingSystems\\Helpers\\PerfGuard')) {
+			$__pgClass = '\\LeadingSystems\\Helpers\\PerfGuard';
+			$__pg = new $__pgClass(__METHOD__);
+		}
         /** @var MerconisCacheHandler $cacheHandler */
         $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
         $cache = $cacheHandler->createForRecipe('cross_seller', array('id' => (string) $this->lsShopCrossSeller), 600);

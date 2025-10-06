@@ -6,7 +6,7 @@ use LeadingSystems\MerconisBundle\Cache\Tagging\Context\CachingContextInterface;
 
 interface TagRecipeInterface
 {
-    public function getTags(CachingContextInterface $ctx, array $options = array()): array;
+    public function getTags(CachingContextInterface $ctx, array $entityParams = array(), ?array $varyOnOverride = null): array;
 }
 
 
