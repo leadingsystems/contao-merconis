@@ -150,14 +150,14 @@ class productImageGallery extends Frontend {
                         }
                     } catch (\Throwable $e) {}
                 }
-            }else if(!empty($this->getMoreImages())){
-                /*
-                 * Do me! Check: Is this an expensive double call of $this->getMoreImages()?
-                 */
-                $this->mainImage = $this->getMoreImages()[0];
-            }else if(isset($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])){
-                $this->mainImage = $this->processSingleImage(FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
-            }
+			}else{
+				$moreImages = $this->getMoreImages();
+				if (!empty($moreImages)){
+					$this->mainImage = $moreImages[0];
+				} else if(isset($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])){
+					$this->mainImage = $this->processSingleImage(FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
+				}
+			}
         }
         return $this->mainImage;
     }
