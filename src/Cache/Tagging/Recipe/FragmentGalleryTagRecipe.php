@@ -11,7 +11,7 @@ final class FragmentGalleryTagRecipe extends AbstractContextVaryingRecipe
 
     protected function buildIdentityTags(array $entityParams, TagSet $tags): void
     {
-        $version = isset($entityParams['v']) ? (string) $entityParams['v'] : 'v1';
+        $version = isset($entityParams['v']) ? (string) $entityParams['v'] : '';
         $product = isset($entityParams['prod']) ? (string) $entityParams['prod'] : '';
         $isVariant = isset($entityParams['isVariant']) ? (bool) $entityParams['isVariant'] : false;
         $sort = isset($entityParams['sort']) ? (string) $entityParams['sort'] : '';
@@ -19,7 +19,6 @@ final class FragmentGalleryTagRecipe extends AbstractContextVaryingRecipe
         $mainSig = $entityParams['mis'] ?? null;
 
         $tags->add('ns', 'gallery.fragment');
-        $tags->add('v', $version);
         if ($product !== '') {
             $tags->add('prod', $product);
         }

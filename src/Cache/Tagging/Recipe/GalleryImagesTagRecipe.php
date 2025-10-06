@@ -14,7 +14,7 @@ final class GalleryImagesTagRecipe extends AbstractContextVaryingRecipe
 
     protected function buildIdentityTags(array $entityParams, TagSet $tags): void
     {
-        $version = isset($entityParams['v']) ? (string) $entityParams['v'] : 'v1';
+        $version = isset($entityParams['v']) ? (string) $entityParams['v'] : '';
         $sort = isset($entityParams['sort']) ? (string) $entityParams['sort'] : '';
         $overlays = isset($entityParams['ov']) ? $entityParams['ov'] : array();
         $signature = isset($entityParams['sig']) ? $entityParams['sig'] : array();
@@ -22,7 +22,6 @@ final class GalleryImagesTagRecipe extends AbstractContextVaryingRecipe
         $includeMain = isset($entityParams['incMain']) ? (bool) $entityParams['incMain'] : true;
 
         $tags->add('ns', 'gallery.images');
-        $tags->add('v', $version);
         if ($sort !== '') {
             $tags->add('sort', $sort);
         }

@@ -12,10 +12,9 @@ final class GalleryFileMetaTagRecipe extends AbstractContextVaryingRecipe
     protected function buildIdentityTags(array $entityParams, TagSet $tags): void
     {
         $file = isset($entityParams['file']) ? (string) $entityParams['file'] : '';
-        $version = isset($entityParams['v']) ? (string) $entityParams['v'] : 'v1';
+        $version = isset($entityParams['v']) ? (string) $entityParams['v'] : '';
 
         $tags->add('ns', 'gallery.filemeta');
-        $tags->add('v', $version);
         $tags->add('file', $file !== '' ? $file : 'unknown');
     }
 }

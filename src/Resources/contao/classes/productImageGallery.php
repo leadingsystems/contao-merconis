@@ -181,94 +181,73 @@ class productImageGallery extends Frontend {
 
 
     protected function lsShopGetProcessedImages() {
-        // Settings and timing
-        $settings = $this->getGalleryCacheSettings();
-        $exposeServerTiming = $settings['exposeServerTiming'];
-        $timeStart = microtime(true);
-
-        $isRandomSort = ($this->ls_moreImagesSortBy === 'random');
-        $skipForRandom = $settings['skipRandomSort'] && $isRandomSort;
-        $isBeUser = defined('BE_USER_LOGGED_IN') && \BE_USER_LOGGED_IN;
-        $bypassRead = $settings['disableForBEUsers'] && $isBeUser;
-        $usePersistentCache = $settings['enabled'] && !$bypassRead && !$skipForRandom;
-
         // Prepare cache tags/handle (MerconisCacheHandler value mode)
         $cacheHandle = null;
         try {
-            if ($settings['enabled']) {
-                /** @var MerconisCacheHandler $cacheHandler */
-                $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
-                /** @var PageModel $objPage */
-                global $objPage;
-                $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
-                $overlays = $this->arrOverlays;
-                if (!is_array($overlays)) {
-                    $overlays = array();
-                }
-                sort($overlays);
-                $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
-                $signature = array();
-                foreach ((array) $this->multiSRC as $path) {
-                    $abs = $str_projectDir . '/' . $path;
-                    $mtime = is_file($abs) ? @filemtime($abs) : 0;
-                    $signature[] = array('p' => $path, 'm' => (int) $mtime);
-                }
-                $mainSig = null;
-                if ($this->mainImageSRC) {
-                    $miAbs = $str_projectDir . '/' . $this->mainImageSRC;
-                    $mainSig = array('p' => $this->mainImageSRC, 'm' => is_file($miAbs) ? (int)@filemtime($miAbs) : 0);
-                }
-                $version = (string) ($settings['version'] ?: self::CACHE_VERSION);
-                $entityParams = array(
-                    'v' => $version,
-                    'sort' => (string) $this->ls_moreImagesSortBy,
-                    'ov' => $overlays,
-                    'sig' => $signature,
-                    'mis' => $mainSig,
-                    'incMain' => (bool) $settings['includeMainImage']
-                );
-                $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
+            /** @var MerconisCacheHandler $cacheHandler */
+            $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
+            /** @var PageModel $objPage */
+            global $objPage;
+            $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
+            $overlays = $this->arrOverlays;
+            if (!is_array($overlays)) {
+                $overlays = array();
+            }
+            sort($overlays);
+            $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+            $signature = array();
+            foreach ((array) $this->multiSRC as $path) {
+                $abs = $str_projectDir . '/' . $path;
+                $mtime = is_file($abs) ? @filemtime($abs) : 0;
+                $signature[] = array('p' => $path, 'm' => (int) $mtime);
+            }
+            $mainSig = null;
+            if ($this->mainImageSRC) {
+                $miAbs = $str_projectDir . '/' . $this->mainImageSRC;
+                $mainSig = array('p' => $this->mainImageSRC, 'm' => is_file($miAbs) ? (int)@filemtime($miAbs) : 0);
+            }
+            $entityParams = array(
+                'sort' => (string) $this->ls_moreImagesSortBy,
+                'ov' => $overlays,
+                'sig' => $signature,
+                'mis' => $mainSig,
+                'incMain' => true
+            );
+            $ttlSeconds = 21600;
 
-                if ($usePersistentCache) {
-                    $cacheHandle = $cacheHandler->createForRecipe('gallery_images', $entityParams, $ttlSeconds);
-                    list($hit, $cached) = $cacheHandle->getValueOrStart();
-                    if ($hit && is_array($cached) && isset($cached['images'])) {
-                        foreach ($cached['images'] as $imgArr) {
-                            $imgObj = new \stdClass();
-                            $imgObj->name = $imgArr['name'];
-                            $imgObj->originalSRC = $imgArr['originalSRC'];
-                            $imgObj->arrOverlays = $imgArr['arrOverlays'];
-                            $imgObj->singleSRC = $imgArr['singleSRC'];
-                            $imgObj->alt = $imgArr['alt'];
-                            $imgObj->title = $imgArr['title'];
-                            $imgObj->imageUrl = $imgArr['imageUrl'];
-                            $imgObj->caption = $imgArr['caption'];
-                            $imgObj->mtime = $imgArr['mtime'];
-                            $imgObj->randomSortingValue = $imgArr['randomSortingValue'];
-                            $this->ls_images[] = $imgObj;
-                        }
-                        if (isset($cached['mainImage']) && is_array($cached['mainImage'])) {
-                            $mi = $cached['mainImage'];
-                            $miObj = new \stdClass();
-                            $miObj->name = $mi['name'];
-                            $miObj->originalSRC = $mi['originalSRC'];
-                            $miObj->arrOverlays = $mi['arrOverlays'];
-                            $miObj->singleSRC = $mi['singleSRC'];
-                            $miObj->alt = $mi['alt'];
-                            $miObj->title = $mi['title'];
-                            $miObj->imageUrl = $mi['imageUrl'];
-                            $miObj->caption = $mi['caption'];
-                            $miObj->mtime = $mi['mtime'];
-                            $miObj->randomSortingValue = $mi['randomSortingValue'];
-                            $this->mainImage = $miObj;
-                        }
-                        if ($exposeServerTiming) {
-                            $durMs = (microtime(true) - $timeStart) * 1000;
-                            @header('Server-Timing: gallery;desc="cache-hit";dur=' . number_format($durMs, 1, '.', ''));
-                        }
-                        return;
-                    }
+            $cacheHandle = $cacheHandler->createForRecipe('gallery_images', $entityParams, $ttlSeconds);
+            list($hit, $cached) = $cacheHandle->getValueOrStart();
+            if ($hit && is_array($cached) && isset($cached['images'])) {
+                foreach ($cached['images'] as $imgArr) {
+                    $imgObj = new \stdClass();
+                    $imgObj->name = $imgArr['name'];
+                    $imgObj->originalSRC = $imgArr['originalSRC'];
+                    $imgObj->arrOverlays = $imgArr['arrOverlays'];
+                    $imgObj->singleSRC = $imgArr['singleSRC'];
+                    $imgObj->alt = $imgArr['alt'];
+                    $imgObj->title = $imgArr['title'];
+                    $imgObj->imageUrl = $imgArr['imageUrl'];
+                    $imgObj->caption = $imgArr['caption'];
+                    $imgObj->mtime = $imgArr['mtime'];
+                    $imgObj->randomSortingValue = $imgArr['randomSortingValue'];
+                    $this->ls_images[] = $imgObj;
                 }
+                if (isset($cached['mainImage']) && is_array($cached['mainImage'])) {
+                    $mi = $cached['mainImage'];
+                    $miObj = new \stdClass();
+                    $miObj->name = $mi['name'];
+                    $miObj->originalSRC = $mi['originalSRC'];
+                    $miObj->arrOverlays = $mi['arrOverlays'];
+                    $miObj->singleSRC = $mi['singleSRC'];
+                    $miObj->alt = $mi['alt'];
+                    $miObj->title = $mi['title'];
+                    $miObj->imageUrl = $mi['imageUrl'];
+                    $miObj->caption = $mi['caption'];
+                    $miObj->mtime = $mi['mtime'];
+                    $miObj->randomSortingValue = $mi['randomSortingValue'];
+                    $this->mainImage = $miObj;
+                }
+                return;
             }
         } catch (\Throwable $t) {
             // Ignore cache service errors and continue without cache
@@ -350,96 +329,46 @@ class productImageGallery extends Frontend {
             }
         }
 
-        // Store in persistent cache if applicable (also when bypassing read but warming on BE)
-        $shouldWarmOnBE = $isBeUser && $settings['warmOnBE'] && (!$settings['warmOnlyProd'] || System::getContainer()->getParameter('kernel.environment') === 'prod');
-        $canWriteCache = $settings['enabled'] && !$skipForRandom && ($usePersistentCache || $shouldWarmOnBE);
-        if ($canWriteCache) {
-            try {
-                $toStoreImages = array();
-                foreach ($this->ls_images as $imgObj) {
-                    $toStoreImages[] = array(
-                        'name' => $imgObj->name,
-                        'originalSRC' => $imgObj->originalSRC,
-                        'arrOverlays' => $imgObj->arrOverlays,
-                        'singleSRC' => $imgObj->singleSRC,
-                        'alt' => $imgObj->alt,
-                        'title' => $imgObj->title,
-                        'imageUrl' => $imgObj->imageUrl,
-                        'caption' => $imgObj->caption,
-                        'mtime' => $imgObj->mtime,
-                        'randomSortingValue' => $imgObj->randomSortingValue
-                    );
-                }
-                $mainImageArr = null;
-                if ($settings['includeMainImage'] && $this->mainImage) {
-                    $mi = $this->mainImage;
-                    $mainImageArr = array(
-                        'name' => $mi->name,
-                        'originalSRC' => $mi->originalSRC,
-                        'arrOverlays' => $mi->arrOverlays,
-                        'singleSRC' => $mi->singleSRC,
-                        'alt' => $mi->alt,
-                        'title' => $mi->title,
-                        'imageUrl' => $mi->imageUrl,
-                        'caption' => $mi->caption,
-                        'mtime' => $mi->mtime,
-                        'randomSortingValue' => $mi->randomSortingValue
-                    );
-                }
-                $payload = array('images' => $toStoreImages, 'mainImage' => $mainImageArr);
-                if ($cacheHandle) {
-                    $cacheHandle->storeValue($payload);
-                } else {
-                    // If we didn't create a handle above (e.g. read bypassed), create one now for warming
-                    try {
-                        /** @var MerconisCacheHandler $cacheHandler */
-                        $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
-                        /** @var PageModel $objPage */
-                        global $objPage;
-                        $language = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
-                        $overlays = $this->arrOverlays;
-                        if (!is_array($overlays)) {
-                            $overlays = array();
-                        }
-                        sort($overlays);
-                        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
-                        $signature = array();
-                        foreach ((array) $this->multiSRC as $path) {
-                            $abs = $str_projectDir . '/' . $path;
-                            $mtime = is_file($abs) ? @filemtime($abs) : 0;
-                            $signature[] = array('p' => $path, 'm' => (int) $mtime);
-                        }
-                        $mainSig = null;
-                        if ($this->mainImageSRC) {
-                            $miAbs = $str_projectDir . '/' . $this->mainImageSRC;
-                            $mainSig = array('p' => $this->mainImageSRC, 'm' => is_file($miAbs) ? (int)@filemtime($miAbs) : 0);
-                        }
-                        $version = (string) ($settings['version'] ?: self::CACHE_VERSION);
-                        $entityParams = array(
-                            'v' => $version,
-                            'sort' => (string) $this->ls_moreImagesSortBy,
-                            'ov' => $overlays,
-                            'sig' => $signature,
-                            'mis' => $mainSig,
-                            'incMain' => (bool) $settings['includeMainImage']
-                        );
-                        $ttlSeconds = max(1, (int)$settings['ttlHours']) * 3600;
-                        $cacheHandler->createForRecipe('gallery_images', $entityParams, $ttlSeconds)->storeValue($payload);
-                    } catch (\Throwable $t2) {
-                        // ignore warming errors
-                    }
-                }
-            } catch (\Throwable $t) {
-                // Ignore cache store errors
+        // Store in persistent cache
+        try {
+            $toStoreImages = array();
+            foreach ($this->ls_images as $imgObj) {
+                $toStoreImages[] = array(
+                    'name' => $imgObj->name,
+                    'originalSRC' => $imgObj->originalSRC,
+                    'arrOverlays' => $imgObj->arrOverlays,
+                    'singleSRC' => $imgObj->singleSRC,
+                    'alt' => $imgObj->alt,
+                    'title' => $imgObj->title,
+                    'imageUrl' => $imgObj->imageUrl,
+                    'caption' => $imgObj->caption,
+                    'mtime' => $imgObj->mtime,
+                    'randomSortingValue' => $imgObj->randomSortingValue
+                );
             }
+            $mainImageArr = null;
+            if ($this->mainImage) {
+                $mi = $this->mainImage;
+                $mainImageArr = array(
+                    'name' => $mi->name,
+                    'originalSRC' => $mi->originalSRC,
+                    'arrOverlays' => $mi->arrOverlays,
+                    'singleSRC' => $mi->singleSRC,
+                    'alt' => $mi->alt,
+                    'title' => $mi->title,
+                    'imageUrl' => $mi->imageUrl,
+                    'caption' => $mi->caption,
+                    'mtime' => $mi->mtime,
+                    'randomSortingValue' => $mi->randomSortingValue
+                );
+            }
+            $payload = array('images' => $toStoreImages, 'mainImage' => $mainImageArr);
+            if ($cacheHandle) {
+                $cacheHandle->storeValue($payload);
+            }
+        } catch (\Throwable $t) {
+            // Ignore cache store errors
         }
-
-        if ($exposeServerTiming) {
-            $durMs = (microtime(true) - $timeStart) * 1000;
-            $label = ($settings['enabled'] && !$skipForRandom) ? ($bypassRead ? 'bypass' : 'cache-miss') : 'disabled';
-            @header('Server-Timing: gallery;desc="' . $label . '";dur=' . number_format($durMs, 1, '.', ''));
-        }
-
     }
 
     protected function buildGalleryCacheKey() {
@@ -467,34 +396,16 @@ class productImageGallery extends Frontend {
             $mainSig = array('p' => $this->mainImageSRC, 'm' => is_file($miAbs) ? (int)@filemtime($miAbs) : 0);
         }
 
-        $settings = $this->getGalleryCacheSettings();
-
         $keySeed = json_encode(array(
-            'v' => (string) ($settings['version'] ?: self::CACHE_VERSION),
             'lang' => $language,
             'sort' => $sortBy,
             'ov' => $overlays,
             'sig' => $signature,
             'mis' => $mainSig,
-            'incMain' => (bool)$settings['includeMainImage']
+            'incMain' => true
         ));
 
         return 'merconis.gallery.' . sha1($keySeed);
-    }
-
-    protected function getGalleryCacheSettings() {
-        // Internal defaults (no backend settings)
-        return array(
-            'enabled' => true,
-            'ttlHours' => 6,
-            'includeMainImage' => true,
-            'skipRandomSort' => true,
-            'disableForBEUsers' => false,
-            'warmOnBE' => true,
-            'warmOnlyProd' => false,
-            'exposeServerTiming' => false,
-            'version' => ''
-        );
     }
 
     protected function processSingleImage($file) {
@@ -566,8 +477,7 @@ class productImageGallery extends Frontend {
             /** @var MerconisCacheHandler $cacheHandler */
             $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
             $entityParams = array(
-                'file' => ($this->originalSRC ? $this->originalSRC : $file),
-                'v' => 'v1'
+                'file' => ($this->originalSRC ? $this->originalSRC : $file)
             );
             $cacheHandle = $cacheHandler->createForRecipe('gallery_filemeta', $entityParams, 21600);
             list($metaHit, $metaVal) = $cacheHandle->getValueOrStart();

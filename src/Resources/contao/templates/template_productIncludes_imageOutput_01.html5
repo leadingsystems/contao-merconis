@@ -19,7 +19,6 @@ if ($obj_tmp_productOrVariant !== null) {
     $warmOnBE = true;
     $warmOnlyProd = false;
     $exposeServerTiming = false;
-    $version = 'v1';
 
     $timeStart = microtime(true);
     $isBeUser = defined('BE_USER_LOGGED_IN') && \BE_USER_LOGGED_IN;
@@ -57,7 +56,6 @@ if ($obj_tmp_productOrVariant !== null) {
             /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
             $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
             $entityParams = array(
-                'v' => $version,
                 'prod' => $this->objProduct->_code,
                 'isVariant' => (bool) $this->objProduct->_variantIsSelected,
                 'sort' => $sortBy,
@@ -111,7 +109,6 @@ if ($obj_tmp_productOrVariant !== null) {
                 /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
                 $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
                 $entityParams = array(
-                    'v' => $version,
                     'prod' => $this->objProduct->_code,
                     'isVariant' => (bool) $this->objProduct->_variantIsSelected,
                     'sort' => $sortBy,
