@@ -35,11 +35,11 @@ class ls_shop_cross_sellerCTE extends ContentElement {
 		$session = $cacheHandler->create(600, array('id' => (string) $this->lsShopCrossSeller));
         /** @var MerconisCacheHandler $cacheHandler */
         $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
-        $session = $cacheHandler->createForRecipe('cross_seller', array('id' => (string) $this->lsShopCrossSeller), 600);
-		list($hit, $value) = $session->getValueOrStart();
+        $cache = $cacheHandler->createForRecipe('cross_seller', array('id' => (string) $this->lsShopCrossSeller), 600);
+		list($hit, $value) = $cache->getValueOrStart();
 		if (!$hit) {
 			$value = (new ls_shop_cross_seller($this->lsShopCrossSeller))->parseCrossSeller();
-			$session->storeValue($value);
+			$cache->storeValue($value);
 		}
 		$this->Template->output = $value;
 	}
