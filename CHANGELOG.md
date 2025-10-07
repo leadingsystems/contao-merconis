@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.1.9 (2025-10-10)
+ * improve product import: add event trigger for external listener
+
 ### 5.1.8 (2025-09-15)
  * improve product import: priceType & weightType
  * fix cache warmup after theme setup
