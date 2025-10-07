@@ -51,11 +51,8 @@ class ls_shop_productSearcher
     protected $arrProductResultsComplete = array();
     protected $arrProductResultsCurrentPage = null;
 
-    protected $arrCache = null;
-    protected $strCacheKey = null;
-    protected $blnCacheCanBeUsed = null;
-    protected $maxNumParallelCaches = 10;
     protected $cacheLifetimeSec = 60;
+    protected $blnResultFromCache = false;
     protected $searchLanguage = null;
     protected $blnDoNotSpecialSort = false;
     protected $truncateResultsIfMoreThan = 0;
@@ -73,7 +70,6 @@ class ls_shop_productSearcher
         $this->bln_useGroupPrices = isset($GLOBALS['TL_CONFIG']['ls_shop_considerGroupPricesInFilterAndSorting']) && $GLOBALS['TL_CONFIG']['ls_shop_considerGroupPricesInFilterAndSorting'];
         $this->bln_ignoreGroupRestrictions = isset($GLOBALS['TL_CONFIG']['ls_shop_ignoreGroupRestrictionsInSearch']) && $GLOBALS['TL_CONFIG']['ls_shop_ignoreGroupRestrictionsInSearch'];
 
-        $this->maxNumParallelCaches = isset($GLOBALS['TL_CONFIG']['ls_shop_maxNumParallelSearchCaches']) ? $GLOBALS['TL_CONFIG']['ls_shop_maxNumParallelSearchCaches'] : 20;
         $this->cacheLifetimeSec = isset($GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec']) ? $GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec'] : 300;
 
         if ($this->blnUseFilter) {
@@ -89,110 +85,6 @@ class ls_shop_productSearcher
         $this->bln_andSearch = isset($GLOBALS['TL_CONFIG']['ls_shop_searchType']) ? $GLOBALS['TL_CONFIG']['ls_shop_searchType'] : false;
     }
 
-    public function __destruct() {
-        $this->setCache();
-    }
-
-    protected function getCache() {
-        $this->arrCache = ($_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey] ?? null) ?: null;
-    }
-
-    protected function setCache() {
-        if (!$this->strCacheKey) {
-            return;
-        }
-
-        if (!$this->checkIfCacheCanBeUsed()) {
-            /*
-             * Only set the cache if a cache couldn't be used this time so that we have
-             * a new result to cache now
-             */
-            $_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey] = array(
-                'tstamp' => time(),
-                'productResultsComplete' => $this->productResultsComplete,
-                'numResultsComplete' => $this->numResultsComplete,
-                'blnNotAllProductsMatch' => $this->blnNotAllProductsMatch,
-                'numProductsNotMatching' => $this->numProductsNotMatching,
-                'numProductsBeforeFilter' => $this->numProductsBeforeFilter,
-                'blnUseFilter' => $this->blnUseFilter,
-                'criteriaToUseInFilterFormHasBeenSet' => isset($GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet']) && $GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'],
-                'arrCriteriaToUseInFilterForm' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']) ? $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] : null,
-                'criteriaToActuallyFilterWith' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']) ? $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'] : null,
-                'matchedProducts' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedProducts']) ? $_SESSION['lsShop']['filter']['matchedProducts'] : null,
-                'matchedVariants' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedVariants']) ? $_SESSION['lsShop']['filter']['matchedVariants'] : null,
-                'matchEstimates' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchEstimates']) ? $_SESSION['lsShop']['filter']['matchEstimates'] : null
-            );
-        } else {
-            /*
-             * If the cache has been used this time we don't set it completely because it can not have
-             * changed but we have to update the timestamp to increase it's lifetime
-             */
-            if (isset($_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey])) {
-                $_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$this->strCacheKey]['tstamp'] = time();
-            }
-        }
-
-        /*
-         * Determine whether there are caches that need to be removed
-         */
-        // Remove the oldest cache which automatically must be the one on first position in the array
-        if (count($_SESSION['lsShop']['caches']['ls_shop_productSearcher']) > $this->maxNumParallelCaches) {
-            reset($_SESSION['lsShop']['caches']['ls_shop_productSearcher']);
-            unset($_SESSION['lsShop']['caches']['ls_shop_productSearcher'][key($_SESSION['lsShop']['caches']['ls_shop_productSearcher'])]);
-        }
-
-        if ($this->cacheLifetimeSec > 0) {
-            foreach($_SESSION['lsShop']['caches']['ls_shop_productSearcher'] as $k => $v) {
-                if ($v['tstamp'] < time() - $this->cacheLifetimeSec) {
-                    unset($_SESSION['lsShop']['caches']['ls_shop_productSearcher'][$k]);
-                }
-            }
-        }
-    }
-
-    protected function setCurrentCacheKey() {
-        $arrSettings = array(
-            'emptyFieldMatchesPerDefault' => $this->blnEmptyFieldMatchesPerDefault,
-            'sorting' => $this->arrSorting,
-            'fixedSorting' => $this->fixedSorting,
-            'arrRequestFields' => $this->arrRequestFields,
-            'arrSearchCriteria' => $this->arrSearchCriteria,
-            'arrLimit' => $this->arrLimit,
-            'filterCriteria' => $this->blnUseFilter ? $_SESSION['lsShop']['filter']['criteria'] : null,
-            'filterModeSettingsByAttributes' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
-            'filterModeSettingsByFlexContentsLI' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'] ?? null) : null,
-            'filterModeSettingsByFlexContentsLD' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'] ?? null) : null,
-            'language' => $this->searchLanguage,
-            'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
-            'checkVATID' => ls_shop_generalHelper::checkVATID(),
-            'customerCountry' => ls_shop_generalHelper::getCustomerCountry(),
-            'lastBackendDataChange' => isset($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']) ? $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] : 0,
-            'lastResetTimestamp' => $_SESSION['lsShop']['filter']['lastResetTimestamp'] ?? null,
-            'customerGroupId' => $this->arr_groupSettingsForUser['id']
-        );
-
-        $this->strCacheKey = md5(serialize($arrSettings));
-    }
-
-    /**
-     * Check whether there's an existing cache that can be used
-     */
-    protected function checkIfCacheCanBeUsed() {
-        if (false && $this->blnCacheCanBeUsed === null) {
-            $this->getCache();
-            $this->blnCacheCanBeUsed = $this->arrCache !== null;
-        }
-
-        if (false && isset($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed']) && is_array($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'])) {
-            foreach ($GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'] as $mccb) {
-                $objMccb = System::importStatic($mccb[0]);
-                $this->blnCacheCanBeUsed = $objMccb->{$mccb[1]}($this->str_productListID, $this->blnCacheCanBeUsed);
-            }
-        }
-
-        return $this->blnCacheCanBeUsed;
-    }
-
     public function __get($what) {
         switch ($what) {
             case 'numPagesTotal':
@@ -200,7 +92,7 @@ class ls_shop_productSearcher
                 break;
 
             case 'productResultsComplete':
-                return $this->checkIfCacheCanBeUsed() ? $this->arrCache['productResultsComplete'] : $this->arrProductResultsComplete;
+                return $this->arrProductResultsComplete;
                 break;
 
             case 'productResultsCurrentPage':
@@ -209,19 +101,19 @@ class ls_shop_productSearcher
                 break;
 
             case 'numResultsComplete':
-                return $this->checkIfCacheCanBeUsed() ? $this->arrCache['numResultsComplete'] : count($this->arrProductResultsComplete);
+                return count($this->arrProductResultsComplete);
                 break;
 
             case 'blnNotAllProductsMatch':
-                return $this->checkIfCacheCanBeUsed() ? $this->arrCache['blnNotAllProductsMatch'] : $this->blnNotAllProductsMatch;
+                return $this->blnNotAllProductsMatch;
                 break;
 
             case 'numProductsNotMatching':
-                return $this->checkIfCacheCanBeUsed() ? $this->arrCache['numProductsNotMatching'] : $this->numProductsNotMatching;
+                return $this->numProductsNotMatching;
                 break;
 
             case 'numProductsBeforeFilter':
-                return $this->checkIfCacheCanBeUsed() ? $this->arrCache['numProductsBeforeFilter'] : $this->numProductsBeforeFilter;
+                return $this->numProductsBeforeFilter;
                 break;
 
             case 'arrSplitSorting':
@@ -339,7 +231,7 @@ class ls_shop_productSearcher
          * the hook since it wouldn't have any effect because the cached result would
          * always be returned.
          */
-        if ($this->str_productListID && !$this->checkIfCacheCanBeUsed()) {
+        if ($this->str_productListID && !$this->blnResultFromCache) {
             if (isset($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination'])) {
                 foreach ($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination'] as $mccb) {
                     $objMccb = System::importStatic($mccb[0]);
@@ -477,12 +369,6 @@ class ls_shop_productSearcher
     protected function ls_performSearch() {
         $searchLanguage = $this->searchLanguage;
 
-        /*
-         * Set the current cache key because if ls_performSearch() is being executed, all
-         * settings affecting the results have been set completely
-         */
-        $this->setCurrentCacheKey();
-
         //get searchType and/or-search
         if(isset($this->arrSearchCriteria["searchType"])){
             $this->bln_andSearch = $this->arrSearchCriteria["searchType"];
@@ -498,6 +384,10 @@ class ls_shop_productSearcher
                 $__mc = $__container->get(\LeadingSystems\MerconisBundle\Cache\MerconisCache::class);
                 $__ttl = max(0, (int) $this->cacheLifetimeSec);
                 $__tags = array(
+                    // Include searchType before it gets removed from criteria
+                    'searchType' => $this->bln_andSearch,
+                    // Segregate caches per product list context to avoid cross-list hook effects
+                    'productListID' => $this->str_productListID ?? null,
                     'emptyFieldMatchesPerDefault' => $this->blnEmptyFieldMatchesPerDefault,
                     'sorting' => $this->arrSorting,
                     'fixedSorting' => $this->fixedSorting,
@@ -520,6 +410,7 @@ class ls_shop_productSearcher
                 try {
                     $__payload = $__mc_element->getContent();
                     if (is_array($__payload)) {
+                        $this->blnResultFromCache = true;
                         $this->arrProductResultsComplete = $__payload['productResultsComplete'] ?? array();
                         $this->blnNotAllProductsMatch = $__payload['blnNotAllProductsMatch'] ?? false;
                         $this->numProductsNotMatching = $__payload['numProductsNotMatching'] ?? 0;
@@ -556,45 +447,6 @@ class ls_shop_productSearcher
 
         // From here on, compute the results and ensure we store them at the end
         try {
-
-        /*
-         * Don't perform a new search if the cached result of the last search can be used
-         */
-        if (false && $this->checkIfCacheCanBeUsed()) {
-            if ($this->blnUseFilter) {
-                /*
-                 * Set this flag because the filter needs it to decide whether or not to display the filter form
-                 */
-                if ($this->arrCache['criteriaToUseInFilterFormHasBeenSet']) {
-                    $GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'] = true;
-                }
-
-                /*
-                 * If we use a cached search result, we set some (most) filter values to the cached values
-                 */
-                if ($this->arrCache['arrCriteriaToUseInFilterForm']) {
-                    $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] = $this->arrCache['arrCriteriaToUseInFilterForm'];
-                }
-
-                if ($this->arrCache['criteriaToActuallyFilterWith']) {
-                    $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'] = $this->arrCache['criteriaToActuallyFilterWith'];
-                }
-
-                if ($this->arrCache['matchedProducts']) {
-                    $_SESSION['lsShop']['filter']['matchedProducts'] = $this->arrCache['matchedProducts'];
-                }
-
-                if ($this->arrCache['matchedVariants']) {
-                    $_SESSION['lsShop']['filter']['matchedVariants'] = $this->arrCache['matchedVariants'];
-                }
-
-                if ($this->arrCache['matchEstimates']) {
-                    $_SESSION['lsShop']['filter']['matchEstimates'] = $this->arrCache['matchEstimates'];
-                }
-            }
-            return;
-        }
-
 
         if (!$this->checkIfValidCriteriaGiven()) {
             $this->arrProductResultsComplete = array();
@@ -2023,7 +1875,7 @@ class ls_shop_productSearcher
              * the hook since it wouldn't have any effect because the cached result would
              * always be returned.
              */
-            if ($this->str_productListID && !$this->checkIfCacheCanBeUsed()) {
+            if ($this->str_productListID && !$this->blnResultFromCache) {
                 if (isset($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'])) {
                     foreach ($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'] as $mccb) {
                         $objMccb = System::importStatic($mccb[0]);
