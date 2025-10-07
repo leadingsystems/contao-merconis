@@ -12,4 +12,7 @@ $GLOBALS['TL_LANG']['tl_maintenance_jobs']['merconis_cache_fragment'][1] = 'Clea
 $GLOBALS['TL_LANG']['tl_maintenance_jobs']['merconis_cache_meta'][0] = 'Merconis metadata cache';
 $GLOBALS['TL_LANG']['tl_maintenance_jobs']['merconis_cache_meta'][1] = 'Clears the file metadata cache pool.';
 
+$GLOBALS['TL_LANG']['tl_maintenance_jobs']['merconis_cache_search'][0] = 'Merconis search cache';
+$GLOBALS['TL_LANG']['tl_maintenance_jobs']['merconis_cache_search'][1] = 'Clears the product search cache pool.';
+
 

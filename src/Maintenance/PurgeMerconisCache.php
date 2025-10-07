@@ -70,6 +70,22 @@ class PurgeMerconisCache
         $pool = $container->get('merconis.meta.cache');
         $pool->clear();
     }
+
+    /**
+     * Purge the search-specific Merconis cache pool.
+     */
+    public function purgeSearch(): void
+    {
+        $container = System::getContainer();
+
+        if (!$container->has('merconis.search.cache')) {
+            return;
+        }
+
+        /** @var CacheItemPoolInterface $pool */
+        $pool = $container->get('merconis.search.cache');
+        $pool->clear();
+    }
 }
 
 

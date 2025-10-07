@@ -232,6 +232,12 @@ services:
     tags:
       - { name: cache.pool, clearer: cache.app_clearer }
 
+  merconis.search.cache:
+    parent: cache.adapter.filesystem
+    public: true
+    tags:
+      - { name: cache.pool, clearer: cache.app_clearer }
+
   LeadingSystems\MerconisBundle\Cache\MerconisCache:
     arguments:
       - '@merconis.cache'
@@ -292,6 +298,22 @@ services:
       - '@merconis.cache.meta'
       - '@merconis.meta.cache'
       - 'merconis.meta.cache.'
+    public: true
+
+  # Search-specific cache service and handler
+  merconis.cache.search:
+    class: LeadingSystems\MerconisBundle\Cache\MerconisCache
+    arguments:
+      - '@merconis.search.cache'
+      - 'merconis.search.cache.'
+    public: true
+
+  merconis.cache_handler.search:
+    class: LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler
+    arguments:
+      - '@merconis.cache.search'
+      - '@merconis.search.cache'
+      - 'merconis.search.cache.'
     public: true
 
   # Cache Tagging: context and recipes

@@ -154,6 +154,11 @@ $GLOBALS['TL_PURGE']['custom']['merconis_cache_meta'] = array(
     'callback' => array(PurgeMerconisCache::class, 'purgeMeta')
 );
 
+// Maintenance purge job for search cache pool
+$GLOBALS['TL_PURGE']['custom']['merconis_cache_search'] = array(
+    'callback' => array(PurgeMerconisCache::class, 'purgeSearch')
+);
+
 $GLOBALS['BE_FFL']['htmlDiv'] = 'Merconis\Core\ls_shop_htmlDiv';
 $GLOBALS['BE_FFL']['simpleOutput'] = 'Merconis\Core\ls_shop_simpleOutput';
 $GLOBALS['BE_FFL']['ls_shop_productSelectionWizard'] = 'Merconis\Core\ls_shop_productSelectionWizard';

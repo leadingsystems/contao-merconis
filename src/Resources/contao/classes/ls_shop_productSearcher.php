@@ -379,9 +379,10 @@ class ls_shop_productSearcher
         $__mc_element = null;
         try {
             $__container = System::getContainer();
-            if ($__container->has(\LeadingSystems\MerconisBundle\Cache\MerconisCache::class)) {
+            // Use the dedicated search cache service
+            if ($__container->has('merconis.cache.search')) {
                 /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCache $__mc */
-                $__mc = $__container->get(\LeadingSystems\MerconisBundle\Cache\MerconisCache::class);
+                $__mc = $__container->get('merconis.cache.search');
                 $__ttl = max(0, (int) $this->cacheLifetimeSec);
                 $__tags = array(
                     // Include searchType before it gets removed from criteria
