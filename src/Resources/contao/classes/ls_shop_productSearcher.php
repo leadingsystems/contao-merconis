@@ -447,829 +447,805 @@ class ls_shop_productSearcher
 
         // From here on, compute the results and ensure we store them at the end
         try {
-
-        if (!$this->checkIfValidCriteriaGiven()) {
-            $this->arrProductResultsComplete = array();
-            return;
-        }
-
-        /* ############################
-         * Erstellung der Where-Bedingungen
-         */
-        if (!$this->bln_ignoreGroupRestrictions && System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
-            $searchCondition = "
-                (
-                    `useGroupRestrictions` != '1'
-                    OR `allowedGroups` LIKE '%\"" . $this->arr_groupSettingsForUser['id'] . "\"%'
-                )
-            ";
-            $searchConditionValues = array();
-        } else {
-            $searchCondition = "";
-            $searchConditionValues = array();
-        }
-
-        foreach ($this->arrSearchCriteria as $criterionFieldName => $criterionValue) {
-            if ($searchCondition) {
-                $searchCondition .= "
-					AND ";
+            if (!$this->checkIfValidCriteriaGiven()) {
+                $this->arrProductResultsComplete = array();
+                return;
             }
 
-            // Creating the condition statement and manipulating the criterionValue if necessary and creating the condition values array
-            switch ($criterionFieldName) {
-                case 'id':
-                    if (!is_array($criterionValue)) {
-                        if ($criterionValue) {
-                            $criterionValue = array($criterionValue);
-                        } else {
-                            // make sure that we can't get any results
-                            $searchCondition .= "	(1 = 2)";
-                            break;
-                        }
-                    }
-                    $searchCondition .= "	(".$this->getQualifiedFieldName($criterionFieldName)." IN (".implode(',', $criterionValue)."))";
-                    break;
+            /* ############################
+             * Erstellung der Where-Bedingungen
+             */
+            if (!$this->bln_ignoreGroupRestrictions && System::getContainer()->get('merconis.routing.scope')->isFrontend()) {
+                $searchCondition = "
+                    (
+                        `useGroupRestrictions` != '1'
+                        OR `allowedGroups` LIKE '%\"" . $this->arr_groupSettingsForUser['id'] . "\"%'
+                    )
+                ";
+                $searchConditionValues = array();
+            } else {
+                $searchCondition = "";
+                $searchConditionValues = array();
+            }
 
-                case 'pages':
-                    if (!is_array($criterionValue)) {
-                        $criterionValue = array($criterionValue);
-                    }
-                    $searchConditionPagesPart = '';
-                    foreach ($criterionValue as $pageID) {
-                        if ($searchConditionPagesPart) {
-                            $searchConditionPagesPart .= "
-								OR";
-                        }
-                        $searchConditionPagesPart .= $this->getQualifiedFieldName($criterionFieldName)." LIKE ?
-						";
+            foreach ($this->arrSearchCriteria as $criterionFieldName => $criterionValue) {
+                if ($searchCondition) {
+                    $searchCondition .= "
+                        AND ";
+                }
 
-                        $searchConditionValues[] = $pageID ? '%%"'.$pageID.'"%' : ($this->blnEmptyFieldMatchesPerDefault ? '%' : '');
-                    }
-                    $searchCondition .= "	(".$searchConditionPagesPart.")";
-                    break;
-
-                case 'fulltext':
-                    $addToSelectStatementConditionValuesArrayInsertPosition = 0;
-                        
-                    /*
-                     * If the criterionValue is put in quotes it must not be splitted in separate
-                     * criterionValues and the quotes must be removed
-                     */
-                    if (preg_match('/^&#34;(.*)&#34;$/', $criterionValue)) {
-                        $criterionValue = preg_replace('/^&#34;(.*)&#34;$/', '\\1', $criterionValue);
-                        $arrCriterionValues = array($criterionValue);
-                    } else {
-                        $arrCriterionValues = explode(' ', $criterionValue);
-                    }
-
-                    foreach ($arrCriterionValues as $k => $v) {
-                        if (!$v) {
-                            unset ($arrCriterionValues[$k]);
-                            continue;
-                        }
-                        $arrCriterionValues[$k] = preg_replace('/&#34;/', '', $v);
-                    }
-
-                    /*
-                     * There has to be at least one empty string in the array because
-                     * otherwise there wouldn't be any searchCriteria
-                     */
-                    if (!count($arrCriterionValues)) {
-                        $arrCriterionValues[] = '';
-                    }
-
-                    $searchConditionPart = '';
-
-                    $addToSelectStatement = '';
-
-                    if ($this->blnUsePriority()) {
-                        $arr_searchResultWeighting = array(
-                            'wholeSearchStringMatches' => array(
-                                'wholeFieldMatches' => array(
-                                    'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] ?: 300,
-                                    'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] ?: 200,
-                                    'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_shortDescription'] ?: 200,
-                                    'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_description'] ?: 200,
-                                    'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_productCode'] ?: 200,
-                                    'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_producer'] ?: 200
-                                ),
-                                'partOfFieldMatches' => array(
-                                    'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_title'] ?: 30,
-                                    'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_keywords'] ?: 20,
-                                    'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_shortDescription'] ?: 20,
-                                    'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_description'] ?: 20,
-                                    'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_productCode'] ?: 20,
-                                    'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_producer'] ?: 20
-                                )
-                            ),
-                            'partOfSearchStringMatches' => array(
-                                'wholeFieldMatches' => array(
-                                    'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_title'] ?: 30,
-                                    'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_keywords'] ?: 10,
-                                    'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_shortDescription'] ?: 10,
-                                    'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_description'] ?: 10,
-                                    'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_productCode'] ?: 20,
-                                    'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_producer'] ?: 20
-                                ),
-                                'partOfFieldMatches' => array(
-                                    'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_title'] ?: 3,
-                                    'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_keywords'] ?: 1,
-                                    'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_shortDescription'] ?: 1,
-                                    'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_description'] ?: 1,
-                                    'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_productCode'] ?: 2,
-                                    'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer'] ?: 2
-                                )
-                            )
-                        );
-
-                        if (isset($GLOBALS['MERCONIS_HOOKS']['customizeSearchResultWeighting']) && is_array($GLOBALS['MERCONIS_HOOKS']['customizeSearchResultWeighting'])) {
-                            foreach ($GLOBALS['MERCONIS_HOOKS']['customizeSearchResultWeighting'] as $mccb) {
-                                $objMccb = System::importStatic($mccb[0]);
-                                $arr_searchResultWeighting = $objMccb->{$mccb[1]}($arr_searchResultWeighting);
+                // Creating the condition statement and manipulating the criterionValue if necessary and creating the condition values array
+                switch ($criterionFieldName) {
+                    case 'id':
+                        if (!is_array($criterionValue)) {
+                            if ($criterionValue) {
+                                $criterionValue = array($criterionValue);
+                            } else {
+                                // make sure that we can't get any results
+                                $searchCondition .= "	(1 = 2)";
+                                break;
                             }
+                        }
+                        $searchCondition .= "	(".$this->getQualifiedFieldName($criterionFieldName)." IN (".implode(',', $criterionValue)."))";
+                        break;
+
+                    case 'pages':
+                        if (!is_array($criterionValue)) {
+                            $criterionValue = array($criterionValue);
+                        }
+                        $searchConditionPagesPart = '';
+                        foreach ($criterionValue as $pageID) {
+                            if ($searchConditionPagesPart) {
+                                $searchConditionPagesPart .= "
+                                    OR";
+                            }
+                            $searchConditionPagesPart .= $this->getQualifiedFieldName($criterionFieldName)." LIKE ?
+                            ";
+
+                            $searchConditionValues[] = $pageID ? '%%"'.$pageID.'"%' : ($this->blnEmptyFieldMatchesPerDefault ? '%' : '');
+                        }
+                        $searchCondition .= "	(".$searchConditionPagesPart.")";
+                        break;
+
+                    case 'fulltext':
+                        $addToSelectStatementConditionValuesArrayInsertPosition = 0;
+
+                        /*
+                         * If the criterionValue is put in quotes it must not be splitted in separate
+                         * criterionValues and the quotes must be removed
+                         */
+                        if (preg_match('/^&#34;(.*)&#34;$/', $criterionValue)) {
+                            $criterionValue = preg_replace('/^&#34;(.*)&#34;$/', '\\1', $criterionValue);
+                            $arrCriterionValues = array($criterionValue);
+                        } else {
+                            $arrCriterionValues = explode(' ', $criterionValue);
+                        }
+
+                        foreach ($arrCriterionValues as $k => $v) {
+                            if (!$v) {
+                                unset ($arrCriterionValues[$k]);
+                                continue;
+                            }
+                            $arrCriterionValues[$k] = preg_replace('/&#34;/', '', $v);
                         }
 
                         /*
-                         * add the searchConditionValues for the CASE statement at the beginning of the array because the wildcards
-                         * for these replacement values are the first wildcards in the query
+                         * There has to be at least one empty string in the array because
+                         * otherwise there wouldn't be any searchCriteria
                          */
-
-                        if ($this->bln_searchWeighting_debug) {
-
-
-                            $fulltextValue = $criterionValue;
-
-                            $addToSelectStatement = ', ';
-
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('title') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['title'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['keywords'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['keywords'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['description'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('description') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['description'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['productCode'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['productCode'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['producer'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['producer'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "`,
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                        } else {
-                            $addToSelectStatement = ', ';
-                            $addToSelectStatement .= '( ';
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['title'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['keywords'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['keywords'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['shortDescription'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['shortDescription'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['description'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['description'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['productCode'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['productCode'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['producer'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                            $addToSelectStatement .= " + ";
-                            $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['producer'] . " ELSE 0 END
-						";
-                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+                        if (!count($arrCriterionValues)) {
+                            $arrCriterionValues[] = '';
                         }
-                    }
 
-                        $alreadySearchWords = [];
-                    if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
-                        foreach ($arrCriterionValues as $criterionValue) {
-                            //only add word to sql statement if it doent exist yet
-                            if(!in_array($criterionValue, $alreadySearchWords)){
-                                array_push($alreadySearchWords, $criterionValue);
+                        $searchConditionPart = '';
 
-                                $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
-                                $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
+                        $addToSelectStatement = '';
 
-                                if ($searchConditionPart) {
-                                    $searchConditionPart .= "
-                                        OR";
+                        if ($this->blnUsePriority()) {
+                            $arr_searchResultWeighting = array(
+                                'wholeSearchStringMatches' => array(
+                                    'wholeFieldMatches' => array(
+                                        'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_title'] ?: 300,
+                                        'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_keywords'] ?: 200,
+                                        'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_shortDescription'] ?: 200,
+                                        'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_description'] ?: 200,
+                                        'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_productCode'] ?: 200,
+                                        'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesWholeField_producer'] ?: 200
+                                    ),
+                                    'partOfFieldMatches' => array(
+                                        'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_title'] ?: 30,
+                                        'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_keywords'] ?: 20,
+                                        'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_shortDescription'] ?: 20,
+                                        'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_description'] ?: 20,
+                                        'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_productCode'] ?: 20,
+                                        'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_wholeSearchStringMatchesPartialField_producer'] ?: 20
+                                    )
+                                ),
+                                'partOfSearchStringMatches' => array(
+                                    'wholeFieldMatches' => array(
+                                        'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_title'] ?: 30,
+                                        'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_keywords'] ?: 10,
+                                        'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_shortDescription'] ?: 10,
+                                        'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_description'] ?: 10,
+                                        'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_productCode'] ?: 20,
+                                        'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesWholeField_producer'] ?: 20
+                                    ),
+                                    'partOfFieldMatches' => array(
+                                        'title' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_title'] ?: 3,
+                                        'keywords' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_keywords'] ?: 1,
+                                        'shortDescription' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_shortDescription'] ?: 1,
+                                        'description' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_description'] ?: 1,
+                                        'productCode' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_productCode'] ?: 2,
+                                        'producer' => $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer'] ?: 2
+                                    )
+                                )
+                            );
+
+                            if (isset($GLOBALS['MERCONIS_HOOKS']['customizeSearchResultWeighting']) && is_array($GLOBALS['MERCONIS_HOOKS']['customizeSearchResultWeighting'])) {
+                                foreach ($GLOBALS['MERCONIS_HOOKS']['customizeSearchResultWeighting'] as $mccb) {
+                                    $objMccb = System::importStatic($mccb[0]);
+                                    $arr_searchResultWeighting = $objMccb->{$mccb[1]}($arr_searchResultWeighting);
                                 }
-                                $searchConditionPart .= "(
-									".$this->getQualifiedFieldName('title')." LIKE ?
-								OR	".$this->getQualifiedFieldName('keywords')." LIKE ?
-								OR	".$this->getQualifiedFieldName('shortDescription')." LIKE ?
-								OR	".$this->getQualifiedFieldName('description')." LIKE ?
-								OR	".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ?
-								OR	".$this->getQualifiedFieldName('lsShopProductProducer')." LIKE ?
-							)";
+                            }
 
-                                if ($this->blnUsePriority()) {
-                                    if ($this->bln_searchWeighting_debug) {
+                            /*
+                             * add the searchConditionValues for the CASE statement at the beginning of the array because the wildcards
+                             * for these replacement values are the first wildcards in the query
+                             */
+
+                            if ($this->bln_searchWeighting_debug) {
 
 
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                $fulltextValue = $criterionValue;
 
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement = ', ';
 
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['title'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('title') . "`,
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['keywords'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['description'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
-
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['producer'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue . "`,
-                                    ";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-
-                                    } else {
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('title')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title']." ELSE 0 END
-								";
-                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
-
-                                $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('title')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['title']." ELSE 0 END
-								";
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['title'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title') . "`,
+                            ";
                                 ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-                                $addToSelectStatement .= " + ";
+
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('keywords')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords']." ELSE 0 END
-								";
-                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['keywords'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords') . "`,
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-                                $addToSelectStatement .= " + ";
+
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('keywords')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['keywords']." ELSE 0 END
-								";
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['keywords'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords') . "`,
+                            ";
                                 ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-                                $addToSelectStatement .= " + ";
+
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('shortDescription')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription']." ELSE 0 END
-								";
-                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription') . "`,
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-                                $addToSelectStatement .= " + ";
+
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('shortDescription')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['shortDescription']." ELSE 0 END
-								";
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription') . "`,
+                            ";
                                 ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-                                $addToSelectStatement .= " + ";
+
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('description')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description']." ELSE 0 END
-								";
-                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['description'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('description') . "`,
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-                                $addToSelectStatement .= " + ";
+
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('description')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['description']." ELSE 0 END
-								";
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['description'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description') . "`,
+                            ";
                                 ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
-                                $addToSelectStatement .= " + ";
+
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode']." ELSE 0 END
-								";
-                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue.'%'));
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['productCode'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "`,
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
 
-                                $addToSelectStatement .= " + ";
+
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode']." ELSE 0 END
-								";
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['productCode'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "`,
+                            ";
                                 ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
 
+
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['producer'] . " ELSE 0 END) as `priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "`,
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['producer'] . " ELSE 0 END) as `priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "`,
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+
+                            } else {
+                                $addToSelectStatement = ', ';
+                                $addToSelectStatement .= '( ';
+
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductProducer')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer']." ELSE 0 END
-								";
-                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['title'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
 
                                 $addToSelectStatement .= " + ";
                                 $addToSelectStatementConditionValuesArrayInsertPosition++;
 
-                                $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductProducer')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['producer']." ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
-                                    }
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['keywords'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
 
-                                }
 
-                                $searchConditionValues[] = '%%'.$criterionValue.'%';
-                                $searchConditionValues[] = '%%'.$criterionValue.'%';
-                                $searchConditionValues[] = '%%'.$criterionValue.'%';
-                                $searchConditionValues[] = '%%'.$criterionValue.'%';
-                                $searchConditionValues[] = $criterionValue.'%';
-                                $searchConditionValues[] = '%%'.$criterionValue.'%';
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
 
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['keywords'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['shortDescription'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['shortDescription'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['description'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['description'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['productCode'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['productCode'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['partOfFieldMatches']['producer'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                $addToSelectStatement .= " + ";
+                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " = ? THEN " . $arr_searchResultWeighting['wholeSearchStringMatches']['wholeFieldMatches']['producer'] . " ELSE 0 END
+                            ";
+                                ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
                             }
                         }
-                    }
-
-
-                    if ($this->blnUsePriority()) {
-                        if (!$this->bln_searchWeighting_debug) {
-                            $addToSelectStatement .= ')';
-                        }
-                    }
-
-                        /* is true on the first loop*/
-                        $firstTime = true;
-
-
-                        if ($this->bln_searchWeighting_debug) {
 
                             $alreadySearchWords = [];
-                            if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
-                                foreach ($arrCriterionValues as $criterionValue) {
+                        if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
+                            foreach ($arrCriterionValues as $criterionValue) {
+                                //only add word to sql statement if it doent exist yet
+                                if(!in_array($criterionValue, $alreadySearchWords)){
+                                    array_push($alreadySearchWords, $criterionValue);
 
                                     $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
                                     $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
 
-                                    //only add word to sql statement if it doent exist yet
-                                    if (!in_array($criterionValue, $alreadySearchWords)) {
-                                        array_push($alreadySearchWords, $criterionValue);
-
-                                        if ($this->blnUsePriority()) {
-                                            if ($firstTime) {
-                                                $addToSelectStatement .= "(( ";
-                                                $firstTime = false;
-                                            } else {
-                                                $addToSelectStatement .= ", (( ";
-                                            }
-                                        }else{
-                                            if ($firstTime) {
-                                                $addToSelectStatement .= ", (( ";
-                                                $firstTime = false;
-                                            } else {
-                                                $addToSelectStatement .= ", (( ";
-                                            }
-                                        }
-
-
-
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-                                        $addToSelectStatement .= " ) > 0)";
-
-
-                                        $addToSelectStatement .= " as `priority_" . $criterionValue . "`";
-
-
-
-
+                                    if ($searchConditionPart) {
+                                        $searchConditionPart .= "
+                                            OR";
                                     }
-                                }
-                            }
+                                    $searchConditionPart .= "(
+                                        ".$this->getQualifiedFieldName('title')." LIKE ?
+                                    OR	".$this->getQualifiedFieldName('keywords')." LIKE ?
+                                    OR	".$this->getQualifiedFieldName('shortDescription')." LIKE ?
+                                    OR	".$this->getQualifiedFieldName('description')." LIKE ?
+                                    OR	".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ?
+                                    OR	".$this->getQualifiedFieldName('lsShopProductProducer')." LIKE ?
+                                )";
+
+                                    if ($this->blnUsePriority()) {
+                                        if ($this->bln_searchWeighting_debug) {
 
 
-                        } else {
-
-                            $alreadySearchWords = [];
-                            if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
-                                foreach ($arrCriterionValues as $criterionValue) {
-
-
-                                    $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
-                                    $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
-
-
-                                    //only add word to sql statement if it doent exist yet
-                                    if (!in_array($criterionValue, $alreadySearchWords)) {
-                                        array_push($alreadySearchWords, $criterionValue);
-
-                                        if ($this->blnUsePriority()) {
                                             $addToSelectStatementConditionValuesArrayInsertPosition++;
-                                            if ($firstTime) {
-                                                $addToSelectStatement .= " as `priority`, ((( ";
-                                                $firstTime = false;
-                                            } else {
-                                                $addToSelectStatement .= " + (( ";
-                                            }
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('title') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['title'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('keywords') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['keywords'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['shortDescription'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('description') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['description'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer'] . " ELSE 0 END) as `priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "(CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " = ? THEN " . $arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['producer'] . " ELSE 0 END) as `priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue . "`,
+                                        ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
                                         } else {
-                                            if ($firstTime) {
-                                                $addToSelectStatement .= ", ((( ";
-                                                $firstTime = false;
-                                            } else {
-                                                $addToSelectStatementConditionValuesArrayInsertPosition++;
-                                                $addToSelectStatement .= " + (( ";
-                                            }
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('title')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('title')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['title']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('keywords')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('keywords')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['keywords']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('shortDescription')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('shortDescription')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['shortDescription']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('description')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('description')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['description']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue.'%'));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductCode')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['productCode']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductProducer')." LIKE ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer']." ELSE 0 END
+                                    ";
+                                    ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%'.$criterionValue.'%'));
+
+                                    $addToSelectStatement .= " + ";
+                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                    $addToSelectStatement .= "CASE WHEN ".$this->getQualifiedFieldName('lsShopProductProducer')." = ? THEN ".$arr_searchResultWeighting['partOfSearchStringMatches']['wholeFieldMatches']['producer']." ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue));
                                         }
 
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
-
-
-                                        $addToSelectStatement .= " + ";
-                                        $addToSelectStatementConditionValuesArrayInsertPosition++;
-
-                                        $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer'] : "1") . " ELSE 0 END
-								";
-                                        ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
-                                        $addToSelectStatement .= " ) > 0)";
-
-
                                     }
+
+                                    $searchConditionValues[] = '%%'.$criterionValue.'%';
+                                    $searchConditionValues[] = '%%'.$criterionValue.'%';
+                                    $searchConditionValues[] = '%%'.$criterionValue.'%';
+                                    $searchConditionValues[] = '%%'.$criterionValue.'%';
+                                    $searchConditionValues[] = $criterionValue.'%';
+                                    $searchConditionValues[] = '%%'.$criterionValue.'%';
+
                                 }
                             }
-
-                            $addToSelectStatement .= ")";
-                            $addToSelectStatement .= " as `wordCount`";
                         }
 
-                    $searchCondition .= "	(".$searchConditionPart.")";
-                    break;
 
-                default:
-                    $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
-                    $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
-                    $criterionValue = $criterionValue ? $criterionValue : ($this->blnEmptyFieldMatchesPerDefault ? '%' : '');
+                        if ($this->blnUsePriority()) {
+                            if (!$this->bln_searchWeighting_debug) {
+                                $addToSelectStatement .= ')';
+                            }
+                        }
 
-                    /*
-                     * Make sure that a null value matches a search string that
-                     * only consists of wildcards, just as an empty string would,
-                     * by converting null to an empty string using "IFNULL".
-                     * If the search string contains anything else than the wildcard (%)
-                     * and therefore an empty string wouldn't match, we don't use
-                     * IFNULL because it would have no effect but a lower performance.
-                     */
-                    if (preg_match('/[^%]/', $criterionValue)) {
-                        $searchCondition .= $this->getQualifiedFieldName($criterionFieldName)." LIKE ?
-						";
-                    } else {
-                        $searchCondition .= "IFNULL(".$this->getQualifiedFieldName($criterionFieldName).", '') LIKE ?
-						";
+                            /* is true on the first loop*/
+                            $firstTime = true;
+
+
+                            if ($this->bln_searchWeighting_debug) {
+
+                                $alreadySearchWords = [];
+                                if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
+                                    foreach ($arrCriterionValues as $criterionValue) {
+
+                                        $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
+                                        $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
+
+                                        //only add word to sql statement if it doent exist yet
+                                        if (!in_array($criterionValue, $alreadySearchWords)) {
+                                            array_push($alreadySearchWords, $criterionValue);
+
+                                            if ($this->blnUsePriority()) {
+                                                if ($firstTime) {
+                                                    $addToSelectStatement .= "(( ";
+                                                    $firstTime = false;
+                                                } else {
+                                                    $addToSelectStatement .= ", (( ";
+                                                }
+                                            }else{
+                                                if ($firstTime) {
+                                                    $addToSelectStatement .= ", (( ";
+                                                    $firstTime = false;
+                                                } else {
+                                                    $addToSelectStatement .= ", (( ";
+                                                }
+                                            }
+
+
+
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                            $addToSelectStatement .= " ) > 0)";
+
+
+                                            $addToSelectStatement .= " as `priority_" . $criterionValue . "`";
+
+
+
+
+                                        }
+                                    }
+                                }
+
+
+                            } else {
+
+                                $alreadySearchWords = [];
+                                if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
+                                    foreach ($arrCriterionValues as $criterionValue) {
+
+
+                                        $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
+                                        $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
+
+
+                                        //only add word to sql statement if it doent exist yet
+                                        if (!in_array($criterionValue, $alreadySearchWords)) {
+                                            array_push($alreadySearchWords, $criterionValue);
+
+                                            if ($this->blnUsePriority()) {
+                                                $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                                if ($firstTime) {
+                                                    $addToSelectStatement .= " as `priority`, ((( ";
+                                                    $firstTime = false;
+                                                } else {
+                                                    $addToSelectStatement .= " + (( ";
+                                                }
+                                            } else {
+                                                if ($firstTime) {
+                                                    $addToSelectStatement .= ", ((( ";
+                                                    $firstTime = false;
+                                                } else {
+                                                    $addToSelectStatementConditionValuesArrayInsertPosition++;
+                                                    $addToSelectStatement .= " + (( ";
+                                                }
+                                            }
+
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('title') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['title'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('keywords') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['keywords'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('shortDescription') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['shortDescription'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('description') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['description'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductCode') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['productCode'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array($criterionValue . '%'));
+
+
+                                            $addToSelectStatement .= " + ";
+                                            $addToSelectStatementConditionValuesArrayInsertPosition++;
+
+                                            $addToSelectStatement .= "CASE WHEN " . $this->getQualifiedFieldName('lsShopProductProducer') . " LIKE ? THEN " . ($this->blnUsePriority() ? $arr_searchResultWeighting['partOfSearchStringMatches']['partOfFieldMatches']['producer'] : "1") . " ELSE 0 END
+                                    ";
+                                            ArrayUtil::arrayInsert($searchConditionValues, $addToSelectStatementConditionValuesArrayInsertPosition, array('%%' . $criterionValue . '%'));
+                                            $addToSelectStatement .= " ) > 0)";
+
+
+                                        }
+                                    }
+                                }
+
+                                $addToSelectStatement .= ")";
+                                $addToSelectStatement .= " as `wordCount`";
+                            }
+
+                        $searchCondition .= "	(".$searchConditionPart.")";
+                        break;
+
+                    default:
+                        $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
+                        $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
+                        $criterionValue = $criterionValue ? $criterionValue : ($this->blnEmptyFieldMatchesPerDefault ? '%' : '');
+
+                        /*
+                         * Make sure that a null value matches a search string that
+                         * only consists of wildcards, just as an empty string would,
+                         * by converting null to an empty string using "IFNULL".
+                         * If the search string contains anything else than the wildcard (%)
+                         * and therefore an empty string wouldn't match, we don't use
+                         * IFNULL because it would have no effect but a lower performance.
+                         */
+                        if (preg_match('/[^%]/', $criterionValue)) {
+                            $searchCondition .= $this->getQualifiedFieldName($criterionFieldName)." LIKE ?
+                            ";
+                        } else {
+                            $searchCondition .= "IFNULL(".$this->getQualifiedFieldName($criterionFieldName).", '') LIKE ?
+                            ";
+                        }
+                        $searchConditionValues[] = $criterionValue;
+                        break;
+                }
+            }
+            /*
+             * Ende Erstellung der Where-Bedingungen
+             * ############################
+             */
+
+            /*
+             * Erstellung des ORDER-Statements
+             */
+            $orderStatement = '';
+            if (is_array($this->arrSplitSorting['db']) && count($this->arrSplitSorting['db'])) {
+                foreach ($this->arrSplitSorting['db'] as $sortingField) {
+                    if (!isset($sortingField['field']) || !$sortingField['field']) {
+                        continue;
                     }
-                    $searchConditionValues[] = $criterionValue;
-                    break;
-            }
-        }
-        /*
-         * Ende Erstellung der Where-Bedingungen
-         * ############################
-         */
-
-        /*
-         * Erstellung des ORDER-Statements
-         */
-        $orderStatement = '';
-        if (is_array($this->arrSplitSorting['db']) && count($this->arrSplitSorting['db'])) {
-            foreach ($this->arrSplitSorting['db'] as $sortingField) {
-                if (!isset($sortingField['field']) || !$sortingField['field']) {
-                    continue;
+                    if ($orderStatement) {
+                        $orderStatement .= ', ';
+                    }
+                    $orderStatement .= $this->getQualifiedFieldName($sortingField['field']).'  '.(isset($sortingField['direction']) && $sortingField['direction'] ? $sortingField['direction'] : 'ASC');
                 }
-                if ($orderStatement) {
-                    $orderStatement .= ', ';
+
+                $orderStatement = "ORDER BY		".$orderStatement;
+            } else {
+                $orderStatement = "ORDER BY		".$this->getQualifiedFieldName('title')." ASC";
+            }
+
+            /*
+             * Ende Erstellung des ORDER-Statements
+             */
+
+            /*
+             * ###############################
+             * Create the field selection part
+             */
+            $fieldSelectionPart = "";
+
+            /*
+             * If the filter should be used, we also request the attributeID and attributeValueID
+             * and maybe some more fields depending on what functionality the filter actually provides.
+             */
+            $tmpRequestFields = $this->arrRequestFields;
+            if ($this->blnUseFilter) {
+                if (!in_array('attributeID', $this->arrRequestFields)) {
+                    $this->arrRequestFields[] = 'attributeID';
                 }
-                $orderStatement .= $this->getQualifiedFieldName($sortingField['field']).'  '.(isset($sortingField['direction']) && $sortingField['direction'] ? $sortingField['direction'] : 'ASC');
-            }
 
-            $orderStatement = "ORDER BY		".$orderStatement;
-        } else {
-            $orderStatement = "ORDER BY		".$this->getQualifiedFieldName('title')." ASC";
-        }
+                if (!in_array('attributeValueID', $this->arrRequestFields)) {
+                    $this->arrRequestFields[] = 'attributeValueID';
+                }
 
-        /*
-         * Ende Erstellung des ORDER-Statements
-         */
+                if (!in_array('numericValue', $this->arrRequestFields)) {
+                    $this->arrRequestFields[] = 'numericValue';
+                }
 
-        /*
-         * ###############################
-         * Create the field selection part
-         */
-        $fieldSelectionPart = "";
-
-        /*
-         * If the filter should be used, we also request the attributeID and attributeValueID
-         * and maybe some more fields depending on what functionality the filter actually provides.
-         */
-        $tmpRequestFields = $this->arrRequestFields;
-        if ($this->blnUseFilter) {
-            if (!in_array('attributeID', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'attributeID';
-            }
-
-            if (!in_array('attributeValueID', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'attributeValueID';
-            }
-
-            if (!in_array('numericValue', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'numericValue';
-            }
-
-            if (!in_array('lsShopProductPrice', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'lsShopProductPrice';
-            }
-
-            if (!in_array('lsShopProductSteuersatz', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'lsShopProductSteuersatz';
-            }
-
-            if (!in_array('lsShopProductProducer', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'lsShopProductProducer';
-            }
-
-            if (!in_array('flex_contentsLanguageIndependent', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'flex_contentsLanguageIndependent';
-            }
-
-            if (!in_array('flex_contents', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'flex_contents_'.$this->searchLanguage;
-            }
-        }
-
-        if (count($this->arrSplitSorting['php'])) {
-            if (in_array('lsShopProductPrice', $this->arrSplitSorting['phpFieldNames'])) {
                 if (!in_array('lsShopProductPrice', $this->arrRequestFields)) {
                     $this->arrRequestFields[] = 'lsShopProductPrice';
                 }
@@ -1277,678 +1253,701 @@ class ls_shop_productSearcher
                 if (!in_array('lsShopProductSteuersatz', $this->arrRequestFields)) {
                     $this->arrRequestFields[] = 'lsShopProductSteuersatz';
                 }
-            }
 
-            if (in_array('flex_contentsLanguageIndependent', $this->arrSplitSorting['phpFieldNames'])) {
-                if (!in_array('flex_contentsLanguageIndependent', $this->arrRequestFields)) {
-                    $this->arrRequestFields[] = 'flex_contentsLanguageIndependent';
-                }
-            }
-
-            if (in_array('flex_contents', $this->arrSplitSorting['phpFieldNames'])) {
-                if (!in_array('flex_contents', $this->arrRequestFields)) {
-                    $this->arrRequestFields[] = 'flex_contents';
-                }
-            }
-
-            if (in_array('lsShopProductAttributesValues', $this->arrSplitSorting['phpFieldNames'])) {
-                if (!in_array('lsShopProductAttributesValues', $this->arrRequestFields)) {
-                    $this->arrRequestFields[] = 'lsShopProductAttributesValues';
-                }
-            }
-
-            if (in_array('title', $this->arrSplitSorting['phpFieldNames'])) {
-                if (!in_array('title', $this->arrRequestFields)) {
-                    $this->arrRequestFields[] = 'title';
-                }
-            }
-
-            if (in_array('lsShopProductCode', $this->arrSplitSorting['phpFieldNames'])) {
-                if (!in_array('lsShopProductCode', $this->arrRequestFields)) {
-                    $this->arrRequestFields[] = 'lsShopProductCode';
-                }
-            }
-
-            if (in_array('sorting', $this->arrSplitSorting['phpFieldNames'])) {
-                if (!in_array('sorting', $this->arrRequestFields)) {
-                    $this->arrRequestFields[] = 'sorting';
-                }
-            }
-
-            if (in_array('lsShopProductProducer', $this->arrSplitSorting['phpFieldNames'])) {
                 if (!in_array('lsShopProductProducer', $this->arrRequestFields)) {
                     $this->arrRequestFields[] = 'lsShopProductProducer';
                 }
-            }
 
-            if (in_array('lsShopProductWeight', $this->arrSplitSorting['phpFieldNames'])) {
-                if (!in_array('lsShopProductWeight', $this->arrRequestFields)) {
-                    $this->arrRequestFields[] = 'lsShopProductWeight';
+                if (!in_array('flex_contentsLanguageIndependent', $this->arrRequestFields)) {
+                    $this->arrRequestFields[] = 'flex_contentsLanguageIndependent';
+                }
+
+                if (!in_array('flex_contents', $this->arrRequestFields)) {
+                    $this->arrRequestFields[] = 'flex_contents_'.$this->searchLanguage;
                 }
             }
-        }
 
-        if ($this->bln_useGroupPrices) {
-            if (in_array('lsShopProductPrice', $this->arrRequestFields)) {
-                $this->arrRequestFields[] = 'useGroupPrices_1';
-                $this->arrRequestFields[] = 'priceForGroups_1';
-                $this->arrRequestFields[] = 'lsShopProductPrice_1';
+            if (count($this->arrSplitSorting['php'])) {
+                if (in_array('lsShopProductPrice', $this->arrSplitSorting['phpFieldNames'])) {
+                    if (!in_array('lsShopProductPrice', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'lsShopProductPrice';
+                    }
 
-                $this->arrRequestFields[] = 'useGroupPrices_2';
-                $this->arrRequestFields[] = 'priceForGroups_2';
-                $this->arrRequestFields[] = 'lsShopProductPrice_2';
+                    if (!in_array('lsShopProductSteuersatz', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'lsShopProductSteuersatz';
+                    }
+                }
 
-                $this->arrRequestFields[] = 'useGroupPrices_3';
-                $this->arrRequestFields[] = 'priceForGroups_3';
-                $this->arrRequestFields[] = 'lsShopProductPrice_3';
+                if (in_array('flex_contentsLanguageIndependent', $this->arrSplitSorting['phpFieldNames'])) {
+                    if (!in_array('flex_contentsLanguageIndependent', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'flex_contentsLanguageIndependent';
+                    }
+                }
 
-                $this->arrRequestFields[] = 'useGroupPrices_4';
-                $this->arrRequestFields[] = 'priceForGroups_4';
-                $this->arrRequestFields[] = 'lsShopProductPrice_4';
+                if (in_array('flex_contents', $this->arrSplitSorting['phpFieldNames'])) {
+                    if (!in_array('flex_contents', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'flex_contents';
+                    }
+                }
 
-                $this->arrRequestFields[] = 'useGroupPrices_5';
-                $this->arrRequestFields[] = 'priceForGroups_5';
-                $this->arrRequestFields[] = 'lsShopProductPrice_5';
+                if (in_array('lsShopProductAttributesValues', $this->arrSplitSorting['phpFieldNames'])) {
+                    if (!in_array('lsShopProductAttributesValues', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'lsShopProductAttributesValues';
+                    }
+                }
+
+                if (in_array('title', $this->arrSplitSorting['phpFieldNames'])) {
+                    if (!in_array('title', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'title';
+                    }
+                }
+
+                if (in_array('lsShopProductCode', $this->arrSplitSorting['phpFieldNames'])) {
+                    if (!in_array('lsShopProductCode', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'lsShopProductCode';
+                    }
+                }
+
+                if (in_array('sorting', $this->arrSplitSorting['phpFieldNames'])) {
+                    if (!in_array('sorting', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'sorting';
+                    }
+                }
+
+                if (in_array('lsShopProductProducer', $this->arrSplitSorting['phpFieldNames'])) {
+                    if (!in_array('lsShopProductProducer', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'lsShopProductProducer';
+                    }
+                }
+
+                if (in_array('lsShopProductWeight', $this->arrSplitSorting['phpFieldNames'])) {
+                    if (!in_array('lsShopProductWeight', $this->arrRequestFields)) {
+                        $this->arrRequestFields[] = 'lsShopProductWeight';
+                    }
+                }
             }
-        }
 
-        foreach ($this->arrRequestFields as $requestField) {
-            if ($fieldSelectionPart) {
-                $fieldSelectionPart .= ",
-				";
+            if ($this->bln_useGroupPrices) {
+                if (in_array('lsShopProductPrice', $this->arrRequestFields)) {
+                    $this->arrRequestFields[] = 'useGroupPrices_1';
+                    $this->arrRequestFields[] = 'priceForGroups_1';
+                    $this->arrRequestFields[] = 'lsShopProductPrice_1';
+
+                    $this->arrRequestFields[] = 'useGroupPrices_2';
+                    $this->arrRequestFields[] = 'priceForGroups_2';
+                    $this->arrRequestFields[] = 'lsShopProductPrice_2';
+
+                    $this->arrRequestFields[] = 'useGroupPrices_3';
+                    $this->arrRequestFields[] = 'priceForGroups_3';
+                    $this->arrRequestFields[] = 'lsShopProductPrice_3';
+
+                    $this->arrRequestFields[] = 'useGroupPrices_4';
+                    $this->arrRequestFields[] = 'priceForGroups_4';
+                    $this->arrRequestFields[] = 'lsShopProductPrice_4';
+
+                    $this->arrRequestFields[] = 'useGroupPrices_5';
+                    $this->arrRequestFields[] = 'priceForGroups_5';
+                    $this->arrRequestFields[] = 'lsShopProductPrice_5';
+                }
             }
-            $fieldSelectionPart .= $this->getQualifiedFieldName($requestField);
-        }
-        /*
-         * ###############################
-         */
+
+            foreach ($this->arrRequestFields as $requestField) {
+                if ($fieldSelectionPart) {
+                    $fieldSelectionPart .= ",
+                    ";
+                }
+                $fieldSelectionPart .= $this->getQualifiedFieldName($requestField);
+            }
+            /*
+             * ###############################
+             */
 
 
-        /**
-         * In the statement we only include the left join part if we use
-         * the filter because it is only required if we request attribute
-         * allocations
-         */
-        $objProductsComplete = Database::getInstance()->prepare("
-			SELECT			".$fieldSelectionPart."
-							".($addToSelectStatement ?? '')."
-			FROM			`tl_ls_shop_product`
-		".($this->blnUseFilter ? "
-			LEFT JOIN		`tl_ls_shop_attribute_allocation`
-				ON			`tl_ls_shop_product`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
-				AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '0'
-            LEFT JOIN `tl_ls_shop_attribute_values` 
-				ON `tl_ls_shop_attribute_allocation`.attributeValueID = `tl_ls_shop_attribute_values`.`id`
-		" : "")."
-			WHERE			".$searchCondition."
-			".$orderStatement."
-		");
+            /**
+             * In the statement we only include the left join part if we use
+             * the filter because it is only required if we request attribute
+             * allocations
+             */
+            $objProductsComplete = Database::getInstance()->prepare("
+                SELECT			".$fieldSelectionPart."
+                                ".($addToSelectStatement ?? '')."
+                FROM			`tl_ls_shop_product`
+            ".($this->blnUseFilter ? "
+                LEFT JOIN		`tl_ls_shop_attribute_allocation`
+                    ON			`tl_ls_shop_product`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
+                    AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '0'
+                LEFT JOIN `tl_ls_shop_attribute_values` 
+                    ON `tl_ls_shop_attribute_allocation`.attributeValueID = `tl_ls_shop_attribute_values`.`id`
+            " : "")."
+                WHERE			".$searchCondition."
+                ".$orderStatement."
+            ");
 
-        if (is_array($this->arrLimit) && isset($this->arrLimit['rows']) && isset($this->arrLimit['offset']) && $this->arrLimit['rows'] > 0) {
-            $objProductsComplete = $objProductsComplete->limit($this->arrLimit['rows'], $this->arrLimit['offset']);
-        }
+            if (is_array($this->arrLimit) && isset($this->arrLimit['rows']) && isset($this->arrLimit['offset']) && $this->arrLimit['rows'] > 0) {
+                $objProductsComplete = $objProductsComplete->limit($this->arrLimit['rows'], $this->arrLimit['offset']);
+            }
 
-        $objProductsComplete = $objProductsComplete->execute(...array_values($searchConditionValues));
+            $objProductsComplete = $objProductsComplete->execute(...array_values($searchConditionValues));
 
-        /*
-         * If we use the filter or the special price sorting or maybe for some other reasons,
-         * we requested more than just the id field, and those other
-         * fields will be used in the filter checks. However, the productSearcher must still
-         * only return the fields that have been requested originally on instantiation of
-         * the productSearcher object. Therefore we restore the original requestFields using
-         * the temporary variable we assigned previously.
-         */
-        $this->arrRequestFields = $tmpRequestFields;
+            /*
+             * If we use the filter or the special price sorting or maybe for some other reasons,
+             * we requested more than just the id field, and those other
+             * fields will be used in the filter checks. However, the productSearcher must still
+             * only return the fields that have been requested originally on instantiation of
+             * the productSearcher object. Therefore we restore the original requestFields using
+             * the temporary variable we assigned previously.
+             */
+            $this->arrRequestFields = $tmpRequestFields;
 
-        $arrProductsComplete = $objProductsComplete->fetchAllAssoc();
+            $arrProductsComplete = $objProductsComplete->fetchAllAssoc();
 
-                    if ($this->bln_searchWeighting_debug) {
+                        if ($this->bln_searchWeighting_debug) {
 
-                        $searchDebug = &$GLOBALS['merconis_globals']['searchDebug'];
+                            $searchDebug = &$GLOBALS['merconis_globals']['searchDebug'];
 
-                        $GLOBALS['merconis_globals']['searchDebug'] = [];
+                            $GLOBALS['merconis_globals']['searchDebug'] = [];
 
-                        for ($i = 0; $i < count($arrProductsComplete); $i++) {
-                            if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
+                            for ($i = 0; $i < count($arrProductsComplete); $i++) {
+                                if (isset($arrCriterionValues) && is_array($arrCriterionValues)) {
 
-                                $priority = 0;
-                                $factor = 0;
+                                    $priority = 0;
+                                    $factor = 0;
 
-                                //fulltext Like
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["title"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')];
-                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')]);
+                                    //fulltext Like
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["title"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')];
+                                    unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('title')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["keywords"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')];
-                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["keywords"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')];
+                                    unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('keywords')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["shortDescription"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')];
-                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["shortDescription"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')];
+                                    unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('shortDescription')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["description"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')];
-                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["description"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')];
+                                    unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('description')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["lsShopProductCode"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
-                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["lsShopProductCode"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
+                                    unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["lsShopProductProducer"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
-                                unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltext"][$fulltextValue]["lsShopProductProducer"] = $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
+                                    unset($arrProductsComplete[$i]["priority_fulltext_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')]);
 
-                                //fulltext genau gleich
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["title"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')];
-                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')]);
+                                    //fulltext genau gleich
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["title"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')];
+                                    unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('title')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["keywords"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')];
-                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["keywords"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')];
+                                    unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('keywords')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["shortDescription"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')];
-                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["shortDescription"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')];
+                                    unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('shortDescription')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["description"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')];
-                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["description"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')];
+                                    unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('description')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["lsShopProductCode"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
-                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["lsShopProductCode"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')];
+                                    unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductCode')]);
 
-                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["lsShopProductProducer"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
-                                $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
-                                unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')]);
-
-
-                                foreach ($arrCriterionValues as $criterionValue) {
-
-                                    $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
-                                    $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
-
-                                    if ($this->blnUsePriority()) {
-
-                                        if($searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue] == null) {
-
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["title"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["title"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
-
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["keywords"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["keywords"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
-
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["shortDescription"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["shortDescription"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
-
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["description"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["description"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
-
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductCode"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductCode"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
-
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductProducer"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductProducer"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
-                                            $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
+                                    $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchFulltextEqual"][$fulltextValue]["lsShopProductProducer"] = $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
+                                    $priority += $arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')];
+                                    unset($arrProductsComplete[$i]["priority_fulltextEqual_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer')]);
 
 
-                                            $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["doesWordExistOneTime"] = $arrProductsComplete[$i]["priority_" . $criterionValue];
+                                    foreach ($arrCriterionValues as $criterionValue) {
+
+                                        $criterionValue = preg_replace('/%/siU', '*', $criterionValue);
+                                        $criterionValue = preg_replace('/\*/siU', '%%', $criterionValue);
+
+                                        if ($this->blnUsePriority()) {
+
+                                            if($searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue] == null) {
+
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["title"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["title"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
+
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["keywords"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["keywords"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
+
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["shortDescription"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["shortDescription"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
+
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["description"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["description"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
+
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductCode"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductCode"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
+
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductProducer"]["word"] = $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["lsShopProductProducer"]["wordSame"] = $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
+                                                $priority += $arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue];
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
+
+
+                                                $searchDebug[intval($arrProductsComplete[$i]["id"])]["searchPart"][$criterionValue]["doesWordExistOneTime"] = $arrProductsComplete[$i]["priority_" . $criterionValue];
 
 
 
-                                            if($arrProductsComplete[$i]["priority_" . $criterionValue] == 1){
-                                                $factor++;
+                                                if($arrProductsComplete[$i]["priority_" . $criterionValue] == 1){
+                                                    $factor++;
+                                                }
+
+                                            }else{
+                                                //unset for dupicate Products in array, happens if produkt has variants
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
+                                                unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
+
                                             }
 
-                                        }else{
-                                            //unset for dupicate Products in array, happens if produkt has variants
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('title') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('keywords') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('shortDescription') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('description') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductCode') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_word_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
-                                            unset($arrProductsComplete[$i]["priority_wordSame_" . $this->getQualifiedFieldNameOnly('lsShopProductProducer') . "_" . $criterionValue]);
 
                                         }
-
+                                        $arrProductsComplete[$i]["wordCount"] += $arrProductsComplete[$i]["priority_" . $criterionValue];
+                                        unset($arrProductsComplete[$i]["priority_" . $criterionValue]);
 
                                     }
-                                    $arrProductsComplete[$i]["wordCount"] += $arrProductsComplete[$i]["priority_" . $criterionValue];
-                                    unset($arrProductsComplete[$i]["priority_" . $criterionValue]);
+                                    $priority = $priority*$factor;
+                                    $arrProductsComplete[$i]["priority"] = $priority;
 
                                 }
-                                $priority = $priority*$factor;
-                                $arrProductsComplete[$i]["priority"] = $priority;
+                            }
 
+                        }
+
+                        //count different words
+                        $arr = [];
+                        if (is_array($arrCriterionValues ?? null)) {
+                            foreach ($arrCriterionValues as $criterionValue) {
+                                $arr[$criterionValue] = 0;
                             }
                         }
+                        $maxWordCount = count($arr);
 
-                    }
+                        //remove all Products with a wordCount lower than the highest wordCount if $bln_AndSearch is true
+                        //if $bln_AndSearch = false just multiple wordCount*Prio without removing
+                        $anzahl = count($arrProductsComplete);
+                        for ($i = 0; $i < $anzahl; $i++) {
 
-                    //count different words
-                    $arr = [];
-                    if (is_array($arrCriterionValues ?? null)) {
-                        foreach ($arrCriterionValues as $criterionValue) {
-                            $arr[$criterionValue] = 0;
-                        }
-                    }
-                    $maxWordCount = count($arr);
+                            // if bln_AndSearch remove all that dont match all words
+                            if($this->bln_andSearch == "And-Search"){
+                                if(($arrProductsComplete[$i]["wordCount"] ?? null) != $maxWordCount) {
 
-                    //remove all Products with a wordCount lower than the highest wordCount if $bln_AndSearch is true
-                    //if $bln_AndSearch = false just multiple wordCount*Prio without removing
-                    $anzahl = count($arrProductsComplete);
-                    for ($i = 0; $i < $anzahl; $i++) {
-
-                        // if bln_AndSearch remove all that dont match all words
-                        if($this->bln_andSearch == "And-Search"){
-                            if(($arrProductsComplete[$i]["wordCount"] ?? null) != $maxWordCount) {
-
-                                unset($arrProductsComplete[$i]);
+                                    unset($arrProductsComplete[$i]);
+                                }
                             }
-                        }
-                        //calculate priority if it is a priority search
-                        if ($this->blnUsePriority()) {
-                            if($arrProductsComplete[$i]) {
-                                $arrProductsComplete[$i]["priority"] = $arrProductsComplete[$i]["priority"] * $arrProductsComplete[$i]["wordCount"];
+                            //calculate priority if it is a priority search
+                            if ($this->blnUsePriority()) {
+                                if($arrProductsComplete[$i]) {
+                                    $arrProductsComplete[$i]["priority"] = $arrProductsComplete[$i]["priority"] * $arrProductsComplete[$i]["wordCount"];
+                                }
                             }
+                            unset($arrProductsComplete[$i]["wordCount"]);
                         }
-                        unset($arrProductsComplete[$i]["wordCount"]);
-                    }
 
-        /*
-         * Get FlexContents for sorting
-         */
-        if (is_array($arrProductsComplete)) {
-            foreach ($arrProductsComplete as $key => $rowProductsComplete) {
-                $arrProductsComplete[$key]['flex_contentsLanguageIndependentForSorting'] = $rowProductsComplete['flex_contentsLanguageIndependent'] ?? null;
-                $arrProductsComplete[$key]['flex_contentsForSorting_' . $searchLanguage] = $rowProductsComplete['flex_contents_' . $searchLanguage] ?? null;
-            }
-        }
-
-        /*
-         * If we use the filter we had a left join in our database query which leads to a result set
-         * that has multiple entries for one product if there's more than one related row in the
-         * left joined allocation table. In this case we have to transform the result set so that
-         * we have only one row per product and the info about additional attribute value allocations
-         * are merged in the row.
-         *
-         * Furthermore, if we use the filter we need variant informations for each product.
-         *
-         * We also add some other information to the product/variant data that could not be retrieved
-         * directly from the database, e.g. calculated prices.
-         */
-        if ($this->blnUseFilter && count($arrProductsComplete)) {
-            $tmpArrProductsComplete = array();
-            foreach ($arrProductsComplete as $rowProductsComplete) {
-                if (!isset($tmpArrProductsComplete[$rowProductsComplete['id']])) {
-                    $tmpArrProductsComplete[$rowProductsComplete['id']] = $rowProductsComplete;
-
-                    // use a reference to make the following code better readable
-                    $refCurrentProductRow = &$tmpArrProductsComplete[$rowProductsComplete['id']];
-
-                    unset($refCurrentProductRow['attributeID']);
-                    unset($refCurrentProductRow['attributeValueID']);
-                    /*
-                     * We create an array holding only the attribute IDs, another array holding only
-                     * the attribute value IDs and one more array holding attribute IDs and attribute
-                     * value IDs related to each other. That's because this way we can save workload
-                     * while creating the filter form and while filtering and we assume that this is
-                     * worth the extra workload that we create here which should be smaller.
-                     */
-                    $refCurrentProductRow['attributeIDs'] = array();
-                    $refCurrentProductRow['attributeValueIDs'] = array();
-                    $refCurrentProductRow['attributeAndValueIDs'] = array();
-                    $refCurrentProductRow['attributesMinMax'] = array();
-
-                    $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
-                    $refCurrentProductRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax', true);
-                    $refCurrentProductRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent', true);
-                    $refCurrentProductRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents_'.$searchLanguage])), 2, 1);
-
-                    $refCurrentProductRow['variants'] = array();
-
-                    if ($this->bln_useGroupPrices) {
-                        $rowProductsComplete = $this->updateProductRowWithGroupPrice($rowProductsComplete);
-                    }
-
-                    $refCurrentProductRow['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz']);
-
-                    $refCurrentProductRow['lowestPrice'] = $refCurrentProductRow['price'];
-                    $refCurrentProductRow['highestPrice'] = $refCurrentProductRow['price'];
-                } else {
-                    /*
-                     * use a reference to make the following code better readable (the reference has to be
-                     * defined here as well to make sure that there can never be the wrong reference even if
-                     * the duplicate entries of a product don't follow each other directly)
-                     */
-                    $refCurrentProductRow = &$tmpArrProductsComplete[$rowProductsComplete['id']];
+            /*
+             * Get FlexContents for sorting
+             */
+            if (is_array($arrProductsComplete)) {
+                foreach ($arrProductsComplete as $key => $rowProductsComplete) {
+                    $arrProductsComplete[$key]['flex_contentsLanguageIndependentForSorting'] = $rowProductsComplete['flex_contentsLanguageIndependent'] ?? null;
+                    $arrProductsComplete[$key]['flex_contentsForSorting_' . $searchLanguage] = $rowProductsComplete['flex_contents_' . $searchLanguage] ?? null;
                 }
-
-                if ($rowProductsComplete['attributeID'] && $rowProductsComplete['attributeValueID']) {
-                    if (!isset($refCurrentProductRow['attributeAndValueIDs'][$rowProductsComplete['attributeID']])) {
-                        $refCurrentProductRow['attributeAndValueIDs'][$rowProductsComplete['attributeID']] = array();
-                    }
-
-                    $refCurrentProductRow['attributeAndValueIDs'][$rowProductsComplete['attributeID']][] = $rowProductsComplete['attributeValueID'];
-                }
-
-                if ($rowProductsComplete['attributeID']) {
-                    $refCurrentProductRow['attributeIDs'][] = $rowProductsComplete['attributeID'];
-                }
-
-                if ($rowProductsComplete['attributeValueID']) {
-                    $refCurrentProductRow['attributeValueIDs'][] = $rowProductsComplete['attributeValueID'];
-                }
-
-                //Range for Attribute numeric Values
-                if ($rowProductsComplete['attributeNumericValue']) {
-                    if (!isset($refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']])) {
-                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']] = array();
-                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']] = ['low' => null, 'high' => null, 'lowestValue' => null, 'highestValue' => null];
-
-                    }
-
-                    ls_shop_filterhelper::determineMinMaxValues(
-                        $rowProductsComplete['attributeNumericValue'],
-                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['low'],
-                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['high']
-                        #,true
-                    );
-
-                    ls_shop_filterhelper::determineMinMaxValues(
-                        $rowProductsComplete['attributeNumericValue'],
-                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['lowestValue'],
-                        $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['highestValue']
-                        #,true
-                    );
-                }
-
             }
 
             /*
-             * Get all variants for the products from the database
+             * If we use the filter we had a left join in our database query which leads to a result set
+             * that has multiple entries for one product if there's more than one related row in the
+             * left joined allocation table. In this case we have to transform the result set so that
+             * we have only one row per product and the info about additional attribute value allocations
+             * are merged in the row.
+             *
+             * Furthermore, if we use the filter we need variant informations for each product.
+             *
+             * We also add some other information to the product/variant data that could not be retrieved
+             * directly from the database, e.g. calculated prices.
              */
-            $objVariants = Database::getInstance()->prepare("
-				SELECT			`tl_ls_shop_variant`.`id`,
-								`tl_ls_shop_variant`.`pid`,
-								`tl_ls_shop_variant`.`lsShopVariantPrice`,
-								`tl_ls_shop_variant`.`lsShopVariantPriceType`,
-								`tl_ls_shop_variant`.`flex_contentsLanguageIndependent`,
-								`tl_ls_shop_variant`.`flex_contents_". $this->searchLanguage."`,
-				".
-                (
-                $this->bln_useGroupPrices
-                    ?	"
-								`tl_ls_shop_variant`.`useGroupPrices_1`,
-								`tl_ls_shop_variant`.`priceForGroups_1`,
-								`tl_ls_shop_variant`.`lsShopVariantPrice_1`,
-								`tl_ls_shop_variant`.`lsShopVariantPriceType_1`,
-								
-								`tl_ls_shop_variant`.`useGroupPrices_2`,
-								`tl_ls_shop_variant`.`priceForGroups_2`,
-								`tl_ls_shop_variant`.`lsShopVariantPrice_2`,
-								`tl_ls_shop_variant`.`lsShopVariantPriceType_2`,
-								
-								`tl_ls_shop_variant`.`useGroupPrices_3`,
-								`tl_ls_shop_variant`.`priceForGroups_3`,
-								`tl_ls_shop_variant`.`lsShopVariantPrice_3`,
-								`tl_ls_shop_variant`.`lsShopVariantPriceType_3`,
-								
-								`tl_ls_shop_variant`.`useGroupPrices_4`,
-								`tl_ls_shop_variant`.`priceForGroups_4`,
-								`tl_ls_shop_variant`.`lsShopVariantPrice_4`,
-								`tl_ls_shop_variant`.`lsShopVariantPriceType_4`,
-								
-								`tl_ls_shop_variant`.`useGroupPrices_5`,
-								`tl_ls_shop_variant`.`priceForGroups_5`,
-								`tl_ls_shop_variant`.`lsShopVariantPrice_5`,
-								`tl_ls_shop_variant`.`lsShopVariantPriceType_5`,
-								
-						"
-                    :	""
-                )
-                ."
-								`tl_ls_shop_attribute_allocation`.`attributeID`,
-								`tl_ls_shop_attribute_allocation`.`attributeValueID`,
-								`tl_ls_shop_attribute_values`.`numericValue` AS attributeNumericValue
-				FROM			`tl_ls_shop_variant`
-				LEFT JOIN		`tl_ls_shop_attribute_allocation`
-					ON			`tl_ls_shop_variant`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
-					AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '1'
-                LEFT JOIN `tl_ls_shop_attribute_values` 
-    				ON `tl_ls_shop_attribute_allocation`.attributeValueID = `tl_ls_shop_attribute_values`.`id`
-				WHERE			`tl_ls_shop_variant`.`published` = '1'
-					AND			`tl_ls_shop_variant`.`pid` IN (".implode(',', array_keys($tmpArrProductsComplete)).")
-				ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
-			")
-                ->execute();
+            if ($this->blnUseFilter && count($arrProductsComplete)) {
+                $tmpArrProductsComplete = array();
+                foreach ($arrProductsComplete as $rowProductsComplete) {
+                    if (!isset($tmpArrProductsComplete[$rowProductsComplete['id']])) {
+                        $tmpArrProductsComplete[$rowProductsComplete['id']] = $rowProductsComplete;
 
-            $arrVariants = $objVariants->fetchAllAssoc();
+                        // use a reference to make the following code better readable
+                        $refCurrentProductRow = &$tmpArrProductsComplete[$rowProductsComplete['id']];
 
-            /*
-             * Walk through each variant record and merge duplicate records that occur
-             * because of multiple references to the attribute value allocation table
-             * and write the resulting variant array to the parent product's array.
-             */
-            foreach ($arrVariants as $rowVariants) {
-                if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']])) {
-                    $tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']] = $rowVariants;
-
-                    // use a reference to make the following code better readable
-                    $refCurrentVariantRow = &$tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']];
-
-                    unset($refCurrentVariantRow['attributeID']);
-                    unset($refCurrentVariantRow['attributeValueID']);
-
-                    $refCurrentVariantRow['attributeIDs'] = array();
-                    $refCurrentVariantRow['attributeValueIDs'] = array();
-                    $refCurrentVariantRow['attributeAndValueIDs'] = array();
-                    $refCurrentVariantRow['attributesMinMax'] = array();
-
-                    $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
-                    $refCurrentVariantRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax');
-                    $refCurrentVariantRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent');
-                    $refCurrentVariantRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents_'.$searchLanguage])), 2, 1);
-
-                    /*
-                     * Get the variant's price
-                     */
-
-                    if ($this->bln_useGroupPrices) {
-                        $rowVariants = $this->updateVariantRowWithGroupPrice($rowVariants);
-                    }
-
-                    $refCurrentVariantRow['price'] = ls_shop_generalHelper::getDisplayPrice(
-                        ls_shop_generalHelper::ls_calculateVariantPriceRegardingPriceType(
-                            $rowVariants['lsShopVariantPriceType'],
-                            $tmpArrProductsComplete[$rowVariants['pid']]['lsShopProductPrice'],
-                            $rowVariants['lsShopVariantPrice']
-                        ),
-                        $tmpArrProductsComplete[$rowVariants['pid']]['lsShopProductSteuersatz']
-                    );
-
-                    /*
-                     * Store the variant's price as the product's lowest and highest price if it hasn't been set yet or if
-                     * the current variant's price is lower/higher than the currently stored lowest/highest price.
-                     */
-                    if ($tmpArrProductsComplete[$rowVariants['pid']]['lowestPrice'] === null || $refCurrentVariantRow['price'] < $tmpArrProductsComplete[$rowVariants['pid']]['lowestPrice']) {
-                        $tmpArrProductsComplete[$rowVariants['pid']]['lowestPrice'] = $refCurrentVariantRow['price'];
-                    }
-                    if ($tmpArrProductsComplete[$rowVariants['pid']]['highestPrice'] === null || $refCurrentVariantRow['price'] > $tmpArrProductsComplete[$rowVariants['pid']]['highestPrice']) {
-                        $tmpArrProductsComplete[$rowVariants['pid']]['highestPrice'] = $refCurrentVariantRow['price'];
-                    }
-
-                    /*
-                     *  FCLI Ranges from Variant to Product
-                     */
-                    foreach ($refCurrentVariantRow['flex_contentsLIMinMax'] as $FCLIKey => $FCLIValues) {
+                        unset($refCurrentProductRow['attributeID']);
+                        unset($refCurrentProductRow['attributeValueID']);
                         /*
-                         * Store the variant's Range as the product's lowest and highest value if it hasn't been set yet or if
-                         * the current variant's range is lower/higher than the currently stored lowest/highest value.
+                         * We create an array holding only the attribute IDs, another array holding only
+                         * the attribute value IDs and one more array holding attribute IDs and attribute
+                         * value IDs related to each other. That's because this way we can save workload
+                         * while creating the filter form and while filtering and we assume that this is
+                         * worth the extra workload that we create here which should be smaller.
                          */
-                        if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue'])
-                            || $FCLIValues['low'] < $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue']) {
-                            $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue'] = $FCLIValues['low'];
+                        $refCurrentProductRow['attributeIDs'] = array();
+                        $refCurrentProductRow['attributeValueIDs'] = array();
+                        $refCurrentProductRow['attributeAndValueIDs'] = array();
+                        $refCurrentProductRow['attributesMinMax'] = array();
+
+                        $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contentsLanguageIndependent'])), 2, 1);
+                        $refCurrentProductRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax', true);
+                        $refCurrentProductRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent', true);
+                        $refCurrentProductRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentProductRow['flex_contents_'.$searchLanguage])), 2, 1);
+
+                        $refCurrentProductRow['variants'] = array();
+
+                        if ($this->bln_useGroupPrices) {
+                            $rowProductsComplete = $this->updateProductRowWithGroupPrice($rowProductsComplete);
                         }
-                        if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'])
-                            || $FCLIValues['high'] > $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue']) {
-                            $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'] = $FCLIValues['high'];
+
+                        $refCurrentProductRow['price'] = ls_shop_generalHelper::getDisplayPrice($rowProductsComplete['lsShopProductPrice'], $rowProductsComplete['lsShopProductSteuersatz']);
+
+                        $refCurrentProductRow['lowestPrice'] = $refCurrentProductRow['price'];
+                        $refCurrentProductRow['highestPrice'] = $refCurrentProductRow['price'];
+                    } else {
+                        /*
+                         * use a reference to make the following code better readable (the reference has to be
+                         * defined here as well to make sure that there can never be the wrong reference even if
+                         * the duplicate entries of a product don't follow each other directly)
+                         */
+                        $refCurrentProductRow = &$tmpArrProductsComplete[$rowProductsComplete['id']];
+                    }
+
+                    if ($rowProductsComplete['attributeID'] && $rowProductsComplete['attributeValueID']) {
+                        if (!isset($refCurrentProductRow['attributeAndValueIDs'][$rowProductsComplete['attributeID']])) {
+                            $refCurrentProductRow['attributeAndValueIDs'][$rowProductsComplete['attributeID']] = array();
+                        }
+
+                        $refCurrentProductRow['attributeAndValueIDs'][$rowProductsComplete['attributeID']][] = $rowProductsComplete['attributeValueID'];
+                    }
+
+                    if ($rowProductsComplete['attributeID']) {
+                        $refCurrentProductRow['attributeIDs'][] = $rowProductsComplete['attributeID'];
+                    }
+
+                    if ($rowProductsComplete['attributeValueID']) {
+                        $refCurrentProductRow['attributeValueIDs'][] = $rowProductsComplete['attributeValueID'];
+                    }
+
+                    //Range for Attribute numeric Values
+                    if ($rowProductsComplete['attributeNumericValue']) {
+                        if (!isset($refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']])) {
+                            $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']] = array();
+                            $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']] = ['low' => null, 'high' => null, 'lowestValue' => null, 'highestValue' => null];
+
+                        }
+
+                        ls_shop_filterhelper::determineMinMaxValues(
+                            $rowProductsComplete['attributeNumericValue'],
+                            $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['low'],
+                            $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['high']
+                            #,true
+                        );
+
+                        ls_shop_filterhelper::determineMinMaxValues(
+                            $rowProductsComplete['attributeNumericValue'],
+                            $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['lowestValue'],
+                            $refCurrentProductRow['attributesMinMax'][$rowProductsComplete['attributeID']]['highestValue']
+                            #,true
+                        );
+                    }
+
+                }
+
+                /*
+                 * Get all variants for the products from the database
+                 */
+                $objVariants = Database::getInstance()->prepare("
+                    SELECT			`tl_ls_shop_variant`.`id`,
+                                    `tl_ls_shop_variant`.`pid`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPrice`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPriceType`,
+                                    `tl_ls_shop_variant`.`flex_contentsLanguageIndependent`,
+                                    `tl_ls_shop_variant`.`flex_contents_". $this->searchLanguage."`,
+                    ".
+                    (
+                    $this->bln_useGroupPrices
+                        ?	"
+                                    `tl_ls_shop_variant`.`useGroupPrices_1`,
+                                    `tl_ls_shop_variant`.`priceForGroups_1`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPrice_1`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPriceType_1`,
+                                    
+                                    `tl_ls_shop_variant`.`useGroupPrices_2`,
+                                    `tl_ls_shop_variant`.`priceForGroups_2`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPrice_2`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPriceType_2`,
+                                    
+                                    `tl_ls_shop_variant`.`useGroupPrices_3`,
+                                    `tl_ls_shop_variant`.`priceForGroups_3`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPrice_3`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPriceType_3`,
+                                    
+                                    `tl_ls_shop_variant`.`useGroupPrices_4`,
+                                    `tl_ls_shop_variant`.`priceForGroups_4`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPrice_4`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPriceType_4`,
+                                    
+                                    `tl_ls_shop_variant`.`useGroupPrices_5`,
+                                    `tl_ls_shop_variant`.`priceForGroups_5`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPrice_5`,
+                                    `tl_ls_shop_variant`.`lsShopVariantPriceType_5`,
+                                    
+                            "
+                        :	""
+                    )
+                    ."
+                                    `tl_ls_shop_attribute_allocation`.`attributeID`,
+                                    `tl_ls_shop_attribute_allocation`.`attributeValueID`,
+                                    `tl_ls_shop_attribute_values`.`numericValue` AS attributeNumericValue
+                    FROM			`tl_ls_shop_variant`
+                    LEFT JOIN		`tl_ls_shop_attribute_allocation`
+                        ON			`tl_ls_shop_variant`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
+                        AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '1'
+                    LEFT JOIN `tl_ls_shop_attribute_values` 
+                        ON `tl_ls_shop_attribute_allocation`.attributeValueID = `tl_ls_shop_attribute_values`.`id`
+                    WHERE			`tl_ls_shop_variant`.`published` = '1'
+                        AND			`tl_ls_shop_variant`.`pid` IN (".implode(',', array_keys($tmpArrProductsComplete)).")
+                    ORDER BY		`tl_ls_shop_variant`.`pid` ASC, `tl_ls_shop_variant`.`sorting` ASC
+                ")
+                    ->execute();
+
+                $arrVariants = $objVariants->fetchAllAssoc();
+
+                /*
+                 * Walk through each variant record and merge duplicate records that occur
+                 * because of multiple references to the attribute value allocation table
+                 * and write the resulting variant array to the parent product's array.
+                 */
+                foreach ($arrVariants as $rowVariants) {
+                    if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']])) {
+                        $tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']] = $rowVariants;
+
+                        // use a reference to make the following code better readable
+                        $refCurrentVariantRow = &$tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']];
+
+                        unset($refCurrentVariantRow['attributeID']);
+                        unset($refCurrentVariantRow['attributeValueID']);
+
+                        $refCurrentVariantRow['attributeIDs'] = array();
+                        $refCurrentVariantRow['attributeValueIDs'] = array();
+                        $refCurrentVariantRow['attributeAndValueIDs'] = array();
+                        $refCurrentVariantRow['attributesMinMax'] = array();
+
+                        $arr_flex_contentsLanguageIndependent = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contentsLanguageIndependent'])), 2, 1);
+                        $refCurrentVariantRow['flex_contentsLIMinMax'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLIMinMax');
+                        $refCurrentVariantRow['flex_contentsLanguageIndependent'] = ls_shop_filterHelper::processFCLI($arr_flex_contentsLanguageIndependent, 'flex_contentsLanguageIndependent');
+                        $refCurrentVariantRow['flex_contents_'.$searchLanguage] = createMultidimensionalArray(createOneDimensionalArrayFromTwoDimensionalArray(json_decode($refCurrentVariantRow['flex_contents_'.$searchLanguage])), 2, 1);
+
+                        /*
+                         * Get the variant's price
+                         */
+
+                        if ($this->bln_useGroupPrices) {
+                            $rowVariants = $this->updateVariantRowWithGroupPrice($rowVariants);
+                        }
+
+                        $refCurrentVariantRow['price'] = ls_shop_generalHelper::getDisplayPrice(
+                            ls_shop_generalHelper::ls_calculateVariantPriceRegardingPriceType(
+                                $rowVariants['lsShopVariantPriceType'],
+                                $tmpArrProductsComplete[$rowVariants['pid']]['lsShopProductPrice'],
+                                $rowVariants['lsShopVariantPrice']
+                            ),
+                            $tmpArrProductsComplete[$rowVariants['pid']]['lsShopProductSteuersatz']
+                        );
+
+                        /*
+                         * Store the variant's price as the product's lowest and highest price if it hasn't been set yet or if
+                         * the current variant's price is lower/higher than the currently stored lowest/highest price.
+                         */
+                        if ($tmpArrProductsComplete[$rowVariants['pid']]['lowestPrice'] === null || $refCurrentVariantRow['price'] < $tmpArrProductsComplete[$rowVariants['pid']]['lowestPrice']) {
+                            $tmpArrProductsComplete[$rowVariants['pid']]['lowestPrice'] = $refCurrentVariantRow['price'];
+                        }
+                        if ($tmpArrProductsComplete[$rowVariants['pid']]['highestPrice'] === null || $refCurrentVariantRow['price'] > $tmpArrProductsComplete[$rowVariants['pid']]['highestPrice']) {
+                            $tmpArrProductsComplete[$rowVariants['pid']]['highestPrice'] = $refCurrentVariantRow['price'];
+                        }
+
+                        /*
+                         *  FCLI Ranges from Variant to Product
+                         */
+                        foreach ($refCurrentVariantRow['flex_contentsLIMinMax'] as $FCLIKey => $FCLIValues) {
+                            /*
+                             * Store the variant's Range as the product's lowest and highest value if it hasn't been set yet or if
+                             * the current variant's range is lower/higher than the currently stored lowest/highest value.
+                             */
+                            if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue'])
+                                || $FCLIValues['low'] < $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue']) {
+                                $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['lowestValue'] = $FCLIValues['low'];
+                            }
+                            if (!isset($tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'])
+                                || $FCLIValues['high'] > $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue']) {
+                                $tmpArrProductsComplete[$rowVariants['pid']]['flex_contentsLIMinMax'][$FCLIKey]['highestValue'] = $FCLIValues['high'];
+                            }
+                        }
+
+                    } else {
+                        /*
+                         * use a reference to make the following code better readable (the reference has to be
+                         * defined here as well to make sure that there can never be the wrong reference even if
+                         * the duplicate entries of a variant don't follow each other directly)
+                         */
+                        $refCurrentVariantRow = &$tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']];
+                    }
+
+                    if ($rowVariants['attributeID'] && $rowVariants['attributeValueID']) {
+                        if (!isset($refCurrentVariantRow['attributeAndValueIDs'][$rowVariants['attributeID']])) {
+                            $refCurrentVariantRow['attributeAndValueIDs'][$rowVariants['attributeID']] = array();
+                        }
+
+                        $refCurrentVariantRow['attributeAndValueIDs'][$rowVariants['attributeID']][] = $rowVariants['attributeValueID'];
+                    }
+
+                    if ($rowVariants['attributeID']) {
+                        $refCurrentVariantRow['attributeIDs'][] = $rowVariants['attributeID'];
+                    }
+
+                    if ($rowVariants['attributeValueID']) {
+                        $refCurrentVariantRow['attributeValueIDs'][] = $rowVariants['attributeValueID'];
+                    }
+
+                    //Range for Attribute numeric Values
+                    if ($rowVariants['attributeNumericValue']) {
+                        if (!isset($refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']])) {
+                            $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']] = array();
+                            $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']] = ['low' => null, 'high' => null];
+                        }
+
+                        ls_shop_filterhelper::determineMinMaxValues(
+                            $rowVariants['attributeNumericValue'],
+                            $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['low'],
+                            $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['high']
+                        );
+                    }
+                }
+
+                $arrProductsComplete = $tmpArrProductsComplete;
+
+                /*
+                 * This hook is only meant to be called in a product list context and therefore
+                 * we check for a given productListID. If the cache can be used we don't call
+                 * the hook since it wouldn't have any effect because the cached result would
+                 * always be returned.
+                 */
+                if ($this->str_productListID && !$this->blnResultFromCache) {
+                    if (isset($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'])) {
+                        foreach ($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'] as $mccb) {
+                            $objMccb = System::importStatic($mccb[0]);
+                            $arrProductsComplete = $objMccb->{$mccb[1]}($this->str_productListID, $arrProductsComplete);
                         }
                     }
-
-                } else {
-                    /*
-                     * use a reference to make the following code better readable (the reference has to be
-                     * defined here as well to make sure that there can never be the wrong reference even if
-                     * the duplicate entries of a variant don't follow each other directly)
-                     */
-                    $refCurrentVariantRow = &$tmpArrProductsComplete[$rowVariants['pid']]['variants'][$rowVariants['id']];
                 }
 
-                if ($rowVariants['attributeID'] && $rowVariants['attributeValueID']) {
-                    if (!isset($refCurrentVariantRow['attributeAndValueIDs'][$rowVariants['attributeID']])) {
-                        $refCurrentVariantRow['attributeAndValueIDs'][$rowVariants['attributeID']] = array();
-                    }
-
-                    $refCurrentVariantRow['attributeAndValueIDs'][$rowVariants['attributeID']][] = $rowVariants['attributeValueID'];
-                }
-
-                if ($rowVariants['attributeID']) {
-                    $refCurrentVariantRow['attributeIDs'][] = $rowVariants['attributeID'];
-                }
-
-                if ($rowVariants['attributeValueID']) {
-                    $refCurrentVariantRow['attributeValueIDs'][] = $rowVariants['attributeValueID'];
-                }
-
-                //Range for Attribute numeric Values
-                if ($rowVariants['attributeNumericValue']) {
-                    if (!isset($refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']])) {
-                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']] = array();
-                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']] = ['low' => null, 'high' => null];
-                    }
-
-                    ls_shop_filterhelper::determineMinMaxValues(
-                        $rowVariants['attributeNumericValue'],
-                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['low'],
-                        $refCurrentVariantRow['attributesMinMax'][$rowVariants['attributeID']]['high']
-                    );
-                }
+                ls_shop_filterController::getInstance();
+                ls_shop_filterHelper::setCriteriaToUseInFilterForm($arrProductsComplete);
             }
 
-            $arrProductsComplete = $tmpArrProductsComplete;
+            $this->numProductsBeforeFilter = !is_array($arrProductsComplete) ? 0 : count($arrProductsComplete);
 
             /*
-             * This hook is only meant to be called in a product list context and therefore
-             * we check for a given productListID. If the cache can be used we don't call
-             * the hook since it wouldn't have any effect because the cached result would
-             * always be returned.
+             * If we have more results than the given truncate limit, the result array will be truncated
              */
-            if ($this->str_productListID && !$this->blnResultFromCache) {
-                if (isset($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter']) && is_array($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'])) {
-                    foreach ($GLOBALS['MERCONIS_HOOKS']['afterProductSearchBeforeFilter'] as $mccb) {
-                        $objMccb = System::importStatic($mccb[0]);
-                        $arrProductsComplete = $objMccb->{$mccb[1]}($this->str_productListID, $arrProductsComplete);
-                    }
+            if ($this->truncateResultsIfMoreThan > 0 && $this->truncateResultsIfMoreThan < $this->numProductsBeforeFilter) {
+                if ($this->cancelSearchIfMoreThanTruncateLimit) {
+                    $this->arrProductResultsComplete = array();
+                    return;
                 }
+                $arrProductsComplete = array_slice($arrProductsComplete, 0, $this->truncateResultsIfMoreThan);
             }
 
-            ls_shop_filterController::getInstance();
-            ls_shop_filterHelper::setCriteriaToUseInFilterForm($arrProductsComplete);
-        }
+            if (is_array($arrProductsComplete)) {
+                $arrProductsAfterFilter = array();
+                foreach ($arrProductsComplete as $rowProductsComplete) {
+                    if ($this->blnUseFilter) {
+                        /*
+                         * Here we walk through all products that the database request delivered. In order
+                         * to filter these products we perform filter checks for each product (and the
+                         * variants it includes) and if we find out that a product doesn't match the filter,
+                         * we skip it and don't write it to $this->arrProductResultsComplete.
+                         */
+                        ls_shop_filterController::getInstance();
+                        $blnProductMatches = ls_shop_filterHelper::checkIfProductMatchesFilter($rowProductsComplete);
 
-        $this->numProductsBeforeFilter = !is_array($arrProductsComplete) ? 0 : count($arrProductsComplete);
+                        if (!$blnProductMatches) {
+                            $this->blnNotAllProductsMatch = true;
+                            $this->numProductsNotMatching++;
+                            continue;
+                        }
+                    }
+                    $arrProductsAfterFilter[] = $rowProductsComplete;
+                }
 
-        /*
-         * If we have more results than the given truncate limit, the result array will be truncated
-         */
-        if ($this->truncateResultsIfMoreThan > 0 && $this->truncateResultsIfMoreThan < $this->numProductsBeforeFilter) {
-            if ($this->cancelSearchIfMoreThanTruncateLimit) {
-                $this->arrProductResultsComplete = array();
-                return;
-            }
-            $arrProductsComplete = array_slice($arrProductsComplete, 0, $this->truncateResultsIfMoreThan);
-        }
-
-        if (is_array($arrProductsComplete)) {
-            $arrProductsAfterFilter = array();
-            foreach ($arrProductsComplete as $rowProductsComplete) {
-                if ($this->blnUseFilter) {
-                    /*
-                     * Here we walk through all products that the database request delivered. In order
-                     * to filter these products we perform filter checks for each product (and the
-                     * variants it includes) and if we find out that a product doesn't match the filter,
-                     * we skip it and don't write it to $this->arrProductResultsComplete.
-                     */
+                if ($this->blnUseFilter && is_array($arrProductsAfterFilter)) {
                     ls_shop_filterController::getInstance();
-                    $blnProductMatches = ls_shop_filterHelper::checkIfProductMatchesFilter($rowProductsComplete);
+                    ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
+                }
 
-                    if (!$blnProductMatches) {
-                        $this->blnNotAllProductsMatch = true;
-                        $this->numProductsNotMatching++;
-                        continue;
+                $this->specialSortResults($arrProductsAfterFilter);
+                $firstRequestField = $this->arrRequestFields[0];
+                foreach ($arrProductsAfterFilter as $rowProductAfterFilter) {
+                    $this->arrProductResultsComplete[] = count($this->arrRequestFields) > 1 ? $rowProductAfterFilter : $rowProductAfterFilter[$firstRequestField];
+                }
+            }
+
+            /*
+             * Vorgegebene Sortierung übernehmen, wenn keine spezielle Sortierung gewünscht ist und eine Produktauswahl direkt übergeben wurde
+             */
+            if (is_array($this->fixedSorting) && count($this->fixedSorting)) {
+                $arrProductIDsTempComplete = array();
+
+                foreach ($this->fixedSorting as $productID) {
+                    if (in_array($productID, $this->arrProductResultsComplete)) {
+                        $arrProductIDsTempComplete[] = $productID;
                     }
                 }
-                $arrProductsAfterFilter[] = $rowProductsComplete;
+
+                $this->arrProductResultsComplete = $arrProductIDsTempComplete;
             }
-
-            if ($this->blnUseFilter && is_array($arrProductsAfterFilter)) {
-                ls_shop_filterController::getInstance();
-                ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
-            }
-
-            $this->specialSortResults($arrProductsAfterFilter);
-            $firstRequestField = $this->arrRequestFields[0];
-            foreach ($arrProductsAfterFilter as $rowProductAfterFilter) {
-                $this->arrProductResultsComplete[] = count($this->arrRequestFields) > 1 ? $rowProductAfterFilter : $rowProductAfterFilter[$firstRequestField];
-            }
-        }
-
-        /*
-         * Vorgegebene Sortierung übernehmen, wenn keine spezielle Sortierung gewünscht ist und eine Produktauswahl direkt übergeben wurde
-         */
-        if (is_array($this->fixedSorting) && count($this->fixedSorting)) {
-            $arrProductIDsTempComplete = array();
-
-            foreach ($this->fixedSorting as $productID) {
-                if (in_array($productID, $this->arrProductResultsComplete)) {
-                    $arrProductIDsTempComplete[] = $productID;
-                }
-            }
-
-            $this->arrProductResultsComplete = $arrProductIDsTempComplete;
-        }
         } finally {
             // Store results into Merconis cache if available
             if (isset($__mc_element) && $__mc_element) {
