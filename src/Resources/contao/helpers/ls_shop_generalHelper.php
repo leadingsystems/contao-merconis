@@ -2737,6 +2737,9 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($obj_dbres_productsBackInStock->next()) {
+
+            $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = $obj_dbres_productsBackInStock->language;
+
             $objOrderMessages = new ls_shop_orderMessages(
                 null,
                 'onRestock',
@@ -2747,6 +2750,8 @@ class ls_shop_generalHelper
                 $obj_dbres_productsBackInStock->productVariantId
             );
             $objOrderMessages->sendMessages();
+
+            $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = null;
 
             \Database::getInstance()
                 ->prepare("
@@ -2781,6 +2786,9 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($obj_dbres_variantsBackInStock->next()) {
+
+            $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = $obj_dbres_variantsBackInStock->language;
+
             $objOrderMessages = new ls_shop_orderMessages(
                 null,
                 'onRestock',
@@ -2791,6 +2799,8 @@ class ls_shop_generalHelper
                 $obj_dbres_variantsBackInStock->productVariantId
             );
             $objOrderMessages->sendMessages();
+
+            $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = null;
 
             \Database::getInstance()
                 ->prepare("

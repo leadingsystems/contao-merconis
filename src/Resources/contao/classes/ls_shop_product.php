@@ -2143,12 +2143,13 @@ This method can be used to call a function hooked with the "callingHookedProduct
         $language = ls_shop_languageHelper::getFallbackLanguage();
 
         if(isset($GLOBALS['merconis_globals']['sendRestockInfo']['language'])){
+            $isSendRestockInfo = true;
             $language = $GLOBALS['merconis_globals']['sendRestockInfo']['language'];
         }
 
         $this->mainData = &$this->ls_data[$language];
 
-        if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage) || !isset($this->ls_data[$objPage->language])) {
+        if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage) || !isset($this->ls_data[$objPage->language]) || $isSendRestockInfo) {
             $this->currentLanguageData = &$this->mainData;
         } else {
             $this->currentLanguageData = &$this->ls_data[$objPage->language];

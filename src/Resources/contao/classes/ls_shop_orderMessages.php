@@ -28,8 +28,6 @@ class ls_shop_orderMessages
 		$this->orderID = $orderID;
 		$this->identificationToken = $identificationToken;
 		$this->findBy = $findBy ? $findBy : $this->findBy;
-
-        $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = $language;
 		
 		$this->arrOrder = $this->orderID ? ls_shop_generalHelper::getOrder($this->orderID, 'id', $blnForceOrderRefresh) : null;
 
