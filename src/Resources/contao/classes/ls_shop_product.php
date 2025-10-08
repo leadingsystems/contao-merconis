@@ -256,6 +256,19 @@ class ls_shop_product
 		global $objPage;
 		switch ($what) {
 			/* ## START AUTO DOCUMENTATION PROPERTIES PRODUCT ## */
+            case '_linkcomplete':
+
+                if($GLOBALS['merconis_globals']['sendRestockInfo']['language']){
+                    $language = $GLOBALS['merconis_globals']['sendRestockInfo']['language'];
+                    $url = $this->getlinkToProduct('', $language);
+                }else{
+                    $url = $this->getlinkToProduct('',);
+                }
+
+                $link = '<a href="'.\Environment::get('base') . $url.'" >'.\Environment::get('base') . $url.'</a>';
+                return $link;
+                break;
+
 			case '_outputOptions':
 				return $this->ls_outputOptions();
 				break;
@@ -1701,6 +1714,7 @@ filter context, NULL will be returned.
 	public function __call($what, $args) {
 		switch ($what) {
 			/* ## START AUTO DOCUMENTATION METHODS PRODUCT ## */
+
 			case '_createGallery'
 				/* ## DESCRIPTION:
 use like this:
@@ -2126,9 +2140,16 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	private function setDataReferences() {
         global $objPage;
 
-        $this->mainData = &$this->ls_data[ls_shop_languageHelper::getFallbackLanguage()];
+        $language = ls_shop_languageHelper::getFallbackLanguage();
 
-        if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage) || !isset($this->ls_data[$objPage->language])) {
+        if(isset($GLOBALS['merconis_globals']['sendRestockInfo']['language'])){
+            $isSendRestockInfo = true;
+            $language = $GLOBALS['merconis_globals']['sendRestockInfo']['language'];
+        }
+
+        $this->mainData = &$this->ls_data[$language];
+
+        if ($this->ls_mainLanguageMode || !isset($objPage) || !is_object($objPage) || !isset($this->ls_data[$objPage->language]) || $isSendRestockInfo) {
             $this->currentLanguageData = &$this->mainData;
         } else {
             $this->currentLanguageData = &$this->ls_data[$objPage->language];
@@ -2146,11 +2167,22 @@ This method can be used to call a function hooked with the "callingHookedProduct
     }
 
 	public function ls_getVariants() {
+
+        /*
+         * If it does not have a Request it means it was called by an cronjob, we want only published products in our cronjob
+        */
+
+        $bln_includeNotPublished = false;
+
+        if(System::getContainer()->get('merconis.routing.scope')->hasRequest()){
+            $bln_includeNotPublished = (System::getContainer()->get('merconis.routing.scope')->isBackend() && (strpos(\Environment::get('request'), 'tl_ls_shop_variant') !== false || strpos(\Environment::get('request'), 'ls_shop_stockManagement') !== false));
+        }
+
 		$objVariants = \Database::getInstance()->prepare("
 			SELECT		`id`
 			FROM		`tl_ls_shop_variant`
 			WHERE		`pid` = ?
-				".(System::getContainer()->get('merconis.routing.scope')->isBackend() && (strpos(\Environment::get('request'), 'tl_ls_shop_variant') !== false || strpos(\Environment::get('request'), 'ls_shop_stockManagement') !== false) ? "" : "AND		`published` = '1'")."
+				".($bln_includeNotPublished ? "" : "AND		`published` = '1'")."
 			ORDER BY	`sorting` ASC
 		");
 
@@ -2385,7 +2417,7 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	 * benutzerdefinierte Sortierung bzw. Kennzeichnung der Hauptseite möglich ist. Solange
 	 * das nicht der Fall ist, wird einfach die erstbeste hinterlegte Seite verwendet.
 	 */
-	public function getlinkToProduct($var_useVariantAliasOrID = '') {
+	public function getlinkToProduct($var_useVariantAliasOrID = '', $str_language ='') {
         /** @var \PageModel $objPage */
         global $objPage;
         $currentMainLanguagePageID = ls_shop_languageHelper::getMainlanguagePageIDForPageID($objPage->id);
@@ -2419,7 +2451,13 @@ This method can be used to call a function hooked with the "callingHookedProduct
             }
 
             $languagePages = ls_shop_languageHelper::getLanguagePages($MainLanguagePageIDForLink);
-            $currentLanguagePageIDForLink = $languagePages[$objPage->language]['id'];
+
+            // If $str_language is not set we use $objPage->language as language
+            if(!$str_language){
+                $str_language = $objPage->language;
+            }
+
+            $currentLanguagePageIDForLink = $languagePages[$str_language]['id'];
 
             $objProductPage = \PageModel::findWithDetails($currentLanguagePageIDForLink);
         }

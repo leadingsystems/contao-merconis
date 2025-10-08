@@ -23,6 +23,10 @@ class Scope {
         return $this->scopeMatcher->isFrontendRequest($this->requestStack->getCurrentRequest());
     }
 
+    public function hasRequest() {
+        return $this->requestStack->getCurrentRequest() != false;
+    }
+
     public function getTLMode()
     {
         if(!$this->requestStack->getCurrentRequest())
