@@ -2370,7 +2370,7 @@ class ls_shop_generalHelper
             throw new \Exception('insufficient parameters given');
         }
 
-        if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
+        if (System::getContainer()->get('merconis.routing.scope')->hasRequest() && System::getContainer()->get('merconis.routing.scope')->isBackend()) {
             return null;
         }
 
@@ -2737,6 +2737,9 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($obj_dbres_productsBackInStock->next()) {
+
+            $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = $obj_dbres_productsBackInStock->language;
+
             $objOrderMessages = new ls_shop_orderMessages(
                 null,
                 'onRestock',
@@ -2747,6 +2750,8 @@ class ls_shop_generalHelper
                 $obj_dbres_productsBackInStock->productVariantId
             );
             $objOrderMessages->sendMessages();
+
+            $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = null;
 
             \Database::getInstance()
                 ->prepare("
@@ -2781,6 +2786,9 @@ class ls_shop_generalHelper
             ->execute();
 
         while ($obj_dbres_variantsBackInStock->next()) {
+
+            $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = $obj_dbres_variantsBackInStock->language;
+
             $objOrderMessages = new ls_shop_orderMessages(
                 null,
                 'onRestock',
@@ -2791,6 +2799,8 @@ class ls_shop_generalHelper
                 $obj_dbres_variantsBackInStock->productVariantId
             );
             $objOrderMessages->sendMessages();
+
+            $GLOBALS['merconis_globals']['sendRestockInfo']['language'] = null;
 
             \Database::getInstance()
                 ->prepare("
@@ -3956,8 +3966,10 @@ class ls_shop_generalHelper
         /** @var \PageModel $objPage */
         global $objPage;
 
-        $str_tmp_objPageLanguage = $objPage->language;
-        $objPage->language = $str_language;
+        if($objPage){
+            $str_tmp_objPageLanguage = $objPage->language;
+            $objPage->language = $str_language;
+        }
 
         if ($obj_product->_variantIsSelected) {
             $obj_tmp_productOrVariant = &$obj_product->_selectedVariant;
@@ -3988,7 +4000,9 @@ class ls_shop_generalHelper
             $str_text = preg_replace('/(&#35;&#35;|##)product::' . $str_keyword . '(&#35;&#35;|##)/', $str_replace, $str_text);
         }
 
-        $objPage->language = $str_tmp_objPageLanguage;
+        if($objPage){
+            $objPage->language = $str_tmp_objPageLanguage;
+        }
 
         return $str_text;
     }
