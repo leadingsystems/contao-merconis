@@ -9,6 +9,7 @@ use Contao\FrontendTemplate;
 use Contao\PageModel;
 use Contao\System;
 use LeadingSystems\Helpers\ls_helpers_controller;
+use LeadingSystems\ContaoCacheBundle\Cache\MerconisCacheHandler;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class productImageGallery extends Frontend {

@@ -1,5 +1,5 @@
 <?php
-use LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler;
+use LeadingSystems\ContaoCacheBundle\Cache\MerconisCacheHandler;
 /** Fragment cache: cache final rendered gallery HTML, skip for random sort. */
 try {
     $container = Contao\System::getContainer();

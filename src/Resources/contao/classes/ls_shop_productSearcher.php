@@ -6,8 +6,8 @@ use Contao\ArrayUtil;
 use Contao\Database;
 use Contao\PageModel;
 use Contao\System;
-use LeadingSystems\MerconisBundle\Cache\CacheElementNoHitException;
-use LeadingSystems\MerconisBundle\Cache\MerconisCache;
+use LeadingSystems\ContaoCacheBundle\Cache\CacheElementNoHitException;
+use LeadingSystems\ContaoCacheBundle\Cache\MerconisCache;
 
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
@@ -381,7 +381,7 @@ class ls_shop_productSearcher
             $__container = System::getContainer();
             // Use the dedicated search cache service
             if ($__container->has('merconis.cache.search')) {
-                /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCache $__mc */
+                /** @var \LeadingSystems\ContaoCacheBundle\Cache\MerconisCache $__mc */
                 $__mc = $__container->get('merconis.cache.search');
                 $__ttl = max(0, (int) $this->cacheLifetimeSec);
                 $__tags = array(
@@ -438,7 +438,7 @@ class ls_shop_productSearcher
                         }
                         return;
                     }
-                } catch (\LeadingSystems\MerconisBundle\Cache\CacheElementNoHitException $e) {
+                } catch (\LeadingSystems\ContaoCacheBundle\Cache\CacheElementNoHitException $e) {
                     // proceed to compute and store below
                 }
             }
