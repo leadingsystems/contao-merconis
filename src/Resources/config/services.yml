@@ -174,6 +174,25 @@ services:
     class: LeadingSystems\MerconisBundle\Services\Session
     public: true
 
+  # Context extension: expose frontend member id as dimension "memberId"
+  LeadingSystems\MerconisBundle\Cache\Context\FrontendMemberContextExtension:
+    tags:
+      - { name: 'leadingsystems.contao_cache.context_extension' }
+
+  # Register Merconis recipes via contao-cache tag
+  LeadingSystems\ContaoCacheBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe:
+    tags:
+      - { name: 'leadingsystems.contao_cache.recipe', recipe: 'cross_seller' }
+  LeadingSystems\ContaoCacheBundle\Cache\Tagging\Recipe\GalleryImagesTagRecipe:
+    tags:
+      - { name: 'leadingsystems.contao_cache.recipe', recipe: 'gallery_images' }
+  LeadingSystems\ContaoCacheBundle\Cache\Tagging\Recipe\GalleryFileMetaTagRecipe:
+    tags:
+      - { name: 'leadingsystems.contao_cache.recipe', recipe: 'gallery_filemeta' }
+  LeadingSystems\ContaoCacheBundle\Cache\Tagging\Recipe\FragmentGalleryTagRecipe:
+    tags:
+      - { name: 'leadingsystems.contao_cache.recipe', recipe: 'gallery_fragment' }
+
   merconis.migration.update_shop_product_page_config_migration:
     class: LeadingSystems\MerconisBundle\Migration\UpdateShopProductPageConfigMigration
     tags:
@@ -205,5 +224,10 @@ services:
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_output_definitions' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_shipping_methods' }
       - { name: contao.callback, target: 'select.buttons', table: 'tl_ls_shop_payment_methods' }
+
+  # Declare Merconis-specific cache pools via contao-cache config (no code wiring)
+  LeadingSystems\MerconisBundle\DependencyInjection\MerconisCacheConfig:
+    class: stdClass
+    public: false
 
   

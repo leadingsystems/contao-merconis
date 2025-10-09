@@ -1,0 +1,28 @@
+leadingsystems_contao_cache:
+  pools:
+    - id: merconis.gallery
+      namespace_prefix: 'merconis.gallery.cache.'
+      maintenance_job: true
+      label:
+        en: 'Merconis gallery cache'
+        de: 'Merconis Gallery-Cache'
+    - id: merconis.fragment
+      namespace_prefix: 'merconis.fragment.cache.'
+      maintenance_job: true
+      label:
+        en: 'Merconis fragment cache'
+        de: 'Merconis Fragment-Cache'
+    - id: merconis.meta
+      namespace_prefix: 'merconis.meta.cache.'
+      maintenance_job: true
+      label:
+        en: 'Merconis metadata cache'
+        de: 'Merconis Metadaten-Cache'
+    - id: merconis.search
+      namespace_prefix: 'merconis.search.cache.'
+      maintenance_job: true
+      label:
+        en: 'Merconis search cache'
+        de: 'Merconis Such-Cache'
+
+
