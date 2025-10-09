@@ -474,6 +474,16 @@ var class_ls_shop_BE_import = new Class({
 				}
 				
 				if (this.objConfiguration.fileInfo.status == 'importFinished') {
+
+					// trigger for external listener
+					const event = new CustomEvent("ProductImportFinished", {
+						detail: {
+							timestamp: Date.now(),
+							info: "Product Import finished"
+						}
+					});
+					window.dispatchEvent(event);
+
 					this.hideLockOverlay();
 				}
    			}.bind(this)
