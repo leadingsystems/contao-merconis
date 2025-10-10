@@ -66,12 +66,18 @@ class ls_shop_variant
 		$this->ls_productVariantID = $this->ls_productID.'-'.$this->ls_ID;
 
         $session = System::getContainer()->get('merconis.session')->getSession();
-        $session_modifiedDataKeys =  $session->get('merconis_modifiedDataKeys');
-        if (isset($session_modifiedDataKeys[$this->ls_productVariantID])) {
-            $this->modifiedDataKeys = $session_modifiedDataKeys[$this->ls_productVariantID];
+        /*
+         * This function is also executed by a cronjob, which does not have a session.
+         * Therefore, we must check if a session exists before using it.
+         */
+        if($session) {
+            $session_modifiedDataKeys = $session->get('merconis_modifiedDataKeys');
+            if (isset($session_modifiedDataKeys[$this->ls_productVariantID])) {
+                $this->modifiedDataKeys = $session_modifiedDataKeys[$this->ls_productVariantID];
+            }
+            $session_modifiedDataKeys[$this->ls_productVariantID] = &$this->modifiedDataKeys;
+            $session->set('merconis_modifiedDataKeys', $session_modifiedDataKeys);
         }
-        $session_modifiedDataKeys[$this->ls_productVariantID] = &$this->modifiedDataKeys;
-        $session->set('merconis_modifiedDataKeys', $session_modifiedDataKeys);
 
 		$this->ls_objParentProduct = &$objParentProduct;
 
@@ -466,13 +472,13 @@ returns the main image that has been selected explicitly or null if none has bee
 				return $this->currentLanguageData['alias'] ? $this->currentLanguageData['alias'] : $this->mainData['alias'];
 				break;
 
-			case '_linkToVariant':
-				return $this->_objParentProduct->getlinkToProduct($this->_alias ? $this->_alias : $this->ls_ID);
-				break;
+            case '_linkToVariant':
+                return $this->_objParentProduct->getlinkToProduct($this->_alias ? $this->_alias : $this->ls_ID);
+                break;
 
-			case '_link':
-				return $this->_linkToVariant;
-				break;
+            case '_link':
+                return $this->_linkToVariant;
+                break;
 
             case '_originalTitle':
                 $title = $this->currentLanguageData['title'] ? $this->currentLanguageData['title'] : $this->mainData['title'];
@@ -1224,6 +1230,7 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 	 */
 	public function __call($what, $args) {
 		switch ($what) {
+
 			/* ## START AUTO DOCUMENTATION METHODS VARIANT ## */
 			case '_createGallery'
 				/* ## DESCRIPTION:

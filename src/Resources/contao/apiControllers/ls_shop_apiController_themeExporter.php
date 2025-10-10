@@ -163,6 +163,8 @@ class ls_shop_apiController_themeExporter
             'tl_ls_shop_steuersaetze' => array(),
             'tl_ls_shop_variant' => array(),
 
+            'tl_ls_scheduler_job' => array(),
+
             'tl_member' => array(),
             'tl_member_group' => array(),
             'tl_module' => array(),

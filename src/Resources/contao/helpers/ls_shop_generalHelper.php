@@ -2825,95 +2825,7 @@ class ls_shop_generalHelper
         return $deliveryInfoSet;
     }
 
-    public static function sendRestockInfo() {
-        $obj_dbres_productsBackInStock = Database::getInstance()
-            ->prepare("
-                SELECT
-                    N.productVariantId
-                    , N.productId
-                    , N.variantId
-                    , N.memberId
-                    , N.language
-                    , P.lsShopProductStock
-                    
-                FROM tl_ls_shop_restock_info_list N
-                
-                LEFT JOIN tl_ls_shop_product P
-                    ON P.id = N.productId
-                
-                WHERE N.variantId = 0
-                    AND P.lsShopProductStock > 0
-            ")
-            ->execute();
 
-        while ($obj_dbres_productsBackInStock->next()) {
-            $objOrderMessages = new ls_shop_orderMessages(
-                null,
-                'onRestock',
-                'sendWhen',
-                $obj_dbres_productsBackInStock->language,
-                false,
-                $obj_dbres_productsBackInStock->memberId,
-                $obj_dbres_productsBackInStock->productVariantId
-            );
-            $objOrderMessages->sendMessages();
-
-            Database::getInstance()
-                ->prepare("
-                    DELETE FROM tl_ls_shop_restock_info_list
-                    WHERE       productVariantId = ?
-                        AND     memberId = ?
-                ")
-                ->execute(
-                    $obj_dbres_productsBackInStock->productVariantId,
-                    $obj_dbres_productsBackInStock->memberId
-                );
-        }
-
-        $obj_dbres_variantsBackInStock = Database::getInstance()
-            ->prepare("
-                SELECT
-                    N.productVariantId
-                    , N.productId
-                    , N.variantId
-                    , N.memberId
-                    , N.language
-                    , V.lsShopVariantStock
-                    
-                FROM tl_ls_shop_restock_info_list N
-                
-                LEFT JOIN tl_ls_shop_variant V
-                    ON V.id = N.variantId
-                
-                WHERE N.variantId > 0
-                    AND V.lsShopVariantStock > 0
-            ")
-            ->execute();
-
-        while ($obj_dbres_variantsBackInStock->next()) {
-            $objOrderMessages = new ls_shop_orderMessages(
-                null,
-                'onRestock',
-                'sendWhen',
-                $obj_dbres_variantsBackInStock->language,
-                false,
-                $obj_dbres_variantsBackInStock->memberId,
-                $obj_dbres_variantsBackInStock->productVariantId
-            );
-            $objOrderMessages->sendMessages();
-
-            Database::getInstance()
-                ->prepare("
-                    DELETE FROM tl_ls_shop_restock_info_list
-                    WHERE       productVariantId = ?
-                        AND     memberId = ?
-                ")
-                ->execute(
-                    $obj_dbres_variantsBackInStock->productVariantId,
-                    $obj_dbres_variantsBackInStock->memberId
-                );
-        }
-    }
 
     public static function sendStockNotification($stock, $obj_productOrVariant)
     {
@@ -4072,6 +3984,7 @@ class ls_shop_generalHelper
         $str_tmp_objPageLanguage = $objPage->language;
         $objPage->language = $str_language;
 
+
         if ($obj_product->_variantIsSelected) {
             $obj_tmp_productOrVariant = &$obj_product->_selectedVariant;
         } else {
@@ -4092,6 +4005,12 @@ class ls_shop_generalHelper
 
                 case '_link':
                     $str_replace = self::getEnvironmentBase() . $obj_tmp_productOrVariant->{$str_keyword};
+                    break;
+
+                case '_linkcomplete':
+                    $url = self::getEnvironmentBase() . $obj_tmp_productOrVariant->_link;
+                    $linkText = self::getEnvironmentBase() . $obj_tmp_productOrVariant->_link;
+                    $str_replace = '<a href="' . $url . '" rel=“noopener noreferrer“>' . $linkText . '</a>';
                     break;
 
                 default:
@@ -4421,33 +4340,7 @@ class ls_shop_generalHelper
         return $arrMessageTypes;
     }
 
-    public static function sendMessagesOnStatusChangeCronDaily()
-    {
-        $objOrders = Database::getInstance()->prepare("
-				SELECT		*
-				FROM		`tl_ls_shop_orders`
-			")
-            ->execute();
 
-        while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronDaily', 'sendWhen', null, true);
-            $objOrderMessages->sendMessages();
-        }
-    }
-
-    public static function sendMessagesOnStatusChangeCronHourly()
-    {
-        $objOrders = Database::getInstance()->prepare("
-				SELECT		*
-				FROM		`tl_ls_shop_orders`
-			")
-            ->execute();
-
-        while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronHourly', 'sendWhen', null, true);
-            $objOrderMessages->sendMessages();
-        }
-    }
 
     /*
      * This function gets called whenever a DCA configuration is loaded. Some fields
