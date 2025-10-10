@@ -381,7 +381,7 @@ class ls_shop_productSearcher
             $__container = System::getContainer();
             // Use the dedicated search cache service
             if ($__container->has('merconis.cache.search')) {
-                /** @var \LeadingSystems\ContaoCacheBundle\Cache\MerconisCache $__mc */
+                /** @var \LeadingSystems\ContaoCacheBundle\Cache\TaggedCache $__mc */
                 $__mc = $__container->get('merconis.cache.search');
                 $__ttl = max(0, (int) $this->cacheLifetimeSec);
                 $__tags = array(
@@ -438,7 +438,7 @@ class ls_shop_productSearcher
                         }
                         return;
                     }
-                } catch (\LeadingSystems\ContaoCacheBundle\Cache\CacheElementNoHitException $e) {
+                } catch (\LeadingSystems\ContaoCacheBundle\Cache\CacheMissException $e) {
                     // proceed to compute and store below
                 }
             }

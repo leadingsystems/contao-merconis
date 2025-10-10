@@ -180,16 +180,16 @@ services:
       - { name: 'leadingsystems.contao_cache.context_extension' }
 
   # Register Merconis recipes via contao-cache tag
-  LeadingSystems\ContaoCacheBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe:
+  LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\CrossSellerTagRecipe:
     tags:
       - { name: 'leadingsystems.contao_cache.recipe', recipe: 'cross_seller' }
-  LeadingSystems\ContaoCacheBundle\Cache\Tagging\Recipe\GalleryImagesTagRecipe:
+  LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\GalleryImagesTagRecipe:
     tags:
       - { name: 'leadingsystems.contao_cache.recipe', recipe: 'gallery_images' }
-  LeadingSystems\ContaoCacheBundle\Cache\Tagging\Recipe\GalleryFileMetaTagRecipe:
+  LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\GalleryFileMetaTagRecipe:
     tags:
       - { name: 'leadingsystems.contao_cache.recipe', recipe: 'gallery_filemeta' }
-  LeadingSystems\ContaoCacheBundle\Cache\Tagging\Recipe\FragmentGalleryTagRecipe:
+  LeadingSystems\MerconisBundle\Cache\Tagging\Recipe\FragmentGalleryTagRecipe:
     tags:
       - { name: 'leadingsystems.contao_cache.recipe', recipe: 'gallery_fragment' }
 

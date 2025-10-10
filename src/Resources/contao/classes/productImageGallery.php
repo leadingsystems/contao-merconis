@@ -88,8 +88,8 @@ class productImageGallery extends Frontend {
 		// Initialize gallery cache handler once per instance
 		try {
 			$__container = System::getContainer();
-			if ($__container->has('merconis.cache_handler.gallery')) {
-				$this->cacheHandlerGallery = $__container->get('merconis.cache_handler.gallery');
+			if ($__container->has('leadingsystems.contao_cache.handler.merconis.gallery')) {
+				$this->cacheHandlerGallery = $__container->get('leadingsystems.contao_cache.handler.merconis.gallery');
 			}
 		} catch (\Throwable $e) {}
 

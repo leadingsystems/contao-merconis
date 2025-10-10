@@ -1,9 +1,9 @@
 <?php
-use LeadingSystems\ContaoCacheBundle\Cache\MerconisCacheHandler;
+use LeadingSystems\ContaoCacheBundle\Cache\CacheHandler;
 /** Fragment cache: cache final rendered gallery HTML, skip for random sort. */
 try {
     $container = Contao\System::getContainer();
-    $fragmentCacheHandler = $container->has('merconis.cache_handler.fragment') ? $container->get('merconis.cache_handler.fragment') : null;
+    $fragmentCacheHandler = $container->has('leadingsystems.contao_cache.handler.merconis.fragment') ? $container->get('leadingsystems.contao_cache.handler.merconis.fragment') : null;
 } catch (\Throwable $e) {
     $fragmentCacheHandler = null;
 }
