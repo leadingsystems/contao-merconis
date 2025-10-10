@@ -1,4 +1,4 @@
-leadingsystems_contao_cache:
+leading_systems_contao_cache:
   pools:
     - id: merconis.gallery
       namespace_prefix: 'merconis.gallery.cache.'
