@@ -45,6 +45,9 @@ class RestockInfo
 
     public function sendRestockInfo()
     {
+        /** @var PageModel $objPage */
+        global $objPage;
+
         $connection = $this->connection;
 
         $resultProducts = $connection->executeQuery("
@@ -56,6 +59,10 @@ class RestockInfo
     ");
 
         foreach ($resultProducts->fetchAllAssociative() as $row) {
+
+            $str_tmp_objPageLanguage = $objPage->language;
+            $objPage->language = $row['language'];
+
             $objOrderMessages = new ls_shop_orderMessages(
                 null,
                 'onRestock',
@@ -74,6 +81,8 @@ class RestockInfo
                     $row['memberId']
                 ]
             );
+
+            $objPage->language = $str_tmp_objPageLanguage;
         }
 
 
@@ -86,6 +95,10 @@ class RestockInfo
     ");
 
         foreach ($resultVariants->fetchAllAssociative() as $row) {
+
+            $str_tmp_objPageLanguage = $objPage->language;
+            $objPage->language = $row['language'];
+
             $objOrderMessages = new ls_shop_orderMessages(
                 null,
                 'onRestock',
@@ -104,6 +117,8 @@ class RestockInfo
                     $row['memberId']
                 ]
             );
+
+            $objPage->language = $str_tmp_objPageLanguage;
         }
 
         $this->executionResultMessage = 'Executed successfully without returning specific execution result message.';
