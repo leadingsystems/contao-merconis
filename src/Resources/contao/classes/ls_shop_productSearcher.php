@@ -403,7 +403,6 @@ class ls_shop_productSearcher
                     'checkVATID' => ls_shop_generalHelper::checkVATID(),
                     'customerCountry' => ls_shop_generalHelper::getCustomerCountry(),
                     'lastBackendDataChange' => isset($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']) ? $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] : 0,
-                    'lastResetTimestamp' => $_SESSION['lsShop']['filter']['lastResetTimestamp'] ?? null,
                     'customerGroupId' => $this->arr_groupSettingsForUser['id'] ?? null
             );
             $__handle = $__handler->create($__ttl, $__tags);
