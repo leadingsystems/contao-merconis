@@ -3,6 +3,7 @@ use LeadingSystems\ContaoCacheBundle\Cache\CacheHandler;
 /** Fragment cache: cache final rendered gallery HTML, skip for random sort. */
 try {
     $container = Contao\System::getContainer();
+    /** @var LeadingSystems\ContaoCacheBundle\Cache\CacheHandler|null $fragmentCacheHandler */
     $fragmentCacheHandler = $container->has('leadingsystems.contao_cache.handler.merconis.fragment') ? $container->get('leadingsystems.contao_cache.handler.merconis.fragment') : null;
 } catch (\Throwable $e) {
     $fragmentCacheHandler = null;
