@@ -439,6 +439,7 @@ class ls_shop_productSearcher
         }
 
         // From here on, compute the results and ensure we store them at the end
+        $__computeExceptionOccurred = false;
         try {
             if (!$this->checkIfValidCriteriaGiven()) {
                 $this->arrProductResultsComplete = array();
@@ -1941,9 +1942,12 @@ class ls_shop_productSearcher
 
                 $this->arrProductResultsComplete = $arrProductIDsTempComplete;
             }
+        } catch (\Throwable $__computeException) {
+            $__computeExceptionOccurred = true;
+            throw $__computeException;
         } finally {
             // Store results using handler if available
-            if (isset($__handle) && $__handle) {
+            if (isset($__handle) && $__handle && !$__computeExceptionOccurred) {
                 $__storePayload = array(
                     'productResultsComplete' => $this->arrProductResultsComplete,
                     'numResultsComplete' => count($this->arrProductResultsComplete),
