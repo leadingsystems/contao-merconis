@@ -68,7 +68,9 @@ class ls_shop_productSearcher
         $this->bln_useGroupPrices = isset($GLOBALS['TL_CONFIG']['ls_shop_considerGroupPricesInFilterAndSorting']) && $GLOBALS['TL_CONFIG']['ls_shop_considerGroupPricesInFilterAndSorting'];
         $this->bln_ignoreGroupRestrictions = isset($GLOBALS['TL_CONFIG']['ls_shop_ignoreGroupRestrictionsInSearch']) && $GLOBALS['TL_CONFIG']['ls_shop_ignoreGroupRestrictionsInSearch'];
 
-        $this->cacheLifetimeSec = isset($GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec']) ? $GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec'] : 300;
+        if (isset($GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec'])) {
+            $this->cacheLifetimeSec = $GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec'];
+        }
 
         if ($this->blnUseFilter) {
             /*
