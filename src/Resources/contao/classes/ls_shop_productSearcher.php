@@ -376,15 +376,14 @@ class ls_shop_productSearcher
         unset($this->arrSearchCriteria["searchType"]);
 
         // MerconisCache: quick caching based on input parameters, return early on hit
-        $__mc_element = null;
-        try {
-            $__container = System::getContainer();
-            // Use the dedicated search cache service
-            if ($__container->has('leadingsystems.contao_cache.service.merconis.search')) {
-                /** @var \LeadingSystems\ContaoCacheBundle\Cache\TaggedCache $__mc */
-                $__mc = $__container->get('leadingsystems.contao_cache.service.merconis.search');
-                $__ttl = max(0, (int) $this->cacheLifetimeSec);
-                $__tags = array(
+        $__handle = null;
+        $__container = System::getContainer();
+        // Use the dedicated search cache handler (no exceptions on miss)
+        if ($__container->has('leadingsystems.contao_cache.handler.merconis.search')) {
+            /** @var \LeadingSystems\ContaoCacheBundle\Cache\CacheHandler $__handler */
+            $__handler = $__container->get('leadingsystems.contao_cache.handler.merconis.search');
+            $__ttl = max(0, (int) $this->cacheLifetimeSec);
+            $__tags = array(
                     // Include searchType before it gets removed from criteria
                     'searchType' => $this->bln_andSearch,
                     // Segregate caches per product list context to avoid cross-list hook effects
@@ -406,44 +405,37 @@ class ls_shop_productSearcher
                     'lastBackendDataChange' => isset($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']) ? $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] : 0,
                     'lastResetTimestamp' => $_SESSION['lsShop']['filter']['lastResetTimestamp'] ?? null,
                     'customerGroupId' => $this->arr_groupSettingsForUser['id'] ?? null
-                );
-                $__mc_element = $__mc->getCacheElement($__ttl, $__tags);
-                try {
-                    $__payload = $__mc_element->getContent();
-                    if (is_array($__payload)) {
-                        $this->blnResultFromCache = true;
-                        $this->arrProductResultsComplete = $__payload['productResultsComplete'] ?? array();
-                        $this->blnNotAllProductsMatch = $__payload['blnNotAllProductsMatch'] ?? false;
-                        $this->numProductsNotMatching = $__payload['numProductsNotMatching'] ?? 0;
-                        $this->numProductsBeforeFilter = $__payload['numProductsBeforeFilter'] ?? 0;
-                        if (!empty($__payload['blnUseFilter'])) {
-                            if (!empty($__payload['criteriaToUseInFilterFormHasBeenSet'])) {
-                                $GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'] = true;
-                            }
-                            if (array_key_exists('arrCriteriaToUseInFilterForm', $__payload)) {
-                                $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] = $__payload['arrCriteriaToUseInFilterForm'];
-                            }
-                            if (array_key_exists('criteriaToActuallyFilterWith', $__payload)) {
-                                $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'] = $__payload['criteriaToActuallyFilterWith'];
-                            }
-                            if (array_key_exists('matchedProducts', $__payload)) {
-                                $_SESSION['lsShop']['filter']['matchedProducts'] = $__payload['matchedProducts'];
-                            }
-                            if (array_key_exists('matchedVariants', $__payload)) {
-                                $_SESSION['lsShop']['filter']['matchedVariants'] = $__payload['matchedVariants'];
-                            }
-                            if (array_key_exists('matchEstimates', $__payload)) {
-                                $_SESSION['lsShop']['filter']['matchEstimates'] = $__payload['matchEstimates'];
-                            }
-                        }
-                        return;
+            );
+            $__handle = $__handler->create($__ttl, $__tags);
+            [$__hit, $__payload] = $__handle->getValueOrStart();
+            if ($__hit && is_array($__payload)) {
+                $this->blnResultFromCache = true;
+                $this->arrProductResultsComplete = $__payload['productResultsComplete'] ?? array();
+                $this->blnNotAllProductsMatch = $__payload['blnNotAllProductsMatch'] ?? false;
+                $this->numProductsNotMatching = $__payload['numProductsNotMatching'] ?? 0;
+                $this->numProductsBeforeFilter = $__payload['numProductsBeforeFilter'] ?? 0;
+                if (!empty($__payload['blnUseFilter'])) {
+                    if (!empty($__payload['criteriaToUseInFilterFormHasBeenSet'])) {
+                        $GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'] = true;
                     }
-                } catch (\LeadingSystems\ContaoCacheBundle\Cache\CacheMissException $e) {
-                    // proceed to compute and store below
+                    if (array_key_exists('arrCriteriaToUseInFilterForm', $__payload)) {
+                        $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] = $__payload['arrCriteriaToUseInFilterForm'];
+                    }
+                    if (array_key_exists('criteriaToActuallyFilterWith', $__payload)) {
+                        $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'] = $__payload['criteriaToActuallyFilterWith'];
+                    }
+                    if (array_key_exists('matchedProducts', $__payload)) {
+                        $_SESSION['lsShop']['filter']['matchedProducts'] = $__payload['matchedProducts'];
+                    }
+                    if (array_key_exists('matchedVariants', $__payload)) {
+                        $_SESSION['lsShop']['filter']['matchedVariants'] = $__payload['matchedVariants'];
+                    }
+                    if (array_key_exists('matchEstimates', $__payload)) {
+                        $_SESSION['lsShop']['filter']['matchEstimates'] = $__payload['matchEstimates'];
+                    }
                 }
+                return;
             }
-        } catch (\Throwable $__e) {
-            // ignore cache errors
         }
 
         // From here on, compute the results and ensure we store them at the end
@@ -1950,27 +1942,23 @@ class ls_shop_productSearcher
                 $this->arrProductResultsComplete = $arrProductIDsTempComplete;
             }
         } finally {
-            // Store results into Merconis cache if available
-            if (isset($__mc_element) && $__mc_element) {
-                try {
-                    $__storePayload = array(
-                        'productResultsComplete' => $this->arrProductResultsComplete,
-                        'numResultsComplete' => count($this->arrProductResultsComplete),
-                        'blnNotAllProductsMatch' => $this->blnNotAllProductsMatch,
-                        'numProductsNotMatching' => $this->numProductsNotMatching,
-                        'numProductsBeforeFilter' => $this->numProductsBeforeFilter,
-                        'blnUseFilter' => $this->blnUseFilter,
-                        'criteriaToUseInFilterFormHasBeenSet' => isset($GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet']) && $GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'],
-                        'arrCriteriaToUseInFilterForm' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']) ? $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] : null,
-                        'criteriaToActuallyFilterWith' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']) ? $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'] : null,
-                        'matchedProducts' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedProducts']) ? $_SESSION['lsShop']['filter']['matchedProducts'] : null,
-                        'matchedVariants' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedVariants']) ? $_SESSION['lsShop']['filter']['matchedVariants'] : null,
-                        'matchEstimates' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchEstimates']) ? $_SESSION['lsShop']['filter']['matchEstimates'] : null
-                    );
-                    $__mc_element->storeContent($__storePayload);
-                } catch (\Throwable $__e2) {
-                    // ignore cache store errors
-                }
+            // Store results using handler if available
+            if (isset($__handle) && $__handle) {
+                $__storePayload = array(
+                    'productResultsComplete' => $this->arrProductResultsComplete,
+                    'numResultsComplete' => count($this->arrProductResultsComplete),
+                    'blnNotAllProductsMatch' => $this->blnNotAllProductsMatch,
+                    'numProductsNotMatching' => $this->numProductsNotMatching,
+                    'numProductsBeforeFilter' => $this->numProductsBeforeFilter,
+                    'blnUseFilter' => $this->blnUseFilter,
+                    'criteriaToUseInFilterFormHasBeenSet' => isset($GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet']) && $GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'],
+                    'arrCriteriaToUseInFilterForm' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm']) ? $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] : null,
+                    'criteriaToActuallyFilterWith' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']) ? $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'] : null,
+                    'matchedProducts' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedProducts']) ? $_SESSION['lsShop']['filter']['matchedProducts'] : null,
+                    'matchedVariants' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedVariants']) ? $_SESSION['lsShop']['filter']['matchedVariants'] : null,
+                    'matchEstimates' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchEstimates']) ? $_SESSION['lsShop']['filter']['matchEstimates'] : null
+                );
+                $__handle->storeValue($__storePayload);
             }
         }
     }
