@@ -174,11 +174,6 @@ services:
     class: LeadingSystems\MerconisBundle\Services\Session
     public: true
 
-  # Context extension: expose frontend member id as dimension "memberId"
-  LeadingSystems\MerconisBundle\Cache\Context\FrontendMemberContextExtension:
-    tags:
-      - { name: 'leadingsystems.contao_cache.context_extension' }
-
   # Context extension: expose shop pricing/customer dimensions
   LeadingSystems\MerconisBundle\Cache\Context\ShopCustomerPricingContextExtension:
     tags:
