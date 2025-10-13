@@ -6,8 +6,6 @@ use Contao\ArrayUtil;
 use Contao\Database;
 use Contao\PageModel;
 use Contao\System;
-use LeadingSystems\ContaoCacheBundle\Cache\CacheElementNoHitException;
-use LeadingSystems\ContaoCacheBundle\Cache\MerconisCache;
 
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
