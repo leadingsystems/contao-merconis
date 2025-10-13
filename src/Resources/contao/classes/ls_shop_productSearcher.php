@@ -380,9 +380,9 @@ class ls_shop_productSearcher
         try {
             $__container = System::getContainer();
             // Use the dedicated search cache service
-            if ($__container->has('merconis.cache.search')) {
+            if ($__container->has('leadingsystems.contao_cache.service.merconis.search')) {
                 /** @var \LeadingSystems\ContaoCacheBundle\Cache\TaggedCache $__mc */
-                $__mc = $__container->get('merconis.cache.search');
+                $__mc = $__container->get('leadingsystems.contao_cache.service.merconis.search');
                 $__ttl = max(0, (int) $this->cacheLifetimeSec);
                 $__tags = array(
                     // Include searchType before it gets removed from criteria
