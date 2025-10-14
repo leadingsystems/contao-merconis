@@ -199,7 +199,7 @@ class productImageGallery extends Frontend {
         try {
             $container = System::getContainer();
             $registry = $container->has(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) ? $container->get(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) : null;
-            $handler = $registry?->getHandler('default');
+            $handler = $registry?->getHandler('merconis.gallery');
         } catch (\Throwable $e) {
             $handler = null;
         }
