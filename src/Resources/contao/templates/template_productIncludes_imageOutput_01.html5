@@ -1,13 +1,4 @@
 <?php
-use LeadingSystems\ContaoCacheBundle\Cache\CacheHandler;
-/** Fragment cache: cache final rendered gallery HTML, skip for random sort. */
-try {
-    $container = Contao\System::getContainer();
-    /** @var LeadingSystems\ContaoCacheBundle\Cache\CacheHandler|null $fragmentCacheHandler */
-    $fragmentCacheHandler = $container->has('leadingsystems.contao_cache.handler.merconis.fragment') ? $container->get('leadingsystems.contao_cache.handler.merconis.fragment') : null;
-} catch (\Throwable $e) {
-    $fragmentCacheHandler = null;
-}
 /*
  * Prepare the html code for the gallery. If a variant is selected and it has its own images,
  * we use them to create the gallery. If not, we use the product's images.
@@ -21,36 +12,6 @@ if ($this->objProduct->_variantIsSelected && $this->objProduct->_selectedVariant
 
 
 if ($obj_tmp_productOrVariant !== null) {
-    $sort = $obj_tmp_productOrVariant->getImageGallery()->getSortMode();
-    $skipFragmentCache = ($sort === 'random');
-    $cachedOutput = null;
-    $handle = null;
-    if ($fragmentCacheHandler && !$skipFragmentCache) {
-        $prodId = $this->objProduct->_variantIsSelected ? $this->objProduct->_selectedVariant->_productVariantID : $this->objProduct->_productVariantID;
-        $isVariant = (bool) $this->objProduct->_variantIsSelected;
-        $sig = $this->objProduct->_variantIsSelected ? $obj_tmp_productOrVariant->getImageGallery()->getMultiSrcSignature() : $this->objProduct->getImageGallery()->getMultiSrcSignature();
-        $mis = $this->objProduct->_variantIsSelected ? $obj_tmp_productOrVariant->getImageGallery()->getMainImageSignature() : $this->objProduct->getImageGallery()->getMainImageSignature();
-        // Stable product-level overlays that affect HTML (e.g., badges)
-        $ov = array();
-        if ($this->objProduct->_isOnSale) { $ov[] = 'isOnSale'; }
-        if ($this->objProduct->_isNew) { $ov[] = 'isNew'; }
-
-        $params = array(
-            'prod' => (string) $prodId,
-            'isVariant' => $isVariant,
-            'sort' => (string) $sort,
-            'sig' => is_array($sig) ? $sig : array(),
-            'mis' => $mis,
-            'ov' => $ov,
-            'tpl' => (string) $this->getName(),
-        );
-        $handle = $fragmentCacheHandler->createForRecipe('gallery_fragment', $params, 86400);
-        $cachedOutput = $handle->startCapture();
-        if ($cachedOutput !== null) {
-            echo $cachedOutput;
-            return;
-        }
-    }
     ?>
     <div class="galleryContainer lsNavtabGalleryProductDetails">
         <?php
@@ -69,7 +30,6 @@ if ($obj_tmp_productOrVariant !== null) {
         }
         ?>
     </div>
-    <?php if ($handle && !$skipFragmentCache) { echo $handle->finishCapture(); } ?>
 
     <?php
 }
