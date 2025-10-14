@@ -198,7 +198,8 @@ class productImageGallery extends Frontend {
         $cached = false;
         try {
             $container = System::getContainer();
-            $handler = $container->has('leadingsystems.contao_cache.handler') ? $container->get('leadingsystems.contao_cache.handler') : null;
+            $registry = $container->has(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) ? $container->get(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) : null;
+            $handler = $registry ? $registry->getHandler('default') : null;
         } catch (\Throwable $e) {
             $handler = null;
         }

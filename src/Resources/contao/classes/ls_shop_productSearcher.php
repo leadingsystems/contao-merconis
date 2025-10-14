@@ -379,9 +379,11 @@ class ls_shop_productSearcher
         $__handle = null;
         $__container = System::getContainer();
         // Use the dedicated search cache handler (no exceptions on miss)
-        if ($__container->has('leadingsystems.contao_cache.handler.merconis.search')) {
-            /** @var \LeadingSystems\ContaoCacheBundle\Cache\CacheHandler $__handler */
-            $__handler = $__container->get('leadingsystems.contao_cache.handler.merconis.search');
+        /** @var \LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry|null $__registry */
+        $__registry = $__container->has(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) ? $__container->get(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) : null;
+        if ($__registry) {
+            /** @var \LeadingSystems\ContaoCacheBundle\Cache\CacheHandler|null $__handler */
+            $__handler = $__registry->getHandler('merconis.search');
             $__ttl = max(0, (int) $this->cacheLifetimeSec);
             $__tags = array(
                     // Include searchType before it gets removed from criteria
@@ -405,8 +407,12 @@ class ls_shop_productSearcher
                     'lastBackendDataChange' => isset($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']) ? $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] : 0,
                     'customerGroupId' => $this->arr_groupSettingsForUser['id'] ?? null
             );
-            $__handle = $__handler->create($__ttl, $__tags);
-            [$__hit, $__payload] = $__handle->getValueOrStart();
+            if ($__handler) {
+                $__handle = $__handler->create($__ttl, $__tags);
+                [$__hit, $__payload] = $__handle->getValueOrStart();
+            } else {
+                $__hit = false; $__payload = null; $__handle = null;
+            }
             if ($__hit && is_array($__payload)) {
                 $this->blnResultFromCache = true;
                 $this->arrProductResultsComplete = $__payload['productResultsComplete'] ?? array();
