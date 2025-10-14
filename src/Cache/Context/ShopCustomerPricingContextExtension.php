@@ -16,57 +16,96 @@ use Merconis\Core\ls_shop_generalHelper;
  */
 final class ShopCustomerPricingContextExtension
 {
+    private ?string $outputPriceType = null;
+    private ?bool $checkVATID = null;
+    private ?string $customerCountry = null;
+    private ?int $lastBackendDataChange = null;
+    private bool $customerGroupIdInitialized = false;
+    private ?int $customerGroupId = null;
+
     public function getOutputPriceType(): string
     {
-        try {
-            return (string) ls_shop_generalHelper::getOutputPriceType();
-        } catch (\Throwable $e) {
-            return '';
+        if ($this->outputPriceType !== null) {
+            return $this->outputPriceType;
         }
+
+        try {
+            $this->outputPriceType = (string) ls_shop_generalHelper::getOutputPriceType();
+        } catch (\Throwable $e) {
+            $this->outputPriceType = '';
+        }
+
+        return $this->outputPriceType;
     }
 
     public function getCheckVATID(): bool
     {
-        try {
-            return (bool) ls_shop_generalHelper::checkVATID();
-        } catch (\Throwable $e) {
-            return false;
+        if ($this->checkVATID !== null) {
+            return $this->checkVATID;
         }
+
+        try {
+            $this->checkVATID = (bool) ls_shop_generalHelper::checkVATID();
+        } catch (\Throwable $e) {
+            $this->checkVATID = false;
+        }
+
+        return $this->checkVATID;
     }
 
     public function getCustomerCountry(): string
     {
-        try {
-            return (string) ls_shop_generalHelper::getCustomerCountry();
-        } catch (\Throwable $e) {
-            return '';
+        if ($this->customerCountry !== null) {
+            return $this->customerCountry;
         }
+
+        try {
+            $this->customerCountry = (string) ls_shop_generalHelper::getCustomerCountry();
+        } catch (\Throwable $e) {
+            $this->customerCountry = '';
+        }
+
+        return $this->customerCountry;
     }
 
     public function getLastBackendDataChange(): int
     {
+        if ($this->lastBackendDataChange !== null) {
+            return $this->lastBackendDataChange;
+        }
+
         try {
             /** @var array<string, mixed> $TL_CONFIG */
             $TL_CONFIG = $GLOBALS['TL_CONFIG'] ?? [];
             $value = $TL_CONFIG['ls_shop_lastBackendDataChange'] ?? 0;
-            return (int) $value;
+            $this->lastBackendDataChange = (int) $value;
         } catch (\Throwable $e) {
-            return 0;
+            $this->lastBackendDataChange = 0;
         }
+
+        return $this->lastBackendDataChange;
     }
 
     public function getCustomerGroupId(): ?int
     {
+        if ($this->customerGroupIdInitialized) {
+            return $this->customerGroupId;
+        }
+
         try {
             $group = ls_shop_generalHelper::getGroupSettings4User();
             if (is_array($group) && array_key_exists('id', $group)) {
                 $id = (int) $group['id'];
-                return $id > 0 ? $id : null;
+                $this->customerGroupId = $id > 0 ? $id : null;
+            } else {
+                $this->customerGroupId = null;
             }
         } catch (\Throwable $e) {
-            // ignore
+            $this->customerGroupId = null;
         }
-        return null;
+
+        $this->customerGroupIdInitialized = true;
+        return $this->customerGroupId;
     }
 }
 
