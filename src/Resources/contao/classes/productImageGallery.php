@@ -183,11 +183,65 @@ class productImageGallery extends Frontend {
 
     protected function lsShopGetProcessedImages(): void {
         $builder = new GalleryImageListBuilder($this->sortingRandomizer);
-        $result = $builder->build($this->mainImageSRC, $this->multiSRC, $this->arrOverlays, (string) $this->ls_moreImagesSortBy);
 
-        // Assign prebuilt lists
-        $this->ls_images = $result['moreImages'];
-        $this->mainImage = $result['mainImage'];
+        // Prepare cache context
+        /** @var PageModel $objPage */
+        global $objPage;
+        $language = is_object($objPage) && isset($objPage->language) ? (string) $objPage->language : '';
+        $sortMode = (string) $this->ls_moreImagesSortBy;
+        $overlaysHash = GalleryImageCache::buildOverlaysHash($this->arrOverlays);
+        $mainSig = $this->getMainImageSignature();
+        $multiSig = $this->getMultiSrcSignature();
+        $multiSigHash = GalleryImageCache::buildMultiSigHash($multiSig);
+
+        // Try cache via handler if available
+        $cached = false;
+        try {
+            $container = System::getContainer();
+            $handler = $container->has('leadingsystems.contao_cache.handler') ? $container->get('leadingsystems.contao_cache.handler') : null;
+        } catch (\Throwable $e) {
+            $handler = null;
+        }
+
+        $payload = null;
+        if ($handler) {
+            $tags = GalleryImageCache::buildTags($language, $sortMode, $overlaysHash, $mainSig, $multiSigHash);
+            $handle = $handler->create(86400, $tags);
+            list($hit, $payload) = $handle->getValueOrStart();
+            if ($hit && is_array($payload)) {
+                $cached = true;
+            }
+        }
+
+        if ($cached) {
+            $this->mainImage = isset($payload['main']) && is_array($payload['main']) ? GalleryImageCache::hydrateImage($payload['main']) : false;
+            $baseList = isset($payload['moreBase']) && is_array($payload['moreBase']) ? GalleryImageCache::hydrateImages($payload['moreBase']) : array();
+
+            // Apply random strategy on read
+            if ($sortMode === 'random') {
+                // Shuffle a copy
+                $shuffled = $baseList;
+                shuffle($shuffled);
+                $this->ls_images = $shuffled;
+            } else {
+                $this->ls_images = isset($payload['more']) && is_array($payload['more']) ? GalleryImageCache::hydrateImages($payload['more']) : $baseList;
+            }
+        } else {
+            $result = $builder->build($this->mainImageSRC, $this->multiSRC, $this->arrOverlays, $sortMode);
+            $this->ls_images = $result['moreImages'];
+            $this->mainImage = $result['mainImage'] ?: false;
+
+            if ($handler) {
+                $tags = GalleryImageCache::buildTags($language, $sortMode, $overlaysHash, $mainSig, $multiSigHash);
+                $handle = $handler->create(86400, $tags);
+                $payload = array(
+                    'main' => $this->mainImage instanceof \stdClass ? GalleryImageCache::serializeImage($this->mainImage) : null,
+                    'more' => $sortMode === 'random' ? null : GalleryImageCache::serializeImages($this->ls_images),
+                    'moreBase' => GalleryImageCache::serializeImages($result['moreImages'])
+                );
+                $handle->storeValue($payload);
+            }
+        }
     }
 
     public function getSortMode(): string {
