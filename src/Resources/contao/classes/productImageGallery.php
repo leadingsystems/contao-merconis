@@ -34,6 +34,11 @@ class productImageGallery extends Frontend {
 
     protected $ls_moreImagesSortBy = '';
 
+    /**
+     * @var FrontendTemplate|null
+     */
+    protected $Template = null;
+
 
     public function __construct($obj_productOrVariant, $ls_moreImagesSortBy = false, $ls_imageLimit = 0) {
         parent::__construct();
@@ -112,21 +117,15 @@ class productImageGallery extends Frontend {
     }
 
     //returns the MainImage
-    public function getMainImage(){
-        if(!$this->mainImage){
-            if($this->mainImageSRC){
-                $this->mainImage = $this->processSingleImage($this->mainImageSRC);
-            }else if(!empty($this->getMoreImages())){
-                $this->mainImage = $this->getMoreImages()[0];
-            }else if(isset($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])){
-                $this->mainImage = $this->processSingleImage(FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
-            }
+    public function getMainImage(): \stdClass|false {
+        if(!$this->mainImage && !$this->hasMoreImages() && isset($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage'])){
+            $this->mainImage = $this->processSingleImage(FilesModel::findByUuid(ls_helpers_controller::uuidFromId($GLOBALS['TL_CONFIG']['ls_shop_systemImages_noProductImage']))->path);
         }
-        return $this->mainImage;
+        return $this->mainImage ?: false;
     }
 
     //returns All Images MainImage+MoreImages
-    public function getImages(){
+    public function getImages(): array {
         $arrImg = $this->ls_images;
         if ($this->hasMoreImages() && !empty($this->mainImageSRC)) {
             array_unshift($arrImg, $this->getMainImage());
@@ -142,7 +141,7 @@ class productImageGallery extends Frontend {
     }
 
     //returns MoreImages (without MainImage)
-    public function getMoreImages(){
+    public function getMoreImages(): array {
 
         $arrImg = $this->ls_images;
 
@@ -152,103 +151,75 @@ class productImageGallery extends Frontend {
         return $arrImg;
     }
 
-    public function hasMainImage(){
+    public function hasMainImage(): bool {
         if($this->getMainImage()){
             return true;
         }
         return false;
     }
 
-    public function hasMoreImages(){
+    public function hasMoreImages(): bool {
         if($this->getMoreImages()){
             return true;
         }
         return false;
     }
 
-    public function hasImages(){
+    public function hasImages(): bool {
         if($this->getImages()){
             return true;
         }
         return false;
     }
 
-    public function getMainImageUnprocessed(){
+    public function getMainImageUnprocessed(): string|false|null {
         return $this->mainImageSRC;
     }
 
-    public function getMoreImagesUnprocessed(){
+    public function getMoreImagesUnprocessed(): array {
         return $this->multiSRC;
     }
 
 
-    protected function lsShopGetProcessedImages() {
+    protected function lsShopGetProcessedImages(): void {
+        $builder = new GalleryImageListBuilder($this->sortingRandomizer);
+        $result = $builder->build($this->mainImageSRC, $this->multiSRC, $this->arrOverlays, (string) $this->ls_moreImagesSortBy);
 
-        // Get all images
-        foreach ($this->multiSRC as $file) {
-            $newImageToAdd = $this->processSingleImage($file);
-            if($newImageToAdd){
-                $this->ls_images[] = $newImageToAdd;
-            }
-        }
-
-        // Sort array
-        switch ($this->ls_moreImagesSortBy) {
-            default:
-            case 'name_asc':
-                uasort($this->ls_images, function($a, $b) {
-                    return strnatcasecmp($a->name, $b->name);
-                });
-                break;
-
-            case 'name_desc':
-                uasort($this->ls_images, function($a, $b) {
-                    return -strnatcasecmp($a->name, $b->name);
-                });
-                break;
-
-            case 'date_asc':
-                uasort($this->ls_images, function($a, $b) {
-                    if ($a->mtime == $b->mtime) {
-                        return 0;
-                    }
-                    return ($a->mtime < $b->mtime) ? -1 : 1;
-                });
-                break;
-
-            case 'date_desc':
-                uasort($this->ls_images, function($a, $b) {
-                    if ($a->mtime == $b->mtime) {
-                        return 0;
-                    }
-                    return ($a->mtime < $b->mtime) ? 1 : -1;
-                });
-                break;
-
-            case 'random':
-                uasort($this->ls_images, function($a, $b) {
-                    return strcmp($a->randomSortingValue, $b->randomSortingValue);
-                });
-                break;
-
-            case 'none':
-                break;
-        }
-
-        //sort videos to end of image list
-        $videos = [];
-        for ($i = 0; count($this->ls_images) > $i; $i++) {
-            //test if video (originalSRC is false for all images)
-            if ($this->ls_images[$i]->originalSRC != false){
-                $videos[] = $this->ls_images[$i];
-                unset($this->ls_images[$i]);
-            }
-        }
-        $this->ls_images = array_merge($this->ls_images, $videos);
-
+        // Assign prebuilt lists
+        $this->ls_images = $result['moreImages'];
+        $this->mainImage = $result['mainImage'];
     }
 
-    protected function processSingleImage($file) {
+    public function getSortMode(): string {
+        return $this->ls_moreImagesSortBy;
+    }
+
+    public function getMultiSrcSignature(): string {
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+        $signatures = array();
+        if (!is_array($this->multiSRC)) {
+            return '';
+        }
+        foreach ($this->multiSRC as $path) {
+            $full = $str_projectDir . '/' . $path;
+            $mtime = is_file($full) ? filemtime($full) : 'na';
+            $signatures[] = $path . ':' . $mtime;
+        }
+        return implode('|', $signatures);
+    }
+
+    public function getMainImageSignature(): string {
+        $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+        $path = $this->mainImageSRC ? $this->mainImageSRC : '';
+        if (!$path) {
+            return '';
+        }
+        $full = $str_projectDir . '/' . $path;
+        $mtime = is_file($full) ? filemtime($full) : 'na';
+        return $path . ':' . $mtime;
+    }
+
+    protected function processSingleImage($file): \stdClass|false {
         /** @var PageModel $objPage */
         global $objPage;
         $str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
@@ -342,7 +313,7 @@ class productImageGallery extends Frontend {
      * This function is called if an image is actually a video and therefore the cover image is needed
      * for further processing.
      */
-    protected function lsShopGetVideoCover(&$filename) {
+    protected function lsShopGetVideoCover(&$filename): File {
         $this->originalSRC = $filename;
         $coverFile = false;
 
