@@ -380,7 +380,7 @@ class ls_shop_productSearcher
         $__container = System::getContainer();
         // Use the dedicated search cache handler (no exceptions on miss)
         $__registry = $__container->has(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) ? $__container->get(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) : null;
-        $__handler = $__registry ? $__registry->getHandler('default') : null;
+        $__handler = $__registry?->getHandler('merconis.search');
         if ($__handler) {
             $__ttl = max(0, (int) $this->cacheLifetimeSec);
             $__tags = array(
@@ -402,7 +402,7 @@ class ls_shop_productSearcher
                     'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
                     'checkVATID' => ls_shop_generalHelper::checkVATID(),
                     'customerCountry' => ls_shop_generalHelper::getCustomerCountry(),
-                    'lastBackendDataChange' => isset($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']) ? $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] : 0,
+                    'lastBackendDataChange' => $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] ?? 0,
                     'customerGroupId' => $this->arr_groupSettingsForUser['id'] ?? null
             );
 
