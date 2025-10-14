@@ -1,7 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.1.9 (2025-10-10)
+### 5.1.10 (2025-10-10)
+ * fix sendRestockInfo
+
+### 5.1.9 (2025-10-09)
  * improve product import: add event trigger for external listener
 
 ### 5.1.8 (2025-09-15)

@@ -19,6 +19,12 @@ class Session {
 
     public function getSession() {
         $request = $this->requestStack->getCurrentRequest();
+
+
+        if (!$request) {
+            return false;
+        }
+
         $session = $request->getSession();
 
         return $session;
