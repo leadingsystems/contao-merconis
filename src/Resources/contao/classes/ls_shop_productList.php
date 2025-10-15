@@ -188,6 +188,82 @@ class ls_shop_productList
 			0 => array('field' => $sortingField, 'direction' => $sortingDirection)
 		);
 		
+		/*
+		 * MerconisCache: cache the final parsed HTML of the product list based on all
+		 * input parameters and UI-affecting settings to ensure correct variation.
+		 * Try a quick cache hit before running the expensive search/rendering.
+		 */
+		$__handle = null;
+		$__container = System::getContainer();
+		$__registry = $__container->has(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) ? $__container->get(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) : null;
+		$__handler = $__registry?->getHandler('merconis.fragment');
+		if ($__handler) {
+			$__ttl = max(0, (int) ($GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec'] ?? 60));
+			$__tags = array(
+				'ns' => 'merconis.product_list.html',
+				'productListID' => $this->productListID,
+				'mode' => $this->mode,
+				'outputDefinition' => array(
+					'id' => $this->outputDefinition['outputDefinitionID'] ?? null,
+					'mode' => $this->outputDefinition['outputDefinitionMode'] ?? null,
+					'overviewPagination' => $this->outputDefinition['overviewPagination'] ?? 0,
+					'overviewUserSorting' => $this->outputDefinition['overviewUserSorting'] ?? null,
+					'overviewUserSortingFields' => $this->outputDefinition['overviewUserSortingFields'] ?? null
+				),
+				'allowUserSorting' => ($this->outputDefinition['overviewUserSorting'] == 'yes' && !count($this->fixedSorting)) ? true : false,
+				'pagination' => array(
+					'currentPage' => $this->currentPage,
+					'perPage' => $this->outputDefinition['overviewPagination'] ?? 0,
+					'maxPaginationLinks' => $GLOBALS['TL_CONFIG']['maxPaginationLinks'] ?? null
+				),
+				'sorting' => $arrSortingDefinition,
+				'fixedSorting' => $this->fixedSorting,
+				'arrSearchCriteria' => $this->arrSearchCriteria,
+				'blnUseFilter' => $this->blnUseFilter,
+				'filterCriteria' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['criteria'] ?? null) : null,
+				'filterModeSettingsByAttributes' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
+				'filterModeSettingsByFlexContentsLI' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'] ?? null) : null,
+				'filterModeSettingsByFlexContentsLD' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'] ?? null) : null,
+				'language' => ($GLOBALS['TL_LANGUAGE'] ?? null),
+				'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
+				'checkVATID' => ls_shop_generalHelper::checkVATID(),
+				'customerCountry' => ls_shop_generalHelper::getCustomerCountry(),
+				'customerGroupId' => (ls_shop_generalHelper::getGroupSettings4User()['id'] ?? null),
+				'lastBackendDataChange' => $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] ?? 0,
+				'maxNumProducts' => $this->maxNumProducts,
+				'noOutputIfMoreThanMaxResults' => $this->noOutputIfMoreThanMaxResults,
+				'blnIsFrontendSearch' => $this->blnIsFrontendSearch
+			);
+
+			$__handle = $__handler->create($__ttl, $__tags);
+			list($__hit, $__payload) = $__handle->getValueOrStart();
+			if ($__hit) {
+				if (is_array($__payload) && isset($__payload['html'])) {
+					if (!empty($__payload['blnUseFilter'])) {
+						if (!empty($__payload['criteriaToUseInFilterFormHasBeenSet'])) {
+							$GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'] = true;
+						}
+						if (array_key_exists('arrCriteriaToUseInFilterForm', $__payload)) {
+							$_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] = $__payload['arrCriteriaToUseInFilterForm'];
+						}
+						if (array_key_exists('criteriaToActuallyFilterWith', $__payload)) {
+							$_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'] = $__payload['criteriaToActuallyFilterWith'];
+						}
+						if (array_key_exists('matchedProducts', $__payload)) {
+							$_SESSION['lsShop']['filter']['matchedProducts'] = $__payload['matchedProducts'];
+						}
+						if (array_key_exists('matchedVariants', $__payload)) {
+							$_SESSION['lsShop']['filter']['matchedVariants'] = $__payload['matchedVariants'];
+						}
+						if (array_key_exists('matchEstimates', $__payload)) {
+							$_SESSION['lsShop']['filter']['matchEstimates'] = $__payload['matchEstimates'];
+						}
+					}
+					return (string) $__payload['html'];
+				}
+			}
+		}
+		
 		$objProductSearch->sorting = $arrSortingDefinition;
 		$objProductSearch->fixedSorting = $this->fixedSorting;
 		
@@ -304,6 +380,21 @@ class ls_shop_productList
 		$objTemplate->products = $productOutput;
 		$objTemplate->productListID = $this->productListID;
 		
-		return $objTemplate->parse();
+		$__html = $objTemplate->parse();
+		if ($__handle) {
+			// Store HTML along with filter runtime info so hits can rehydrate the filter form state.
+			$__payloadToStore = array('html' => $__html);
+			if ($this->blnUseFilter) {
+				$__payloadToStore['blnUseFilter'] = true;
+				$__payloadToStore['criteriaToUseInFilterFormHasBeenSet'] = isset($GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet']) && $GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'];
+				$__payloadToStore['arrCriteriaToUseInFilterForm'] = $_SESSION['lsShop']['filter']['arrCriteriaToUseInFilterForm'] ?? null;
+				$__payloadToStore['criteriaToActuallyFilterWith'] = $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'] ?? null;
+				$__payloadToStore['matchedProducts'] = $_SESSION['lsShop']['filter']['matchedProducts'] ?? null;
+				$__payloadToStore['matchedVariants'] = $_SESSION['lsShop']['filter']['matchedVariants'] ?? null;
+				$__payloadToStore['matchEstimates'] = $_SESSION['lsShop']['filter']['matchEstimates'] ?? null;
+			}
+			$__handle->storeValue($__payloadToStore);
+		}
+		return $__html;
 	}
 }
