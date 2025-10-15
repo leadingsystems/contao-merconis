@@ -259,7 +259,23 @@ class ls_shop_productList
 							$_SESSION['lsShop']['filter']['matchEstimates'] = $__payload['matchEstimates'];
 						}
 					}
-					return (string) $__payload['html'];
+					// Replace any cached request token fields with the current valid token
+					$__currentToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+					$__htmlOut = preg_replace_callback(
+						'/<input\s+[^>]*\bname=("|\')REQUEST_TOKEN\1[^>]*>/i',
+						function ($m) use ($__currentToken) {
+							$tag = $m[0];
+							if (preg_match('/\bvalue=("|\')[^"\']*\1/i', $tag)) {
+								$tag = preg_replace('/\bvalue=("|\')[^"\']*\1/i', 'value="'.htmlspecialchars($__currentToken, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5).'"', $tag);
+							} else {
+								$tag = rtrim($tag, '>');
+								$tag .= ' value="'.htmlspecialchars($__currentToken, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5).'">';
+							}
+							return $tag;
+						},
+						(string) $__payload['html']
+					);
+					return $__htmlOut;
 				}
 			}
 		}
