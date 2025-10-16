@@ -129,29 +129,108 @@ class Search implements CommonInterface, IndexSearchInterface
 
         $fulltext = $criteria['fulltext'] ?? '';
         $fulltextComponents = $this->parseFulltextCriteria((string) $fulltext);
-        $scoreExpression = null;
+
+        // Build FULLTEXT boolean-mode search across descriptive fields and LIKE-based code search.
+        $descriptiveTerms = [];
+        $codeTerms = [];
 
         if (count($fulltextComponents)) {
-            [$whereConditions, $scoreExpression, $scoreParameters, $scoreParameterTypes] = $this->buildFulltextExpressions(
-                $fulltextComponents,
-                $language
-            );
+            foreach ($fulltextComponents as $component) {
+                $term = trim((string) ($component['text'] ?? ''));
+                if ($term === '') { continue; }
 
-            foreach ($whereConditions as $condition) {
-                $qb->andWhere($condition);
-            }
+                $fields = $component['fields'] ?? [];
+                $includeInDescriptive = !count($fields);
+                $includeInCode = !count($fields);
 
-            foreach ($scoreParameters as $name => $value) {
-                $parameters[$name] = $value;
-            }
+                foreach ($fields as $fieldKeyRaw) {
+                    $canonical = $this->normalizeFieldKey($fieldKeyRaw);
+                    if ($canonical === null) { continue; }
+                    if (in_array($canonical, ['title','keywords','shortdescription','description'], true)) {
+                        $includeInDescriptive = true;
+                    }
+                    if ($canonical === 'lsshopproductcode') {
+                        $includeInCode = true;
+                    }
+                }
 
-            foreach ($scoreParameterTypes as $name => $type) {
-                $parameterTypes[$name] = $type;
+                if ($includeInDescriptive) { $descriptiveTerms[] = $term; }
+                if ($includeInCode) { $codeTerms[] = $term; }
             }
         }
 
-        if ($scoreExpression === null) {
-            $scoreExpression = '0';
+        $scoreExpression = '0';
+
+        // Descriptive FULLTEXT: boolean mode with all terms required
+        $fulltextWhere = null;
+        $fulltextParamName = null;
+        $descriptiveColumns = $this->getDescriptiveColumnsForLanguage($language);
+        if (count($descriptiveTerms) && count($descriptiveColumns)) {
+            $booleanQuery = $this->buildBooleanFulltextQueryString($descriptiveTerms);
+            if ($booleanQuery !== null && $booleanQuery !== '') {
+                $fulltextParamName = $this->nextParameterName();
+                $parameters[$fulltextParamName] = $booleanQuery;
+                $parameterTypes[$fulltextParamName] = ParameterType::STRING;
+
+                // WHERE: At least one of the descriptive columns must match all terms
+                // Use single MATCH per column and OR them so a product can match in any field
+                $columnMatches = [];
+                foreach ($descriptiveColumns as $col) {
+                    $columnMatches[] = sprintf(
+                        "MATCH(%s) AGAINST (:%s IN BOOLEAN MODE)",
+                        $col,
+                        $fulltextParamName
+                    );
+                }
+                if (count($columnMatches)) {
+                    $fulltextWhere = '(' . implode(' OR ', $columnMatches) . ')';
+                }
+
+                // Relevance: weighted sum of column-specific matches
+                $scoreParts = [];
+                foreach ($descriptiveColumns as $col) {
+                    $weight = $this->getWeightForBaseColumn($col);
+                    $scoreParts[] = sprintf(
+                        '%s * MATCH(%s) AGAINST (:%s IN BOOLEAN MODE)',
+                        $this->connection->quote((string) $weight),
+                        $col,
+                        $fulltextParamName
+                    );
+                }
+                if (count($scoreParts)) {
+                    $scoreExpression = 'COALESCE((' . implode(' + ', $scoreParts) . '), 0)';
+                }
+            }
+        }
+
+        // Code LIKEs: enforce all terms with AND chaining
+        $codeWhere = null;
+        if (count($codeTerms)) {
+            $likeParts = [];
+            foreach ($codeTerms as $codeTerm) {
+                $paramName = $this->nextParameterName();
+                $parameters[$paramName] = $this->createLikePattern($codeTerm);
+                $parameterTypes[$paramName] = ParameterType::STRING;
+                $likeParts[] = sprintf("LOWER(product.lsShopProductCode) LIKE :%s ESCAPE '\\\\'", $paramName);
+            }
+            if (count($likeParts)) {
+                $codeWhere = '(' . implode(' AND ', $likeParts) . ')';
+                // Add a relevance boost if product code matches fully
+                $scoreExpression = sprintf(
+                    '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
+                    $scoreExpression,
+                    $codeWhere,
+                    $this->connection->quote('100')
+                );
+            }
+        }
+
+        if ($fulltextWhere !== null && $codeWhere !== null) {
+            $qb->andWhere('(' . $fulltextWhere . ' OR ' . $codeWhere . ')');
+        } elseif ($fulltextWhere !== null) {
+            $qb->andWhere($fulltextWhere);
+        } elseif ($codeWhere !== null) {
+            $qb->andWhere($codeWhere);
         }
 
         $qb->addSelect($scoreExpression . ' AS relevance');
@@ -183,75 +262,67 @@ class Search implements CommonInterface, IndexSearchInterface
         return array_map(static fn (array $row) => (int) $row['id'], $rows);
     }
 
-    /**
-     * @return array{0:string[],1:string,2:array<string,string>,3:array<string,int>}
-     */
-    private function buildFulltextExpressions(array $components, string $language): array
+    // Build a boolean-mode query string that requires all terms: "+term1* +term2* ..."
+    private function buildBooleanFulltextQueryString(array $terms): string
     {
-        $whereConditions = [];
-        $scoreParts = [];
-        $parameters = [];
-        $parameterTypes = [];
+        $parts = [];
+        foreach ($terms as $t) {
+            $t = trim((string) $t);
+            if ($t === '') { continue; }
+            // Strip characters that have special boolean meaning to avoid user injection of operators
+            $t = str_replace(['+','-','~','<','>','(',')','"',"'"], ' ', $t);
+            $t = preg_replace('/\s+/', ' ', $t);
+            $t = trim($t);
+            if ($t === '') { continue; }
+            $parts[] = '+' . $t . '*';
+        }
+        return implode(' ', $parts);
+    }
 
-        foreach ($components as $component) {
-            $term = $component['text'];
-            if ($term === '') {
+    // Return descriptive columns (language-specific preferred) qualified with table alias that exist in the schema
+    private function getDescriptiveColumnsForLanguage(string $language): array
+    {
+        $bases = ['title', 'keywords', 'shortDescription', 'description'];
+        $existing = [];
+        foreach ($bases as $base) {
+            $langSpecific = $base . '_' . $language;
+            if ($this->columnExists($langSpecific)) {
+                $existing[] = 'product.' . $langSpecific;
                 continue;
             }
+            if ($this->columnExists($base)) { $existing[] = 'product.' . $base; }
+        }
+        if ($this->columnExists('lsShopProductProducer')) {
+            $existing[] = 'product.lsShopProductProducer';
+        }
+        return $existing;
+    }
 
-            $fields = $component['fields'];
-            if (!count($fields)) {
-                $fields = $this->defaultFieldKeys;
+    private function getWeightForBaseColumn(string $qualifiedColumn): float
+    {
+        // Extract base column name
+        $base = $qualifiedColumn;
+        if (strpos($qualifiedColumn, '.') !== false) {
+            $base = substr($qualifiedColumn, strrpos($qualifiedColumn, '.') + 1);
+        }
+        // Normalize possible language suffix (e.g., title_de -> title)
+        $rootBase = $base;
+        $underscorePos = strpos($base, '_');
+        if ($underscorePos !== false) {
+            $candidate = substr($base, 0, $underscorePos);
+            if (in_array($candidate, ['title', 'keywords', 'shortDescription', 'description'], true)) {
+                $rootBase = $candidate;
             }
-
-            $boost = $component['boost'];
-
-            $termWhereFragments = [];
-
-            $paramName = $this->nextParameterName();
-            $pattern = $this->createLikePattern($term);
-            $parameters[$paramName] = $pattern;
-            $parameterTypes[$paramName] = ParameterType::STRING;
-
-            foreach ($fields as $fieldKey) {
-                $fieldConfig = $this->getFieldConfig($fieldKey);
-                if ($fieldConfig === null) {
-                    continue;
-                }
-
-                $columnExpression = $this->resolveColumnExpression($fieldConfig, $language);
-                if ($columnExpression === null) {
-                    continue;
-                }
-
-                $baseWeight = $fieldConfig['weight'] ?? 1.0;
-                $weight = $baseWeight * $boost;
-
-                $likeExpression = sprintf(
-                    "LOWER(%s) LIKE :%s ESCAPE '\\\\'",
-                    $columnExpression,
-                    $paramName
-                );
-
-                $termWhereFragments[] = $likeExpression;
-
-                $scoreParts[] = sprintf(
-                    'CASE WHEN %s THEN %s ELSE 0 END',
-                    $likeExpression,
-                    $this->connection->quote((string) $weight)
-                );
-            }
-
-            if (!count($termWhereFragments)) {
-                continue;
-            }
-
-            $whereConditions[] = '(' . implode(' OR ', $termWhereFragments) . ')';
         }
 
-        $scoreExpression = count($scoreParts) ? 'COALESCE(' . implode(' + ', $scoreParts) . ', 0)' : '0';
-
-        return [$whereConditions, $scoreExpression, $parameters, $parameterTypes];
+        switch ($rootBase) {
+            case 'title': return 5.0;
+            case 'keywords': return 3.0;
+            case 'shortDescription': return 2.0;
+            case 'description': return 1.5;
+            case 'lsShopProductProducer': return 2.0;
+            default: return 1.0;
+        }
     }
 
     private function parseFulltextCriteria(string $raw): array
