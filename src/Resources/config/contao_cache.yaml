@@ -6,5 +6,11 @@ leading_systems_contao_cache:
       label:
         en: 'Merconis search cache'
         de: 'Merconis Such-Cache'
+    - id: merconis.fragment
+      namespace_prefix: 'merconis.fragment.cache.'
+      maintenance_job: true
+      label:
+        en: 'Merconis fragment cache'
+        de: 'Merconis Fragment-Cache'
 
 
