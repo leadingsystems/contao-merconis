@@ -388,6 +388,12 @@ class ls_shop_productSearcher
                     if (array_key_exists('relevantProducerSet', $__payload)) {
                         $_SESSION['lsShop']['filter']['relevantProducerSet'] = $__payload['relevantProducerSet'];
                     }
+                    if (array_key_exists('relevantAttributeValueSet', $__payload)) {
+                        $_SESSION['lsShop']['filter']['relevantAttributeValueSet'] = $__payload['relevantAttributeValueSet'];
+                    }
+                    if (array_key_exists('attributeRelevanceCounts', $__payload)) {
+                        $_SESSION['lsShop']['filter']['attributeRelevanceCounts'] = $__payload['attributeRelevanceCounts'];
+                    }
                 }
                 return;
             }
@@ -1344,7 +1350,9 @@ class ls_shop_productSearcher
                     'matchedProducts' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedProducts']) ? $_SESSION['lsShop']['filter']['matchedProducts'] : null,
                     'matchedVariants' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedVariants']) ? $_SESSION['lsShop']['filter']['matchedVariants'] : null,
                     'matchEstimates' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchEstimates']) ? $_SESSION['lsShop']['filter']['matchEstimates'] : null,
-                    'relevantProducerSet' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['relevantProducerSet']) ? $_SESSION['lsShop']['filter']['relevantProducerSet'] : null
+                    'relevantProducerSet' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['relevantProducerSet']) ? $_SESSION['lsShop']['filter']['relevantProducerSet'] : null,
+                    'relevantAttributeValueSet' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['relevantAttributeValueSet']) ? $_SESSION['lsShop']['filter']['relevantAttributeValueSet'] : null,
+                    'attributeRelevanceCounts' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['attributeRelevanceCounts']) ? $_SESSION['lsShop']['filter']['attributeRelevanceCounts'] : null
                 );
                 $__handle->storeValue($__storePayload);
             }

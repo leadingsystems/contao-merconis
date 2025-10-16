@@ -266,6 +266,12 @@ class ls_shop_productList
 						if (array_key_exists('relevantProducerSet', $__payload)) {
 							$_SESSION['lsShop']['filter']['relevantProducerSet'] = $__payload['relevantProducerSet'];
 						}
+						if (array_key_exists('relevantAttributeValueSet', $__payload)) {
+							$_SESSION['lsShop']['filter']['relevantAttributeValueSet'] = $__payload['relevantAttributeValueSet'];
+						}
+						if (array_key_exists('attributeRelevanceCounts', $__payload)) {
+							$_SESSION['lsShop']['filter']['attributeRelevanceCounts'] = $__payload['attributeRelevanceCounts'];
+						}
 					}
 					$__currentToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 					$__htmlOut = preg_replace_callback(
@@ -419,7 +425,7 @@ class ls_shop_productList
 		$objTemplate->productListID = $this->productListID;
 		
 		$__html = $objTemplate->parse();
-		if ($__handle) {
+			if ($__handle) {
 			$__payloadToStore = array('html' => $__html);
 			if ($this->blnUseFilter) {
 				$__payloadToStore['blnUseFilter'] = true;
@@ -429,7 +435,9 @@ class ls_shop_productList
 				$__payloadToStore['matchedProducts'] = $_SESSION['lsShop']['filter']['matchedProducts'] ?? null;
 				$__payloadToStore['matchedVariants'] = $_SESSION['lsShop']['filter']['matchedVariants'] ?? null;
 				$__payloadToStore['matchEstimates'] = $_SESSION['lsShop']['filter']['matchEstimates'] ?? null;
-				$__payloadToStore['relevantProducerSet'] = $_SESSION['lsShop']['filter']['relevantProducerSet'] ?? null;
+					$__payloadToStore['relevantProducerSet'] = $_SESSION['lsShop']['filter']['relevantProducerSet'] ?? null;
+					$__payloadToStore['relevantAttributeValueSet'] = $_SESSION['lsShop']['filter']['relevantAttributeValueSet'] ?? null;
+					$__payloadToStore['attributeRelevanceCounts'] = $_SESSION['lsShop']['filter']['attributeRelevanceCounts'] ?? null;
 			}
 			$__handle->storeValue($__payloadToStore);
 		}
