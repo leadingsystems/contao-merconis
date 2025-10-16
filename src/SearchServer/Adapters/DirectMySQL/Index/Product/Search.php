@@ -292,9 +292,6 @@ class Search implements CommonInterface, IndexSearchInterface
             }
             if ($this->columnExists($base)) { $existing[] = 'product.' . $base; }
         }
-        if ($this->columnExists('lsShopProductProducer')) {
-            $existing[] = 'product.lsShopProductProducer';
-        }
         return $existing;
     }
 
