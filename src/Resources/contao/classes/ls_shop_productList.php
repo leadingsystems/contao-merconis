@@ -263,6 +263,9 @@ class ls_shop_productList
 						if (array_key_exists('matchEstimates', $__payload)) {
 							$_SESSION['lsShop']['filter']['matchEstimates'] = $__payload['matchEstimates'];
 						}
+						if (array_key_exists('relevantProducerSet', $__payload)) {
+							$_SESSION['lsShop']['filter']['relevantProducerSet'] = $__payload['relevantProducerSet'];
+						}
 					}
 					$__currentToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 					$__htmlOut = preg_replace_callback(
@@ -426,6 +429,7 @@ class ls_shop_productList
 				$__payloadToStore['matchedProducts'] = $_SESSION['lsShop']['filter']['matchedProducts'] ?? null;
 				$__payloadToStore['matchedVariants'] = $_SESSION['lsShop']['filter']['matchedVariants'] ?? null;
 				$__payloadToStore['matchEstimates'] = $_SESSION['lsShop']['filter']['matchEstimates'] ?? null;
+				$__payloadToStore['relevantProducerSet'] = $_SESSION['lsShop']['filter']['relevantProducerSet'] ?? null;
 			}
 			$__handle->storeValue($__payloadToStore);
 		}

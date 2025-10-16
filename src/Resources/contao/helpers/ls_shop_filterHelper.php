@@ -32,6 +32,14 @@ class ls_shop_filterHelper {
 
     public static function filterValueProducerIsRelevant(string $producer): bool
     {
+        /*
+         * Fast path: if a precomputed producer set exists (built from the
+         * post-filter product list), use O(1) membership check.
+         */
+        if (is_array($_SESSION['lsShop']['filter']['relevantProducerSet'] ?? null)) {
+            return isset($_SESSION['lsShop']['filter']['relevantProducerSet'][$producer]);
+        }
+
         if (self::$relevantFilterValueProducers === null) {
             self::$relevantFilterValueProducers = [];
             /*
@@ -354,6 +362,12 @@ class ls_shop_filterHelper {
             'allProductsInfluencingFilterForm' => [],
 
             'allProductsInAlreadyFilteredProductList' => [],
+
+            /*
+             * Hash set of producers that occur in the post-filter product list.
+             * Keys are producer strings, values are boolean true.
+             */
+            'relevantProducerSet' => array(),
 
 			'arrCriteriaToUseInFilterForm' => array(
 				'attributes' => array(),
@@ -911,6 +925,20 @@ class ls_shop_filterHelper {
 
         if ($mode === 'show') {
             $_SESSION['lsShop']['filter']['allProductsInAlreadyFilteredProductList'] = $arrProducts;
+
+            /*
+             * Precompute relevant producers from the post-filter product list
+             * to enable O(1) membership checks when building the filter UI.
+             */
+            $_SESSION['lsShop']['filter']['relevantProducerSet'] = array();
+            if (is_array($arrProducts)) {
+                foreach ($arrProducts as $arrProduct) {
+                    $producer = $arrProduct['lsShopProductProducer'] ?? null;
+                    if ($producer !== null && $producer !== '') {
+                        $_SESSION['lsShop']['filter']['relevantProducerSet'][$producer] = true;
+                    }
+                }
+            }
         }
 
 		ls_shop_filterHelper::resetCriteriaToUseOrShowInFilterForm($where);

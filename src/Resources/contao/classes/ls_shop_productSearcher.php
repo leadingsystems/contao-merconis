@@ -385,6 +385,9 @@ class ls_shop_productSearcher
                     if (array_key_exists('matchEstimates', $__payload)) {
                         $_SESSION['lsShop']['filter']['matchEstimates'] = $__payload['matchEstimates'];
                     }
+                    if (array_key_exists('relevantProducerSet', $__payload)) {
+                        $_SESSION['lsShop']['filter']['relevantProducerSet'] = $__payload['relevantProducerSet'];
+                    }
                 }
                 return;
             }
@@ -1340,7 +1343,8 @@ class ls_shop_productSearcher
                     'criteriaToActuallyFilterWith' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith']) ? $_SESSION['lsShop']['filter']['criteriaToActuallyFilterWith'] : null,
                     'matchedProducts' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedProducts']) ? $_SESSION['lsShop']['filter']['matchedProducts'] : null,
                     'matchedVariants' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchedVariants']) ? $_SESSION['lsShop']['filter']['matchedVariants'] : null,
-                    'matchEstimates' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchEstimates']) ? $_SESSION['lsShop']['filter']['matchEstimates'] : null
+                    'matchEstimates' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['matchEstimates']) ? $_SESSION['lsShop']['filter']['matchEstimates'] : null,
+                    'relevantProducerSet' => $this->blnUseFilter && isset($_SESSION['lsShop']['filter']['relevantProducerSet']) ? $_SESSION['lsShop']['filter']['relevantProducerSet'] : null
                 );
                 $__handle->storeValue($__storePayload);
             }
