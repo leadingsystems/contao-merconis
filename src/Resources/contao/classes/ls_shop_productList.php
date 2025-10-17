@@ -242,7 +242,12 @@ class ls_shop_productList
 
 			$__handle = $__handler->create($__ttl, $__tags);
 			list($__hit, $__payload) = $__handle->getValueOrStart();
-			if ($__hit) {
+
+            /*
+             * Do me! Actually activate caching only if a solution for handling
+             *  user specific prices is implemented. Until then: Deactivate!
+             */
+			if (false && $__hit) {
 				if (is_array($__payload) && isset($__payload['html'])) {
 					if (!empty($__payload['blnUseFilter'])) {
 						if (!empty($__payload['criteriaToUseInFilterFormHasBeenSet'])) {
