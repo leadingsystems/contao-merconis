@@ -83,7 +83,8 @@ class Adapter
          * Do me! The default mode should be defined as a system/environment setting.
          *  Maybe it should be configurable in the Contao backend?
          */
-        $this->setMode(Mode::SearchServer);
+//        $this->setMode(Mode::SearchServer);
+        $this->setMode(Mode::Standard);
     }
 
     public function initialize(bool $useFilter = false, ?string $productListId = null): void
