@@ -27,16 +27,22 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		'onrestore_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
-        'sql' => array
-        (
-            'keys' => array
-            (
-                'id' => 'primary',
-                'alias' => 'unique',
-                'lsshopproductcode' => 'unique',
-                'variationgroupcode' => 'index'
-            )
-        )
+		'sql' => array
+		(
+			'keys' => array
+			(
+				'id' => 'primary',
+				'alias' => 'unique',
+				'lsshopproductcode' => 'unique',
+				'variationgroupcode' => 'index',
+				// FULLTEXT indexes for faster descriptive searches (MyISAM/InnoDB 5.6+)
+				'title' => 'fulltext',
+				'description' => 'fulltext',
+				'shortDescription' => 'fulltext',
+				'keywords' => 'fulltext',
+				'lsShopProductProducer' => 'index'
+			)
+		)
 	),
 
 	'list' => array(

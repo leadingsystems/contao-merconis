@@ -5,9 +5,26 @@ class ls_shop_filterHelper {
     private static ?array $attributeIdsForWhichFilterFieldsArePublished = null;
     private static ?array $relevantFilterValueAttributes = null;
     private static ?array $relevantFilterValueProducers = null;
+    private static ?bool $useCompactSets = null;
+
+    private static function useCompactSets(): bool
+    {
+        if (self::$useCompactSets !== null) {
+            return self::$useCompactSets;
+        }
+        if (isset($_COOKIE['ls_use_compact_filter_sets'])) {
+            self::$useCompactSets = (string) $_COOKIE['ls_use_compact_filter_sets'] === '1';
+            return self::$useCompactSets;
+        }
+        self::$useCompactSets = (bool) ($GLOBALS['TL_CONFIG']['merconis_filter_useCompactSets'] ?? false);
+        return self::$useCompactSets;
+    }
 
     public static function filterValueAttributeIsRelevant(int $attributeValueId): bool
     {
+        if (self::useCompactSets()) {
+            return isset($_SESSION['lsShop']['filter']['relevantAttributeValueSet'][$attributeValueId]);
+        }
         if (self::$relevantFilterValueAttributes === null) {
             self::$relevantFilterValueAttributes = [];
             /*
@@ -32,6 +49,10 @@ class ls_shop_filterHelper {
 
     public static function filterValueProducerIsRelevant(string $producer): bool
     {
+        if (self::useCompactSets()) {
+            return isset($_SESSION['lsShop']['filter']['relevantProducerSet'][$producer]);
+        }
+
         if (self::$relevantFilterValueProducers === null) {
             self::$relevantFilterValueProducers = [];
             /*
@@ -51,6 +72,9 @@ class ls_shop_filterHelper {
      */
     public static function getAttributeIdsForRelevantFilterFieldsWithRelevance(): array
     {
+        if (self::useCompactSets()) {
+            return is_array($_SESSION['lsShop']['filter']['attributeRelevanceCounts'] ?? null) ? $_SESSION['lsShop']['filter']['attributeRelevanceCounts'] : [];
+        }
         /*
          * Get the product ids of currently displayed products
          */
@@ -354,6 +378,11 @@ class ls_shop_filterHelper {
             'allProductsInfluencingFilterForm' => [],
 
             'allProductsInAlreadyFilteredProductList' => [],
+
+            // Compact structures
+            'relevantProducerSet' => array(),
+            'relevantAttributeValueSet' => array(),
+            'attributeRelevanceCounts' => array(),
 
 			'arrCriteriaToUseInFilterForm' => array(
 				'attributes' => array(),
@@ -906,11 +935,87 @@ class ls_shop_filterHelper {
                 return;
             }
 
-            $_SESSION['lsShop']['filter']['allProductsInfluencingFilterForm'] = $arrProducts;
+            if (!self::useCompactSets()) {
+                $_SESSION['lsShop']['filter']['allProductsInfluencingFilterForm'] = $arrProducts;
+            } else {
+                $_SESSION['lsShop']['filter']['allProductsInfluencingFilterForm'] = [];
+            }
         }
 
         if ($mode === 'show') {
-            $_SESSION['lsShop']['filter']['allProductsInAlreadyFilteredProductList'] = $arrProducts;
+            if (!self::useCompactSets()) {
+                $_SESSION['lsShop']['filter']['allProductsInAlreadyFilteredProductList'] = $arrProducts;
+                // Maintain precomputed producer set for legacy speedup
+                $_SESSION['lsShop']['filter']['relevantProducerSet'] = array();
+                if (is_array($arrProducts)) {
+                    foreach ($arrProducts as $arrProduct) {
+                        $producer = $arrProduct['lsShopProductProducer'] ?? null;
+                        if ($producer !== null && $producer !== '') {
+                            $_SESSION['lsShop']['filter']['relevantProducerSet'][(string) $producer] = true;
+                        }
+                    }
+                }
+            } else {
+                // Compact mode: build sets and keep legacy arrays empty
+                $_SESSION['lsShop']['filter']['allProductsInAlreadyFilteredProductList'] = [];
+                $_SESSION['lsShop']['filter']['relevantProducerSet'] = array();
+                $_SESSION['lsShop']['filter']['relevantAttributeValueSet'] = array();
+                $_SESSION['lsShop']['filter']['attributeRelevanceCounts'] = array();
+
+                if (is_array($arrProducts)) {
+                    foreach ($arrProducts as $arrProduct) {
+                        $producer = $arrProduct['lsShopProductProducer'] ?? null;
+                        if ($producer !== null && $producer !== '') {
+                            $_SESSION['lsShop']['filter']['relevantProducerSet'][(string) $producer] = true;
+                        }
+
+                        if (is_array($arrProduct['attributeIDs'] ?? null)) {
+                            foreach ($arrProduct['attributeIDs'] as $attributeID) {
+                                $intAttr = (int) $attributeID;
+                                if (!self::filterFieldForAttributeExists($intAttr)) {
+                                    continue;
+                                }
+                                if (!isset($_SESSION['lsShop']['filter']['attributeRelevanceCounts'][$intAttr])) {
+                                    $_SESSION['lsShop']['filter']['attributeRelevanceCounts'][$intAttr] = 0;
+                                }
+                                $_SESSION['lsShop']['filter']['attributeRelevanceCounts'][$intAttr]++;
+                            }
+                        }
+
+                        if (is_array($arrProduct['attributeAndValueIDs'] ?? null)) {
+                            foreach ($arrProduct['attributeAndValueIDs'] as $intAttributeID => $arrValueIDs) {
+                                foreach ((array) $arrValueIDs as $attributeValueID) {
+                                    $_SESSION['lsShop']['filter']['relevantAttributeValueSet'][(int) $attributeValueID] = true;
+                                }
+                            }
+                        }
+
+                        if (is_array($arrProduct['variants'] ?? null)) {
+                            foreach ($arrProduct['variants'] as $arrVariant) {
+                                if (is_array($arrVariant['attributeIDs'] ?? null)) {
+                                    foreach ($arrVariant['attributeIDs'] as $attributeID) {
+                                        $intAttr = (int) $attributeID;
+                                        if (!self::filterFieldForAttributeExists($intAttr)) {
+                                            continue;
+                                        }
+                                        if (!isset($_SESSION['lsShop']['filter']['attributeRelevanceCounts'][$intAttr])) {
+                                            $_SESSION['lsShop']['filter']['attributeRelevanceCounts'][$intAttr] = 0;
+                                        }
+                                        $_SESSION['lsShop']['filter']['attributeRelevanceCounts'][$intAttr]++;
+                                    }
+                                }
+                                if (is_array($arrVariant['attributeAndValueIDs'] ?? null)) {
+                                    foreach ($arrVariant['attributeAndValueIDs'] as $intAttributeID => $arrValueIDs) {
+                                        foreach ((array) $arrValueIDs as $attributeValueID) {
+                                            $_SESSION['lsShop']['filter']['relevantAttributeValueSet'][(int) $attributeValueID] = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
 		ls_shop_filterHelper::resetCriteriaToUseOrShowInFilterForm($where);

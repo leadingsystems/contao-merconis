@@ -381,6 +381,29 @@ class ls_shop_languageHelper {
 				}
 			}
 		}
+
+		/*
+		 * Mirror FULLTEXT keys from base fields to language-specific fields so the
+		 * Contao Install Tool can create FULLTEXT indexes for suffixed columns.
+		 */
+		if (
+			isset($GLOBALS['TL_DCA'][$str_dcaName]['config']['sql']['keys'])
+			&& is_array($GLOBALS['TL_DCA'][$str_dcaName]['config']['sql']['keys'])
+		) {
+			$keys =& $GLOBALS['TL_DCA'][$str_dcaName]['config']['sql']['keys'];
+			$allLanguages = self::getAllLanguages();
+			foreach ($arr_multiLanguageFields as $baseFieldName => $_) {
+				if (!isset($keys[$baseFieldName]) || strtolower((string) $keys[$baseFieldName]) !== 'fulltext') {
+					continue;
+				}
+				foreach ($allLanguages as $langKey) {
+					$suffixed = $baseFieldName.'_'.$langKey;
+					if (!isset($keys[$suffixed])) {
+						$keys[$suffixed] = 'fulltext';
+					}
+				}
+			}
+		}
 	}
 
 	public static function createMultilanguageDatabaseFieldIfNotExists($str_tableName, $str_fieldName, $str_fieldToUseAsTemplate) {

@@ -1,0 +1,16 @@
+leading_systems_contao_cache:
+  pools:
+    - id: merconis.search
+      namespace_prefix: 'merconis.search.cache.'
+      maintenance_job: true
+      label:
+        en: 'Merconis search cache'
+        de: 'Merconis Such-Cache'
+    - id: merconis.fragment
+      namespace_prefix: 'merconis.fragment.cache.'
+      maintenance_job: true
+      label:
+        en: 'Merconis fragment cache'
+        de: 'Merconis Fragment-Cache'
+
+
