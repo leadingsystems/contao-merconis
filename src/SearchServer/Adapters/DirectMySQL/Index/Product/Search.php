@@ -408,12 +408,21 @@ class Search implements CommonInterface, IndexSearchInterface
         return $tokens;
     }
 
+    /**
+     * Extract all modifier tuples from a string.
+     * Returns an array of matches where each item is ['{name:value}', 'name', 'value'].
+     */
+    private function extractModifiers(string $input): array
+    {
+        if (!preg_match_all('/\{([^:}]+):([^}]+)\}/', $input, $mods, PREG_SET_ORDER)) {
+            return [];
+        }
+        return $mods;
+    }
+
     private function applyInlineModifiers(array &$term, string $modifiersString): void
     {
-        if (!preg_match_all('/\{([^:}]+):([^}]+)\}/', $modifiersString, $mods, PREG_SET_ORDER)) {
-            return;
-        }
-
+        $mods = $this->extractModifiers($modifiersString);
         foreach ($mods as $mod) {
             $this->applyModifier($term, $mod[1], $mod[2]);
         }
@@ -421,11 +430,23 @@ class Search implements CommonInterface, IndexSearchInterface
 
     private function applyModifierToken(array &$term, string $token): void
     {
-        if (!preg_match('/^\{([^:}]+):([^}]+)\}$/', $token, $match)) {
+        // Accept one or more concatenated standalone modifiers as long as the token
+        // consists solely of valid modifier blocks without any other characters.
+        $mods = $this->extractModifiers($token);
+        if (!count($mods)) {
             return;
         }
-
-        $this->applyModifier($term, $match[1], $match[2]);
+        $concatenated = '';
+        foreach ($mods as $m) {
+            $concatenated .= $m[0];
+        }
+        if ($concatenated !== $token) {
+            // Token contains characters outside of {name:value} blocks → ignore
+            return;
+        }
+        foreach ($mods as $m) {
+            $this->applyModifier($term, $m[1], $m[2]);
+        }
     }
 
     private function applyModifier(array &$term, string $name, string $value): void
