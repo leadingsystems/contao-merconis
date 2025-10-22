@@ -96,6 +96,7 @@ class Search implements CommonInterface, IndexSearchInterface
     private function fetchProductIdsByCriteria(array $criteria, string $language): array
     {
         $this->parameterCounter = 0;
+        $debugScoringEnabled = $this->isDebugScoringEnabled($criteria);
 
         $qb = $this->connection->createQueryBuilder();
         $qb->select('product.id')
@@ -129,6 +130,13 @@ class Search implements CommonInterface, IndexSearchInterface
 
         $fulltext = $criteria['fulltext'] ?? '';
         $fulltextComponents = $this->parseFulltextCriteria((string) $fulltext);
+        // Reassemble normalized query text (order preserved, modifiers removed)
+        $reassembledParts = [];
+        foreach ($fulltextComponents as $comp) {
+            $t = trim((string) ($comp['text'] ?? ''));
+            if ($t !== '') { $reassembledParts[] = $t; }
+        }
+        $normalizedFullQuery = strtolower(implode(' ', $reassembledParts));
 
         // Build FULLTEXT boolean-mode search across descriptive fields and LIKE-based code search.
         $descriptiveTerms = [];
@@ -197,6 +205,24 @@ class Search implements CommonInterface, IndexSearchInterface
 						$col,
 						$fulltextParamName
 					);
+
+                    // Debug projection: raw and weighted matches per column
+                    if ($debugScoringEnabled) {
+                        $colAlias = $this->toDebugAlias($col);
+                        $qb->addSelect(sprintf(
+                            "COALESCE(MATCH(%s) AGAINST (:%s IN BOOLEAN MODE), 0) AS dbg_m_%s",
+                            $col,
+                            $fulltextParamName,
+                            $colAlias
+                        ));
+                        $qb->addSelect(sprintf(
+                            "%s * COALESCE(MATCH(%s) AGAINST (:%s IN BOOLEAN MODE), 0) AS dbg_w_%s",
+                            $weightLiteral,
+                            $col,
+                            $fulltextParamName,
+                            $colAlias
+                        ));
+                    }
                 }
 				if (count($scoreParts)) {
 					$scoreExpression = '(' . implode(' + ', $scoreParts) . ')';
@@ -232,6 +258,54 @@ class Search implements CommonInterface, IndexSearchInterface
 					$codeWhereAny,
 					'20'
 				);
+
+				// Additional boosts for exact code matches
+				// 1) Any single term equals the product code exactly (case-insensitive)
+				$eqParts = [];
+				$normalizedCodeExpr = $this->buildNormalizedProductCodeExpr();
+				foreach ($codeTerms as $codeTerm) {
+					$eqParam = $this->nextParameterName();
+					$parameters[$eqParam] = strtolower(trim((string) $codeTerm));
+					$parameterTypes[$eqParam] = ParameterType::STRING;
+					$eqParts[] = sprintf('%s = :%s', $normalizedCodeExpr, $eqParam);
+				}
+                if (count($eqParts)) {
+                    $codeEqualsAny = '(' . implode(' OR ', $eqParts) . ')';
+                    $scoreExpression = sprintf(
+                        '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
+                        $scoreExpression,
+                        $codeEqualsAny,
+                        '150'
+                    );
+                }
+
+				// 2) The entire reassembled query equals the product code exactly (highest boost)
+				if ($normalizedFullQuery !== '') {
+					$eqAllParam = $this->nextParameterName();
+					$parameters[$eqAllParam] = $normalizedFullQuery;
+					$parameterTypes[$eqAllParam] = ParameterType::STRING;
+					$codeEqualsFullExpr = sprintf('%s = :%s', $normalizedCodeExpr, $eqAllParam);
+					$scoreExpression = sprintf(
+						'(%s) + CASE WHEN %s THEN %s ELSE 0 END',
+						$scoreExpression,
+						$codeEqualsFullExpr,
+						'300'
+					);
+				}
+
+                // Debug projection: code contribution components
+                if ($debugScoringEnabled) {
+                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_all', $codeWhereAll, '100'));
+                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_any', $codeWhereAny, '20'));
+                    if (isset($codeEqualsAny)) {
+                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_term', $codeEqualsAny, '150'));
+                    }
+					if (isset($codeEqualsFullExpr)) {
+						$qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_full', $codeEqualsFullExpr, '300'));
+					}
+					// Also expose normalized code for clarity
+					$qb->addSelect($normalizedCodeExpr . ' AS dbg_product_code_norm');
+                }
             }
         }
 
@@ -243,7 +317,16 @@ class Search implements CommonInterface, IndexSearchInterface
             $qb->andWhere($codeWhere);
         }
 
-        $qb->addSelect($scoreExpression . ' AS relevance');
+		$qb->addSelect($scoreExpression . ' AS relevance');
+
+		// Debug identifiers: include product code and resolved title for easier identification
+		if ($debugScoringEnabled) {
+			$qb->addSelect('product.lsShopProductCode AS dbg_product_code');
+			$titleExpr = $this->resolveColumnExpression($this->fieldConfigurations['title'], $language);
+			if ($titleExpr !== null) {
+				$qb->addSelect($titleExpr . ' AS dbg_product_title');
+			}
+		}
 
         if ($needsPageJoin) {
             $qb->groupBy('product.id');
@@ -262,6 +345,9 @@ class Search implements CommonInterface, IndexSearchInterface
         }
 
         $this->logDebugInformation($criteria, $fulltextComponents, $qb);
+        if ($debugScoringEnabled) {
+            $this->logScoreBatchHeader($criteria, $language, $qb);
+        }
 
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -269,7 +355,103 @@ class Search implements CommonInterface, IndexSearchInterface
             return [];
         }
 
+        if ($debugScoringEnabled && count($rows)) {
+            $this->logScoreBreakdown($rows);
+        }
+
         return array_map(static fn (array $row) => (int) $row['id'], $rows);
+    }
+
+    private function isDebugScoringEnabled(array $criteria): bool
+    {
+        $global = (bool) ($GLOBALS['TL_CONFIG']['ls_shop_debugSearchScoring'] ?? false);
+        $byCriteria = (bool) ($criteria['debugScores'] ?? false);
+        return $global || $byCriteria;
+    }
+
+    private function toDebugAlias(string $qualifiedColumn): string
+    {
+        // Strip table alias if present and replace dots with underscores
+        $alias = $qualifiedColumn;
+        if (strpos($alias, '.') !== false) {
+            $alias = substr($alias, strrpos($alias, '.') + 1);
+        }
+        return str_replace('.', '_', $alias);
+    }
+
+    private function logScoreBatchHeader(array $criteria, string $language, \Doctrine\DBAL\Query\QueryBuilder $qb): void
+    {
+        try {
+            $payload = [
+                'ts' => gmdate('c'),
+                'language' => $language,
+                'criteria' => $criteria,
+                'sql' => $qb->getSQL(),
+                'parameters' => $qb->getParameters(),
+            ];
+            $logFile = $this->resolveScoreLogFilePath();
+            $dir = \dirname($logFile);
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0777, true);
+            }
+            @file_put_contents($logFile, json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function logScoreBreakdown(array $rows): void
+    {
+        try {
+            $logFile = $this->resolveScoreLogFilePath();
+            $dir = \dirname($logFile);
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0777, true);
+            }
+            foreach ($rows as $row) {
+                $components = [];
+                $sum = 0.0;
+                foreach ($row as $key => $value) {
+                    if (strpos($key, 'dbg_') === 0) {
+                        $components[$key] = is_numeric($value) ? (float) $value : $value;
+                        if (strpos($key, 'dbg_m_') !== 0 && is_numeric($value)) {
+                            $sum += (float) $value; // sum weighted + code components
+                        }
+                    }
+                }
+                $payload = [
+                    'ts' => gmdate('c'),
+                    'id' => isset($row['id']) ? (int) $row['id'] : null,
+                    'relevance' => isset($row['relevance']) ? (float) $row['relevance'] : null,
+                    'productCode' => $row['dbg_product_code'] ?? null,
+                    'productTitle' => $row['dbg_product_title'] ?? null,
+                    'components' => $components,
+                    'componentsSum' => $sum,
+                ];
+                @file_put_contents($logFile, json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND);
+            }
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function resolveScoreLogFilePath(): string
+    {
+        $logDir = rtrim($this->projectDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'logs';
+        $date = date('Y-m-d');
+        return $logDir . DIRECTORY_SEPARATOR . 'merconis-search-scores-' . $date . '.log';
+    }
+
+    private function buildNormalizedProductCodeExpr(): string
+    {
+        $delimiter = (string) ($GLOBALS['TL_CONFIG']['ls_shop_productCodeDelimiter'] ?? '');
+        $delimiter = trim($delimiter);
+        if ($delimiter === '') {
+            return 'LOWER(product.lsShopProductCode)';
+        }
+        $delimSql = $this->connection->quote($delimiter);
+        return sprintf(
+            'LOWER(CASE WHEN LOCATE(%1$s, product.lsShopProductCode) > 0 THEN SUBSTRING(product.lsShopProductCode, LOCATE(%1$s, product.lsShopProductCode) + CHAR_LENGTH(%1$s)) ELSE product.lsShopProductCode END)',
+            $delimSql
+        );
     }
 
     // Build a boolean-mode query string that requires all terms: "+term1* +term2* ..."
