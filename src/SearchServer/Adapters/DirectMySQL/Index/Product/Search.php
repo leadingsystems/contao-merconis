@@ -190,20 +190,21 @@ class Search implements CommonInterface, IndexSearchInterface
                 $scoreParts = [];
                 foreach ($descriptiveColumns as $col) {
                     $weight = $this->getWeightForBaseColumn($col);
-                    $scoreParts[] = sprintf(
-                        '%s * MATCH(%s) AGAINST (:%s IN BOOLEAN MODE)',
-                        $this->connection->quote((string) $weight),
-                        $col,
-                        $fulltextParamName
-                    );
+					$weightLiteral = sprintf('%.15g', $weight);
+					$scoreParts[] = sprintf(
+						"%s * COALESCE(MATCH(%s) AGAINST (:%s IN BOOLEAN MODE), 0)",
+						$weightLiteral,
+						$col,
+						$fulltextParamName
+					);
                 }
-                if (count($scoreParts)) {
-                    $scoreExpression = 'COALESCE((' . implode(' + ', $scoreParts) . '), 0)';
-                }
+				if (count($scoreParts)) {
+					$scoreExpression = '(' . implode(' + ', $scoreParts) . ')';
+				}
             }
         }
 
-        // Code LIKEs: enforce all terms with AND chaining
+		// Code LIKEs: build ANY-term and ALL-terms conditions
         $codeWhere = null;
         if (count($codeTerms)) {
             $likeParts = [];
@@ -214,14 +215,23 @@ class Search implements CommonInterface, IndexSearchInterface
                 $likeParts[] = sprintf("LOWER(product.lsShopProductCode) LIKE :%s ESCAPE '\\\\'", $paramName);
             }
             if (count($likeParts)) {
-                $codeWhere = '(' . implode(' AND ', $likeParts) . ')';
-                // Add a relevance boost if product code matches fully
-                $scoreExpression = sprintf(
-                    '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
-                    $scoreExpression,
-                    $codeWhere,
-                    $this->connection->quote('100')
-                );
+				$codeWhereAll = '(' . implode(' AND ', $likeParts) . ')';
+				$codeWhereAny = '(' . implode(' OR ', $likeParts) . ')';
+				// Use ANY-term match for inclusion in WHERE
+				$codeWhere = $codeWhereAny;
+				// Relevance boosts: strong boost for ALL-terms match, smaller for ANY-term match
+				$scoreExpression = sprintf(
+					'(%s) + CASE WHEN %s THEN %s ELSE 0 END',
+					$scoreExpression,
+					$codeWhereAll,
+					'100'
+				);
+				$scoreExpression = sprintf(
+					'(%s) + CASE WHEN %s THEN %s ELSE 0 END',
+					$scoreExpression,
+					$codeWhereAny,
+					'20'
+				);
             }
         }
 
