@@ -138,9 +138,10 @@ class Search implements CommonInterface, IndexSearchInterface
         }
         $normalizedFullQuery = strtolower(implode(' ', $reassembledParts));
 
-        // Build FULLTEXT boolean-mode search across descriptive fields and LIKE-based code search.
+        // Build FULLTEXT boolean-mode search across descriptive fields and LIKE-based code/producer search.
         $descriptiveTerms = [];
         $codeTerms = [];
+        $producerTerms = [];
 
         if (count($fulltextComponents)) {
             foreach ($fulltextComponents as $component) {
@@ -150,6 +151,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 $fields = $component['fields'] ?? [];
                 $includeInDescriptive = !count($fields);
                 $includeInCode = !count($fields);
+                $includeInProducer = !count($fields);
 
                 foreach ($fields as $fieldKeyRaw) {
                     $canonical = $this->normalizeFieldKey($fieldKeyRaw);
@@ -157,6 +159,7 @@ class Search implements CommonInterface, IndexSearchInterface
                     if (in_array($canonical, ['title','keywords','shortdescription','description'], true)) {
                         $includeInDescriptive = true;
                     }
+                    if ($canonical === 'lsshopproductproducer') { $includeInProducer = true; }
                     if ($canonical === 'lsshopproductcode') {
                         $includeInCode = true;
                     }
@@ -164,6 +167,7 @@ class Search implements CommonInterface, IndexSearchInterface
 
                 if ($includeInDescriptive) { $descriptiveTerms[] = $term; }
                 if ($includeInCode) { $codeTerms[] = $term; }
+                if ($includeInProducer) { $producerTerms[] = $term; }
             }
         }
 
@@ -309,12 +313,67 @@ class Search implements CommonInterface, IndexSearchInterface
             }
         }
 
-        if ($fulltextWhere !== null && $codeWhere !== null) {
-            $qb->andWhere('(' . $fulltextWhere . ' OR ' . $codeWhere . ')');
-        } elseif ($fulltextWhere !== null) {
-            $qb->andWhere($fulltextWhere);
-        } elseif ($codeWhere !== null) {
-            $qb->andWhere($codeWhere);
+        // Producer LIKEs: use regular index with LIKE and moderate boosts
+        $producerWhere = null;
+        if (count($producerTerms)) {
+            $likeParts = [];
+            foreach ($producerTerms as $producerTerm) {
+                $paramName = $this->nextParameterName();
+                $parameters[$paramName] = $this->createLikePattern($producerTerm);
+                $parameterTypes[$paramName] = ParameterType::STRING;
+                $likeParts[] = sprintf("LOWER(product.lsShopProductProducer) LIKE :%s ESCAPE '\\\\'", $paramName);
+            }
+            if (count($likeParts)) {
+                $producerWhereAll = '(' . implode(' AND ', $likeParts) . ')';
+                $producerWhereAny = '(' . implode(' OR ', $likeParts) . ')';
+                // Use ANY-term match for inclusion in WHERE
+                $producerWhere = $producerWhereAny;
+                // Relevance boosts: moderate for ALL-terms, smaller for ANY-term
+                $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerWhereAll, '60');
+                $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerWhereAny, '10');
+
+                // Additional boosts for exact producer matches (case-insensitive)
+                $eqParts = [];
+                foreach ($producerTerms as $producerTerm) {
+                    $eqParam = $this->nextParameterName();
+                    $parameters[$eqParam] = strtolower(trim((string) $producerTerm));
+                    $parameterTypes[$eqParam] = ParameterType::STRING;
+                    $eqParts[] = sprintf('LOWER(product.lsShopProductProducer) = :%s', $eqParam);
+                }
+                if (count($eqParts)) {
+                    $producerEqualsAny = '(' . implode(' OR ', $eqParts) . ')';
+                    $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerEqualsAny, '80');
+                }
+
+                // Entire normalized query equals producer exactly
+                if ($normalizedFullQuery !== '') {
+                    $eqAllParam = $this->nextParameterName();
+                    $parameters[$eqAllParam] = $normalizedFullQuery;
+                    $parameterTypes[$eqAllParam] = ParameterType::STRING;
+                    $producerEqualsFullExpr = sprintf('LOWER(product.lsShopProductProducer) = :%s', $eqAllParam);
+                    $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerEqualsFullExpr, '160');
+                }
+
+                // Debug projection for producer components
+                if ($debugScoringEnabled) {
+                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_all', $producerWhereAll, '60'));
+                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_any', $producerWhereAny, '10'));
+                    if (isset($producerEqualsAny)) {
+                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_eq_term', $producerEqualsAny, '80'));
+                    }
+                    if (isset($producerEqualsFullExpr)) {
+                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_eq_full', $producerEqualsFullExpr, '160'));
+                    }
+                }
+            }
+        }
+
+        if ($fulltextWhere !== null || $codeWhere !== null || $producerWhere !== null) {
+            $ors = [];
+            if ($fulltextWhere !== null) { $ors[] = $fulltextWhere; }
+            if ($codeWhere !== null) { $ors[] = $codeWhere; }
+            if ($producerWhere !== null) { $ors[] = $producerWhere; }
+            $qb->andWhere('(' . implode(' OR ', $ors) . ')');
         }
 
 		$qb->addSelect($scoreExpression . ' AS relevance');
@@ -509,7 +568,6 @@ class Search implements CommonInterface, IndexSearchInterface
             case 'keywords': return 3.0;
             case 'shortDescription': return 2.0;
             case 'description': return 1.5;
-            case 'lsShopProductProducer': return 2.0;
             default: return 1.0;
         }
     }
