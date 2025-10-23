@@ -178,7 +178,7 @@ class Search implements CommonInterface, IndexSearchInterface
         $fulltextParamName = null;
         $descriptiveColumns = $this->getDescriptiveColumnsForLanguage($language);
         if (count($descriptiveTerms) && count($descriptiveColumns)) {
-            $booleanQuery = $this->buildBooleanFulltextQueryString($descriptiveTerms);
+            $booleanQuery = $this->buildBooleanFulltextShouldQueryString($descriptiveTerms);
             if ($booleanQuery !== null && $booleanQuery !== '') {
                 $fulltextParamName = $this->nextParameterName();
                 $parameters[$fulltextParamName] = $booleanQuery;
@@ -521,11 +521,28 @@ class Search implements CommonInterface, IndexSearchInterface
             $t = trim((string) $t);
             if ($t === '') { continue; }
             // Strip characters that have special boolean meaning to avoid user injection of operators
-            $t = str_replace(['+','-','~','<','>','(',')','"',"'"], ' ', $t);
+            $t = str_replace(['+','-','~','<','>','(',')','"','\''], ' ', $t);
             $t = preg_replace('/\s+/', ' ', $t);
             $t = trim($t);
             if ($t === '') { continue; }
             $parts[] = '+' . $t . '*';
+        }
+        return implode(' ', $parts);
+    }
+
+    // Build a boolean-mode query string with optional terms: "term1* term2* ..."
+    private function buildBooleanFulltextShouldQueryString(array $terms): string
+    {
+        $parts = [];
+        foreach ($terms as $t) {
+            $t = trim((string) $t);
+            if ($t === '') { continue; }
+            // Strip characters that have special boolean meaning to avoid user injection of operators
+            $t = str_replace(['+','-','~','<','>','(',')','"','\''], ' ', $t);
+            $t = preg_replace('/\s+/', ' ', $t);
+            $t = trim($t);
+            if ($t === '') { continue; }
+            $parts[] = $t . '*';
         }
         return implode(' ', $parts);
     }
