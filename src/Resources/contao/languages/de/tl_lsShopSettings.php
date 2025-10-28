@@ -166,7 +166,8 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['productPresentationTemplate02_legend'] = 'Einstellungen für Darstellung in Galerie-Ansicht';
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['performanceSettings_legend'] = 'Performance-Einstellungen';
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['productSearchSettings_legend'] = 'Treffer-Gewichtung bei Produktsuche';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['productSearchSettings_legend'] = 'Treffer-Gewichtung bei Produktsuche (Legacy-Suchmaschine)';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['directMySQLSearchSettings_legend'] = 'DirectMySQL-Sucheinstellungen';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['importSettings_legend'] = 'Import-Einstellungen';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['compatSettings_legend'] = 'Kompatibilitäts-Einstellungen';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ipWhitelist_legend'] = 'Whitelist für Referer-Prüfung';

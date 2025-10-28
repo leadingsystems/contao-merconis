@@ -164,7 +164,8 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['productPresentationTemplate02_legend'] = 'Gallery view settings';
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['performanceSettings_legend'] = 'Performance settings';
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['productSearchSettings_legend'] = 'Hit weighting for product search';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['productSearchSettings_legend'] = 'Hit weighting for product search (Legacy searcher)';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['directMySQLSearchSettings_legend'] = 'DirectMySQL search settings';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['importSettings_legend'] = 'Import settings';
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['compatSettings_legend'] = 'Compatibility settings';
