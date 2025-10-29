@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use LeadingSystems\MerconisBundle\ProductSearch\SearchTermMappingService;
+use LeadingSystems\MerconisBundle\ProductSearch\FacetPresenter;
 
 class Adapter
 {
@@ -415,20 +416,22 @@ class Adapter
         $andWord = $this->translator->trans('MSC.ls_shop.general.and', [], 'contao_default');
 
         $combinedFacets = $this->getFacets()->getCombinedFacets();
-        $filters = [];
+        $facetLookup = [];
         foreach ($combinedFacets as $facet) {
-            $filters[$facet['attribute_id']][$facet['value_id']] = $facet;
+            $facetLookup[$facet['attribute_id']][$facet['value_id']] = $facet;
         }
-        ksort($filters);
-        foreach ($filters as &$values) {
-            ksort($values);
-        }
-        unset($values);
 
-        $attributes = ls_shop_generalHelper::getProductAttributes();
-        $attributeNames = array_column($attributes, 'title', 'id');
-        $values = ls_shop_generalHelper::getAttributeValues();
-        $valueNames = array_column($values, 'title', 'id');
+        // Present prioritized and capped attributes/values (stateless)
+        $presented = FacetPresenter::present(
+            $this->getFacets(),
+            $this->getSearchCriteria(),
+            [
+                'maxVisibleAttributes' => (int) ($GLOBALS['TL_CONFIG']['merconis_filter_maxVisibleAttributes'] ?? 12),
+                'defaultMaxValuesPerAttribute' => (int) ($GLOBALS['TL_CONFIG']['merconis_filter_maxValuesPerAttribute'] ?? 10),
+                'pinnedAliases' => (array) ($GLOBALS['TL_CONFIG']['merconis_filter_pinnedAliases'] ?? ['etim-attributeclass']),
+                // language omitted to auto-detect from Page
+            ]
+        );
 
         // Determine whether match estimates should be shown (layout setting)
         $useMatchEstimates = isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) ? (bool)$GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] : true;
@@ -444,17 +447,20 @@ class Adapter
 
         // Prepare final array for Twig
         $preparedFilters = [];
-        foreach ($filters as $attribute_id => $values) {
-            $attributeTitle = $attributeNames[$attribute_id] ?? ('Attribute ' . $attribute_id);
+        foreach ($presented['visibleAttributes'] as $attr) {
+            $attribute_id = (int) $attr['attribute_id'];
+            $attributeTitle = (string) ($attr['title'] ?? ('Attribute ' . $attribute_id));
             $preparedFilters[$attribute_id] = [
                 'title' => $attributeTitle,
                 'values' => []
             ];
             $selectedTitles = [];
-            foreach ($values as $value_id => $facet) {
-                $valueTitle = $valueNames[$value_id] ?? ('Value ' . $value_id);
+            foreach ($attr['values'] as $val) {
+                $value_id = (int) $val['value_id'];
+                $valueTitle = (string) ($val['title'] ?? ('Value ' . $value_id));
                 $isChecked = !empty($userSelected[$attribute_id][$value_id]);
-                $isFilteredOut = $facet['is_filtered_out'] ?? false;
+                $facet = $facetLookup[$attribute_id][$value_id] ?? null;
+                $isFilteredOut = $facet['is_filtered_out'] ?? (($val['filtered_product_count'] ?? 0) === 0 && ($val['total_product_count'] ?? 0) > 0);
                 $invalid = $facet['is_invalid'] ?? false;
                 $liClass = ($isFilteredOut ? 'filter-value filter-value--out' : 'filter-value') . ($invalid ? ' invalid' : '');
                 $checked = $isChecked ? 'checked' : '';
@@ -463,8 +469,8 @@ class Adapter
                     $selectedTitles[] = $valueTitle;
                 }
                 if ($useMatchEstimates) {
-                    $filteredCount = $facet['filtered_product_count'] ?? 0;
-                    $totalCount    = $facet['total_product_count'] ?? 0;
+                    $filteredCount = $facet['filtered_product_count'] ?? ($val['filtered_product_count'] ?? 0);
+                    $totalCount    = $facet['total_product_count'] ?? ($val['total_product_count'] ?? 0);
                     if ($filteredCount > 0) {
                         $activeStateClass = 'active';
                         $matchEstimateCount = $filteredCount;
@@ -474,7 +480,6 @@ class Adapter
                     }
                     $showCount = true;
                 } else {
-                    // When match estimates are disabled, do not compute or show counts
                     $activeStateClass = '';
                     $matchEstimateCount = null;
                     $showCount = false;

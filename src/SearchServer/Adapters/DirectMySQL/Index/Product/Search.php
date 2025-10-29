@@ -5,6 +5,7 @@ namespace LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
+use LeadingSystems\MerconisBundle\ProductSearch\Facets;
 use LeadingSystems\MerconisBundle\ProductSearch\SearchResult;
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\CommonInterface;
 use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSearchInterface;
@@ -82,15 +83,80 @@ class Search implements CommonInterface, IndexSearchInterface
 
     public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true, bool $removeImpossibleOptions = true): SearchResult
     {
-        $criteria = $productSearchAdapter->getSearchCriteria();
-        $productIds = $this->fetchProductIdsByCriteria($criteria, $language);
+        $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
 
-        $searchResult = new SearchResult($productIds);
-        $total = count($productIds);
-        $searchResult->setNumProductsUnfiltered($total);
-        $searchResult->setNumProductsFiltered($total);
+        // Base criteria without attribute filters for keys-only facet discovery and unmatched counts
+        $baseCriteria = $this->prepareBaseCriteria($criteria);
 
-        return $searchResult;
+        // Get base candidates (respecting fulltext/pages/published etc.)
+        $baseCandidateIds = $this->fetchProductIdsByCriteria($baseCriteria, $language);
+
+        // Fast path: no facets requested and no attribute filters → just return base IDs
+        $attributeFilters = $this->normalizeAttributeFilters($criteria['attributes'] ?? []);
+        if (!$activateFacets && empty($attributeFilters)) {
+            $result = new SearchResult($baseCandidateIds);
+            $total = count($baseCandidateIds);
+            $result->setNumProductsUnfiltered($total);
+            $result->setNumProductsFiltered($total);
+            return $result;
+        }
+
+        // Load attribute pairs for products and variants in the base candidate set (batched, O(1) lookups)
+        $attributeData = $this->loadAttributeDataForProducts($baseCandidateIds);
+
+        // Discover available attribute pairs (keys-only) over base candidates
+        $availablePairs = $this->computeAvailablePairsKeysOnly($attributeData);
+
+        // Dismiss invalid attribute filters (not available under current base criteria)
+        [$effectiveFilters, $dismissedFilters] = $this->dismissInvalidAttributeFilters($attributeFilters, $availablePairs);
+
+        // Apply ES-style attribute matching over base candidates (product-level OR single-variant match)
+        $filteredIds = $this->applyAttributeFilters($baseCandidateIds, $attributeData, $effectiveFilters);
+
+        // Build facets
+        if (!$activateFacets) {
+            $facets = new Facets([], [], []);
+            $result = new SearchResult($filteredIds, $facets, false, 0, count($baseCandidateIds), count($filteredIds));
+            $result->setNumProductsUnfiltered(count($baseCandidateIds));
+            $result->setNumProductsFiltered(count($filteredIds));
+            return $result;
+        }
+
+        if ($activateMatchEstimates) {
+            // Unfiltered facet counts over base candidates
+            $unfilteredFacetMap = $this->computeFacetCounts($baseCandidateIds, $attributeData);
+            // Reuse unfiltered counts if no attribute filters are active
+            $filteredFacetMap = empty($effectiveFilters)
+                ? $unfilteredFacetMap
+                : $this->computeFacetCounts($filteredIds, $attributeData);
+            $combined = $this->combineFacetData($unfilteredFacetMap, $filteredFacetMap, $dismissedFilters);
+            $facetData = new Facets($unfilteredFacetMap, $filteredFacetMap, $combined);
+            if ($removeImpossibleOptions) {
+                $facetData = $this->removeImpossibleOptions($facetData);
+            }
+        } else {
+            // Keys-only mode: use availablePairs for both sets and synthesize combined
+            $unfilteredKeysOnly = $this->facetKeysOnlyFromAvailable($availablePairs);
+            $filteredKeysOnly = $unfilteredKeysOnly;
+            $combined = $this->combineFacetDataKeysOnly($unfilteredKeysOnly, $dismissedFilters);
+            $facetData = new Facets($unfilteredKeysOnly, $filteredKeysOnly, $combined);
+        }
+
+        // Unmatched counts (attribute filters vs. base criteria)
+        $hasUnmatched = !empty($effectiveFilters) && (count($filteredIds) < count($baseCandidateIds));
+        $numUnmatched = $hasUnmatched ? (count($baseCandidateIds) - count($filteredIds)) : 0;
+
+        $result = new SearchResult(
+            $filteredIds,
+            $facetData,
+            $hasUnmatched,
+            $numUnmatched,
+            count($baseCandidateIds),
+            count($filteredIds)
+        );
+        $result->setNumProductsUnfiltered(count($baseCandidateIds));
+        $result->setNumProductsFiltered(count($filteredIds));
+        return $result;
     }
 
     private function fetchProductIdsByCriteria(array $criteria, string $language): array
@@ -434,6 +500,394 @@ class Search implements CommonInterface, IndexSearchInterface
         $global = (bool) ($GLOBALS['TL_CONFIG']['ls_shop_debugSearchScoring'] ?? false);
         $byCriteria = (bool) ($criteria['debugScores'] ?? false);
         return $global || $byCriteria;
+    }
+
+    private function prepareCriteria(array $criteria): array
+    {
+        return $criteria;
+    }
+
+    private function prepareBaseCriteria(array $criteria): array
+    {
+        $base = $criteria;
+        unset($base['attributes']);
+        return $base;
+    }
+
+    /**
+     * Normalize incoming attribute filters into an array of [attribute_id=>int, value_id=>int].
+     * Accepts both associative and loosely-typed entries.
+     */
+    private function normalizeAttributeFilters($raw): array
+    {
+        $filters = [];
+        if (!is_array($raw)) {
+            return $filters;
+        }
+        foreach ($raw as $f) {
+            if (!is_array($f)) { continue; }
+            $attr = isset($f['attribute_id']) ? (int) $f['attribute_id'] : (isset($f[0]) ? (int) $f[0] : 0);
+            $val = isset($f['value_id']) ? (int) $f['value_id'] : (isset($f[1]) ? (int) $f[1] : 0);
+            if ($attr > 0 && $val > 0) {
+                $filters[] = ['attribute_id' => $attr, 'value_id' => $val];
+            }
+        }
+        return $filters;
+    }
+
+    /**
+     * Load attribute JSON for products and variants and precompute pairs.
+     * For parity with ES, product-level pairs are empty when a product has variants.
+     *
+     * @return array<int, array{hasVariants:bool, productPairs:array<int,string>, variants:array<int, array<int,string>>}>
+     */
+    private function loadAttributeDataForProducts(array $productIds): array
+    {
+        if (empty($productIds)) { return []; }
+
+        $ids = array_values(array_map('intval', $productIds));
+        $byId = [];
+        $productJsonById = [];
+
+        // Initialize result structure for all ids to keep order stable
+        foreach ($ids as $id) {
+            $byId[$id] = [
+                'hasVariants' => false,
+                'productPairs' => [],
+                'variants' => []
+            ];
+        }
+
+        // Batch size to keep IN lists and memory reasonable
+        $batchSize = 1000;
+
+        // Load product-level JSON in batches
+        for ($offset = 0, $n = count($ids); $offset < $n; $offset += $batchSize) {
+            $chunk = array_slice($ids, $offset, $batchSize);
+            $qp = $this->connection->createQueryBuilder();
+            $qp->select('p.id', 'p.lsShopProductAttributesValues')
+                ->from('tl_ls_shop_product', 'p')
+                ->where($qp->expr()->in('p.id', ':ids'))
+                ->setParameter('ids', $chunk, Connection::PARAM_INT_ARRAY);
+            $rows = $qp->executeQuery()->fetchAllAssociative();
+            foreach ($rows as $row) {
+                $pid = (int) $row['id'];
+                $productJsonById[$pid] = $row['lsShopProductAttributesValues'] ?? null;
+                $byId[$pid]['productPairs'] = $this->pairsFromAttributesJson($productJsonById[$pid]);
+            }
+        }
+
+        // Load published variants for those products in batches
+        for ($offset = 0, $n = count($ids); $offset < $n; $offset += $batchSize) {
+            $chunk = array_slice($ids, $offset, $batchSize);
+            $qv = $this->connection->createQueryBuilder();
+            $qv->select('v.id', 'v.pid', 'v.lsShopProductVariantAttributesValues')
+                ->from('tl_ls_shop_variant', 'v')
+                ->where($qv->expr()->in('v.pid', ':ids'))
+                ->andWhere("v.published = '1'")
+                ->orderBy('v.pid', 'ASC')
+                ->setParameter('ids', $chunk, Connection::PARAM_INT_ARRAY);
+            $rows = $qv->executeQuery()->fetchAllAssociative();
+            foreach ($rows as $row) {
+                $pid = (int) $row['pid'];
+                if (!isset($byId[$pid])) { continue; }
+                $byId[$pid]['hasVariants'] = true;
+                $effectiveJson = $this->mergeVariantAndProductAttributesJson(
+                    $row['lsShopProductVariantAttributesValues'] ?? null,
+                    $productJsonById[$pid] ?? null
+                );
+                $byId[$pid]['variants'][(int) $row['id']] = $this->pairsFromAttributesJson($effectiveJson);
+            }
+        }
+
+        // ES-style parity: clear product-level pairs if there are variants
+        foreach ($byId as $pid => &$info) {
+            if ($info['hasVariants']) {
+                $info['productPairs'] = [];
+            }
+        }
+        unset($info);
+
+        return $byId;
+    }
+
+    // removed attributesJsonForProduct() – now we use an O(1) map
+
+    /**
+     * Convert JSON like [[attrId, valueId], ...] to set of pair keys 'attr:value'.
+     *
+     * @return array<int,string> list of pair keys
+     */
+    private function pairsFromAttributesJson(?string $json): array
+    {
+        $pairs = [];
+        if ($json === null || $json === '') { return $pairs; }
+        $data = json_decode($json, true);
+        if (!is_array($data)) { return $pairs; }
+        $seen = [];
+        foreach ($data as $assign) {
+            if (!is_array($assign) || !isset($assign[0], $assign[1])) { continue; }
+            $key = ((int) $assign[0]) . ':' . ((int) $assign[1]);
+            if (!isset($seen[$key])) {
+                $seen[$key] = true;
+                $pairs[] = $key;
+            }
+        }
+        return $pairs;
+    }
+
+    /**
+     * Merge variant and product attribute JSON and deduplicate, like ES Sync does.
+     */
+    private function mergeVariantAndProductAttributesJson(?string $variantJson, ?string $productJson): ?string
+    {
+        if ($variantJson === null || $variantJson === '') { return $productJson; }
+        if ($productJson === null || $productJson === '') { return $variantJson; }
+        $variant = json_decode($variantJson, true);
+        $product = json_decode($productJson, true);
+        if (!is_array($variant)) { $variant = []; }
+        if (!is_array($product)) { $product = []; }
+        $merged = array_merge($variant, $product);
+        $unique = [];
+        $out = [];
+        foreach ($merged as $assign) {
+            if (!is_array($assign) || !isset($assign[0], $assign[1])) { continue; }
+            $k = ((int) $assign[0]) . ':' . ((int) $assign[1]);
+            if (!isset($unique[$k])) {
+                $unique[$k] = true;
+                $out[] = [(int) $assign[0], (int) $assign[1]];
+            }
+        }
+        return json_encode($out);
+    }
+
+    /**
+     * Compute keys-only available attribute pairs over base candidates.
+     * Returns array of ['attribute_id'=>int,'value_id'=>int] entries.
+     */
+    private function computeAvailablePairsKeysOnly(array $attributeData): array
+    {
+        $keys = [];
+        foreach ($attributeData as $pid => $info) {
+            // Product-level pairs (only when no variants)
+            if (!$info['hasVariants']) {
+                foreach ($info['productPairs'] as $pairKey) {
+                    $keys[$pairKey] = true;
+                }
+            }
+            // Variant effective pairs
+            foreach ($info['variants'] as $variantId => $variantPairs) {
+                foreach ($variantPairs as $pairKey) {
+                    $keys[$pairKey] = true;
+                }
+            }
+        }
+        $out = [];
+        foreach (array_keys($keys) as $k) {
+            [$a, $v] = array_map('intval', explode(':', $k, 2));
+            $out[] = ['attribute_id' => $a, 'value_id' => $v];
+        }
+        return $out;
+    }
+
+    /**
+     * Drop attribute filters not present in available pairs.
+     *
+     * @return array{0: array<int,array{attribute_id:int,value_id:int}>, 1: array<int,array{attribute_id:int,value_id:int}>}
+     */
+    private function dismissInvalidAttributeFilters(array $filters, array $availablePairs): array
+    {
+        if (empty($filters)) { return [$filters, []]; }
+        $available = [];
+        foreach ($availablePairs as $p) {
+            $available[(int)$p['attribute_id'] . ':' . (int)$p['value_id']] = true;
+        }
+        $effective = [];
+        $dismissed = [];
+        foreach ($filters as $f) {
+            $key = ((int)$f['attribute_id']) . ':' . ((int)$f['value_id']);
+            if (isset($available[$key])) { $effective[] = $f; } else { $dismissed[] = $f; }
+        }
+        return [$effective, $dismissed];
+    }
+
+    /**
+     * ES semantics: A product matches if (all pairs at product level) OR (exists a single variant where all pairs are present).
+     */
+    private function applyAttributeFilters(array $baseCandidateIds, array $attributeData, array $filters): array
+    {
+        if (empty($filters)) { return $baseCandidateIds; }
+        // Convert filters to set of keys for quick contains checks
+        $required = [];
+        foreach ($filters as $f) { $required[((int)$f['attribute_id']) . ':' . ((int)$f['value_id'])] = true; }
+
+        $result = [];
+        foreach ($baseCandidateIds as $pid) {
+            $info = $attributeData[$pid] ?? null;
+            if ($info === null) { continue; }
+
+            // Product-level path (only if pairs exist, typically when no variants)
+            if (!empty($info['productPairs'])) {
+                $set = array_fill_keys($info['productPairs'], true);
+                $ok = true;
+                foreach ($required as $rk => $_) { if (!isset($set[$rk])) { $ok = false; break; } }
+                if ($ok) { $result[] = $pid; continue; }
+            }
+
+            // Variant-level path: any single variant that contains all required pairs
+            $matchedByVariant = false;
+            foreach ($info['variants'] as $variantPairs) {
+                if (empty($variantPairs)) { continue; }
+                $set = array_fill_keys($variantPairs, true);
+                $ok = true;
+                foreach ($required as $rk => $_) { if (!isset($set[$rk])) { $ok = false; break; } }
+                if ($ok) { $matchedByVariant = true; break; }
+            }
+            if ($matchedByVariant) { $result[] = $pid; }
+        }
+        return $result;
+    }
+
+    /**
+     * Compute facet counts: map 'attr:value' => ['attribute_id'=>int,'value_id'=>int,'product_count'=>int].
+     * Counts products distinctly; product-level pairs contribute only if the product has no variants.
+     */
+    private function computeFacetCounts(array $productIds, array $attributeData): array
+    {
+        $pairToProductSet = [];
+        foreach ($productIds as $pid) {
+            $info = $attributeData[$pid] ?? null;
+            if ($info === null) { continue; }
+            if (!$info['hasVariants']) {
+                foreach ($info['productPairs'] as $pairKey) {
+                    if (!isset($pairToProductSet[$pairKey])) { $pairToProductSet[$pairKey] = []; }
+                    $pairToProductSet[$pairKey][$pid] = true;
+                }
+            }
+            foreach ($info['variants'] as $variantPairs) {
+                foreach ($variantPairs as $pairKey) {
+                    if (!isset($pairToProductSet[$pairKey])) { $pairToProductSet[$pairKey] = []; }
+                    $pairToProductSet[$pairKey][$pid] = true;
+                }
+            }
+        }
+
+        $out = [];
+        foreach ($pairToProductSet as $pairKey => $productSet) {
+            [$a, $v] = array_map('intval', explode(':', $pairKey, 2));
+            $out[$pairKey] = [
+                'attribute_id' => $a,
+                'value_id' => $v,
+                'product_count' => count($productSet)
+            ];
+        }
+        return $out;
+    }
+
+    private function combineFacetData(array $unfilteredFacetMap, array $filteredFacetMap, array $dismissedFilters = []): array
+    {
+        $combined = [];
+        foreach ($unfilteredFacetMap as $pairKey => $entry) {
+            $filteredCount = $filteredFacetMap[$pairKey]['product_count'] ?? 0;
+            $combined[] = [
+                'attribute_id' => $entry['attribute_id'],
+                'value_id' => $entry['value_id'],
+                'total_product_count' => $entry['product_count'],
+                'filtered_product_count' => $filteredCount,
+                'is_available' => $filteredCount > 0,
+                'is_filtered_out' => $filteredCount === 0 && $entry['product_count'] > 0,
+                'is_invalid' => false
+            ];
+        }
+        foreach ($dismissedFilters as $f) {
+            $combined[] = [
+                'attribute_id' => (int) $f['attribute_id'],
+                'value_id' => (int) $f['value_id'],
+                'total_product_count' => 0,
+                'filtered_product_count' => 0,
+                'is_available' => false,
+                'is_filtered_out' => false,
+                'is_invalid' => true
+            ];
+        }
+        return $combined;
+    }
+
+    private function combineFacetDataKeysOnly(array $unfilteredFacetsKeysOnly, array $dismissedFilters = []): array
+    {
+        $combined = [];
+        foreach ($unfilteredFacetsKeysOnly as $facet) {
+            $combined[] = [
+                'attribute_id' => (int) $facet['attribute_id'],
+                'value_id' => (int) $facet['value_id'],
+                'total_product_count' => 0,
+                'filtered_product_count' => 0,
+                'is_available' => true,
+                'is_filtered_out' => false,
+                'is_invalid' => false
+            ];
+        }
+        foreach ($dismissedFilters as $filter) {
+            $combined[] = [
+                'attribute_id' => (int) $filter['attribute_id'],
+                'value_id' => (int) $filter['value_id'],
+                'total_product_count' => 0,
+                'filtered_product_count' => 0,
+                'is_available' => false,
+                'is_filtered_out' => false,
+                'is_invalid' => true
+            ];
+        }
+        return $combined;
+    }
+
+    private function removeImpossibleOptions(Facets $facetData): Facets
+    {
+        $combinedFacets = $facetData->getCombinedFacets();
+        $allowed = [];
+        foreach ($combinedFacets as $entry) {
+            $attr = $entry['attribute_id'] ?? null;
+            $val = $entry['value_id'] ?? null;
+            $isInvalid = $entry['is_invalid'] ?? false;
+            $filteredCount = $entry['filtered_product_count'] ?? 0;
+            if ($attr === null || $val === null) { continue; }
+            if ($isInvalid) { continue; }
+            if ($filteredCount <= 0) { continue; }
+            $allowed[$attr . ':' . $val] = true;
+        }
+
+        $unfiltered = $facetData->getUnfilteredFacets();
+        $filtered = $facetData->getFilteredFacets();
+
+        $unfiltered = array_filter($unfiltered, function ($entry, $key) use ($allowed) {
+            $k = is_string($key) ? $key : (($entry['attribute_id'] ?? '') . ':' . ($entry['value_id'] ?? ''));
+            return isset($allowed[$k]);
+        }, ARRAY_FILTER_USE_BOTH);
+
+        $filtered = array_filter($filtered, function ($entry, $key) use ($allowed) {
+            $k = is_string($key) ? $key : (($entry['attribute_id'] ?? '') . ':' . ($entry['value_id'] ?? ''));
+            return isset($allowed[$k]);
+        }, ARRAY_FILTER_USE_BOTH);
+
+        $combinedFiltered = array_values(array_filter($combinedFacets, function ($entry) use ($allowed) {
+            $k = ($entry['attribute_id'] ?? '') . ':' . ($entry['value_id'] ?? '');
+            return isset($allowed[$k]);
+        }));
+
+        return new Facets($unfiltered, $filtered, $combinedFiltered);
+    }
+
+    private function facetKeysOnlyFromAvailable(array $availablePairs): array
+    {
+        $out = [];
+        foreach ($availablePairs as $p) {
+            $out[] = [
+                'attribute_id' => (int) $p['attribute_id'],
+                'value_id' => (int) $p['value_id'],
+                'product_count' => 0,
+            ];
+        }
+        return $out;
     }
 
     private function toDebugAlias(string $qualifiedColumn): string
