@@ -30,6 +30,29 @@
                     </ul>
                 </div>
             {% endfor %}
+            {% if producers is defined and producers|length %}
+                <div class="filter-attribute" data-attribute-id="producer">
+                    <strong>{{ producerTitle }}</strong>
+                    <ul class="filter-list">
+                        {% for producer in producers %}
+                            <li class="{{ producer.liClass }}">
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        name="filter[]"
+                                        value='{{ producer.encodedValue }}'
+                                        {{ producer.checked }} {{ producer.disabled }}
+                                    />
+                                    {{ producer.title }}
+                                    {% if producer.showCount and not producer.checked and not producer.disabled %}
+                                        <span class="badge {{ producer.activeStateClass }}">{{ producer.matchEstimateCount }}</span>
+                                    {% endif %}
+                                </label>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
         </div>
         <input type="submit" value="OK">
     </form>

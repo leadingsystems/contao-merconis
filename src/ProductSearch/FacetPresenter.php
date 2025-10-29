@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\ProductSearch;
 
 use Contao\Database;
+use Contao\System;
 use Merconis\Core\ls_shop_languageHelper;
 
 class FacetPresenter
@@ -17,7 +18,7 @@ class FacetPresenter
      *   - pinnedAliases (string[])
      *   - defaultMaxValuesPerAttribute (int)
      *   - language (string|null)
-     * @return array{visibleAttributes: array<int,array>, hiddenAttributes: array<int,array>}
+     * @return array{visibleAttributes: array<int,array>, hiddenAttributes: array<int,array>, visibleProducers?: array<int,array>, hiddenProducers?: array<int,array>, producerTitle?: string}
      */
     public static function present(Facets $facets, array $criteria = [], array $options = []): array
     {
@@ -64,6 +65,7 @@ class FacetPresenter
                 'attribute_id' => (int) $attrId,
                 'title' => (string) ($meta['title'] ?? ''),
                 'alias' => (string) ($meta['alias'] ?? ''),
+                'fieldId' => isset($meta['fieldId']) ? (int) $meta['fieldId'] : null,
                 'priority' => (int) ($meta['priority'] ?? 0),
                 'numItemsInReducedMode' => isset($meta['numItemsInReducedMode']) ? (int) $meta['numItemsInReducedMode'] : 0,
                 'relevance' => (int) ($relevance[$attrId] ?? 0),
@@ -92,7 +94,14 @@ class FacetPresenter
         $kept = 0;
         foreach ($sortable as $attr) {
             $maxValues = $attr['numItemsInReducedMode'] > 0 ? $attr['numItemsInReducedMode'] : $defaultMaxValuesPerAttribute;
-            $valuesOut = self::sortAndCapValues($attr['attribute_id'], $attr['values'], $language, $maxValues);
+            $valuesOut = self::sortAndCapValues(
+                $attr['attribute_id'],
+                $attr['values'],
+                $language,
+                $maxValues,
+                isset($attr['fieldId']) ? (int) $attr['fieldId'] : null,
+                (string) ($attr['alias'] ?? '')
+            );
             $outItem = [
                 'attribute_id' => $attr['attribute_id'],
                 'title' => $attr['title'],
@@ -110,9 +119,60 @@ class FacetPresenter
             }
         }
 
+        // Producers
+        $producerFieldPublished = self::producerFieldPublished();
+        $visibleProducers = [];
+        $hiddenProducers = [];
+        if ($producerFieldPublished) {
+            $producerFieldInfo = self::fetchProducerFieldInfo($language);
+            $producerTitle = $producerFieldInfo['title'] ?? null;
+            $producerAlias = $producerFieldInfo['alias'] ?? '';
+            $producerFieldId = $producerFieldInfo['id'] ?? null;
+            [$producersUnf, $producersFil] = self::aggregateProducers($facets->getUnfilteredFacets(), $facets->getFilteredFacets());
+            $selectedProducers = self::extractSelectedProducers($criteria);
+            $curated = self::fetchCuratedProducers();
+            $combined = self::mergeCuratedAndDiscoveredProducers($curated, array_keys($producersUnf));
+            // attach counts
+            $items = [];
+            foreach ($combined as $p) {
+                $rawCode = $p['name'];
+                $translated = self::callTranslationHooks($rawCode, [
+                    'dataSource' => 'producer',
+                    'filterFieldId' => $producerFieldId,
+                    'filterFieldAlias' => $producerAlias,
+                    'language' => $language
+                ]);
+                $label = $translated ?? $rawCode;
+                $items[] = [
+                    'producer' => $p['name'],
+                    'label' => $label,
+                    'important' => $p['important'],
+                    'total_product_count' => (int) ($producersUnf[strtolower($p['name'])] ?? 0),
+                    'filtered_product_count' => (int) ($producersFil[strtolower($p['name'])] ?? 0),
+                    'isSelected' => in_array($p['name'], $selectedProducers, true)
+                ];
+            }
+            // sort: selected first, important next, filtered desc, total desc, title
+            usort($items, function ($a, $b) {
+                if ($a['isSelected'] xor $b['isSelected']) return $a['isSelected'] ? -1 : 1;
+                if ($a['important'] xor $b['important']) return $a['important'] ? -1 : 1;
+                if ($a['filtered_product_count'] !== $b['filtered_product_count']) return $b['filtered_product_count'] <=> $a['filtered_product_count'];
+                if ($a['total_product_count'] !== $b['total_product_count']) return $b['total_product_count'] <=> $a['total_product_count'];
+                return strcmp($a['label'] ?? $a['producer'], $b['label'] ?? $b['producer']);
+            });
+            $cap = $defaultMaxValuesPerAttribute;
+            $visibleProducers = $cap > 0 && count($items) > $cap ? array_slice($items, 0, $cap) : $items;
+            $hiddenProducers = $cap > 0 && count($items) > $cap ? array_slice($items, $cap) : [];
+        } else {
+            $producerTitle = null;
+        }
+
         return [
             'visibleAttributes' => $visible,
             'hiddenAttributes' => $hidden,
+            'visibleProducers' => $visibleProducers,
+            'hiddenProducers' => $hiddenProducers,
+            'producerTitle' => $producerTitle,
         ];
     }
 
@@ -131,6 +191,7 @@ class FacetPresenter
                 $meta[$attrId] = [
                     'dataSource' => 'attribute',
                     'alias' => (string) $row['alias'],
+                    'fieldId' => (int) $row['id'],
                     'priority' => (int) $row['priority'],
                     'numItemsInReducedMode' => (int) $row['numItemsInReducedMode'],
                     'title' => (string) $title,
@@ -138,6 +199,47 @@ class FacetPresenter
             }
         }
         return $meta;
+    }
+
+    private static function producerFieldPublished(): bool
+    {
+        $dbres = Database::getInstance()
+            ->prepare("SELECT COUNT(*) AS cnt FROM tl_ls_shop_filter_fields WHERE published = '1' AND dataSource = 'producer'")
+            ->execute();
+        return ((int) ($dbres->cnt ?? 0)) > 0;
+    }
+
+    private static function fetchProducerFieldInfo(string $language): array
+    {
+        $dbres = Database::getInstance()
+            ->prepare("SELECT id, alias FROM tl_ls_shop_filter_fields WHERE published = '1' AND dataSource = 'producer' ORDER BY priority DESC, id ASC")
+            ->limit(1)
+            ->execute();
+        if (!$dbres->numRows) {
+            return [];
+        }
+        $id = (int) $dbres->first()->id;
+        $alias = (string) $dbres->first()->alias;
+        $title = ls_shop_languageHelper::getMultiLanguage($id, 'tl_ls_shop_filter_fields', array('title'), array($language));
+        return ['id' => $id, 'alias' => $alias, 'title' => (string) $title];
+    }
+
+    private static function callTranslationHooks(string $rawValue, array $context): ?string
+    {
+        if (!isset($GLOBALS['MERCONIS_HOOKS']['productSearchTranslateFilterValue']) || !is_array($GLOBALS['MERCONIS_HOOKS']['productSearchTranslateFilterValue'])) {
+            return null;
+        }
+        foreach ($GLOBALS['MERCONIS_HOOKS']['productSearchTranslateFilterValue'] as $mccb) {
+            try {
+                $obj = System::importStatic($mccb[0]);
+                $res = $obj->{$mccb[1]}($rawValue, $context);
+                if (is_string($res) && $res !== '') {
+                    return $res;
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+        return null;
     }
 
     /**
@@ -204,6 +306,76 @@ class FacetPresenter
         return [ (int) substr($key, 0, $pos), (int) substr($key, $pos + 1) ];
     }
 
+    private static function aggregateProducers($unfiltered, $filtered): array
+    {
+        $uf = [];
+        if (is_array($unfiltered)) {
+            foreach ($unfiltered as $entry) {
+                if (is_array($entry) && isset($entry['producer'])) {
+                    $uf[strtolower((string)$entry['producer'])] = (int) ($entry['product_count'] ?? 0);
+                }
+            }
+        }
+        $ff = [];
+        if (is_array($filtered)) {
+            foreach ($filtered as $entry) {
+                if (is_array($entry) && isset($entry['producer'])) {
+                    $ff[strtolower((string)$entry['producer'])] = (int) ($entry['product_count'] ?? 0);
+                }
+            }
+        }
+        return [$uf, $ff];
+    }
+
+    private static function extractSelectedProducers(array $criteria): array
+    {
+        $list = [];
+        if (isset($criteria['producers']) && is_array($criteria['producers'])) {
+            foreach ($criteria['producers'] as $p) {
+                $p = trim((string) $p);
+                if ($p !== '') { $list[] = $p; }
+            }
+        }
+        return array_values(array_unique($list));
+    }
+
+    private static function fetchCuratedProducers(): array
+    {
+        $rows = Database::getInstance()
+            ->prepare("SELECT f.id FROM tl_ls_shop_filter_fields f WHERE f.published = '1' AND f.dataSource = 'producer'")
+            ->execute()
+            ->fetchAllAssoc();
+        if (!is_array($rows) || !count($rows)) { return []; }
+        $ids = array_map(static fn($r) => (int) $r['id'], $rows);
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $dbres = Database::getInstance()
+            ->prepare("SELECT pid, filterValue, importantFieldValue FROM tl_ls_shop_filter_field_values WHERE pid IN ($placeholders) ORDER BY sorting ASC")
+            ->execute(...$ids);
+        $curated = [];
+        while ($dbres->next()) {
+            $name = (string) $dbres->filterValue;
+            if ($name === '') continue;
+            $curated[strtolower($name)] = ['name' => $name, 'important' => (bool) $dbres->importantFieldValue];
+        }
+        return array_values($curated);
+    }
+
+    private static function mergeCuratedAndDiscoveredProducers(array $curated, array $discovered): array
+    {
+        $seen = [];
+        $out = [];
+        foreach ($curated as $c) {
+            $out[] = ['name' => $c['name'], 'important' => (bool) ($c['important'] ?? false)];
+            $seen[strtolower($c['name'])] = true;
+        }
+        foreach ($discovered as $name) {
+            $ln = strtolower((string)$name);
+            if (isset($seen[$ln])) continue;
+            $out[] = ['name' => (string) $name, 'important' => false];
+        }
+        return $out;
+    }
+
     private static function extractSelectedAttributeIds(array $criteria): array
     {
         $out = [];
@@ -224,12 +396,21 @@ class FacetPresenter
     /**
      * Sort values by filtered desc, total desc, title A–Z and cap to max.
      */
-    private static function sortAndCapValues(int $attributeId, array $values, string $language, int $max): array
+    private static function sortAndCapValues(int $attributeId, array $values, string $language, int $max, ?int $filterFieldId = null, ?string $filterFieldAlias = ''): array
     {
         // Attach titles
         $enriched = [];
         foreach ($values as $vid => $info) {
-            $title = ls_shop_languageHelper::getMultiLanguage($vid, 'tl_ls_shop_attribute_values', array('title'), array($language));
+            $rawTitle = ls_shop_languageHelper::getMultiLanguage($vid, 'tl_ls_shop_attribute_values', array('title'), array($language));
+            $translated = self::callTranslationHooks((string) $rawTitle, [
+                'dataSource' => 'attribute',
+                'filterFieldId' => $filterFieldId,
+                'filterFieldAlias' => (string) $filterFieldAlias,
+                'language' => $language,
+                'attributeId' => (int) $attributeId,
+                'valueId' => (int) $vid,
+            ]);
+            $title = $translated ?? (string) $rawTitle;
             $enriched[] = [
                 'value_id' => (int) $vid,
                 'title' => (string) $title,

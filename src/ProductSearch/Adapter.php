@@ -133,14 +133,23 @@ class Adapter
 
         $filter = $request->get('filter', []);
 
-        $filterAsSearchCriterion = array_map(
-            function($item) {
-                return json_decode($item, true);
-            },
-            $filter ?? []
-        );
+        $decoded = array_map(function($item) { return json_decode($item, true); }, $filter ?? []);
+        $attributeFilters = [];
+        $producerFilters = [];
+        foreach ($decoded as $entry) {
+            if (!is_array($entry)) { continue; }
+            if (isset($entry['producer'])) {
+                $val = trim((string) $entry['producer']);
+                if ($val !== '') { $producerFilters[] = $val; }
+                continue;
+            }
+            if (isset($entry['attribute_id']) && isset($entry['value_id'])) {
+                $attributeFilters[] = ['attribute_id' => (int) $entry['attribute_id'], 'value_id' => (int) $entry['value_id']];
+            }
+        }
 
-        $this->setSearchCriterion('attributes', $filterAsSearchCriterion);
+        $this->setSearchCriterion('attributes', $attributeFilters);
+        $this->setSearchCriterion('producers', $producerFilters);
 
         Controller::reload();
     }
@@ -418,7 +427,9 @@ class Adapter
         $combinedFacets = $this->getFacets()->getCombinedFacets();
         $facetLookup = [];
         foreach ($combinedFacets as $facet) {
-            $facetLookup[$facet['attribute_id']][$facet['value_id']] = $facet;
+            if (isset($facet['attribute_id']) && isset($facet['value_id'])) {
+                $facetLookup[$facet['attribute_id']][$facet['value_id']] = $facet;
+            }
         }
 
         // Present prioritized and capped attributes/values (stateless)
@@ -513,10 +524,55 @@ class Adapter
             $preparedFilters[$attribute_id]['summary'] = $summary;
         }
 
+        // Producers
+        $preparedProducers = [];
+        $selectedProducers = array_map('strval', $this->searchCriteria['producers'] ?? []);
+        foreach (($presented['visibleProducers'] ?? []) as $prod) {
+            $producerName = (string) ($prod['producer'] ?? '');
+            $producerLabel = (string) ($prod['label'] ?? $producerName);
+            if ($producerName === '') { continue; }
+            $isChecked = in_array($producerName, $selectedProducers, true);
+            // find counts in combined facets
+            $facet = null;
+            foreach ($combinedFacets as $entry) {
+                if (isset($entry['producer']) && strtolower((string)$entry['producer']) === strtolower($producerName)) { $facet = $entry; break; }
+            }
+            if ($useMatchEstimates) {
+                $filteredCount = $facet['filtered_product_count'] ?? ($prod['filtered_product_count'] ?? 0);
+                $totalCount    = $facet['total_product_count'] ?? ($prod['total_product_count'] ?? 0);
+                if ($filteredCount > 0) {
+                    $activeStateClass = 'active';
+                    $matchEstimateCount = $filteredCount;
+                } else {
+                    $activeStateClass = 'inactive';
+                    $matchEstimateCount = $totalCount;
+                }
+                $showCount = true;
+            } else {
+                $activeStateClass = '';
+                $matchEstimateCount = null;
+                $showCount = false;
+            }
+            $encodedValue = json_encode(['producer' => $producerName]);
+            $preparedProducers[] = [
+                'title' => $producerLabel,
+                'liClass' => 'filter-value',
+                'checked' => $isChecked ? 'checked' : '',
+                'disabled' => (!$isChecked && $useMatchEstimates && ($matchEstimateCount === 0)) ? 'disabled' : '',
+                'invalid' => false,
+                'activeStateClass' => $activeStateClass,
+                'matchEstimateCount' => $matchEstimateCount,
+                'showCount' => $showCount,
+                'encodedValue' => $encodedValue,
+            ];
+        }
+
         return $this->twig->render(
             '@LeadingSystemsMerconis/frontend/product-search/filter/ui.html.twig',
             [
                 'filters' => $preparedFilters,
+                'producers' => $preparedProducers,
+                'producerTitle' => $presented['producerTitle'] ?? 'Producer',
                 'productListId' => $this->productListId
             ]
         );

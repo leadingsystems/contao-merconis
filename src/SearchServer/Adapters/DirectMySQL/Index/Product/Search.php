@@ -89,11 +89,13 @@ class Search implements CommonInterface, IndexSearchInterface
         $baseCriteria = $this->prepareBaseCriteria($criteria);
 
         // Get base candidates (respecting fulltext/pages/published etc.)
+        // Note: baseCriteria still contains a possible producer filter; we will also compute a version without producers when needed.
         $baseCandidateIds = $this->fetchProductIdsByCriteria($baseCriteria, $language);
 
         // Fast path: no facets requested and no attribute filters → just return base IDs
         $attributeFilters = $this->normalizeAttributeFilters($criteria['attributes'] ?? []);
         $attributeFieldsPublished = $this->attributeFilterFieldsExist();
+        $producerFieldPublished = $this->producerFilterFieldExists();
         if (!$activateFacets && empty($attributeFilters)) {
             $result = new SearchResult($baseCandidateIds);
             $total = count($baseCandidateIds);
@@ -102,12 +104,72 @@ class Search implements CommonInterface, IndexSearchInterface
             return $result;
         }
 
-        // If there are no published attribute filter fields, skip all attribute/value computations
+        // If there are no published attribute filter fields, skip attribute work but still handle producer facets if published
         if (!$attributeFieldsPublished) {
-            $facets = $activateFacets ? new Facets([], [], []) : null;
-            $result = new SearchResult($baseCandidateIds, $facets, false, 0, count($baseCandidateIds), count($baseCandidateIds));
-            $result->setNumProductsUnfiltered(count($baseCandidateIds));
-            $result->setNumProductsFiltered(count($baseCandidateIds));
+            $criteriaNoProd = $baseCriteria;
+            unset($criteriaNoProd['producers']);
+            $idsUnfilteredForProducers = $this->fetchProductIdsByCriteria($criteriaNoProd, $language);
+            $idsFilteredForProducers = $baseCandidateIds; // may include producer filter
+
+            if (!$activateFacets || !$producerFieldPublished) {
+                $facets = $activateFacets ? new Facets([], [], []) : null;
+                $result = new SearchResult($idsFilteredForProducers, $facets, false, 0, count($idsUnfilteredForProducers), count($idsFilteredForProducers));
+                $result->setNumProductsUnfiltered(count($idsUnfilteredForProducers));
+                $result->setNumProductsFiltered(count($idsFilteredForProducers));
+                return $result;
+            }
+
+            if ($activateMatchEstimates) {
+                $unfProd = $this->computeProducerCounts($idsUnfilteredForProducers);
+                $filProd = $this->computeProducerCounts($idsFilteredForProducers);
+                $unfilteredFacetMap = [];
+                $filteredFacetMap = [];
+                foreach ($unfProd as $producer => $cnt) {
+                    $unfilteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $cnt];
+                }
+                foreach ($filProd as $producer => $cnt) {
+                    $filteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $cnt];
+                }
+                $combined = [];
+                foreach ($unfProd as $producer => $cnt) {
+                    $combined[] = [
+                        'producer' => (string) $producer,
+                        'total_product_count' => (int) $cnt,
+                        'filtered_product_count' => (int) ($filProd[$producer] ?? 0),
+                        'is_available' => ((int) ($filProd[$producer] ?? 0)) > 0,
+                        'is_filtered_out' => ((int) ($filProd[$producer] ?? 0)) === 0 && (int) $cnt > 0,
+                        'is_invalid' => false
+                    ];
+                }
+                $facets = new Facets($unfilteredFacetMap, $filteredFacetMap, $combined);
+            } else {
+                // keys only
+                $unfProd = $this->computeProducerCounts($idsUnfilteredForProducers);
+                $unfilteredFacetMap = [];
+                $filteredFacetMap = [];
+                foreach ($unfProd as $producer => $cnt) {
+                    $unfilteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => 0];
+                    $filteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => 0];
+                }
+                $combined = [];
+                foreach ($unfProd as $producer => $cnt) {
+                    $combined[] = [
+                        'producer' => (string) $producer,
+                        'total_product_count' => 0,
+                        'filtered_product_count' => 0,
+                        'is_available' => true,
+                        'is_filtered_out' => false,
+                        'is_invalid' => false
+                    ];
+                }
+                $facets = new Facets($unfilteredFacetMap, $filteredFacetMap, $combined);
+            }
+
+            $hasUnmatched = !empty($criteria['producers']) && (count($idsFilteredForProducers) < count($idsUnfilteredForProducers));
+            $numUnmatched = $hasUnmatched ? (count($idsUnfilteredForProducers) - count($idsFilteredForProducers)) : 0;
+            $result = new SearchResult($idsFilteredForProducers, $facets, $hasUnmatched, $numUnmatched, count($idsUnfilteredForProducers), count($idsFilteredForProducers));
+            $result->setNumProductsUnfiltered(count($idsUnfilteredForProducers));
+            $result->setNumProductsFiltered(count($idsFilteredForProducers));
             return $result;
         }
 
@@ -140,6 +202,30 @@ class Search implements CommonInterface, IndexSearchInterface
                 ? $unfilteredFacetMap
                 : $this->computeFacetCounts($filteredIds, $attributeData);
             $combined = $this->combineFacetData($unfilteredFacetMap, $filteredFacetMap, $dismissedFilters);
+
+            // Producer facets (only if producer field is published)
+            if ($this->producerFilterFieldExists()) {
+                $unfProd = $this->computeProducerCounts($baseCandidateIds);
+                $filProd = $this->computeProducerCounts($filteredIds);
+                foreach ($unfProd as $producer => $count) {
+                    $filteredCount = (int) ($filProd[$producer] ?? 0);
+                    $combined[] = [
+                        'producer' => (string) $producer,
+                        'total_product_count' => (int) $count,
+                        'filtered_product_count' => (int) $filteredCount,
+                        'is_available' => $filteredCount > 0,
+                        'is_filtered_out' => $filteredCount === 0 && $count > 0,
+                        'is_invalid' => false
+                    ];
+                }
+                // Also expose raw producer maps inside unfiltered/filtered arrays for presenter
+                foreach ($unfProd as $producer => $count) {
+                    $unfilteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $count];
+                }
+                foreach ($filProd as $producer => $count) {
+                    $filteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $count];
+                }
+            }
             $facetData = new Facets($unfilteredFacetMap, $filteredFacetMap, $combined);
             if ($removeImpossibleOptions) {
                 $facetData = $this->removeImpossibleOptions($facetData);
@@ -149,6 +235,23 @@ class Search implements CommonInterface, IndexSearchInterface
             $unfilteredKeysOnly = $this->facetKeysOnlyFromAvailable($availablePairs);
             $filteredKeysOnly = $unfilteredKeysOnly;
             $combined = $this->combineFacetDataKeysOnly($unfilteredKeysOnly, $dismissedFilters);
+            if ($this->producerFilterFieldExists()) {
+                $unfProd = $this->computeProducerCounts($baseCandidateIds);
+                foreach ($unfProd as $producer => $count) {
+                    $combined[] = [
+                        'producer' => (string) $producer,
+                        'total_product_count' => 0,
+                        'filtered_product_count' => 0,
+                        'is_available' => true,
+                        'is_filtered_out' => false,
+                        'is_invalid' => false
+                    ];
+                }
+                foreach ($unfProd as $producer => $count) {
+                    $unfilteredKeysOnly[] = ['producer' => (string) $producer, 'product_count' => 0];
+                    $filteredKeysOnly[] = ['producer' => (string) $producer, 'product_count' => 0];
+                }
+            }
             $facetData = new Facets($unfilteredKeysOnly, $filteredKeysOnly, $combined);
         }
 
@@ -184,6 +287,43 @@ class Search implements CommonInterface, IndexSearchInterface
         }
     }
 
+    private function producerFilterFieldExists(): bool
+    {
+        try {
+            $qb = $this->connection->createQueryBuilder();
+            $qb->select('COUNT(*) AS cnt')
+                ->from('tl_ls_shop_filter_fields')
+                ->where("published = '1'")
+                ->andWhere("dataSource = 'producer'");
+            return (int) ($qb->executeQuery()->fetchOne() ?? 0) > 0;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    private function computeProducerCounts(array $productIds): array
+    {
+        if (empty($productIds)) { return []; }
+        $ids = array_values(array_map('intval', $productIds));
+        $batchSize = 1000;
+        $counts = [];
+        for ($offset = 0, $n = count($ids); $offset < $n; $offset += $batchSize) {
+            $chunk = array_slice($ids, $offset, $batchSize);
+            $qb = $this->connection->createQueryBuilder();
+            $qb->select('LOWER(COALESCE(p.lsShopProductProducer, "")) AS producer', 'COUNT(p.id) AS cnt')
+                ->from('tl_ls_shop_product', 'p')
+                ->where($qb->expr()->in('p.id', ':ids'))
+                ->groupBy('producer')
+                ->setParameter('ids', $chunk, Connection::PARAM_INT_ARRAY);
+            foreach ($qb->executeQuery()->fetchAllAssociative() as $row) {
+                $producer = (string) ($row['producer'] ?? '');
+                if ($producer === '') { continue; }
+                $counts[$producer] = ($counts[$producer] ?? 0) + (int) $row['cnt'];
+            }
+        }
+        return $counts;
+    }
+
     private function fetchProductIdsByCriteria(array $criteria, string $language): array
     {
         $this->parameterCounter = 0;
@@ -209,6 +349,17 @@ class Search implements CommonInterface, IndexSearchInterface
                 $qb->setParameter('pageIds', $pageIds, Connection::PARAM_INT_ARRAY);
             } else {
                 return [];
+            }
+        }
+
+        // Producer filter (exact match on product-level producer)
+        if (!empty($criteria['producers']) && is_array($criteria['producers'])) {
+            $producers = array_values(array_filter(array_map(function ($p) { return strtolower(trim((string) $p)); }, $criteria['producers']), function ($v) { return $v !== ''; }));
+            if (count($producers)) {
+                $paramName = $this->nextParameterName();
+                $qb->andWhere('LOWER(product.lsShopProductProducer) IN (:' . $paramName . ')');
+                $parameters[$paramName] = $producers;
+                $parameterTypes[$paramName] = Connection::PARAM_STR_ARRAY;
             }
         }
 
