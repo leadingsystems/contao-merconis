@@ -93,11 +93,21 @@ class Search implements CommonInterface, IndexSearchInterface
 
         // Fast path: no facets requested and no attribute filters → just return base IDs
         $attributeFilters = $this->normalizeAttributeFilters($criteria['attributes'] ?? []);
+        $attributeFieldsPublished = $this->attributeFilterFieldsExist();
         if (!$activateFacets && empty($attributeFilters)) {
             $result = new SearchResult($baseCandidateIds);
             $total = count($baseCandidateIds);
             $result->setNumProductsUnfiltered($total);
             $result->setNumProductsFiltered($total);
+            return $result;
+        }
+
+        // If there are no published attribute filter fields, skip all attribute/value computations
+        if (!$attributeFieldsPublished) {
+            $facets = $activateFacets ? new Facets([], [], []) : null;
+            $result = new SearchResult($baseCandidateIds, $facets, false, 0, count($baseCandidateIds), count($baseCandidateIds));
+            $result->setNumProductsUnfiltered(count($baseCandidateIds));
+            $result->setNumProductsFiltered(count($baseCandidateIds));
             return $result;
         }
 
@@ -157,6 +167,21 @@ class Search implements CommonInterface, IndexSearchInterface
         $result->setNumProductsUnfiltered(count($baseCandidateIds));
         $result->setNumProductsFiltered(count($filteredIds));
         return $result;
+    }
+
+    private function attributeFilterFieldsExist(): bool
+    {
+        try {
+            $qb = $this->connection->createQueryBuilder();
+            $qb->select('COUNT(*) AS cnt')
+                ->from('tl_ls_shop_filter_fields')
+                ->where("published = '1'")
+                ->andWhere("dataSource = 'attribute'");
+            $cnt = (int) ($qb->executeQuery()->fetchOne() ?? 0);
+            return $cnt > 0;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     private function fetchProductIdsByCriteria(array $criteria, string $language): array
