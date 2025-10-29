@@ -63,7 +63,11 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		    ls_shop_searchWeighting_partialSearchStringMatchesPartialField_productCode,
 		    ls_shop_searchWeighting_partialSearchStringMatchesPartialField_producer;
 
-		{directMySQLSearchSettings_legend},ls_shop_productCodeDelimiter,ls_shop_debugSearch,ls_shop_debugSearchScoring;	    
+		{directMySQLSearchSettings_legend},
+			ls_shop_productCodeDelimiter,ls_shop_debugSearch,ls_shop_debugSearchScoring,
+			ls_shop_dmysql_weight_title,ls_shop_dmysql_weight_keywords,ls_shop_dmysql_weight_shortDescription,ls_shop_dmysql_weight_description,
+			ls_shop_dmysql_code_boost_allTerms,ls_shop_dmysql_code_boost_anyTerm,ls_shop_dmysql_code_boost_exactTerm,ls_shop_dmysql_code_boost_exactFullQuery,
+			ls_shop_dmysql_producer_boost_allTerms,ls_shop_dmysql_producer_boost_anyTerm,ls_shop_dmysql_producer_boost_exactTerm,ls_shop_dmysql_producer_boost_exactFullQuery;	    
 		    
 		{importSettings_legend},ls_shop_standardProductImportFolder,ls_shop_importFlexFieldKeys,ls_shop_importFlexFieldKeysLanguageIndependent,ls_shop_importCsvDelimiter,ls_shop_importCsvEnclosure,ls_shop_importCsvEscape,ls_shop_importCsvLocale,ls_shop_numMaxImportRecordsPerRound;
 		{compatSettings_legend},ls_shop_blnCompatMode2-1-4;
@@ -103,6 +107,84 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_productCodeDelimiter'],
             'inputType' => 'text',
             'eval' => array('tl_class' => 'w50', 'maxlength' => 8, 'decodeEntities' => true)
+        ),
+
+        // DirectMySQL field weights (descriptive FULLTEXT columns)
+        'ls_shop_dmysql_weight_title' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_title'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_weight_keywords' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_keywords'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_weight_shortDescription' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_shortDescription'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_weight_description' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_description'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+
+        // DirectMySQL code boosts
+        'ls_shop_dmysql_code_boost_allTerms' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_allTerms'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_code_boost_anyTerm' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_anyTerm'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_code_boost_exactTerm' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactTerm'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_code_boost_exactFullQuery' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactFullQuery'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+
+        // DirectMySQL producer boosts
+        'ls_shop_dmysql_producer_boost_allTerms' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_allTerms'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_producer_boost_anyTerm' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_anyTerm'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_producer_boost_exactTerm' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactTerm'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_producer_boost_exactFullQuery' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactFullQuery'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
         ),
 		'ls_shop_beOrderTemplateOverview' => array(
 			'exclude' => true,

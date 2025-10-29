@@ -191,6 +191,22 @@ $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowServerMs'] = array('Schw
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowNetworkMs'] = array('Schwellenwert „langsam Netzwerk“ (ms)', 'Warnen, wenn die geschätzte Netzwerk-/Overheadzeit diesen Wert überschreitet.');
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogFile'] = array('Basisname der Logdatei (optional)', 'Nur ein Dateiname ohne Endung; gespeichert in var/logs. Das System hängt automatisch -YYYY-MM-DD.log an (z. B. my-es-log-2025-09-17.log). Wenn leer, Standard: <env>-YYYY-MM-DD.log.');
 
+	// DirectMySQL Gewichtungen (Beschriftungen)
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_title'] = array('Gewichtung: Titel', 'Relevanz-Gewichtung für das Feld Produkt-Titel (Standard 5.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_keywords'] = array('Gewichtung: Schlüsselwörter', 'Relevanz-Gewichtung für das Feld Schlüsselwörter (Standard 3.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_shortDescription'] = array('Gewichtung: Kurzbeschreibung', 'Relevanz-Gewichtung für das Feld Kurzbeschreibung (Standard 2.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_description'] = array('Gewichtung: Beschreibung', 'Relevanz-Gewichtung für das Feld Beschreibung (Standard 1,5).');
+
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_allTerms'] = array('Boost: Artikelnummer (alle Begriffe treffen)', 'Zusätzliche Relevanz, wenn alle Code-Begriffe treffen (Standard 100).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_anyTerm'] = array('Boost: Artikelnummer (irgendein Begriff trifft)', 'Zusätzliche Relevanz, wenn irgendein Code-Begriff trifft (Standard 20).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactTerm'] = array('Boost: Artikelnummer (exakter Einzelbegriff)', 'Zusätzliche Relevanz, wenn ein einzelner Begriff exakt der Artikelnummer entspricht (Standard 150).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactFullQuery'] = array('Boost: Artikelnummer (gesamte Suche exakt)', 'Zusätzliche Relevanz, wenn der gesamte Suchtext exakt der Artikelnummer entspricht (Standard 300).');
+
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_allTerms'] = array('Boost: Hersteller (alle Begriffe treffen)', 'Zusätzliche Relevanz, wenn alle Hersteller-Begriffe treffen (Standard 60).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_anyTerm'] = array('Boost: Hersteller (irgendein Begriff trifft)', 'Zusätzliche Relevanz, wenn irgendein Hersteller-Begriff trifft (Standard 10).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactTerm'] = array('Boost: Hersteller (exakter Einzelbegriff)', 'Zusätzliche Relevanz, wenn ein einzelner Begriff exakt dem Hersteller entspricht (Standard 80).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactFullQuery'] = array('Boost: Hersteller (gesamte Suche exakt)', 'Zusätzliche Relevanz, wenn der gesamte Suchtext exakt dem Hersteller entspricht (Standard 160).');
+
 
 	/*
 	 * References

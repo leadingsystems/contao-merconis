@@ -250,18 +250,20 @@ class Search implements CommonInterface, IndexSearchInterface
 				// Use ANY-term match for inclusion in WHERE
 				$codeWhere = $codeWhereAny;
 				// Relevance boosts: strong boost for ALL-terms match, smaller for ANY-term match
-				$scoreExpression = sprintf(
-					'(%s) + CASE WHEN %s THEN %s ELSE 0 END',
-					$scoreExpression,
-					$codeWhereAll,
-					'100'
-				);
-				$scoreExpression = sprintf(
-					'(%s) + CASE WHEN %s THEN %s ELSE 0 END',
-					$scoreExpression,
-					$codeWhereAny,
-					'20'
-				);
+                $codeBoostAllTerms = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_allTerms'] ?? 100);
+                $scoreExpression = sprintf(
+                    '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
+                    $scoreExpression,
+                    $codeWhereAll,
+                    (string) $codeBoostAllTerms
+                );
+                $codeBoostAnyTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_anyTerm'] ?? 20);
+                $scoreExpression = sprintf(
+                    '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
+                    $scoreExpression,
+                    $codeWhereAny,
+                    (string) $codeBoostAnyTerm
+                );
 
 				// Additional boosts for exact code matches
 				// 1) Any single term equals the product code exactly (case-insensitive)
@@ -275,11 +277,12 @@ class Search implements CommonInterface, IndexSearchInterface
 				}
                 if (count($eqParts)) {
                     $codeEqualsAny = '(' . implode(' OR ', $eqParts) . ')';
+                    $codeBoostExactTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_exactTerm'] ?? 150);
                     $scoreExpression = sprintf(
                         '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
                         $scoreExpression,
                         $codeEqualsAny,
-                        '150'
+                        (string) $codeBoostExactTerm
                     );
                 }
 
@@ -289,23 +292,24 @@ class Search implements CommonInterface, IndexSearchInterface
 					$parameters[$eqAllParam] = $normalizedFullQuery;
 					$parameterTypes[$eqAllParam] = ParameterType::STRING;
 					$codeEqualsFullExpr = sprintf('%s = :%s', $normalizedCodeExpr, $eqAllParam);
-					$scoreExpression = sprintf(
-						'(%s) + CASE WHEN %s THEN %s ELSE 0 END',
-						$scoreExpression,
-						$codeEqualsFullExpr,
-						'300'
-					);
+                    $codeBoostExactFull = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_exactFullQuery'] ?? 300);
+                    $scoreExpression = sprintf(
+                        '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
+                        $scoreExpression,
+                        $codeEqualsFullExpr,
+                        (string) $codeBoostExactFull
+                    );
 				}
 
                 // Debug projection: code contribution components
                 if ($debugScoringEnabled) {
-                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_all', $codeWhereAll, '100'));
-                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_any', $codeWhereAny, '20'));
+                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_all', $codeWhereAll, (string) $codeBoostAllTerms));
+                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_any', $codeWhereAny, (string) $codeBoostAnyTerm));
                     if (isset($codeEqualsAny)) {
-                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_term', $codeEqualsAny, '150'));
+                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_term', $codeEqualsAny, (string) $codeBoostExactTerm));
                     }
 					if (isset($codeEqualsFullExpr)) {
-						$qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_full', $codeEqualsFullExpr, '300'));
+						$qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_full', $codeEqualsFullExpr, (string) $codeBoostExactFull));
 					}
 					// Also expose normalized code for clarity
 					$qb->addSelect($normalizedCodeExpr . ' AS dbg_product_code_norm');
@@ -329,8 +333,10 @@ class Search implements CommonInterface, IndexSearchInterface
                 // Use ANY-term match for inclusion in WHERE
                 $producerWhere = $producerWhereAny;
                 // Relevance boosts: moderate for ALL-terms, smaller for ANY-term
-                $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerWhereAll, '60');
-                $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerWhereAny, '10');
+                $producerBoostAllTerms = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_allTerms'] ?? 60);
+                $producerBoostAnyTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_anyTerm'] ?? 10);
+                $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerWhereAll, (string) $producerBoostAllTerms);
+                $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerWhereAny, (string) $producerBoostAnyTerm);
 
                 // Additional boosts for exact producer matches (case-insensitive)
                 $eqParts = [];
@@ -342,7 +348,8 @@ class Search implements CommonInterface, IndexSearchInterface
                 }
                 if (count($eqParts)) {
                     $producerEqualsAny = '(' . implode(' OR ', $eqParts) . ')';
-                    $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerEqualsAny, '80');
+                    $producerBoostExactTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_exactTerm'] ?? 80);
+                    $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerEqualsAny, (string) $producerBoostExactTerm);
                 }
 
                 // Entire normalized query equals producer exactly
@@ -351,18 +358,19 @@ class Search implements CommonInterface, IndexSearchInterface
                     $parameters[$eqAllParam] = $normalizedFullQuery;
                     $parameterTypes[$eqAllParam] = ParameterType::STRING;
                     $producerEqualsFullExpr = sprintf('LOWER(product.lsShopProductProducer) = :%s', $eqAllParam);
-                    $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerEqualsFullExpr, '160');
+                    $producerBoostExactFull = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_exactFullQuery'] ?? 160);
+                    $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerEqualsFullExpr, (string) $producerBoostExactFull);
                 }
 
                 // Debug projection for producer components
                 if ($debugScoringEnabled) {
-                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_all', $producerWhereAll, '60'));
-                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_any', $producerWhereAny, '10'));
+                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_all', $producerWhereAll, (string) $producerBoostAllTerms));
+                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_any', $producerWhereAny, (string) $producerBoostAnyTerm));
                     if (isset($producerEqualsAny)) {
-                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_eq_term', $producerEqualsAny, '80'));
+                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_eq_term', $producerEqualsAny, (string) $producerBoostExactTerm));
                     }
                     if (isset($producerEqualsFullExpr)) {
-                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_eq_full', $producerEqualsFullExpr, '160'));
+                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_eq_full', $producerEqualsFullExpr, (string) $producerBoostExactFull));
                     }
                 }
             }
@@ -581,10 +589,10 @@ class Search implements CommonInterface, IndexSearchInterface
         }
 
         switch ($rootBase) {
-            case 'title': return 5.0;
-            case 'keywords': return 3.0;
-            case 'shortDescription': return 2.0;
-            case 'description': return 1.5;
+            case 'title': return (float) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_weight_title'] ?? 5.0);
+            case 'keywords': return (float) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_weight_keywords'] ?? 3.0);
+            case 'shortDescription': return (float) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_weight_shortDescription'] ?? 2.0);
+            case 'description': return (float) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_weight_description'] ?? 1.5);
             default: return 1.0;
         }
     }

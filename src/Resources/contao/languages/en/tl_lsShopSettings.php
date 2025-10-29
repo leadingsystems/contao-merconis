@@ -191,6 +191,22 @@ $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowServerMs'] = array('Slow
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowNetworkMs'] = array('Slow network threshold (ms)', 'Warn when estimated network/overhead exceeds this value.');
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogFile'] = array('Log file base name (optional)', 'Only a file name without suffix, stored in var/logs. The system automatically appends -YYYY-MM-DD.log (e.g. my-es-log-2025-09-17.log). If empty, defaults to <env>-YYYY-MM-DD.log.');
 	
+	// DirectMySQL weighting fields (labels)
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_title'] = array('Weight: Title', 'Relevance weight for the product title field (default 5.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_keywords'] = array('Weight: Keywords', 'Relevance weight for the keywords field (default 3.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_shortDescription'] = array('Weight: Short description', 'Relevance weight for the short description field (default 2.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_description'] = array('Weight: Description', 'Relevance weight for the description field (default 1.5).');
+
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_allTerms'] = array('Boost: Code (all terms match)', 'Extra relevance when all code terms match (default 100).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_anyTerm'] = array('Boost: Code (any term matches)', 'Extra relevance when any code term matches (default 20).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactTerm'] = array('Boost: Code (exact single term)', 'Extra relevance when a single term equals the product code (default 150).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactFullQuery'] = array('Boost: Code (exact full query)', 'Extra relevance when the entire query equals the product code (default 300).');
+
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_allTerms'] = array('Boost: Producer (all terms match)', 'Extra relevance when all producer terms match (default 60).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_anyTerm'] = array('Boost: Producer (any term matches)', 'Extra relevance when any producer term matches (default 10).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactTerm'] = array('Boost: Producer (exact single term)', 'Extra relevance when a single term equals the producer (default 80).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactFullQuery'] = array('Boost: Producer (exact full query)', 'Extra relevance when the entire query equals the producer (default 160).');
+
 	/*
 	 * References
 	 */
