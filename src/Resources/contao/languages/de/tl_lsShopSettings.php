@@ -176,7 +176,16 @@
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['backendLscss_legend'] = 'Einstellungen für LSCSS im Backend';
 
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Erweiterte Einstellungen';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Erweiterte Einstellungen';
+
+// Facet presenter settings
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconisFilterSettings_legend'] = 'Merconis Filter-UI';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxVisibleAttributes'][0] = 'Max. sichtbare Attribute';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxVisibleAttributes'][1] = 'Begrenzen Sie die Anzahl der Attribut-Felder, die oberhalb der Falz angezeigt werden.';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxValuesPerAttribute'][0] = 'Max. sichtbare Werte je Attribut';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxValuesPerAttribute'][1] = 'Begrenzen Sie die Anzahl der Werte pro Attribut. Weitere Werte können bei Bedarf eingeblendet werden.';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_pinnedAliases'][0] = 'Fixierte Attribut-Aliase';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_pinnedAliases'][1] = 'Kommaseparierte Liste von Attribut-Aliasen, die immer zuerst angezeigt werden sollen (leer lassen zum Deaktivieren).';
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menü';
 

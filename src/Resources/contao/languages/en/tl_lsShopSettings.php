@@ -178,6 +178,15 @@
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Advanced settings';
 
+    // Facet presenter settings
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconisFilterSettings_legend'] = 'Merconis filter UI';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxVisibleAttributes'][0] = 'Max. visible attributes';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxVisibleAttributes'][1] = 'Limit the number of attribute fields shown above the fold.';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxValuesPerAttribute'][0] = 'Max. visible values per attribute';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxValuesPerAttribute'][1] = 'Limit the number of values per attribute. Remaining values can be revealed on demand.';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_pinnedAliases'][0] = 'Pinned attribute aliases';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_pinnedAliases'][1] = 'Comma-separated list of attribute aliases to always show first (leave empty to disable).';
+
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menu';
 
 // ES logging legend

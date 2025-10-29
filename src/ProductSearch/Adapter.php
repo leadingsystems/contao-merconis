@@ -428,7 +428,7 @@ class Adapter
             [
                 'maxVisibleAttributes' => (int) ($GLOBALS['TL_CONFIG']['merconis_filter_maxVisibleAttributes'] ?? 12),
                 'defaultMaxValuesPerAttribute' => (int) ($GLOBALS['TL_CONFIG']['merconis_filter_maxValuesPerAttribute'] ?? 10),
-                'pinnedAliases' => (array) ($GLOBALS['TL_CONFIG']['merconis_filter_pinnedAliases'] ?? ['etim-attributeclass']),
+                'pinnedAliases' => (array) ($GLOBALS['TL_CONFIG']['merconis_filter_pinnedAliases'] ?? []),
                 // language omitted to auto-detect from Page
             ]
         );

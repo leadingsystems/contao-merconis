@@ -75,6 +75,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{backendLsjs_legend},ls_shop_lsjsDebugMode,ls_shop_lsjsNoMinifierMode;
 		{backendLscss_legend},ls_shop_lscssFileToLoad,ls_shop_lscssDebugMode,ls_shop_lscssNoCacheMode,ls_shop_lscssNoMinifierMode;
 		{misc_legend},ls_shop_sortingCharacterTranslationTable,ls_shop_dcaNamesWithoutMultilanguageSupport;
+		{merconisFilterSettings_legend},merconis_filter_maxVisibleAttributes,merconis_filter_maxValuesPerAttribute,merconis_filter_pinnedAliases;
 		{esLogging_legend},ls_shop_esLogTimings,ls_shop_esLogSampleRate,ls_shop_esSlowTotalMs,ls_shop_esSlowServerMs,ls_shop_esSlowNetworkMs,ls_shop_esLogFile;
 		{debug_menu},ls_shop_coupon_debug'
 	),
@@ -89,6 +90,24 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_useCompactSets'],
             'inputType' => 'checkbox',
             'eval' => array('tl_class' => 'w50 m12')
+        ),
+        'merconis_filter_maxVisibleAttributes' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxVisibleAttributes'],
+            'inputType' => 'text',
+            'eval' => array('rgxp' => 'digit', 'tl_class' => 'w50')
+        ),
+        'merconis_filter_maxValuesPerAttribute' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxValuesPerAttribute'],
+            'inputType' => 'text',
+            'eval' => array('rgxp' => 'digit', 'tl_class' => 'w50')
+        ),
+        'merconis_filter_pinnedAliases' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_pinnedAliases'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'clr long')
         ),
 		'ls_shop_debugSearch' => array(
 			'exclude' => true,
