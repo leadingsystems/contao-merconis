@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
 use LeadingSystems\MerconisBundle\ProductSearch\Facets;
@@ -23,6 +24,7 @@ class Search implements CommonInterface, IndexSearchInterface
     private LoggerInterface $logger;
     private string $projectDir;
     private string $environment;
+    private array $dmysql_sortingInput = [];
 
     /**
      * Canonical field configuration keyed by lower-case identifiers.
@@ -84,6 +86,11 @@ class Search implements CommonInterface, IndexSearchInterface
     public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true, bool $removeImpossibleOptions = true): SearchResult
     {
         $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
+        try {
+            $this->dmysql_sortingInput = $productSearchAdapter->getSortingCriteria();
+        } catch (\Throwable $e) {
+            $this->dmysql_sortingInput = [];
+        }
 
         // Base criteria without attribute filters for keys-only facet discovery and unmatched counts
         $baseCriteria = $this->prepareBaseCriteria($criteria);
@@ -92,12 +99,14 @@ class Search implements CommonInterface, IndexSearchInterface
         // Note: baseCriteria still contains a possible producer filter; we will also compute a version without producers when needed.
         $baseCandidateIds = $this->fetchProductIdsByCriteria($baseCriteria, $language);
 
-        // Fast path: no facets requested and no attribute filters → just return base IDs
+        // Fast path: no facets requested and no attribute filters → just return base IDs (apply price sort if requested)
         $attributeFilters = $this->normalizeAttributeFilters($criteria['attributes'] ?? []);
         $attributeFieldsPublished = $this->attributeFilterFieldsExist();
         $producerFieldPublished = $this->producerFilterFieldExists();
         if (!$activateFacets && empty($attributeFilters)) {
-            $result = new SearchResult($baseCandidateIds);
+            $priceSortDir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
+            $sortedIds = $priceSortDir ? $this->sortIdsByPrice($baseCandidateIds, $priceSortDir) : $baseCandidateIds;
+            $result = new SearchResult($sortedIds);
             $total = count($baseCandidateIds);
             $result->setNumProductsUnfiltered($total);
             $result->setNumProductsFiltered($total);
@@ -113,7 +122,9 @@ class Search implements CommonInterface, IndexSearchInterface
 
             if (!$activateFacets || !$producerFieldPublished) {
                 $facets = $activateFacets ? new Facets([], [], []) : null;
-                $result = new SearchResult($idsFilteredForProducers, $facets, false, 0, count($idsUnfilteredForProducers), count($idsFilteredForProducers));
+                $priceSortDir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
+                $sortedIds = $priceSortDir ? $this->sortIdsByPrice($idsFilteredForProducers, $priceSortDir) : $idsFilteredForProducers;
+                $result = new SearchResult($sortedIds, $facets, false, 0, count($idsUnfilteredForProducers), count($idsFilteredForProducers));
                 $result->setNumProductsUnfiltered(count($idsUnfilteredForProducers));
                 $result->setNumProductsFiltered(count($idsFilteredForProducers));
                 return $result;
@@ -188,7 +199,9 @@ class Search implements CommonInterface, IndexSearchInterface
         // Build facets
         if (!$activateFacets) {
             $facets = new Facets([], [], []);
-            $result = new SearchResult($filteredIds, $facets, false, 0, count($baseCandidateIds), count($filteredIds));
+            $priceSortDir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
+            $sortedIds = $priceSortDir ? $this->sortIdsByPrice($filteredIds, $priceSortDir) : $filteredIds;
+            $result = new SearchResult($sortedIds, $facets, false, 0, count($baseCandidateIds), count($filteredIds));
             $result->setNumProductsUnfiltered(count($baseCandidateIds));
             $result->setNumProductsFiltered(count($filteredIds));
             return $result;
@@ -255,6 +268,35 @@ class Search implements CommonInterface, IndexSearchInterface
             $facetData = new Facets($unfilteredKeysOnly, $filteredKeysOnly, $combined);
         }
 
+        // If price sorting is requested, compute product display prices and reorder IDs accordingly
+        $priceSortDir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
+        if ($priceSortDir !== null && !empty($filteredIds)) {
+            try {
+                $priceById = $this->computeDisplayPricesForProducts($filteredIds);
+                // Stable sort by price with original index as tiebreaker; nulls go last
+                $indexed = [];
+                foreach ($filteredIds as $idx => $pid) {
+                    $indexed[] = ['id' => (int) $pid, 'price' => $priceById[$pid] ?? null, 'idx' => $idx];
+                }
+                usort($indexed, function ($a, $b) use ($priceSortDir) {
+                    $pa = $a['price'];
+                    $pb = $b['price'];
+                    $aNull = ($pa === null);
+                    $bNull = ($pb === null);
+                    if ($aNull && $bNull) { return $a['idx'] <=> $b['idx']; }
+                    if ($aNull) { return 1; }
+                    if ($bNull) { return -1; }
+                    if ($pa == $pb) { return $a['idx'] <=> $b['idx']; }
+                    $cmp = ($pa <=> $pb);
+                    return $priceSortDir === 'DESC' ? -$cmp : $cmp;
+                });
+                $filteredIds = array_map(static function ($row) { return $row['id']; }, $indexed);
+            } catch (\Throwable $e) {
+                // In case of any error during enrichment, fall back to previous ordering
+                try { $this->logger->error('DirectMySQL price sort failed: ' . $e->getMessage()); } catch (\Throwable $e2) {}
+            }
+        }
+
         // Unmatched counts (attribute filters vs. base criteria)
         $hasUnmatched = !empty($effectiveFilters) && (count($filteredIds) < count($baseCandidateIds));
         $numUnmatched = $hasUnmatched ? (count($baseCandidateIds) - count($filteredIds)) : 0;
@@ -314,7 +356,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 ->from('tl_ls_shop_product', 'p')
                 ->where($qb->expr()->in('p.id', ':ids'))
                 ->groupBy('producer')
-                ->setParameter('ids', $chunk, Connection::PARAM_INT_ARRAY);
+                ->setParameter('ids', $chunk, ArrayParameterType::INTEGER);
             foreach ($qb->executeQuery()->fetchAllAssociative() as $row) {
                 $producer = (string) ($row['producer'] ?? '');
                 if ($producer === '') { continue; }
@@ -346,7 +388,7 @@ class Search implements CommonInterface, IndexSearchInterface
             if (count($pageIds)) {
                 $qb->leftJoin('product', 'tl_ls_shop_product_page_map', 'map', 'map.pid = product.id');
                 $qb->andWhere('map.page_id IN (:pageIds)');
-                $qb->setParameter('pageIds', $pageIds, Connection::PARAM_INT_ARRAY);
+                $qb->setParameter('pageIds', $pageIds, ArrayParameterType::INTEGER);
             } else {
                 return [];
             }
@@ -359,7 +401,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 $paramName = $this->nextParameterName();
                 $qb->andWhere('LOWER(product.lsShopProductProducer) IN (:' . $paramName . ')');
                 $parameters[$paramName] = $producers;
-                $parameterTypes[$paramName] = Connection::PARAM_STR_ARRAY;
+                $parameterTypes[$paramName] = ArrayParameterType::STRING;
             }
         }
 
@@ -641,11 +683,49 @@ class Search implements CommonInterface, IndexSearchInterface
             $qb->groupBy('product.id');
         }
 
-        if ($scoreExpression !== '0') {
-            $qb->orderBy('relevance', 'DESC');
+        // Apply DB-orderable sorting from adapter, ignoring unsupported fields.
+        // Fallback: if nothing applicable, keep legacy behavior (relevance DESC when present, else id ASC).
+        $sortingCriteria = $this->dmysql_sortingInput;
+        [$orderBys, $ignoredSorts] = $this->buildSqlOrderByFromSorting($sortingCriteria, ($scoreExpression !== '0'), $language);
+
+        if (!empty($orderBys)) {
+            $first = true;
+            foreach ($orderBys as [$expr, $dir]) {
+                if ($first) {
+                    $qb->orderBy($expr, $dir);
+                    $first = false;
+                } else {
+                    $qb->addOrderBy($expr, $dir);
+                }
+            }
+            // Always ensure stable tiebreaker by id ASC
             $qb->addOrderBy('product.id', 'ASC');
         } else {
-            $qb->orderBy('product.id', 'ASC');
+            if ($scoreExpression !== '0') {
+                $qb->orderBy('relevance', 'DESC');
+                $qb->addOrderBy('product.id', 'ASC');
+            } else {
+                $qb->orderBy('product.id', 'ASC');
+            }
+        }
+
+        // Optional debug note for unsupported/ignored sort fields
+        if (!empty($ignoredSorts) && !empty($GLOBALS['TL_CONFIG']['ls_shop_debugSearch'])) {
+            try {
+                $this->logger->notice('DirectMySQL sorting: ignored unsupported fields', [
+                    'ignored' => $ignoredSorts,
+                    'received' => $sortingCriteria
+                ]);
+            } catch (\Throwable $e) {}
+            try {
+                $payload = json_encode([
+                    'ts' => gmdate('c'),
+                    'event' => 'sorting_ignored_fields',
+                    'ignored' => $ignoredSorts,
+                    'received' => $sortingCriteria
+                ], JSON_UNESCAPED_SLASHES);
+                @file_put_contents($this->resolveFallbackLogFilePath(), $payload."\n", FILE_APPEND);
+            } catch (\Throwable $e) {}
         }
 
         foreach ($parameters as $name => $value) {
@@ -744,7 +824,7 @@ class Search implements CommonInterface, IndexSearchInterface
             $qp->select('p.id', 'p.lsShopProductAttributesValues')
                 ->from('tl_ls_shop_product', 'p')
                 ->where($qp->expr()->in('p.id', ':ids'))
-                ->setParameter('ids', $chunk, Connection::PARAM_INT_ARRAY);
+                ->setParameter('ids', $chunk, ArrayParameterType::INTEGER);
             $rows = $qp->executeQuery()->fetchAllAssociative();
             foreach ($rows as $row) {
                 $pid = (int) $row['id'];
@@ -762,7 +842,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 ->where($qv->expr()->in('v.pid', ':ids'))
                 ->andWhere("v.published = '1'")
                 ->orderBy('v.pid', 'ASC')
-                ->setParameter('ids', $chunk, Connection::PARAM_INT_ARRAY);
+                ->setParameter('ids', $chunk, ArrayParameterType::INTEGER);
             $rows = $qv->executeQuery()->fetchAllAssociative();
             foreach ($rows as $row) {
                 $pid = (int) $row['pid'];
@@ -1491,6 +1571,215 @@ class Search implements CommonInterface, IndexSearchInterface
         $logDir = rtrim($this->projectDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'logs';
         $date = date('Y-m-d');
         return $logDir . DIRECTORY_SEPARATOR . 'merconis-search-debug-' . $date . '.log';
+    }
+
+    /**
+     * Detect whether sorting by price is requested and return direction 'ASC'|'DESC' or null.
+     */
+    private function resolvePriceSortDirection(array $sortingCriteria): ?string
+    {
+        if (!is_array($sortingCriteria) || !count($sortingCriteria)) { return null; }
+        foreach ($sortingCriteria as $rule) {
+            $field = strtolower(trim((string)($rule['field'] ?? '')));
+            $dir = strtoupper(trim((string)($rule['direction'] ?? 'ASC')));
+            if ($field === 'lsshopproductprice' || $field === 'price') {
+                return $dir === 'DESC' ? 'DESC' : 'ASC';
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Compute product display prices for given product IDs, considering group overrides if enabled.
+     * Returns map: productId => numeric display price.
+     */
+    private function computeDisplayPricesForProducts(array $productIds): array
+    {
+        $result = [];
+        if (empty($productIds)) { return $result; }
+
+        $considerGroupPrices = !empty($GLOBALS['TL_CONFIG']['ls_shop_considerGroupPricesInFilterAndSorting']);
+        $groupId = null;
+        if ($considerGroupPrices) {
+            try {
+                $groupSettings = \Merconis\Core\ls_shop_generalHelper::getGroupSettings4User();
+                $groupId = $groupSettings['id'] ?? null;
+            } catch (\Throwable $e) {
+                $groupId = null;
+            }
+        }
+
+        $batchSize = 1000;
+        for ($offset = 0, $n = count($productIds); $offset < $n; $offset += $batchSize) {
+            $chunk = array_slice($productIds, $offset, $batchSize);
+            $qb = $this->connection->createQueryBuilder();
+            $selects = [
+                'p.id',
+                'p.lsShopProductPrice',
+                'p.lsShopProductSteuersatz',
+                'p.lsShopProductCode'
+            ];
+            if ($considerGroupPrices) {
+                for ($i = 1; $i <= 5; $i++) {
+                    $selects[] = 'p.useGroupPrices_' . $i;
+                    $selects[] = 'p.priceForGroups_' . $i;
+                    $selects[] = 'p.lsShopProductPrice_' . $i;
+                }
+            }
+            $qb->select(...$selects)
+                ->from('tl_ls_shop_product', 'p')
+                ->where($qb->expr()->in('p.id', ':ids'))
+                ->setParameter('ids', array_map('intval', $chunk), ArrayParameterType::INTEGER);
+
+            $rows = $qb->executeQuery()->fetchAllAssociative();
+            foreach ($rows as $row) {
+                $pid = (int) $row['id'];
+                $price = $row['lsShopProductPrice'] ?? null;
+                if ($considerGroupPrices && $groupId) {
+                    try {
+                        $structured = \Merconis\Core\ls_shop_generalHelper::getStructuredGroupPrices($row, 'product');
+                        if (isset($structured[$groupId]) && isset($structured[$groupId]['lsShopProductPrice'])) {
+                            $price = $structured[$groupId]['lsShopProductPrice'];
+                        }
+                    } catch (\Throwable $e) {}
+                }
+                if ($price === null) { continue; }
+                try {
+                    $display = \Merconis\Core\ls_shop_generalHelper::getDisplayPrice(
+                        $price,
+                        $row['lsShopProductSteuersatz'] ?? 0,
+                        true,
+                        $row['lsShopProductCode'] ?? null
+                    );
+                    $result[$pid] = is_numeric($display) ? (float) $display : null;
+                } catch (\Throwable $e) {
+                    $result[$pid] = null;
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Helper: sort a list of product IDs by computed display price.
+     */
+    private function sortIdsByPrice(array $ids, string $direction): array
+    {
+        if (empty($ids)) { return $ids; }
+        try {
+            $priceById = $this->computeDisplayPricesForProducts($ids);
+        } catch (\Throwable $e) {
+            return $ids; // fail-safe: keep original order
+        }
+        $indexed = [];
+        foreach ($ids as $idx => $pid) {
+            $indexed[] = ['id' => (int) $pid, 'price' => $priceById[$pid] ?? null, 'idx' => $idx];
+        }
+        $dir = ($direction === 'DESC') ? 'DESC' : 'ASC';
+        usort($indexed, function ($a, $b) use ($dir) {
+            $pa = $a['price'];
+            $pb = $b['price'];
+            $aNull = ($pa === null);
+            $bNull = ($pb === null);
+            if ($aNull && $bNull) { return $a['idx'] <=> $b['idx']; }
+            if ($aNull) { return 1; }
+            if ($bNull) { return -1; }
+            if ($pa == $pb) { return $a['idx'] <=> $b['idx']; }
+            $cmp = ($pa <=> $pb);
+            return $dir === 'DESC' ? -$cmp : $cmp;
+        });
+        return array_map(static function ($row) { return $row['id']; }, $indexed);
+    }
+
+    /**
+     * Build SQL ORDER BY parts from adapter-provided sorting rules.
+     * Only DB-orderable fields are considered; others are returned in $ignored for optional debug logging.
+     *
+     * @param array $sortingCriteria [ [field=>string, direction=>ASC|DESC], ... ]
+     * @param bool $hasScore whether a meaningful relevance score is available
+     * @param string $language current search language
+     * @return array{0: array<int, array{0:string,1:string}>, 1: array<int, string>} [orderBys, ignoredFields]
+     */
+    private function buildSqlOrderByFromSorting(array $sortingCriteria, bool $hasScore, string $language): array
+    {
+        $orderBys = [];
+        $ignored = [];
+
+        if (!is_array($sortingCriteria) || !count($sortingCriteria)) {
+            return [$orderBys, $ignored];
+        }
+
+        foreach ($sortingCriteria as $rule) {
+            $fieldRaw = isset($rule['field']) ? (string) $rule['field'] : '';
+            $dirRaw = isset($rule['direction']) ? (string) $rule['direction'] : 'ASC';
+            $field = strtolower(trim($fieldRaw));
+            $dir = strtoupper(trim($dirRaw)) === 'DESC' ? 'DESC' : 'ASC';
+
+            // Normalize aliases for sort fields
+            switch ($field) {
+                case 'priority':
+                case 'relevance':
+                    if ($hasScore) {
+                        $orderBys[] = ['relevance', $dir];
+                    } else {
+                        $ignored[] = $fieldRaw;
+                    }
+                    break;
+
+                case 'id':
+                    $orderBys[] = ['product.id', $dir];
+                    break;
+
+                case 'title':
+                    $titleExpr = $this->resolveColumnExpression($this->fieldConfigurations['title'], $language);
+                    if ($titleExpr !== null) {
+                        $orderBys[] = [$titleExpr, $dir];
+                    } else {
+                        $ignored[] = $fieldRaw;
+                    }
+                    break;
+
+                case 'code':
+                case 'lsshopproductcode':
+                case 'lsshopproductcode_sortdir': // tolerate raw tokens
+                    $orderBys[] = ['product.lsShopProductCode', $dir];
+                    break;
+
+                case 'producer':
+                case 'lsshopproductproducer':
+                    $orderBys[] = ['product.lsShopProductProducer', $dir];
+                    break;
+
+                case 'weight':
+                case 'lsshopproductweight':
+                    $orderBys[] = ['product.lsShopProductWeight', $dir];
+                    break;
+
+                case 'sorting':
+                    $orderBys[] = ['product.sorting', $dir];
+                    break;
+
+                default:
+                    // Unsupported in DB-only sorting phase (e.g., price, flex_contents, attribute label)
+                    $ignored[] = $fieldRaw;
+                    break;
+            }
+        }
+
+        // Ensure uniqueness and preserve order (avoid duplicate id/order entries)
+        if (!empty($orderBys)) {
+            $seen = [];
+            $unique = [];
+            foreach ($orderBys as [$expr, $dir]) {
+                $key = strtolower($expr) . '|' . $dir;
+                if (isset($seen[$key])) { continue; }
+                $seen[$key] = true;
+                $unique[] = [$expr, $dir];
+            }
+            $orderBys = $unique;
+        }
+
+        return [$orderBys, $ignored];
     }
 }
 
