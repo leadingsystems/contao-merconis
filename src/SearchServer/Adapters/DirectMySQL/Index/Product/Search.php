@@ -1401,76 +1401,179 @@ class Search implements CommonInterface, IndexSearchInterface
         return null;
     }
 
-    /**
-     * Compute product display prices for given product IDs, considering group overrides if enabled.
-     * Returns map: productId => numeric display price.
-     */
-    private function computeDisplayPricesForProducts(array $productIds): array
-    {
-        $result = [];
-        if (empty($productIds)) { return $result; }
+	/**
+	 * Compute product display prices for given product IDs, considering group overrides if enabled.
+	 * Uses the cheapest published variant per product (respecting variant price type) when available,
+	 * otherwise falls back to the product's own price.
+	 * Returns map: productId => numeric display price.
+	 */
+	private function computeDisplayPricesForProducts(array $productIds): array
+	{
+		$displayPriceByProductId = [];
+		if (empty($productIds)) { return $displayPriceByProductId; }
 
-        $considerGroupPrices = !empty($GLOBALS['TL_CONFIG']['ls_shop_considerGroupPricesInFilterAndSorting']);
-        $groupId = null;
-        if ($considerGroupPrices) {
-            try {
-                $groupSettings = \Merconis\Core\ls_shop_generalHelper::getGroupSettings4User();
-                $groupId = $groupSettings['id'] ?? null;
-            } catch (\Throwable $e) {
-                $groupId = null;
-            }
-        }
+		$considerGroupPrices = !empty($GLOBALS['TL_CONFIG']['ls_shop_considerGroupPricesInFilterAndSorting']);
+		$groupId = null;
+		if ($considerGroupPrices) {
+			try {
+				$groupSettings = \Merconis\Core\ls_shop_generalHelper::getGroupSettings4User();
+				$groupId = $groupSettings['id'] ?? null;
+			} catch (\Throwable $e) {
+				$groupId = null;
+			}
+		}
 
-        $batchSize = 1000;
-        for ($offset = 0, $n = count($productIds); $offset < $n; $offset += $batchSize) {
-            $chunk = array_slice($productIds, $offset, $batchSize);
-            $qb = $this->connection->createQueryBuilder();
-            $selects = [
-                'p.id',
-                'p.lsShopProductPrice',
-                'p.lsShopProductSteuersatz',
-                'p.lsShopProductCode'
-            ];
-            if ($considerGroupPrices) {
-                for ($i = 1; $i <= 5; $i++) {
-                    $selects[] = 'p.useGroupPrices_' . $i;
-                    $selects[] = 'p.priceForGroups_' . $i;
-                    $selects[] = 'p.lsShopProductPrice_' . $i;
-                }
-            }
-            $qb->select(...$selects)
-                ->from('tl_ls_shop_product', 'p')
-                ->where($qb->expr()->in('p.id', ':ids'))
-                ->setParameter('ids', array_map('intval', $chunk), ArrayParameterType::INTEGER);
+		$batchSize = 1000;
+		// Pass 1: compute minimal display price from published variants per product
+		for ($offset = 0, $n = count($productIds); $offset < $n; $offset += $batchSize) {
+			$chunk = array_slice($productIds, $offset, $batchSize);
+			$qv = $this->connection->createQueryBuilder();
+			$variantSelects = [
+				'v.id AS variant_id',
+				'v.pid AS product_id',
+				'v.lsShopVariantPrice',
+				'v.lsShopVariantPriceType',
+				'v.lsShopVariantCode',
+				'p.lsShopProductPrice',
+				'p.lsShopProductSteuersatz',
+				'p.lsShopProductCode'
+			];
+			if ($considerGroupPrices) {
+				for ($i = 1; $i <= 5; $i++) {
+					$variantSelects[] = 'v.useGroupPrices_' . $i;
+					$variantSelects[] = 'v.priceForGroups_' . $i;
+					$variantSelects[] = 'v.lsShopVariantPrice_' . $i;
+					$variantSelects[] = 'v.lsShopVariantPriceType_' . $i;
+				}
+				for ($i = 1; $i <= 5; $i++) {
+					$variantSelects[] = 'p.useGroupPrices_' . $i;
+					$variantSelects[] = 'p.priceForGroups_' . $i;
+					$variantSelects[] = 'p.lsShopProductPrice_' . $i;
+				}
+			}
+			$qv->select(...$variantSelects)
+				->from('tl_ls_shop_variant', 'v')
+				->innerJoin('v', 'tl_ls_shop_product', 'p', 'p.id = v.pid')
+				->where($qv->expr()->in('v.pid', ':ids'))
+				->andWhere("v.published = '1'")
+				->orderBy('v.pid', 'ASC')
+				->setParameter('ids', array_map('intval', $chunk), ArrayParameterType::INTEGER);
 
-            $rows = $qb->executeQuery()->fetchAllAssociative();
-            foreach ($rows as $row) {
-                $pid = (int) $row['id'];
-                $price = $row['lsShopProductPrice'] ?? null;
-                if ($considerGroupPrices && $groupId) {
-                    try {
-                        $structured = \Merconis\Core\ls_shop_generalHelper::getStructuredGroupPrices($row, 'product');
-                        if (isset($structured[$groupId]) && isset($structured[$groupId]['lsShopProductPrice'])) {
-                            $price = $structured[$groupId]['lsShopProductPrice'];
-                        }
-                    } catch (\Throwable $e) {}
-                }
-                if ($price === null) { continue; }
-                try {
-                    $display = \Merconis\Core\ls_shop_generalHelper::getDisplayPrice(
-                        $price,
-                        $row['lsShopProductSteuersatz'] ?? 0,
-                        true,
-                        $row['lsShopProductCode'] ?? null
-                    );
-                    $result[$pid] = is_numeric($display) ? (float) $display : null;
-                } catch (\Throwable $e) {
-                    $result[$pid] = null;
-                }
-            }
-        }
-        return $result;
-    }
+			$variantRows = $qv->executeQuery()->fetchAllAssociative();
+			foreach ($variantRows as $row) {
+				$pid = (int) ($row['product_id'] ?? 0);
+				if (!$pid) { continue; }
+
+				$productBasePrice = $row['lsShopProductPrice'] ?? null;
+				if ($considerGroupPrices && $groupId) {
+					try {
+						$productStructuredGroupPrices = \Merconis\Core\ls_shop_generalHelper::getStructuredGroupPrices($row, 'product');
+						if (isset($productStructuredGroupPrices[$groupId]['lsShopProductPrice'])) {
+							$productBasePrice = $productStructuredGroupPrices[$groupId]['lsShopProductPrice'];
+						}
+					} catch (\Throwable $e) {}
+				}
+
+				$variantPrice = $row['lsShopVariantPrice'] ?? null;
+				$variantPriceType = $row['lsShopVariantPriceType'] ?? null;
+				if ($considerGroupPrices && $groupId) {
+					try {
+						$variantStructuredGroupPrices = \Merconis\Core\ls_shop_generalHelper::getStructuredGroupPrices($row, 'variant');
+						if (isset($variantStructuredGroupPrices[$groupId])) {
+							if (array_key_exists('lsShopVariantPrice', $variantStructuredGroupPrices[$groupId])) {
+								$variantPrice = $variantStructuredGroupPrices[$groupId]['lsShopVariantPrice'];
+							}
+							if (array_key_exists('lsShopVariantPriceType', $variantStructuredGroupPrices[$groupId])) {
+								$variantPriceType = $variantStructuredGroupPrices[$groupId]['lsShopVariantPriceType'];
+							}
+						}
+					} catch (\Throwable $e) {}
+				}
+
+				if ($variantPrice === null) { continue; }
+
+				try {
+					$effectiveVariantBasePrice = \Merconis\Core\ls_shop_generalHelper::ls_calculateVariantPriceRegardingPriceType(
+						$variantPriceType,
+						$productBasePrice,
+						$variantPrice
+					);
+				} catch (\Throwable $e) {
+					$effectiveVariantBasePrice = $variantPrice;
+				}
+
+				try {
+					$display = \Merconis\Core\ls_shop_generalHelper::getDisplayPrice(
+						$effectiveVariantBasePrice,
+						$row['lsShopProductSteuersatz'] ?? 0,
+						true,
+						$row['lsShopProductCode'] ?? null,
+						$row['lsShopVariantCode'] ?? null
+					);
+					if (is_numeric($display)) {
+						$numericDisplay = (float) $display;
+						if (!isset($displayPriceByProductId[$pid]) || $numericDisplay < $displayPriceByProductId[$pid]) {
+							$displayPriceByProductId[$pid] = $numericDisplay;
+						}
+					}
+				} catch (\Throwable $e) {}
+			}
+		}
+
+		// Pass 2: fallback to product base price for products without published variants or failed computations
+		$missingProductIds = array_values(array_diff(array_map('intval', $productIds), array_keys($displayPriceByProductId)));
+		if (!empty($missingProductIds)) {
+			for ($offset = 0, $n = count($missingProductIds); $offset < $n; $offset += $batchSize) {
+				$chunk = array_slice($missingProductIds, $offset, $batchSize);
+				$qp = $this->connection->createQueryBuilder();
+				$productSelects = [
+					'p.id',
+					'p.lsShopProductPrice',
+					'p.lsShopProductSteuersatz',
+					'p.lsShopProductCode'
+				];
+				if ($considerGroupPrices) {
+					for ($i = 1; $i <= 5; $i++) {
+						$productSelects[] = 'p.useGroupPrices_' . $i;
+						$productSelects[] = 'p.priceForGroups_' . $i;
+						$productSelects[] = 'p.lsShopProductPrice_' . $i;
+					}
+				}
+				$qp->select(...$productSelects)
+					->from('tl_ls_shop_product', 'p')
+					->where($qp->expr()->in('p.id', ':ids'))
+					->setParameter('ids', $chunk, ArrayParameterType::INTEGER);
+
+				$productRows = $qp->executeQuery()->fetchAllAssociative();
+				foreach ($productRows as $row) {
+					$pid = (int) $row['id'];
+					$price = $row['lsShopProductPrice'] ?? null;
+					if ($considerGroupPrices && $groupId) {
+						try {
+							$structured = \Merconis\Core\ls_shop_generalHelper::getStructuredGroupPrices($row, 'product');
+							if (isset($structured[$groupId]) && isset($structured[$groupId]['lsShopProductPrice'])) {
+								$price = $structured[$groupId]['lsShopProductPrice'];
+							}
+						} catch (\Throwable $e) {}
+					}
+					if ($price === null) { continue; }
+					try {
+						$display = \Merconis\Core\ls_shop_generalHelper::getDisplayPrice(
+							$price,
+							$row['lsShopProductSteuersatz'] ?? 0,
+							true,
+							$row['lsShopProductCode'] ?? null
+						);
+						if (is_numeric($display)) {
+							$displayPriceByProductId[$pid] = (float) $display;
+						}
+					} catch (\Throwable $e) {}
+				}
+			}
+		}
+
+		return $displayPriceByProductId;
+	}
 
     /**
      * Helper: sort a list of product IDs by computed display price.
