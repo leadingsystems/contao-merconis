@@ -400,6 +400,17 @@ class Search implements CommonInterface, IndexSearchInterface
 		$parameters = [];
 		$parameterTypes = [];
 
+		// Direct ID filter (curated restriction)
+		if (array_key_exists('id', $criteria)) {
+			$idsRaw = $criteria['id'];
+			if (!is_array($idsRaw)) { $idsRaw = [$idsRaw]; }
+			$ids = array_values(array_unique(array_filter(array_map('intval', $idsRaw), fn($v) => $v > 0)));
+			if (!count($ids)) { return []; }
+			$qb->andWhere($qb->expr()->in('product.id', ':idsExplicit'));
+			$parameters['idsExplicit'] = $ids;
+			$parameterTypes['idsExplicit'] = ArrayParameterType::INTEGER;
+		}
+
 		// Constraints: pages, producers (exact), published
 		$pageBuilder = new PageConstraintBuilder();
 		$pageResult = $pageBuilder->apply($qb, $criteria['pages'] ?? null);
