@@ -407,6 +407,11 @@ class Adapter
         return $this->sortingCriteria;
     }
 
+    public function getFixedSorting(): array
+    {
+        return $this->fixedSorting;
+    }
+
     public function isUsingFilter(): bool
     {
         return (bool)$this->useFilter;

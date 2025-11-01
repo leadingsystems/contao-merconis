@@ -33,6 +33,7 @@ class Search implements CommonInterface, IndexSearchInterface
     private string $projectDir;
     private string $environment;
     private array $dmysql_sortingInput = [];
+    private array $dmysql_fixedSortingInput = [];
 
     /**
      * Canonical field configuration keyed by lower-case identifiers.
@@ -94,7 +95,8 @@ class Search implements CommonInterface, IndexSearchInterface
     public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true, bool $removeImpossibleOptions = true): SearchResult
     {
 		$criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
-		$this->dmysql_sortingInput = $this->safeGetSorting($productSearchAdapter);
+		$this->dmysql_sortingInput = $productSearchAdapter->getSortingCriteria();
+		$this->dmysql_fixedSortingInput = $productSearchAdapter->getFixedSorting();
 
 		$baseCriteria = $this->prepareBaseCriteria($criteria);
 		$baseCandidateIds = $this->resolveBaseCandidates($baseCriteria, $language);
@@ -114,6 +116,7 @@ class Search implements CommonInterface, IndexSearchInterface
 		// Early exit: no facets and no attribute filters → just base ids with optional price sort
 		if ($this->shouldReturnEarlyNoFacetsNoAttr($ctx)) {
 			$ids = $this->maybePriceSort($baseCandidateIds);
+			$ids = $this->maybeFixedSort($ids);
 			$result = new SearchResult($ids);
 			$total = count($baseCandidateIds);
 			$result->setNumProductsUnfiltered($total);
@@ -143,17 +146,11 @@ class Search implements CommonInterface, IndexSearchInterface
 		);
 
 		$ids = $this->maybePriceSort($filteredIds);
+		$ids = $this->maybeFixedSort($ids);
 		return $this->finalizeResult($ids, $baseCandidateIds, $facetData, !empty($effectiveFilters));
     }
 
-	private function safeGetSorting(Adapter $adapter): array
-	{
-		try {
-			return $adapter->getSortingCriteria();
-		} catch (\Throwable $e) {
-			return [];
-		}
-	}
+
 
 	private function resolveBaseCandidates(array $baseCriteria, string $language): array
 	{
@@ -186,6 +183,7 @@ class Search implements CommonInterface, IndexSearchInterface
 		}
 
 		$ids = $this->maybePriceSort($idsFilteredForProducers);
+		$ids = $this->maybeFixedSort($ids);
 		return $this->finalizeResultWithCustomUnfilteredBase(
 			$ids,
 			$idsUnfilteredForProducers,
@@ -302,6 +300,12 @@ class Search implements CommonInterface, IndexSearchInterface
 		$dir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
 		return $dir ? $this->sortIdsByPrice($ids, $dir) : $ids;
 	}
+
+    private function maybeFixedSort(array $ids): array
+    {
+        if (empty($this->dmysql_fixedSortingInput)) { return $ids; }
+        return $this->applyFixedSorting($ids, $this->dmysql_fixedSortingInput);
+    }
 
 	private function finalizeResult(array $ids, array $baseIds, ?Facets $facets, bool $hasFilters): SearchResult
 	{
@@ -1604,6 +1608,19 @@ class Search implements CommonInterface, IndexSearchInterface
             return $dir === 'DESC' ? -$cmp : $cmp;
         });
         return array_map(static function ($row) { return $row['id']; }, $indexed);
+    }
+
+    private function applyFixedSorting(array $ids, array $fixed): array
+    {
+        if (empty($fixed) || empty($ids)) { return $ids; }
+        $present = [];
+        foreach ($ids as $id) { $present[(int)$id] = true; }
+        $out = [];
+        foreach ($fixed as $id) {
+            $iid = (int) $id;
+            if (isset($present[$iid])) { $out[] = $iid; }
+        }
+        return $out;
     }
 
     /**
