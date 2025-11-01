@@ -85,234 +85,240 @@ class Search implements CommonInterface, IndexSearchInterface
 
     public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true, bool $removeImpossibleOptions = true): SearchResult
     {
-        $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
-        try {
-            $this->dmysql_sortingInput = $productSearchAdapter->getSortingCriteria();
-        } catch (\Throwable $e) {
-            $this->dmysql_sortingInput = [];
-        }
+		$criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
+		$this->dmysql_sortingInput = $this->safeGetSorting($productSearchAdapter);
 
-        // Base criteria without attribute filters for keys-only facet discovery and unmatched counts
-        $baseCriteria = $this->prepareBaseCriteria($criteria);
+		$baseCriteria = $this->prepareBaseCriteria($criteria);
+		$baseCandidateIds = $this->resolveBaseCandidates($baseCriteria, $language);
 
-        // Get base candidates (respecting fulltext/pages/published etc.)
-        // Note: baseCriteria still contains a possible producer filter; we will also compute a version without producers when needed.
-        $baseCandidateIds = $this->fetchProductIdsByCriteria($baseCriteria, $language);
+		$attributeFilters = $this->normalizeAttributeFilters($criteria['attributes'] ?? []);
+		$ctx = [
+			'language' => $language,
+			'mode' => $this->determineFacetMode($activateFacets, $activateMatchEstimates),
+			'removeImpossible' => $removeImpossibleOptions,
+			'attributeFieldsPublished' => $this->attributeFilterFieldsExist(),
+			'producerFieldPublished' => $this->producerFilterFieldExists(),
+			'attributeFilters' => $attributeFilters,
+			'hasAttributeFilters' => !empty($attributeFilters),
+			'hasProducerFilters' => !empty($criteria['producers'] ?? [])
+		];
 
-        // Fast path: no facets requested and no attribute filters → just return base IDs (apply price sort if requested)
-        $attributeFilters = $this->normalizeAttributeFilters($criteria['attributes'] ?? []);
-        $attributeFieldsPublished = $this->attributeFilterFieldsExist();
-        $producerFieldPublished = $this->producerFilterFieldExists();
-        if (!$activateFacets && empty($attributeFilters)) {
-            $priceSortDir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
-            $sortedIds = $priceSortDir ? $this->sortIdsByPrice($baseCandidateIds, $priceSortDir) : $baseCandidateIds;
-            $result = new SearchResult($sortedIds);
-            $total = count($baseCandidateIds);
-            $result->setNumProductsUnfiltered($total);
-            $result->setNumProductsFiltered($total);
-            return $result;
-        }
+		// Early exit: no facets and no attribute filters → just base ids with optional price sort
+		if ($this->shouldReturnEarlyNoFacetsNoAttr($ctx)) {
+			$ids = $this->maybePriceSort($baseCandidateIds);
+			$result = new SearchResult($ids);
+			$total = count($baseCandidateIds);
+			$result->setNumProductsUnfiltered($total);
+			$result->setNumProductsFiltered($total);
+			return $result;
+		}
 
-        // If there are no published attribute filter fields, skip attribute work but still handle producer facets if published
-        if (!$attributeFieldsPublished) {
-            $criteriaNoProd = $baseCriteria;
-            unset($criteriaNoProd['producers']);
-            $idsUnfilteredForProducers = $this->fetchProductIdsByCriteria($criteriaNoProd, $language);
-            $idsFilteredForProducers = $baseCandidateIds; // may include producer filter
+		// Producers-only path when attribute fields are not published
+		if (!$ctx['attributeFieldsPublished']) {
+			return $this->handleProducersOnlyFlow($baseCriteria, $baseCandidateIds, $ctx);
+		}
 
-            if (!$activateFacets || !$producerFieldPublished) {
-                $facets = $activateFacets ? new Facets([], [], []) : null;
-                $priceSortDir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
-                $sortedIds = $priceSortDir ? $this->sortIdsByPrice($idsFilteredForProducers, $priceSortDir) : $idsFilteredForProducers;
-                $result = new SearchResult($sortedIds, $facets, false, 0, count($idsUnfilteredForProducers), count($idsFilteredForProducers));
-                $result->setNumProductsUnfiltered(count($idsUnfilteredForProducers));
-                $result->setNumProductsFiltered(count($idsFilteredForProducers));
-                return $result;
-            }
+		// Attribute pipeline
+		$attributeData = $this->loadAttributeDataForProducts($baseCandidateIds);
+		$availablePairs = $this->computeAvailablePairsKeysOnly($attributeData);
+		[$effectiveFilters, $dismissedFilters] = $this->dismissInvalidAttributeFilters($attributeFilters, $availablePairs);
+		$filteredIds = $this->applyAttributeFilters($baseCandidateIds, $attributeData, $effectiveFilters);
 
-            if ($activateMatchEstimates) {
-                $unfProd = $this->computeProducerCounts($idsUnfilteredForProducers);
-                $filProd = $this->computeProducerCounts($idsFilteredForProducers);
-                $unfilteredFacetMap = [];
-                $filteredFacetMap = [];
-                foreach ($unfProd as $producer => $cnt) {
-                    $unfilteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $cnt];
-                }
-                foreach ($filProd as $producer => $cnt) {
-                    $filteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $cnt];
-                }
-                $combined = [];
-                foreach ($unfProd as $producer => $cnt) {
-                    $combined[] = [
-                        'producer' => (string) $producer,
-                        'total_product_count' => (int) $cnt,
-                        'filtered_product_count' => (int) ($filProd[$producer] ?? 0),
-                        'is_available' => ((int) ($filProd[$producer] ?? 0)) > 0,
-                        'is_filtered_out' => ((int) ($filProd[$producer] ?? 0)) === 0 && (int) $cnt > 0,
-                        'is_invalid' => false
-                    ];
-                }
-                $facets = new Facets($unfilteredFacetMap, $filteredFacetMap, $combined);
-            } else {
-                // keys only
-                $unfProd = $this->computeProducerCounts($idsUnfilteredForProducers);
-                $unfilteredFacetMap = [];
-                $filteredFacetMap = [];
-                foreach ($unfProd as $producer => $cnt) {
-                    $unfilteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => 0];
-                    $filteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => 0];
-                }
-                $combined = [];
-                foreach ($unfProd as $producer => $cnt) {
-                    $combined[] = [
-                        'producer' => (string) $producer,
-                        'total_product_count' => 0,
-                        'filtered_product_count' => 0,
-                        'is_available' => true,
-                        'is_filtered_out' => false,
-                        'is_invalid' => false
-                    ];
-                }
-                $facets = new Facets($unfilteredFacetMap, $filteredFacetMap, $combined);
-            }
+		$facetData = $this->buildFacetData(
+			$attributeData,
+			$baseCandidateIds,
+			$filteredIds,
+			$ctx,
+			$effectiveFilters,
+			$dismissedFilters,
+			$availablePairs
+		);
 
-            $hasUnmatched = !empty($criteria['producers']) && (count($idsFilteredForProducers) < count($idsUnfilteredForProducers));
-            $numUnmatched = $hasUnmatched ? (count($idsUnfilteredForProducers) - count($idsFilteredForProducers)) : 0;
-            $result = new SearchResult($idsFilteredForProducers, $facets, $hasUnmatched, $numUnmatched, count($idsUnfilteredForProducers), count($idsFilteredForProducers));
-            $result->setNumProductsUnfiltered(count($idsUnfilteredForProducers));
-            $result->setNumProductsFiltered(count($idsFilteredForProducers));
-            return $result;
-        }
-
-        // Load attribute pairs for products and variants in the base candidate set (batched, O(1) lookups)
-        $attributeData = $this->loadAttributeDataForProducts($baseCandidateIds);
-
-        // Discover available attribute pairs (keys-only) over base candidates
-        $availablePairs = $this->computeAvailablePairsKeysOnly($attributeData);
-
-        // Dismiss invalid attribute filters (not available under current base criteria)
-        [$effectiveFilters, $dismissedFilters] = $this->dismissInvalidAttributeFilters($attributeFilters, $availablePairs);
-
-        // Apply ES-style attribute matching over base candidates (product-level OR single-variant match)
-        $filteredIds = $this->applyAttributeFilters($baseCandidateIds, $attributeData, $effectiveFilters);
-
-        // Build facets
-        if (!$activateFacets) {
-            $facets = new Facets([], [], []);
-            $priceSortDir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
-            $sortedIds = $priceSortDir ? $this->sortIdsByPrice($filteredIds, $priceSortDir) : $filteredIds;
-            $result = new SearchResult($sortedIds, $facets, false, 0, count($baseCandidateIds), count($filteredIds));
-            $result->setNumProductsUnfiltered(count($baseCandidateIds));
-            $result->setNumProductsFiltered(count($filteredIds));
-            return $result;
-        }
-
-        if ($activateMatchEstimates) {
-            // Unfiltered facet counts over base candidates
-            $unfilteredFacetMap = $this->computeFacetCounts($baseCandidateIds, $attributeData);
-            // Reuse unfiltered counts if no attribute filters are active
-            $filteredFacetMap = empty($effectiveFilters)
-                ? $unfilteredFacetMap
-                : $this->computeFacetCounts($filteredIds, $attributeData);
-            $combined = $this->combineFacetData($unfilteredFacetMap, $filteredFacetMap, $dismissedFilters);
-
-            // Producer facets (only if producer field is published)
-            if ($this->producerFilterFieldExists()) {
-                $unfProd = $this->computeProducerCounts($baseCandidateIds);
-                $filProd = $this->computeProducerCounts($filteredIds);
-                foreach ($unfProd as $producer => $count) {
-                    $filteredCount = (int) ($filProd[$producer] ?? 0);
-                    $combined[] = [
-                        'producer' => (string) $producer,
-                        'total_product_count' => (int) $count,
-                        'filtered_product_count' => (int) $filteredCount,
-                        'is_available' => $filteredCount > 0,
-                        'is_filtered_out' => $filteredCount === 0 && $count > 0,
-                        'is_invalid' => false
-                    ];
-                }
-                // Also expose raw producer maps inside unfiltered/filtered arrays for presenter
-                foreach ($unfProd as $producer => $count) {
-                    $unfilteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $count];
-                }
-                foreach ($filProd as $producer => $count) {
-                    $filteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $count];
-                }
-            }
-            $facetData = new Facets($unfilteredFacetMap, $filteredFacetMap, $combined);
-            if ($removeImpossibleOptions) {
-                $facetData = $this->removeImpossibleOptions($facetData);
-            }
-        } else {
-            // Keys-only mode: use availablePairs for both sets and synthesize combined
-            $unfilteredKeysOnly = $this->facetKeysOnlyFromAvailable($availablePairs);
-            $filteredKeysOnly = $unfilteredKeysOnly;
-            $combined = $this->combineFacetDataKeysOnly($unfilteredKeysOnly, $dismissedFilters);
-            if ($this->producerFilterFieldExists()) {
-                $unfProd = $this->computeProducerCounts($baseCandidateIds);
-                foreach ($unfProd as $producer => $count) {
-                    $combined[] = [
-                        'producer' => (string) $producer,
-                        'total_product_count' => 0,
-                        'filtered_product_count' => 0,
-                        'is_available' => true,
-                        'is_filtered_out' => false,
-                        'is_invalid' => false
-                    ];
-                }
-                foreach ($unfProd as $producer => $count) {
-                    $unfilteredKeysOnly[] = ['producer' => (string) $producer, 'product_count' => 0];
-                    $filteredKeysOnly[] = ['producer' => (string) $producer, 'product_count' => 0];
-                }
-            }
-            $facetData = new Facets($unfilteredKeysOnly, $filteredKeysOnly, $combined);
-        }
-
-        // If price sorting is requested, compute product display prices and reorder IDs accordingly
-        $priceSortDir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
-        if ($priceSortDir !== null && !empty($filteredIds)) {
-            try {
-                $priceById = $this->computeDisplayPricesForProducts($filteredIds);
-                // Stable sort by price with original index as tiebreaker; nulls go last
-                $indexed = [];
-                foreach ($filteredIds as $idx => $pid) {
-                    $indexed[] = ['id' => (int) $pid, 'price' => $priceById[$pid] ?? null, 'idx' => $idx];
-                }
-                usort($indexed, function ($a, $b) use ($priceSortDir) {
-                    $pa = $a['price'];
-                    $pb = $b['price'];
-                    $aNull = ($pa === null);
-                    $bNull = ($pb === null);
-                    if ($aNull && $bNull) { return $a['idx'] <=> $b['idx']; }
-                    if ($aNull) { return 1; }
-                    if ($bNull) { return -1; }
-                    if ($pa == $pb) { return $a['idx'] <=> $b['idx']; }
-                    $cmp = ($pa <=> $pb);
-                    return $priceSortDir === 'DESC' ? -$cmp : $cmp;
-                });
-                $filteredIds = array_map(static function ($row) { return $row['id']; }, $indexed);
-            } catch (\Throwable $e) {
-                // In case of any error during enrichment, fall back to previous ordering
-                try { $this->logger->error('DirectMySQL price sort failed: ' . $e->getMessage()); } catch (\Throwable $e2) {}
-            }
-        }
-
-        // Unmatched counts (attribute filters vs. base criteria)
-        $hasUnmatched = !empty($effectiveFilters) && (count($filteredIds) < count($baseCandidateIds));
-        $numUnmatched = $hasUnmatched ? (count($baseCandidateIds) - count($filteredIds)) : 0;
-
-        $result = new SearchResult(
-            $filteredIds,
-            $facetData,
-            $hasUnmatched,
-            $numUnmatched,
-            count($baseCandidateIds),
-            count($filteredIds)
-        );
-        $result->setNumProductsUnfiltered(count($baseCandidateIds));
-        $result->setNumProductsFiltered(count($filteredIds));
-        return $result;
+		$ids = $this->maybePriceSort($filteredIds);
+		return $this->finalizeResult($ids, $baseCandidateIds, $facetData, !empty($effectiveFilters));
     }
+
+	private function safeGetSorting(Adapter $adapter): array
+	{
+		try {
+			return $adapter->getSortingCriteria();
+		} catch (\Throwable $e) {
+			return [];
+		}
+	}
+
+	private function resolveBaseCandidates(array $baseCriteria, string $language): array
+	{
+		return $this->fetchProductIdsByCriteria($baseCriteria, $language);
+	}
+
+	private function determineFacetMode(bool $activateFacets, bool $activateMatchEstimates): string
+	{
+		if (!$activateFacets) { return 'Disabled'; }
+		return $activateMatchEstimates ? 'Counts' : 'KeysOnly';
+	}
+
+	private function shouldReturnEarlyNoFacetsNoAttr(array $ctx): bool
+	{
+		return $ctx['mode'] === 'Disabled' && !$ctx['hasAttributeFilters'];
+	}
+
+	private function handleProducersOnlyFlow(array $baseCriteria, array $baseIds, array $ctx): SearchResult
+	{
+		$criteriaNoProd = $baseCriteria;
+		unset($criteriaNoProd['producers']);
+		$idsUnfilteredForProducers = $this->resolveBaseCandidates($criteriaNoProd, $ctx['language']);
+		$idsFilteredForProducers = $baseIds;
+
+		$facets = null;
+		if ($ctx['mode'] !== 'Disabled' && $ctx['producerFieldPublished']) {
+			$facets = $this->buildProducerFacetData($idsUnfilteredForProducers, $idsFilteredForProducers, $ctx['mode']);
+		} elseif ($ctx['mode'] !== 'Disabled' && !$ctx['producerFieldPublished']) {
+			$facets = new Facets([], [], []);
+		}
+
+		$ids = $this->maybePriceSort($idsFilteredForProducers);
+		return $this->finalizeResultWithCustomUnfilteredBase(
+			$ids,
+			$idsUnfilteredForProducers,
+			$idsFilteredForProducers,
+			$facets,
+			$ctx['hasProducerFilters']
+		);
+	}
+
+	private function buildFacetData(
+		array $attributeData,
+		array $baseIds,
+		array $filteredIds,
+		array $ctx,
+		array $effectiveFilters,
+		array $dismissedFilters,
+		array $availablePairs
+	): Facets {
+		if ($ctx['mode'] === 'Disabled') {
+			return new Facets([], [], []);
+		}
+
+		if ($ctx['mode'] === 'KeysOnly') {
+			$unfilteredKeysOnly = $this->facetKeysOnlyFromAvailable($availablePairs);
+			$filteredKeysOnly = $unfilteredKeysOnly;
+			$combined = $this->combineFacetDataKeysOnly($unfilteredKeysOnly, $dismissedFilters);
+
+			if ($ctx['producerFieldPublished']) {
+				[$prodUnf, $prodFil, $prodCombined] = $this->buildProducerFacetDataArraysKeysOnly($baseIds);
+				$unfilteredKeysOnly = array_merge($unfilteredKeysOnly, $prodUnf);
+				$filteredKeysOnly = array_merge($filteredKeysOnly, $prodFil);
+				$combined = array_merge($combined, $prodCombined);
+			}
+
+			return new Facets($unfilteredKeysOnly, $filteredKeysOnly, $combined);
+		}
+
+		// Counts mode
+		$unfilteredFacetMap = $this->computeFacetCounts($baseIds, $attributeData);
+		$filteredFacetMap = empty($effectiveFilters) ? $unfilteredFacetMap : $this->computeFacetCounts($filteredIds, $attributeData);
+		$combined = $this->combineFacetData($unfilteredFacetMap, $filteredFacetMap, $dismissedFilters);
+
+		if ($ctx['producerFieldPublished']) {
+			[$prodUnf, $prodFil, $prodCombined] = $this->buildProducerFacetDataArraysCounts($baseIds, $filteredIds);
+			foreach ($prodCombined as $row) { $combined[] = $row; }
+			foreach ($prodUnf as $row) { $unfilteredFacetMap[] = $row; }
+			foreach ($prodFil as $row) { $filteredFacetMap[] = $row; }
+		}
+
+		$facetData = new Facets($unfilteredFacetMap, $filteredFacetMap, $combined);
+		return $ctx['removeImpossible'] ? $this->removeImpossibleOptions($facetData) : $facetData;
+	}
+
+	private function buildProducerFacetData(array $idsUnfiltered, array $idsFiltered, string $mode): Facets
+	{
+		if ($mode === 'KeysOnly') {
+			[$unf, $fil, $combined] = $this->buildProducerFacetDataArraysKeysOnly($idsUnfiltered);
+			return new Facets($unf, $fil, $combined);
+		}
+		[$unf, $fil, $combined] = $this->buildProducerFacetDataArraysCounts($idsUnfiltered, $idsFiltered);
+		return new Facets($unf, $fil, $combined);
+	}
+
+	private function buildProducerFacetDataArraysCounts(array $idsUnfiltered, array $idsFiltered): array
+	{
+		$unfProd = $this->computeProducerCounts($idsUnfiltered);
+		$filProd = $this->computeProducerCounts($idsFiltered);
+		$unfilteredFacetMap = [];
+		$filteredFacetMap = [];
+		$combined = [];
+		foreach ($unfProd as $producer => $cnt) {
+			$unfilteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $cnt];
+		}
+		foreach ($filProd as $producer => $cnt) {
+			$filteredFacetMap[] = ['producer' => (string) $producer, 'product_count' => (int) $cnt];
+		}
+		foreach ($unfProd as $producer => $cnt) {
+			$filteredCount = (int) ($filProd[$producer] ?? 0);
+			$combined[] = [
+				'producer' => (string) $producer,
+				'total_product_count' => (int) $cnt,
+				'filtered_product_count' => $filteredCount,
+				'is_available' => $filteredCount > 0,
+				'is_filtered_out' => $filteredCount === 0 && $cnt > 0,
+				'is_invalid' => false
+			];
+		}
+		return [$unfilteredFacetMap, $filteredFacetMap, $combined];
+	}
+
+	private function buildProducerFacetDataArraysKeysOnly(array $idsUnfiltered): array
+	{
+		$unfProd = $this->computeProducerCounts($idsUnfiltered);
+		$unfiltered = [];
+		$filtered = [];
+		$combined = [];
+		foreach ($unfProd as $producer => $cnt) {
+			$unfiltered[] = ['producer' => (string) $producer, 'product_count' => 0];
+			$filtered[] = ['producer' => (string) $producer, 'product_count' => 0];
+			$combined[] = [
+				'producer' => (string) $producer,
+				'total_product_count' => 0,
+				'filtered_product_count' => 0,
+				'is_available' => true,
+				'is_filtered_out' => false,
+				'is_invalid' => false
+			];
+		}
+		return [$unfiltered, $filtered, $combined];
+	}
+
+	private function maybePriceSort(array $ids): array
+	{
+		$dir = $this->resolvePriceSortDirection($this->dmysql_sortingInput);
+		return $dir ? $this->sortIdsByPrice($ids, $dir) : $ids;
+	}
+
+	private function finalizeResult(array $ids, array $baseIds, ?Facets $facets, bool $hasFilters): SearchResult
+	{
+		[$hasUnmatched, $numUnmatched] = $this->computeUnmatched($baseIds, $ids, $hasFilters);
+		$result = new SearchResult($ids, $facets, $hasUnmatched, $numUnmatched, count($baseIds), count($ids));
+		$result->setNumProductsUnfiltered(count($baseIds));
+		$result->setNumProductsFiltered(count($ids));
+		return $result;
+	}
+
+	private function finalizeResultWithCustomUnfilteredBase(array $ids, array $unfilteredBase, array $filteredBase, ?Facets $facets, bool $hasFilters): SearchResult
+	{
+		[$hasUnmatched, $numUnmatched] = $this->computeUnmatched($unfilteredBase, $filteredBase, $hasFilters);
+		$result = new SearchResult($ids, $facets, $hasUnmatched, $numUnmatched, count($unfilteredBase), count($filteredBase));
+		$result->setNumProductsUnfiltered(count($unfilteredBase));
+		$result->setNumProductsFiltered(count($filteredBase));
+		return $result;
+	}
+
+	private function computeUnmatched(array $unfilteredIds, array $filteredIds, bool $hasFilters): array
+	{
+		if (!$hasFilters) { return [false, 0]; }
+		$hasUnmatched = count($filteredIds) < count($unfilteredIds);
+		return [$hasUnmatched, $hasUnmatched ? (count($unfilteredIds) - count($filteredIds)) : 0];
+	}
 
     private function attributeFilterFieldsExist(): bool
     {
