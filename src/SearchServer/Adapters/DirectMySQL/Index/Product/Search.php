@@ -13,6 +13,14 @@ use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSearchInte
 use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Client;
 use LeadingSystems\MerconisBundle\SearchServer\Traits\AdapterCommonTrait;
 use Psr\Log\LoggerInterface;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\ClauseBuildResult;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\DescriptiveFulltextClauseBuilder;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\CodeClauseBuilder;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\ProducerClauseBuilder;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\PageConstraintBuilder;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\PublishedConstraintBuilder;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\ProducerExactFilterApplier;
+use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\SortingApplier;
 
 class Search implements CommonInterface, IndexSearchInterface
 {
@@ -374,387 +382,185 @@ class Search implements CommonInterface, IndexSearchInterface
 
     private function fetchProductIdsByCriteria(array $criteria, string $language): array
     {
-        $this->parameterCounter = 0;
-        $debugScoringEnabled = $this->isDebugScoringEnabled($criteria);
+		$this->parameterCounter = 0;
+		$debugScoringEnabled = $this->isDebugScoringEnabled($criteria);
 
-        $qb = $this->connection->createQueryBuilder();
-        $qb->select('product.id')
-            ->from('tl_ls_shop_product', 'product');
+		$qb = $this->connection->createQueryBuilder();
+		$qb->select('product.id')
+			->from('tl_ls_shop_product', 'product');
 
-        $needsPageJoin = false;
+		$parameters = [];
+		$parameterTypes = [];
 
-        $parameters = [];
-        $parameterTypes = [];
+		// Constraints: pages, producers (exact), published
+		$pageBuilder = new PageConstraintBuilder();
+		$pageResult = $pageBuilder->apply($qb, $criteria['pages'] ?? null);
+		if (($criteria['pages'] ?? null) !== null && $pageResult['noMatch'] === true) {
+			return [];
+		}
+		$needsGroupBy = $pageResult['needsGroupBy'] === true;
+		$parameters = array_merge($parameters, $pageResult['params']);
+		$parameterTypes = array_merge($parameterTypes, $pageResult['types']);
 
-        if (isset($criteria['pages'])) {
-            $needsPageJoin = true;
-            $pageIds = is_array($criteria['pages']) ? $criteria['pages'] : [$criteria['pages']];
-            $pageIds = array_filter(array_map('intval', $pageIds));
+		$producerExact = new ProducerExactFilterApplier();
+		$producerExactRes = $producerExact->apply($qb, $criteria['producers'] ?? null);
+		$parameters = array_merge($parameters, $producerExactRes['params']);
+		$parameterTypes = array_merge($parameterTypes, $producerExactRes['types']);
 
-            if (count($pageIds)) {
-                $qb->leftJoin('product', 'tl_ls_shop_product_page_map', 'map', 'map.pid = product.id');
-                $qb->andWhere('map.page_id IN (:pageIds)');
-                $qb->setParameter('pageIds', $pageIds, ArrayParameterType::INTEGER);
-            } else {
-                return [];
-            }
-        }
+		$publishedBuilder = new PublishedConstraintBuilder();
+		$publishedWhere = $publishedBuilder->build($criteria['published'] ?? null);
+		if ($publishedWhere !== null) {
+			$qb->andWhere($publishedWhere);
+		}
 
-        // Producer filter (exact match on product-level producer)
-        if (!empty($criteria['producers']) && is_array($criteria['producers'])) {
-            $producers = array_values(array_filter(array_map(function ($p) { return strtolower(trim((string) $p)); }, $criteria['producers']), function ($v) { return $v !== ''; }));
-            if (count($producers)) {
-                $paramName = $this->nextParameterName();
-                $qb->andWhere('LOWER(product.lsShopProductProducer) IN (:' . $paramName . ')');
-                $parameters[$paramName] = $producers;
-                $parameterTypes[$paramName] = ArrayParameterType::STRING;
-            }
-        }
+		// Fulltext parsing and term partitioning
+		$fulltext = $criteria['fulltext'] ?? '';
+		$fulltextComponents = $this->parseFulltextCriteria((string) $fulltext);
+		$reassembledParts = [];
+		foreach ($fulltextComponents as $comp) {
+			$t = trim((string) ($comp['text'] ?? ''));
+			if ($t !== '') { $reassembledParts[] = $t; }
+		}
+		$normalizedFullQuery = strtolower(implode(' ', $reassembledParts));
 
-        if (isset($criteria['published'])) {
-            $published = $criteria['published'];
-            if ($published === '1' || $published === 1 || $published === true) {
-                $qb->andWhere('product.published = 1');
-            }
-        }
-
-        $fulltext = $criteria['fulltext'] ?? '';
-        $fulltextComponents = $this->parseFulltextCriteria((string) $fulltext);
-        // Reassemble normalized query text (order preserved, modifiers removed)
-        $reassembledParts = [];
-        foreach ($fulltextComponents as $comp) {
-            $t = trim((string) ($comp['text'] ?? ''));
-            if ($t !== '') { $reassembledParts[] = $t; }
-        }
-        $normalizedFullQuery = strtolower(implode(' ', $reassembledParts));
-
-        // Build FULLTEXT boolean-mode search across descriptive fields and LIKE-based code/producer search.
-        $descriptiveTerms = [];
-        $codeTerms = [];
-        $producerTerms = [];
-
-        if (count($fulltextComponents)) {
-            foreach ($fulltextComponents as $component) {
-                $term = trim((string) ($component['text'] ?? ''));
-                if ($term === '') { continue; }
-
-                $fields = $component['fields'] ?? [];
-                $includeInDescriptive = !count($fields);
-                $includeInCode = !count($fields);
-                $includeInProducer = !count($fields);
-
-                foreach ($fields as $fieldKeyRaw) {
-                    $canonical = $this->normalizeFieldKey($fieldKeyRaw);
-                    if ($canonical === null) { continue; }
-                    if (in_array($canonical, ['title','keywords','shortdescription','description'], true)) {
-                        $includeInDescriptive = true;
-                    }
-                    if ($canonical === 'lsshopproductproducer') { $includeInProducer = true; }
-                    if ($canonical === 'lsshopproductcode') {
-                        $includeInCode = true;
-                    }
-                }
-
-                if ($includeInDescriptive) { $descriptiveTerms[] = $term; }
-                if ($includeInCode) { $codeTerms[] = $term; }
-                if ($includeInProducer) { $producerTerms[] = $term; }
-            }
-        }
-
-        $scoreExpression = '0';
-
-        // Descriptive FULLTEXT: boolean mode with all terms required
-        $fulltextWhere = null;
-        $fulltextParamName = null;
-        $descriptiveColumns = $this->getDescriptiveColumnsForLanguage($language);
-        if (count($descriptiveTerms) && count($descriptiveColumns)) {
-            $booleanQuery = $this->buildBooleanFulltextShouldQueryString($descriptiveTerms);
-            if ($booleanQuery !== null && $booleanQuery !== '') {
-                $fulltextParamName = $this->nextParameterName();
-                $parameters[$fulltextParamName] = $booleanQuery;
-                $parameterTypes[$fulltextParamName] = ParameterType::STRING;
-
-                // WHERE: At least one of the descriptive columns must match all terms
-                // Use single MATCH per column and OR them so a product can match in any field
-                $columnMatches = [];
-                foreach ($descriptiveColumns as $col) {
-                    $columnMatches[] = sprintf(
-                        "MATCH(%s) AGAINST (:%s IN BOOLEAN MODE)",
-                        $col,
-                        $fulltextParamName
-                    );
-                }
-                if (count($columnMatches)) {
-                    $fulltextWhere = '(' . implode(' OR ', $columnMatches) . ')';
-                }
-
-                // Relevance: weighted sum of column-specific matches
-                $scoreParts = [];
-                foreach ($descriptiveColumns as $col) {
-                    $weight = $this->getWeightForBaseColumn($col);
-					$weightLiteral = sprintf('%.15g', $weight);
-					$scoreParts[] = sprintf(
-						"%s * COALESCE(MATCH(%s) AGAINST (:%s IN BOOLEAN MODE), 0)",
-						$weightLiteral,
-						$col,
-						$fulltextParamName
-					);
-
-                    // Debug projection: raw and weighted matches per column
-                    if ($debugScoringEnabled) {
-                        $colAlias = $this->toDebugAlias($col);
-                        $qb->addSelect(sprintf(
-                            "COALESCE(MATCH(%s) AGAINST (:%s IN BOOLEAN MODE), 0) AS dbg_m_%s",
-                            $col,
-                            $fulltextParamName,
-                            $colAlias
-                        ));
-                        $qb->addSelect(sprintf(
-                            "%s * COALESCE(MATCH(%s) AGAINST (:%s IN BOOLEAN MODE), 0) AS dbg_w_%s",
-                            $weightLiteral,
-                            $col,
-                            $fulltextParamName,
-                            $colAlias
-                        ));
-                    }
-                }
-				if (count($scoreParts)) {
-					$scoreExpression = '(' . implode(' + ', $scoreParts) . ')';
+		$descriptiveTerms = [];
+		$codeTerms = [];
+		$producerTerms = [];
+		if (count($fulltextComponents)) {
+			foreach ($fulltextComponents as $component) {
+				$term = trim((string) ($component['text'] ?? ''));
+				if ($term === '') { continue; }
+				$fields = $component['fields'] ?? [];
+				$includeInDescriptive = !count($fields);
+				$includeInCode = !count($fields);
+				$includeInProducer = !count($fields);
+				foreach ($fields as $fieldKeyRaw) {
+					$canonical = $this->normalizeFieldKey($fieldKeyRaw);
+					if ($canonical === null) { continue; }
+					if (in_array($canonical, ['title','keywords','shortdescription','description'], true)) { $includeInDescriptive = true; }
+					if ($canonical === 'lsshopproductproducer') { $includeInProducer = true; }
+					if ($canonical === 'lsshopproductcode') { $includeInCode = true; }
 				}
-            }
-        }
-
-		// Code LIKEs: build ANY-term and ALL-terms conditions
-        $codeWhere = null;
-        if (count($codeTerms)) {
-            $likeParts = [];
-            foreach ($codeTerms as $codeTerm) {
-                $paramName = $this->nextParameterName();
-                $parameters[$paramName] = $this->createLikePattern($codeTerm);
-                $parameterTypes[$paramName] = ParameterType::STRING;
-                $likeParts[] = sprintf("LOWER(product.lsShopProductCode) LIKE :%s ESCAPE '\\\\'", $paramName);
-            }
-            if (count($likeParts)) {
-				$codeWhereAll = '(' . implode(' AND ', $likeParts) . ')';
-				$codeWhereAny = '(' . implode(' OR ', $likeParts) . ')';
-				// Use ANY-term match for inclusion in WHERE
-				$codeWhere = $codeWhereAny;
-				// Relevance boosts: strong boost for ALL-terms match, smaller for ANY-term match
-                $codeBoostAllTerms = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_allTerms'] ?? 100);
-                $scoreExpression = sprintf(
-                    '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
-                    $scoreExpression,
-                    $codeWhereAll,
-                    (string) $codeBoostAllTerms
-                );
-                $codeBoostAnyTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_anyTerm'] ?? 20);
-                $scoreExpression = sprintf(
-                    '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
-                    $scoreExpression,
-                    $codeWhereAny,
-                    (string) $codeBoostAnyTerm
-                );
-
-				// Additional boosts for exact code matches
-				// 1) Any single term equals the product code exactly (case-insensitive)
-				$eqParts = [];
-				$normalizedCodeExpr = $this->buildNormalizedProductCodeExpr();
-				foreach ($codeTerms as $codeTerm) {
-					$eqParam = $this->nextParameterName();
-					$parameters[$eqParam] = strtolower(trim((string) $codeTerm));
-					$parameterTypes[$eqParam] = ParameterType::STRING;
-					$eqParts[] = sprintf('%s = :%s', $normalizedCodeExpr, $eqParam);
-				}
-                if (count($eqParts)) {
-                    $codeEqualsAny = '(' . implode(' OR ', $eqParts) . ')';
-                    $codeBoostExactTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_exactTerm'] ?? 150);
-                    $scoreExpression = sprintf(
-                        '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
-                        $scoreExpression,
-                        $codeEqualsAny,
-                        (string) $codeBoostExactTerm
-                    );
-                }
-
-				// 2) The entire reassembled query equals the product code exactly (highest boost)
-				if ($normalizedFullQuery !== '') {
-					$eqAllParam = $this->nextParameterName();
-					$parameters[$eqAllParam] = $normalizedFullQuery;
-					$parameterTypes[$eqAllParam] = ParameterType::STRING;
-					$codeEqualsFullExpr = sprintf('%s = :%s', $normalizedCodeExpr, $eqAllParam);
-                    $codeBoostExactFull = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_exactFullQuery'] ?? 300);
-                    $scoreExpression = sprintf(
-                        '(%s) + CASE WHEN %s THEN %s ELSE 0 END',
-                        $scoreExpression,
-                        $codeEqualsFullExpr,
-                        (string) $codeBoostExactFull
-                    );
-				}
-
-                // Debug projection: code contribution components
-                if ($debugScoringEnabled) {
-                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_all', $codeWhereAll, (string) $codeBoostAllTerms));
-                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_any', $codeWhereAny, (string) $codeBoostAnyTerm));
-                    if (isset($codeEqualsAny)) {
-                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_term', $codeEqualsAny, (string) $codeBoostExactTerm));
-                    }
-					if (isset($codeEqualsFullExpr)) {
-						$qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_full', $codeEqualsFullExpr, (string) $codeBoostExactFull));
-					}
-					// Also expose normalized code for clarity
-					$qb->addSelect($normalizedCodeExpr . ' AS dbg_product_code_norm');
-                }
-            }
-        }
-
-        // Producer LIKEs: use regular index with LIKE and moderate boosts
-        $producerWhere = null;
-        if (count($producerTerms)) {
-            $likeParts = [];
-            foreach ($producerTerms as $producerTerm) {
-                $paramName = $this->nextParameterName();
-                $parameters[$paramName] = $this->createLikePattern($producerTerm);
-                $parameterTypes[$paramName] = ParameterType::STRING;
-                $likeParts[] = sprintf("LOWER(product.lsShopProductProducer) LIKE :%s ESCAPE '\\\\'", $paramName);
-            }
-            if (count($likeParts)) {
-                $producerWhereAll = '(' . implode(' AND ', $likeParts) . ')';
-                $producerWhereAny = '(' . implode(' OR ', $likeParts) . ')';
-                // Use ANY-term match for inclusion in WHERE
-                $producerWhere = $producerWhereAny;
-                // Relevance boosts: moderate for ALL-terms, smaller for ANY-term
-                $producerBoostAllTerms = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_allTerms'] ?? 60);
-                $producerBoostAnyTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_anyTerm'] ?? 10);
-                $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerWhereAll, (string) $producerBoostAllTerms);
-                $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerWhereAny, (string) $producerBoostAnyTerm);
-
-                // Additional boosts for exact producer matches (case-insensitive)
-                $eqParts = [];
-                foreach ($producerTerms as $producerTerm) {
-                    $eqParam = $this->nextParameterName();
-                    $parameters[$eqParam] = strtolower(trim((string) $producerTerm));
-                    $parameterTypes[$eqParam] = ParameterType::STRING;
-                    $eqParts[] = sprintf('LOWER(product.lsShopProductProducer) = :%s', $eqParam);
-                }
-                if (count($eqParts)) {
-                    $producerEqualsAny = '(' . implode(' OR ', $eqParts) . ')';
-                    $producerBoostExactTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_exactTerm'] ?? 80);
-                    $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerEqualsAny, (string) $producerBoostExactTerm);
-                }
-
-                // Entire normalized query equals producer exactly
-                if ($normalizedFullQuery !== '') {
-                    $eqAllParam = $this->nextParameterName();
-                    $parameters[$eqAllParam] = $normalizedFullQuery;
-                    $parameterTypes[$eqAllParam] = ParameterType::STRING;
-                    $producerEqualsFullExpr = sprintf('LOWER(product.lsShopProductProducer) = :%s', $eqAllParam);
-                    $producerBoostExactFull = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_exactFullQuery'] ?? 160);
-                    $scoreExpression = sprintf('(%s) + CASE WHEN %s THEN %s ELSE 0 END', $scoreExpression, $producerEqualsFullExpr, (string) $producerBoostExactFull);
-                }
-
-                // Debug projection for producer components
-                if ($debugScoringEnabled) {
-                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_all', $producerWhereAll, (string) $producerBoostAllTerms));
-                    $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_any', $producerWhereAny, (string) $producerBoostAnyTerm));
-                    if (isset($producerEqualsAny)) {
-                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_eq_term', $producerEqualsAny, (string) $producerBoostExactTerm));
-                    }
-                    if (isset($producerEqualsFullExpr)) {
-                        $qb->addSelect(sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_eq_full', $producerEqualsFullExpr, (string) $producerBoostExactFull));
-                    }
-                }
-            }
-        }
-
-        if ($fulltextWhere !== null || $codeWhere !== null || $producerWhere !== null) {
-            $ors = [];
-            if ($fulltextWhere !== null) { $ors[] = $fulltextWhere; }
-            if ($codeWhere !== null) { $ors[] = $codeWhere; }
-            if ($producerWhere !== null) { $ors[] = $producerWhere; }
-            $qb->andWhere('(' . implode(' OR ', $ors) . ')');
-        }
-
-		$qb->addSelect($scoreExpression . ' AS relevance');
-
-		// Debug identifiers: include product code and resolved title for easier identification
-		if ($debugScoringEnabled) {
-			$qb->addSelect('product.lsShopProductCode AS dbg_product_code');
-			$titleExpr = $this->resolveColumnExpression($this->fieldConfigurations['title'], $language);
-			if ($titleExpr !== null) {
-				$qb->addSelect($titleExpr . ' AS dbg_product_title');
+				if ($includeInDescriptive) { $descriptiveTerms[] = $term; }
+				if ($includeInCode) { $codeTerms[] = $term; }
+				if ($includeInProducer) { $producerTerms[] = $term; }
 			}
 		}
 
-        if ($needsPageJoin) {
-            $qb->groupBy('product.id');
-        }
+		$whereParts = [];
+		$scoreExpressionParts = [];
 
-        // Apply DB-orderable sorting from adapter, ignoring unsupported fields.
-        // Fallback: if nothing applicable, keep legacy behavior (relevance DESC when present, else id ASC).
-        $sortingCriteria = $this->dmysql_sortingInput;
-        [$orderBys, $ignoredSorts] = $this->buildSqlOrderByFromSorting($sortingCriteria, ($scoreExpression !== '0'), $language);
+		// Descriptive fulltext clause
+		$descriptiveColumns = $this->getDescriptiveColumnsForLanguage($language);
+		if (count($descriptiveTerms) && count($descriptiveColumns)) {
+			$booleanQuery = $this->buildBooleanFulltextShouldQueryString($descriptiveTerms);
+			$descBuilder = new DescriptiveFulltextClauseBuilder();
+			$descRes = $descBuilder->build(
+				$descriptiveTerms,
+				$descriptiveColumns,
+				$booleanQuery,
+				$debugScoringEnabled,
+				fn() => $this->nextParameterName(),
+				fn(string $col) => $this->getWeightForBaseColumn($col),
+				$qb
+			);
+			if ($descRes->getWhereSql() !== null) { $whereParts[] = $descRes->getWhereSql(); }
+			$scoreExpressionParts = array_merge($scoreExpressionParts, $descRes->getScoreAdditions());
+			$parameters = array_merge($parameters, $descRes->getParams());
+			$parameterTypes = array_merge($parameterTypes, $descRes->getParamTypes());
+		}
 
-        if (!empty($orderBys)) {
-            $first = true;
-            foreach ($orderBys as [$expr, $dir]) {
-                if ($first) {
-                    $qb->orderBy($expr, $dir);
-                    $first = false;
-                } else {
-                    $qb->addOrderBy($expr, $dir);
-                }
-            }
-            // Always ensure stable tiebreaker by id ASC
-            $qb->addOrderBy('product.id', 'ASC');
-        } else {
-            if ($scoreExpression !== '0') {
-                $qb->orderBy('relevance', 'DESC');
-                $qb->addOrderBy('product.id', 'ASC');
-            } else {
-                $qb->orderBy('product.id', 'ASC');
-            }
-        }
+		// Code clause
+		if (count($codeTerms)) {
+			$codeBuilder = new CodeClauseBuilder();
+			$normalizedCodeExpr = $this->buildNormalizedProductCodeExpr();
+			$codeRes = $codeBuilder->build(
+				$codeTerms,
+				$normalizedFullQuery,
+				$normalizedCodeExpr,
+				$debugScoringEnabled,
+				fn() => $this->nextParameterName(),
+				fn(string $t) => $this->createLikePattern($t),
+				$qb
+			);
+			if ($codeRes->getWhereSql() !== null) { $whereParts[] = $codeRes->getWhereSql(); }
+			$scoreExpressionParts = array_merge($scoreExpressionParts, $codeRes->getScoreAdditions());
+			$parameters = array_merge($parameters, $codeRes->getParams());
+			$parameterTypes = array_merge($parameterTypes, $codeRes->getParamTypes());
+		}
 
-        // Optional debug note for unsupported/ignored sort fields
-        if (!empty($ignoredSorts) && !empty($GLOBALS['TL_CONFIG']['ls_shop_debugSearch'])) {
-            try {
-                $this->logger->notice('DirectMySQL sorting: ignored unsupported fields', [
-                    'ignored' => $ignoredSorts,
-                    'received' => $sortingCriteria
-                ]);
-            } catch (\Throwable $e) {}
-            try {
-                $payload = json_encode([
-                    'ts' => gmdate('c'),
-                    'event' => 'sorting_ignored_fields',
-                    'ignored' => $ignoredSorts,
-                    'received' => $sortingCriteria
-                ], JSON_UNESCAPED_SLASHES);
-                @file_put_contents($this->resolveFallbackLogFilePath(), $payload."\n", FILE_APPEND);
-            } catch (\Throwable $e) {}
-        }
+		// Producer clause
+		if (count($producerTerms)) {
+			$producerBuilder = new ProducerClauseBuilder();
+			$producerRes = $producerBuilder->build(
+				$producerTerms,
+				$normalizedFullQuery,
+				$debugScoringEnabled,
+				fn() => $this->nextParameterName(),
+				fn(string $t) => $this->createLikePattern($t),
+				$qb
+			);
+			if ($producerRes->getWhereSql() !== null) { $whereParts[] = $producerRes->getWhereSql(); }
+			$scoreExpressionParts = array_merge($scoreExpressionParts, $producerRes->getScoreAdditions());
+			$parameters = array_merge($parameters, $producerRes->getParams());
+			$parameterTypes = array_merge($parameterTypes, $producerRes->getParamTypes());
+		}
 
-        foreach ($parameters as $name => $value) {
-            $type = $parameterTypes[$name] ?? ParameterType::STRING;
-            $qb->setParameter($name, $value, $type);
-        }
+		if (count($whereParts)) {
+			$qb->andWhere('(' . implode(' OR ', $whereParts) . ')');
+		}
 
-        $this->logDebugInformation($criteria, $fulltextComponents, $qb);
-        if ($debugScoringEnabled) {
-            $this->logScoreBatchHeader($criteria, $language, $qb);
-        }
+		$scoreExpression = '0';
+		if (count($scoreExpressionParts)) {
+			$scoreExpression = '(' . implode(' + ', $scoreExpressionParts) . ')';
+		}
+		$qb->addSelect($scoreExpression . ' AS relevance');
 
-        $rows = $qb->executeQuery()->fetchAllAssociative();
+		if ($debugScoringEnabled) {
+			$qb->addSelect('product.lsShopProductCode AS dbg_product_code');
+			$titleExpr = $this->resolveColumnExpression($this->fieldConfigurations['title'], $language);
+			if ($titleExpr !== null) { $qb->addSelect($titleExpr . ' AS dbg_product_title'); }
+		}
 
-        if (!count($rows)) {
-            return [];
-        }
+		if ($needsGroupBy) {
+			$qb->groupBy('product.id');
+		}
 
-        if ($debugScoringEnabled && count($rows)) {
-            $this->logScoreBreakdown($rows);
-        }
+		// Sorting
+		$sortingCriteria = $this->dmysql_sortingInput;
+		$sortingApplier = new SortingApplier();
+		$ignoredSorts = $sortingApplier->apply(
+			$qb,
+			$sortingCriteria,
+			($scoreExpression !== '0'),
+			$language,
+			fn(array $crit, bool $hasScore, string $lang) => $this->buildSqlOrderByFromSorting($crit, $hasScore, $lang)
+		);
 
-        return array_map(static fn (array $row) => (int) $row['id'], $rows);
+		if (!empty($ignoredSorts) && !empty($GLOBALS['TL_CONFIG']['ls_shop_debugSearch'])) {
+			try {
+				$this->logger->notice('DirectMySQL sorting: ignored unsupported fields', [ 'ignored' => $ignoredSorts, 'received' => $sortingCriteria ]);
+			} catch (\Throwable $e) {}
+			try {
+				$payload = json_encode(['ts' => gmdate('c'), 'event' => 'sorting_ignored_fields', 'ignored' => $ignoredSorts, 'received' => $sortingCriteria], JSON_UNESCAPED_SLASHES);
+				@file_put_contents($this->resolveFallbackLogFilePath(), $payload."\n", FILE_APPEND);
+			} catch (\Throwable $e) {}
+		}
+
+		foreach ($parameters as $name => $value) {
+			$type = $parameterTypes[$name] ?? ParameterType::STRING;
+			$qb->setParameter($name, $value, $type);
+		}
+
+		$this->logDebugInformation($criteria, $fulltextComponents, $qb);
+		if ($debugScoringEnabled) {
+			$this->logScoreBatchHeader($criteria, $language, $qb);
+		}
+
+		$rows = $qb->executeQuery()->fetchAllAssociative();
+		if (!count($rows)) { return []; }
+		if ($debugScoringEnabled && count($rows)) { $this->logScoreBreakdown($rows); }
+		return array_map(static fn (array $row) => (int) $row['id'], $rows);
     }
 
     private function isDebugScoringEnabled(array $criteria): bool
