@@ -115,8 +115,7 @@ class Search implements CommonInterface, IndexSearchInterface
 
 		// Early exit: no facets and no attribute filters → just base ids with optional price sort
 		if ($this->shouldReturnEarlyNoFacetsNoAttr($ctx)) {
-			$ids = $this->maybePriceSort($baseCandidateIds);
-			$ids = $this->maybeFixedSort($ids);
+			$ids = $this->applyPhpSorts($baseCandidateIds);
 			$result = new SearchResult($ids);
 			$total = count($baseCandidateIds);
 			$result->setNumProductsUnfiltered($total);
@@ -145,8 +144,7 @@ class Search implements CommonInterface, IndexSearchInterface
 			$availablePairs
 		);
 
-		$ids = $this->maybePriceSort($filteredIds);
-		$ids = $this->maybeFixedSort($ids);
+		$ids = $this->applyPhpSorts($filteredIds);
 		return $this->finalizeResult($ids, $baseCandidateIds, $facetData, !empty($effectiveFilters));
     }
 
@@ -182,8 +180,7 @@ class Search implements CommonInterface, IndexSearchInterface
 			$facets = new Facets([], [], []);
 		}
 
-		$ids = $this->maybePriceSort($idsFilteredForProducers);
-		$ids = $this->maybeFixedSort($ids);
+		$ids = $this->applyPhpSorts($idsFilteredForProducers);
 		return $this->finalizeResultWithCustomUnfilteredBase(
 			$ids,
 			$idsUnfilteredForProducers,
@@ -305,6 +302,13 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         if (empty($this->dmysql_fixedSortingInput)) { return $ids; }
         return $this->applyFixedSorting($ids, $this->dmysql_fixedSortingInput);
+    }
+
+    private function applyPhpSorts(array $ids): array
+    {
+        $ids = $this->maybePriceSort($ids);
+        $ids = $this->maybeFixedSort($ids);
+        return $ids;
     }
 
 	private function finalizeResult(array $ids, array $baseIds, ?Facets $facets, bool $hasFilters): SearchResult
