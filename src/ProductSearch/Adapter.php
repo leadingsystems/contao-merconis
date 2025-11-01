@@ -412,6 +412,11 @@ class Adapter
         return $this->fixedSorting;
     }
 
+    public function getEmptyFieldMatchesPerDefault(): bool
+    {
+        return $this->emptyFieldMatchesPerDefault;
+    }
+
     public function isUsingFilter(): bool
     {
         return (bool)$this->useFilter;

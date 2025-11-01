@@ -34,6 +34,7 @@ class Search implements CommonInterface, IndexSearchInterface
     private string $environment;
     private array $dmysql_sortingInput = [];
     private array $dmysql_fixedSortingInput = [];
+    private bool $dmysql_emptyFieldMatchesPerDefault = false;
 
     /**
      * Canonical field configuration keyed by lower-case identifiers.
@@ -94,9 +95,10 @@ class Search implements CommonInterface, IndexSearchInterface
 
     public function search(Adapter &$productSearchAdapter, string $language, bool $activateFacets = true, bool $activateMatchEstimates = true, bool $removeImpossibleOptions = true): SearchResult
     {
-		$criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
-		$this->dmysql_sortingInput = $productSearchAdapter->getSortingCriteria();
-		$this->dmysql_fixedSortingInput = $productSearchAdapter->getFixedSorting();
+        $criteria = $this->prepareCriteria($productSearchAdapter->getSearchCriteria());
+        $this->dmysql_sortingInput = $productSearchAdapter->getSortingCriteria();
+        $this->dmysql_fixedSortingInput = $productSearchAdapter->getFixedSorting();
+        $this->dmysql_emptyFieldMatchesPerDefault = $productSearchAdapter->getEmptyFieldMatchesPerDefault();
 
 		$baseCriteria = $this->prepareBaseCriteria($criteria);
 		$baseCandidateIds = $this->resolveBaseCandidates($baseCriteria, $language);
@@ -430,6 +432,50 @@ class Search implements CommonInterface, IndexSearchInterface
 		$publishedWhere = $publishedBuilder->build($criteria['published'] ?? null);
 		if ($publishedWhere !== null) {
 			$qb->andWhere($publishedWhere);
+		}
+
+		// Generic field LIKE filters (backend parity), ANDed constraints
+		$genericFields = [
+			'title' => function() use ($language) { return $this->resolveColumnExpression($this->fieldConfigurations['title'], $language); },
+			'keywords' => function() use ($language) { return $this->resolveColumnExpression($this->fieldConfigurations['keywords'], $language); },
+			'shortDescription' => function() use ($language) { return $this->resolveColumnExpression($this->fieldConfigurations['shortdescription'], $language); },
+			'description' => function() use ($language) { return $this->resolveColumnExpression($this->fieldConfigurations['description'], $language); },
+			'lsShopProductCode' => function() { return 'product.lsShopProductCode'; },
+			'lsShopProductProducer' => function() { return 'product.lsShopProductProducer'; },
+		];
+		foreach ($genericFields as $critKey => $colResolver) {
+			if (!array_key_exists($critKey, $criteria)) { continue; }
+			$raw = (string) ($criteria[$critKey] ?? '');
+			$column = $colResolver();
+			if ($column === null) { continue; }
+			$onlyWildcards = false;
+			if ($raw === '' && $this->dmysql_emptyFieldMatchesPerDefault) {
+				$pattern = '%';
+				$onlyWildcards = true;
+			} else if ($raw === '' && !$this->dmysql_emptyFieldMatchesPerDefault) {
+				$pattern = '';
+				$onlyWildcards = true; // empty implies only wildcards path to use IFNULL
+			} else {
+				$pattern = $this->createLikePattern($raw); // lowercased pattern
+				$tmp = trim($raw);
+				$tmp = str_replace(['*','?'], '', $tmp);
+				$onlyWildcards = ($tmp === '');
+			}
+
+			$param = $this->nextParameterName();
+			if ($raw === '' && !$this->dmysql_emptyFieldMatchesPerDefault) {
+				$qb->andWhere("LOWER(IFNULL(" . $column . ", '')) LIKE :" . $param . " ESCAPE '\\\\'");
+				$parameters[$param] = '';
+				$parameterTypes[$param] = ParameterType::STRING;
+			} else if ($onlyWildcards) {
+				$qb->andWhere("LOWER(IFNULL(" . $column . ", '')) LIKE :" . $param . " ESCAPE '\\\\'");
+				$parameters[$param] = strtolower($pattern);
+				$parameterTypes[$param] = ParameterType::STRING;
+			} else {
+				$qb->andWhere("LOWER(" . $column . ") LIKE :" . $param . " ESCAPE '\\\\'");
+				$parameters[$param] = strtolower($pattern);
+				$parameterTypes[$param] = ParameterType::STRING;
+			}
 		}
 
 		// Fulltext parsing and term partitioning
