@@ -309,8 +309,196 @@ class Search implements CommonInterface, IndexSearchInterface
     private function applyPhpSorts(array $ids): array
     {
         $ids = $this->maybePriceSort($ids);
+        $ids = $this->applyPhpAdditionalSorts($ids);
         $ids = $this->maybeFixedSort($ids);
         return $ids;
+    }
+
+    /**
+     * Apply PHP-only additional sorts: flex_contents*, attribute-label sorts.
+     */
+    private function applyPhpAdditionalSorts(array $ids): array
+    {
+        if (empty($ids) || empty($this->dmysql_sortingInput)) { return $ids; }
+
+        $sorts = $this->parsePhpOnlySorts($this->dmysql_sortingInput);
+        if (empty($sorts)) { return $ids; }
+
+        // Apply each sort in sequence, stable
+        foreach ($sorts as $s) {
+            $keysById = [];
+            if ($s['type'] === 'flex') {
+                $keysById = $this->computeFlexSortKeys($ids, $this->dmysql_sortingInput, (string)$s['key'], false);
+            } else if ($s['type'] === 'flex_li') {
+                $keysById = $this->computeFlexSortKeys($ids, $this->dmysql_sortingInput, (string)$s['key'], true);
+            } else if ($s['type'] === 'attr_label') {
+                $keysById = $this->computeAttributeLabelSortKeys($ids, (string)$s['key']);
+            } else {
+                continue;
+            }
+
+            $indexed = [];
+            foreach ($ids as $idx => $pid) {
+                $val = $keysById[$pid] ?? null;
+                $indexed[] = ['id' => (int)$pid, 'key' => $val, 'idx' => $idx];
+            }
+
+            $dir = ($s['dir'] === 'DESC') ? 'DESC' : 'ASC';
+            usort($indexed, function ($a, $b) use ($dir) {
+                $ka = $a['key'];
+                $kb = $b['key'];
+                $aNull = ($ka === null);
+                $bNull = ($kb === null);
+                if ($aNull && $bNull) { return $a['idx'] <=> $b['idx']; }
+                if ($aNull) { return 1; }
+                if ($bNull) { return -1; }
+                if ($ka == $kb) { return $a['idx'] <=> $b['idx']; }
+                $cmp = ($ka <=> $kb);
+                return $dir === 'DESC' ? -$cmp : $cmp;
+            });
+            $ids = array_map(static function ($row) { return $row['id']; }, $indexed);
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Extract PHP-only sorts with their keys and directions in given order.
+     * Recognized fields:
+     *  - flex_contents=KEY
+     *  - flex_contentsLanguageIndependent=KEY
+     *  - lsShopProductAttributesValues=ATTRIBUTE_ALIAS
+     */
+    private function parsePhpOnlySorts(array $sortingCriteria): array
+    {
+        $out = [];
+        foreach ($sortingCriteria as $rule) {
+            $fieldRaw = (string)($rule['field'] ?? '');
+            $dir = strtoupper(trim((string)($rule['direction'] ?? 'ASC')));
+            $dir = $dir === 'DESC' ? 'DESC' : 'ASC';
+            $parts = explode('=', $fieldRaw, 2);
+            $base = strtolower(trim($parts[0]));
+            $key = isset($parts[1]) ? trim($parts[1]) : '';
+
+            if ($base === 'flex_contents' && $key !== '') {
+                $out[] = ['type' => 'flex', 'key' => $key, 'dir' => $dir];
+                continue;
+            }
+            if ($base === 'flex_contentslanguageindependent' && $key !== '') {
+                $out[] = ['type' => 'flex_li', 'key' => $key, 'dir' => $dir];
+                continue;
+            }
+            if ($base === 'lsshopproductattributesvalues' && $key !== '') {
+                $out[] = ['type' => 'attr_label', 'key' => $key, 'dir' => $dir];
+                continue;
+            }
+        }
+        return $out;
+    }
+
+    private function computeFlexSortKeys(array $ids, array $sortingCriteria, string $key, bool $languageIndependent): array
+    {
+        if (empty($ids)) { return []; }
+        // Resolve column name
+        $column = null;
+        if ($languageIndependent) {
+            $column = $this->columnExists('flex_contentsLanguageIndependent') ? 'product.flex_contentsLanguageIndependent' : null;
+        } else {
+            // Try language-specific first, then generic flex_contents
+            $lang = '';
+            // Best-effort: infer language from earlier context is not stored; use helper columns
+            // We default to base column if language-specific is unavailable
+            // Attempt: find any descriptive column we picked (title expr) and infer suffix; otherwise skip
+            $column = null;
+            $columnName = 'flex_contents_' . '';
+            // Since we can't reliably infer language here, try base column
+            if ($this->columnExists('flex_contents')) {
+                $column = 'product.flex_contents';
+            }
+        }
+        if ($column === null) { return []; }
+
+        $result = [];
+        $batchSize = 1000;
+        for ($offset = 0, $n = count($ids); $offset < $n; $offset += $batchSize) {
+            $chunk = array_slice($ids, $offset, $batchSize);
+            $qb = $this->connection->createQueryBuilder();
+            $qb->select('p.id', $column . ' AS jsonval')
+                ->from('tl_ls_shop_product', 'p')
+                ->where($qb->expr()->in('p.id', ':ids'))
+                ->setParameter('ids', $chunk, ArrayParameterType::INTEGER);
+            foreach ($qb->executeQuery()->fetchAllAssociative() as $row) {
+                $pid = (int)$row['id'];
+                $val = $this->extractFlexKeyValue((string)($row['jsonval'] ?? ''), $key);
+                $result[$pid] = $val;
+            }
+        }
+        return $result;
+    }
+
+    private function extractFlexKeyValue(?string $json, string $key)
+    {
+        if ($json === null || $json === '') { return null; }
+        $data = json_decode($json, true);
+        if (!is_array($data)) { return null; }
+        // Handle both associative objects and list-of-pairs [[k,v], ...]
+        if (array_keys($data) !== range(0, count($data) - 1)) {
+            // associative
+            $k = $key;
+            return array_key_exists($k, $data) ? (string)$data[$k] : null;
+        }
+        foreach ($data as $entry) {
+            if (is_array($entry) && count($entry) >= 2) {
+                if ((string)$entry[0] === $key) { return (string)$entry[1]; }
+            }
+        }
+        return null;
+    }
+
+    private function computeAttributeLabelSortKeys(array $ids, string $attributeAlias): array
+    {
+        if (empty($ids)) { return []; }
+        // Resolve alias -> attribute id
+        $attrs = \Merconis\Core\ls_shop_generalHelper::getProductAttributes();
+        $attrId = 0;
+        foreach ($attrs as $a) {
+            if (($a['alias'] ?? '') === $attributeAlias) { $attrId = (int)$a['id']; break; }
+        }
+        if ($attrId <= 0) { return []; }
+        $attrValues = \Merconis\Core\ls_shop_generalHelper::getAttributeValues();
+
+        $result = [];
+        $batchSize = 1000;
+        for ($offset = 0, $n = count($ids); $offset < $n; $offset += $batchSize) {
+            $chunk = array_slice($ids, $offset, $batchSize);
+            $qb = $this->connection->createQueryBuilder();
+            $qb->select('p.id', 'p.lsShopProductAttributesValues AS jsonval')
+                ->from('tl_ls_shop_product', 'p')
+                ->where($qb->expr()->in('p.id', ':ids'))
+                ->setParameter('ids', $chunk, ArrayParameterType::INTEGER);
+            foreach ($qb->executeQuery()->fetchAllAssociative() as $row) {
+                $pid = (int)$row['id'];
+                $label = $this->extractAttributeLabel((string)($row['jsonval'] ?? ''), $attrId, $attrValues);
+                $result[$pid] = $label;
+            }
+        }
+        return $result;
+    }
+
+    private function extractAttributeLabel(?string $json, int $attrId, array $attrValues): ?string
+    {
+        if ($json === null || $json === '') { return null; }
+        $data = json_decode($json, true);
+        if (!is_array($data)) { return null; }
+        foreach ($data as $pair) {
+            if (!is_array($pair) || !isset($pair[0], $pair[1])) { continue; }
+            if ((int)$pair[0] === $attrId) {
+                $valId = (int)$pair[1];
+                $label = $attrValues[$valId]['title'] ?? null;
+                return $label !== null ? (string)$label : null;
+            }
+        }
+        return null;
     }
 
 	private function finalizeResult(array $ids, array $baseIds, ?Facets $facets, bool $hasFilters): SearchResult
