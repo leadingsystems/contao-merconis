@@ -72,6 +72,7 @@ services:
       $logger: '@logger'
       $projectDir: '%kernel.project_dir%'
       $environment: '%kernel.environment%'
+      $cacheRegistry: '@LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry'
 
   # Search server adapter services, auto tagged with _instanceof, therefore depending on implementing AdapterInterfaces\IndexSyncInterface -->
   LeadingSystems\MerconisBundle\SearchServer\Adapters\Elasticsearch\Index\Product\Sync:

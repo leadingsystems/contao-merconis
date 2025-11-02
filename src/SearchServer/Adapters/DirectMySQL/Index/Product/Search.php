@@ -13,6 +13,7 @@ use LeadingSystems\MerconisBundle\SearchServer\AdapterInterfaces\IndexSearchInte
 use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Client;
 use LeadingSystems\MerconisBundle\SearchServer\Traits\AdapterCommonTrait;
 use Psr\Log\LoggerInterface;
+use LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry;
 use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\ClauseBuildResult;
 use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\DescriptiveFulltextClauseBuilder;
 use LeadingSystems\MerconisBundle\SearchServer\Adapters\DirectMySQL\Index\Product\Clause\CodeClauseBuilder;
@@ -32,9 +33,11 @@ class Search implements CommonInterface, IndexSearchInterface
     private LoggerInterface $logger;
     private string $projectDir;
     private string $environment;
+    private HandlerRegistry $cacheRegistry;
     private array $dmysql_sortingInput = [];
     private array $dmysql_fixedSortingInput = [];
     private bool $dmysql_emptyFieldMatchesPerDefault = false;
+    private $dmysql_cacheHandle = null;
 
     /**
      * Canonical field configuration keyed by lower-case identifiers.
@@ -80,12 +83,13 @@ class Search implements CommonInterface, IndexSearchInterface
         'lsshopproductproducer',
     ];
 
-    public function __construct(Client $client, LoggerInterface $logger, string $projectDir, string $environment)
+    public function __construct(Client $client, LoggerInterface $logger, string $projectDir, string $environment, HandlerRegistry $cacheRegistry)
     {
         $this->connection = $client->getConnection();
         $this->logger = $logger;
         $this->projectDir = $projectDir;
         $this->environment = $environment;
+        $this->cacheRegistry = $cacheRegistry;
     }
 
     public function initialize(): void
@@ -99,6 +103,12 @@ class Search implements CommonInterface, IndexSearchInterface
         $this->dmysql_sortingInput = $productSearchAdapter->getSortingCriteria();
         $this->dmysql_fixedSortingInput = $productSearchAdapter->getFixedSorting();
         $this->dmysql_emptyFieldMatchesPerDefault = $productSearchAdapter->getEmptyFieldMatchesPerDefault();
+
+        // Cache fast path
+        $cached = $this->maybeStartCache($criteria, $language, $activateFacets, $activateMatchEstimates, $removeImpossibleOptions);
+        if ($cached !== null) {
+            return $cached;
+        }
 
 		$baseCriteria = $this->prepareBaseCriteria($criteria);
 		$baseCandidateIds = $this->resolveBaseCandidates($baseCriteria, $language);
@@ -117,11 +127,12 @@ class Search implements CommonInterface, IndexSearchInterface
 
 		// Early exit: no facets and no attribute filters → just base ids with optional price sort
 		if ($this->shouldReturnEarlyNoFacetsNoAttr($ctx)) {
-			$ids = $this->applyPhpSorts($baseCandidateIds);
-			$result = new SearchResult($ids);
+            $ids = $this->applyPhpSorts($baseCandidateIds);
+            $result = new SearchResult($ids);
 			$total = count($baseCandidateIds);
 			$result->setNumProductsUnfiltered($total);
 			$result->setNumProductsFiltered($total);
+            $this->maybeStoreCache($ids, null, $total, $total, false, 0);
 			return $result;
 		}
 
@@ -146,8 +157,12 @@ class Search implements CommonInterface, IndexSearchInterface
 			$availablePairs
 		);
 
-		$ids = $this->applyPhpSorts($filteredIds);
-		return $this->finalizeResult($ids, $baseCandidateIds, $facetData, !empty($effectiveFilters));
+        $ids = $this->applyPhpSorts($filteredIds);
+        $out = $this->finalizeResult($ids, $baseCandidateIds, $facetData, !empty($effectiveFilters));
+        $hasUnmatched = !empty($effectiveFilters) && (count($filteredIds) < count($baseCandidateIds));
+        $numUnmatched = $hasUnmatched ? (count($baseCandidateIds) - count($filteredIds)) : 0;
+        $this->maybeStoreCache($ids, $facetData, count($baseCandidateIds), count($filteredIds), $hasUnmatched, $numUnmatched);
+        return $out;
     }
 
 
@@ -182,14 +197,16 @@ class Search implements CommonInterface, IndexSearchInterface
 			$facets = new Facets([], [], []);
 		}
 
-		$ids = $this->applyPhpSorts($idsFilteredForProducers);
-		return $this->finalizeResultWithCustomUnfilteredBase(
+        $ids = $this->applyPhpSorts($idsFilteredForProducers);
+        $out = $this->finalizeResultWithCustomUnfilteredBase(
 			$ids,
 			$idsUnfilteredForProducers,
 			$idsFilteredForProducers,
 			$facets,
 			$ctx['hasProducerFilters']
 		);
+        $this->maybeStoreCache($ids, $facets, count($idsUnfilteredForProducers), count($idsFilteredForProducers), $ctx['hasProducerFilters'], $ctx['hasProducerFilters'] ? (count($idsUnfilteredForProducers) - count($idsFilteredForProducers)) : 0);
+        return $out;
 	}
 
 	private function buildFacetData(
@@ -1660,6 +1677,74 @@ class Search implements CommonInterface, IndexSearchInterface
         $logDir = rtrim($this->projectDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'logs';
         $date = date('Y-m-d');
         return $logDir . DIRECTORY_SEPARATOR . 'merconis-search-debug-' . $date . '.log';
+    }
+
+    private function maybeStartCache(array $criteria, string $language, bool $activateFacets, bool $activateMatchEstimates, bool $removeImpossibleOptions): ?SearchResult
+    {
+        try {
+            $handler = $this->cacheRegistry->getHandler('merconis.search');
+            if (!$handler) { return null; }
+            $ttl = (int)($GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec'] ?? 60);
+
+            $considerGroupPrices = !empty($GLOBALS['TL_CONFIG']['ls_shop_considerGroupPricesInFilterAndSorting']);
+            $groupId = null;
+            try { $groupId = \Merconis\Core\ls_shop_generalHelper::getGroupSettings4User()['id'] ?? null; } catch (\Throwable $e) {}
+
+            $tags = [
+                'criteria' => $criteria,
+                'sorting' => $this->dmysql_sortingInput,
+                'fixedSorting' => $this->dmysql_fixedSortingInput,
+                'language' => $language,
+                'facets' => [$activateFacets, $activateMatchEstimates, $removeImpossibleOptions],
+                'emptyFieldMatchesPerDefault' => $this->dmysql_emptyFieldMatchesPerDefault,
+                'considerGroupPrices' => $considerGroupPrices,
+                'outputPriceType' => \Merconis\Core\ls_shop_generalHelper::getOutputPriceType(),
+                'checkVATID' => \Merconis\Core\ls_shop_generalHelper::checkVATID(),
+                'customerCountry' => \Merconis\Core\ls_shop_generalHelper::getCustomerCountry(),
+                'lastBackendDataChange' => ($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] ?? 0),
+                'customerGroupId' => $groupId,
+            ];
+            $handle = $handler->create(max(0, $ttl), $tags);
+            [$hit, $payload] = $handle->getValueOrStart();
+            if ($hit && is_array($payload)) {
+                $ids = $payload['ids'] ?? [];
+                $facetsArr = $payload['facets'] ?? null;
+                $facets = null;
+                if (is_array($facetsArr)) {
+                    $facets = new Facets($facetsArr['unfiltered'] ?? [], $facetsArr['filtered'] ?? [], $facetsArr['combined'] ?? []);
+                }
+                $res = new SearchResult($ids, $facets, (bool)($payload['hasUnmatched'] ?? false), (int)($payload['numUnmatched'] ?? 0), (int)($payload['numUnfiltered'] ?? count($ids)), (int)($payload['numFiltered'] ?? count($ids)));
+                $res->setNumProductsUnfiltered((int)($payload['numUnfiltered'] ?? count($ids)));
+                $res->setNumProductsFiltered((int)($payload['numFiltered'] ?? count($ids)));
+                return $res;
+            }
+            $this->dmysql_cacheHandle = $handle;
+        } catch (\Throwable $e) {}
+        return null;
+    }
+
+    private function maybeStoreCache(array $ids, ?Facets $facets, int $numUnfiltered, int $numFiltered, bool $hasUnmatched, int $numUnmatched): void
+    {
+        if (!$this->dmysql_cacheHandle) { return; }
+        try {
+            $facetsArr = null;
+            if ($facets instanceof Facets) {
+                $facetsArr = [
+                    'unfiltered' => $facets->getUnfilteredFacets(),
+                    'filtered' => $facets->getFilteredFacets(),
+                    'combined' => $facets->getCombinedFacets(),
+                ];
+            }
+            $payload = [
+                'ids' => array_values(array_map('intval', $ids)),
+                'facets' => $facetsArr,
+                'numUnfiltered' => (int)$numUnfiltered,
+                'numFiltered' => (int)$numFiltered,
+                'hasUnmatched' => (bool)$hasUnmatched,
+                'numUnmatched' => (int)$numUnmatched,
+            ];
+            $this->dmysql_cacheHandle->storeValue($payload);
+        } catch (\Throwable $e) {}
     }
 
     /**
