@@ -444,6 +444,20 @@ class Search implements CommonInterface, IndexSearchInterface
 			$qb->andWhere($publishedWhere);
 		}
 
+		// Group restrictions (FE only) unless explicitly ignored via config
+		$ignoreGroupRestrictions = !empty($GLOBALS['TL_CONFIG']['ls_shop_ignoreGroupRestrictionsInSearch']);
+		if (!$ignoreGroupRestrictions && defined('TL_MODE') && TL_MODE === 'FE') {
+			try {
+				$grp = \Merconis\Core\ls_shop_generalHelper::getGroupSettings4User();
+				$groupId = isset($grp['id']) ? (int) $grp['id'] : 0;
+				$qb->andWhere("(product.useGroupRestrictions != '1' OR product.allowedGroups LIKE :dmysql_allowedGroups)");
+				$parameters['dmysql_allowedGroups'] = '%"' . $groupId . '"%';
+				$parameterTypes['dmysql_allowedGroups'] = ParameterType::STRING;
+			} catch (\Throwable $e) {
+				// If resolving group fails, behave like no restrictions applied
+			}
+		}
+
 		// Generic field LIKE filters (backend parity), ANDed constraints
 		$genericFields = [
 			'title' => function() use ($language) { return $this->resolveColumnExpression($this->fieldConfigurations['title'], $language); },
