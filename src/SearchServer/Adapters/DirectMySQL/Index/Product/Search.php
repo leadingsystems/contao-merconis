@@ -414,14 +414,24 @@ class Search implements CommonInterface, IndexSearchInterface
 		}
 
 		// Constraints: pages, producers (exact), published
-		$pageBuilder = new PageConstraintBuilder();
-		$pageResult = $pageBuilder->apply($qb, $criteria['pages'] ?? null);
-		if (($criteria['pages'] ?? null) !== null && $pageResult['noMatch'] === true) {
-			return [];
+		$needsGroupBy = false;
+		$pagesRaw = $criteria['pages'] ?? null;
+		if ($pagesRaw !== null) {
+			$pageBuilder = new PageConstraintBuilder();
+			$pageResult = $pageBuilder->apply($qb, $pagesRaw);
+			if ($pageResult['noMatch'] === true) {
+				// If empty pages are given and the flag is enabled, treat as match-all (ignore pages)
+				if ($this->dmysql_emptyFieldMatchesPerDefault) {
+					// do nothing: no pages constraint applied
+				} else {
+					return [];
+				}
+			} else {
+				$needsGroupBy = $pageResult['needsGroupBy'] === true;
+				$parameters = array_merge($parameters, $pageResult['params']);
+				$parameterTypes = array_merge($parameterTypes, $pageResult['types']);
+			}
 		}
-		$needsGroupBy = $pageResult['needsGroupBy'] === true;
-		$parameters = array_merge($parameters, $pageResult['params']);
-		$parameterTypes = array_merge($parameterTypes, $pageResult['types']);
 
 		$producerExact = new ProducerExactFilterApplier();
 		$producerExactRes = $producerExact->apply($qb, $criteria['producers'] ?? null);
