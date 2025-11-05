@@ -5,6 +5,9 @@ $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sourceNormalized'] = ['Qu
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['targetTerm'] = ['Zielbegriff', 'Token, das zur Suche hinzugefügt wird'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSource'] = ['Quellbegriff entfernen', 'Wenn aktiviert, wird der Quellbegriff aus der Suche entfernt und nur der Zielbegriff verwendet'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['active'] = ['Aktiv', 'Mapping aktivieren oder deaktivieren'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['matchType'] = ['Abgleich-Typ', 'Exakter Token-Abgleich oder Regex-Muster'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['pattern'] = ['Muster', 'PCRE-Muster ohne Trenner; wird auf jeden Token angewendet'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['caseInsensitive'] = ['Groß-/Kleinschreibung ignorieren', 'Regex mit i-Flag ausführen'];
 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Mapping bearbeiten', 'Mapping ID %s bearbeiten'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'] = ['Mapping duplizieren', 'Mapping ID %s duplizieren'];

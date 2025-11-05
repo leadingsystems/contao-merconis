@@ -5,6 +5,9 @@ $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sourceNormalized'] = ['So
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['targetTerm'] = ['Target term', 'Token to append to search input'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSource'] = ['Remove source term', 'If enabled, the source token will be removed from the query and only the target token will be used'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['active'] = ['Active', 'Enable or disable this mapping'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['matchType'] = ['Match type', 'Choose whether to match an exact token or a regex pattern'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['pattern'] = ['Pattern', 'PCRE pattern without delimiters; applied to each token'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['caseInsensitive'] = ['Case-insensitive', 'Apply case-insensitive matching for this pattern'];
 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Edit mapping', 'Edit mapping ID %s'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'] = ['Duplicate mapping', 'Duplicate mapping ID %s'];

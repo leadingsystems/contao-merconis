@@ -6,7 +6,12 @@ use Contao\Database;
 
 class SearchTermMappingService
 {
-    private static ?array $cache = null; // normalized source => ['targets' => string[], 'removeAny' => bool]
+    // Cache structure:
+    // [
+    //   'exact' => array<string, array{targets: string[], removeAny: bool}>,
+    //   'patterns' => array<int, array{compiled: string, targetTemplate: string, removeSource: bool}>
+    // ]
+    private static ?array $cache = null;
 
     private bool $enabled;
     private bool $applyInElasticsearch;
@@ -37,21 +42,52 @@ class SearchTermMappingService
         if (self::$cache !== null) {
             return;
         }
-        self::$cache = [];
-        $result = Database::getInstance()->prepare("SELECT sourceNormalized, targetTerm, removeSource FROM tl_ls_shop_search_term_mapping WHERE active = '1' ORDER BY sorting, id")
+        self::$cache = [
+            'exact' => [],
+            'patterns' => []
+        ];
+        $result = Database::getInstance()->prepare("SELECT matchType, sourceNormalized, targetTerm, removeSource, pattern, caseInsensitive FROM tl_ls_shop_search_term_mapping WHERE active = '1' ORDER BY sorting, id")
             ->execute();
         while ($result->next()) {
-            $normalized = (string) $result->sourceNormalized;
+            $matchType = (string) ($result->matchType ?? 'exact');
             $target = (string) $result->targetTerm;
             $remove = (string) $result->removeSource === '1';
-            if ($normalized !== '' && $target !== '') {
-                if (!isset(self::$cache[$normalized])) {
-                    self::$cache[$normalized] = ['targets' => [], 'removeAny' => false];
+            if ($matchType === 'regex') {
+                $rawPattern = trim((string) ($result->pattern ?? ''));
+                if ($rawPattern === '' || $target === '') {
+                    continue;
                 }
-                // Append unique targets (case-insensitive uniqueness handled later during augmentation)
-                self::$cache[$normalized]['targets'][] = $target;
+                $delimiter = '#';
+                $escaped = str_replace($delimiter, '\\' . $delimiter, $rawPattern);
+                $flags = 'u' . (((string)$result->caseInsensitive === '1') ? 'i' : '');
+                $compiled = $delimiter . $escaped . $delimiter . $flags;
+                // Sanity check: skip invalid patterns silently
+                set_error_handler(function() {});
+                try {
+                    $ok = @preg_match($compiled, '') !== false;
+                } finally {
+                    restore_error_handler();
+                }
+                if (!$ok) {
+                    continue;
+                }
+                self::$cache['patterns'][] = [
+                    'compiled' => $compiled,
+                    'targetTemplate' => $target,
+                    'removeSource' => $remove,
+                ];
+                continue;
+            }
+
+            // exact
+            $normalized = (string) $result->sourceNormalized;
+            if ($normalized !== '' && $target !== '') {
+                if (!isset(self::$cache['exact'][$normalized])) {
+                    self::$cache['exact'][$normalized] = ['targets' => [], 'removeAny' => false];
+                }
+                self::$cache['exact'][$normalized]['targets'][] = $target;
                 if ($remove) {
-                    self::$cache[$normalized]['removeAny'] = true;
+                    self::$cache['exact'][$normalized]['removeAny'] = true;
                 }
             }
         }
@@ -90,29 +126,57 @@ class SearchTermMappingService
             if ($tNorm === '') {
                 continue;
             }
-            if (isset(self::$cache[$tNorm])) {
-                $targets = (array) self::$cache[$tNorm]['targets'];
-                $removeAny = (bool) self::$cache[$tNorm]['removeAny'];
-                if (!$removeAny) {
-                    // Keep original token
-                    $resultTokens[] = $raw;
-                }
-                // Append all mapped targets, ensuring uniqueness case-insensitively
-                foreach ($targets as $target) {
+
+            $targetsToAppend = [];
+            $removeOriginal = false;
+
+            // Exact mappings
+            if (isset(self::$cache['exact'][$tNorm])) {
+                $exactEntry = self::$cache['exact'][$tNorm];
+                $removeOriginal = $removeOriginal || (bool) ($exactEntry['removeAny'] ?? false);
+                foreach ((array) ($exactEntry['targets'] ?? []) as $target) {
                     $targetStr = (string) $target;
-                    if ($targetStr === '') {
-                        continue;
+                    if ($targetStr === '') { continue; }
+                    $targetsToAppend[] = $targetStr;
+                }
+            }
+
+            // Pattern rules (apply all that match, in configured order)
+            foreach ((array) self::$cache['patterns'] as $rule) {
+                $compiled = (string) ($rule['compiled'] ?? '');
+                if ($compiled === '') { continue; }
+                set_error_handler(function() {});
+                try {
+                    $isMatch = @preg_match($compiled, $raw) === 1;
+                } finally {
+                    restore_error_handler();
+                }
+                if ($isMatch) {
+                    $tpl = (string) ($rule['targetTemplate'] ?? '');
+                    if ($tpl !== '') {
+                        $rendered = str_replace('{token}', $raw, $tpl);
+                        $targetsToAppend[] = $rendered;
                     }
-                    $targetLower = mb_strtolower($targetStr);
-                    if (!isset($existingLower[$targetLower])) {
-                        $resultTokens[] = $targetStr;
-                        $existingLower[$targetLower] = true;
+                    if (!empty($rule['removeSource'])) {
+                        $removeOriginal = true;
                     }
                 }
-                continue;
             }
-            // No mapping: keep original
-            $resultTokens[] = $raw;
+
+            // Include original token only if no rule requested removal
+            if (!$removeOriginal) {
+                // Keep original token (do not dedupe originals, mimic legacy behavior)
+                $resultTokens[] = $raw;
+            }
+
+            // Append targets, dedup case-insensitively
+            foreach ($targetsToAppend as $targetStr) {
+                $targetLower = mb_strtolower($targetStr);
+                if (!isset($existingLower[$targetLower])) {
+                    $resultTokens[] = $targetStr;
+                    $existingLower[$targetLower] = true;
+                }
+            }
         }
 
         return array_values(array_filter($resultTokens, static fn($v) => $v !== null && $v !== ''));

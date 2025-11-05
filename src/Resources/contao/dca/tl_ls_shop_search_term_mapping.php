@@ -89,7 +89,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 		)
 	),
 	'palettes' => array(
-		'default' => '{general_legend},sourceTerm,targetTerm,removeSource,active'
+		'__selector__' => array('matchType'),
+		'default' => '{general_legend},matchType,targetTerm,removeSource,active'
+	),
+	'subpalettes' => array(
+		'matchType_exact' => 'sourceTerm',
+		'matchType_regex' => 'pattern,caseInsensitive'
 	),
 
 	'fields' => array(
@@ -101,6 +106,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 		),
 		'sorting' => array (
 			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+		),
+		'matchType' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['matchType'],
+			'exclude' => true,
+			'inputType' => 'select',
+			'options' => array('exact', 'regex'),
+			'eval' => array('mandatory' => true, 'includeBlankOption' => false, 'submitOnChange' => true, 'tl_class' => 'w50'),
+			'sql' => "varchar(16) NOT NULL default 'exact'"
 		),
 		'sourceTerm' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sourceTerm'],
@@ -121,6 +134,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 			'inputType' => 'text',
 			'eval' => array('readonly' => true, 'tl_class' => 'w50'),
 			'sql' => "varchar(255) NOT NULL default ''"
+		),
+		'pattern' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['pattern'],
+			'exclude' => true,
+			'inputType' => 'text',
+			'eval' => array('maxlength' => 1024, 'decodeEntities' => true, 'tl_class' => 'w50'),
+			'save_callback' => array(
+				array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'validatePattern')
+			),
+			'sql' => "varchar(1024) NOT NULL default ''"
+		),
+		'caseInsensitive' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['caseInsensitive'],
+			'exclude' => true,
+			'inputType' => 'checkbox',
+			'eval' => array('tl_class' => 'w50 m12'),
+			'filter' => true,
+			'sql' => "char(1) NOT NULL default ''"
 		),
 		'targetTerm' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['targetTerm'],
@@ -158,9 +189,23 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 	}
 
 	public function updateSourceNormalized($value = '', DataContainer $dc = null) {
-		$normalized = trim(mb_strtolower((string) $value));
-		Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET sourceNormalized=? WHERE id=?")
-			->execute($normalized, $dc->id);
+		$matchType = null;
+		if ($dc && $dc->activeRecord && property_exists($dc->activeRecord, 'matchType')) {
+			$matchType = (string) $dc->activeRecord->matchType;
+		} else {
+			// Fallback fetch
+			$rec = Database::getInstance()->prepare("SELECT matchType FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($dc->id);
+			$matchType = $rec->next() ? (string) $rec->matchType : 'exact';
+		}
+		if ($matchType === 'exact') {
+			$normalized = trim(mb_strtolower((string) $value));
+			Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET sourceNormalized=? WHERE id=?")
+				->execute($normalized, $dc->id);
+		} else {
+			// Ensure normalized is cleared when switching to regex
+			Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET sourceNormalized='' WHERE id=?")
+				->execute($dc->id);
+		}
 		return $value;
 	}
 
@@ -196,6 +241,41 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 
 		Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET tstamp=". time() .", active='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
 			->execute($intId);
+	}
+
+	public function validatePattern($value = '', DataContainer $dc = null) {
+		// Only validate when matchType is regex
+		$matchType = null;
+		if ($dc && $dc->activeRecord && property_exists($dc->activeRecord, 'matchType')) {
+			$matchType = (string) $dc->activeRecord->matchType;
+		}
+		if ($matchType !== 'regex') {
+			return $value;
+		}
+		$raw = (string) $value;
+		$raw = trim($raw);
+		if ($raw === '') {
+			return $value;
+		}
+		// Determine caseInsensitive flag
+		$ci = '';
+		if ($dc && $dc->activeRecord && property_exists($dc->activeRecord, 'caseInsensitive')) {
+			$ci = (string) $dc->activeRecord->caseInsensitive;
+		}
+		$delimiter = '#';
+		$escaped = str_replace($delimiter, '\\' . $delimiter, $raw);
+		$flags = 'u' . ($ci ? 'i' : '');
+		$compiled = $delimiter . $escaped . $delimiter . $flags;
+		set_error_handler(function() {});
+		try {
+			$ok = @preg_match($compiled, '') !== false;
+		} finally {
+			restore_error_handler();
+		}
+		if (!$ok) {
+			throw new \RuntimeException('Invalid regex pattern for mapping: ' . $compiled);
+		}
+		return $value;
 	}
 
 	public function invalidateCache(): void {
