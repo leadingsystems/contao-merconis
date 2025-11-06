@@ -10,7 +10,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 final class ProducerClauseBuilder
 {
 	/**
-	 * @param array<int, string> $terms
+	 * @param array<int, array{text:string, exact?:bool}> $terms
 	 * @param callable():string $nextParameterName
 	 * @param callable(string):string $createLikePattern
 	 */
@@ -23,42 +23,50 @@ final class ProducerClauseBuilder
 		$params = [];
 		$paramTypes = [];
 		$likeParts = [];
+		$eqParts = [];
 		foreach ($terms as $term) {
+			$text = isset($term['text']) ? (string) $term['text'] : '';
+			$isExact = (bool) ($term['exact'] ?? false);
+			if ($text === '') { continue; }
+			if ($isExact) {
+				$p = $nextParameterName();
+				$params[$p] = strtolower(trim($text));
+				$paramTypes[$p] = ParameterType::STRING;
+				$eqParts[] = sprintf('LOWER(product.lsShopProductProducer) = :%s', $p);
+				continue;
+			}
 			$p = $nextParameterName();
-			$params[$p] = $createLikePattern($term);
+			$params[$p] = $createLikePattern($text);
 			$paramTypes[$p] = ParameterType::STRING;
 			$likeParts[] = sprintf("LOWER(product.lsShopProductProducer) LIKE :%s ESCAPE '\\\\'", $p);
 		}
 
-		if (!count($likeParts)) {
+		if (!count($likeParts) && !count($eqParts)) {
 			return new ClauseBuildResult(null, []);
 		}
 
-		$producerWhereAll = '(' . implode(' AND ', $likeParts) . ')';
-		$producerWhereAny = '(' . implode(' OR ', $likeParts) . ')';
-		$where = $producerWhereAny;
+		$whereParts = [];
 
 		$scoreAdditions = [];
 		$debugSelects = [];
 
-		$producerBoostAllTerms = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_allTerms'] ?? 60);
-		$producerBoostAnyTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_anyTerm'] ?? 10);
-		$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $producerWhereAll, (string) $producerBoostAllTerms);
-		$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $producerWhereAny, (string) $producerBoostAnyTerm);
-		if ($debug) {
-			$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_all', $producerWhereAll, (string) $producerBoostAllTerms);
-			$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_any', $producerWhereAny, (string) $producerBoostAnyTerm);
+		if (count($likeParts)) {
+			$producerWhereAll = '(' . implode(' AND ', $likeParts) . ')';
+			$producerWhereAny = '(' . implode(' OR ', $likeParts) . ')';
+			$whereParts[] = $producerWhereAny;
+			$producerBoostAllTerms = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_allTerms'] ?? 60);
+			$producerBoostAnyTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_anyTerm'] ?? 10);
+			$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $producerWhereAll, (string) $producerBoostAllTerms);
+			$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $producerWhereAny, (string) $producerBoostAnyTerm);
+			if ($debug) {
+				$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_all', $producerWhereAll, (string) $producerBoostAllTerms);
+				$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_like_any', $producerWhereAny, (string) $producerBoostAnyTerm);
+			}
 		}
 
-		$eqParts = [];
-		foreach ($terms as $term) {
-			$p = $nextParameterName();
-			$params[$p] = strtolower(trim((string) $term));
-			$paramTypes[$p] = ParameterType::STRING;
-			$eqParts[] = sprintf('LOWER(product.lsShopProductProducer) = :%s', $p);
-		}
 		if (count($eqParts)) {
 			$producerEqualsAny = '(' . implode(' OR ', $eqParts) . ')';
+			$whereParts[] = $producerEqualsAny;
 			$producerBoostExactTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_producer_boost_exactTerm'] ?? 80);
 			$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $producerEqualsAny, (string) $producerBoostExactTerm);
 			if ($debug) {
@@ -77,6 +85,8 @@ final class ProducerClauseBuilder
 				$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_producer_eq_full', $producerEqualsFullExpr, (string) $producerBoostExactFull);
 			}
 		}
+
+		$where = '(' . implode(' OR ', $whereParts) . ')';
 
 		foreach ($debugSelects as $sel) {
 			$qb->addSelect($sel);

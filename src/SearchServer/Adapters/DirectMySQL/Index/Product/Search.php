@@ -717,14 +717,15 @@ class Search implements CommonInterface, IndexSearchInterface
 		}
 		$normalizedFullQuery = strtolower(implode(' ', $reassembledParts));
 
-		$descriptiveTerms = [];
-		$codeTerms = [];
+        $descriptiveTerms = [];
+        $codeTerms = [];
 		$producerTerms = [];
 		if (count($fulltextComponents)) {
 			foreach ($fulltextComponents as $component) {
-				$term = trim((string) ($component['text'] ?? ''));
-				if ($term === '') { continue; }
+                $termText = trim((string) ($component['text'] ?? ''));
+                if ($termText === '') { continue; }
 				$fields = $component['fields'] ?? [];
+                $isExact = (bool) ($component['exact'] ?? false);
 				$includeInDescriptive = !count($fields);
 				$includeInCode = !count($fields);
 				$includeInProducer = !count($fields);
@@ -735,9 +736,9 @@ class Search implements CommonInterface, IndexSearchInterface
 					if ($canonical === 'lsshopproductproducer') { $includeInProducer = true; }
 					if ($canonical === 'lsshopproductcode') { $includeInCode = true; }
 				}
-				if ($includeInDescriptive) { $descriptiveTerms[] = $term; }
-				if ($includeInCode) { $codeTerms[] = $term; }
-				if ($includeInProducer) { $producerTerms[] = $term; }
+                if ($includeInDescriptive) { $descriptiveTerms[] = $termText; }
+                if ($includeInCode) { $codeTerms[] = ['text' => $termText, 'exact' => $isExact]; }
+                if ($includeInProducer) { $producerTerms[] = ['text' => $termText, 'exact' => $isExact]; }
 			}
 		}
 
@@ -1453,6 +1454,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 'text' => $currentTerm,
                 'boost' => 1.0,
                 'fields' => [],
+                'exact' => false,
             ];
 
             if ($attachedModifiers !== '') {
@@ -1562,6 +1564,21 @@ class Search implements CommonInterface, IndexSearchInterface
             if (count($resolved)) {
                 $term['fields'] = $resolved;
             }
+            return;
+        }
+
+        if ($normalizedName === 'exact') {
+            $truthy = ['1','true','yes','on'];
+            $falsy = ['0','false','no','off',''];
+            $valNorm = strtolower($value);
+            if (in_array($valNorm, $truthy, true)) {
+                $term['exact'] = true;
+            } elseif (in_array($valNorm, $falsy, true)) {
+                $term['exact'] = false;
+            } else {
+                $term['exact'] = ($valNorm !== '');
+            }
+            return;
         }
     }
 
