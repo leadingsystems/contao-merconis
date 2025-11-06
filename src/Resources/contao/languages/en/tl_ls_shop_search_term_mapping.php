@@ -8,6 +8,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['active'] = ['Active', 'En
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['matchType'] = ['Match type', 'Choose whether to match an exact token or a regex pattern'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['pattern'] = ['Pattern', 'PCRE pattern without delimiters; applied to each token'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['caseInsensitive'] = ['Case-insensitive', 'Apply case-insensitive matching for this pattern'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['title'] = ['Title', 'Optional label shown in the list (overrides generated label).'];
 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Edit mapping', 'Edit mapping ID %s'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'] = ['Duplicate mapping', 'Duplicate mapping ID %s'];

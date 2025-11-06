@@ -103,7 +103,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 	),
 	'palettes' => array(
 		'__selector__' => array('matchType'),
-		'default' => '{general_legend},matchType,targetTerm,removeSource,active'
+		'default' => '{general_legend},title,matchType,targetTerm,removeSource,active'
 	),
 	'subpalettes' => array(
 		'matchType_exact' => 'sourceTerm',
@@ -119,6 +119,16 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 		),
 		'sorting' => array (
 			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+		),
+		'title' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['title'],
+			'exclude' => true,
+			'inputType' => 'text',
+			'eval' => array('maxlength' => 255, 'decodeEntities' => true, 'tl_class' => 'w50'),
+			'flag' => 1,
+			'filter' => true,
+			'search' => true,
+			'sql' => "varchar(255) NOT NULL default ''"
 		),
 		'matchType' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['matchType'],
@@ -224,10 +234,21 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 
     public function createLabel(array $row, string $label): string {
 		$activeSuffix = ($row['active'] ? '' : ' (inactive)');
-		return sprintf('%s → %s%s', $row['sourceTerm'], $row['targetTerm'], $activeSuffix);
+		$title = (string)($row['title'] ?? '');
+		if ($title !== '') {
+			return sprintf('%s%s', $title, $activeSuffix);
+		}
+		$sourceDisplay = (isset($row['matchType']) && $row['matchType'] === 'regex')
+			? (function(array $r): string {
+				$pattern = (string)($r['pattern'] ?? '');
+				$flags = ((string)($r['caseInsensitive'] ?? '') === '1') ? 'i' : '';
+				return $flags !== '' ? sprintf('/%s/%s', $pattern, $flags) : sprintf('/%s/', $pattern);
+			})($row)
+			: (string)($row['sourceTerm'] ?? '');
+		return sprintf('%s → %s%s', $sourceDisplay, (string)($row['targetTerm'] ?? ''), $activeSuffix);
 	}
 
-    public function toggleIcon(array $row, string $href, string $label, string $title, string $icon, string $attributes): string {
+    public function toggleIcon($row, $href, $label, $title, $icon, $attributes): string {
 		if (strlen(Input::get('tid'))) {
 			$this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1));
 			$this->redirect($this->getReferer());
@@ -237,6 +258,7 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 			return '';
 		}
 
+		$href = (string) $href;
 		$href .= '&amp;tid='.$row['id'].'&amp;state='.($row['active'] ? '' : 1);
 
 		if (!$row['active']) {
