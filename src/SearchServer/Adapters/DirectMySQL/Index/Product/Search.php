@@ -51,6 +51,9 @@ class Search implements CommonInterface, IndexSearchInterface
         'description' => ['column' => 'description', 'weight' => 1.5, 'languageAware' => true],
         'lsshopproductcode' => ['column' => 'lsShopProductCode', 'weight' => 4.0, 'languageAware' => false],
         'lsshopproductproducer' => ['column' => 'lsShopProductProducer', 'weight' => 2.0, 'languageAware' => false],
+        // Exact identifiers
+        'mpn' => ['column' => 'mpn', 'weight' => 4.0, 'languageAware' => false],
+        'gtin' => ['column' => 'gtin', 'weight' => 4.0, 'languageAware' => false],
     ];
 
     /**
@@ -67,6 +70,8 @@ class Search implements CommonInterface, IndexSearchInterface
         'keywords' => 'keywords',
         'shortdescription' => 'shortdescription',
         'description' => 'description',
+        'mpn' => 'mpn',
+        'gtin' => 'gtin',
     ];
 
     /**
@@ -671,6 +676,8 @@ class Search implements CommonInterface, IndexSearchInterface
 			'description' => function() use ($language) { return $this->resolveColumnExpression($this->fieldConfigurations['description'], $language); },
 			'lsShopProductCode' => function() { return 'product.lsShopProductCode'; },
 			'lsShopProductProducer' => function() { return 'product.lsShopProductProducer'; },
+            'mpn' => function() { return $this->columnExists('mpn') ? 'product.mpn' : null; },
+            'gtin' => function() { return $this->columnExists('gtin') ? 'product.gtin' : null; },
 		];
 		foreach ($genericFields as $critKey => $colResolver) {
 			if (!array_key_exists($critKey, $criteria)) { continue; }
@@ -2056,6 +2063,14 @@ class Search implements CommonInterface, IndexSearchInterface
                 case 'producer':
                 case 'lsshopproductproducer':
                     $orderBys[] = ['product.lsShopProductProducer', $dir];
+                    break;
+
+                case 'mpn':
+                    $orderBys[] = ['product.mpn', $dir];
+                    break;
+
+                case 'gtin':
+                    $orderBys[] = ['product.gtin', $dir];
                     break;
 
                 case 'weight':
