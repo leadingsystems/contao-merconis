@@ -85,6 +85,16 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
+				'mpn' => array(
+					'preprocessor' => 'preprocess_standard',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'gtin' => array(
+					'preprocessor' => 'preprocess_standard',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
 
 				'price' => array(
 					'preprocessor' => 'preprocess_price',

@@ -282,6 +282,14 @@ class ls_shop_variant
 				return $this->ls_productVariantID;
 				break;
 
+			case '_mpn':
+				return isset($this->mainData['mpn']) ? $this->mainData['mpn'] : '';
+				break;
+
+			case '_gtin':
+				return isset($this->mainData['gtin']) ? $this->mainData['gtin'] : '';
+				break;
+
 			case '_productTitle':
 				return $this->_objParentProduct->_title;
 				break;

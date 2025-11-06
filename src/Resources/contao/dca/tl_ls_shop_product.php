@@ -34,6 +34,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 				'id' => 'primary',
 				'alias' => 'unique',
 				'lsshopproductcode' => 'unique',
+				'mpn' => 'index',
+				'gtin' => 'index',
 				'variationgroupcode' => 'index',
 				// FULLTEXT indexes for faster descriptive searches (MyISAM/InnoDB 5.6+)
 				'title' => 'fulltext',
@@ -121,7 +123,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			{lsShopProductCode_legend},
 			lsShopProductCode,
 			variationGroupCode,
-			alias;
+			alias,
+			mpn,
+			gtin;
 
 			{lsShopPublishAndState_legend},
 			published,
@@ -392,6 +396,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'flag' => 11,
 			'search'		=> true,
             'sql'                     => "varchar(255) NOT NULL default ''"
+		),
+
+		'mpn' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['mpn'],
+			'exclude'                 => true,
+			'inputType'               => 'text',
+			'eval'                    => array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength' => 128),
+			'search'		         => true,
+			'sql'                     => "varchar(128) NOT NULL default ''"
+		),
+
+		'gtin' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['gtin'],
+			'exclude'                 => true,
+			'inputType'               => 'text',
+			'eval'                    => array('tl_class' => 'w50', 'rgxp' => 'digit', 'maxlength' => 14),
+			'search'		         => true,
+			'sql'                     => "varchar(14) NOT NULL default ''"
 		),
 
 		'variationGroupCode' => array(

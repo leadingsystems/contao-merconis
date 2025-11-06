@@ -54,6 +54,8 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['customizerLogicFile']  							= array
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['useOldPrice']										= array('Use old price');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents']										= array('Flexible variant information','You can add as many information as you like and you can use them in the templates as product properties by referencing them with their keyword.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent']					= array('Flexible variant information (language independent)','You can add as many information as you like and you can use them in the templates as product properties by referencing them with their keyword.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['mpn']												= array('MPN (Manufacturer Part Number)');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['gtin']												= array('GTIN (8/12/13/14 digits)');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts']								=	array('Associated products', 'Select products here that you want to associate with this variant with regard to implementing individual functions.');
 
 

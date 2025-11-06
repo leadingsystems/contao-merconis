@@ -51,6 +51,8 @@
     $GLOBALS['TL_LANG']['tl_ls_shop_product']['preorderingAllowed']				                =	array('Vorbestellbar', 'Ist diese Option aktiviert, so kann das Produkt, sofern es noch nicht verfügbar ist, vorbestellt werden. Unabhängig von der dem Produkt zugeordneten Einstellung für das Lagerbestands-Handling kann der Lagerbestand bei aktivierter Vorbestellfunktion ins Minus laufen.');
     $GLOBALS['TL_LANG']['tl_ls_shop_product']['deliveryInfoSetToUseInPreorderPhase']            =   array('Lagerbestand/Lieferzeit in Vorbestellungsphase', 'Legen Sie hier abweichende Einstellungen von Lagerbestand und Lieferbedingungen in der Vorbestellungsphase fest.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductDeliveryTime']						=	array('Lieferzeit');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['mpn']											=	array('MPN (Hersteller-Artikelnummer)');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gtin']											=	array('GTIN (8/12/13/14 Ziffern)');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts']				=	array('Empfohlene Produkte', 'Wählen Sie hier Produkte aus, die in einem entsprechenden CrossSeller dargestellt werden können.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts']								=	array('Verbundene Produkte', 'Wählen Sie hier Produkte aus, die Sie zur Realisierung individueller Funktionen mit diesem Produkt in Verbindung setzen möchten.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Hersteller');

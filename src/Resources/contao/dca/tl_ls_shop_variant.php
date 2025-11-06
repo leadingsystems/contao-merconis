@@ -46,7 +46,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
                 'id' => 'primary',
                 'pid' => 'index',
                 'alias' => 'unique',
-                'lsshopvariantcode' => 'unique'
+                'lsshopvariantcode' => 'unique',
+                'mpn' => 'index',
+                'gtin' => 'index'
             )
         )
 	),
@@ -114,7 +116,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		'__selector__' => array('overrideAvailabilitySettingsOfParentProduct', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
 		'default' => '
 			{lsShopVariantCode_legend},
-			lsShopVariantCode;
+			lsShopVariantCode,
+			mpn,
+			gtin;
 			
 			{lsShopCollectiveOrder_legend},
 			lsShopRuntimeFrom,
@@ -262,6 +266,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 				array('Merconis\Core\ls_shop_generalHelper', 'checkForUniqueProductCode')
 			),
             'sql'                     => "varchar(255) NOT NULL default ''"
+		),
+
+		'mpn' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['mpn'],
+			'exclude'                 => true,
+			'inputType'               => 'text',
+			'eval'                    => array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength' => 128),
+			'search'		         => true,
+			'sql'                     => "varchar(128) NOT NULL default ''"
+		),
+
+		'gtin' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['gtin'],
+			'exclude'                 => true,
+			'inputType'               => 'text',
+			'eval'                    => array('tl_class' => 'w50', 'rgxp' => 'digit', 'maxlength' => 14),
+			'search'		         => true,
+			'sql'                     => "varchar(14) NOT NULL default ''"
 		),
 
         'lsShopRuntimeFrom' => array(

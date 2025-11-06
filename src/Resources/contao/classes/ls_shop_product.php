@@ -422,6 +422,14 @@ class ls_shop_product
 				return $this->mainData['lsShopProductCode'];
 				break;
 
+			case '_mpn':
+				return isset($this->mainData['mpn']) ? $this->mainData['mpn'] : '';
+				break;
+
+			case '_gtin':
+				return isset($this->mainData['gtin']) ? $this->mainData['gtin'] : '';
+				break;
+
 			case '_hasCode':
 				return $this->_code ? true : false;
 				break;

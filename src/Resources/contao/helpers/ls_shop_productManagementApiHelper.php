@@ -862,6 +862,8 @@ class ls_shop_productManagementApiHelper {
 			->prepare("
             INSERT INTO `tl_ls_shop_product` (
                 `lsShopProductCode`, 
+                `mpn`,
+                `gtin`,
                 `tstamp`,
                 `title`,
                 `alias`,
@@ -902,7 +904,7 @@ class ls_shop_productManagementApiHelper {
                 ".$groupPriceFieldNames."
                 ".$customFieldsFieldNames."
             ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             ".$groupPriceQuestionMarks."
             ".$customFieldsQuestionMarks."
             )
@@ -910,6 +912,8 @@ class ls_shop_productManagementApiHelper {
                 title = VALUES(title),
                 alias = VALUES(alias),
                 sorting = VALUES(sorting),
+                mpn = VALUES(mpn),
+                gtin = VALUES(gtin),
                 keywords = VALUES(keywords),
                 shortDescription = VALUES(shortDescription),
                 description = VALUES(description),
@@ -950,6 +954,8 @@ class ls_shop_productManagementApiHelper {
 
         $arr_queryParams = array(
             $arr_preprocessedDataRow['productcode'], // String, maxlength 255
+            (string) ($arr_preprocessedDataRow['mpn'] ?? ''),
+            (string) ($arr_preprocessedDataRow['gtin'] ?? ''),
             time(),
             $arr_preprocessedDataRow['name'], // String, maxlength 255
             self::generateProductAlias($arr_preprocessedDataRow['name'], $arr_preprocessedDataRow['alias']),
@@ -1086,6 +1092,8 @@ class ls_shop_productManagementApiHelper {
                 `alias`,
                 `sorting`,
                 `lsShopVariantCode`,
+                `mpn`,
+                `gtin`,
                 `shortDescription`,
                 `description`,
                 `published`,
@@ -1118,7 +1126,7 @@ class ls_shop_productManagementApiHelper {
 
             VALUES (?
             , (SELECT id FROM `tl_ls_shop_product` WHERE lsShopProductCode = ?)
-            , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             ".$groupPriceQuestionMarks."
             ".$customFieldsQuestionMarks."
             )
@@ -1126,6 +1134,8 @@ class ls_shop_productManagementApiHelper {
     			`title` = VALUES(`title`),
                 `alias` = VALUES(`alias`),
                 `sorting` = VALUES(`sorting`),
+                `mpn` = VALUES(`mpn`),
+                `gtin` = VALUES(`gtin`),
                 `shortDescription` = VALUES(`shortDescription`),
                 `description` = VALUES(`description`),
                 `published` = VALUES(`published`),
@@ -1164,6 +1174,8 @@ class ls_shop_productManagementApiHelper {
             $arr_preprocessedDataRow['sorting'] && $arr_preprocessedDataRow['sorting'] > 0 ? $arr_preprocessedDataRow['sorting'] : 0, // int empty = 0
             //Vorläufig ist der productCode der variantCode
             $arr_preprocessedDataRow['productcode'], // text
+            (string) ($arr_preprocessedDataRow['mpn'] ?? ''),
+            (string) ($arr_preprocessedDataRow['gtin'] ?? ''),
             $arr_preprocessedDataRow['shortDescription'], // text
             $arr_preprocessedDataRow['description'], // text
             $arr_preprocessedDataRow['publish'] ? '1' : '', // 1 or ''
