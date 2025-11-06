@@ -1333,16 +1333,7 @@ class Search implements CommonInterface, IndexSearchInterface
 
     private function buildNormalizedProductCodeExpr(): string
     {
-        $delimiter = (string) ($GLOBALS['TL_CONFIG']['ls_shop_productCodeDelimiter'] ?? '');
-        $delimiter = trim($delimiter);
-        if ($delimiter === '') {
-            return 'LOWER(product.lsShopProductCode)';
-        }
-        $delimSql = $this->connection->quote($delimiter);
-        return sprintf(
-            'LOWER(CASE WHEN LOCATE(%1$s, product.lsShopProductCode) > 0 THEN SUBSTRING(product.lsShopProductCode, LOCATE(%1$s, product.lsShopProductCode) + CHAR_LENGTH(%1$s)) ELSE product.lsShopProductCode END)',
-            $delimSql
-        );
+        return 'LOWER(product.lsShopProductCode)';
     }
 
     // Build a boolean-mode query string that requires all terms: "+term1* +term2* ..."
