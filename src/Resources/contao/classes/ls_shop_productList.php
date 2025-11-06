@@ -203,7 +203,10 @@ class ls_shop_productList
 		$__registry = $__container->has(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) ? $__container->get(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) : null;
 		$__handler = $__registry?->getHandler('merconis.fragment');
 		if ($__handler) {
-			$__ttl = max(0, (int) ($GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec'] ?? 60));
+			$__ttl = (int) ($GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec'] ?? 60);
+			if ($__ttl <= 0) {
+				$__handler = null; // disable fragment caching when TTL <= 0
+			} else {
 			$__tags = array(
 				'ns' => 'merconis.product_list.html',
 				'productListID' => $this->productListID,
@@ -242,6 +245,7 @@ class ls_shop_productList
 
 			$__handle = $__handler->create($__ttl, $__tags);
 			list($__hit, $__payload) = $__handle->getValueOrStart();
+			}
 
             /*
              * Do me! Actually activate caching only if a solution for handling

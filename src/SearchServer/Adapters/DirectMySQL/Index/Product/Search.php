@@ -1702,6 +1702,7 @@ class Search implements CommonInterface, IndexSearchInterface
             $handler = $this->cacheRegistry->getHandler('merconis.search');
             if (!$handler) { return null; }
             $ttl = (int)($GLOBALS['TL_CONFIG']['ls_shop_searchCacheLifetimeSec'] ?? 60);
+            if ($ttl <= 0) { return null; }
 
             $considerGroupPrices = !empty($GLOBALS['TL_CONFIG']['ls_shop_considerGroupPricesInFilterAndSorting']);
             $groupId = null;
@@ -1721,7 +1722,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 'lastBackendDataChange' => ($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] ?? 0),
                 'customerGroupId' => $groupId,
             ];
-            $handle = $handler->create(max(0, $ttl), $tags);
+            $handle = $handler->create($ttl, $tags);
             [$hit, $payload] = $handle->getValueOrStart();
             if ($hit && is_array($payload)) {
                 $ids = $payload['ids'] ?? [];

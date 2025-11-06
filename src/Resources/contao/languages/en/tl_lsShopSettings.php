@@ -96,7 +96,7 @@
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownEmailAddress'] = array('Own Email address', 'Used for various system notifications');
 	
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchCacheLifetimeSec'] = array('Lifetime of search caches in seconds');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchCacheLifetimeSec'] = array('Lifetime of search caches in seconds', 'Set to 0 to disable caching. Positive values cache for the given number of seconds.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_considerGroupPricesInFilterAndSorting'] = array('Consider group prices for filter and sorting','Please deactivate this option for performance reasons if you have not entered deviant group prices for any product or variant.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ignoreGroupRestrictionsInSearch'] = array('Ignore group restrictions in search', 'If there are no products with group restrictions, it can improve search performance if this search criterion is completely ignored. If this setting is selected, but there are products with group restrictions, these products will be found but not displayed. Instead, gaps occur in the displayed product lists.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_alwaysAddIdToAliasDuringProductImport'] = array('When importing products, always add ID to alias', 'With this setting, the uniqueness check of aliases is omitted during product import, thus achieving a significant performance advantage. Uniqueness is achieved by automatically appending the internal product ID to the alias.');
