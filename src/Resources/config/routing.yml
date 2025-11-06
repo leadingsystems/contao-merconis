@@ -23,3 +23,10 @@ merconis.backend.show_mail_html_body:
     _scope:      "backend"
     _token_check: true
     _custom_backend_view: true
+
+merconis.backend.downloadExportAction:
+  path: /contao/download/export-output/{fileName}
+  controller: LeadingSystems\MerconisBundle\Controller\Backend\DownloadExportController::downloadAction
+  methods: [GET]
+  requirements:
+    fileName: '^[\w\-\.]+$'
