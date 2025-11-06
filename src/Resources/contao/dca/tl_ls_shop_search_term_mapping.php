@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Merconis\Core;
 
@@ -10,16 +11,28 @@ use Contao\Image;
 use Contao\Input;
 use Contao\StringUtil;
 use Contao\System;
+use LeadingSystems\MerconisBundle\ProductSearch\SearchTermMappingService;
+use Psr\Log\LoggerInterface;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 	'config' => array(
 		'dataContainer' => DC_Table::class,
 		'enableVersioning' => true,
 		'onsubmit_callback' => array(
-			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'invalidateCache')
+			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'invalidateCache'),
+			array('Merconis\\Core\\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
 		'ondelete_callback' => array(
-			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'invalidateCache')
+			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'invalidateCache'),
+			array('Merconis\\Core\\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
+		),
+		'oncopy_callback' => array(
+			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'invalidateCache'),
+			array('Merconis\\Core\\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
+		),
+		'onrestore_callback' => array(
+			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'invalidateCache'),
+			array('Merconis\\Core\\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
 		'sql' => array(
 			'keys' => array(
@@ -183,38 +196,38 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 );
 
 class tl_ls_shop_search_term_mapping_controller extends Backend {
-	public function __construct() {
+    public function __construct() {
 		parent::__construct();
 		$this->import('BackendUser', 'User');
 	}
 
-	public function updateSourceNormalized($value = '', DataContainer $dc = null) {
-		$matchType = null;
-		if ($dc && $dc->activeRecord && property_exists($dc->activeRecord, 'matchType')) {
-			$matchType = (string) $dc->activeRecord->matchType;
-		} else {
-			// Fallback fetch
-			$rec = Database::getInstance()->prepare("SELECT matchType FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($dc->id);
-			$matchType = $rec->next() ? (string) $rec->matchType : 'exact';
-		}
-		if ($matchType === 'exact') {
-			$normalized = trim(mb_strtolower((string) $value));
-			Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET sourceNormalized=? WHERE id=?")
-				->execute($normalized, $dc->id);
-		} else {
-			// Ensure normalized is cleared when switching to regex
-			Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET sourceNormalized='' WHERE id=?")
-				->execute($dc->id);
-		}
-		return $value;
-	}
+    public function updateSourceNormalized(string $value = '', ?DataContainer $dc = null): string {
+        $matchType = null;
+        if ($dc && $dc->activeRecord && property_exists($dc->activeRecord, 'matchType')) {
+            $matchType = (string) $dc->activeRecord->matchType;
+        } else {
+            // Fallback fetch
+            $matchTypeQueryResult = Database::getInstance()->prepare("SELECT matchType FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($dc->id);
+            $matchType = $matchTypeQueryResult->next() ? (string) $matchTypeQueryResult->matchType : 'exact';
+        }
+        if ($matchType === 'exact') {
+            $normalizedSourceTerm = trim(mb_strtolower($value));
+            Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET sourceNormalized=? WHERE id=?")
+                ->execute($normalizedSourceTerm, $dc->id);
+        } else {
+            // Ensure normalized is cleared when switching to regex
+            Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET sourceNormalized='' WHERE id=?")
+                ->execute($dc->id);
+        }
+        return $value;
+    }
 
-	public function createLabel($row, $label) {
+    public function createLabel(array $row, string $label): string {
 		$activeSuffix = ($row['active'] ? '' : ' (inactive)');
 		return sprintf('%s → %s%s', $row['sourceTerm'], $row['targetTerm'], $activeSuffix);
 	}
 
-	public function toggleIcon($row, $href, $label, $title, $icon, $attributes) {
+    public function toggleIcon(array $row, string $href, string $label, string $title, string $icon, string $attributes): string {
 		if (strlen(Input::get('tid'))) {
 			$this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1));
 			$this->redirect($this->getReferer());
@@ -230,12 +243,21 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 			$icon = 'invisible.svg';
 		}
 
-		return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
+        return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
 	}
 
-	public function toggleVisibility($intId, $blnVisible) {
+    public function toggleVisibility(int $intId, bool $blnVisible): void {
 		if (!$this->User->isAdmin && !$this->User->hasAccess('tl_ls_shop_search_term_mapping::active', 'alexf')) {
-			System::log('Not enough permissions to publish/unpublish mapping ID "'.$intId.'"', 'tl_ls_shop_search_term_mapping toggleVisibility', TL_ERROR);
+			$container = System::getContainer();
+			if ($container && $container->has('logger')) {
+				$logger = $container->get('logger');
+				if ($logger instanceof LoggerInterface) {
+					$logger->error('Not enough permissions to publish/unpublish mapping', [
+						'mappingId' => $intId,
+						'context' => 'tl_ls_shop_search_term_mapping toggleVisibility',
+					]);
+				}
+			}
 			$this->redirect('contao/main.php?act=error');
 		}
 
@@ -243,7 +265,7 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 			->execute($intId);
 	}
 
-	public function validatePattern($value = '', DataContainer $dc = null) {
+    public function validatePattern(string $value = '', ?DataContainer $dc = null): string {
 		// Only validate when matchType is regex
 		$matchType = null;
 		if ($dc && $dc->activeRecord && property_exists($dc->activeRecord, 'matchType')) {
@@ -252,44 +274,37 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 		if ($matchType !== 'regex') {
 			return $value;
 		}
-		$raw = (string) $value;
-		$raw = trim($raw);
-		if ($raw === '') {
+        $patternRaw = trim($value);
+        if ($patternRaw === '') {
 			return $value;
 		}
 		// Determine caseInsensitive flag
-		$ci = '';
+        $caseInsensitiveFlag = '';
 		if ($dc && $dc->activeRecord && property_exists($dc->activeRecord, 'caseInsensitive')) {
-			$ci = (string) $dc->activeRecord->caseInsensitive;
+            $caseInsensitiveFlag = (string) $dc->activeRecord->caseInsensitive;
 		}
 		$delimiter = '#';
-		$escaped = str_replace($delimiter, '\\' . $delimiter, $raw);
-		$flags = 'u' . ($ci ? 'i' : '');
+        $escaped = str_replace($delimiter, '\\' . $delimiter, $patternRaw);
+        $flags = 'u' . ($caseInsensitiveFlag ? 'i' : '');
 		$compiled = $delimiter . $escaped . $delimiter . $flags;
 		set_error_handler(function() {});
 		try {
-			$ok = @preg_match($compiled, '') !== false;
+            $isValidPattern = @preg_match($compiled, '') !== false;
 		} finally {
 			restore_error_handler();
 		}
-		if (!$ok) {
+        if (!$isValidPattern) {
 			throw new \RuntimeException('Invalid regex pattern for mapping: ' . $compiled);
 		}
 		return $value;
 	}
 
-	public function invalidateCache(): void {
-		try {
-			$container = System::getContainer();
-			if ($container && $container->has('LeadingSystems\\MerconisBundle\\ProductSearch\\SearchTermMappingService')) {
-				$service = $container->get('LeadingSystems\\MerconisBundle\\ProductSearch\\SearchTermMappingService');
-				if (method_exists($service, 'clearCache')) {
-					$service->clearCache();
-				}
-			}
-		} catch (\Throwable $e) {
-		}
-	}
+    public function invalidateCache(): void {
+		$container = System::getContainer();
+		/** @var SearchTermMappingService $searchTermMappingService */
+		$searchTermMappingService = $container->get(SearchTermMappingService::class);
+		$searchTermMappingService->clearCache();
+    }
 }
 
 
