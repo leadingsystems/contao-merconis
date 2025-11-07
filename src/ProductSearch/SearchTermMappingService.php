@@ -46,7 +46,7 @@ class SearchTermMappingService
             'exact' => [],
             'patterns' => []
         ];
-        $result = Database::getInstance()->prepare("SELECT matchType, sourceNormalized, targetTerm, removeSource, pattern, caseInsensitive FROM tl_ls_shop_search_term_mapping WHERE active = '1' ORDER BY sorting, id")
+		$result = Database::getInstance()->prepare("SELECT matchType, sourceNormalized, targetTerm, removeSource, removeSourceTiming, pattern, caseInsensitive FROM tl_ls_shop_search_term_mapping WHERE active = '1' ORDER BY sorting, id")
             ->execute();
         while ($result->next()) {
             $matchType = (string) ($result->matchType ?? 'exact');
@@ -71,10 +71,13 @@ class SearchTermMappingService
                 if (!$ok) {
                     continue;
                 }
+				$timing = (string) ($result->removeSourceTiming ?? '');
+				$removeImmediate = $remove && ($timing === 'immediate');
                 self::$cache['patterns'][] = [
                     'compiled' => $compiled,
                     'targetTemplate' => $target,
-                    'removeSource' => $remove,
+					'removeSource' => $remove,
+					'removeImmediate' => $removeImmediate,
                 ];
                 continue;
             }
@@ -157,8 +160,12 @@ class SearchTermMappingService
                         $rendered = str_replace('{token}', $raw, $tpl);
                         $targetsToAppend[] = $rendered;
                     }
-                    if (!empty($rule['removeSource'])) {
+					if (!empty($rule['removeSource'])) {
                         $removeOriginal = true;
+						if (!empty($rule['removeImmediate'])) {
+							// Stop evaluating further pattern rules for this token when immediate removal is requested
+							break;
+						}
                     }
                 }
             }

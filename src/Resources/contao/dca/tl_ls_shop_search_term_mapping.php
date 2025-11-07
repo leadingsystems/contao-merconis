@@ -18,6 +18,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 	'config' => array(
 		'dataContainer' => DC_Table::class,
 		'enableVersioning' => true,
+		'onload_callback' => array(
+			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'adjustSubpalettes')
+		),
 		'onsubmit_callback' => array(
 			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'invalidateCache'),
 			array('Merconis\\Core\\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -102,12 +105,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 		)
 	),
 	'palettes' => array(
-		'__selector__' => array('matchType'),
+		'__selector__' => array('matchType', 'removeSource'),
 		'default' => '{general_legend},title,sorting,matchType,targetTerm,removeSource,active'
 	),
 	'subpalettes' => array(
 		'matchType_exact' => 'sourceTerm',
-		'matchType_regex' => 'pattern,caseInsensitive'
+		'matchType_regex' => 'pattern,caseInsensitive',
+		'removeSource' => 'removeSourceTiming'
 	),
 
 	'fields' => array(
@@ -194,9 +198,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSource'],
 			'exclude' => true,
 			'inputType' => 'checkbox',
-			'eval' => array('tl_class' => 'w50 m12'),
+			'eval' => array('tl_class' => 'w50 m12', 'submitOnChange' => true),
 			'filter' => true,
 			'sql' => "char(1) NOT NULL default '1'"
+		),
+		'removeSourceTiming' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming'],
+			'exclude' => true,
+			'inputType' => 'select',
+			'options' => array('after', 'immediate'),
+			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming_options'],
+			'eval' => array('includeBlankOption' => false, 'tl_class' => 'w50'),
+			'sql' => "varchar(16) NOT NULL default ''"
 		),
 		'active' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['active'],
@@ -331,6 +344,25 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 		$searchTermMappingService = $container->get(SearchTermMappingService::class);
 		$searchTermMappingService->clearCache();
     }
+
+	public function adjustSubpalettes(?DataContainer $dc = null): void {
+		// Only display removeSourceTiming when matchType is 'regex'
+		$matchType = null;
+		if ($dc && $dc->activeRecord && property_exists($dc->activeRecord, 'matchType')) {
+			$matchType = (string) $dc->activeRecord->matchType;
+		} elseif ($dc && $dc->id) {
+			$recordQueryResult = Database::getInstance()->prepare("SELECT matchType FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($dc->id);
+			if ($recordQueryResult->next()) {
+				$matchType = (string) $recordQueryResult->matchType;
+			}
+		}
+		if ($matchType !== 'regex') {
+			// Remove subpalette so the selector 'removeSource' does not reveal timing on exact matches
+			if (isset($GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping']['subpalettes']['removeSource'])) {
+				unset($GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping']['subpalettes']['removeSource']);
+			}
+		}
+	}
 }
 
 

@@ -10,6 +10,9 @@ $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['pattern'] = ['Pattern', '
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['caseInsensitive'] = ['Case-insensitive', 'Apply case-insensitive matching for this pattern'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['title'] = ['Title', 'Optional label shown in the list (overrides generated label).'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sorting'] = ['Sorting', 'Numeric order for applying mappings; lower numbers run first.'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming'] = ['Remove source timing', 'When to remove the source token (only for regex rules)'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming_options']['after'] = 'After applying all rules';
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming_options']['immediate'] = 'Immediately after this rule';
 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Edit mapping', 'Edit mapping ID %s'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'] = ['Duplicate mapping', 'Duplicate mapping ID %s'];

@@ -10,6 +10,9 @@ $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['pattern'] = ['Muster', 'P
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['caseInsensitive'] = ['Groß-/Kleinschreibung ignorieren', 'Regex mit i-Flag ausführen'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['title'] = ['Titel', 'Optionaler Titel für das Mapping; wird in der Listenansicht angezeigt.'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sorting'] = ['Sortierung', 'Numerische Reihenfolge für die Anwendung; kleinere Zahlen laufen zuerst.'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming'] = ['Entfernungszeitpunkt', 'Wann der Quellbegriff entfernt wird (nur bei Regex-Regeln)'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming_options']['after'] = 'Nach Anwendung aller Regeln';
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming_options']['immediate'] = 'Sofort nach dieser Regel';
 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Mapping bearbeiten', 'Mapping ID %s bearbeiten'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'] = ['Mapping duplizieren', 'Mapping ID %s duplizieren'];
