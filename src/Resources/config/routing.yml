@@ -30,3 +30,6 @@ merconis.backend.downloadExportAction:
   methods: [GET]
   requirements:
     fileName: '^[\w\-\.]+$'
+  defaults:
+    _scope: backend
+    _token_check: true
