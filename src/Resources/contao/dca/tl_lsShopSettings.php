@@ -67,6 +67,8 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			ls_shop_debugSearch,ls_shop_debugSearchScoring,
 			ls_shop_dmysql_weight_title,ls_shop_dmysql_weight_keywords,ls_shop_dmysql_weight_shortDescription,ls_shop_dmysql_weight_description,
 			ls_shop_dmysql_code_boost_allTerms,ls_shop_dmysql_code_boost_anyTerm,ls_shop_dmysql_code_boost_exactTerm,ls_shop_dmysql_code_boost_exactFullQuery,
+			ls_shop_dmysql_mpn_boost_allTerms,ls_shop_dmysql_mpn_boost_anyTerm,ls_shop_dmysql_mpn_boost_exactTerm,
+			ls_shop_dmysql_gtin_boost_allTerms,ls_shop_dmysql_gtin_boost_anyTerm,ls_shop_dmysql_gtin_boost_exactTerm,
 			ls_shop_dmysql_producer_boost_allTerms,ls_shop_dmysql_producer_boost_anyTerm,ls_shop_dmysql_producer_boost_exactTerm,ls_shop_dmysql_producer_boost_exactFullQuery;	    
 		    
 		{importSettings_legend},ls_shop_standardProductImportFolder,ls_shop_importFlexFieldKeys,ls_shop_importFlexFieldKeysLanguageIndependent,ls_shop_importCsvDelimiter,ls_shop_importCsvEnclosure,ls_shop_importCsvEscape,ls_shop_importCsvLocale,ls_shop_numMaxImportRecordsPerRound;
@@ -171,6 +173,46 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
         'ls_shop_dmysql_code_boost_exactFullQuery' => array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactFullQuery'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+
+        // DirectMySQL MPN boosts
+        'ls_shop_dmysql_mpn_boost_allTerms' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_allTerms'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_mpn_boost_anyTerm' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_anyTerm'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_mpn_boost_exactTerm' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_exactTerm'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+
+        // DirectMySQL GTIN boosts
+        'ls_shop_dmysql_gtin_boost_allTerms' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_allTerms'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_gtin_boost_anyTerm' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_anyTerm'],
+            'inputType' => 'text',
+            'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
+        ),
+        'ls_shop_dmysql_gtin_boost_exactTerm' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_exactTerm'],
             'inputType' => 'text',
             'eval' => array('tl_class' => 'w50', 'maxlength' => 10)
         ),

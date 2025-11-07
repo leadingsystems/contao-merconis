@@ -215,6 +215,16 @@ $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogFile'] = array('Log file 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactTerm'] = array('Boost: Producer (exact single term)', 'Extra relevance when a single term equals the producer (default 80).');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactFullQuery'] = array('Boost: Producer (exact full query)', 'Extra relevance when the entire query equals the producer (default 160).');
 
+	// MPN boosts
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_allTerms'] = array('Boost: MPN (all terms match)', 'Extra relevance when all MPN terms match (default 100).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_anyTerm'] = array('Boost: MPN (any term matches)', 'Extra relevance when any MPN term matches (default 20).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_exactTerm'] = array('Boost: MPN (exact single term)', 'Extra relevance when a single term equals the MPN (default 150).');
+
+	// GTIN boosts
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_allTerms'] = array('Boost: GTIN (all terms match)', 'Extra relevance when all GTIN terms match (default 110).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_anyTerm'] = array('Boost: GTIN (any term matches)', 'Extra relevance when any GTIN term matches (default 25).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_exactTerm'] = array('Boost: GTIN (exact single term)', 'Extra relevance when a single term equals the GTIN (default 220).');
+
 	/*
 	 * References
 	 */

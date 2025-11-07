@@ -676,8 +676,8 @@ class Search implements CommonInterface, IndexSearchInterface
 			'description' => function() use ($language) { return $this->resolveColumnExpression($this->fieldConfigurations['description'], $language); },
 			'lsShopProductCode' => function() { return 'product.lsShopProductCode'; },
 			'lsShopProductProducer' => function() { return 'product.lsShopProductProducer'; },
-            'mpn' => function() { return $this->columnExists('mpn') ? 'product.mpn' : null; },
-            'gtin' => function() { return $this->columnExists('gtin') ? 'product.gtin' : null; },
+            'mpn' => function() { return 'product.mpn'; },
+            'gtin' => function() { return 'product.gtin'; },
 		];
 		foreach ($genericFields as $critKey => $colResolver) {
 			if (!array_key_exists($critKey, $criteria)) { continue; }
@@ -736,15 +736,35 @@ class Search implements CommonInterface, IndexSearchInterface
 				$includeInDescriptive = !count($fields);
 				$includeInCode = !count($fields);
 				$includeInProducer = !count($fields);
+				$targets = [];
 				foreach ($fields as $fieldKeyRaw) {
 					$canonical = $this->normalizeFieldKey($fieldKeyRaw);
 					if ($canonical === null) { continue; }
 					if (in_array($canonical, ['title','keywords','shortdescription','description'], true)) { $includeInDescriptive = true; }
 					if ($canonical === 'lsshopproductproducer') { $includeInProducer = true; }
-					if ($canonical === 'lsshopproductcode') { $includeInCode = true; }
+					if (in_array($canonical, ['lsshopproductcode','mpn','gtin'], true)) { $includeInCode = true; }
+					if ($canonical === 'lsshopproductcode') { $targets[] = 'code'; }
+					if ($canonical === 'mpn') { $targets[] = 'mpn'; }
+					if ($canonical === 'gtin') { $targets[] = 'gtin'; }
 				}
+
+				// Default target behavior for unfielded terms
+				if (!count($fields)) {
+					$trim = $termText;
+					$trimDigitsOnly = preg_match('/^\d+$/', $trim) === 1;
+					$len = strlen($trim);
+					$isGtinShape = $trimDigitsOnly && in_array($len, [8,12,13,14], true);
+					if ($isGtinShape) {
+						$targets = ['gtin'];
+						$isExact = ($component['exact'] ?? null) !== null ? $isExact : true; // default exact for GTIN unless overridden
+					} else {
+						$targets = ['code','mpn']; // treat like product code
+						$isExact = ($component['exact'] ?? null) !== null ? $isExact : false; // default LIKE unless overridden
+					}
+				}
+
                 if ($includeInDescriptive) { $descriptiveTerms[] = $termText; }
-                if ($includeInCode) { $codeTerms[] = ['text' => $termText, 'exact' => $isExact]; }
+                if ($includeInCode) { $codeTerms[] = ['text' => $termText, 'exact' => $isExact, 'targets' => array_values(array_unique($targets))]; }
                 if ($includeInProducer) { $producerTerms[] = ['text' => $termText, 'exact' => $isExact]; }
 			}
 		}
@@ -775,15 +795,30 @@ class Search implements CommonInterface, IndexSearchInterface
 		// Code clause
 		if (count($codeTerms)) {
 			$codeBuilder = new CodeClauseBuilder();
-			$normalizedCodeExpr = $this->buildNormalizedProductCodeExpr();
+			$targetMap = [
+				'code' => [
+					'likeExpr' => 'LOWER(product.lsShopProductCode)',
+					'eqExpr' => 'LOWER(product.lsShopProductCode)',
+					'cfgPrefix' => 'ls_shop_dmysql_code'
+				],
+				'mpn' => [
+					'likeExpr' => 'LOWER(product.mpn)',
+					'eqExpr' => 'LOWER(product.mpn)',
+					'cfgPrefix' => 'ls_shop_dmysql_mpn'
+				],
+				'gtin' => [
+					'likeExpr' => 'product.gtin',
+					'eqExpr' => 'product.gtin',
+					'cfgPrefix' => 'ls_shop_dmysql_gtin'
+				]
+			];
 			$codeRes = $codeBuilder->build(
 				$codeTerms,
-				$normalizedFullQuery,
-				$normalizedCodeExpr,
 				$debugScoringEnabled,
 				fn() => $this->nextParameterName(),
 				fn(string $t) => $this->createLikePattern($t),
-				$qb
+				$qb,
+				$targetMap
 			);
 			if ($codeRes->getWhereSql() !== null) { $whereParts[] = $codeRes->getWhereSql(); }
 			$scoreExpressionParts = array_merge($scoreExpressionParts, $codeRes->getScoreAdditions());
@@ -1331,10 +1366,7 @@ class Search implements CommonInterface, IndexSearchInterface
         return $logDir . DIRECTORY_SEPARATOR . 'merconis-search-scores-' . $date . '.log';
     }
 
-    private function buildNormalizedProductCodeExpr(): string
-    {
-        return 'LOWER(product.lsShopProductCode)';
-    }
+
 
     // Build a boolean-mode query string that requires all terms: "+term1* +term2* ..."
     private function buildBooleanFulltextQueryString(array $terms): string

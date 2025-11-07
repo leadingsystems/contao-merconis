@@ -10,38 +10,63 @@ use Doctrine\DBAL\Query\QueryBuilder;
 final class CodeClauseBuilder
 {
 	/**
-	 * @param array<int, array{text:string, exact?:bool}> $terms
+	 * @param array<int, array{text:string, exact?:bool, targets?:array<int,string>}> $terms
 	 * @param callable():string $nextParameterName
 	 * @param callable(string):string $createLikePattern
 	 */
-	public function build(array $terms, string $normalizedFullQuery, string $normalizedCodeExpr, bool $debug, callable $nextParameterName, callable $createLikePattern, QueryBuilder $qb): ClauseBuildResult
+	public function build(array $terms, bool $debug, callable $nextParameterName, callable $createLikePattern, QueryBuilder $qb, array $targetMap = []): ClauseBuildResult
 	{
 		if (!count($terms)) {
 			return new ClauseBuildResult(null, []);
 		}
 
+		/*
+		 * targetMap example structure (keys are target identifiers present in $term['targets']):
+		 * [
+		 *   'code' => ['likeExpr' => "LOWER(product.lsShopProductCode)", 'eqExpr' => $normalizedCodeExpr, 'cfgPrefix' => 'ls_shop_dmysql_code'],
+		 *   'mpn'  => ['likeExpr' => "LOWER(product.mpn)",            'eqExpr' => "LOWER(product.mpn)", 'cfgPrefix' => 'ls_shop_dmysql_mpn'],
+		 *   'gtin' => ['likeExpr' => "product.gtin",                  'eqExpr' => "product.gtin",       'cfgPrefix' => 'ls_shop_dmysql_gtin'],
+		 * ]
+		 */
+		if (!is_array($targetMap) || !count($targetMap)) {
+			$targetMap = [
+				'code' => ['likeExpr' => "LOWER(product.lsShopProductCode)", 'eqExpr' => "LOWER(product.lsShopProductCode)", 'cfgPrefix' => 'ls_shop_dmysql_code']
+			];
+		}
+
 		$params = [];
 		$paramTypes = [];
-		$likeParts = [];
-		$eqParts = [];
+		$likePartsByTarget = [];
+		$eqPartsByTarget = [];
+
 		foreach ($terms as $term) {
 			$text = isset($term['text']) ? (string) $term['text'] : '';
 			$isExact = (bool) ($term['exact'] ?? false);
+			$targets = isset($term['targets']) && is_array($term['targets']) ? $term['targets'] : ['code'];
 			if ($text === '') { continue; }
-			if ($isExact) {
+
+			foreach ($targets as $t) {
+				if (!isset($targetMap[$t])) { continue; }
+				$likeExpr = (string) $targetMap[$t]['likeExpr'];
+				$eqExpr = (string) $targetMap[$t]['eqExpr'];
+
+				if ($isExact) {
+					$p = $nextParameterName();
+					$params[$p] = strtolower(trim($text));
+					$paramTypes[$p] = ParameterType::STRING;
+					$eqPartsByTarget[$t][] = sprintf('%s = :%s', $eqExpr, $p);
+					continue;
+				}
 				$p = $nextParameterName();
-				$params[$p] = strtolower(trim($text));
+				$params[$p] = $createLikePattern($text);
 				$paramTypes[$p] = ParameterType::STRING;
-				$eqParts[] = sprintf('%s = :%s', $normalizedCodeExpr, $p);
-				continue;
+				$likePartsByTarget[$t][] = sprintf("%s LIKE :%s ESCAPE '\\\\'", $likeExpr, $p);
 			}
-			$p = $nextParameterName();
-			$params[$p] = $createLikePattern($text);
-			$paramTypes[$p] = ParameterType::STRING;
-			$likeParts[] = sprintf("LOWER(product.lsShopProductCode) LIKE :%s ESCAPE '\\\\'", $p);
 		}
 
-		if (!count($likeParts) && !count($eqParts)) {
+		$hasAnyLike = false; foreach ($likePartsByTarget as $arr) { if (!empty($arr)) { $hasAnyLike = true; break; } }
+		$hasAnyEq = false; foreach ($eqPartsByTarget as $arr) { if (!empty($arr)) { $hasAnyEq = true; break; } }
+		if (!$hasAnyLike && !$hasAnyEq) {
 			return new ClauseBuildResult(null, []);
 		}
 
@@ -49,47 +74,36 @@ final class CodeClauseBuilder
 		$scoreAdditions = [];
 		$debugSelects = [];
 
-		if (count($likeParts)) {
-			$codeWhereAll = '(' . implode(' AND ', $likeParts) . ')';
-			$codeWhereAny = '(' . implode(' OR ', $likeParts) . ')';
-			$whereParts[] = $codeWhereAny;
-			$codeBoostAllTerms = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_allTerms'] ?? 100);
-			$codeBoostAnyTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_anyTerm'] ?? 20);
-			$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $codeWhereAll, (string) $codeBoostAllTerms);
-			$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $codeWhereAny, (string) $codeBoostAnyTerm);
-			if ($debug) {
-				$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_all', $codeWhereAll, (string) $codeBoostAllTerms);
-				$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_like_any', $codeWhereAny, (string) $codeBoostAnyTerm);
-			}
-		}
+		// Build per-target like/eq where + scoring
+		foreach ($targetMap as $t => $cfg) {
+			$prefix = (string)($cfg['cfgPrefix'] ?? 'ls_shop_dmysql_code');
 
-		if (count($eqParts)) {
-			$codeEqualsAny = '(' . implode(' OR ', $eqParts) . ')';
-			$whereParts[] = $codeEqualsAny;
-			$codeBoostExactTerm = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_exactTerm'] ?? 150);
-			$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $codeEqualsAny, (string) $codeBoostExactTerm);
-			if ($debug) {
-				$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_term', $codeEqualsAny, (string) $codeBoostExactTerm);
+			if (!empty($likePartsByTarget[$t])) {
+				$whereAll = '(' . implode(' AND ', $likePartsByTarget[$t]) . ')';
+				$whereAny = '(' . implode(' OR ', $likePartsByTarget[$t]) . ')';
+				$whereParts[] = $whereAny;
+				$boostAll = (int) ($GLOBALS['TL_CONFIG'][$prefix . '_boost_allTerms'] ?? ($t === 'gtin' ? 110 : 100));
+				$boostAny = (int) ($GLOBALS['TL_CONFIG'][$prefix . '_boost_anyTerm'] ?? ($t === 'gtin' ? 25 : 20));
+				$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $whereAll, (string) $boostAll);
+				$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $whereAny, (string) $boostAny);
+				if ($debug) {
+					$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_%s_like_all', $whereAll, (string) $boostAll, $t);
+					$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_%s_like_any', $whereAny, (string) $boostAny, $t);
+				}
+			}
+
+			if (!empty($eqPartsByTarget[$t])) {
+				$eqAny = '(' . implode(' OR ', $eqPartsByTarget[$t]) . ')';
+				$whereParts[] = $eqAny;
+				$boostExact = (int) ($GLOBALS['TL_CONFIG'][$prefix . '_boost_exactTerm'] ?? ($t === 'gtin' ? 220 : 150));
+				$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $eqAny, (string) $boostExact);
+				if ($debug) {
+					$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_%s_eq_term', $eqAny, (string) $boostExact, $t);
+				}
 			}
 		}
 
 		$where = '(' . implode(' OR ', $whereParts) . ')';
-
-		if ($normalizedFullQuery !== '') {
-			$p = $nextParameterName();
-			$params[$p] = $normalizedFullQuery;
-			$paramTypes[$p] = ParameterType::STRING;
-			$codeEqualsFullExpr = sprintf('%s = :%s', $normalizedCodeExpr, $p);
-			$codeBoostExactFull = (int) ($GLOBALS['TL_CONFIG']['ls_shop_dmysql_code_boost_exactFullQuery'] ?? 300);
-			$scoreAdditions[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END', $codeEqualsFullExpr, (string) $codeBoostExactFull);
-			if ($debug) {
-				$debugSelects[] = sprintf('CASE WHEN %s THEN %s ELSE 0 END AS dbg_code_eq_full', $codeEqualsFullExpr, (string) $codeBoostExactFull);
-			}
-		}
-
-		if ($debug) {
-			$qb->addSelect($normalizedCodeExpr . ' AS dbg_product_code_norm');
-		}
 
 		foreach ($debugSelects as $sel) {
 			$qb->addSelect($sel);
