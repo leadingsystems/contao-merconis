@@ -54,6 +54,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 			'mode' => DataContainer::MODE_TREE,
 			'fields' => array('sorting'),
 			'flag' => DataContainer::SORT_ASC,
+			'rootPaste' => true,
+			'showRootTrails' => true,
 			'panelLayout' => 'filter,sort;search,limit',
 			'paste_button_callback' => array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'pasteButtons')
 		),
@@ -86,6 +88,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'],
 				'href'                => 'act=copy',
 				'icon'                => 'copy.svg'
+			),
+			'cut' => array
+			(
+				'href'                => 'act=paste&amp;mode=cut',
+				'icon'                => 'cut.svg',
+				'attributes'          => 'onclick="Backend.getScrollOffset()"'
 			),
 			'delete' => array(
 				'label'               => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['delete'],
