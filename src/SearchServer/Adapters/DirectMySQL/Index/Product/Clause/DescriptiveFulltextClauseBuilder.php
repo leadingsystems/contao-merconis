@@ -101,6 +101,76 @@ final class DescriptiveFulltextClauseBuilder
 		return new ClauseBuildResult($where, $scoreAdditions, $params, $paramTypes);
 	}
 
+	/**
+	 * Build a WHERE/score block for required descriptive terms.
+	 * Shape: AND over terms, OR across columns within each term.
+	 * Accepts per-term boosts (same clamping as in build()).
+	 *
+	 * @param array<int, array{text:string, boost?:float}> $requiredTerms
+	 */
+	public function buildRequired(array $requiredTerms, array $descriptiveColumns, bool $debug, callable $nextParameterName, callable $getWeightForColumn, QueryBuilder $qb): ClauseBuildResult
+	{
+		if (!count($requiredTerms) || !count($descriptiveColumns)) {
+			return new ClauseBuildResult(null, []);
+		}
+
+		$params = [];
+		$paramTypes = [];
+		$requiredGroups = [];
+		$scoreAdditions = [];
+		$debugSelects = [];
+
+		foreach ($requiredTerms as $t) {
+			$text = isset($t['text']) ? (string) $t['text'] : '';
+			if ($text === '') { continue; }
+			$boost = isset($t['boost']) ? (float) $t['boost'] : 1.0;
+			if (!is_finite($boost)) { $boost = 1.0; }
+			if ($boost < 0.1) { $boost = 0.1; }
+			if ($boost > 100.0) { $boost = 100.0; }
+
+			$param = $nextParameterName();
+			// boolean-mode single term with trailing wildcard (sanitized)
+			$single = $this->toBooleanSingleTerm($text);
+			if ($single === '') { continue; }
+			$params[$param] = $single;
+			$paramTypes[$param] = ParameterType::STRING;
+
+			$perTermMatches = [];
+			foreach ($descriptiveColumns as $col) {
+				$perTermMatches[] = sprintf('MATCH(%s) AGAINST (:%s IN BOOLEAN MODE)', $col, $param);
+				$weight = (float) $getWeightForColumn($col);
+				$weightLiteral = sprintf('%.15g', $weight);
+				$scoreAdditions[] = sprintf('%s * COALESCE(MATCH(%s) AGAINST (:%s IN BOOLEAN MODE), 0)', $weightLiteral, $col, $param);
+				if ($boost !== 1.0) {
+					$delta = $weight * ($boost - 1.0);
+					if ($delta != 0.0) {
+						$deltaLiteral = sprintf('%.15g', $delta);
+						$scoreAdditions[] = sprintf('%s * COALESCE(MATCH(%s) AGAINST (:%s IN BOOLEAN MODE), 0)', $deltaLiteral, $col, $param);
+					}
+				}
+				if ($debug) {
+					$colAlias = $this->toDebugAlias($col);
+					$debugSelects[] = sprintf('COALESCE(MATCH(%s) AGAINST (:%s IN BOOLEAN MODE), 0) AS dbg_req_m_%s', $col, $param, $colAlias);
+				}
+			}
+			if (!empty($perTermMatches)) {
+				$requiredGroups[] = '(' . implode(' OR ', $perTermMatches) . ')';
+			}
+		}
+
+		if (empty($requiredGroups)) {
+			return new ClauseBuildResult(null, []);
+		}
+
+		$where = '(' . implode(' AND ', $requiredGroups) . ')';
+
+		foreach ($debugSelects as $sel) {
+			$qb->addSelect($sel);
+		}
+
+		return new ClauseBuildResult($where, $scoreAdditions, $params, $paramTypes);
+	}
+
 	private function isTooShortOrStopword(string $t): bool
 	{
 		$norm = strtolower(trim($t));

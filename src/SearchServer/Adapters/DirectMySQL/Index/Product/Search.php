@@ -726,8 +726,12 @@ class Search implements CommonInterface, IndexSearchInterface
 
         $descriptiveTerms = [];
         $descriptiveTermsWithBoost = [];
+        $descriptiveTermsRequired = [];
+        $descriptiveTermsRequiredWithBoost = [];
         $codeTerms = [];
+        $codeTermsRequired = [];
 		$producerTerms = [];
+        $producerTermsRequired = [];
 		if (count($fulltextComponents)) {
 			foreach ($fulltextComponents as $component) {
                 $termText = trim((string) ($component['text'] ?? ''));
@@ -735,6 +739,7 @@ class Search implements CommonInterface, IndexSearchInterface
 				$fields = $component['fields'] ?? [];
                 $isExact = (bool) ($component['exact'] ?? false);
                 $termBoost = (float) ($component['boost'] ?? 1.0);
+                $isRequired = (bool) ($component['required'] ?? false);
 				$includeInDescriptive = !count($fields);
 				$includeInCode = !count($fields);
 				$includeInProducer = !count($fields);
@@ -750,13 +755,28 @@ class Search implements CommonInterface, IndexSearchInterface
 					if ($canonical === 'gtin') { $targets[] = 'gtin'; }
 				}
 
-				if ($includeInDescriptive) { $descriptiveTerms[] = $termText; $descriptiveTermsWithBoost[] = ['text' => $termText, 'boost' => $termBoost]; }
-                if ($includeInCode) { $codeTerms[] = ['text' => $termText, 'exact' => $isExact, 'targets' => array_values(array_unique($targets)), 'boost' => $termBoost]; }
-                if ($includeInProducer) { $producerTerms[] = ['text' => $termText, 'exact' => $isExact, 'boost' => $termBoost]; }
+				if ($includeInDescriptive) {
+                    if ($isRequired) {
+                        $descriptiveTermsRequired[] = $termText;
+                        $descriptiveTermsRequiredWithBoost[] = ['text' => $termText, 'boost' => $termBoost];
+                    } else {
+                        $descriptiveTerms[] = $termText;
+                        $descriptiveTermsWithBoost[] = ['text' => $termText, 'boost' => $termBoost];
+                    }
+                }
+                if ($includeInCode) {
+                    $entry = ['text' => $termText, 'exact' => $isExact, 'targets' => array_values(array_unique($targets)), 'boost' => $termBoost];
+                    if ($isRequired) { $codeTermsRequired[] = $entry; } else { $codeTerms[] = $entry; }
+                }
+                if ($includeInProducer) {
+                    $entry = ['text' => $termText, 'exact' => $isExact, 'boost' => $termBoost];
+                    if ($isRequired) { $producerTermsRequired[] = $entry; } else { $producerTerms[] = $entry; }
+                }
 			}
 		}
 
-		$whereParts = [];
+		$wherePartsOptional = [];
+        $wherePartsRequired = [];
 		$scoreExpressionParts = [];
 
 		// Descriptive fulltext clause
@@ -774,11 +794,27 @@ class Search implements CommonInterface, IndexSearchInterface
 				$qb,
 				$descriptiveTermsWithBoost
 			);
-			if ($descRes->getWhereSql() !== null) { $whereParts[] = $descRes->getWhereSql(); }
+			if ($descRes->getWhereSql() !== null) { $wherePartsOptional[] = $descRes->getWhereSql(); }
 			$scoreExpressionParts = array_merge($scoreExpressionParts, $descRes->getScoreAdditions());
 			$parameters = array_merge($parameters, $descRes->getParams());
 			$parameterTypes = array_merge($parameterTypes, $descRes->getParamTypes());
 		}
+        // Descriptive required terms
+        if (count($descriptiveTermsRequired) && count($descriptiveColumns)) {
+            $descBuilder = $descBuilder ?? new DescriptiveFulltextClauseBuilder();
+            $descReqRes = $descBuilder->buildRequired(
+                $descriptiveTermsRequiredWithBoost,
+                $descriptiveColumns,
+                $debugScoringEnabled,
+                fn() => $this->nextParameterName(),
+                fn(string $col) => $this->getWeightForBaseColumn($col),
+                $qb
+            );
+            if ($descReqRes->getWhereSql() !== null) { $wherePartsRequired[] = $descReqRes->getWhereSql(); }
+            $scoreExpressionParts = array_merge($scoreExpressionParts, $descReqRes->getScoreAdditions());
+            $parameters = array_merge($parameters, $descReqRes->getParams());
+            $parameterTypes = array_merge($parameterTypes, $descReqRes->getParamTypes());
+        }
 
 		// Code clause
 		if (count($codeTerms)) {
@@ -808,11 +844,43 @@ class Search implements CommonInterface, IndexSearchInterface
 				$qb,
 				$targetMap
 			);
-			if ($codeRes->getWhereSql() !== null) { $whereParts[] = $codeRes->getWhereSql(); }
+			if ($codeRes->getWhereSql() !== null) { $wherePartsOptional[] = $codeRes->getWhereSql(); }
 			$scoreExpressionParts = array_merge($scoreExpressionParts, $codeRes->getScoreAdditions());
 			$parameters = array_merge($parameters, $codeRes->getParams());
 			$parameterTypes = array_merge($parameterTypes, $codeRes->getParamTypes());
 		}
+        if (count($codeTermsRequired)) {
+            $codeBuilder = $codeBuilder ?? new CodeClauseBuilder();
+            $targetMap = $targetMap ?? [
+                'code' => [
+                    'likeExpr' => 'LOWER(product.lsShopProductCode)',
+                    'eqExpr' => 'LOWER(product.lsShopProductCode)',
+                    'cfgPrefix' => 'ls_shop_dmysql_code'
+                ],
+                'mpn' => [
+                    'likeExpr' => 'LOWER(product.mpn)',
+                    'eqExpr' => 'LOWER(product.mpn)',
+                    'cfgPrefix' => 'ls_shop_dmysql_mpn'
+                ],
+                'gtin' => [
+                    'likeExpr' => 'product.gtin',
+                    'eqExpr' => 'product.gtin',
+                    'cfgPrefix' => 'ls_shop_dmysql_gtin'
+                ]
+            ];
+            $codeReqRes = $codeBuilder->build(
+                $codeTermsRequired,
+                $debugScoringEnabled,
+                fn() => $this->nextParameterName(),
+                fn(string $t) => $this->createLikePattern($t),
+                $qb,
+                $targetMap
+            );
+            if ($codeReqRes->getWhereSql() !== null) { $wherePartsRequired[] = $codeReqRes->getWhereSql(); }
+            $scoreExpressionParts = array_merge($scoreExpressionParts, $codeReqRes->getScoreAdditions());
+            $parameters = array_merge($parameters, $codeReqRes->getParams());
+            $parameterTypes = array_merge($parameterTypes, $codeReqRes->getParamTypes());
+        }
 
 		// Producer clause
 		if (count($producerTerms)) {
@@ -825,14 +893,33 @@ class Search implements CommonInterface, IndexSearchInterface
 				fn(string $t) => $this->createLikePattern($t),
 				$qb
 			);
-			if ($producerRes->getWhereSql() !== null) { $whereParts[] = $producerRes->getWhereSql(); }
+			if ($producerRes->getWhereSql() !== null) { $wherePartsOptional[] = $producerRes->getWhereSql(); }
 			$scoreExpressionParts = array_merge($scoreExpressionParts, $producerRes->getScoreAdditions());
 			$parameters = array_merge($parameters, $producerRes->getParams());
 			$parameterTypes = array_merge($parameterTypes, $producerRes->getParamTypes());
 		}
+        if (count($producerTermsRequired)) {
+            $producerBuilder = $producerBuilder ?? new ProducerClauseBuilder();
+            $producerReqRes = $producerBuilder->build(
+                $producerTermsRequired,
+                $normalizedFullQuery,
+                $debugScoringEnabled,
+                fn() => $this->nextParameterName(),
+                fn(string $t) => $this->createLikePattern($t),
+                $qb
+            );
+            if ($producerReqRes->getWhereSql() !== null) { $wherePartsRequired[] = $producerReqRes->getWhereSql(); }
+            $scoreExpressionParts = array_merge($scoreExpressionParts, $producerReqRes->getScoreAdditions());
+            $parameters = array_merge($parameters, $producerReqRes->getParams());
+            $parameterTypes = array_merge($parameterTypes, $producerReqRes->getParamTypes());
+        }
 
-		if (count($whereParts)) {
-			$qb->andWhere('(' . implode(' OR ', $whereParts) . ')');
+		// Apply required and optional WHERE structure
+        foreach ($wherePartsRequired as $reqSql) {
+            $qb->andWhere($reqSql);
+        }
+		if (count($wherePartsOptional)) {
+			$qb->andWhere('(' . implode(' OR ', $wherePartsOptional) . ')');
 		}
 
 		$scoreExpression = '0';
@@ -1564,6 +1651,20 @@ class Search implements CommonInterface, IndexSearchInterface
     {
         $normalizedName = strtolower(trim($name));
         $value = trim($value);
+
+		if ($normalizedName === 'must' || $normalizedName === 'require' || $normalizedName === 'required') {
+			$truthy = ['1','true','yes','on'];
+			$falsy = ['0','false','no','off',''];
+			$valNorm = strtolower($value);
+			if (in_array($valNorm, $truthy, true)) {
+				$term['required'] = true;
+			} elseif (in_array($valNorm, $falsy, true)) {
+				$term['required'] = false;
+			} else {
+				$term['required'] = ($valNorm !== '');
+			}
+			return;
+		}
 
         if ($normalizedName === 'boost') {
             $term['boost'] = max(0.1, (float) $value);
