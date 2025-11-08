@@ -11,6 +11,7 @@ use Contao\Image;
 use Contao\Input;
 use Contao\StringUtil;
 use Contao\System;
+use Contao\Message;
 use LeadingSystems\MerconisBundle\ProductSearch\SearchTermMappingService;
 use Psr\Log\LoggerInterface;
 
@@ -345,19 +346,37 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 		if (!$dc || !$dc->activeRecord) { return; }
 		$nodeType = (string) ($dc->activeRecord->type ?? 'mapping');
 		$pid = (int) ($dc->activeRecord->pid ?? 0);
+
+		// Collect fixes and inform user via backend messages instead of throwing
+		$changed = false;
+
+		// Case 1: group must be top-level
 		if ($nodeType === 'group' && $pid > 0) {
-			throw new \RuntimeException('A Group cannot have a parent. Place groups at top level only.');
+			Message::addError($GLOBALS['TL_LANG']['ERR']['merconis_mapping_group_top_level'] ?? 'A Group cannot have a parent. The record has been moved to top level.');
+			Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET pid=0 WHERE id=?")->execute((int)$dc->activeRecord->id);
+			$changed = true;
 		}
+
+		// Reload pid after possible change
+		if ($changed) {
+			$pid = 0;
+		}
+
+		// Case 2/3: prevent mapping under mapping and depth > 1 by lifting node one level up
 		if ($pid > 0) {
 			$parent = Database::getInstance()->prepare("SELECT id, pid, type FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($pid);
 			if ($parent->next()) {
 				$parentType = (string) ($parent->type ?? 'mapping');
-				if ($parentType === 'mapping') {
-					throw new \RuntimeException('A Mapping cannot be a parent. You cannot place a record under a mapping.');
-				}
 				$grandPid = (int) ($parent->pid ?? 0);
-				if ($grandPid > 0) {
-					throw new \RuntimeException('Only two levels are allowed (top-level groups/mappings and mappings under groups).');
+
+				if ($parentType === 'mapping') {
+					$newPid = $grandPid; // lift alongside the parent
+					Message::addError($GLOBALS['TL_LANG']['ERR']['merconis_mapping_no_children_for_mapping'] ?? 'A Mapping cannot be a parent. The record has been moved up one level.');
+					Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET pid=? WHERE id=?")->execute($newPid, (int)$dc->activeRecord->id);
+				} elseif ($grandPid > 0) {
+					// Depth would be > 1, lift to level 1
+					Message::addError($GLOBALS['TL_LANG']['ERR']['merconis_mapping_max_depth'] ?? 'Only two levels are allowed. The record has been moved up one level.');
+					Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET pid=? WHERE id=?")->execute($parent->pid, (int)$dc->activeRecord->id);
 				}
 			}
 		}
