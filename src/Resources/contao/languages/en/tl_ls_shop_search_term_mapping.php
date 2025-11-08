@@ -32,6 +32,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['defaultGroupTitle'] = 'Gr
 $GLOBALS['TL_LANG']['ERR']['merconis_mapping_group_top_level'] = 'A Group cannot have a parent. The record has been moved to top level.';
 $GLOBALS['TL_LANG']['ERR']['merconis_mapping_no_children_for_mapping'] = 'A Mapping cannot be a parent. The record has been moved up one level.';
 $GLOBALS['TL_LANG']['ERR']['merconis_mapping_max_depth'] = 'Only two levels are allowed. The record has been moved up one level.';
+$GLOBALS['TL_LANG']['ERR']['merconis_mapping_reset_to_group_due_to_children'] = 'This node has children and cannot be changed to “Mapping”. It was reset to “Group”.';
 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Edit mapping', 'Edit mapping ID %s'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'] = ['Duplicate mapping', 'Duplicate mapping ID %s'];

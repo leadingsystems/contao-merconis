@@ -32,6 +32,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['defaultGroupTitle'] = 'Gr
 $GLOBALS['TL_LANG']['ERR']['merconis_mapping_group_top_level'] = 'Eine Gruppe darf keinen Elternknoten haben. Der Datensatz wurde in die oberste Ebene verschoben.';
 $GLOBALS['TL_LANG']['ERR']['merconis_mapping_no_children_for_mapping'] = 'Ein Mapping darf keine Kinder haben. Der Datensatz wurde eine Ebene nach oben verschoben.';
 $GLOBALS['TL_LANG']['ERR']['merconis_mapping_max_depth'] = 'Es sind nur zwei Ebenen erlaubt. Der Datensatz wurde eine Ebene nach oben verschoben.';
+$GLOBALS['TL_LANG']['ERR']['merconis_mapping_reset_to_group_due_to_children'] = 'Dieser Knoten hat Kinder und kann nicht in „Mapping“ geändert werden. Er wurde auf „Gruppe“ zurückgesetzt.';
 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Mapping bearbeiten', 'Mapping ID %s bearbeiten'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'] = ['Mapping duplizieren', 'Mapping ID %s duplizieren'];

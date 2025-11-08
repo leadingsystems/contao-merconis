@@ -355,6 +355,18 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 		$nodeType = (string) ($dc->activeRecord->type ?? 'mapping');
 		$pid = (int) ($dc->activeRecord->pid ?? 0);
 
+		// Prevent turning a group with children into a mapping (mappings must not have children)
+		if ($nodeType === 'mapping' && (int) ($dc->activeRecord->id ?? 0) > 0) {
+			$rid = (int) $dc->activeRecord->id;
+			$hasChildren = Database::getInstance()->prepare("SELECT id FROM tl_ls_shop_search_term_mapping WHERE pid=?")->limit(1)->execute($rid);
+			if ($hasChildren->numRows > 0) {
+				// Reset to group and inform user
+				Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET type='group' WHERE id=?")->execute($rid);
+				Message::addError($GLOBALS['TL_LANG']['ERR']['merconis_mapping_reset_to_group_due_to_children'] ?? 'Node has children and cannot be changed to Mapping. It was reset to Group.');
+				$nodeType = 'group';
+			}
+		}
+
 		// Prevent mapping under mapping (no children for mappings)
 		if ($pid > 0) {
 			$parent = Database::getInstance()->prepare("SELECT id, pid, type FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($pid);
