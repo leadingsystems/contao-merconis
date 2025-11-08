@@ -748,21 +748,6 @@ class Search implements CommonInterface, IndexSearchInterface
 					if ($canonical === 'gtin') { $targets[] = 'gtin'; }
 				}
 
-				// Default target behavior for unfielded terms
-				if (!count($fields)) {
-					$trim = $termText;
-					$trimDigitsOnly = preg_match('/^\d+$/', $trim) === 1;
-					$len = strlen($trim);
-					$isGtinShape = $trimDigitsOnly && in_array($len, [8,12,13,14], true);
-					if ($isGtinShape) {
-						$targets = ['gtin'];
-						$isExact = ($component['exact'] ?? null) !== null ? $isExact : true; // default exact for GTIN unless overridden
-					} else {
-						$targets = ['code','mpn']; // treat like product code
-						$isExact = ($component['exact'] ?? null) !== null ? $isExact : false; // default LIKE unless overridden
-					}
-				}
-
                 if ($includeInDescriptive) { $descriptiveTerms[] = $termText; }
                 if ($includeInCode) { $codeTerms[] = ['text' => $termText, 'exact' => $isExact, 'targets' => array_values(array_unique($targets))]; }
                 if ($includeInProducer) { $producerTerms[] = ['text' => $termText, 'exact' => $isExact]; }
