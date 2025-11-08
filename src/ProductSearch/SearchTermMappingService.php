@@ -106,33 +106,25 @@ class SearchTermMappingService
             }
         };
 
-        // Traverse top-level nodes in sorting order
-        $topLevel = $childrenByPid[0] ?? [];
-        usort($topLevel, function ($a, $b) {
-            $sa = (int) ($a['sorting'] ?? 0);
-            $sb = (int) ($b['sorting'] ?? 0);
-            if ($sa === $sb) { return ((int)$a['id']) <=> ((int)$b['id']); }
-            return $sa <=> $sb;
-        });
-        foreach ($topLevel as $node) {
-            $type = (string) ($node['type'] ?? 'mapping');
-            if ($type === 'mapping') {
-                $processMapping($node);
-                continue;
-            }
-            // Group: process its child mappings in their sorting order
-            $children = $childrenByPid[(int)$node['id']] ?? [];
-            usort($children, function ($a, $b) {
+        // Recursive traversal honoring sorting at each level; groups control order, mappings produce rules
+        $walk = function(int $pid) use (&$walk, $childrenByPid, $processMapping, $mode) {
+            $nodes = $childrenByPid[$pid] ?? [];
+            usort($nodes, function ($a, $b) {
                 $sa = (int) ($a['sorting'] ?? 0);
                 $sb = (int) ($b['sorting'] ?? 0);
                 if ($sa === $sb) { return ((int)$a['id']) <=> ((int)$b['id']); }
                 return $sa <=> $sb;
             });
-            foreach ($children as $child) {
-                if ((string) ($child['type'] ?? 'mapping') !== 'mapping') { continue; }
-                $processMapping($child);
+            foreach ($nodes as $n) {
+                $t = (string) ($n['type'] ?? 'mapping');
+                if ($t === 'mapping') {
+                    $processMapping($n);
+                } else {
+                    $walk((int)$n['id']);
+                }
             }
-        }
+        };
+        $walk(0);
     }
 
     public function augment(string $rawQuery, string $mode = 'full'): string

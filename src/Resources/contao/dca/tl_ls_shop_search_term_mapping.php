@@ -355,36 +355,15 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 		$nodeType = (string) ($dc->activeRecord->type ?? 'mapping');
 		$pid = (int) ($dc->activeRecord->pid ?? 0);
 
-		// Collect fixes and inform user via backend messages instead of throwing
-		$changed = false;
-
-		// Case 1: group must be top-level
-		if ($nodeType === 'group' && $pid > 0) {
-			Message::addError($GLOBALS['TL_LANG']['ERR']['merconis_mapping_group_top_level'] ?? 'A Group cannot have a parent. The record has been moved to top level.');
-			Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET pid=0 WHERE id=?")->execute((int)$dc->activeRecord->id);
-			$changed = true;
-		}
-
-		// Reload pid after possible change
-		if ($changed) {
-			$pid = 0;
-		}
-
-		// Case 2/3: prevent mapping under mapping and depth > 1 by lifting node one level up
+		// Prevent mapping under mapping (no children for mappings)
 		if ($pid > 0) {
 			$parent = Database::getInstance()->prepare("SELECT id, pid, type FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($pid);
 			if ($parent->next()) {
 				$parentType = (string) ($parent->type ?? 'mapping');
-				$grandPid = (int) ($parent->pid ?? 0);
-
 				if ($parentType === 'mapping') {
-					$newPid = $grandPid; // lift alongside the parent
+					$newPid = (int) ($parent->pid ?? 0); // lift alongside the parent
 					Message::addError($GLOBALS['TL_LANG']['ERR']['merconis_mapping_no_children_for_mapping'] ?? 'A Mapping cannot be a parent. The record has been moved up one level.');
 					Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET pid=? WHERE id=?")->execute($newPid, (int)$dc->activeRecord->id);
-				} elseif ($grandPid > 0) {
-					// Depth would be > 1, lift to level 1
-					Message::addError($GLOBALS['TL_LANG']['ERR']['merconis_mapping_max_depth'] ?? 'Only two levels are allowed. The record has been moved up one level.');
-					Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET pid=? WHERE id=?")->execute($parent->pid, (int)$dc->activeRecord->id);
 				}
 			}
 		}
@@ -401,31 +380,20 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 		}
 
 		$type = (string) ($row['type'] ?? 'mapping');
-		$depth = ((int) ($row['pid'] ?? 0)) > 0 ? 1 : 0;
 
 		// Never allow "paste into" under a mapping
 		if ($type === 'mapping') {
 			$disablePI = true;
 		}
-		// Do not allow "paste into" below level 1 (keep two levels only)
-		if ($depth >= 1) {
-			$disablePI = true;
-		}
 
-		// If we are moving a group, only allow top-level targets (no "into" under any node)
+		// Moving a group: allow deep nesting; only forbid paste-into under a mapping (handled above)
 		if ($arrClipboard !== false && !empty($arrClipboard['id'])) {
 			$movingId = is_array($arrClipboard['id']) ? (int) reset($arrClipboard['id']) : (int) $arrClipboard['id'];
 			if ($movingId > 0) {
 				$moving = Database::getInstance()->prepare("SELECT type FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($movingId);
 				if ($moving->next()) {
 					$movingType = (string) ($moving->type ?? 'mapping');
-					if ($movingType === 'group') {
-						// groups cannot be nested: no paste-into anywhere; paste-after only at top-level
-						$disablePI = true;
-						if ($depth >= 1) {
-							$disablePA = true;
-						}
-					}
+					// No extra restriction for groups; mapping restriction already applied
 				}
 			}
 		}
