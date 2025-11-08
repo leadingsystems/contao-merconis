@@ -125,6 +125,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 			'options' => array('both', 'full', 'quick'),
 			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options'],
 			'eval' => array('includeBlankOption' => false, 'tl_class' => 'w50'),
+			'filter' => true,
 			'sql' => "varchar(12) NOT NULL default 'both'"
 		),
 		'tstamp' => array (
@@ -260,9 +261,12 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 
     public function createLabel(array $row, string $label): string {
 		$activeSuffix = ($row['active'] ? '' : ' (inactive)');
+		$modeKey = (string)($row['mode'] ?? 'both');
+		$modeLabel = $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options'][$modeKey] ?? $modeKey;
+		$modeSuffix = sprintf(' [%s]', $modeLabel);
 		$title = (string)($row['title'] ?? '');
 		if ($title !== '') {
-			return sprintf('%s%s', $title, $activeSuffix);
+			return sprintf('%s%s%s', $title, $modeSuffix, $activeSuffix);
 		}
 		$sourceDisplay = (isset($row['matchType']) && $row['matchType'] === 'regex')
 			? (function(array $r): string {
@@ -271,7 +275,7 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 				return $flags !== '' ? sprintf('/%s/%s', $pattern, $flags) : sprintf('/%s/', $pattern);
 			})($row)
 			: (string)($row['sourceTerm'] ?? '');
-		return sprintf('%s → %s%s', $sourceDisplay, (string)($row['targetTerm'] ?? ''), $activeSuffix);
+		return sprintf('%s → %s%s%s', $sourceDisplay, (string)($row['targetTerm'] ?? ''), $modeSuffix, $activeSuffix);
 	}
 
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes): string {
