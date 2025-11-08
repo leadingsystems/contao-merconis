@@ -6,12 +6,12 @@ use Contao\Database;
 
 class SearchTermMappingService
 {
-    // Cache structure:
-    // [
+    // Cache structure per mode:
+    // cacheByMode[mode] = [
     //   'exact' => array<string, array{targets: string[], removeAny: bool}>,
-    //   'patterns' => array<int, array{compiled: string, targetTemplate: string, removeSource: bool}>
+    //   'patterns' => array<int, array{compiled: string, targetTemplate: string, removeSource: bool, removeImmediate: bool}>
     // ]
-    private static ?array $cache = null;
+    private static ?array $cacheByMode = null;
 
     private bool $enabled;
     private bool $applyInElasticsearch;
@@ -34,20 +34,25 @@ class SearchTermMappingService
 
     public function clearCache(): void
     {
-        self::$cache = null;
+        self::$cacheByMode = null;
     }
 
-    private function ensureLoaded(): void
+    private function ensureLoaded(string $mode): void
     {
-        if (self::$cache !== null) {
+        if (self::$cacheByMode !== null && array_key_exists($mode, self::$cacheByMode)) {
             return;
         }
-        self::$cache = [
+        if (self::$cacheByMode === null) {
+            self::$cacheByMode = [];
+        }
+        self::$cacheByMode[$mode] = [
             'exact' => [],
             'patterns' => []
         ];
-		$result = Database::getInstance()->prepare("SELECT matchType, sourceNormalized, targetTerm, removeSource, removeSourceTiming, pattern, caseInsensitive FROM tl_ls_shop_search_term_mapping WHERE active = '1' ORDER BY sorting, id")
-            ->execute();
+        // Treat empty mode/both as 'both' and filter to current mode
+        $modeParam = in_array($mode, ['quick','full'], true) ? $mode : 'full';
+		$result = Database::getInstance()->prepare("SELECT matchType, sourceNormalized, targetTerm, removeSource, removeSourceTiming, pattern, caseInsensitive FROM tl_ls_shop_search_term_mapping WHERE active = '1' AND (mode='' OR mode='both' OR mode=?) ORDER BY sorting, id")
+            ->execute($modeParam);
         while ($result->next()) {
             $matchType = (string) ($result->matchType ?? 'exact');
             $target = (string) $result->targetTerm;
@@ -73,7 +78,7 @@ class SearchTermMappingService
                 }
 				$timing = (string) ($result->removeSourceTiming ?? '');
 				$removeImmediate = $remove && ($timing === 'immediate');
-                self::$cache['patterns'][] = [
+                self::$cacheByMode[$mode]['patterns'][] = [
                     'compiled' => $compiled,
                     'targetTemplate' => $target,
 					'removeSource' => $remove,
@@ -85,33 +90,33 @@ class SearchTermMappingService
             // exact
             $normalized = (string) $result->sourceNormalized;
             if ($normalized !== '' && $target !== '') {
-                if (!isset(self::$cache['exact'][$normalized])) {
-                    self::$cache['exact'][$normalized] = ['targets' => [], 'removeAny' => false];
+                if (!isset(self::$cacheByMode[$mode]['exact'][$normalized])) {
+                    self::$cacheByMode[$mode]['exact'][$normalized] = ['targets' => [], 'removeAny' => false];
                 }
-                self::$cache['exact'][$normalized]['targets'][] = $target;
+                self::$cacheByMode[$mode]['exact'][$normalized]['targets'][] = $target;
                 if ($remove) {
-                    self::$cache['exact'][$normalized]['removeAny'] = true;
+                    self::$cacheByMode[$mode]['exact'][$normalized]['removeAny'] = true;
                 }
             }
         }
     }
 
-    public function augment(string $rawQuery): string
+    public function augment(string $rawQuery, string $mode = 'full'): string
     {
         if (!$this->enabled) {
             return $rawQuery;
         }
         $tokens = preg_split('/\s+/', trim($rawQuery)) ?: [];
-        $augmented = $this->augmentTokens($tokens);
+        $augmented = $this->augmentTokens($tokens, $mode);
         return trim(implode(' ', $augmented));
     }
 
-    public function augmentTokens(array $tokens): array
+    public function augmentTokens(array $tokens, string $mode = 'full'): array
     {
         if (!$this->enabled) {
             return $tokens;
         }
-        $this->ensureLoaded();
+        $this->ensureLoaded($mode);
 
         $existingLower = [];
         foreach ($tokens as $t) {
@@ -134,8 +139,8 @@ class SearchTermMappingService
             $removeOriginal = false;
 
             // Exact mappings
-            if (isset(self::$cache['exact'][$tNorm])) {
-                $exactEntry = self::$cache['exact'][$tNorm];
+            if (isset(self::$cacheByMode[$mode]['exact'][$tNorm])) {
+                $exactEntry = self::$cacheByMode[$mode]['exact'][$tNorm];
                 $removeOriginal = $removeOriginal || (bool) ($exactEntry['removeAny'] ?? false);
                 foreach ((array) ($exactEntry['targets'] ?? []) as $target) {
                     $targetStr = (string) $target;
@@ -145,7 +150,7 @@ class SearchTermMappingService
             }
 
             // Pattern rules (apply all that match, in configured order)
-            foreach ((array) self::$cache['patterns'] as $rule) {
+            foreach ((array) self::$cacheByMode[$mode]['patterns'] as $rule) {
                 $compiled = (string) ($rule['compiled'] ?? '');
                 if ($compiled === '') { continue; }
                 set_error_handler(function() {});

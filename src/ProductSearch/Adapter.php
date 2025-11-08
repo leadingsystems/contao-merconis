@@ -42,6 +42,9 @@ class Adapter
     private TranslatorInterface $translator;
     private SearchTermMappingService $termMappingService;
 
+	/** Mapping mode: 'quick' or 'full' to select mappings */
+	private string $mappingMode = 'full';
+
     public function __construct(SearchServer $searchServer, Helper $helper, LoggerInterface $logger, Environment $twig, RequestStack $requestStack, TranslatorInterface $translator, SearchTermMappingService $termMappingService)
     {
         $this->searchServer = $searchServer;
@@ -65,7 +68,7 @@ class Adapter
                 $mode === null || $mode === Mode::Standard || ($mode === Mode::SearchServer && $this->termMappingService->isApplyInElasticsearch())
             );
             if ($applyAugmentation) {
-                return $this->termMappingService->augment($fulltext);
+				return $this->termMappingService->augment($fulltext, $this->mappingMode);
             }
         } catch (\Throwable $e) {
             $this->logger->error('Search term augmentation failed: ' . $e->getMessage());
@@ -88,6 +91,12 @@ class Adapter
         $this->setMode(Mode::Standard);
     }
 
+	public function setMappingMode(string $mode): void
+	{
+		$mode = strtolower(trim($mode));
+		$this->mappingMode = in_array($mode, ['quick','full'], true) ? $mode : 'full';
+	}
+
     public function initialize(bool $useFilter = false, ?string $productListId = null): void
     {
         $this->useFilter = $useFilter;
@@ -96,6 +105,9 @@ class Adapter
         if ($this->mode === null) {
             $this->setDefaultMode();
         }
+		if (!isset($this->mappingMode)) {
+			$this->setMappingMode('full');
+		}
 
         switch ($this->mode) {
             case Mode::Standard:
@@ -114,7 +126,6 @@ class Adapter
                 throw new \Exception('Unexpected mode "' . $this->mode->name . '" not implemented yet.');
                 break;
         }
-
 
         $this->initializePersistor(['searchCriteria'], $this->productListId . '::' . $this->useFilter . '::' . $this->mode->name);
 

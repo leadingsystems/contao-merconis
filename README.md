@@ -22,6 +22,20 @@ merconis:
       apply_in_elasticsearch: false
 ```
 
+Search modes (Quick vs Full)
+----------------------------
+
+Mappings can be scoped to a search mode:
+
+- Mode values on mappings: `both` (default), `full`, `quick`.
+- At runtime, only mappings with `mode ∈ {both, <active mode>}` are applied.
+- Use Quick mode for stricter queries (e.g., map GTIN‑shaped tokens to `{field:gtin}{exact:1}{must:1}`); use Full for broader recall.
+
+Usage:
+
+- Choose the mode in your integration by calling `Adapter::setMappingMode('quick'|'full')` before setting the `fulltext` criterion.
+- The default is `full` if not set.
+
 Fulltext search modifiers (DirectMySQL)
 ---------------------------------------
 

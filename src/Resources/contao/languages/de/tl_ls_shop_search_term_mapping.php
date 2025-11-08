@@ -14,6 +14,11 @@ $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming'] = ['
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming_options']['after'] = 'Nach Anwendung aller Regeln';
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['removeSourceTiming_options']['immediate'] = 'Sofort nach dieser Regel';
 
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode'] = ['Modus', 'Dieses Mapping auf Schnell- oder Vollsuche (oder beide) beschränken'];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options']['both'] = 'Beide (Schnell & Voll)';
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options']['full'] = 'Nur Vollsuche';
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options']['quick'] = 'Nur Schnellsuche';
+
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Mapping bearbeiten', 'Mapping ID %s bearbeiten'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'] = ['Mapping duplizieren', 'Mapping ID %s duplizieren'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['delete'] = ['Mapping löschen', 'Mapping ID %s löschen'];

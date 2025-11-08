@@ -106,7 +106,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 	),
 	'palettes' => array(
 		'__selector__' => array('matchType', 'removeSource'),
-		'default' => '{general_legend},title,sorting,matchType,targetTerm,removeSource,active'
+		'default' => '{general_legend},title,sorting,matchType,mode,targetTerm,removeSource,active'
 	),
 	'subpalettes' => array(
 		'matchType_exact' => 'sourceTerm',
@@ -117,6 +117,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 	'fields' => array(
 		'id' => array(
 			'sql' => 'int(10) unsigned NOT NULL auto_increment'
+		),
+		'mode' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode'],
+			'exclude' => true,
+			'inputType' => 'select',
+			'options' => array('both', 'full', 'quick'),
+			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options'],
+			'eval' => array('includeBlankOption' => false, 'tl_class' => 'w50'),
+			'sql' => "varchar(12) NOT NULL default 'both'"
 		),
 		'tstamp' => array (
 			'sql'                     => "int(10) unsigned NOT NULL default '0'"
