@@ -725,6 +725,7 @@ class Search implements CommonInterface, IndexSearchInterface
 		$normalizedFullQuery = strtolower(implode(' ', $reassembledParts));
 
         $descriptiveTerms = [];
+        $descriptiveTermsWithBoost = [];
         $codeTerms = [];
 		$producerTerms = [];
 		if (count($fulltextComponents)) {
@@ -733,6 +734,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 if ($termText === '') { continue; }
 				$fields = $component['fields'] ?? [];
                 $isExact = (bool) ($component['exact'] ?? false);
+                $termBoost = (float) ($component['boost'] ?? 1.0);
 				$includeInDescriptive = !count($fields);
 				$includeInCode = !count($fields);
 				$includeInProducer = !count($fields);
@@ -748,9 +750,9 @@ class Search implements CommonInterface, IndexSearchInterface
 					if ($canonical === 'gtin') { $targets[] = 'gtin'; }
 				}
 
-                if ($includeInDescriptive) { $descriptiveTerms[] = $termText; }
-                if ($includeInCode) { $codeTerms[] = ['text' => $termText, 'exact' => $isExact, 'targets' => array_values(array_unique($targets))]; }
-                if ($includeInProducer) { $producerTerms[] = ['text' => $termText, 'exact' => $isExact]; }
+				if ($includeInDescriptive) { $descriptiveTerms[] = $termText; $descriptiveTermsWithBoost[] = ['text' => $termText, 'boost' => $termBoost]; }
+                if ($includeInCode) { $codeTerms[] = ['text' => $termText, 'exact' => $isExact, 'targets' => array_values(array_unique($targets)), 'boost' => $termBoost]; }
+                if ($includeInProducer) { $producerTerms[] = ['text' => $termText, 'exact' => $isExact, 'boost' => $termBoost]; }
 			}
 		}
 
@@ -769,7 +771,8 @@ class Search implements CommonInterface, IndexSearchInterface
 				$debugScoringEnabled,
 				fn() => $this->nextParameterName(),
 				fn(string $col) => $this->getWeightForBaseColumn($col),
-				$qb
+				$qb,
+				$descriptiveTermsWithBoost
 			);
 			if ($descRes->getWhereSql() !== null) { $whereParts[] = $descRes->getWhereSql(); }
 			$scoreExpressionParts = array_merge($scoreExpressionParts, $descRes->getScoreAdditions());
