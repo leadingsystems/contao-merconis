@@ -61,7 +61,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 		),
 
 		'label' => array(
-			'fields' => array('sourceTerm', 'targetTerm', 'active', 'nodeType'),
+			'fields' => array('sourceTerm', 'targetTerm', 'active', 'type'),
 			'format' => '%s',
 			'label_callback' => array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller','createLabel')
 		),
@@ -118,9 +118,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 	),
 	'palettes' => array(
 		'__selector__' => array('type', 'matchType', 'removeSource'),
-		'default' => '{general_legend},type,title,sorting,active',
-		'group' => '{general_legend},type,title,sorting,active',
-		'mapping' => '{general_legend},type,title,sorting,matchType,mode,targetTerm,removeSource,active'
+		'default' => '{general_legend},type,title,active',
+		'group' => '{general_legend},type,title,active',
+		'mapping' => '{general_legend},type,title,matchType,mode,targetTerm,removeSource,active'
 	),
 	'subpalettes' => array(
 		'matchType_exact' => 'sourceTerm',
@@ -286,20 +286,20 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
     }
 
     public function createLabel(array $row, string $label): string {
-		$activeSuffix = ($row['active'] ? '' : ' (inactive)');
 		$modeKey = (string)($row['mode'] ?? 'both');
 		$modeLabel = $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options'][$modeKey] ?? $modeKey;
-		$modeSuffix = sprintf(' [%s]', $modeLabel);
+		$modeHtml = ' <span class="tl_gray">[' . StringUtil::specialchars($modeLabel) . ']</span>';
 		$type = (string)($row['type'] ?? 'mapping');
-		$icon = $type === 'group' ? 'folder.svg' : 'file.svg';
-		$iconHtml = Image::getHtml($icon, $type);
+		// Use core-safe icons: pagemounts.svg for groups, articles.svg for mappings
+		$iconName = $type === 'group' ? 'pagemounts.svg' : 'articles.svg';
+		$iconHtml = Image::getHtml($iconName, '');
 		$title = (string)($row['title'] ?? '');
 		if ($type === 'group') {
-			$display = $title !== '' ? $title : ($GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['defaultGroupTitle'] ?? 'Group');
-			return sprintf('%s %s%s', $iconHtml, $display, $activeSuffix);
+			$display = $title !== '' ? $title : (($GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['defaultGroupTitle'] ?? 'Group') . ' ' . (int)($row['id'] ?? 0));
+			return sprintf('%s %s', $iconHtml, StringUtil::specialchars($display));
 		}
 		if ($title !== '') {
-			return sprintf('%s %s%s%s', $iconHtml, $title, $modeSuffix, $activeSuffix);
+			return sprintf('%s %s%s', $iconHtml, StringUtil::specialchars($title), $modeHtml);
 		}
 		$sourceDisplay = (isset($row['matchType']) && $row['matchType'] === 'regex')
 			? (function(array $r): string {
@@ -308,7 +308,7 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 				return $flags !== '' ? sprintf('/%s/%s', $pattern, $flags) : sprintf('/%s/', $pattern);
 			})($row)
 			: (string)($row['sourceTerm'] ?? '');
-		return sprintf('%s %s → %s%s%s', $iconHtml, $sourceDisplay, (string)($row['targetTerm'] ?? ''), $modeSuffix, $activeSuffix);
+		return sprintf('%s %s → %s%s', $iconHtml, StringUtil::specialchars($sourceDisplay), StringUtil::specialchars((string)($row['targetTerm'] ?? '')), $modeHtml);
 	}
 
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes): string {
