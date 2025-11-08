@@ -19,6 +19,17 @@ $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options']['both'] = 
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options']['full'] = 'Nur Vollsuche';
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options']['quick'] = 'Nur Schnellsuche';
 
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['nodeType'] = [
+    'Typ',
+    'Zwei Ebenen: In der obersten Ebene können Gruppen oder eigenständige Mappings liegen. '
+    . 'Gruppen dürfen keinen Elternknoten haben und Mappings dürfen keine Kinder haben. '
+    . 'Sortierung per Drag & Drop: Die Reihenfolge der Gruppen bestimmt die Abarbeitungsreihenfolge ihrer Kind‑Mappings; '
+    . 'innerhalb einer Gruppe werden die Kind‑Mappings in ihrer eigenen Sortierung verarbeitet.'
+];
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['nodeType_options']['group'] = 'Gruppe';
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['nodeType_options']['mapping'] = 'Mapping';
+$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['defaultGroupTitle'] = 'Gruppe';
+
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['edit'] = ['Mapping bearbeiten', 'Mapping ID %s bearbeiten'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['copy'] = ['Mapping duplizieren', 'Mapping ID %s duplizieren'];
 $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['delete'] = ['Mapping löschen', 'Mapping ID %s löschen'];

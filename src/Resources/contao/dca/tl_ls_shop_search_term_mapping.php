@@ -22,6 +22,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'adjustSubpalettes')
 		),
 		'onsubmit_callback' => array(
+			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'validateNodePlacement'),
 			array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'invalidateCache'),
 			array('Merconis\\Core\\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
@@ -40,6 +41,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 		'sql' => array(
 			'keys' => array(
 				'id' => 'primary',
+				'pid' => 'index',
 				'sourceNormalized' => 'index',
 				'active' => 'index'
 			)
@@ -48,14 +50,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 
 	'list' => array(
 		'sorting' => array(
-			'mode' => DataContainer::MODE_SORTABLE,
+			'mode' => DataContainer::MODE_TREE,
 			'fields' => array('sorting'),
 			'flag' => DataContainer::SORT_ASC,
-			'panelLayout' => 'filter,sort;search,limit'
+			'panelLayout' => 'filter,sort;search,limit',
+			'paste_button_callback' => array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller', 'pasteButtons')
 		),
 
 		'label' => array(
-			'fields' => array('sourceTerm', 'targetTerm', 'active'),
+			'fields' => array('sourceTerm', 'targetTerm', 'active', 'nodeType'),
 			'format' => '%s',
 			'label_callback' => array('Merconis\\Core\\tl_ls_shop_search_term_mapping_controller','createLabel')
 		),
@@ -105,8 +108,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 		)
 	),
 	'palettes' => array(
-		'__selector__' => array('matchType', 'removeSource'),
-		'default' => '{general_legend},title,sorting,matchType,mode,targetTerm,removeSource,active'
+		'__selector__' => array('type', 'matchType', 'removeSource'),
+		'default' => '{general_legend},type,title,sorting,active',
+		'group' => '{general_legend},type,title,sorting,active',
+		'mapping' => '{general_legend},type,title,sorting,matchType,mode,targetTerm,removeSource,active'
 	),
 	'subpalettes' => array(
 		'matchType_exact' => 'sourceTerm',
@@ -117,6 +122,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 	'fields' => array(
 		'id' => array(
 			'sql' => 'int(10) unsigned NOT NULL auto_increment'
+		),
+		'pid' => array(
+			'sql' => "int(10) unsigned NOT NULL default '0'"
+		),
+		'type' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['nodeType'],
+			'exclude' => true,
+			'inputType' => 'select',
+			'options' => array('group', 'mapping'),
+			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['nodeType_options'],
+			'eval' => array('mandatory' => true, 'includeBlankOption' => false, 'submitOnChange' => true, 'tl_class' => 'w50'),
+			'sql' => "varchar(16) NOT NULL default 'mapping'"
 		),
 		'mode' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode'],
@@ -264,9 +281,16 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 		$modeKey = (string)($row['mode'] ?? 'both');
 		$modeLabel = $GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['mode_options'][$modeKey] ?? $modeKey;
 		$modeSuffix = sprintf(' [%s]', $modeLabel);
+		$type = (string)($row['type'] ?? 'mapping');
+		$icon = $type === 'group' ? 'folder.svg' : 'file.svg';
+		$iconHtml = Image::getHtml($icon, $type);
 		$title = (string)($row['title'] ?? '');
+		if ($type === 'group') {
+			$display = $title !== '' ? $title : ($GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['defaultGroupTitle'] ?? 'Group');
+			return sprintf('%s %s%s', $iconHtml, $display, $activeSuffix);
+		}
 		if ($title !== '') {
-			return sprintf('%s%s%s', $title, $modeSuffix, $activeSuffix);
+			return sprintf('%s %s%s%s', $iconHtml, $title, $modeSuffix, $activeSuffix);
 		}
 		$sourceDisplay = (isset($row['matchType']) && $row['matchType'] === 'regex')
 			? (function(array $r): string {
@@ -275,11 +299,11 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 				return $flags !== '' ? sprintf('/%s/%s', $pattern, $flags) : sprintf('/%s/', $pattern);
 			})($row)
 			: (string)($row['sourceTerm'] ?? '');
-		return sprintf('%s → %s%s%s', $sourceDisplay, (string)($row['targetTerm'] ?? ''), $modeSuffix, $activeSuffix);
+		return sprintf('%s %s → %s%s%s', $iconHtml, $sourceDisplay, (string)($row['targetTerm'] ?? ''), $modeSuffix, $activeSuffix);
 	}
 
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes): string {
-		if (strlen(Input::get('tid'))) {
+		if ((string) Input::get('tid') !== '') {
 			$this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1));
 			$this->redirect($this->getReferer());
 		}
@@ -315,6 +339,85 @@ class tl_ls_shop_search_term_mapping_controller extends Backend {
 
 		Database::getInstance()->prepare("UPDATE tl_ls_shop_search_term_mapping SET tstamp=". time() .", active='" . ($blnVisible ? 1 : '') . "' WHERE id=?")
 			->execute($intId);
+	}
+
+	public function validateNodePlacement(?DataContainer $dc = null): void {
+		if (!$dc || !$dc->activeRecord) { return; }
+		$nodeType = (string) ($dc->activeRecord->type ?? 'mapping');
+		$pid = (int) ($dc->activeRecord->pid ?? 0);
+		if ($nodeType === 'group' && $pid > 0) {
+			throw new \RuntimeException('A Group cannot have a parent. Place groups at top level only.');
+		}
+		if ($pid > 0) {
+			$parent = Database::getInstance()->prepare("SELECT id, pid, type FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($pid);
+			if ($parent->next()) {
+				$parentType = (string) ($parent->type ?? 'mapping');
+				if ($parentType === 'mapping') {
+					throw new \RuntimeException('A Mapping cannot be a parent. You cannot place a record under a mapping.');
+				}
+				$grandPid = (int) ($parent->pid ?? 0);
+				if ($grandPid > 0) {
+					throw new \RuntimeException('Only two levels are allowed (top-level groups/mappings and mappings under groups).');
+				}
+			}
+		}
+	}
+
+	public function pasteButtons(DataContainer $dc, $row, $table, $cr, $arrClipboard=null) {
+		$disablePA = false;
+		$disablePI = false;
+
+		// Circular reference checks (from core)
+		if ($arrClipboard !== false && (($arrClipboard['mode'] == 'cut' && ($cr == 1 || $arrClipboard['id'] == $row['id'])) || ($arrClipboard['mode'] == 'cutAll' && ($cr == 1 || (is_array($arrClipboard['id']) && in_array($row['id'], $arrClipboard['id'])))))) {
+			$disablePA = true;
+			$disablePI = true;
+		}
+
+		$type = (string) ($row['type'] ?? 'mapping');
+		$depth = ((int) ($row['pid'] ?? 0)) > 0 ? 1 : 0;
+
+		// Never allow "paste into" under a mapping
+		if ($type === 'mapping') {
+			$disablePI = true;
+		}
+		// Do not allow "paste into" below level 1 (keep two levels only)
+		if ($depth >= 1) {
+			$disablePI = true;
+		}
+
+		// If we are moving a group, only allow top-level targets (no "into" under any node)
+		if ($arrClipboard !== false && !empty($arrClipboard['id'])) {
+			$movingId = is_array($arrClipboard['id']) ? (int) reset($arrClipboard['id']) : (int) $arrClipboard['id'];
+			if ($movingId > 0) {
+				$moving = Database::getInstance()->prepare("SELECT type FROM tl_ls_shop_search_term_mapping WHERE id=?")->limit(1)->execute($movingId);
+				if ($moving->next()) {
+					$movingType = (string) ($moving->type ?? 'mapping');
+					if ($movingType === 'group') {
+						// groups cannot be nested: no paste-into anywhere; paste-after only at top-level
+						$disablePI = true;
+						if ($depth >= 1) {
+							$disablePA = true;
+						}
+					}
+				}
+			}
+		}
+
+		$imagePasteAfter = Image::getHtml('pasteafter.svg', sprintf($GLOBALS['TL_LANG'][$table]['pasteafter'][1] ?? 'Paste after ID %s', $row['id'] ?? 0));
+		$imagePasteInto = Image::getHtml('pasteinto.svg', sprintf($GLOBALS['TL_LANG'][$table]['pasteinto'][1] ?? 'Paste into ID %s', $row['id'] ?? 0));
+
+		$return = '';
+		if (($row['id'] ?? 0) > 0) {
+			$return = $disablePA
+				? Image::getHtml('pasteafter_.svg') . ' '
+				: '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $row['id'] . (!is_array($arrClipboard['id']) ? '&amp;id=' . $arrClipboard['id'] : '')) . '" title="' . StringUtil::specialchars(sprintf($GLOBALS['TL_LANG'][$table]['pasteafter'][1] ?? 'Paste after ID %s', $row['id'])) . '" onclick="Backend.getScrollOffset()">' . $imagePasteAfter . '</a> ';
+		}
+
+		$return .= $disablePI
+			? Image::getHtml('pasteinto_.svg') . ' '
+			: '<a href="' . $this->addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=' . ($row['id'] ?? 0) . (!is_array($arrClipboard['id']) ? '&amp;id=' . $arrClipboard['id'] : '')) . '" title="' . StringUtil::specialchars(sprintf($GLOBALS['TL_LANG'][$table]['pasteinto'][($row['id'] ?? 0) > 0 ? 1 : 0] ?? 'Paste into ID %s', $row['id'] ?? 0)) . '" onclick="Backend.getScrollOffset()">' . $imagePasteInto . '</a> ';
+
+		return $return;
 	}
 
     public function validatePattern(string $value = '', ?DataContainer $dc = null): string {

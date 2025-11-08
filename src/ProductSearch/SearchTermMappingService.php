@@ -49,46 +49,52 @@ class SearchTermMappingService
             'exact' => [],
             'patterns' => []
         ];
-        // Treat empty mode/both as 'both' and filter to current mode
+        // Load all nodes for current mode
         $modeParam = in_array($mode, ['quick','full'], true) ? $mode : 'full';
-		$result = Database::getInstance()->prepare("SELECT matchType, sourceNormalized, targetTerm, removeSource, removeSourceTiming, pattern, caseInsensitive FROM tl_ls_shop_search_term_mapping WHERE active = '1' AND (mode='' OR mode='both' OR mode=?) ORDER BY sorting, id")
-            ->execute($modeParam);
-        while ($result->next()) {
-            $matchType = (string) ($result->matchType ?? 'exact');
-            $target = (string) $result->targetTerm;
-            $remove = (string) $result->removeSource === '1';
+        $rows = Database::getInstance()->prepare("
+            SELECT id, pid, type, active, sorting,
+                   matchType, sourceNormalized, targetTerm, removeSource, removeSourceTiming, pattern, caseInsensitive
+            FROM tl_ls_shop_search_term_mapping
+            WHERE active = '1' AND (mode='' OR mode='both' OR mode=?)
+            ORDER BY sorting, id
+        ")->execute($modeParam);
+
+        $byId = [];
+        $childrenByPid = [];
+        while ($rows->next()) {
+            $row = $rows->row();
+            $byId[(int)$row['id']] = $row;
+            $pid = (int) ($row['pid'] ?? 0);
+            if (!isset($childrenByPid[$pid])) { $childrenByPid[$pid] = []; }
+            $childrenByPid[$pid][] = $row;
+        }
+
+        // Helper to process a mapping row into cache
+        $processMapping = function(array $r) use ($mode) {
+            $matchType = (string) ($r['matchType'] ?? 'exact');
+            $target = (string) ($r['targetTerm'] ?? '');
+            $remove = ((string) ($r['removeSource'] ?? '') === '1');
             if ($matchType === 'regex') {
-                $rawPattern = trim((string) ($result->pattern ?? ''));
-                if ($rawPattern === '' || $target === '') {
-                    continue;
-                }
+                $rawPattern = trim((string) ($r['pattern'] ?? ''));
+                if ($rawPattern === '' || $target === '') { return; }
                 $delimiter = '#';
                 $escaped = str_replace($delimiter, '\\' . $delimiter, $rawPattern);
-                $flags = 'u' . (((string)$result->caseInsensitive === '1') ? 'i' : '');
+                $flags = 'u' . (((string)($r['caseInsensitive'] ?? '') === '1') ? 'i' : '');
                 $compiled = $delimiter . $escaped . $delimiter . $flags;
-                // Sanity check: skip invalid patterns silently
                 set_error_handler(function() {});
-                try {
-                    $ok = @preg_match($compiled, '') !== false;
-                } finally {
-                    restore_error_handler();
-                }
-                if (!$ok) {
-                    continue;
-                }
-				$timing = (string) ($result->removeSourceTiming ?? '');
-				$removeImmediate = $remove && ($timing === 'immediate');
+                try { $ok = @preg_match($compiled, '') !== false; } finally { restore_error_handler(); }
+                if (!$ok) { return; }
+                $timing = (string) ($r['removeSourceTiming'] ?? '');
+                $removeImmediate = $remove && ($timing === 'immediate');
                 self::$cacheByMode[$mode]['patterns'][] = [
                     'compiled' => $compiled,
                     'targetTemplate' => $target,
-					'removeSource' => $remove,
-					'removeImmediate' => $removeImmediate,
+                    'removeSource' => $remove,
+                    'removeImmediate' => $removeImmediate,
                 ];
-                continue;
+                return;
             }
-
-            // exact
-            $normalized = (string) $result->sourceNormalized;
+            $normalized = (string) ($r['sourceNormalized'] ?? '');
             if ($normalized !== '' && $target !== '') {
                 if (!isset(self::$cacheByMode[$mode]['exact'][$normalized])) {
                     self::$cacheByMode[$mode]['exact'][$normalized] = ['targets' => [], 'removeAny' => false];
@@ -97,6 +103,34 @@ class SearchTermMappingService
                 if ($remove) {
                     self::$cacheByMode[$mode]['exact'][$normalized]['removeAny'] = true;
                 }
+            }
+        };
+
+        // Traverse top-level nodes in sorting order
+        $topLevel = $childrenByPid[0] ?? [];
+        usort($topLevel, function ($a, $b) {
+            $sa = (int) ($a['sorting'] ?? 0);
+            $sb = (int) ($b['sorting'] ?? 0);
+            if ($sa === $sb) { return ((int)$a['id']) <=> ((int)$b['id']); }
+            return $sa <=> $sb;
+        });
+        foreach ($topLevel as $node) {
+            $type = (string) ($node['type'] ?? 'mapping');
+            if ($type === 'mapping') {
+                $processMapping($node);
+                continue;
+            }
+            // Group: process its child mappings in their sorting order
+            $children = $childrenByPid[(int)$node['id']] ?? [];
+            usort($children, function ($a, $b) {
+                $sa = (int) ($a['sorting'] ?? 0);
+                $sb = (int) ($b['sorting'] ?? 0);
+                if ($sa === $sb) { return ((int)$a['id']) <=> ((int)$b['id']); }
+                return $sa <=> $sb;
+            });
+            foreach ($children as $child) {
+                if ((string) ($child['type'] ?? 'mapping') !== 'mapping') { continue; }
+                $processMapping($child);
             }
         }
     }
