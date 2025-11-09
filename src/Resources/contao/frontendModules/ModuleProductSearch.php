@@ -7,6 +7,7 @@ use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 use LeadingSystems\MerconisBundle\ProductSearch\Adapter;
 use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\MappingMode;
 
 /**
  * If the form that has just been submitted can be identified as the merconisProductSearch form, it's
@@ -182,6 +183,7 @@ class ModuleProductSearch extends \Module {
                     /** @var Adapter $productSearchAdapter */
                     $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
                     $productSearchAdapter->initialize();
+                    $productSearchAdapter->setMappingMode(MappingMode::Quick);
 
                     $productSearchAdapter->setSearchCriteria($arrSearchCriteria);
 
