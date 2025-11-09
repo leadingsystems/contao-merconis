@@ -138,7 +138,8 @@ class ModuleProductSearch extends \Module {
 			switch (\Input::post('action')) {
 				case 'getLiveHitsConfiguration':
 					$response['value'] = array(
-						'ls_shop_liveHitsMinLengthSearchTerm' => isset($GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm']) && $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm'] ? $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm'] : 0
+						'ls_shop_liveHitsMinLengthSearchTerm' => isset($GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm']) && $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm'] ? $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMinLengthSearchTerm'] : 0,
+						'ls_shop_liveHitsMaxNumHits' => isset($GLOBALS['TL_CONFIG']['ls_shop_liveHitsMaxNumHits']) && $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMaxNumHits'] ? (int) $GLOBALS['TL_CONFIG']['ls_shop_liveHitsMaxNumHits'] : 10
 					);
 					$response['success'] = true;
 					break;
@@ -183,7 +184,14 @@ class ModuleProductSearch extends \Module {
                     /** @var Adapter $productSearchAdapter */
                     $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
                     $productSearchAdapter->initialize();
-                    $productSearchAdapter->setMappingMode(MappingMode::Quick);
+
+                    // Determine mapping mode (default to Quick)
+                    $mappingModeParam = strtolower((string) \Input::post('mappingMode'));
+                    if ($mappingModeParam === 'full') {
+                        $productSearchAdapter->setMappingMode(MappingMode::Full);
+                    } else {
+                        $productSearchAdapter->setMappingMode(MappingMode::Quick);
+                    }
                     $productSearchAdapter->setMaxResults((int) ($GLOBALS['TL_CONFIG']['ls_shop_liveHitsMaxNumHits'] ?? 10));
 
                     $productSearchAdapter->setSearchCriteria($arrSearchCriteria);
