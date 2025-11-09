@@ -199,7 +199,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_search_term_mapping'] = array(
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_search_term_mapping']['sourceNormalized'],
 			'exclude' => true,
 			'inputType' => 'text',
-			'eval' => array('readonly' => true, 'tl_class' => 'w50'),
+			'eval' => array('readonly' => true, 'doNotShow' => true, 'tl_class' => 'w50'),
 			'sql' => "varchar(255) NOT NULL default ''"
 		),
 		'pattern' => array(
