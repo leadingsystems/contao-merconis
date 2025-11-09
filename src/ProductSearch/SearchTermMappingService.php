@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\ProductSearch;
 
 use Contao\Database;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\MappingMode;
 
 class SearchTermMappingService
 {
@@ -37,27 +38,26 @@ class SearchTermMappingService
         self::$cacheByMode = null;
     }
 
-    private function ensureLoaded(string $mode): void
+    private function ensureLoaded(MappingMode $mode): void
     {
-        if (self::$cacheByMode !== null && array_key_exists($mode, self::$cacheByMode)) {
+        if (self::$cacheByMode !== null && array_key_exists($mode->value, self::$cacheByMode)) {
             return;
         }
         if (self::$cacheByMode === null) {
             self::$cacheByMode = [];
         }
-        self::$cacheByMode[$mode] = [
+        self::$cacheByMode[$mode->value] = [
             'exact' => [],
             'patterns' => []
         ];
         // Load all nodes for current mode
-        $modeParam = in_array($mode, ['quick','full'], true) ? $mode : 'full';
         $rows = Database::getInstance()->prepare("
             SELECT id, pid, type, active, sorting,
                    matchType, sourceNormalized, targetTerm, removeSource, removeSourceTiming, pattern, caseInsensitive
             FROM tl_ls_shop_search_term_mapping
             WHERE active = '1' AND (mode='' OR mode='both' OR mode=?)
             ORDER BY sorting, id
-        ")->execute($modeParam);
+        ")->execute($mode->value);
 
         $byId = [];
         $childrenByPid = [];
@@ -86,7 +86,7 @@ class SearchTermMappingService
                 if (!$ok) { return; }
                 $timing = (string) ($r['removeSourceTiming'] ?? '');
                 $removeImmediate = $remove && ($timing === 'immediate');
-                self::$cacheByMode[$mode]['patterns'][] = [
+                self::$cacheByMode[$mode->value]['patterns'][] = [
                     'compiled' => $compiled,
                     'targetTemplate' => $target,
                     'removeSource' => $remove,
@@ -96,18 +96,18 @@ class SearchTermMappingService
             }
             $normalized = (string) ($r['sourceNormalized'] ?? '');
             if ($normalized !== '' && $target !== '') {
-                if (!isset(self::$cacheByMode[$mode]['exact'][$normalized])) {
-                    self::$cacheByMode[$mode]['exact'][$normalized] = ['targets' => [], 'removeAny' => false];
+                if (!isset(self::$cacheByMode[$mode->value]['exact'][$normalized])) {
+                    self::$cacheByMode[$mode->value]['exact'][$normalized] = ['targets' => [], 'removeAny' => false];
                 }
-                self::$cacheByMode[$mode]['exact'][$normalized]['targets'][] = $target;
+                self::$cacheByMode[$mode->value]['exact'][$normalized]['targets'][] = $target;
                 if ($remove) {
-                    self::$cacheByMode[$mode]['exact'][$normalized]['removeAny'] = true;
+                    self::$cacheByMode[$mode->value]['exact'][$normalized]['removeAny'] = true;
                 }
             }
         };
 
         // Recursive traversal honoring sorting at each level; groups control order, mappings produce rules
-        $walk = function(int $pid) use (&$walk, $childrenByPid, $processMapping, $mode) {
+        $walk = function(int $pid) use (&$walk, $childrenByPid, $processMapping) {
             $nodes = $childrenByPid[$pid] ?? [];
             usort($nodes, function ($a, $b) {
                 $sa = (int) ($a['sorting'] ?? 0);
@@ -127,7 +127,7 @@ class SearchTermMappingService
         $walk(0);
     }
 
-    public function augment(string $rawQuery, string $mode = 'full'): string
+    public function augment(string $rawQuery, MappingMode $mode = MappingMode::Full): string
     {
         if (!$this->enabled) {
             return $rawQuery;
@@ -137,7 +137,7 @@ class SearchTermMappingService
         return trim(implode(' ', $augmented));
     }
 
-    public function augmentTokens(array $tokens, string $mode = 'full'): array
+    public function augmentTokens(array $tokens, MappingMode $mode = MappingMode::Full): array
     {
         if (!$this->enabled) {
             return $tokens;
@@ -165,8 +165,8 @@ class SearchTermMappingService
             $removeOriginal = false;
 
             // Exact mappings
-            if (isset(self::$cacheByMode[$mode]['exact'][$tNorm])) {
-                $exactEntry = self::$cacheByMode[$mode]['exact'][$tNorm];
+            if (isset(self::$cacheByMode[$mode->value]['exact'][$tNorm])) {
+                $exactEntry = self::$cacheByMode[$mode->value]['exact'][$tNorm];
                 $removeOriginal = $removeOriginal || (bool) ($exactEntry['removeAny'] ?? false);
                 foreach ((array) ($exactEntry['targets'] ?? []) as $target) {
                     $targetStr = (string) $target;
@@ -176,7 +176,7 @@ class SearchTermMappingService
             }
 
             // Pattern rules (apply all that match, in configured order)
-            foreach ((array) self::$cacheByMode[$mode]['patterns'] as $rule) {
+            foreach ((array) self::$cacheByMode[$mode->value]['patterns'] as $rule) {
                 $compiled = (string) ($rule['compiled'] ?? '');
                 if ($compiled === '') { continue; }
                 set_error_handler(function() {});
