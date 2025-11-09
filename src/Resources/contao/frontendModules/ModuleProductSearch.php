@@ -184,6 +184,7 @@ class ModuleProductSearch extends \Module {
                     $productSearchAdapter = System::getContainer()->get('LeadingSystems\MerconisBundle\ProductSearch\Adapter');
                     $productSearchAdapter->initialize();
                     $productSearchAdapter->setMappingMode(MappingMode::Quick);
+                    $productSearchAdapter->setMaxResults((int) ($GLOBALS['TL_CONFIG']['ls_shop_liveHitsMaxNumHits'] ?? 10));
 
                     $productSearchAdapter->setSearchCriteria($arrSearchCriteria);
 

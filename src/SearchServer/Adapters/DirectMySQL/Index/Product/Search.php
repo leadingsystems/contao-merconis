@@ -38,6 +38,7 @@ class Search implements CommonInterface, IndexSearchInterface
     private array $dmysql_fixedSortingInput = [];
     private bool $dmysql_emptyFieldMatchesPerDefault = false;
     private $dmysql_cacheHandle = null;
+    private int $dmysql_maxResults = 0;
 
     /**
      * Canonical field configuration keyed by lower-case identifiers.
@@ -108,6 +109,7 @@ class Search implements CommonInterface, IndexSearchInterface
         $this->dmysql_sortingInput = $productSearchAdapter->getSortingCriteria();
         $this->dmysql_fixedSortingInput = $productSearchAdapter->getFixedSorting();
         $this->dmysql_emptyFieldMatchesPerDefault = $productSearchAdapter->getEmptyFieldMatchesPerDefault();
+        $this->dmysql_maxResults = max(0, (int) $productSearchAdapter->getMaxResults());
 
         // Cache fast path
         $cached = $this->maybeStartCache($criteria, $language, $activateFacets, $activateMatchEstimates, $removeImpossibleOptions);
@@ -963,6 +965,11 @@ class Search implements CommonInterface, IndexSearchInterface
 			$type = $parameterTypes[$name] ?? ParameterType::STRING;
 			$qb->setParameter($name, $value, $type);
 		}
+
+        // Apply server-side cap for Live Hits (or any caller) if configured
+        if ($this->dmysql_maxResults > 0) {
+			$qb->setMaxResults($this->dmysql_maxResults);
+        }
 
 		$this->logDebugInformation($criteria, $fulltextComponents, $qb);
 		if ($debugScoringEnabled) {

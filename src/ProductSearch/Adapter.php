@@ -5,6 +5,7 @@ namespace LeadingSystems\MerconisBundle\ProductSearch;
 use Contao\Controller;
 use LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\ObjectStatePersistorTrait;
 use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\MappingMode;
 use LeadingSystems\MerconisBundle\SearchServer\SearchServer;
 use Merconis\Core\ls_shop_generalHelper;
 use Merconis\Core\ls_shop_productSearcher;
@@ -34,6 +35,7 @@ class Adapter
     private int $truncateResultsIfMoreThan = 0;
     private bool $cancelSearchIfMoreThanTruncateLimit = false;
     private bool $emptyFieldMatchesPerDefault = false;
+    private int $maxResults = 0;
 
     private SearchResult $searchResult;
     private Environment $twig;
@@ -43,7 +45,7 @@ class Adapter
     private SearchTermMappingService $termMappingService;
 
 	/** Mapping mode: 'quick' or 'full' to select mappings */
-	private string $mappingMode = 'full';
+	private MappingMode $mappingMode = MappingMode::Full;
 
     public function __construct(SearchServer $searchServer, Helper $helper, LoggerInterface $logger, Environment $twig, RequestStack $requestStack, TranslatorInterface $translator, SearchTermMappingService $termMappingService)
     {
@@ -91,10 +93,9 @@ class Adapter
         $this->setMode(Mode::Standard);
     }
 
-	public function setMappingMode(string $mode): void
+	public function setMappingMode(MappingMode $mode): void
 	{
-		$mode = strtolower(trim($mode));
-		$this->mappingMode = in_array($mode, ['quick','full'], true) ? $mode : 'full';
+		$this->mappingMode = $mode;
 	}
 
     public function initialize(bool $useFilter = false, ?string $productListId = null): void
@@ -106,7 +107,7 @@ class Adapter
             $this->setDefaultMode();
         }
 		if (!isset($this->mappingMode)) {
-			$this->setMappingMode('full');
+			$this->setMappingMode(MappingMode::Full);
 		}
 
         switch ($this->mode) {
@@ -259,6 +260,35 @@ class Adapter
                 $this->notAllowedIn($this->mode);
                 break;
         }
+    }
+
+    /**
+     * Cap the total number of results returned by the search engine.
+     * Default (0) means no cap.
+     */
+    public function setMaxResults(int $num): void
+    {
+        $this->maxResults = max(0, $num);
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                // Map to legacy productSearcher limiting (SQL LIMIT)
+                $this->standardSearchClient->limitRows = $this->maxResults;
+                break;
+
+            case Mode::SearchServer:
+                // The SearchServer implementation reads getMaxResults() during execution.
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
+    }
+
+    public function getMaxResults(): int
+    {
+        return $this->maxResults;
     }
 
     public function setEmptyFieldMatchesPerDefault(bool $emptyFieldMatchesPerDefault): void
