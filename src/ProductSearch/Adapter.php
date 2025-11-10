@@ -530,7 +530,7 @@ class Adapter
             foreach ($attr['values'] as $val) {
                 $value_id = (int) $val['value_id'];
                 $valueTitle = (string) ($val['title'] ?? ('Value ' . $value_id));
-                $isChecked = !empty($userSelected[$attribute_id][$value_id]);
+                $isChecked = in_array(['attribute_id' => $attribute_id, 'value_id' => $value_id], $userFilterSettings, true) || (!empty($userSelected[$attribute_id][$value_id]));
                 $facet = $facetLookup[$attribute_id][$value_id] ?? null;
                 $isFilteredOut = $facet['is_filtered_out'] ?? (($val['filtered_product_count'] ?? 0) === 0 && ($val['total_product_count'] ?? 0) > 0);
                 $invalid = $facet['is_invalid'] ?? false;
