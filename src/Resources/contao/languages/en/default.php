@@ -270,6 +270,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['linkShippingInfos'] = 'Click here
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['orderNr'] = 'Order number';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['bestResultsBannerText'] = 'These are the best results.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['bestResultsBannerShowAll'] = 'Show all results';
+
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderButtonText'] = 'Pre-order';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit'] = 'OK';

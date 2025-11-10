@@ -10,7 +10,7 @@ $isSearchResultsPage = ($objPage && $objPage->id == Merconis\Core\ls_shop_langua
 
 <?php if (!empty($this->bestResultsBanner) && $isSearchResultsPage) { ?>
 	<div class="best-results-banner">
-		These are the best results. <a href="<?php echo $this->bestResultsUrl; ?>">Show all results</a>
+		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['bestResultsBannerText']; ?> <a href="<?php echo $this->bestResultsUrl; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['bestResultsBannerShowAll']; ?></a>
 	</div>
 <?php } ?>
 
