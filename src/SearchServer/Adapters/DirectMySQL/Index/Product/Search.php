@@ -1838,6 +1838,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 'criteria' => $criteria,
                 'sorting' => $this->dmysql_sortingInput,
                 'fixedSorting' => $this->dmysql_fixedSortingInput,
+				'maxResults' => $this->dmysql_maxResults,
                 'language' => $language,
                 'facets' => [$activateFacets, $activateMatchEstimates, $removeImpossibleOptions],
                 'emptyFieldMatchesPerDefault' => $this->dmysql_emptyFieldMatchesPerDefault,
