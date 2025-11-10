@@ -168,6 +168,16 @@ class ls_shop_productList
 		$productSearchAdapter = System::getContainer()->get('LeadingSystems\\MerconisBundle\\ProductSearch\\Adapter');
 		$productSearchAdapter->initialize($this->blnUseFilter, $this->productListID);
 
+		/*
+		 * IMPORTANT: Set mapping mode BEFORE setting criteria so fulltext augmentation
+		 * respects the intended (quick vs full) mapping behavior.
+		 */
+		if ($searchMode === 'quick') {
+			$productSearchAdapter->setMappingMode(MappingMode::Quick);
+		} else {
+			$productSearchAdapter->setMappingMode(MappingMode::Full);
+		}
+
 		foreach ($this->arrSearchCriteria as $searchCriteriaFieldName => $searchCriteriaValue) {
 			$productSearchAdapter->setSearchCriterion($searchCriteriaFieldName, $searchCriteriaValue);
 		}
@@ -304,13 +314,6 @@ class ls_shop_productList
 
 		$productSearchAdapter->setSortingCriteria($arrSortingDefinition);
 		$productSearchAdapter->setFixedSorting($this->fixedSorting);
-
-		// Apply mapping mode
-		if ($searchMode === 'quick') {
-			$productSearchAdapter->setMappingMode(MappingMode::Quick);
-		} else {
-			$productSearchAdapter->setMappingMode(MappingMode::Full);
-		}
 
 		if ($this->maxNumProducts > 0) {
 			$productSearchAdapter->setTruncateResultsIfMoreThan($this->maxNumProducts);
