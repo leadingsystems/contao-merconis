@@ -28,6 +28,8 @@ class Adapter
     private ?string $productListId;
 
     private array $searchCriteria =  ['title' => '*', 'published' => '1'];
+    /** Caller-provided, un-augmented criteria for re-augmentation on mapping changes */
+    private array $rawSearchCriteria =  ['title' => '*', 'published' => '1'];
     private int $numPerPage = 0;
     private int $currentPage = 1;
     private array $sortingCriteria = [['field' => 'title', 'direction' => 'ASC']];
@@ -96,6 +98,8 @@ class Adapter
 	public function setMappingMode(MappingMode $mode): void
 	{
 		$this->mappingMode = $mode;
+        // Ensure criteria reflect new mapping mode even if set earlier
+        $this->reaugmentCriteriaForCurrentMapping();
 	}
 
     public function initialize(bool $useFilter = false, ?string $productListId = null): void
@@ -172,6 +176,9 @@ class Adapter
             return;
         }
 
+        // Track raw (un-augmented) value
+        $this->rawSearchCriteria[$fieldName] = $criterion;
+
         if ($fieldName === 'fulltext' && is_string($criterion) && $criterion !== '') {
             $criterion = $this->augmentFulltextIfApplicable($criterion);
         }
@@ -201,6 +208,9 @@ class Adapter
         if (!count($searchCriteria)) {
             $this->logger->warning('Search criteria array must not be empty');
         }
+
+        // Persist raw (un-augmented) criteria
+        $this->rawSearchCriteria = $searchCriteria;
 
         // Augment fulltext using search term mapping service if enabled
         if (isset($searchCriteria['fulltext']) && is_string($searchCriteria['fulltext']) && $searchCriteria['fulltext'] !== '') {
@@ -635,6 +645,31 @@ class Adapter
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
             $caller = isset($backtrace[1]['function']) ? $backtrace[1]['function'] : 'unknown';
             throw new \Exception($caller . ' is not allowed in ' . $this->mode->name . ' mode.');
+        }
+    }
+
+    /**
+     * Re-augment criteria from raw using current mapping mode; forward to Standard client when applicable.
+     */
+    private function reaugmentCriteriaForCurrentMapping(): void
+    {
+        if (!is_array($this->rawSearchCriteria) || !count($this->rawSearchCriteria)) {
+            return;
+        }
+        $augmented = $this->rawSearchCriteria;
+        if (isset($augmented['fulltext']) && is_string($augmented['fulltext']) && $augmented['fulltext'] !== '') {
+            $augmented['fulltext'] = $this->augmentFulltextIfApplicable($augmented['fulltext']);
+        }
+        $this->searchCriteria = $augmented;
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->setSearchCriteria($this->searchCriteria);
+                break;
+            case Mode::SearchServer:
+                break;
+            default:
+                break;
         }
     }
 }
