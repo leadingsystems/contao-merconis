@@ -39,6 +39,11 @@ class Search implements CommonInterface, IndexSearchInterface
     private bool $dmysql_emptyFieldMatchesPerDefault = false;
     private $dmysql_cacheHandle = null;
     private int $dmysql_maxResults = 0;
+	/**
+	 * Internal flag to suppress debug logging for secondary baseline queries
+	 * in the producers-only path.
+	 */
+	private bool $suppressSecondaryBaselineDebug = false;
 
     /**
      * Canonical field configuration keyed by lower-case identifiers.
@@ -194,7 +199,12 @@ class Search implements CommonInterface, IndexSearchInterface
 	{
 		$criteriaNoProd = $baseCriteria;
 		unset($criteriaNoProd['producers']);
-		$idsUnfilteredForProducers = $this->resolveBaseCandidates($criteriaNoProd, $ctx['language']);
+		$this->suppressSecondaryBaselineDebug = true;
+		try {
+			$idsUnfilteredForProducers = $this->resolveBaseCandidates($criteriaNoProd, $ctx['language']);
+		} finally {
+			$this->suppressSecondaryBaselineDebug = false;
+		}
 		$idsFilteredForProducers = $baseIds;
 
 		$facets = null;
@@ -971,9 +981,11 @@ class Search implements CommonInterface, IndexSearchInterface
 			$qb->setMaxResults($this->dmysql_maxResults);
         }
 
-		$this->logDebugInformation($criteria, $fulltextComponents, $qb);
-		if ($debugScoringEnabled) {
-			$this->logScoreBatchHeader($criteria, $language, $qb);
+		if (!$this->suppressSecondaryBaselineDebug) {
+			$this->logDebugInformation($criteria, $fulltextComponents, $qb);
+			if ($debugScoringEnabled) {
+				$this->logScoreBatchHeader($criteria, $language, $qb);
+			}
 		}
 
 		$rows = $qb->executeQuery()->fetchAllAssociative();
@@ -1537,16 +1549,18 @@ class Search implements CommonInterface, IndexSearchInterface
         $rawTokens = $this->tokenizeFulltextRaw($raw);
 
         // Debug: log tokenization result to help diagnose empty parsing
-        try {
-            $this->logger->notice('DirectMySQL parse debug', [
-                'raw' => $raw,
-                'rawTokens' => $rawTokens,
-            ]);
-        } catch (\Throwable $e) {}
-        try {
-            $debugLine = json_encode(['ts' => gmdate('c'), 'parse_debug' => ['raw' => $raw, 'rawTokens' => $rawTokens]], JSON_UNESCAPED_SLASHES);
-            @file_put_contents($this->resolveFallbackLogFilePath(), $debugLine . "\n", FILE_APPEND);
-        } catch (\Throwable $e) {}
+		if (!$this->suppressSecondaryBaselineDebug) {
+			try {
+				$this->logger->notice('DirectMySQL parse debug', [
+					'raw' => $raw,
+					'rawTokens' => $rawTokens,
+				]);
+			} catch (\Throwable $e) {}
+			try {
+				$debugLine = json_encode(['ts' => gmdate('c'), 'parse_debug' => ['raw' => $raw, 'rawTokens' => $rawTokens]], JSON_UNESCAPED_SLASHES);
+				@file_put_contents($this->resolveFallbackLogFilePath(), $debugLine . "\n", FILE_APPEND);
+			} catch (\Throwable $e) {}
+		}
 
         $terms = [];
         foreach ($rawTokens as $token) {
