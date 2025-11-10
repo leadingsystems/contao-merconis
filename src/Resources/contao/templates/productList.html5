@@ -1,11 +1,14 @@
 <?php
 $bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting']) && $GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting'];
+/** @var \PageModel $objPage */
+global $objPage;
+$isSearchResultsPage = ($objPage && $objPage->id == Merconis\Core\ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages', false, 'id'));
 ?>
 <!-- indexer::stop -->
 
 <?php echo $this->filterUI; ?>
 
-<?php if (!empty($this->bestResultsBanner)) { ?>
+<?php if (!empty($this->bestResultsBanner) && $isSearchResultsPage) { ?>
 	<div class="best-results-banner">
 		These are the best results. <a href="<?php echo $this->bestResultsUrl; ?>">Show all results</a>
 	</div>
