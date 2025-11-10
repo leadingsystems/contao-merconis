@@ -905,6 +905,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['moreOptionsAll'] = '
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['moreOptionsAdditional'] = '+ %s weitere Optionen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['notAnExactMatchMessage'] = 'Durch Ihre Auswahl haben sich weitere Produkteigenschaften geändert';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['liveHits']['searchForMoreProducts'] = 'weitere Produkte werden gesucht…';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['liveHits']['noMoreProducts'] = 'keine weiteren Produkte';
+
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['searchType']['options'] = array(
 	'And-Search' => 'Finde alle Wörter',
 	'Or-Search' => 'Finde irgendein Wort'
