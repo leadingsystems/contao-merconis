@@ -21,7 +21,6 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_useProductDescriptionAsSeoDescription'] = array('Use product description as meta description', 'Select this checkbox if you want the product description to be used as the meta page description. If available, the product short description will be used, otherwise the long description will be used. If no product description exists at all, the regular page description provided by contao will be used. Please note: If the product is explicitly assigned its own page description, this will always be used regardless of this setting.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_debugSearch'] = array('Enable DirectMySQL search logging', 'Activate this option to write detailed diagnostics (including SQL and parameters) for the DirectMySQL search into the system log.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_debugSearchScoring'] = array('Enable DirectMySQL debug scoring breakdown', 'When enabled, the search will project and log detailed per-result scoring components. Disable for production to avoid overhead.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_productCodeDelimiter'] = array('Product code prefix delimiter', 'Delimiter separating a producer prefix from the product code. The first occurrence is used. Leave empty to disable normalization.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_useCompactSets'] = array('Use compact filter sets', 'Experimental: Use precomputed compact sets for filter relevance instead of persisting bulky arrays. Can be overridden per browser via cookie ls_use_compact_filter_sets=1/0.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_loginModuleID'] 			= array('Login module for use during completion of order');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_miniCartModuleID'] 		= array('Mini shopping cart module', 'Module to be updated via AJAX');
@@ -96,7 +95,7 @@
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownEmailAddress'] = array('Own Email address', 'Used for various system notifications');
 	
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchCacheLifetimeSec'] = array('Lifetime of search caches in seconds');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchCacheLifetimeSec'] = array('Lifetime of search caches in seconds', 'Set to 0 to disable caching. Positive values cache for the given number of seconds.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_considerGroupPricesInFilterAndSorting'] = array('Consider group prices for filter and sorting','Please deactivate this option for performance reasons if you have not entered deviant group prices for any product or variant.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ignoreGroupRestrictionsInSearch'] = array('Ignore group restrictions in search', 'If there are no products with group restrictions, it can improve search performance if this search criterion is completely ignored. If this setting is selected, but there are products with group restrictions, these products will be found but not displayed. Instead, gaps occur in the displayed product lists.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_alwaysAddIdToAliasDuringProductImport'] = array('When importing products, always add ID to alias', 'With this setting, the uniqueness check of aliases is omitted during product import, thus achieving a significant performance advantage. Uniqueness is achieved by automatically appending the internal product ID to the alias.');
@@ -178,6 +177,15 @@
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Advanced settings';
 
+    // Facet presenter settings
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconisFilterSettings_legend'] = 'Merconis filter UI';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxVisibleAttributes'][0] = 'Max. visible attributes';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxVisibleAttributes'][1] = 'Limit the number of attribute fields shown above the fold.';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxValuesPerAttribute'][0] = 'Max. visible values per attribute';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxValuesPerAttribute'][1] = 'Limit the number of values per attribute. Remaining values can be revealed on demand.';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_pinnedAliases'][0] = 'Pinned attribute aliases';
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_pinnedAliases'][1] = 'Comma-separated list of attribute aliases to always show first (leave empty to disable).';
+
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menu';
 
 // ES logging legend
@@ -191,6 +199,32 @@ $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowServerMs'] = array('Slow
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowNetworkMs'] = array('Slow network threshold (ms)', 'Warn when estimated network/overhead exceeds this value.');
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogFile'] = array('Log file base name (optional)', 'Only a file name without suffix, stored in var/logs. The system automatically appends -YYYY-MM-DD.log (e.g. my-es-log-2025-09-17.log). If empty, defaults to <env>-YYYY-MM-DD.log.');
 	
+	// DirectMySQL weighting fields (labels)
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_title'] = array('Weight: Title', 'Relevance weight for the product title field (default 5.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_keywords'] = array('Weight: Keywords', 'Relevance weight for the keywords field (default 3.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_shortDescription'] = array('Weight: Short description', 'Relevance weight for the short description field (default 2.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_description'] = array('Weight: Description', 'Relevance weight for the description field (default 1.5).');
+
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_allTerms'] = array('Boost: Code (all terms match)', 'Extra relevance when all code terms match (default 100).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_anyTerm'] = array('Boost: Code (any term matches)', 'Extra relevance when any code term matches (default 20).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactTerm'] = array('Boost: Code (exact single term)', 'Extra relevance when a single term equals the product code (default 150).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactFullQuery'] = array('Boost: Code (exact full query)', 'Extra relevance when the entire query equals the product code (default 300).');
+
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_allTerms'] = array('Boost: Producer (all terms match)', 'Extra relevance when all producer terms match (default 60).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_anyTerm'] = array('Boost: Producer (any term matches)', 'Extra relevance when any producer term matches (default 10).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactTerm'] = array('Boost: Producer (exact single term)', 'Extra relevance when a single term equals the producer (default 80).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactFullQuery'] = array('Boost: Producer (exact full query)', 'Extra relevance when the entire query equals the producer (default 160).');
+
+	// MPN boosts
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_allTerms'] = array('Boost: MPN (all terms match)', 'Extra relevance when all MPN terms match (default 100).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_anyTerm'] = array('Boost: MPN (any term matches)', 'Extra relevance when any MPN term matches (default 20).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_exactTerm'] = array('Boost: MPN (exact single term)', 'Extra relevance when a single term equals the MPN (default 150).');
+
+	// GTIN boosts
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_allTerms'] = array('Boost: GTIN (all terms match)', 'Extra relevance when all GTIN terms match (default 110).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_anyTerm'] = array('Boost: GTIN (any term matches)', 'Extra relevance when any GTIN term matches (default 25).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_exactTerm'] = array('Boost: GTIN (exact single term)', 'Extra relevance when a single term equals the GTIN (default 220).');
+
 	/*
 	 * References
 	 */

@@ -270,6 +270,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['linkShippingInfos'] = 'Klicken Si
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['orderNr'] = 'Bestellnummer';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['bestResultsBannerText'] = 'Dies sind die besten Ergebnisse.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['bestResultsBannerShowAll'] = 'Alle Ergebnisse anzeigen';
+
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['preorder']['preorderButtonText'] = 'Vorbestellen';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['userSorting']['submit'] = 'OK';
@@ -904,6 +907,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['nothingSelectedYet']
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['moreOptionsAll'] = '%s Optionen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['moreOptionsAdditional'] = '+ %s weitere Optionen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['variationSelector']['notAnExactMatchMessage'] = 'Durch Ihre Auswahl haben sich weitere Produkteigenschaften geändert';
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['liveHits']['searchForMoreProducts'] = 'weitere Produkte werden gesucht…';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['liveHits']['noMoreProducts'] = 'keine weiteren Produkte';
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['searchType']['options'] = array(
 	'And-Search' => 'Finde alle Wörter',

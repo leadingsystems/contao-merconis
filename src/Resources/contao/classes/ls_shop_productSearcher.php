@@ -336,8 +336,12 @@ class ls_shop_productSearcher
         // Use the dedicated search cache handler (no exceptions on miss)
         $__registry = $__container->has(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) ? $__container->get(\LeadingSystems\ContaoCacheBundle\Cache\HandlerRegistry::class) : null;
         $__handler = $__registry?->getHandler('merconis.search');
-        if ($__handler) {
-            $__ttl = max(0, (int) $this->cacheLifetimeSec);
+		if ($__handler) {
+			$__ttl = (int) $this->cacheLifetimeSec;
+			if ($__ttl <= 0) {
+				// Do not start caching when TTL is disabled (0 or negative)
+				$__handler = null;
+			} else {
             $__tags = array(
                 'productListID' => $this->str_productListID ? $this->str_productListID : null,
                 'emptyFieldMatchesPerDefault' => $this->blnEmptyFieldMatchesPerDefault,
@@ -357,8 +361,9 @@ class ls_shop_productSearcher
                 'customerGroupId' => $this->arr_groupSettingsForUser['id']
             );
 
-            $__handle = $__handler->create($__ttl, $__tags);
-            [$__hit, $__payload] = $__handle->getValueOrStart();
+			$__handle = $__handler->create($__ttl, $__tags);
+			[$__hit, $__payload] = $__handle->getValueOrStart();
+			}
 
             if ($__hit && is_array($__payload)) {
                 $this->blnResultFromCache = true;

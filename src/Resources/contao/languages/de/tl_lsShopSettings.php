@@ -21,7 +21,6 @@
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_useProductDescriptionAsSeoDescription'] = array('Produktbeschreibung als Meta-Description', 'Wählen Sie diese Checkbox, wenn Sie möchten, dass die Beschreibung eines Produktes als Meta-Description verwendet werden soll. Sofern vorhanden, wird die Kurzbeschreibung verwendet, ansonsten die normale Beschreibung. Ist keine der beiden Beschreibungen für ein Produkt vorhanden, so wird die normale Page-Description von Contao verwendet. Bitte beachten Sie: Ist dem Produkt eine eigene Seitenbeschreibung ausdrücklich hinterlegt, so findet diese unabhängig von dieser Einstellung auf jeden Fall Anwendung.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_debugSearch'] = array('DirectMySQL-Suchlogging aktivieren', 'Aktivieren Sie diese Option, um bei der DirectMySQL-Suche detaillierte Diagnose-Informationen (u. a. SQL und Parameter) in das System-Log zu schreiben.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_debugSearchScoring'] = array('DirectMySQL-Scoring-Debugging aktivieren', 'Wenn aktiviert, werden detaillierte Scoring-Komponenten pro Treffer ermittelt und geloggt. Für den Produktivbetrieb deaktiviert lassen.');
-    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_productCodeDelimiter'] = array('Artikelnummer-Präfix-Trennzeichen', 'Trennzeichen zwischen Herstellerpräfix und Artikelnummer. Es wird das erste Vorkommen verwendet. Leer lassen, um die Normalisierung zu deaktivieren.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_useCompactSets'] = array('Kompakte Filter-Sets verwenden', 'Experimentell: Vorberechnete kompakte Sets für Filter-Relevanz verwenden statt großer Arrays in der Session. Pro Browser via Cookie ls_use_compact_filter_sets=1/0 überschreibbar.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_loginModuleID'] 			= array('Login-Modul zur Verwendung beim Bestellabschluss');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_miniCartModuleID'] 		= array('Mini-Warenkorb-Modul', 'Das Modul, welches per AJAX aktualisiert werden soll');
@@ -97,7 +96,7 @@
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownEmailAddress'] = array('Eigene E-Mail-Adresse', 'Wird zum Empfang diverser Systemmeldungen verwendet.');
 	
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchCacheLifetimeSec'] = array('Lebensdauer der Suchcaches in Sekunden');
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchCacheLifetimeSec'] = array('Lebensdauer der Suchcaches in Sekunden', '0 deaktiviert das Caching. Positive Werte cachen für die angegebene Anzahl Sekunden.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_considerGroupPricesInFilterAndSorting'] = array('Gruppenpreise für Filterung und Sortierung berücksichtigen','Bitte deaktivieren Sie diese Option aus Performancegründen, wenn Sie keinem Produkt bzw. keiner Variante abweichende Gruppenpreise hinterlegt haben.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ignoreGroupRestrictionsInSearch'] = array('Gruppeneinschränkungen in Suche ignorieren', 'Gibt es keine Produkte mit Gruppeneinschränkungen, so kann es die Suchperformance verbessern, wenn dieses Suchkriterium vollständig ignoriert wird. Falls diese Einstellung gewählt wird, es aber doch Produkte mit Gruppeneinschränkungen gibt, so werden diese Produkte gefunden aber dennoch nicht dargestellt. Stattdessen entstehen Lücken in ausgegebenen Produktlisten.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_alwaysAddIdToAliasDuringProductImport'] = array('Bei Produkt-Import Alias immer mit ID ergänzen', 'Mit dieser Einstellung wird beim Produkt-Import auf die Eindeutigkeitsprüfung von Aliasen verzichtet und damit ein deutlicher Performance-Vorteil erreicht. Die Eindeutigkeit wird hierbei durch das automatische Anhängen der internen Produkt-ID an den Alias erreicht.');
@@ -176,7 +175,16 @@
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['backendLscss_legend'] = 'Einstellungen für LSCSS im Backend';
 
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Erweiterte Einstellungen';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Erweiterte Einstellungen';
+
+// Facet presenter settings
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconisFilterSettings_legend'] = 'Merconis Filter-UI';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxVisibleAttributes'][0] = 'Max. sichtbare Attribute';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxVisibleAttributes'][1] = 'Begrenzen Sie die Anzahl der Attribut-Felder, die oberhalb der Falz angezeigt werden.';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxValuesPerAttribute'][0] = 'Max. sichtbare Werte je Attribut';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_maxValuesPerAttribute'][1] = 'Begrenzen Sie die Anzahl der Werte pro Attribut. Weitere Werte können bei Bedarf eingeblendet werden.';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_pinnedAliases'][0] = 'Fixierte Attribut-Aliase';
+$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_filter_pinnedAliases'][1] = 'Kommaseparierte Liste von Attribut-Aliasen, die immer zuerst angezeigt werden sollen (leer lassen zum Deaktivieren).';
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menü';
 
@@ -190,6 +198,32 @@ $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowTotalMs'] = array('Schwe
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowServerMs'] = array('Schwellenwert „langsam Server“ (ms)', 'Warnen, wenn die ES-Serverausführungszeit diesen Wert überschreitet.');
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esSlowNetworkMs'] = array('Schwellenwert „langsam Netzwerk“ (ms)', 'Warnen, wenn die geschätzte Netzwerk-/Overheadzeit diesen Wert überschreitet.');
 $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_esLogFile'] = array('Basisname der Logdatei (optional)', 'Nur ein Dateiname ohne Endung; gespeichert in var/logs. Das System hängt automatisch -YYYY-MM-DD.log an (z. B. my-es-log-2025-09-17.log). Wenn leer, Standard: <env>-YYYY-MM-DD.log.');
+
+	// DirectMySQL Gewichtungen (Beschriftungen)
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_title'] = array('Gewichtung: Titel', 'Relevanz-Gewichtung für das Feld Produkt-Titel (Standard 5.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_keywords'] = array('Gewichtung: Schlüsselwörter', 'Relevanz-Gewichtung für das Feld Schlüsselwörter (Standard 3.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_shortDescription'] = array('Gewichtung: Kurzbeschreibung', 'Relevanz-Gewichtung für das Feld Kurzbeschreibung (Standard 2.0).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_weight_description'] = array('Gewichtung: Beschreibung', 'Relevanz-Gewichtung für das Feld Beschreibung (Standard 1,5).');
+
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_allTerms'] = array('Boost: Artikelnummer (alle Begriffe treffen)', 'Zusätzliche Relevanz, wenn alle Code-Begriffe treffen (Standard 100).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_anyTerm'] = array('Boost: Artikelnummer (irgendein Begriff trifft)', 'Zusätzliche Relevanz, wenn irgendein Code-Begriff trifft (Standard 20).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactTerm'] = array('Boost: Artikelnummer (exakter Einzelbegriff)', 'Zusätzliche Relevanz, wenn ein einzelner Begriff exakt der Artikelnummer entspricht (Standard 150).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_code_boost_exactFullQuery'] = array('Boost: Artikelnummer (gesamte Suche exakt)', 'Zusätzliche Relevanz, wenn der gesamte Suchtext exakt der Artikelnummer entspricht (Standard 300).');
+
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_allTerms'] = array('Boost: Hersteller (alle Begriffe treffen)', 'Zusätzliche Relevanz, wenn alle Hersteller-Begriffe treffen (Standard 60).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_anyTerm'] = array('Boost: Hersteller (irgendein Begriff trifft)', 'Zusätzliche Relevanz, wenn irgendein Hersteller-Begriff trifft (Standard 10).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactTerm'] = array('Boost: Hersteller (exakter Einzelbegriff)', 'Zusätzliche Relevanz, wenn ein einzelner Begriff exakt dem Hersteller entspricht (Standard 80).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_producer_boost_exactFullQuery'] = array('Boost: Hersteller (gesamte Suche exakt)', 'Zusätzliche Relevanz, wenn der gesamte Suchtext exakt dem Hersteller entspricht (Standard 160).');
+
+	// MPN Boosts
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_allTerms'] = array('Boost: MPN (alle Begriffe treffen)', 'Zusätzliche Relevanz, wenn alle MPN-Begriffe treffen (Standard 100).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_anyTerm'] = array('Boost: MPN (irgendein Begriff trifft)', 'Zusätzliche Relevanz, wenn irgendein MPN-Begriff trifft (Standard 20).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_mpn_boost_exactTerm'] = array('Boost: MPN (exakter Einzelbegriff)', 'Zusätzliche Relevanz, wenn ein einzelner Begriff exakt der MPN entspricht (Standard 150).');
+
+	// GTIN Boosts
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_allTerms'] = array('Boost: GTIN (alle Begriffe treffen)', 'Zusätzliche Relevanz, wenn alle GTIN-Begriffe treffen (Standard 110).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_anyTerm'] = array('Boost: GTIN (irgendein Begriff trifft)', 'Zusätzliche Relevanz, wenn irgendein GTIN-Begriff trifft (Standard 25).');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_dmysql_gtin_boost_exactTerm'] = array('Boost: GTIN (exakter Einzelbegriff)', 'Zusätzliche Relevanz, wenn ein einzelner Begriff exakt der GTIN entspricht (Standard 220).');
 
 
 	/*

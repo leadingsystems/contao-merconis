@@ -1,9 +1,18 @@
 <?php
 $bln_useAjax = isset($GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting']) && $GLOBALS['TL_CONFIG']['ls_shop_useAjaxForPaginationAndSorting'];
+/** @var \PageModel $objPage */
+global $objPage;
+$isSearchResultsPage = ($objPage && $objPage->id == Merconis\Core\ls_shop_languageHelper::getLanguagePage('ls_shop_searchResultPages', false, 'id'));
 ?>
 <!-- indexer::stop -->
 
 <?php echo $this->filterUI; ?>
+
+<?php if (!empty($this->bestResultsBanner) && $isSearchResultsPage) { ?>
+	<div class="best-results-banner">
+		<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['bestResultsBannerText']; ?> <a href="<?php echo $this->bestResultsUrl; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['bestResultsBannerShowAll']; ?></a>
+	</div>
+<?php } ?>
 
 <div id="merconis-product-list-reload-container-<?php echo $this->productListID; ?>" class="<?php echo $this->blnUseFilter ? ' ajax-reload-by-filter' : ''; ?>">
     <?php if ($this->allowUserSorting || $this->pagination) { ?>

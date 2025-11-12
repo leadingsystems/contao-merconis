@@ -650,6 +650,8 @@ class ls_shop_importController
 				SET			`title` = ?,
 							`alias` = ?,
 							`sorting` = ?,
+							`mpn` = ?,
+							`gtin` = ?,
 							`keywords` = ?,
 							`shortDescription` = ?,
 							`description` = ?,
@@ -695,6 +697,8 @@ class ls_shop_importController
 				$row['name'], // String, maxlength 255
 				ls_shop_productManagementApiHelper::generateProductAlias($row['name'], $row['alias'], $alreadyExistsAsID),
 				$row['sorting'] && $row['sorting'] > 0 ? $row['sorting'] : 0, // int empty = 0
+				(string) ($row['mpn'] ?? ''),
+				(string) ($row['gtin'] ?? ''),
 				$row['keywords'], // text
 				$row['shortDescription'], // text
 				$row['description'], // text
@@ -790,6 +794,8 @@ class ls_shop_importController
 							`alias` = ?,
 							`sorting` = ?,
 							`lsShopProductCode` = ?,
+							`mpn` = ?,
+							`gtin` = ?,
 							`keywords` = ?,
 							`shortDescription` = ?,
 							`description` = ?,
@@ -835,6 +841,8 @@ class ls_shop_importController
 				ls_shop_productManagementApiHelper::generateProductAlias($row['name'], $row['alias']),
 				$row['sorting'] && $row['sorting'] > 0 ? $row['sorting'] : 0, // int empty = 0
 				$row['productcode'], // String, maxlength 255
+				(string) ($row['mpn'] ?? ''),
+				(string) ($row['gtin'] ?? ''),
 				$row['keywords'], // text
 				$row['shortDescription'], // text
 				$row['description'], // text
@@ -1067,6 +1075,8 @@ class ls_shop_importController
 				SET			`title` = ?,
 							`alias` = ?,
 							`sorting` = ?,
+							`mpn` = ?,
+							`gtin` = ?,
 							`shortDescription` = ?,
 							`description` = ?,
 							`published` = ?,
@@ -1107,6 +1117,8 @@ class ls_shop_importController
 				$row['name'], // String, maxlength 255
 				ls_shop_productManagementApiHelper::generateVariantAlias($row['name'], $row['alias'], $alreadyExistsAsID),
 				$row['sorting'] && $row['sorting'] > 0 ? $row['sorting'] : 0, // int empty = 0
+				(string) ($row['mpn'] ?? ''),
+				(string) ($row['gtin'] ?? ''),
 				$row['shortDescription'], // text
 				$row['description'], // text
 				$row['publish'] ? '1' : '', // 1 or ''
@@ -1195,6 +1207,8 @@ class ls_shop_importController
 							`alias` = ?,
 							`sorting` = ?,
 							`lsShopVariantCode` = ?,
+							`mpn` = ?,
+							`gtin` = ?,
 							`shortDescription` = ?,
 							`description` = ?,
 							`published` = ?,
@@ -1236,6 +1250,8 @@ class ls_shop_importController
 				ls_shop_productManagementApiHelper::generateVariantAlias($row['name'], $row['alias']),
 				$row['sorting'] && $row['sorting'] > 0 ? $row['sorting'] : 0, // int empty = 0
 				$row['productcode'], // String, maxlength 255
+				(string) ($row['mpn'] ?? ''),
+				(string) ($row['gtin'] ?? ''),
 				$row['shortDescription'], // text
 				$row['description'], // text
 				$row['publish'] ? '1' : '', // 1 or ''

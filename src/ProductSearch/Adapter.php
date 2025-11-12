@@ -5,6 +5,7 @@ namespace LeadingSystems\MerconisBundle\ProductSearch;
 use Contao\Controller;
 use LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\ObjectStatePersistorTrait;
 use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
+use LeadingSystems\MerconisBundle\ProductSearch\Enum\MappingMode;
 use LeadingSystems\MerconisBundle\SearchServer\SearchServer;
 use Merconis\Core\ls_shop_generalHelper;
 use Merconis\Core\ls_shop_productSearcher;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use LeadingSystems\MerconisBundle\ProductSearch\SearchTermMappingService;
+use LeadingSystems\MerconisBundle\ProductSearch\FacetPresenter;
 
 class Adapter
 {
@@ -26,6 +28,8 @@ class Adapter
     private ?string $productListId;
 
     private array $searchCriteria =  ['title' => '*', 'published' => '1'];
+    /** Caller-provided, un-augmented criteria for re-augmentation on mapping changes */
+    private array $rawSearchCriteria =  ['title' => '*', 'published' => '1'];
     private int $numPerPage = 0;
     private int $currentPage = 1;
     private array $sortingCriteria = [['field' => 'title', 'direction' => 'ASC']];
@@ -33,6 +37,7 @@ class Adapter
     private int $truncateResultsIfMoreThan = 0;
     private bool $cancelSearchIfMoreThanTruncateLimit = false;
     private bool $emptyFieldMatchesPerDefault = false;
+    private int $maxResults = 0;
 
     private SearchResult $searchResult;
     private Environment $twig;
@@ -40,6 +45,9 @@ class Adapter
     private Helper $helper;
     private TranslatorInterface $translator;
     private SearchTermMappingService $termMappingService;
+
+	/** Mapping mode: 'quick' or 'full' to select mappings */
+	private MappingMode $mappingMode = MappingMode::Full;
 
     public function __construct(SearchServer $searchServer, Helper $helper, LoggerInterface $logger, Environment $twig, RequestStack $requestStack, TranslatorInterface $translator, SearchTermMappingService $termMappingService)
     {
@@ -64,7 +72,7 @@ class Adapter
                 $mode === null || $mode === Mode::Standard || ($mode === Mode::SearchServer && $this->termMappingService->isApplyInElasticsearch())
             );
             if ($applyAugmentation) {
-                return $this->termMappingService->augment($fulltext);
+				return $this->termMappingService->augment($fulltext, $this->mappingMode);
             }
         } catch (\Throwable $e) {
             $this->logger->error('Search term augmentation failed: ' . $e->getMessage());
@@ -83,9 +91,15 @@ class Adapter
          * Do me! The default mode should be defined as a system/environment setting.
          *  Maybe it should be configurable in the Contao backend?
          */
-//        $this->setMode(Mode::SearchServer);
-        $this->setMode(Mode::Standard);
+        $this->setMode(Mode::SearchServer);
     }
+
+	public function setMappingMode(MappingMode $mode): void
+	{
+		$this->mappingMode = $mode;
+        // Ensure criteria reflect new mapping mode even if set earlier
+        $this->reaugmentCriteriaForCurrentMapping();
+	}
 
     public function initialize(bool $useFilter = false, ?string $productListId = null): void
     {
@@ -95,6 +109,9 @@ class Adapter
         if ($this->mode === null) {
             $this->setDefaultMode();
         }
+		if (!isset($this->mappingMode)) {
+			$this->setMappingMode(MappingMode::Full);
+		}
 
         switch ($this->mode) {
             case Mode::Standard:
@@ -114,7 +131,6 @@ class Adapter
                 break;
         }
 
-
         $this->initializePersistor(['searchCriteria'], $this->productListId . '::' . $this->useFilter . '::' . $this->mode->name);
 
         $this->receiveUserInput();
@@ -132,14 +148,23 @@ class Adapter
 
         $filter = $request->get('filter', []);
 
-        $filterAsSearchCriterion = array_map(
-            function($item) {
-                return json_decode($item, true);
-            },
-            $filter ?? []
-        );
+        $decoded = array_map(function($item) { return json_decode($item, true); }, $filter ?? []);
+        $attributeFilters = [];
+        $producerFilters = [];
+        foreach ($decoded as $entry) {
+            if (!is_array($entry)) { continue; }
+            if (isset($entry['producer'])) {
+                $val = trim((string) $entry['producer']);
+                if ($val !== '') { $producerFilters[] = $val; }
+                continue;
+            }
+            if (isset($entry['attribute_id']) && isset($entry['value_id'])) {
+                $attributeFilters[] = ['attribute_id' => (int) $entry['attribute_id'], 'value_id' => (int) $entry['value_id']];
+            }
+        }
 
-        $this->setSearchCriterion('attributes', $filterAsSearchCriterion);
+        $this->setSearchCriterion('attributes', $attributeFilters);
+        $this->setSearchCriterion('producers', $producerFilters);
 
         Controller::reload();
     }
@@ -149,6 +174,9 @@ class Adapter
         if (!$fieldName) {
             return;
         }
+
+        // Track raw (un-augmented) value
+        $this->rawSearchCriteria[$fieldName] = $criterion;
 
         if ($fieldName === 'fulltext' && is_string($criterion) && $criterion !== '') {
             $criterion = $this->augmentFulltextIfApplicable($criterion);
@@ -179,6 +207,9 @@ class Adapter
         if (!count($searchCriteria)) {
             $this->logger->warning('Search criteria array must not be empty');
         }
+
+        // Persist raw (un-augmented) criteria
+        $this->rawSearchCriteria = $searchCriteria;
 
         // Augment fulltext using search term mapping service if enabled
         if (isset($searchCriteria['fulltext']) && is_string($searchCriteria['fulltext']) && $searchCriteria['fulltext'] !== '') {
@@ -238,6 +269,35 @@ class Adapter
                 $this->notAllowedIn($this->mode);
                 break;
         }
+    }
+
+    /**
+     * Cap the total number of results returned by the search engine.
+     * Default (0) means no cap.
+     */
+    public function setMaxResults(int $num): void
+    {
+        $this->maxResults = max(0, $num);
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                // Map to legacy productSearcher limiting (SQL LIMIT)
+                $this->standardSearchClient->limitRows = $this->maxResults;
+                break;
+
+            case Mode::SearchServer:
+                // The SearchServer implementation reads getMaxResults() during execution.
+                break;
+
+            default:
+                $this->notAllowedIn($this->mode);
+                break;
+        }
+    }
+
+    public function getMaxResults(): int
+    {
+        return $this->maxResults;
     }
 
     public function setEmptyFieldMatchesPerDefault(bool $emptyFieldMatchesPerDefault): void
@@ -397,6 +457,16 @@ class Adapter
         return $this->sortingCriteria;
     }
 
+    public function getFixedSorting(): array
+    {
+        return $this->fixedSorting;
+    }
+
+    public function getEmptyFieldMatchesPerDefault(): bool
+    {
+        return $this->emptyFieldMatchesPerDefault;
+    }
+
     public function isUsingFilter(): bool
     {
         return (bool)$this->useFilter;
@@ -415,20 +485,24 @@ class Adapter
         $andWord = $this->translator->trans('MSC.ls_shop.general.and', [], 'contao_default');
 
         $combinedFacets = $this->getFacets()->getCombinedFacets();
-        $filters = [];
+        $facetLookup = [];
         foreach ($combinedFacets as $facet) {
-            $filters[$facet['attribute_id']][$facet['value_id']] = $facet;
+            if (isset($facet['attribute_id']) && isset($facet['value_id'])) {
+                $facetLookup[$facet['attribute_id']][$facet['value_id']] = $facet;
+            }
         }
-        ksort($filters);
-        foreach ($filters as &$values) {
-            ksort($values);
-        }
-        unset($values);
 
-        $attributes = ls_shop_generalHelper::getProductAttributes();
-        $attributeNames = array_column($attributes, 'title', 'id');
-        $values = ls_shop_generalHelper::getAttributeValues();
-        $valueNames = array_column($values, 'title', 'id');
+        // Present prioritized and capped attributes/values (stateless)
+        $presented = FacetPresenter::present(
+            $this->getFacets(),
+            $this->getSearchCriteria(),
+            [
+                'maxVisibleAttributes' => (int) ($GLOBALS['TL_CONFIG']['merconis_filter_maxVisibleAttributes'] ?? 12),
+                'defaultMaxValuesPerAttribute' => (int) ($GLOBALS['TL_CONFIG']['merconis_filter_maxValuesPerAttribute'] ?? 10),
+                'pinnedAliases' => (array) ($GLOBALS['TL_CONFIG']['merconis_filter_pinnedAliases'] ?? []),
+                // language omitted to auto-detect from Page
+            ]
+        );
 
         // Determine whether match estimates should be shown (layout setting)
         $useMatchEstimates = isset($GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates']) ? (bool)$GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] : true;
@@ -444,17 +518,20 @@ class Adapter
 
         // Prepare final array for Twig
         $preparedFilters = [];
-        foreach ($filters as $attribute_id => $values) {
-            $attributeTitle = $attributeNames[$attribute_id] ?? ('Attribute ' . $attribute_id);
+        foreach ($presented['visibleAttributes'] as $attr) {
+            $attribute_id = (int) $attr['attribute_id'];
+            $attributeTitle = (string) ($attr['title'] ?? ('Attribute ' . $attribute_id));
             $preparedFilters[$attribute_id] = [
                 'title' => $attributeTitle,
                 'values' => []
             ];
             $selectedTitles = [];
-            foreach ($values as $value_id => $facet) {
-                $valueTitle = $valueNames[$value_id] ?? ('Value ' . $value_id);
-                $isChecked = !empty($userSelected[$attribute_id][$value_id]);
-                $isFilteredOut = $facet['is_filtered_out'] ?? false;
+            foreach ($attr['values'] as $val) {
+                $value_id = (int) $val['value_id'];
+                $valueTitle = (string) ($val['title'] ?? ('Value ' . $value_id));
+                $isChecked = in_array(['attribute_id' => $attribute_id, 'value_id' => $value_id], $userFilterSettings, true) || (!empty($userSelected[$attribute_id][$value_id]));
+                $facet = $facetLookup[$attribute_id][$value_id] ?? null;
+                $isFilteredOut = $facet['is_filtered_out'] ?? (($val['filtered_product_count'] ?? 0) === 0 && ($val['total_product_count'] ?? 0) > 0);
                 $invalid = $facet['is_invalid'] ?? false;
                 $liClass = ($isFilteredOut ? 'filter-value filter-value--out' : 'filter-value') . ($invalid ? ' invalid' : '');
                 $checked = $isChecked ? 'checked' : '';
@@ -463,8 +540,8 @@ class Adapter
                     $selectedTitles[] = $valueTitle;
                 }
                 if ($useMatchEstimates) {
-                    $filteredCount = $facet['filtered_product_count'] ?? 0;
-                    $totalCount    = $facet['total_product_count'] ?? 0;
+                    $filteredCount = $facet['filtered_product_count'] ?? ($val['filtered_product_count'] ?? 0);
+                    $totalCount    = $facet['total_product_count'] ?? ($val['total_product_count'] ?? 0);
                     if ($filteredCount > 0) {
                         $activeStateClass = 'active';
                         $matchEstimateCount = $filteredCount;
@@ -474,7 +551,6 @@ class Adapter
                     }
                     $showCount = true;
                 } else {
-                    // When match estimates are disabled, do not compute or show counts
                     $activeStateClass = '';
                     $matchEstimateCount = null;
                     $showCount = false;
@@ -508,10 +584,55 @@ class Adapter
             $preparedFilters[$attribute_id]['summary'] = $summary;
         }
 
+        // Producers
+        $preparedProducers = [];
+        $selectedProducers = array_map('strval', $this->searchCriteria['producers'] ?? []);
+        foreach (($presented['visibleProducers'] ?? []) as $prod) {
+            $producerName = (string) ($prod['producer'] ?? '');
+            $producerLabel = (string) ($prod['label'] ?? $producerName);
+            if ($producerName === '') { continue; }
+            $isChecked = in_array($producerName, $selectedProducers, true);
+            // find counts in combined facets
+            $facet = null;
+            foreach ($combinedFacets as $entry) {
+                if (isset($entry['producer']) && strtolower((string)$entry['producer']) === strtolower($producerName)) { $facet = $entry; break; }
+            }
+            if ($useMatchEstimates) {
+                $filteredCount = $facet['filtered_product_count'] ?? ($prod['filtered_product_count'] ?? 0);
+                $totalCount    = $facet['total_product_count'] ?? ($prod['total_product_count'] ?? 0);
+                if ($filteredCount > 0) {
+                    $activeStateClass = 'active';
+                    $matchEstimateCount = $filteredCount;
+                } else {
+                    $activeStateClass = 'inactive';
+                    $matchEstimateCount = $totalCount;
+                }
+                $showCount = true;
+            } else {
+                $activeStateClass = '';
+                $matchEstimateCount = null;
+                $showCount = false;
+            }
+            $encodedValue = json_encode(['producer' => $producerName]);
+            $preparedProducers[] = [
+                'title' => $producerLabel,
+                'liClass' => 'filter-value',
+                'checked' => $isChecked ? 'checked' : '',
+                'disabled' => (!$isChecked && $useMatchEstimates && ($matchEstimateCount === 0)) ? 'disabled' : '',
+                'invalid' => false,
+                'activeStateClass' => $activeStateClass,
+                'matchEstimateCount' => $matchEstimateCount,
+                'showCount' => $showCount,
+                'encodedValue' => $encodedValue,
+            ];
+        }
+
         return $this->twig->render(
             '@LeadingSystemsMerconis/frontend/product-search/filter/ui.html.twig',
             [
                 'filters' => $preparedFilters,
+                'producers' => $preparedProducers,
+                'producerTitle' => $presented['producerTitle'] ?? 'Producer',
                 'productListId' => $this->productListId
             ]
         );
@@ -523,6 +644,31 @@ class Adapter
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
             $caller = isset($backtrace[1]['function']) ? $backtrace[1]['function'] : 'unknown';
             throw new \Exception($caller . ' is not allowed in ' . $this->mode->name . ' mode.');
+        }
+    }
+
+    /**
+     * Re-augment criteria from raw using current mapping mode; forward to Standard client when applicable.
+     */
+    private function reaugmentCriteriaForCurrentMapping(): void
+    {
+        if (!is_array($this->rawSearchCriteria) || !count($this->rawSearchCriteria)) {
+            return;
+        }
+        $augmented = $this->rawSearchCriteria;
+        if (isset($augmented['fulltext']) && is_string($augmented['fulltext']) && $augmented['fulltext'] !== '') {
+            $augmented['fulltext'] = $this->augmentFulltextIfApplicable($augmented['fulltext']);
+        }
+        $this->searchCriteria = $augmented;
+
+        switch ($this->mode) {
+            case Mode::Standard:
+                $this->standardSearchClient->setSearchCriteria($this->searchCriteria);
+                break;
+            case Mode::SearchServer:
+                break;
+            default:
+                break;
         }
     }
 }
