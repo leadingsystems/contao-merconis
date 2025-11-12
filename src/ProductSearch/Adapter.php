@@ -91,8 +91,7 @@ class Adapter
          * Do me! The default mode should be defined as a system/environment setting.
          *  Maybe it should be configurable in the Contao backend?
          */
-//        $this->setMode(Mode::SearchServer);
-        $this->setMode(Mode::Standard);
+        $this->setMode(Mode::SearchServer);
     }
 
 	public function setMappingMode(MappingMode $mode): void
