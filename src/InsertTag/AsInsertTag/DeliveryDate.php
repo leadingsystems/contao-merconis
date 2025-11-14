@@ -26,7 +26,10 @@ class DeliveryDate extends InsertTag
 
         /** @var ls_shop_product|ls_shop_variant $obj_productOrVariant */
         $obj_productOrVariant = $GLOBALS['merconis_globals']['arr_dataForInsertTags']['obj_productOrVariant'];
-        $str_deliveryDate = Date::parse($objPage->dateFormat, time() + 86400 * $obj_productOrVariant->getDeliveryTimeDays($GLOBALS['merconis_globals']['arr_dataForInsertTags']['float_requestedQuantity']));
+
+        $deliveryTimeDays = $obj_productOrVariant->getDeliveryTimeDays($GLOBALS['merconis_globals']['arr_dataForInsertTags']['float_requestedQuantity']);
+
+        $str_deliveryDate = Date::parse($objPage->dateFormat,  time()+ 86400 * $deliveryTimeDays);
         return $str_deliveryDate;
 
 	}
