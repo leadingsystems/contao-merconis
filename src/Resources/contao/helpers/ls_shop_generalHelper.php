@@ -19,6 +19,9 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_generalHelper
 {
+
+    protected static int $maxOrderCountSavedInCache = 200;
+
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
      * and writes them into the allocation table
@@ -4220,6 +4223,14 @@ class ls_shop_generalHelper
             $arrOrder['shippingMethod_infoAfterCheckout'] = ls_shop_generalHelper::ls_replaceOrderWildcards($arrOrder['shippingMethod_infoAfterCheckout'], $arrOrder);
             $arrOrder['shippingMethod_infoAfterCheckout_customerLanguage'] = ls_shop_generalHelper::ls_replaceOrderWildcards($arrOrder['shippingMethod_infoAfterCheckout_customerLanguage'], $arrOrder);
 
+            // count how many orders are already saved
+            $orderCount = isset($GLOBALS['merconis_globals']['order'])? count($GLOBALS['merconis_globals']['order']): 0;
+
+            // if to many orders are already saved, we should not save more, because we use to much RAM
+            if ($orderCount > self::$maxOrderCountSavedInCache) {
+                return $arrOrder;
+            }
+
 
             $GLOBALS['merconis_globals']['order'][$identificationToken] = $arrOrder;
         }
@@ -4321,30 +4332,63 @@ class ls_shop_generalHelper
 
     public static function sendMessagesOnStatusChangeCronDaily()
     {
-        $objOrders = \Database::getInstance()->prepare("
-				SELECT		*
-				FROM		`tl_ls_shop_orders`
-			")
-            ->execute();
+        $limit = 50;
+        $offset = 0;
 
-        while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronDaily', 'sendWhen', null, true);
-            $objOrderMessages->sendMessages();
+        $objOrders = self::loadOrderBatch($limit, $offset);
+
+        while ($objOrders->numRows > 0) {
+            while ($objOrders->next()) {
+
+                $objOrderMessages = new ls_shop_orderMessages(
+                    $objOrders->id,
+                    'onStatusChangeCronDaily',
+                    'sendWhen',
+                    null,
+                    true
+                );
+                $objOrderMessages->sendMessages();
+
+            }
+            $offset += $limit;
+
+            $objOrders = self::loadOrderBatch($limit, $offset);
         }
     }
 
     public static function sendMessagesOnStatusChangeCronHourly()
     {
-        $objOrders = \Database::getInstance()->prepare("
-				SELECT		*
-				FROM		`tl_ls_shop_orders`
-			")
-            ->execute();
+        $limit = 50;
+        $offset = 0;
 
-        while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronHourly', 'sendWhen', null, true);
-            $objOrderMessages->sendMessages();
+        $objOrders = self::loadOrderBatch($limit, $offset);
+
+        while ($objOrders->numRows > 0) {
+            while ($objOrders->next()) {
+
+                $objOrderMessages = new ls_shop_orderMessages(
+                    $objOrders->id,
+                    'onStatusChangeCronHourly',
+                    'sendWhen',
+                    null,
+                    true
+                );
+                $objOrderMessages->sendMessages();
+
+            }
+            $offset += $limit;
+
+            $objOrders = self::loadOrderBatch($limit, $offset);
         }
+    }
+
+    public static function loadOrderBatch(int $limit, int $offset)
+    {
+        return \Database::getInstance()->prepare("
+            SELECT id
+            FROM tl_ls_shop_orders
+            LIMIT $limit OFFSET $offset
+        ")->execute();
     }
 
     /*
