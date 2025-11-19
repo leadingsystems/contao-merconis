@@ -233,3 +233,8 @@
         'And-Search' => 'Match all words',
         'Or-Search' => 'Match any word'
     );
+
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_cacheRamPercent'] = [
+        'Percentage of RAM usage at which caching is stopped',
+        'If this percentage is reached, Merconis automatically stops caching when creating orders.'
+    ];

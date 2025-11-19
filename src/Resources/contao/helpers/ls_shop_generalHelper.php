@@ -4,11 +4,13 @@ namespace Merconis\Core;
 
 use Contao\ArrayUtil;
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\LayoutModel;
 use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
+use Psr\Log\LogLevel;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -20,7 +22,7 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 class ls_shop_generalHelper
 {
 
-    protected static int $maxOrderCountSavedInCache = 200;
+    private static bool $cacheWarningShown = false;
 
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
@@ -4227,16 +4229,92 @@ class ls_shop_generalHelper
             $orderCount = isset($GLOBALS['merconis_globals']['order'])? count($GLOBALS['merconis_globals']['order']): 0;
 
             // if to many orders are already saved, we should not save more, because we use to much RAM
-            if ($orderCount > self::$maxOrderCountSavedInCache) {
+            if (!self::shouldUseCache()) {
                 return $arrOrder;
             }
-
 
             $GLOBALS['merconis_globals']['order'][$identificationToken] = $arrOrder;
         }
 
         return $GLOBALS['merconis_globals']['order'][$identificationToken];
     }
+
+    //used by tl_lsShopSettings dca and everywhere else that needs the default value for this setting
+    public static function getDefaultCacheRamPercent($value)
+    {
+        if (!$value || $value <= 0) {
+            return 60;
+        }
+        return $value;
+    }
+    public static function shouldUseCache(): bool
+    {
+        $percentSetting = (int) \Config::get('ls_shop_cacheRamPercent');
+
+
+        if ($percentSetting <= 0) {
+            $percentSetting = self::getDefaultCacheRamPercent($percentSetting);;
+        }
+
+        // Read the PHP memory_limit
+        $memoryLimit = ini_get('memory_limit');
+
+        // unlimited (-1), always cache
+        if ($memoryLimit == -1) {
+            return true;
+        }
+
+        $limitMb = self::convertToMb($memoryLimit);
+
+        $currentMb = memory_get_usage(true) / 1024 / 1024;
+
+        // allowed limit in MB
+        $limitPercentValue = $limitMb * ($percentSetting / 100);
+
+        // Check if the percentage limit is exceeded
+        if ($currentMb >= $limitPercentValue) {
+
+            // Only write warning in log one time runtime
+            if (!self::$cacheWarningShown) {
+
+                System::getContainer()->get('monolog.logger.contao')->log(
+                    LogLevel::WARNING,
+                    sprintf(
+                        'Merconis cache stopped: RAM at %.2f MB (threshold %.2f MB (%s%%) of %s MB total).',
+                        $currentMb,
+                        $limitPercentValue,
+                        $percentSetting,
+                        $limitMb
+                    ),
+                    array('contao' => new ContaoContext(__METHOD__, 'GENERAL')),
+                );
+
+                self::$cacheWarningShown = true;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function convertToMb(string $val): float
+    {
+        $val = trim($val);
+        $last = strtolower($val[strlen($val)-1]);
+
+        switch ($last) {
+            case 'g':
+                return (int)$val * 1024;
+            case 'm':
+                return (int)$val;
+            case 'k':
+                return (int)$val / 1024;
+            default:
+                return (float)$val;
+        }
+    }
+
 
     public static function getMessageSent($identificationToken, $searchBy = 'id', $blnForceRefresh = false)
     {
@@ -4267,6 +4345,8 @@ class ls_shop_generalHelper
         }
         return $GLOBALS['merconis_globals']['messageSent'][$identificationToken];
     }
+
+
 
     public static function callback_modifyFrontendPage($strContent, $strTemplate)
     {
