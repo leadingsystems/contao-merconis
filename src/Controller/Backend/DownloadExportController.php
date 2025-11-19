@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Bundle\SecurityBundle\Security;
+use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class DownloadExportController
 {
@@ -29,7 +30,7 @@ class DownloadExportController
         $this->projectDir = $projectDir;
     }
 
-    public function downloadAction(string $fileName, Request $request): Response
+    public function downloadAction(string $fileName, string $pathToFileExportFolder, Request $request): Response
     {
         $this->framework->initialize();
 
@@ -42,7 +43,7 @@ class DownloadExportController
             throw new RuntimeException('Configured download base directory does not exist.');
         }
 
-        $fullPath = realpath($allowedBaseDir . '/files/export-output/' . $fileName);
+        $fullPath = realpath($allowedBaseDir . $pathToFileExportFolder . $fileName);
 
         if (false === $fullPath || !str_starts_with($fullPath, $allowedBaseDir)) {
             throw new AccessDeniedHttpException('Access denied: File is outside of the allowed download directory.');

@@ -37,7 +37,7 @@ use Contao\System;
 
 								<button data-lsjs-element="btn_deleteFile"></button>
 
-                                <?= System::getContainer()->get('merconis.routing.download_link_helper')->generateDownloadLinkHtml($arr_exportFileInfo['fileName'], $arr_exportFileInfo['fileName']); ?>
+                                <?= System::getContainer()->get('merconis.routing.download_link_helper')->generateDownloadLinkHtml($arr_exportFileInfo['fileName'], $arr_exportFileInfo['pathToFileExportFolder'], $arr_exportFileInfo['fileName']); ?>
 
 								<span class="fileInfo">(<?php echo $arr_exportFileInfo['dateTime']; ?>, <?php echo $arr_exportFileInfo['fileSize']; ?>)</span>
 							</li>
