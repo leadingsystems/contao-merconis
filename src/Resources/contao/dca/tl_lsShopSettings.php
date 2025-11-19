@@ -982,7 +982,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
         'ls_shop_cacheRamPercent' => array(
             'label'     => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_cacheRamPercent'],
             'inputType' => 'select',
-            'options'   => array(0 => '0%', 10 => '10%', 20 => '20%', 30 => '30%', 40 => '40%', 50 => '50%', 60 => '60%',70 => '70%', 80 => '80%'),
+            'options'   => array(20 => '20%', 30 => '30%', 40 => '40%', 50 => '50%', 60 => '60%',70 => '70%', 80 => '80%'),
             'eval'      => [
                 'includeBlankOption' => false,
                 'tl_class'           => 'w50',
