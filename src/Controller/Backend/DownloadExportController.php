@@ -30,9 +30,11 @@ class DownloadExportController
         $this->projectDir = $projectDir;
     }
 
-    public function downloadAction(string $fileName, string $pathToFileExportFolder, Request $request): Response
+    public function downloadAction(string $fileName, Request $request): Response
     {
         $this->framework->initialize();
+
+        $pathToFileExportFolder = $request->query->get('pathToFileExportFolder');
 
         if (!$this->security->isGranted(ContaoCorePermissions::USER_CAN_ACCESS_MODULE, 'ls_shop_export')) {
             throw new AccessDeniedHttpException('Not enough permissions to download this file.');
@@ -43,7 +45,7 @@ class DownloadExportController
             throw new RuntimeException('Configured download base directory does not exist.');
         }
 
-        $fullPath = realpath($allowedBaseDir . $pathToFileExportFolder . $fileName);
+        $fullPath = realpath($allowedBaseDir .'/'.$pathToFileExportFolder .'/'. $fileName);
 
         if (false === $fullPath || !str_starts_with($fullPath, $allowedBaseDir)) {
             throw new AccessDeniedHttpException('Access denied: File is outside of the allowed download directory.');
