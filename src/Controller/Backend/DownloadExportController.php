@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Bundle\SecurityBundle\Security;
-use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class DownloadExportController
 {
