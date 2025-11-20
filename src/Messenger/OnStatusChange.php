@@ -3,6 +3,7 @@
 
 namespace LeadingSystems\MerconisBundle\Messenger;
 
+use Contao\Database;
 use Cron\CronExpression;
 use Doctrine\DBAL\Connection;
 use Merconis\Core\ls_shop_orderMessages;
@@ -37,13 +38,38 @@ class OnStatusChange
 
     protected function sendMessagesOnStatusChange(string $changeType): void
     {
-        $orders = $this->connection->fetchAllAssociative("SELECT id FROM tl_ls_shop_orders");
+        $limit = 50;
+        $offset = 0;
 
-        foreach ($orders as $order) {
+        $objOrders = self::loadOrderBatch($limit, $offset);
 
-            $objOrderMessages = new ls_shop_orderMessages($order['id'], $changeType, 'sendWhen', null, true);
-            $objOrderMessages->sendMessages();
+        while ($objOrders->numRows > 0) {
+            while ($objOrders->next()) {
+
+                $objOrderMessages = new ls_shop_orderMessages(
+                    $objOrders->id,
+                    $changeType,
+                    'sendWhen',
+                    null,
+                    true
+                );
+                $objOrderMessages->sendMessages();
+
+            }
+            $offset += $limit;
+
+            $objOrders = self::loadOrderBatch($limit, $offset);
         }
+
+    }
+
+    public static function loadOrderBatch(int $limit, int $offset)
+    {
+        return Database::getInstance()->prepare("
+            SELECT id
+            FROM tl_ls_shop_orders
+            LIMIT $limit OFFSET $offset
+        ")->execute();
     }
 
 }

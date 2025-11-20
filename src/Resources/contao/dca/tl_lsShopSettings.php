@@ -73,7 +73,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{backendLsjs_legend},ls_shop_lsjsDebugMode,ls_shop_lsjsNoMinifierMode;
 		{backendLscss_legend},ls_shop_lscssFileToLoad,ls_shop_lscssDebugMode,ls_shop_lscssNoCacheMode,ls_shop_lscssNoMinifierMode;
 		{misc_legend},ls_shop_sortingCharacterTranslationTable,ls_shop_dcaNamesWithoutMultilanguageSupport;
-		{debug_menu},ls_shop_coupon_debug'
+		{debug_menu},ls_shop_coupon_debug,ls_shop_cacheRamPercent'
 	),
 
 	'subpalettes' => array(
@@ -978,6 +978,20 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_coupon_debug'],
             'inputType' => 'checkbox',
             'eval' => array('tl_class'=>'w50 m12')
+        ),
+
+        'ls_shop_cacheRamPercent' => array(
+            'label'     => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_cacheRamPercent'],
+            'inputType' => 'select',
+            'options'   => array(20 => '20%', 30 => '30%', 40 => '40%', 50 => '50%', 60 => '60%',70 => '70%', 80 => '80%'),
+            'eval'      => [
+                'includeBlankOption' => false,
+                'tl_class'           => 'w50',
+            ],
+            'load_callback' => [
+                array('Merconis\Core\ls_shop_generalHelper', 'getDefaultCacheRamPercent'),
+            ],
+            'sql'       => "int(3) unsigned NOT NULL default '60'"
         )
 	)
 );

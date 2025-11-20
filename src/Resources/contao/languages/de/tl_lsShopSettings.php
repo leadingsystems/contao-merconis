@@ -242,3 +242,8 @@
         'folders' => 'Ordnerstruktur',
         'files' => 'Dateiname'
     );
+
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_cacheRamPercent'] = [
+        'Ab welchem Prozentwert des RAMs gestoppt wird',
+        'Wenn dieser Prozentwert erreicht ist, stoppt Merconis automatisch das Caching bei der Erstellung von Bestellungen.'
+    ];
