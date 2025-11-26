@@ -895,7 +895,8 @@ class ls_shop_export_dc extends Backend {
                         'fileName' => $str_fileName,
                         'url' => ls_shop_generalHelper::getEnvironmentBase(true).$str_pathToFileExportFolder.'/'.$str_fileName,
                         'dateTime' => date($GLOBALS['TL_CONFIG']['datimFormat'], filemtime($str_projectDir.'/'.$str_pathToFileExportFolder.'/'.$str_fileName)),
-                        'fileSize' => Controller::getReadableSize(filesize($str_projectDir.'/'.$str_pathToFileExportFolder.'/'.$str_fileName))
+                        'fileSize' => Controller::getReadableSize(filesize($str_projectDir.'/'.$str_pathToFileExportFolder.'/'.$str_fileName)),
+                        'pathToFileExportFolder' => $str_pathToFileExportFolder
                     );
                 }
             }

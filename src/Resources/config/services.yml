@@ -9,6 +9,15 @@ services:
     class: LeadingSystems\MerconisBundle\Services\Scope
     public: true
 
+  merconis.routing.download_link_helper:
+    class: LeadingSystems\MerconisBundle\Services\DownloadLinkHelper
+    public: true
+
+  LeadingSystems\MerconisBundle\Controller\Backend\DownloadExportController:
+    tags: [ 'controller.service_arguments' ]
+    arguments:
+      $projectDir: '%kernel.project_dir%'
+
   merconis.helpers.general:
     class: LeadingSystems\MerconisBundle\Helpers\GeneralHelper
     arguments:
