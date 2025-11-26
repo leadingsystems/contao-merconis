@@ -1,5 +1,7 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
+### 5.1.12 (2025-11-28)
+ * improve export-download backend
 
 ### 5.1.11 (2025-11-07)
  * add hook 'manipulateDeliveryTimeDays'
