@@ -17,7 +17,10 @@ class ProductOutput extends InsertTag
 
         $arr_params = explode(',', $params[0]);
         $str_productVariantId = trim($arr_params[0]);
-        $str_productVariantId = $this->convertTagToId($str_productVariantId);
+
+        //if no parameter exists search for productId
+        $what = ($arr_params[2] ? trim($arr_params[2]) : "productId");
+        $str_productVariantId = $this->convertTagToId($str_productVariantId, $what);
 
         $str_templateToUse = isset($arr_params[1]) && $arr_params[1] ? trim($arr_params[1]) : '';
 

@@ -1,4 +1,16 @@
 <?php
+
+
+// Ensure the "added to cart" template is only rendered once.
+// This prevents multiple instances of the template from being output,
+// which could cause JavaScript errors due to duplicate IDs being present on the page.
+
+if ($GLOBALS['merconis_globals']['addedToCartInfoAlreadyRendered'] ?? null) {
+    return;
+}
+
+$GLOBALS['merconis_globals']['addedToCartInfoAlreadyRendered'] = true;
+
 $obj_tmp_productOrVariant = null;
 if ($this->objVariant !== null) {
     $obj_tmp_productOrVariant = $this->objVariant;
