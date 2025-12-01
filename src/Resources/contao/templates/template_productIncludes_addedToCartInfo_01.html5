@@ -1,24 +1,28 @@
 <?php
 
 
-// Ensure the "added to cart" template is only rendered once.
-// This prevents multiple instances of the template from being output,
-// which could cause JavaScript errors due to duplicate IDs being present on the page.
-
-if ($GLOBALS['merconis_globals']['addedToCartInfoAlreadyRendered'] ?? null) {
-    return;
-}
-
-$GLOBALS['merconis_globals']['addedToCartInfoAlreadyRendered'] = true;
-
 $obj_tmp_productOrVariant = null;
 if ($this->objVariant !== null) {
     $obj_tmp_productOrVariant = $this->objVariant;
 } else if ($this->objProduct->_variantIsSelected) {
-	$obj_tmp_productOrVariant = $this->objProduct->_selectedVariant;
+    $obj_tmp_productOrVariant = $this->objProduct->_selectedVariant;
 } else {
-	$obj_tmp_productOrVariant = $this->objProduct;
+    $obj_tmp_productOrVariant = $this->objProduct;
 }
+
+// Ensure the "added to cart" template is only rendered once.
+// This prevents multiple instances of the template from being output,
+// which could cause JavaScript errors due to duplicate IDs being present on the page.
+
+if (!isset($GLOBALS['merconis_globals']['addedToCartInfoAlreadyRendered'])) {
+    $GLOBALS['merconis_globals']['addedToCartInfoAlreadyRendered'] = [];
+}
+
+if (in_array($obj_tmp_productOrVariant->_productVariantID, $GLOBALS['merconis_globals']['addedToCartInfoAlreadyRendered'], true)) {
+    return;
+}
+$GLOBALS['merconis_globals']['addedToCartInfoAlreadyRendered'][] = $obj_tmp_productOrVariant->_productVariantID;
+
 
 $bln_displayProductCartPreview = true;
 ?>
