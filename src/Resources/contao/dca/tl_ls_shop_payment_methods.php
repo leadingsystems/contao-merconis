@@ -813,6 +813,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
 
 
 class ls_shop_payment_methods extends Backend {
+    private const DEPRECATED_PAYMENT_TYPES = array(
+        'payone',
+        'saferpay',
+        'santanderWebQuick',
+        'sofortueberweisung',
+        'vrpay'
+    );
+
     public function __construct() {
         parent::__construct();
     }
@@ -860,18 +868,23 @@ class ls_shop_payment_methods extends Backend {
             ->execute($dc->id);
         $objPaymentMethod->first();
 
+        $currentPaymentType = (string) $objPaymentMethod->type;
+        if ($this->isDeprecatedPaymentType($currentPaymentType)) {
+            $this->disableTypeFieldEditing();
+        }
+
         /*
          * We don't do anything if we don't have any payment method specific BE_formFields to add because
          * in this case subpalette form fields wouldn't make any sense even if they were registered in the payment
          * method class.
          */
-        if (!is_array($obj_paymentModule->types[$objPaymentMethod->type]['BE_formFields'])) {
+        if (!is_array($obj_paymentModule->types[$currentPaymentType]['BE_formFields'])) {
             return;
         }
 
-        $this->addBeFormFields($objPaymentMethod->type);
+        $this->addBeFormFields($currentPaymentType);
 
-        $this->addBeFormFieldSubpalettes($objPaymentMethod->type);
+        $this->addBeFormFieldSubpalettes($currentPaymentType);
     }
 
     protected function addBeFormFields($str_paymentMethodType) {
@@ -923,13 +936,57 @@ class ls_shop_payment_methods extends Backend {
         }
     }
 
-    public function getPaymentModulesAsOptions() {
+    public function getPaymentModulesAsOptions(DataContainer $dc = null) {
         $paymentModules = array();
         $obj_paymentModule = ls_shop_paymentModule::getInstance();
+        $lockedPaymentType = $this->getCurrentPaymentType($dc);
+
         foreach ($obj_paymentModule->types as $paymentModuleName => $paymentModuleInfo) {
+            if ($this->isDeprecatedPaymentType($paymentModuleName) && $paymentModuleName !== $lockedPaymentType) {
+                continue;
+            }
             $paymentModules[$paymentModuleName] = $paymentModuleInfo['title'];
         }
         return $paymentModules;
+    }
+
+    private function getCurrentPaymentType(?DataContainer $dc): ?string {
+        if ($dc === null) {
+            return null;
+        }
+
+        if ($dc->activeRecord && $dc->activeRecord->type) {
+            return (string) $dc->activeRecord->type;
+        }
+
+        if ($dc->id) {
+            $objPaymentMethod = Database::getInstance()
+                ->prepare("SELECT `type` FROM `tl_ls_shop_payment_methods` WHERE `id` = ?")
+                ->limit(1)
+                ->execute($dc->id);
+
+            if ($objPaymentMethod->numRows) {
+                return (string) $objPaymentMethod->type;
+            }
+        }
+
+        return null;
+    }
+
+    private function isDeprecatedPaymentType(?string $paymentType): bool {
+        if ($paymentType === null || $paymentType === '') {
+            return false;
+        }
+
+        return in_array($paymentType, self::DEPRECATED_PAYMENT_TYPES, true);
+    }
+
+    private function disableTypeFieldEditing(): void {
+        $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields']['type']['inputType'] = 'text';
+
+        $currentEval = $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields']['type']['eval'] ?? array();
+        $currentEval['readonly'] = true;
+        $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields']['type']['eval'] = $currentEval;
     }
 
     /*
