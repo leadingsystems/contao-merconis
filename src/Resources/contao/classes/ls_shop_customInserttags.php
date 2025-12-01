@@ -344,6 +344,8 @@ class ls_shop_customInserttags
                 $objProductOutput = new ls_shop_productOutput($str_productVariantId, 'overview', $str_templateToUse);
                 $str_productOutput = $objProductOutput->parseOutput();
 
+                unset($arrCache[$strTag]);
+
                 return \Controller::replaceInsertTags($str_productOutput);
                 break;
 
