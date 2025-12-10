@@ -1,0 +1,101 @@
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+
+        // --- Helper functions for the loading overlay ---
+        const loadingOverlay = document.querySelector('.moduleContainer.loadingIndicator');
+        const loadingMessage = document.getElementById('loading-message');
+        const errorMessageContainer = document.getElementById('payment-error-message');
+
+
+        const showLoadingOverlay = (message) => {
+            if(!loadingMessage){
+                console.warn("No loading message container found");
+            }
+            if(!message){
+                console.warn("No message in loading indicator set");
+            }
+
+            if (loadingOverlay && loadingMessage) {
+                loadingMessage.textContent = message;
+                loadingOverlay.style.display = 'flex';
+                loadingMessage.style.display = 'flex';
+            }
+        };
+        const hideLoadingOverlay = () => {
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+            if (loadingMessage) {
+                loadingMessage.style.display = 'none';
+            }
+        };
+        const updateLoadingMessage = (message) => {
+            if (loadingMessage) {
+                loadingMessage.textContent = message;
+            }
+        };
+        const updateErrorMessage = (message) => {
+            if (errorMessageContainer) {
+                errorMessageContainer.textContent = message;
+            }
+        };
+        // Helper function to wait for a certain amount of time
+        const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+
+        const paymentButton = document.querySelector('.buttonBuy');
+        const form = paymentButton.closest('form');
+
+        if (!form) {
+            console.error('Paypal integration: One of the required form elements was not found.');
+            return;
+        }
+
+        // --- Logic for payment processing when submitting the form ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            paymentButton.disabled = true;
+
+            try {
+                showLoadingOverlay('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['prepareOrder']?>');
+                await wait(5000);
+
+                const response = await fetch('/de/merconis-ajax/resource/paymentapi/?function=finish-order', {
+                    method: 'GET',
+                    headers: {
+                    },
+                });
+
+                let result;
+                result = await response.json();
+
+                if (result.status === "success" && result.data.afterCheckoutUrl && result.data.approveUrl) {
+
+                    // This message is only displayed at the beginning
+                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['preparePayment']?>');
+                    await wait(2000);
+
+                    const approveUrl = result.data.approveUrl;
+
+                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderRedirectToFinishPage']?>');
+                    await wait(5000); // A small delay so the user can see the message
+                    window.location.href = approveUrl;
+
+                } else {
+                    throw new Error('api error, afterCheckoutUrl missing or approveUrl missing');
+                }
+
+            } catch (err) {
+                // Server error
+                hideLoadingOverlay();
+                updateErrorMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerErrorMessage']?>')
+                console.error("Error in Checkout:", err);
+            }
+        });
+
+
+
+
+    });
+</script>

@@ -279,6 +279,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'sql'                     => "tinytext NULL"
         ),
 
+        'payPalCheckout_orderID' => array (
+            'sql'                     => "text NULL"
+        ),
+
         'payPalCheckout_clientID' => array (
             'sql'                     => "text NULL"
         ),

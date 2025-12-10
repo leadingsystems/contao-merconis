@@ -143,7 +143,9 @@ class ModuleAfterCheckout extends Module {
 			}
 
 			$this->Template = new FrontendTemplate($this->strTemplate);
-			
+
+            $obj_paymentModule->specialInfoForPaymentMethodAfterCheckoutFinish();
+
 			$this->Template->arrOrder = $arrOrder;
 			$this->Template->specialInfoForPaymentMethod = isset($_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish']) ? $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] : '';
 			$this->Template->specialInfoForShippingMethod = isset($_SESSION['lsShop']['specialInfoForShippingMethodAfterCheckoutFinish']) ? $_SESSION['lsShop']['specialInfoForShippingMethodAfterCheckoutFinish'] : '';

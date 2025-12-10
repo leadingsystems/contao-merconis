@@ -81,4 +81,21 @@ class GetPageLayoutListener
 
         $layout = ls_shop_generalHelper::merconis_getPageLayout($pageModel);
     }
+
+
+    public function onPageLoadRedirectUrl($page, $layout, $pageRegular): void
+    {
+        if (!empty($_SESSION['lsShop']['onPageLoadRedirectUrl'])) {
+
+            $url = $_SESSION['lsShop']['onPageLoadRedirectUrl'];
+            unset($_SESSION['lsShop']['onPageLoadRedirectUrl']);
+
+            // Checks whether $url is a valid, properly formatted URL (prevents invalid values)
+            if (filter_var($url, FILTER_VALIDATE_URL)) {
+
+                header('Location: ' . $url);
+                exit;
+            }
+        }
+    }
 }
