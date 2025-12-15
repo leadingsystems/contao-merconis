@@ -315,9 +315,27 @@ use Contao\System;
 						'label' => '',
 						'inputType' => 'text'
 					),
+					'stripe_shipToFieldNamePhone' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameEMail' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameAddressLine2' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
 					'stripe_shipToFieldNameState' => array(
 						'label' => '',
 						'inputType' => 'text'
+					),
+					'stripe_logMode' => array(
+						'label' => '',
+						'inputType' => 'select',
+						'options' => array('NONE', 'DEBUG', 'INFO', 'ERROR'),
+						'default' => 'NONE'
 					)
 				)
 			),
@@ -988,5 +1006,18 @@ use Contao\System;
 				return null;
 			}
 		}
+
+		public function writeLog($outputType, $output, $logModeInfoText, $bypassLogMode = false) {
+			$methodName = __FUNCTION__;
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
+				return $this->specialModule->{$methodName}($outputType, $output, $logModeInfoText, $bypassLogMode);
+			} else {
+				return null;
+			}
+		}
+
+
+
+
 	}
 ?>

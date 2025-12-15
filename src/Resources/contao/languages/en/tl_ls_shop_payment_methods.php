@@ -120,15 +120,29 @@
         'Checkout field name for "State/Region" (placeholders possible)',
         'Enter the field name of the corresponding input field in the checkout form here. The placeholder "##value::fieldname##" allows you to specify a dynamic field name based on the value of another form field. Example: entering "province_##value::country##" results in the field name "province_us" if "USA" is selected in the "country" field, or "province_ca" if "Canada" is selected. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
     );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNamePhone'] = array(
+        'Field name in checkout form for "Phone number"',
+        'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameEMail'] = array(
+        'Field name in checkout form for "E-Mail"',
+        'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameAddressLine2'] = array(
+        'Field name in checkout form for "AddressLine2"',
+        'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
+    );
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameCountryCode'] = array(
         'Checkout field name for "Country"',
         'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'
     );
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_logMode']	= array('Logging', 'Please select whether a log file should be written to /system/logs and if so, which log level to use');
 
 
-    /*
-     * PayOne-Bezeichnungen
-     */
+
+/*
+ * PayOne-Bezeichnungen
+ */
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_legend']						= 'PAYONE settings';
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_subaccountId']						= array('PAYONE Sub account ID', 'Please enter the value here of which you learn when you have the API parameter tab displayed in the payment portal section of the PAYONE Merchant Interface. Please also ensure that the hash value check procedure is set correctly (sha2).');
 	$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['payone_portalId']							= array('PAYONE Portal ID', 'Please enter the value here of which you learn when you have the API parameter tab displayed in the payment portal section of the PAYONE Merchant Interface.Please also ensure that the hash value check procedure is set correctly (sha2).');

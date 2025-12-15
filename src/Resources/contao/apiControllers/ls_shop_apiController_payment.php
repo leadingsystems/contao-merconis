@@ -51,7 +51,17 @@ class ls_shop_apiController_payment
 		}
 
         if (Input::get('function') == 'finish-order') {
-            $this->finishOrder();
+
+            $clientSecret = Input::get('clientSecret');
+            if(!$clientSecret){
+                $this->obj_apiReceiver->fail();
+                $this->obj_apiReceiver->set_data('no client secret given');
+            }
+            $this->finishOrder($clientSecret);
+        }
+
+        if (Input::get('function') == 'get-payment-intend') {
+            $this->getPaymentIntend();
         }
 
         if (Input::get('function') == 'get-payment-info') {
@@ -62,7 +72,17 @@ class ls_shop_apiController_payment
 
 	}
 
-    function finishOrder() {
+    private function getPaymentIntendFromClientSecret($clientSecret)
+    {
+        return explode('_secret_', $clientSecret)[0];
+    }
+
+
+    function getPaymentIntend() {
+
+        //-------------------------- Destroy old Client Secret --------------------------
+
+        $clientSecret = $_SESSION['lsShop']['clientSecret'];
 
         $obj_paymentModule = ls_shop_paymentModule::getInstance();
         $arr_settings = $obj_paymentModule->settings;
@@ -71,6 +91,27 @@ class ls_shop_apiController_payment
 
         // Set Stripe API key
         \Stripe\Stripe::setApiKey($privatKey);
+
+        if($clientSecret){
+
+            $paymentIntent = explode('_secret_', $clientSecret)[0];
+
+
+            try{
+                $pi = \Stripe\PaymentIntent::retrieve($paymentIntent); // PaymentIntent-Objekt holen
+                $pi->cancel(); // Instanzmethode
+            }catch (\Exception $e){
+                //kann vorkommen wenn bereits abgeschlossen wurde aber noch was in der session drin steckt
+            }
+
+            $clientSecret = null;
+        }
+
+
+        $_SESSION['lsShop']['clientSecret'] = $clientSecret;
+
+
+        //-------------------------- create new Client Secret --------------------------
 
         $infoPayment = $obj_paymentModule->getPaymentInfo();
         $paymentMethod = $obj_paymentModule->getPaymentInfo()['paymentMethod'];
@@ -81,15 +122,60 @@ class ls_shop_apiController_payment
         $currency = strtolower($GLOBALS['TL_CONFIG']['ls_shop_currencyCode']);
 
         try {
-            // Create PaymentIntent
-            $paymentIntent = \Stripe\PaymentIntent::create([
+
+            $arr_paymentInformationToSend = [
                 'amount' => $priceInCent, // Betrag in Cent
                 'currency' => $currency,
                 'payment_method_types' => [$paymentMethod],
-            ]);
+            ];
+
+
+            $obj_paymentModule->writeLog(
+                "Info",
+                'Create paymentIntentId with ' . json_encode($arr_paymentInformationToSend),
+                ''
+            );
+
+            // Create PaymentIntent
+            $paymentIntent = \Stripe\PaymentIntent::create($arr_paymentInformationToSend);
 
             $paymentIntentId = $paymentIntent->id;
             $clientSecret = $paymentIntent->client_secret;
+
+
+            // save clientSecret in Session
+            $_SESSION['lsShop']['clientSecret'] = $clientSecret;
+
+            $arr_return = array(
+                'success' => true,
+                'clientSecret' => $clientSecret
+            );
+
+
+        }catch (\Exception $e) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('error in creating payment intent');
+            return;
+        }
+
+        $this->obj_apiReceiver->success();
+        $this->obj_apiReceiver->set_data($arr_return);
+    }
+
+    function finishOrder($clientSecret) {
+
+        $obj_paymentModule = ls_shop_paymentModule::getInstance();
+        $arr_settings = $obj_paymentModule->settings;
+        $publicKey = $arr_settings['stripe_publicKey'];
+        $privatKey = $arr_settings['stripe_privateKey'];
+
+        // Set Stripe API key
+        \Stripe\Stripe::setApiKey($privatKey);
+
+        try {
+            // Create PaymentIntent
+
+            $paymentIntentId = $this->getPaymentIntendFromClientSecret($clientSecret);
 
             $obj_checkout = new ls_shop_checkout();
 
@@ -105,6 +191,17 @@ class ls_shop_apiController_payment
             $db->prepare("UPDATE tl_ls_shop_orders SET stripe_paymentIntent = ? WHERE id = ?")
                 ->execute($paymentIntentId, $orderId);
 
+            try {
+                \Stripe\PaymentIntent::update(
+                    $paymentIntentId,
+                    [
+                        'description' => 'Aktualisierte Beschreibung',
+                    ]
+                );
+            }catch (\Exception $e) {
+                //log descrition konnte nicht aktualisiert werden
+            }
+
             $arr_return = array(
                 'success' => true,
                 'clientSecret' => $clientSecret,
@@ -116,6 +213,8 @@ class ls_shop_apiController_payment
             $this->obj_apiReceiver->set_data('error in creating payment intent');
             return;
         }
+
+        $obj_paymentModule->writeLog("Info", 'Order created with paymentIntentId('.$paymentIntentId.')', '');
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data($arr_return);

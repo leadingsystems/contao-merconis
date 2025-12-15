@@ -49,10 +49,18 @@ echo $this->strTemplate ?>">
         if (\Merconis\Core\ls_shop_generalHelper::check_finishingOrderIsAllowed()) {
             ?>
             <div id="checkoutStepFinalConfirmation">
+
+                <div id="payment-element">
+
+                </div>
+
+
                 <?php echo $this->formConfirmOrder; ?>
 
 
                 <?= ls_shop_paymentModule::getInstance()->getCheckoutJavascript();?>
+
+
 
             </div>
             <?php

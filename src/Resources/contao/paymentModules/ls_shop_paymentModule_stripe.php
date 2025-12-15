@@ -6,6 +6,8 @@ use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\PageModel;
 use Contao\System;
+use Stripe\PaymentIntent;
+use function LeadingSystems\Helpers\lsDebugLog;
 
 class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
 
@@ -31,10 +33,6 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
     function __destruct() {
     }
 
-
-    private function writeLog($outputType, $output, $logModeInfoText, $bypassLogMode = false){
-        //lsDebugLog($output, "[".date("d-m-Y h:i:sa")."] [".$outputType."]", 'regular', false, '', false, $str_filename);
-    }
 
     public function getCustomUserInterface() {
         return $this->stripeCheckout_showPaymentWall();
@@ -69,15 +67,23 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
                     "city" => $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameCity']),
                     "country" => $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameCountryCode']),
                     "line1" => $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameStreet']),
-                    "line2" => null,
+                    "line2" => $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameAddressLine2']),
                     "postal_code" => $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNamePostal']),
                     "state" => $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameState'])
                 ],
-                "email"=> null,
+                "phone" => $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNamePhone']),
+                "email"=> $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameEMail']),
                 "name"=> $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameFirstname']). " ". $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameLastname']),
             ]
         );
         return $arrPaymentInfo;
+    }
+
+
+    public function createPaymentIntent() {
+
+
+        return "";
     }
 
 
@@ -199,6 +205,7 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
             .   $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameCity'])
             .   $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameCountryCode'])
             .   $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNamePostal'])
+            .    $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNamePhone'])
             .   $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameState'])
         );
 
@@ -341,6 +348,35 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
 
         $GLOBALS['TL_JAVASCRIPT'][] = 'https://js.stripe.com/v3/|defer';
         return $str_form;
+    }
+
+    public function writeLog($outputType, $output, $logModeInfoText, $bypassLogMode = false){
+
+        if($bypassLogMode == false){
+
+            //the log mode info is checked beforehand and $bypassLogMode=true must be used to log it
+            if($this->arrCurrentSettings['stripe_logMode'] == 'ERROR'){
+                $this->arrPastLogs[] = [$outputType, $output];
+                return;
+            }
+
+            if($this->arrCurrentSettings['stripe_logMode'] == 'NONE') {
+                return;
+            }
+        }
+
+        //Request Data will not get logged on INFO logMode only Request and Response Header
+        if($this->arrCurrentSettings['stripe_logMode'] == 'INFO' && $outputType == 'Request Data'){
+            return;
+        }
+
+        if($this->arrCurrentSettings['stripe_logMode'] == 'INFO'){
+            $output = $logModeInfoText."\n".$output;
+        }
+
+        $str_filename = 'stripe_'.$this->arrCurrentSettings['stripe_logMode'].'_'.date("Y-m-d").'.log';
+        lsDebugLog($output, "[".date("d-m-Y h:i:sa")."] [".$outputType."]", 'regular', false, '', false, $str_filename);
+
     }
 
 
