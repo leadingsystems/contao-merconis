@@ -315,9 +315,27 @@ use Contao\System;
 						'label' => '',
 						'inputType' => 'text'
 					),
+					'stripe_shipToFieldNamePhone' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameEMail' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameAddressLine2' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
 					'stripe_shipToFieldNameState' => array(
 						'label' => '',
 						'inputType' => 'text'
+					),
+					'stripe_logMode' => array(
+						'label' => '',
+						'inputType' => 'select',
+						'options' => array('NONE', 'DEBUG', 'INFO', 'ERROR'),
+						'default' => 'NONE'
 					)
 				)
 			),

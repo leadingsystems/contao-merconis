@@ -314,11 +314,25 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
         ),
+        'stripe_shipToFieldNamePhone' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameEMail' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameAddressLine2' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
         'stripe_shipToFieldNameCountryCode' => array (
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
         ),
-
+        'stripe_logMode' => array (
+            'sql'                     => "varchar(128) NOT NULL default 'NONE'"
+        ),
 
 
         'payPalCheckout_clientID' => array (

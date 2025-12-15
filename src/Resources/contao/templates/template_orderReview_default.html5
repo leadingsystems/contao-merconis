@@ -50,18 +50,23 @@ echo $this->strTemplate ?>">
             ?>
             <div id="checkoutStepFinalConfirmation">
                 <p class="error" id="payment-error-message"></p>
+
+                <div id="payment-element">
+
+                </div>
+
+
                 <?php echo $this->formConfirmOrder; ?>
+
+
+                <?= ls_shop_paymentModule::getInstance()->getCheckoutJavascript();?>
+
             </div>
-
-            <?= ls_shop_paymentModule::getInstance()->getCheckoutJavascript();?>
-
             <?php
         }
         ?>
     </div>
 </div>
-
-
 
 <div id="loading-overlay">
     <div class="loading-content">
