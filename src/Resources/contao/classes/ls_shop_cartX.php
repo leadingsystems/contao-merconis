@@ -638,7 +638,8 @@ class ls_shop_cartX {
 				'priceCumulative' => $tmpPriceCumulative,
 				'weightCumulative' => $tmpWeightCumulative,
 				'taxClass' => $itemExtended['objProduct']->_steuersatz,
-				'taxPercentage' => ls_shop_generalHelper::getCurrentTax($itemExtended['objProduct']->_steuersatz)
+				'taxPercentage' => ls_shop_generalHelper::getCurrentTax($itemExtended['objProduct']->_steuersatz),
+                'vatCategoryCode' => 'S'
 			);
 		}
 		return $arrItems;

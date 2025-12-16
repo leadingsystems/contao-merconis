@@ -315,7 +315,7 @@ class ls_shop_orderMessages
 				'subject' => html_entity_decode($this->ls_replaceWildcards(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['subject']))),
 				'bodyHTML' => $arrMessageModel['useHTML'] ? $objTemplate_emailHTML->parse() : '',
 				'bodyRawtext' => $arrMessageModel['useRawtext'] ? $objTemplate_rawtext->parse() : '',
-				'dynamicAttachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),
+				'dynamicPdfAttachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),
 				'attachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['attachments'])
 			);
 				
@@ -325,11 +325,11 @@ class ls_shop_orderMessages
 			$objEmail->fromName = $arrMessageToSendAndSave['senderName'];
 			$objEmail->subject = $arrMessageToSendAndSave['subject'];
 			
-			// Dynamic attachments
+			// Dynamic PDF attachments
 			$arrTmpGeneratedDynamicAttachmentFiles = array();
-			if (is_array($arrMessageToSendAndSave['dynamicAttachmentPaths']) && count($arrMessageToSendAndSave['dynamicAttachmentPaths']) > 0) {
+			if (is_array($arrMessageToSendAndSave['dynamicPdfAttachmentPaths']) && count($arrMessageToSendAndSave['dynamicPdfAttachmentPaths']) > 0) {
 
-				foreach ($arrMessageToSendAndSave['dynamicAttachmentPaths'] as $strDynamicAttachmentFile) {
+				foreach ($arrMessageToSendAndSave['dynamicPdfAttachmentPaths'] as $strDynamicAttachmentFile) {
 					$strDynamicAttachmentFile = ls_getFilePathFromVariableSources($strDynamicAttachmentFile);
 					/*
 					 * Use the possibly given dynamicAttachmentFile(s) to create a pdf file
@@ -357,7 +357,7 @@ class ls_shop_orderMessages
 				}
 			}
 
-			$arrMessageToSendAndSave['dynamicAttachmentPaths'] = $arrTmpGeneratedDynamicAttachmentFiles;
+			$arrMessageToSendAndSave['dynamicPdfAttachmentPaths'] = $arrTmpGeneratedDynamicAttachmentFiles;
 			
 			// Attachments
 			if (is_array($arrMessageToSendAndSave['attachmentPaths']) && count($arrMessageToSendAndSave['attachmentPaths']) > 0) {
@@ -413,7 +413,7 @@ class ls_shop_orderMessages
 	}
 
 	protected function saveSentMessage($arrMessageToSave) {
-		$arrMessageToSave['dynamicAttachmentPaths'] = serialize($arrMessageToSave['dynamicAttachmentPaths']);
+		$arrMessageToSave['dynamicPdfAttachmentPaths'] = serialize($arrMessageToSave['dynamicPdfAttachmentPaths']);
 		$arrMessageToSave['attachmentPaths'] = serialize($arrMessageToSave['attachmentPaths']);
 		
 		Database::getInstance()->prepare("
@@ -432,7 +432,7 @@ class ls_shop_orderMessages
 						`subject` = ?,
 						`bodyHTML` = ?,
 						`bodyRawtext` = ?,
-						`dynamicAttachmentPaths` = ?,
+						`dynamicPdfAttachmentPaths` = ?,
 						`attachmentPaths` = ?
 		")
 		->execute(...array_values($arrMessageToSave));
