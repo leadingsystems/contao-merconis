@@ -1,7 +1,8 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
-### 5.1.12 (2025-11-28)
+### 5.1.12 (2025-12-16)
  * improve export-download backend
+ * disable payment options (backend)
 
 ### 5.1.11 (2025-11-07)
  * add hook 'manipulateDeliveryTimeDays'
