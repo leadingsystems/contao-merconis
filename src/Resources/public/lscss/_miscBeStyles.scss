@@ -155,6 +155,20 @@
   min-height: 128px;
   margin-top: 10px;
   margin-bottom: 10px;
+  line-height: normal;
+
+  .installed-packages {
+    columns: 2;
+
+    @media (max-width:767px) {
+      columns: 1;
+    }
+  }
+
+  .ls_shop_announcement {
+    background-color: #ffd080;
+    padding: 15px;
+  }
 
   html[data-color-scheme="dark"] & {
     border: 1px solid var(--border);
