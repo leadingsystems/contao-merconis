@@ -18,3 +18,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_009'] = 'T
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_010'] = 'Theme-Erweiterung %s ist installiert und zur Einrichtung bereit.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_011'] = 'Sie können den Shop im Frontend <a href="%s">HIER</a> anschauen.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_012'] = 'Sie können nun mit der individuellen Anpassung Ihres Shops beginnen. Wir empfehlen Ihnen, einen Blick in die entsprechende Checkliste im Handbuch zu werfen.';
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['announcement'] = '<h2>Hinweis:</h2>
+                                                                           <p>Mit der <strong>Merconis-Version 5.2</strong> werden die alten Zahlungsoptionen „PayPal Standard“ und „PayPal Plus“ abgeschaltet. Diese werden von PayPal nicht mehr weiter gepflegt.
+                                                                           <br>Bitte stellen Sie vor einem Update auf diese Merconis-Version sicher auf PayPal Checkout umgestellt bzw. Ihre Zugangsdaten bei den obengenannten PayPal Optionen gesichert zu haben.</p>';

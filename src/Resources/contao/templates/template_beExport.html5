@@ -1,5 +1,13 @@
+<?php
+use Contao\System;
+?>
+
+
 <div data-merconis-component-autostart="export" class="exportOverviewItem">
-	<h2><?php echo $this->arr_row['title']; ?></h2>
+	<h2><?php
+
+
+        echo $this->arr_row['title']; ?></h2>
 	<?php
 	if ($this->arr_row['feedActive']) {
 		?>
@@ -26,10 +34,11 @@
 						foreach ($this->arr_existingExportFiles as $arr_exportFileInfo) {
 							?>
 							<li>
+
 								<button data-lsjs-element="btn_deleteFile"></button>
-								<a href="<?php echo $arr_exportFileInfo['url']; ?>" target="_blank" rel="noreferrer noopener">
-									<?php echo $arr_exportFileInfo['fileName']; ?>
-								</a>
+
+                                <?= System::getContainer()->get('merconis.routing.download_link_helper')->generateDownloadLinkHtml($arr_exportFileInfo['fileName'], $arr_exportFileInfo['pathToFileExportFolder'], $arr_exportFileInfo['fileName']); ?>
+
 								<span class="fileInfo">(<?php echo $arr_exportFileInfo['dateTime']; ?>, <?php echo $arr_exportFileInfo['fileSize']; ?>)</span>
 							</li>
 							<?php

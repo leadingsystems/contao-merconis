@@ -57,7 +57,7 @@ use Merconis\Core\themeInstallerStatus;
         <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_012']); ?></p>
         <p><?= sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['themeInstall_005'], $GLOBALS['TL_CONFIG']['merconis_serviceNumber']); ?></p>
 
-        <ul>
+        <ul class="installed-packages">
             <?php
             $strNeedle = 'leadingsystems';
             foreach (InstalledVersions::getInstalledPackages() as $strPackage) {
@@ -87,4 +87,7 @@ use Merconis\Core\themeInstallerStatus;
         <?php
     }
     ?>
+    <div class="ls_shop_announcement">
+        <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['announcement'] ?>
+    </div>
 </div>
