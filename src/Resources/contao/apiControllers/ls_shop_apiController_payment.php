@@ -190,7 +190,8 @@ class ls_shop_apiController_payment
             "application_context" => [
                 "return_url" => $afterCheckoutUrl,
                 "cancel_url" => $afterCheckoutUrl,
-                "shipping_preference" => "SET_PROVIDED_ADDRESS"
+                "shipping_preference" => "SET_PROVIDED_ADDRESS",
+                "user_action" => "PAY_NOW"
             ],
             "purchase_units" => [[
                 "amount" => [
