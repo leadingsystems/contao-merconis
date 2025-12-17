@@ -919,5 +919,14 @@ use Contao\System;
 				return null;
 			}
 		}
+
+		public function writeLog($outputType, $output, $logModeInfoText, $bypassLogMode = false) {
+			$methodName = __FUNCTION__;
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
+				return $this->specialModule->{$methodName}($outputType, $output, $logModeInfoText, $bypassLogMode);
+			} else {
+				return null;
+			}
+		}
 	}
 ?>

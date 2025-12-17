@@ -16,6 +16,7 @@ use function LeadingSystems\Helpers\lsDebugLog;
 class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standard {
     const SANDBOX_URL = 'https://api-m.sandbox.paypal.com';
     const LIVE_URL = 'https://api-m.paypal.com';
+    const VALID_CAPTURESTATUSDETAILS = ['PENDING_REVIEW','ECHECK','INTERNATIONAL_WITHDRAWAL'];
 
     public $arrCurrentSettings = array();
 
@@ -43,7 +44,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     }
 
 
-    private function writeLog($outputType, $output, $logModeInfoText, $bypassLogMode = false){
+    public function writeLog($outputType, $output, $logModeInfoText, $bypassLogMode = false){
 
         if($bypassLogMode == false){
 
@@ -81,14 +82,19 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         return true;
     }
 
-    private function payPalCheckout_getaccessToken(){
+    private function payPalCheckout_getBaseUrl($isLiveMode) {
+        return $isLiveMode ? self::LIVE_URL : self::SANDBOX_URL;
+    }
+
+    private function payPalCheckout_fetchAccessToken($clientId, $clientSecret, $isLiveMode) {
+        $baseUrl = $this->payPalCheckout_getBaseUrl($isLiveMode);
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, ($this->arrCurrentSettings['payPalCheckout_liveMode'] ? self::LIVE_URL : self::SANDBOX_URL).'/v1/oauth2/token');
+        curl_setopt($ch, CURLOPT_URL, $baseUrl.'/v1/oauth2/token');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
-        curl_setopt($ch, CURLOPT_USERPWD, $this->arrCurrentSettings['payPalCheckout_clientID'] . ':' . $this->arrCurrentSettings['payPalCheckout_clientSecret']);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->arrCurrentSettings['payPalCheckout_liveMode'] ? true : false);
+        curl_setopt($ch, CURLOPT_USERPWD, $clientId . ':' . $clientSecret);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $isLiveMode ? true : false);
         $headers = array();
         $headers[] = 'Content-Type: application/x-www-form-urlencoded';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -102,7 +108,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $accessToken = $objResonse->access_token;
 
         if(isset($accessToken)){
-            $this->writeLog("Response", $result, 'A new AccessToken '.$accessToken.' was created');
+            $this->writeLog("Response", $result, 'A new AccessToken was created ('.$accessToken.')' );
         }else{
             $this->writeLog("Response", $result, 'There was an Error creating a new AccessToken');
             $this->isError = true;
@@ -110,11 +116,20 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
 
 
         if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
+            $this->writeLog('curlError', curl_error($ch), 'cURL error while requesting access token');
+            $this->isError = true;
         }
         curl_close($ch);
 
         return $accessToken;
+    }
+
+    private function payPalCheckout_getaccessToken(){
+        return $this->payPalCheckout_fetchAccessToken(
+            $this->arrCurrentSettings['payPalCheckout_clientID'],
+            $this->arrCurrentSettings['payPalCheckout_clientSecret'],
+            $this->arrCurrentSettings['payPalCheckout_liveMode']
+        );
     }
 
     public function afterCheckoutFinish($orderIdInDb = 0, $order = array(), $afterCheckoutUrl = '', $oix = '') {
@@ -268,9 +283,14 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
         $str_statusUpdateUrl = ls_shop_generalHelper::getUrl();
         $str_statusUpdateUrl = $str_statusUpdateUrl.(strpos($str_statusUpdateUrl, '?') !== false ? '&' : '?').'payPalCheckout_updateStatus='.$arrOrder['id'].'#payPalCheckout_order'.$arrOrder['id'];
+        $currentStatus = strtoupper((string) $arrOrder['payPalCheckout_currentStatus']);
+        $statusClass = ' paypal-capture-status-pending paypal-capture-status-details-invalid';
+        if ($currentStatus === 'COMPLETED') {
+            $statusClass = ' paypal-capture-status-completed';
+        }
         ob_start();
         ?>
-        <div id="payPalCheckout_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview payPalCheckout">
+        <div id="payPalCheckout_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview payPalCheckout<?php echo $statusClass; ?>">
             <img src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-100px.png" alt="PayPal Logo" />
             <div class="content">
                 <div class="details">
@@ -339,39 +359,59 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $clientId = $arr_settings['payPalCheckout_clientID'];
         $clientSecret = $arr_settings['payPalCheckout_clientSecret'];
 
-        // SANDBOX
-        $baseUrl = "https://api-m.sandbox.paypal.com";
+        $baseUrl = $this->payPalCheckout_getBaseUrl($arr_settings['payPalCheckout_liveMode']);
 
-        // 1) Access Token holen
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "$baseUrl/v1/oauth2/token");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Accept: application/json',
-            'Accept-Language: en_US'
-        ]);
-        curl_setopt($ch, CURLOPT_USERPWD, $clientId . ":" . $clientSecret);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $accessToken = $this->payPalCheckout_fetchAccessToken($clientId, $clientSecret, $arr_settings['payPalCheckout_liveMode']);
+        if(!$accessToken){
+            $this->obj_apiReceiver->error("No Access Token received from PayPal");
+            return;
+        }
 
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        $accessToken = json_decode($result)->access_token;
-
-        // 2) Capture durchführen
+        // Capture durchführen
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "$baseUrl/v2/checkout/orders/$orderID/capture");
         curl_setopt($ch, CURLOPT_POST, true);
+
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Content-Type: application/json",
             "Authorization: Bearer $accessToken"
         ]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $arr_settings['payPalCheckout_liveMode'] ? true : false);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 
         $captureResult = curl_exec($ch);
+        $this->writeLog("Request", curl_getinfo($ch)['request_header'], 'Try to capture payment');
+
         curl_close($ch);
 
         $capture = json_decode($captureResult);
+
+        if ($capture) {
+            $this->writeLog("Response", $captureResult, 'capturing payment result');
+        } else {
+            $this->writeLog("Response", $captureResult, 'There was an Error capturing the payment');
+            $this->isError = true;
+        }
+
+
+        /*
+        if($capture->status == 'PENDING'){
+
+            $captureDetails = $capture->purchase_units[0]->payments->captures[0];
+            $reason = $captureDetails->status_details->reason ?? '';
+
+            if (in_array($reason, self::VALID_CAPTURESTATUSDETAILS)) {
+
+                // Status in DB als PENDING speichern
+                Database::getInstance()
+                    ->prepare("UPDATE tl_ls_shop_orders SET payPalCheckout_currentStatus=? WHERE id=?")
+                    ->execute($capture->status, $orderRow['id']);
+
+                $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
+                return true;
+            }
+        }
 
         if($capture->status == 'COMPLETED'){
             // update status von bezahlung
@@ -382,7 +422,61 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
         }else {
             $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'];
+        }*/
+
+
+
+
+        if ($this->payPalCheckout_checkIfOrderValidFromCapture($capture)) {
+
+            Database::getInstance()
+                ->prepare("UPDATE tl_ls_shop_orders SET payPalCheckout_currentStatus=? WHERE id=?")
+                ->execute(
+                    $capture->purchase_units[0]->payments->captures[0]->status,
+                    $orderRow['id']
+                );
+
+            $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish']
+                = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
+
+            return true;
         }
+
+        // Something went wrong
+        $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish']
+            = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'];
+
+        return false;
+
+
+    }
+
+    protected function payPalCheckout_checkIfOrderValidFromCapture($capture) {
+
+        if (!$capture || empty($capture->purchase_units)) {
+            return false;
+        }
+
+        $captureDetails = $capture->purchase_units[0]->payments->captures[0] ?? null;
+
+        if (!$captureDetails) {
+            return false;
+        }
+
+        if ($captureDetails->status === 'COMPLETED') {
+            return true;
+        }
+
+        if ($captureDetails->status === 'PENDING') {
+
+            $reason = $captureDetails->status_details->reason ?? '';
+
+            if (in_array($reason, self::VALID_CAPTURESTATUSDETAILS, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getCheckoutJavascript() {

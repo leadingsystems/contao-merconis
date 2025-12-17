@@ -64,12 +64,10 @@ class ls_shop_apiController_payment
         $clientId = $arr_settings['payPalCheckout_clientID'];
         $clientSecret = $arr_settings['payPalCheckout_clientSecret'];
 
-        // Preis
-        $total = \Merconis\Core\ls_shop_cartX::getInstance()->calculation['total'][0];
-
-        // Währung
+        $cartCalculation = \Merconis\Core\ls_shop_cartX::getInstance()->calculation;
+        $cartItemsExtended = \Merconis\Core\ls_shop_cartX::getInstance()->itemsExtended;
+        $total = $cartCalculation['invoicedAmount'];
         $currency = strtoupper($GLOBALS['TL_CONFIG']['ls_shop_currencyCode']);
-
         $baseUrl = ($arr_settings['payPalCheckout_liveMode'] ? ls_shop_paymentModule_payPalCheckout::LIVE_URL : ls_shop_paymentModule_payPalCheckout::SANDBOX_URL);
 
 
@@ -83,32 +81,147 @@ class ls_shop_apiController_payment
         curl_setopt($ch, CURLOPT_USERPWD, $clientId . ":" . $clientSecret);
         curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 
         $tokenResult = curl_exec($ch);
+        $obj_paymentModule->writeLog("Request", curl_getinfo($ch)['request_header'],'Send Request to create a new Access Token in finish order');
+
         curl_close($ch);
+        $accessToken = json_decode($tokenResult)->access_token;
+
+        if(isset($accessToken)){
+            $obj_paymentModule->writeLog("Response", $tokenResult, 'A new AccessToken '.$accessToken.' was created in finish order');
+        }else{
+            $obj_paymentModule->writeLog("Response", $tokenResult, 'There was an Error creating a new AccessToken in finish order');
+            $this->isError = true;
+        }
+
 
         // Merconis Checkout
         $obj_checkout = new ls_shop_checkout();
-
-        $accessToken = json_decode($tokenResult)->access_token;
-
         $obj_checkout->completeCheckout();
 
         $afterCheckoutUrl = Environment::get('base').$obj_checkout->getAfterCheckoutUrlWithOih();
 
-        // create Order
+        $checkoutCustomerData = \Merconis\Core\ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'] ?? [];
+        $useAlternativeShipping = isset($checkoutCustomerData['useDeviantShippingAddress']['value']) && $checkoutCustomerData['useDeviantShippingAddress']['value'] == "1";
+        $getShippingFieldValue = function(string $fieldName) use ($checkoutCustomerData, $useAlternativeShipping) {
+            $fieldKey = $useAlternativeShipping ? $fieldName.'_alternative' : $fieldName;
+            return $checkoutCustomerData[$fieldKey]['value'] ?? '';
+        };
+
+        $shippingName = trim($getShippingFieldValue($arr_settings['payPalCheckout_shipToFieldNameFirstname']) . ' ' . $getShippingFieldValue($arr_settings['payPalCheckout_shipToFieldNameLastname']));
+        $shippingStreet = $getShippingFieldValue($arr_settings['payPalCheckout_shipToFieldNameStreet']);
+        $shippingCity = $getShippingFieldValue($arr_settings['payPalCheckout_shipToFieldNameCity']);
+        $shippingPostal = $getShippingFieldValue($arr_settings['payPalCheckout_shipToFieldNamePostal']);
+        $shippingCountry = strtoupper($getShippingFieldValue($arr_settings['payPalCheckout_shipToFieldNameCountryCode']));
+        $shippingState = $getShippingFieldValue($arr_settings['payPalCheckout_shipToFieldNameState']);
+
+        $shippingAddress = [];
+        if ($shippingStreet && $shippingCity && $shippingPostal && $shippingCountry) {
+            $shippingAddress = [
+                "name" => [
+                    "full_name" => $shippingName
+                ],
+                "address" => [
+                    "address_line_1" => $shippingStreet,
+                    "admin_area_2" => $shippingCity,
+                    "postal_code" => $shippingPostal,
+                    "country_code" => $shippingCountry
+                ]
+            ];
+
+            if ($shippingState) {
+                $shippingAddress["address"]["admin_area_1"] = $shippingState;
+            }
+        }
+
+        $shippingAmount = $cartCalculation['shippingFee'][0] ?? 0;
+        $handlingAmount = $cartCalculation['paymentFee'][0] ?? 0;
+        $taxAmount = $cartCalculation['taxInclusive'] ? 0 : ($cartCalculation['invoicedAmount'] - $cartCalculation['invoicedAmountNet']);
+        $discountRaw = 0;
+        foreach ($cartCalculation['couponValues'] as $couponValue) {
+            $discountRaw += $couponValue[0];
+        }
+        $discountAmount = max(0, abs(min(0, $discountRaw)));
+
+        $items = [];
+        $itemsTotalFromLines = 0;
+        foreach ($cartCalculation['items'] as $cartItem) {
+            $cartItemExtended = $cartItemsExtended[$cartItem['productCartKey']] ?? null;
+            if ($cartItemExtended === null || ($cartItemExtended['quantity'] ?? 0) == 0) {
+                continue;
+            }
+
+            $itemName = substr($cartItemExtended['objProduct']->_title ?? 'Item', 0, 127);
+            $itemDescription = $cartItemExtended['objProduct']->_hasCode ? substr($cartItemExtended['objProduct']->_code, 0, 127) : '';
+            $isIntegerQty = intval($cartItemExtended['quantity']) == $cartItemExtended['quantity'];
+
+            if ($isIntegerQty) {
+                $unitPrice = number_format($cartItem['price'], 2, '.', '');
+                $quantity = $cartItemExtended['quantity'];
+                $lineTotal = $quantity * (float) $unitPrice;
+            } else {
+                $unitPrice = number_format($cartItem['priceCumulative'], 2, '.', '');
+                $quantity = 1;
+                $itemDescription = trim($itemDescription.' ('.$cartItemExtended['quantity'].' '.$cartItemExtended['objProduct']->_quantityUnit.' * '.$cartItemExtended['objProduct']->_priceAfterTaxFormatted.')');
+                $lineTotal = (float) $unitPrice;
+            }
+
+            $itemsTotalFromLines += $lineTotal;
+
+            $items[] = [
+                "name" => $itemName,
+                "description" => $itemDescription,
+                "quantity" => (string) $quantity,
+                "unit_amount" => [
+                    "currency_code" => $currency,
+                    "value" => $unitPrice
+                ]
+            ];
+        }
+
+        $itemTotal = $itemsTotalFromLines > 0
+            ? $itemsTotalFromLines
+            : $cartCalculation['invoicedAmount'] + $discountAmount - $shippingAmount - $handlingAmount - $taxAmount;
+
         $body = json_encode([
             "intent" => "CAPTURE",
+            "application_context" => [
+                "return_url" => $afterCheckoutUrl,
+                "cancel_url" => $afterCheckoutUrl,
+                "shipping_preference" => "SET_PROVIDED_ADDRESS"
+            ],
             "purchase_units" => [[
                 "amount" => [
                     "currency_code" => $currency,
-                    "value" => number_format($total, 2, '.', '')
-                ]
-            ]],
-            "application_context" => [
-                "return_url" => $afterCheckoutUrl,
-                "cancel_url" => $afterCheckoutUrl
-            ]
+                    "value" => number_format($total, 2, '.', ''),
+                    "breakdown" => [
+                        "item_total" => [
+                            "currency_code" => $currency,
+                            "value" => number_format($itemTotal, 2, '.', '')
+                        ],
+                        "shipping" => [
+                            "currency_code" => $currency,
+                            "value" => number_format($shippingAmount, 2, '.', '')
+                        ],
+                        "handling" => [
+                            "currency_code" => $currency,
+                            "value" => number_format($handlingAmount, 2, '.', '')
+                        ],
+                        "tax_total" => [
+                            "currency_code" => $currency,
+                            "value" => number_format($taxAmount, 2, '.', '')
+                        ],
+                        "discount" => [
+                            "currency_code" => $currency,
+                            "value" => number_format($discountAmount, 2, '.', '')
+                        ]
+                    ]
+                ],
+                "items" => $items,
+                "shipping" => $shippingAddress
+            ]]
         ]);
 
         $ch = curl_init();
@@ -120,10 +233,22 @@ class ls_shop_apiController_payment
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+
         $orderResult = curl_exec($ch);
+        $obj_paymentModule->writeLog("Request", curl_getinfo($ch)['request_header'],'Send Request to create a new Access Token in finish order');
+
         curl_close($ch);
 
         $order = json_decode($orderResult, true);
+
+        if(isset($accessToken)){
+            $obj_paymentModule->writeLog("Response", $orderResult, 'A new Order Intent was created');
+        }else{
+            $obj_paymentModule->writeLog("Response", $orderResult, 'There was an Error creating a new Order Intent');
+            $this->isError = true;
+        }
+
 
         // finde approve-link
         $approveUrl = null;
