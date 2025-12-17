@@ -394,39 +394,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $this->isError = true;
         }
 
-
-        /*
-        if($capture->status == 'PENDING'){
-
-            $captureDetails = $capture->purchase_units[0]->payments->captures[0];
-            $reason = $captureDetails->status_details->reason ?? '';
-
-            if (in_array($reason, self::VALID_CAPTURESTATUSDETAILS)) {
-
-                // Status in DB als PENDING speichern
-                Database::getInstance()
-                    ->prepare("UPDATE tl_ls_shop_orders SET payPalCheckout_currentStatus=? WHERE id=?")
-                    ->execute($capture->status, $orderRow['id']);
-
-                $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
-                return true;
-            }
-        }
-
-        if($capture->status == 'COMPLETED'){
-            // update status von bezahlung
-            Database::getInstance()
-                ->prepare("UPDATE tl_ls_shop_orders SET payPalCheckout_currentStatus=? WHERE id=?")
-                ->execute($capture->status, $orderRow['id']);
-
-            $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
-        }else {
-            $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'];
-        }*/
-
-
-
-
         if ($this->payPalCheckout_checkIfOrderValidFromCapture($capture)) {
 
             Database::getInstance()
