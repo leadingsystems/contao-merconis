@@ -45,13 +45,25 @@ class ls_shop_apiController_payment
 
 
     protected function apiResource_paymentapi() {
-        if (!Input::get('function')) {
+        if (strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== 'POST') {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('invalid request method');
+            return;
+        }
+
+        if (!Input::post('REQUEST_TOKEN')) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('missing request token');
+            return;
+        }
+
+        if (!Input::post('function')) {
             $this->obj_apiReceiver->fail();
             $this->obj_apiReceiver->set_data('no function given');
             return;
         }
 
-        if (Input::get('function') == 'finish-order') {
+        if (Input::post('function') == 'finish-order') {
             $this->finishOrder();
         }
     }

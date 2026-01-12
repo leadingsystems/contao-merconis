@@ -356,12 +356,10 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['mi
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc11'] = 'Finanzierungsanfrage-Formular öffnen';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc12'] = 'Aufgrund eines geänderten Rechnungsbetrags wurde ein zuvor eventuell bereits gestellter Finanzierungsantrag storniert. Sie müssen daher einen neuen Antrag stellen.';
 
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'] = '<p class="error">Die Zahlung konnte nicht erfolgreich abgeschlossen werden, Ihre Bestellung haben wir aber entgegengenommen. Bitte kontaktieren Sie uns, um den Sachverhalt zu klären und eine alternative Möglichkeit der Zahlung zu vereinbaren.</p>';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'] = '<p class="success">Vielen Dank für Ihre Zahlung!</p>';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSelected'] = 'Zahlungsmöglichkeit ausgewählt, die Bezahlung erfolgt beim abschluss ihrer Bestellung';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentFailedErrorMessage'] = 'Zahlung mit Paypal ist Fehlgeschlagen';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerFailedMessage'] = 'Ein Fehler ist aufgetreten beim abschließen der Bestellung, versuchen sie es erneut';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerErrorMessage'] = 'Ein Fehler ist aufgetreten beim abschließen der Bestellung, bitte wenden Sie sich an den Shopbetreiber';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSelected'] = 'Zahlungsmethode ausgewählt. Die Bezahlung erfolgt beim Abschluss Ihrer Bestellung.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentFailedErrorMessage'] = 'Die Zahlung mit PayPal ist fehlgeschlagen.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerFailedMessage'] = 'Ein Fehler ist beim Abschluss Ihrer Bestellung aufgetreten. Bitte versuchen Sie es erneut.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerErrorMessage'] = 'Ein Fehler ist beim Abschluss Ihrer Bestellung aufgetreten. Bitte wenden Sie sich an den Shopbetreiber.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderRedirectToFinishPage'] = 'Weiterleitung zum Abschluss';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['tryToPayAgain'] = 'Versuch ${attempt} von ${maxTries}: Bezahlung wird erneut versucht...';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['preparePayment'] = 'Bezahlung wird vorbereitet, bitte nicht schließen...';

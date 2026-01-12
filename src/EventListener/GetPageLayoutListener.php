@@ -2,6 +2,7 @@
 
 namespace LeadingSystems\MerconisBundle\EventListener;
 
+use Contao\Controller;
 use Contao\Input;
 use Contao\LayoutModel;
 use Contao\PageModel;
@@ -92,9 +93,7 @@ class GetPageLayoutListener
 
             // Checks whether $url is a valid, properly formatted URL (prevents invalid values)
             if (filter_var($url, FILTER_VALIDATE_URL)) {
-
-                header('Location: ' . $url);
-                exit;
+                Controller::redirect($url);
             }
         }
     }

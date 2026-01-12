@@ -336,6 +336,16 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['payme
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentNotAuthorized'] = 'Your PayPal payment could not be completed.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['headlineBackendDetailsInfo'] = 'Information about the payment status';
 
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSelected'] = 'Payment method selected. Payment will be processed when you place your order.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentFailedErrorMessage'] = 'Payment with PayPal failed.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerFailedMessage'] = 'An error occurred while finalizing your order. Please try again.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerErrorMessage'] = 'An error occurred while finalizing your order. Please contact the shop owner.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderRedirectToFinishPage'] = 'Redirecting to payment approval...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['tryToPayAgain'] = 'Attempt ${attempt} of ${maxTries}: Trying to pay again...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['preparePayment'] = 'Preparing payment, please do not close this window...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['prepareOrder'] = 'Finalizing your order, please wait...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorCreatingPaymentIntent'] = 'Error initializing the payment. Please try again later.';
+
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['paymentErrorAfterFinishedOrder'] = 'The payment via "Online Bank Transfer." could not be finished successfully but we have received your order. Please contact us in order to resolve this issue and to agree upon an alternative payment option.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['confirmCheckoutMessage'] = 'After confirmation of the order you will be redirected to "Online Bank Transfer." where you can finish your payment.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['sofortueberweisung']['slogan'] = 'SOFORT Banking - Easy, Fast, Secure';

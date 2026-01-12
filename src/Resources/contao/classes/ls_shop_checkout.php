@@ -59,7 +59,6 @@ class ls_shop_checkout {
     }
 
     function isCheckoutDone(){
-        $this->assertCheckoutDone();
         return $this->isCheckoutDone;
     }
 
@@ -143,7 +142,7 @@ class ls_shop_checkout {
             ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
             $urlCart = $GLOBALS['merconis_globals']['ls_shop_cartPagesUrl'];
             $urlCart = $urlCart . (strpos($urlCart, '?') !== false ? '&' : '?') . 'step=cart';
-            $this->redirect($urlCart);
+            Controller::redirect($urlCart);
         } else {
             /*
              * Lagerbestand für alle Positionen ausreichend, die Bestellung wird also ausgeführt und an dieser
@@ -188,7 +187,7 @@ class ls_shop_checkout {
         /*
          * Generieren der zusammengefassten Bestellung als HTML- und Text-Version
          */
-        $order = $this->createOrder($extraDataToSaveInCreatedOrder);
+        $order = $this->createOrder();
 
         /*
          * Speichern der Bestellung in der DB
@@ -473,12 +472,18 @@ class ls_shop_checkout {
 
 
 
+        $customerNr = 0;
+        if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
+            $frontendUser = FrontendUser::getInstance();
+            $customerNr = (int) ($frontendUser->id ?? 0);
+        }
+
         $arrOrder = array(
             'orderIdentificationHash' => sha1(microtime().rand(1,99999999)).md5($this->orderNr).md5(time()), // no language
             'orderNr' => $this->orderNr, // no language
             'orderDateUnixTimestamp' => time(), // no language
             'orderDate' => date("Y-m-d H:i:s"), // no language
-            'customerNr' => System::getContainer()->get('contao.security.token_checker')->hasFrontendUser() ? $this->User->id : 0, // no language
+            'customerNr' => $customerNr, // no language
             'customerLanguage' => $objPage->language, // no language
             'customerInfo' => array(
                 'personalData' => $this->createShopLanguageArray(ls_shop_checkoutData::getInstance()->arrCustomerDataReview), // shop language

@@ -5,12 +5,12 @@
   width: 100%;
   height: 100%;
   z-index: 999999;
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
-  color: white;
+  background: rgba(0, 0, 0, 0.55);
   font-family: sans-serif;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .loading-content {

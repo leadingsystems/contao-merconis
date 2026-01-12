@@ -1,101 +1,128 @@
+<?php
+
+use Contao\System;
+use Merconis\Core\ls_shop_languageHelper;
+
+$ajaxUrl = (string) ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages');
+$ajaxUrl = preg_replace('/\?.*$/', '', $ajaxUrl);
+$ajaxUrl = preg_replace('/\.html$/', '', $ajaxUrl);
+
+$paymentApiUrl = rtrim($ajaxUrl, '/') . '/resource/paymentapi/';
+$defaultRequestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+
+?>
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
+        const paymentApiUrl = <?= json_encode($paymentApiUrl) ?>;
+        const defaultRequestToken = <?= json_encode($defaultRequestToken) ?>;
 
         // --- Helper functions for the loading overlay ---
-        const loadingOverlay = document.querySelector('.moduleContainer.loadingIndicator');
+        const loadingOverlay = document.getElementById('loading-overlay');
         const loadingMessage = document.getElementById('loading-message');
         const errorMessageContainer = document.getElementById('payment-error-message');
 
-
         const showLoadingOverlay = (message) => {
-            if(!loadingMessage){
-                console.warn("No loading message container found");
-            }
-            if(!message){
-                console.warn("No message in loading indicator set");
+            if (!loadingOverlay || !loadingMessage) {
+                return;
             }
 
-            if (loadingOverlay && loadingMessage) {
-                loadingMessage.textContent = message;
-                loadingOverlay.style.display = 'flex';
-                loadingMessage.style.display = 'flex';
-            }
+            loadingMessage.textContent = message || '';
+            loadingOverlay.style.display = 'flex';
         };
+
         const hideLoadingOverlay = () => {
-            if (loadingOverlay) {
-                loadingOverlay.style.display = 'none';
+            if (!loadingOverlay) {
+                return;
             }
-            if (loadingMessage) {
-                loadingMessage.style.display = 'none';
-            }
+
+            loadingOverlay.style.display = 'none';
         };
+
         const updateLoadingMessage = (message) => {
-            if (loadingMessage) {
-                loadingMessage.textContent = message;
+            if (!loadingMessage) {
+                return;
             }
+
+            loadingMessage.textContent = message || '';
         };
+
         const updateErrorMessage = (message) => {
-            if (errorMessageContainer) {
-                errorMessageContainer.textContent = message;
+            if (!errorMessageContainer) {
+                return;
             }
+
+            errorMessageContainer.textContent = message || '';
         };
+
         // Helper function to wait for a certain amount of time
         const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-
-
         const paymentButton = document.querySelector('.buttonBuy');
-        const form = paymentButton.closest('form');
-
-        if (!form) {
-            console.error('Paypal integration: One of the required form elements was not found.');
+        if (!paymentButton) {
+            console.warn('PayPal Checkout: submit button (.buttonBuy) not found.');
             return;
         }
+
+        const form = paymentButton.closest('form');
+        if (!form) {
+            console.warn('PayPal Checkout: submit button has no parent form.');
+            return;
+        }
+
+        const requestTokenInput = form.querySelector('input[name="REQUEST_TOKEN"]');
+        const requestToken = (requestTokenInput && requestTokenInput.value) ? requestTokenInput.value : defaultRequestToken;
 
         // --- Logic for payment processing when submitting the form ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
             paymentButton.disabled = true;
+            updateErrorMessage('');
 
             try {
                 showLoadingOverlay('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['prepareOrder']?>');
-                await wait(5000);
+                await wait(250);
 
-                const response = await fetch('/de/merconis-ajax/resource/paymentapi/?function=finish-order', {
-                    method: 'GET',
-                    headers: {
-                    },
+                const body = new URLSearchParams({
+                    function: 'finish-order',
+                    REQUEST_TOKEN: requestToken,
                 });
 
-                let result;
-                result = await response.json();
+                const response = await fetch(paymentApiUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    },
+                    body: body.toString(),
+                });
 
-                if (result.status === "success" && result.data.afterCheckoutUrl && result.data.approveUrl) {
-
-                    // This message is only displayed at the beginning
-                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['preparePayment']?>');
-                    await wait(2000);
-
-                    const approveUrl = result.data.approveUrl;
-
-                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderRedirectToFinishPage']?>');
-                    await wait(5000); // A small delay so the user can see the message
-                    window.location.href = approveUrl;
-
-                } else {
-                    throw new Error('api error, afterCheckoutUrl missing or approveUrl missing');
+                if (!response.ok) {
+                    throw new Error(`Payment API failed with HTTP ${response.status}`);
                 }
 
-            } catch (err) {
-                // Server error
+                const result = await response.json();
+
+                if (result.status === 'success' && result.data && result.data.approveUrl) {
+                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['preparePayment']?>');
+                    await wait(250);
+
+                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderRedirectToFinishPage']?>');
+                    await wait(250);
+
+                    window.location.href = result.data.approveUrl;
+                    return;
+                }
+
                 hideLoadingOverlay();
-                updateErrorMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerErrorMessage']?>')
-                console.error("Error in Checkout:", err);
+                updateErrorMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerFailedMessage']?>');
+            } catch (err) {
+                hideLoadingOverlay();
+                updateErrorMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderServerErrorMessage']?>');
+                console.error('Error in PayPal Checkout submit handler:', err);
+            } finally {
+                paymentButton.disabled = false;
             }
         });
-
-
-
-
     });
 </script>
