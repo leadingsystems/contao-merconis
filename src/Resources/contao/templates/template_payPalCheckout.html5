@@ -17,6 +17,7 @@ $defaultRequestToken = System::getContainer()->get('contao.csrf.token_manager')-
         const defaultRequestToken = <?= json_encode($defaultRequestToken) ?>;
 
         // --- Helper functions for the loading overlay ---
+        const loadingIndicator = document.querySelector('.moduleContainer.loadingIndicator');
         const loadingOverlay = document.getElementById('loading-overlay');
         const loadingMessage = document.getElementById('loading-message');
         const errorMessageContainer = document.getElementById('payment-error-message');
@@ -27,6 +28,9 @@ $defaultRequestToken = System::getContainer()->get('contao.csrf.token_manager')-
             }
 
             loadingMessage.textContent = message || '';
+            if(loadingIndicator){
+                loadingIndicator.style.display = 'flex';
+            }
             loadingOverlay.style.display = 'flex';
         };
 
@@ -35,6 +39,9 @@ $defaultRequestToken = System::getContainer()->get('contao.csrf.token_manager')-
                 return;
             }
 
+            if(loadingIndicator){
+                loadingIndicator.style.display = 'none';
+            }
             loadingOverlay.style.display = 'none';
         };
 
