@@ -5,6 +5,7 @@ namespace Merconis\Core;
 use Contao\Database;
 use Contao\Environment;
 use Contao\Input;
+use Contao\StringUtil;
 
 class ls_shop_apiController_payment
 {
@@ -270,9 +271,48 @@ class ls_shop_apiController_payment
         }
 
         // PAYPAL ORDER-ID in Merconis speichern
+        $orderIdInDb = (int) $obj_checkout->getOrderId();
+
+        $existingPaymentMethodModuleReturnData = Database::getInstance()
+            ->prepare("SELECT paymentMethod_moduleReturnData FROM tl_ls_shop_orders WHERE id=?")
+            ->limit(1)
+            ->execute($orderIdInDb)
+            ->paymentMethod_moduleReturnData;
+
+        $paymentMethodModuleReturnData = StringUtil::deserialize($existingPaymentMethodModuleReturnData, true);
+        if (!is_array($paymentMethodModuleReturnData)) {
+            $paymentMethodModuleReturnData = [];
+        }
+
+        $paymentMethodModuleReturnData['str_orderId'] = $order['id'] ?? '';
+        $paymentMethodModuleReturnData['arr_saleDetails'] = array_merge(
+            $paymentMethodModuleReturnData['arr_saleDetails'] ?? [],
+            [
+                'str_orderId' => $order['id'] ?? '',
+                'str_currentStatus' => $order['status'] ?? '',
+                'str_captureId' => '',
+                'str_captureStatus' => '',
+                'str_captureStatusDetails' => '',
+                'str_errorMsg' => ($order['message'] ?? ''),
+            ]
+        );
+        $paymentMethodModuleReturnData['arr_payPalResponses']['createOrder'] = $order;
+
         Database::getInstance()
-            ->prepare("UPDATE tl_ls_shop_orders SET payPalCheckout_orderID=?, payPalCheckout_currentStatus = ? WHERE id=?")
-            ->execute($order['id'], $order['status'], $obj_checkout->getOrderId());
+            ->prepare("
+                UPDATE tl_ls_shop_orders
+                SET
+                    payPalCheckout_orderId=?,
+                    payPalCheckout_currentStatus=?,
+                    paymentMethod_moduleReturnData=?
+                WHERE id=?
+            ")
+            ->execute(
+                $order['id'] ?? '',
+                $order['status'] ?? '',
+                serialize($paymentMethodModuleReturnData),
+                $orderIdInDb
+            );
 
 
         // set onPageLoadRedirect url because the user should be informed that the order is created even if the user goes back to another side in payment process
