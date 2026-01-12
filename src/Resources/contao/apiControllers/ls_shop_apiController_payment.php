@@ -296,7 +296,6 @@ class ls_shop_apiController_payment
                 'str_errorMsg' => ($order['message'] ?? ''),
             ]
         );
-        $paymentMethodModuleReturnData['arr_payPalResponses']['createOrder'] = $order;
 
         Database::getInstance()
             ->prepare("

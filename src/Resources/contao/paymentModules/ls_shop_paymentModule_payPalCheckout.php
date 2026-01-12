@@ -144,11 +144,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     public function getPaymentInfo() {
         $arrPaymentInfo = array(
             'str_orderId' => '',
-            'arr_payPalResponses' => array(
-                'createOrder' => array(),
-                'getOrder' => array(),
-                'capture' => array()
-            ),
             'arr_saleDetails' => array(
                 'str_orderId' => '',
                 'str_currentStatus' => '',
@@ -208,14 +203,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
 
         $paymentMethod_moduleReturnData['str_orderId'] = $payPalCheckout_orderId;
-
-        if (!isset($paymentMethod_moduleReturnData['arr_payPalResponses']) || !is_array($paymentMethod_moduleReturnData['arr_payPalResponses'])) {
-            $paymentMethod_moduleReturnData['arr_payPalResponses'] = [];
-        }
-
-        $payPalCheckoutSaleDetailsResults = $this->payPalCheckout_getSaleDetailsForOrderId($payPalCheckout_orderId);
-        $paymentMethod_moduleReturnData['arr_saleDetails'] = $payPalCheckoutSaleDetailsResults['arr_saleDetails'];
-        $paymentMethod_moduleReturnData['arr_payPalResponses']['getOrder'] = $payPalCheckoutSaleDetailsResults['arr_payPalResponse'];
+        $paymentMethod_moduleReturnData['arr_saleDetails'] = $this->payPalCheckout_getSaleDetailsForOrderId($payPalCheckout_orderId);
 
         // Persist moduleReturnData (primary source of truth for PayPal Checkout)
         $this->update_paymentMethod_moduleReturnData_inOrder($int_orderIdInDb, $paymentMethod_moduleReturnData);
@@ -238,10 +226,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         );
 
         if (!$str_orderId) {
-            return [
-                'arr_saleDetails' => $arr_saleDetails,
-                'arr_payPalResponse' => []
-            ];
+            return $arr_saleDetails;
         }
 
         $access_token = $this->payPalCheckout_getaccessToken();
@@ -266,7 +251,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         }
         curl_close($ch);
 
-        $payPalResponse = json_decode($result, true);
         $resultJson = json_decode($result);
 
         if (isset($resultJson->id) && isset($resultJson->status)) {
@@ -290,10 +274,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $arr_saleDetails['str_currentStatus'] = 'payment information could not be read correctly [ppc01]';
         }
 
-        return [
-            'arr_saleDetails' => $arr_saleDetails,
-            'arr_payPalResponse' => is_array($payPalResponse) ? $payPalResponse : []
-        ];
+        return $arr_saleDetails;
     }
 
 
@@ -511,7 +492,7 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
                 'str_errorMsg' => $paymentMethod_moduleReturnData['arr_saleDetails']['str_errorMsg'] ?? ''
             ]
         );
-        $paymentMethod_moduleReturnData['arr_payPalResponses']['capture'] = json_decode($captureResult, true);
+        // Keep moduleReturnData close to the legacy structure: normalized sale details only (no raw response dump)
 
         $this->update_paymentMethod_moduleReturnData_inOrder((int) $orderRow['id'], $paymentMethod_moduleReturnData);
         $this->update_fieldValue_inOrder((int) $orderRow['id'], 'payPalCheckout_currentStatus', $captureStatus ?: ($paymentMethod_moduleReturnData['arr_saleDetails']['str_currentStatus'] ?? ''));
