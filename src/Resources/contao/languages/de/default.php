@@ -332,7 +332,6 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['headlineB
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'] = '<p class="error">Die Zahlung konnte nicht erfolgreich abgeschlossen werden, Ihre Bestellung haben wir aber entgegengenommen. Bitte kontaktieren Sie uns, um den Sachverhalt zu klären und eine alternative Möglichkeit der Zahlung zu vereinbaren.</p>';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'] = '<p class="success">Vielen Dank für Ihre Zahlung!</p>';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentWallHeadline'] = 'Auswahl der PayPal-Zahlungsweise';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentAuthorized'] = 'Ihre PayPal-Zahlung wurde erfolgreich abgeschlossen. Sie können die Bestellung nun abschließen.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentNotAuthorized'] = 'Ihre PayPal-Zahlung konnte nicht abgeschlossen werden.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['headlineBackendDetailsInfo'] = 'Informationen zum Zahlungsstatus';
 
