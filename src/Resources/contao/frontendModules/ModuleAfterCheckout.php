@@ -112,7 +112,7 @@ class ModuleAfterCheckout extends Module {
 		} else if (Input::get('oih')) {
 			$oih = Input::get('oih');
 		} else if (Input::post('oih')) {
-			$oih = Input::get('oih');
+			$oih = Input::post('oih');
 		}
 		
 		$arrOrder = null;
@@ -130,6 +130,14 @@ class ModuleAfterCheckout extends Module {
 			$obj_paymentModule->onAfterCheckoutPage($arrOrder);
 			// ###################################################
 
+		}
+
+		/*
+		 * If we have an id from an oix but no oih mapping in the session (e.g. missing session on a payment provider return),
+		 * we can still derive the oih from the loaded order record.
+		 */
+		if (!$oih && $idFromOix && is_array($arrOrder) && ($arrOrder['orderIdentificationHash'] ?? null)) {
+			$oih = $arrOrder['orderIdentificationHash'];
 		}
 		
 		/*

@@ -114,7 +114,23 @@ class ls_shop_apiController_payment
         $obj_checkout = new ls_shop_checkout();
         $obj_checkout->completeCheckout();
 
-        $afterCheckoutUrl = Environment::get('base').$obj_checkout->getAfterCheckoutUrlWithOih();
+        $orderIdInDb = (int) $obj_checkout->getOrderId();
+        $oix = ls_shop_generalHelper::encodeOix($orderIdInDb);
+
+        /*
+         * IMPORTANT:
+         * Do not expose the oih in a payment provider return/cancel URL.
+         * The oih must remain read-only and is not meant to be shared externally.
+         */
+        $afterCheckoutUrlWithOix = preg_replace(
+            '/([?&])oih=[^&]*(&?)/',
+            '$1',
+            (string) $obj_checkout->getAfterCheckoutUrlWithOih()
+        );
+        $afterCheckoutUrlWithOix = rtrim($afterCheckoutUrlWithOix, '?&');
+        $afterCheckoutUrlWithOix .= (strpos($afterCheckoutUrlWithOix, '?') !== false ? '&' : '?') . 'oix=' . $oix;
+
+        $afterCheckoutUrl = Environment::get('base') . $afterCheckoutUrlWithOix;
 
         $checkoutCustomerData = \Merconis\Core\ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'] ?? [];
         $useAlternativeShipping = isset($checkoutCustomerData['useDeviantShippingAddress']['value']) && $checkoutCustomerData['useDeviantShippingAddress']['value'] == "1";
@@ -271,7 +287,6 @@ class ls_shop_apiController_payment
         }
 
         // PAYPAL ORDER-ID in Merconis speichern
-        $orderIdInDb = (int) $obj_checkout->getOrderId();
 
         $existingPaymentMethodModuleReturnData = Database::getInstance()
             ->prepare("SELECT paymentMethod_moduleReturnData FROM tl_ls_shop_orders WHERE id=?")
