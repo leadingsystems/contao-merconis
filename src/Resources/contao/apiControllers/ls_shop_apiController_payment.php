@@ -114,6 +114,12 @@ class ls_shop_apiController_payment
         $obj_checkout = new ls_shop_checkout();
         $obj_checkout->completeCheckout();
 
+        if (!$obj_checkout->isCheckoutDone()) {
+            $this->obj_apiReceiver->fail();
+            $this->obj_apiReceiver->set_data('checkout not completed');
+            return;
+        }
+
         $orderIdInDb = (int) $obj_checkout->getOrderId();
         $oix = ls_shop_generalHelper::encodeOix($orderIdInDb);
 
@@ -285,6 +291,18 @@ class ls_shop_apiController_payment
         $approveUrl = null;
         foreach ($order['links'] as $l) {
             if ($l['rel'] === 'approve') { $approveUrl = $l['href']; break; }
+        }
+
+        // Load existing module return data (created during checkout)
+        $existingPaymentMethodModuleReturnData = Database::getInstance()
+            ->prepare("SELECT paymentMethod_moduleReturnData FROM tl_ls_shop_orders WHERE id=?")
+            ->limit(1)
+            ->execute($orderIdInDb)
+            ->paymentMethod_moduleReturnData;
+
+        $paymentMethodModuleReturnData = StringUtil::deserialize($existingPaymentMethodModuleReturnData, true);
+        if (!is_array($paymentMethodModuleReturnData)) {
+            $paymentMethodModuleReturnData = [];
         }
 
         $paymentMethodModuleReturnData['str_orderId'] = $order['id'] ?? '';

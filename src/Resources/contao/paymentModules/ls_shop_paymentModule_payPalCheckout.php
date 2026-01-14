@@ -436,6 +436,19 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             return false;
         }
 
+        // Idempotency: if the order is already captured, do not try to capture again
+        $existingModuleReturnData = StringUtil::deserialize($orderRow['paymentMethod_moduleReturnData'] ?? null, true);
+        $existingCaptureStatus = (string) (($existingModuleReturnData['arr_saleDetails']['str_captureStatus'] ?? '') ?: '');
+        $existingCaptureId = (string) (($existingModuleReturnData['arr_saleDetails']['str_captureId'] ?? '') ?: '');
+        if (
+            strtoupper((string) ($orderRow['payPalCheckout_currentStatus'] ?? '')) === 'COMPLETED'
+            || (strtoupper($existingCaptureStatus) === 'COMPLETED' && $existingCaptureId !== '')
+        ) {
+            $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish']
+                = $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'];
+            return true;
+        }
+
         // PayPal OrderID aus DB
         $orderID = $orderRow['payPalCheckout_orderId'];
 
