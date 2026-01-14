@@ -414,20 +414,10 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
     function payPalCheckout_captureOrder() {
 
         /*
-         * Only capture on return/cancel flows that include an oix and have a valid oix->oih mapping in the session.
-         * This prevents captures from being triggered via plain oih links (e.g. from emails/bookmarks).
+         * Capture based on oix
          */
         $oix = Input::get('oix');
         if (!$oix) {
-            return false;
-        }
-
-        /*
-         * PayPal typically returns a "token" query parameter (PayPal order id) on approval redirects.
-         * We require it to reduce the chance of triggering captures via a plain oix link.
-         */
-        $payPalToken = Input::get('token');
-        if (!$payPalToken) {
             return false;
         }
 
@@ -450,10 +440,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
         $orderID = $orderRow['payPalCheckout_orderId'];
 
         if (!$orderID) {
-            return false;
-        }
-
-        if ((string) $payPalToken !== (string) $orderID) {
             return false;
         }
 

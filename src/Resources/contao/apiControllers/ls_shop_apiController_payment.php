@@ -130,7 +130,8 @@ class ls_shop_apiController_payment
         $afterCheckoutUrlWithOix = rtrim($afterCheckoutUrlWithOix, '?&');
         $afterCheckoutUrlWithOix .= (strpos($afterCheckoutUrlWithOix, '?') !== false ? '&' : '?') . 'oix=' . $oix;
 
-        $afterCheckoutUrl = Environment::get('base') . $afterCheckoutUrlWithOix;
+        $returnUrl = Environment::get('base') . $afterCheckoutUrlWithOix;
+        $cancelUrl = Environment::get('base') . $afterCheckoutUrlWithOix;
 
         $checkoutCustomerData = \Merconis\Core\ls_shop_checkoutData::getInstance()->arrCheckoutData['arrCustomerData'] ?? [];
         $useAlternativeShipping = isset($checkoutCustomerData['useDeviantShippingAddress']['value']) && $checkoutCustomerData['useDeviantShippingAddress']['value'] == "1";
@@ -217,8 +218,8 @@ class ls_shop_apiController_payment
         $body = json_encode([
             "intent" => "CAPTURE",
             "application_context" => [
-                "return_url" => $afterCheckoutUrl,
-                "cancel_url" => $afterCheckoutUrl,
+                "return_url" => $returnUrl,
+                "cancel_url" => $cancelUrl,
                 "shipping_preference" => "SET_PROVIDED_ADDRESS",
                 "user_action" => "PAY_NOW"
             ],
@@ -286,19 +287,6 @@ class ls_shop_apiController_payment
             if ($l['rel'] === 'approve') { $approveUrl = $l['href']; break; }
         }
 
-        // PAYPAL ORDER-ID in Merconis speichern
-
-        $existingPaymentMethodModuleReturnData = Database::getInstance()
-            ->prepare("SELECT paymentMethod_moduleReturnData FROM tl_ls_shop_orders WHERE id=?")
-            ->limit(1)
-            ->execute($orderIdInDb)
-            ->paymentMethod_moduleReturnData;
-
-        $paymentMethodModuleReturnData = StringUtil::deserialize($existingPaymentMethodModuleReturnData, true);
-        if (!is_array($paymentMethodModuleReturnData)) {
-            $paymentMethodModuleReturnData = [];
-        }
-
         $paymentMethodModuleReturnData['str_orderId'] = $order['id'] ?? '';
         $paymentMethodModuleReturnData['arr_saleDetails'] = array_merge(
             $paymentMethodModuleReturnData['arr_saleDetails'] ?? [],
@@ -330,13 +318,13 @@ class ls_shop_apiController_payment
 
 
         // set onPageLoadRedirect url because the user should be informed that the order is created even if the user goes back to another side in payment process
-        $_SESSION['lsShop']['onPageLoadRedirectUrl'] = $afterCheckoutUrl;
+        $_SESSION['lsShop']['onPageLoadRedirectUrl'] = $returnUrl;
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data([
             "id" => $order['id'],
             'approveUrl' => $approveUrl,
-            'afterCheckoutUrl' => $afterCheckoutUrl
+            'afterCheckoutUrl' => $returnUrl
         ]);
     }
 

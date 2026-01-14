@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\BackendTemplate;
+use Contao\Controller;
 use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\Module;
@@ -153,6 +154,16 @@ class ModuleAfterCheckout extends Module {
 			$this->Template = new FrontendTemplate($this->strTemplate);
 
             $obj_paymentModule->specialInfoForPaymentMethodAfterCheckoutFinish();
+
+			/*
+			 * If we arrived here from a payment provider return URL (oix),
+			 * redirect to the clean, customer-facing URL using the oih only.
+			 */
+			if (Input::get('oix') && $oih) {
+				$afterCheckoutUrl = ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages');
+				$redirectUrl = $afterCheckoutUrl . (strpos($afterCheckoutUrl, '?') !== false ? '&' : '?') . 'oih=' . $oih;
+				Controller::redirect($redirectUrl);
+			}
 
 			$this->Template->arrOrder = $arrOrder;
 			$this->Template->specialInfoForPaymentMethod = isset($_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish']) ? $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] : '';
