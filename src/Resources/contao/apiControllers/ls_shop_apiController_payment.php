@@ -7,7 +7,7 @@ use Contao\Environment;
 use Contao\Input;
 use Contao\StringUtil;
 
-class ls_shop_apiController_payment
+class ls_shop_apiController_payment_payPalCheckout
 {
     protected static $objInstance;
 
