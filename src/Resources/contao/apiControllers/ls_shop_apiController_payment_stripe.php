@@ -5,7 +5,7 @@ namespace Merconis\Core;
 use Contao\Database;
 use Contao\Input;
 
-class ls_shop_apiController_payment
+class ls_shop_apiController_payment_stripe
 {
 	protected static $objInstance;
 
