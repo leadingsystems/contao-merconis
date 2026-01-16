@@ -60,8 +60,19 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
 
         $settings = $this->arrCurrentSettings;
 
+        $paymentMethod = $this->arrCurrentSettings['stripe_paymentMethods'];
+
+        // google and apple pay are handled like cards in stripe
+        if($this->arrCurrentSettings['stripe_paymentMethods'] == 'google-pay'){
+            $paymentMethod = 'card';
+        }
+
+        if($this->arrCurrentSettings['stripe_paymentMethods'] == 'apple-pay'){
+            $paymentMethod = 'card';
+        }
+
         $arrPaymentInfo = array(
-            'paymentMethod' => $this->arrCurrentSettings['stripe_paymentMethods'],
+            'paymentMethod' => $paymentMethod,
             'billing_details' => [
                 "address" => [
                     "city" => $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameCity']),

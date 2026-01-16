@@ -285,6 +285,8 @@ use Contao\System;
 
 							// Wallets
 							'paypal'              => 'PayPal',
+							'google-pay'                => 'Google Pay',
+							'apple-pay'                => 'Apple Pay',
 						),
 						'eval'                    => array(
 							'mandatory'           => true,
