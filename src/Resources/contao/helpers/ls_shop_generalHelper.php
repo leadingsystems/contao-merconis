@@ -2024,7 +2024,9 @@ class ls_shop_generalHelper
         $stripePaymentMethodTypes = [$normalizedSelection];
         $stripeConfirmPaymentMethodType = $normalizedSelection;
         $stripeWallet = null;
+        $stripeElementOptions = [];
         $stripeCreatePaymentOptions = [];
+        $merchantName = trim((string) ($settings['stripe_merchantName'] ?? ''));
 
         // Stripe wallets map to the "card" payment method type on PaymentIntent.
         if (in_array($normalizedSelection, ['google_pay', 'apple_pay'], true)) {
@@ -2048,7 +2050,8 @@ class ls_shop_generalHelper
                 $stripeElementOptions = [
                     'googlePay' => [
                         // Erforderliche Optionen
-                        'merchantName'=> 'Ihr Geschäftsname',  // Name, der im Google Pay-Sheet angezeigt wird
+                        // Name, der im Google Pay-Sheet angezeigt wird
+                        'merchantName' => $merchantName,
 
                         // Optionale Einstellungen
                         //'merchantId'=> 'merchant-id-from-google',  // Ihre Google Merchant ID
@@ -2078,7 +2081,8 @@ class ls_shop_generalHelper
                 $stripeElementOptions = [
                     'applePay' => [
                         // Erforderliche Optionen
-                        'merchantName'=> 'Ihr Geschäftsname',  // Name, der im Google Pay-Sheet angezeigt wird
+                        // Name, der im Apple Pay-Sheet angezeigt wird
+                        'merchantName' => $merchantName,
 
                         // Optionale Einstellungen
                         //'merchantId'=> 'merchant-id-from-google',  // Ihre Google Merchant ID
