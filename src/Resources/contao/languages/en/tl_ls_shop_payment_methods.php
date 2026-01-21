@@ -96,6 +96,18 @@
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_privateKey'] = array('Private Key', '');
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_publicKey'] = array('Public Key', '');
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_paymentMethods'] = array('Payment Method', 'Select a payment method');
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_paymentMethods']['options'] = array(
+        'card' => 'Card',
+        'google_pay' => 'Google Pay',
+        'apple_pay' => 'Apple Pay',
+        'sepa_debit' => 'SEPA Direct Debit',
+        'sofort' => 'Sofort',
+        'giropay' => 'giropay',
+        'ideal' => 'iDEAL',
+        'bancontact' => 'Bancontact',
+        'eps' => 'EPS',
+        'p24' => 'Przelewy24 (P24)'
+    );
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameFirstname'] = array(
         'Checkout field name for "First Name"',
         'Enter the field name of the corresponding input field in the checkout form here. If you use fields for an alternative shipping address, please make sure to use the same field names for corresponding fields with the suffix "_alternative". If these values are not transmitted correctly to PayPal, you may not be able to use certain PayPal service options. Also ensure that you define meaningful required fields in the checkout form and only allow values accepted by PayPal for the respective fields.'

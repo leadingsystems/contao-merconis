@@ -113,9 +113,15 @@ class ls_shop_apiController_payment_stripe
 
         //-------------------------- create new Client Secret --------------------------
 
-        $infoPayment = $obj_paymentModule->getPaymentInfo();
-        $paymentMethod = $obj_paymentModule->getPaymentInfo()['paymentMethod'];
-        $billing_details = $obj_paymentModule->getPaymentInfo()['billing_details'];
+        $paymentInfo = $obj_paymentModule->getPaymentInfo();
+        $paymentMethodSelection = $paymentInfo['paymentMethodSelection'] ?? ($paymentInfo['paymentMethod'] ?? '');
+        $billing_details = $paymentInfo['billing_details'] ?? [];
+
+        $stripePaymentBehaviour = ls_shop_generalHelper::getStripePaymentBehaviour(
+            (string) $paymentMethodSelection,
+            $arr_settings,
+            is_array($paymentInfo) ? $paymentInfo : []
+        );
 
         $priceInCent = intval(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['total'][0]*100);
 
@@ -126,7 +132,7 @@ class ls_shop_apiController_payment_stripe
             $arr_paymentInformationToSend = [
                 'amount' => $priceInCent, // Betrag in Cent
                 'currency' => $currency,
-                'payment_method_types' => [$paymentMethod],
+                'payment_method_types' => $stripePaymentBehaviour['stripePaymentMethodTypes'],
             ];
 
 
@@ -230,13 +236,22 @@ class ls_shop_apiController_payment_stripe
         // Set Stripe API key
         \Stripe\Stripe::setApiKey($privatKey);
 
-        $paymentMethod = $obj_paymentModule->getPaymentInfo()['paymentMethod'];
-        $billing_details = $obj_paymentModule->getPaymentInfo()['billing_details'];
+        $paymentInfo = $obj_paymentModule->getPaymentInfo();
+        $paymentMethodSelection = $paymentInfo['paymentMethodSelection'] ?? ($paymentInfo['paymentMethod'] ?? '');
+        $billing_details = $paymentInfo['billing_details'] ?? [];
+
+        $stripePaymentBehaviour = ls_shop_generalHelper::getStripePaymentBehaviour(
+            (string) $paymentMethodSelection,
+            $arr_settings,
+            is_array($paymentInfo) ? $paymentInfo : []
+        );
 
 
         $arr_return = array(
             'functionEingabe' => Input::get('function'),
-            'paymentMethodType' => $paymentMethod,
+            'paymentMethodType' => $stripePaymentBehaviour['stripeConfirmPaymentMethodType'],
+            'stripeElementOptions' => $stripePaymentBehaviour['stripeElementOptions'],
+            'stripeCreatePaymentOptions' => $stripePaymentBehaviour['stripeCreatePaymentOptions'] ?? [],
             'publicKey' => $publicKey,
             'billing_details' => $billing_details
 

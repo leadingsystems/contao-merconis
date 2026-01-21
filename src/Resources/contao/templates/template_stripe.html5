@@ -47,6 +47,8 @@
         let paymentMethodType;
         let stripePublicKey;
         let billing_details;
+        let stripeCreatePaymentOptions;
+        let stripeElementOptions;
 
         try {
             const response = await fetch('/de/merconis-ajax/resource/paymentapi/?function=get-payment-info', {
@@ -57,7 +59,7 @@
             const data = jsonResponse.data;
 
             // Check if all fields exist
-            const requiredFields = ['paymentMethodType', 'publicKey', 'billing_details'];
+            const requiredFields = ['paymentMethodType', 'stripeElementOptions', 'publicKey', 'billing_details', 'stripeCreatePaymentOptions'];
 
             for (const field of requiredFields) {
                 if (!(field in data)) {
@@ -66,8 +68,10 @@
             }
 
             paymentMethodType = data.paymentMethodType;
+            stripeElementOptions = data.stripeElementOptions;
             stripePublicKey = data.publicKey;
             billing_details = data.billing_details;
+            stripeCreatePaymentOptions = data.stripeCreatePaymentOptions;
         } catch (error) {
             console.error('Fehler bei der Initialisierung der Zahlung:', error);
             if (stripeCardErrorMessage) {
@@ -75,6 +79,10 @@
             }
             return;
         }
+
+        console.log('paymentMethodType: '+paymentMethodType)
+        console.log('stripeCreatePaymentOptions: '+JSON.stringify(stripeCreatePaymentOptions))
+        console.log('stripeElementOptions: '+JSON.stringify(stripeElementOptions))
 
         const stripe = Stripe(stripePublicKey);
 
@@ -104,16 +112,16 @@
         });
 
 
-        elements = stripe.elements({
-            clientSecret: clientSecret // Dein client secret
-        });
-        const paymentElement = elements.create('payment', {
-            disableLink: true,
-            layout: {
-                type: 'accordion',
-                defaultCollapsed: false
-            }
-        });
+        const objStripeElementOptions = Object.assign({}, { clientSecret: clientSecret }, stripeElementOptions);
+        elements = stripe.elements(objStripeElementOptions);
+
+
+        // Check und Umwandlung
+        if (Array.isArray(stripeCreatePaymentOptions)) {
+            stripeCreatePaymentOptions = Object.assign({}, ...stripeCreatePaymentOptions);
+        }
+
+        const paymentElement = elements.create('payment', stripeCreatePaymentOptions);
         paymentElement.mount('#payment-element');
 
 
