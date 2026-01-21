@@ -290,6 +290,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
         'stripe_paymentMethods' => array (
             'sql'                     => "text NULL"
         ),
+        'stripe_merchantName' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
         'stripe_shipToFieldNameFirstname' => array (
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"

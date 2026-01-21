@@ -274,6 +274,10 @@ use Contao\System;
 							'includeBlankOption' => true,
 						),
 					),
+					'stripe_merchantName' => array(
+						'label' => '', // Use the standard language label from tl_ls_shop_payment_methods.php
+						'inputType' => 'text',
+					),
 					'stripe_shipToFieldNameFirstname' => array(
 						'label' => '',
 						'inputType' => 'text'

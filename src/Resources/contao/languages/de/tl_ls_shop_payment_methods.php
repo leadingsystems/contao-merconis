@@ -98,6 +98,7 @@
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_privateKey']				= array('Private Key', '');
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_publicKey']				= array('Public Key', '');
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_paymentMethods']				= array('Zahlungsmethode', 'Zahlungsmethode auswählen');
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_merchantName']				= array('Merchant Name', 'Dieser Name kann in Apple Pay / Google Pay angezeigt werden. Tragen Sie hier den Anzeigenamen ein, den Kunden sehen sollen.');
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_paymentMethods']['options']	= array(
         'card' => 'Karte',
         'google_pay' => 'Google Pay',
