@@ -266,31 +266,12 @@ use Contao\System;
 						'inputType' => 'text'
 					),
 					'stripe_paymentMethods' => array(
-						'label'                   => array('Aktive Bezahlmethode', 'Wählen Sie die eine Bezahlmethode aus, die dem Kunden angeboten werden soll.'),
-						'inputType'               => 'select',
-						'options'                 => array(
-							// Karten
-							'card'                => 'Card (Visa, Mastercard, Amex, Google-pay, Apple-pay, etc.,)',
-
-							// Bankzahlung (Europa)
-							'giropay'             => 'Giropay',
-							'sepa_debit'          => 'SEPA-Debit',
-							'bancontact'          => 'Bancontact',
-							'ideal'               => 'iDEAL',
-							'eps'                 => 'EPS',
-							'p24'                 => 'Przelewy24',
-
-							// BNPL & Ratenzahlung
-							'klarna'              => 'Klarna',
-
-							// Wallets
-							'paypal'              => 'PayPal',
-							'google-pay'                => 'Google Pay',
-							'apple-pay'                => 'Apple Pay',
-						),
-						'eval'                    => array(
-							'mandatory'           => true,
-							'includeBlankOption'  => true,
+						'label' => '', // Use the standard language label from tl_ls_shop_payment_methods.php
+						'inputType' => 'select',
+						'options_callback' => array('Merconis\Core\ls_shop_generalHelper', 'getStripePaymentMethodOptions'),
+						'eval' => array(
+							'mandatory' => true,
+							'includeBlankOption' => true,
 						),
 					),
 					'stripe_shipToFieldNameFirstname' => array(

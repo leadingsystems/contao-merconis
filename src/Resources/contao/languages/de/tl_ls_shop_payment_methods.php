@@ -97,7 +97,19 @@
     */
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_privateKey']				= array('Private Key', '');
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_publicKey']				= array('Public Key', '');
-    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_paymentMethods']				= array('Zahlungsmethode"', 'Zahlungsmethode auswählen');
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_paymentMethods']				= array('Zahlungsmethode', 'Zahlungsmethode auswählen');
+    $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_paymentMethods']['options']	= array(
+        'card' => 'Karte',
+        'google_pay' => 'Google Pay',
+        'apple_pay' => 'Apple Pay',
+        'sepa_debit' => 'SEPA-Lastschrift',
+        'sofort' => 'Sofort',
+        'giropay' => 'giropay',
+        'ideal' => 'iDEAL',
+        'bancontact' => 'Bancontact',
+        'eps' => 'EPS',
+        'p24' => 'Przelewy24 (P24)'
+    );
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameFirstname']				= array('Feldname in Checkout-Formular für "Vorname"', 'Tragen Sie hier den Feldnamen des entsprechenden Eingabefelds im Checkout-Formular ein. Sofern Sie Felder für eine alternative Versandanschrift verwenden, achten Sie bitte darauf, dieselben Feldnamen für korrespondierende Felder mit der am Ende angehängten Zeichenfolge "_alternative" zu verwenden. Werden diese Werte nicht korrekt an PayPal übermittelt, können Sie unter Umständen verschiedene Service-Optionen von PayPal nicht in Anspruch nehmen. Bitte achten Sie in diesem Zusammenhang auch darauf, im Checkout-Formular sinnvolle Pflichtfelder zu definieren. Achten Sie bitte zusätzlich darauf, nur von PayPal für die jeweiligen Felder akzeptierte Werte zuzulassen.');
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameLastname']				= array('Feldname in Checkout-Formular für "Nachname"', 'Tragen Sie hier den Feldnamen des entsprechenden Eingabefelds im Checkout-Formular ein. Sofern Sie Felder für eine alternative Versandanschrift verwenden, achten Sie bitte darauf, dieselben Feldnamen für korrespondierende Felder mit der am Ende angehängten Zeichenfolge "_alternative" zu verwenden. Werden diese Werte nicht korrekt an PayPal übermittelt, können Sie unter Umständen verschiedene Service-Optionen von PayPal nicht in Anspruch nehmen. Bitte achten Sie in diesem Zusammenhang auch darauf, im Checkout-Formular sinnvolle Pflichtfelder zu definieren. Achten Sie bitte zusätzlich darauf, nur von PayPal für die jeweiligen Felder akzeptierte Werte zuzulassen.');
     $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['stripe_shipToFieldNameStreet']					= array('Feldname in Checkout-Formular für "Straße"', 'Tragen Sie hier den Feldnamen des entsprechenden Eingabefelds im Checkout-Formular ein. Sofern Sie Felder für eine alternative Versandanschrift verwenden, achten Sie bitte darauf, dieselben Feldnamen für korrespondierende Felder mit der am Ende angehängten Zeichenfolge "_alternative" zu verwenden. Werden diese Werte nicht korrekt an PayPal übermittelt, können Sie unter Umständen verschiedene Service-Optionen von PayPal nicht in Anspruch nehmen. Bitte achten Sie in diesem Zusammenhang auch darauf, im Checkout-Formular sinnvolle Pflichtfelder zu definieren. Achten Sie bitte zusätzlich darauf, nur von PayPal für die jeweiligen Felder akzeptierte Werte zuzulassen.');
