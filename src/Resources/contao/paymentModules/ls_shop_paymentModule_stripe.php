@@ -64,14 +64,9 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
         $stripePaymentBehaviour = ls_shop_generalHelper::getStripePaymentBehaviour($paymentMethodSelection, $settings, []);
 
         $arrPaymentInfo = array(
-            // Keep existing key for compatibility: this is the Stripe confirm/payment method type (e.g. "card").
-            'paymentMethod' => $stripePaymentBehaviour['stripeConfirmPaymentMethodType'],
-            // New: the explicit Merconis selection (e.g. "google_pay", "apple_pay", "card", ...).
-            'paymentMethodSelection' => $stripePaymentBehaviour['selection'],
-            // New: what we need for PaymentIntent.payment_method_types (e.g. ["card"] for wallets).
-            'stripePaymentMethodTypes' => $stripePaymentBehaviour['stripePaymentMethodTypes'],
-            // New: wallet hint for frontend behaviour ("google_pay"/"apple_pay"/null).
-            'stripeWallet' => $stripePaymentBehaviour['stripeWallet'],
+            'stripeType' => $stripePaymentBehaviour['stripeType'],
+            'stripeSelection' => $stripePaymentBehaviour['stripeSelection'],
+
             'billing_details' => [
                 "address" => [
                     "city" => $this->stripeCheckout_getShippingFieldValue($this->arrCurrentSettings['stripe_shipToFieldNameCity']),

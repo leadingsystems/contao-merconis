@@ -113,6 +113,9 @@
 
 
         const objStripeElementOptions = Object.assign({}, { clientSecret: clientSecret }, stripeElementOptions);
+        console.log(objStripeElementOptions)
+
+
         elements = stripe.elements(objStripeElementOptions);
 
 
@@ -120,6 +123,8 @@
         if (Array.isArray(stripeCreatePaymentOptions)) {
             stripeCreatePaymentOptions = Object.assign({}, ...stripeCreatePaymentOptions);
         }
+
+        console.log(stripeCreatePaymentOptions)
 
         const paymentElement = elements.create('payment', stripeCreatePaymentOptions);
         paymentElement.mount('#payment-element');

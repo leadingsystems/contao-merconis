@@ -1999,6 +1999,31 @@ class ls_shop_generalHelper
         return $availableOptions;
     }
 
+    public static function getStripePaymentMapping(): array
+    {
+        $availableOptions = [
+            'google_pay' => 'card',
+            'apple_pay' => 'card',
+        ];
+
+        /*
+         * Merconis hook: modifyStripePaymentMethodOptions
+         *
+         * Allows custom extensions to post-process the available Stripe payment method options.
+         *
+         */
+        if (isset($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentMapping']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentMapping'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentMapping'] as $mccb) {
+                $objMccb = System::importStatic($mccb[0]);
+                $availableOptions = $objMccb->{$mccb[1]}($availableOptions);
+            }
+        }
+
+
+
+        return $availableOptions;
+    }
+
     /**
      * Maps a Merconis Stripe payment method selection (e.g. "google_pay") to the Stripe payment behaviour.
      *
@@ -2014,26 +2039,21 @@ class ls_shop_generalHelper
      */
     public static function getStripePaymentBehaviour(string $selection, array $settings = [], array $paymentInfo = []): array
     {
-        // Backwards compatibility for legacy values used in older customizations.
-        $normalizedSelection = match ($selection) {
-            'google-pay' => 'google_pay',
-            'apple-pay' => 'apple_pay',
-            default => $selection,
-        };
 
-        $stripePaymentMethodTypes = [$normalizedSelection];
-        $stripeConfirmPaymentMethodType = $normalizedSelection;
-        $stripeWallet = null;
+        $paymentMethodOptions = self::getStripePaymentMapping();
+
+        // Standard-Werte setzen
+        $selectionType = $selection;
+
+        if (isset($paymentMethodOptions[$selection])) {
+            $selectionType = $paymentMethodOptions[$selection];
+        }
+
+
         $stripeElementOptions = [];
         $stripeCreatePaymentOptions = [];
         $merchantName = trim((string) ($settings['stripe_merchantName'] ?? ''));
 
-        // Stripe wallets map to the "card" payment method type on PaymentIntent.
-        if (in_array($normalizedSelection, ['google_pay', 'apple_pay'], true)) {
-            $stripePaymentMethodTypes = ['card'];
-            $stripeConfirmPaymentMethodType = 'card';
-            $stripeWallet = $normalizedSelection;
-        }
 
         /*
          * Stripe Payment Element configuration.
@@ -2044,10 +2064,11 @@ class ls_shop_generalHelper
          *
          * See Stripe docs: elements.create('payment', { wallets: { googlePay: 'auto' } })
          */
-        if ($stripeConfirmPaymentMethodType === 'card') {
-            if ($stripeWallet === 'google_pay') {
+        if ($selectionType === 'card') {
+            if ($selection === 'google_pay') {
 
                 $stripeElementOptions = [
+                    'wallets' => [
                     'googlePay' => [
                         // Erforderliche Optionen
                         // Name, der im Google Pay-Sheet angezeigt wird
@@ -2056,11 +2077,12 @@ class ls_shop_generalHelper
                         // Optionale Einstellungen
                         //'merchantId'=> 'merchant-id-from-google',  // Ihre Google Merchant ID
                         'environment'=> 'TEST',                    // 'TEST' oder 'PRODUCTION'
-                        'buttonTheme'=> 'black',                   // 'black' (Standard) oder 'white'
+                        'buttonTheme'=> 'white',                   // 'black' (Standard) oder 'white'
                         'buttonType'=> 'buy',                      // 'buy' (Standard), 'plain', 'book', 'checkout', etc.
                         'buttonSizeMode'=> 'fill',                 // 'fill' (Standard) oder 'static'
                         'buttonLocale'=> 'de',                     // 2-stelliger Sprachcode (Standard: Browser-Sprache)
                     ]
+                        ]
                 ];
 
                 $stripeCreatePaymentOptions = [
@@ -2075,7 +2097,7 @@ class ls_shop_generalHelper
                         'defaultCollapsed' => false
                     ],
                 ];
-            } elseif ($stripeWallet === 'apple_pay') {
+            } elseif ($selection === 'apple_pay') {
 
 
                 $stripeElementOptions = [
@@ -2124,18 +2146,18 @@ class ls_shop_generalHelper
         }
 
         $paymentBehaviour = [
-            'selection' => $normalizedSelection,
-            'stripePaymentMethodTypes' => $stripePaymentMethodTypes,
-            'stripeConfirmPaymentMethodType' => $stripeConfirmPaymentMethodType,
+            //'stripePaymentMethodTypes' => $stripePaymentMethodTypes,
+            'stripeType' => $selectionType,
+            'stripeSelection' => $selection,
+
             'stripeElementOptions' => $stripeElementOptions,
-            'stripeWallet' => $stripeWallet,
             'stripeCreatePaymentOptions' => $stripeCreatePaymentOptions,
         ];
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentBehaviour']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentBehaviour'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentBehaviour'] as $mccb) {
                 $objMccb = System::importStatic($mccb[0]);
-                $paymentBehaviour = $objMccb->{$mccb[1]}($paymentBehaviour, $normalizedSelection, $settings, $paymentInfo);
+                $paymentBehaviour = $objMccb->{$mccb[1]}($paymentBehaviour, $settings, $paymentInfo);
             }
         }
 
