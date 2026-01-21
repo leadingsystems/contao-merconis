@@ -114,11 +114,11 @@ class ls_shop_apiController_payment_stripe
         //-------------------------- create new Client Secret --------------------------
 
         $paymentInfo = $obj_paymentModule->getPaymentInfo();
-        $paymentMethodSelection = $paymentInfo['paymentMethodSelection'] ?? ($paymentInfo['paymentMethod'] ?? '');
+        $stripeSelection = $paymentInfo['stripeSelection'] ?? ($paymentInfo['paymentMethod'] ?? '');
         $billing_details = $paymentInfo['billing_details'] ?? [];
 
         $stripePaymentBehaviour = ls_shop_generalHelper::getStripePaymentBehaviour(
-            (string) $paymentMethodSelection,
+            (string) $stripeSelection,
             $arr_settings,
             is_array($paymentInfo) ? $paymentInfo : []
         );
@@ -132,7 +132,7 @@ class ls_shop_apiController_payment_stripe
             $arr_paymentInformationToSend = [
                 'amount' => $priceInCent, // Betrag in Cent
                 'currency' => $currency,
-                'payment_method_types' => $stripePaymentBehaviour['stripePaymentMethodTypes'],
+                'payment_method_types' => [$stripePaymentBehaviour['stripeType']],
             ];
 
 
@@ -237,11 +237,11 @@ class ls_shop_apiController_payment_stripe
         \Stripe\Stripe::setApiKey($privatKey);
 
         $paymentInfo = $obj_paymentModule->getPaymentInfo();
-        $paymentMethodSelection = $paymentInfo['paymentMethodSelection'] ?? ($paymentInfo['paymentMethod'] ?? '');
+        $stripeSelection = $paymentInfo['stripeSelection'];
         $billing_details = $paymentInfo['billing_details'] ?? [];
 
         $stripePaymentBehaviour = ls_shop_generalHelper::getStripePaymentBehaviour(
-            (string) $paymentMethodSelection,
+            (string) $stripeSelection,
             $arr_settings,
             is_array($paymentInfo) ? $paymentInfo : []
         );
@@ -249,7 +249,7 @@ class ls_shop_apiController_payment_stripe
 
         $arr_return = array(
             'functionEingabe' => Input::get('function'),
-            'paymentMethodType' => $stripePaymentBehaviour['stripeConfirmPaymentMethodType'],
+            'paymentMethodType' => $stripePaymentBehaviour['stripeType'],
             'stripeElementOptions' => $stripePaymentBehaviour['stripeElementOptions'],
             'stripeCreatePaymentOptions' => $stripePaymentBehaviour['stripeCreatePaymentOptions'] ?? [],
             'publicKey' => $publicKey,
