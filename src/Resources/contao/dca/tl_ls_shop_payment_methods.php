@@ -8,6 +8,7 @@ use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\Image;
+use Contao\Input;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
@@ -667,7 +668,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'exclude'		=>	true,
             'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['priceLimitMin'],
             'inputType'		=>	'text',
-            'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50'),
+            'eval'			=>	['rgxp' => 'numberWithDecimals', 'tl_class' => 'w50'],
+            'load_callback' => [
+                ['Merconis\Core\ls_shop_payment_methods', 'applyStripeMinimumPriceLimitMinOnLoad'],
+            ],
             'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
         ),
 
@@ -945,6 +949,51 @@ class ls_shop_payment_methods extends Backend {
         $this->addBeFormFields($currentPaymentType);
 
         $this->addBeFormFieldSubpalettes($currentPaymentType);
+    }
+
+    public function applyStripeMinimumPriceLimitMinOnLoad($value, DataContainer $dc): string
+    {
+        $paymentMethodType = $this->getSelectedPaymentMethodType($dc);
+        if ($paymentMethodType === null) {
+            return (string) $value;
+        }
+
+        $minimumValueOfGoods = ls_shop_paymentModule::getInstance()
+            ->getMinimumValueOfGoodsForPaymentMethodType($paymentMethodType);
+        if ($minimumValueOfGoods <= 0.0) {
+            return (string) $value;
+        }
+
+        $floatValue = (float) str_replace(',', '.', trim((string) $value));
+        if ($floatValue >= $minimumValueOfGoods) {
+            return (string) $value;
+        }
+
+        return number_format($minimumValueOfGoods, 4, '.', '');
+    }
+
+    protected function getSelectedPaymentMethodType(DataContainer $dc): ?string
+    {
+        $postedType = Input::post('type');
+        if (is_string($postedType) && $postedType !== '') {
+            return $postedType;
+        }
+
+        if ($dc->activeRecord !== null && isset($dc->activeRecord->type)) {
+            return (string) $dc->activeRecord->type;
+        }
+
+        if ($dc->id) {
+            $objPaymentMethod = Database::getInstance()
+                ->prepare("SELECT type FROM tl_ls_shop_payment_methods WHERE id=?")
+                ->limit(1)
+                ->execute($dc->id);
+            $objPaymentMethod->first();
+
+            return (string) $objPaymentMethod->type;
+        }
+
+        return null;
     }
 
     protected function addBeFormFields($str_paymentMethodType) {

@@ -681,6 +681,31 @@ use Contao\System;
 			}
 		}
 
+		/**
+		 * Returns the minimum value of goods required for a payment method type.
+		 *
+		 * If the payment module provides a function for this (like other payment-module-specific functions),
+		 * it is called. If no function is available, 0 is returned.
+		 */
+		public function getMinimumValueOfGoodsForPaymentMethodType(string $paymentMethodType): float {
+			if (!isset($this->types[$paymentMethodType]) || !is_array($this->types[$paymentMethodType])) {
+				return 0.0;
+			}
+
+			$className = $this->types[$paymentMethodType]['className'] ?? null;
+			if (!is_string($className) || $className === '') {
+				return 0.0;
+			}
+
+			$objPaymentModule = System::importStatic($className);
+			$methodName = 'getMinimumValueOfGoods';
+			if (is_object($objPaymentModule) && method_exists($objPaymentModule, $methodName)) {
+				return (float) $objPaymentModule->{$methodName}();
+			}
+
+			return 0.0;
+		}
+
 		/*
 		 * Diese Funktion "spezialisiert" das Zahlungsmodul. Hierzu wird die ID des Zahlungsmethoden-Datensatzes
 		 * erwartet, da aus diesem der genaue Typ für die Spezialisierung sowie die im Backend vorgenommenen

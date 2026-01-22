@@ -13,6 +13,13 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
 
     public $arrCurrentSettings = array();
 
+    /**
+     * Stripe requires a minimum amount. If this method is not present, the payment module fallback is 0.
+     */
+    public function getMinimumValueOfGoods(): float {
+        return 0.5;
+    }
+
 
     public function initialize($specializedManually = false) {
 
