@@ -2083,25 +2083,29 @@ class ls_shop_generalHelper
 
                 $stripeElementOptions = [
                     'wallets' => [
-                    'googlePay' => [
-                        // Erforderliche Optionen
-                        // Name, der im Google Pay-Sheet angezeigt wird
-                        'merchantName' => $merchantName,
+                        'googlePay' => [
+                            // Erforderliche Optionen
+                            // Name, der im Google Pay-Sheet angezeigt wird
+                            'merchantName' => $merchantName,
 
-                        // Optionale Einstellungen
-                        //'merchantId'=> 'merchant-id-from-google',  // Ihre Google Merchant ID
+                            // Optionale Einstellungen
+                            //'merchantId'=> 'merchant-id-from-google',  // Ihre Google Merchant ID
                         'environment'=> 'TEST',                    // 'TEST' oder 'PRODUCTION'
-                        'buttonTheme'=> 'white',                   // 'black' (Standard) oder 'white'
-                        'buttonType'=> 'buy',                      // 'buy' (Standard), 'plain', 'book', 'checkout', etc.
-                        'buttonSizeMode'=> 'fill',                 // 'fill' (Standard) oder 'static'
-                        'buttonLocale'=> 'de',                     // 2-stelliger Sprachcode (Standard: Browser-Sprache)
-                    ]
+                            'buttonTheme'=> 'white',                   // 'black' (Standard) oder 'white'
+                            'buttonType'=> 'buy',                      // 'buy' (Standard), 'plain', 'book', 'checkout', etc.
+                            'buttonSizeMode'=> 'fill',                 // 'fill' (Standard) oder 'static'
+                            'buttonLocale'=> 'de',                     // 2-stelliger Sprachcode (Standard: Browser-Sprache)
+                        ]
                         ]
                 ];
 
                 $stripeCreatePaymentOptions = [
+                    'business'=> [
+                        'name'=> $merchantName
+                    ],
                     'disableLink'=> true,
                     'paymentMethodTypes' => ['google_pay'],
+                    'paymentMethodOrder'=> ['google_pay'],
                     'wallets' => [
                         'applePay'=> 'never',
                         'googlePay' => 'auto'
