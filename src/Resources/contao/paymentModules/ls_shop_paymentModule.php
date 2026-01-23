@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 	use Contao\Controller;
+use Contao\Input;
 use Contao\System;
 
 /**
@@ -1011,6 +1012,19 @@ use Contao\System;
 		}
 
 		public function specialInfoForPaymentMethodAfterCheckoutFinish() {
+			/*
+			 * If one payment was made with one paymentModule and one after that with another the system gets confused
+			 * we need to check and set the correct specialModule for the order, we get the correct specialModule from
+			 * orderIdentificationHash.
+			 */
+
+			if (Input::get('oih')) {
+				$arrOrder = ls_shop_generalHelper::getOrder(Input::get('oih'), 'orderIdentificationHash');
+				if (is_array($arrOrder) && ($arrOrder['paymentMethod_id'] ?? null)) {
+					$this->specializeManuallyWithPaymentID($arrOrder['paymentMethod_id']);
+				}
+			}
+
 			$methodName = __FUNCTION__;
 			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();
