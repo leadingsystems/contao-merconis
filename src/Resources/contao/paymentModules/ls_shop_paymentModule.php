@@ -268,7 +268,7 @@ use Contao\System;
 					'stripe_paymentMethods' => array(
 						'label' => '', // Use the standard language label from tl_ls_shop_payment_methods.php
 						'inputType' => 'select',
-						'options_callback' => array('Merconis\Core\ls_shop_generalHelper', 'getStripePaymentMethodOptions'),
+						'options_callback' => array('Merconis\Core\ls_shop_paymentModule_stripe', 'getStripePaymentMethodOptions'),
 						'eval' => array(
 							'mandatory' => true,
 							'includeBlankOption' => true,

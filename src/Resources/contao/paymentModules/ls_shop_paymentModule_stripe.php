@@ -1,6 +1,7 @@
 <?php
 namespace Merconis\Core;
 use Contao\Controller;
+use Contao\DataContainer;
 use Contao\Database;
 use Contao\FrontendTemplate;
 use Contao\Input;
@@ -18,6 +19,127 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
      */
     public function getMinimumValueOfGoods(): float {
         return 0.5;
+    }
+
+    public static function getStripePaymentMethodOptions(DataContainer $dc): array
+    {
+        $availableOptions = [
+            'card' => 'card',
+            'google_pay' => 'google_pay',
+            'apple_pay' => 'apple_pay',
+
+            'acss_debit' => 'acss_debit',
+            'affirm' => 'affirm',
+            'afterpay_clearpay' => 'afterpay_clearpay',
+            'alipay' => 'alipay',
+            'alma' => 'alma',
+            'amazon_pay' => 'amazon_pay',
+            'au_becs_debit' => 'au_becs_debit',
+            'bacs_debit' => 'bacs_debit',
+            'bancontact' => 'bancontact',
+            'billie' => 'billie',
+            'blik' => 'blik',
+            'boleto' => 'boleto',
+            'cashapp' => 'cashapp',
+            'crypto' => 'crypto',
+            'custom' => 'custom',
+            'customer_balance' => 'customer_balance',
+            'eps' => 'eps',
+            'fpx' => 'fpx',
+            'giropay' => 'giropay',
+            'grabpay' => 'grabpay',
+            'ideal' => 'ideal',
+            'interac_present' => 'interac_present',
+            'kakao_pay' => 'kakao_pay',
+            'klarna' => 'klarna',
+            'konbini' => 'konbini',
+            'kr_card' => 'kr_card',
+            'link' => 'link',
+            'mb_way' => 'mb_way',
+            'mobilepay' => 'mobilepay',
+            'multibanco' => 'multibanco',
+            'naver_pay' => 'naver_pay',
+            'nz_bank_account' => 'nz_bank_account',
+            'oxxo' => 'oxxo',
+            'p24' => 'p24',
+            'pay_by_bank' => 'pay_by_bank',
+            'payco' => 'payco',
+            'paynow' => 'paynow',
+            'paypal' => 'paypal',
+            'paypay' => 'paypay',
+            'payto' => 'payto',
+            'pix' => 'pix',
+            'promptpay' => 'promptpay',
+            'revolut_pay' => 'revolut_pay',
+            'samsung_pay' => 'samsung_pay',
+            'satispay' => 'satispay',
+            'sepa_debit' => 'sepa_debit',
+            'sofort' => 'sofort',
+            'swish' => 'swish',
+            'twint' => 'twint',
+            'us_bank_account' => 'us_bank_account',
+            'wechat_pay' => 'wechat_pay',
+            'zip' => 'zip',
+        ];
+
+        if (isset($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentMethodOptions']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentMethodOptions'])) {
+            foreach (ls_shop_generalHelper::getSortedMerconisHookCallbacks('modifyStripePaymentMethodOptions') as $mccb) {
+                $objMccb = System::importStatic($mccb[0]);
+                $availableOptions = $objMccb->{$mccb[1]}($availableOptions, $dc);
+            }
+        }
+
+        return $availableOptions;
+    }
+
+    public static function getStripePaymentMapping(): array
+    {
+        $availableOptions = [];
+
+        if (isset($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentMapping']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentMapping'])) {
+            foreach (ls_shop_generalHelper::getSortedMerconisHookCallbacks('modifyStripePaymentMapping') as $mccb) {
+                $objMccb = System::importStatic($mccb[0]);
+                $availableOptions = $objMccb->{$mccb[1]}($availableOptions);
+            }
+        }
+
+        return $availableOptions;
+    }
+
+    /**
+     * Maps a Merconis Stripe payment method selection (e.g. "google_pay") to the Stripe payment behaviour.
+     *
+     * Merconis hook:
+     * - $GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentBehaviour']
+     *   Signature: function(array $paymentBehaviour, array $settings, array $paymentInfo): array
+     *
+     * @param string $selection
+     * @param array<string, mixed> $settings
+     * @param array<string, mixed> $paymentInfo
+     *
+     * @return array<string, mixed>
+     */
+    public static function getStripePaymentBehaviour(string $selection, array $settings = []): array
+    {
+        $paymentMethodOptions = self::getStripePaymentMapping();
+
+        $selectionType = $paymentMethodOptions[$selection] ?? $selection;
+
+        $paymentBehaviour = [
+            'stripeType' => $selectionType,
+            'stripeSelection' => $selection,
+            'stripeElementOptions' => [],
+            'stripeCreatePaymentOptions' => [],
+        ];
+
+        if (isset($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentBehaviour']) && is_array($GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentBehaviour'])) {
+            foreach (ls_shop_generalHelper::getSortedMerconisHookCallbacks('modifyStripePaymentBehaviour') as $mccb) {
+                $objMccb = System::importStatic($mccb[0]);
+                $paymentBehaviour = $objMccb->{$mccb[1]}($paymentBehaviour, $settings);
+            }
+        }
+
+        return $paymentBehaviour;
     }
 
 
@@ -68,7 +190,7 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
         $settings = $this->arrCurrentSettings;
 
         $paymentMethodSelection = (string) ($this->arrCurrentSettings['stripe_paymentMethods'] ?? '');
-        $stripePaymentBehaviour = ls_shop_generalHelper::getStripePaymentBehaviour($paymentMethodSelection, $settings, []);
+        $stripePaymentBehaviour = self::getStripePaymentBehaviour($paymentMethodSelection, $settings);
 
         $arrPaymentInfo = array(
             'stripeType' => $stripePaymentBehaviour['stripeType'],

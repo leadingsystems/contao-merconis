@@ -117,10 +117,9 @@ class ls_shop_apiController_payment_stripe
         $stripeSelection = $paymentInfo['stripeSelection'] ?? ($paymentInfo['paymentMethod'] ?? '');
         $billing_details = $paymentInfo['billing_details'] ?? [];
 
-        $stripePaymentBehaviour = ls_shop_generalHelper::getStripePaymentBehaviour(
+        $stripePaymentBehaviour = ls_shop_paymentModule_stripe::getStripePaymentBehaviour(
             (string) $stripeSelection,
-            $arr_settings,
-            is_array($paymentInfo) ? $paymentInfo : []
+            $arr_settings
         );
 
         $priceInCent = intval(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['total'][0]*100);
@@ -240,10 +239,9 @@ class ls_shop_apiController_payment_stripe
         $stripeSelection = $paymentInfo['stripeSelection'];
         $billing_details = $paymentInfo['billing_details'] ?? [];
 
-        $stripePaymentBehaviour = ls_shop_generalHelper::getStripePaymentBehaviour(
+        $stripePaymentBehaviour = ls_shop_paymentModule_stripe::getStripePaymentBehaviour(
             (string) $stripeSelection,
-            $arr_settings,
-            is_array($paymentInfo) ? $paymentInfo : []
+            $arr_settings
         );
 
 
