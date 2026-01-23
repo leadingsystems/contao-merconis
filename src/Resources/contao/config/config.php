@@ -16,6 +16,16 @@ define('TL_MERCONIS_STOCK_MANAGEMENT', 'MERCONIS STOCK MANAGEMENT');
 $GLOBALS['TL_HOOKS']['merconisCustomTaxRateCalculation'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconisCustomTaxRateCalculation');
 
 /*
+ * Merconis hooks for stripe
+ */
+$GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentMapping'][] = ['Merconis\Core\ls_shop_stripeGooglePayHook', 'modifyStripePaymentMapping', 0];
+$GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentMapping'][] = ['Merconis\Core\ls_shop_stripeApplePayHook', 'modifyStripePaymentMapping', 0];
+
+$GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentBehaviour'][] = ['Merconis\Core\ls_shop_stripeCardHook', 'modifyStripePaymentBehaviour', 0];
+$GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentBehaviour'][] = ['Merconis\Core\ls_shop_stripeGooglePayHook', 'modifyStripePaymentBehaviour', 10];
+$GLOBALS['MERCONIS_HOOKS']['modifyStripePaymentBehaviour'][] = ['Merconis\Core\ls_shop_stripeApplePayHook', 'modifyStripePaymentBehaviour', 10];
+
+/*
  * Hooks for language selector
  */
 $GLOBALS['LS_LANGUAGESELECTOR_HOOKS']['modifyLanguageLinks'][] = array('Merconis\Core\ls_shop_languageHelper', 'modifyLanguageSelectorLinks');
