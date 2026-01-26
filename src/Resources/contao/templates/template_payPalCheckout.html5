@@ -1,13 +1,16 @@
 <?php
 
+use Contao\PageModel;
 use Contao\System;
 use Merconis\Core\ls_shop_languageHelper;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-$ajaxUrl = (string) ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages');
-$ajaxUrl = preg_replace('/\?.*$/', '', $ajaxUrl);
-$ajaxUrl = preg_replace('/\.html$/', '', $ajaxUrl);
+$ajaxId = (string) ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages', false, 'id');
 
-$paymentApiUrl = rtrim($ajaxUrl, '/') . '/resource/paymentapi/';
+$pageModel = PageModel::findById($ajaxId);
+$objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+$paymentApiUrl = $objContentUrlGenerator->generate($pageModel,array('parameters' => '/resource/paymentapipaypalcheckout'), UrlGeneratorInterface::ABSOLUTE_URL);
+
 $defaultRequestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 
 ?>

@@ -45,7 +45,7 @@ class ls_shop_apiController_payment_payPalCheckout
     }
 
 
-    protected function apiResource_paymentapi() {
+    protected function apiResource_paymentapipaypalcheckout() {
         if (strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== 'POST') {
             $this->obj_apiReceiver->fail();
             $this->obj_apiReceiver->set_data('invalid request method');
