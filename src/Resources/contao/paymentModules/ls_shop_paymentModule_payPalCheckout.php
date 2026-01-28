@@ -353,8 +353,6 @@ class ls_shop_paymentModule_payPalCheckout extends ls_shop_paymentModule_standar
             $this->redirect(ls_shop_generalHelper::getUrl(true, array('payPalCheckout_updateStatus')));
         }
 
-        $paymentMethod_moduleReturnData = $this->payPalCheckout_updateSaleDetailsInOrderRecord($arrOrder['id'], null, $paymentMethod_moduleReturnData);
-
         $str_statusUpdateUrl = ls_shop_generalHelper::getUrl();
         $str_statusUpdateUrl = $str_statusUpdateUrl.(strpos($str_statusUpdateUrl, '?') !== false ? '&' : '?').'payPalCheckout_updateStatus='.$arrOrder['id'].'#payPalCheckout_order'.$arrOrder['id'];
 
