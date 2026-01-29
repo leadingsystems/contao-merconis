@@ -28,6 +28,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['paymentMethod_moduleReturnData']					= array('Information from the payment module');
 
     $GLOBALS['TL_LANG']['tl_ls_shop_orders']['stripe_paymentIntent']								= array('Stripe PaymentIntent');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['stripe_currentStatus']								= array('Stripe status');
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_saleId']								= array('PayPal Plus transaction code');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_currentStatus']						= array('PayPal Plus status');

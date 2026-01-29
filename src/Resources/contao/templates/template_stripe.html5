@@ -1,7 +1,26 @@
+<?php
+use Contao\PageModel;
+use Contao\System;
+use Merconis\Core\ls_shop_languageHelper;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
+$ajaxId = (string) ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages', false, 'id');
+
+$pageModel = PageModel::findById($ajaxId);
+$objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+$paymentApiUrl = $objContentUrlGenerator->generate($pageModel,array('parameters' => '/resource/paymentapistripe'), UrlGeneratorInterface::ABSOLUTE_URL);
+
+$defaultRequestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+?>
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
 
-        const response = await fetch('/de/merconis-ajax/resource/paymentapi/?function=get-payment-intend', {
+        const paymentApiUrl = <?= json_encode($paymentApiUrl) ?>;
+        const defaultRequestToken = <?= json_encode($defaultRequestToken) ?>;
+
+
+
+        const response = await fetch(`${paymentApiUrl}?function=get-payment-intend&REQUEST_TOKEN=${encodeURIComponent(defaultRequestToken)}`, {
             method: 'GET',
             headers: {},
         });
@@ -51,7 +70,7 @@
         let stripeElementOptions;
 
         try {
-            const response = await fetch('/de/merconis-ajax/resource/paymentapi/?function=get-payment-info', {
+            const response = await fetch(`${paymentApiUrl}?function=get-payment-info&REQUEST_TOKEN=${encodeURIComponent(defaultRequestToken)}`, {
                 method: 'GET',
                 headers: {},
             });
@@ -149,7 +168,7 @@
                 showLoadingOverlay('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['prepareOrder']?>');
                 await wait(2000);
 
-                const response = await fetch('/de/merconis-ajax/resource/paymentapi/?function=finish-order&clientSecret='+clientSecret, {
+                const response = await fetch(`${paymentApiUrl}?function=finish-order&clientSecret=${encodeURIComponent(clientSecret)}&REQUEST_TOKEN=${encodeURIComponent(defaultRequestToken)}`, {
                     method: 'GET',
                     headers: {},
                 });

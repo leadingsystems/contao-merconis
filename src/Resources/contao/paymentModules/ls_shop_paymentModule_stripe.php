@@ -284,39 +284,88 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
         return $outputValue;
     }
     public function showPaymentStatusInOverview($arrOrder = array(), $paymentMethod_moduleReturnData = '') {
+        if (!count($arrOrder)) {
+            return null;
+        }
 
-        $stripe_paymentIntent = $arrOrder['stripe_paymentIntent'];
-        $paymentMethod_id = $arrOrder['paymentMethod_id'];
+        if (Input::get('stripe_updateStatus') && Input::get('stripe_updateStatus') == $arrOrder['id']) {
+            $this->stripe_updatePaymentIntentStatusInOrderRecord((int) $arrOrder['id']);
+            $this->redirect(ls_shop_generalHelper::getUrl(true, array('stripe_updateStatus')));
+        }
 
-        // Falls kein PaymentIntent vorhanden ist, nichts anzeigen
-        if (!$stripe_paymentIntent || !$paymentMethod_id) {
+        $stripePaymentIntentId = (string) ($arrOrder['stripe_paymentIntent'] ?? '');
+        if ($stripePaymentIntentId === '') {
             return '';
         }
 
-        $db = Database::getInstance();
-        $objPaymentMethod = $db->prepare("
-            SELECT stripe_paymentMethods
-            FROM tl_ls_shop_payment_methods 
-            WHERE id = ?
-        ")->limit(1)->execute($paymentMethod_id);
+        $currentStatus = (string) ($arrOrder['stripe_currentStatus'] ?? '');
+        $currentStatus = $currentStatus !== '' ? $currentStatus : 'unknown';
 
-        if (!$objPaymentMethod->numRows) {
-            return '<div>Stripe-Zahlungsmethode nicht gefunden.</div>';
-        }
+        $str_statusUpdateUrl = ls_shop_generalHelper::getUrl();
+        $str_statusUpdateUrl = $str_statusUpdateUrl.(strpos($str_statusUpdateUrl, '?') !== false ? '&' : '?').'stripe_updateStatus='.$arrOrder['id'].'#stripe_order'.$arrOrder['id'];
 
-        $paymentMethods = $objPaymentMethod->stripe_paymentMethods;
-
-        ob_start();
+        ob_start();//SUCCEEDED
         ?>
-        <div id="stripe_order">
-            <br>
-            <strong>Stripe-Zahlungsdetails</strong><br>
-            <b>PaymentMethods:</b> <?= htmlspecialchars($paymentMethods) ?><br>
+
+        <div id="stripe_order<?php echo $arrOrder['id']; ?>" class="paymentStatusInOverview stripe <?php echo $currentStatus == 'succeeded' ? ' stripe-capture-status-completed' : ' stripe-capture-status-invalid' ?>">
+            <div class="content">
+                <div class="details">
+                    <div class="detailItem">
+                        <span class="label"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['status']; ?>:</span>
+                        <span class="value"><?php echo strtoupper($currentStatus); ?></span>
+                    </div>
+                    <div class="detailItem">
+                        <span class="label"><?php echo $GLOBALS['TL_LANG']['tl_ls_shop_orders']['stripe_paymentIntent'][0]; ?>:</span>
+                        <span class="value"><?php echo htmlspecialchars($stripePaymentIntentId); ?></span>
+                    </div>
+                </div>
+            </div>
+            <div class="statusUpdate">
+                <a href="<?php echo $str_statusUpdateUrl; ?>"><?php echo $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['updateStatus']; ?></a>
+            </div>
         </div>
         <?php
-        $outputValue = ob_get_clean();
 
-        return $outputValue;
+        return ob_get_clean();
+    }
+
+    protected function stripe_updatePaymentIntentStatusInOrderRecord(int $orderIdInDb): void
+    {
+        if (!$orderIdInDb) {
+            return;
+        }
+
+        $orderRow = Database::getInstance()
+            ->prepare('SELECT stripe_paymentIntent, paymentMethod_id FROM tl_ls_shop_orders WHERE id = ?')
+            ->limit(1)
+            ->execute($orderIdInDb)
+            ->fetchAssoc();
+
+        $stripePaymentIntentId = (string) ($orderRow['stripe_paymentIntent'] ?? '');
+        $paymentMethodId = (int) ($orderRow['paymentMethod_id'] ?? 0);
+
+        if ($stripePaymentIntentId === '' || !$paymentMethodId) {
+            return;
+        }
+
+        $paymentMethodRow = Database::getInstance()
+            ->prepare('SELECT stripe_privateKey FROM tl_ls_shop_payment_methods WHERE id = ?')
+            ->limit(1)
+            ->execute($paymentMethodId)
+            ->fetchAssoc();
+
+        $stripeSecretKey = (string) ($paymentMethodRow['stripe_privateKey'] ?? '');
+        if ($stripeSecretKey === '') {
+            return;
+        }
+
+        try {
+            \Stripe\Stripe::setApiKey($stripeSecretKey);
+            $paymentIntent = \Stripe\PaymentIntent::retrieve($stripePaymentIntentId);
+            $this->update_fieldValue_inOrder($orderIdInDb, 'stripe_currentStatus', (string) $paymentIntent->status);
+        } catch (\Exception $e) {
+            $this->update_fieldValue_inOrder($orderIdInDb, 'stripe_currentStatus', 'ERROR');
+        }
     }
     /*
      * This function takes the relevant calculation data and creates an sha1 hash
@@ -438,7 +487,16 @@ class ls_shop_paymentModule_stripe extends ls_shop_paymentModule_standard {
         }
 
         if($oih && $payment_intent){
+            // update Order Id after Payment is done and redirect after to the normal after Checkout page, this should only trigger one time
+            $arrorder = Database::getInstance()
+                ->prepare("SELECT id FROM tl_ls_shop_orders WHERE orderIdentificationHash = ?")
+                ->limit(1)
+                ->execute($oih)
+                ->fetchAssoc();
+            ;
+            $this->stripe_updatePaymentIntentStatusInOrderRecord((int) $arrorder['id']);
             Controller::redirect($GLOBALS['merconis_globals']['ls_shop_afterCheckoutPagesUrl'].'?oih='.$oih);
+
         }
 
         // PaymentIntent-ID aus der Datenbank holen
