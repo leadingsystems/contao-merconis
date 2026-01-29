@@ -370,6 +370,8 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['tryToPayAgain
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['preparePayment'] = 'Bezahlung wird vorbereitet, bitte nicht schließen...';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['prepareOrder'] = 'Ihre Bestellung wird abgeschlossen, bitte warten...';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['errorCreatingPaymentIntent'] = 'Fehler bei der Zahlungsinitialisierung. Bitte versuchen Sie es später erneut.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['status'] = 'Status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['updateStatus'] = 'Status aktualisieren';
 
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentErrorAfterFinishedOrder'] = '<p class="error">Die Zahlung konnte nicht erfolgreich abgeschlossen werden, Ihre Bestellung haben wir aber entgegengenommen. Bitte kontaktieren Sie uns, um den Sachverhalt zu klären und eine alternative Möglichkeit der Zahlung zu vereinbaren.</p>';

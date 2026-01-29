@@ -43,7 +43,7 @@ class ls_shop_apiController_payment_stripe
 	}
 
 
-	protected function apiResource_paymentapi() {
+	protected function apiResource_paymentapistripe() {
 		if (!Input::get('function')) {
 			$this->obj_apiReceiver->fail();
 			$this->obj_apiReceiver->set_data('no function given');

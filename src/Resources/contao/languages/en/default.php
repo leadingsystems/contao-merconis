@@ -370,6 +370,8 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['tryToPayAgain
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['preparePayment'] = 'Preparing payment, please do not close...';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['prepareOrder'] = 'Your order is being completed, please wait...';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['errorCreatingPaymentIntent'] = 'Error initializing payment. Please try again later.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['status'] = 'Status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['updateStatus'] = 'Update status';
 
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentErrorAfterFinishedOrder'] = '<p class="error">The payment could not be finished successfully but we have received your order. Please contact us in order to resolve this issue and to agree upon an alternative payment option.</p>';
