@@ -71,6 +71,8 @@ class ls_shop_apiController_payment_payPalCheckout
 
     function finishOrder() {
 
+        $showItemlist = true;
+
         $obj_paymentModule = ls_shop_paymentModule::getInstance();
         $arr_settings = $obj_paymentModule->settings;
 
@@ -206,6 +208,8 @@ class ls_shop_apiController_payment_payPalCheckout
 
             $itemsTotalFromLines += $lineTotal;
 
+            if($unitPrice < 0) $showItemlist = false;
+
             $items[] = [
                 "name" => $itemName,
                 "description" => $itemDescription,
@@ -221,7 +225,11 @@ class ls_shop_apiController_payment_payPalCheckout
             ? $itemsTotalFromLines
             : $cartCalculation['invoicedAmount'] + $discountAmount - $shippingAmount - $handlingAmount - $taxAmount;
 
-        $body = json_encode([
+
+
+
+
+        $arr_body = [
             "intent" => "CAPTURE",
             "application_context" => [
                 "return_url" => $returnUrl,
@@ -256,10 +264,17 @@ class ls_shop_apiController_payment_payPalCheckout
                         ]
                     ]
                 ],
-                "items" => $items,
                 "shipping" => $shippingAddress
             ]]
-        ]);
+        ];
+
+        if($showItemlist) {
+            $arr_body["purchase_units"][0]["items"] = $items;
+        }
+
+        $obj_paymentModule->writeLog("Request Data", $arr_body,'Send Request to create a new Access Token in finish order');
+
+        $body = json_encode($arr_body);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "$baseUrl/v2/checkout/orders");
