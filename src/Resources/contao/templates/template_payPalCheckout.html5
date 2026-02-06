@@ -30,6 +30,28 @@ $defaultRequestToken = System::getContainer()->get('contao.csrf.token_manager')-
                 return;
             }
 
+            // Sicherstellen, dass der Haupt-Loading-Container einen halbtransparenten Hintergrund + Blur hat.
+            const mainLoadingIndicator = document.querySelector('div.main.loadingIndicator');
+            if (mainLoadingIndicator) {
+                const supportsBackdropFilter =
+                    typeof CSS !== 'undefined'
+                    && typeof CSS.supports === 'function'
+                    && (
+                        CSS.supports('backdrop-filter', 'blur(6px)')
+                        || CSS.supports('-webkit-backdrop-filter', 'blur(6px)')
+                    );
+
+                if (supportsBackdropFilter) {
+                    mainLoadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+                    mainLoadingIndicator.style.backdropFilter = 'blur(6px)';
+                    mainLoadingIndicator.style.webkitBackdropFilter = 'blur(6px)';
+                } else {
+                    mainLoadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    mainLoadingIndicator.style.backdropFilter = '';
+                    mainLoadingIndicator.style.webkitBackdropFilter = '';
+                }
+            }
+
             loadingMessage.textContent = message || '';
             if(loadingIndicator){
                 loadingIndicator.style.display = 'flex';
