@@ -34,6 +34,7 @@ use Contao\Widget;
 use LeadingSystems\Helpers\FlexWidget;
 use LeadingSystems\MerconisBundle\EventListener\Post;
 
+use LeadingSystems\MerconisBundle\License\LicenseKeyValidator;
 use Symfony\Component\Finder\Finder;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -651,26 +652,36 @@ class ls_shop_generalHelper
 
     public static function LaFP()
     {
+
         if (!isset($GLOBALS['merconis_globals']['LaFP']['y2'])) {
             $GLOBALS['merconis_globals']['LaFP']['y2'] = true;
 
-            eval (pack('H*', '6966202824474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d20213d20283939393939392929207b205c436f6e74616f5c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c202839393939393929293b205c436f6e74616f5c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b7d'));
+            // Update-sicherer Cutover auf `merconis_licenseKey` inkl. Legacy-Akzeptanz.
+            \LeadingSystems\MerconisBundle\License\LicenseKeyValidator::migrateLegacySerialToLicenseKeyIfNeeded();
 
-            $arr_snp = null;
-            @eval (pack('H*', '246172725f736e70203d202124474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d203f206e756c6c203a206578706c6f646528272d272c2024474c4f42414c535b27544c5f434f4e464947275d5b276c735f73686f705f73657269616c275d293b'));
-            $str_hs = null;
-            $str_sn = null;
-
-            if (is_array($arr_snp)) {
-                $str_hs = array_pop($arr_snp);
-                $str_sn = implode('', $arr_snp);
+            $licenseValue = (string) \Contao\Config::get('merconis_licenseKey');
+            if (trim($licenseValue) === '') {
+                // Fallback: falls Migration noch nicht gelaufen ist
+                $licenseValue = (string) \Contao\Config::get('ls_shop_serial');
             }
 
-            if ($str_sn && substr(md5($str_sn), 0, 5) == $str_hs) {
-                eval (pack('H*', '6966202824474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d20213d20283939393939392929207b205c436f6e74616f5c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c202839393939393929293b205c436f6e74616f5c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b7d'));
-            } else {
-                eval (pack('H*', '2475745f4c614650203d20686578646563287375627374722824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d2c20332c207374726c656e2824474c4f42414c535b27544c5f434f4e464947275d5b276d6572636f6e69735f736572766963654e756d626572275d29202d203329293b20247374725f646c203d20274234273b'));
-                eval (pack('H*', '5c436f6e74616f5c436f6e6669673a3a676574496e7374616e636528292d3e75706461746528225c24474c4f42414c535b27544c5f434f4e464947275d5b276772616365506572696f64446179734c656674275d222c20286365696c282868657864656328247374725f646c29202d202874696d652829202d202475745f4c61465029202f2028383634303029292929293b205c436f6e74616f5c436f6e6669673a3a676574496e7374616e636528292d3e7361766528293b'));
+            $technicalValidity = \LeadingSystems\MerconisBundle\License\LicenseKeyValidator::verifyTechnicalValidity($licenseValue);
+
+            if ($technicalValidity->isValid) {
+                return;
+            }
+
+            // Get Grace-Period from service number
+            $serviceNumber = (string) ($GLOBALS['TL_CONFIG']['merconis_serviceNumber'] ?? '');
+            $ut = (int) hexdec(substr($serviceNumber, 3, max(0, strlen($serviceNumber) - 3)));
+
+            // 0xB4 = 180 Tage
+            $daysLimitHex = 'B4';
+            $daysLeft = (int) ceil(hexdec($daysLimitHex) - ((time() - $ut) / 86400));
+
+            if ((int) \Contao\Config::get('gracePeriodDaysLeft') !== $daysLeft) {
+                \Contao\Config::set('gracePeriodDaysLeft', $daysLeft);
+                \Contao\Config::persist('gracePeriodDaysLeft', $daysLeft);
             }
         }
     }
