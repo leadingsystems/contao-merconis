@@ -901,5 +901,32 @@ use Contao\System;
 		/*
 		 * <-- Allgemeine Funktionen zum externen Aufruf
 		 */
+
+		public function getCheckoutJavascript() {
+			$methodName = __FUNCTION__;
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
+				return $this->specialModule->{$methodName}();
+			} else {
+				return null;
+			}
+		}
+
+		public function specialInfoForPaymentMethodAfterCheckoutFinish() {
+			$methodName = __FUNCTION__;
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
+				return $this->specialModule->{$methodName}();
+			} else {
+				return null;
+			}
+		}
+
+		public function writeLog($outputType, $output, $logModeInfoText, $bypassLogMode = false) {
+			$methodName = __FUNCTION__;
+			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
+				return $this->specialModule->{$methodName}($outputType, $output, $logModeInfoText, $bypassLogMode);
+			} else {
+				return null;
+			}
+		}
 	}
 ?>

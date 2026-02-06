@@ -2,6 +2,7 @@
 
 namespace LeadingSystems\MerconisBundle\EventListener;
 
+use Contao\Controller;
 use Contao\Input;
 use Contao\LayoutModel;
 use Contao\PageModel;
@@ -80,5 +81,20 @@ class GetPageLayoutListener
         $pageModel->layout = $int_layout !== false ? $int_layout : $pageModel->layout;
 
         $layout = ls_shop_generalHelper::merconis_getPageLayout($pageModel);
+    }
+
+
+    public function onPageLoadRedirectUrl($page, $layout, $pageRegular): void
+    {
+        if (!empty($_SESSION['lsShop']['onPageLoadRedirectUrl'])) {
+
+            $url = $_SESSION['lsShop']['onPageLoadRedirectUrl'];
+            unset($_SESSION['lsShop']['onPageLoadRedirectUrl']);
+
+            // Checks whether $url is a valid, properly formatted URL (prevents invalid values)
+            if (filter_var($url, FILTER_VALIDATE_URL)) {
+                Controller::redirect($url);
+            }
+        }
     }
 }
