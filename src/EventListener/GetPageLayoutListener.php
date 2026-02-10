@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\EventListener;
 
 use Contao\Controller;
+use Contao\Environment;
 use Contao\Input;
 use Contao\LayoutModel;
 use Contao\PageModel;
@@ -88,12 +89,22 @@ class GetPageLayoutListener
     {
         if (!empty($_SESSION['lsShop']['onPageLoadRedirectUrl'])) {
 
-            $url = $_SESSION['lsShop']['onPageLoadRedirectUrl'];
+            $relativeUrl = (string) $_SESSION['lsShop']['onPageLoadRedirectUrl'];
             unset($_SESSION['lsShop']['onPageLoadRedirectUrl']);
 
-            // Checks whether $url is a valid, properly formatted URL (prevents invalid values)
-            if (filter_var($url, FILTER_VALIDATE_URL)) {
-                Controller::redirect($url);
+            $relativeUrl = trim($relativeUrl);
+
+            // Only allow relative URLs to prevent open redirects.
+            if (
+                $relativeUrl !== ''
+                && str_starts_with($relativeUrl, '/')
+                && !str_starts_with($relativeUrl, '//')
+                && !str_contains($relativeUrl, "\r")
+                && !str_contains($relativeUrl, "\n")
+                && !str_contains($relativeUrl, "\\")
+                && !preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*:#', $relativeUrl)
+            ) {
+                Controller::redirect(Environment::get('base') . $relativeUrl);
             }
         }
     }
