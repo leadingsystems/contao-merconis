@@ -659,15 +659,21 @@ class ls_shop_generalHelper
             // Update-sicherer Cutover auf `merconis_licenseKey` inkl. Legacy-Akzeptanz.
             \LeadingSystems\MerconisBundle\License\LicenseKeyValidator::migrateLegacySerialToLicenseKeyIfNeeded();
 
-            $licenseValue = (string) \Contao\Config::get('merconis_licenseKey');
+            $licenseValue = (string) Config::get('merconis_licenseKey');
             if (trim($licenseValue) === '') {
                 // Fallback: falls Migration noch nicht gelaufen ist
-                $licenseValue = (string) \Contao\Config::get('ls_shop_serial');
+                $licenseValue = (string) Config::get('ls_shop_serial');
             }
 
             $technicalValidity = \LeadingSystems\MerconisBundle\License\LicenseKeyValidator::verifyTechnicalValidity($licenseValue);
 
             if ($technicalValidity->isValid) {
+                // Gültiger Key: Grace-Period zurücksetzen, falls sie zuvor abgelaufen war.
+                // (UI blendet Grace-Period aus, wenn `gracePeriodDaysLeft == 999999`.)
+                if ((int) Config::get('gracePeriodDaysLeft') !== 999999) {
+                    Config::set('gracePeriodDaysLeft', 999999);
+                    Config::persist('gracePeriodDaysLeft', 999999);
+                }
                 return;
             }
 
@@ -679,9 +685,9 @@ class ls_shop_generalHelper
             $daysLimitHex = 'B4';
             $daysLeft = (int) ceil(hexdec($daysLimitHex) - ((time() - $ut) / 86400));
 
-            if ((int) \Contao\Config::get('gracePeriodDaysLeft') !== $daysLeft) {
-                \Contao\Config::set('gracePeriodDaysLeft', $daysLeft);
-                \Contao\Config::persist('gracePeriodDaysLeft', $daysLeft);
+            if ((int) Config::get('gracePeriodDaysLeft') !== $daysLeft) {
+                Config::set('gracePeriodDaysLeft', $daysLeft);
+                Config::persist('gracePeriodDaysLeft', $daysLeft);
             }
         }
     }
