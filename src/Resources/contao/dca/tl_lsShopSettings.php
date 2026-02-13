@@ -265,8 +265,8 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		'merconis_licenseKey' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_licenseKey'],
-			'inputType' => 'text',
-			'eval' => array('mandatory' => false, 'tl_class'=>'w50')
+			'inputType' => 'textarea',
+			'eval' => array('mandatory' => false, 'tl_class'=>'long', 'rows' => 4)
 		),
 
 		'ls_shop_country' => array(
