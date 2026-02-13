@@ -1,7 +1,8 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
-### 5.1.13 (2026-02-06)
+### 5.1.13 (2026-02-16)
 * revision of the payment process for PayPalCheckout
+* new licensekey
 
 ### 5.1.12 (2025-12-16)
  * improve export-download backend
