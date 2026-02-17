@@ -1,4 +1,6 @@
 <div class="contaoBeMainContainer">
+    <div class="branding logo widget w33 lsm-dashboard-branding-logo"></div>
+    <div class="clr"></div>
     <?php echo \Merconis\Core\ls_shop_generalHelper::getMerconisSystemMessages(); ?>
     <?php echo $this->str_themeInstallerOutput; ?>
     <div id="merconis-dashboard">
