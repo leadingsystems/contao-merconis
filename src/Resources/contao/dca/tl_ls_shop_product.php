@@ -666,7 +666,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr w50', 'mandatory' => true),
 			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
@@ -841,7 +841,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr w50', 'mandatory' => true),
 			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
@@ -981,7 +981,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr w50', 'mandatory' => true),
 			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
@@ -1121,7 +1121,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr w50', 'mandatory' => true),
 			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
@@ -1261,7 +1261,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr w50', 'mandatory' => true),
 			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
@@ -1401,7 +1401,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'clr w50', 'mandatory' => true),
 			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		),
 
