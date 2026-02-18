@@ -5149,11 +5149,14 @@ class ls_shop_generalHelper
                 'scalePriceKeyword' => $arr_productData['scalePriceKeyword_' . $i],
                 'scalePrice' => $arr_productData['scalePrice_' . $i],
                 'useOldPrice' => $arr_productData['useOldPrice_' . $i],
+                'use30DayLowestPrice' => $arr_productData['use30DayLowestPrice_' . $i],
             );
 
             if ($str_productOrVariant === 'product' || $str_productOrVariant === '') {
                 $arr_groupPriceData['lsShopProductPrice'] = $arr_productData['lsShopProductPrice_' . $i];
                 $arr_groupPriceData['lsShopProductPriceOld'] = $arr_productData['lsShopProductPriceOld_' . $i];
+                $arr_groupPriceData['lsShopProductPriceOldIsUvp'] = $arr_productData['lsShopProductPriceOldIsUvp_' . $i];
+                $arr_groupPriceData['lsShopProductPrice30DayLowest'] = $arr_productData['lsShopProductPrice30DayLowest_' . $i];
             }
 
             if ($str_productOrVariant === 'variant' || $str_productOrVariant === '') {
@@ -5161,6 +5164,9 @@ class ls_shop_generalHelper
                 $arr_groupPriceData['lsShopVariantPriceType'] = $arr_productData['lsShopVariantPriceType_' . $i];
                 $arr_groupPriceData['lsShopVariantPriceOld'] = $arr_productData['lsShopVariantPriceOld_' . $i];
                 $arr_groupPriceData['lsShopVariantPriceTypeOld'] = $arr_productData['lsShopVariantPriceTypeOld_' . $i];
+                $arr_groupPriceData['lsShopVariantPriceOldIsUvp'] = $arr_productData['lsShopVariantPriceOldIsUvp_' . $i];
+                $arr_groupPriceData['lsShopVariantPrice30DayLowest'] = $arr_productData['lsShopVariantPrice30DayLowest_' . $i];
+                $arr_groupPriceData['lsShopVariantPriceType30DayLowest'] = $arr_productData['lsShopVariantPriceType30DayLowest_' . $i];
             }
 
             /*

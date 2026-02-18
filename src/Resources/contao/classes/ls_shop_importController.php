@@ -666,6 +666,9 @@ class ls_shop_importController
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopProductPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopProductPrice30DayLowest` = ?,
 							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
 							`lsShopProductWeight` = ?,
@@ -711,6 +714,9 @@ class ls_shop_importController
 				$row['price'] ? $row['price'] : 0, // decimal, empty = 0
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$row['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$row['price30DayLowest'] ? $row['price30DayLowest'] : 0, // decimal, empty = 0
                 $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
@@ -825,6 +831,9 @@ class ls_shop_importController
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopProductPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopProductPrice30DayLowest` = ?,
 							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
 							`lsShopProductWeight` = ?,
@@ -870,6 +879,9 @@ class ls_shop_importController
 				$row['price'] ? $row['price'] : 0, // decimal, empty = 0
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$row['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$row['price30DayLowest'] ? $row['price30DayLowest'] : 0, // decimal, empty = 0
                 $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
@@ -1141,6 +1153,10 @@ class ls_shop_importController
 							`lsShopVariantPriceOld` = ?,
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopVariantPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopVariantPrice30DayLowest` = ?,
+							`lsShopVariantPriceType30DayLowest` = ?,
 							`overrideAvailabilitySettingsOfParentProduct` = ?,
 							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
@@ -1181,6 +1197,10 @@ class ls_shop_importController
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$row['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$row['price30DayLowest'] ? $row['price30DayLowest'] : 0, // decimal, empty = 0
+				$row['priceType30DayLowest'], // String, maxlength 255
 				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
                 $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
@@ -1269,6 +1289,10 @@ class ls_shop_importController
 							`lsShopVariantPriceOld` = ?,
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopVariantPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopVariantPrice30DayLowest` = ?,
+							`lsShopVariantPriceType30DayLowest` = ?,
 							`overrideAvailabilitySettingsOfParentProduct` = ?,
 							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
@@ -1310,6 +1334,10 @@ class ls_shop_importController
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$row['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$row['price30DayLowest'] ? $row['price30DayLowest'] : 0, // decimal, empty = 0
+				$row['priceType30DayLowest'], // String, maxlength 255
 				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
                 $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''

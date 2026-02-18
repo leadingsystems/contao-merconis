@@ -616,7 +616,11 @@ class ls_shop_productManagementApiHelper {
 				`scalePrice_".$i."` = ?,
 				".($str_productOrVariant === 'product' ? "`lsShopProductPriceOld_".$i."`" : "`lsShopVariantPriceOld_".$i."`")." = ?,
 				".($str_productOrVariant === 'product' ? "" : "`lsShopVariantPriceTypeOld_".$i."` = ?,")."
-				`useOldPrice_".$i."` = ?
+				`useOldPrice_".$i."` = ?,
+				".($str_productOrVariant === 'product' ? "`lsShopProductPriceOldIsUvp_".$i."`" : "`lsShopVariantPriceOldIsUvp_".$i."`")." = ?,
+				`use30DayLowestPrice_".$i."` = ?,
+				".($str_productOrVariant === 'product' ? "`lsShopProductPrice30DayLowest_".$i."`" : "`lsShopVariantPrice30DayLowest_".$i."`")." = ?
+				".($str_productOrVariant === 'product' ? "" : ", `lsShopVariantPriceType30DayLowest_".$i."` = ?")."
 			";
 		}
 
@@ -647,6 +651,13 @@ class ls_shop_productManagementApiHelper {
 			}
 
 			$arr_queryParams[] = $row['useOldPrice_'.$i] ? '1' : ''; // 1 or ''
+			$arr_queryParams[] = $row['oldPriceIsUvp_'.$i] ? '1' : ''; // 1 or ''
+			$arr_queryParams[] = $row['use30DayLowestPrice_'.$i] ? '1' : ''; // 1 or ''
+			$arr_queryParams[] = $row['price30DayLowest_'.$i] ? $row['price30DayLowest_'.$i] : 0; // decimal, empty = 0
+
+			if ($str_productOrVariant === 'variant') {
+				$arr_queryParams[] = $row['priceType30DayLowest_'.$i]; // String, maxlength 255
+			}
 		}
 
 		return $arr_queryParams;
@@ -806,6 +817,9 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopProductPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopProductPrice30DayLowest` = ?,
 							`lsShopProductWeight` = ?,
 							`lsShopProductSteuersatz` = ?,
 							`lsShopProductQuantityUnit` = ?,
@@ -847,6 +861,9 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['price'] ? $arr_preprocessedDataRow['price'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['price30DayLowest'] ? $arr_preprocessedDataRow['price30DayLowest'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['taxclass'] ? $arr_preprocessedDataRow['taxclass'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['unit'], // String, maxlength 255
@@ -958,6 +975,9 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopProductPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopProductPrice30DayLowest` = ?,
 							`lsShopProductWeight` = ?,
 							`lsShopProductSteuersatz` = ?,
 							`lsShopProductQuantityUnit` = ?,
@@ -999,6 +1019,9 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['price'] ? $arr_preprocessedDataRow['price'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['price30DayLowest'] ? $arr_preprocessedDataRow['price30DayLowest'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['taxclass'] ? $arr_preprocessedDataRow['taxclass'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['unit'], // String, maxlength 255
@@ -1126,6 +1149,10 @@ class ls_shop_productManagementApiHelper {
 								`lsShopVariantPriceOld` = ?,
 								`lsShopVariantPriceTypeOld` = ?,
 								`useOldPrice` = ?,
+								`lsShopVariantPriceOldIsUvp` = ?,
+								`use30DayLowestPrice` = ?,
+								`lsShopVariantPrice30DayLowest` = ?,
+								`lsShopVariantPriceType30DayLowest` = ?,
 								`lsShopVariantWeight` = ?,
 								`lsShopVariantWeightType` = ?,
 								`lsShopVariantQuantityUnit` = ?,
@@ -1161,6 +1188,10 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['oldPriceType'], // String, maxlength 255
 				$arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['price30DayLowest'] ? $arr_preprocessedDataRow['price30DayLowest'] : 0, // decimal, empty = 0
+				$arr_preprocessedDataRow['priceType30DayLowest'], // String, maxlength 255
 				$arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['weightType'], // String, maxlength 255
 				$arr_preprocessedDataRow['unit'], // String, maxlength 255
@@ -1268,6 +1299,10 @@ class ls_shop_productManagementApiHelper {
 							`lsShopVariantPriceOld` = ?,
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopVariantPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopVariantPrice30DayLowest` = ?,
+							`lsShopVariantPriceType30DayLowest` = ?,
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
 							`lsShopVariantQuantityUnit` = ?,
@@ -1304,6 +1339,10 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['oldPrice'] ? $arr_preprocessedDataRow['oldPrice'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['oldPriceType'], // String, maxlength 255
 				$arr_preprocessedDataRow['useOldPrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$arr_preprocessedDataRow['price30DayLowest'] ? $arr_preprocessedDataRow['price30DayLowest'] : 0, // decimal, empty = 0
+				$arr_preprocessedDataRow['priceType30DayLowest'], // String, maxlength 255
 				$arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['weightType'], // String, maxlength 255
 				$arr_preprocessedDataRow['unit'], // String, maxlength 255

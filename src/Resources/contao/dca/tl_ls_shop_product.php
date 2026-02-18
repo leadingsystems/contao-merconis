@@ -120,6 +120,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			useScalePrice,
 			lsShopProductPriceOld,
 			useOldPrice,
+			lsShopProductPriceOldIsUvp,
+			lsShopProductPrice30DayLowest,
+			use30DayLowestPrice,
 			lsShopProductSteuersatz,
 			lsShopProductWeight,
 			lsShopProductQuantityDecimals,
@@ -171,7 +174,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			lsShopProductPrice_1,
 			useScalePrice_1,
 			lsShopProductPriceOld_1,
-			useOldPrice_1
+			useOldPrice_1,
+			lsShopProductPriceOldIsUvp_1,
+			lsShopProductPrice30DayLowest_1,
+			use30DayLowestPrice_1
 		',
 
 		'useGroupPrices_2' => '
@@ -179,7 +185,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			lsShopProductPrice_2,
 			useScalePrice_2,
 			lsShopProductPriceOld_2,
-			useOldPrice_2
+			useOldPrice_2,
+			lsShopProductPriceOldIsUvp_2,
+			lsShopProductPrice30DayLowest_2,
+			use30DayLowestPrice_2
 		',
 
 		'useGroupPrices_3' => '
@@ -187,7 +196,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			lsShopProductPrice_3,
 			useScalePrice_3,
 			lsShopProductPriceOld_3,
-			useOldPrice_3
+			useOldPrice_3,
+			lsShopProductPriceOldIsUvp_3,
+			lsShopProductPrice30DayLowest_3,
+			use30DayLowestPrice_3
 		',
 
 		'useGroupPrices_4' => '
@@ -195,7 +207,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			lsShopProductPrice_4,
 			useScalePrice_4,
 			lsShopProductPriceOld_4,
-			useOldPrice_4
+			useOldPrice_4,
+			lsShopProductPriceOldIsUvp_4,
+			lsShopProductPrice30DayLowest_4,
+			use30DayLowestPrice_4
 		',
 
 		'useGroupPrices_5' => '
@@ -203,7 +218,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			lsShopProductPrice_5,
 			useScalePrice_5,
 			lsShopProductPriceOld_5,
-			useOldPrice_5
+			useOldPrice_5,
+			lsShopProductPriceOldIsUvp_5,
+			lsShopProductPrice30DayLowest_5,
+			use30DayLowestPrice_5
 		',
 
 		'useScalePrice' => 'scalePriceType,scalePriceQuantityDetectionMethod,scalePriceQuantityDetectionAlwaysSeparateConfigurations,scalePriceKeyword,scalePrice',
@@ -635,6 +653,32 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
 		),
 
+		'lsShopProductPriceOldIsUvp' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'filter'		=> true,
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopProductPrice30DayLowest' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'use30DayLowestPrice' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'filter'		=> true,
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
 		'lsShopProductSteuersatz' => array(
 			'label'			=> &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductSteuersatz'],
 			'exclude' => true,
@@ -785,6 +829,30 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
 		),
 
+		'lsShopProductPriceOldIsUvp_1' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopProductPrice30DayLowest_1' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'use30DayLowestPrice_1' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
 		/*
 		 * Deviant price settings for group 2
 		 */
@@ -899,6 +967,30 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'checkbox',
 			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
             'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopProductPriceOldIsUvp_2' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopProductPrice30DayLowest_2' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'use30DayLowestPrice_2' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		/*
@@ -1017,6 +1109,30 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
 		),
 
+		'lsShopProductPriceOldIsUvp_3' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopProductPrice30DayLowest_3' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'use30DayLowestPrice_3' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
 		/*
 		 * Deviant price settings for group 4
 		 */
@@ -1133,6 +1249,30 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
 		),
 
+		'lsShopProductPriceOldIsUvp_4' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopProductPrice30DayLowest_4' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'use30DayLowestPrice_4' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
 		/*
 		 * Deviant price settings for group 5
 		 */
@@ -1247,6 +1387,30 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'inputType'               => 'checkbox',
 			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
             'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopProductPriceOldIsUvp_5' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopProductPrice30DayLowest_5' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'use30DayLowestPrice_5' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'lsShopProductDeliveryInfoSet' => array(

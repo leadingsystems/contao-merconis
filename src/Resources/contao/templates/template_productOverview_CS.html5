@@ -49,11 +49,42 @@
 
 			<?php // ##### OLD PRICE ##### -> ?>
 				<?php if ($this->objProduct->_hasOldPrice) { ?>
-					<p class="oldPrice">
-						<?php if ($this->objProduct->_oldPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?>
-					</p>
+					<?php
+					$oldPriceOutput = ($this->objProduct->_oldPricesAreDifferent ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] . ' ' : '') . $this->objProduct->_priceOldMinimumAfterTaxFormatted;
+					if ($this->objProduct->_hasQuantityUnit) {
+						$oldPriceOutput .= '/' . $this->objProduct->_quantityUnit;
+					}
+					?>
+
+					<?php if ($this->objProduct->_oldPriceIsUvp) { ?>
+						<p class="uvpPrice">
+							<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['uvp']; ?>:</span>
+							<span class="value"><?php echo $oldPriceOutput; ?></span>
+						</p>
+					<?php } else { ?>
+						<p class="oldPrice">
+							<?php echo $oldPriceOutput; ?>
+						</p>
+					<?php } ?>
 				<?php } ?>
 			<?php // <- ##### OLD PRICE ##### ?>
+
+			<?php
+			if (
+				$this->objProduct->_has30DayLowestPrice
+				&& !($this->objProduct->_hasOldPrice && $this->objProduct->_oldPriceIsUvp)
+			) {
+				$price30DayLowestOutput = ($this->objProduct->_30DayLowestPricesAreDifferent ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] . ' ' : '') . $this->objProduct->_price30DayLowestMinimumAfterTaxFormatted;
+				$currentPriceNumeric = $this->objProduct->_cheapestPriceComesFromScalePrices ? $this->objProduct->_cheapestPriceRaw : $this->objProduct->_unscaledPriceMinimumAfterTax;
+				$saving = max(0, $this->objProduct->_price30DayLowestMinimumAfterTax - $currentPriceNumeric);
+				$savingFormatted = \Merconis\Core\ls_shop_generalHelper::outputPrice($saving);
+				?>
+				<div class="thirtyDayLowestPriceInfo">
+					<?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['thirtyDayLowestPriceInfo'], $price30DayLowestOutput, $savingFormatted); ?>
+				</div>
+				<?php
+			}
+			?>
             <?php // ##### QUANTITY COMPARISON ##### -> ?>
             <?php if($this->objProduct->_cheapestPriceQuantityComparison) { ?>
                 <div class="quantityComparison">

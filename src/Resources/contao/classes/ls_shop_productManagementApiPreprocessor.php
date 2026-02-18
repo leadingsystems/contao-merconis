@@ -141,12 +141,32 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
+				'oldPriceIsUvp' => array(
+					'preprocessor' => 'preprocess_pseudoBoolean',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
 				'oldPriceType' => array(
 					'preprocessor' => 'preprocess_oldPriceType',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
 				'useOldPrice' => array(
+					'preprocessor' => 'preprocess_pseudoBoolean',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'price30DayLowest' => array(
+					'preprocessor' => 'preprocess_price30DayLowest',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'priceType30DayLowest' => array(
+					'preprocessor' => 'preprocess_priceType30DayLowest',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'use30DayLowestPrice' => array(
 					'preprocessor' => 'preprocess_pseudoBoolean',
 					'description' => '',
 					'fieldType' => 'input_output'
@@ -324,6 +344,26 @@ class ls_shop_productManagementApiPreprocessor
 					'fieldType' => 'input_output'
 				),
 				'useOldPrice_{numImportableGroupPrices}' => array(
+					'preprocessor' => 'preprocess_pseudoBoolean',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'oldPriceIsUvp_{numImportableGroupPrices}' => array(
+					'preprocessor' => 'preprocess_pseudoBoolean',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'price30DayLowest_{numImportableGroupPrices}' => array(
+					'preprocessor' => 'preprocess_groupPrices_price30DayLowest',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'priceType30DayLowest_{numImportableGroupPrices}' => array(
+					'preprocessor' => 'preprocess_groupPrices_priceType30DayLowest',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'use30DayLowestPrice_{numImportableGroupPrices}' => array(
 					'preprocessor' => 'preprocess_pseudoBoolean',
 					'description' => '',
 					'fieldType' => 'input_output'
@@ -1184,6 +1224,66 @@ class ls_shop_productManagementApiPreprocessor
 	}
 
 	/**
+	 * Expected input: a numeric value with an optional decimal point and up to 4 decimals. Mandatory for row types 'product' and 'variant' if field 'use30DayLowestPrice' is 1 (true)
+	 * Accepted input: as expected
+	 * Normalization: none
+	 */
+	protected static function preprocess_price30DayLowest($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (
+		!in_array($arr_row['type'], array('product', 'variant'))
+		) {
+			return '';
+		}
+
+		if (!$arr_row['use30DayLowestPrice']) {
+			return '';
+		}
+
+		$str_output = trim($var_input);
+
+		if (!strlen($str_output)) {
+			throw new \Exception('a value is mandatory for row type \'' . $arr_row['type'] . '\' when field \'use30DayLowestPrice\' is 1 (true)');
+		}
+
+		if (!preg_match('/^\d+(\.\d{1,4})?$/', $str_output)) {
+			throw new \Exception('not a valid price');
+		}
+
+		return $str_output;
+	}
+
+	/**
+	 * Expected input: 'independent', 'percentaged', 'fixed'. Mandatory for row types 'variant' if field 'use30DayLowestPrice' is 1 (true)
+	 * Accepted input: as expected
+	 * Normalization: translates the value using the modificationTypesTranslationMap
+	 */
+	protected static function preprocess_priceType30DayLowest($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (
+		!in_array($arr_row['type'], array('variant'))
+		) {
+			return '';
+		}
+
+		if (!$arr_row['use30DayLowestPrice']) {
+			return '';
+		}
+
+		$str_output = trim($var_input);
+
+		if (!strlen($str_output)) {
+			throw new \Exception('a value is mandatory for row type \'' . $arr_row['type'] . '\' when field \'use30DayLowestPrice\' is 1 (true)');
+		}
+
+		if (!key_exists($str_output, ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+			throw new \Exception('incorrect value given');
+		}
+
+		$str_output = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$str_output];
+
+		return $str_output;
+	}
+
+	/**
 	 * Expected input: a numeric value with an optional decimal point and up to 4 decimals. Mandatory for row types 'product' and 'variant' if the corresponding field 'useGroupPrices_x' is 1 (true)
 	 * Accepted input: as expected
 	 * Normalization: none
@@ -1444,6 +1544,78 @@ class ls_shop_productManagementApiPreprocessor
 
 		if (!strlen($str_output)) {
 			throw new \Exception('a value is mandatory for row type \'' . $arr_row['type'] . '\' when field \'useGroupPrices_'.$int_groupPriceNumber.'\' is 1 (true) and field \'useOldPrice_'.$int_groupPriceNumber.'\' is 1 (true)');
+		}
+
+		if (!key_exists($str_output, ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+			throw new \Exception('incorrect value given');
+		}
+
+		$str_output = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$str_output];
+
+		return $str_output;
+	}
+
+	/**
+	 * Expected input: a numeric value with an optional decimal point and up to 4 decimals. Mandatory for row types 'product' and 'variant' if the corresponding field 'useGroupPrices_x' is 1 (true) and field 'use30DayLowestPrice_x' is 1 (true).
+	 * Accepted input: as expected
+	 * Normalization: none
+	 */
+	protected static function preprocess_groupPrices_price30DayLowest($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (
+		!in_array($arr_row['type'], array('product', 'variant'))
+		) {
+			return '';
+		}
+
+		$int_groupPriceNumber = substr($str_fieldName, -1);
+
+		if (!$arr_row['useGroupPrices_'.$int_groupPriceNumber]) {
+			return '';
+		}
+
+		if (!$arr_row['use30DayLowestPrice_'.$int_groupPriceNumber]) {
+			return '';
+		}
+
+		$str_output = trim($var_input);
+
+		if (!strlen($str_output)) {
+			throw new \Exception('a value is mandatory for row type \'' . $arr_row['type'] . '\' when field \'useGroupPrices_'.$int_groupPriceNumber.'\' is 1 (true) and field \'use30DayLowestPrice_'.$int_groupPriceNumber.'\' is 1 (true)');
+		}
+
+		if (!preg_match('/^\d+(\.\d{1,4})?$/', $str_output)) {
+			throw new \Exception('not a valid price');
+		}
+
+		return $str_output;
+	}
+
+	/**
+	 * Expected input: 'independent', 'percentaged', 'fixed'. Mandatory for row types 'variant' if the corresponding field 'useGroupPrices_x' is 1 (true) and field 'use30DayLowestPrice_x' is 1 (true).
+	 * Accepted input: as expected
+	 * Normalization: translates the value using the modificationTypesTranslationMap
+	 */
+	protected static function preprocess_groupPrices_priceType30DayLowest($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (
+		!in_array($arr_row['type'], array('variant'))
+		) {
+			return '';
+		}
+
+		$int_groupPriceNumber = substr($str_fieldName, -1);
+
+		if (!$arr_row['useGroupPrices_'.$int_groupPriceNumber]) {
+			return '';
+		}
+
+		if (!$arr_row['use30DayLowestPrice_'.$int_groupPriceNumber]) {
+			return '';
+		}
+
+		$str_output = trim($var_input);
+
+		if (!strlen($str_output)) {
+			throw new \Exception('a value is mandatory for row type \'' . $arr_row['type'] . '\' when field \'useGroupPrices_'.$int_groupPriceNumber.'\' is 1 (true) and field \'use30DayLowestPrice_'.$int_groupPriceNumber.'\' is 1 (true)');
 		}
 
 		if (!key_exists($str_output, ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
