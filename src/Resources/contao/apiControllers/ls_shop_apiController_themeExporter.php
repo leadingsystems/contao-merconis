@@ -114,7 +114,7 @@ class ls_shop_apiController_themeExporter
 
         $arrLocalconfigExport = array();
         foreach ($GLOBALS['TL_CONFIG'] as $k => $v) {
-            if (preg_match('/^ls_shop_/siU', $k) && $k != 'ls_shop_installedCompletely' && $k != 'ls_shop_serial') {
+            if (preg_match('/^ls_shop_/siU', $k) && $k != 'ls_shop_installedCompletely' && $k != 'ls_shop_serial' && $k != 'merconis_licenseKey') {
                 $arrLocalconfigExport[$k] = $v;
             }
         }

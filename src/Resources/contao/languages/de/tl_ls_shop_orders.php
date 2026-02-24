@@ -29,6 +29,10 @@
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_saleId']								= array('PayPal Plus Transaktionscode');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_currentStatus']						= array('PayPal Plus Status');
+
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalCheckout_orderId']							= array('PayPal Checkout Bestell-ID');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalCheckout_currentStatus']					= array('PayPal Checkout Status');
+
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payone_currentStatus']							= array('PAYONE Status');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['saferpay_currentStatus']							= array('SAFERPAY Status');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['vrpay_currentStatus']								= array('VR Pay Status');

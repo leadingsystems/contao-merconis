@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 use Contao\BackendTemplate;
+use Contao\Controller;
 use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\Module;
@@ -112,7 +113,7 @@ class ModuleAfterCheckout extends Module {
 		} else if (Input::get('oih')) {
 			$oih = Input::get('oih');
 		} else if (Input::post('oih')) {
-			$oih = Input::get('oih');
+			$oih = Input::post('oih');
 		}
 		
 		$arrOrder = null;
@@ -131,6 +132,14 @@ class ModuleAfterCheckout extends Module {
 			// ###################################################
 
 		}
+
+		/*
+		 * If we have an id from an oix but no oih mapping in the session (e.g. missing session on a payment provider return),
+		 * we can still derive the oih from the loaded order record.
+		 */
+		if (!$oih && $idFromOix && is_array($arrOrder) && ($arrOrder['orderIdentificationHash'] ?? null)) {
+			$oih = $arrOrder['orderIdentificationHash'];
+		}
 		
 		/*
 		 * If we have an oih we get the order and create the output
@@ -143,7 +152,19 @@ class ModuleAfterCheckout extends Module {
 			}
 
 			$this->Template = new FrontendTemplate($this->strTemplate);
-			
+
+            $obj_paymentModule->specialInfoForPaymentMethodAfterCheckoutFinish();
+
+			/*
+			 * If we arrived here from a payment provider return URL (oix),
+			 * redirect to the clean, customer-facing URL using the oih only.
+			 */
+			if (Input::get('oix') && $oih) {
+				$afterCheckoutUrl = ls_shop_languageHelper::getLanguagePage('ls_shop_afterCheckoutPages');
+				$redirectUrl = $afterCheckoutUrl . (strpos($afterCheckoutUrl, '?') !== false ? '&' : '?') . 'oih=' . $oih;
+				Controller::redirect($redirectUrl);
+			}
+
 			$this->Template->arrOrder = $arrOrder;
 			$this->Template->specialInfoForPaymentMethod = isset($_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish']) ? $_SESSION['lsShop']['specialInfoForPaymentMethodAfterCheckoutFinish'] : '';
 			$this->Template->specialInfoForShippingMethod = isset($_SESSION['lsShop']['specialInfoForShippingMethodAfterCheckoutFinish']) ? $_SESSION['lsShop']['specialInfoForShippingMethodAfterCheckoutFinish'] : '';

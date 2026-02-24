@@ -297,6 +297,14 @@ namespace Merconis\Core;
 		public function determineOix() {
 			return '';
 		}
+
+        public function getCheckoutJavascript() {
+            return '';
+        }
+
+        public function specialInfoForPaymentMethodAfterCheckoutFinish() {
+            return '';
+        }
 		
 	}
 ?>
