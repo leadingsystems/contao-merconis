@@ -5158,9 +5158,6 @@ class ls_shop_generalHelper
 
     public static function getMerconisSystemMessages()
     {
-        // Stelle sicher, dass `gracePeriodDaysLeft` vor der Anzeige aktualisiert ist.
-//        ls_shop_generalHelper::LaFP();
-
         ob_start();
 
         if (isset($GLOBALS['TL_CONFIG']['merconis_snInvalid']) && $GLOBALS['TL_CONFIG']['merconis_snInvalid']) {
@@ -5170,8 +5167,9 @@ class ls_shop_generalHelper
         } else {
             if (isset($GLOBALS['TL_CONFIG']['gracePeriodDaysLeft']) && $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'] != 999999) {
                 if ($GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'] > 0) {
+                    $urlToLicense = 'https://lizenz.merconis.com';
                     ?>
-                    <h2 class="gracePeriodMessage"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'], $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft']); ?></h2>
+                    <h2 class="gracePeriodMessage"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'], $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'], $urlToLicense); ?></h2>
                     <?php
 
                 } else {
@@ -5273,7 +5271,7 @@ class ls_shop_generalHelper
     public static function getBackendLscssStyles() {
         $obj_lscss4cController = \LeadingSystems\Lscss4c\lscss4C_controller::getInstance();
         return $obj_lscss4cController->getLscss(
-            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.d93d357f.scss',
+            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.d4dc0cda.scss',
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoCacheMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoMinifierMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssDebugMode']
