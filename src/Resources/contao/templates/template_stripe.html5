@@ -29,29 +29,67 @@ $defaultRequestToken = System::getContainer()->get('contao.csrf.token_manager')-
         const clientSecret = data.clientSecret;
 
         // --- Helper functions for the loading overlay ---
-        const loadingOverlay = document.querySelector('.moduleContainer.loadingIndicator');
+        const loadingIndicatorContainer = document.querySelector('.moduleContainer.loadingIndicator');
+        const loadingOverlay = document.getElementById('loading-overlay');
         const loadingMessage = document.getElementById('loading-message');
         const stripeCardErrorMessage = document.getElementById('stripe-card-error-message');
 
 
         const showLoadingOverlay = (message) => {
-            if (loadingOverlay && loadingMessage) {
-                loadingMessage.textContent = message;
+            const normalizedMessage = message || '';
+
+            // Sicherstellen, dass der Haupt-Loading-Container einen halbtransparenten Hintergrund + Blur hat.
+            const mainLoadingIndicator = document.querySelector('div.main.loadingIndicator');
+            if (mainLoadingIndicator) {
+                const supportsBackdropFilter =
+                    typeof CSS !== 'undefined'
+                    && typeof CSS.supports === 'function'
+                    && (
+                        CSS.supports('backdrop-filter', 'blur(6px)')
+                        || CSS.supports('-webkit-backdrop-filter', 'blur(6px)')
+                    );
+
+                if (supportsBackdropFilter) {
+                    mainLoadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+                    mainLoadingIndicator.style.backdropFilter = 'blur(6px)';
+                    mainLoadingIndicator.style.webkitBackdropFilter = 'blur(6px)';
+                } else {
+                    mainLoadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    mainLoadingIndicator.style.backdropFilter = '';
+                    mainLoadingIndicator.style.webkitBackdropFilter = '';
+                }
+            }
+
+            if (loadingIndicatorContainer) {
+                loadingIndicatorContainer.classList.add('show');
+                loadingIndicatorContainer.style.display = 'block';
+            }
+
+            if (loadingMessage) {
+                loadingMessage.textContent = normalizedMessage;
+                loadingMessage.style.display = 'block';
+            }
+
+            if (loadingOverlay) {
                 loadingOverlay.style.display = 'flex';
-                loadingMessage.style.display = 'flex';
             }
         };
         const hideLoadingOverlay = () => {
-            if (loadingOverlay) {
-                loadingOverlay.style.display = 'none';
+            if (loadingIndicatorContainer) {
+                loadingIndicatorContainer.classList.remove('show');
+                loadingIndicatorContainer.style.display = 'none';
             }
             if (loadingMessage) {
                 loadingMessage.style.display = 'none';
+                loadingMessage.textContent = '';
+            }
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
             }
         };
         const updateLoadingMessage = (message) => {
             if (loadingMessage) {
-                loadingMessage.textContent = message;
+                loadingMessage.textContent = message || '';
             }
         };
         const updateStripeCardErrorMessage = (message) => {

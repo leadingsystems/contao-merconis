@@ -85,6 +85,14 @@ class ls_shop_apiController_payment_payPalCheckout
         $currency = strtoupper($GLOBALS['TL_CONFIG']['ls_shop_currencyCode']);
         $baseUrl = ($arr_settings['payPalCheckout_liveMode'] ? ls_shop_paymentModule_payPalCheckout::LIVE_URL : ls_shop_paymentModule_payPalCheckout::SANDBOX_URL);
 
+        $toCents = static function($value): int {
+            $floatValue = (float) $value;
+            return (int) round(ls_shop_generalHelper::ls_roundPrice($floatValue) * 100);
+        };
+        $formatMoney = static function(int $cents): string {
+            return number_format($cents / 100, 2, '.', '');
+        };
+
 
         // get Access Token
         $ch = curl_init();
@@ -184,7 +192,8 @@ class ls_shop_apiController_payment_payPalCheckout
         $discountAmount = max(0, abs(min(0, $discountRaw)));
 
         $items = [];
-        $itemsTotalFromLines = 0;
+        $itemsTotalFromLinesCents = 0;
+        $itemsTotalFromUnitAmountsCents = 0;
         foreach ($cartCalculation['items'] as $cartItem) {
             $cartItemExtended = $cartItemsExtended[$cartItem['productCartKey']] ?? null;
             if ($cartItemExtended === null || ($cartItemExtended['quantity'] ?? 0) == 0) {
@@ -196,19 +205,29 @@ class ls_shop_apiController_payment_payPalCheckout
             $isIntegerQty = intval($cartItemExtended['quantity']) == $cartItemExtended['quantity'];
 
             if ($isIntegerQty) {
-                $unitPrice = number_format($cartItem['price'], 2, '.', '');
                 $quantity = $cartItemExtended['quantity'];
-                $lineTotal = $quantity * (float) $unitPrice;
+                $lineTotalCents = $toCents($cartItem['priceCumulative'] ?? ($cartItem['price'] * $quantity));
+                if ($quantity > 1 && ($lineTotalCents % (int) $quantity) !== 0) {
+                    // PayPal expects that unit_amount * quantity matches the item total exactly (cent-accurate).
+                    // If the line total cannot be represented by a 2-decimal unit_amount, we skip the item list.
+                    $showItemlist = false;
+                }
+                $unitPriceCents = (int) round($lineTotalCents / max(1, (int) $quantity));
+                $unitPrice = $formatMoney($unitPriceCents);
             } else {
-                $unitPrice = number_format($cartItem['priceCumulative'], 2, '.', '');
+                $lineTotalCents = $toCents($cartItem['priceCumulative'] );
                 $quantity = 1;
                 $itemDescription = trim($itemDescription.' ('.$cartItemExtended['quantity'].' '.$cartItemExtended['objProduct']->_quantityUnit.' * '.$cartItemExtended['objProduct']->_priceAfterTaxFormatted.')');
-                $lineTotal = (float) $unitPrice;
+                $unitPrice = $formatMoney($lineTotalCents);
+                $unitPriceCents = $lineTotalCents;
             }
 
-            $itemsTotalFromLines += $lineTotal;
+            $itemsTotalFromLinesCents += $lineTotalCents;
+            $itemsTotalFromUnitAmountsCents += ((int) $quantity) * $unitPriceCents;
 
-            if($unitPrice < 0) $showItemlist = false;
+            if ((float) $unitPrice < 0) {
+                $showItemlist = false;
+            }
 
             $items[] = [
                 "name" => $itemName,
@@ -221,9 +240,26 @@ class ls_shop_apiController_payment_payPalCheckout
             ];
         }
 
-        $itemTotal = $itemsTotalFromLines > 0
-            ? $itemsTotalFromLines
-            : $cartCalculation['invoicedAmount'] + $discountAmount - $shippingAmount - $handlingAmount - $taxAmount;
+        $totalCents = $toCents($total);
+        $shippingCents = $toCents($shippingAmount);
+        $handlingCents = $toCents($handlingAmount);
+        $taxCents = $toCents($taxAmount);
+        $discountCents = $toCents($discountAmount);
+
+        $itemTotalCents = $totalCents + $discountCents - $shippingCents - $handlingCents - $taxCents;
+        if ($itemTotalCents < 0) {
+            $itemTotalCents = 0;
+        }
+
+        if (
+            $itemsTotalFromLinesCents > 0
+            && (
+                $itemsTotalFromLinesCents !== $itemTotalCents
+                || $itemsTotalFromUnitAmountsCents !== $itemTotalCents
+            )
+        ) {
+            $showItemlist = false;
+        }
 
 
 
@@ -240,27 +276,27 @@ class ls_shop_apiController_payment_payPalCheckout
             "purchase_units" => [[
                 "amount" => [
                     "currency_code" => $currency,
-                    "value" => number_format($total, 2, '.', ''),
+                    "value" => $formatMoney($totalCents),
                     "breakdown" => [
                         "item_total" => [
                             "currency_code" => $currency,
-                            "value" => number_format($itemTotal, 2, '.', '')
+                            "value" => $formatMoney($itemTotalCents)
                         ],
                         "shipping" => [
                             "currency_code" => $currency,
-                            "value" => number_format($shippingAmount, 2, '.', '')
+                            "value" => $formatMoney($shippingCents)
                         ],
                         "handling" => [
                             "currency_code" => $currency,
-                            "value" => number_format($handlingAmount, 2, '.', '')
+                            "value" => $formatMoney($handlingCents)
                         ],
                         "tax_total" => [
                             "currency_code" => $currency,
-                            "value" => number_format($taxAmount, 2, '.', '')
+                            "value" => $formatMoney($taxCents)
                         ],
                         "discount" => [
                             "currency_code" => $currency,
-                            "value" => number_format($discountAmount, 2, '.', '')
+                            "value" => $formatMoney($discountCents)
                         ]
                     ]
                 ],

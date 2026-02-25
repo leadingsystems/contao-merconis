@@ -1834,6 +1834,20 @@ class ls_shop_generalHelper
         $groupInfo = ls_shop_generalHelper::getGroupSettings4User();
 
         /*
+         * Lizenz-Feature-Gates (nur Zahlungsarten)
+         */
+        if (
+            $what === 'payment'
+            && isset($method['type'])
+            && (string) $method['type'] === 'stripe'
+        ) {
+            $licenseCheck = LicenseKeyValidator::featureAllowed('stripe');
+            if (!($licenseCheck['allowed'] ?? false)) {
+                return false;
+            }
+        }
+
+        /*
          * Ist die Methode nicht veröffentlicht? False!
          */
         if (!$method['published']) {

@@ -1054,6 +1054,14 @@ class ls_shop_payment_methods extends Backend {
             if ($this->isDeprecatedPaymentType($paymentModuleName) && $paymentModuleName !== $lockedPaymentType) {
                 continue;
             }
+
+            if ($paymentModuleName === 'stripe' && $paymentModuleName !== $lockedPaymentType) {
+                $licenseCheck = \LeadingSystems\MerconisBundle\License\LicenseKeyValidator::featureAllowed('stripe');
+                if (!($licenseCheck['allowed'] ?? false)) {
+                    continue;
+                }
+            }
+
             $paymentModules[$paymentModuleName] = $paymentModuleInfo['title'];
         }
         return $paymentModules;
