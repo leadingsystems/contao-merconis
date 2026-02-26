@@ -178,6 +178,8 @@
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Erweiterte Einstellungen';
 
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['memorySettings_legend'] = 'Speichereinstellung';
+
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menü';
 
 

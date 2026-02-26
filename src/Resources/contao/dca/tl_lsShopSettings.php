@@ -72,7 +72,8 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		{backendLsjs_legend},ls_shop_lsjsDebugMode,ls_shop_lsjsNoMinifierMode;
 		{backendLscss_legend},ls_shop_lscssFileToLoad,ls_shop_lscssDebugMode,ls_shop_lscssNoCacheMode,ls_shop_lscssNoMinifierMode;
 		{misc_legend},ls_shop_sortingCharacterTranslationTable,ls_shop_dcaNamesWithoutMultilanguageSupport;
-		{debug_menu},ls_shop_coupon_debug,ls_shop_cacheRamPercent'
+		{memorySettings_legend},ls_shop_cacheRamPercent;
+		{debug_menu},ls_shop_coupon_debug'
 	),
 
 	'subpalettes' => array(
