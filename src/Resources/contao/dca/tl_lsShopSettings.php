@@ -981,6 +981,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 
         'ls_shop_cacheRamPercent' => array(
             'label'     => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_cacheRamPercent'],
+            'default'   => 60,
             'inputType' => 'select',
             'options'   => array(20 => '20%', 30 => '30%', 40 => '40%', 50 => '50%', 60 => '60%',70 => '70%', 80 => '80%'),
             'eval'      => [
@@ -989,8 +990,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
             ],
             'load_callback' => [
                 array('Merconis\Core\ls_shop_generalHelper', 'getDefaultCacheRamPercent'),
-            ],
-            'sql'       => "int(3) unsigned NOT NULL default '60'"
+            ]
         )
 	)
 );
