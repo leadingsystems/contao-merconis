@@ -4505,8 +4505,11 @@ class ls_shop_generalHelper
 
                 $paymentProvider = (string) $arrMessageType['paymentStatusCorrelation_paymentProvider'];
 
-
-                // Spaltenname ist in Merconis konsistent: <provider>_currentStatus
+                // WICHTIG: Der Provider-Key muss zur Namenskonvention in `tl_ls_shop_orders` passen:
+                // `<provider>_currentStatus` (z. B. `payone` -> `payone_currentStatus`).
+                // Der Key darf nur DB-spaltennamensichere Zeichen enthalten (`[A-Za-z0-9_]`),
+                // keine Leerzeichen oder Sonderzeichen. Beim Hinzufuegen neuer Provider sicherstellen,
+                // dass DCA-Optionen und Spaltenname konsistent sind.
                 $paymentStatusField = $paymentProvider . '_currentStatus';
                 $strQuery .= " AND o.`" . $paymentStatusField . "` = ? ";
                 $arrQueryValues[] = $arrMessageType['paymentStatusCorrelation_statusValue'];
