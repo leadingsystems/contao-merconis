@@ -17,7 +17,7 @@
 	<div class="boxInnerWrapper">
 		<?php // ##### IMAGE CONTAINER WITH NEW AND SALE ICONS ##### -> ?>
 			<div class="imageContainer">
-				<?php if ($this->objProduct->_hasMainImage) { ?>
+				<?php if ($this->objProduct->getImageGallery()->hasMainImage()) { ?>
 					<a class="productMainImage boxImage" href="<?php echo $this->objProduct->_linkToProduct; ?>">
                         {{shop_picture::<?=$this->objProduct->getImageGallery()->getMainImage()->singleSRC?>?size=productOverview&class=productImage}}
                     </a>
