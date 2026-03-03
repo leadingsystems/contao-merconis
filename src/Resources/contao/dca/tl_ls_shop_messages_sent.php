@@ -18,7 +18,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_messages_sent'] = array(
                 'messageTypeID' => 'index',
                 'messageModelID' => 'index',
                 'messageTypeAlias' => 'index',
-                'orderNr' => 'index'
+                'orderNr' => 'index',
+                'orderID,messageTypeID' => 'index'
             )
         )
 	),
