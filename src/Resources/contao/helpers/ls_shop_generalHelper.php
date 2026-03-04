@@ -4,11 +4,13 @@ namespace Merconis\Core;
 
 use Contao\ArrayUtil;
 use Contao\CoreBundle\Exception\NoLayoutSpecifiedException;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\LayoutModel;
 use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
+use Psr\Log\LogLevel;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -19,6 +21,9 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_generalHelper
 {
+
+    private static bool $cacheWarningShown = false;
+
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
      * and writes them into the allocation table
@@ -4220,12 +4225,96 @@ class ls_shop_generalHelper
             $arrOrder['shippingMethod_infoAfterCheckout'] = ls_shop_generalHelper::ls_replaceOrderWildcards($arrOrder['shippingMethod_infoAfterCheckout'], $arrOrder);
             $arrOrder['shippingMethod_infoAfterCheckout_customerLanguage'] = ls_shop_generalHelper::ls_replaceOrderWildcards($arrOrder['shippingMethod_infoAfterCheckout_customerLanguage'], $arrOrder);
 
+            // count how many orders are already saved
+            $orderCount = isset($GLOBALS['merconis_globals']['order'])? count($GLOBALS['merconis_globals']['order']): 0;
+
+            // if to many orders are already saved, we should not save more, because we use to much RAM
+            if (!self::shouldUseCache()) {
+                return $arrOrder;
+            }
 
             $GLOBALS['merconis_globals']['order'][$identificationToken] = $arrOrder;
         }
 
         return $GLOBALS['merconis_globals']['order'][$identificationToken];
     }
+
+    //used by tl_lsShopSettings dca and everywhere else that needs the default value for this setting
+    public static function getDefaultCacheRamPercent($value)
+    {
+        if (!$value || $value <= 0) {
+            return 60;
+        }
+        return $value;
+    }
+    public static function shouldUseCache(): bool
+    {
+        $percentSetting = (int) \Config::get('ls_shop_cacheRamPercent');
+
+
+        if ($percentSetting <= 0) {
+            $percentSetting = self::getDefaultCacheRamPercent($percentSetting);;
+        }
+
+        // Read the PHP memory_limit
+        $memoryLimit = ini_get('memory_limit');
+
+        // unlimited (-1), always cache
+        if ($memoryLimit == -1) {
+            return true;
+        }
+
+        $limitMb = self::convertToMb($memoryLimit);
+
+        $currentMb = memory_get_usage(true) / 1024 / 1024;
+
+        // allowed limit in MB
+        $limitPercentValue = $limitMb * ($percentSetting / 100);
+
+        // Check if the percentage limit is exceeded
+        if ($currentMb >= $limitPercentValue) {
+
+            // Only write warning in log one time runtime
+            if (!self::$cacheWarningShown) {
+
+                System::getContainer()->get('monolog.logger.contao')->log(
+                    LogLevel::WARNING,
+                    sprintf(
+                        'Merconis cache stopped: RAM at %.2f MB (threshold %.2f MB (%s%%) of %s MB total).',
+                        $currentMb,
+                        $limitPercentValue,
+                        $percentSetting,
+                        $limitMb
+                    ),
+                    array('contao' => new ContaoContext(__METHOD__, 'GENERAL')),
+                );
+
+                self::$cacheWarningShown = true;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function convertToMb(string $val): float
+    {
+        $val = trim($val);
+        $last = strtolower($val[strlen($val)-1]);
+
+        switch ($last) {
+            case 'g':
+                return (int)$val * 1024;
+            case 'm':
+                return (int)$val;
+            case 'k':
+                return (int)$val / 1024;
+            default:
+                return (float)$val;
+        }
+    }
+
 
     public static function getMessageSent($identificationToken, $searchBy = 'id', $blnForceRefresh = false)
     {
@@ -4256,6 +4345,8 @@ class ls_shop_generalHelper
         }
         return $GLOBALS['merconis_globals']['messageSent'][$identificationToken];
     }
+
+
 
     public static function callback_modifyFrontendPage($strContent, $strTemplate)
     {
@@ -4321,30 +4412,124 @@ class ls_shop_generalHelper
 
     public static function sendMessagesOnStatusChangeCronDaily()
     {
-        $objOrders = \Database::getInstance()->prepare("
-				SELECT		*
-				FROM		`tl_ls_shop_orders`
-			")
-            ->execute();
-
-        while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronDaily', 'sendWhen', null, true);
-            $objOrderMessages->sendMessages();
-        }
+        self::sendMessagesOnStatusChangeCron('onStatusChangeCronDaily');
     }
 
     public static function sendMessagesOnStatusChangeCronHourly()
     {
-        $objOrders = \Database::getInstance()->prepare("
-				SELECT		*
-				FROM		`tl_ls_shop_orders`
-			")
-            ->execute();
+        self::sendMessagesOnStatusChangeCron('onStatusChangeCronHourly');
+    }
 
-        while ($objOrders->next()) {
-            $objOrderMessages = new ls_shop_orderMessages($objOrders->id, 'onStatusChangeCronHourly', 'sendWhen', null, true);
+    /**
+     * Sendet Order-Nachrichten, die auf Statusänderungen basieren, effizient über einen Prefilter.
+     */
+    protected static function sendMessagesOnStatusChangeCron($identificationToken)
+    {
+        $arrRelevantOrderIdMap = self::getRelevantOrderIdMapForStatusChangeMessageTypes($identificationToken);
+
+        if (!count($arrRelevantOrderIdMap)) {
+            return;
+        }
+
+        foreach ($arrRelevantOrderIdMap as $orderId) {
+            $objOrderMessages = new ls_shop_orderMessages($orderId, $identificationToken, 'sendWhen', null, true);
             $objOrderMessages->sendMessages();
         }
+    }
+
+    /**
+     * Liefert eine ID-Map relevanter Orders für Statusänderungs-Nachrichten.
+     *
+     * "Relevant" bedeutet hier:
+     * - für mindestens einen MessageType mit `sendWhen = $identificationToken`
+     * - Status-/Payment-Korrelation passt zur Order
+     * - es existiert mindestens ein published MessageModel für die MemberGroup der Order
+     * - für diese Order wurde dieser MessageType noch nicht gesendet
+     *
+     * Die Logik spiegelt die Prüfungen aus `ls_shop_orderMessages` wider, verhindert aber die teure Order-Objekt-Erzeugung im Skip-Pfad.
+     *
+     * @return array<int, int> Map: orderId => orderId
+     */
+    protected static function getRelevantOrderIdMapForStatusChangeMessageTypes($identificationToken)
+    {
+
+        $arrRelevantOrderIdMap = [];
+
+        $objMessageTypes = \Database::getInstance()
+            ->prepare("
+                SELECT      *
+                FROM        `tl_ls_shop_message_type`
+                WHERE       `sendWhen` = ?
+            ")
+            ->execute($identificationToken);
+
+        while ($objMessageTypes->next()) {
+            $arrMessageType = $objMessageTypes->row();
+
+            $blnAtLeastOneCorrelationUsed = false;
+
+            $strQuery = "
+                SELECT      o.`id`
+                FROM        `tl_ls_shop_orders` o
+                WHERE       NOT EXISTS (
+                                SELECT  1
+                                FROM    `tl_ls_shop_messages_sent` s
+                                WHERE   s.`orderID` = o.`id`
+                                    AND s.`messageTypeID` = ?
+                            )
+                    AND         EXISTS (
+                                SELECT  1
+                                FROM    `tl_ls_shop_message_model` mm
+                                WHERE   mm.`pid` = ?
+                                    AND mm.`published` = '1'
+                                    AND mm.`member_group` LIKE CONCAT('%\"', o.`memberGroupInfo_id`, '\"%')
+                            )
+            ";
+
+            $arrQueryValues = [
+                $arrMessageType['id'],
+                $arrMessageType['id'],
+            ];
+
+            for ($i = 1; $i <= 5; $i++) {
+                $statusNr = strlen($i) < 2 ? '0' . $i : (string) $i;
+                if (!empty($arrMessageType['useStatusCorrelation' . $statusNr])) {
+                    $blnAtLeastOneCorrelationUsed = true;
+                    $strQuery .= " AND o.`status" . $statusNr . "` = ? ";
+                    $arrQueryValues[] = $arrMessageType['statusCorrelation' . $statusNr];
+                }
+            }
+
+            if (!empty($arrMessageType['usePaymentStatusCorrelation'])) {
+                $blnAtLeastOneCorrelationUsed = true;
+
+                $paymentProvider = (string) $arrMessageType['paymentStatusCorrelation_paymentProvider'];
+
+                // WICHTIG: Der Provider-Key muss zur Namenskonvention in `tl_ls_shop_orders` passen:
+                // `<provider>_currentStatus` (z. B. `payone` -> `payone_currentStatus`).
+                // Der Key darf nur DB-spaltennamensichere Zeichen enthalten (`[A-Za-z0-9_]`),
+                // keine Leerzeichen oder Sonderzeichen. Beim Hinzufuegen neuer Provider sicherstellen,
+                // dass DCA-Optionen und Spaltenname konsistent sind.
+                $paymentStatusField = $paymentProvider . '_currentStatus';
+                $strQuery .= " AND o.`" . $paymentStatusField . "` = ? ";
+                $arrQueryValues[] = $arrMessageType['paymentStatusCorrelation_statusValue'];
+
+            }
+
+            if (!$blnAtLeastOneCorrelationUsed) {
+                continue;
+            }
+
+            $objRelevantOrders = \Database::getInstance()
+                ->prepare($strQuery)
+                ->execute($arrQueryValues);
+
+            while ($objRelevantOrders->next()) {
+                $arrRelevantOrderIdMap[$objRelevantOrders->id] = $objRelevantOrders->id;
+            }
+        }
+
+        return $arrRelevantOrderIdMap;
     }
 
     /*

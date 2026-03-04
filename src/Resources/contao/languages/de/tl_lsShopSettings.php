@@ -178,6 +178,8 @@
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Erweiterte Einstellungen';
 
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['memorySettings_legend'] = 'Speichereinstellung';
+
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menü';
 
 
@@ -234,5 +236,10 @@
         'And-Search' => 'Finde alle Wörter',
         'Or-Search' => 'Finde irgendein Wort'
     );
+
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_cacheRamPercent'] = [
+        'Ab welchem Prozentwert des RAMs Caching gestoppt wird',
+        'Wenn dieser Prozentwert erreicht ist, stoppt Merconis automatisch das Caching bei der Erstellung der Bestelldatensätze.'
+    ];
 
 
