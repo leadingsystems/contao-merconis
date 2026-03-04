@@ -146,6 +146,11 @@ class ls_shop_orderMessages
 
 		if ($arrMessageType['usePaymentStatusCorrelation']) {
 			$blnAtLeastOneStatusCorrelationUsed = true;
+			// WICHTIG: Der Provider-Key muss zur Namenskonvention in `tl_ls_shop_orders` passen:
+			// `<provider>_currentStatus` (z. B. `payone` -> `payone_currentStatus`).
+			// Der Key darf nur DB-spaltennamensichere Zeichen enthalten (`[A-Za-z0-9_]`),
+			// keine Leerzeichen oder Sonderzeichen. Beim Hinzufuegen neuer Provider sicherstellen,
+			// dass DCA-Optionen und Spaltenname konsistent sind.
 			if ($this->arrOrder[$arrMessageType['paymentStatusCorrelation_paymentProvider'].'_currentStatus'] != $arrMessageType['paymentStatusCorrelation_statusValue']) {
 				return false;
 			}

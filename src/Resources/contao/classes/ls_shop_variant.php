@@ -1,6 +1,7 @@
 <?php
 
 namespace Merconis\Core;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -1542,8 +1543,24 @@ This method can be used to call a function hooked with the "callingHookedProduct
     public function getDeliveryTimeDays($float_requestedQuantity = 1) {
         $int_deliveryTimeDays = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
 
+        $unixtimestamp_baseDate = time();
+
         if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
-            $int_deliveryTimeDays += ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+            $unixtimestamp_baseDate = $this->_availableFrom;
+        }
+
+        if (isset($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays']) && is_array($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays'])) {
+            foreach ($GLOBALS['MERCONIS_HOOKS']['manipulateDeliveryTimeDays'] as $mccb) {
+                $objMccb = System::importStatic($mccb[0]);
+
+                // $unixtimestamp_baseDate is today or if preorderable the time it is available
+                $int_deliveryTimeDays = $objMccb->{$mccb[1]}($int_deliveryTimeDays, $unixtimestamp_baseDate, $this);
+            }
+        }
+
+        if (!$this->_isAvailableBasedOnDate && $this->_isPreorderable) {
+            $int_deliveryTimeDaysFromPreorder = ceil(($this->_availableFrom - strtotime("midnight", time())) / 86400);
+            $int_deliveryTimeDays += $int_deliveryTimeDaysFromPreorder;
         }
 
         return (int) $int_deliveryTimeDays;
