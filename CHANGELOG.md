@@ -1,8 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.0.37 (2026-03-04)
+### 5.0.37 (2026-03-06)
  * improve sendMessagesOnStatusChange
+ * add hook 'manipulateDeliveryTimeDays'
 
 ### 5.0.36 (2025-10-08)
  * improve sendRestockInfo
