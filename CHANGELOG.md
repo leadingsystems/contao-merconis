@@ -1,6 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.0.37 (2026-03-04)
+ * improve sendMessagesOnStatusChange
+
 ### 5.0.36 (2025-10-08)
  * improve sendRestockInfo
 
