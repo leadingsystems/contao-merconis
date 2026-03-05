@@ -178,6 +178,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['backendLscss_legend'] = 'Settings for LSCSS in the backend';
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Advanced settings';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['memorySettings_legend'] = 'Memory settings';
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menu';
 
@@ -240,3 +241,8 @@
         'folders' => 'Folder structure',
         'files' => 'File name'
     );
+
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_cacheRamPercent'] = [
+        'Percentage of RAM usage at which caching is stopped',
+        'If this percentage is reached, Merconis automatically stops caching when creating order data records.'
+    ];
