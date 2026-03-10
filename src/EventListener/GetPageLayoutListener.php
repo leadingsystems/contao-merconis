@@ -102,7 +102,6 @@ class GetPageLayoutListener
                 && !str_contains($relativeUrl, "\r")
                 && !str_contains($relativeUrl, "\n")
                 && !str_contains($relativeUrl, "\\")
-                && !preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*:#', $relativeUrl)
             ) {
                 Controller::redirect(Environment::get('base') . $relativeUrl);
             }
