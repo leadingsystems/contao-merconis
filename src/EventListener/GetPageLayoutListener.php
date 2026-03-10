@@ -93,6 +93,9 @@ class GetPageLayoutListener
             unset($_SESSION['lsShop']['onPageLoadRedirectUrl']);
 
             $relativeUrl = trim($relativeUrl);
+            if ($relativeUrl !== '' && !str_starts_with($relativeUrl, '/')) {
+                $relativeUrl = '/' . ltrim($relativeUrl, '/');
+            }
 
             // Only allow relative URLs to prevent open redirects.
             if (
@@ -103,7 +106,7 @@ class GetPageLayoutListener
                 && !str_contains($relativeUrl, "\n")
                 && !str_contains($relativeUrl, "\\")
             ) {
-                Controller::redirect(Environment::get('base') . $relativeUrl);
+                Controller::redirect(rtrim(Environment::get('base'), '/') . $relativeUrl);
             }
         }
     }
