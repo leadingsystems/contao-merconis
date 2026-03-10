@@ -3,12 +3,14 @@
 namespace LeadingSystems\MerconisBundle\EventListener;
 
 use Contao\Controller;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\Environment;
 use Contao\Input;
 use Contao\LayoutModel;
 use Contao\PageModel;
 use Contao\PageRegular;
 use Contao\StringUtil;
+use Contao\System;
 use Merconis\Core\ls_shop_generalHelper;
 
 class GetPageLayoutListener
@@ -107,6 +109,14 @@ class GetPageLayoutListener
                 && !str_contains($relativeUrl, "\\")
             ) {
                 Controller::redirect(rtrim(Environment::get('base'), '/') . $relativeUrl);
+            } else {
+                System::getContainer()->get('monolog.logger.contao')->info(
+                    'MERCONIS: Skipped on-page-load redirect because URL validation failed.',
+                    [
+                        'contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR),
+                        'urlPreview' => substr($relativeUrl, 0, 120),
+                    ]
+                );
             }
         }
     }
