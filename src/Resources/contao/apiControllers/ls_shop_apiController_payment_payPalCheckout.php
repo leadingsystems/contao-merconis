@@ -350,8 +350,8 @@ class ls_shop_apiController_payment_payPalCheckout
             );
 
 
-        // set onPageLoadRedirect url because the user should be informed that the order is created even if the user goes back to another side in payment process
-        $_SESSION['lsShop']['onPageLoadRedirectUrl'] = $returnUrl;
+        // Store only a relative URL in the session to prevent open redirects.
+        $_SESSION['lsShop']['onPageLoadRedirectUrl'] = $afterCheckoutUrlWithOix;
 
         $this->obj_apiReceiver->success();
         $this->obj_apiReceiver->set_data([
