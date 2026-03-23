@@ -8,6 +8,14 @@
 		},
 		
 		start: function() {
+			/*
+			 * After theme setup (POST + reload) or failed API requests,
+			 * the loading indicator may remain visible. Reset it before starting the module.
+			 */
+			if (lsjs.loadingIndicator && lsjs.loadingIndicator.__controller) {
+				lsjs.loadingIndicator.__controller.hide(true);
+			}
+
 			lsjs.apiInterface.str_apiUrl = 'contao?do=be_mod_ls_apiReceiver';
 
 			window.addEvent(

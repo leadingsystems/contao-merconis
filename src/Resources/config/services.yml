@@ -59,6 +59,10 @@ services:
     tags:
       - { name: contao.hook, hook: loadFormField }
 
+  LeadingSystems\MerconisBundle\EventListener\GetFormListener:
+    tags:
+      - { name: contao.hook, hook: getForm }
+
   LeadingSystems\MerconisBundle\EventListener\GetContentElementListener:
     tags:
       - { name: contao.hook, hook: getContentElement }
