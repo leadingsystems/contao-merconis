@@ -1,0 +1,51 @@
+<?php
+$arrWithdrawalData = is_array($this->arrWithdrawal ?? null) ? $this->arrWithdrawal : [];
+$intScenario = (int) ($arrWithdrawalData['scenario'] ?? 0);
+$arrWithdrawalItems = is_array($arrWithdrawalData['items'] ?? null) ? $arrWithdrawalData['items'] : [];
+$strFreetext = trim((string) ($arrWithdrawalData['freetext'] ?? ''));
+?>
+
+<?php if ($intScenario === 1 && !empty($arrWithdrawalItems)) { ?>
+	<h3><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_heading']; ?></h3>
+	<table>
+		<thead>
+			<tr>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product']; ?></th>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_variant']; ?></th>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number']; ?></th>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity']; ?></th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach ($arrWithdrawalItems as $arrWithdrawalItem) { ?>
+				<?php
+				$strOrderedQuantityOutput = (string) ($arrWithdrawalItem['snapshotOrderedQuantity'] ?? '');
+				$strWithdrawnQuantityOutput = (string) ($arrWithdrawalItem['withdrawnQuantity'] ?? '');
+				$strQuantityUnitOutput = trim((string) ($arrWithdrawalItem['snapshotQuantityUnit'] ?? ''));
+				$strQuantityOutput = $strWithdrawnQuantityOutput;
+
+				if ($strOrderedQuantityOutput !== '' && $strOrderedQuantityOutput !== $strWithdrawnQuantityOutput) {
+					$strQuantityOutput = sprintf(
+						$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_quantity_partial'],
+						$strWithdrawnQuantityOutput,
+						$strOrderedQuantityOutput
+					);
+				}
+
+				if ($strQuantityUnitOutput !== '') {
+					$strQuantityOutput .= ' ' . $strQuantityUnitOutput;
+				}
+				?>
+				<tr>
+					<td><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotProductName'] ?? ''), ENT_QUOTES); ?></td>
+					<td><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotVariantTitle'] ?? ''), ENT_QUOTES); ?></td>
+					<td><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotProductNumber'] ?? ''), ENT_QUOTES); ?></td>
+					<td><?php echo htmlspecialchars($strQuantityOutput, ENT_QUOTES); ?></td>
+				</tr>
+			<?php } ?>
+		</tbody>
+	</table>
+<?php } else { ?>
+	<h3><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_freetext_heading']; ?></h3>
+	<p><?php echo nl2br(htmlspecialchars($strFreetext, ENT_QUOTES)); ?></p>
+<?php } ?>

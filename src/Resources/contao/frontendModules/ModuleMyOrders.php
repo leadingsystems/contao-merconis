@@ -153,9 +153,26 @@ class ModuleMyOrders extends Module {
 		while($objOrders->next()) {
 			$arrOrder = ls_shop_generalHelper::getOrder($objOrders->orderIdentificationHash, 'orderIdentificationHash');
 			$arrOrder['linkToDetails'] = ls_shop_languageHelper::getLanguagePage('ls_shop_myOrderDetailsPages').(preg_match('/\?/', ls_shop_languageHelper::getLanguagePage('ls_shop_myOrderDetailsPages')) ? '&' : '?').'oih='.$arrOrder['orderIdentificationHash'];
+			$arrOrder['linkToWithdrawal'] = $this->buildWithdrawalLink((string) ($arrOrder['withdrawalIdentifier'] ?? ''));
 			$arrOrders[] = $arrOrder;
 		}
 		$this->Template->arrOrders = $arrOrders;		
+	}
+
+	private function buildWithdrawalLink(string $withdrawalIdentifier): string
+	{
+		if ($withdrawalIdentifier === '') {
+			return '';
+		}
+
+		$withdrawalPage = ls_shop_languageHelper::getLanguagePage('ls_shop_withdrawalPages');
+		if (!is_string($withdrawalPage) || $withdrawalPage === '') {
+			return '';
+		}
+
+		$separator = preg_match('/\?/', $withdrawalPage) ? '&' : '?';
+
+		return $withdrawalPage . $separator . 'wid=' . rawurlencode($withdrawalIdentifier);
 	}
 }
 ?>

@@ -24,14 +24,14 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 
 		{userSettings_legend},ls_shop_standardGroup,ls_shop_allowCheckout;
 		
-		{orderNr_legend},ls_shop_orderNrCounter,ls_shop_orderNrString,ls_shop_orderNrStart,ls_shop_orderNrRestartCycle,ls_shop_orderNrRestartNow;
+		{orderNr_legend},ls_shop_orderNrCounter,ls_shop_withdrawalIdCounter,ls_shop_orderNrString,ls_shop_orderNrStart,ls_shop_orderNrRestartCycle,ls_shop_orderNrRestartNow;
 		
 		{orderStatusTypes_legend},ls_shop_orderStatusValues01,ls_shop_orderStatusValues02,ls_shop_orderStatusValues03,ls_shop_orderStatusValues04,ls_shop_orderStatusValues05;
 		
 		{liveHits_legend},ls_shop_liveHitImageSizeWidth,ls_shop_liveHitImageSizeHeight,ls_shop_liveHitsMaxNumHits,ls_shop_liveHitsMinLengthSearchTerm;
 		
 		{systemImages_legend},ls_shop_systemImages_videoDummyCover,ls_shop_systemImages_noProductImage;
-		{pageSettings_legend},ls_shop_shippingInfoPages,ls_shop_cartPages,ls_shop_reviewPages,ls_shop_signUpPages,ls_shop_checkoutPaymentErrorPages,ls_shop_checkoutShippingErrorPages,ls_shop_checkoutFinishPages,ls_shop_paymentAfterCheckoutPages,ls_shop_afterCheckoutPages,ls_shop_ajaxPages,ls_shop_searchResultPages,ls_shop_myOrdersPages,ls_shop_myOrderDetailsPages,ls_shop_defaultProductPages;
+		{pageSettings_legend},ls_shop_shippingInfoPages,ls_shop_cartPages,ls_shop_reviewPages,ls_shop_signUpPages,ls_shop_checkoutPaymentErrorPages,ls_shop_checkoutShippingErrorPages,ls_shop_checkoutFinishPages,ls_shop_paymentAfterCheckoutPages,ls_shop_afterCheckoutPages,ls_shop_withdrawalPages,ls_shop_withdrawalConfirmationPages,ls_shop_ajaxPages,ls_shop_searchResultPages,ls_shop_myOrdersPages,ls_shop_myOrderDetailsPages,ls_shop_defaultProductPages;
 		{systemSettings_legend},ls_shop_loginModuleID,ls_shop_miniCartModuleID,ls_shop_useAjaxForPaginationAndSorting;
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch,ls_shop_alwaysAddIdToAliasDuringProductImport;
 
@@ -181,6 +181,13 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		'ls_shop_orderNrCounter' => array(
 			'exclude' => true,
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_orderNrCounter'],
+			'inputType' => 'simpleOutput',
+			'eval' => array('tl_class'=>'w50')
+		),
+
+		'ls_shop_withdrawalIdCounter' => array(
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_withdrawalIdCounter'],
 			'inputType' => 'simpleOutput',
 			'eval' => array('tl_class'=>'w50')
 		),
@@ -423,6 +430,20 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		
 		'ls_shop_afterCheckoutPages' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_afterCheckoutPages'],
+			'exclude' => true,
+			'inputType' => 'pageTree',
+			'eval' => array('fieldType'=>'checkbox', 'multiple' => true)
+		),
+
+		'ls_shop_withdrawalPages' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_withdrawalPages'],
+			'exclude' => true,
+			'inputType' => 'pageTree',
+			'eval' => array('fieldType'=>'checkbox', 'multiple' => true)
+		),
+
+		'ls_shop_withdrawalConfirmationPages' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_withdrawalConfirmationPages'],
 			'exclude' => true,
 			'inputType' => 'pageTree',
 			'eval' => array('fieldType'=>'checkbox', 'multiple' => true)

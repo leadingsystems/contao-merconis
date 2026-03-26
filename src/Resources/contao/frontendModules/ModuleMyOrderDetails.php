@@ -37,6 +37,24 @@ class ModuleMyOrderDetails extends Module {
 		
 		$this->Template->arrOrder = $arrOrder;
 		$this->Template->linkToOverview = ls_shop_languageHelper::getLanguagePage('ls_shop_myOrdersPages');
+		$this->Template->withdrawalIdentifier = (string) ($arrOrder['withdrawalIdentifier'] ?? '');
+		$this->Template->linkToWithdrawal = $this->buildWithdrawalLink($this->Template->withdrawalIdentifier);
+	}
+
+	private function buildWithdrawalLink(string $withdrawalIdentifier): string
+	{
+		if ($withdrawalIdentifier === '') {
+			return '';
+		}
+
+		$withdrawalPage = ls_shop_languageHelper::getLanguagePage('ls_shop_withdrawalPages');
+		if (!is_string($withdrawalPage) || $withdrawalPage === '') {
+			return '';
+		}
+
+		$separator = preg_match('/\?/', $withdrawalPage) ? '&' : '?';
+
+		return $withdrawalPage . $separator . 'wid=' . rawurlencode($withdrawalIdentifier);
 	}
 }
 ?>

@@ -1,0 +1,39 @@
+<?php
+$arrWithdrawalData = is_array($this->arrWithdrawal ?? null) ? $this->arrWithdrawal : [];
+$intScenario = (int) ($arrWithdrawalData['scenario'] ?? 0);
+?>
+
+<h3><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_heading']; ?></h3>
+
+<?php if ($intScenario === 1) { ?>
+	<table>
+		<tbody>
+			<tr>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_number_label']; ?></th>
+				<td><?php echo htmlspecialchars((string) ($arrWithdrawalData['snapshotOrderNr'] ?? ''), ENT_QUOTES); ?></td>
+			</tr>
+			<tr>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_date_label']; ?></th>
+				<td><?php echo htmlspecialchars((string) ($arrWithdrawalData['snapshotOrderDate'] ?? ''), ENT_QUOTES); ?></td>
+			</tr>
+			<tr>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_label']; ?></th>
+				<td><?php echo nl2br(htmlspecialchars((string) ($arrWithdrawalData['snapshotBillingAddress'] ?? ''), ENT_QUOTES)); ?></td>
+			</tr>
+			<tr>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_label']; ?></th>
+				<td><?php echo nl2br(htmlspecialchars((string) ($arrWithdrawalData['snapshotShippingAddress'] ?? ''), ENT_QUOTES)); ?></td>
+			</tr>
+			<tr>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label']; ?></th>
+				<td><?php echo htmlspecialchars((string) ($arrWithdrawalData['snapshotPaymentMethod'] ?? ''), ENT_QUOTES); ?></td>
+			</tr>
+			<tr>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_method_label']; ?></th>
+				<td><?php echo htmlspecialchars((string) ($arrWithdrawalData['snapshotShippingMethod'] ?? ''), ENT_QUOTES); ?></td>
+			</tr>
+		</tbody>
+	</table>
+<?php } else { ?>
+	<p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_fallback']; ?></p>
+<?php } ?>

@@ -4026,6 +4026,98 @@ class ls_shop_generalHelper
         return $str_text;
     }
 
+    public static function ls_replaceWithdrawalWildcards($text, $arrWithdrawal)
+    {
+        if (!is_array($arrWithdrawal)) {
+            return $text;
+        }
+
+        $withdrawalTimestamp = (int) ($arrWithdrawal['withdrawalTimestamp'] ?? 0);
+        if ($withdrawalTimestamp > 0) {
+            $arrWithdrawal['date'] = Date::parse($GLOBALS['TL_CONFIG']['dateFormat'] ?? 'Y-m-d', $withdrawalTimestamp);
+            $arrWithdrawal['time'] = Date::parse($GLOBALS['TL_CONFIG']['timeFormat'] ?? 'H:i', $withdrawalTimestamp);
+        } else {
+            $arrWithdrawal['date'] = '';
+            $arrWithdrawal['time'] = '';
+        }
+
+        $arrWithdrawal['snapshotBillingAddress'] = self::ls_formatWithdrawalAddressForWildcard($arrWithdrawal['snapshotBillingAddress'] ?? '');
+        $arrWithdrawal['snapshotShippingAddress'] = self::ls_formatWithdrawalAddressForWildcard($arrWithdrawal['snapshotShippingAddress'] ?? '');
+
+        preg_match_all('/(?:&#35;&#35;|##)withdrawal::(.*?)(?:&#35;&#35;|##)/', $text, $arrMatches);
+
+        foreach (array_unique($arrMatches[1]) as $strKeyword) {
+            $replacement = $arrWithdrawal[$strKeyword] ?? '';
+
+            if (is_array($replacement)) {
+                $replacement = implode(', ', self::ls_filterAndCastWildcardValues($replacement));
+            } else if ($replacement === null) {
+                $replacement = '';
+            } else {
+                $replacement = (string) $replacement;
+            }
+
+            $text = preg_replace('/(&#35;&#35;|##)withdrawal::' . preg_quote((string) $strKeyword, '/') . '(&#35;&#35;|##)/', $replacement, $text);
+        }
+
+        return $text;
+    }
+
+    private static function ls_formatWithdrawalAddressForWildcard($addressData)
+    {
+        $deserializedAddress = StringUtil::deserialize($addressData);
+        if (!is_array($deserializedAddress)) {
+            return is_scalar($addressData) ? trim((string) $addressData) : '';
+        }
+
+        return implode("\n", self::ls_flattenWithdrawalAddressLines($deserializedAddress));
+    }
+
+    private static function ls_flattenWithdrawalAddressLines(array $addressData, string $keyPrefix = '')
+    {
+        $lines = [];
+
+        foreach ($addressData as $key => $value) {
+            $lineKey = $keyPrefix;
+            if (is_string($key) && !is_numeric($key)) {
+                $lineKey = $lineKey ? $lineKey . '.' . $key : $key;
+            }
+
+            if (is_array($value)) {
+                $lines = array_merge($lines, self::ls_flattenWithdrawalAddressLines($value, $lineKey));
+                continue;
+            }
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $stringValue = trim((string) $value);
+            if ($stringValue === '') {
+                continue;
+            }
+
+            $lines[] = $lineKey ? $lineKey . ': ' . $stringValue : $stringValue;
+        }
+
+        return $lines;
+    }
+
+    private static function ls_filterAndCastWildcardValues(array $values)
+    {
+        $filteredValues = [];
+
+        foreach ($values as $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $filteredValues[] = (string) $value;
+        }
+
+        return $filteredValues;
+    }
+
     public static function ls_replaceOrderWildcards($text, $arrOrder)
     {
         /** @var PageModel $objPage */
@@ -4065,6 +4157,13 @@ class ls_shop_generalHelper
          */
         if ($arrOrder['orderNr']) {
             $text = preg_replace('/(&#35;&#35;orderNr&#35;&#35;)|(##orderNr##)/siU', $arrOrder['orderNr'], $text);
+        }
+
+        /*
+         * Replace the orderWithdrawalIdentifier wildcard
+         */
+        if ($arrOrder['withdrawalIdentifier']) {
+            $text = preg_replace('/(&#35;&#35;orderWithdrawalIdentifier&#35;&#35;)|(##orderWithdrawalIdentifier##)/siU', $arrOrder['withdrawalIdentifier'], $text);
         }
 
         /*

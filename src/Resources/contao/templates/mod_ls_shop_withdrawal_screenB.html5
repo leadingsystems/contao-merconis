@@ -1,0 +1,196 @@
+<?php
+$items = isset($this->items) && is_array($this->items) ? $this->items : [];
+$errorMessages = isset($this->errorMessages) && is_array($this->errorMessages) ? $this->errorMessages : [];
+?>
+<div class="mod_ls_shop_withdrawal__screen-b">
+    <?php if (!empty($this->headline)) { ?>
+        <h2><?php echo \Contao\StringUtil::specialchars((string) $this->headline); ?></h2>
+    <?php } ?>
+
+    <?php if (!empty($errorMessages)) { ?>
+        <div class="error">
+            <?php foreach ($errorMessages as $errorMessage) { ?>
+                <p><?php echo \Contao\StringUtil::specialchars((string) $errorMessage); ?></p>
+            <?php } ?>
+        </div>
+    <?php } ?>
+
+    <form method="post" action="<?php echo \Contao\StringUtil::specialchars((string) ($this->formAction ?? '')); ?>" data-withdrawal-screen-b-form="1">
+        <input type="hidden" name="FORM_SUBMIT" value="<?php echo \Contao\StringUtil::specialchars((string) ($this->formSubmitName ?? '')); ?>">
+        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo \Contao\StringUtil::specialchars((string) (\Contao\RequestToken::get())); ?>">
+        <input type="hidden" name="wid" value="<?php echo \Contao\StringUtil::specialchars((string) ($this->wid ?? '')); ?>">
+
+        <table class="mod_ls_shop_withdrawal__items">
+            <thead>
+            <tr>
+                <th>
+                    <label>
+                        <input type="checkbox" data-withdrawal-select-all="1">
+                        <?php echo \Contao\StringUtil::specialchars((string) ($this->selectAllLabel ?? '')); ?>
+                    </label>
+                </th>
+                <th><?php echo \Contao\StringUtil::specialchars((string) ($GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product'] ?? '')); ?></th>
+                <th><?php echo \Contao\StringUtil::specialchars((string) ($GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_variant'] ?? '')); ?></th>
+                <th><?php echo \Contao\StringUtil::specialchars((string) ($GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number'] ?? '')); ?></th>
+                <th><?php echo \Contao\StringUtil::specialchars((string) ($GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity'] ?? '')); ?></th>
+                <th><?php echo \Contao\StringUtil::specialchars((string) ($this->changeQuantityLabel ?? '')); ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($items as $item) { ?>
+                <?php
+                $itemId = (int) ($item['id'] ?? 0);
+                $isSelected = !empty($item['selected']);
+                $orderedQuantity = (string) ($item['orderedQuantityDisplay'] ?? '0');
+                $withdrawnQuantity = (string) ($item['withdrawnQuantity'] ?? $orderedQuantity);
+                ?>
+                <tr data-withdrawal-item-row="<?php echo $itemId; ?>">
+                    <td>
+                        <label>
+                            <input type="checkbox"
+                                   name="selectedItems[<?php echo $itemId; ?>]"
+                                   value="1"
+                                   data-withdrawal-item-checkbox="1"
+                                <?php echo $isSelected ? 'checked' : ''; ?>
+                            >
+                            <?php echo \Contao\StringUtil::specialchars((string) ($this->selectItemLabel ?? '')); ?>
+                        </label>
+                    </td>
+                    <td><?php echo \Contao\StringUtil::specialchars((string) ($item['productName'] ?? '')); ?></td>
+                    <td><?php echo \Contao\StringUtil::specialchars((string) ($item['variantTitle'] ?? '')); ?></td>
+                    <td><?php echo \Contao\StringUtil::specialchars((string) ($item['productNumber'] ?? '')); ?></td>
+                    <td>
+                        <span data-withdrawal-quantity-display="1"><?php echo (string) ($item['quantityDisplay'] ?? ''); ?></span>
+                        <input type="hidden"
+                               name="withdrawalQuantity[<?php echo $itemId; ?>]"
+                               value="<?php echo \Contao\StringUtil::specialchars($withdrawnQuantity); ?>"
+                               data-withdrawal-quantity-hidden="1">
+                    </td>
+                    <td>
+                        <div
+                            data-lsjs-component="statusToggler"
+                            data-lsjs-statusTogglerOptions="
+                                {
+                                    str_propertyToToggle: 'data-misc-status',
+                                    arr_statusValue: ['default', 'edit']
+                                }
+                            "
+                            data-withdrawal-toggle-container="1"
+                        >
+                            <button type="button" data-lsjs-element="toggler">
+                                <?php echo \Contao\StringUtil::specialchars((string) ($this->changeQuantityLabel ?? '')); ?>
+                            </button>
+                            <div data-lsjs-element="toggleableArea">
+                                <input type="number"
+                                       min="1"
+                                       max="<?php echo \Contao\StringUtil::specialchars($orderedQuantity); ?>"
+                                       step="0.0001"
+                                       value="<?php echo \Contao\StringUtil::specialchars($withdrawnQuantity); ?>"
+                                       data-withdrawal-quantity-input="1">
+                                <button type="button"
+                                        data-withdrawal-quantity-save="1"
+                                        data-item-id="<?php echo $itemId; ?>"
+                                        data-ordered-quantity="<?php echo \Contao\StringUtil::specialchars($orderedQuantity); ?>">
+                                    <?php echo \Contao\StringUtil::specialchars((string) ($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['ok'] ?? 'OK')); ?>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+
+        <div class="widget">
+            <label for="ctrl_withdrawalName"><?php echo \Contao\StringUtil::specialchars((string) ($this->nameLabel ?? '')); ?></label>
+            <input type="text"
+                   id="ctrl_withdrawalName"
+                   name="withdrawalName"
+                   value="<?php echo \Contao\StringUtil::specialchars((string) ($this->nameValue ?? '')); ?>"
+                   required>
+        </div>
+
+        <div class="widget">
+            <label for="ctrl_withdrawalEmail"><?php echo \Contao\StringUtil::specialchars((string) ($this->emailLabel ?? '')); ?></label>
+            <input type="email"
+                   id="ctrl_withdrawalEmail"
+                   name="withdrawalEmail"
+                   value="<?php echo \Contao\StringUtil::specialchars((string) ($this->emailValue ?? '')); ?>"
+                   required>
+        </div>
+
+        <button type="submit"><?php echo \Contao\StringUtil::specialchars((string) ($this->submitLabel ?? '')); ?></button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.querySelector('[data-withdrawal-screen-b-form="1"]');
+    if (!form) {
+        return;
+    }
+
+    var selectAllCheckbox = form.querySelector('[data-withdrawal-select-all="1"]');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function () {
+            var itemCheckboxes = form.querySelectorAll('[data-withdrawal-item-checkbox="1"]');
+            itemCheckboxes.forEach(function (itemCheckbox) {
+                itemCheckbox.checked = selectAllCheckbox.checked;
+            });
+        });
+    }
+
+    var saveButtons = form.querySelectorAll('[data-withdrawal-quantity-save="1"]');
+    saveButtons.forEach(function (saveButton) {
+        saveButton.addEventListener('click', function () {
+            var row = saveButton.closest('[data-withdrawal-item-row]');
+            if (!row) {
+                return;
+            }
+
+            var itemId = saveButton.getAttribute('data-item-id') || '';
+            var orderedQuantity = parseFloat(saveButton.getAttribute('data-ordered-quantity') || '0');
+            var quantityInput = row.querySelector('[data-withdrawal-quantity-input="1"]');
+            var hiddenQuantityInput = row.querySelector('[data-withdrawal-quantity-hidden="1"]');
+            var quantityDisplay = row.querySelector('[data-withdrawal-quantity-display="1"]');
+
+            if (!quantityInput || !hiddenQuantityInput || !quantityDisplay) {
+                return;
+            }
+
+            var requestedQuantity = parseFloat(quantityInput.value || '0');
+            if (!Number.isFinite(requestedQuantity) || requestedQuantity < 1 || requestedQuantity > orderedQuantity) {
+                requestedQuantity = orderedQuantity;
+                quantityInput.value = String(orderedQuantity);
+            }
+
+            hiddenQuantityInput.value = String(requestedQuantity);
+
+            var requestTokenInput = form.querySelector('input[name="REQUEST_TOKEN"]');
+            var formData = new URLSearchParams();
+            formData.append('isAjax', '1');
+            formData.append('action', 'updateWithdrawalQuantity');
+            formData.append('wid', form.querySelector('input[name="wid"]').value || '');
+            formData.append('itemId', itemId);
+            formData.append('quantity', String(requestedQuantity));
+            if (requestTokenInput) {
+                formData.append('REQUEST_TOKEN', requestTokenInput.value || '');
+            }
+
+            fetch(form.getAttribute('action') || window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: formData.toString()
+            }).then(function (response) {
+                return response.text();
+            }).then(function (htmlSnippet) {
+                if (htmlSnippet !== '') {
+                    quantityDisplay.innerHTML = htmlSnippet;
+                }
+            });
+        });
+    });
+});
+</script>

@@ -31,4 +31,21 @@
             </div>
         </div>
     <?php } ?>
+
+    <?php if (!empty($this->linkToWithdrawal)) { ?>
+        <div id="checkoutStepWithdrawalEntryPoint">
+            <h3><i class="fas fa-ban"></i> <?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_direct_link_label']; ?></h3>
+            <div class="content">
+                <?php if (!empty($this->withdrawalIdentifier)) { ?>
+                    <p>
+                        <strong><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_identifier_value_label']; ?></strong>
+                        <?php echo $this->withdrawalIdentifier; ?>
+                    </p>
+                <?php } ?>
+                <p>
+                    <a class="button" href="<?php echo $this->linkToWithdrawal; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_direct_link_label']; ?></a>
+                </p>
+            </div>
+        </div>
+    <?php } ?>
 </div>

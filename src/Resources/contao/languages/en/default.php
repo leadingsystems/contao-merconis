@@ -1146,6 +1146,58 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValueLeft'] = 'Coupon v
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_preis'] = 'New value of goods after discount';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_discount'] = 'Discount';
 
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_heading'] = 'Withdrawn items';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_freetext_heading'] = 'Contract identification details';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_heading'] = 'Order data snapshot';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_fallback'] = 'This withdrawal could not be assigned to an order.';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product'] = 'Product';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_variant'] = 'Variant';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number'] = 'Product number';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity'] = 'Quantity';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_quantity_partial'] = '%s of %s';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_number_label'] = 'Order number';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_date_label'] = 'Order date';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_label'] = 'Billing address';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_label'] = 'Shipping address';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label'] = 'Payment method';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_method_label'] = 'Shipping method';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_heading'] = 'Withdraw contract';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_label'] = 'Withdrawal identifier';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_placeholder'] = 'e.g. 2026000001-G54FQ9';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_submit'] = 'Withdraw contract';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_direct_link_label'] = 'Withdraw contract';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_identifier_value_label'] = 'Withdrawal identifier:';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_empty_identifier'] = 'Please enter the withdrawal identifier.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_not_found'] = 'We could not assign the entered withdrawal identifier.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_rate_limited'] = 'Please try again later.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_fallback_link_label'] = 'Use the general withdrawal form';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_heading'] = 'Submit withdrawal';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_all'] = 'Select all';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_item'] = 'Select';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_change_quantity'] = 'Change';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_name_label'] = 'Withdrawal submitted by';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_email_label'] = 'Send withdrawal receipt to';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_submit'] = 'Confirm withdrawal';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_no_items'] = 'Please select at least one item.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_invalid_quantity'] = 'The selected quantity is invalid.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_name_required'] = 'Please enter your name.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_email_invalid'] = 'Please enter a valid email address.';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_heading'] = 'General withdrawal form';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_name_label'] = 'Name';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_freetext_label'] = 'Contract or contract part identification';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_email_label'] = 'Email address for receipt confirmation';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_submit'] = 'Confirm withdrawal';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_error_freetext_required'] = 'Please enter the contract identification details.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_error_rate_limited'] = 'Please try again later.';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_id_heading'] = 'Your withdrawal ID: %s';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_text'] = 'Your withdrawal was submitted successfully (withdrawal ID: %s). A receipt confirmation will be sent to %s. Please also check your spam folder. If you do not receive an email, please contact our customer service.';
+
 /*
  * <- Backend
  */		

@@ -22,6 +22,7 @@ class ls_shop_orderMessages
 	protected $ls_language = 'en';
 	
 	protected $arrOrder = null;
+	protected $arrWithdrawal = null;
 	protected $arrMessageModels = null;
 	protected $arrMessageTypes = null;
 
@@ -30,7 +31,7 @@ class ls_shop_orderMessages
 	
 	protected $counterNr = null;
 	
-	public function __construct($orderID = null, $identificationToken = null, $findBy = null, $language = null, $blnForceOrderRefresh = false, $int_memberId = null, $str_productVariantId = null) {
+	public function __construct($orderID = null, $identificationToken = null, $findBy = null, $language = null, $blnForceOrderRefresh = false, $int_memberId = null, $str_productVariantId = null, $arrWithdrawal = null) {
 		/** @var PageModel $objPage */
 		global $objPage;
 		
@@ -39,6 +40,7 @@ class ls_shop_orderMessages
 		$this->findBy = $findBy ? $findBy : $this->findBy;
 		
 		$this->arrOrder = $this->orderID ? ls_shop_generalHelper::getOrder($this->orderID, 'id', $blnForceOrderRefresh) : null;
+		$this->arrWithdrawal = is_array($arrWithdrawal) ? $arrWithdrawal : null;
 
 		if ($int_memberId) {
 		    $obj_dbres_memberData = Database::getInstance()
@@ -171,17 +173,18 @@ class ls_shop_orderMessages
 		$arrMessageModels = array();
 		
 		if (
-		    (
-		        !$this->orderID
-                && $this->arr_memberData === null
-            )
-            || !$this->identificationToken
-            || (
-                $this->findBy != 'id'
-                && $this->findBy != 'alias'
-                && $this->findBy != 'sendWhen'
-            )
-        ) {
+			(
+				!$this->orderID
+				&& $this->arr_memberData === null
+				&& $this->arrWithdrawal === null
+			)
+			|| !$this->identificationToken
+			|| (
+				$this->findBy != 'id'
+				&& $this->findBy != 'alias'
+				&& $this->findBy != 'sendWhen'
+			)
+		) {
 			return null;
 		}
 		
@@ -214,13 +217,15 @@ class ls_shop_orderMessages
                     continue;
                 }
 
-                $arr_messageModelMemberGroups = StringUtil::deserialize($objMessageModels->member_group, true);
-                $arr_memberGroups = StringUtil::deserialize($this->arr_memberData['groups'], true);
-                $arr_memberGroupIntersection = array_intersect($arr_messageModelMemberGroups, $arr_memberGroups);
+                if ($this->arr_memberData !== null) {
+					$arr_messageModelMemberGroups = StringUtil::deserialize($objMessageModels->member_group, true);
+					$arr_memberGroups = StringUtil::deserialize($this->arr_memberData['groups'], true);
+					$arr_memberGroupIntersection = array_intersect($arr_messageModelMemberGroups, $arr_memberGroups);
 
-                if (!count($arr_memberGroupIntersection)) {
-                    continue;
-                }
+					if (!count($arr_memberGroupIntersection)) {
+						continue;
+					}
+				}
             }
 			
 			$arrMessageModels[$objMessageModels->id] = $objMessageModels->row();
@@ -236,7 +241,8 @@ class ls_shop_orderMessages
 		if (!is_array($this->arrMessageModels)) {
 			return false;
 		}
-		System::loadLanguageFile('default', $this->arrOrder['customerLanguage'], true);
+		$strLanguageToLoad = isset($this->arrOrder['customerLanguage']) && $this->arrOrder['customerLanguage'] ? $this->arrOrder['customerLanguage'] : $this->ls_language;
+		System::loadLanguageFile('default', $strLanguageToLoad, true);
 
 		$currentMessageTypeID = null;
 		$lastMessageTypeID = null;
@@ -265,13 +271,13 @@ class ls_shop_orderMessages
 			
 			if (!Validator::isEmail(Idna::encodeEmail($arrMessageModel['senderAddress']))) {
 				// log an error if the sender address is invalid and then skip this message model
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because sender address "'.$arrMessageModel['senderAddress'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->getOrderNumberForLogging().' could not be sent because sender address "'.$arrMessageModel['senderAddress'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 				continue;
 			}
 			
 			if (!$arrMessageModel['useHTML'] && !$arrMessageModel['useRawtext']) {
 				// log an error if neither useHTML nor useRawtext is checked and then skip this message model
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because neither the usage of HTML nor the usage of rawtext is selected', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->getOrderNumberForLogging().' could not be sent because neither the usage of HTML nor the usage of rawtext is selected', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 				continue;
 			}
 						
@@ -288,6 +294,7 @@ class ls_shop_orderMessages
 				$objTemplate_emailHTML = new FrontendTemplate($arrMessageModel['template_html']);
 				$objTemplate_emailHTML->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(StringUtil::insertTagToSrc(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html']))));
 				$objTemplate_emailHTML->arrOrder = $this->arrOrder;
+				$objTemplate_emailHTML->arrWithdrawal = $this->arrWithdrawal;
 				$objTemplate_emailHTML->arrMessageModel = $arrMessageModel;
 				$objTemplate_emailHTML->counterNr = $this->counterNr;
 			}
@@ -296,6 +303,7 @@ class ls_shop_orderMessages
 				$objTemplate_rawtext = new FrontendTemplate($arrMessageModel['template_rawtext']);
 				$objTemplate_rawtext->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_rawtext'])));
 				$objTemplate_rawtext->arrOrder = $this->arrOrder;
+				$objTemplate_rawtext->arrWithdrawal = $this->arrWithdrawal;
 				$objTemplate_rawtext->arrMessageModel = $arrMessageModel;
 				$objTemplate_rawtext->counterNr = $this->counterNr;
 			}
@@ -303,7 +311,7 @@ class ls_shop_orderMessages
 			$arrMessageToSendAndSave = array(
 				'tstamp' => time(),
 				'orderID' => $this->orderID ?: 0,
-				'orderNr' => $this->arrOrder['orderNr'],
+				'orderNr' => $this->getOrderNumberForLogging(),
 				'messageTypeAlias' => $this->arrMessageTypes[$arrMessageModel['pid']]['alias'],
 				'messageTypeID' => $currentMessageTypeID,
 				'messageModelID' => $arrMessageModel['id'],
@@ -400,9 +408,9 @@ class ls_shop_orderMessages
 			
 			try {
 				$objEmail->sendTo($arrMessageToSendAndSave['receiverMainAddress']);
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message sent for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'], ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message sent for order with order nr '.$this->getOrderNumberForLogging().' using message model with id '.$arrMessageModel['id'], ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
 			} catch (\Exception $e) {
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.StringUtil::standardize($e->getMessage()).')', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->getOrderNumberForLogging().' using message model with id '.$arrMessageModel['id'].' could not be sent ('.StringUtil::standardize($e->getMessage()).')', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
 			}
 			
 			$this->writeDispatchDate($currentMessageTypeID);
@@ -575,6 +583,26 @@ class ls_shop_orderMessages
 			'bcc' => null
 		);
 
+		if (
+			$this->arrWithdrawal !== null
+			&& $arrMessageModel['sendToCustomerAddress1']
+			&& $arrMessageModel['customerDataType1'] === 'withdrawalData'
+			&& isset($this->arrWithdrawal[$arrMessageModel['customerDataField1']])
+			&& $this->arrWithdrawal[$arrMessageModel['customerDataField1']]
+		) {
+			$arrReceiverAddresses['main'] = $this->arrWithdrawal[$arrMessageModel['customerDataField1']];
+		}
+
+		if (
+			$this->arrWithdrawal !== null
+			&& $arrMessageModel['sendToCustomerAddress2']
+			&& $arrMessageModel['customerDataType2'] === 'withdrawalData'
+			&& isset($this->arrWithdrawal[$arrMessageModel['customerDataField2']])
+			&& $this->arrWithdrawal[$arrMessageModel['customerDataField2']]
+		) {
+			$arrReceiverAddresses['main'] = $this->arrWithdrawal[$arrMessageModel['customerDataField2']];
+		}
+
 		if ($this->arrOrder !== null) {
             // use customer address no. 1 if it can be determined
             if ($arrMessageModel['sendToCustomerAddress1'] && isset($this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) && $this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) {
@@ -605,13 +633,13 @@ class ls_shop_orderMessages
 		
 		if ($arrReceiverAddresses['main'] && !Validator::isEmail(Idna::encodeEmail($arrReceiverAddresses['main']))) {
 			// log an error if the address is invalid
-            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because main receiver address "'.$arrReceiverAddresses['main'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->getOrderNumberForLogging().' could not be sent because main receiver address "'.$arrReceiverAddresses['main'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 			$blnAddressInvalid = true;
 		}
 		
 		if ($arrReceiverAddresses['bcc'] && !Validator::isEmail(Idna::encodeEmail($arrReceiverAddresses['bcc']))) {
 			// log an error if the address is invalid
-            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because BCC receiver address "'.$arrReceiverAddresses['bcc'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->getOrderNumberForLogging().' could not be sent because BCC receiver address "'.$arrReceiverAddresses['bcc'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 			$blnAddressInvalid = true;
 		}
 		
@@ -636,8 +664,23 @@ class ls_shop_orderMessages
 		if ($this->arr_memberData !== null) {
             $text = ls_shop_generalHelper::ls_replaceMemberWildcards($text, $this->arr_memberData);
         }
+		if ($this->arrWithdrawal !== null) {
+			$text = ls_shop_generalHelper::ls_replaceWithdrawalWildcards($text, $this->arrWithdrawal);
+		}
 
 		return $text;
+	}
+
+	protected function getOrderNumberForLogging() {
+		if (isset($this->arrOrder['orderNr']) && $this->arrOrder['orderNr']) {
+			return $this->arrOrder['orderNr'];
+		}
+
+		if (isset($this->arrWithdrawal['snapshotOrderNr']) && $this->arrWithdrawal['snapshotOrderNr']) {
+			return $this->arrWithdrawal['snapshotOrderNr'];
+		}
+
+		return 'n/a';
 	}
 }
 
