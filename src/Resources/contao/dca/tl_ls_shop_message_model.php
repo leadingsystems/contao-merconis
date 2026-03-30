@@ -170,7 +170,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'label' =>  &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType'],
 			'exclude'                 => true,
 			'inputType'               => 'select',
-			'default'				  => 'personalData',
 			'eval'					  => array('tl_class' => 'w50'),
 			'options_callback'		  => array('Merconis\Core\tl_ls_shop_message_model_controller', 'getCustomerDataTypeOptions'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType']['options'],
@@ -425,14 +424,12 @@ class tl_ls_shop_message_model_controller extends Backend {
 	}
 
 	public function setCustomerDataType1Default($varValue, DataContainer $dc) {
-		if (
-			$this->isWithdrawalMessageType($dc)
-			&& (
-				!$varValue
-				|| ($varValue === 'personalData' && $this->isNewMessageModelRecord($dc))
-			)
-		) {
-			return 'withdrawalData';
+		if (!$varValue) {
+			if ($this->isWithdrawalMessageType($dc)) {
+				return 'withdrawalData';
+			}
+
+			return 'personalData';
 		}
 
 		return $varValue;
@@ -447,21 +444,11 @@ class tl_ls_shop_message_model_controller extends Backend {
 	}
 
 	public function setCustomerDataType2Default($varValue, DataContainer $dc) {
-		if (
-			$this->isWithdrawalMessageType($dc)
-			&& (
-				!$varValue
-				|| ($varValue === 'personalData' && $this->isNewMessageModelRecord($dc))
-			)
-		) {
+		if ($this->isWithdrawalMessageType($dc) && !$varValue) {
 			return 'withdrawalData';
 		}
 
 		return $varValue;
-	}
-
-	protected function isNewMessageModelRecord(DataContainer $dc): bool {
-		return !isset($dc->activeRecord->id) || !(int) $dc->activeRecord->id;
 	}
 
 	public function setCustomerDataField2Default($varValue, DataContainer $dc) {

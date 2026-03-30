@@ -14,7 +14,7 @@ $isFallbackHighlighted = !empty($this->fallbackHighlighted);
 
     <form method="post" action="<?php echo \Contao\StringUtil::specialchars((string) ($this->formAction ?? '')); ?>">
         <input type="hidden" name="FORM_SUBMIT" value="<?php echo \Contao\StringUtil::specialchars((string) ($this->formSubmitName ?? '')); ?>">
-        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo \Contao\StringUtil::specialchars((string) (\Contao\RequestToken::get())); ?>">
+        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo \Contao\StringUtil::specialchars((string) (\Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue())); ?>">
 
         <div class="widget">
             <label for="ctrl_<?php echo \Contao\StringUtil::specialchars($identifierFieldName); ?>">

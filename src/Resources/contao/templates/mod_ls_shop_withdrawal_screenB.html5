@@ -17,7 +17,7 @@ $errorMessages = isset($this->errorMessages) && is_array($this->errorMessages) ?
 
     <form method="post" action="<?php echo \Contao\StringUtil::specialchars((string) ($this->formAction ?? '')); ?>" data-withdrawal-screen-b-form="1">
         <input type="hidden" name="FORM_SUBMIT" value="<?php echo \Contao\StringUtil::specialchars((string) ($this->formSubmitName ?? '')); ?>">
-        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo \Contao\StringUtil::specialchars((string) (\Contao\RequestToken::get())); ?>">
+        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo \Contao\StringUtil::specialchars((string) (\Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue())); ?>">
         <input type="hidden" name="wid" value="<?php echo \Contao\StringUtil::specialchars((string) ($this->wid ?? '')); ?>">
 
         <table class="mod_ls_shop_withdrawal__items">

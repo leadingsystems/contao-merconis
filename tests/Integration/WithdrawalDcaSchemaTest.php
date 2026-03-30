@@ -123,8 +123,12 @@ final class WithdrawalDcaSchemaTest extends TestCase
         self::assertStringContainsString("'setCustomerDataField1Default'", $messageModelDcaContents);
         self::assertStringContainsString("'setCustomerDataType2Default'", $messageModelDcaContents);
         self::assertStringContainsString("'setCustomerDataField2Default'", $messageModelDcaContents);
-        self::assertStringContainsString("'personalData' && \$this->isNewMessageModelRecord(\$dc)", $messageModelDcaContents);
-        self::assertStringContainsString('isNewMessageModelRecord', $messageModelDcaContents);
+        self::assertDoesNotMatchRegularExpression(
+            "/'customerDataType1'\\s*=>\\s*array\\s*\\(.*?'default'\\s*=>\\s*'personalData'/s",
+            $messageModelDcaContents
+        );
+        self::assertStringContainsString("return 'personalData';", $messageModelDcaContents);
+        self::assertStringNotContainsString('isNewMessageModelRecord', $messageModelDcaContents);
         self::assertStringContainsString("'withdrawalData' => 'Withdrawal data'", $messageModelLanguageEn);
         self::assertStringContainsString("'withdrawalData' => 'Widerrufsdaten'", $messageModelLanguageDe);
     }
