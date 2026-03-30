@@ -8,6 +8,15 @@ use PHPUnit\Framework\TestCase;
 
 final class OrderWithdrawalIdentifierInsertTagTest extends TestCase
 {
+    public function testInsertTagClassUsesStrictTypesDeclaration(): void
+    {
+        $insertTagClassContents = (string) file_get_contents(
+            __DIR__ . '/../../src/InsertTag/AsInsertTag/OrderWithdrawalIdentifier.php'
+        );
+
+        self::assertStringContainsString('declare(strict_types=1);', $insertTagClassContents);
+    }
+
     public function testInsertTagReturnsWithdrawalIdentifierInOrderContext(): void
     {
         $insertTag = new class () extends OrderWithdrawalIdentifier {

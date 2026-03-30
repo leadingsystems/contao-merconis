@@ -49,7 +49,7 @@ class ModuleWithdrawal extends Module
 
         if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
             $objTemplate = new BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### MERCONIS - Withdrawal ###';
+            $objTemplate->wildcard = '### MERCONIS Widerruf ###';
 
             return $objTemplate->parse();
         }
@@ -57,7 +57,7 @@ class ModuleWithdrawal extends Module
         return parent::generate();
     }
 
-    public function compile(): void
+    protected function compile()
     {
         $this->Template->activeScreen = $this->resolveActiveScreen();
         $this->Template->screenAData = [];

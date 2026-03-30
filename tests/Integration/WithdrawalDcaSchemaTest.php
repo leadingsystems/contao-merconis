@@ -108,6 +108,8 @@ final class WithdrawalDcaSchemaTest extends TestCase
         self::assertStringContainsString("'asWithdrawalNotice' =>", $messageTypeLanguageEn);
         self::assertStringContainsString("'asWithdrawalConfirmation' =>", $messageTypeLanguageDe);
         self::assertStringContainsString("'asWithdrawalNotice' =>", $messageTypeLanguageDe);
+        self::assertStringContainsString('Eingangsbestätigung für Widerruf', $messageTypeLanguageDe);
+        self::assertStringContainsString('Widerrufsbenachrichtigung an Händler', $messageTypeLanguageDe);
     }
 
     public function testMessageModelDcaContainsWithdrawalCustomerDataTypeConfiguration(): void
@@ -121,6 +123,8 @@ final class WithdrawalDcaSchemaTest extends TestCase
         self::assertStringContainsString("'setCustomerDataField1Default'", $messageModelDcaContents);
         self::assertStringContainsString("'setCustomerDataType2Default'", $messageModelDcaContents);
         self::assertStringContainsString("'setCustomerDataField2Default'", $messageModelDcaContents);
+        self::assertStringContainsString("'personalData' && \$this->isNewMessageModelRecord(\$dc)", $messageModelDcaContents);
+        self::assertStringContainsString('isNewMessageModelRecord', $messageModelDcaContents);
         self::assertStringContainsString("'withdrawalData' => 'Withdrawal data'", $messageModelLanguageEn);
         self::assertStringContainsString("'withdrawalData' => 'Widerrufsdaten'", $messageModelLanguageDe);
     }
@@ -170,6 +174,8 @@ final class WithdrawalDcaSchemaTest extends TestCase
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_confirmation_id_heading']", $defaultLanguageDe);
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_confirmation_text']", $defaultLanguageEn);
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_confirmation_text']", $defaultLanguageDe);
+        self::assertStringContainsString('Identifikationsnummer für den Widerruf:', $defaultLanguageDe);
+        self::assertStringContainsString('Bitte versuchen Sie es später erneut.', $defaultLanguageDe);
 
         self::assertStringContainsString("['FMD']['ls_shop_withdrawal']", $modulesLanguageEn);
         self::assertStringContainsString("['FMD']['ls_shop_withdrawal_confirmation']", $modulesLanguageEn);
@@ -213,5 +219,21 @@ final class WithdrawalDcaSchemaTest extends TestCase
         self::assertFileExists(__DIR__ . '/../../src/Resources/contao/templates/mod_ls_shop_withdrawal.html5');
         self::assertFileExists(__DIR__ . '/../../src/Resources/contao/templates/mod_ls_shop_withdrawal_screenA.html5');
         self::assertFileExists(__DIR__ . '/../../src/Resources/contao/templates/mod_ls_shop_withdrawal_confirmation.html5');
+    }
+
+    public function testWithdrawalModuleBackendWildcardsAreDefined(): void
+    {
+        $withdrawalModuleContents = (string) file_get_contents(
+            __DIR__ . '/../../src/Resources/contao/frontendModules/ModuleWithdrawal.php'
+        );
+        $withdrawalConfirmationModuleContents = (string) file_get_contents(
+            __DIR__ . '/../../src/Resources/contao/frontendModules/ModuleWithdrawalConfirmation.php'
+        );
+
+        self::assertStringContainsString('### MERCONIS Widerruf ###', $withdrawalModuleContents);
+        self::assertStringContainsString(
+            '### MERCONIS Widerrufsbestätigung ###',
+            $withdrawalConfirmationModuleContents
+        );
     }
 }

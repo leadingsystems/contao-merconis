@@ -425,7 +425,13 @@ class tl_ls_shop_message_model_controller extends Backend {
 	}
 
 	public function setCustomerDataType1Default($varValue, DataContainer $dc) {
-		if ($this->isWithdrawalMessageType($dc) && !$varValue) {
+		if (
+			$this->isWithdrawalMessageType($dc)
+			&& (
+				!$varValue
+				|| ($varValue === 'personalData' && $this->isNewMessageModelRecord($dc))
+			)
+		) {
 			return 'withdrawalData';
 		}
 
@@ -441,11 +447,21 @@ class tl_ls_shop_message_model_controller extends Backend {
 	}
 
 	public function setCustomerDataType2Default($varValue, DataContainer $dc) {
-		if ($this->isWithdrawalMessageType($dc) && !$varValue) {
+		if (
+			$this->isWithdrawalMessageType($dc)
+			&& (
+				!$varValue
+				|| ($varValue === 'personalData' && $this->isNewMessageModelRecord($dc))
+			)
+		) {
 			return 'withdrawalData';
 		}
 
 		return $varValue;
+	}
+
+	protected function isNewMessageModelRecord(DataContainer $dc): bool {
+		return !isset($dc->activeRecord->id) || !(int) $dc->activeRecord->id;
 	}
 
 	public function setCustomerDataField2Default($varValue, DataContainer $dc) {

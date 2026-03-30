@@ -1169,10 +1169,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_la
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_placeholder'] = 'z. B. 2026000001-G54FQ9';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_submit'] = 'Vertrag widerrufen';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_direct_link_label'] = 'Vertrag widerrufen';
-$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_identifier_value_label'] = 'Identifikationsnummer fuer den Widerruf:';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_identifier_value_label'] = 'Identifikationsnummer für den Widerruf:';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_empty_identifier'] = 'Bitte geben Sie die Identifikationsnummer ein.';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_not_found'] = 'Die eingegebene Identifikationsnummer konnte nicht zugeordnet werden.';
-$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_rate_limited'] = 'Bitte versuchen Sie es spaeter erneut.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_rate_limited'] = 'Bitte versuchen Sie es später erneut.';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_fallback_link_label'] = 'Allgemeines Widerrufsformular verwenden';
 
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_heading'] = 'Widerruf abgeben';
@@ -1193,7 +1193,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_freetext_l
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_email_label'] = 'E-Mail-Adresse für die Eingangsbestätigung';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_submit'] = 'Widerruf bestätigen';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_error_freetext_required'] = 'Bitte geben Sie Angaben zur Vertragsidentifikation ein.';
-$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_error_rate_limited'] = 'Bitte versuchen Sie es spaeter erneut.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_error_rate_limited'] = 'Bitte versuchen Sie es später erneut.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_id_heading'] = 'Ihre Widerrufs-ID: %s';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_text'] = 'Ihr Widerruf wurde erfolgreich eingereicht (Widerrufs-ID: %s). Eine Eingangsbestätigung wird an %s versendet. Bitte prüfen Sie auch Ihren Spam-Ordner. Sollten Sie keine E-Mail erhalten, wenden Sie sich bitte an unseren Kundenservice.';
