@@ -134,4 +134,63 @@ final class WithdrawalWildcardReplacementTest extends TestCase
 
         self::assertSame('Identifier: ORDER-1001-A1B2C3', $resolved);
     }
+
+    public function testOrderWildcardCleanupKeepsWithdrawalNamespaceTokens(): void
+    {
+        $order = [
+            'miscData' => [],
+            'customerData' => [
+                'personalData' => [
+                    'firstname' => 'Max',
+                ],
+            ],
+            'orderIdentificationHash' => '',
+            'orderNr' => 'ORDER-1001',
+            'withdrawalIdentifier' => '',
+            'orderDateUnixTimestamp' => 0,
+            'paymentMethod_infoAfterCheckout' => '',
+            'paymentMethod_infoAfterCheckout_customerLanguage' => '',
+            'shippingMethod_infoAfterCheckout' => '',
+            'shippingMethod_infoAfterCheckout_customerLanguage' => '',
+            'shippingTrackingNr' => '',
+            'shippingTrackingUrl' => '',
+        ];
+
+        $resolved = ls_shop_generalHelper::ls_replaceOrderWildcards(
+            'Order ##orderNr##, Name ##personalData::firstname##, Withdrawal ##withdrawal::email##',
+            $order
+        );
+
+        self::assertSame(
+            'Order ORDER-1001, Name Max, Withdrawal ##withdrawal::email##',
+            $resolved
+        );
+    }
+
+    public function testTemplateWildcardRendererReceivesWithdrawalData(): void
+    {
+        $templateRendererWasCalled = false;
+        $withdrawal = [
+            'withdrawalId' => 'W-00088',
+            'email' => 'customer@example.org',
+        ];
+
+        $resolved = ls_shop_generalHelper::ls_replaceTemplateWildcards(
+            'Start ##template::mail_withdrawal## End',
+            null,
+            $withdrawal,
+            static function (string $template, $orderData, $withdrawalData) use (&$templateRendererWasCalled): string {
+                $templateRendererWasCalled = true;
+                self::assertSame('mail_withdrawal', $template);
+                self::assertNull($orderData);
+                self::assertSame('W-00088', $withdrawalData['withdrawalId'] ?? null);
+                self::assertSame('customer@example.org', $withdrawalData['email'] ?? null);
+
+                return 'ID=' . ($withdrawalData['withdrawalId'] ?? '') . ',MAIL=' . ($withdrawalData['email'] ?? '');
+            }
+        );
+
+        self::assertTrue($templateRendererWasCalled);
+        self::assertSame('Start ID=W-00088,MAIL=customer@example.org End', $resolved);
+    }
 }

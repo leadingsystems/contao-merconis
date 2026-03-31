@@ -1,0 +1,116 @@
+.ce_mod_ls_shop_withdrawal,
+.mod_ls_shop_withdrawal {
+    .mod_ls_shop_withdrawal__honeypot {
+        position: absolute;
+        left: -9999px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
+    .mod_ls_shop_withdrawal__screen-b {
+        .mod_ls_shop_withdrawal__items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: $grid-gutter-width-small;
+
+            thead {
+                border-bottom: 0.1rem solid $ls-color-grey;
+            }
+
+            th,
+            td {
+                padding: $grid-gutter-width-super-small;
+                text-align: left;
+                vertical-align: top;
+            }
+
+            th {
+                font-weight: $ls-font-weight-bold;
+                color: $ls-color-black;
+            }
+
+            tbody {
+                tr {
+                    border-bottom: 0.1rem solid $ls-color-light-grey;
+                }
+
+                td {
+                    &:first-child {
+                        white-space: nowrap;
+                    }
+
+                    &:last-child {
+                        white-space: nowrap;
+                    }
+                }
+            }
+        }
+
+        [data-withdrawal-screen-b-form='1'] {
+            overflow-x: auto;
+        }
+
+        [data-withdrawal-toggle-container='1'] {
+            [data-lsjs-element='toggler'] {
+                margin-bottom: $grid-gutter-width-super-small;
+            }
+
+            [data-lsjs-element='toggleableArea'] {
+                display: none;
+                align-items: center;
+                gap: $grid-gutter-width-super-small;
+            }
+
+            &[data-misc-status='edit'] {
+                [data-lsjs-element='toggleableArea'] {
+                    display: flex;
+                }
+            }
+        }
+
+        @include media-breakpoint-down(lg) {
+            .mod_ls_shop_withdrawal__items {
+                th,
+                td {
+                    font-size: inherit;
+                }
+            }
+
+            [data-withdrawal-toggle-container='1'] {
+                [data-lsjs-element='toggleableArea'] {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+
+                [data-withdrawal-quantity-save='1'] {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}
+
+.template_myOrders_default {
+    .myOrder {
+        .orderDetails {
+            .value {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: $grid-gutter-width-super-small;
+            }
+        }
+    }
+
+    @include media-breakpoint-down(lg) {
+        .myOrder {
+            .orderDetails {
+                .value {
+                    align-items: flex-start;
+                }
+            }
+        }
+    }
+}

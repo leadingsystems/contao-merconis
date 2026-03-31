@@ -647,7 +647,7 @@ class ls_shop_orderMessages
 		return $arrReceiverAddresses['main'] && !$blnAddressInvalid ? $arrReceiverAddresses : null;
 	}
 
-	protected function ls_replaceWildcards($text) {
+	protected function ls_replaceWildcards($text, ?callable $templateRenderer = null) {
 		/*
 		 * Replace the counterNr wildcard
 		 */
@@ -655,8 +655,12 @@ class ls_shop_orderMessages
 			$text = preg_replace('/(&#35;&#35;counterNr&#35;&#35;)|(##counterNr##)/siU', $this->counterNr, $text);
 		}
 
+		if ($this->arrOrder === null) {
+            $text = ls_shop_generalHelper::ls_replaceTemplateWildcards($text, null, $this->arrWithdrawal, $templateRenderer);
+        }
+
 		if ($this->arrOrder !== null) {
-            $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $this->arrOrder);
+            $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $this->arrOrder, $this->arrWithdrawal, $templateRenderer);
         }
 		if ($this->obj_product !== null) {
             $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $this->obj_product, $this->ls_language);

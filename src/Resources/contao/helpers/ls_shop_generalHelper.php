@@ -4118,7 +4118,7 @@ class ls_shop_generalHelper
         return $filteredValues;
     }
 
-    public static function ls_replaceOrderWildcards($text, $arrOrder)
+    public static function ls_replaceOrderWildcards($text, $arrOrder, $arrWithdrawal = null, ?callable $templateRenderer = null)
     {
         /** @var PageModel $objPage */
         global $objPage;
@@ -4200,6 +4200,21 @@ class ls_shop_generalHelper
             $text = preg_replace('/(&#35;&#35;shippingTrackingUrl&#35;&#35;)|(##shippingTrackingUrl##)/siU', $arrOrder['shippingTrackingUrl'], $text);
         }
 
+        $text = self::ls_replaceTemplateWildcards($text, $arrOrder, $arrWithdrawal, $templateRenderer);
+
+        /*
+         * Remove unresolved order-related wildcards, but keep other namespaces
+         * (e.g. withdrawal) for later replacement steps.
+         */
+        $text = self::ls_cleanupOrderWildcards($text, $arrOrder);
+        return $text;
+    }
+
+    public static function ls_replaceTemplateWildcards($text, $arrOrder = null, $arrWithdrawal = null, ?callable $templateRenderer = null)
+    {
+        /** @var PageModel $objPage */
+        global $objPage;
+
         /*
          * Look for Template wildcards
          */
@@ -4233,23 +4248,66 @@ class ls_shop_generalHelper
              * Only if the template file exists in the required output format, it can be used. Otherwise it will not be used and a log entry will be created.
              */
             try {
-                $objWildcardTemplate = new FrontendTemplate($strTemplate);
-                $objWildcardTemplate->arrOrder = $arrOrder;
-                $wildcardTemplateReplacement = $objWildcardTemplate->parse();
+                if ($templateRenderer !== null) {
+                    $wildcardTemplateReplacement = (string) $templateRenderer($strTemplate, $arrOrder, $arrWithdrawal);
+                } else {
+                    $objWildcardTemplate = new FrontendTemplate($strTemplate);
+                    $objWildcardTemplate->arrOrder = $arrOrder;
+                    $objWildcardTemplate->arrWithdrawal = $arrWithdrawal;
+                    $wildcardTemplateReplacement = $objWildcardTemplate->parse();
+                }
             } catch (\Exception $e) {
-                System::getContainer()->get('monolog.logger.contao')->info(
-                    'MERCONIS: Template "' . $strTemplate . '" does not exist (at least not in the required output format "' . (isset($objPage) && is_object($objPage) ? $objPage->outputFormat : 'html5'),
-                    ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
-                );
+                $container = System::getContainer();
+                if ($container !== null && $container->has('monolog.logger.contao')) {
+                    $container->get('monolog.logger.contao')->info(
+                        'MERCONIS: Template "' . $strTemplate . '" does not exist (at least not in the required output format "' . (isset($objPage) && is_object($objPage) ? $objPage->outputFormat : 'html5'),
+                        ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
+                    );
+                }
             }
 
-            $text = preg_replace('/(&#35;&#35;template::' . $strTemplate . '&#35;&#35;)|(##template::' . $strTemplate . '##)/siU', $wildcardTemplateReplacement, $text);
+            $text = preg_replace('/(&#35;&#35;template::' . preg_quote((string) $strTemplate, '/') . '&#35;&#35;)|(##template::' . preg_quote((string) $strTemplate, '/') . '##)/siU', $wildcardTemplateReplacement, $text);
         }
 
-        /*
-         * Remove all wildcards that are not yet replaced.
-         */
-        $text = preg_replace('/(&#35;&#35;.*&#35;&#35;)|(##.*##)/siU', '', $text);
+        return $text;
+    }
+
+    private static function ls_cleanupOrderWildcards($text, $arrOrder)
+    {
+        foreach ($arrOrder['customerData'] as $dataType => $arrData) {
+            if (!is_string($dataType) || $dataType === '') {
+                continue;
+            }
+
+            $text = preg_replace(
+                '/(&#35;&#35;|##)' . preg_quote($dataType, '/') . '::.*?(&#35;&#35;|##)/si',
+                '',
+                $text
+            );
+        }
+
+        $arrOrderWildcardKeywords = [
+            'orderIdentificationHash',
+            'afterCheckoutUrl',
+            'orderNr',
+            'orderWithdrawalIdentifier',
+            'orderDate',
+            'paymentMethod_infoAfterCheckout',
+            'paymentMethod_infoAfterCheckout_customerLanguage',
+            'shippingMethod_infoAfterCheckout',
+            'shippingMethod_infoAfterCheckout_customerLanguage',
+            'shippingTrackingNr',
+            'shippingTrackingUrl',
+        ];
+
+        foreach ($arrOrderWildcardKeywords as $strKeyword) {
+            $text = preg_replace(
+                '/(&#35;&#35;|##)' . preg_quote($strKeyword, '/') . '(&#35;&#35;|##)/si',
+                '',
+                $text
+            );
+        }
+
         return $text;
     }
 

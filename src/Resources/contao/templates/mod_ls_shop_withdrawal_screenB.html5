@@ -84,7 +84,8 @@ $errorMessages = isset($this->errorMessages) && is_array($this->errorMessages) ?
                                 <input type="number"
                                        min="1"
                                        max="<?php echo \Contao\StringUtil::specialchars($orderedQuantity); ?>"
-                                       step="0.0001"
+                                       step="1"
+                                       inputmode="numeric"
                                        value="<?php echo \Contao\StringUtil::specialchars($withdrawnQuantity); ?>"
                                        data-withdrawal-quantity-input="1">
                                 <button type="button"
@@ -153,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var quantityInput = row.querySelector('[data-withdrawal-quantity-input="1"]');
             var hiddenQuantityInput = row.querySelector('[data-withdrawal-quantity-hidden="1"]');
             var quantityDisplay = row.querySelector('[data-withdrawal-quantity-display="1"]');
+            var toggleContainer = saveButton.closest('[data-withdrawal-toggle-container="1"]');
 
             if (!quantityInput || !hiddenQuantityInput || !quantityDisplay) {
                 return;
@@ -188,6 +190,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }).then(function (htmlSnippet) {
                 if (htmlSnippet !== '') {
                     quantityDisplay.innerHTML = htmlSnippet;
+                }
+
+                if (toggleContainer) {
+                    toggleContainer.setAttribute('data-misc-status', 'default');
                 }
             });
         });

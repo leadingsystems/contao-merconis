@@ -103,6 +103,85 @@ final class WithdrawalOrderMessagesTest extends TestCase
         );
     }
 
+    public function testReplaceWildcardsResolvesOrderAndWithdrawalNamespacesInFullPath(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'orderNr' => 'ORDER-1001',
+                'customerData' => [
+                    'personalData' => [
+                        'firstname' => 'Max',
+                    ],
+                ],
+            ]),
+            [
+                'email' => 'withdrawal-customer@example.org',
+                'withdrawalId' => 'W-00077',
+                'withdrawalTimestamp' => 1711536870,
+            ]
+        );
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            ['Order ##orderNr## / ##personalData::firstname## / ##withdrawal::email##']
+        );
+
+        self::assertSame(
+            'Order ORDER-1001 / Max / withdrawal-customer@example.org',
+            $result
+        );
+    }
+
+    public function testTemplateWildcardsAreResolvedWithoutOrderContext(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithWithdrawal([
+            'email' => 'customer@example.org',
+            'withdrawalId' => 'W-00077',
+            'withdrawalTimestamp' => 1711536870,
+        ]);
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            ['Begin ##template::definitely_missing_template## End']
+        );
+
+        self::assertSame('Begin  End', $result);
+    }
+
+    public function testTemplateWildcardsReceiveWithdrawalDataWithOrderContext(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'orderNr' => 'ORDER-2002',
+            ]),
+            [
+                'email' => 'withdrawal-customer@example.org',
+                'withdrawalId' => 'W-00088',
+                'withdrawalTimestamp' => 1711536870,
+            ]
+        );
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                'Begin ##template::mail_withdrawal## End',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('mail_withdrawal', $template);
+                    self::assertSame('ORDER-2002', $orderData['orderNr'] ?? null);
+                    self::assertSame('W-00088', $withdrawalData['withdrawalId'] ?? null);
+                    self::assertSame('withdrawal-customer@example.org', $withdrawalData['email'] ?? null);
+
+                    return 'OID=' . ($orderData['orderNr'] ?? '') . ',WID=' . ($withdrawalData['withdrawalId'] ?? '');
+                },
+            ]
+        );
+
+        self::assertSame('Begin OID=ORDER-2002,WID=W-00088 End', $result);
+    }
+
     private function createOrderMessagesInstanceWithWithdrawal(array $withdrawal): ls_shop_orderMessages
     {
         $reflectionClass = new ReflectionClass(ls_shop_orderMessages::class);
@@ -131,6 +210,27 @@ final class WithdrawalOrderMessagesTest extends TestCase
         $this->setProtectedProperty($orderMessages, 'ls_language', 'en');
 
         return $orderMessages;
+    }
+
+    private function buildOrderData(array $overrides = []): array
+    {
+        return array_merge(
+            [
+                'miscData' => [],
+                'customerData' => [],
+                'orderIdentificationHash' => '',
+                'orderNr' => '',
+                'withdrawalIdentifier' => '',
+                'orderDateUnixTimestamp' => 0,
+                'paymentMethod_infoAfterCheckout' => '',
+                'paymentMethod_infoAfterCheckout_customerLanguage' => '',
+                'shippingMethod_infoAfterCheckout' => '',
+                'shippingMethod_infoAfterCheckout_customerLanguage' => '',
+                'shippingTrackingNr' => '',
+                'shippingTrackingUrl' => '',
+            ],
+            $overrides
+        );
     }
 
     /**
