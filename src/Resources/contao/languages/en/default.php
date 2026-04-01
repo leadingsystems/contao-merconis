@@ -1179,11 +1179,13 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_heading'] = 'S
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_all'] = 'Select all';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_item'] = 'Select';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_change_quantity'] = 'Change';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_change_quantity_header'] = 'Change quantity';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_name_label'] = 'Withdrawal submitted by';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_email_label'] = 'Send withdrawal receipt to';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_submit'] = 'Confirm withdrawal';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_no_items'] = 'Please select at least one item.';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_invalid_quantity'] = 'The selected quantity is invalid.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_invalid_quantity_inline'] = 'Please enter a valid quantity.';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_name_required'] = 'Please enter your name.';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_email_invalid'] = 'Please enter a valid email address.';
 

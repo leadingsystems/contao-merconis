@@ -115,7 +115,7 @@ class ls_shop_orderMessages
 			 * If the messageType has already be sent for the current order,
 			 * it has to be skipped
 			 */
-			if (isset($this->arrOrder['messageTypesSent']) && in_array($arrMessageType['id'], $this->arrOrder['messageTypesSent'])) {
+			if ($this->shouldSkipMessageTypeForCurrentContext($arrMessageType)) {
 				continue;
 			}
 			
@@ -167,6 +167,23 @@ class ls_shop_orderMessages
 		}
 
 		return true;
+	}
+
+	protected function shouldSkipMessageTypeForCurrentContext($arrMessageType = null) {
+		if (!is_array($arrMessageType) || !isset($arrMessageType['id'])) {
+			return false;
+		}
+
+		if (!isset($this->arrOrder['messageTypesSent']) || !in_array($arrMessageType['id'], $this->arrOrder['messageTypesSent'])) {
+			return false;
+		}
+
+		/*
+		 * Widerrufs-E-Mails duerfen auch bei wiederholten Widerrufen derselben
+		 * Bestellung erneut versendet werden. Die Duplikatpruefung greift daher
+		 * nur im Nicht-Widerrufs-Kontext.
+		 */
+		return $this->arrWithdrawal === null;
 	}
 
 	public function getMessageModels() {

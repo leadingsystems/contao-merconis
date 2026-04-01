@@ -56,17 +56,18 @@ final class WithdrawalScreenBProcessor
             'snapshotUnitPrice' => (string) ($orderItem['price'] ?? ''),
             'snapshotQuantityUnit' => (string) ($orderItem['quantityUnit'] ?? ''),
             'snapshotOrderedQuantity' => $this->normalizeQuantity($orderItem['quantity'] ?? 0),
+            'snapshotQuantityDecimals' => max(0, (int) ($orderItem['quantityDecimals'] ?? 0)),
             'withdrawnQuantity' => $this->normalizeQuantity($withdrawnQuantity),
         ];
     }
 
-    public function isValidWithdrawnQuantity(float $withdrawnQuantity, float $orderedQuantity): bool
+    public function isValidWithdrawnQuantity(float $withdrawnQuantity, float $orderedQuantity, float $minimumQuantity): bool
     {
-        if ($orderedQuantity <= 0.0) {
+        if ($orderedQuantity <= 0.0 || $minimumQuantity <= 0.0) {
             return false;
         }
 
-        return $withdrawnQuantity >= 1.0 && $withdrawnQuantity <= $orderedQuantity;
+        return $withdrawnQuantity >= $minimumQuantity && $withdrawnQuantity <= $orderedQuantity;
     }
 
     /**

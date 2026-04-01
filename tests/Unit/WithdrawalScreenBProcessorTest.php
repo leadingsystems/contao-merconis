@@ -8,14 +8,40 @@ use PHPUnit\Framework\TestCase;
 
 final class WithdrawalScreenBProcessorTest extends TestCase
 {
-    public function testQuantityValidationAcceptsRangeWithinOrderedQuantity(): void
+    public function testQuantityValidationRespectsDynamicMinimumQuantity(): void
     {
         $processor = new WithdrawalScreenBProcessor();
 
-        self::assertTrue($processor->isValidWithdrawnQuantity(1.0, 5.0));
-        self::assertTrue($processor->isValidWithdrawnQuantity(5.0, 5.0));
-        self::assertFalse($processor->isValidWithdrawnQuantity(0.0, 5.0));
-        self::assertFalse($processor->isValidWithdrawnQuantity(6.0, 5.0));
+        self::assertTrue($processor->isValidWithdrawnQuantity(1.0, 5.0, 1.0));
+        self::assertTrue($processor->isValidWithdrawnQuantity(0.1, 5.0, 0.1));
+        self::assertTrue($processor->isValidWithdrawnQuantity(0.01, 5.0, 0.01));
+
+        self::assertFalse($processor->isValidWithdrawnQuantity(0.0, 5.0, 1.0));
+        self::assertFalse($processor->isValidWithdrawnQuantity(0.09, 5.0, 0.1));
+        self::assertFalse($processor->isValidWithdrawnQuantity(0.009, 5.0, 0.01));
+        self::assertFalse($processor->isValidWithdrawnQuantity(6.0, 5.0, 1.0));
+    }
+
+    public function testChildSnapshotContainsQuantityDecimals(): void
+    {
+        $processor = new WithdrawalScreenBProcessor();
+
+        $snapshot = $processor->buildChildSnapshot(
+            [
+                'id' => 42,
+                'productTitle' => 'Test Product',
+                'variantTitle' => '',
+                'artNr' => 'TP-001',
+                'price' => '19.99',
+                'quantityUnit' => 'kg',
+                'quantity' => '2.5',
+                'quantityDecimals' => 2,
+            ],
+            1.25,
+            1711536870
+        );
+
+        self::assertSame(2, $snapshot['snapshotQuantityDecimals']);
     }
 
     public function testParentSnapshotContainsAllRequiredFields(): void

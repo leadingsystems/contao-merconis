@@ -182,6 +182,51 @@ final class WithdrawalOrderMessagesTest extends TestCase
         self::assertSame('Begin OID=ORDER-2002,WID=W-00088 End', $result);
     }
 
+    public function testAlreadySentMessageTypeIsSkippedWithoutWithdrawalContext(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'messageTypesSent' => [15],
+            ]),
+            []
+        );
+
+        $this->setProtectedProperty($orderMessages, 'arrWithdrawal', null);
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'shouldSkipMessageTypeForCurrentContext',
+            [[
+                'id' => 15,
+            ]]
+        );
+
+        self::assertTrue($result);
+    }
+
+    public function testAlreadySentMessageTypeIsNotSkippedInWithdrawalContext(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'messageTypesSent' => [15],
+            ]),
+            [
+                'withdrawalId' => 'W-00099',
+                'email' => 'customer@example.org',
+            ]
+        );
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'shouldSkipMessageTypeForCurrentContext',
+            [[
+                'id' => 15,
+            ]]
+        );
+
+        self::assertFalse($result);
+    }
+
     private function createOrderMessagesInstanceWithWithdrawal(array $withdrawal): ls_shop_orderMessages
     {
         $reflectionClass = new ReflectionClass(ls_shop_orderMessages::class);

@@ -218,6 +218,7 @@ class ModuleWithdrawal extends Module
             $orderedQuantity = $this->toFloat($orderItem['quantity'] ?? 0);
             $withdrawnQuantity = $withdrawnQuantities[$orderItemId] ?? $orderedQuantity;
             $quantityChanged = abs($withdrawnQuantity - $orderedQuantity) > 0.0001;
+            $quantityDecimals = $this->toQuantityDecimals($orderItem['quantityDecimals'] ?? 0);
 
             if ($quantityChanged) {
                 $changedItemIds[] = $orderItemId;
@@ -232,6 +233,7 @@ class ModuleWithdrawal extends Module
                 'orderedQuantity' => $orderedQuantity,
                 'orderedQuantityDisplay' => $this->formatQuantityForInput($orderedQuantity),
                 'quantityUnit' => (string) ($orderItem['quantityUnit'] ?? ''),
+                'quantityDecimals' => $quantityDecimals,
                 'selected' => in_array($orderItemId, $selectedItemIds, true),
                 'withdrawnQuantity' => $this->formatQuantityForInput($withdrawnQuantity),
                 'quantityDisplay' => $this->renderQuantityDisplay($withdrawnQuantity, $orderedQuantity, (string) ($orderItem['quantityUnit'] ?? '')),
@@ -247,6 +249,8 @@ class ModuleWithdrawal extends Module
             'selectAllLabel' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_all'],
             'selectItemLabel' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_item'],
             'changeQuantityLabel' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_change_quantity'],
+            'invalidQuantityMessage' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_invalid_quantity_inline'],
+            'noItemsSelectedMessage' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_no_items'],
             'nameLabel' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_name_label'],
             'emailLabel' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_email_label'],
             'submitLabel' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_submit'],
@@ -380,9 +384,11 @@ class ModuleWithdrawal extends Module
         $orderItem = $indexedOrderItems[$orderItemId];
         $orderedQuantity = $this->toFloat($orderItem['quantity'] ?? 0);
         $withdrawnQuantity = $this->toFloat(Input::post('quantity'));
+        $quantityDecimals = $this->toQuantityDecimals($orderItem['quantityDecimals'] ?? 0);
+        $minimumQuantity = $this->getMinimumWithdrawnQuantityForDecimals($quantityDecimals);
 
         $processor = new WithdrawalScreenBProcessor();
-        if (!$processor->isValidWithdrawnQuantity($withdrawnQuantity, $orderedQuantity)) {
+        if (!$processor->isValidWithdrawnQuantity($withdrawnQuantity, $orderedQuantity, $minimumQuantity)) {
             $withdrawnQuantity = $orderedQuantity;
         }
 
@@ -630,8 +636,8 @@ class ModuleWithdrawal extends Module
                     "INSERT INTO `tl_ls_shop_withdrawal_items`
                         (`pid`, `tstamp`, `orderItemReference`, `snapshotProductName`,
                          `snapshotVariantTitle`, `snapshotProductNumber`, `snapshotUnitPrice`,
-                         `snapshotQuantityUnit`, `snapshotOrderedQuantity`, `withdrawnQuantity`)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                         `snapshotQuantityUnit`, `snapshotOrderedQuantity`, `snapshotQuantityDecimals`, `withdrawnQuantity`)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 )
                 ->execute(
                     $withdrawalDbId,
@@ -643,6 +649,7 @@ class ModuleWithdrawal extends Module
                     $childSnapshot['snapshotUnitPrice'],
                     $childSnapshot['snapshotQuantityUnit'],
                     $childSnapshot['snapshotOrderedQuantity'],
+                    $childSnapshot['snapshotQuantityDecimals'],
                     $childSnapshot['withdrawnQuantity']
                 );
 
@@ -919,8 +926,10 @@ class ModuleWithdrawal extends Module
 
             $orderedQuantity = $this->toFloat($indexedOrderItems[$selectedItemId]['quantity'] ?? 0);
             $withdrawnQuantity = $withdrawnQuantities[$selectedItemId] ?? 0.0;
+            $quantityDecimals = $this->toQuantityDecimals($indexedOrderItems[$selectedItemId]['quantityDecimals'] ?? 0);
+            $minimumQuantity = $this->getMinimumWithdrawnQuantityForDecimals($quantityDecimals);
 
-            if (!$processor->isValidWithdrawnQuantity($withdrawnQuantity, $orderedQuantity)) {
+            if (!$processor->isValidWithdrawnQuantity($withdrawnQuantity, $orderedQuantity, $minimumQuantity)) {
                 $errorMessages[] = (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_invalid_quantity'];
             }
         }
@@ -986,6 +995,20 @@ class ModuleWithdrawal extends Module
         }
 
         return (float) $normalizedValue;
+    }
+
+    private function toQuantityDecimals(mixed $value): int
+    {
+        return max(0, (int) $value);
+    }
+
+    private function getMinimumWithdrawnQuantityForDecimals(int $quantityDecimals): float
+    {
+        if ($quantityDecimals <= 0) {
+            return 1.0;
+        }
+
+        return (float) pow(10, -$quantityDecimals);
     }
 
     private function formatQuantityForInput(float $quantity): string

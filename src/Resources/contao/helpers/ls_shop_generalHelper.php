@@ -4542,6 +4542,8 @@ class ls_shop_generalHelper
 				WHERE		`sendWhen` != ?
 					AND		`sendWhen` != ?
 					AND		`sendWhen` != ?
+					AND		`sendWhen` != ?
+					AND		`sendWhen` != ?
 					AND		(
 								SELECT	COUNT(*)
 								FROM	`tl_ls_shop_message_model`
@@ -4550,7 +4552,14 @@ class ls_shop_generalHelper
 									AND	`tl_ls_shop_message_model`.`member_group` LIKE ?
 							) > 0
 			")
-            ->execute('asOrderConfirmation', 'asOrderNotice', 'onRestock', '%%"' . $arrOrder['memberGroupInfo_id'] . '"%');
+			->execute(
+				'asOrderConfirmation',
+				'asOrderNotice',
+				'onRestock',
+				'asWithdrawalConfirmation',
+				'asWithdrawalNotice',
+				'%%"' . $arrOrder['memberGroupInfo_id'] . '"%'
+			);
 
         if (!$objMessageTypes->numRows) {
             return $arrMessageTypes;

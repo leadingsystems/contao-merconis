@@ -112,6 +112,22 @@ final class WithdrawalDcaSchemaTest extends TestCase
         self::assertStringContainsString('Widerrufsbenachrichtigung an Händler', $messageTypeLanguageDe);
     }
 
+    public function testOrderOverviewMessageTypeFilterExcludesWithdrawalAutoSendTypes(): void
+    {
+        $generalHelperContents = (string) file_get_contents(
+            __DIR__ . '/../../src/Resources/contao/helpers/ls_shop_generalHelper.php'
+        );
+
+        self::assertStringContainsString(
+            "'asOrderConfirmation',
+				'asOrderNotice',
+				'onRestock',
+				'asWithdrawalConfirmation',
+				'asWithdrawalNotice'",
+            $generalHelperContents
+        );
+    }
+
     public function testMessageModelDcaContainsWithdrawalCustomerDataTypeConfiguration(): void
     {
         $messageModelDcaContents = (string) file_get_contents(self::DCA_BASE_PATH . 'tl_ls_shop_message_model.php');

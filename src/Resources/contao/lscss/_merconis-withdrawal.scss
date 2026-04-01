@@ -72,10 +72,55 @@
 
         @include media-breakpoint-down(lg) {
             .mod_ls_shop_withdrawal__items {
-                th,
-                td {
-                    font-size: inherit;
+                thead {
+                    display: none;
                 }
+
+                tbody,
+                tr,
+                td {
+                    display: block;
+                    width: 100%;
+                }
+
+                tbody {
+                    tr {
+                        border: 0.1rem solid $ls-color-light-grey;
+                        margin-bottom: $grid-gutter-width-super-small;
+                        padding: $grid-gutter-width-super-small;
+                    }
+                }
+
+                td {
+                    padding: $grid-gutter-width-super-small 0;
+                    border-bottom: 0.1rem solid $ls-color-light-grey;
+                    white-space: normal;
+
+                    &:first-child,
+                    &:last-child {
+                        white-space: normal;
+                    }
+
+                    &::before {
+                        content: attr(data-withdrawal-mobile-label);
+                        display: block;
+                        margin-bottom: $grid-gutter-width-super-small;
+                        font-weight: $ls-font-weight-bold;
+                    }
+                }
+
+                tr {
+                    td {
+                        &:last-child {
+                            border-bottom: 0;
+                            padding-bottom: 0;
+                        }
+                    }
+                }
+            }
+
+            [data-withdrawal-screen-b-form='1'] {
+                overflow-x: visible;
             }
 
             [data-withdrawal-toggle-container='1'] {
@@ -90,26 +135,13 @@
             }
         }
     }
-}
 
-.template_myOrders_default {
-    .myOrder {
-        .orderDetails {
-            .value {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-                gap: $grid-gutter-width-super-small;
-            }
-        }
-    }
+    .mod_ls_shop_withdrawal__screen-a {
+        .mod_ls_shop_withdrawal__fallback {
+            margin-top: $grid-gutter-width-small;
 
-    @include media-breakpoint-down(lg) {
-        .myOrder {
-            .orderDetails {
-                .value {
-                    align-items: flex-start;
-                }
+            &.is-highlighted {
+                font-weight: $ls-font-weight-bold;
             }
         }
     }
