@@ -1152,7 +1152,6 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_heading'
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_fallback'] = 'This withdrawal could not be assigned to an order.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product'] = 'Product description';
-$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_variant'] = 'Variant';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number'] = 'Product number';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price'] = 'Unit price';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity'] = 'Quantity';
@@ -1165,11 +1164,27 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels'] = [
     'firstname' => 'First name',
     'lastname' => 'Last name',
+    'company' => 'Company',
+    'VATID' => 'VAT ID',
+    'phone' => 'Phone',
     'street' => 'Street',
     'postal' => 'Postal code',
     'city' => 'City',
+    'province_it' => 'Province (IT)',
+    'province_us' => 'State (US)',
+    'province_ca' => 'Province (CA)',
     'country' => 'Country',
     'email' => 'Email',
+    'useDeviantShippingAddress' => '',
+    'firstname_alternative' => 'First name',
+    'lastname_alternative' => 'Last name',
+    'company_alternative' => 'Company',
+    'street_alternative' => 'Street',
+    'postal_alternative' => 'Postal code',
+    'city_alternative' => 'City',
+    'province_it_alternative' => 'Province (IT)',
+    'province_us_alternative' => 'State (US)',
+    'province_ca_alternative' => 'Province (CA)',
     'country_alternative' => 'Country',
 ];
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label'] = 'Payment method';

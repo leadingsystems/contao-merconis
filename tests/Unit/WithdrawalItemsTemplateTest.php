@@ -54,6 +54,8 @@ final class WithdrawalItemsTemplateTest extends TestCase
         self::assertStringContainsString('39.99 EUR', $rendered);
         self::assertStringContainsString('1 of 3 pcs', $rendered);
         self::assertStringContainsString('>2<', $rendered);
+        self::assertStringContainsString('text-align: left; padding: 8px 12px;', $rendered);
+        self::assertStringContainsString('word-wrap: break-word', $rendered);
         self::assertStringNotContainsString('<th>Variant</th>', $rendered);
     }
 

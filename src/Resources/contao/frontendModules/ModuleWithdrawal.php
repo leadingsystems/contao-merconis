@@ -229,7 +229,10 @@ class ModuleWithdrawal extends Module
                 'productName' => (string) ($orderItem['productTitle'] ?? ''),
                 'variantTitle' => (string) ($orderItem['variantTitle'] ?? ''),
                 'productNumber' => (string) ($orderItem['artNr'] ?? ''),
-                'unitPrice' => (string) ($orderItem['price'] ?? ''),
+                'unitPrice' => $this->formatUnitPriceDisplay(
+                    $orderItem['price'] ?? 0,
+                    (string) ($orderItem['quantityUnit'] ?? '')
+                ),
                 'orderedQuantity' => $orderedQuantity,
                 'orderedQuantityDisplay' => $this->formatQuantityForInput($orderedQuantity),
                 'quantityUnit' => (string) ($orderItem['quantityUnit'] ?? ''),
@@ -1017,6 +1020,16 @@ class ModuleWithdrawal extends Module
         $formatted = rtrim(rtrim($formatted, '0'), '.');
 
         return $formatted === '' ? '0' : $formatted;
+    }
+
+    private function formatUnitPriceDisplay(mixed $priceValue, string $quantityUnit): string
+    {
+        $formattedPrice = ls_shop_generalHelper::outputPrice($this->toFloat($priceValue));
+        if ($quantityUnit === '') {
+            return $formattedPrice;
+        }
+
+        return $formattedPrice . '/' . $quantityUnit;
     }
 
     private function renderQuantityDisplay(float $withdrawnQuantity, float $orderedQuantity, string $quantityUnit): string

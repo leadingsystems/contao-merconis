@@ -31,13 +31,20 @@ $formatAddressLines = static function ($serializedAddress) use ($arrAddressField
             }
 
             $stringValue = trim((string) $value);
-            if ($stringValue === '') {
+            if ($stringValue === '' || $stringValue === '-') {
                 continue;
             }
 
-            $lineLabel = $lineKey !== '' && isset($addressFieldLabels[$lineKey]) && is_string($addressFieldLabels[$lineKey]) && $addressFieldLabels[$lineKey] !== ''
-                ? $addressFieldLabels[$lineKey]
-                : $lineKey;
+            $lineLabel = $lineKey;
+            if ($lineKey !== '' && array_key_exists($lineKey, $addressFieldLabels) && is_string($addressFieldLabels[$lineKey])) {
+                $mappedLabel = trim($addressFieldLabels[$lineKey]);
+                if ($mappedLabel === '') {
+                    continue;
+                }
+
+                $lineLabel = $mappedLabel;
+            }
+
             $lines[] = $lineLabel ? $lineLabel . ': ' . $stringValue : $stringValue;
         }
 

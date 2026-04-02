@@ -22,6 +22,8 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
             'firstname' => 'First name',
             'lastname' => 'Last name',
             'street' => 'Street',
+            'useDeviantShippingAddress' => '',
+            'firstname_alternative' => 'First name',
             'country_alternative' => 'Country',
         ];
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_fallback'] = 'Fallback';
@@ -91,6 +93,29 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
         self::assertStringNotContainsString('Billing address', $rendered);
         self::assertStringNotContainsString('Shipping address', $rendered);
         self::assertStringNotContainsString('not-serialized', $rendered);
+    }
+
+    public function testTemplateSkipsDashValuesAndFieldsWithEmptyConfiguredLabel(): void
+    {
+        $rendered = $this->renderTemplate([
+            'scenario' => 1,
+            'snapshotOrderNr' => 'ORDER-1004',
+            'snapshotOrderDate' => '2026-04-04',
+            'snapshotBillingAddress' => serialize([
+                'firstname' => 'Max',
+            ]),
+            'snapshotShippingAddress' => serialize([
+                'useDeviantShippingAddress' => '1',
+                'country_alternative' => '-',
+                'firstname_alternative' => 'Erika',
+            ]),
+            'snapshotPaymentMethod' => 'Invoice',
+            'snapshotShippingMethod' => 'UPS',
+        ]);
+
+        self::assertStringContainsString('First name: Erika', $rendered);
+        self::assertStringNotContainsString('useDeviantShippingAddress', $rendered);
+        self::assertStringNotContainsString('Country: -', $rendered);
     }
 
     /**

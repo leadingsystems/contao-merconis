@@ -1152,7 +1152,6 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_heading'
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_fallback'] = 'Dieser Widerruf konnte keiner Bestellung zugeordnet werden.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product'] = 'Produktbezeichnung';
-$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_variant'] = 'Variante';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number'] = 'Artikelnummer';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price'] = 'Einzelpreis';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity'] = 'Menge';
@@ -1165,11 +1164,27 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels'] = [
     'firstname' => 'Vorname',
     'lastname' => 'Nachname',
+    'company' => 'Firma',
+    'VATID' => 'USt-IdNr.',
+    'phone' => 'Telefon',
     'street' => 'Straße',
     'postal' => 'PLZ',
     'city' => 'Stadt',
+    'province_it' => 'Provinz (IT)',
+    'province_us' => 'Bundesstaat (US)',
+    'province_ca' => 'Provinz (CA)',
     'country' => 'Land',
     'email' => 'E-Mail',
+    'useDeviantShippingAddress' => '',
+    'firstname_alternative' => 'Vorname',
+    'lastname_alternative' => 'Nachname',
+    'company_alternative' => 'Firma',
+    'street_alternative' => 'Straße',
+    'postal_alternative' => 'PLZ',
+    'city_alternative' => 'Stadt',
+    'province_it_alternative' => 'Provinz (IT)',
+    'province_us_alternative' => 'Bundesstaat (US)',
+    'province_ca_alternative' => 'Provinz (CA)',
     'country_alternative' => 'Land',
 ];
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label'] = 'Zahlungsart';

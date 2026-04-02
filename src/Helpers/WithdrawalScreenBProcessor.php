@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Helpers;
 
+use Merconis\Core\ls_shop_generalHelper;
+
 final class WithdrawalScreenBProcessor
 {
     /**
@@ -53,7 +55,10 @@ final class WithdrawalScreenBProcessor
             'snapshotProductName' => (string) ($orderItem['productTitle'] ?? ''),
             'snapshotVariantTitle' => (string) ($orderItem['variantTitle'] ?? ''),
             'snapshotProductNumber' => (string) ($orderItem['artNr'] ?? ''),
-            'snapshotUnitPrice' => (string) ($orderItem['price'] ?? ''),
+            'snapshotUnitPrice' => $this->formatUnitPriceDisplay(
+                $orderItem['price'] ?? 0,
+                (string) ($orderItem['quantityUnit'] ?? '')
+            ),
             'snapshotQuantityUnit' => (string) ($orderItem['quantityUnit'] ?? ''),
             'snapshotOrderedQuantity' => $this->normalizeQuantity($orderItem['quantity'] ?? 0),
             'snapshotQuantityDecimals' => max(0, (int) ($orderItem['quantityDecimals'] ?? 0)),
@@ -129,5 +134,15 @@ final class WithdrawalScreenBProcessor
         }
 
         return (float) $normalizedValue;
+    }
+
+    private function formatUnitPriceDisplay(mixed $priceValue, string $quantityUnit): string
+    {
+        $formattedPrice = ls_shop_generalHelper::outputPrice($this->normalizeQuantity($priceValue));
+        if ($quantityUnit === '') {
+            return $formattedPrice;
+        }
+
+        return $formattedPrice . '/' . $quantityUnit;
     }
 }

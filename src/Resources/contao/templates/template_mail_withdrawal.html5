@@ -7,13 +7,13 @@ $strFreetext = trim((string) ($arrWithdrawalData['freetext'] ?? ''));
 
 <?php if ($intScenario === 1 && !empty($arrWithdrawalItems)) { ?>
 	<h3><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_heading']; ?></h3>
-	<table>
+	<table cellpadding="0" cellspacing="0" style="border-collapse: collapse; width: 100%;">
 		<thead>
 			<tr>
-				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product']; ?></th>
-				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number']; ?></th>
-				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price']; ?></th>
-				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity']; ?></th>
+				<th style="text-align: left; padding: 8px 12px;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product']; ?></th>
+				<th style="text-align: left; padding: 8px 12px;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number']; ?></th>
+				<th style="text-align: left; padding: 8px 12px;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price']; ?></th>
+				<th style="text-align: left; padding: 8px 12px;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity']; ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -45,10 +45,10 @@ $strFreetext = trim((string) ($arrWithdrawalData['freetext'] ?? ''));
 				}
 				?>
 				<tr>
-					<td><?php echo htmlspecialchars($strProductDescription, ENT_QUOTES); ?></td>
-					<td><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotProductNumber'] ?? ''), ENT_QUOTES); ?></td>
-					<td><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotUnitPrice'] ?? ''), ENT_QUOTES); ?></td>
-					<td><?php echo htmlspecialchars($strQuantityOutput, ENT_QUOTES); ?></td>
+					<td style="max-width: 280px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; padding: 8px 12px;"><?php echo htmlspecialchars($strProductDescription, ENT_QUOTES); ?></td>
+					<td style="padding: 8px 12px;"><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotProductNumber'] ?? ''), ENT_QUOTES); ?></td>
+					<td style="padding: 8px 12px;"><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotUnitPrice'] ?? ''), ENT_QUOTES); ?></td>
+					<td style="padding: 8px 12px;"><?php echo htmlspecialchars($strQuantityOutput, ENT_QUOTES); ?></td>
 				</tr>
 			<?php } ?>
 		</tbody>

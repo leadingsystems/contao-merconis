@@ -8,6 +8,17 @@ use PHPUnit\Framework\TestCase;
 
 final class WithdrawalScreenBProcessorTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $GLOBALS['TL_CONFIG']['ls_shop_numDecimals'] = 2;
+        $GLOBALS['TL_CONFIG']['ls_shop_currency'] = 'EUR';
+        $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = ',';
+        $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] = '.';
+        $GLOBALS['merconis_globals']['ls_shop_currencyBeforeValue'] = false;
+    }
+
     public function testQuantityValidationRespectsDynamicMinimumQuantity(): void
     {
         $processor = new WithdrawalScreenBProcessor();
@@ -22,7 +33,7 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         self::assertFalse($processor->isValidWithdrawnQuantity(6.0, 5.0, 1.0));
     }
 
-    public function testChildSnapshotContainsQuantityDecimals(): void
+    public function testChildSnapshotContainsQuantityDecimalsAndFormattedUnitPrice(): void
     {
         $processor = new WithdrawalScreenBProcessor();
 
@@ -42,6 +53,7 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         );
 
         self::assertSame(2, $snapshot['snapshotQuantityDecimals']);
+        self::assertSame('19,99 EUR/kg', $snapshot['snapshotUnitPrice']);
     }
 
     public function testParentSnapshotContainsAllRequiredFields(): void
