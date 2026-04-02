@@ -18,6 +18,12 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_label'] = 'Shipping address';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label'] = 'Payment method';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_method_label'] = 'Shipping method';
+        $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels'] = [
+            'firstname' => 'First name',
+            'lastname' => 'Last name',
+            'street' => 'Street',
+            'country_alternative' => 'Country',
+        ];
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_fallback'] = 'Fallback';
     }
 
@@ -36,17 +42,38 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
                 'firstname' => 'Erika',
                 'lastname' => 'Musterfrau',
                 'street' => 'Beispielweg 2',
+                'country_alternative' => 'Germany',
             ]),
             'snapshotPaymentMethod' => 'PayPal',
             'snapshotShippingMethod' => 'DHL',
         ]);
 
-        self::assertStringContainsString('firstname: Max', $rendered);
-        self::assertStringContainsString('lastname: Mustermann', $rendered);
-        self::assertStringContainsString('street: Musterstr. 1', $rendered);
-        self::assertStringContainsString('firstname: Erika', $rendered);
-        self::assertStringContainsString('street: Beispielweg 2', $rendered);
+        self::assertStringContainsString('First name: Max', $rendered);
+        self::assertStringContainsString('Last name: Mustermann', $rendered);
+        self::assertStringContainsString('Street: Musterstr. 1', $rendered);
+        self::assertStringContainsString('First name: Erika', $rendered);
+        self::assertStringContainsString('Street: Beispielweg 2', $rendered);
+        self::assertStringContainsString('Country: Germany', $rendered);
         self::assertStringNotContainsString('a:3:{', $rendered);
+    }
+
+    public function testTemplateUsesOriginalKeyNameAsFallbackForUnknownAddressFields(): void
+    {
+        $rendered = $this->renderTemplate([
+            'scenario' => 1,
+            'snapshotOrderNr' => 'ORDER-1003',
+            'snapshotOrderDate' => '2026-04-03',
+            'snapshotBillingAddress' => serialize([
+                'firstname' => 'Max',
+                'unknown_key' => 'Custom value',
+            ]),
+            'snapshotShippingAddress' => serialize([]),
+            'snapshotPaymentMethod' => 'Invoice',
+            'snapshotShippingMethod' => 'UPS',
+        ]);
+
+        self::assertStringContainsString('First name: Max', $rendered);
+        self::assertStringContainsString('unknown_key: Custom value', $rendered);
     }
 
     public function testTemplateSkipsAddressRowsForEmptyOrInvalidSerializedValues(): void

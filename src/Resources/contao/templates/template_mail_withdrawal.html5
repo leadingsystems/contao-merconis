@@ -11,14 +11,22 @@ $strFreetext = trim((string) ($arrWithdrawalData['freetext'] ?? ''));
 		<thead>
 			<tr>
 				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product']; ?></th>
-				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_variant']; ?></th>
 				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number']; ?></th>
+				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price']; ?></th>
 				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity']; ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php foreach ($arrWithdrawalItems as $arrWithdrawalItem) { ?>
 				<?php
+				$strProductName = trim((string) ($arrWithdrawalItem['snapshotProductName'] ?? ''));
+				$strVariantTitle = trim((string) ($arrWithdrawalItem['snapshotVariantTitle'] ?? ''));
+				$strProductDescription = $strProductName;
+				if ($strProductName !== '' && $strVariantTitle !== '') {
+					$strProductDescription .= ', ' . $strVariantTitle;
+				} elseif ($strProductDescription === '') {
+					$strProductDescription = $strVariantTitle;
+				}
 				$strOrderedQuantityOutput = (string) ($arrWithdrawalItem['snapshotOrderedQuantity'] ?? '');
 				$strWithdrawnQuantityOutput = (string) ($arrWithdrawalItem['withdrawnQuantity'] ?? '');
 				$strQuantityUnitOutput = trim((string) ($arrWithdrawalItem['snapshotQuantityUnit'] ?? ''));
@@ -37,9 +45,9 @@ $strFreetext = trim((string) ($arrWithdrawalData['freetext'] ?? ''));
 				}
 				?>
 				<tr>
-					<td><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotProductName'] ?? ''), ENT_QUOTES); ?></td>
-					<td><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotVariantTitle'] ?? ''), ENT_QUOTES); ?></td>
+					<td><?php echo htmlspecialchars($strProductDescription, ENT_QUOTES); ?></td>
 					<td><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotProductNumber'] ?? ''), ENT_QUOTES); ?></td>
+					<td><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotUnitPrice'] ?? ''), ENT_QUOTES); ?></td>
 					<td><?php echo htmlspecialchars($strQuantityOutput, ENT_QUOTES); ?></td>
 				</tr>
 			<?php } ?>

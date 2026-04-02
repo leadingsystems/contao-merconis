@@ -3,13 +3,16 @@ use Contao\StringUtil;
 
 $arrWithdrawalData = is_array($this->arrWithdrawal ?? null) ? $this->arrWithdrawal : [];
 $intScenario = (int) ($arrWithdrawalData['scenario'] ?? 0);
-$formatAddressLines = static function ($serializedAddress): string {
+$arrAddressFieldLabels = is_array($GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels'] ?? null)
+    ? $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels']
+    : [];
+$formatAddressLines = static function ($serializedAddress) use ($arrAddressFieldLabels): string {
     $deserializedAddress = StringUtil::deserialize($serializedAddress);
     if (!is_array($deserializedAddress) || $deserializedAddress === []) {
         return '';
     }
 
-    $flattenAddressLines = static function (array $addressData, string $keyPrefix = '') use (&$flattenAddressLines): array {
+    $flattenAddressLines = static function (array $addressData, array $addressFieldLabels, string $keyPrefix = '') use (&$flattenAddressLines): array {
         $lines = [];
 
         foreach ($addressData as $key => $value) {
@@ -19,7 +22,7 @@ $formatAddressLines = static function ($serializedAddress): string {
             }
 
             if (is_array($value)) {
-                $lines = array_merge($lines, $flattenAddressLines($value, $lineKey));
+                $lines = array_merge($lines, $flattenAddressLines($value, $addressFieldLabels, $lineKey));
                 continue;
             }
 
@@ -32,13 +35,16 @@ $formatAddressLines = static function ($serializedAddress): string {
                 continue;
             }
 
-            $lines[] = $lineKey ? $lineKey . ': ' . $stringValue : $stringValue;
+            $lineLabel = $lineKey !== '' && isset($addressFieldLabels[$lineKey]) && is_string($addressFieldLabels[$lineKey]) && $addressFieldLabels[$lineKey] !== ''
+                ? $addressFieldLabels[$lineKey]
+                : $lineKey;
+            $lines[] = $lineLabel ? $lineLabel . ': ' . $stringValue : $stringValue;
         }
 
         return $lines;
     };
 
-    return implode("\n", $flattenAddressLines($deserializedAddress));
+    return implode("\n", $flattenAddressLines($deserializedAddress, $arrAddressFieldLabels));
 };
 $formattedBillingAddress = $formatAddressLines($arrWithdrawalData['snapshotBillingAddress'] ?? null);
 $formattedShippingAddress = $formatAddressLines($arrWithdrawalData['snapshotShippingAddress'] ?? null);
