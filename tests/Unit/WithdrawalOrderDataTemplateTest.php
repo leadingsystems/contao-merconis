@@ -14,8 +14,8 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_heading'] = 'Order data';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_number_label'] = 'Order number';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_date_label'] = 'Order date';
-        $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_label'] = 'Billing address';
-        $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_label'] = 'Shipping address';
+        $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_heading'] = 'Billing address';
+        $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_heading'] = 'Shipping address';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label'] = 'Payment method';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_method_label'] = 'Shipping method';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels'] = [
@@ -56,6 +56,8 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
         self::assertStringContainsString('First name: Erika', $rendered);
         self::assertStringContainsString('Street: Beispielweg 2', $rendered);
         self::assertStringContainsString('Country: Germany', $rendered);
+        self::assertStringContainsString('Billing address', $rendered);
+        self::assertStringContainsString('Shipping address', $rendered);
         self::assertStringNotContainsString('a:3:{', $rendered);
     }
 
@@ -116,6 +118,44 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
         self::assertStringContainsString('First name: Erika', $rendered);
         self::assertStringNotContainsString('useDeviantShippingAddress', $rendered);
         self::assertStringNotContainsString('Country: -', $rendered);
+    }
+
+    public function testTemplateRendersOnlyBillingAddressHeadingWhenShippingAddressIsEmptyAfterFiltering(): void
+    {
+        $rendered = $this->renderTemplate([
+            'scenario' => 1,
+            'snapshotOrderNr' => 'ORDER-1005',
+            'snapshotOrderDate' => '2026-04-05',
+            'snapshotBillingAddress' => serialize([
+                'firstname' => 'Max',
+                'lastname' => 'Mustermann',
+            ]),
+            'snapshotShippingAddress' => serialize([
+                'country_alternative' => '-',
+            ]),
+            'snapshotPaymentMethod' => 'Invoice',
+            'snapshotShippingMethod' => 'UPS',
+        ]);
+
+        self::assertStringContainsString('Billing address', $rendered);
+        self::assertStringNotContainsString('Shipping address', $rendered);
+    }
+
+    public function testTemplateRendersFallbackForScenarioTwoWithoutAddressHeadings(): void
+    {
+        $rendered = $this->renderTemplate([
+            'scenario' => 2,
+            'snapshotBillingAddress' => serialize([
+                'firstname' => 'Max',
+            ]),
+            'snapshotShippingAddress' => serialize([
+                'firstname_alternative' => 'Erika',
+            ]),
+        ]);
+
+        self::assertStringContainsString('Fallback', $rendered);
+        self::assertStringNotContainsString('Billing address', $rendered);
+        self::assertStringNotContainsString('Shipping address', $rendered);
     }
 
     /**

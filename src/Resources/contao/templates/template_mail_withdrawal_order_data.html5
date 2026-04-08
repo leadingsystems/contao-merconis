@@ -72,13 +72,13 @@ $formattedShippingAddress = $formatAddressLines($arrWithdrawalData['snapshotShip
 			</tr>
 			<?php if ($formattedBillingAddress !== '') { ?>
 				<tr>
-					<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_label']; ?></th>
+					<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_heading']; ?></th>
 					<td><?php echo nl2br(htmlspecialchars($formattedBillingAddress, ENT_QUOTES)); ?></td>
 				</tr>
 			<?php } ?>
 			<?php if ($formattedShippingAddress !== '') { ?>
 				<tr>
-					<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_label']; ?></th>
+					<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_heading']; ?></th>
 					<td><?php echo nl2br(htmlspecialchars($formattedShippingAddress, ENT_QUOTES)); ?></td>
 				</tr>
 			<?php } ?>
