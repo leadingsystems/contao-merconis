@@ -141,6 +141,25 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
         self::assertStringNotContainsString('Shipping address', $rendered);
     }
 
+    public function testTemplateLeftAlignsAllOrderDataLabels(): void
+    {
+        $rendered = $this->renderTemplate([
+            'scenario' => 1,
+            'snapshotOrderNr' => 'ORDER-1006',
+            'snapshotOrderDate' => '2026-04-06',
+            'snapshotBillingAddress' => serialize([
+                'firstname' => 'Max',
+            ]),
+            'snapshotShippingAddress' => serialize([
+                'firstname_alternative' => 'Erika',
+            ]),
+            'snapshotPaymentMethod' => 'Invoice',
+            'snapshotShippingMethod' => 'UPS',
+        ]);
+
+        self::assertSame(6, substr_count($rendered, '<th style="text-align: left;">'));
+    }
+
     public function testTemplateRendersFallbackForScenarioTwoWithoutAddressHeadings(): void
     {
         $rendered = $this->renderTemplate([

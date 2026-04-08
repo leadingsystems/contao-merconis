@@ -24,6 +24,10 @@ final class WithdrawalScreenBProcessor
         $shippingMethod = (string) ($arrOrder['shippingMethod_title_customerLanguage']
             ?? $arrOrder['shippingMethod_title']
             ?? '');
+        $customerData = is_array($arrOrder['customerData'] ?? null) ? $arrOrder['customerData'] : [];
+        $personalData = is_array($customerData['personalData'] ?? null) ? $customerData['personalData'] : [];
+        $billingAddressData = $this->extractBillingAddressData($personalData);
+        $shippingAddressData = $this->extractShippingAddressData($personalData);
 
         return [
             'tstamp' => $withdrawalTimestamp,
@@ -34,8 +38,8 @@ final class WithdrawalScreenBProcessor
             'orderReference' => (int) ($arrOrder['id'] ?? 0),
             'snapshotOrderNr' => (string) ($arrOrder['orderNr'] ?? ''),
             'snapshotOrderDate' => (string) ($arrOrder['orderDate'] ?? ''),
-            'snapshotBillingAddress' => serialize($arrOrder['customerData']['personalData'] ?? []),
-            'snapshotShippingAddress' => serialize($arrOrder['customerData']['shippingData'] ?? []),
+            'snapshotBillingAddress' => serialize($billingAddressData),
+            'snapshotShippingAddress' => serialize($shippingAddressData),
             'snapshotPaymentMethod' => $paymentMethod,
             'snapshotShippingMethod' => $shippingMethod,
             'freetext' => '',
@@ -134,6 +138,64 @@ final class WithdrawalScreenBProcessor
         }
 
         return (float) $normalizedValue;
+    }
+
+    /**
+     * @param array<string, mixed> $personalData
+     * @return array<string, mixed>
+     */
+    private function extractBillingAddressData(array $personalData): array
+    {
+        $billingAddressData = [];
+
+        foreach ($personalData as $fieldName => $fieldValue) {
+            if (!is_string($fieldName)) {
+                continue;
+            }
+
+            if (str_ends_with($fieldName, '_alternative')) {
+                continue;
+            }
+
+            if (in_array($fieldName, ['useDeviantShippingAddress', 'order-note'], true)) {
+                continue;
+            }
+
+            $billingAddressData[$fieldName] = $fieldValue;
+        }
+
+        return $billingAddressData;
+    }
+
+    /**
+     * @param array<string, mixed> $personalData
+     * @return array<string, mixed>
+     */
+    private function extractShippingAddressData(array $personalData): array
+    {
+        if (!$this->hasDeviantShippingAddress($personalData)) {
+            return [];
+        }
+
+        $shippingAddressData = [];
+
+        foreach ($personalData as $fieldName => $fieldValue) {
+            if (!is_string($fieldName) || !str_ends_with($fieldName, '_alternative')) {
+                continue;
+            }
+
+            $shippingAddressData[$fieldName] = $fieldValue;
+        }
+
+        return $shippingAddressData;
+    }
+
+    /**
+     * @param array<string, mixed> $personalData
+     */
+    private function hasDeviantShippingAddress(array $personalData): bool
+    {
+        return !empty($personalData['useDeviantShippingAddress']);
     }
 
     private function formatUnitPriceDisplay(mixed $priceValue, string $quantityUnit): string

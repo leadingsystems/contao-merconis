@@ -63,31 +63,31 @@ $formattedShippingAddress = $formatAddressLines($arrWithdrawalData['snapshotShip
 	<table>
 		<tbody>
 			<tr>
-				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_number_label']; ?></th>
+				<th style="text-align: left;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_number_label']; ?></th>
 				<td><?php echo htmlspecialchars((string) ($arrWithdrawalData['snapshotOrderNr'] ?? ''), ENT_QUOTES); ?></td>
 			</tr>
 			<tr>
-				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_date_label']; ?></th>
+				<th style="text-align: left;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_date_label']; ?></th>
 				<td><?php echo htmlspecialchars((string) ($arrWithdrawalData['snapshotOrderDate'] ?? ''), ENT_QUOTES); ?></td>
 			</tr>
 			<?php if ($formattedBillingAddress !== '') { ?>
 				<tr>
-					<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_heading']; ?></th>
+					<th style="text-align: left;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_heading']; ?></th>
 					<td><?php echo nl2br(htmlspecialchars($formattedBillingAddress, ENT_QUOTES)); ?></td>
 				</tr>
 			<?php } ?>
 			<?php if ($formattedShippingAddress !== '') { ?>
 				<tr>
-					<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_heading']; ?></th>
+					<th style="text-align: left;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_heading']; ?></th>
 					<td><?php echo nl2br(htmlspecialchars($formattedShippingAddress, ENT_QUOTES)); ?></td>
 				</tr>
 			<?php } ?>
 			<tr>
-				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label']; ?></th>
+				<th style="text-align: left;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label']; ?></th>
 				<td><?php echo htmlspecialchars((string) ($arrWithdrawalData['snapshotPaymentMethod'] ?? ''), ENT_QUOTES); ?></td>
 			</tr>
 			<tr>
-				<th><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_method_label']; ?></th>
+				<th style="text-align: left;"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_method_label']; ?></th>
 				<td><?php echo htmlspecialchars((string) ($arrWithdrawalData['snapshotShippingMethod'] ?? ''), ENT_QUOTES); ?></td>
 			</tr>
 		</tbody>

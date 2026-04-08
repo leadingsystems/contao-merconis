@@ -120,7 +120,7 @@
                         border: 0.1rem solid $ls-color-light-grey;
                         margin-bottom: $grid-gutter-width-super-small;
                         padding: $grid-gutter-width-super-small;
-                        grid-template-columns: minmax(0, max-content) max-content minmax(0, 1fr);
+                        grid-template-columns: minmax(0, max-content) minmax(0, 2fr) minmax(0, 3fr);
                         column-gap: $grid-gutter-width-super-small;
                         align-items: start;
                     }
@@ -151,7 +151,7 @@
                             text-align: center;
                             font-size: $small-font-size;
                             max-width: 100%;
-                            overflow-wrap: anywhere;
+                            overflow-wrap: break-word;
                         }
                     }
 
@@ -219,10 +219,25 @@
 
         @include media-breakpoint-down(sm) {
             .mod_ls_shop_withdrawal__items {
+                tbody {
+                    tr {
+                        grid-template-columns: minmax(0, max-content) 1fr;
+                    }
+                }
+
                 td {
                     &:not(:first-child) {
+                        display: grid;
                         grid-template-columns: 1fr;
+                        grid-column: 2;
                         row-gap: 0;
+
+                        > .mod_ls_shop_withdrawal__item-detail-key,
+                        > .mod_ls_shop_withdrawal__item-detail-value,
+                        > div {
+                            grid-column: auto;
+                            grid-row: auto;
+                        }
                     }
 
                     &:first-child {
