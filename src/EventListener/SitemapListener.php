@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 
 namespace LeadingSystems\MerconisBundle\EventListener;
@@ -17,8 +18,16 @@ use Merconis\Core\ls_shop_languageHelper;
  */
 class SitemapListener
 {
+    public function __construct(
+        private readonly bool $productUrlsHandledExternally = false
+    ) {
+    }
+
     public function __invoke(SitemapEvent $event): void
     {
+        if ($this->productUrlsHandledExternally) {
+            return;
+        }
 
         $sitemap = $event->getDocument();
         $urlSet = $sitemap->childNodes[0];
