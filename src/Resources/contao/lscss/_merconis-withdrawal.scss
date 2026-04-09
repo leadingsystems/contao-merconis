@@ -54,6 +54,11 @@
                         width: 1%;
                     }
 
+                    &:not(:first-child):not(:last-child) {
+                        overflow-wrap: anywhere;
+                        word-break: break-word;
+                    }
+
                     &:last-child {
                         white-space: nowrap;
                     }
@@ -67,7 +72,10 @@
         }
 
         .mod_ls_shop_withdrawal__item-detail-value {
-            display: inline;
+            display: block;
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         [data-withdrawal-screen-b-form='1'] {
@@ -136,6 +144,7 @@
                         grid-column: 1;
                         grid-row: 1 / span 5;
                         align-self: center;
+                        justify-self: center;
                         width: auto;
                         display: flex;
                         align-items: center;

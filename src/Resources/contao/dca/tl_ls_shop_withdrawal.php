@@ -50,7 +50,13 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = [
         'snapshotPaymentMethod' => [
             'sql' => "varchar(255) NOT NULL default ''",
         ],
+        'snapshotPaymentMethod_customerLanguage' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
         'snapshotShippingMethod' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'snapshotShippingMethod_customerLanguage' => [
             'sql' => "varchar(255) NOT NULL default ''",
         ],
         'freetext' => [

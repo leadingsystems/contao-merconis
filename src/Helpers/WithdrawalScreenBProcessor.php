@@ -7,6 +7,8 @@ use Merconis\Core\ls_shop_generalHelper;
 
 final class WithdrawalScreenBProcessor
 {
+    private const QUANTITY_EPSILON = 0.00001;
+
     /**
      * @param array<string, mixed> $arrOrder
      * @return array<string, mixed>
@@ -18,12 +20,26 @@ final class WithdrawalScreenBProcessor
         string $email,
         int $withdrawalTimestamp
     ): array {
-        $paymentMethod = (string) ($arrOrder['paymentMethod_title_customerLanguage']
-            ?? $arrOrder['paymentMethod_title']
-            ?? '');
-        $shippingMethod = (string) ($arrOrder['shippingMethod_title_customerLanguage']
-            ?? $arrOrder['shippingMethod_title']
-            ?? '');
+        $paymentMethod = $this->resolveScalarValueWithFallback(
+            $arrOrder,
+            ['paymentMethod_title_customerLanguage'],
+            'paymentMethod_title'
+        );
+        $paymentMethodFallback = $this->resolveScalarValueWithFallback(
+            $arrOrder,
+            [],
+            'paymentMethod_title'
+        );
+        $shippingMethod = $this->resolveScalarValueWithFallback(
+            $arrOrder,
+            ['shippingMethod_title_customerLanguage'],
+            'shippingMethod_title'
+        );
+        $shippingMethodFallback = $this->resolveScalarValueWithFallback(
+            $arrOrder,
+            [],
+            'shippingMethod_title'
+        );
         $customerData = is_array($arrOrder['customerData'] ?? null) ? $arrOrder['customerData'] : [];
         $personalData = is_array($customerData['personalData'] ?? null) ? $customerData['personalData'] : [];
         $billingAddressData = $this->extractBillingAddressData($personalData);
@@ -40,8 +56,10 @@ final class WithdrawalScreenBProcessor
             'snapshotOrderDate' => (string) ($arrOrder['orderDate'] ?? ''),
             'snapshotBillingAddress' => serialize($billingAddressData),
             'snapshotShippingAddress' => serialize($shippingAddressData),
-            'snapshotPaymentMethod' => $paymentMethod,
-            'snapshotShippingMethod' => $shippingMethod,
+            'snapshotPaymentMethod' => $paymentMethodFallback,
+            'snapshotPaymentMethod_customerLanguage' => $paymentMethod,
+            'snapshotShippingMethod' => $shippingMethodFallback,
+            'snapshotShippingMethod_customerLanguage' => $shippingMethod,
             'freetext' => '',
             'scenario' => '1',
         ];
@@ -53,30 +71,71 @@ final class WithdrawalScreenBProcessor
      */
     public function buildChildSnapshot(array $orderItem, float $withdrawnQuantity, int $withdrawalTimestamp): array
     {
+        $productName = $this->resolveOrderItemCustomerLanguageValue(
+            $orderItem,
+            ['_productTitle_customerLanguage'],
+            'productTitle'
+        );
+        $productNameFallback = $this->resolveScalarValueWithFallback($orderItem, [], 'productTitle');
+        $variantTitle = $this->resolveOrderItemCustomerLanguageValue(
+            $orderItem,
+            ['_variantTitle_customerLanguage', '_title_customerLanguage'],
+            'variantTitle'
+        );
+        $variantTitleFallback = $this->resolveScalarValueWithFallback($orderItem, [], 'variantTitle');
+        $quantityUnit = $this->resolveOrderItemCustomerLanguageValue(
+            $orderItem,
+            ['_quantityUnit_customerLanguage'],
+            'quantityUnit'
+        );
+        $quantityUnitFallback = $this->resolveScalarValueWithFallback($orderItem, [], 'quantityUnit');
+
         return [
             'tstamp' => $withdrawalTimestamp,
             'orderItemReference' => (int) ($orderItem['id'] ?? 0),
-            'snapshotProductName' => (string) ($orderItem['productTitle'] ?? ''),
-            'snapshotVariantTitle' => (string) ($orderItem['variantTitle'] ?? ''),
+            'snapshotProductName' => $productNameFallback,
+            'snapshotProductName_customerLanguage' => $productName,
+            'snapshotVariantTitle' => $variantTitleFallback,
+            'snapshotVariantTitle_customerLanguage' => $variantTitle,
             'snapshotProductNumber' => (string) ($orderItem['artNr'] ?? ''),
             'snapshotUnitPrice' => $this->formatUnitPriceDisplay(
                 $orderItem['price'] ?? 0,
-                (string) ($orderItem['quantityUnit'] ?? '')
+                $quantityUnitFallback
             ),
-            'snapshotQuantityUnit' => (string) ($orderItem['quantityUnit'] ?? ''),
+            'snapshotUnitPrice_customerLanguage' => $this->formatUnitPriceDisplay(
+                $orderItem['price'] ?? 0,
+                $quantityUnit
+            ),
+            'snapshotQuantityUnit' => $quantityUnitFallback,
+            'snapshotQuantityUnit_customerLanguage' => $quantityUnit,
             'snapshotOrderedQuantity' => $this->normalizeQuantity($orderItem['quantity'] ?? 0),
             'snapshotQuantityDecimals' => max(0, (int) ($orderItem['quantityDecimals'] ?? 0)),
             'withdrawnQuantity' => $this->normalizeQuantity($withdrawnQuantity),
         ];
     }
 
-    public function isValidWithdrawnQuantity(float $withdrawnQuantity, float $orderedQuantity, float $minimumQuantity): bool
+    public function isValidWithdrawnQuantity(
+        float $withdrawnQuantity,
+        float $orderedQuantity,
+        float $minimumQuantity,
+        int $quantityDecimals
+    ): bool
     {
         if ($orderedQuantity <= 0.0 || $minimumQuantity <= 0.0) {
             return false;
         }
 
-        return $withdrawnQuantity >= $minimumQuantity && $withdrawnQuantity <= $orderedQuantity;
+        if ($withdrawnQuantity < $minimumQuantity || $withdrawnQuantity > $orderedQuantity) {
+            return false;
+        }
+
+        if ($quantityDecimals <= 0) {
+            return $this->isEffectivelyInteger($withdrawnQuantity);
+        }
+
+        $decimalFactor = pow(10, $quantityDecimals);
+
+        return $this->isEffectivelyInteger($withdrawnQuantity * $decimalFactor);
     }
 
     /**
@@ -95,7 +154,9 @@ final class WithdrawalScreenBProcessor
             'snapshotBillingAddress',
             'snapshotShippingAddress',
             'snapshotPaymentMethod',
+            'snapshotPaymentMethod_customerLanguage',
             'snapshotShippingMethod',
+            'snapshotShippingMethod_customerLanguage',
             'scenario',
         ];
 
@@ -138,6 +199,11 @@ final class WithdrawalScreenBProcessor
         }
 
         return (float) $normalizedValue;
+    }
+
+    private function isEffectivelyInteger(float $value): bool
+    {
+        return abs($value - round($value)) <= self::QUANTITY_EPSILON;
     }
 
     /**
@@ -206,5 +272,46 @@ final class WithdrawalScreenBProcessor
         }
 
         return $formattedPrice . '/' . $quantityUnit;
+    }
+
+    /**
+     * @param array<string, mixed> $orderItem
+     * @param array<int, string> $customerLanguageKeys
+     */
+    private function resolveOrderItemCustomerLanguageValue(
+        array $orderItem,
+        array $customerLanguageKeys,
+        string $fallbackKey
+    ): string {
+        $extendedInfo = is_array($orderItem['extendedInfo'] ?? null) ? $orderItem['extendedInfo'] : [];
+
+        return $this->resolveScalarValueWithFallback($extendedInfo, $customerLanguageKeys, $fallbackKey, $orderItem);
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     * @param array<int, string> $preferredKeys
+     * @param array<string, mixed>|null $fallbackValues
+     */
+    private function resolveScalarValueWithFallback(
+        array $values,
+        array $preferredKeys,
+        string $fallbackKey,
+        ?array $fallbackValues = null
+    ): string {
+        foreach ($preferredKeys as $preferredKey) {
+            if (!array_key_exists($preferredKey, $values) || $values[$preferredKey] === null) {
+                continue;
+            }
+
+            return (string) $values[$preferredKey];
+        }
+
+        $fallbackValues ??= $values;
+        if (!array_key_exists($fallbackKey, $fallbackValues) || $fallbackValues[$fallbackKey] === null) {
+            return '';
+        }
+
+        return (string) $fallbackValues[$fallbackKey];
     }
 }

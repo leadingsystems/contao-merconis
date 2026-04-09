@@ -23,37 +23,81 @@ final class WithdrawalScreenBProcessorTest extends TestCase
     {
         $processor = new WithdrawalScreenBProcessor();
 
-        self::assertTrue($processor->isValidWithdrawnQuantity(1.0, 5.0, 1.0));
-        self::assertTrue($processor->isValidWithdrawnQuantity(0.1, 5.0, 0.1));
-        self::assertTrue($processor->isValidWithdrawnQuantity(0.01, 5.0, 0.01));
+        self::assertTrue($processor->isValidWithdrawnQuantity(1.0, 5.0, 1.0, 0));
+        self::assertTrue($processor->isValidWithdrawnQuantity(5.0, 5.0, 1.0, 0));
+        self::assertTrue($processor->isValidWithdrawnQuantity(0.1, 5.0, 0.1, 1));
+        self::assertTrue($processor->isValidWithdrawnQuantity(1.1, 5.0, 0.1, 1));
+        self::assertTrue($processor->isValidWithdrawnQuantity(0.01, 5.0, 0.01, 2));
 
-        self::assertFalse($processor->isValidWithdrawnQuantity(0.0, 5.0, 1.0));
-        self::assertFalse($processor->isValidWithdrawnQuantity(0.09, 5.0, 0.1));
-        self::assertFalse($processor->isValidWithdrawnQuantity(0.009, 5.0, 0.01));
-        self::assertFalse($processor->isValidWithdrawnQuantity(6.0, 5.0, 1.0));
+        self::assertFalse($processor->isValidWithdrawnQuantity(0.0, 5.0, 1.0, 0));
+        self::assertFalse($processor->isValidWithdrawnQuantity(5.5, 6.0, 1.0, 0));
+        self::assertFalse($processor->isValidWithdrawnQuantity(0.09, 5.0, 0.1, 1));
+        self::assertFalse($processor->isValidWithdrawnQuantity(1.05, 5.0, 0.1, 1));
+        self::assertFalse($processor->isValidWithdrawnQuantity(0.009, 5.0, 0.01, 2));
+        self::assertFalse($processor->isValidWithdrawnQuantity(6.0, 5.0, 1.0, 0));
     }
 
-    public function testChildSnapshotContainsQuantityDecimalsAndFormattedUnitPrice(): void
+    public function testChildSnapshotStoresCustomerLanguageAndFallbackVariants(): void
     {
         $processor = new WithdrawalScreenBProcessor();
 
         $snapshot = $processor->buildChildSnapshot(
             [
                 'id' => 42,
-                'productTitle' => 'Test Product',
-                'variantTitle' => '',
+                'productTitle' => 'Testprodukt',
+                'variantTitle' => 'Groesse L',
                 'artNr' => 'TP-001',
                 'price' => '19.99',
-                'quantityUnit' => 'kg',
+                'quantityUnit' => 'Stueck',
                 'quantity' => '2.5',
                 'quantityDecimals' => 2,
+                'extendedInfo' => [
+                    '_productTitle_customerLanguage' => 'Test Product',
+                    '_title_customerLanguage' => 'Size L',
+                    '_quantityUnit_customerLanguage' => 'pcs',
+                ],
             ],
             1.25,
             1711536870
         );
 
+        self::assertSame('Testprodukt', $snapshot['snapshotProductName']);
+        self::assertSame('Test Product', $snapshot['snapshotProductName_customerLanguage']);
+        self::assertSame('Groesse L', $snapshot['snapshotVariantTitle']);
+        self::assertSame('Size L', $snapshot['snapshotVariantTitle_customerLanguage']);
+        self::assertSame('19,99 EUR/Stueck', $snapshot['snapshotUnitPrice']);
+        self::assertSame('19,99 EUR/pcs', $snapshot['snapshotUnitPrice_customerLanguage']);
+        self::assertSame('Stueck', $snapshot['snapshotQuantityUnit']);
+        self::assertSame('pcs', $snapshot['snapshotQuantityUnit_customerLanguage']);
         self::assertSame(2, $snapshot['snapshotQuantityDecimals']);
-        self::assertSame('19,99 EUR/kg', $snapshot['snapshotUnitPrice']);
+    }
+
+    public function testChildSnapshotFallsBackToTopLevelValuesForLegacyOrders(): void
+    {
+        $processor = new WithdrawalScreenBProcessor();
+
+        $snapshot = $processor->buildChildSnapshot(
+            [
+                'id' => 43,
+                'productTitle' => 'Legacy Product',
+                'variantTitle' => 'Legacy Variant',
+                'artNr' => 'TP-002',
+                'price' => '12.50',
+                'quantityUnit' => 'kg',
+                'quantity' => '1',
+            ],
+            1.0,
+            1711536871
+        );
+
+        self::assertSame('Legacy Product', $snapshot['snapshotProductName']);
+        self::assertSame('Legacy Product', $snapshot['snapshotProductName_customerLanguage']);
+        self::assertSame('Legacy Variant', $snapshot['snapshotVariantTitle']);
+        self::assertSame('Legacy Variant', $snapshot['snapshotVariantTitle_customerLanguage']);
+        self::assertSame('12,50 EUR/kg', $snapshot['snapshotUnitPrice']);
+        self::assertSame('12,50 EUR/kg', $snapshot['snapshotUnitPrice_customerLanguage']);
+        self::assertSame('kg', $snapshot['snapshotQuantityUnit']);
+        self::assertSame('kg', $snapshot['snapshotQuantityUnit_customerLanguage']);
     }
 
     public function testParentSnapshotSeparatesBillingAndShippingAddressWhenDeviantShippingAddressIsUsed(): void
@@ -64,7 +108,9 @@ final class WithdrawalScreenBProcessorTest extends TestCase
             'id' => 123,
             'orderNr' => '2026000001',
             'orderDate' => '2026-03-20',
+            'paymentMethod_title' => 'PayPal Fallback',
             'paymentMethod_title_customerLanguage' => 'PayPal',
+            'shippingMethod_title' => 'DHL Fallback',
             'shippingMethod_title_customerLanguage' => 'DHL',
             'customerData' => [
                 'personalData' => [
@@ -93,6 +139,10 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         );
 
         self::assertTrue($processor->hasCompleteParentSnapshot($snapshot));
+        self::assertSame('PayPal Fallback', $snapshot['snapshotPaymentMethod']);
+        self::assertSame('PayPal', $snapshot['snapshotPaymentMethod_customerLanguage']);
+        self::assertSame('DHL Fallback', $snapshot['snapshotShippingMethod']);
+        self::assertSame('DHL', $snapshot['snapshotShippingMethod_customerLanguage']);
         self::assertSame(
             [
                 'firstname' => 'Max',
@@ -120,8 +170,8 @@ final class WithdrawalScreenBProcessorTest extends TestCase
             'id' => 124,
             'orderNr' => '2026000002',
             'orderDate' => '2026-03-21',
-            'paymentMethod_title_customerLanguage' => 'Invoice',
-            'shippingMethod_title_customerLanguage' => 'UPS',
+            'paymentMethod_title' => 'Invoice Fallback',
+            'shippingMethod_title' => 'UPS Fallback',
             'customerData' => [
                 'personalData' => [
                     'firstname' => 'Max',
@@ -145,6 +195,10 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         );
 
         self::assertTrue($processor->hasCompleteParentSnapshot($snapshot));
+        self::assertSame('Invoice Fallback', $snapshot['snapshotPaymentMethod']);
+        self::assertSame('Invoice Fallback', $snapshot['snapshotPaymentMethod_customerLanguage']);
+        self::assertSame('UPS Fallback', $snapshot['snapshotShippingMethod']);
+        self::assertSame('UPS Fallback', $snapshot['snapshotShippingMethod_customerLanguage']);
         self::assertSame(
             [
                 'firstname' => 'Max',

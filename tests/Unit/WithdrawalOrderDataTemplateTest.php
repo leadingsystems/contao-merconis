@@ -141,7 +141,7 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
         self::assertStringNotContainsString('Shipping address', $rendered);
     }
 
-    public function testTemplateLeftAlignsAllOrderDataLabels(): void
+    public function testTemplateLeftAlignsAndTopAlignsAllOrderDataLabels(): void
     {
         $rendered = $this->renderTemplate([
             'scenario' => 1,
@@ -157,7 +157,7 @@ final class WithdrawalOrderDataTemplateTest extends TestCase
             'snapshotShippingMethod' => 'UPS',
         ]);
 
-        self::assertSame(6, substr_count($rendered, '<th style="text-align: left;">'));
+        self::assertSame(6, substr_count($rendered, '<th style="text-align: left; vertical-align: top;">'));
     }
 
     public function testTemplateRendersFallbackForScenarioTwoWithoutAddressHeadings(): void

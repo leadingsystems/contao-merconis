@@ -34,6 +34,14 @@ final class WithdrawalDcaSchemaTest extends TestCase
         self::assertSame("int(10) unsigned NOT NULL default '0'", $tableConfig['fields']['withdrawalTimestamp']['sql']);
         self::assertSame("blob NULL", $tableConfig['fields']['snapshotBillingAddress']['sql']);
         self::assertSame("blob NULL", $tableConfig['fields']['snapshotShippingAddress']['sql']);
+        self::assertSame(
+            "varchar(255) NOT NULL default ''",
+            $tableConfig['fields']['snapshotPaymentMethod_customerLanguage']['sql']
+        );
+        self::assertSame(
+            "varchar(255) NOT NULL default ''",
+            $tableConfig['fields']['snapshotShippingMethod_customerLanguage']['sql']
+        );
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['scenario']['sql']);
     }
 
@@ -49,6 +57,22 @@ final class WithdrawalDcaSchemaTest extends TestCase
 
         self::assertSame("bigint(20) unsigned NOT NULL default '0'", $tableConfig['fields']['orderItemReference']['sql']);
         self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['snapshotProductName']['sql']);
+        self::assertSame(
+            "varchar(255) NOT NULL default ''",
+            $tableConfig['fields']['snapshotProductName_customerLanguage']['sql']
+        );
+        self::assertSame(
+            "varchar(255) NOT NULL default ''",
+            $tableConfig['fields']['snapshotVariantTitle_customerLanguage']['sql']
+        );
+        self::assertSame(
+            "varchar(255) NOT NULL default ''",
+            $tableConfig['fields']['snapshotUnitPrice_customerLanguage']['sql']
+        );
+        self::assertSame(
+            "varchar(255) NOT NULL default ''",
+            $tableConfig['fields']['snapshotQuantityUnit_customerLanguage']['sql']
+        );
         self::assertSame("decimal(12,4) NOT NULL default '0.0000'", $tableConfig['fields']['snapshotOrderedQuantity']['sql']);
         self::assertSame("decimal(12,4) NOT NULL default '0.0000'", $tableConfig['fields']['withdrawnQuantity']['sql']);
     }
@@ -255,5 +279,16 @@ final class WithdrawalDcaSchemaTest extends TestCase
             '### MERCONIS Widerrufsbestätigung ###',
             $withdrawalConfirmationModuleContents
         );
+    }
+
+    public function testScreenBUsesCustomerLanguageOrderItemFields(): void
+    {
+        $withdrawalModuleContents = (string) file_get_contents(
+            __DIR__ . '/../../src/Resources/contao/frontendModules/ModuleWithdrawal.php'
+        );
+
+        self::assertStringContainsString("_productTitle_customerLanguage", $withdrawalModuleContents);
+        self::assertStringContainsString("_title_customerLanguage", $withdrawalModuleContents);
+        self::assertStringContainsString("_quantityUnit_customerLanguage", $withdrawalModuleContents);
     }
 }

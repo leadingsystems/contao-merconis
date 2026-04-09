@@ -219,6 +219,21 @@ class ModuleWithdrawal extends Module
             $withdrawnQuantity = $withdrawnQuantities[$orderItemId] ?? $orderedQuantity;
             $quantityChanged = abs($withdrawnQuantity - $orderedQuantity) > 0.0001;
             $quantityDecimals = $this->toQuantityDecimals($orderItem['quantityDecimals'] ?? 0);
+            $productName = $this->resolveOrderItemCustomerLanguageValue(
+                $orderItem,
+                ['_productTitle_customerLanguage'],
+                'productTitle'
+            );
+            $variantTitle = $this->resolveOrderItemCustomerLanguageValue(
+                $orderItem,
+                ['_variantTitle_customerLanguage', '_title_customerLanguage'],
+                'variantTitle'
+            );
+            $quantityUnit = $this->resolveOrderItemCustomerLanguageValue(
+                $orderItem,
+                ['_quantityUnit_customerLanguage'],
+                'quantityUnit'
+            );
 
             if ($quantityChanged) {
                 $changedItemIds[] = $orderItemId;
@@ -226,20 +241,20 @@ class ModuleWithdrawal extends Module
 
             $templateItems[] = [
                 'id' => $orderItemId,
-                'productName' => (string) ($orderItem['productTitle'] ?? ''),
-                'variantTitle' => (string) ($orderItem['variantTitle'] ?? ''),
+                'productName' => $productName,
+                'variantTitle' => $variantTitle,
                 'productNumber' => (string) ($orderItem['artNr'] ?? ''),
                 'unitPrice' => $this->formatUnitPriceDisplay(
                     $orderItem['price'] ?? 0,
-                    (string) ($orderItem['quantityUnit'] ?? '')
+                    $quantityUnit
                 ),
                 'orderedQuantity' => $orderedQuantity,
                 'orderedQuantityDisplay' => $this->formatQuantityForInput($orderedQuantity),
-                'quantityUnit' => (string) ($orderItem['quantityUnit'] ?? ''),
+                'quantityUnit' => $quantityUnit,
                 'quantityDecimals' => $quantityDecimals,
                 'selected' => in_array($orderItemId, $selectedItemIds, true),
                 'withdrawnQuantity' => $this->formatQuantityForInput($withdrawnQuantity),
-                'quantityDisplay' => $this->renderQuantityDisplay($withdrawnQuantity, $orderedQuantity, (string) ($orderItem['quantityUnit'] ?? '')),
+                'quantityDisplay' => $this->renderQuantityDisplay($withdrawnQuantity, $orderedQuantity, $quantityUnit),
                 'quantityChanged' => $quantityChanged,
             ];
         }
@@ -389,16 +404,26 @@ class ModuleWithdrawal extends Module
         $withdrawnQuantity = $this->toFloat(Input::post('quantity'));
         $quantityDecimals = $this->toQuantityDecimals($orderItem['quantityDecimals'] ?? 0);
         $minimumQuantity = $this->getMinimumWithdrawnQuantityForDecimals($quantityDecimals);
+        $quantityUnit = $this->resolveOrderItemCustomerLanguageValue(
+            $orderItem,
+            ['_quantityUnit_customerLanguage'],
+            'quantityUnit'
+        );
 
         $processor = new WithdrawalScreenBProcessor();
-        if (!$processor->isValidWithdrawnQuantity($withdrawnQuantity, $orderedQuantity, $minimumQuantity)) {
+        if (!$processor->isValidWithdrawnQuantity(
+            $withdrawnQuantity,
+            $orderedQuantity,
+            $minimumQuantity,
+            $quantityDecimals
+        )) {
             $withdrawnQuantity = $orderedQuantity;
         }
 
         return $this->renderQuantityDisplay(
             $withdrawnQuantity,
             $orderedQuantity,
-            (string) ($orderItem['quantityUnit'] ?? '')
+            $quantityUnit
         );
     }
 
@@ -598,9 +623,10 @@ class ModuleWithdrawal extends Module
                 "INSERT INTO `tl_ls_shop_withdrawal`
                     (`tstamp`, `withdrawalId`, `withdrawalTimestamp`, `name`, `email`, `orderReference`,
                      `snapshotOrderNr`, `snapshotOrderDate`, `snapshotBillingAddress`,
-                     `snapshotShippingAddress`, `snapshotPaymentMethod`, `snapshotShippingMethod`,
-                     `freetext`, `scenario`)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                     `snapshotShippingAddress`, `snapshotPaymentMethod`,
+                     `snapshotPaymentMethod_customerLanguage`, `snapshotShippingMethod`,
+                     `snapshotShippingMethod_customerLanguage`, `freetext`, `scenario`)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
             )
             ->execute(
                 $parentSnapshot['tstamp'],
@@ -614,7 +640,9 @@ class ModuleWithdrawal extends Module
                 $parentSnapshot['snapshotBillingAddress'],
                 $parentSnapshot['snapshotShippingAddress'],
                 $parentSnapshot['snapshotPaymentMethod'],
+                $parentSnapshot['snapshotPaymentMethod_customerLanguage'],
                 $parentSnapshot['snapshotShippingMethod'],
+                $parentSnapshot['snapshotShippingMethod_customerLanguage'],
                 $parentSnapshot['freetext'],
                 $parentSnapshot['scenario']
             );
@@ -638,19 +666,26 @@ class ModuleWithdrawal extends Module
                 ->prepare(
                     "INSERT INTO `tl_ls_shop_withdrawal_items`
                         (`pid`, `tstamp`, `orderItemReference`, `snapshotProductName`,
-                         `snapshotVariantTitle`, `snapshotProductNumber`, `snapshotUnitPrice`,
-                         `snapshotQuantityUnit`, `snapshotOrderedQuantity`, `snapshotQuantityDecimals`, `withdrawnQuantity`)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                         `snapshotProductName_customerLanguage`, `snapshotVariantTitle`,
+                         `snapshotVariantTitle_customerLanguage`, `snapshotProductNumber`,
+                         `snapshotUnitPrice`, `snapshotUnitPrice_customerLanguage`,
+                         `snapshotQuantityUnit`, `snapshotQuantityUnit_customerLanguage`,
+                         `snapshotOrderedQuantity`, `snapshotQuantityDecimals`, `withdrawnQuantity`)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 )
                 ->execute(
                     $withdrawalDbId,
                     $childSnapshot['tstamp'],
                     $childSnapshot['orderItemReference'],
                     $childSnapshot['snapshotProductName'],
+                    $childSnapshot['snapshotProductName_customerLanguage'],
                     $childSnapshot['snapshotVariantTitle'],
+                    $childSnapshot['snapshotVariantTitle_customerLanguage'],
                     $childSnapshot['snapshotProductNumber'],
                     $childSnapshot['snapshotUnitPrice'],
+                    $childSnapshot['snapshotUnitPrice_customerLanguage'],
                     $childSnapshot['snapshotQuantityUnit'],
+                    $childSnapshot['snapshotQuantityUnit_customerLanguage'],
                     $childSnapshot['snapshotOrderedQuantity'],
                     $childSnapshot['snapshotQuantityDecimals'],
                     $childSnapshot['withdrawnQuantity']
@@ -729,8 +764,9 @@ class ModuleWithdrawal extends Module
      */
     private function sendWithdrawalMessages(?array $arrOrder, array $arrWithdrawal): void
     {
-        $customerLanguage = (string) ($arrOrder['customerLanguage'] ?? $GLOBALS['TL_LANGUAGE'] ?? 'en');
-        $fallbackLanguage = (string) ($GLOBALS['TL_LANGUAGE'] ?? $customerLanguage);
+        $arrMailLanguages = $this->determineWithdrawalMailLanguages($arrOrder);
+        $customerLanguage = $arrMailLanguages['customerLanguage'];
+        $fallbackLanguage = $arrMailLanguages['fallbackLanguage'];
         $orderId = isset($arrOrder['id']) ? (int) $arrOrder['id'] : null;
 
         try {
@@ -762,6 +798,28 @@ class ModuleWithdrawal extends Module
         } catch (\Throwable $throwable) {
             $this->logWithdrawalMailError('merchant', (string) ($arrWithdrawal['withdrawalId'] ?? 'n/a'), $throwable->getMessage());
         }
+    }
+
+    /**
+     * @param array<string, mixed>|null $arrOrder
+     * @return array{customerLanguage: string, fallbackLanguage: string}
+     */
+    private function determineWithdrawalMailLanguages(?array $arrOrder): array
+    {
+        $fallbackLanguage = (string) ls_shop_languageHelper::getFallbackLanguage();
+        if ($fallbackLanguage === '') {
+            $fallbackLanguage = 'en';
+        }
+
+        $customerLanguage = (string) ($arrOrder['customerLanguage'] ?? $GLOBALS['TL_LANGUAGE'] ?? $fallbackLanguage);
+        if ($customerLanguage === '') {
+            $customerLanguage = $fallbackLanguage;
+        }
+
+        return [
+            'customerLanguage' => $customerLanguage,
+            'fallbackLanguage' => $fallbackLanguage,
+        ];
     }
 
     private function logWithdrawalMailError(string $recipientType, string $withdrawalId, string $message): void
@@ -932,7 +990,12 @@ class ModuleWithdrawal extends Module
             $quantityDecimals = $this->toQuantityDecimals($indexedOrderItems[$selectedItemId]['quantityDecimals'] ?? 0);
             $minimumQuantity = $this->getMinimumWithdrawnQuantityForDecimals($quantityDecimals);
 
-            if (!$processor->isValidWithdrawnQuantity($withdrawnQuantity, $orderedQuantity, $minimumQuantity)) {
+            if (!$processor->isValidWithdrawnQuantity(
+                $withdrawnQuantity,
+                $orderedQuantity,
+                $minimumQuantity,
+                $quantityDecimals
+            )) {
                 $errorMessages[] = (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_invalid_quantity'];
             }
         }
@@ -1030,6 +1093,47 @@ class ModuleWithdrawal extends Module
         }
 
         return $formattedPrice . '/' . $quantityUnit;
+    }
+
+    /**
+     * @param array<string, mixed> $orderItem
+     * @param array<int, string> $customerLanguageKeys
+     */
+    private function resolveOrderItemCustomerLanguageValue(
+        array $orderItem,
+        array $customerLanguageKeys,
+        string $fallbackKey
+    ): string {
+        $extendedInfo = is_array($orderItem['extendedInfo'] ?? null) ? $orderItem['extendedInfo'] : [];
+
+        return $this->resolveScalarValueWithFallback($extendedInfo, $customerLanguageKeys, $fallbackKey, $orderItem);
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     * @param array<int, string> $preferredKeys
+     * @param array<string, mixed>|null $fallbackValues
+     */
+    private function resolveScalarValueWithFallback(
+        array $values,
+        array $preferredKeys,
+        string $fallbackKey,
+        ?array $fallbackValues = null
+    ): string {
+        foreach ($preferredKeys as $preferredKey) {
+            if (!array_key_exists($preferredKey, $values) || $values[$preferredKey] === null) {
+                continue;
+            }
+
+            return (string) $values[$preferredKey];
+        }
+
+        $fallbackValues ??= $values;
+        if (!array_key_exists($fallbackKey, $fallbackValues) || $fallbackValues[$fallbackKey] === null) {
+            return '';
+        }
+
+        return (string) $fallbackValues[$fallbackKey];
     }
 
     private function renderQuantityDisplay(float $withdrawnQuantity, float $orderedQuantity, string $quantityUnit): string

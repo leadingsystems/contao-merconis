@@ -258,13 +258,14 @@ class ls_shop_orderMessages
 		if (!is_array($this->arrMessageModels)) {
 			return false;
 		}
-		$strLanguageToLoad = isset($this->arrOrder['customerLanguage']) && $this->arrOrder['customerLanguage'] ? $this->arrOrder['customerLanguage'] : $this->ls_language;
+		$strLanguageToLoad = $this->getMessageLanguageToLoad();
 		System::loadLanguageFile('default', $strLanguageToLoad, true);
 
 		$currentMessageTypeID = null;
 		$lastMessageTypeID = null;
 
 		foreach ($this->arrMessageModels as $arrMessageModel) {
+			$arrPreparedWithdrawal = $this->getPreparedWithdrawalDataForRendering();
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage'] as $mccb) {
@@ -311,7 +312,7 @@ class ls_shop_orderMessages
 				$objTemplate_emailHTML = new FrontendTemplate($arrMessageModel['template_html']);
 				$objTemplate_emailHTML->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(StringUtil::insertTagToSrc(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html']))));
 				$objTemplate_emailHTML->arrOrder = $this->arrOrder;
-				$objTemplate_emailHTML->arrWithdrawal = $this->arrWithdrawal;
+				$objTemplate_emailHTML->arrWithdrawal = $arrPreparedWithdrawal;
 				$objTemplate_emailHTML->arrMessageModel = $arrMessageModel;
 				$objTemplate_emailHTML->counterNr = $this->counterNr;
 			}
@@ -320,7 +321,7 @@ class ls_shop_orderMessages
 				$objTemplate_rawtext = new FrontendTemplate($arrMessageModel['template_rawtext']);
 				$objTemplate_rawtext->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_rawtext'])));
 				$objTemplate_rawtext->arrOrder = $this->arrOrder;
-				$objTemplate_rawtext->arrWithdrawal = $this->arrWithdrawal;
+				$objTemplate_rawtext->arrWithdrawal = $arrPreparedWithdrawal;
 				$objTemplate_rawtext->arrMessageModel = $arrMessageModel;
 				$objTemplate_rawtext->counterNr = $this->counterNr;
 			}
@@ -665,6 +666,7 @@ class ls_shop_orderMessages
 	}
 
 	protected function ls_replaceWildcards($text, ?callable $templateRenderer = null) {
+		$arrPreparedWithdrawal = $this->getPreparedWithdrawalDataForRendering();
 		/*
 		 * Replace the counterNr wildcard
 		 */
@@ -673,11 +675,11 @@ class ls_shop_orderMessages
 		}
 
 		if ($this->arrOrder === null) {
-            $text = ls_shop_generalHelper::ls_replaceTemplateWildcards($text, null, $this->arrWithdrawal, $templateRenderer);
+            $text = ls_shop_generalHelper::ls_replaceTemplateWildcards($text, null, $arrPreparedWithdrawal, $templateRenderer);
         }
 
 		if ($this->arrOrder !== null) {
-            $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $this->arrOrder, $this->arrWithdrawal, $templateRenderer);
+            $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $this->arrOrder, $arrPreparedWithdrawal, $templateRenderer);
         }
 		if ($this->obj_product !== null) {
             $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $this->obj_product, $this->ls_language);
@@ -685,11 +687,117 @@ class ls_shop_orderMessages
 		if ($this->arr_memberData !== null) {
             $text = ls_shop_generalHelper::ls_replaceMemberWildcards($text, $this->arr_memberData);
         }
-		if ($this->arrWithdrawal !== null) {
-			$text = ls_shop_generalHelper::ls_replaceWithdrawalWildcards($text, $this->arrWithdrawal);
+		if ($arrPreparedWithdrawal !== null) {
+			$text = ls_shop_generalHelper::ls_replaceWithdrawalWildcards($text, $arrPreparedWithdrawal);
 		}
 
 		return $text;
+	}
+
+	protected function getMessageLanguageToLoad() {
+		if ($this->arrWithdrawal !== null && $this->ls_language) {
+			return $this->ls_language;
+		}
+
+		if (isset($this->arrOrder['customerLanguage']) && $this->arrOrder['customerLanguage']) {
+			return $this->arrOrder['customerLanguage'];
+		}
+
+		return $this->ls_language;
+	}
+
+	protected function getPreparedWithdrawalDataForRendering() {
+		if (!is_array($this->arrWithdrawal)) {
+			return null;
+		}
+
+		$arrPreparedWithdrawal = $this->arrWithdrawal;
+		$blnUseCustomerLanguageVariant = $this->usesCustomerLanguageWithdrawalVariant();
+
+		$arrPreparedWithdrawal['snapshotPaymentMethod'] = $this->getPreparedWithdrawalFieldValue(
+			$arrPreparedWithdrawal,
+			'snapshotPaymentMethod',
+			'snapshotPaymentMethod_customerLanguage',
+			$blnUseCustomerLanguageVariant
+		);
+		$arrPreparedWithdrawal['snapshotShippingMethod'] = $this->getPreparedWithdrawalFieldValue(
+			$arrPreparedWithdrawal,
+			'snapshotShippingMethod',
+			'snapshotShippingMethod_customerLanguage',
+			$blnUseCustomerLanguageVariant
+		);
+
+		$arrPreparedWithdrawalItems = array();
+		foreach ($arrPreparedWithdrawal['items'] ?? array() as $arrWithdrawalItem) {
+			if (!is_array($arrWithdrawalItem)) {
+				$arrPreparedWithdrawalItems[] = $arrWithdrawalItem;
+				continue;
+			}
+
+			$arrWithdrawalItem['snapshotProductName'] = $this->getPreparedWithdrawalFieldValue(
+				$arrWithdrawalItem,
+				'snapshotProductName',
+				'snapshotProductName_customerLanguage',
+				$blnUseCustomerLanguageVariant
+			);
+			$arrWithdrawalItem['snapshotVariantTitle'] = $this->getPreparedWithdrawalFieldValue(
+				$arrWithdrawalItem,
+				'snapshotVariantTitle',
+				'snapshotVariantTitle_customerLanguage',
+				$blnUseCustomerLanguageVariant
+			);
+			$arrWithdrawalItem['snapshotUnitPrice'] = $this->getPreparedWithdrawalFieldValue(
+				$arrWithdrawalItem,
+				'snapshotUnitPrice',
+				'snapshotUnitPrice_customerLanguage',
+				$blnUseCustomerLanguageVariant
+			);
+			$arrWithdrawalItem['snapshotQuantityUnit'] = $this->getPreparedWithdrawalFieldValue(
+				$arrWithdrawalItem,
+				'snapshotQuantityUnit',
+				'snapshotQuantityUnit_customerLanguage',
+				$blnUseCustomerLanguageVariant
+			);
+
+			$arrPreparedWithdrawalItems[] = $arrWithdrawalItem;
+		}
+
+		$arrPreparedWithdrawal['items'] = $arrPreparedWithdrawalItems;
+
+		return $arrPreparedWithdrawal;
+	}
+
+	protected function usesCustomerLanguageWithdrawalVariant() {
+		if ($this->arrWithdrawal === null) {
+			return false;
+		}
+
+		if (!isset($this->arrOrder['customerLanguage']) || !$this->arrOrder['customerLanguage']) {
+			return false;
+		}
+
+		return $this->ls_language === $this->arrOrder['customerLanguage'];
+	}
+
+	protected function getPreparedWithdrawalFieldValue($arrValues, $strFallbackKey, $strCustomerLanguageKey, $blnUseCustomerLanguageVariant) {
+		if (!is_array($arrValues)) {
+			return '';
+		}
+
+		if (
+			$blnUseCustomerLanguageVariant
+			&& array_key_exists($strCustomerLanguageKey, $arrValues)
+			&& $arrValues[$strCustomerLanguageKey] !== null
+			&& $arrValues[$strCustomerLanguageKey] !== ''
+		) {
+			return (string) $arrValues[$strCustomerLanguageKey];
+		}
+
+		if (array_key_exists($strFallbackKey, $arrValues) && $arrValues[$strFallbackKey] !== null) {
+			return (string) $arrValues[$strFallbackKey];
+		}
+
+		return '';
 	}
 
 	protected function getOrderNumberForLogging() {

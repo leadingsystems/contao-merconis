@@ -213,6 +213,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+    var quantityEpsilon = 0.00001;
+
+    var isStepConformQuantity = function (requestedQuantity, minimumQuantity, stepValue) {
+        if (!Number.isFinite(requestedQuantity) || !Number.isFinite(minimumQuantity) || !Number.isFinite(stepValue)) {
+            return false;
+        }
+
+        if (stepValue <= 0) {
+            return false;
+        }
+
+        var normalizedOffset = requestedQuantity - minimumQuantity;
+        var remainder = normalizedOffset % stepValue;
+
+        return Math.abs(remainder) <= quantityEpsilon || Math.abs(remainder - stepValue) <= quantityEpsilon;
+    };
+
     selectAllCheckboxes.forEach(function (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function () {
             itemCheckboxes.forEach(function (itemCheckbox) {
@@ -264,11 +281,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
             var requestedQuantity = parseFloat(quantityInput.value || '0');
             var minimumQuantity = parseFloat(quantityInput.getAttribute('min') || '0');
+            var stepValue = parseFloat(quantityInput.getAttribute('step') || '0');
             if (!Number.isFinite(minimumQuantity) || minimumQuantity <= 0) {
                 minimumQuantity = 1;
             }
 
-            if (!Number.isFinite(requestedQuantity) || requestedQuantity < minimumQuantity || requestedQuantity > orderedQuantity) {
+            if (!Number.isFinite(stepValue) || stepValue <= 0) {
+                stepValue = minimumQuantity;
+            }
+
+            if (
+                !Number.isFinite(requestedQuantity)
+                || requestedQuantity < minimumQuantity
+                || requestedQuantity > orderedQuantity
+                || !isStepConformQuantity(requestedQuantity, minimumQuantity, stepValue)
+            ) {
                 if (quantityError) {
                     quantityError.textContent = invalidQuantityMessage;
                     quantityError.hidden = false;

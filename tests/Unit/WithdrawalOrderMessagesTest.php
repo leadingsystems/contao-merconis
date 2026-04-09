@@ -227,7 +227,148 @@ final class WithdrawalOrderMessagesTest extends TestCase
         self::assertFalse($result);
     }
 
-    private function createOrderMessagesInstanceWithWithdrawal(array $withdrawal): ls_shop_orderMessages
+    public function testWithdrawalMessageUsesExplicitMessageLanguageForLanguageFileLoading(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'customerLanguage' => 'de',
+            ]),
+            [
+                'withdrawalId' => 'W-00100',
+            ],
+            'en'
+        );
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'getMessageLanguageToLoad',
+            []
+        );
+
+        self::assertSame('en', $result);
+    }
+
+    public function testWithdrawalWildcardsUseCustomerLanguageSnapshotVariantForCustomerMessage(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'customerLanguage' => 'de',
+            ]),
+            $this->buildWithdrawalData(),
+            'de'
+        );
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                '##withdrawal::snapshotPaymentMethod##|##withdrawal::snapshotShippingMethod##|##template::mail_withdrawal##',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('mail_withdrawal', $template);
+                    self::assertSame('Rechnung', $withdrawalData['snapshotPaymentMethod'] ?? null);
+                    self::assertSame('Standardversand', $withdrawalData['snapshotShippingMethod'] ?? null);
+                    self::assertSame('Stuhl', $withdrawalData['items'][0]['snapshotProductName'] ?? null);
+                    self::assertSame('Gross', $withdrawalData['items'][0]['snapshotVariantTitle'] ?? null);
+                    self::assertSame('19,99 EUR/Stueck', $withdrawalData['items'][0]['snapshotUnitPrice'] ?? null);
+                    self::assertSame('Stueck', $withdrawalData['items'][0]['snapshotQuantityUnit'] ?? null);
+
+                    return implode('|', [
+                        $withdrawalData['items'][0]['snapshotProductName'] ?? '',
+                        $withdrawalData['items'][0]['snapshotVariantTitle'] ?? '',
+                        $withdrawalData['items'][0]['snapshotUnitPrice'] ?? '',
+                        $withdrawalData['items'][0]['snapshotQuantityUnit'] ?? '',
+                    ]);
+                },
+            ]
+        );
+
+        self::assertSame(
+            'Rechnung|Standardversand|Stuhl|Gross|19,99 EUR/Stueck|Stueck',
+            $result
+        );
+    }
+
+    public function testWithdrawalWildcardsUseShopFallbackSnapshotVariantForMerchantMessage(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'customerLanguage' => 'de',
+            ]),
+            $this->buildWithdrawalData(),
+            'en'
+        );
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                '##withdrawal::snapshotPaymentMethod##|##withdrawal::snapshotShippingMethod##|##template::mail_withdrawal##',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('mail_withdrawal', $template);
+                    self::assertSame('Invoice', $withdrawalData['snapshotPaymentMethod'] ?? null);
+                    self::assertSame('Standard shipping', $withdrawalData['snapshotShippingMethod'] ?? null);
+                    self::assertSame('Chair', $withdrawalData['items'][0]['snapshotProductName'] ?? null);
+                    self::assertSame('Large', $withdrawalData['items'][0]['snapshotVariantTitle'] ?? null);
+                    self::assertSame('19.99 EUR/piece', $withdrawalData['items'][0]['snapshotUnitPrice'] ?? null);
+                    self::assertSame('piece', $withdrawalData['items'][0]['snapshotQuantityUnit'] ?? null);
+
+                    return implode('|', [
+                        $withdrawalData['items'][0]['snapshotProductName'] ?? '',
+                        $withdrawalData['items'][0]['snapshotVariantTitle'] ?? '',
+                        $withdrawalData['items'][0]['snapshotUnitPrice'] ?? '',
+                        $withdrawalData['items'][0]['snapshotQuantityUnit'] ?? '',
+                    ]);
+                },
+            ]
+        );
+
+        self::assertSame(
+            'Invoice|Standard shipping|Chair|Large|19.99 EUR/piece|piece',
+            $result
+        );
+    }
+
+    public function testWithdrawalWildcardsFallBackToShopFallbackVariantWhenCustomerVariantIsMissing(): void
+    {
+        $withdrawalData = $this->buildWithdrawalData();
+        $withdrawalData['snapshotPaymentMethod_customerLanguage'] = '';
+        $withdrawalData['snapshotShippingMethod_customerLanguage'] = '';
+        $withdrawalData['items'][0]['snapshotProductName_customerLanguage'] = '';
+        $withdrawalData['items'][0]['snapshotVariantTitle_customerLanguage'] = '';
+        $withdrawalData['items'][0]['snapshotUnitPrice_customerLanguage'] = '';
+        $withdrawalData['items'][0]['snapshotQuantityUnit_customerLanguage'] = '';
+
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'customerLanguage' => 'de',
+            ]),
+            $withdrawalData,
+            'de'
+        );
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                '##withdrawal::snapshotPaymentMethod##|##template::mail_withdrawal##',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('mail_withdrawal', $template);
+                    self::assertSame('Invoice', $withdrawalData['snapshotPaymentMethod'] ?? null);
+                    self::assertSame('Chair', $withdrawalData['items'][0]['snapshotProductName'] ?? null);
+                    self::assertSame('19.99 EUR/piece', $withdrawalData['items'][0]['snapshotUnitPrice'] ?? null);
+
+                    return implode('|', [
+                        $withdrawalData['items'][0]['snapshotProductName'] ?? '',
+                        $withdrawalData['items'][0]['snapshotUnitPrice'] ?? '',
+                    ]);
+                },
+            ]
+        );
+
+        self::assertSame('Invoice|Chair|19.99 EUR/piece', $result);
+    }
+
+    private function createOrderMessagesInstanceWithWithdrawal(array $withdrawal, string $language = 'en'): ls_shop_orderMessages
     {
         $reflectionClass = new ReflectionClass(ls_shop_orderMessages::class);
         $orderMessages = $reflectionClass->newInstanceWithoutConstructor();
@@ -237,12 +378,16 @@ final class WithdrawalOrderMessagesTest extends TestCase
         $this->setProtectedProperty($orderMessages, 'obj_product', null);
         $this->setProtectedProperty($orderMessages, 'arr_memberData', null);
         $this->setProtectedProperty($orderMessages, 'arrWithdrawal', $withdrawal);
-        $this->setProtectedProperty($orderMessages, 'ls_language', 'en');
+        $this->setProtectedProperty($orderMessages, 'ls_language', $language);
 
         return $orderMessages;
     }
 
-    private function createOrderMessagesInstanceWithOrderAndWithdrawal(array $order, array $withdrawal): ls_shop_orderMessages
+    private function createOrderMessagesInstanceWithOrderAndWithdrawal(
+        array $order,
+        array $withdrawal,
+        string $language = 'en'
+    ): ls_shop_orderMessages
     {
         $reflectionClass = new ReflectionClass(ls_shop_orderMessages::class);
         $orderMessages = $reflectionClass->newInstanceWithoutConstructor();
@@ -252,7 +397,7 @@ final class WithdrawalOrderMessagesTest extends TestCase
         $this->setProtectedProperty($orderMessages, 'obj_product', null);
         $this->setProtectedProperty($orderMessages, 'arr_memberData', null);
         $this->setProtectedProperty($orderMessages, 'arrWithdrawal', $withdrawal);
-        $this->setProtectedProperty($orderMessages, 'ls_language', 'en');
+        $this->setProtectedProperty($orderMessages, 'ls_language', $language);
 
         return $orderMessages;
     }
@@ -276,6 +421,30 @@ final class WithdrawalOrderMessagesTest extends TestCase
             ],
             $overrides
         );
+    }
+
+    private function buildWithdrawalData(): array
+    {
+        return [
+            'withdrawalId' => 'W-00077',
+            'withdrawalTimestamp' => 1711536870,
+            'snapshotPaymentMethod' => 'Invoice',
+            'snapshotPaymentMethod_customerLanguage' => 'Rechnung',
+            'snapshotShippingMethod' => 'Standard shipping',
+            'snapshotShippingMethod_customerLanguage' => 'Standardversand',
+            'items' => [
+                [
+                    'snapshotProductName' => 'Chair',
+                    'snapshotProductName_customerLanguage' => 'Stuhl',
+                    'snapshotVariantTitle' => 'Large',
+                    'snapshotVariantTitle_customerLanguage' => 'Gross',
+                    'snapshotUnitPrice' => '19.99 EUR/piece',
+                    'snapshotUnitPrice_customerLanguage' => '19,99 EUR/Stueck',
+                    'snapshotQuantityUnit' => 'piece',
+                    'snapshotQuantityUnit_customerLanguage' => 'Stueck',
+                ],
+            ],
+        ];
     }
 
     /**

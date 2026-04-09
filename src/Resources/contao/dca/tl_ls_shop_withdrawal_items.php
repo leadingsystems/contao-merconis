@@ -28,7 +28,13 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = [
         'snapshotProductName' => [
             'sql' => "varchar(255) NOT NULL default ''",
         ],
+        'snapshotProductName_customerLanguage' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
         'snapshotVariantTitle' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'snapshotVariantTitle_customerLanguage' => [
             'sql' => "varchar(255) NOT NULL default ''",
         ],
         'snapshotProductNumber' => [
@@ -37,7 +43,13 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = [
         'snapshotUnitPrice' => [
             'sql' => "varchar(255) NOT NULL default ''",
         ],
+        'snapshotUnitPrice_customerLanguage' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
         'snapshotQuantityUnit' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'snapshotQuantityUnit_customerLanguage' => [
             'sql' => "varchar(255) NOT NULL default ''",
         ],
         'snapshotOrderedQuantity' => [
