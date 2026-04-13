@@ -996,51 +996,6 @@ class ls_shop_payment_methods extends Backend {
         return null;
     }
 
-    public function applyStripeMinimumPriceLimitMinOnLoad($value, DataContainer $dc): string
-    {
-        $paymentMethodType = $this->getSelectedPaymentMethodType($dc);
-        if ($paymentMethodType === null) {
-            return (string) $value;
-        }
-
-        $minimumValueOfGoods = ls_shop_paymentModule::getInstance()
-            ->getMinimumValueOfGoodsForPaymentMethodType($paymentMethodType);
-        if ($minimumValueOfGoods <= 0.0) {
-            return (string) $value;
-        }
-
-        $floatValue = (float) str_replace(',', '.', trim((string) $value));
-        if ($floatValue >= $minimumValueOfGoods) {
-            return (string) $value;
-        }
-
-        return number_format($minimumValueOfGoods, 4, '.', '');
-    }
-
-    protected function getSelectedPaymentMethodType(DataContainer $dc): ?string
-    {
-        $postedType = Input::post('type');
-        if (is_string($postedType) && $postedType !== '') {
-            return $postedType;
-        }
-
-        if ($dc->activeRecord !== null && isset($dc->activeRecord->type)) {
-            return (string) $dc->activeRecord->type;
-        }
-
-        if ($dc->id) {
-            $objPaymentMethod = Database::getInstance()
-                ->prepare("SELECT type FROM tl_ls_shop_payment_methods WHERE id=?")
-                ->limit(1)
-                ->execute($dc->id);
-            $objPaymentMethod->first();
-
-            return (string) $objPaymentMethod->type;
-        }
-
-        return null;
-    }
-
     protected function addBeFormFields($str_paymentMethodType) {
         $obj_paymentModule = ls_shop_paymentModule::getInstance();
         if (!is_array($obj_paymentModule->types[$str_paymentMethodType]['BE_formFields'])) {
