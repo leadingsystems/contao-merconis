@@ -3,11 +3,14 @@
 namespace LeadingSystems\MerconisBundle\EventListener;
 
 use Contao\Controller;
+use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Environment;
 use Contao\Input;
 use Contao\LayoutModel;
 use Contao\PageModel;
 use Contao\PageRegular;
 use Contao\StringUtil;
+use Contao\System;
 use Merconis\Core\ls_shop_generalHelper;
 
 class GetPageLayoutListener
@@ -88,12 +91,32 @@ class GetPageLayoutListener
     {
         if (!empty($_SESSION['lsShop']['onPageLoadRedirectUrl'])) {
 
-            $url = $_SESSION['lsShop']['onPageLoadRedirectUrl'];
+            $relativeUrl = (string) $_SESSION['lsShop']['onPageLoadRedirectUrl'];
             unset($_SESSION['lsShop']['onPageLoadRedirectUrl']);
 
-            // Checks whether $url is a valid, properly formatted URL (prevents invalid values)
-            if (filter_var($url, FILTER_VALIDATE_URL)) {
-                Controller::redirect($url);
+            $relativeUrl = trim($relativeUrl);
+            if ($relativeUrl !== '' && !str_starts_with($relativeUrl, '/')) {
+                $relativeUrl = '/' . ltrim($relativeUrl, '/');
+            }
+
+            // Only allow relative URLs to prevent open redirects.
+            if (
+                $relativeUrl !== ''
+                && str_starts_with($relativeUrl, '/')
+                && !str_starts_with($relativeUrl, '//')
+                && !str_contains($relativeUrl, "\r")
+                && !str_contains($relativeUrl, "\n")
+                && !str_contains($relativeUrl, "\\")
+            ) {
+                Controller::redirect(rtrim(Environment::get('base'), '/') . $relativeUrl);
+            } else {
+                System::getContainer()->get('monolog.logger.contao')->info(
+                    'MERCONIS: Skipped on-page-load redirect because URL validation failed.',
+                    [
+                        'contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR),
+                        'urlPreview' => substr($relativeUrl, 0, 120),
+                    ]
+                );
             }
         }
     }

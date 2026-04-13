@@ -36,6 +36,7 @@ use LeadingSystems\MerconisBundle\EventListener\Post;
 
 use LeadingSystems\MerconisBundle\License\LicenseKeyValidator;
 use Symfony\Component\Finder\Finder;
+use Psr\Log\LogLevel;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -46,6 +47,8 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_generalHelper
 {
+    private static bool $cacheWarningShown = false;
+  
     /**
      * Returns hook callbacks sorted by priority
      *
@@ -93,6 +96,7 @@ class ls_shop_generalHelper
             $normalizedCallbacks
         );
     }
+
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
      * and writes them into the allocation table
@@ -4291,11 +4295,94 @@ class ls_shop_generalHelper
             $arrOrder['shippingMethod_infoAfterCheckout'] = ls_shop_generalHelper::ls_replaceOrderWildcards($arrOrder['shippingMethod_infoAfterCheckout'], $arrOrder);
             $arrOrder['shippingMethod_infoAfterCheckout_customerLanguage'] = ls_shop_generalHelper::ls_replaceOrderWildcards($arrOrder['shippingMethod_infoAfterCheckout_customerLanguage'], $arrOrder);
 
+            // count how many orders are already saved
+            $orderCount = isset($GLOBALS['merconis_globals']['order'])? count($GLOBALS['merconis_globals']['order']): 0;
+
+            // if to many orders are already saved, we should not save more, because we use to much RAM
+            if (!self::shouldUseCache()) {
+                return $arrOrder;
+            }
 
             $GLOBALS['merconis_globals']['order'][$identificationToken] = $arrOrder;
         }
 
         return $GLOBALS['merconis_globals']['order'][$identificationToken];
+    }
+
+    //used by tl_lsShopSettings dca and everywhere else that needs the default value for this setting
+    public static function getDefaultCacheRamPercent($value)
+    {
+        if (!$value || $value <= 0) {
+            return 60;
+        }
+        return $value;
+    }
+    public static function shouldUseCache(): bool
+    {
+        $percentSetting = (int) Config::get('ls_shop_cacheRamPercent');
+
+
+        if ($percentSetting <= 0) {
+            $percentSetting = self::getDefaultCacheRamPercent($percentSetting);;
+        }
+
+        // Read the PHP memory_limit
+        $memoryLimit = ini_get('memory_limit');
+
+        // unlimited (-1), always cache
+        if ($memoryLimit == -1) {
+            return true;
+        }
+
+        $limitMb = self::convertToMb($memoryLimit);
+
+        $currentMb = memory_get_usage(true) / 1024 / 1024;
+
+        // allowed limit in MB
+        $limitPercentValue = $limitMb * ($percentSetting / 100);
+
+        // Check if the percentage limit is exceeded
+        if ($currentMb >= $limitPercentValue) {
+
+            // Only write warning in log one time runtime
+            if (!self::$cacheWarningShown) {
+
+                System::getContainer()->get('monolog.logger.contao')->log(
+                    LogLevel::WARNING,
+                    sprintf(
+                        'Merconis cache stopped: RAM at %.2f MB (threshold %.2f MB (%s%%) of %s MB total).',
+                        $currentMb,
+                        $limitPercentValue,
+                        $percentSetting,
+                        $limitMb
+                    ),
+                    array('contao' => new ContaoContext(__METHOD__, 'GENERAL')),
+                );
+
+                self::$cacheWarningShown = true;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function convertToMb(string $val): float
+    {
+        $val = trim($val);
+        $last = strtolower($val[strlen($val)-1]);
+
+        switch ($last) {
+            case 'g':
+                return (int)$val * 1024;
+            case 'm':
+                return (int)$val;
+            case 'k':
+                return (int)$val / 1024;
+            default:
+                return (float)$val;
+        }
     }
 
     public static function getMessageSent($identificationToken, $searchBy = 'id', $blnForceRefresh = false)
@@ -5222,9 +5309,6 @@ class ls_shop_generalHelper
 
     public static function getMerconisSystemMessages()
     {
-        // Stelle sicher, dass `gracePeriodDaysLeft` vor der Anzeige aktualisiert ist.
-//        ls_shop_generalHelper::LaFP();
-
         ob_start();
 
         if (isset($GLOBALS['TL_CONFIG']['merconis_snInvalid']) && $GLOBALS['TL_CONFIG']['merconis_snInvalid']) {
@@ -5234,8 +5318,9 @@ class ls_shop_generalHelper
         } else {
             if (isset($GLOBALS['TL_CONFIG']['gracePeriodDaysLeft']) && $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'] != 999999) {
                 if ($GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'] > 0) {
+                    $urlToLicense = 'https://lizenz.merconis.com';
                     ?>
-                    <h2 class="gracePeriodMessage"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'], $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft']); ?></h2>
+                    <h2 class="gracePeriodMessage"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'], $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'], $urlToLicense); ?></h2>
                     <?php
 
                 } else {
@@ -5337,7 +5422,7 @@ class ls_shop_generalHelper
     public static function getBackendLscssStyles() {
         $obj_lscss4cController = \LeadingSystems\Lscss4c\lscss4C_controller::getInstance();
         return $obj_lscss4cController->getLscss(
-            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.d93d357f.scss',
+            ls_getFilePathFromVariableSources($GLOBALS['TL_CONFIG']['ls_shop_lscssFileToLoad']) ?: '/vendor/leadingsystems/contao-merconis/src/Resources/public/lscss/lscss-backend-project.d4dc0cda.scss',
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoCacheMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssNoMinifierMode'],
             $GLOBALS['TL_CONFIG']['ls_shop_lscssDebugMode']

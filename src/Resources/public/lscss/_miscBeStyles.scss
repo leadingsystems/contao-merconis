@@ -12,6 +12,29 @@
   padding: 10px;
 }
 
+.lsm-dashboard-branding-logo {
+  display: block;
+  height: 120px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-image: url("/bundles/leadingsystemsmerconis/images/logo/logo-with-claim.svg");
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+}
+
+@supports (aspect-ratio: 1 / 1) {
+  .lsm-dashboard-branding-logo {
+    aspect-ratio: 197 / 37;
+    height: auto;
+    max-height: 120px;
+  }
+}
+
+html[data-color-scheme="dark"] .lsm-dashboard-branding-logo {
+  background-image: url("/bundles/leadingsystemsmerconis/images/logo/logo-negativ-with-claim.svg");
+}
+
 .shopHint {
   font-weight: bold;
   color: #FF9900;
@@ -29,16 +52,24 @@
 .gracePeriodMessage {
   font-size: 20px;
   font-weight: bold;
-  color: #000000;
-  background-color: #FFFF00;
+  line-height: normal;
+  color: #222;
+  background-color: #F4DACA;
   padding: 20px;
-  margin-bottom: 50px !important;
+  margin-bottom: 25px !important;
+
+  a {
+    &.theme-download {
+      text-decoration: underline;
+    }
+  }
 }
 
 .gracePeriodExpiredMessage,
 .invalidServiceNumberMessage {
-  font-size: 30px;
+  font-size: 20px;
   font-weight: bold;
+  line-height: normal;
   color: #FFFFFF;
   background-color: #FF0000;
   padding: 20px;
@@ -147,11 +178,7 @@
 
 .ls_shop_systemMessage {
   padding: 15px;
-  border: 1px solid #000000;
-  padding-left: 158px;
-  background-image: url("/bundles/leadingsystemsmerconis/images/logo/Baum_128x128.png");
-  background-repeat: no-repeat;
-  background-position: 15px 15px;
+  border: 1px solid var(--border);
   min-height: 128px;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -168,10 +195,7 @@
   .ls_shop_announcement {
     background-color: #ffd080;
     padding: 15px;
-  }
-
-  html[data-color-scheme="dark"] & {
-    border: 1px solid var(--border);
+    color: #222;
   }
 
   h2 {
