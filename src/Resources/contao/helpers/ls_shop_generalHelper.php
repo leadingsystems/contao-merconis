@@ -4118,7 +4118,7 @@ class ls_shop_generalHelper
         return $filteredValues;
     }
 
-    public static function buildWithdrawalLinkTag($withdrawalPageUrl, $withdrawalIdentifier, $linkText)
+    public static function buildWithdrawalPageUrl($withdrawalPageUrl, $withdrawalIdentifier)
     {
         if (!is_string($withdrawalPageUrl) || $withdrawalPageUrl === '') {
             return '';
@@ -4128,12 +4128,22 @@ class ls_shop_generalHelper
             return '';
         }
 
-        if (!is_string($linkText) || $linkText === '') {
+        $separator = preg_match('/\?/', $withdrawalPageUrl) ? '&' : '?';
+
+        return $withdrawalPageUrl . $separator . 'wid=' . rawurlencode($withdrawalIdentifier);
+    }
+
+    public static function buildWithdrawalLinkTag($withdrawalPageUrl, $withdrawalIdentifier, $linkText)
+    {
+        $url = self::buildWithdrawalPageUrl($withdrawalPageUrl, $withdrawalIdentifier);
+
+        if ($url === '') {
             return '';
         }
 
-        $separator = preg_match('/\?/', $withdrawalPageUrl) ? '&' : '?';
-        $url = $withdrawalPageUrl . $separator . 'wid=' . rawurlencode($withdrawalIdentifier);
+        if (!is_string($linkText) || $linkText === '') {
+            return '';
+        }
 
         return '<a href="' . StringUtil::specialchars($url) . '" rel="noopener noreferrer">' . StringUtil::specialchars($linkText) . '</a>';
     }
@@ -4191,17 +4201,22 @@ class ls_shop_generalHelper
          */
         if (
             $arrOrder['withdrawalIdentifier']
-            && preg_match('/(&#35;&#35;orderWithdrawalLink&#35;&#35;)|(##orderWithdrawalLink##)/siU', $text)
+            && preg_match('/(&#35;&#35;orderWithdrawal(Link|Url)&#35;&#35;)|(##orderWithdrawal(Link|Url)##)/siU', $text)
         ) {
             $withdrawalPage = ls_shop_languageHelper::getLanguagePage('ls_shop_withdrawalPages');
             $withdrawalPageUrl = is_string($withdrawalPage) && $withdrawalPage !== ''
                 ? ((isset($arrOrder['miscData']['domain']) && $arrOrder['miscData']['domain']) ? $arrOrder['miscData']['domain'] : self::getEnvironmentBase(true)) . $withdrawalPage
                 : '';
+            $resolvedWithdrawalPageUrl = self::buildWithdrawalPageUrl($withdrawalPageUrl, $arrOrder['withdrawalIdentifier']);
             $withdrawalLinkText = (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_message_link'];
             $withdrawalLinkTag = self::buildWithdrawalLinkTag($withdrawalPageUrl, $arrOrder['withdrawalIdentifier'], $withdrawalLinkText);
 
             if ($withdrawalLinkTag !== '') {
                 $text = preg_replace('/(&#35;&#35;orderWithdrawalLink&#35;&#35;)|(##orderWithdrawalLink##)/siU', $withdrawalLinkTag, $text);
+            }
+
+            if ($resolvedWithdrawalPageUrl !== '') {
+                $text = preg_replace('/(&#35;&#35;orderWithdrawalUrl&#35;&#35;)|(##orderWithdrawalUrl##)/siU', $resolvedWithdrawalPageUrl, $text);
             }
         }
 
@@ -4331,6 +4346,7 @@ class ls_shop_generalHelper
             'orderNr',
             'orderWithdrawalIdentifier',
             'orderWithdrawalLink',
+            'orderWithdrawalUrl',
             'orderDate',
             'paymentMethod_infoAfterCheckout',
             'paymentMethod_infoAfterCheckout_customerLanguage',

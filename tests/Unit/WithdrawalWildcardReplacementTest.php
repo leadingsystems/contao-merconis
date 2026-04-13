@@ -17,6 +17,11 @@ final class WithdrawalWildcardReplacementTest extends TestCase
         $GLOBALS['TL_CONFIG']['dateFormat'] = 'Y-m-d';
         $GLOBALS['TL_CONFIG']['timeFormat'] = 'H:i';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_message_link'] = 'Withdrawal link';
+        unset(
+            $GLOBALS['merconis_globals']['ls_shop_withdrawalPagesUrl'],
+            $GLOBALS['merconis_globals']['ls_shop_withdrawalPagesID'],
+            $GLOBALS['merconis_globals']['ls_shop_withdrawalPagesArray']
+        );
     }
 
     public function testWithdrawalWildcardsAreResolvedIncludingComputedAndFormattedFields(): void
@@ -150,6 +155,39 @@ final class WithdrawalWildcardReplacementTest extends TestCase
         );
     }
 
+    public function testOrderWithdrawalUrlWildcardIsResolvedWithoutMarkup(): void
+    {
+        $GLOBALS['merconis_globals']['ls_shop_withdrawalPagesUrl'] = 'withdrawal';
+        $GLOBALS['merconis_globals']['ls_shop_withdrawalPagesID'] = 17;
+        $GLOBALS['merconis_globals']['ls_shop_withdrawalPagesArray'] = ['id' => 17, 'alias' => 'withdrawal'];
+
+        $order = [
+            'miscData' => ['domain' => 'https://example.com/'],
+            'customerData' => [],
+            'orderIdentificationHash' => '',
+            'orderNr' => '',
+            'withdrawalIdentifier' => 'ORDER-1001-A1B2C3',
+            'orderDateUnixTimestamp' => 0,
+            'paymentMethod_infoAfterCheckout' => '',
+            'paymentMethod_infoAfterCheckout_customerLanguage' => '',
+            'shippingMethod_infoAfterCheckout' => '',
+            'shippingMethod_infoAfterCheckout_customerLanguage' => '',
+            'shippingTrackingNr' => '',
+            'shippingTrackingUrl' => '',
+        ];
+
+        $resolved = ls_shop_generalHelper::ls_replaceOrderWildcards(
+            'URL: ##orderWithdrawalUrl##',
+            $order
+        );
+
+        self::assertSame(
+            'URL: https://example.com/withdrawal?wid=ORDER-1001-A1B2C3',
+            $resolved
+        );
+        self::assertStringNotContainsString('<a ', $resolved);
+    }
+
     public function testOrderWildcardCleanupKeepsWithdrawalNamespaceTokens(): void
     {
         $order = [
@@ -201,6 +239,31 @@ final class WithdrawalWildcardReplacementTest extends TestCase
 
         $resolved = ls_shop_generalHelper::ls_replaceOrderWildcards(
             'Before ##orderWithdrawalLink## After',
+            $order
+        );
+
+        self::assertSame('Before  After', $resolved);
+    }
+
+    public function testOrderWithdrawalUrlWildcardIsRemovedByCleanupWhenIdentifierIsMissing(): void
+    {
+        $order = [
+            'miscData' => [],
+            'customerData' => [],
+            'orderIdentificationHash' => '',
+            'orderNr' => '',
+            'withdrawalIdentifier' => '',
+            'orderDateUnixTimestamp' => 0,
+            'paymentMethod_infoAfterCheckout' => '',
+            'paymentMethod_infoAfterCheckout_customerLanguage' => '',
+            'shippingMethod_infoAfterCheckout' => '',
+            'shippingMethod_infoAfterCheckout_customerLanguage' => '',
+            'shippingTrackingNr' => '',
+            'shippingTrackingUrl' => '',
+        ];
+
+        $resolved = ls_shop_generalHelper::ls_replaceOrderWildcards(
+            'Before ##orderWithdrawalUrl## After',
             $order
         );
 
