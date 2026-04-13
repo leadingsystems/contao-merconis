@@ -92,6 +92,7 @@
 
                 [data-withdrawal-quantity-controls='1'] {
                     display: flex;
+                    flex-direction: column;
                     align-items: center;
                     gap: $grid-gutter-width-super-small;
                 }
@@ -215,7 +216,6 @@
             [data-withdrawal-toggle-container='1'] {
                 [data-lsjs-element='toggleableArea'] {
                     [data-withdrawal-quantity-controls='1'] {
-                        flex-direction: column;
                         align-items: stretch;
                     }
                 }
