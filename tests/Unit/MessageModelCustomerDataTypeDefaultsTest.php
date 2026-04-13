@@ -8,6 +8,26 @@ use PHPUnit\Framework\TestCase;
 
 final class MessageModelCustomerDataTypeDefaultsTest extends TestCase
 {
+    public function testCustomerDataTypeOptionsAreLimitedToWithdrawalDataForWithdrawalType(): void
+    {
+        $controller = $this->createControllerWithWithdrawalFlag(true);
+
+        self::assertSame(
+            ['withdrawalData'],
+            $controller->getCustomerDataTypeOptions($this->createMock(DataContainer::class))
+        );
+    }
+
+    public function testCustomerDataTypeOptionsExcludeWithdrawalDataForNonWithdrawalType(): void
+    {
+        $controller = $this->createControllerWithWithdrawalFlag(false);
+
+        self::assertSame(
+            ['personalData', 'paymentData', 'shippingData'],
+            $controller->getCustomerDataTypeOptions($this->createMock(DataContainer::class))
+        );
+    }
+
     public function testCustomerDataType1DefaultIsWithdrawalDataForWithdrawalTypeOnEmptyValue(): void
     {
         $controller = $this->createControllerWithWithdrawalFlag(true);

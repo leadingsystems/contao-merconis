@@ -16,6 +16,7 @@ final class WithdrawalWildcardReplacementTest extends TestCase
         date_default_timezone_set('UTC');
         $GLOBALS['TL_CONFIG']['dateFormat'] = 'Y-m-d';
         $GLOBALS['TL_CONFIG']['timeFormat'] = 'H:i';
+        $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_message_link'] = 'Withdrawal link';
     }
 
     public function testWithdrawalWildcardsAreResolvedIncludingComputedAndFormattedFields(): void
@@ -135,6 +136,20 @@ final class WithdrawalWildcardReplacementTest extends TestCase
         self::assertSame('Identifier: ORDER-1001-A1B2C3', $resolved);
     }
 
+    public function testBuildWithdrawalLinkTagCreatesExpectedAnchor(): void
+    {
+        $resolved = ls_shop_generalHelper::buildWithdrawalLinkTag(
+            'https://example.com/withdrawal',
+            'ORDER-1001-A1B2C3',
+            'Withdrawal link'
+        );
+
+        self::assertSame(
+            '<a href="https://example.com/withdrawal?wid=ORDER-1001-A1B2C3" rel="noopener noreferrer">Withdrawal link</a>',
+            $resolved
+        );
+    }
+
     public function testOrderWildcardCleanupKeepsWithdrawalNamespaceTokens(): void
     {
         $order = [
@@ -165,6 +180,31 @@ final class WithdrawalWildcardReplacementTest extends TestCase
             'Order ORDER-1001, Name Max, Withdrawal ##withdrawal::email##',
             $resolved
         );
+    }
+
+    public function testOrderWithdrawalLinkWildcardIsRemovedByCleanupWhenIdentifierIsMissing(): void
+    {
+        $order = [
+            'miscData' => [],
+            'customerData' => [],
+            'orderIdentificationHash' => '',
+            'orderNr' => '',
+            'withdrawalIdentifier' => '',
+            'orderDateUnixTimestamp' => 0,
+            'paymentMethod_infoAfterCheckout' => '',
+            'paymentMethod_infoAfterCheckout_customerLanguage' => '',
+            'shippingMethod_infoAfterCheckout' => '',
+            'shippingMethod_infoAfterCheckout_customerLanguage' => '',
+            'shippingTrackingNr' => '',
+            'shippingTrackingUrl' => '',
+        ];
+
+        $resolved = ls_shop_generalHelper::ls_replaceOrderWildcards(
+            'Before ##orderWithdrawalLink## After',
+            $order
+        );
+
+        self::assertSame('Before  After', $resolved);
     }
 
     public function testTemplateWildcardRendererReceivesWithdrawalData(): void

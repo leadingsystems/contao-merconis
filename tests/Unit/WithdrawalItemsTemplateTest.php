@@ -13,7 +13,7 @@ final class WithdrawalItemsTemplateTest extends TestCase
 
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_heading'] = 'Withdrawn items';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_freetext_heading'] = 'Contract identification details';
-        $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product'] = 'Product description';
+        $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product'] = 'Product';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number'] = 'Product number';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price'] = 'Unit price';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity'] = 'Quantity';
@@ -46,7 +46,7 @@ final class WithdrawalItemsTemplateTest extends TestCase
             ],
         ]);
 
-        self::assertStringContainsString('Product description', $rendered);
+        self::assertStringContainsString('Product', $rendered);
         self::assertStringContainsString('Unit price', $rendered);
         self::assertStringContainsString('T-Shirt, Blue / XL', $rendered);
         self::assertStringContainsString('Hoodie', $rendered);

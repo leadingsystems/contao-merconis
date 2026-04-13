@@ -1161,8 +1161,6 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_nu
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_date_label'] = 'Bestelldatum';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_heading'] = 'Rechnungsadresse';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_heading'] = 'Versandadresse';
-$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_label'] = 'Rechnungsadresse';
-$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_label'] = 'Versandadresse';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels'] = [
     'firstname' => 'Vorname',
     'lastname' => 'Nachname',
@@ -1197,6 +1195,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_la
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_placeholder'] = 'z. B. 2026000001-G54FQ9';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_submit'] = 'Vertrag widerrufen';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_direct_link_label'] = 'Vertrag widerrufen';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_message_link'] = 'Widerrufs-Link';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_identifier_value_label'] = 'Identifikationsnummer für den Widerruf:';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_empty_identifier'] = 'Bitte geben Sie die Identifikationsnummer ein.';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_not_found'] = 'Die eingegebene Identifikationsnummer konnte nicht zugeordnet werden.';

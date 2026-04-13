@@ -214,11 +214,15 @@ final class WithdrawalDcaSchemaTest extends TestCase
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_form_submit']", $defaultLanguageDe);
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_fallback_submit']", $defaultLanguageEn);
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_fallback_submit']", $defaultLanguageDe);
+        self::assertStringContainsString("['ls_contao-merconis']['withdrawal_order_message_link']", $defaultLanguageEn);
+        self::assertStringContainsString("['ls_contao-merconis']['withdrawal_order_message_link']", $defaultLanguageDe);
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_confirmation_id_heading']", $defaultLanguageEn);
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_confirmation_id_heading']", $defaultLanguageDe);
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_confirmation_text']", $defaultLanguageEn);
         self::assertStringContainsString("['ls_contao-merconis']['withdrawal_confirmation_text']", $defaultLanguageDe);
         self::assertStringContainsString('Identifikationsnummer für den Widerruf:', $defaultLanguageDe);
+        self::assertStringContainsString('Withdrawal link', $defaultLanguageEn);
+        self::assertStringContainsString('Widerrufs-Link', $defaultLanguageDe);
         self::assertStringContainsString('Bitte versuchen Sie es später erneut.', $defaultLanguageDe);
 
         self::assertStringContainsString("['FMD']['ls_shop_withdrawal']", $modulesLanguageEn);

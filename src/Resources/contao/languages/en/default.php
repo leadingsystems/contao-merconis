@@ -1161,8 +1161,6 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_nu
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_date_label'] = 'Order date';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_heading'] = 'Billing address';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_heading'] = 'Shipping address';
-$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_label'] = 'Billing address';
-$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_label'] = 'Shipping address';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels'] = [
     'firstname' => 'First name',
     'lastname' => 'Last name',
@@ -1197,6 +1195,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_la
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_placeholder'] = 'e.g. 2026000001-G54FQ9';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_submit'] = 'Withdraw contract';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_direct_link_label'] = 'Withdraw contract';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_message_link'] = 'Withdrawal link';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_identifier_value_label'] = 'Withdrawal identifier:';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_empty_identifier'] = 'Please enter the withdrawal identifier.';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_not_found'] = 'We could not assign the entered withdrawal identifier.';

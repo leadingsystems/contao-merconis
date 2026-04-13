@@ -414,13 +414,11 @@ class tl_ls_shop_message_model_controller extends Backend {
 	}
 
 	public function getCustomerDataTypeOptions(DataContainer $dc): array {
-		$arrOptions = array('personalData', 'paymentData', 'shippingData');
-
 		if ($this->isWithdrawalMessageType($dc)) {
-			$arrOptions[] = 'withdrawalData';
+			return array('withdrawalData');
 		}
 
-		return $arrOptions;
+		return array('personalData', 'paymentData', 'shippingData');
 	}
 
 	public function setCustomerDataType1Default($varValue, DataContainer $dc) {
