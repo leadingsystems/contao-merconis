@@ -12,6 +12,7 @@ use Contao\Module;
 use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\MerconisBundle\Helpers\WithdrawalConfirmationTokenProcessor;
+use LeadingSystems\MerconisBundle\Helpers\WithdrawalTestmodeProcessor;
 
 class ModuleWithdrawalConfirmation extends Module
 {
@@ -33,6 +34,7 @@ class ModuleWithdrawalConfirmation extends Module
     {
         $tokenValue = (string) Input::get('wrt');
         $tokenProcessor = new WithdrawalConfirmationTokenProcessor();
+        $testmodeProcessor = new WithdrawalTestmodeProcessor();
         $secret = (string) System::getContainer()->getParameter('kernel.secret');
 
         $validationResult = $tokenProcessor->validateToken(
@@ -46,8 +48,20 @@ class ModuleWithdrawalConfirmation extends Module
             $this->redirectToScreenA();
         }
 
-        $withdrawalPrimaryKey = (int) ($validationResult['primaryKey'] ?? 0);
-        $withdrawalRecord = $this->findWithdrawalRecordByPrimaryKey($withdrawalPrimaryKey);
+        $withdrawalReference = (string) ($validationResult['reference'] ?? '');
+        if ($withdrawalReference === '') {
+            $this->redirectToScreenA();
+        }
+
+        $withdrawalRecord = null;
+        if ($testmodeProcessor->isPlaceholderWithdrawalId($withdrawalReference)) {
+            $withdrawalRecord = $this->buildPlaceholderWithdrawalRecord((string) Input::get('testmode'));
+        } elseif (array_key_exists('primaryKey', $validationResult)) {
+            $withdrawalRecord = $this->findWithdrawalRecordByPrimaryKey((int) $validationResult['primaryKey']);
+            if ($withdrawalRecord === null) {
+                $withdrawalRecord = $this->buildPlaceholderWithdrawalRecord((string) Input::get('testmode'));
+            }
+        }
 
         if ($withdrawalRecord === null) {
             $this->redirectToScreenA();
@@ -67,7 +81,7 @@ class ModuleWithdrawalConfirmation extends Module
     {
         $withdrawalPage = ls_shop_languageHelper::getLanguagePage('ls_shop_withdrawalPages');
         if (!is_string($withdrawalPage) || $withdrawalPage === '') {
-            $withdrawalPage = ls_shop_generalHelper::getUrl(false, ['wrt']);
+            $withdrawalPage = ls_shop_generalHelper::getUrl(false, ['wrt', 'testmode']);
         }
 
         Controller::redirect($withdrawalPage);
@@ -96,6 +110,26 @@ class ModuleWithdrawalConfirmation extends Module
         }
 
         return $objResult->row();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildPlaceholderWithdrawalRecord(string $testmodeOrderIdentificationHash = ''): array
+    {
+        $emailAddress = '';
+
+        if ($testmodeOrderIdentificationHash !== '') {
+            $arrOrder = ls_shop_generalHelper::getOrder(trim($testmodeOrderIdentificationHash), 'orderIdentificationHash');
+            if (is_array($arrOrder) && count($arrOrder)) {
+                $emailAddress = (string) ($arrOrder['customerData']['personalData']['email'] ?? '');
+            }
+        }
+
+        return [
+            'withdrawalId' => WithdrawalTestmodeProcessor::PLACEHOLDER_WITHDRAWAL_ID,
+            'email' => $emailAddress,
+        ];
     }
 
     /**

@@ -11,15 +11,16 @@ final class WithdrawalConfirmationTokenProcessor
     public const STATUS_INVALID_SIGNATURE = 'invalid_signature';
     public const STATUS_EXPIRED = 'expired';
 
-    public function createToken(int $withdrawalPrimaryKey, int $issuedTimestamp, string $secret): string
+    public function createToken(string|int $withdrawalReference, int $issuedTimestamp, string $secret): string
     {
-        $signature = hash_hmac('sha256', $withdrawalPrimaryKey . $issuedTimestamp, $secret);
+        $normalizedReference = trim((string) $withdrawalReference);
+        $signature = hash_hmac('sha256', $normalizedReference . $issuedTimestamp, $secret);
 
-        return $withdrawalPrimaryKey . '-' . $issuedTimestamp . '-' . $signature;
+        return $normalizedReference . '-' . $issuedTimestamp . '-' . $signature;
     }
 
     /**
-     * @return array{status: string, primaryKey?: int, timestamp?: int}
+     * @return array{status: string, reference?: string, primaryKey?: int, timestamp?: int}
      */
     public function validateToken(
         string $tokenValue,
@@ -32,13 +33,15 @@ final class WithdrawalConfirmationTokenProcessor
             return ['status' => self::STATUS_MISSING];
         }
 
-        $tokenParts = explode('-', $trimmedTokenValue, 3);
-        if (count($tokenParts) !== 3) {
+        if (!preg_match('/^(.+)-([0-9]+)-([a-f0-9]{64})$/', $trimmedTokenValue, $matches)) {
             return ['status' => self::STATUS_INVALID_FORMAT];
         }
 
-        [$primaryKeyPart, $timestampPart, $hmacPart] = $tokenParts;
-        if (!ctype_digit($primaryKeyPart) || !ctype_digit($timestampPart)) {
+        $withdrawalReference = trim((string) ($matches[1] ?? ''));
+        $timestampPart = (string) ($matches[2] ?? '');
+        $hmacPart = (string) ($matches[3] ?? '');
+
+        if ($withdrawalReference === '' || !ctype_digit($timestampPart)) {
             return ['status' => self::STATUS_INVALID_FORMAT];
         }
 
@@ -46,13 +49,12 @@ final class WithdrawalConfirmationTokenProcessor
             return ['status' => self::STATUS_INVALID_FORMAT];
         }
 
-        $withdrawalPrimaryKey = (int) $primaryKeyPart;
         $issuedTimestamp = (int) $timestampPart;
-        if ($withdrawalPrimaryKey <= 0 || $issuedTimestamp <= 0) {
+        if ($issuedTimestamp <= 0) {
             return ['status' => self::STATUS_INVALID_FORMAT];
         }
 
-        $expectedSignature = hash_hmac('sha256', $withdrawalPrimaryKey . $issuedTimestamp, $secret);
+        $expectedSignature = hash_hmac('sha256', $withdrawalReference . $issuedTimestamp, $secret);
         if (!hash_equals($expectedSignature, $hmacPart)) {
             return ['status' => self::STATUS_INVALID_SIGNATURE];
         }
@@ -62,10 +64,16 @@ final class WithdrawalConfirmationTokenProcessor
             return ['status' => self::STATUS_EXPIRED];
         }
 
-        return [
+        $result = [
             'status' => self::STATUS_SUCCESS,
-            'primaryKey' => $withdrawalPrimaryKey,
+            'reference' => $withdrawalReference,
             'timestamp' => $issuedTimestamp,
         ];
+
+        if (ctype_digit($withdrawalReference) && (int) $withdrawalReference > 0) {
+            $result['primaryKey'] = (int) $withdrawalReference;
+        }
+
+        return $result;
     }
 }

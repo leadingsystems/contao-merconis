@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
 use LeadingSystems\MerconisBundle\Helpers\WithdrawalConfirmationTokenProcessor;
+use LeadingSystems\MerconisBundle\Helpers\WithdrawalTestmodeProcessor;
 use PHPUnit\Framework\TestCase;
 
 final class WithdrawalConfirmationTokenProcessorUnitTest extends TestCase
@@ -39,5 +40,21 @@ final class WithdrawalConfirmationTokenProcessorUnitTest extends TestCase
 
         self::assertSame(WithdrawalConfirmationTokenProcessor::STATUS_SUCCESS, $validResult['status']);
         self::assertSame(WithdrawalConfirmationTokenProcessor::STATUS_EXPIRED, $expiredResult['status']);
+    }
+
+    public function testPlaceholderWithdrawalIdentifierCanBeSignedAndValidated(): void
+    {
+        $processor = new WithdrawalConfirmationTokenProcessor();
+        $token = $processor->createToken(
+            WithdrawalTestmodeProcessor::PLACEHOLDER_WITHDRAWAL_ID,
+            1700000000,
+            'test-secret'
+        );
+
+        $result = $processor->validateToken($token, 'test-secret', 1700000100);
+
+        self::assertSame(WithdrawalConfirmationTokenProcessor::STATUS_SUCCESS, $result['status']);
+        self::assertSame(WithdrawalTestmodeProcessor::PLACEHOLDER_WITHDRAWAL_ID, $result['reference']);
+        self::assertArrayNotHasKey('primaryKey', $result);
     }
 }

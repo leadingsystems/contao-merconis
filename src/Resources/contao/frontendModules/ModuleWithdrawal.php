@@ -18,6 +18,7 @@ use LeadingSystems\MerconisBundle\Helpers\WithdrawalConfirmationTokenProcessor;
 use LeadingSystems\MerconisBundle\Helpers\WithdrawalScreenAProcessor;
 use LeadingSystems\MerconisBundle\Helpers\WithdrawalScreenBProcessor;
 use LeadingSystems\MerconisBundle\Helpers\WithdrawalScreenCProcessor;
+use LeadingSystems\MerconisBundle\Helpers\WithdrawalTestmodeProcessor;
 
 class ModuleWithdrawal extends Module
 {
@@ -85,6 +86,10 @@ class ModuleWithdrawal extends Module
             return self::SCREEN_C;
         }
 
+        if ((new WithdrawalTestmodeProcessor())->hasTestmodeParameter((string) Input::get('testmode'))) {
+            return self::SCREEN_B;
+        }
+
         if ((string) Input::get('wid') !== '') {
             return self::SCREEN_B;
         }
@@ -142,7 +147,7 @@ class ModuleWithdrawal extends Module
         return [
             'activeScreen' => $this->resolveActiveScreen(),
             'formSubmitName' => self::FORM_SUBMIT_SCREEN_A,
-            'formAction' => ls_shop_generalHelper::getUrl(false, ['wid', 'fallback']),
+            'formAction' => ls_shop_generalHelper::getUrl(false, ['wid', 'fallback', 'testmode']),
             'identifierFieldName' => 'withdrawalIdentifier',
             'identifierValue' => $inputIdentifier,
             'honeypotFieldName' => self::HONEYPOT_FIELD_NAME,
@@ -162,8 +167,7 @@ class ModuleWithdrawal extends Module
      */
     private function buildScreenBData(): array
     {
-        $canonicalIdentifier = trim((string) Input::get('wid'));
-        $arrOrder = $this->resolveOrderByWithdrawalIdentifier($canonicalIdentifier);
+        $arrOrder = $this->resolveOrderForScreenBRequest();
 
         if ($arrOrder === null) {
             $this->redirectToScreenA();
@@ -262,7 +266,7 @@ class ModuleWithdrawal extends Module
         return [
             'formSubmitName' => self::FORM_SUBMIT_SCREEN_B,
             'formAction' => ls_shop_generalHelper::getUrl(false, ['fallback']),
-            'wid' => (string) ($arrOrder['withdrawalIdentifier'] ?? $canonicalIdentifier),
+            'wid' => (string) ($arrOrder['withdrawalIdentifier'] ?? ''),
             'headline' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_heading'],
             'selectAllLabel' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_all'],
             'selectItemLabel' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_item'],
@@ -370,7 +374,7 @@ class ModuleWithdrawal extends Module
     ): array {
         return [
             'formSubmitName' => self::FORM_SUBMIT_SCREEN_C,
-            'formAction' => ls_shop_generalHelper::getUrl(false, ['wid']),
+            'formAction' => ls_shop_generalHelper::getUrl(false, ['wid', 'testmode']),
             'honeypotFieldName' => self::HONEYPOT_FIELD_NAME,
             'headline' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_heading'],
             'nameLabel' => (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_name_label'],
@@ -386,8 +390,7 @@ class ModuleWithdrawal extends Module
 
     private function buildScreenBQuantitySnippet(): string
     {
-        $canonicalIdentifier = trim((string) Input::post('wid'));
-        $arrOrder = $this->resolveOrderByWithdrawalIdentifier($canonicalIdentifier);
+        $arrOrder = $this->resolveOrderForScreenBRequest((string) Input::post('wid'));
 
         if ($arrOrder === null) {
             return '';
@@ -577,7 +580,7 @@ class ModuleWithdrawal extends Module
         $withdrawalPage = ls_shop_languageHelper::getLanguagePage('ls_shop_withdrawalPages');
 
         if (!is_string($withdrawalPage) || $withdrawalPage === '') {
-            $withdrawalPage = ls_shop_generalHelper::getUrl(false, ['wid', 'fallback']);
+            $withdrawalPage = ls_shop_generalHelper::getUrl(false, ['wid', 'fallback', 'testmode']);
         }
 
         $separator = str_contains($withdrawalPage, '?') ? '&' : '?';
@@ -587,7 +590,7 @@ class ModuleWithdrawal extends Module
 
     private function redirectToScreenA(): void
     {
-        Controller::redirect(ls_shop_generalHelper::getUrl(false, ['wid', 'fallback']));
+        Controller::redirect(ls_shop_generalHelper::getUrl(false, ['wid', 'fallback', 'testmode']));
     }
 
     /**
@@ -602,6 +605,14 @@ class ModuleWithdrawal extends Module
         string $name,
         string $email
     ): void {
+        if ($this->isCurrentRequestInTestmode()) {
+            $this->redirectToConfirmation(
+                WithdrawalTestmodeProcessor::PLACEHOLDER_WITHDRAWAL_ID,
+                trim((string) Input::get('testmode'))
+            );
+            return;
+        }
+
         $withdrawalId = (new ls_shop_checkout())->generateWithdrawalId();
         $withdrawalTimestamp = time();
 
@@ -830,26 +841,73 @@ class ModuleWithdrawal extends Module
         );
     }
 
-    private function redirectToConfirmation(int $withdrawalDbId): void
+    private function redirectToConfirmation(string|int $withdrawalReference, string $testmodeOrderIdentificationHash = ''): void
     {
         $confirmationPage = ls_shop_languageHelper::getLanguagePage('ls_shop_withdrawalConfirmationPages');
         if (!is_string($confirmationPage) || $confirmationPage === '') {
-            $confirmationPage = ls_shop_generalHelper::getUrl(false, ['fallback']);
+            $confirmationPage = ls_shop_generalHelper::getUrl(false, ['fallback', 'testmode']);
         }
 
         $separator = str_contains($confirmationPage, '?') ? '&' : '?';
-        $signedReference = $this->createSignedWithdrawalReference($withdrawalDbId);
+        $signedReference = $this->createSignedWithdrawalReference($withdrawalReference);
+        $redirectUrl = $confirmationPage . $separator . 'wrt=' . rawurlencode($signedReference);
 
-        Controller::redirect($confirmationPage . $separator . 'wrt=' . rawurlencode($signedReference));
+        if ($testmodeOrderIdentificationHash !== '') {
+            $redirectUrl .= '&testmode=' . rawurlencode($testmodeOrderIdentificationHash);
+        }
+
+        Controller::redirect($redirectUrl);
     }
 
-    private function createSignedWithdrawalReference(int $withdrawalDbId): string
+    private function createSignedWithdrawalReference(string|int $withdrawalReference): string
     {
         $issuedAt = time();
         $secret = (string) System::getContainer()->getParameter('kernel.secret');
 
         return (new WithdrawalConfirmationTokenProcessor())
-            ->createToken($withdrawalDbId, $issuedAt, $secret);
+            ->createToken($withdrawalReference, $issuedAt, $secret);
+    }
+
+    /**
+     * @return ?array<string, mixed>
+     */
+    private function resolveOrderForScreenBRequest(?string $submittedWithdrawalIdentifier = null): ?array
+    {
+        $testmodeProcessor = new WithdrawalTestmodeProcessor();
+        $testmodeOrderIdentificationHash = (string) Input::get('testmode');
+
+        if ($testmodeProcessor->hasTestmodeParameter($testmodeOrderIdentificationHash)) {
+            return $testmodeProcessor->resolveOrder(
+                $testmodeOrderIdentificationHash,
+                fn (string $orderIdentificationHash): ?array => $this->resolveOrderByTestmodeIdentifier($orderIdentificationHash)
+            );
+        }
+
+        $withdrawalIdentifier = trim((string) ($submittedWithdrawalIdentifier ?? ''));
+        if ($withdrawalIdentifier === '') {
+            $withdrawalIdentifier = trim((string) Input::get('wid'));
+        }
+
+        return $this->resolveOrderByWithdrawalIdentifier($withdrawalIdentifier);
+    }
+
+    private function isCurrentRequestInTestmode(): bool
+    {
+        return (new WithdrawalTestmodeProcessor())->hasTestmodeParameter((string) Input::get('testmode'));
+    }
+
+    /**
+     * @return ?array<string, mixed>
+     */
+    private function resolveOrderByTestmodeIdentifier(string $orderIdentificationHash): ?array
+    {
+        $arrOrder = ls_shop_generalHelper::getOrder(trim($orderIdentificationHash), 'orderIdentificationHash');
+
+        if (!is_array($arrOrder) || !count($arrOrder)) {
+            return null;
+        }
+
+        return $arrOrder;
     }
 
     /**

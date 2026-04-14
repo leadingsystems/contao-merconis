@@ -182,6 +182,69 @@ final class WithdrawalOrderMessagesTest extends TestCase
         self::assertSame('Begin OID=ORDER-2002,WID=W-00088 End', $result);
     }
 
+    public function testPlaintextWithdrawalTemplateWildcardReceivesPreparedWithdrawalData(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'orderNr' => 'ORDER-3003',
+            ]),
+            [
+                'email' => 'withdrawal-customer@example.org',
+                'withdrawalId' => 'W-00303',
+                'withdrawalTimestamp' => 1711536870,
+            ]
+        );
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                'Begin ##template::mail_withdrawal_plaintext## End',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('mail_withdrawal_plaintext', $template);
+                    self::assertSame('ORDER-3003', $orderData['orderNr'] ?? null);
+                    self::assertSame('W-00303', $withdrawalData['withdrawalId'] ?? null);
+
+                    return 'PLAINTEXT-WITHDRAWAL=' . ($withdrawalData['withdrawalId'] ?? '');
+                },
+            ]
+        );
+
+        self::assertSame('Begin PLAINTEXT-WITHDRAWAL=W-00303 End', $result);
+    }
+
+    public function testPlaintextOrderDataTemplateWildcardReceivesPreparedWithdrawalData(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData([
+                'orderNr' => 'ORDER-3004',
+            ]),
+            [
+                'email' => 'withdrawal-customer@example.org',
+                'withdrawalId' => 'W-00304',
+                'withdrawalTimestamp' => 1711536870,
+                'snapshotOrderNr' => 'ORDER-3004',
+            ]
+        );
+
+        $result = $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                'Begin ##template::mail_withdrawal_order_data_plaintext## End',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('mail_withdrawal_order_data_plaintext', $template);
+                    self::assertSame('ORDER-3004', $orderData['orderNr'] ?? null);
+                    self::assertSame('ORDER-3004', $withdrawalData['snapshotOrderNr'] ?? null);
+
+                    return 'PLAINTEXT-ORDER=' . ($withdrawalData['snapshotOrderNr'] ?? '');
+                },
+            ]
+        );
+
+        self::assertSame('Begin PLAINTEXT-ORDER=ORDER-3004 End', $result);
+    }
+
     public function testAlreadySentMessageTypeIsSkippedWithoutWithdrawalContext(): void
     {
         $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(

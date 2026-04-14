@@ -181,6 +181,12 @@ final class WithdrawalDcaSchemaTest extends TestCase
         $orderDataTemplate = (string) file_get_contents(
             __DIR__ . '/../../src/Resources/contao/templates/template_mail_withdrawal_order_data.html5'
         );
+        $withdrawalPlaintextTemplate = (string) file_get_contents(
+            __DIR__ . '/../../src/Resources/contao/templates/template_mail_withdrawal_plaintext.html5'
+        );
+        $orderDataPlaintextTemplate = (string) file_get_contents(
+            __DIR__ . '/../../src/Resources/contao/templates/template_mail_withdrawal_order_data_plaintext.html5'
+        );
 
         self::assertStringContainsString("['scenario']", $withdrawalTemplate);
         self::assertStringContainsString("['items']", $withdrawalTemplate);
@@ -191,6 +197,20 @@ final class WithdrawalDcaSchemaTest extends TestCase
         self::assertStringContainsString("['scenario']", $orderDataTemplate);
         self::assertStringContainsString("withdrawal_order_data_heading", $orderDataTemplate);
         self::assertStringContainsString("withdrawal_order_data_fallback", $orderDataTemplate);
+
+        self::assertStringContainsString("['scenario']", $withdrawalPlaintextTemplate);
+        self::assertStringContainsString("['items']", $withdrawalPlaintextTemplate);
+        self::assertStringContainsString("['freetext']", $withdrawalPlaintextTemplate);
+        self::assertStringContainsString("withdrawal_items_heading", $withdrawalPlaintextTemplate);
+        self::assertStringContainsString("withdrawal_freetext_heading", $withdrawalPlaintextTemplate);
+        self::assertStringContainsString("withdrawal_items_table_header_quantity", $withdrawalPlaintextTemplate);
+        self::assertStringContainsString("['scenario']", $orderDataPlaintextTemplate);
+        self::assertStringContainsString("withdrawal_order_data_heading", $orderDataPlaintextTemplate);
+        self::assertStringContainsString("withdrawal_order_data_fallback", $orderDataPlaintextTemplate);
+        self::assertStringContainsString(
+            "withdrawal_order_data_payment_method_label",
+            $orderDataPlaintextTemplate
+        );
     }
 
     public function testWithdrawalLanguageFilesContainRequiredKeysAndModuleLabels(): void
