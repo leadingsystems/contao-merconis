@@ -70,7 +70,7 @@ final class WithdrawalOrderDataPlaintextTemplateTest extends TestCase
         self::assertStringNotContainsString('<h3', $rendered);
     }
 
-    public function testTemplateSkipsShippingAddressWhenItMatchesBillingAddress(): void
+    public function testTemplateRendersShippingAddressWhenItMatchesBillingAddress(): void
     {
         $address = serialize([
             'firstname' => 'Max',
@@ -83,6 +83,41 @@ final class WithdrawalOrderDataPlaintextTemplateTest extends TestCase
             'snapshotOrderDate' => '2026-04-02',
             'snapshotBillingAddress' => $address,
             'snapshotShippingAddress' => $address,
+            'snapshotPaymentMethod' => 'Invoice',
+            'snapshotShippingMethod' => 'UPS',
+        ]);
+
+        self::assertSame(
+            implode("\n", [
+                'Order data',
+                '',
+                'Order number: ORDER-1002',
+                'Order date: 2026-04-02',
+                'Billing address:',
+                'First name: Max',
+                'Last name: Mustermann',
+                'Shipping address:',
+                'First name: Max',
+                'Last name: Mustermann',
+                'Payment method: Invoice',
+                'Shipping method: UPS',
+            ]),
+            $rendered
+        );
+    }
+
+    public function testTemplateSkipsShippingAddressWhenItIsEmptyAfterDashFiltering(): void
+    {
+        $rendered = $this->renderTemplate([
+            'scenario' => 1,
+            'snapshotOrderNr' => 'ORDER-1003',
+            'snapshotOrderDate' => '2026-04-03',
+            'snapshotBillingAddress' => serialize([
+                'firstname' => 'Max',
+            ]),
+            'snapshotShippingAddress' => serialize([
+                'country_alternative' => '-',
+            ]),
             'snapshotPaymentMethod' => 'Invoice',
             'snapshotShippingMethod' => 'UPS',
         ]);

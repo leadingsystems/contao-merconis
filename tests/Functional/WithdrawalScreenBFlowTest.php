@@ -41,6 +41,7 @@ final class WithdrawalScreenBFlowTest extends TestCase
 
         $orderItem = [
             'id' => 456,
+            'isVariant' => '1',
             'productTitle' => 'Produkt A',
             'variantTitle' => 'Variante M',
             'artNr' => 'ART-001',

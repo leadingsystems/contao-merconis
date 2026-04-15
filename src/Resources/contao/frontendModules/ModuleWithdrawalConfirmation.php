@@ -46,11 +46,13 @@ class ModuleWithdrawalConfirmation extends Module
 
         if (($validationResult['status'] ?? '') !== WithdrawalConfirmationTokenProcessor::STATUS_SUCCESS) {
             $this->redirectToScreenA();
+            return;
         }
 
         $withdrawalReference = (string) ($validationResult['reference'] ?? '');
         if ($withdrawalReference === '') {
             $this->redirectToScreenA();
+            return;
         }
 
         $withdrawalRecord = null;
@@ -58,13 +60,15 @@ class ModuleWithdrawalConfirmation extends Module
             $withdrawalRecord = $this->buildPlaceholderWithdrawalRecord((string) Input::get('testmode'));
         } elseif (array_key_exists('primaryKey', $validationResult)) {
             $withdrawalRecord = $this->findWithdrawalRecordByPrimaryKey((int) $validationResult['primaryKey']);
-            if ($withdrawalRecord === null) {
-                $withdrawalRecord = $this->buildPlaceholderWithdrawalRecord((string) Input::get('testmode'));
+            if ($this->shouldRedirectWhenWithdrawalRecordIsMissing($validationResult, $withdrawalRecord)) {
+                $this->redirectToScreenA();
+                return;
             }
         }
 
         if ($withdrawalRecord === null) {
             $this->redirectToScreenA();
+            return;
         }
 
         $this->Template = new FrontendTemplate($this->strTemplate);
@@ -110,6 +114,19 @@ class ModuleWithdrawalConfirmation extends Module
         }
 
         return $objResult->row();
+    }
+
+    /**
+     * @param array<string, mixed> $validationResult
+     * @param ?array<string, mixed> $withdrawalRecord
+     */
+    private function shouldRedirectWhenWithdrawalRecordIsMissing(array $validationResult, ?array $withdrawalRecord): bool
+    {
+        if ($withdrawalRecord !== null) {
+            return false;
+        }
+
+        return array_key_exists('primaryKey', $validationResult);
     }
 
     /**

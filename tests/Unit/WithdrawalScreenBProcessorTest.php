@@ -44,6 +44,7 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         $snapshot = $processor->buildChildSnapshot(
             [
                 'id' => 42,
+                'isVariant' => '1',
                 'productTitle' => 'Testprodukt',
                 'variantTitle' => 'Groesse L',
                 'artNr' => 'TP-001',
@@ -98,6 +99,36 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         self::assertSame('12,50 EUR/kg', $snapshot['snapshotUnitPrice_customerLanguage']);
         self::assertSame('kg', $snapshot['snapshotQuantityUnit']);
         self::assertSame('kg', $snapshot['snapshotQuantityUnit_customerLanguage']);
+    }
+
+    public function testChildSnapshotDoesNotReuseProductTitleAsVariantForNonVariants(): void
+    {
+        $processor = new WithdrawalScreenBProcessor();
+
+        $snapshot = $processor->buildChildSnapshot(
+            [
+                'id' => 44,
+                'isVariant' => '',
+                'productTitle' => 'Kissen',
+                'variantTitle' => '',
+                'artNr' => 'KS-001',
+                'price' => '12.50',
+                'quantityUnit' => 'Stueck',
+                'quantity' => '1',
+                'extendedInfo' => [
+                    '_productTitle_customerLanguage' => 'Cushion',
+                    '_title_customerLanguage' => 'Cushion',
+                    '_quantityUnit_customerLanguage' => 'pcs',
+                ],
+            ],
+            1.0,
+            1711536872
+        );
+
+        self::assertSame('Kissen', $snapshot['snapshotProductName']);
+        self::assertSame('Cushion', $snapshot['snapshotProductName_customerLanguage']);
+        self::assertSame('', $snapshot['snapshotVariantTitle']);
+        self::assertSame('', $snapshot['snapshotVariantTitle_customerLanguage']);
     }
 
     public function testParentSnapshotSeparatesBillingAndShippingAddressWhenDeviantShippingAddressIsUsed(): void

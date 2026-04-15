@@ -50,6 +50,7 @@ final class WithdrawalItemsTemplateTest extends TestCase
         self::assertStringContainsString('Unit price', $rendered);
         self::assertStringContainsString('T-Shirt, Blue / XL', $rendered);
         self::assertStringContainsString('Hoodie', $rendered);
+        self::assertStringNotContainsString('Hoodie,', $rendered);
         self::assertStringContainsString('19.99 EUR', $rendered);
         self::assertStringContainsString('39.99 EUR', $rendered);
         self::assertStringContainsString('1 of 3 pcs', $rendered);

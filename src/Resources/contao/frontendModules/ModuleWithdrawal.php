@@ -228,9 +228,12 @@ class ModuleWithdrawal extends Module
                 ['_productTitle_customerLanguage'],
                 'productTitle'
             );
+            $variantTitleKeys = !empty($orderItem['isVariant'])
+                ? ['_variantTitle_customerLanguage', '_title_customerLanguage']
+                : ['_variantTitle_customerLanguage'];
             $variantTitle = $this->resolveOrderItemCustomerLanguageValue(
                 $orderItem,
-                ['_variantTitle_customerLanguage', '_title_customerLanguage'],
+                $variantTitleKeys,
                 'variantTitle'
             );
             $quantityUnit = $this->resolveOrderItemCustomerLanguageValue(

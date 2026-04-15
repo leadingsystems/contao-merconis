@@ -61,6 +61,7 @@ final class WithdrawalItemsPlaintextTemplateTest extends TestCase
             ]),
             $rendered
         );
+        self::assertStringNotContainsString('Hoodie,', $rendered);
         self::assertStringNotContainsString('<table', $rendered);
         self::assertStringNotContainsString('<h3', $rendered);
     }

@@ -77,7 +77,7 @@ if ($intScenario === 1) {
         }
     }
 
-    if ($arrShippingAddressLines !== [] && $arrShippingAddressLines !== $arrBillingAddressLines) {
+    if ($arrShippingAddressLines !== []) {
         $arrOutputLines[] = $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_heading'] . ':';
         foreach ($arrShippingAddressLines as $strShippingAddressLine) {
             $arrOutputLines[] = $strShippingAddressLine;

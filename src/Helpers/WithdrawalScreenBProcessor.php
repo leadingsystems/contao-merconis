@@ -77,9 +77,12 @@ final class WithdrawalScreenBProcessor
             'productTitle'
         );
         $productNameFallback = $this->resolveScalarValueWithFallback($orderItem, [], 'productTitle');
+        $variantTitleKeys = !empty($orderItem['isVariant'])
+            ? ['_variantTitle_customerLanguage', '_title_customerLanguage']
+            : ['_variantTitle_customerLanguage'];
         $variantTitle = $this->resolveOrderItemCustomerLanguageValue(
             $orderItem,
-            ['_variantTitle_customerLanguage', '_title_customerLanguage'],
+            $variantTitleKeys,
             'variantTitle'
         );
         $variantTitleFallback = $this->resolveScalarValueWithFallback($orderItem, [], 'variantTitle');
