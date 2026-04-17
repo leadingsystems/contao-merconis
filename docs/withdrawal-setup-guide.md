@@ -469,7 +469,55 @@ ohne Nachschlagen im Backend bearbeiten kann. Bei
 der Kunden-E-Mail genügt das
 Widerrufsinhalte-Sub-Template.
 
-### Schritt 6: Testmodus für Styling
+### Schritt 6: Identifikationsnummer auf Frontend-Seiten platzieren
+
+Neben der Ausgabe in E-Mail-Nachrichtenvorlagen
+(Schritt 5) kann die Identifikationsnummer auch
+direkt auf Frontend-Seiten ausgegeben werden,
+zum Beispiel auf der Bestellbestätigungsseite
+nach dem Checkout. Hierfür steht ein Insert-Tag
+zur Verfügung:
+
+`{{shop_order_withdrawal_identifier}}`
+
+**Kontextbindung:** Das Insert-Tag liefert nur
+dann einen Wert, wenn ein aktiver Bestellkontext
+vorliegt -- also auf Seiten, die einer konkreten
+Bestellung zugeordnet sind (zum Beispiel
+Bestellbestätigungsseite direkt nach dem
+Checkout, Bestelldetailseite im Kundenaccount).
+Auf Seiten ohne Bestellkontext gibt das
+Insert-Tag einen leeren String aus; es entsteht
+kein Fehler.
+
+Diese Kontextbindung ist bewusst gewählt. Ein
+parameterbasierter Zugriff könnte die
+Identifikationsnummer einer beliebigen
+Bestellung ungewollt preisgeben. Ein Insert-Tag
+ohne Parameter verhindert das strukturell.
+
+**Typische Einsatzorte:**
+
+- Bestellbestätigungsseite (Artikel oder
+  Template nach dem Checkout)
+
+In der Bestellübersicht und den Bestelldetails
+des Kundenaccounts wird die Identifikationsnummer
+bereits automatisch über einen Direktlink
+mitgeführt. Eine manuelle Platzierung ist dort
+nicht erforderlich (siehe Abschnitt
+"Kundenaccount-Integration").
+
+**Einbindung:** Das Insert-Tag lässt sich an
+jeder Stelle einsetzen, an der Contao Insert-Tags
+verarbeitet -- zum Beispiel in
+Contao-Inhaltselementen oder in entliehenen
+Templates. Beispiel:
+
+Ihre Identifikationsnummer für einen Widerruf:
+`{{shop_order_withdrawal_identifier}}`
+
+### Schritt 7: Testmodus für Styling
 
 Nach der Einrichtung möchten Sie oder Ihr
 Webdesigner das Styling der Widerrufsseiten im
