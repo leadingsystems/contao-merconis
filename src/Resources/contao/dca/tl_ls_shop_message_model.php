@@ -177,6 +177,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'load_callback' => array(
 				array('Merconis\Core\tl_ls_shop_message_model_controller', 'setCustomerDataType1Default')
 			),
+			'save_callback' => array(
+				array('Merconis\Core\tl_ls_shop_message_model_controller', 'saveCustomerDataType1Default')
+			),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
@@ -213,6 +216,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'load_callback' => array(
 				array('Merconis\Core\tl_ls_shop_message_model_controller', 'setCustomerDataType2Default')
 			),
+			'save_callback' => array(
+				array('Merconis\Core\tl_ls_shop_message_model_controller', 'saveCustomerDataType2Default')
+			),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
@@ -222,9 +228,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'inputType' => 'text',
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50'),
 			'search' => true,
-			'load_callback' => array(
-				array('Merconis\Core\tl_ls_shop_message_model_controller', 'setCustomerDataField2Default')
-			),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
@@ -433,6 +436,18 @@ class tl_ls_shop_message_model_controller extends Backend {
 		return $varValue;
 	}
 
+	public function saveCustomerDataType1Default($varValue, DataContainer $dc) {
+		if (!$varValue) {
+			if ($this->isWithdrawalMessageType($dc)) {
+				return 'withdrawalData';
+			}
+
+			return 'personalData';
+		}
+
+		return $varValue;
+	}
+
 	public function setCustomerDataField1Default($varValue, DataContainer $dc) {
 		if ($this->isWithdrawalMessageType($dc) && !$varValue) {
 			return 'email';
@@ -449,9 +464,9 @@ class tl_ls_shop_message_model_controller extends Backend {
 		return $varValue;
 	}
 
-	public function setCustomerDataField2Default($varValue, DataContainer $dc) {
+	public function saveCustomerDataType2Default($varValue, DataContainer $dc) {
 		if ($this->isWithdrawalMessageType($dc) && !$varValue) {
-			return 'email';
+			return 'withdrawalData';
 		}
 
 		return $varValue;

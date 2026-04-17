@@ -103,6 +103,40 @@ final class WithdrawalOrderMessagesTest extends TestCase
         );
     }
 
+    public function testSecondWithdrawalReceiverWithEmptyFieldDoesNotOverrideResolvedMainAddress(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithWithdrawal([
+            'email' => 'customer@example.org',
+            'withdrawalId' => 'W-00077',
+            'withdrawalTimestamp' => 1711536870,
+        ]);
+
+        $receiverAddresses = $this->invokeProtectedMethod(
+            $orderMessages,
+            'getReceiverAddresses',
+            [[
+                'id' => 12,
+                'sendToCustomerAddress1' => '1',
+                'customerDataType1' => 'withdrawalData',
+                'customerDataField1' => 'email',
+                'sendToCustomerAddress2' => '1',
+                'customerDataType2' => 'withdrawalData',
+                'customerDataField2' => '',
+                'sendToMemberAddress' => '',
+                'sendToSpecificAddress' => '',
+                'specificAddress' => '',
+            ]]
+        );
+
+        self::assertSame(
+            [
+                'main' => 'customer@example.org',
+                'bcc' => null,
+            ],
+            $receiverAddresses
+        );
+    }
+
     public function testReplaceWildcardsResolvesOrderAndWithdrawalNamespacesInFullPath(): void
     {
         $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
