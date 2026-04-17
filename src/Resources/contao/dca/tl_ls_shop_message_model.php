@@ -177,9 +177,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'load_callback' => array(
 				array('Merconis\Core\tl_ls_shop_message_model_controller', 'setCustomerDataType1Default')
 			),
-			'save_callback' => array(
-				array('Merconis\Core\tl_ls_shop_message_model_controller', 'saveCustomerDataType1Default')
-			),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
@@ -215,9 +212,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'filter' => true,
 			'load_callback' => array(
 				array('Merconis\Core\tl_ls_shop_message_model_controller', 'setCustomerDataType2Default')
-			),
-			'save_callback' => array(
-				array('Merconis\Core\tl_ls_shop_message_model_controller', 'saveCustomerDataType2Default')
 			),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
@@ -382,6 +376,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	)
 );
 
+$GLOBALS['TL_DCA']['tl_ls_shop_message_model']['config']['oncreate_callback'][] = [
+	tl_ls_shop_message_model_controller::class,
+	'oncreateWithdrawalDefaults',
+];
+
 
 
 
@@ -424,19 +423,25 @@ class tl_ls_shop_message_model_controller extends Backend {
 		return array('personalData', 'paymentData', 'shippingData');
 	}
 
-	public function setCustomerDataType1Default($varValue, DataContainer $dc) {
-		if (!$varValue) {
-			if ($this->isWithdrawalMessageType($dc)) {
-				return 'withdrawalData';
-			}
-
-			return 'personalData';
+	public function oncreateWithdrawalDefaults(
+		$strTable,
+		$intId,
+		$arrSet,
+		DataContainer $dc
+	): void {
+		if (!$this->isWithdrawalMessageType($dc, (array) $arrSet)) {
+			return;
 		}
 
-		return $varValue;
+		Database::getInstance()->prepare("
+			UPDATE      `tl_ls_shop_message_model`
+			SET         `customerDataType1` = ?, `customerDataType2` = ?
+			WHERE       `id` = ?
+		")
+		->execute('withdrawalData', 'withdrawalData', $intId);
 	}
 
-	public function saveCustomerDataType1Default($varValue, DataContainer $dc) {
+	public function setCustomerDataType1Default($varValue, DataContainer $dc) {
 		if (!$varValue) {
 			if ($this->isWithdrawalMessageType($dc)) {
 				return 'withdrawalData';
@@ -464,16 +469,8 @@ class tl_ls_shop_message_model_controller extends Backend {
 		return $varValue;
 	}
 
-	public function saveCustomerDataType2Default($varValue, DataContainer $dc) {
-		if ($this->isWithdrawalMessageType($dc) && !$varValue) {
-			return 'withdrawalData';
-		}
-
-		return $varValue;
-	}
-
-	protected function isWithdrawalMessageType(DataContainer $dc): bool {
-		$intMessageTypeId = (int) ($dc->activeRecord->pid ?? $dc->pid ?? 0);
+	protected function isWithdrawalMessageType(DataContainer $dc, array $arrSet = []): bool {
+		$intMessageTypeId = (int) ($dc->activeRecord->pid ?? $dc->pid ?? $arrSet['pid'] ?? 0);
 
 		if (!$intMessageTypeId) {
 			return false;

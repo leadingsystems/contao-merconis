@@ -58,36 +58,6 @@ final class MessageModelCustomerDataTypeDefaultsTest extends TestCase
         );
     }
 
-    public function testSaveCustomerDataType1DefaultIsWithdrawalDataForWithdrawalTypeOnEmptyValue(): void
-    {
-        $controller = $this->createControllerWithWithdrawalFlag(true);
-
-        self::assertSame(
-            'withdrawalData',
-            $controller->saveCustomerDataType1Default('', $this->createMock(DataContainer::class))
-        );
-    }
-
-    public function testSaveCustomerDataType1DefaultIsPersonalDataForNonWithdrawalTypeOnEmptyValue(): void
-    {
-        $controller = $this->createControllerWithWithdrawalFlag(false);
-
-        self::assertSame(
-            'personalData',
-            $controller->saveCustomerDataType1Default('', $this->createMock(DataContainer::class))
-        );
-    }
-
-    public function testSaveCustomerDataType1KeepsExistingValueUnchanged(): void
-    {
-        $controller = $this->createControllerWithWithdrawalFlag(true);
-
-        self::assertSame(
-            'paymentData',
-            $controller->saveCustomerDataType1Default('paymentData', $this->createMock(DataContainer::class))
-        );
-    }
-
     public function testCustomerDataType2DefaultRemainsWithdrawalDataForWithdrawalTypeOnEmptyValue(): void
     {
         $controller = $this->createControllerWithWithdrawalFlag(true);
@@ -95,16 +65,6 @@ final class MessageModelCustomerDataTypeDefaultsTest extends TestCase
         self::assertSame(
             'withdrawalData',
             $controller->setCustomerDataType2Default('', $this->createMock(DataContainer::class))
-        );
-    }
-
-    public function testSaveCustomerDataType2DefaultRemainsWithdrawalDataForWithdrawalTypeOnEmptyValue(): void
-    {
-        $controller = $this->createControllerWithWithdrawalFlag(true);
-
-        self::assertSame(
-            'withdrawalData',
-            $controller->saveCustomerDataType2Default('', $this->createMock(DataContainer::class))
         );
     }
 
@@ -117,7 +77,7 @@ final class MessageModelCustomerDataTypeDefaultsTest extends TestCase
             {
             }
 
-            protected function isWithdrawalMessageType(DataContainer $dc): bool
+            protected function isWithdrawalMessageType(DataContainer $dc, array $arrSet = []): bool
             {
                 return $this->isWithdrawalType;
             }
