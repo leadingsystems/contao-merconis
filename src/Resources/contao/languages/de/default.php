@@ -1146,6 +1146,87 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_couponValueLeft'] = 'Gutschei
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_preis'] = 'Neuer Warenwert mit Gutscheinanwendung';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['debugCoupon_discount'] = 'Rabatt';
 
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_heading'] = 'Widerrufene Positionen';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_freetext_heading'] = 'Angaben zur Vertragsidentifikation';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_heading'] = 'Bestelldaten-Snapshot';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_fallback'] = 'Dieser Widerruf konnte keiner Bestellung zugeordnet werden.';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product'] = 'Produkt';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number'] = 'Artikelnummer';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price'] = 'Einzelpreis';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity'] = 'Menge';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_quantity_partial'] = '%s von %s';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_number_label'] = 'Bestellnummer';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_date_label'] = 'Bestelldatum';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_heading'] = 'Rechnungsadresse';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_heading'] = 'Versandadresse';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels'] = [
+    'firstname' => 'Vorname',
+    'lastname' => 'Nachname',
+    'company' => 'Firma',
+    'VATID' => 'USt-IdNr.',
+    'phone' => 'Telefon',
+    'street' => 'Straße',
+    'postal' => 'PLZ',
+    'city' => 'Stadt',
+    'province_it' => 'Provinz (IT)',
+    'province_us' => 'Bundesstaat (US)',
+    'province_ca' => 'Provinz (CA)',
+    'country' => 'Land',
+    'email' => 'E-Mail',
+    'useDeviantShippingAddress' => '',
+    'firstname_alternative' => 'Vorname',
+    'lastname_alternative' => 'Nachname',
+    'company_alternative' => 'Firma',
+    'street_alternative' => 'Straße',
+    'postal_alternative' => 'PLZ',
+    'city_alternative' => 'Stadt',
+    'province_it_alternative' => 'Provinz (IT)',
+    'province_us_alternative' => 'Bundesstaat (US)',
+    'province_ca_alternative' => 'Provinz (CA)',
+    'country_alternative' => 'Land',
+];
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label'] = 'Zahlungsart';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_method_label'] = 'Versandart';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_heading'] = 'Vertrag widerrufen';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_label'] = 'Identifikationsnummer für den Widerruf';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_identifier_placeholder'] = 'z. B. 2026000001-G54FQ9';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_submit'] = 'Vertrag widerrufen';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_direct_link_label'] = 'Vertrag widerrufen';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_message_link'] = 'Widerrufs-Link';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_identifier_value_label'] = 'Identifikationsnummer für den Widerruf:';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_empty_identifier'] = 'Bitte geben Sie die Identifikationsnummer ein.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_not_found'] = 'Die eingegebene Identifikationsnummer konnte nicht zugeordnet werden.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_error_rate_limited'] = 'Bitte versuchen Sie es später erneut.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_entry_fallback_link_label'] = 'Allgemeines Widerrufsformular verwenden';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_heading'] = 'Widerruf abgeben';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_all'] = 'Alles auswählen';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_select_item'] = 'Auswählen';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_change_quantity'] = 'Ändern';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_change_quantity_header'] = 'Menge ändern';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_name_label'] = 'Widerruf erfolgt durch';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_email_label'] = 'Widerruf senden an';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_submit'] = 'Widerruf bestätigen';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_no_items'] = 'Bitte wählen Sie mindestens eine Position aus.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_invalid_quantity'] = 'Die gewählte Menge ist ungültig.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_invalid_quantity_inline'] = 'Bitte geben Sie eine gültige Menge ein.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_name_required'] = 'Bitte geben Sie Ihren Namen ein.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_email_invalid'] = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_heading'] = 'Allgemeines Widerrufsformular';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_name_label'] = 'Name';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_freetext_label'] = 'Angaben zur Identifizierung des Vertrags oder Vertragsteils';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_email_label'] = 'E-Mail-Adresse für die Eingangsbestätigung';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_submit'] = 'Widerruf bestätigen';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_error_freetext_required'] = 'Bitte geben Sie Angaben zur Vertragsidentifikation ein.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_error_rate_limited'] = 'Bitte versuchen Sie es später erneut.';
+
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_id_heading'] = 'Ihre Widerrufs-ID: %s';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_text'] = 'Ihr Widerruf wurde erfolgreich eingereicht (Widerrufs-ID: %s). Eine Eingangsbestätigung wird an %s versendet. Bitte prüfen Sie auch Ihren Spam-Ordner. Sollten Sie keine E-Mail erhalten, wenden Sie sich bitte an unseren Kundenservice.';
+
 
 /*
  * <- Backend

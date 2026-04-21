@@ -4026,7 +4026,129 @@ class ls_shop_generalHelper
         return $str_text;
     }
 
-    public static function ls_replaceOrderWildcards($text, $arrOrder)
+    public static function ls_replaceWithdrawalWildcards($text, $arrWithdrawal)
+    {
+        if (!is_array($arrWithdrawal)) {
+            return $text;
+        }
+
+        $withdrawalTimestamp = (int) ($arrWithdrawal['withdrawalTimestamp'] ?? 0);
+        if ($withdrawalTimestamp > 0) {
+            $arrWithdrawal['date'] = Date::parse($GLOBALS['TL_CONFIG']['dateFormat'] ?? 'Y-m-d', $withdrawalTimestamp);
+            $arrWithdrawal['time'] = Date::parse($GLOBALS['TL_CONFIG']['timeFormat'] ?? 'H:i', $withdrawalTimestamp);
+        } else {
+            $arrWithdrawal['date'] = '';
+            $arrWithdrawal['time'] = '';
+        }
+
+        $arrWithdrawal['snapshotBillingAddress'] = self::ls_formatWithdrawalAddressForWildcard($arrWithdrawal['snapshotBillingAddress'] ?? '');
+        $arrWithdrawal['snapshotShippingAddress'] = self::ls_formatWithdrawalAddressForWildcard($arrWithdrawal['snapshotShippingAddress'] ?? '');
+
+        preg_match_all('/(?:&#35;&#35;|##)withdrawal::(.*?)(?:&#35;&#35;|##)/', $text, $arrMatches);
+
+        foreach (array_unique($arrMatches[1]) as $strKeyword) {
+            $replacement = $arrWithdrawal[$strKeyword] ?? '';
+
+            if (is_array($replacement)) {
+                $replacement = implode(', ', self::ls_filterAndCastWildcardValues($replacement));
+            } else if ($replacement === null) {
+                $replacement = '';
+            } else {
+                $replacement = (string) $replacement;
+            }
+
+            $text = preg_replace('/(&#35;&#35;|##)withdrawal::' . preg_quote((string) $strKeyword, '/') . '(&#35;&#35;|##)/', $replacement, $text);
+        }
+
+        return $text;
+    }
+
+    private static function ls_formatWithdrawalAddressForWildcard($addressData)
+    {
+        $deserializedAddress = StringUtil::deserialize($addressData);
+        if (!is_array($deserializedAddress)) {
+            return is_scalar($addressData) ? trim((string) $addressData) : '';
+        }
+
+        return implode("\n", self::ls_flattenWithdrawalAddressLines($deserializedAddress));
+    }
+
+    private static function ls_flattenWithdrawalAddressLines(array $addressData, string $keyPrefix = '')
+    {
+        $lines = [];
+
+        foreach ($addressData as $key => $value) {
+            $lineKey = $keyPrefix;
+            if (is_string($key) && !is_numeric($key)) {
+                $lineKey = $lineKey ? $lineKey . '.' . $key : $key;
+            }
+
+            if (is_array($value)) {
+                $lines = array_merge($lines, self::ls_flattenWithdrawalAddressLines($value, $lineKey));
+                continue;
+            }
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $stringValue = trim((string) $value);
+            if ($stringValue === '') {
+                continue;
+            }
+
+            $lines[] = $lineKey ? $lineKey . ': ' . $stringValue : $stringValue;
+        }
+
+        return $lines;
+    }
+
+    private static function ls_filterAndCastWildcardValues(array $values)
+    {
+        $filteredValues = [];
+
+        foreach ($values as $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $filteredValues[] = (string) $value;
+        }
+
+        return $filteredValues;
+    }
+
+    public static function buildWithdrawalPageUrl($withdrawalPageUrl, $withdrawalIdentifier)
+    {
+        if (!is_string($withdrawalPageUrl) || $withdrawalPageUrl === '') {
+            return '';
+        }
+
+        if (!is_string($withdrawalIdentifier) || $withdrawalIdentifier === '') {
+            return '';
+        }
+
+        $separator = preg_match('/\?/', $withdrawalPageUrl) ? '&' : '?';
+
+        return $withdrawalPageUrl . $separator . 'wid=' . rawurlencode($withdrawalIdentifier);
+    }
+
+    public static function buildWithdrawalLinkTag($withdrawalPageUrl, $withdrawalIdentifier, $linkText)
+    {
+        $url = self::buildWithdrawalPageUrl($withdrawalPageUrl, $withdrawalIdentifier);
+
+        if ($url === '') {
+            return '';
+        }
+
+        if (!is_string($linkText) || $linkText === '') {
+            return '';
+        }
+
+        return '<a href="' . StringUtil::specialchars($url) . '" rel="noopener noreferrer">' . StringUtil::specialchars($linkText) . '</a>';
+    }
+
+    public static function ls_replaceOrderWildcards($text, $arrOrder, $arrWithdrawal = null, ?callable $templateRenderer = null)
     {
         /** @var PageModel $objPage */
         global $objPage;
@@ -4068,6 +4190,37 @@ class ls_shop_generalHelper
         }
 
         /*
+         * Replace the orderWithdrawalIdentifier wildcard
+         */
+        if ($arrOrder['withdrawalIdentifier']) {
+            $text = preg_replace('/(&#35;&#35;orderWithdrawalIdentifier&#35;&#35;)|(##orderWithdrawalIdentifier##)/siU', $arrOrder['withdrawalIdentifier'], $text);
+        }
+
+        /*
+         * Replace the orderWithdrawalLink wildcard
+         */
+        if (
+            $arrOrder['withdrawalIdentifier']
+            && preg_match('/(&#35;&#35;orderWithdrawal(Link|Url)&#35;&#35;)|(##orderWithdrawal(Link|Url)##)/siU', $text)
+        ) {
+            $withdrawalPage = ls_shop_languageHelper::getLanguagePage('ls_shop_withdrawalPages');
+            $withdrawalPageUrl = is_string($withdrawalPage) && $withdrawalPage !== ''
+                ? ((isset($arrOrder['miscData']['domain']) && $arrOrder['miscData']['domain']) ? $arrOrder['miscData']['domain'] : self::getEnvironmentBase(true)) . $withdrawalPage
+                : '';
+            $resolvedWithdrawalPageUrl = self::buildWithdrawalPageUrl($withdrawalPageUrl, $arrOrder['withdrawalIdentifier']);
+            $withdrawalLinkText = (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_message_link'];
+            $withdrawalLinkTag = self::buildWithdrawalLinkTag($withdrawalPageUrl, $arrOrder['withdrawalIdentifier'], $withdrawalLinkText);
+
+            if ($withdrawalLinkTag !== '') {
+                $text = preg_replace('/(&#35;&#35;orderWithdrawalLink&#35;&#35;)|(##orderWithdrawalLink##)/siU', $withdrawalLinkTag, $text);
+            }
+
+            if ($resolvedWithdrawalPageUrl !== '') {
+                $text = preg_replace('/(&#35;&#35;orderWithdrawalUrl&#35;&#35;)|(##orderWithdrawalUrl##)/siU', $resolvedWithdrawalPageUrl, $text);
+            }
+        }
+
+        /*
          * Replace the orderDate wildcard
          */
         if ($arrOrder['orderDateUnixTimestamp']) {
@@ -4100,6 +4253,21 @@ class ls_shop_generalHelper
         if ($arrOrder['shippingTrackingUrl']) {
             $text = preg_replace('/(&#35;&#35;shippingTrackingUrl&#35;&#35;)|(##shippingTrackingUrl##)/siU', $arrOrder['shippingTrackingUrl'], $text);
         }
+
+        $text = self::ls_replaceTemplateWildcards($text, $arrOrder, $arrWithdrawal, $templateRenderer);
+
+        /*
+         * Remove unresolved order-related wildcards, but keep other namespaces
+         * (e.g. withdrawal) for later replacement steps.
+         */
+        $text = self::ls_cleanupOrderWildcards($text, $arrOrder);
+        return $text;
+    }
+
+    public static function ls_replaceTemplateWildcards($text, $arrOrder = null, $arrWithdrawal = null, ?callable $templateRenderer = null)
+    {
+        /** @var PageModel $objPage */
+        global $objPage;
 
         /*
          * Look for Template wildcards
@@ -4134,23 +4302,68 @@ class ls_shop_generalHelper
              * Only if the template file exists in the required output format, it can be used. Otherwise it will not be used and a log entry will be created.
              */
             try {
-                $objWildcardTemplate = new FrontendTemplate($strTemplate);
-                $objWildcardTemplate->arrOrder = $arrOrder;
-                $wildcardTemplateReplacement = $objWildcardTemplate->parse();
+                if ($templateRenderer !== null) {
+                    $wildcardTemplateReplacement = (string) $templateRenderer($strTemplate, $arrOrder, $arrWithdrawal);
+                } else {
+                    $objWildcardTemplate = new FrontendTemplate($strTemplate);
+                    $objWildcardTemplate->arrOrder = $arrOrder;
+                    $objWildcardTemplate->arrWithdrawal = $arrWithdrawal;
+                    $wildcardTemplateReplacement = $objWildcardTemplate->parse();
+                }
             } catch (\Exception $e) {
-                System::getContainer()->get('monolog.logger.contao')->info(
-                    'MERCONIS: Template "' . $strTemplate . '" does not exist (at least not in the required output format "' . (isset($objPage) && is_object($objPage) ? $objPage->outputFormat : 'html5'),
-                    ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
-                );
+                $container = System::getContainer();
+                if ($container !== null && $container->has('monolog.logger.contao')) {
+                    $container->get('monolog.logger.contao')->info(
+                        'MERCONIS: Template "' . $strTemplate . '" does not exist (at least not in the required output format "' . (isset($objPage) && is_object($objPage) ? $objPage->outputFormat : 'html5'),
+                        ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
+                    );
+                }
             }
 
-            $text = preg_replace('/(&#35;&#35;template::' . $strTemplate . '&#35;&#35;)|(##template::' . $strTemplate . '##)/siU', $wildcardTemplateReplacement, $text);
+            $text = preg_replace('/(&#35;&#35;template::' . preg_quote((string) $strTemplate, '/') . '&#35;&#35;)|(##template::' . preg_quote((string) $strTemplate, '/') . '##)/siU', $wildcardTemplateReplacement, $text);
         }
 
-        /*
-         * Remove all wildcards that are not yet replaced.
-         */
-        $text = preg_replace('/(&#35;&#35;.*&#35;&#35;)|(##.*##)/siU', '', $text);
+        return $text;
+    }
+
+    private static function ls_cleanupOrderWildcards($text, $arrOrder)
+    {
+        foreach ($arrOrder['customerData'] as $dataType => $arrData) {
+            if (!is_string($dataType) || $dataType === '') {
+                continue;
+            }
+
+            $text = preg_replace(
+                '/(&#35;&#35;|##)' . preg_quote($dataType, '/') . '::.*?(&#35;&#35;|##)/si',
+                '',
+                $text
+            );
+        }
+
+        $arrOrderWildcardKeywords = [
+            'orderIdentificationHash',
+            'afterCheckoutUrl',
+            'orderNr',
+            'orderWithdrawalIdentifier',
+            'orderWithdrawalLink',
+            'orderWithdrawalUrl',
+            'orderDate',
+            'paymentMethod_infoAfterCheckout',
+            'paymentMethod_infoAfterCheckout_customerLanguage',
+            'shippingMethod_infoAfterCheckout',
+            'shippingMethod_infoAfterCheckout_customerLanguage',
+            'shippingTrackingNr',
+            'shippingTrackingUrl',
+        ];
+
+        foreach ($arrOrderWildcardKeywords as $strKeyword) {
+            $text = preg_replace(
+                '/(&#35;&#35;|##)' . preg_quote($strKeyword, '/') . '(&#35;&#35;|##)/si',
+                '',
+                $text
+            );
+        }
+
         return $text;
     }
 
@@ -4385,6 +4598,8 @@ class ls_shop_generalHelper
 				WHERE		`sendWhen` != ?
 					AND		`sendWhen` != ?
 					AND		`sendWhen` != ?
+					AND		`sendWhen` != ?
+					AND		`sendWhen` != ?
 					AND		(
 								SELECT	COUNT(*)
 								FROM	`tl_ls_shop_message_model`
@@ -4393,7 +4608,14 @@ class ls_shop_generalHelper
 									AND	`tl_ls_shop_message_model`.`member_group` LIKE ?
 							) > 0
 			")
-            ->execute('asOrderConfirmation', 'asOrderNotice', 'onRestock', '%%"' . $arrOrder['memberGroupInfo_id'] . '"%');
+			->execute(
+				'asOrderConfirmation',
+				'asOrderNotice',
+				'onRestock',
+				'asWithdrawalConfirmation',
+				'asWithdrawalNotice',
+				'%%"' . $arrOrder['memberGroupInfo_id'] . '"%'
+			);
 
         if (!$objMessageTypes->numRows) {
             return $arrMessageTypes;

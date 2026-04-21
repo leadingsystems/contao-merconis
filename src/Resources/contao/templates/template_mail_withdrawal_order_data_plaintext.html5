@@ -1,0 +1,98 @@
+<?php
+use Contao\StringUtil;
+
+$arrWithdrawalData = is_array($this->arrWithdrawal ?? null) ? $this->arrWithdrawal : [];
+$intScenario = (int) ($arrWithdrawalData['scenario'] ?? 0);
+$arrAddressFieldLabels = is_array($GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels'] ?? null)
+    ? $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_address_field_labels']
+    : [];
+
+$buildAddressLines = static function ($serializedAddress) use ($arrAddressFieldLabels): array {
+    $deserializedAddress = StringUtil::deserialize($serializedAddress);
+    if (!is_array($deserializedAddress) || $deserializedAddress === []) {
+        return [];
+    }
+
+    $flattenAddressLines = static function (array $addressData, array $addressFieldLabels, string $keyPrefix = '') use (&$flattenAddressLines): array {
+        $lines = [];
+
+        foreach ($addressData as $key => $value) {
+            $lineKey = $keyPrefix;
+            if (is_string($key) && !is_numeric($key)) {
+                $lineKey = $lineKey ? $lineKey . '.' . $key : $key;
+            }
+
+            if (is_array($value)) {
+                $lines = array_merge($lines, $flattenAddressLines($value, $addressFieldLabels, $lineKey));
+                continue;
+            }
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $stringValue = trim((string) $value);
+            if ($stringValue === '' || $stringValue === '-') {
+                continue;
+            }
+
+            $lineLabel = $lineKey;
+            if ($lineKey !== '' && array_key_exists($lineKey, $addressFieldLabels) && is_string($addressFieldLabels[$lineKey])) {
+                $mappedLabel = trim($addressFieldLabels[$lineKey]);
+                if ($mappedLabel === '') {
+                    continue;
+                }
+
+                $lineLabel = $mappedLabel;
+            }
+
+            $lines[] = $lineLabel ? $lineLabel . ': ' . $stringValue : $stringValue;
+        }
+
+        return $lines;
+    };
+
+    return $flattenAddressLines($deserializedAddress, $arrAddressFieldLabels);
+};
+
+$arrBillingAddressLines = $buildAddressLines($arrWithdrawalData['snapshotBillingAddress'] ?? null);
+$arrShippingAddressLines = $buildAddressLines($arrWithdrawalData['snapshotShippingAddress'] ?? null);
+$arrOutputLines = [
+    (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_heading'],
+];
+
+if ($intScenario === 1) {
+    $arrOutputLines[] = '';
+    $arrOutputLines[] = $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_number_label']
+        . ': '
+        . (string) ($arrWithdrawalData['snapshotOrderNr'] ?? '');
+    $arrOutputLines[] = $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_order_date_label']
+        . ': '
+        . (string) ($arrWithdrawalData['snapshotOrderDate'] ?? '');
+
+    if ($arrBillingAddressLines !== []) {
+        $arrOutputLines[] = $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_billing_address_heading'] . ':';
+        foreach ($arrBillingAddressLines as $strBillingAddressLine) {
+            $arrOutputLines[] = $strBillingAddressLine;
+        }
+    }
+
+    if ($arrShippingAddressLines !== []) {
+        $arrOutputLines[] = $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_address_heading'] . ':';
+        foreach ($arrShippingAddressLines as $strShippingAddressLine) {
+            $arrOutputLines[] = $strShippingAddressLine;
+        }
+    }
+
+    $arrOutputLines[] = $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_payment_method_label']
+        . ': '
+        . (string) ($arrWithdrawalData['snapshotPaymentMethod'] ?? '');
+    $arrOutputLines[] = $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_shipping_method_label']
+        . ': '
+        . (string) ($arrWithdrawalData['snapshotShippingMethod'] ?? '');
+} else {
+    $arrOutputLines[] = '';
+    $arrOutputLines[] = (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_order_data_fallback'];
+}
+
+echo trim(implode("\n", $arrOutputLines));

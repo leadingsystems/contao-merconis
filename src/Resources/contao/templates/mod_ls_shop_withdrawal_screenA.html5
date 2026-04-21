@@ -1,0 +1,54 @@
+<?php
+$identifierFieldName = isset($this->identifierFieldName) ? (string) $this->identifierFieldName : 'withdrawalIdentifier';
+$honeypotFieldName = isset($this->honeypotFieldName) ? (string) $this->honeypotFieldName : 'website';
+$isFallbackHighlighted = !empty($this->fallbackHighlighted);
+?>
+<div class="mod_ls_shop_withdrawal__screen-a">
+    <?php if (!empty($this->headline)) { ?>
+        <h2><?php echo \Contao\StringUtil::specialchars((string) $this->headline); ?></h2>
+    <?php } ?>
+
+    <?php if (!empty($this->errorMessage)) { ?>
+        <p class="error"><?php echo \Contao\StringUtil::specialchars((string) $this->errorMessage); ?></p>
+    <?php } ?>
+
+    <form method="post" action="<?php echo \Contao\StringUtil::specialchars((string) ($this->formAction ?? '')); ?>">
+        <input type="hidden" name="FORM_SUBMIT" value="<?php echo \Contao\StringUtil::specialchars((string) ($this->formSubmitName ?? '')); ?>">
+        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo \Contao\StringUtil::specialchars((string) (\Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue())); ?>">
+
+        <div class="widget">
+            <label for="ctrl_<?php echo \Contao\StringUtil::specialchars($identifierFieldName); ?>">
+                <?php echo \Contao\StringUtil::specialchars((string) ($this->labelIdentifier ?? '')); ?>
+            </label>
+            <input
+                type="text"
+                id="ctrl_<?php echo \Contao\StringUtil::specialchars($identifierFieldName); ?>"
+                name="<?php echo \Contao\StringUtil::specialchars($identifierFieldName); ?>"
+                value="<?php echo \Contao\StringUtil::specialchars((string) ($this->identifierValue ?? '')); ?>"
+                placeholder="<?php echo \Contao\StringUtil::specialchars((string) ($this->placeholderIdentifier ?? '')); ?>"
+                required
+            >
+        </div>
+
+        <div class="mod_ls_shop_withdrawal__honeypot" aria-hidden="true">
+            <input
+                type="text"
+                id="ctrl_<?php echo \Contao\StringUtil::specialchars($honeypotFieldName); ?>"
+                name="<?php echo \Contao\StringUtil::specialchars($honeypotFieldName); ?>"
+                value=""
+                tabindex="-1"
+                autocomplete="off"
+            >
+        </div>
+
+        <button type="submit">
+            <?php echo \Contao\StringUtil::specialchars((string) ($this->submitLabel ?? '')); ?>
+        </button>
+    </form>
+
+    <p class="mod_ls_shop_withdrawal__fallback<?php echo $isFallbackHighlighted ? ' is-highlighted' : ''; ?>">
+        <a href="<?php echo \Contao\StringUtil::specialchars((string) ($this->fallbackUrl ?? '')); ?>">
+            <?php echo \Contao\StringUtil::specialchars((string) ($this->fallbackLabel ?? '')); ?>
+        </a>
+    </p>
+</div>

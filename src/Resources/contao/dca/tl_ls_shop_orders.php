@@ -404,6 +404,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
+        'withdrawalIdentifier' => array (
+            'sql'                     => "varchar(64) NOT NULL default ''"
+        ),
+
         'orderDate' => array (
             'sql'                     => "varchar(32) NOT NULL default ''"
         ),

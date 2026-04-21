@@ -1,0 +1,67 @@
+<?php
+$errorMessages = isset($this->errorMessages) && is_array($this->errorMessages) ? $this->errorMessages : [];
+$honeypotFieldName = isset($this->honeypotFieldName) ? (string) $this->honeypotFieldName : 'website';
+?>
+<div class="mod_ls_shop_withdrawal__screen-c">
+    <?php if (!empty($this->headline)) { ?>
+        <h2><?php echo \Contao\StringUtil::specialchars((string) $this->headline); ?></h2>
+    <?php } ?>
+
+    <?php if (!empty($errorMessages)) { ?>
+        <div class="error">
+            <?php foreach ($errorMessages as $errorMessage) { ?>
+                <p><?php echo \Contao\StringUtil::specialchars((string) $errorMessage); ?></p>
+            <?php } ?>
+        </div>
+    <?php } ?>
+
+    <form method="post" action="<?php echo \Contao\StringUtil::specialchars((string) ($this->formAction ?? '')); ?>">
+        <input type="hidden" name="FORM_SUBMIT" value="<?php echo \Contao\StringUtil::specialchars((string) ($this->formSubmitName ?? '')); ?>">
+        <input type="hidden" name="REQUEST_TOKEN" value="<?php echo \Contao\StringUtil::specialchars((string) (\Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue())); ?>">
+
+        <div class="widget">
+            <label for="ctrl_withdrawalName"><?php echo \Contao\StringUtil::specialchars((string) ($this->nameLabel ?? '')); ?></label>
+            <input
+                type="text"
+                id="ctrl_withdrawalName"
+                name="withdrawalName"
+                value="<?php echo \Contao\StringUtil::specialchars((string) ($this->nameValue ?? '')); ?>"
+                required
+            >
+        </div>
+
+        <div class="widget">
+            <label for="ctrl_withdrawalFreetext"><?php echo \Contao\StringUtil::specialchars((string) ($this->freetextLabel ?? '')); ?></label>
+            <textarea
+                id="ctrl_withdrawalFreetext"
+                name="withdrawalFreetext"
+                rows="6"
+                required
+            ><?php echo \Contao\StringUtil::specialchars((string) ($this->freetextValue ?? '')); ?></textarea>
+        </div>
+
+        <div class="widget">
+            <label for="ctrl_withdrawalEmail"><?php echo \Contao\StringUtil::specialchars((string) ($this->emailLabel ?? '')); ?></label>
+            <input
+                type="email"
+                id="ctrl_withdrawalEmail"
+                name="withdrawalEmail"
+                value="<?php echo \Contao\StringUtil::specialchars((string) ($this->emailValue ?? '')); ?>"
+                required
+            >
+        </div>
+
+        <div class="mod_ls_shop_withdrawal__honeypot" aria-hidden="true">
+            <input
+                type="text"
+                id="ctrl_<?php echo \Contao\StringUtil::specialchars($honeypotFieldName); ?>"
+                name="<?php echo \Contao\StringUtil::specialchars($honeypotFieldName); ?>"
+                value=""
+                tabindex="-1"
+                autocomplete="off"
+            >
+        </div>
+
+        <button type="submit"><?php echo \Contao\StringUtil::specialchars((string) ($this->submitLabel ?? '')); ?></button>
+    </form>
+</div>

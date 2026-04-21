@@ -170,11 +170,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'label' =>  &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType'],
 			'exclude'                 => true,
 			'inputType'               => 'select',
-			'default'				  => 'personalData',
 			'eval'					  => array('tl_class' => 'w50'),
-			'options'				  => array('personalData', 'paymentData', 'shippingData'),
+			'options_callback'		  => array('Merconis\Core\tl_ls_shop_message_model_controller', 'getCustomerDataTypeOptions'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType']['options'],
 			'filter' => true,
+			'load_callback' => array(
+				array('Merconis\Core\tl_ls_shop_message_model_controller', 'setCustomerDataType1Default')
+			),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
@@ -185,6 +187,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'default' => 'email',
 			'eval' => array('mandatory' => true, 'tl_class' => 'w50'),
 			'search' => true,
+			'load_callback' => array(
+				array('Merconis\Core\tl_ls_shop_message_model_controller', 'setCustomerDataField1Default')
+			),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
@@ -202,9 +207,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 			'exclude'                 => true,
 			'inputType'               => 'select',
 			'eval'					  => array('tl_class' => 'w50'),
-			'options'				  => array('personalData', 'paymentData', 'shippingData'),
+			'options_callback'		  => array('Merconis\Core\tl_ls_shop_message_model_controller', 'getCustomerDataTypeOptions'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType']['options'],
 			'filter' => true,
+			'load_callback' => array(
+				array('Merconis\Core\tl_ls_shop_message_model_controller', 'setCustomerDataType2Default')
+			),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 		
@@ -368,11 +376,17 @@ $GLOBALS['TL_DCA']['tl_ls_shop_message_model'] = array(
 	)
 );
 
+$GLOBALS['TL_DCA']['tl_ls_shop_message_model']['config']['oncreate_callback'][] = [
+	tl_ls_shop_message_model_controller::class,
+	'oncreateWithdrawalDefaults',
+];
+
 
 
 
 
 class tl_ls_shop_message_model_controller extends Backend {
+	protected const WITHDRAWAL_SEND_WHEN_VALUES = array('asWithdrawalConfirmation', 'asWithdrawalNotice');
 
 	public function __construct() {
 		parent::__construct();
@@ -399,5 +413,81 @@ class tl_ls_shop_message_model_controller extends Backend {
 		}
 
 		return sprintf($GLOBALS['TL_LANG']['tl_ls_shop_message_model']['childRecordListText'], $memberGroupName, substr($arrRow['subject'], 0, 550));
+	}
+
+	public function getCustomerDataTypeOptions(DataContainer $dc): array {
+		if ($this->isWithdrawalMessageType($dc)) {
+			return array('withdrawalData');
+		}
+
+		return array('personalData', 'paymentData', 'shippingData');
+	}
+
+	public function oncreateWithdrawalDefaults(
+		$strTable,
+		$intId,
+		$arrSet,
+		DataContainer $dc
+	): void {
+		if (!$this->isWithdrawalMessageType($dc, (array) $arrSet)) {
+			return;
+		}
+
+		Database::getInstance()->prepare("
+			UPDATE      `tl_ls_shop_message_model`
+			SET         `customerDataType1` = ?, `customerDataType2` = ?
+			WHERE       `id` = ?
+		")
+		->execute('withdrawalData', 'withdrawalData', $intId);
+	}
+
+	public function setCustomerDataType1Default($varValue, DataContainer $dc) {
+		if (!$varValue) {
+			if ($this->isWithdrawalMessageType($dc)) {
+				return 'withdrawalData';
+			}
+
+			return 'personalData';
+		}
+
+		return $varValue;
+	}
+
+	public function setCustomerDataField1Default($varValue, DataContainer $dc) {
+		if ($this->isWithdrawalMessageType($dc) && !$varValue) {
+			return 'email';
+		}
+
+		return $varValue;
+	}
+
+	public function setCustomerDataType2Default($varValue, DataContainer $dc) {
+		if ($this->isWithdrawalMessageType($dc) && !$varValue) {
+			return 'withdrawalData';
+		}
+
+		return $varValue;
+	}
+
+	protected function isWithdrawalMessageType(DataContainer $dc, array $arrSet = []): bool {
+		$intMessageTypeId = (int) ($dc->activeRecord->pid ?? $dc->pid ?? $arrSet['pid'] ?? 0);
+
+		if (!$intMessageTypeId) {
+			return false;
+		}
+
+		$objMessageType = Database::getInstance()->prepare("
+			SELECT      `sendWhen`
+			FROM        `tl_ls_shop_message_type`
+			WHERE       `id` = ?
+		")
+		->limit(1)
+		->execute($intMessageTypeId);
+
+		if (!$objMessageType->numRows) {
+			return false;
+		}
+
+		return in_array($objMessageType->sendWhen, self::WITHDRAWAL_SEND_WHEN_VALUES, true);
 	}
 }

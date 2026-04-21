@@ -66,6 +66,9 @@ use Contao\System;
 								<div class="orderDetails">
 									<div class="value">
                                         <a class="button" href="<?php echo $arrOrder['linkToDetails']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText087']; ?></a>
+                                        <?php if (!empty($arrOrder['linkToWithdrawal'])) { ?>
+                                            <a class="button withdrawal-link" href="<?php echo $arrOrder['linkToWithdrawal']; ?>"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_direct_link_label']; ?></a>
+                                        <?php } ?>
                                     </div>
 								</div>
 							</div>

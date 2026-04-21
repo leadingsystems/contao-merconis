@@ -1,0 +1,33 @@
+<?php
+$activeScreen = isset($this->activeScreen) ? (string) $this->activeScreen : 'screenA';
+$screenAData = isset($this->screenAData) && is_array($this->screenAData) ? $this->screenAData : [];
+$screenBData = isset($this->screenBData) && is_array($this->screenBData) ? $this->screenBData : [];
+$screenCData = isset($this->screenCData) && is_array($this->screenCData) ? $this->screenCData : [];
+?>
+<div class="mod_ls_shop_withdrawal screen_<?php echo \Contao\StringUtil::specialchars($activeScreen); ?>">
+    <?php if ($activeScreen === 'screenA') { ?>
+        <?php
+        $screenATemplate = new \Contao\FrontendTemplate('mod_ls_shop_withdrawal_screenA');
+        foreach ($screenAData as $templateKey => $templateValue) {
+            $screenATemplate->{$templateKey} = $templateValue;
+        }
+        echo $screenATemplate->parse();
+        ?>
+    <?php } elseif ($activeScreen === 'screenB') { ?>
+        <?php
+        $screenBTemplate = new \Contao\FrontendTemplate('mod_ls_shop_withdrawal_screenB');
+        foreach ($screenBData as $templateKey => $templateValue) {
+            $screenBTemplate->{$templateKey} = $templateValue;
+        }
+        echo $screenBTemplate->parse();
+        ?>
+    <?php } elseif ($activeScreen === 'screenC') { ?>
+        <?php
+        $screenCTemplate = new \Contao\FrontendTemplate('mod_ls_shop_withdrawal_screenC');
+        foreach ($screenCData as $templateKey => $templateValue) {
+            $screenCTemplate->{$templateKey} = $templateValue;
+        }
+        echo $screenCTemplate->parse();
+        ?>
+    <?php } ?>
+</div>

@@ -2,6 +2,9 @@
 /composer.lock
 
 # PhpUnit
+/vendor/
+/.phpunit.cache/
 /phpunit.xml
+/build/
 
 .idea/

@@ -22,6 +22,7 @@ $GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewStartLevel'] = array('S
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewStopLevel'] = array('Stoplevel', 'Bestimmen Sie hier, bis zu welchem Level in der Seitenstruktur Produkte für die Ausgabe berücksichtigt werden. Eine 0 bedeutet, dass es kein Limit gibt.');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewConsiderUnpublishedPages'] = array('Unveröffentlichte Seiten berücksichtigen', 'Aktivieren Sie die Checkbox, wenn Sie möchten, dass auch Produkte ausgegeben werden, die sich auf unveröffentlichten Seiten befinden oder auf Seiten, die einer unveröffentlichten Seiten untergeordnet sind.');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewConsiderHiddenPages'] = array('Versteckte Seiten berücksichtigen', 'Aktivieren Sie die Checkbox, wenn Sie möchten, dass auch Produkte ausgegeben werden, die sich auf versteckten Seiten befinden oder auf Seiten, die einer versteckten Seiten untergeordnet sind.');
+$GLOBALS['TL_LANG']['tl_module']['ls_shop_withdrawalConfirmationText'] = array('Text für Widerrufsbestätigung', 'Dieser Text wird auf der Bestätigungsseite ausgegeben. Wenn das Feld leer ist, wird der Sprach-Fallback verwendet.');
 
 /**
  * Legends
@@ -31,6 +32,7 @@ $GLOBALS['TL_LANG']['tl_module']['lsShopCart_legend']						= 'Einstellungen für
 $GLOBALS['TL_LANG']['tl_module']['lsShopOrderReview_legend']				= 'Einstellungen für Bestellungs-Prüfung';
 $GLOBALS['TL_LANG']['tl_module']['lsShopAfterCheckout_legend']			= 'Einstellungen für Informationen nach der Bestellung';
 $GLOBALS['TL_LANG']['tl_module']['lsShopPaymentAfterCheckout_legend']			= 'Einstellungen für Bezahlung nach der Bestellung';
+$GLOBALS['TL_LANG']['tl_module']['lsShopWithdrawalConfirmation_legend']			= 'Einstellungen für Widerrufsbestätigung';
 $GLOBALS['TL_LANG']['tl_module']['lsShopMyOrders_legend']				= 'Einstellungen für die Kunden-Bestellübersicht';
 $GLOBALS['TL_LANG']['tl_module']['lsShopMyOrderDetails_legend']			= 'Einstellungen für die Bestellungsdetails';
 $GLOBALS['TL_LANG']['tl_module']['lsShopFilterForm_legend']			= 'Einstellungen für das Filter-Formular';

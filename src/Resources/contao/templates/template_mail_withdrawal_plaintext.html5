@@ -1,0 +1,73 @@
+<?php
+$arrWithdrawalData = is_array($this->arrWithdrawal ?? null) ? $this->arrWithdrawal : [];
+$intScenario = (int) ($arrWithdrawalData['scenario'] ?? 0);
+$arrWithdrawalItems = is_array($arrWithdrawalData['items'] ?? null) ? $arrWithdrawalData['items'] : [];
+$strFreetext = trim((string) ($arrWithdrawalData['freetext'] ?? ''));
+
+$buildQuantityOutput = static function (array $arrWithdrawalItem): string {
+    $strOrderedQuantityOutput = (string) ($arrWithdrawalItem['snapshotOrderedQuantity'] ?? '');
+    $strWithdrawnQuantityOutput = (string) ($arrWithdrawalItem['withdrawnQuantity'] ?? '');
+    $strQuantityUnitOutput = trim((string) ($arrWithdrawalItem['snapshotQuantityUnit'] ?? ''));
+    $strQuantityOutput = $strWithdrawnQuantityOutput;
+
+    if ($strOrderedQuantityOutput !== '' && $strOrderedQuantityOutput !== $strWithdrawnQuantityOutput) {
+        $strQuantityOutput = sprintf(
+            $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_quantity_partial'],
+            $strWithdrawnQuantityOutput,
+            $strOrderedQuantityOutput
+        );
+    }
+
+    if ($strQuantityUnitOutput !== '') {
+        $strQuantityOutput .= ' ' . $strQuantityUnitOutput;
+    }
+
+    return trim($strQuantityOutput);
+};
+
+$arrOutputLines = [];
+
+if ($intScenario === 1 && $arrWithdrawalItems !== []) {
+    $arrOutputLines[] = (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_heading'];
+    $arrOutputLines[] = '';
+
+    foreach ($arrWithdrawalItems as $arrWithdrawalItem) {
+        $strProductName = trim((string) ($arrWithdrawalItem['snapshotProductName'] ?? ''));
+        $strVariantTitle = trim((string) ($arrWithdrawalItem['snapshotVariantTitle'] ?? ''));
+        $strProductDescription = $strProductName;
+
+        if ($strProductName !== '' && $strVariantTitle !== '') {
+            $strProductDescription .= ', ' . $strVariantTitle;
+        } elseif ($strProductDescription === '') {
+            $strProductDescription = $strVariantTitle;
+        }
+
+        $arrOutputLines[] = '- ' . $strProductDescription;
+        $arrOutputLines[] = '  '
+            . $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number']
+            . ': '
+            . (string) ($arrWithdrawalItem['snapshotProductNumber'] ?? '');
+        $arrOutputLines[] = '  '
+            . $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price']
+            . ': '
+            . (string) ($arrWithdrawalItem['snapshotUnitPrice'] ?? '');
+        $arrOutputLines[] = '  '
+            . $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity']
+            . ': '
+            . $buildQuantityOutput($arrWithdrawalItem);
+        $arrOutputLines[] = '';
+    }
+
+    if (end($arrOutputLines) === '') {
+        array_pop($arrOutputLines);
+    }
+} else {
+    $arrOutputLines[] = (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_freetext_heading'];
+
+    if ($strFreetext !== '') {
+        $arrOutputLines[] = '';
+        $arrOutputLines[] = $strFreetext;
+    }
+}
+
+echo trim(implode("\n", $arrOutputLines));
