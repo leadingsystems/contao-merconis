@@ -1,11 +1,12 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.1.14 (2026-03-17)
+### 5.1.14 (2026-04-21)
  * fix default product image CS
  * improve sendMessagesOnStatusChange
  * fix inserttag 'shopProductOutput'
  * fix redirect validation for PayPalCheckout
+ * add feature 'Widerruf'
 
 ### 5.1.13 (2026-02-24)
 * revision of the payment process for PayPalCheckout
