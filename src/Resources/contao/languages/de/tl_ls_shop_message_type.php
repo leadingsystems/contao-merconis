@@ -58,7 +58,9 @@
 		'onStatusChangeCronHourly' => 'statusabhängig mittels Cronjob (stündlich)',
 		'asOrderConfirmation' => 'als Bestellbestätigung',
 		'asOrderNotice' => 'als Bestellbenachrichtigung',
-		'onRestock' => 'als Wiederverfügbarkeitsbenachrichtigung'
+		'onRestock' => 'als Wiederverfügbarkeitsbenachrichtigung',
+		'asWithdrawalConfirmation' => 'als Eingangsbestätigung für Widerruf',
+		'asWithdrawalNotice' => 'als Widerrufsbenachrichtigung an Händler'
 	);
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_type']['paymentStatusCorrelation_paymentProvider']['options'] = array(

@@ -22,6 +22,7 @@ class ls_shop_orderMessages
 	protected $ls_language = 'en';
 	
 	protected $arrOrder = null;
+	protected $arrWithdrawal = null;
 	protected $arrMessageModels = null;
 	protected $arrMessageTypes = null;
 
@@ -30,7 +31,7 @@ class ls_shop_orderMessages
 	
 	protected $counterNr = null;
 	
-	public function __construct($orderID = null, $identificationToken = null, $findBy = null, $language = null, $blnForceOrderRefresh = false, $int_memberId = null, $str_productVariantId = null) {
+	public function __construct($orderID = null, $identificationToken = null, $findBy = null, $language = null, $blnForceOrderRefresh = false, $int_memberId = null, $str_productVariantId = null, $arrWithdrawal = null) {
 		/** @var PageModel $objPage */
 		global $objPage;
 		
@@ -39,6 +40,7 @@ class ls_shop_orderMessages
 		$this->findBy = $findBy ? $findBy : $this->findBy;
 		
 		$this->arrOrder = $this->orderID ? ls_shop_generalHelper::getOrder($this->orderID, 'id', $blnForceOrderRefresh) : null;
+		$this->arrWithdrawal = is_array($arrWithdrawal) ? $arrWithdrawal : null;
 
 		if ($int_memberId) {
 		    $obj_dbres_memberData = Database::getInstance()
@@ -113,7 +115,7 @@ class ls_shop_orderMessages
 			 * If the messageType has already be sent for the current order,
 			 * it has to be skipped
 			 */
-			if (isset($this->arrOrder['messageTypesSent']) && in_array($arrMessageType['id'], $this->arrOrder['messageTypesSent'])) {
+			if ($this->shouldSkipMessageTypeForCurrentContext($arrMessageType)) {
 				continue;
 			}
 			
@@ -167,21 +169,39 @@ class ls_shop_orderMessages
 		return true;
 	}
 
+	protected function shouldSkipMessageTypeForCurrentContext($arrMessageType = null) {
+		if (!is_array($arrMessageType) || !isset($arrMessageType['id'])) {
+			return false;
+		}
+
+		if (!isset($this->arrOrder['messageTypesSent']) || !in_array($arrMessageType['id'], $this->arrOrder['messageTypesSent'])) {
+			return false;
+		}
+
+		/*
+		 * Widerrufs-E-Mails duerfen auch bei wiederholten Widerrufen derselben
+		 * Bestellung erneut versendet werden. Die Duplikatpruefung greift daher
+		 * nur im Nicht-Widerrufs-Kontext.
+		 */
+		return $this->arrWithdrawal === null;
+	}
+
 	public function getMessageModels() {
 		$arrMessageModels = array();
 		
 		if (
-		    (
-		        !$this->orderID
-                && $this->arr_memberData === null
-            )
-            || !$this->identificationToken
-            || (
-                $this->findBy != 'id'
-                && $this->findBy != 'alias'
-                && $this->findBy != 'sendWhen'
-            )
-        ) {
+			(
+				!$this->orderID
+				&& $this->arr_memberData === null
+				&& $this->arrWithdrawal === null
+			)
+			|| !$this->identificationToken
+			|| (
+				$this->findBy != 'id'
+				&& $this->findBy != 'alias'
+				&& $this->findBy != 'sendWhen'
+			)
+		) {
 			return null;
 		}
 		
@@ -214,13 +234,15 @@ class ls_shop_orderMessages
                     continue;
                 }
 
-                $arr_messageModelMemberGroups = StringUtil::deserialize($objMessageModels->member_group, true);
-                $arr_memberGroups = StringUtil::deserialize($this->arr_memberData['groups'], true);
-                $arr_memberGroupIntersection = array_intersect($arr_messageModelMemberGroups, $arr_memberGroups);
+                if ($this->arr_memberData !== null) {
+					$arr_messageModelMemberGroups = StringUtil::deserialize($objMessageModels->member_group, true);
+					$arr_memberGroups = StringUtil::deserialize($this->arr_memberData['groups'], true);
+					$arr_memberGroupIntersection = array_intersect($arr_messageModelMemberGroups, $arr_memberGroups);
 
-                if (!count($arr_memberGroupIntersection)) {
-                    continue;
-                }
+					if (!count($arr_memberGroupIntersection)) {
+						continue;
+					}
+				}
             }
 			
 			$arrMessageModels[$objMessageModels->id] = $objMessageModels->row();
@@ -236,12 +258,14 @@ class ls_shop_orderMessages
 		if (!is_array($this->arrMessageModels)) {
 			return false;
 		}
-		System::loadLanguageFile('default', $this->arrOrder['customerLanguage'], true);
+		$strLanguageToLoad = $this->getMessageLanguageToLoad();
+		System::loadLanguageFile('default', $strLanguageToLoad, true);
 
 		$currentMessageTypeID = null;
 		$lastMessageTypeID = null;
 
 		foreach ($this->arrMessageModels as $arrMessageModel) {
+			$arrPreparedWithdrawal = $this->getPreparedWithdrawalDataForRendering();
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage'] as $mccb) {
@@ -265,13 +289,13 @@ class ls_shop_orderMessages
 			
 			if (!Validator::isEmail(Idna::encodeEmail($arrMessageModel['senderAddress']))) {
 				// log an error if the sender address is invalid and then skip this message model
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because sender address "'.$arrMessageModel['senderAddress'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->getOrderNumberForLogging().' could not be sent because sender address "'.$arrMessageModel['senderAddress'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 				continue;
 			}
 			
 			if (!$arrMessageModel['useHTML'] && !$arrMessageModel['useRawtext']) {
 				// log an error if neither useHTML nor useRawtext is checked and then skip this message model
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because neither the usage of HTML nor the usage of rawtext is selected', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->getOrderNumberForLogging().' could not be sent because neither the usage of HTML nor the usage of rawtext is selected', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 				continue;
 			}
 						
@@ -288,6 +312,7 @@ class ls_shop_orderMessages
 				$objTemplate_emailHTML = new FrontendTemplate($arrMessageModel['template_html']);
 				$objTemplate_emailHTML->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(StringUtil::insertTagToSrc(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_html']))));
 				$objTemplate_emailHTML->arrOrder = $this->arrOrder;
+				$objTemplate_emailHTML->arrWithdrawal = $arrPreparedWithdrawal;
 				$objTemplate_emailHTML->arrMessageModel = $arrMessageModel;
 				$objTemplate_emailHTML->counterNr = $this->counterNr;
 			}
@@ -296,6 +321,7 @@ class ls_shop_orderMessages
 				$objTemplate_rawtext = new FrontendTemplate($arrMessageModel['template_rawtext']);
 				$objTemplate_rawtext->content = System::getContainer()->get('contao.insert_tag.parser')->replace($this->ls_replaceWildcards(System::getContainer()->get('contao.insert_tag.parser')->replace($arrMessageModel['multilanguage']['content_rawtext'])));
 				$objTemplate_rawtext->arrOrder = $this->arrOrder;
+				$objTemplate_rawtext->arrWithdrawal = $arrPreparedWithdrawal;
 				$objTemplate_rawtext->arrMessageModel = $arrMessageModel;
 				$objTemplate_rawtext->counterNr = $this->counterNr;
 			}
@@ -303,7 +329,7 @@ class ls_shop_orderMessages
 			$arrMessageToSendAndSave = array(
 				'tstamp' => time(),
 				'orderID' => $this->orderID ?: 0,
-				'orderNr' => $this->arrOrder['orderNr'],
+				'orderNr' => $this->getOrderNumberForLogging(),
 				'messageTypeAlias' => $this->arrMessageTypes[$arrMessageModel['pid']]['alias'],
 				'messageTypeID' => $currentMessageTypeID,
 				'messageModelID' => $arrMessageModel['id'],
@@ -400,9 +426,9 @@ class ls_shop_orderMessages
 			
 			try {
 				$objEmail->sendTo($arrMessageToSendAndSave['receiverMainAddress']);
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message sent for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'], ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message sent for order with order nr '.$this->getOrderNumberForLogging().' using message model with id '.$arrMessageModel['id'], ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
 			} catch (\Exception $e) {
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->arrOrder['orderNr'].' using message model with id '.$arrMessageModel['id'].' could not be sent ('.StringUtil::standardize($e->getMessage()).')', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
+                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: Swift Exception, message "'.$this->arrMessageTypes[$arrMessageModel['pid']]['alias'].'" for order with order nr '.$this->getOrderNumberForLogging().' using message model with id '.$arrMessageModel['id'].' could not be sent ('.StringUtil::standardize($e->getMessage()).')', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_MESSAGES)]);
 			}
 			
 			$this->writeDispatchDate($currentMessageTypeID);
@@ -575,6 +601,26 @@ class ls_shop_orderMessages
 			'bcc' => null
 		);
 
+		if (
+			$this->arrWithdrawal !== null
+			&& $arrMessageModel['sendToCustomerAddress1']
+			&& $arrMessageModel['customerDataType1'] === 'withdrawalData'
+			&& isset($this->arrWithdrawal[$arrMessageModel['customerDataField1']])
+			&& $this->arrWithdrawal[$arrMessageModel['customerDataField1']]
+		) {
+			$arrReceiverAddresses['main'] = $this->arrWithdrawal[$arrMessageModel['customerDataField1']];
+		}
+
+		if (
+			$this->arrWithdrawal !== null
+			&& $arrMessageModel['sendToCustomerAddress2']
+			&& $arrMessageModel['customerDataType2'] === 'withdrawalData'
+			&& isset($this->arrWithdrawal[$arrMessageModel['customerDataField2']])
+			&& $this->arrWithdrawal[$arrMessageModel['customerDataField2']]
+		) {
+			$arrReceiverAddresses['main'] = $this->arrWithdrawal[$arrMessageModel['customerDataField2']];
+		}
+
 		if ($this->arrOrder !== null) {
             // use customer address no. 1 if it can be determined
             if ($arrMessageModel['sendToCustomerAddress1'] && isset($this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) && $this->arrOrder['customerData'][$arrMessageModel['customerDataType1']][$arrMessageModel['customerDataField1']]) {
@@ -605,13 +651,13 @@ class ls_shop_orderMessages
 		
 		if ($arrReceiverAddresses['main'] && !Validator::isEmail(Idna::encodeEmail($arrReceiverAddresses['main']))) {
 			// log an error if the address is invalid
-            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because main receiver address "'.$arrReceiverAddresses['main'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->getOrderNumberForLogging().' could not be sent because main receiver address "'.$arrReceiverAddresses['main'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 			$blnAddressInvalid = true;
 		}
 		
 		if ($arrReceiverAddresses['bcc'] && !Validator::isEmail(Idna::encodeEmail($arrReceiverAddresses['bcc']))) {
 			// log an error if the address is invalid
-            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->arrOrder['orderNr'].' could not be sent because BCC receiver address "'.$arrReceiverAddresses['bcc'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
+            System::getContainer()->get('monolog.logger.contao')->info('MERCONIS: message using message model with id '.$arrMessageModel['id'].' and order with order nr '.$this->getOrderNumberForLogging().' could not be sent because BCC receiver address "'.$arrReceiverAddresses['bcc'].'" is invalid', ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]);
 			$blnAddressInvalid = true;
 		}
 		
@@ -619,7 +665,8 @@ class ls_shop_orderMessages
 		return $arrReceiverAddresses['main'] && !$blnAddressInvalid ? $arrReceiverAddresses : null;
 	}
 
-	protected function ls_replaceWildcards($text) {
+	protected function ls_replaceWildcards($text, ?callable $templateRenderer = null) {
+		$arrPreparedWithdrawal = $this->getPreparedWithdrawalDataForRendering();
 		/*
 		 * Replace the counterNr wildcard
 		 */
@@ -627,8 +674,12 @@ class ls_shop_orderMessages
 			$text = preg_replace('/(&#35;&#35;counterNr&#35;&#35;)|(##counterNr##)/siU', $this->counterNr, $text);
 		}
 
+		if ($this->arrOrder === null) {
+            $text = ls_shop_generalHelper::ls_replaceTemplateWildcards($text, null, $arrPreparedWithdrawal, $templateRenderer);
+        }
+
 		if ($this->arrOrder !== null) {
-            $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $this->arrOrder);
+            $text = ls_shop_generalHelper::ls_replaceOrderWildcards($text, $this->arrOrder, $arrPreparedWithdrawal, $templateRenderer);
         }
 		if ($this->obj_product !== null) {
             $text = ls_shop_generalHelper::ls_replaceProductWildcards($text, $this->obj_product, $this->ls_language);
@@ -636,8 +687,129 @@ class ls_shop_orderMessages
 		if ($this->arr_memberData !== null) {
             $text = ls_shop_generalHelper::ls_replaceMemberWildcards($text, $this->arr_memberData);
         }
+		if ($arrPreparedWithdrawal !== null) {
+			$text = ls_shop_generalHelper::ls_replaceWithdrawalWildcards($text, $arrPreparedWithdrawal);
+		}
 
 		return $text;
+	}
+
+	protected function getMessageLanguageToLoad() {
+		if ($this->arrWithdrawal !== null && $this->ls_language) {
+			return $this->ls_language;
+		}
+
+		if (isset($this->arrOrder['customerLanguage']) && $this->arrOrder['customerLanguage']) {
+			return $this->arrOrder['customerLanguage'];
+		}
+
+		return $this->ls_language;
+	}
+
+	protected function getPreparedWithdrawalDataForRendering() {
+		if (!is_array($this->arrWithdrawal)) {
+			return null;
+		}
+
+		$arrPreparedWithdrawal = $this->arrWithdrawal;
+		$blnUseCustomerLanguageVariant = $this->usesCustomerLanguageWithdrawalVariant();
+
+		$arrPreparedWithdrawal['snapshotPaymentMethod'] = $this->getPreparedWithdrawalFieldValue(
+			$arrPreparedWithdrawal,
+			'snapshotPaymentMethod',
+			'snapshotPaymentMethod_customerLanguage',
+			$blnUseCustomerLanguageVariant
+		);
+		$arrPreparedWithdrawal['snapshotShippingMethod'] = $this->getPreparedWithdrawalFieldValue(
+			$arrPreparedWithdrawal,
+			'snapshotShippingMethod',
+			'snapshotShippingMethod_customerLanguage',
+			$blnUseCustomerLanguageVariant
+		);
+
+		$arrPreparedWithdrawalItems = array();
+		foreach ($arrPreparedWithdrawal['items'] ?? array() as $arrWithdrawalItem) {
+			if (!is_array($arrWithdrawalItem)) {
+				$arrPreparedWithdrawalItems[] = $arrWithdrawalItem;
+				continue;
+			}
+
+			$arrWithdrawalItem['snapshotProductName'] = $this->getPreparedWithdrawalFieldValue(
+				$arrWithdrawalItem,
+				'snapshotProductName',
+				'snapshotProductName_customerLanguage',
+				$blnUseCustomerLanguageVariant
+			);
+			$arrWithdrawalItem['snapshotVariantTitle'] = $this->getPreparedWithdrawalFieldValue(
+				$arrWithdrawalItem,
+				'snapshotVariantTitle',
+				'snapshotVariantTitle_customerLanguage',
+				$blnUseCustomerLanguageVariant
+			);
+			$arrWithdrawalItem['snapshotUnitPrice'] = $this->getPreparedWithdrawalFieldValue(
+				$arrWithdrawalItem,
+				'snapshotUnitPrice',
+				'snapshotUnitPrice_customerLanguage',
+				$blnUseCustomerLanguageVariant
+			);
+			$arrWithdrawalItem['snapshotQuantityUnit'] = $this->getPreparedWithdrawalFieldValue(
+				$arrWithdrawalItem,
+				'snapshotQuantityUnit',
+				'snapshotQuantityUnit_customerLanguage',
+				$blnUseCustomerLanguageVariant
+			);
+
+			$arrPreparedWithdrawalItems[] = $arrWithdrawalItem;
+		}
+
+		$arrPreparedWithdrawal['items'] = $arrPreparedWithdrawalItems;
+
+		return $arrPreparedWithdrawal;
+	}
+
+	protected function usesCustomerLanguageWithdrawalVariant() {
+		if ($this->arrWithdrawal === null) {
+			return false;
+		}
+
+		if (!isset($this->arrOrder['customerLanguage']) || !$this->arrOrder['customerLanguage']) {
+			return false;
+		}
+
+		return $this->ls_language === $this->arrOrder['customerLanguage'];
+	}
+
+	protected function getPreparedWithdrawalFieldValue($arrValues, $strFallbackKey, $strCustomerLanguageKey, $blnUseCustomerLanguageVariant) {
+		if (!is_array($arrValues)) {
+			return '';
+		}
+
+		if (
+			$blnUseCustomerLanguageVariant
+			&& array_key_exists($strCustomerLanguageKey, $arrValues)
+			&& $arrValues[$strCustomerLanguageKey] !== null
+			&& $arrValues[$strCustomerLanguageKey] !== ''
+		) {
+			return (string) $arrValues[$strCustomerLanguageKey];
+		}
+
+		if (array_key_exists($strFallbackKey, $arrValues) && $arrValues[$strFallbackKey] !== null) {
+			return (string) $arrValues[$strFallbackKey];
+		}
+
+		return '';
+	}
+
+	protected function getOrderNumberForLogging() {
+		if (isset($this->arrOrder['orderNr']) && $this->arrOrder['orderNr']) {
+			return $this->arrOrder['orderNr'];
+		}
+
+		if (isset($this->arrWithdrawal['snapshotOrderNr']) && $this->arrWithdrawal['snapshotOrderNr']) {
+			return $this->arrWithdrawal['snapshotOrderNr'];
+		}
+
+		return 'n/a';
 	}
 }
 

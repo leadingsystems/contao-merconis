@@ -21,6 +21,7 @@ $GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewStartLevel'] = array('S
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewStopLevel'] = array('Stop level', 'Here you can determine up to which level in the page structure products are considered for output. The 0 means that there is no limit.');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewConsiderUnpublishedPages'] = array('Consider unpublished pages', 'Activate the checkbox if you want products to be displayed if they are on unpublished pages or on pages that are subordinate to an unpublished page.');
 $GLOBALS['TL_LANG']['tl_module']['ls_shop_productOverviewConsiderHiddenPages'] = array('Consider hidden pages', 'Activate the checkbox if you also want products to be displayed if they are on hidden pages or on pages that are subordinate to a hidden page.');
+$GLOBALS['TL_LANG']['tl_module']['ls_shop_withdrawalConfirmationText'] = array('Withdrawal confirmation text', 'This text is shown on the confirmation page. If empty, the language fallback text is used.');
 
 /**
  * Legends
@@ -30,6 +31,7 @@ $GLOBALS['TL_LANG']['tl_module']['lsShopCart_legend']						= 'Shopping cart sett
 $GLOBALS['TL_LANG']['tl_module']['lsShopOrderReview_legend']			= 'Order review settings';
 $GLOBALS['TL_LANG']['tl_module']['lsShopAfterCheckout_legend']			= 'Settings for information after ordering';
 $GLOBALS['TL_LANG']['tl_module']['lsShopPaymentAfterCheckout_legend']			= 'Settings for payment after ordering';
+$GLOBALS['TL_LANG']['tl_module']['lsShopWithdrawalConfirmation_legend']			= 'Settings for withdrawal confirmation';
 $GLOBALS['TL_LANG']['tl_module']['lsShopMyOrders_legend']				= 'Settings for customer\'s order overview';
 $GLOBALS['TL_LANG']['tl_module']['lsShopMyOrderDetails_legend']			= 'Settings for order details';
 $GLOBALS['TL_LANG']['tl_module']['lsShopFilterForm_legend']			= 'Settings for the filter form';

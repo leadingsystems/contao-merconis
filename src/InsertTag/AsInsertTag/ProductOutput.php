@@ -17,7 +17,10 @@ class ProductOutput extends InsertTag
 
         $arr_params = explode(',', $params[0]);
         $str_productVariantId = trim($arr_params[0]);
-        $str_productVariantId = $this->convertTagToId($str_productVariantId);
+
+        //if no parameter exists search for productId
+        $what = (isset($arr_params[2]) && $arr_params[2]) ? trim($arr_params[2]) : "productId";
+        $str_productVariantId = $this->convertTagToId($str_productVariantId, $what);
 
         $str_templateToUse = isset($arr_params[1]) && $arr_params[1] ? trim($arr_params[1]) : '';
 
@@ -30,6 +33,11 @@ class ProductOutput extends InsertTag
 
     //converts tags(ids, codes, alias) to 'productId'-'variantId'
 	private function convertTagToId($str_productTag, $what){
+        if (!in_array($what, ["productId", "productAlias", "productCode", "variantAlias", "variantCode"], true)) {
+            $what = "productId";
+        }
+
+        $str_productVariantId = '';
 
         //if current convert it to "productId-0"
         if ($str_productTag === 'current') {

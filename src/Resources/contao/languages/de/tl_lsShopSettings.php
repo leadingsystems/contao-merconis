@@ -29,6 +29,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_beOrderTemplateDetails'] = array('Backend-Template für Bestellungsdetails');
 	
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_orderNrCounter']			= array('Aktueller Zählerstand');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_withdrawalIdCounter']		= array('Aktueller Widerrufs-Zählerstand');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_orderNrString']			= array('Bestellnummer-Format', 'Hier können Sie definieren, in welchem Format die Bestellnummer ausgegeben/angezeigt werden soll. Verwenden Sie den Platzhalter {{counter}}, um den Zählerstand einzufügen. Einen vorgenullten Zählerstand können Sie einfügen, indem Sie den Platzhalter z. B. als {{counter:7}} angeben, wobei nach dem Doppelpunkt die Gesamtanzahl der Stellen angegeben wird, mit welcher der Zähler ausgegeben werden soll. Bei Bedarf steht Ihnen auch der Platzhalter {{date:}} zur Verfügung, um eine variable Datumsangabe automatisch einzufügen. Hinter dem Doppelpunkt können Sie jede beliebige Datumsangabe in der Syntax der PHP-Funktion "date()" notieren. Beispiel: "{{date:Y}}-{{counter}}" ergibt für die 147. Bestellung im Jahr 2012 die Best.-Nr. "2012-147".');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_orderNrStart']			= array('Startwert des Zählers ({{counter}})', 'Bestimmen Sie hier, bei welchem Wert der Zähler ({{counter}}) beginnen soll.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_orderNrRestartCycle']		= array('Rücksetzung des Zählers ({{counter}})', 'Definieren Sie bei Bedarf, in welchem Rhythmus der Zähler ({{counter}}) zurückgesetzt werden soll.');
@@ -49,6 +50,8 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_checkoutFinishPages']	= array('Seite "Bestell-Abschluss"', 'Wählen Sie hier die Seite aus, die das Modul "Bestell-Abschluss" enthält. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_paymentAfterCheckoutPages']		= array('Seite "Bezahlung nach Bestell-Abschluss"', 'Wählen Sie hier die Seite aus, die das Modul "Bezahlung nach Bestellabschluss" enthält. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_afterCheckoutPages']		= array('Seite "Informationen nach Bestell-Abschluss"', 'Wählen Sie hier die Seite aus, die das Modul "Informationen nach Bestellabschluss" enthält. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_withdrawalPages']		= array('Seite "Widerruf"', 'Wählen Sie hier die Seite aus, die das Modul "Widerruf" enthält. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_withdrawalConfirmationPages']		= array('Seite "Widerrufsbestätigung"', 'Wählen Sie hier die Seite aus, die das Modul "Widerrufsbestätigung" enthält. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ajaxPages']			=  array('Seite "AJAX"', 'Wählen Sie hier die Seite aus, die für AJAX-Anfragen verwendet wird. Diese Seite sollte ausschließlich die relevanten MERCONIS-Module enthalten. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchResultPages'] = array('Seite "Ergebnisse der Produktsuche"', 'Wählen Sie hier die Seite aus, auf der die Ergebnisse einer Produktsuche dargestellt werden. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrdersPages'] = array('Seite "Meine Bestellungen"', 'Wählen Sie hier die Seite aus, in der das Modul "Meine Bestellungen" eingebunden ist. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
@@ -177,6 +180,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['backendLscss_legend'] = 'Einstellungen für LSCSS im Backend';
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['misc_legend'] = 'Erweiterte Einstellungen';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['memorySettings_legend'] = 'Speichereinstellung';
 
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['debug_menu'] = 'Debug Menü';
 
@@ -242,3 +246,8 @@
         'folders' => 'Ordnerstruktur',
         'files' => 'Dateiname'
     );
+
+    $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_cacheRamPercent'] = [
+        'Ab welchem Prozentwert des RAMs Caching gestoppt wird',
+        'Wenn dieser Prozentwert erreicht ist, stoppt Merconis automatisch das Caching bei der Erstellung der Bestelldatensätze.'
+    ];

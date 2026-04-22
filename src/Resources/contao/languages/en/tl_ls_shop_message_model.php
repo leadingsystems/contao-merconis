@@ -62,7 +62,8 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_message_model']['customerDataType']['options'] = array(
 		'personalData' => 'Personal data',
 		'paymentData' => 'Customer data concerning payment',
-		'shippingData' => 'Customer data concerning dispatch'
+		'shippingData' => 'Customer data concerning dispatch',
+		'withdrawalData' => 'Withdrawal data'
 	);
 
 	/*

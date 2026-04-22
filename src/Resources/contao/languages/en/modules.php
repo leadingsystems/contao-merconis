@@ -43,6 +43,8 @@
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_myOrderDetails']	= array('My orders - details', 'Order details for customers who are logged in.');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_filterForm']		= array('Filter form', 'Displays the form for setting filter criteria');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_productSearch']		= array('Product search');
+	$GLOBALS['TL_LANG']['FMD']['ls_shop_withdrawal']		= array('Withdrawal', 'Frontend module for the withdrawal entry and submission flow.');
+	$GLOBALS['TL_LANG']['FMD']['ls_shop_withdrawal_confirmation'] = array('Withdrawal confirmation', 'Frontend module for the withdrawal confirmation page.');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_developer_controlCheckoutData']		= array('DEVELOPER ControlCheckoutData');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_ajaxGeneral']		= array('general ajax module');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_externalInterface']		= array('External interface');

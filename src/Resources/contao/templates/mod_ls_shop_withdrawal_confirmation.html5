@@ -1,0 +1,11 @@
+<div class="mod_ls_shop_withdrawal_confirmation">
+    <?php if (!empty($this->withdrawalIdHeading)) { ?>
+        <h2><?php echo (string) $this->withdrawalIdHeading; ?></h2>
+    <?php } ?>
+
+    <?php if (!empty($this->confirmationText)) { ?>
+        <div class="mod_ls_shop_withdrawal_confirmation__text">
+            <?php echo (string) $this->confirmationText; ?>
+        </div>
+    <?php } ?>
+</div>

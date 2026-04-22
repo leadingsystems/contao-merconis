@@ -61,6 +61,27 @@
       font-weight: bold;
     }
   }
+
+  .myOrder {
+    .orderDetails {
+      .value {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: $grid-gutter-width-super-small;
+      }
+    }
+  }
+
+  @include media-breakpoint-down(lg) {
+    .myOrder {
+      .orderDetails {
+        .value {
+          align-items: flex-start;
+        }
+      }
+    }
+  }
 }
 
 @media screen and (max-width: 700px){

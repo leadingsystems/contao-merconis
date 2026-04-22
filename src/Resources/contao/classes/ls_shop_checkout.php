@@ -18,6 +18,7 @@ use function LeadingSystems\Helpers\ls_add;
 class ls_shop_checkout {
 
     private $orderNr = null;
+    private const WITHDRAWAL_TOKEN_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
     // holds the information if the checkout is already done or not
     private $isCheckoutDone = false;
@@ -380,6 +381,41 @@ class ls_shop_checkout {
         $this->orderNr = $orderNr;
     }
 
+    public function generateWithdrawalId() {
+        /*
+         * Make sure that we load absolutely fresh config values
+         */
+        $this->reloadConfig();
+
+        $nextCounter = 1;
+        $currentCounterValue = (int) $this->getWithdrawalIdCounterFromConfig();
+        if ($currentCounterValue > 0) {
+            $nextCounter = $currentCounterValue + 1;
+        }
+
+        $this->persistWithdrawalIdCounter($nextCounter);
+
+        return 'W-' . str_pad($nextCounter, 5, '0', STR_PAD_LEFT);
+    }
+
+    protected function reloadConfig() {
+        Config::preload();
+    }
+
+    protected function getWithdrawalIdCounterFromConfig() {
+        if (!isset($GLOBALS['TL_CONFIG']['ls_shop_withdrawalIdCounter']) || !$GLOBALS['TL_CONFIG']['ls_shop_withdrawalIdCounter']) {
+            return 0;
+        }
+
+        return (int) $GLOBALS['TL_CONFIG']['ls_shop_withdrawalIdCounter'];
+    }
+
+    protected function persistWithdrawalIdCounter($nextCounter) {
+        $config = Config::getInstance();
+        $config->update("\$GLOBALS['TL_CONFIG']['ls_shop_withdrawalIdCounter']", $nextCounter);
+        $config->persist("\$GLOBALS['TL_CONFIG']['ls_shop_withdrawalIdCounter']", $nextCounter);
+    }
+
     public function createOrder() {
         $obj_paymentModule = ls_shop_paymentModule::getInstance();
         $obj_shippingModule = new ls_shop_shippingModule();
@@ -481,6 +517,7 @@ class ls_shop_checkout {
         $arrOrder = array(
             'orderIdentificationHash' => sha1(microtime().rand(1,99999999)).md5($this->orderNr).md5(time()), // no language
             'orderNr' => $this->orderNr, // no language
+            'withdrawalIdentifier' => $this->orderNr . '-' . $this->generateWithdrawalToken(), // no language
             'orderDateUnixTimestamp' => time(), // no language
             'orderDate' => date("Y-m-d H:i:s"), // no language
             'customerNr' => $customerNr, // no language
@@ -820,6 +857,7 @@ class ls_shop_checkout {
                 SET     `tstamp` = ?,
                         `orderIdentificationHash` = ?,
                         `orderNr` = ?,
+                        `withdrawalIdentifier` = ?,
                         `orderDateUnixTimestamp` = ?,
                         `orderDate` = ?,
                         `customerNr` = ?,
@@ -893,6 +931,7 @@ class ls_shop_checkout {
             $order['orderDateUnixTimestamp'],
             $order['orderIdentificationHash'],
             $order['orderNr'],
+            isset($order['withdrawalIdentifier']) ? $order['withdrawalIdentifier'] : '',
             $order['orderDateUnixTimestamp'],
             $order['orderDate'],
             $order['customerNr'],
@@ -1097,6 +1136,19 @@ class ls_shop_checkout {
         }
 
         return $orderIdInDb;
+    }
+
+    public function generateWithdrawalToken() {
+        $tokenLength = 6;
+        $alphabet = self::WITHDRAWAL_TOKEN_ALPHABET;
+        $maxAlphabetIndex = strlen($alphabet) - 1;
+        $token = '';
+
+        for ($tokenPosition = 0; $tokenPosition < $tokenLength; $tokenPosition++) {
+            $token .= $alphabet[random_int(0, $maxAlphabetIndex)];
+        }
+
+        return $token;
     }
 
     protected function createShopLanguageArray($arr_data) {

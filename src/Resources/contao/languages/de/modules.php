@@ -43,6 +43,8 @@
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_myOrderDetails']	= array('Meine Bestellungen - Details', 'Bestellungsdetails für angemeldete Kunden');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_filterForm']		= array('Filter-Formular', 'Gibt das Formular zur Angabe von Filter-Kriterien aus');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_productSearch']		= array('Produkt-Suche');
+	$GLOBALS['TL_LANG']['FMD']['ls_shop_withdrawal']		= array('Widerruf', 'Frontend-Modul für den Einstieg und die Abgabe des Widerrufs.');
+	$GLOBALS['TL_LANG']['FMD']['ls_shop_withdrawal_confirmation'] = array('Widerrufsbestätigung', 'Frontend-Modul für die Widerrufs-Bestätigungsseite.');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_developer_controlCheckoutData']		= array('DEVELOPER ControlCheckoutData');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_ajaxGeneral']		= array('allgemeines Ajax-Modul');
 	$GLOBALS['TL_LANG']['FMD']['ls_shop_externalInterface']		= array('Externes Interface');

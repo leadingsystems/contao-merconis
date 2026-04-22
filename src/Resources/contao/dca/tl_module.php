@@ -9,6 +9,7 @@ $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_cart'] = '{title_legend},na
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_orderReview'] = '{title_legend},name,headline,type;{lsShopOrderReview_legend},ls_shop_orderReview_template;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_checkoutFinish'] = '{title_legend},name,headline,type;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_afterCheckout'] = '{title_legend},name,headline,type;{lsShopAfterCheckout_legend},ls_shop_afterCheckout_template;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_withdrawal_confirmation'] = '{title_legend},name,headline,type;{lsShopWithdrawalConfirmation_legend},ls_shop_withdrawalConfirmationText;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_paymentAfterCheckout'] = '{title_legend},name,headline,type;{lsShopPaymentAfterCheckout_legend},ls_shop_paymentAfterCheckout_template;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_cross_seller'] = '{title_legend},name,headline,type;{lsShopCrossSeller_legend},ls_shop_cross_seller;{expert_legend:hide},cssID';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['ls_shop_myOrders'] = '{title_legend},name,headline,type;{lsShopMyOrders_legend},ls_shop_myOrders_sortingOptions,ls_shop_myOrders_template;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
@@ -104,6 +105,14 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_paymentAfterCheckout_template
 	'inputType'               => 'select',
 	'options'                 => $this->getTemplateGroup('template_paymentAfterCheckout_'),
     'sql'                     => "varchar(64) NOT NULL default ''"
+);
+
+$GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_withdrawalConfirmationText'] = array (
+    'label'                   => &$GLOBALS['TL_LANG']['tl_module']['ls_shop_withdrawalConfirmationText'],
+    'exclude'                 => true,
+    'inputType'               => 'textarea',
+    'eval'                    => array('rte' => 'tinyMCE', 'tl_class' => 'clr'),
+    'sql'                     => "text NULL"
 );
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['ls_shop_myOrders_template'] = array (
