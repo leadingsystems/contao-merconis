@@ -123,6 +123,19 @@ class ls_shop_beModule_collectivePurchase extends \BackendModule
             ->execute();
 
         $insertID = $objQuery->insertId;
+		try {
+			ls_shop_generalHelper::syncProductPageMap($insertID, $collectivePurchasePages);
+		} catch (\Throwable $exception) {
+			\System::log(
+				sprintf(
+					'Best-effort product page-map sync failed for collective purchase product ID "%d": %s',
+					$insertID,
+					$exception->getMessage()
+				),
+				__METHOD__,
+				TL_ERROR
+			);
+		}
 
         return $insertID;
     }
