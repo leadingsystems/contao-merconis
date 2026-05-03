@@ -6,6 +6,8 @@ namespace LeadingSystems\MerconisBundle\FastFilter;
 
 final class FastFilterSearchCoordinator
 {
+    public const REQUEST_MARKER = 'fastFilterFormDataHasBeenPrepared';
+
     public function __construct(
         private readonly FastFilterOptionProvider $optionProvider,
         private readonly FastFilterEstimateProvider $estimateProvider,
@@ -22,6 +24,7 @@ final class FastFilterSearchCoordinator
     public function apply(array $products): array
     {
         $this->sessionWriter->ensureSession();
+        $this->markFilterFormDataPreparedForCurrentRequest();
 
         $productIds = $this->extractProductIds($products);
         $availableOptions = $this->optionProvider->buildAvailableOptions($productIds);
@@ -66,5 +69,10 @@ final class FastFilterSearchCoordinator
         }
 
         return array_values(array_unique($productIds));
+    }
+
+    private function markFilterFormDataPreparedForCurrentRequest(): void
+    {
+        $GLOBALS['merconis_globals'][self::REQUEST_MARKER] = true;
     }
 }

@@ -47,7 +47,7 @@ final class FastFilterFormRenderer
     private function generateFilterFormHtml(object $module): string
     {
         $template = new FrontendTemplate('template_fastFilterForm_default');
-        $viewModel = $this->formService->buildViewModel();
+        $viewModel = $this->buildViewModelForCurrentRequest();
         $headline = StringUtil::deserialize($module->headline);
 
         $template->request = Environment::get('request');
@@ -65,5 +65,21 @@ final class FastFilterFormRenderer
             );
 
         return $template->parse();
+    }
+
+    /**
+     * @return array{fields: array<int, array<string, mixed>>, activeCount: int, hasOptions: bool}
+     */
+    private function buildViewModelForCurrentRequest(): array
+    {
+        if (empty($GLOBALS['merconis_globals'][FastFilterSearchCoordinator::REQUEST_MARKER])) {
+            return [
+                'fields' => [],
+                'activeCount' => 0,
+                'hasOptions' => false,
+            ];
+        }
+
+        return $this->formService->buildViewModel();
     }
 }
