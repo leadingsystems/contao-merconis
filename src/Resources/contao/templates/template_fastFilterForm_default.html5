@@ -1,0 +1,58 @@
+<!-- indexer::stop -->
+<?php
+
+use Contao\System;
+
+$activeCount = (int) ($this->activeCount ?? 0);
+$fastFilterAutoSubmit = !empty($this->fastFilterAutoSubmit);
+$fastFilterHideZeroMatches = !empty($this->fastFilterHideZeroMatches);
+?>
+<div class="fast-filter-container ls-filter-container template_fastFilterForm_default<?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>" data-fast-filter-root="1" data-active-count="<?php echo $activeCount; ?>" data-fast-filter-auto-submit="<?php echo $fastFilterAutoSubmit ? '1' : '0'; ?>" data-fast-filter-hide-zero-matches="<?php echo $fastFilterHideZeroMatches ? '1' : '0'; ?>">
+    <div id="fast-filter-headline-container" class="ajax-reload-by-filter" data-fast-filter-headline>
+        <span class="fast-filter-headline">
+            <?php
+            if ($activeCount === 0) {
+                echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['headlineEmpty'];
+            } else {
+                echo sprintf($activeCount > 1 ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['headlineMultiple'] : $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['headlineSingle'], $activeCount);
+            }
+            ?>
+        </span>
+    </div>
+
+    <div id="fast-filter-content" class="fast-filter-content ls-filter ajax-reload-by-filter" data-fast-filter-content>
+        <?php
+        if (!$this->blnNothingToFilter) {
+            ?>
+            <form id="fast-filter-form" action="<?php echo $this->request; ?>" class="tl_form" method="post" data-fast-filter-form>
+                <input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>">
+                <input type="hidden" name="FORM_SUBMIT" value="fastFilterForm">
+
+                <?php
+                if (is_array($this->fields ?? null) && count($this->fields)) {
+                    ?>
+                    <div class="fast-filter-fields" data-fast-filter-fields>
+                        <?php
+                        foreach ($this->fields as $field) {
+                            $this->insert('template_fastFilterField_options', ['field' => $field]);
+                        }
+                        ?>
+                    </div>
+                    <div class="fast-filter-submit-box">
+                        <button type="submit" class="submit submitFastFilter" name="submitFastFilter"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['submit']; ?></button>
+                        <button type="submit" class="submit resetFastFilter" name="resetFastFilter" value="1"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['reset']; ?></button>
+                    </div>
+                    <?php
+                } else {
+                    ?>
+                    <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['empty']; ?></p>
+                    <?php
+                }
+                ?>
+            </form>
+            <?php
+        }
+        ?>
+    </div>
+</div>
+<!-- indexer::continue -->

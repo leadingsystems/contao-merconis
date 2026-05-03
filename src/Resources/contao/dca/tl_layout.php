@@ -9,6 +9,7 @@ PaletteManipulator::create()
     ->addField(
         [
             'ls_shop_activateFilter',
+            'ls_shop_useFastFilter',
             'ls_shop_useFilterInStandardProductlist',
             'ls_shop_numFilterFieldsInSummary',
             'ls_shop_useFilterMatchEstimates',
@@ -21,6 +22,9 @@ PaletteManipulator::create()
     ->applyToPalette('default', 'tl_layout')
 ;
 
+$GLOBALS['TL_DCA']['tl_layout']['palettes']['__selector__'][] = 'ls_shop_useFastFilter';
+$GLOBALS['TL_DCA']['tl_layout']['subpalettes']['ls_shop_useFastFilter'] = 'ls_shop_fastFilterAutoSubmit,ls_shop_fastFilterHideZeroMatches';
+
 $GLOBALS['TL_DCA']['tl_layout']['fields']['lsShopOutputDefinitionSet'] = array (
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
@@ -32,6 +36,30 @@ $GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_activateFilter'] = array(
     'eval'                    => array('tl_class'=>'clr m12'),
     'sql'                     => "char(1) NOT NULL default ''"
 );
+
+$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_useFastFilter'] = [
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_useFastFilter'],
+    'exclude'                 => true,
+    'inputType'               => 'checkbox',
+    'eval'                    => ['submitOnChange'=>true, 'tl_class'=>'w50 m12'],
+    'sql'                     => "char(1) NOT NULL default ''"
+];
+
+$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_fastFilterAutoSubmit'] = [
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterAutoSubmit'],
+    'exclude'                 => true,
+    'inputType'               => 'checkbox',
+    'eval'                    => ['tl_class'=>'w50'],
+    'sql'                     => "char(1) NOT NULL default ''"
+];
+
+$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_fastFilterHideZeroMatches'] = [
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterHideZeroMatches'],
+    'exclude'                 => true,
+    'inputType'               => 'checkbox',
+    'eval'                    => ['tl_class'=>'w50'],
+    'sql'                     => "char(1) NOT NULL default ''"
+];
 
 $GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_useFilterInStandardProductlist'] = array(
     'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_useFilterInStandardProductlist'],

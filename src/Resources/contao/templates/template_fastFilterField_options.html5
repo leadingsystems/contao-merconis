@@ -1,0 +1,89 @@
+<?php
+
+if (!isset($GLOBALS['merconis_globals']['fastFilterFormFieldUniqueIdCounter'])) {
+    $GLOBALS['merconis_globals']['fastFilterFormFieldUniqueIdCounter'] = 0;
+}
+
+$field = $this->field;
+$inputName = 'filterField_' . $field['id'];
+$multipleSuffix = count($field['options']) > 1 ? '[]' : '';
+?>
+<div class="fast-filter-field filterOptionsBox <?php echo $field['type']; ?><?php echo $field['alias'] !== '' ? ' ' . $field['alias'] : ''; ?><?php echo $field['cssClass'] !== '' ? ' ' . $field['cssClass'] : ''; ?><?php echo $field['isActive'] ? ' is-active' : ''; ?>"
+     data-fast-filter-field
+     data-filter-field-id="<?php echo $field['id']; ?>"
+     data-source="<?php echo $field['source']; ?>"
+     data-source-attribute="<?php echo $field['sourceAttribute']; ?>"
+     data-reduced-mode-limit="<?php echo (int) ($field['numItemsInReducedMode'] ?? 0); ?>">
+    <input type="hidden" name="<?php echo $inputName; ?>" value="">
+
+    <div class="label" data-fast-filter-field-label>
+        <?php echo $field['label']; ?>
+    </div>
+
+    <div class="content" data-fast-filter-field-content>
+        <div class="fast-filter-options filterOptionsWrapper" data-fast-filter-options>
+            <?php
+            $count = 0;
+            foreach ($field['options'] as $option) {
+                $GLOBALS['merconis_globals']['fastFilterFormFieldUniqueIdCounter']++;
+                $count++;
+                $optionId = 'fast_filter_' . $field['id'] . '_' . $count . '_' . $GLOBALS['merconis_globals']['fastFilterFormFieldUniqueIdCounter'];
+                $matchEstimate = (int) ($option['matchEstimate'] ?? 0);
+                $hasMatches = !empty($option['hasMatches']);
+                ?>
+                <div class="fast-filter-option filterOption<?php echo $option['cssClass'] !== '' ? ' ' . $option['cssClass'] : ''; ?><?php echo $option['important'] ? ' important' : ''; ?><?php echo $count <= $field['numItemsInReducedMode'] || $option['important'] ? ' initially-visible' : ''; ?><?php echo $hasMatches ? ' has-matches' : ' has-no-matches'; ?>"
+                     data-fast-filter-option
+                     data-option-value="<?php echo $option['value']; ?>"
+                     data-numeric-value="<?php echo $option['numericValue']; ?>"
+                     data-match-estimate="<?php echo $matchEstimate; ?>"
+                     data-has-matches="<?php echo $hasMatches ? '1' : '0'; ?>">
+                    <input type="<?php echo $field['type']; ?>"
+                           name="<?php echo $inputName . $multipleSuffix; ?>"
+                           id="<?php echo $optionId; ?>"
+                           value="<?php echo $option['value']; ?>"<?php echo $option['checked'] ? ' checked' : ''; ?>>
+                    <label for="<?php echo $optionId; ?>">
+                        <span class="label-content">
+                            <span class="label-text"><?php echo $option['label']; ?></span>
+                            <span class="match-estimate">(<?php echo $matchEstimate; ?>)</span>
+                        </span>
+                    </label>
+                </div>
+                <?php
+            }
+            ?>
+        </div>
+
+        <p class="fast-filter-empty-field-message hidden" data-fast-filter-empty-field-message>
+            <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['emptyField']; ?>
+        </p>
+
+        <div class="special-toggler-container fast-filter-special-toggler-container" data-fast-filter-actions>
+            <?php
+            if ($field['type'] === 'radio') {
+                ?>
+                <button type="button" class="uncheck-radio fast-filter-uncheck-radio" data-fast-filter-uncheck-radio><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['uncheckRadio']; ?></button>
+                <?php
+            } else {
+                ?>
+                <button type="button" class="check-all fast-filter-check-all" data-fast-filter-check-all><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['toggleAll']; ?></button>
+                <?php
+            }
+            ?>
+            <button type="button"
+                    class="show-more-less fast-filter-show-more-less"
+                    data-fast-filter-show-more-less
+                    data-label-more="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showMore']; ?>"
+                    data-label-less="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showLess']; ?>">
+                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showMore']; ?>
+            </button>
+        </div>
+
+        <?php
+        if ($field['source'] === 'attribute') {
+            ?>
+            <input type="hidden" name="filterModeForAttribute[<?php echo $field['sourceAttribute']; ?>]" value="or">
+            <?php
+        }
+        ?>
+    </div>
+</div>
