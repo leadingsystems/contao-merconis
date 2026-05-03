@@ -1981,10 +1981,11 @@ class ls_shop_productSearcher
 
         $this->numProductsBeforeFilter = !is_array($arrProductsComplete) ? 0 : count($arrProductsComplete);
 
-        if ($blnFastFilterActive && count($arrProductsComplete)) {
+
+        if ($blnFastFilterActive) {
             $fastFilterResult = System::getContainer()
                 ->get(FastFilterSearchCoordinator::class)
-                ->apply($arrProductsComplete);
+                ->apply(is_array($arrProductsComplete) ? $arrProductsComplete : []);
 
             $arrProductsComplete = $fastFilterResult['products'];
             $this->blnNotAllProductsMatch = $fastFilterResult['notAllProductsMatch'];
