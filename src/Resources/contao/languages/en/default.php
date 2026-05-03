@@ -11,6 +11,18 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg2'] = 'Please narrow d
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['and'] = 'and';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or'] = 'or';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['headlineEmpty'] = 'All filter options';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['headlineSingle'] = '%s active filter';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['headlineMultiple'] = '%s active filters';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['submit'] = 'Apply filter';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['reset'] = 'Reset filter';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['empty'] = 'No filter options are available for this product list.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['emptyField'] = 'No available options for the current selection.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showMore'] = 'More';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showLess'] = 'Less';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['toggleAll'] = 'Check/uncheck all';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['uncheckRadio'] = 'Remove selection';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText001'] = 'VAT incl.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText002'] = 'plus %s VAT';
 

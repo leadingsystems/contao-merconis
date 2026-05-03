@@ -6,6 +6,10 @@ use Contao\ArrayUtil;
 use Contao\Database;
 use Contao\PageModel;
 use Contao\System;
+use LeadingSystems\MerconisBundle\FastFilter\FastFilterController;
+use LeadingSystems\MerconisBundle\FastFilter\FastFilterRuntime;
+use LeadingSystems\MerconisBundle\FastFilter\FastFilterSearchCoordinator;
+use LeadingSystems\MerconisBundle\FastFilter\FastFilterSessionWriter;
 
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray;
@@ -80,7 +84,12 @@ class ls_shop_productSearcher
              * sure that no search will actually be executed if there's going
              * to be a reload after the processing of the sent filter settings anyway.
              */
-            ls_shop_filterController::getInstance()->processSentFilterSettings();
+            if (FastFilterRuntime::isActive()) {
+                System::getContainer()->get(FastFilterController::class)->processSentFilterSettings();
+            } else {
+                System::getContainer()->get(FastFilterSessionWriter::class)->clearLegacyBridge();
+                ls_shop_filterController::getInstance()->processSentFilterSettings();
+            }
         }
 
         $this->bln_searchWeighting_debug = isset($GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug']) && $GLOBALS['TL_CONFIG']['ls_shop_searchWeighting_debug'] && System::getContainer()->get('contao.security.token_checker')->hasBackendUser();
@@ -149,6 +158,8 @@ class ls_shop_productSearcher
     }
 
     protected function setCurrentCacheKey() {
+        $blnFastFilterActive = $this->blnUseFilter && FastFilterRuntime::isActive();
+
         $arrSettings = array(
             'emptyFieldMatchesPerDefault' => $this->blnEmptyFieldMatchesPerDefault,
             'sorting' => $this->arrSorting,
@@ -156,16 +167,16 @@ class ls_shop_productSearcher
             'arrRequestFields' => $this->arrRequestFields,
             'arrSearchCriteria' => $this->arrSearchCriteria,
             'arrLimit' => $this->arrLimit,
-            'filterCriteria' => $this->blnUseFilter ? $_SESSION['lsShop']['filter']['criteria'] : null,
-            'filterModeSettingsByAttributes' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
-            'filterModeSettingsByFlexContentsLI' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'] ?? null) : null,
-            'filterModeSettingsByFlexContentsLD' => $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'] ?? null) : null,
+            'filterCriteria' => $blnFastFilterActive ? ($_SESSION['lsShop']['fastFilter']['criteria'] ?? null) : ($this->blnUseFilter ? ($_SESSION['lsShop']['filter']['criteria'] ?? null) : null),
+            'filterModeSettingsByAttributes' => !$blnFastFilterActive && $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByAttributes'] ?? null) : null,
+            'filterModeSettingsByFlexContentsLI' => !$blnFastFilterActive && $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLI'] ?? null) : null,
+            'filterModeSettingsByFlexContentsLD' => !$blnFastFilterActive && $this->blnUseFilter ? ($_SESSION['lsShop']['filter']['filterModeSettingsByFlexContentsLD'] ?? null) : null,
             'language' => $this->searchLanguage,
             'outputPriceType' => ls_shop_generalHelper::getOutputPriceType(),
             'checkVATID' => ls_shop_generalHelper::checkVATID(),
             'customerCountry' => ls_shop_generalHelper::getCustomerCountry(),
             'lastBackendDataChange' => isset($GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange']) ? $GLOBALS['TL_CONFIG']['ls_shop_lastBackendDataChange'] : 0,
-            'lastResetTimestamp' => $_SESSION['lsShop']['filter']['lastResetTimestamp'] ?? null,
+            'lastResetTimestamp' => $blnFastFilterActive ? ($_SESSION['lsShop']['fastFilter']['lastResetTimestamp'] ?? null) : ($_SESSION['lsShop']['filter']['lastResetTimestamp'] ?? null),
             'customerGroupId' => $this->arr_groupSettingsForUser['id']
         );
 
@@ -480,6 +491,8 @@ class ls_shop_productSearcher
          * settings affecting the results have been set completely
          */
         $this->setCurrentCacheKey();
+        $blnFastFilterActive = $this->blnUseFilter && FastFilterRuntime::isActive();
+        $blnLegacyFilterActive = $this->blnUseFilter && !$blnFastFilterActive;
 
         //get searchType and/or-search
         if(isset($this->arrSearchCriteria["searchType"])){
@@ -1312,7 +1325,7 @@ class ls_shop_productSearcher
          * and maybe some more fields depending on what functionality the filter actually provides.
          */
         $tmpRequestFields = $this->arrRequestFields;
-        if ($this->blnUseFilter) {
+        if ($blnLegacyFilterActive) {
             if (!in_array('attributeID', $this->arrRequestFields)) {
                 $this->arrRequestFields[] = 'attributeID';
             }
@@ -1451,7 +1464,7 @@ class ls_shop_productSearcher
 			SELECT			".$fieldSelectionPart."
 							".($addToSelectStatement ?? '')."
 			FROM			`tl_ls_shop_product`
-		".($this->blnUseFilter ? "
+		".($blnLegacyFilterActive ? "
 			LEFT JOIN		`tl_ls_shop_attribute_allocation`
 				ON			`tl_ls_shop_product`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
 				AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '0'
@@ -1686,7 +1699,7 @@ class ls_shop_productSearcher
          * We also add some other information to the product/variant data that could not be retrieved
          * directly from the database, e.g. calculated prices.
          */
-        if ($this->blnUseFilter && count($arrProductsComplete)) {
+        if ($blnLegacyFilterActive && count($arrProductsComplete)) {
             $tmpArrProductsComplete = array();
             foreach ($arrProductsComplete as $rowProductsComplete) {
                 if (!isset($tmpArrProductsComplete[$rowProductsComplete['id']])) {
@@ -1968,6 +1981,17 @@ class ls_shop_productSearcher
 
         $this->numProductsBeforeFilter = !is_array($arrProductsComplete) ? 0 : count($arrProductsComplete);
 
+        if ($blnFastFilterActive && count($arrProductsComplete)) {
+            $fastFilterResult = System::getContainer()
+                ->get(FastFilterSearchCoordinator::class)
+                ->apply($arrProductsComplete);
+
+            $arrProductsComplete = $fastFilterResult['products'];
+            $this->blnNotAllProductsMatch = $fastFilterResult['notAllProductsMatch'];
+            $this->numProductsNotMatching = $fastFilterResult['numProductsNotMatching'];
+            $GLOBALS['merconis_globals']['criteriaToUseInFilterFormHasBeenSet'] = true;
+        }
+
         /*
          * If we have more results than the given truncate limit, the result array will be truncated
          */
@@ -1982,7 +2006,7 @@ class ls_shop_productSearcher
         if (is_array($arrProductsComplete)) {
             $arrProductsAfterFilter = array();
             foreach ($arrProductsComplete as $rowProductsComplete) {
-                if ($this->blnUseFilter) {
+                if ($blnLegacyFilterActive) {
                     /*
                      * Here we walk through all products that the database request delivered. In order
                      * to filter these products we perform filter checks for each product (and the
@@ -2001,7 +2025,7 @@ class ls_shop_productSearcher
                 $arrProductsAfterFilter[] = $rowProductsComplete;
             }
 
-            if ($this->blnUseFilter && is_array($arrProductsAfterFilter)) {
+            if ($blnLegacyFilterActive && is_array($arrProductsAfterFilter)) {
                 ls_shop_filterController::getInstance();
                 ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
             }
