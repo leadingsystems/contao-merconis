@@ -141,17 +141,32 @@ var obj_classdef = {
     },
 
     prepareResetButton: function(el_container, el_filterForm) {
-        var el_resetButton = el_filterForm.getElement('[name="resetFastFilter"]');
+        var els_resetButtons = el_container.getElements('[name="resetFastFilter"]');
 
-        if (typeOf(el_resetButton) !== 'element') {
+        if (!els_resetButtons.length) {
             return;
         }
 
-        el_resetButton.addEvent(
-            'click',
-            function() {
-                el_filterForm.store('fastFilterResetRequested', true);
-                this.clearFieldValues(el_container);
+        Array.each(
+            els_resetButtons,
+            function(el_resetButton) {
+                if (el_resetButton.retrieve('alreadyHandledBy_' + str_moduleName)) {
+                    return;
+                }
+
+                el_resetButton.store('alreadyHandledBy_' + str_moduleName, true);
+                el_resetButton.addEvent(
+                    'click',
+                    function(event) {
+                        el_filterForm.store('fastFilterResetRequested', true);
+                        this.clearFieldValues(el_container);
+
+                        if (el_resetButton.getParent('form') !== el_filterForm) {
+                            event.stop();
+                            this.submitForm(el_filterForm);
+                        }
+                    }.bind(this)
+                );
             }.bind(this)
         );
     },
