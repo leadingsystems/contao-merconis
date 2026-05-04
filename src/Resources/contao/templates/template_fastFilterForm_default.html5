@@ -6,6 +6,8 @@ use Contao\System;
 $activeCount = (int) ($this->activeCount ?? 0);
 $fastFilterAutoSubmit = !empty($this->fastFilterAutoSubmit);
 $fastFilterHideZeroMatches = !empty($this->fastFilterHideZeroMatches);
+$resetButtonClass = $activeCount > 0 ? '' : ' is-disabled';
+$resetButtonDisabledAttributes = $activeCount > 0 ? '' : ' disabled aria-disabled="true"';
 ?>
 <div class="filter-container fast-filter-container ls-filter-container template_fastFilterForm_default<?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>" data-fast-filter-root="1" data-active-count="<?php echo $activeCount; ?>" data-fast-filter-auto-submit="<?php echo $fastFilterAutoSubmit ? '1' : '0'; ?>" data-fast-filter-hide-zero-matches="<?php echo $fastFilterHideZeroMatches ? '1' : '0'; ?>">
     <button class="toggle-btn" id="toggleBtn"></button>
@@ -19,11 +21,12 @@ $fastFilterHideZeroMatches = !empty($this->fastFilterHideZeroMatches);
                 <button
                     type="submit"
                     form="fast-filter-form"
-                    class="filter-headline-reset"
+                    class="filter-headline-reset<?php echo $resetButtonClass; ?>"
                     name="resetFastFilter"
                     value="1"
                     title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText106']; ?>"
                     aria-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText106']; ?>"
+                    <?php echo $resetButtonDisabledAttributes; ?>
                 >
                     <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText106']; ?>
                 </button>
@@ -51,16 +54,20 @@ $fastFilterHideZeroMatches = !empty($this->fastFilterHideZeroMatches);
                     </div>
                     <div class="filter-submit-box fast-filter-submit-box">
                         <button type="submit" class="submit submitFilter submitFastFilter" name="submitFastFilter"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText097']; ?></button>
-                        <button type="submit" class="submit resetFilter resetFastFilter" name="resetFastFilter" value="1"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText106']; ?></button>
+                        <button type="submit" class="submit resetFilter resetFastFilter<?php echo $resetButtonClass; ?>" name="resetFastFilter" value="1"<?php echo $resetButtonDisabledAttributes; ?>><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText106']; ?></button>
                     </div>
                     <?php
                 } else {
                     ?>
-                    <p><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['empty']; ?></p>
+                    <p class="nothing-to-filter-notice"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['empty']; ?></p>
                     <?php
                 }
                 ?>
             </form>
+            <?php
+        } else {
+            ?>
+            <p class="nothing-to-filter-notice"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['empty']; ?></p>
             <?php
         }
         ?>
