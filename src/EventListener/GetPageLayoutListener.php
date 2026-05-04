@@ -23,6 +23,7 @@ class GetPageLayoutListener
         $GLOBALS['merconis_globals']['ls_shop_useFastFilter'] = $layout->ls_shop_useFastFilter;
         $GLOBALS['merconis_globals']['ls_shop_fastFilterAutoSubmit'] = $layout->ls_shop_fastFilterAutoSubmit;
         $GLOBALS['merconis_globals']['ls_shop_fastFilterHideZeroMatches'] = $layout->ls_shop_fastFilterHideZeroMatches;
+        $GLOBALS['merconis_globals']['ls_shop_fastFilterResetMode'] = $layout->ls_shop_fastFilterResetMode;
         $GLOBALS['merconis_globals']['ls_shop_useFilterInStandardProductlist'] = $layout->ls_shop_useFilterInStandardProductlist;
         $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = $layout->ls_shop_numFilterFieldsInSummary;
         $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] = $layout->ls_shop_useFilterMatchEstimates;

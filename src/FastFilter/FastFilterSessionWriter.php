@@ -37,6 +37,7 @@ final class FastFilterSessionWriter
             'matchedProducts' => [],
             'matchedVariants' => [],
             'legacyBridgeActive' => false,
+            'pageScope' => null,
             'lastResetTimestamp' => time(),
         ];
 
@@ -60,6 +61,14 @@ final class FastFilterSessionWriter
             'attributes' => $criteria['attributes'] ?? [],
             'producers' => $criteria['producers'] ?? [],
         ];
+        $_SESSION['lsShop']['fastFilter']['pageScope'] = $this->getCurrentPageId();
+    }
+
+    public function writePageScope(int $pageScope): void
+    {
+        $this->ensureSession();
+
+        $_SESSION['lsShop']['fastFilter']['pageScope'] = $pageScope;
     }
 
     /**
@@ -170,5 +179,14 @@ final class FastFilterSessionWriter
         }
 
         return $hashedEstimates;
+    }
+
+    private function getCurrentPageId(): ?int
+    {
+        if (!isset($GLOBALS['objPage']->id)) {
+            return null;
+        }
+
+        return (int) $GLOBALS['objPage']->id;
     }
 }

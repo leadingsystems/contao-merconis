@@ -7,6 +7,12 @@
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_useFastFilter'] = ['Schnelle Filtertechnik verwenden', 'Aktiviert die neue performante Filterimplementierung für dieses Layout. Ohne Auswahl bleibt die bestehende Filtertechnik aktiv.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterAutoSubmit'] = ['Filter bei Änderung automatisch anwenden', 'Sendet das schnelle Filterformular automatisch ab, sobald sich eine Checkbox- oder Radio-Auswahl ändert.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterHideZeroMatches'] = ['Filteroptionen ohne Treffer ausblenden', 'Blendet Optionen mit 0 erwarteten Treffern im schnellen Filter vollständig aus.'];
+	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterResetMode'] = ['Rücksetzungslogik des Filters', 'Legt fest, wann aktive schnelle Filter bei einem Kategoriewechsel automatisch zurückgesetzt werden.'];
+	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterResetMode_options'] = [
+		'never' => 'Nie automatisch zurücksetzen',
+		'always' => 'Bei jedem Kategoriewechsel automatisch zurücksetzen',
+		'branch' => 'Nur bei Kategoriewechsel außerhalb des Seitenzweigs zurücksetzen',
+	];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_useFilterInStandardProductlist'] = array('Filter in Standard-Produktübersicht nutzen', 'Wählen Sie diese Option, um den Filter in Produktlisten, die vom Frontend-Modul "Produkt-Übersicht" erzeugt werden (z. B. standardmäßige Kategoriedarstellung), zu nutzen.');
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_useFilterMatchEstimates'] = array('Erwartete Trefferanzahl ermitteln');
     $GLOBALS['TL_LANG']['tl_layout']['ls_shop_numFilterFieldsInSummary'] = array('Anzahl anzuzeigender Filterfelder in Zusammenfassung');
