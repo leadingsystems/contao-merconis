@@ -104,6 +104,7 @@ var obj_classdef = {
 
         this.prepareFields(el_container);
         this.prepareForm(el_container);
+        this.updateResetButtonState(el_container);
     },
 
     prepareForm: function(el_container) {
@@ -158,6 +159,14 @@ var obj_classdef = {
                 el_resetButton.addEvent(
                     'click',
                     function(event) {
+                        if (el_resetButton.hasClass('is-disabled') || el_resetButton.getProperty('disabled')) {
+                            if (event !== undefined && event !== null) {
+                                event.stop();
+                            }
+
+                            return;
+                        }
+
                         el_filterForm.store('fastFilterResetRequested', true);
                         this.clearFieldValues(el_container);
 
@@ -169,6 +178,57 @@ var obj_classdef = {
                 );
             }.bind(this)
         );
+    },
+
+    updateResetButtonState: function(el_container) {
+        if (typeOf(el_container) !== 'element') {
+            return;
+        }
+
+        var bln_hasActiveCriteria = this.hasActiveFilterCriteria(el_container);
+
+        Array.each(
+            el_container.getElements('[name="resetFastFilter"]'),
+            function(el_resetButton) {
+                this.setResetButtonState(el_resetButton, bln_hasActiveCriteria);
+            }.bind(this)
+        );
+    },
+
+    setResetButtonState: function(el_resetButton, bln_isEnabled) {
+        if (typeOf(el_resetButton) !== 'element') {
+            return;
+        }
+
+        if (bln_isEnabled) {
+            el_resetButton.removeClass('is-disabled');
+            el_resetButton.removeProperty('disabled');
+            el_resetButton.setProperty('aria-disabled', 'false');
+            return;
+        }
+
+        el_resetButton.addClass('is-disabled');
+        el_resetButton.setProperty('disabled', 'disabled');
+        el_resetButton.setProperty('aria-disabled', 'true');
+    },
+
+    hasActiveFilterCriteria: function(el_container) {
+        var bln_hasActiveCriteria = false;
+
+        if (typeOf(el_container) !== 'element') {
+            return false;
+        }
+
+        Array.each(
+            el_container.getElements('[data-fast-filter-field] input'),
+            function(el_input) {
+                if (['checkbox', 'radio'].includes(el_input.getProperty('type')) && el_input.getProperty('checked')) {
+                    bln_hasActiveCriteria = true;
+                }
+            }
+        );
+
+        return bln_hasActiveCriteria;
     },
 
     prepareFields: function(el_container) {
@@ -232,6 +292,7 @@ var obj_classdef = {
                 this.refreshOptionState(el_option);
                 this.refreshFieldState(el_field);
                 this.applyFieldOptionVisibility(el_field);
+                this.updateResetButtonState(el_field.getParent('[data-fast-filter-root]'));
                 this.queueAutoSubmit(this.getFilterFormForElement(el_field));
             }.bind(this)
         );
@@ -349,6 +410,7 @@ var obj_classdef = {
 
                 this.refreshFieldState(el_field);
                 this.applyFieldOptionVisibility(el_field);
+                this.updateResetButtonState(el_field.getParent('[data-fast-filter-root]'));
 
                 if (bln_changed) {
                     this.queueAutoSubmit(this.getFilterFormForElement(el_field));
@@ -392,6 +454,7 @@ var obj_classdef = {
 
                 this.refreshFieldState(el_field);
                 this.applyFieldOptionVisibility(el_field);
+                this.updateResetButtonState(el_field.getParent('[data-fast-filter-root]'));
 
                 if (bln_changed) {
                     this.queueAutoSubmit(this.getFilterFormForElement(el_field));
@@ -750,6 +813,7 @@ var obj_classdef = {
         );
 
         this.prepareFields(el_container);
+        this.updateResetButtonState(el_container);
     },
 
     submitForm: function(el_filterForm) {

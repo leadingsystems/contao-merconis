@@ -8,7 +8,9 @@ $field = $this->field;
 $inputName = 'filterField_' . $field['id'];
 $multipleSuffix = count($field['options']) > 1 ? '[]' : '';
 ?>
-<div class="fast-filter-field filterOptionsBox <?php echo $field['type']; ?><?php echo $field['alias'] !== '' ? ' ' . $field['alias'] : ''; ?><?php echo $field['cssClass'] !== '' ? ' ' . $field['cssClass'] : ''; ?><?php echo $field['isActive'] ? ' is-active' : ''; ?>"
+<div data-lsjs-element="filterOptionsBox"
+     data-lsjs-filter-section-id="<?php echo $field['id']; ?>"
+     class="filter-form-field fast-filter-field filterOptionsBox <?php echo $field['type']; ?><?php echo $field['alias'] !== '' ? ' ' . $field['alias'] : ''; ?><?php echo $field['cssClass'] !== '' ? ' ' . $field['cssClass'] : ''; ?><?php echo $field['isActive'] ? ' is-active' : ''; ?>"
      data-fast-filter-field
      data-filter-field-id="<?php echo $field['id']; ?>"
      data-source="<?php echo $field['source']; ?>"
@@ -16,12 +18,12 @@ $multipleSuffix = count($field['options']) > 1 ? '[]' : '';
      data-reduced-mode-limit="<?php echo (int) ($field['numItemsInReducedMode'] ?? 0); ?>">
     <input type="hidden" name="<?php echo $inputName; ?>" value="">
 
-    <div class="label" data-fast-filter-field-label>
+    <div data-lsjs-element="optionsBox_label" class="label" data-fast-filter-field-label>
         <?php echo $field['label']; ?>
     </div>
 
-    <div class="content" data-fast-filter-field-content>
-        <div class="fast-filter-options filterOptionsWrapper" data-fast-filter-options>
+    <div data-lsjs-element="optionsBox_content" class="content" data-fast-filter-field-content>
+        <div data-lsjs-element="optionsBox_filterOptionsWrapper" class="fast-filter-options filterOptionsWrapper" data-fast-filter-options>
             <?php
             $count = 0;
             foreach ($field['options'] as $option) {
@@ -31,7 +33,8 @@ $multipleSuffix = count($field['options']) > 1 ? '[]' : '';
                 $matchEstimate = (int) ($option['matchEstimate'] ?? 0);
                 $hasMatches = !empty($option['hasMatches']);
                 ?>
-                <div class="fast-filter-option filterOption<?php echo $option['cssClass'] !== '' ? ' ' . $option['cssClass'] : ''; ?><?php echo $option['important'] ? ' important' : ''; ?><?php echo $count <= $field['numItemsInReducedMode'] || $option['important'] ? ' initially-visible' : ''; ?><?php echo $hasMatches ? ' has-matches' : ' has-no-matches'; ?>"
+                <div data-lsjs-element="optionsBox_filterOption"
+                     class="fast-filter-option filterOption<?php echo $option['cssClass'] !== '' ? ' ' . $option['cssClass'] : ''; ?><?php echo $option['important'] ? ' important' : ''; ?><?php echo $count <= $field['numItemsInReducedMode'] || $option['important'] ? ' initially-visible' : ''; ?><?php echo $hasMatches ? ' has-matches' : ' has-no-matches'; ?>"
                      data-fast-filter-option
                      data-option-value="<?php echo $option['value']; ?>"
                      data-numeric-value="<?php echo $option['numericValue']; ?>"
