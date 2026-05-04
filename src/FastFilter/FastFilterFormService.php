@@ -40,7 +40,7 @@ final class FastFilterFormService
 
         return [
             'fields' => $fields,
-            'activeCount' => $this->countActiveCriteria($criteria),
+            'activeCount' => $this->countActiveCriteria($criteria, $availableOptions),
             'hasOptions' => $fields !== [],
         ];
     }
@@ -191,18 +191,32 @@ final class FastFilterFormService
 
     /**
      * @param array<string, mixed> $criteria
+     * @param array<string, mixed> $availableOptions
      */
-    private function countActiveCriteria(array $criteria): int
+    private function countActiveCriteria(array $criteria, array $availableOptions): int
     {
         $activeCount = 0;
+        $availableAttributes = is_array($availableOptions['attributes'] ?? null) ? $availableOptions['attributes'] : [];
+        $attributeCriteria = is_array($criteria['attributes'] ?? null) ? $criteria['attributes'] : [];
 
-        foreach ($criteria['attributes'] ?? [] as $selectedValues) {
-            if (is_array($selectedValues) && $selectedValues !== []) {
+        foreach ($attributeCriteria as $attributeId => $selectedValues) {
+            $availableValueIds = array_keys($availableAttributes[(int) $attributeId] ?? []);
+
+            if (!is_array($selectedValues) || $availableValueIds === []) {
+                continue;
+            }
+
+            $selectedValueIds = array_values(array_unique(array_map('intval', $selectedValues)));
+
+            if (array_intersect($selectedValueIds, array_map('intval', $availableValueIds)) !== []) {
                 $activeCount++;
             }
         }
 
-        if (($criteria['producers'] ?? []) !== []) {
+        $selectedProducers = is_array($criteria['producers'] ?? null) ? array_map('strval', $criteria['producers']) : [];
+        $availableProducers = is_array($availableOptions['producers'] ?? null) ? array_map('strval', $availableOptions['producers']) : [];
+
+        if (array_intersect($selectedProducers, $availableProducers) !== []) {
             $activeCount++;
         }
 

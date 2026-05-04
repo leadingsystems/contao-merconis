@@ -64,6 +64,17 @@ final class FastFilterFormRendererTest extends TestCase
         self::assertSame(5597, $viewModel['fields'][0]['options'][0]['value']);
     }
 
+    public function testViewModelCountsOnlyCurrentlyAvailableCriteria(): void
+    {
+        $this->prepareFastFilterSessionWithUnavailableCriteria();
+        $GLOBALS['merconis_globals'][FastFilterSearchCoordinator::REQUEST_MARKER] = true;
+
+        $viewModel = $this->buildViewModelForCurrentRequest();
+
+        self::assertSame(0, $viewModel['activeCount']);
+        self::assertFalse($viewModel['fields'][0]['options'][0]['checked']);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -113,6 +124,40 @@ final class FastFilterFormRendererTest extends TestCase
             'matchedVariants' => [
                 1001 => true,
             ],
+            'legacyBridgeActive' => true,
+            'lastResetTimestamp' => 1234567890,
+        ];
+    }
+
+    private function prepareFastFilterSessionWithUnavailableCriteria(): void
+    {
+        $_SESSION['lsShop']['fastFilter'] = [
+            'criteria' => [
+                'attributes' => [
+                    50 => [9999],
+                ],
+                'producers' => ['Unavailable'],
+            ],
+            'availableOptions' => [
+                'attributes' => [
+                    50 => [
+                        5597 => ['numericValue' => null],
+                    ],
+                ],
+                'producers' => ['Axxatronic'],
+            ],
+            'matchEstimates' => [
+                'attributes' => [
+                    50 => [
+                        5597 => ['products' => 12],
+                    ],
+                ],
+                'producers' => [
+                    'Axxatronic' => ['products' => 12],
+                ],
+            ],
+            'matchedProducts' => [],
+            'matchedVariants' => [],
             'legacyBridgeActive' => true,
             'lastResetTimestamp' => 1234567890,
         ];

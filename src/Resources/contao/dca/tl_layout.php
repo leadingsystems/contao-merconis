@@ -23,7 +23,7 @@ PaletteManipulator::create()
 ;
 
 $GLOBALS['TL_DCA']['tl_layout']['palettes']['__selector__'][] = 'ls_shop_useFastFilter';
-$GLOBALS['TL_DCA']['tl_layout']['subpalettes']['ls_shop_useFastFilter'] = 'ls_shop_fastFilterAutoSubmit,ls_shop_fastFilterHideZeroMatches';
+$GLOBALS['TL_DCA']['tl_layout']['subpalettes']['ls_shop_useFastFilter'] = 'ls_shop_fastFilterAutoSubmit,ls_shop_fastFilterHideZeroMatches,ls_shop_fastFilterResetMode';
 
 $GLOBALS['TL_DCA']['tl_layout']['fields']['lsShopOutputDefinitionSet'] = array (
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
@@ -59,6 +59,17 @@ $GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_fastFilterHideZeroMatches'] =
     'inputType'               => 'checkbox',
     'eval'                    => ['tl_class'=>'w50'],
     'sql'                     => "char(1) NOT NULL default ''"
+];
+
+$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_fastFilterResetMode'] = [
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterResetMode'],
+    'exclude'                 => true,
+    'inputType'               => 'select',
+    'default'                 => 'always',
+    'options'                 => ['never', 'always', 'branch'],
+    'reference'               => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterResetMode_options'],
+    'eval'                    => ['tl_class'=>'w50'],
+    'sql'                     => "varchar(16) NOT NULL default 'always'"
 ];
 
 $GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_useFilterInStandardProductlist'] = array(
