@@ -10,8 +10,9 @@ class SearchResult
     private int $numUnmatchedProducts = 0;
     private int $numProductsUnfiltered;
     private int $numProductsFiltered;
+    private bool $isFromCache;
 
-    public function __construct(array $results, ?Facets $facets = null, bool $hasUnmatchedProducts = false, int $numUnmatchedProducts = 0, int $numProductsUnfiltered = 0, int $numProductsFiltered = 0)
+    public function __construct(array $results, ?Facets $facets = null, bool $hasUnmatchedProducts = false, int $numUnmatchedProducts = 0, int $numProductsUnfiltered = 0, int $numProductsFiltered = 0, bool $isFromCache = false)
     {
         $this->results = $results;
         $this->facets = $facets;
@@ -19,6 +20,7 @@ class SearchResult
         $this->numUnmatchedProducts = $numUnmatchedProducts;
         $this->numProductsUnfiltered = $numProductsUnfiltered;
         $this->numProductsFiltered = $numProductsFiltered;
+        $this->isFromCache = $isFromCache;
     }
 
     public function getResults(): array
@@ -81,5 +83,14 @@ class SearchResult
         $this->numProductsFiltered = $numProductsFiltered;
     }
 
+    public function isFromCache(): bool
+    {
+        return $this->isFromCache;
+    }
+
+    public function setIsFromCache(bool $isFromCache): void
+    {
+        $this->isFromCache = $isFromCache;
+    }
 
 }

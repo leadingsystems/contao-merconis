@@ -3,6 +3,7 @@
 namespace LeadingSystems\MerconisBundle\ProductSearch;
 
 use Contao\Controller;
+use Contao\System;
 use LeadingSystems\MerconisBundle\Common\Session\ObjectStatePersistor\ObjectStatePersistorTrait;
 use LeadingSystems\MerconisBundle\ProductSearch\Enum\Mode;
 use LeadingSystems\MerconisBundle\ProductSearch\Enum\MappingMode;
@@ -386,12 +387,33 @@ class Adapter
 
             case Mode::SearchServer:
                 $this->searchResult = $this->searchServer->search($this, $this->helper->getSearchLanguage());
+                $this->dispatchBeforeProductlistOutputBeforePaginationHook();
                 break;
 
             default:
                 $this->notAllowedIn($this->mode);
                 break;
         }
+    }
+
+    private function dispatchBeforeProductlistOutputBeforePaginationHook(): void
+    {
+        if (!$this->productListId || $this->searchResult->isFromCache()) {
+            return;
+        }
+
+        if (!isset($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination']) || !is_array($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination'])) {
+            return;
+        }
+
+        $productResultsComplete = $this->searchResult->getResults();
+
+        foreach ($GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination'] as $mccb) {
+            $objMccb = System::importStatic($mccb[0]);
+            $productResultsComplete = $objMccb->{$mccb[1]}($this->productListId, $productResultsComplete);
+        }
+
+        $this->searchResult->setResults($productResultsComplete);
     }
 
     public function getProductResultsComplete(): array

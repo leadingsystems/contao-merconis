@@ -253,6 +253,4 @@ $GLOBALS['TL_HOOKS']['getSystemMessages'][] = array('Merconis\Core\ls_shop_gener
 
 $GLOBALS['MERCONIS_HOOKS']['beforeUpdateCartItem'][] = array('Merconis\Core\ls_shop_cartHelper', 'beforeUpdateCartItem');
 
-$GLOBALS['MERCONIS_HOOKS']['checkIfCacheCanBeUsed'][] = array('Merconis\Core\ls_shop_generalHelper', 'manipulateCacheBasedOnSkStatus');
-
 $GLOBALS['MERCONIS_HOOKS']['beforeProductlistOutputBeforePagination'][] = array('Merconis\Core\ls_shop_generalHelper', 'onlyShowNeededProducts');
