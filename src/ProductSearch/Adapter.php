@@ -398,7 +398,7 @@ class Adapter
 
     private function dispatchBeforeProductlistOutputBeforePaginationHook(): void
     {
-        if (!$this->productListId || $this->searchResult->isFromCache()) {
+        if (!$this->productListId) {
             return;
         }
 
