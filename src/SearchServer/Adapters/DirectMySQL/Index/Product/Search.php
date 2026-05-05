@@ -1850,6 +1850,7 @@ class Search implements CommonInterface, IndexSearchInterface
 
             $tags = [
                 'criteria' => $criteria,
+                'skstatus' => \Input::get('skstatus'),
                 'sorting' => $this->dmysql_sortingInput,
                 'fixedSorting' => $this->dmysql_fixedSortingInput,
 				'maxResults' => $this->dmysql_maxResults,
@@ -1875,6 +1876,7 @@ class Search implements CommonInterface, IndexSearchInterface
                 $res = new SearchResult($ids, $facets, (bool)($payload['hasUnmatched'] ?? false), (int)($payload['numUnmatched'] ?? 0), (int)($payload['numUnfiltered'] ?? count($ids)), (int)($payload['numFiltered'] ?? count($ids)));
                 $res->setNumProductsUnfiltered((int)($payload['numUnfiltered'] ?? count($ids)));
                 $res->setNumProductsFiltered((int)($payload['numFiltered'] ?? count($ids)));
+                $res->setIsFromCache(true);
                 return $res;
             }
             $this->dmysql_cacheHandle = $handle;
