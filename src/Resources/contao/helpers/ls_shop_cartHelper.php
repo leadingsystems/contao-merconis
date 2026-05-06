@@ -268,39 +268,6 @@ class ls_shop_cartHelper {
 
             $arrProductVariantInCart = ls_shop_cartHelper::getProductAndVariantObj($cartItemProductCartKey);
 
-            /*
-             * Do me! Diesen ganzen Block entfernen, um mehrere Sammelkaufprodukte gleichzeitig im Warenkorb
-                 * zuzulassen.
-                 * --->
-             */
-            //prüfe ob schon ein sammelkaufprodukt drin ist und ein weiteres reingelegt wird
-            $isDeveloper = \System::getContainer()->get('request_stack')->getCurrentRequest()->cookies->get('isDeveloper');
-            if (!$isDeveloper) {
-                if ($arrProductVariantInCart['product']['productTypeCollectiveOrder'] == 1 && $arrProductVariant['product']['productTypeCollectiveOrder'] == 1
-                    && $arrProductVariantInCart['product']['id'] != $arrProductVariant['product']['id']
-                ) {
-
-                    ls_shop_msg::setMsg(array(
-                        'class' => 'collectiveOrderCartError',
-                        'reference' => $productVariantID,
-                        'arrDetails' => array(
-                            'message' => $GLOBALS['TL_LANG']['shk']['text001'],
-                        )
-                    ));
-
-                    return array(
-                        'desiredQuantity' => $desiredQuantity,
-                        'quantityPutInCart' => 0,
-                        'stockNotSufficient' => false,
-                        'cartKeyCurrentlyPutInCart' => ''
-                    );
-                }
-            }
-            /*
-             * Do me!
-                 * <---
-             */
-
             //sammelkauf im warenkorb und ein produkt wird reingelegt
             if($arrProductVariantInCart['product']['productTypeCollectiveOrder'] == 1 && !$arrProductVariant['product']['productTypeCollectiveOrder'] == 1) {
 
