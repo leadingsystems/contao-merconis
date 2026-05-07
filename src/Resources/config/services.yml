@@ -1,3 +1,6 @@
+parameters:
+  merconis.sitemap.product_urls_handled_externally: false
+
 services:
 
   _defaults:
@@ -118,6 +121,8 @@ services:
 
   merconis.eventlistener.sitemaplistener:
     class: LeadingSystems\MerconisBundle\EventListener\SitemapListener
+    arguments:
+      $productUrlsHandledExternally: '%merconis.sitemap.product_urls_handled_externally%'
     tags:
       - { name: kernel.event_listener, event: contao.sitemap }
 
