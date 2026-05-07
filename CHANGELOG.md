@@ -3,6 +3,7 @@ Leading Systems Contao Merconis bundle changelog
 
 ### 5.1.15 (2026-05-08)
  * improve SitemapListener
+ * fix default product image livehits
 
 ### 5.1.14 (2026-04-21)
  * fix default product image CS

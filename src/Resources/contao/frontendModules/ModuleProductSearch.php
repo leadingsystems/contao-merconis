@@ -146,8 +146,21 @@ class ModuleProductSearch extends Module {
 						foreach ($this->arrLiveHitFields as $liveHitField) {
 							switch ($liveHitField) {
 								case '_mainImage':
-                                    $img = new Image($objProduct->{$liveHitField});
-                                    $arrHit[$liveHitField] = $img->getSrc([$GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeWidth'], $GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeHeight'], ResizeConfiguration::MODE_BOX]);
+									// Use the ImageGallery for the main image and fallbacks
+									$objMainImageFromGallery = $objProduct->getImageGallery()->getMainImage();
+									if (
+										is_object($objMainImageFromGallery)
+										&& !empty($objMainImageFromGallery->singleSRC)
+									) {
+										$img = new Image($objMainImageFromGallery->singleSRC);
+										$arrHit[$liveHitField] = $img->getSrc([
+											$GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeWidth'],
+											$GLOBALS['TL_CONFIG']['ls_shop_liveHitImageSizeHeight'],
+											ResizeConfiguration::MODE_BOX,
+										]);
+									} else {
+										$arrHit[$liveHitField] = '';
+									}
 									break;
 									
 								case '_priceAfterTaxFormatted':
