@@ -2059,7 +2059,7 @@ class ls_shop_generalHelper
             $arrAttributes = $objAttributes->fetchAllAssoc();
             $GLOBALS['merconis_globals']['productAttributes'][$str_languageToUse] = array();
             foreach ($arrAttributes as $attribute) {
-                $attribute['title'] = ls_shop_languageHelper::getMultiLanguage($attribute['id'], 'tl_ls_shop_attributes_languages', array('title'), array($str_languageToUse));
+                $attribute['title'] = $attribute['title_' . $str_languageToUse] ?? null;
                 $GLOBALS['merconis_globals']['productAttributes'][$str_languageToUse][$attribute['id']] = $attribute;
             }
         }
@@ -2094,7 +2094,7 @@ class ls_shop_generalHelper
             $arrAttributeValues = $objAttributeValues->fetchAllAssoc();
             $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse] = array();
             foreach ($arrAttributeValues as $attributeValue) {
-                $attributeValue['title'] = ls_shop_languageHelper::getMultiLanguage($attributeValue['id'], 'tl_ls_shop_attribute_values_languages', array('title'), array($str_languageToUse));
+                $attributeValue['title'] = $attributeValue['title_' . $str_languageToUse] ?? null;
                 $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse][$attributeValue['id']] = $attributeValue;
             }
         }
