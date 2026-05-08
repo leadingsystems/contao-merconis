@@ -58,6 +58,12 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = [
         'snapshotQuantityDecimals' => [
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
+        'snapshotConfiguratorReferenceNumber' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'snapshotCustomizerReferenceNumber' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
         'withdrawnQuantity' => [
             'sql' => "decimal(12,4) NOT NULL default '0.0000'",
         ],

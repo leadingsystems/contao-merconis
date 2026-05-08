@@ -218,6 +218,7 @@ class ModuleWithdrawal extends Module
         }
 
         $templateItems = [];
+        $processor = new WithdrawalScreenBProcessor();
         foreach ($indexedOrderItems as $orderItemId => $orderItem) {
             $orderedQuantity = $this->toFloat($orderItem['quantity'] ?? 0);
             $withdrawnQuantity = $withdrawnQuantities[$orderItemId] ?? $orderedQuantity;
@@ -242,6 +243,11 @@ class ModuleWithdrawal extends Module
                 'quantityUnit'
             );
 
+            $configReferenceNumber = $processor->resolveConfiguratorReferenceNumber($orderItem);
+            if ($configReferenceNumber === '') {
+                $configReferenceNumber = $processor->resolveCustomizerReferenceNumber($orderItem);
+            }
+
             if ($quantityChanged) {
                 $changedItemIds[] = $orderItemId;
             }
@@ -263,6 +269,7 @@ class ModuleWithdrawal extends Module
                 'withdrawnQuantity' => $this->formatQuantityForInput($withdrawnQuantity),
                 'quantityDisplay' => $this->renderQuantityDisplay($withdrawnQuantity, $orderedQuantity, $quantityUnit),
                 'quantityChanged' => $quantityChanged,
+                'configReferenceNumber' => $configReferenceNumber,
             ];
         }
 
@@ -684,8 +691,10 @@ class ModuleWithdrawal extends Module
                          `snapshotVariantTitle_customerLanguage`, `snapshotProductNumber`,
                          `snapshotUnitPrice`, `snapshotUnitPrice_customerLanguage`,
                          `snapshotQuantityUnit`, `snapshotQuantityUnit_customerLanguage`,
-                         `snapshotOrderedQuantity`, `snapshotQuantityDecimals`, `withdrawnQuantity`)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                         `snapshotOrderedQuantity`, `snapshotQuantityDecimals`,
+                         `snapshotConfiguratorReferenceNumber`, `snapshotCustomizerReferenceNumber`,
+                         `withdrawnQuantity`)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 )
                 ->execute(
                     $withdrawalDbId,
@@ -702,6 +711,8 @@ class ModuleWithdrawal extends Module
                     $childSnapshot['snapshotQuantityUnit_customerLanguage'],
                     $childSnapshot['snapshotOrderedQuantity'],
                     $childSnapshot['snapshotQuantityDecimals'],
+                    $childSnapshot['snapshotConfiguratorReferenceNumber'],
+                    $childSnapshot['snapshotCustomizerReferenceNumber'],
                     $childSnapshot['withdrawnQuantity']
                 );
 

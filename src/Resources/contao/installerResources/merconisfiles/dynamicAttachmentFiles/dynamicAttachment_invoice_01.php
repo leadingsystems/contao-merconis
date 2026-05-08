@@ -172,7 +172,7 @@ class dynamicAttachment_invoice_01 extends Controller {
 
             $this->pdf->SetTextColor(150, 150, 150);
             $this->pdf->SetXY($this->leftIndention, $y, true);
-            $this->pdf->Cell(113 - $this->leftIndention, 4, html_entity_decode(($cartItem['isVariant'] ? $cartItem['extendedInfo']['_title_customerLanguage'] : '').($cartItem['configurator_hasValue'] ? ' '.$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082'].' '.$cartItem['configurator_referenceNumber'] : ''), ENT_COMPAT, 'UTF-8'), $strBorder.'L', 0, '', false, '', 0, false, 'T', 'T');
+            $this->pdf->Cell(113 - $this->leftIndention, 4, html_entity_decode(($cartItem['isVariant'] ? $cartItem['extendedInfo']['_title_customerLanguage'] : '').($cartItem['configurator_hasValue'] ? ' '.$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082'].' '.$cartItem['configurator_referenceNumber'] : '').($cartItem['customizer_referenceNumber'] ? ' '.$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082'].' '.$cartItem['customizer_referenceNumber'] : ''), ENT_COMPAT, 'UTF-8'), $strBorder.'L', 0, '', false, '', 0, false, 'T', 'T');
             $this->pdf->SetTextColor(0, 0, 0);
 
             $this->pdf->SetXY(113, $y, true);

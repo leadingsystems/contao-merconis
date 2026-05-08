@@ -63,6 +63,10 @@ use Contao\Date;
                             <div class="customizerSummary">
                                 <h5><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline']; ?></h5>
                                 <?php echo $cartItem['customizer_summaryForCart']; ?>
+                                <?php if ($cartItem['customizer_referenceNumber']) { ?>
+                                    <br>
+                                    <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082']; ?> <?php echo $cartItem['customizer_referenceNumber']; ?>
+                                <?php } ?>
                             </div>
                     <?php } ?>
 

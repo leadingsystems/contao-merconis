@@ -84,6 +84,12 @@ $errorMessages = isset($this->errorMessages) && is_array($this->errorMessages) ?
                     <td>
                         <span class="mod_ls_shop_withdrawal__item-detail-key"><?php echo \Contao\StringUtil::specialchars($tableHeaderProductLabel); ?></span>
                         <span class="mod_ls_shop_withdrawal__item-detail-value"><?php echo \Contao\StringUtil::specialchars($combinedProductName); ?></span>
+                        <?php if ($item['configReferenceNumber']): ?>
+                            <div class="configReferenceNumber">
+                                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082']; ?>
+                                <?php echo $item['configReferenceNumber']; ?>
+                            </div>
+                        <?php endif; ?>
                     </td>
                     <td>
                         <span class="mod_ls_shop_withdrawal__item-detail-key"><?php echo \Contao\StringUtil::specialchars($tableHeaderProductNumberLabel); ?></span>
