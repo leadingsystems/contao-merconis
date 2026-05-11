@@ -1062,6 +1062,15 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_scalePriceKeyword' => 'Feldwert für "scalePriceKeyword" ist ungültig: Zeile(n) Nr. %s'
 );
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrorLog'] = array(
+	'csvHeader_errorType' => 'Fehlertyp',
+	'csvHeader_description' => 'Fehlerbeschreibung',
+	'csvHeader_count' => 'Anzahl',
+	'csvHeader_affectedRows' => 'Betroffene Zeilen',
+	'systemLogMessage' => 'MERCONIS IMPORTER: Validierung fehlgeschlagen – %d Fehlertyp(en) erkannt. Fehlerprotokoll: %s',
+	'systemLogMessageNoFile' => 'MERCONIS IMPORTER: Validierung fehlgeschlagen – %d Fehlertyp(en) erkannt. Fehlerprotokoll konnte nicht geschrieben werden.',
+);
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['msg001'] = '<div style="font-weight: bold; border: 5px solid #FF0000; padding: 20px; background-color: #FFFFFF;">Bitte beachten Sie, dass Sie mit der unlizensierten Demo-Version von MERCONIS maximal 10 Produkte anbieten können.</div>';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['validationMessages']['productCode01'] = 'Eine Artikelnummer muss angegeben werden.';

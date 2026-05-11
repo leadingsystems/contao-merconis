@@ -1062,6 +1062,15 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_scalePriceKeyword' => 'Field value for "scalePriceKeyword" is invalid: Line(s) no. %s',
 );
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrorLog'] = array(
+	'csvHeader_errorType' => 'Error type',
+	'csvHeader_description' => 'Error description',
+	'csvHeader_count' => 'Count',
+	'csvHeader_affectedRows' => 'Affected rows',
+	'systemLogMessage' => 'MERCONIS IMPORTER: Validation failed – %d error type(s) detected. Error log: %s',
+	'systemLogMessageNoFile' => 'MERCONIS IMPORTER: Validation failed – %d error type(s) detected. Error log could not be written.',
+);
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['msg001'] = '<div style="font-weight: bold; border: 5px solid #FF0000; padding: 20px; background-color: #FFFFFF;">Please note that you can only offer 10 products in the unlicensed demo version of MERCONIS.</div>';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['validationMessages']['productCode01'] = 'Please enter an item number.';
