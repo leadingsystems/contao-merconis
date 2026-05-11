@@ -3,8 +3,12 @@
 	/*
 	 * Fields
 	 */
-	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_activateFilter']			= array('Produktfilter aktivieren', 'Falls Sie den Produktfilter nutzen möchten, aktivieren Sie ihn bitte durch Auswahl dieser Option. Hinweis: Wenn Sie das Frontend-Modul "Filter-Formular" nicht verwenden und dementsprechend keine Filterung möglich ist, sollten Sie den Filter hier vollständig deaktivieren, um die System-Performance zu optimieren.');
-	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_useFastFilter'] = ['Schnelle Filtertechnik verwenden', 'Aktiviert die neue performante Filterimplementierung für dieses Layout. Ohne Auswahl bleibt die bestehende Filtertechnik aktiv.'];
+	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode'] = ['Produktfilter', 'Bestimmt, ob und mit welcher Filtertechnologie die Produktliste gefiltert werden kann.'];
+	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode_options'] = [
+		'' => 'Filter deaktiviert',
+		'legacy' => 'Standard-Filter',
+		'fast' => 'Schnelle Filtertechnik (eingeschränkter Funktionsumfang: nur Attributfilter mit Oder-Verknüpfung und Herstellerfilter)'
+	];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterAutoSubmit'] = ['Filter bei Änderung automatisch anwenden', 'Sendet das schnelle Filterformular automatisch ab, sobald sich eine Checkbox- oder Radio-Auswahl ändert.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterHideZeroMatches'] = ['Filteroptionen ohne Treffer ausblenden', 'Blendet Optionen mit 0 erwarteten Treffern im schnellen Filter vollständig aus.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterResetMode'] = ['Rücksetzungslogik des Filters', 'Legt fest, wann aktive schnelle Filter bei einem Kategoriewechsel automatisch zurückgesetzt werden.'];

@@ -3,8 +3,12 @@
 	/*
 	 * Fields
 	 */
-	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_activateFilter']			= array('Activate product filter', 'If you want to use the product filter, please activate it by selecting this option. Note: If you don\'t use the frontend module "filter form" and therefore filtering isn\'t possible, we advise you to completely deactivate the product filter here in order to optimize system performance.');
-	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_useFastFilter'] = ['Use fast filter technology', 'Activates the new performant filter implementation for this layout. If it is not selected, the existing filter technology remains active.'];
+	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode'] = ['Product filter', 'Determines whether and with which filter technology the product list can be filtered.'];
+	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode_options'] = [
+		'' => 'Filter disabled',
+		'legacy' => 'Standard filter',
+		'fast' => 'Fast filter technology (limited scope: attribute filters with OR logic and producer filter only)'
+	];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterAutoSubmit'] = ['Apply filter automatically when changed', 'Submits the fast filter form automatically when a checkbox or radio selection changes.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterHideZeroMatches'] = ['Hide filter options without matches', 'Fully hides options with 0 estimated matches in the fast filter.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterResetMode'] = ['Filter reset logic', 'Defines when active fast filters are reset automatically during category changes.'];
