@@ -19,8 +19,9 @@ class GetPageLayoutListener
     {
         $GLOBALS['merconis_globals']['layoutID'] = $layout->id;
         $GLOBALS['merconis_globals']['layoutName'] = $layout->name;
-        $GLOBALS['merconis_globals']['ls_shop_activateFilter'] = $layout->ls_shop_activateFilter;
-        $GLOBALS['merconis_globals']['ls_shop_useFastFilter'] = $layout->ls_shop_useFastFilter;
+        $filterMode = (string) $layout->ls_shop_filterMode;
+        $GLOBALS['merconis_globals']['ls_shop_activateFilter'] = ($filterMode !== '') ? '1' : '';
+        $GLOBALS['merconis_globals']['ls_shop_useFastFilter'] = ($filterMode === 'fast') ? '1' : '';
         $GLOBALS['merconis_globals']['ls_shop_fastFilterAutoSubmit'] = $layout->ls_shop_fastFilterAutoSubmit;
         $GLOBALS['merconis_globals']['ls_shop_fastFilterHideZeroMatches'] = $layout->ls_shop_fastFilterHideZeroMatches;
         $GLOBALS['merconis_globals']['ls_shop_fastFilterResetMode'] = $layout->ls_shop_fastFilterResetMode;
