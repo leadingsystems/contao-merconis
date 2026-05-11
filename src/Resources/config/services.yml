@@ -228,6 +228,13 @@ services:
     tags:
       - { name: contao.migration, priority: 0 }
 
+  merconis.migration.filter_mode_migration:
+    class: LeadingSystems\MerconisBundle\Migration\FilterModeMigration
+    arguments:
+      - '@doctrine.dbal.default_connection'
+    tags:
+      - { name: contao.migration, priority: 0 }
+
 
   merconis.migration.dynamic_attachment_paths_migration:
     class: LeadingSystems\MerconisBundle\Migration\DynamicAttachmentPathsMigration
