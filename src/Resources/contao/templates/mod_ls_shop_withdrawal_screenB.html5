@@ -160,10 +160,12 @@ $errorMessages = isset($this->errorMessages) && is_array($this->errorMessages) ?
 
         <div class="widget">
             <label for="ctrl_withdrawalEmail"><?php echo \Contao\StringUtil::specialchars((string) ($this->emailLabel ?? '')); ?></label>
-            <input type="email"
+            <input type="text"
                    id="ctrl_withdrawalEmail"
                    name="withdrawalEmail"
                    value="<?php echo \Contao\StringUtil::specialchars((string) ($this->emailValue ?? '')); ?>"
+                   inputmode="email"
+                   autocomplete="email"
                    required>
         </div>
 
