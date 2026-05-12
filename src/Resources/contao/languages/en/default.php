@@ -1063,10 +1063,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 );
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrorLog'] = array(
+	'csvHeader_row' => 'Row',
+	'csvHeader_productcode' => 'Product code',
 	'csvHeader_errorType' => 'Error type',
 	'csvHeader_description' => 'Error description',
-	'csvHeader_count' => 'Count',
-	'csvHeader_affectedRows' => 'Affected rows',
 	'systemLogMessage' => 'MERCONIS IMPORTER: Validation failed – %d error type(s) detected. Error log: %s',
 	'systemLogMessageNoFile' => 'MERCONIS IMPORTER: Validation failed – %d error type(s) detected. Error log could not be written.',
 );

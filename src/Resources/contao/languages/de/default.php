@@ -1063,10 +1063,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 );
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrorLog'] = array(
+	'csvHeader_row' => 'Zeile',
+	'csvHeader_productcode' => 'Artikelnummer',
 	'csvHeader_errorType' => 'Fehlertyp',
 	'csvHeader_description' => 'Fehlerbeschreibung',
-	'csvHeader_count' => 'Anzahl',
-	'csvHeader_affectedRows' => 'Betroffene Zeilen',
 	'systemLogMessage' => 'MERCONIS IMPORTER: Validierung fehlgeschlagen – %d Fehlertyp(en) erkannt. Fehlerprotokoll: %s',
 	'systemLogMessageNoFile' => 'MERCONIS IMPORTER: Validierung fehlgeschlagen – %d Fehlertyp(en) erkannt. Fehlerprotokoll konnte nicht geschrieben werden.',
 );

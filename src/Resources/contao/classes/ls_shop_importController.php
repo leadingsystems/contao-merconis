@@ -382,7 +382,14 @@ class ls_shop_importController
 			
 			foreach ($arrDataErrors as $errorKey => $arrErrorDetected) {
 				if ($this->checkDataFor($errorKey, $row)) {
-					$arrDataErrors[$errorKey][] = $rowCounter;
+					$str_articleCode = $row['productcode'] ?? '';
+					if (!$str_articleCode && isset($row['parentProductcode'])) {
+						$str_articleCode = $row['parentProductcode'];
+					}
+					$arrDataErrors[$errorKey][] = [
+						'row' => $rowCounter,
+						'productcode' => $str_articleCode,
+					];
 				}
 			}
 		}
@@ -393,11 +400,11 @@ class ls_shop_importController
 		foreach ($arrDataErrors as $errorKey => $arrErrorDetected) {
 			if ($arrErrorDetected && is_array($arrErrorDetected)) {
 				$strRowNumbers = '';
-				foreach ($arrErrorDetected as $rowNr) {
+				foreach ($arrErrorDetected as $arrErrorInfo) {
 					if ($strRowNumbers) {
 						$strRowNumbers .= ', ';
 					}
-					$strRowNumbers .= $rowNr;
+					$strRowNumbers .= $arrErrorInfo['row'];
 				}
 				$_SESSION['lsShop']['importFileInfo']['hasError'] = true;
 				$_SESSION['lsShop']['importFileInfo']['arrMessages'][] = sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'][$errorKey], $strRowNumbers);
@@ -412,13 +419,13 @@ class ls_shop_importController
 	/**
 	 * Schreibt ein strukturiertes Fehlerprotokoll als CSV-Datei
 	 * unterhalb von files/ (tl_files), damit Backend-Nutzer die
-	 * Datei über den Contao File Manager erreichen und z. B. in
-	 * Excel öffnen können.
+	 * Datei ueber den Contao File Manager erreichen und z. B. in
+	 * Excel oeffnen koennen.
 	 *
-	 * Format: Eine Zeile pro Fehlertyp mit Beschreibung, Anzahl
-	 * und allen betroffenen Zeilennummern.
+	 * Format: Eine Zeile pro Fehler-Vorkommen mit CSV-Zeilennummer,
+	 * Artikelnummer, Fehlertyp und Fehlerbeschreibung.
 	 *
-	 * @param array<string, array<int>|false> $arrDataErrors Fehlerdaten aus der Analyse
+	 * @param array<string, array<array{row: int, productcode: string}>|false> $arrDataErrors Fehlerdaten aus der Analyse
 	 * @return string|null Relativer Pfad zur Log-Datei oder null bei Fehler
 	 */
 	protected function writeImportErrorLog(array $arrDataErrors): ?string
@@ -447,16 +454,15 @@ class ls_shop_importController
 		$str_delimiter = ';';
 		$str_enclosure = '"';
 
-		// BOM für korrekte UTF-8-Erkennung in Excel
 		fwrite($handle, "\xEF\xBB\xBF");
 
 		$arr_langKeys = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrorLog'] ?? [];
 
 		fputcsv($handle, [
+			$arr_langKeys['csvHeader_row'] ?? 'Row',
+			$arr_langKeys['csvHeader_productcode'] ?? 'Product code',
 			$arr_langKeys['csvHeader_errorType'] ?? 'Error type',
 			$arr_langKeys['csvHeader_description'] ?? 'Error description',
-			$arr_langKeys['csvHeader_count'] ?? 'Count',
-			$arr_langKeys['csvHeader_affectedRows'] ?? 'Affected rows',
 		], $str_delimiter, $str_enclosure);
 
 		$bln_hasData = false;
@@ -466,17 +472,18 @@ class ls_shop_importController
 				continue;
 			}
 
-			$bln_hasData = true;
-
 			$str_description = $this->getCleanErrorDescription($str_errorKey);
-			$str_rowNumbers = implode(', ', $arr_errorDetected);
 
-			fputcsv($handle, [
-				$str_errorKey,
-				$str_description,
-				count($arr_errorDetected),
-				$str_rowNumbers,
-			], $str_delimiter, $str_enclosure);
+			foreach ($arr_errorDetected as $arr_errorInfo) {
+				$bln_hasData = true;
+
+				fputcsv($handle, [
+					$arr_errorInfo['row'],
+					$arr_errorInfo['productcode'],
+					$str_errorKey,
+					$str_description,
+				], $str_delimiter, $str_enclosure);
+			}
 		}
 
 		fclose($handle);
