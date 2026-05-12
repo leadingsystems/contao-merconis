@@ -65,6 +65,7 @@ class ls_shop_importController
 			'date' => $_SESSION['lsShop']['importFileInfo']['date'],
 			'size' => $_SESSION['lsShop']['importFileInfo']['size'],
 			'status' => $_SESSION['lsShop']['importFileInfo']['status'],
+			'errorLogFile' => $_SESSION['lsShop']['importFileInfo']['errorLogFile'] ?? null,
 			'numRecords' => $_SESSION['lsShop']['importFileInfo']['numRecords'],
 			'numProcessedRecords' => $_SESSION['lsShop']['importFileInfo']['numProcessedRecords'],
 			'changesStock' => $_SESSION['lsShop']['importFileInfo']['changesStock'],
