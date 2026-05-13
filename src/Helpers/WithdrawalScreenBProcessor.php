@@ -113,6 +113,8 @@ final class WithdrawalScreenBProcessor
             'snapshotQuantityUnit_customerLanguage' => $quantityUnit,
             'snapshotOrderedQuantity' => $this->normalizeQuantity($orderItem['quantity'] ?? 0),
             'snapshotQuantityDecimals' => max(0, (int) ($orderItem['quantityDecimals'] ?? 0)),
+            'snapshotConfiguratorReferenceNumber' => $this->resolveConfiguratorReferenceNumber($orderItem),
+            'snapshotCustomizerReferenceNumber' => $this->resolveCustomizerReferenceNumber($orderItem),
             'withdrawnQuantity' => $this->normalizeQuantity($withdrawnQuantity),
         ];
     }
@@ -184,6 +186,46 @@ final class WithdrawalScreenBProcessor
         }
 
         return true;
+    }
+
+    /**
+     * Ermittelt die Konfigurator-Referenznummer aus dem Order-Item.
+     * Nur wenn `configurator_hasValue` gesetzt ist, wird die Referenznummer übernommen.
+     *
+     * @param array<string, mixed> $orderItem
+     */
+    public function resolveConfiguratorReferenceNumber(array $orderItem): string
+    {
+        if (empty($orderItem['configurator_hasValue'])) {
+            return '';
+        }
+
+        return (string) ($orderItem['configurator_referenceNumber'] ?? '');
+    }
+
+    /**
+     * Ermittelt die Customizer-Referenznummer aus dem Order-Item.
+     * Fallback für Altbestellungen: Wenn `customizer_hasCustomization` gesetzt,
+     * aber `customizer_referenceNumber` leer ist, wird der Hash selbst berechnet.
+     *
+     * @param array<string, mixed> $orderItem
+     */
+    public function resolveCustomizerReferenceNumber(array $orderItem): string
+    {
+        if (empty($orderItem['customizer_hasCustomization'])) {
+            return '';
+        }
+
+        $referenceNumber = (string) ($orderItem['customizer_referenceNumber'] ?? '');
+
+        if ($referenceNumber !== '') {
+            return $referenceNumber;
+        }
+
+        $summary = (string) ($orderItem['customizer_summary'] ?? '');
+        $flexData = (string) ($orderItem['customizer_flexData'] ?? '');
+
+        return strtoupper(substr(md5($summary . $flexData), 0, 8));
     }
 
     private function normalizeQuantity(mixed $value): float

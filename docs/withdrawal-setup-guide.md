@@ -584,3 +584,84 @@ werden Änderungen aus einem Update nicht
 automatisch übernommen. Prüfen Sie nach einem
 Update, ob das entliehene Template manuell
 nachgezogen werden muss.
+
+### Customizer: Anpassungen nach dem Update
+
+Wenn Ihr Shop den Customizer verwendet, sind nach
+dem Update möglicherweise Anpassungen an zwei
+Stellen erforderlich, damit die neue
+Customizer-Referenznummer in der
+Bestellkommunikation korrekt angezeigt wird. Die
+Referenznummer identifiziert die spezifische
+Konfiguration einer Bestellposition und erscheint
+in der Bestellbestätigungs-E-Mail, auf der
+Rechnung sowie im Widerrufsflow.
+
+**Hinweis:** Die folgenden Anpassungen betreffen
+ausschließlich Custom Templates und
+Theme-Erweiterungen. Wenn Sie keine eigenen
+Anpassungen an den genannten Dateien vorgenommen
+haben, funktioniert die Referenznummer ohne
+weiteres Zutun.
+
+#### Bestellbestätigungs-E-Mail (Custom Template)
+
+Wenn Sie das Template
+`template_mail_orderConfirmation.html5` als
+Custom Template (entliehen) verwenden, enthält
+Ihre Version den neuen
+Customizer-Referenznummer-Block noch nicht. Die
+Core-Version des Templates wurde bereits
+aktualisiert.
+
+Fügen Sie in Ihrem Custom Template den folgenden
+Block nach der Customizer-Summary hinzu:
+
+```php
+<?php if ($cartItem['customizer_referenceNumber']) { ?>
+    <br /><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082']; ?> <?php echo $cartItem['customizer_referenceNumber']; ?>
+<?php } ?>
+```
+
+Im Kontext des vollständigen Customizer-Blocks
+sieht das so aus:
+
+```php
+<?php if ($cartItem['customizer_hasCustomization']) { ?>
+    <div class="customizerSummary">
+        <h5><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['customizerCartHeadline']; ?></h5>
+        <?php echo $cartItem['customizer_summaryForCart']; ?>
+        <?php if ($cartItem['customizer_referenceNumber']) { ?>
+            <br /><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082']; ?> <?php echo $cartItem['customizer_referenceNumber']; ?>
+        <?php } ?>
+    </div>
+<?php } ?>
+```
+
+Die genaue Position innerhalb Ihres angepassten
+Templates hängt von Ihren individuellen Änderungen
+ab. Entscheidend ist, dass der Block nach der
+Customizer-Summary eingefügt wird.
+
+#### PDF-Rechnung (Theme-Erweiterung)
+
+Das Script für die PDF-Rechnungsgenerierung
+(`dynamicAttachment_invoice_01.php`) liegt
+außerhalb des Merconis-Core und ist Teil der
+Theme-Erweiterung. Ohne Anpassung erscheint die
+Customizer-Referenznummer nicht in der Rechnung.
+
+In Zeile 175 (oder in deren Nähe) befindet sich
+der `Cell`-Aufruf für die Positionsdetails mit
+dem bestehenden Konfigurator-Block:
+
+```php
+.($cartItem['configurator_hasValue'] ? ' '.$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082'].' '.$cartItem['configurator_referenceNumber'] : '')
+```
+
+Fügen Sie direkt dahinter das folgende Segment
+ein:
+
+```php
+.($cartItem['customizer_referenceNumber'] ? ' '.$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082'].' '.$cartItem['customizer_referenceNumber'] : '')
+```

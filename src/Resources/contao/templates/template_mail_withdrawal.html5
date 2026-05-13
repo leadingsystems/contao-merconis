@@ -45,7 +45,7 @@ $strFreetext = trim((string) ($arrWithdrawalData['freetext'] ?? ''));
 				}
 				?>
 				<tr>
-					<td style="max-width: 280px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; padding: 8px 12px;"><?php echo htmlspecialchars($strProductDescription, ENT_QUOTES); ?></td>
+					<td style="max-width: 280px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; padding: 8px 12px;"><?php echo htmlspecialchars($strProductDescription, ENT_QUOTES); ?><?php if ($arrWithdrawalItem['configReferenceNumber'] ?? ''): ?><br /><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082']; ?> <?php echo htmlspecialchars($arrWithdrawalItem['configReferenceNumber'], ENT_QUOTES); ?><?php endif; ?></td>
 					<td style="padding: 8px 12px;"><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotProductNumber'] ?? ''), ENT_QUOTES); ?></td>
 					<td style="padding: 8px 12px;"><?php echo htmlspecialchars((string) ($arrWithdrawalItem['snapshotUnitPrice'] ?? ''), ENT_QUOTES); ?></td>
 					<td style="padding: 8px 12px;"><?php echo htmlspecialchars($strQuantityOutput, ENT_QUOTES); ?></td>

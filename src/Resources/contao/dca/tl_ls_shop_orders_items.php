@@ -120,6 +120,10 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
             'sql'                     => "MEDIUMBLOB NULL"
         ),
 
+        'customizer_referenceNumber' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
         'extendedInfo' => array (
             'sql'                     => "MEDIUMBLOB NULL"
         )
