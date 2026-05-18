@@ -82,7 +82,7 @@ final class FastFilterSearchCoordinatorTest extends TestCase
             'matchedVariants' => [
                 1001 => true,
             ],
-            'legacyBridgeActive' => true,
+            'classicBridgeActive' => true,
             'lastResetTimestamp' => 1234567890,
         ];
 

@@ -6,7 +6,7 @@
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode'] = ['Product filter', 'Determines whether and with which filter technology the product list can be filtered.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode_options'] = [
 		'' => 'Filter disabled',
-		'legacy' => 'Standard filter',
+		'classic' => 'Classic filter',
 		'fast' => 'Fast filter technology (limited scope: attribute filters with OR logic and producer filter only)'
 	];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterAutoSubmit'] = ['Apply filter automatically when changed', 'Submits the fast filter form automatically when a checkbox or radio selection changes.'];

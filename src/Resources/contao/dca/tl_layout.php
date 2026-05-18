@@ -15,7 +15,7 @@ PaletteManipulator::create()
 ;
 
 $GLOBALS['TL_DCA']['tl_layout']['palettes']['__selector__'][] = 'ls_shop_filterMode';
-$GLOBALS['TL_DCA']['tl_layout']['subpalettes']['ls_shop_filterMode_legacy'] = 'ls_shop_useFilterInStandardProductlist,ls_shop_numFilterFieldsInSummary,ls_shop_useFilterMatchEstimates,ls_shop_matchEstimatesMaxNumProducts,ls_shop_matchEstimatesMaxFilterValues,ls_shop_useFilterInProductDetails,ls_shop_hideFilterFormInProductDetails';
+$GLOBALS['TL_DCA']['tl_layout']['subpalettes']['ls_shop_filterMode_classic'] = 'ls_shop_useFilterInStandardProductlist,ls_shop_numFilterFieldsInSummary,ls_shop_useFilterMatchEstimates,ls_shop_matchEstimatesMaxNumProducts,ls_shop_matchEstimatesMaxFilterValues,ls_shop_useFilterInProductDetails,ls_shop_hideFilterFormInProductDetails';
 $GLOBALS['TL_DCA']['tl_layout']['subpalettes']['ls_shop_filterMode_fast'] = 'ls_shop_useFilterInStandardProductlist,ls_shop_fastFilterAutoSubmit,ls_shop_fastFilterHideZeroMatches,ls_shop_fastFilterResetMode,ls_shop_hideFilterFormInProductDetails';
 
 $GLOBALS['TL_DCA']['tl_layout']['fields']['lsShopOutputDefinitionSet'] = array (
@@ -26,7 +26,7 @@ $GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_filterMode'] = [
     'label'     => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode'],
     'exclude'   => true,
     'inputType' => 'select',
-    'options'   => ['', 'legacy', 'fast'],
+    'options'   => ['', 'classic', 'fast'],
     'reference' => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode_options'],
     'eval'      => ['submitOnChange' => true, 'tl_class' => 'w50'],
     'sql'       => "varchar(16) NOT NULL default ''"
