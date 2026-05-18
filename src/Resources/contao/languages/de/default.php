@@ -255,6 +255,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = '
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Weiter einkaufen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart'] = 'Warenkorb öffnen';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Kommentar zur Position';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'] = 'Optionaler Kommentar';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['orderComment']['label'] = 'Kommentar';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterModeLabel'] = 'Bei Mehrfachauswahl:';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterMode']['and'] = 'und';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterMode']['or'] = 'oder';

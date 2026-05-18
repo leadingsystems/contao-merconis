@@ -40,27 +40,66 @@ class ls_shop_apiController_cart {
 			$this->{$str_resourceName}();
 		}
 	}
+
+	public static function processAddToCartRequest(array $requestData, callable $addToCartCallback) {
+		if (empty($requestData['productVariantId'])) {
+			return [
+				'success' => false,
+				'data' => 'no productVariantId given'
+			];
+		}
+
+		if (empty($requestData['quantity'])) {
+			return [
+				'success' => false,
+				'data' => 'no quantity given'
+			];
+		}
+
+		$commentWasSubmitted = $requestData['commentWasSubmitted'] ?? array_key_exists('comment', $requestData);
+
+		return [
+			'success' => true,
+			'data' => $addToCartCallback(
+				$requestData['productVariantId'],
+				$requestData['quantity'],
+				true,
+				$requestData['comment'] ?? null,
+				$commentWasSubmitted
+			)
+		];
+	}
 	
 	/**
 	 * Adds a product/variant to the cart
 	 */
 	protected function apiResource_addToCart() {
-		if (!Input::post('productVariantId')) {
+		$arrResult = self::processAddToCartRequest(
+			[
+				'productVariantId' => Input::post('productVariantId'),
+				'quantity' => Input::post('quantity'),
+				'comment' => Input::post('comment'),
+				'commentWasSubmitted' => array_key_exists('comment', $_POST)
+			],
+			function ($productVariantId, $quantity, $checkStock, $comment, $commentWasSubmitted) {
+				return ls_shop_cartHelper::addToCart(
+					$productVariantId,
+					$quantity,
+					$checkStock,
+					$comment,
+					$commentWasSubmitted
+				);
+			}
+		);
+
+		if (!$arrResult['success']) {
 			$this->obj_apiReceiver->fail();
-			$this->obj_apiReceiver->set_data('no productVariantId given');
+			$this->obj_apiReceiver->set_data($arrResult['data']);
 			return;
 		}
-
-		if (!Input::post('quantity')) {
-			$this->obj_apiReceiver->fail();
-			$this->obj_apiReceiver->set_data('no quantity given');
-			return;
-		}
-
-        $arr_return = ls_shop_cartHelper::addToCart(Input::post('productVariantId'), Input::post('quantity'));
 
 		$this->obj_apiReceiver->success();
-		$this->obj_apiReceiver->set_data($arr_return);
+		$this->obj_apiReceiver->set_data($arrResult['data']);
 	}
 
 	/**

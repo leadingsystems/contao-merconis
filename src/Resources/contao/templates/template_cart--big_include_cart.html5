@@ -157,6 +157,15 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                         <?php echo $obj_tmp_productOrVariant->_deliveryTimeMessageInCart($cartItem['quantity']); ?>
                     </div>
 
+                    <?php if ($this->arrWidgets[$productCartKey]['formattedComment'] !== '') { ?>
+                        <div class="comment">
+                            <div class="field-label"><?php echo $this->arrWidgets[$productCartKey]['commentLabel']; ?></div>
+                            <div class="field-content">
+                                <?php echo $this->arrWidgets[$productCartKey]['formattedComment']; ?>
+                            </div>
+                        </div>
+                    <?php } ?>
+
                     <?php if (!$bln_reviewMode) { ?>
                         <button data-lsjs-element="toggler" class="edit-item"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText155']; ?></button>
                     <?php } ?>
@@ -208,6 +217,15 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                                 <input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
                                 <input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
                                 <?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
+                                <div class="comment-input">
+                                    <label for="<?php echo $this->arrWidgets[$productCartKey]['commentFieldId']; ?>"><?php echo $this->arrWidgets[$productCartKey]['commentLabel']; ?></label>
+                                    <textarea
+                                        id="<?php echo $this->arrWidgets[$productCartKey]['commentFieldId']; ?>"
+                                        name="<?php echo $this->arrWidgets[$productCartKey]['commentFieldName']; ?>"
+                                        placeholder="<?php echo \Contao\StringUtil::specialchars($this->arrWidgets[$productCartKey]['commentPlaceholder']); ?>"
+                                        rows="3"
+                                    ><?php echo \Contao\StringUtil::specialchars($this->arrWidgets[$productCartKey]['commentValue']); ?></textarea>
+                                </div>
                                 <button type="submit" id="ctrl_<?= $this->id ?>_submit" title="<?= $this->slabel ?>"></button>
                             </form>
                             <form

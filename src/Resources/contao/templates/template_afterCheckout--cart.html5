@@ -69,6 +69,14 @@ use Contao\Date;
                                 <?php } ?>
                             </div>
                     <?php } ?>
+                    <?php if (($cartItem['comment'] ?? '') !== '') { ?>
+                        <div class="comment">
+                            <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['orderComment']['label']; ?></div>
+                            <div class="field-content">
+                                <?php echo nl2br(\Contao\StringUtil::specialchars($cartItem['comment'])); ?>
+                            </div>
+                        </div>
+                    <?php } ?>
 
                     <div class="deliveryTimeMessage">
                         <?php echo $cartItem['extendedInfo']['_deliveryTimeMessageInCart']; ?>

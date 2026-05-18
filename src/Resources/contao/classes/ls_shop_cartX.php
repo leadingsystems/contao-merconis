@@ -101,6 +101,8 @@ class ls_shop_cartX {
 		
 		if (isset($this->items) && is_array($this->items)) {
 			foreach ($this->items as $productCartKey => $arrCartItem) {
+				$arrCartItem = ls_shop_cartHelper::normalizeCartItemData($arrCartItem);
+
 				/*
 				 * IMPORTANT: The refresh parameter must be set to true when calling ls_shop_generalHelper::getObjProduct
 				 * because otherwise detecting payment and shipping methods' price limits won't work.
@@ -110,14 +112,19 @@ class ls_shop_cartX {
 					'objProduct' => $objProduct,
 					'price' => !$objProduct->_variantIsSelected ? $objProduct->_priceAfterTax : $objProduct->_selectedVariant->_priceAfterTax,
 					'weight' => !$objProduct->_variantIsSelected ? $objProduct->_weight : $objProduct->_selectedVariant->_weight,
-					'quantity' => $arrCartItem['quantity']
+					'quantity' => $arrCartItem['quantity'],
+					'scalePriceKeyword' => $arrCartItem['scalePriceKeyword'],
+					'comment' => $arrCartItem['comment']
 				);
+
+				$this->items[$productCartKey] = $arrCartItem;
 				
 				/*
 				 * Update each item's scalePriceKeyword to make sure that it is the
 				 * correct scalePriceKeyword for the current customer/member group.
 				 */
 				$this->items[$productCartKey]['scalePriceKeyword'] = $objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_scalePriceKeyword : $objProduct->_scalePriceKeyword;
+				$this->itemsExtended[$productCartKey]['scalePriceKeyword'] = $this->items[$productCartKey]['scalePriceKeyword'];
 			}
 		}
 		
@@ -635,6 +642,8 @@ class ls_shop_cartX {
 				'price' => $itemExtended['price'],
 				'weight' => $itemExtended['weight'],
 				'quantity' => $itemExtended['quantity'],
+				'scalePriceKeyword' => $itemExtended['scalePriceKeyword'],
+				'comment' => $itemExtended['comment'],
 				'priceCumulative' => $tmpPriceCumulative,
 				'weightCumulative' => $tmpWeightCumulative,
 				'taxClass' => $itemExtended['objProduct']->_steuersatz,

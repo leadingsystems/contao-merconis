@@ -5233,6 +5233,11 @@ class ls_shop_generalHelper
 
             $objQuantityInputTemplate->showInputQuantity = true;
             $objQuantityInputTemplate->obj_productOrVariant = $obj_productOrVariant;
+            $objQuantityInputTemplate->str_commentFieldId = 'comment_' . $productID . '-' . $variantID;
+            $objQuantityInputTemplate->str_commentFieldName = 'comment';
+            $objQuantityInputTemplate->str_commentLabel = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'];
+            $objQuantityInputTemplate->str_commentPlaceholder = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'];
+            $objQuantityInputTemplate->str_commentValue = Input::post('FORM_SUBMIT') == $str_formSubmitValue ? (string) Input::post('comment') : '';
 
             /*-->
              * Erstellen des Quantity-Feldes
@@ -5291,7 +5296,15 @@ class ls_shop_generalHelper
                             $tmpBlnCartKeyAlreadyInCart = true;
                         }
 
-                        $arrAddToCartResponse = ls_shop_cartHelper::addToCart($productVariantIDToPutInCart, $obj_flexWidget_inputQuantity->getValue());
+                        $commentWasSubmitted = array_key_exists('comment', $_POST);
+
+                        $arrAddToCartResponse = ls_shop_cartHelper::addToCart(
+                            $productVariantIDToPutInCart,
+                            $obj_flexWidget_inputQuantity->getValue(),
+                            true,
+                            $commentWasSubmitted ? Input::post('comment') : null,
+                            $commentWasSubmitted
+                        );
 
                         /*--> Ist das Produkt gar nicht mehr verfügbar, so wird es aus dem Warenkorb entfernt, es sei denn, es war schon vorher drin <--*/
                         if (!$tmpBlnCartKeyAlreadyInCart && $arrAddToCartResponse['quantityPutInCart'] == 0) {

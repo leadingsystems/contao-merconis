@@ -13,6 +13,61 @@ use function LeadingSystems\Helpers\ls_sub;
 
 class ls_shop_cartHelper {
 
+	public static function normalizeCartItemData(array $cartItem) {
+		$cartItem['quantity'] = $cartItem['quantity'] ?? 0;
+		$cartItem['scalePriceKeyword'] = $cartItem['scalePriceKeyword'] ?? '';
+		$cartItem['comment'] = self::normalizeCartItemComment($cartItem['comment'] ?? '');
+
+		return $cartItem;
+	}
+
+	public static function normalizeCartItemComment($comment) {
+		if (is_array($comment) || is_object($comment)) {
+			return '';
+		}
+
+		if ($comment === null) {
+			return '';
+		}
+
+		return (string) $comment;
+	}
+
+	public static function applyAddToCartComment(array $cartItem, $comment = null, $commentWasSubmitted = false) {
+		$cartItem = self::normalizeCartItemData($cartItem);
+
+		if (!$commentWasSubmitted) {
+			return $cartItem;
+		}
+
+		$normalizedComment = self::normalizeCartItemComment($comment);
+
+		if ($cartItem['comment'] === '') {
+			$cartItem['comment'] = $normalizedComment;
+			return $cartItem;
+		}
+
+		if ($normalizedComment === '') {
+			return $cartItem;
+		}
+
+		$cartItem['comment'] .= "\n" . $normalizedComment;
+
+		return $cartItem;
+	}
+
+	public static function applyUpdatedComment(array $cartItem, $comment = null, $commentWasSubmitted = false) {
+		$cartItem = self::normalizeCartItemData($cartItem);
+
+		if (!$commentWasSubmitted) {
+			return $cartItem;
+		}
+
+		$cartItem['comment'] = self::normalizeCartItemComment($comment);
+
+		return $cartItem;
+	}
+
 	/*
 	 * Diese Funktion bereinigt die eingegebene Menge entsprechend der für das Produkt definierten Bestimmungen.
 	 * Diese Funktion gibt dabei vor allem eine für Berechnungen verwertbare Zahl zurück.
@@ -162,6 +217,25 @@ class ls_shop_cartHelper {
 		return $availableQuantity;
 	}
 
+	public static function setItemComment($productCartKey, $comment) {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopCart =  $session->get('lsShopCart');
+
+		if (!isset($session_lsShopCart['items'][$productCartKey]) || !is_array($session_lsShopCart['items'][$productCartKey])) {
+			return '';
+		}
+
+		$session_lsShopCart['items'][$productCartKey] = self::applyUpdatedComment(
+			$session_lsShopCart['items'][$productCartKey],
+			$comment,
+			true
+		);
+
+        $session->set('lsShopCart', $session_lsShopCart);
+
+		return $session_lsShopCart['items'][$productCartKey]['comment'];
+	}
+
 	/*
 	 * Diese Funktion fügt ein Produkt bzw. eine Variante eines Produktes dem Warenkorb in der
 	 * gewünschten Menge hinzu. Sofern das Flag 'checkStock' nicht explizit als false übergeben wird,
@@ -173,7 +247,7 @@ class ls_shop_cartHelper {
 	 *
 	 * Die Funktion gibt ein Array mit Informationen über die gewünschte und tatsächlich hinzugefügte Menge zurück
 	 */
-	public static function addToCart($productVariantID, $quantity, $checkStock = true) {
+	public static function addToCart($productVariantID, $quantity, $checkStock = true, $comment = null, $commentWasSubmitted = false) {
         if (isset($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic']) && is_array($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic'])) {
             /*
              * Functions hooked here can stop the execution of the addToCart method by returning a non-null value
@@ -187,7 +261,13 @@ class ls_shop_cartHelper {
                 if (!isset($valueToReturn)) {
                     $valueToReturn = null;
                 }
-                $valueToReturn = $objMccb->{$mccb[1]}($productVariantID, $quantity, $checkStock, $valueToReturn);
+				$reflectionMethod = new \ReflectionMethod($objMccb, $mccb[1]);
+
+				if ($reflectionMethod->getNumberOfParameters() >= 6) {
+                	$valueToReturn = $objMccb->{$mccb[1]}($productVariantID, $quantity, $checkStock, $valueToReturn, $comment, $commentWasSubmitted);
+				} else {
+                	$valueToReturn = $objMccb->{$mccb[1]}($productVariantID, $quantity, $checkStock, $valueToReturn);
+				}
             }
             if ($valueToReturn !== null) {
                 return $valueToReturn;
@@ -203,16 +283,19 @@ class ls_shop_cartHelper {
 
         $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShopCart =  $session->get('lsShopCart');
+		$cartKey = $objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey;
 
 		/*
 		 * Ist der aktuelle cartKey der ProduktVarianten-ID noch nicht im Warenkorb enthalten,
 		 * so wird sie eingetragen, ist sie schon vorhanden, so wird nur die Menge geupdatet.
 		 */
-        if (!isset($session_lsShopCart['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey])) {
-			$arrItemInfoToAddToCart = array(
+		$cartItemAlreadyExists = isset($session_lsShopCart['items'][$cartKey]);
+
+        if (!$cartItemAlreadyExists) {
+			$arrItemInfoToAddToCart = [
 				'quantity' => 0,
 				'scalePriceKeyword' => $objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_scalePriceKeyword : $objProduct->_scalePriceKeyword
-			);
+			];
 
 			if (isset($GLOBALS['MERCONIS_HOOKS']['beforeAddToCart']) && is_array($GLOBALS['MERCONIS_HOOKS']['beforeAddToCart'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['beforeAddToCart'] as $mccb) {
@@ -221,7 +304,13 @@ class ls_shop_cartHelper {
 				}
 			}
 
-            $session_lsShopCart['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey] = $arrItemInfoToAddToCart;
+			$arrItemInfoToAddToCart = self::applyAddToCartComment(
+				$arrItemInfoToAddToCart,
+				$comment,
+				$commentWasSubmitted
+			);
+
+            $session_lsShopCart['items'][$cartKey] = $arrItemInfoToAddToCart;
             $session->set('lsShopCart', $session_lsShopCart);
 
 			if ($objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_hasCustomizer : $objProduct->_hasCustomizer) {
@@ -229,17 +318,24 @@ class ls_shop_cartHelper {
             } else if ($objProduct->_hasConfigurator) {
                 $objProduct->saveConfiguratorForCurrentCartKey();
             }
+		} else {
+			$session_lsShopCart['items'][$cartKey] = self::applyAddToCartComment(
+				$session_lsShopCart['items'][$cartKey],
+				$comment,
+				$commentWasSubmitted
+			);
+            $session->set('lsShopCart', $session_lsShopCart);
 		}
 
 		/*
 		 * Ermitteln der für dieses Produkt im Warenkorb zu hinterlegenden Menge
 		 */
         if(is_array($session_lsShopCart['items'])) {
-            $newQuantity = ls_add($session_lsShopCart['items'][$objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey]['quantity'], $desiredQuantity);
+            $newQuantity = ls_add($session_lsShopCart['items'][$cartKey]['quantity'], $desiredQuantity);
         }else{
             $newQuantity = $desiredQuantity;
         }
-		$quantityCurrentlyInCart = ls_shop_cartHelper::setItemQuantity($objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey, $newQuantity, $checkStock);
+		$quantityCurrentlyInCart = ls_shop_cartHelper::setItemQuantity($cartKey, $newQuantity, $checkStock);
 		$quantityPutInCart = ls_sub($desiredQuantity, ls_sub($newQuantity,$quantityCurrentlyInCart));
 
 		ls_shop_msg::setMsg(array(
@@ -250,7 +346,7 @@ class ls_shop_cartHelper {
 				'quantityPutInCart' => $quantityPutInCart,
 				'quantityCurrentlyInCart' => $quantityCurrentlyInCart,
 				'stockNotSufficient' => $desiredQuantity != $quantityPutInCart ? true : false,
-				'cartKeyCurrentlyPutInCart' => $objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey
+				'cartKeyCurrentlyPutInCart' => $cartKey
 			)
 		));
 
@@ -266,7 +362,7 @@ class ls_shop_cartHelper {
 			'desiredQuantity' => $desiredQuantity,
 			'quantityPutInCart' => $quantityPutInCart,
 			'stockNotSufficient' => $desiredQuantity != $quantityPutInCart ? true : false,
-			'cartKeyCurrentlyPutInCart' => $objProduct->_variantIsSelected ? $objProduct->_selectedVariant->_cartKey : $objProduct->_cartKey
+			'cartKeyCurrentlyPutInCart' => $cartKey
 		);
 	}
 
@@ -463,12 +559,17 @@ class ls_shop_cartHelper {
 	/*
 	 * Diese Funktion aktualisiert die Menge einer Warenkorb-Position
 	 */
-	public static function updateCartItem($productCartKey, $quantity) {
+	public static function updateCartItem($productCartKey, $quantity, $comment = null, $commentWasSubmitted = false) {
 		$objProduct = ls_shop_generalHelper::getObjProduct($productCartKey, __METHOD__);
+		$cleanQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
 		/*
 		 * Ist die Quantity < 0, so wird die Position aus dem Warenkorb entfernt
 		 */
-		ls_shop_cartHelper::setItemQuantity($productCartKey, ls_shop_cartHelper::cleanQuantity($objProduct, $quantity));
+		ls_shop_cartHelper::setItemQuantity($productCartKey, $cleanQuantity);
+
+		if ($cleanQuantity >= 0 && $commentWasSubmitted) {
+			ls_shop_cartHelper::setItemComment($productCartKey, $comment);
+		}
 	}
 
 	/*
