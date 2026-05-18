@@ -87,7 +87,7 @@ class ls_shop_productSearcher
             if (FastFilterRuntime::isActive()) {
                 System::getContainer()->get(FastFilterController::class)->processSentFilterSettings();
             } else {
-                System::getContainer()->get(FastFilterSessionWriter::class)->clearLegacyBridge();
+                System::getContainer()->get(FastFilterSessionWriter::class)->clearClassicBridge();
                 ls_shop_filterController::getInstance()->processSentFilterSettings();
             }
         }
@@ -492,7 +492,7 @@ class ls_shop_productSearcher
          */
         $this->setCurrentCacheKey();
         $blnFastFilterActive = $this->blnUseFilter && FastFilterRuntime::isActive();
-        $blnLegacyFilterActive = $this->blnUseFilter && !$blnFastFilterActive;
+        $blnClassicFilterActive = $this->blnUseFilter && !$blnFastFilterActive;
 
         //get searchType and/or-search
         if(isset($this->arrSearchCriteria["searchType"])){
@@ -1325,7 +1325,7 @@ class ls_shop_productSearcher
          * and maybe some more fields depending on what functionality the filter actually provides.
          */
         $tmpRequestFields = $this->arrRequestFields;
-        if ($blnLegacyFilterActive) {
+        if ($blnClassicFilterActive) {
             if (!in_array('attributeID', $this->arrRequestFields)) {
                 $this->arrRequestFields[] = 'attributeID';
             }
@@ -1464,7 +1464,7 @@ class ls_shop_productSearcher
 			SELECT			".$fieldSelectionPart."
 							".($addToSelectStatement ?? '')."
 			FROM			`tl_ls_shop_product`
-		".($blnLegacyFilterActive ? "
+		".($blnClassicFilterActive ? "
 			LEFT JOIN		`tl_ls_shop_attribute_allocation`
 				ON			`tl_ls_shop_product`.`id` = `tl_ls_shop_attribute_allocation`.`pid`
 				AND			`tl_ls_shop_attribute_allocation`.`parentIsVariant` = '0'
@@ -1699,7 +1699,7 @@ class ls_shop_productSearcher
          * We also add some other information to the product/variant data that could not be retrieved
          * directly from the database, e.g. calculated prices.
          */
-        if ($blnLegacyFilterActive && count($arrProductsComplete)) {
+        if ($blnClassicFilterActive && count($arrProductsComplete)) {
             $tmpArrProductsComplete = array();
             foreach ($arrProductsComplete as $rowProductsComplete) {
                 if (!isset($tmpArrProductsComplete[$rowProductsComplete['id']])) {
@@ -2007,7 +2007,7 @@ class ls_shop_productSearcher
         if (is_array($arrProductsComplete)) {
             $arrProductsAfterFilter = array();
             foreach ($arrProductsComplete as $rowProductsComplete) {
-                if ($blnLegacyFilterActive) {
+                if ($blnClassicFilterActive) {
                     /*
                      * Here we walk through all products that the database request delivered. In order
                      * to filter these products we perform filter checks for each product (and the
@@ -2026,7 +2026,7 @@ class ls_shop_productSearcher
                 $arrProductsAfterFilter[] = $rowProductsComplete;
             }
 
-            if ($blnLegacyFilterActive && is_array($arrProductsAfterFilter)) {
+            if ($blnClassicFilterActive && is_array($arrProductsAfterFilter)) {
                 ls_shop_filterController::getInstance();
                 ls_shop_filterHelper::getEstimatedMatchNumbers($arrProductsComplete);
             }

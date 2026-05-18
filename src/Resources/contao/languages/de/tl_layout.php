@@ -6,7 +6,7 @@
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode'] = ['Produktfilter', 'Bestimmt, ob und mit welcher Filtertechnologie die Produktliste gefiltert werden kann.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode_options'] = [
 		'' => 'Filter deaktiviert',
-		'legacy' => 'Standard-Filter',
+		'classic' => 'Classic-Filter',
 		'fast' => 'Schnelle Filtertechnik (eingeschränkter Funktionsumfang: nur Attributfilter mit Oder-Verknüpfung und Herstellerfilter)'
 	];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterAutoSubmit'] = ['Filter bei Änderung automatisch anwenden', 'Sendet das schnelle Filterformular automatisch ab, sobald sich eine Checkbox- oder Radio-Auswahl ändert.'];
