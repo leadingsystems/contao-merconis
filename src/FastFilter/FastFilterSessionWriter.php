@@ -36,7 +36,7 @@ final class FastFilterSessionWriter
             ],
             'matchedProducts' => [],
             'matchedVariants' => [],
-            'legacyBridgeActive' => false,
+            'classicBridgeActive' => false,
             'pageScope' => null,
             'lastResetTimestamp' => time(),
         ];
@@ -109,7 +109,7 @@ final class FastFilterSessionWriter
     }
 
     /**
-     * Schreibt die schmale Legacy-Brücke für bestehende `_filterMatch`-Consumer.
+     * Schreibt die schmale Classic-Brücke für bestehende `_filterMatch`-Consumer.
      *
      * @param array<int, string> $matchedProducts
      * @param array<int, bool>   $matchedVariants
@@ -120,7 +120,7 @@ final class FastFilterSessionWriter
 
         $_SESSION['lsShop']['fastFilter']['matchedProducts'] = $matchedProducts;
         $_SESSION['lsShop']['fastFilter']['matchedVariants'] = $matchedVariants;
-        $_SESSION['lsShop']['fastFilter']['legacyBridgeActive'] = true;
+        $_SESSION['lsShop']['fastFilter']['classicBridgeActive'] = true;
 
         $_SESSION['lsShop']['filter']['matchedProducts'] = $matchedProducts;
         $_SESSION['lsShop']['filter']['matchedVariants'] = $matchedVariants;
@@ -129,9 +129,9 @@ final class FastFilterSessionWriter
     /**
      * Entfernt nur die vom Fast Filter erzeugten Brückendaten.
      */
-    public function clearLegacyBridge(): void
+    public function clearClassicBridge(): void
     {
-        if (!isset($_SESSION['lsShop']['fastFilter']['legacyBridgeActive']) || !$_SESSION['lsShop']['fastFilter']['legacyBridgeActive']) {
+        if (!isset($_SESSION['lsShop']['fastFilter']['classicBridgeActive']) || !$_SESSION['lsShop']['fastFilter']['classicBridgeActive']) {
             return;
         }
 
@@ -140,7 +140,7 @@ final class FastFilterSessionWriter
             $_SESSION['lsShop']['filter']['matchedVariants'],
             $_SESSION['lsShop']['filter']['matchEstimates'],
         );
-        $_SESSION['lsShop']['fastFilter']['legacyBridgeActive'] = false;
+        $_SESSION['lsShop']['fastFilter']['classicBridgeActive'] = false;
     }
 
     /**

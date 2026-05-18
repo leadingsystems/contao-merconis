@@ -124,7 +124,7 @@ final class FastFilterFormRendererTest extends TestCase
             'matchedVariants' => [
                 1001 => true,
             ],
-            'legacyBridgeActive' => true,
+            'classicBridgeActive' => true,
             'lastResetTimestamp' => 1234567890,
         ];
     }
@@ -158,7 +158,7 @@ final class FastFilterFormRendererTest extends TestCase
             ],
             'matchedProducts' => [],
             'matchedVariants' => [],
-            'legacyBridgeActive' => true,
+            'classicBridgeActive' => true,
             'lastResetTimestamp' => 1234567890,
         ];
     }
