@@ -35,7 +35,7 @@ class FilterModeMigration extends AbstractMigration
         }
 
         $this->connection->executeStatement(
-            "UPDATE tl_layout SET ls_shop_filterMode = 'legacy' WHERE ls_shop_activateFilter = '1' AND ls_shop_filterMode = ''"
+            "UPDATE tl_layout SET ls_shop_filterMode = 'classic' WHERE ls_shop_activateFilter = '1' AND ls_shop_filterMode = ''"
         );
 
         $this->connection->executeStatement(
