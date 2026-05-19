@@ -381,7 +381,6 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 
 		'ls_shop_cartPositionCommentsEnabled' => [
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_cartPositionCommentsEnabled'],
-			'default' => true,
 			'exclude' => true,
 			'inputType' => 'checkbox',
 			'eval' => ['tl_class' => 'w50 m12']

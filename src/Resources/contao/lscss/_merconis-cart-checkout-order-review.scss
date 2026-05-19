@@ -430,6 +430,7 @@ $ls-product-list-field-space: 2%;
 
     .edit-item-box {
       position: absolute;
+      z-index: 99999;
       top: 0;
       right: 0;
       bottom: 0;
