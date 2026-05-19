@@ -83,6 +83,15 @@
                                 <?php
                             }
                             ?>
+
+                            <?php if ($cartItem['comment'] !== '') { ?>
+                                <div class="ls-field comment">
+                                    <div class="ls-field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label']; ?>:</div>
+                                    <div class="ls-field-content">
+                                        <?php echo nl2br(\Contao\StringUtil::specialchars($cartItem['comment'])); ?>
+                                    </div>
+                                </div>
+                            <?php } ?>
                         </div>
 
                         <div class="ls-field quantity">
@@ -91,15 +100,6 @@
                                 <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], $obj_tmp_productOrVariant->_quantityDecimals); ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? ' <span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
                             </div>
                         </div>
-
-                        <?php if ($cartItem['comment'] !== '') { ?>
-                            <div class="ls-field comment">
-                                <div class="ls-field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label']; ?>:</div>
-                                <div class="ls-field-content">
-                                    <?php echo nl2br(\Contao\StringUtil::specialchars($cartItem['comment'])); ?>
-                                </div>
-                            </div>
-                        <?php } ?>
 
                         <div class="ls-field price-cumulative">
                             <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice(\Merconis\Core\ls_shop_cartX::getInstance()->calculation['items'][$productCartKey]['priceCumulative']); ?>
