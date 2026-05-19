@@ -29,6 +29,7 @@ class ModuleCart extends Module {
 		global $objPage;
 
 		$arrWidgets = array();
+		$blnCartPositionCommentsEnabled = ls_shop_cartHelper::isCartPositionCommentEnabled();
 		
 		foreach (ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
 			$arrWidgets[$productCartKey] = array();
@@ -74,7 +75,7 @@ class ModuleCart extends Module {
 			$arrWidgets[$productCartKey]['commentLabel'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'];
 			$arrWidgets[$productCartKey]['commentPlaceholder'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'];
 			$arrWidgets[$productCartKey]['commentValue'] = $bln_isCurrentItemQuantityUpdate ? (string) Input::post('comment') : $cartItem['comment'];
-			$arrWidgets[$productCartKey]['formattedComment'] = $cartItem['comment'] !== '' ? nl2br(StringUtil::specialchars($cartItem['comment'])) : '';
+			$arrWidgets[$productCartKey]['formattedComment'] = $blnCartPositionCommentsEnabled && $cartItem['comment'] !== '' ? nl2br(StringUtil::specialchars($cartItem['comment'])) : '';
 
 			/*
 			 * Aktualisieren des Warenkorbs, sofern angefordert
@@ -98,6 +99,7 @@ class ModuleCart extends Module {
 		}
 
 		$this->Template = new FrontendTemplate($this->ls_shop_cart_template);
+		$this->Template->bln_cartPositionCommentsEnabled = $blnCartPositionCommentsEnabled;
 
 		$formConfirmOrder = ls_shop_checkoutData::getInstance()->formConfirmOrder;
 		// ### paymentMethod callback ########################

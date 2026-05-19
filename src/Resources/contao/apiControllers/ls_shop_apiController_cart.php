@@ -58,6 +58,11 @@ class ls_shop_apiController_cart {
 
 		$commentWasSubmitted = $requestData['commentWasSubmitted'] ?? array_key_exists('comment', $requestData);
 
+		if (!ls_shop_cartHelper::isCartPositionCommentEnabled()) {
+			$commentWasSubmitted = false;
+			$requestData['comment'] = null;
+		}
+
 		return [
 			'success' => true,
 			'data' => $addToCartCallback(

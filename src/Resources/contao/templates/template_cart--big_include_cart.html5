@@ -5,6 +5,7 @@ use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_msg;
 
 $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
+$bln_showCartPositionComments = (bool) ($this->bln_cartPositionCommentsEnabled ?? true);
 
 /*
  * IMPORTANT NOTE:
@@ -157,7 +158,7 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                         <?php echo $obj_tmp_productOrVariant->_deliveryTimeMessageInCart($cartItem['quantity']); ?>
                     </div>
 
-                    <?php if ($this->arrWidgets[$productCartKey]['formattedComment'] !== '') { ?>
+                    <?php if ($bln_showCartPositionComments && $this->arrWidgets[$productCartKey]['formattedComment'] !== '') { ?>
                         <div class="comment">
                             <div class="field-label"><?php echo $this->arrWidgets[$productCartKey]['commentLabel']; ?></div>
                             <div class="field-content">
@@ -221,15 +222,17 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                                 <div class="quantity-input">
                                     <?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
                                 </div>
-                                <div class="comment-input">
-                                    <label for="<?php echo $this->arrWidgets[$productCartKey]['commentFieldId']; ?>"><?php echo $this->arrWidgets[$productCartKey]['commentLabel']; ?></label>
-                                    <textarea
-                                        id="<?php echo $this->arrWidgets[$productCartKey]['commentFieldId']; ?>"
-                                        name="<?php echo $this->arrWidgets[$productCartKey]['commentFieldName']; ?>"
-                                        placeholder="<?php echo \Contao\StringUtil::specialchars($this->arrWidgets[$productCartKey]['commentPlaceholder']); ?>"
-                                        rows="3"
-                                    ><?php echo \Contao\StringUtil::specialchars($this->arrWidgets[$productCartKey]['commentValue']); ?></textarea>
-                                </div>
+                                <?php if ($bln_showCartPositionComments) { ?>
+                                    <div class="comment-input">
+                                        <label for="<?php echo $this->arrWidgets[$productCartKey]['commentFieldId']; ?>"><?php echo $this->arrWidgets[$productCartKey]['commentLabel']; ?></label>
+                                        <textarea
+                                            id="<?php echo $this->arrWidgets[$productCartKey]['commentFieldId']; ?>"
+                                            name="<?php echo $this->arrWidgets[$productCartKey]['commentFieldName']; ?>"
+                                            placeholder="<?php echo \Contao\StringUtil::specialchars($this->arrWidgets[$productCartKey]['commentPlaceholder']); ?>"
+                                            rows="3"
+                                        ><?php echo \Contao\StringUtil::specialchars($this->arrWidgets[$productCartKey]['commentValue']); ?></textarea>
+                                    </div>
+                                <?php } ?>
                             </form>
                             <div class="edit-item-actions">
                                 <button

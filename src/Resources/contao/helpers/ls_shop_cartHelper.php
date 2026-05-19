@@ -33,8 +33,20 @@ class ls_shop_cartHelper {
 		return (string) $comment;
 	}
 
+	public static function isCartPositionCommentEnabled() {
+		if (!array_key_exists('ls_shop_cartPositionCommentsEnabled', $GLOBALS['TL_CONFIG'])) {
+			return true;
+		}
+
+		return (bool) $GLOBALS['TL_CONFIG']['ls_shop_cartPositionCommentsEnabled'];
+	}
+
 	public static function applyAddToCartComment(array $cartItem, $comment = null, $commentWasSubmitted = false) {
 		$cartItem = self::normalizeCartItemData($cartItem);
+
+		if (!self::isCartPositionCommentEnabled()) {
+			return $cartItem;
+		}
 
 		if (!$commentWasSubmitted) {
 			return $cartItem;
@@ -58,6 +70,10 @@ class ls_shop_cartHelper {
 
 	public static function applyUpdatedComment(array $cartItem, $comment = null, $commentWasSubmitted = false) {
 		$cartItem = self::normalizeCartItemData($cartItem);
+
+		if (!self::isCartPositionCommentEnabled()) {
+			return $cartItem;
+		}
 
 		if (!$commentWasSubmitted) {
 			return $cartItem;
@@ -223,6 +239,10 @@ class ls_shop_cartHelper {
 
 		if (!isset($session_lsShopCart['items'][$productCartKey]) || !is_array($session_lsShopCart['items'][$productCartKey])) {
 			return '';
+		}
+
+		if (!self::isCartPositionCommentEnabled()) {
+			return self::normalizeCartItemComment($session_lsShopCart['items'][$productCartKey]['comment'] ?? '');
 		}
 
 		$session_lsShopCart['items'][$productCartKey] = self::applyUpdatedComment(

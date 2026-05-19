@@ -26,6 +26,7 @@ class ModuleOrderReview extends Module {
 		}
 
 		$this->Template = new FrontendTemplate($this->ls_shop_orderReview_template);
+		$blnCartPositionCommentsEnabled = ls_shop_cartHelper::isCartPositionCommentEnabled();
 
 		$formConfirmOrder = ls_shop_checkoutData::getInstance()->formConfirmOrder;
 		// ### paymentMethod callback ########################
@@ -45,11 +46,12 @@ class ModuleOrderReview extends Module {
 		foreach (ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
 			$arrWidgets[$productCartKey] = [
 				'commentLabel' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'],
-				'formattedComment' => $cartItem['comment'] !== '' ? nl2br(StringUtil::specialchars($cartItem['comment'])) : ''
+				'formattedComment' => $blnCartPositionCommentsEnabled && $cartItem['comment'] !== '' ? nl2br(StringUtil::specialchars($cartItem['comment'])) : ''
 			];
 		}
 
 		$this->Template->arrWidgets = $arrWidgets;
+		$this->Template->bln_cartPositionCommentsEnabled = $blnCartPositionCommentsEnabled;
 
 		$this->Template->arrRequiredCheckoutData = array(
 			'formCustomerData' => ls_shop_checkoutData::getInstance()->formCustomerData,

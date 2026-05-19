@@ -5226,12 +5226,14 @@ class ls_shop_generalHelper
          <--*/
         $quantityInput = '';
         if ($obj_productOrVariant->_objectType === 'variant' || !$obj_productOrVariant->_hasVariants) {
+            $bln_cartPositionCommentsEnabled = ls_shop_cartHelper::isCartPositionCommentEnabled();
             $objQuantityInputTemplate = new FrontendTemplate('quantityInput');
             $str_formSubmitValue = 'product_form_' . $productID . '-' . $variantID;
             $objQuantityInputTemplate->str_formSubmitValue = $str_formSubmitValue;
             $objQuantityInputTemplate->str_productVariantId = $productID . '-' . $variantID;
 
             $objQuantityInputTemplate->showInputQuantity = true;
+            $objQuantityInputTemplate->bln_showCommentField = $bln_cartPositionCommentsEnabled;
             $objQuantityInputTemplate->obj_productOrVariant = $obj_productOrVariant;
             $objQuantityInputTemplate->str_commentFieldId = 'comment_' . $productID . '-' . $variantID;
             $objQuantityInputTemplate->str_commentFieldName = 'comment';
@@ -5296,7 +5298,7 @@ class ls_shop_generalHelper
                             $tmpBlnCartKeyAlreadyInCart = true;
                         }
 
-                        $commentWasSubmitted = array_key_exists('comment', $_POST);
+                        $commentWasSubmitted = $bln_cartPositionCommentsEnabled && array_key_exists('comment', $_POST);
 
                         $arrAddToCartResponse = ls_shop_cartHelper::addToCart(
                             $productVariantIDToPutInCart,
