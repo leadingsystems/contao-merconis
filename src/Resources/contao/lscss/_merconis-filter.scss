@@ -707,6 +707,12 @@
   }
 }
 
+.template_fastFilterForm_default {
+  &.nothingToFilter {
+    display: none;
+  }
+}
+
 /*
  * Styling of the old filter-template, formerly template_filterForm_default.
  * Must be renamed to *_old becouse the new filter-template (*_new) is now *_default.
