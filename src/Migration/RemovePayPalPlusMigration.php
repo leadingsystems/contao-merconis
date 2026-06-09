@@ -55,12 +55,6 @@ final class RemovePayPalPlusMigration extends AbstractMigration
             return false;
         }
 
-        $columns = $schemaManager->listTableColumns(self::TABLE);
-
-        if (!isset($columns['paypalplus_clientid'])) {
-            return false;
-        }
-
         $count = (int) $this->connection->fetchOne(
             'SELECT COUNT(*) FROM `' . self::TABLE . '` WHERE `type` = ?',
             ['payPalPlus']
@@ -80,7 +74,8 @@ final class RemovePayPalPlusMigration extends AbstractMigration
             return $this->createResult(true, 'Keine PayPal-Plus-Datensätze gefunden.');
         }
 
-        $csvPath = $this->writeCsvBackup($rows);
+        $availableColumns = $this->getAvailableBackupColumns($rows);
+        $csvPath = $this->writeCsvBackup($rows, $availableColumns);
 
         $this->connection->executeStatement(
             'DELETE FROM `' . self::TABLE . '` WHERE `type` = ?',
@@ -97,7 +92,25 @@ final class RemovePayPalPlusMigration extends AbstractMigration
         );
     }
 
-    private function writeCsvBackup(array $rows): string
+    /**
+     * Ermittelt, welche der gewünschten Backup-Spalten tatsächlich noch in der
+     * DB vorhanden sind (Contao-Schema-Migration kann sie bereits entfernt haben).
+     */
+    private function getAvailableBackupColumns(array $rows): array
+    {
+        if (\count($rows) === 0) {
+            return [];
+        }
+
+        $existingKeys = array_keys($rows[0]);
+
+        return array_values(array_filter(
+            self::PAYPAL_PLUS_COLUMNS,
+            static fn (string $col): bool => \in_array($col, $existingKeys, true)
+        ));
+    }
+
+    private function writeCsvBackup(array $rows, array $columns): string
     {
         $backupDir = $this->projectDir . '/files/merconis_backup';
 
@@ -114,12 +127,12 @@ final class RemovePayPalPlusMigration extends AbstractMigration
             throw new \RuntimeException('CSV-Datei konnte nicht erstellt werden: ' . $filePath);
         }
 
-        fputcsv($handle, self::PAYPAL_PLUS_COLUMNS, ';');
+        fputcsv($handle, $columns, ';');
 
         foreach ($rows as $row) {
             $csvRow = [];
 
-            foreach (self::PAYPAL_PLUS_COLUMNS as $column) {
+            foreach ($columns as $column) {
                 $csvRow[] = $row[$column] ?? '';
             }
 
