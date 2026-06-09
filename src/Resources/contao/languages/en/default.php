@@ -323,12 +323,6 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentErrorA
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['orderNo'] = 'Order no.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['paypal']['paymentDesc'] = 'Order no.';
 
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentWallHeadline'] = 'Selection of the PayPal payment method';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentAuthorized'] = 'Your pay pal payment has been authorized. You can now finish your order.';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['paymentNotAuthorized'] = 'Your pay pal payment could not be authorized.';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['authorizationObsolete'] = 'You have changed information which is relevant for payment. Should you have already authorized payment, it will not be valid any longer. Please repeat the authorization procedure.';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['headlineBackendDetailsInfo'] = 'Information about the payment status';
-
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentErrorAfterFinishedOrder'] = '<p class="error">The payment could not be successfully completed, but we have received your order. Please contact us to clarify the situation and arrange an alternative payment method.</p>';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentSuccessAfterFinishedOrder'] = '<p class="success">Thank you for your payment!</p>';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['paymentWallHeadline'] = 'Selection of the PayPal payment method';
@@ -1069,11 +1063,6 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['validationMessages']['productCode02'] = '
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentFee'] = 'Payment fee';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['shippingFee'] = 'Shipping fee';
-
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['saleTransactionCode'] = 'Transaction code';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['errorMsgLabel'] = 'Error message';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['status'] = 'Status';
-$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalPlus']['updateStatus'] = 'Update status';
 
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['orderId'] = 'Order ID';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorMsgLabel'] = 'Error message';
