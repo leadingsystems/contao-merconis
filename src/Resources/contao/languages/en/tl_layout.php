@@ -5,9 +5,9 @@
 	 */
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode'] = ['Product filter', 'Determines whether and with which filter technology the product list can be filtered.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode_options'] = [
-		'' => 'Filter disabled',
-		'classic' => 'Classic filter',
-		'fast' => 'Fast filter technology (limited scope: attribute filters with OR logic and producer filter only)'
+		'' => ['Disabled', 'No product filter is active. Product lists are displayed without filter technology.'],
+		'classic' => ['Classic filter (default)', 'Activates the classic filter technology with the full product filter feature set.'],
+		'fast' => ['Fast filter technology (limited)', 'Activates the fast filter technology with limited functionality. Only attribute filters with OR logic and manufacturer filters are available.']
 	];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterAutoSubmit'] = ['Apply filter automatically when changed', 'Submits the fast filter form automatically when a checkbox or radio selection changes.'];
 	$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterHideZeroMatches'] = ['Hide filter options without matches', 'Fully hides options with 0 estimated matches in the fast filter.'];

@@ -28,7 +28,7 @@ $GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_filterMode'] = [
     'inputType' => 'select',
     'options'   => ['', 'classic', 'fast'],
     'reference' => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode_options'],
-    'eval'      => ['submitOnChange' => true, 'tl_class' => 'w50'],
+    'eval'      => ['submitOnChange' => true, 'helpwizard' => true, 'tl_class' => 'w50'],
     'sql'       => "varchar(16) NOT NULL default ''"
 ];
 
