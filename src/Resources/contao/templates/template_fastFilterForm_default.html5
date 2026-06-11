@@ -10,8 +10,6 @@ $resetButtonClass = $activeCount > 0 ? '' : ' is-disabled';
 $resetButtonDisabledAttributes = $activeCount > 0 ? '' : ' disabled aria-disabled="true"';
 ?>
 <div class="filter-container fast-filter-container ls-filter-container template_fastFilterForm_default<?php echo $this->blnNothingToFilter ? ' nothingToFilter' : ' somethingToFilter'; ?>" data-fast-filter-root="1" data-active-count="<?php echo $activeCount; ?>" data-fast-filter-auto-submit="<?php echo $fastFilterAutoSubmit ? '1' : '0'; ?>" data-fast-filter-hide-zero-matches="<?php echo $fastFilterHideZeroMatches ? '1' : '0'; ?>">
-    <button class="toggle-btn" id="toggleBtn"></button>
-
     <div id="fast-filter-headline-container" class="ajax-reload-by-filter" data-fast-filter-headline>
         <div class="filter-headline-bar">
             <h3 class="all-filter-options off-canvas-filter-form-toggler-remote">
