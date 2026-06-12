@@ -1,8 +1,9 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.1.16 (2026-05-18)
+### 5.1.16 (2026-06-12)
  * fix feature 'Widerruf': Configurator/Customizer Referenz
+ * fix branding
 
 ### 5.1.15 (2026-05-08)
  * improve SitemapListener
