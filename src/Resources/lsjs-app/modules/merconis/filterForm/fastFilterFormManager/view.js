@@ -170,10 +170,11 @@ var obj_classdef = {
                         el_filterForm.store('fastFilterResetRequested', true);
                         this.clearFieldValues(el_container);
 
-                        if (el_resetButton.getParent('form') !== el_filterForm) {
+                        if (event !== undefined && event !== null) {
                             event.stop();
-                            this.submitForm(el_filterForm);
                         }
+
+                        this.submitForm(el_filterForm);
                     }.bind(this)
                 );
             }.bind(this)
