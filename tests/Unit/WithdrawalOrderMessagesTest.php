@@ -425,6 +425,110 @@ final class WithdrawalOrderMessagesTest extends TestCase
         );
     }
 
+    public function testPreparedWithdrawalItemsContainConfigReferenceNumberFromConfiguratorSnapshot(): void
+    {
+        $withdrawalData = $this->buildWithdrawalData();
+        $withdrawalData['items'][0]['snapshotConfiguratorReferenceNumber'] = 'A3F7B2C1';
+        $withdrawalData['items'][0]['snapshotCustomizerReferenceNumber'] = '';
+
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData(['customerLanguage' => 'en']),
+            $withdrawalData,
+            'en'
+        );
+
+        $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                '##template::mail_withdrawal##',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('A3F7B2C1', $withdrawalData['items'][0]['configReferenceNumber'] ?? '');
+
+                    return '';
+                },
+            ]
+        );
+    }
+
+    public function testPreparedWithdrawalItemsContainConfigReferenceNumberFromCustomizerSnapshot(): void
+    {
+        $withdrawalData = $this->buildWithdrawalData();
+        $withdrawalData['items'][0]['snapshotConfiguratorReferenceNumber'] = '';
+        $withdrawalData['items'][0]['snapshotCustomizerReferenceNumber'] = 'D9E8F0B3';
+
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData(['customerLanguage' => 'en']),
+            $withdrawalData,
+            'en'
+        );
+
+        $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                '##template::mail_withdrawal##',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('D9E8F0B3', $withdrawalData['items'][0]['configReferenceNumber'] ?? '');
+
+                    return '';
+                },
+            ]
+        );
+    }
+
+    public function testPreparedWithdrawalItemsConfigReferenceNumberPrefersConfiguratorOverCustomizer(): void
+    {
+        $withdrawalData = $this->buildWithdrawalData();
+        $withdrawalData['items'][0]['snapshotConfiguratorReferenceNumber'] = 'CONF1234';
+        $withdrawalData['items'][0]['snapshotCustomizerReferenceNumber'] = 'CUST5678';
+
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData(['customerLanguage' => 'en']),
+            $withdrawalData,
+            'en'
+        );
+
+        $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                '##template::mail_withdrawal##',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('CONF1234', $withdrawalData['items'][0]['configReferenceNumber'] ?? '');
+
+                    return '';
+                },
+            ]
+        );
+    }
+
+    public function testPreparedWithdrawalItemsConfigReferenceNumberIsEmptyWhenBothSnapshotFieldsAreEmpty(): void
+    {
+        $withdrawalData = $this->buildWithdrawalData();
+        $withdrawalData['items'][0]['snapshotConfiguratorReferenceNumber'] = '';
+        $withdrawalData['items'][0]['snapshotCustomizerReferenceNumber'] = '';
+
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData(['customerLanguage' => 'en']),
+            $withdrawalData,
+            'en'
+        );
+
+        $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                '##template::mail_withdrawal##',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('', $withdrawalData['items'][0]['configReferenceNumber'] ?? '');
+
+                    return '';
+                },
+            ]
+        );
+    }
+
     public function testWithdrawalWildcardsFallBackToShopFallbackVariantWhenCustomerVariantIsMissing(): void
     {
         $withdrawalData = $this->buildWithdrawalData();

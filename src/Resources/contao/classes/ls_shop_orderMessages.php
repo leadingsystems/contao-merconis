@@ -759,6 +759,10 @@ class ls_shop_orderMessages
 				$blnUseCustomerLanguageVariant
 			);
 
+			$strConfiguratorRef = trim((string) ($arrWithdrawalItem['snapshotConfiguratorReferenceNumber'] ?? ''));
+			$strCustomizerRef = trim((string) ($arrWithdrawalItem['snapshotCustomizerReferenceNumber'] ?? ''));
+			$arrWithdrawalItem['configReferenceNumber'] = $strConfiguratorRef !== '' ? $strConfiguratorRef : $strCustomizerRef;
+
 			$arrPreparedWithdrawalItems[] = $arrWithdrawalItem;
 		}
 

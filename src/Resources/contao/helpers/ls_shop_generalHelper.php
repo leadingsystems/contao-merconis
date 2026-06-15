@@ -5476,7 +5476,7 @@ class ls_shop_generalHelper
         } else {
             if (isset($GLOBALS['TL_CONFIG']['gracePeriodDaysLeft']) && $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'] != 999999) {
                 if ($GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'] > 0) {
-                    $urlToLicense = 'https://lizenz.merconis.com';
+                    $urlToLicense = 'https://www.merconis.com/contao-webshop-onlineshop-modul-lizensieren.html';
                     ?>
                     <h2 class="gracePeriodMessage"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['gracePeriodMessage'], $GLOBALS['TL_CONFIG']['gracePeriodDaysLeft'], $urlToLicense); ?></h2>
                     <?php

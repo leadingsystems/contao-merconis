@@ -17,6 +17,7 @@ final class WithdrawalItemsPlaintextTemplateTest extends TestCase
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price'] = 'Unit price';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity'] = 'Quantity';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_quantity_partial'] = '%s of %s';
+        $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082'] = 'Configurator ref.:';
     }
 
     public function testTemplateRendersScenarioOneAsPlaintextBlocks(): void
@@ -64,6 +65,53 @@ final class WithdrawalItemsPlaintextTemplateTest extends TestCase
         self::assertStringNotContainsString('Hoodie,', $rendered);
         self::assertStringNotContainsString('<table', $rendered);
         self::assertStringNotContainsString('<h3', $rendered);
+    }
+
+    public function testTemplateRendersConfigReferenceNumberWhenPresent(): void
+    {
+        $rendered = $this->renderTemplate([
+            'scenario' => 1,
+            'items' => [
+                [
+                    'snapshotProductName' => 'Kissen',
+                    'snapshotVariantTitle' => 'Teilmenge',
+                    'snapshotProductNumber' => '12345',
+                    'snapshotUnitPrice' => '29.90 EUR',
+                    'snapshotOrderedQuantity' => '5',
+                    'withdrawnQuantity' => '3',
+                    'snapshotQuantityUnit' => 'pcs',
+                    'configReferenceNumber' => 'A3F7B2C1',
+                ],
+                [
+                    'snapshotProductName' => 'Sessel',
+                    'snapshotVariantTitle' => 'Grau',
+                    'snapshotProductNumber' => '67890',
+                    'snapshotUnitPrice' => '499.00 EUR',
+                    'snapshotOrderedQuantity' => '1',
+                    'withdrawnQuantity' => '1',
+                    'snapshotQuantityUnit' => 'pcs',
+                    'configReferenceNumber' => '',
+                ],
+            ],
+        ]);
+
+        self::assertSame(
+            implode("\n", [
+                'Withdrawn items',
+                '',
+                '- Kissen, Teilmenge',
+                '  Configurator ref.: A3F7B2C1',
+                '  Product number: 12345',
+                '  Unit price: 29.90 EUR',
+                '  Quantity: 3 of 5 pcs',
+                '',
+                '- Sessel, Grau',
+                '  Product number: 67890',
+                '  Unit price: 499.00 EUR',
+                '  Quantity: 1 pcs',
+            ]),
+            $rendered
+        );
     }
 
     public function testTemplateRendersScenarioTwoAsPlaintextFreetext(): void

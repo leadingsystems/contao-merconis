@@ -43,6 +43,13 @@ if ($intScenario === 1 && $arrWithdrawalItems !== []) {
         }
 
         $arrOutputLines[] = '- ' . $strProductDescription;
+        $strConfigRefNumber = trim((string) ($arrWithdrawalItem['configReferenceNumber'] ?? ''));
+        if ($strConfigRefNumber !== '') {
+            $arrOutputLines[] = '  '
+                . $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082']
+                . ' '
+                . $strConfigRefNumber;
+        }
         $arrOutputLines[] = '  '
             . $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_product_number']
             . ': '

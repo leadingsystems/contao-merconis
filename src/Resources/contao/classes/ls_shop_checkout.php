@@ -745,6 +745,9 @@ class ls_shop_checkout {
                 'summaryForCart' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getSummaryForCart() : '',
                 'summaryForMerchant' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getSummaryForMerchant() : '',
                 'flexData' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization() ? $objProductOrVariant->_customizer->getFlexData() : '',
+                'referenceNumber' => $objProductOrVariant->_hasCustomizer && $objProductOrVariant->_customizer->hasCustomization()
+                    ? strtoupper(substr(md5($objProductOrVariant->_customizer->getSummary() . $objProductOrVariant->_customizer->getFlexData()), 0, 8))
+                    : '',
             );
             $arrItem['extendedInfo'] = array(
                 '_productVariantID' => $blnIsVariant ? $objProduct->_selectedVariant->_productVariantID : $objProduct->_productVariantID, // no language
@@ -1101,6 +1104,7 @@ class ls_shop_checkout {
 							`customizer_summaryForCart` = ?,
 							`customizer_summaryForMerchant` = ?,
 							`customizer_flexData` = ?,
+							`customizer_referenceNumber` = ?,
 							`extendedInfo` = ?
 			")
                 ->execute(
@@ -1131,6 +1135,7 @@ class ls_shop_checkout {
                     $arrItem['customizer']['summaryForCart'],
                     $arrItem['customizer']['summaryForMerchant'],
                     $arrItem['customizer']['flexData'],
+                    $arrItem['customizer']['referenceNumber'],
                     serialize($arrItem['extendedInfo'])
                 );
         }

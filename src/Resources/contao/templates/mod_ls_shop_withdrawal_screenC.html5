@@ -1,6 +1,6 @@
 <?php
 $errorMessages = isset($this->errorMessages) && is_array($this->errorMessages) ? $this->errorMessages : [];
-$honeypotFieldName = isset($this->honeypotFieldName) ? (string) $this->honeypotFieldName : 'website';
+$honeypotFieldName = isset($this->honeypotFieldName) ? (string) $this->honeypotFieldName : 'additional_info';
 ?>
 <div class="mod_ls_shop_withdrawal__screen-c">
     <?php if (!empty($this->headline)) { ?>
@@ -43,15 +43,17 @@ $honeypotFieldName = isset($this->honeypotFieldName) ? (string) $this->honeypotF
         <div class="widget">
             <label for="ctrl_withdrawalEmail"><?php echo \Contao\StringUtil::specialchars((string) ($this->emailLabel ?? '')); ?></label>
             <input
-                type="email"
+                type="text"
                 id="ctrl_withdrawalEmail"
                 name="withdrawalEmail"
                 value="<?php echo \Contao\StringUtil::specialchars((string) ($this->emailValue ?? '')); ?>"
+                inputmode="email"
+                autocomplete="email"
                 required
             >
         </div>
 
-        <div class="mod_ls_shop_withdrawal__honeypot" aria-hidden="true">
+        <div style="display:none" aria-hidden="true">
             <input
                 type="text"
                 id="ctrl_<?php echo \Contao\StringUtil::specialchars($honeypotFieldName); ?>"

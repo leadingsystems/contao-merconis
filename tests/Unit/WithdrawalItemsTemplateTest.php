@@ -18,6 +18,7 @@ final class WithdrawalItemsTemplateTest extends TestCase
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_unit_price'] = 'Unit price';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_table_header_quantity'] = 'Quantity';
         $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_items_quantity_partial'] = '%s of %s';
+        $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText082'] = 'Configurator ref.:';
     }
 
     public function testTemplateRendersCombinedProductDescriptionAndUnitPriceColumn(): void
@@ -58,6 +59,53 @@ final class WithdrawalItemsTemplateTest extends TestCase
         self::assertStringContainsString('text-align: left; padding: 8px 12px;', $rendered);
         self::assertStringContainsString('word-wrap: break-word', $rendered);
         self::assertStringNotContainsString('<th>Variant</th>', $rendered);
+    }
+
+    public function testTemplateRendersConfigReferenceNumberWhenPresent(): void
+    {
+        $rendered = $this->renderTemplate([
+            'scenario' => 1,
+            'items' => [
+                [
+                    'snapshotProductName' => 'Kissen',
+                    'snapshotVariantTitle' => 'Teilmenge',
+                    'snapshotProductNumber' => '12345',
+                    'snapshotUnitPrice' => '29.90 EUR',
+                    'snapshotOrderedQuantity' => '5',
+                    'withdrawnQuantity' => '3',
+                    'snapshotQuantityUnit' => 'pcs',
+                    'configReferenceNumber' => 'A3F7B2C1',
+                ],
+            ],
+        ]);
+
+        self::assertStringContainsString('Kissen, Teilmenge', $rendered);
+        self::assertStringContainsString('<br />', $rendered);
+        self::assertStringContainsString('Configurator ref.:', $rendered);
+        self::assertStringContainsString('A3F7B2C1', $rendered);
+    }
+
+    public function testTemplateOmitsConfigReferenceNumberBlockWhenEmpty(): void
+    {
+        $rendered = $this->renderTemplate([
+            'scenario' => 1,
+            'items' => [
+                [
+                    'snapshotProductName' => 'Sessel',
+                    'snapshotVariantTitle' => 'Grau',
+                    'snapshotProductNumber' => '67890',
+                    'snapshotUnitPrice' => '499.00 EUR',
+                    'snapshotOrderedQuantity' => '1',
+                    'withdrawnQuantity' => '1',
+                    'snapshotQuantityUnit' => 'pcs',
+                    'configReferenceNumber' => '',
+                ],
+            ],
+        ]);
+
+        self::assertStringContainsString('Sessel, Grau', $rendered);
+        self::assertStringNotContainsString('Configurator ref.:', $rendered);
+        self::assertStringNotContainsString('<br />', $rendered);
     }
 
     /**
