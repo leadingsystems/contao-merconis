@@ -38,7 +38,7 @@ class ModuleWithdrawal extends Module
     private const FORM_SUBMIT_SCREEN_A = 'ls_shop_withdrawal_screenA';
     private const FORM_SUBMIT_SCREEN_B = 'ls_shop_withdrawal_screenB';
     private const FORM_SUBMIT_SCREEN_C = 'ls_shop_withdrawal_screenC';
-    private const HONEYPOT_FIELD_NAME = 'website';
+    private const HONEYPOT_FIELD_NAME = 'additional_info';
     protected $strTemplate = 'mod_ls_shop_withdrawal';
 
     public function generate()
