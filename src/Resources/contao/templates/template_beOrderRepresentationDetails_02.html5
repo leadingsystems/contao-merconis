@@ -99,7 +99,7 @@
 							</td>
 						<?php } ?>
 						<td class="quantity">
-							<?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], (int) ($cartItem['quantityDecimals'] ?? 0)); ?><?php echo ($cartItem['displayQuantityUnit'] ?? '') !== '' ? ' <span class="quantityUnit">'.$cartItem['displayQuantityUnit'].'</span>' : '' ?>
+							<?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], (int) ($cartItem['quantityDecimals'] ?? 0)); ?><?php echo ($cartItem['displayQuantityUnit'] ?? '') !== '' ? (($cartItem['salesUnitSize'] ?? 0) > 0 ? ' × ' : ' ').'<span class="quantityUnit">'.$cartItem['displayQuantityUnit'].'</span>' : '' ?>
 						</td>
 						<td class="price priceCumulative"><?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($cartItem['priceCumulative']); ?></td>
 						<?php if ($blnShowWeight) { ?>
