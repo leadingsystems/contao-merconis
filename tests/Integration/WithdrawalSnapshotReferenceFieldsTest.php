@@ -131,4 +131,16 @@ final class WithdrawalSnapshotReferenceFieldsTest extends TestCase
         self::assertStringContainsString('useNumberStepper', $templateContents);
         self::assertStringContainsString("['minimumQuantity']", $templateContents);
     }
+
+    public function testScreenBInitializesWithdrawnQuantitiesFromDisplayQuantities(): void
+    {
+        $moduleContents = (string) file_get_contents(
+            __DIR__ . '/../../src/Resources/contao/frontendModules/ModuleWithdrawal.php'
+        );
+
+        self::assertStringContainsString(
+            '$withdrawnQuantities[$orderItemId] = (float) $processor->getOrderedDisplayQuantity($orderItem);',
+            $moduleContents
+        );
+    }
 }

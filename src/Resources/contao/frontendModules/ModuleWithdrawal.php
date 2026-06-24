@@ -174,12 +174,13 @@ class ModuleWithdrawal extends Module
         }
 
         $indexedOrderItems = $this->indexOrderItemsById($arrOrder['items'] ?? []);
+        $processor = new WithdrawalScreenBProcessor();
         $withdrawnQuantities = [];
         $selectedItemIds = [];
         $changedItemIds = [];
 
         foreach ($indexedOrderItems as $orderItemId => $orderItem) {
-            $withdrawnQuantities[$orderItemId] = $this->toFloat($orderItem['quantity'] ?? 0);
+            $withdrawnQuantities[$orderItemId] = (float) $processor->getOrderedDisplayQuantity($orderItem);
         }
 
         $nameValue = trim((string) (($arrOrder['firstname'] ?? '') . ' ' . ($arrOrder['lastname'] ?? '')));
@@ -217,7 +218,6 @@ class ModuleWithdrawal extends Module
             }
         }
 
-        $processor = new WithdrawalScreenBProcessor();
         $templateItems = [];
         foreach ($indexedOrderItems as $orderItemId => $orderItem) {
             $salesUnitSize = $processor->getSalesUnitSize($orderItem);
