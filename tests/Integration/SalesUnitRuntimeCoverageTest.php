@@ -89,9 +89,9 @@ final class SalesUnitRuntimeCoverageTest extends TestCase
         $templateContents = (string) file_get_contents(self::MERCONIS_BASE_PATH . 'templates/template_productBackendOverview_04.html5');
 
         self::assertStringContainsString("outputQuantity(\$this->objProduct->_stock, (int) \$this->objProduct->_quantityDecimals)", $templateContents);
-        self::assertStringContainsString("\$this->objProduct->_hasSalesUnit ? \$this->objProduct->_displayQuantityUnit : \$this->objProduct->_quantityUnit", $templateContents);
+        self::assertStringContainsString("\$this->objProduct->_hasSalesUnit ? ' × '.\$this->objProduct->_displayQuantityUnit : ' '.\$this->objProduct->_quantityUnit", $templateContents);
         self::assertStringContainsString("outputQuantity(\$variant->_stock, (int) \$variant->_quantityDecimals)", $templateContents);
-        self::assertStringContainsString("\$variant->_hasSalesUnit ? \$variant->_displayQuantityUnit : \$variant->_quantityUnit", $templateContents);
+        self::assertStringContainsString("\$variant->_hasSalesUnit ? ' × '.\$variant->_displayQuantityUnit : ' '.\$variant->_quantityUnit", $templateContents);
     }
 
     public function testPaymentAndTrackingKeepInternalQuantityBasis(): void
