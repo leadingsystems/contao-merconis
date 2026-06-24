@@ -798,6 +798,39 @@ class ls_shop_generalHelper
         return number_format($quantity, $numDecimals, $decimalsSeparator, $thousandsSeparator);
     }
 
+    public static function transformDisplayQuantity($quantity, int $salesUnitSize)
+    {
+        if ($salesUnitSize <= 0) {
+            return $quantity;
+        }
+
+        return ls_mul($quantity, $salesUnitSize);
+    }
+
+    public static function getDisplayQuantityDecimals(int $quantityDecimals, int $salesUnitSize): int
+    {
+        if ($salesUnitSize <= 0) {
+            return max(0, $quantityDecimals);
+        }
+
+        $pieceStep = (string) ls_div($salesUnitSize, pow(10, $quantityDecimals));
+        $pieceStepParts = explode('.', $pieceStep, 2);
+        $fractionalPart = $pieceStepParts[1] ?? '';
+        $fractionalPart = rtrim($fractionalPart, '0');
+
+        return strlen($fractionalPart);
+    }
+
+    public static function outputDisplayQuantity($quantity, int $quantityDecimals, int $salesUnitSize, $decimalsSeparator = null, $thousandsSeparator = null): string
+    {
+        return self::outputQuantity(
+            self::transformDisplayQuantity($quantity, $salesUnitSize),
+            self::getDisplayQuantityDecimals($quantityDecimals, $salesUnitSize),
+            $decimalsSeparator,
+            $thousandsSeparator
+        );
+    }
+
     /*
      * Diese Funktion entnimmt den Konfigurationseinstellungen die nötigen
      * Informationen über das Ausgabeformat usw. und gibt dann die
@@ -5256,12 +5289,26 @@ class ls_shop_generalHelper
                         )
                     ),
                     'arr_moreData' => [
-                        'class' => 'quantity-input',
-                        'decimalsAmount' => $obj_productOrVariant->_quantityDecimals
+                        'class' => 'quantity-input' . ($obj_productOrVariant->_hasSalesUnit ? ' useNumberStepper' : ''),
+                        'decimalsAmount' => $obj_productOrVariant->_quantityDecimals,
+                        'quantityDecimals' => $obj_productOrVariant->_quantityDecimals,
+                        'salesUnitSize' => $obj_productOrVariant->_salesUnitSize,
+                        'step' => (string) $obj_productOrVariant->_displayQuantityStep,
+                        'min' => (string) $obj_productOrVariant->_displayQuantityStep,
+                        'max' => '999999999',
+                        'inputmode' => strpos((string) $obj_productOrVariant->_displayQuantityStep, '.') !== false ? 'decimal' : 'numeric'
                     ],
                     'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
                     'str_allowedRequestMethod' => 'post',
-                    'var_value' => isset($GLOBALS['TL_CONFIG']['ls_shop_quantityDefault']) ? $GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'] : ''
+                    'var_value' => isset($GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'])
+                        ? self::outputDisplayQuantity(
+                            $GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'],
+                            (int) $obj_productOrVariant->_quantityDecimals,
+                            (int) $obj_productOrVariant->_salesUnitSize,
+                            '.',
+                            ''
+                        )
+                        : ''
                 )
             );
 

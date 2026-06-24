@@ -217,13 +217,14 @@ class ModuleWithdrawal extends Module
             }
         }
 
-        $templateItems = [];
         $processor = new WithdrawalScreenBProcessor();
+        $templateItems = [];
         foreach ($indexedOrderItems as $orderItemId => $orderItem) {
-            $orderedQuantity = $this->toFloat($orderItem['quantity'] ?? 0);
+            $salesUnitSize = $processor->getSalesUnitSize($orderItem);
+            $quantityDecimals = $this->toQuantityDecimals($orderItem['quantityDecimals'] ?? 0);
+            $orderedQuantity = $processor->getOrderedDisplayQuantity($orderItem);
             $withdrawnQuantity = $withdrawnQuantities[$orderItemId] ?? $orderedQuantity;
             $quantityChanged = abs($withdrawnQuantity - $orderedQuantity) > 0.0001;
-            $quantityDecimals = $this->toQuantityDecimals($orderItem['quantityDecimals'] ?? 0);
             $productName = $this->resolveOrderItemCustomerLanguageValue(
                 $orderItem,
                 ['_productTitle_customerLanguage'],
@@ -239,8 +240,13 @@ class ModuleWithdrawal extends Module
             );
             $quantityUnit = $this->resolveOrderItemCustomerLanguageValue(
                 $orderItem,
-                ['_quantityUnit_customerLanguage'],
-                'quantityUnit'
+                $salesUnitSize > 0 ? ['_salesUnit_customerLanguage'] : ['_quantityUnit_customerLanguage'],
+                $salesUnitSize > 0 ? 'salesUnit' : 'quantityUnit'
+            );
+            $unitPriceQuantityUnit = $this->resolveOrderItemCustomerLanguageValue(
+                $orderItem,
+                $salesUnitSize > 0 ? ['_displayQuantityUnit_customerLanguage'] : ['_quantityUnit_customerLanguage'],
+                $salesUnitSize > 0 ? 'displayQuantityUnit' : 'quantityUnit'
             );
 
             $configReferenceNumber = $processor->resolveConfiguratorReferenceNumber($orderItem);
@@ -259,12 +265,17 @@ class ModuleWithdrawal extends Module
                 'productNumber' => (string) ($orderItem['artNr'] ?? ''),
                 'unitPrice' => $this->formatUnitPriceDisplay(
                     $orderItem['price'] ?? 0,
-                    $quantityUnit
+                    $unitPriceQuantityUnit
                 ),
                 'orderedQuantity' => $orderedQuantity,
                 'orderedQuantityDisplay' => $this->formatQuantityForInput($orderedQuantity),
                 'quantityUnit' => $quantityUnit,
                 'quantityDecimals' => $quantityDecimals,
+                'salesUnitSize' => $salesUnitSize,
+                'minimumQuantity' => $processor->getDisplayStepValue($salesUnitSize, $quantityDecimals),
+                'inputMode' => strpos($processor->getDisplayStepValue($salesUnitSize, $quantityDecimals), '.') !== false
+                    ? 'decimal'
+                    : 'numeric',
                 'selected' => in_array($orderItemId, $selectedItemIds, true),
                 'withdrawnQuantity' => $this->formatQuantityForInput($withdrawnQuantity),
                 'quantityDisplay' => $this->renderQuantityDisplay($withdrawnQuantity, $orderedQuantity, $quantityUnit),
@@ -413,22 +424,23 @@ class ModuleWithdrawal extends Module
         }
 
         $orderItem = $indexedOrderItems[$orderItemId];
-        $orderedQuantity = $this->toFloat($orderItem['quantity'] ?? 0);
-        $withdrawnQuantity = $this->toFloat(Input::post('quantity'));
+        $processor = new WithdrawalScreenBProcessor();
         $quantityDecimals = $this->toQuantityDecimals($orderItem['quantityDecimals'] ?? 0);
-        $minimumQuantity = $this->getMinimumWithdrawnQuantityForDecimals($quantityDecimals);
+        $salesUnitSize = $processor->getSalesUnitSize($orderItem);
+        $orderedQuantity = $processor->getOrderedDisplayQuantity($orderItem);
+        $withdrawnQuantity = $this->toFloat(Input::post('quantity'));
         $quantityUnit = $this->resolveOrderItemCustomerLanguageValue(
             $orderItem,
-            ['_quantityUnit_customerLanguage'],
-            'quantityUnit'
+            $salesUnitSize > 0 ? ['_salesUnit_customerLanguage'] : ['_quantityUnit_customerLanguage'],
+            $salesUnitSize > 0 ? 'salesUnit' : 'quantityUnit'
         );
 
-        $processor = new WithdrawalScreenBProcessor();
         if (!$processor->isValidWithdrawnQuantity(
             $withdrawnQuantity,
             $orderedQuantity,
-            $minimumQuantity,
-            $quantityDecimals
+            $processor->getDisplayMinimumQuantity($salesUnitSize, $quantityDecimals),
+            $quantityDecimals,
+            $salesUnitSize
         )) {
             $withdrawnQuantity = $orderedQuantity;
         }
@@ -677,9 +689,14 @@ class ModuleWithdrawal extends Module
                 continue;
             }
 
-            $childSnapshot = $processor->buildChildSnapshot(
-                $indexedOrderItems[$orderItemId],
+            $orderItem = $indexedOrderItems[$orderItemId];
+            $internalWithdrawnQuantity = $processor->convertDisplayQuantityToInternalQuantity(
                 $withdrawnQuantities[$orderItemId] ?? 0.0,
+                $processor->getSalesUnitSize($orderItem)
+            );
+            $childSnapshot = $processor->buildChildSnapshot(
+                $orderItem,
+                $internalWithdrawnQuantity,
                 $withdrawalTimestamp
             );
 
@@ -691,10 +708,10 @@ class ModuleWithdrawal extends Module
                          `snapshotVariantTitle_customerLanguage`, `snapshotProductNumber`,
                          `snapshotUnitPrice`, `snapshotUnitPrice_customerLanguage`,
                          `snapshotQuantityUnit`, `snapshotQuantityUnit_customerLanguage`,
-                         `snapshotOrderedQuantity`, `snapshotQuantityDecimals`,
+                         `snapshotOrderedQuantity`, `snapshotQuantityDecimals`, `snapshotSalesUnitSize`,
                          `snapshotConfiguratorReferenceNumber`, `snapshotCustomizerReferenceNumber`,
                          `withdrawnQuantity`)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 )
                 ->execute(
                     $withdrawalDbId,
@@ -711,6 +728,7 @@ class ModuleWithdrawal extends Module
                     $childSnapshot['snapshotQuantityUnit_customerLanguage'],
                     $childSnapshot['snapshotOrderedQuantity'],
                     $childSnapshot['snapshotQuantityDecimals'],
+                    $childSnapshot['snapshotSalesUnitSize'],
                     $childSnapshot['snapshotConfiguratorReferenceNumber'],
                     $childSnapshot['snapshotCustomizerReferenceNumber'],
                     $childSnapshot['withdrawnQuantity']
@@ -1058,15 +1076,17 @@ class ModuleWithdrawal extends Module
             }
 
             $orderedQuantity = $this->toFloat($indexedOrderItems[$selectedItemId]['quantity'] ?? 0);
+            $salesUnitSize = $processor->getSalesUnitSize($indexedOrderItems[$selectedItemId]);
+            $orderedQuantity = $processor->getOrderedDisplayQuantity($indexedOrderItems[$selectedItemId]);
             $withdrawnQuantity = $withdrawnQuantities[$selectedItemId] ?? 0.0;
             $quantityDecimals = $this->toQuantityDecimals($indexedOrderItems[$selectedItemId]['quantityDecimals'] ?? 0);
-            $minimumQuantity = $this->getMinimumWithdrawnQuantityForDecimals($quantityDecimals);
 
             if (!$processor->isValidWithdrawnQuantity(
                 $withdrawnQuantity,
                 $orderedQuantity,
-                $minimumQuantity,
-                $quantityDecimals
+                $processor->getDisplayMinimumQuantity($salesUnitSize, $quantityDecimals),
+                $quantityDecimals,
+                $salesUnitSize
             )) {
                 $errorMessages[] = (string) $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_form_error_invalid_quantity'];
             }
@@ -1138,15 +1158,6 @@ class ModuleWithdrawal extends Module
     private function toQuantityDecimals(mixed $value): int
     {
         return max(0, (int) $value);
-    }
-
-    private function getMinimumWithdrawnQuantityForDecimals(int $quantityDecimals): float
-    {
-        if ($quantityDecimals <= 0) {
-            return 1.0;
-        }
-
-        return (float) pow(10, -$quantityDecimals);
     }
 
     private function formatQuantityForInput(float $quantity): string

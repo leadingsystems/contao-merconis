@@ -369,7 +369,7 @@ use function LeadingSystems\Helpers\ls_sub;
 					} else {
 						$arrNVP['L_PAYMENTREQUEST_0_AMT'.$itemCount] = number_format($cartItem['priceCumulative'], 2, '.', '');
 						$arrNVP['L_PAYMENTREQUEST_0_QTY'.$itemCount] = 1;
-						$arrNVP['L_PAYMENTREQUEST_0_DESC'.$itemCount] = $arrNVP['L_PAYMENTREQUEST_0_DESC'.$itemCount].' ('.$cartItemExtended['quantity'].' '.$cartItemExtended['objProduct']->_quantityUnit.' * '.$cartItemExtended['objProduct']->_priceAfterTaxFormatted.')';
+						$arrNVP['L_PAYMENTREQUEST_0_DESC'.$itemCount] = $arrNVP['L_PAYMENTREQUEST_0_DESC'.$itemCount].' ('.$cartItemExtended['quantity'].' '.$cartItemExtended['objProduct']->_displayQuantityUnit.' * '.$cartItemExtended['objProduct']->_priceAfterTaxFormatted.')';
 					}
 					
 					$itemCount++;

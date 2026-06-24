@@ -4,6 +4,7 @@
  */
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['stringHavingPartsWithMinimumLength'] = 'Feld "%s" darf keine Wörter mit weniger als %s Zeichen enthalten';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['numberWithDecimalsFE'] = 'Feld "%s" muss eine Zahl größer 0 enthalten.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['quantityStepMultipleFE'] = 'Feld "%s" enthält keine zulässige Menge. Der nächste gültige Wert ist %s.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg1'] = 'Ihre Suche lieferte zu viele Treffer. Es werden Ihnen nur die ersten %s von %s Treffer angezeigt.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg2'] = 'Bitte grenzen Sie Ihre Suche ein, da ansonsten zu viele Treffer gefunden würden.';
@@ -1065,7 +1066,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_weight' => 'Feldwert für "weight" ist ungültig (muss ein Dezimalwert sein (0-9, Dezimalpunkt und Minuszeichen sind erlaubt)): Zeile(n) Nr. %s',
 	'variantValueInvalid_weight' => 'Feldwert für "weight" ist ungültig (muss ein Dezimalwert sein (0-9, Dezimalpunkt und Minuszeichen sind erlaubt)): Zeile(n) Nr. %s',
 	'valueInvalid_unit' => 'Feldwert für "unit" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
+	'valueInvalid_salesUnit' => 'Feldwert für "salesUnit" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'productValueInvalid_quantityDecimals' => 'Feldwert für "quantityDecimals" ist ungültig (muss ein Integer sein): Zeile(n) Nr. %s',
+	'productOrVariantValueInvalid_salesUnitSize' => 'Feldwert für "salesUnitSize" ist ungültig (muss ein Integer sein): Zeile(n) Nr. %s',
 	'valueInvalid_quantityComparisonUnit' => 'Feldwert für "quantityComparisonUnit" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'valueInvalid_quantityComparisonDivisor' => 'Feldwert für "quantityComparisonDivisor" ist ungültig (muss ein Dezimalwert sein (0-9, Dezimalpunkt und Minuszeichen sind erlaubt)): Zeile(n) Nr. %s',
 	'productValueInvalid_template' => 'Feldwert für "template" ist ungültig (max. 64 Zeichen sind erlaubt): Zeile(n) Nr. %s',

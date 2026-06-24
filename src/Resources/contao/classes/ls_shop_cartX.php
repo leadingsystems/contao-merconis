@@ -108,11 +108,22 @@ class ls_shop_cartX {
 				 * because otherwise detecting payment and shipping methods' price limits won't work.
 				 */
 				$objProduct = ls_shop_generalHelper::getObjProduct($productCartKey, __METHOD__, true);
+				$displayQuantity = ls_shop_generalHelper::transformDisplayQuantity(
+					$arrCartItem['quantity'],
+					(int) $objProduct->_salesUnitSize
+				);
 				$this->itemsExtended[$productCartKey] = array(
 					'objProduct' => $objProduct,
 					'price' => !$objProduct->_variantIsSelected ? $objProduct->_priceAfterTax : $objProduct->_selectedVariant->_priceAfterTax,
 					'weight' => !$objProduct->_variantIsSelected ? $objProduct->_weight : $objProduct->_selectedVariant->_weight,
 					'quantity' => $arrCartItem['quantity'],
+					'displayQuantity' => $displayQuantity,
+					'displayQuantityDecimals' => ls_shop_generalHelper::getDisplayQuantityDecimals(
+						(int) $objProduct->_quantityDecimals,
+						(int) $objProduct->_salesUnitSize
+					),
+					'salesUnit' => $objProduct->_salesUnit,
+					'displayQuantityUnit' => $objProduct->_displayQuantityUnit,
 					'scalePriceKeyword' => $arrCartItem['scalePriceKeyword'],
 					'comment' => $arrCartItem['comment']
 				);

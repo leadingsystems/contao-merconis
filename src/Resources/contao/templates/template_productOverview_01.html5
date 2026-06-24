@@ -72,7 +72,7 @@
 			<?php if (false) { // ----- NOT USED BY DEFAULT -----> ?>
 				<?php // ##### STOCK INFO ##### -> ?>
 					<?php if (!$this->objProduct->_hasVariants && $this->objProduct->_useStock) { ?>
-						<div class="stockInfo"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['stockAvailable'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($this->objProduct->_stock, $this->objProduct->_quantityDecimals), $this->objProduct->_quantityUnit); ?></div>
+						<div class="stockInfo"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['stockAvailable'], \Merconis\Core\ls_shop_generalHelper::outputDisplayQuantity($this->objProduct->_stock, (int) $this->objProduct->_quantityDecimals, (int) $this->objProduct->_salesUnitSize), $this->objProduct->_salesUnit); ?></div>
 					<?php } ?>
 				<?php // <- ##### STOCK INFO ##### ?>
 			<?php } // <----- NOT USED BY DEFAULT ----- ?>
@@ -120,10 +120,10 @@
                         <?php
                         if (!$this->objProduct->_cheapestPriceComesFromScalePrices) {
                             // Standard-Ausgabe
-                            if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php }
+                            if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_displayQuantityUnit) { ?>/<?php echo $this->objProduct->_displayQuantityUnit; ?><?php }
                         } else {
                             ?>
-                            <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] ?> <?= $this->objProduct->_cheapestPriceOutput ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?><?php echo $this->objProduct->_minQuantityInfo ? '<span class="min-quantity-info"> ('.$this->objProduct->_minQuantityInfo.')</span>' : ''; ?>
+                            <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] ?> <?= $this->objProduct->_cheapestPriceOutput ?><?php if ($this->objProduct->_displayQuantityUnit) { ?>/<?php echo $this->objProduct->_displayQuantityUnit; ?><?php } ?><?php echo $this->objProduct->_minQuantityInfo ? '<span class="min-quantity-info"> ('.$this->objProduct->_minQuantityInfo.')</span>' : ''; ?>
                             <?php
                         }
                         ?>
@@ -133,7 +133,7 @@
 				<?php // ##### OLD PRICE ##### -> ?>
 					<?php if ($this->objProduct->_hasOldPrice) { ?>
 						<span class="oldPrice">
-							[<?php if ($this->objProduct->_oldPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?>]
+							[<?php if ($this->objProduct->_oldPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_displayQuantityUnit) { ?>/<?php echo $this->objProduct->_displayQuantityUnit; ?><?php } ?>]
 						</span>
 					<?php } ?>
 				<?php // <- ##### OLD PRICE ##### ?>

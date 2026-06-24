@@ -96,6 +96,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			
 			{lsShopUnits_legend},
 			lsShopVariantQuantityUnit,
+			lsShopVariantSalesUnitSize,
+			lsShopVariantSalesUnit,
 			lsShopVariantMengenvergleichUnit;
 			
 			{lsShopTitleAndDescriptions_legend},
@@ -287,6 +289,32 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
+
+		'lsShopVariantSalesUnitSize' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantSalesUnitSize'],
+			'exclude' => true,
+			'inputType' => 'text',
+			'eval' => [
+				'rgxp' => 'digit',
+				'maxlength' => 10,
+				'tl_class' => 'w50',
+			],
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+		],
+
+		'lsShopVariantSalesUnit' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantSalesUnit'],
+			'exclude' => true,
+			'inputType' => 'text',
+			'eval' => [
+				'tl_class' => 'w50',
+				'merconis_multilanguage' => true,
+				'merconis_multilanguage_noTopLinedGroup' => true,
+				'decodeEntities' => true,
+				'maxlength' => 255,
+			],
+            'sql'                     => "varchar(255) NOT NULL default ''"
+		],
 
 		'lsShopVariantMengenvergleichUnit' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantMengenvergleichUnit'],

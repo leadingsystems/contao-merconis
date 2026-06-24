@@ -91,8 +91,38 @@ class ls_shop_cartHelper {
 	 * Es wird geprüft, welche Mengenangaben für ein Produkt erlaubt sind und die eingegebene Menge dementsprechend korrigiert.
 	 */
 	public static function cleanQuantity(&$objProduct, $quantity) {
-		$quantity = number_format($quantity, $objProduct->_quantityDecimals, '.', '');
+		$quantity = number_format((float) self::normalizeQuantityInputValue($quantity), $objProduct->_quantityDecimals, '.', '');
 		return $quantity;
+	}
+
+	public static function normalizeQuantityInputValue($quantity) {
+		$normalizedQuantity = (string) $quantity;
+		$decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null) ?: '.';
+		$thousandsSeparator = ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '';
+
+		if ($thousandsSeparator !== '') {
+			$normalizedQuantity = str_replace($thousandsSeparator, '', $normalizedQuantity);
+		}
+
+		if ($decimalsSeparator !== '.') {
+			$normalizedQuantity = str_replace($decimalsSeparator, '.', $normalizedQuantity);
+		}
+
+		return $normalizedQuantity;
+	}
+
+	public static function prepareQuantityForCartOperation(&$objProduct, $quantity) {
+		$normalizedQuantity = self::normalizeQuantityInputValue($quantity);
+
+		if ((float) $normalizedQuantity < 0) {
+			return self::cleanQuantity($objProduct, $normalizedQuantity);
+		}
+
+		if ($objProduct->_salesUnitSize > 0) {
+			$normalizedQuantity = ls_div($normalizedQuantity, $objProduct->_salesUnitSize);
+		}
+
+		return self::cleanQuantity($objProduct, $normalizedQuantity);
 	}
 
 	/*
@@ -210,7 +240,20 @@ class ls_shop_cartHelper {
 					'desiredQuantity' => $quantity,
 					'availableQuantity' => $availableQuantity,
 					'quantityUnit' => $objProduct4Msg->_quantityUnit,
-					'quantityDecimals' => $objProduct4Msg->_quantityDecimals
+					'quantityDecimals' => $objProduct4Msg->_quantityDecimals,
+					'salesUnit' => $objProduct4Msg->_salesUnit,
+					'displayQuantityDecimals' => ls_shop_generalHelper::getDisplayQuantityDecimals(
+						(int) $objProduct4Msg->_quantityDecimals,
+						(int) $objProduct4Msg->_salesUnitSize
+					),
+					'displayDesiredQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+						$quantity,
+						(int) $objProduct4Msg->_salesUnitSize
+					),
+					'displayAvailableQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+						$availableQuantity,
+						(int) $objProduct4Msg->_salesUnitSize
+					)
 				)
 			));
 		}
@@ -273,6 +316,8 @@ class ls_shop_cartHelper {
              * Functions hooked here can stop the execution of the addToCart method by returning a non-null value
              * that is then being used as the return value for addToCart. The hooked function can thereby completely
              * replace the logic of the addToCart method.
+             * In diesem Fall wird auch die Standard-VE-Transformation nicht ausgeführt; ersetzende Hook-Logik muss
+             * die Division durch `salesUnitSize` bei Bedarf selbst durchführen.
              * The return value should be an array with the keys 'desiredQuantity', 'quantityPutInCart',
              * 'stockNotSufficient', 'cartKeyCurrentlyPutInCart' just like the original value of addToCart.
              */
@@ -299,7 +344,7 @@ class ls_shop_cartHelper {
          */
 		$objProduct = ls_shop_generalHelper::getObjProduct($productVariantID, __METHOD__);
 
-		$desiredQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
+		$desiredQuantity = ls_shop_cartHelper::prepareQuantityForCartOperation($objProduct, $quantity);
 
         $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShopCart =  $session->get('lsShopCart');
@@ -366,7 +411,20 @@ class ls_shop_cartHelper {
 				'quantityPutInCart' => $quantityPutInCart,
 				'quantityCurrentlyInCart' => $quantityCurrentlyInCart,
 				'stockNotSufficient' => $desiredQuantity != $quantityPutInCart ? true : false,
-				'cartKeyCurrentlyPutInCart' => $cartKey
+				'cartKeyCurrentlyPutInCart' => $cartKey,
+				'salesUnit' => $objProduct->_salesUnit,
+				'displayQuantityDecimals' => ls_shop_generalHelper::getDisplayQuantityDecimals(
+					(int) $objProduct->_quantityDecimals,
+					(int) $objProduct->_salesUnitSize
+				),
+				'displayDesiredQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+					$desiredQuantity,
+					(int) $objProduct->_salesUnitSize
+				),
+				'displayQuantityPutInCart' => ls_shop_generalHelper::transformDisplayQuantity(
+					$quantityPutInCart,
+					(int) $objProduct->_salesUnitSize
+				)
 			)
 		));
 
@@ -530,7 +588,20 @@ class ls_shop_cartHelper {
 								'shortage' => $fehlmenge,
 								'newQuantity' => $newItemQuantity,
 								'quantityUnit' => $objProduct4Msg->_quantityUnit,
-								'quantityDecimals' => $objProduct4Msg->_quantityDecimals
+								'quantityDecimals' => $objProduct4Msg->_quantityDecimals,
+								'salesUnit' => $objProduct4Msg->_salesUnit,
+								'displayQuantityDecimals' => ls_shop_generalHelper::getDisplayQuantityDecimals(
+									(int) $objProduct4Msg->_quantityDecimals,
+									(int) $objProduct4Msg->_salesUnitSize
+								),
+								'displayOriginalQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+									$session_lsShopCart['items'][$cartKey]['quantity'],
+									(int) $objProduct4Msg->_salesUnitSize
+								),
+								'displayNewQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+									$newItemQuantity,
+									(int) $objProduct4Msg->_salesUnitSize
+								)
 
 							)
 						));
@@ -581,7 +652,7 @@ class ls_shop_cartHelper {
 	 */
 	public static function updateCartItem($productCartKey, $quantity, $comment = null, $commentWasSubmitted = false) {
 		$objProduct = ls_shop_generalHelper::getObjProduct($productCartKey, __METHOD__);
-		$cleanQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
+		$cleanQuantity = ls_shop_cartHelper::prepareQuantityForCartOperation($objProduct, $quantity);
 		/*
 		 * Ist die Quantity < 0, so wird die Position aus dem Warenkorb entfernt
 		 */

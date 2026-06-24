@@ -98,7 +98,7 @@
                         <div class="ls-field quantity">
                             <div class="ls-field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'] ?>:</div>
                             <div class="ls-field-content">
-                                <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], $obj_tmp_productOrVariant->_quantityDecimals); ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? ' <span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
+                                <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['displayQuantity'], $cartItem['displayQuantityDecimals']); ?><?php echo $cartItem['salesUnit'] !== '' ? ' <span class="quantityUnit">'.$cartItem['salesUnit'].'</span>' : '' ?>
                             </div>
                         </div>
 

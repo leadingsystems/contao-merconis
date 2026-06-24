@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\Helpers;
 
 use Merconis\Core\ls_shop_generalHelper;
+use function LeadingSystems\Helpers\ls_div;
+use function LeadingSystems\Helpers\ls_mul;
 
 final class WithdrawalScreenBProcessor
 {
@@ -71,6 +73,7 @@ final class WithdrawalScreenBProcessor
      */
     public function buildChildSnapshot(array $orderItem, float $withdrawnQuantity, int $withdrawalTimestamp): array
     {
+        $salesUnitSize = $this->getSalesUnitSize($orderItem);
         $productName = $this->resolveOrderItemCustomerLanguageValue(
             $orderItem,
             ['_productTitle_customerLanguage'],
@@ -86,12 +89,30 @@ final class WithdrawalScreenBProcessor
             'variantTitle'
         );
         $variantTitleFallback = $this->resolveScalarValueWithFallback($orderItem, [], 'variantTitle');
-        $quantityUnit = $this->resolveOrderItemCustomerLanguageValue(
-            $orderItem,
-            ['_quantityUnit_customerLanguage'],
-            'quantityUnit'
-        );
-        $quantityUnitFallback = $this->resolveScalarValueWithFallback($orderItem, [], 'quantityUnit');
+        $quantityUnit = $salesUnitSize > 0
+            ? $this->resolveOrderItemCustomerLanguageValue(
+                $orderItem,
+                ['_salesUnit_customerLanguage'],
+                'salesUnit'
+            )
+            : $this->resolveOrderItemCustomerLanguageValue(
+                $orderItem,
+                ['_quantityUnit_customerLanguage'],
+                'quantityUnit'
+            );
+        $quantityUnitFallback = $salesUnitSize > 0
+            ? $this->resolveScalarValueWithFallback($orderItem, [], 'salesUnit')
+            : $this->resolveScalarValueWithFallback($orderItem, [], 'quantityUnit');
+        $unitPriceQuantityUnit = $salesUnitSize > 0
+            ? $this->resolveOrderItemCustomerLanguageValue(
+                $orderItem,
+                ['_displayQuantityUnit_customerLanguage'],
+                'displayQuantityUnit'
+            )
+            : $quantityUnit;
+        $unitPriceQuantityUnitFallback = $salesUnitSize > 0
+            ? $this->resolveScalarValueWithFallback($orderItem, [], 'displayQuantityUnit')
+            : $quantityUnitFallback;
 
         return [
             'tstamp' => $withdrawalTimestamp,
@@ -103,16 +124,17 @@ final class WithdrawalScreenBProcessor
             'snapshotProductNumber' => (string) ($orderItem['artNr'] ?? ''),
             'snapshotUnitPrice' => $this->formatUnitPriceDisplay(
                 $orderItem['price'] ?? 0,
-                $quantityUnitFallback
+                $unitPriceQuantityUnitFallback
             ),
             'snapshotUnitPrice_customerLanguage' => $this->formatUnitPriceDisplay(
                 $orderItem['price'] ?? 0,
-                $quantityUnit
+                $unitPriceQuantityUnit
             ),
             'snapshotQuantityUnit' => $quantityUnitFallback,
             'snapshotQuantityUnit_customerLanguage' => $quantityUnit,
             'snapshotOrderedQuantity' => $this->normalizeQuantity($orderItem['quantity'] ?? 0),
             'snapshotQuantityDecimals' => max(0, (int) ($orderItem['quantityDecimals'] ?? 0)),
+            'snapshotSalesUnitSize' => $salesUnitSize,
             'snapshotConfiguratorReferenceNumber' => $this->resolveConfiguratorReferenceNumber($orderItem),
             'snapshotCustomizerReferenceNumber' => $this->resolveCustomizerReferenceNumber($orderItem),
             'withdrawnQuantity' => $this->normalizeQuantity($withdrawnQuantity),
@@ -123,7 +145,8 @@ final class WithdrawalScreenBProcessor
         float $withdrawnQuantity,
         float $orderedQuantity,
         float $minimumQuantity,
-        int $quantityDecimals
+        int $quantityDecimals,
+        int $salesUnitSize
     ): bool
     {
         if ($orderedQuantity <= 0.0 || $minimumQuantity <= 0.0) {
@@ -134,13 +157,70 @@ final class WithdrawalScreenBProcessor
             return false;
         }
 
-        if ($quantityDecimals <= 0) {
-            return $this->isEffectivelyInteger($withdrawnQuantity);
+        return $this->isValidQuantityMultiple(
+            $withdrawnQuantity,
+            $quantityDecimals,
+            $salesUnitSize
+        );
+    }
+
+    /**
+     * Die Widerrufsmaske arbeitet im VE-Modus mit Stückmengen aus dem Order-Snapshot.
+     *
+     * @param array<string, mixed> $orderItem
+     */
+    public function getOrderedDisplayQuantity(array $orderItem): float
+    {
+        $salesUnitSize = $this->getSalesUnitSize($orderItem);
+        if ($salesUnitSize > 0) {
+            return $this->normalizeQuantity($orderItem['displayQuantity'] ?? 0);
         }
 
-        $decimalFactor = pow(10, $quantityDecimals);
+        return $this->normalizeQuantity($orderItem['quantity'] ?? 0);
+    }
 
-        return $this->isEffectivelyInteger($withdrawnQuantity * $decimalFactor);
+    public function getDisplayMinimumQuantity(int $salesUnitSize, int $quantityDecimals): float
+    {
+        return $this->normalizeQuantity($this->getDisplayStepValue($salesUnitSize, $quantityDecimals));
+    }
+
+    public function getDisplayStepValue(int $salesUnitSize, int $quantityDecimals): string
+    {
+        $scaleFactor = max(1, (int) pow(10, max(0, $quantityDecimals)));
+
+        if ($salesUnitSize > 0) {
+            return $this->normalizeNumericString(ls_div($salesUnitSize, $scaleFactor));
+        }
+
+        return $this->normalizeNumericString(ls_div(1, $scaleFactor));
+    }
+
+    public function convertDisplayQuantityToInternalQuantity(float $displayQuantity, int $salesUnitSize): float
+    {
+        if ($salesUnitSize <= 0) {
+            return $this->normalizeQuantity($displayQuantity);
+        }
+
+        return $this->normalizeQuantity(ls_div($displayQuantity, $salesUnitSize));
+    }
+
+    public function formatDisplayQuantity(float $internalQuantity, int $quantityDecimals, int $salesUnitSize): string
+    {
+        return ls_shop_generalHelper::outputDisplayQuantity(
+            $internalQuantity,
+            $quantityDecimals,
+            $salesUnitSize,
+            '.',
+            ''
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $orderItem
+     */
+    public function getSalesUnitSize(array $orderItem): int
+    {
+        return max(0, (int) ($orderItem['salesUnitSize'] ?? 0));
     }
 
     /**
@@ -246,9 +326,35 @@ final class WithdrawalScreenBProcessor
         return (float) $normalizedValue;
     }
 
+    private function normalizeNumericString(mixed $value): string
+    {
+        $formattedValue = number_format($this->normalizeQuantity($value), 4, '.', '');
+
+        return rtrim(rtrim($formattedValue, '0'), '.') ?: '0';
+    }
+
     private function isEffectivelyInteger(float $value): bool
     {
         return abs($value - round($value)) <= self::QUANTITY_EPSILON;
+    }
+
+    private function isValidQuantityMultiple(
+        float $withdrawnQuantity,
+        int $quantityDecimals,
+        int $salesUnitSize
+    ): bool {
+        $scaleFactor = max(1, (int) pow(10, max(0, $quantityDecimals)));
+        $scaledQuantity = ls_mul($withdrawnQuantity, $scaleFactor);
+        if (!$this->isEffectivelyInteger($this->normalizeQuantity($scaledQuantity))) {
+            return false;
+        }
+
+        $scaledQuantityInteger = (int) round($this->normalizeQuantity($scaledQuantity));
+        if ($salesUnitSize <= 0) {
+            return true;
+        }
+
+        return $scaledQuantityInteger % $salesUnitSize === 0;
     }
 
     /**

@@ -75,6 +75,10 @@ final class WithdrawalDcaSchemaTest extends TestCase
         );
         self::assertSame("decimal(12,4) NOT NULL default '0.0000'", $tableConfig['fields']['snapshotOrderedQuantity']['sql']);
         self::assertSame(
+            "int(10) unsigned NOT NULL default '0'",
+            $tableConfig['fields']['snapshotSalesUnitSize']['sql']
+        );
+        self::assertSame(
             "varchar(255) NOT NULL default ''",
             $tableConfig['fields']['snapshotConfiguratorReferenceNumber']['sql']
         );

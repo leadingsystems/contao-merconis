@@ -56,15 +56,24 @@ class ModuleCart extends Module {
 					),
 
 					'arr_moreData' => array(
-						'class' => 'quantity-item',
-                        'decimalsAmount' => $cartItem['objProduct']->_quantityDecimals
+						'class' => 'quantity-item' . ($cartItem['objProduct']->_hasSalesUnit ? ' useNumberStepper' : ''),
+                        'decimalsAmount' => $cartItem['objProduct']->_quantityDecimals,
+                        'quantityDecimals' => $cartItem['objProduct']->_quantityDecimals,
+                        'salesUnitSize' => $cartItem['objProduct']->_salesUnitSize,
+                        'step' => (string) $cartItem['objProduct']->_displayQuantityStep,
+                        'min' => (string) $cartItem['objProduct']->_displayQuantityStep,
+                        'max' => '999999999',
+                        'inputmode' => strpos((string) $cartItem['objProduct']->_displayQuantityStep, '.') !== false ? 'decimal' : 'numeric'
 					),
 
 					'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
 					'str_allowedRequestMethod' => 'post',
-					'var_value' => ls_shop_cartHelper::cleanQuantity(
-					    $cartItem['objProduct'],
-                        $cartItem['quantity']
+					'var_value' => ls_shop_generalHelper::outputDisplayQuantity(
+					    $cartItem['quantity'],
+                        (int) $cartItem['objProduct']->_quantityDecimals,
+                        (int) $cartItem['objProduct']->_salesUnitSize,
+                        '.',
+                        ''
                     )
 				)
 			);

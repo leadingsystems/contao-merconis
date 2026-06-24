@@ -14,6 +14,7 @@ final class CartCommentHandlingTest extends TestCase
 
     protected function setUp(): void
     {
+        $GLOBALS['TL_CONFIG'] ??= [];
         $this->hadPreviousCartPositionCommentsEnabled = array_key_exists(
             'ls_shop_cartPositionCommentsEnabled',
             $GLOBALS['TL_CONFIG']

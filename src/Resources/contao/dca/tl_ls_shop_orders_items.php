@@ -87,6 +87,22 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
         ),
 
+        'salesUnitSize' => [
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ],
+
+        'displayQuantity' => [
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+        ],
+
+        'displayQuantityUnit' => [
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ],
+
+        'salesUnit' => [
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ],
+
         'configurator_merchantRepresentation' => array (
             'sql'                     => "blob NULL"
         ),

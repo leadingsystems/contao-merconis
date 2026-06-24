@@ -182,6 +182,16 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
+				'salesUnitSize' => array(
+					'preprocessor' => 'preprocess_salesUnitSize',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'salesUnit' => array(
+					'preprocessor' => 'preprocess_string_maxlength_255',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
 				'new' => array(
 					'preprocessor' => 'preprocess_pseudoBoolean',
 					'description' => '',
@@ -1476,6 +1486,23 @@ class ls_shop_productManagementApiPreprocessor
 	 * Normalization: cast as positive integer
 	 */
 	protected static function preprocess_quantityDecimals($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (
+		!in_array($arr_row['type'], array('product', 'variant'))
+		) {
+			return '';
+		}
+
+		$int_output = (int) $var_input;
+		$int_output = abs($int_output);
+		return $int_output;
+	}
+
+	/**
+	 * Expected input: positive integer
+	 * Accepted input: anything
+	 * Normalization: cast as positive integer
+	 */
+	protected static function preprocess_salesUnitSize($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		if (
 		!in_array($arr_row['type'], array('product', 'variant'))
 		) {

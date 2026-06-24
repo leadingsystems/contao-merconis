@@ -5,12 +5,39 @@ use LeadingSystems\Helpers\FlexWidget;
 
 class FlexWidgetValidator {
 	public static function quantityInput(FlexWidget $obj_flexWidget) {
-		$decimalsSeparator = $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ? $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] : '.';
+		$decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null) ?: '.';
 		if (
-			preg_match('/[^-0-9\\'.$decimalsSeparator.($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ? '\\'.$GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '').']/siU', $obj_flexWidget->getValue())
-			||	preg_replace('/\\'.$GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'].'/siU', '.', $obj_flexWidget->getValue()) <= 0
+			preg_match(
+				'/[^-0-9\\'.$decimalsSeparator.(($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ? '\\'.$GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '').']/siU',
+				$obj_flexWidget->getValue()
+			)
+			|| self::normalizeQuantityInput($obj_flexWidget->getValue()) <= 0
 		) {
 			throw new \Exception(sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['numberWithDecimalsFE'], $obj_flexWidget->getLabel()));
+		}
+
+		$arrMoreData = $obj_flexWidget->getMoreData();
+		$quantityDecimals = max(0, (int) ($arrMoreData['quantityDecimals'] ?? $arrMoreData['decimalsAmount'] ?? 0));
+		$scaledStep = self::determineScaledStep($arrMoreData, $quantityDecimals);
+		$scaledQuantity = self::scaleQuantityToIntegerDomain(
+			(string) self::normalizeQuantityInput($obj_flexWidget->getValue()),
+			$quantityDecimals
+		);
+
+		if ($scaledQuantity === null || $scaledQuantity % $scaledStep !== 0) {
+			$nextValidScaledQuantity = self::determineNextValidScaledQuantity(
+				(string) self::normalizeQuantityInput($obj_flexWidget->getValue()),
+				$quantityDecimals,
+				$scaledStep
+			);
+
+			throw new \Exception(
+				sprintf(
+					$GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['quantityStepMultipleFE'],
+					$obj_flexWidget->getLabel(),
+					self::formatScaledQuantity($nextValidScaledQuantity, $quantityDecimals)
+				)
+			);
 		}
 	}
 
@@ -57,5 +84,77 @@ class FlexWidgetValidator {
 		}
 
 
+	}
+
+	protected static function determineScaledStep(array $arrMoreData, int $quantityDecimals): int {
+		$salesUnitSize = (int) ($arrMoreData['salesUnitSize'] ?? 0);
+
+		if ($salesUnitSize > 0) {
+			return $salesUnitSize;
+		}
+
+		return 1;
+	}
+
+	protected static function normalizeQuantityInput($quantity) {
+		return ls_shop_cartHelper::normalizeQuantityInputValue($quantity);
+	}
+
+	protected static function scaleQuantityToIntegerDomain(string $normalizedQuantity, int $quantityDecimals): ?int {
+		$sign = 1;
+		if (str_starts_with($normalizedQuantity, '-')) {
+			$sign = -1;
+			$normalizedQuantity = substr($normalizedQuantity, 1);
+		}
+
+		$quantityParts = explode('.', $normalizedQuantity, 2);
+		$wholePart = $quantityParts[0] !== '' ? $quantityParts[0] : '0';
+		$fractionalPart = $quantityParts[1] ?? '';
+
+		if (strlen($fractionalPart) > $quantityDecimals) {
+			return null;
+		}
+
+		if ($quantityDecimals > 0) {
+			$fractionalPart = str_pad($fractionalPart, $quantityDecimals, '0');
+		} else if ($fractionalPart !== '') {
+			return null;
+		}
+
+		return $sign * (int) ($wholePart . $fractionalPart);
+	}
+
+	protected static function formatScaledQuantity(int $scaledQuantity, int $quantityDecimals): string {
+		if ($quantityDecimals === 0) {
+			return (string) $scaledQuantity;
+		}
+
+		$sign = $scaledQuantity < 0 ? '-' : '';
+		$normalizedQuantity = str_pad((string) abs($scaledQuantity), $quantityDecimals + 1, '0', STR_PAD_LEFT);
+		$wholePart = substr($normalizedQuantity, 0, -$quantityDecimals);
+		$fractionalPart = substr($normalizedQuantity, -$quantityDecimals);
+
+		return $sign . rtrim(rtrim($wholePart . '.' . $fractionalPart, '0'), '.');
+	}
+
+	protected static function determineNextValidScaledQuantity(
+		string $normalizedQuantity,
+		int $quantityDecimals,
+		int $scaledStep
+	): int {
+		$quantityParts = explode('.', ltrim($normalizedQuantity, '-'), 2);
+		$wholePart = $quantityParts[0] !== '' ? $quantityParts[0] : '0';
+		$fractionalPart = $quantityParts[1] ?? '';
+		$rawDigits = (int) ($wholePart . $fractionalPart);
+		$decimalDifference = $quantityDecimals - strlen($fractionalPart);
+
+		if ($decimalDifference >= 0) {
+			$scaledQuantity = $rawDigits * (10 ** $decimalDifference);
+			return (int) (intdiv($scaledQuantity + $scaledStep - 1, $scaledStep) * $scaledStep);
+		}
+
+		$divisor = (10 ** abs($decimalDifference)) * $scaledStep;
+
+		return (int) (intdiv($rawDigits + $divisor - 1, $divisor) * $scaledStep);
 	}
 }

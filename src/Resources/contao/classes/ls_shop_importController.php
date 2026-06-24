@@ -324,10 +324,12 @@ class ls_shop_importController
 			'valueInvalid_oldPrice' => false,
 			'valueInvalid_weight' => false,
 			'valueInvalid_unit' => false,
+			'valueInvalid_salesUnit' => false,
 			'valueInvalid_quantityComparisonUnit' => false,
 			'valueInvalid_quantityComparisonDivisor' => false,
 			
 			'productValueInvalid_quantityDecimals' => false,
+			'productOrVariantValueInvalid_salesUnitSize' => false,
 			'productValueInvalid_template' => false,
 			'productValueInvalid_producer' => false,
 
@@ -672,6 +674,8 @@ class ls_shop_importController
 							`lsShopProductSteuersatz` = ?,
 							`lsShopProductQuantityUnit` = ?,
 							`lsShopProductQuantityDecimals` = ?,
+							`lsShopProductSalesUnitSize` = ?,
+							`lsShopProductSalesUnit` = ?,
 							`lsShopProductMengenvergleichUnit` = ?,
 							`lsShopProductMengenvergleichDivisor` = ?,
 							`lsShopProductMainImage` = ?,
@@ -717,6 +721,8 @@ class ls_shop_importController
 				$row['taxclass'] ? $row['taxclass'] : 0, // int, empty = 0
 				$row['unit'], // String, maxlength 255
 				$row['quantityDecimals'] && $row['quantityDecimals'] > 0 ? $row['quantityDecimals'] : 0, // int, empty = 0
+				$row['salesUnitSize'] ? $row['salesUnitSize'] : 0, // int, empty = 0
+				$row['salesUnit'], // String, maxlength 255
 				$row['quantityComparisonUnit'], // String, maxlength 255
 				$row['quantityComparisonDivisor'] ? $row['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$row['image'], // binary(16), translated, check unclear
@@ -773,6 +779,7 @@ class ls_shop_importController
                     'keywords',
                     'description',
                     'lsShopProductQuantityUnit',
+                    'lsShopProductSalesUnit',
                     'lsShopProductMengenvergleichUnit',
                     'shortDescription',
                     'flex_contents',
@@ -785,6 +792,7 @@ class ls_shop_importController
                     $row['keywords'],
                     $row['description'],
                     $row['unit'],
+                    $row['salesUnit'],
                     $row['quantityComparisonUnit'],
                     $row['shortDescription'],
                     $row['flex_contents'],
@@ -831,6 +839,8 @@ class ls_shop_importController
 							`lsShopProductSteuersatz` = ?,
 							`lsShopProductQuantityUnit` = ?,
 							`lsShopProductQuantityDecimals` = ?,
+							`lsShopProductSalesUnitSize` = ?,
+							`lsShopProductSalesUnit` = ?,
 							`lsShopProductMengenvergleichUnit` = ?,
 							`lsShopProductMengenvergleichDivisor` = ?,
 							`lsShopProductMainImage` = ?,
@@ -876,6 +886,8 @@ class ls_shop_importController
 				$row['taxclass'] ? $row['taxclass'] : 0, // int, empty = 0
 				$row['unit'], // String, maxlength 255
 				$row['quantityDecimals'] && $row['quantityDecimals'] > 0 ? $row['quantityDecimals'] : 0, // int, empty = 0
+				$row['salesUnitSize'] ? $row['salesUnitSize'] : 0, // int, empty = 0
+				$row['salesUnit'], // String, maxlength 255
 				$row['quantityComparisonUnit'], // String, maxlength 255
 				$row['quantityComparisonDivisor'] ? $row['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$row['image'], // binary(16), translated, check unclear
@@ -932,6 +944,7 @@ class ls_shop_importController
                     'keywords',
                     'description',
                     'lsShopProductQuantityUnit',
+                    'lsShopProductSalesUnit',
                     'lsShopProductMengenvergleichUnit',
                     'shortDescription',
                     'flex_contents',
@@ -944,6 +957,7 @@ class ls_shop_importController
                     $row['keywords'],
                     $row['description'],
                     $row['unit'],
+                    $row['salesUnit'],
                     $row['quantityComparisonUnit'],
                     $row['shortDescription'],
                     $row['flex_contents'],
@@ -1147,6 +1161,8 @@ class ls_shop_importController
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
 							`lsShopVariantQuantityUnit` = ?,
+							`lsShopVariantSalesUnitSize` = ?,
+							`lsShopVariantSalesUnit` = ?,
 							`lsShopVariantMengenvergleichUnit` = ?,
 							`lsShopVariantMengenvergleichDivisor` = ?,
 							`lsShopProductVariantMainImage` = ?,
@@ -1187,6 +1203,8 @@ class ls_shop_importController
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['weightType'], // String, maxlength 255
 				$row['unit'], // String, maxlength 255
+				$row['salesUnitSize'] ? $row['salesUnitSize'] : 0, // int, empty = 0
+				$row['salesUnit'], // String, maxlength 255
 				$row['quantityComparisonUnit'], // String, maxlength 255
 				$row['quantityComparisonDivisor'] ? $row['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$row['image'], // binary(16), translated, check unclear
@@ -1231,8 +1249,8 @@ class ls_shop_importController
 				$alreadyExistsAsID,
 				$row['language'],
 				'tl_ls_shop_variant_languages',
-				array('title', 'alias', 'description', 'lsShopVariantQuantityUnit', 'lsShopVariantMengenvergleichUnit', 'shortDescription', 'flex_contents'),
-				array($row['name'], ls_shop_productManagementApiHelper::generateVariantAlias($row['name'], $row['alias'], $alreadyExistsAsID, $row['language']), $row['description'], $row['unit'], $row['quantityComparisonUnit'], $row['shortDescription'], $row['flex_contents'])
+				array('title', 'alias', 'description', 'lsShopVariantQuantityUnit', 'lsShopVariantSalesUnit', 'lsShopVariantMengenvergleichUnit', 'shortDescription', 'flex_contents'),
+				array($row['name'], ls_shop_productManagementApiHelper::generateVariantAlias($row['name'], $row['alias'], $alreadyExistsAsID, $row['language']), $row['description'], $row['unit'], $row['salesUnit'], $row['quantityComparisonUnit'], $row['shortDescription'], $row['flex_contents'])
 			);
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingVariantData'])) {
@@ -1275,6 +1293,8 @@ class ls_shop_importController
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
 							`lsShopVariantQuantityUnit` = ?,
+							`lsShopVariantSalesUnitSize` = ?,
+							`lsShopVariantSalesUnit` = ?,
 							`lsShopVariantMengenvergleichUnit` = ?,
 							`lsShopVariantMengenvergleichDivisor` = ?,
 							`lsShopProductVariantMainImage` = ?,
@@ -1316,6 +1336,8 @@ class ls_shop_importController
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
 				$row['weightType'], // String, maxlength 255
 				$row['unit'], // String, maxlength 255
+				$row['salesUnitSize'] ? $row['salesUnitSize'] : 0, // int, empty = 0
+				$row['salesUnit'], // String, maxlength 255
 				$row['quantityComparisonUnit'], // String, maxlength 255
 				$row['quantityComparisonDivisor'] ? $row['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$row['image'], // binary(16), translated, check unclear
@@ -1360,8 +1382,8 @@ class ls_shop_importController
 				$newVariantID,
 				$row['language'],
 				'tl_ls_shop_variant_languages',
-				array('title', 'alias', 'description', 'lsShopVariantQuantityUnit', 'lsShopVariantMengenvergleichUnit', 'shortDescription', 'flex_contents'),
-				array($row['name'], ls_shop_productManagementApiHelper::generateVariantAlias($row['name'], $row['alias'], $newVariantID, $row['language']), $row['description'], $row['unit'], $row['quantityComparisonUnit'], $row['shortDescription'], $row['flex_contents'])
+				array('title', 'alias', 'description', 'lsShopVariantQuantityUnit', 'lsShopVariantSalesUnit', 'lsShopVariantMengenvergleichUnit', 'shortDescription', 'flex_contents'),
+				array($row['name'], ls_shop_productManagementApiHelper::generateVariantAlias($row['name'], $row['alias'], $newVariantID, $row['language']), $row['description'], $row['unit'], $row['salesUnit'], $row['quantityComparisonUnit'], $row['shortDescription'], $row['flex_contents'])
 			);
 			
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingVariantData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingVariantData'])) {
@@ -1431,6 +1453,7 @@ class ls_shop_importController
                 'keywords',
                 'description',
                 'lsShopProductQuantityUnit',
+                'lsShopProductSalesUnit',
                 'lsShopProductMengenvergleichUnit',
                 'shortDescription',
                 'flex_contents',
@@ -1443,6 +1466,7 @@ class ls_shop_importController
                 $row['keywords'],
                 $row['description'],
                 $row['unit'],
+                $row['salesUnit'],
                 $row['quantityComparisonUnit'],
                 $row['shortDescription'],
                 $row['flex_contents'],
@@ -1509,8 +1533,8 @@ class ls_shop_importController
 			$parentProductID,
 			$row['language'],
 			'tl_ls_shop_variant_languages',
-			array('title', 'alias', 'description', 'lsShopVariantQuantityUnit', 'lsShopVariantMengenvergleichUnit', 'shortDescription', 'flex_contents'),
-			array($row['name'], ls_shop_productManagementApiHelper::generateVariantAlias($row['name'], $row['alias'], $parentProductID, $row['language']), $row['description'], $row['unit'], $row['quantityComparisonUnit'], $row['shortDescription'], $row['flex_contents'])
+			array('title', 'alias', 'description', 'lsShopVariantQuantityUnit', 'lsShopVariantSalesUnit', 'lsShopVariantMengenvergleichUnit', 'shortDescription', 'flex_contents'),
+			array($row['name'], ls_shop_productManagementApiHelper::generateVariantAlias($row['name'], $row['alias'], $parentProductID, $row['language']), $row['description'], $row['unit'], $row['salesUnit'], $row['quantityComparisonUnit'], $row['shortDescription'], $row['flex_contents'])
 		);
 			
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterWritingVariantLanguageData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterWritingVariantLanguageData'])) {
@@ -1946,6 +1970,14 @@ class ls_shop_importController
 				
 				return strlen($row['unit']) > 255;
 				break;
+
+			case 'valueInvalid_salesUnit':
+				if ($row['delete']) {
+					break;
+				}
+
+				return strlen($row['salesUnit']) > 255;
+				break;
 			
 			case 'valueInvalid_quantityComparisonUnit':
 				if ($row['delete']) {
@@ -1965,6 +1997,18 @@ class ls_shop_importController
 				}
 				
 				return preg_match('[^0-9]', $row['quantityDecimals']);
+				break;
+
+			case 'productOrVariantValueInvalid_salesUnitSize':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				if (!$row['salesUnitSize']) {
+					return false;
+				}
+
+				return preg_match('[^0-9]', $row['salesUnitSize']);
 				break;
 			
 			case 'valueInvalid_quantityComparisonDivisor':

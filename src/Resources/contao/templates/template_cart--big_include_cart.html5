@@ -112,7 +112,7 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                     if (ls_shop_msg::checkMsg('checkCartPositionsStockSufficient', $productCartKey)) {
                         $msgDetails = ls_shop_msg::getMsgDetails('checkCartPositionsStockSufficient', $productCartKey);
                         ?>
-                        <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText056'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['originalQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['newQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit']); ?></p>
+                        <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText056'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['displayOriginalQuantity'], $msgDetails['displayQuantityDecimals']), $msgDetails['salesUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['displayNewQuantity'], $msgDetails['displayQuantityDecimals']), $msgDetails['salesUnit']); ?></p>
                         <?php
                     }
                     ?>
@@ -120,7 +120,7 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                     if (ls_shop_msg::checkMsg('setItemQuantity', $productCartKey)) {
                         $msgDetails = ls_shop_msg::getMsgDetails('setItemQuantity', $productCartKey);
                         ?>
-                        <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText057'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['desiredQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['availableQuantity'], $msgDetails['quantityDecimals']), $msgDetails['quantityUnit']); ?></p>
+                        <p class="error"><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText057'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['displayDesiredQuantity'], $msgDetails['displayQuantityDecimals']), $msgDetails['salesUnit'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($msgDetails['displayAvailableQuantity'], $msgDetails['displayQuantityDecimals']), $msgDetails['salesUnit']); ?></p>
                         <?php
                     }
                     ?>
@@ -175,13 +175,13 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                 <div class="price-single">
                     <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText014'] ?></div>
                     <div class="field-content">
-                        <?php echo $obj_tmp_productOrVariant->_priceAfterTaxFormatted; ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? '/<span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
+                        <?php echo $obj_tmp_productOrVariant->_priceAfterTaxFormatted; ?><?php echo $obj_tmp_productOrVariant->_displayQuantityUnit ? '/<span class="quantityUnit">'.$obj_tmp_productOrVariant->_displayQuantityUnit.'</span>' : '' ?>
                     </div>
                 </div>
                 <div class="quantity">
                     <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'] ?></div>
                     <div class="field-content">
-                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], $obj_tmp_productOrVariant->_quantityDecimals); ?><?php echo $obj_tmp_productOrVariant->_hasQuantityUnit ? ' <span class="quantityUnit">'.$obj_tmp_productOrVariant->_quantityUnit.'</span>' : '' ?>
+                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['displayQuantity'], $cartItem['displayQuantityDecimals']); ?><?php echo $cartItem['salesUnit'] !== '' ? ' <span class="quantityUnit">'.$cartItem['salesUnit'].'</span>' : '' ?>
                     </div>
                 </div>
 

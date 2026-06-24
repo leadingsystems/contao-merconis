@@ -514,6 +514,14 @@ class ls_shop_product
 				return number_format($this->mainData['lsShopProductStock'], $this->_quantityDecimals, '.', '');
 				break;
 
+			case '_displayStock':
+				if ($this->_hasSalesUnit) {
+					return ls_mul($this->_stock, $this->_salesUnitSize);
+				}
+
+				return $this->_stock;
+				break;
+
 			case '_stockIsInsufficient'
 				/* ## DESCRIPTION:
 Indicates whether or not stock is insufficient. Returns true if stock should be used (_useStock == true), stock is equal or less than 0 (_stock <= 0) and orders with insufficient stock aren't allowed (_allowOrdersWithInsufficientStock == false), otherwise returns false.
@@ -807,6 +815,44 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 				}
 				break;
 
+			case '_salesUnitSize':
+				if ($this->_variantIsSelected && $this->_selectedVariant->_salesUnitSizeSelf > 0) {
+					return $this->_selectedVariant->_salesUnitSizeSelf;
+				}
+
+				return (int) ($this->mainData['lsShopProductSalesUnitSize'] ?? 0);
+				break;
+
+			case '_hasSalesUnit':
+				return $this->_salesUnitSize > 0;
+				break;
+
+			case '_salesUnit':
+				if (!$this->_hasSalesUnit) {
+					return $this->_quantityUnit;
+				}
+
+				if ($this->_variantIsSelected && $this->_selectedVariant->_salesUnitSelf) {
+					return $this->_selectedVariant->_salesUnitSelf;
+				}
+
+				$strProductSalesUnit = ($this->currentLanguageData['lsShopProductSalesUnit'] ?? null) ? $this->currentLanguageData['lsShopProductSalesUnit'] : ($this->mainData['lsShopProductSalesUnit'] ?? '');
+
+				if ($strProductSalesUnit) {
+					return $strProductSalesUnit;
+				}
+
+				return $this->getGlobalSalesUnit();
+				break;
+
+			case '_displayQuantityUnit':
+				if ($this->_hasSalesUnit) {
+					return $this->_salesUnitSize . ' ' . $this->_salesUnit;
+				}
+
+				return $this->_quantityUnit;
+				break;
+
 			case '_quantityComparisonUnit':
 				if (!$this->_variantIsSelected || !$this->_selectedVariant->_hasQuantityComparisonUnitSelf) {
 					return $this->currentLanguageData['lsShopProductMengenvergleichUnit'] ? $this->currentLanguageData['lsShopProductMengenvergleichUnit'] : $this->mainData['lsShopProductMengenvergleichUnit'];
@@ -934,6 +980,18 @@ returns the id of the variant that has currently been selected
 
 			case '_quantityDecimals':
 				return $this->mainData['lsShopProductQuantityDecimals'];
+				break;
+
+			case '_displayQuantityStep':
+				if ($this->_hasSalesUnit) {
+					return ls_div($this->_salesUnitSize, pow(10, $this->_quantityDecimals));
+				}
+
+				if ($this->_quantityDecimals > 0) {
+					return ls_div(1, pow(10, $this->_quantityDecimals));
+				}
+
+				return 1;
 				break;
 
 			case '_isFavorite':
@@ -2560,8 +2618,15 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			if (is_array($this->_scalePrice)) {
 				foreach ($this->_scalePrice as $arrStep) {
 					$GLOBALS['merconis_globals']['temporarilyFixedScalePriceQuantity'] = $arrStep['minQuantity'];
+					$floatDisplayMinQuantity = $this->_salesUnitSize > 0
+						? ls_mul($arrStep['minQuantity'], $this->_salesUnitSize)
+						: $arrStep['minQuantity'];
+					$strDisplayQuantityUnit = $this->_salesUnitSize > 0
+						? $this->_salesUnit
+						: $this->_quantityUnit;
+
 					$arrTmp = array(
-						'minQuantity' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['scalePriceQuantityFrom'].' '.ls_shop_generalHelper::outputQuantity($arrStep['minQuantity'], $this->_quantityDecimals).' '.$this->_quantityUnit
+						'minQuantity' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['scalePriceQuantityFrom'].' '.ls_shop_generalHelper::outputQuantity($floatDisplayMinQuantity, $this->_quantityDecimals).' '.$strDisplayQuantityUnit
 					);
 
 					switch ($mode) {
@@ -2607,6 +2672,10 @@ This method can be used to call a function hooked with the "callingHookedProduct
 	private function getDeliveryTimeMessage($float_requestedQuantity = 1) {
 	    return ls_shop_generalHelper::getDeliveryTimeMessage($this, $float_requestedQuantity);
     }
+
+	private function getGlobalSalesUnit() {
+		return $GLOBALS['TL_CONFIG']['ls_shop_salesUnit'] ?? '';
+	}
 
     public function getDeliveryTimeDays($float_requestedQuantity = 1) {
         $int_deliveryTimeDays = $this->_stock >= $float_requestedQuantity || !$this->_useStock ? $this->_deliveryInfo['deliveryTimeDaysWithSufficientStock'] : $this->_deliveryInfo['deliveryTimeDaysWithInsufficientStock'];
