@@ -87,11 +87,20 @@ class ls_shop_cartHelper {
 	/*
 	 * Diese Funktion bereinigt die eingegebene Menge entsprechend der für das Produkt definierten Bestimmungen.
 	 * Diese Funktion gibt dabei vor allem eine für Berechnungen verwertbare Zahl zurück.
-	 * Diese Funktion kann mit allen Werten gefüttert werden, auch vorgenullte Zahlen.
+	 * Der Parameter `$blnInputIsAlreadyNormalized` steuert, ob der übergebene Wert noch roher Locale-Input ist
+	 * (Default `false` -> `normalizeQuantityInputValue` wird angewandt) oder bereits im internen Punkt-Dezimalformat
+	 * vorliegt (`true` -> der Wert wird nur noch formatiert).
+	 * Hintergrund: `normalizeQuantityInputValue` darf nur auf rohen Locale-Input angewandt werden. Wird die
+	 * Normalisierung auf bereits normalisierte Werte angewandt, entfernt sie in Locales mit "." als
+	 * Tausendertrenner fälschlich den Dezimalpunkt.
 	 * Es wird geprüft, welche Mengenangaben für ein Produkt erlaubt sind und die eingegebene Menge dementsprechend korrigiert.
 	 */
-	public static function cleanQuantity(&$objProduct, $quantity) {
-		$quantity = number_format((float) self::normalizeQuantityInputValue($quantity), $objProduct->_quantityDecimals, '.', '');
+	public static function cleanQuantity(&$objProduct, $quantity, $blnInputIsAlreadyNormalized = false) {
+		$normalizedQuantity = $blnInputIsAlreadyNormalized
+			? (string) $quantity
+			: self::normalizeQuantityInputValue($quantity);
+
+		$quantity = number_format((float) $normalizedQuantity, $objProduct->_quantityDecimals, '.', '');
 		return $quantity;
 	}
 
@@ -115,14 +124,14 @@ class ls_shop_cartHelper {
 		$normalizedQuantity = self::normalizeQuantityInputValue($quantity);
 
 		if ((float) $normalizedQuantity < 0) {
-			return self::cleanQuantity($objProduct, $normalizedQuantity);
+			return self::cleanQuantity($objProduct, $normalizedQuantity, true);
 		}
 
 		if ($objProduct->_salesUnitSize > 0) {
 			$normalizedQuantity = ls_div($normalizedQuantity, $objProduct->_salesUnitSize);
 		}
 
-		return self::cleanQuantity($objProduct, $normalizedQuantity);
+		return self::cleanQuantity($objProduct, $normalizedQuantity, true);
 	}
 
 	/*
