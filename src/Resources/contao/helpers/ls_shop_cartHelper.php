@@ -605,12 +605,40 @@ class ls_shop_cartHelper {
 					$blnValid = false;
 					ls_shop_msg::setMsg(array(
 						'class' => 'cartPositionOrderNotAllowed',
-						'reference' => $cartItemProductCartKey
+						'reference' => $cartItemProductCartKey,
+						'msg' => self::getCartPositionOrderNotAllowedMessage(
+							$objProduct,
+							$cartItemProductCartKey
+						)
 					));
 				}
 			}
 		}
 		return $blnValid;
+	}
+
+	protected static function getCartPositionOrderNotAllowedMessage($objProduct, $cartItemProductCartKey): string
+	{
+		$objProductOrVariant = $objProduct->_variantIsSelected ? $objProduct->_selectedVariant : $objProduct;
+		$availableQuantityForMinimumCheck = self::getAvailableQuantity(
+			$cartItemProductCartKey,
+			$objProductOrVariant->_minimumOrderQuantity
+		);
+
+		if (
+			!MinimumOrderQuantityCalculator::shouldDenyOrderDueToStockConflict(
+				$objProductOrVariant->_minimumOrderQuantity,
+				$availableQuantityForMinimumCheck,
+				(int) $objProductOrVariant->_quantityDecimals
+			)
+		) {
+			return '';
+		}
+
+		return ls_shop_generalHelper::getMinimumOrderQuantityStockConflictCartMessage(
+			$objProductOrVariant,
+			(string) $availableQuantityForMinimumCheck
+		);
 	}
 
 	/**

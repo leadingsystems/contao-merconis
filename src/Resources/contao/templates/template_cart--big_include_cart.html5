@@ -104,7 +104,7 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                     <?php
                     if (ls_shop_msg::checkMsg('cartPositionOrderNotAllowed', $productCartKey)) {
                         ?>
-                        <p class="error"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText059']; ?></p>
+                        <p class="error"><?php echo ls_shop_msg::getMsg('cartPositionOrderNotAllowed', $productCartKey) ?: $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText059']; ?></p>
                         <?php
                     }
                     ?>

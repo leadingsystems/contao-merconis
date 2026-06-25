@@ -115,6 +115,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText057'] = 'Dieses Produkt ist nicht
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText058'] = 'enthält Fehler';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText059'] = 'Dieses Produkt kann so nicht bestellt werden.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityStockConflictCart'] = 'Die Mindestbestellmenge von %s kann aufgrund des verfügbaren Lagerbestands nicht erreicht werden. Verfügbar sind nur noch %s.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText060'] = 'zur Erfassung Ihrer Daten';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText061'] = 'zurück zur Erfassung Ihrer Daten';

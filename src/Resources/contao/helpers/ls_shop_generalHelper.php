@@ -5488,6 +5488,36 @@ class ls_shop_generalHelper
         );
     }
 
+    public static function getMinimumOrderQuantityStockConflictCartMessage(
+        $obj_productOrVariant,
+        string $availableQuantity
+    ): string {
+        $minimumQuantityLabel = self::buildMinimumOrderQuantityDisplayLabel(
+            $obj_productOrVariant,
+            MinimumOrderQuantityCalculator::normalizeQuantityValue(
+                (string) $obj_productOrVariant->_effectiveMinimumOrderQuantity
+            )
+        );
+
+        if ($minimumQuantityLabel === '') {
+            return '';
+        }
+
+        $availableQuantityLabel = trim(
+            self::outputDisplayQuantity(
+                $availableQuantity,
+                (int) $obj_productOrVariant->_quantityDecimals,
+                (int) $obj_productOrVariant->_salesUnitSize
+            ) . ' ' . (string) $obj_productOrVariant->_salesUnit
+        );
+
+        return sprintf(
+            $GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityStockConflictCart'],
+            $minimumQuantityLabel,
+            $availableQuantityLabel
+        );
+    }
+
     public static function buildMinimumOrderQuantityDisplayLabel(
         $obj_productOrVariant,
         string $minimumDisplayQuantity

@@ -115,6 +115,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText057'] = 'This product is no longe
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText058'] = 'Contains faults';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText059'] = 'This product cannot be ordered this way.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityStockConflictCart'] = 'The minimum order quantity of %s cannot be reached because of the available stock. Only %s are still available.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText060'] = 'Continue with entering your data';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText061'] = 'Go back to the data entry form';

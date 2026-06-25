@@ -18,6 +18,8 @@ final class MinimumOrderQuantityGetterTest extends TestCase
         parent::setUp();
 
         $GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityHint'] = 'Minimum order quantity: %s';
+        $GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityStockConflictCart'] =
+            'The minimum order quantity of %s cannot be reached because of the available stock. Only %s are still available.';
         $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = '.';
         $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] = ',';
     }
@@ -126,6 +128,24 @@ final class MinimumOrderQuantityGetterTest extends TestCase
         );
 
         self::assertSame('', ls_shop_generalHelper::getMinimumOrderQuantityHint($product));
+    }
+
+    public function testMinimumOrderQuantityStockConflictMessageUsesEffectiveMinimumAndAvailableStock(): void
+    {
+        $product = $this->createProduct(
+            [
+                'lsShopProductQuantityUnit' => 'pcs.',
+                'lsShopProductQuantityDecimals' => 0,
+                'lsShopProductSalesUnitSize' => 0,
+                'lsShopProductSalesUnit' => 'pcs.',
+                'lsShopProductMinimumOrderQuantity' => '500',
+            ]
+        );
+
+        self::assertSame(
+            'The minimum order quantity of 500 pcs. cannot be reached because of the available stock. Only 250 pcs. are still available.',
+            ls_shop_generalHelper::getMinimumOrderQuantityStockConflictCartMessage($product, '250')
+        );
     }
 
     #[DataProvider('effectiveMinimumOrderQuantityProvider')]
