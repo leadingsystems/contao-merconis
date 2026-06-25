@@ -32,6 +32,9 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
         'productCartKey' => array (
             'sql'                     => "varchar(255) NOT NULL default ''"
         ),
+        'comment' => array (
+            'sql'                     => "blob NULL"
+        ),
         'price' => array (
             'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
         ),

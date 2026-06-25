@@ -88,9 +88,27 @@
       @include grid-row(1, 4);
       @include grid-justify-self(start);
 
+      width: 100%;
+
       .title {
         h4 {
           font-weight: $ls-font-weight-bold;
+        }
+      }
+
+      .comment {
+        margin-top: 1rem;
+
+        .ls-field-label {
+          display: block;
+          font-weight: $ls-font-weight-bold;
+          margin-bottom: 0.5rem;
+        }
+
+        .ls-field-content {
+          display: block;
+          white-space: normal;
+          line-height: 1.4;
         }
       }
     }

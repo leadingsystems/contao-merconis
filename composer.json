@@ -51,5 +51,11 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^10.5"
+  },
+  "config": {
+    "allow-plugins": {
+      "contao-components/installer": true,
+      "php-http/discovery": true
+    }
   }
 }

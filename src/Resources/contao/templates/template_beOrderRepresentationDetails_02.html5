@@ -78,6 +78,12 @@
                                     <?php } ?>
                                 </div>
                             <?php } ?>
+                            <?php if (($cartItem['comment'] ?? '') !== '') { ?>
+                                <div class="comment">
+                                    <strong><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['orderComment']['label']; ?>:</strong><br />
+                                    <?php echo nl2br(\Contao\StringUtil::specialchars($cartItem['comment'])); ?>
+                                </div>
+                            <?php } ?>
 						</td>
 						<td class="price priceSingle">
 							<?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($cartItem['price']); ?><?php echo $cartItem['extendedInfo']['_hasQuantityUnit'] ? '/<span class="quantityUnit">'.$cartItem['extendedInfo']['_quantityUnit'].'</span>' : '' ?>

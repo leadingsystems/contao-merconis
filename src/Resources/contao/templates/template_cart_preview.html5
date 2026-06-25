@@ -1,4 +1,5 @@
 <!-- indexer::stop -->
+<?php $bln_showCartPositionComments = \Merconis\Core\ls_shop_cartHelper::isCartPositionCommentEnabled(); ?>
 <div id="cart-preview">
         <div class="headline-area">
             <div id="cart-preview-headline" class="ajax-reload-by-putInCart">
@@ -83,6 +84,15 @@
                                 <?php
                             }
                             ?>
+
+                            <?php if ($bln_showCartPositionComments && $cartItem['comment'] !== '') { ?>
+                                <div class="ls-field comment">
+                                    <div class="ls-field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label']; ?>:</div>
+                                    <div class="ls-field-content">
+                                        <?php echo nl2br(\Contao\StringUtil::specialchars($cartItem['comment'])); ?>
+                                    </div>
+                                </div>
+                            <?php } ?>
                         </div>
 
                         <div class="ls-field quantity">

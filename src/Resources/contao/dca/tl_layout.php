@@ -8,30 +8,56 @@ PaletteManipulator::create()
     ->addLegend('lsShopFilter_legend')
     ->addField(
         [
-            'ls_shop_activateFilter',
-            'ls_shop_useFilterInStandardProductlist',
-            'ls_shop_numFilterFieldsInSummary',
-            'ls_shop_useFilterMatchEstimates',
-            'ls_shop_matchEstimatesMaxNumProducts',
-            'ls_shop_matchEstimatesMaxFilterValues',
-            'ls_shop_useFilterInProductDetails',
-            'ls_shop_hideFilterFormInProductDetails'
+            'ls_shop_filterMode',
         ], 'lsShopFilter_legend'
     )
     ->applyToPalette('default', 'tl_layout')
 ;
 
+$GLOBALS['TL_DCA']['tl_layout']['palettes']['__selector__'][] = 'ls_shop_filterMode';
+$GLOBALS['TL_DCA']['tl_layout']['subpalettes']['ls_shop_filterMode_classic'] = 'ls_shop_useFilterInStandardProductlist,ls_shop_numFilterFieldsInSummary,ls_shop_useFilterMatchEstimates,ls_shop_matchEstimatesMaxNumProducts,ls_shop_matchEstimatesMaxFilterValues,ls_shop_useFilterInProductDetails,ls_shop_hideFilterFormInProductDetails';
+$GLOBALS['TL_DCA']['tl_layout']['subpalettes']['ls_shop_filterMode_fast'] = 'ls_shop_useFilterInStandardProductlist,ls_shop_fastFilterAutoSubmit,ls_shop_fastFilterHideZeroMatches,ls_shop_fastFilterResetMode,ls_shop_hideFilterFormInProductDetails';
+
 $GLOBALS['TL_DCA']['tl_layout']['fields']['lsShopOutputDefinitionSet'] = array (
     'sql'                     => "int(10) unsigned NOT NULL default '0'"
 );
 
-$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_activateFilter'] = array(
-    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_activateFilter'],
+$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_filterMode'] = [
+    'label'     => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode'],
+    'exclude'   => true,
+    'inputType' => 'select',
+    'options'   => ['', 'classic', 'fast'],
+    'reference' => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_filterMode_options'],
+    'eval'      => ['submitOnChange' => true, 'helpwizard' => true, 'tl_class' => 'w50'],
+    'sql'       => "varchar(16) NOT NULL default ''"
+];
+
+$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_fastFilterAutoSubmit'] = [
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterAutoSubmit'],
     'exclude'                 => true,
     'inputType'               => 'checkbox',
-    'eval'                    => array('tl_class'=>'clr m12'),
+    'eval'                    => ['tl_class'=>'w50'],
     'sql'                     => "char(1) NOT NULL default ''"
-);
+];
+
+$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_fastFilterHideZeroMatches'] = [
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterHideZeroMatches'],
+    'exclude'                 => true,
+    'inputType'               => 'checkbox',
+    'eval'                    => ['tl_class'=>'w50'],
+    'sql'                     => "char(1) NOT NULL default ''"
+];
+
+$GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_fastFilterResetMode'] = [
+    'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterResetMode'],
+    'exclude'                 => true,
+    'inputType'               => 'select',
+    'default'                 => 'always',
+    'options'                 => ['never', 'always', 'branch'],
+    'reference'               => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_fastFilterResetMode_options'],
+    'eval'                    => ['tl_class'=>'w50'],
+    'sql'                     => "varchar(16) NOT NULL default 'always'"
+];
 
 $GLOBALS['TL_DCA']['tl_layout']['fields']['ls_shop_useFilterInStandardProductlist'] = array(
     'label'                   => &$GLOBALS['TL_LANG']['tl_layout']['ls_shop_useFilterInStandardProductlist'],

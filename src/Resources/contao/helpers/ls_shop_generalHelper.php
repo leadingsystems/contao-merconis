@@ -2059,7 +2059,7 @@ class ls_shop_generalHelper
             $arrAttributes = $objAttributes->fetchAllAssoc();
             $GLOBALS['merconis_globals']['productAttributes'][$str_languageToUse] = array();
             foreach ($arrAttributes as $attribute) {
-                $attribute['title'] = ls_shop_languageHelper::getMultiLanguage($attribute['id'], 'tl_ls_shop_attributes_languages', array('title'), array($str_languageToUse));
+                $attribute['title'] = $attribute['title_' . $str_languageToUse] ?? null;
                 $GLOBALS['merconis_globals']['productAttributes'][$str_languageToUse][$attribute['id']] = $attribute;
             }
         }
@@ -2094,7 +2094,7 @@ class ls_shop_generalHelper
             $arrAttributeValues = $objAttributeValues->fetchAllAssoc();
             $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse] = array();
             foreach ($arrAttributeValues as $attributeValue) {
-                $attributeValue['title'] = ls_shop_languageHelper::getMultiLanguage($attributeValue['id'], 'tl_ls_shop_attribute_values_languages', array('title'), array($str_languageToUse));
+                $attributeValue['title'] = $attributeValue['title_' . $str_languageToUse] ?? null;
                 $GLOBALS['merconis_globals']['productAttributeValues'][$attributeID][$str_languageToUse][$attributeValue['id']] = $attributeValue;
             }
         }
@@ -5226,13 +5226,20 @@ class ls_shop_generalHelper
          <--*/
         $quantityInput = '';
         if ($obj_productOrVariant->_objectType === 'variant' || !$obj_productOrVariant->_hasVariants) {
+            $bln_cartPositionCommentsEnabled = ls_shop_cartHelper::isCartPositionCommentEnabled();
             $objQuantityInputTemplate = new FrontendTemplate('quantityInput');
             $str_formSubmitValue = 'product_form_' . $productID . '-' . $variantID;
             $objQuantityInputTemplate->str_formSubmitValue = $str_formSubmitValue;
             $objQuantityInputTemplate->str_productVariantId = $productID . '-' . $variantID;
 
             $objQuantityInputTemplate->showInputQuantity = true;
+            $objQuantityInputTemplate->bln_showCommentField = $bln_cartPositionCommentsEnabled;
             $objQuantityInputTemplate->obj_productOrVariant = $obj_productOrVariant;
+            $objQuantityInputTemplate->str_commentFieldId = 'comment_' . $productID . '-' . $variantID;
+            $objQuantityInputTemplate->str_commentFieldName = 'comment';
+            $objQuantityInputTemplate->str_commentLabel = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'];
+            $objQuantityInputTemplate->str_commentPlaceholder = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'];
+            $objQuantityInputTemplate->str_commentValue = Input::post('FORM_SUBMIT') == $str_formSubmitValue ? (string) Input::post('comment') : '';
 
             /*-->
              * Erstellen des Quantity-Feldes
@@ -5291,7 +5298,15 @@ class ls_shop_generalHelper
                             $tmpBlnCartKeyAlreadyInCart = true;
                         }
 
-                        $arrAddToCartResponse = ls_shop_cartHelper::addToCart($productVariantIDToPutInCart, $obj_flexWidget_inputQuantity->getValue());
+                        $commentWasSubmitted = $bln_cartPositionCommentsEnabled && array_key_exists('comment', $_POST);
+
+                        $arrAddToCartResponse = ls_shop_cartHelper::addToCart(
+                            $productVariantIDToPutInCart,
+                            $obj_flexWidget_inputQuantity->getValue(),
+                            true,
+                            $commentWasSubmitted ? Input::post('comment') : null,
+                            $commentWasSubmitted
+                        );
 
                         /*--> Ist das Produkt gar nicht mehr verfügbar, so wird es aus dem Warenkorb entfernt, es sei denn, es war schon vorher drin <--*/
                         if (!$tmpBlnCartKeyAlreadyInCart && $arrAddToCartResponse['quantityPutInCart'] == 0) {

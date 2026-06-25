@@ -430,22 +430,35 @@ $ls-product-list-field-space: 2%;
 
     .edit-item-box {
       position: absolute;
+      z-index: 99999;
       top: 0;
       right: 0;
       bottom: 0;
       left: 0;
       display: none;
-      background-color: rgba($ls-color-white, 0.85);
+      background-color: rgba($ls-color-white, 0.92);
 
       .inside {
         display: flex;
+        flex-direction: column;
         justify-content: center;
+        width: 100%;
+        max-width: 58rem;
+        min-height: 100%;
+        margin: 0 auto;
+        gap: 1rem;
+        padding: 3.5rem 2rem 2rem;
       }
 
       .close-edit-item {
         position: absolute;
-        top: 0;
-        right: 0;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 4rem;
+        height: 4rem;
         font-size: 2.5rem;
         color: $ls-color-black;
         cursor: pointer;
@@ -453,16 +466,36 @@ $ls-product-list-field-space: 2%;
         &::before {
           @extend .fas;
           content: fa-content($fa-var-times);
-          margin-right: 0.5rem;
         }
       }
 
       form.form-quantity {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+        grid-template-areas:
+          "quantity ."
+          "comment comment";
         position: relative;
+        row-gap: 1rem;
+        width: 100%;
 
         label {
           font-weight: $ls-font-weight-bold;
+        }
+
+        .quantity-input {
+          grid-area: quantity;
+
+          .flexWidget {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+          }
         }
 
         input[name="quantity_item"] {
@@ -473,40 +506,73 @@ $ls-product-list-field-space: 2%;
           appearance: textfield;
         }
 
+        .comment-input {
+          grid-area: comment;
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+          }
+
+          textarea {
+            width: 100%;
+            min-height: 9rem;
+            resize: vertical;
+          }
+        }
+
         .errors {
           position: absolute;
         }
 
-        button {
+        @include media-breakpoint-down(md) {
+          grid-template-columns: minmax(0, 1fr);
+          grid-template-areas:
+            "quantity"
+            "comment";
+        }
+      }
+
+      .edit-item-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+
+        .submit-quantity,
+        form.form-delete button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 4rem;
+          height: 4rem;
           font-size: 1.4rem;
           padding: 0.5rem;
           border: 0.1rem solid $ls-color-grey;
           background-color: $ls-color-white;
           color: $ls-color-black;
-          margin-left: 1rem;
+          margin-left: 0;
+        }
 
+        .submit-quantity {
           &::before {
             @extend .fas;
             content: fa-content($fa-var-check);
           }
         }
-      }
 
-      form.form-delete {
-        display: flex;
-        position: relative;
+        form.form-delete {
+          display: flex;
+        }
 
-        button {
-          font-size: 1.4rem;
-          padding: 0.5rem;
-          border: 0.1rem solid $ls-color-grey;
-          background-color: $ls-color-white;
-          color: $ls-color-black;
-          margin-left: 1rem;
-
-          &::before {
-            @extend .fas;
-            content: fa-content($fa-var-trash);
+        form.form-delete {
+          button {
+            &::before {
+              @extend .fas;
+              content: fa-content($fa-var-trash);
+            }
           }
         }
       }
@@ -527,6 +593,18 @@ $ls-product-list-field-space: 2%;
     .field-content {
       text-align: right;
       white-space: nowrap;
+    }
+
+    .comment {
+      .field-label {
+        text-align: left;
+      }
+
+      .field-content {
+        text-align: left;
+        white-space: normal;
+        line-height: 1.4;
+      }
     }
 
     .product-title {

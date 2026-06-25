@@ -9,6 +9,7 @@ use Contao\FrontendTemplate;
 use Contao\Input;
 use Contao\Module;
 use Contao\PageModel;
+use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\Helpers\FlexWidget;
 
@@ -28,9 +29,11 @@ class ModuleCart extends Module {
 		global $objPage;
 
 		$arrWidgets = array();
+		$blnCartPositionCommentsEnabled = ls_shop_cartHelper::isCartPositionCommentEnabled();
 		
 		foreach (ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
 			$arrWidgets[$productCartKey] = array();
+			$bln_isCurrentItemQuantityUpdate = Input::post('FORM_SUBMIT') && preg_match('/^product_quantity_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productID') == $productCartKey;
 			/*
 			 * Buttons für die Mengenänderung
 			 */
@@ -67,13 +70,24 @@ class ModuleCart extends Module {
 			);
 
 			$arrWidgets[$productCartKey]['inputQuantity'] = $obj_FlexWidget_inputQuantity->getOutput();
+			$arrWidgets[$productCartKey]['commentFieldId'] = 'comment_' . $productCartKey;
+			$arrWidgets[$productCartKey]['commentFieldName'] = 'comment';
+			$arrWidgets[$productCartKey]['commentLabel'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'];
+			$arrWidgets[$productCartKey]['commentPlaceholder'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'];
+			$arrWidgets[$productCartKey]['commentValue'] = $bln_isCurrentItemQuantityUpdate ? (string) Input::post('comment') : $cartItem['comment'];
+			$arrWidgets[$productCartKey]['formattedComment'] = $blnCartPositionCommentsEnabled && $cartItem['comment'] !== '' ? nl2br(StringUtil::specialchars($cartItem['comment'])) : '';
 
 			/*
 			 * Aktualisieren des Warenkorbs, sofern angefordert
 			 */
-			if (Input::post('FORM_SUBMIT') && preg_match('/^product_quantity_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productID') == $productCartKey) {
+			if ($bln_isCurrentItemQuantityUpdate) {
 				if (!$obj_FlexWidget_inputQuantity->bln_hasErrors) {
-					ls_shop_cartHelper::updateCartItem(Input::post('productID'), $obj_FlexWidget_inputQuantity->getValue());
+					ls_shop_cartHelper::updateCartItem(
+						Input::post('productID'),
+						$obj_FlexWidget_inputQuantity->getValue(),
+						Input::post('comment'),
+						true
+					);
 					$this->reload();
 				}
 			} else if(Input::post('FORM_SUBMIT') && preg_match('/^product_delete_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productIDDelete') == $productCartKey) {
@@ -85,6 +99,7 @@ class ModuleCart extends Module {
 		}
 
 		$this->Template = new FrontendTemplate($this->ls_shop_cart_template);
+		$this->Template->bln_cartPositionCommentsEnabled = $blnCartPositionCommentsEnabled;
 
 		$formConfirmOrder = ls_shop_checkoutData::getInstance()->formConfirmOrder;
 		// ### paymentMethod callback ########################

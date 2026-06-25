@@ -232,6 +232,12 @@
                  * <-
                  */
 
+                lsjs.__moduleHelpers.fastFilterFormManager.start({
+                    str_containerSelector: '.template_fastFilterForm_default',
+                    el_domReference: el_domReference,
+                    str_reloadElementClass: 'ajax-reload-by-filter'
+                });
+
                 lsjs.__moduleHelpers.conditionalFormManager.start({el_domReference: el_domReference});
 
                 lsjs.__moduleHelpers.formReviewerManager.start({el_domReference: el_domReference});

@@ -41,6 +41,36 @@ services:
     tags:
       - { name: 'kernel.event_subscriber' }
 
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterConfigurationRepository: ~
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterQueryService: ~
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterOptionProvider: ~
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterEstimateProvider: ~
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterMatcher: ~
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterFormService: ~
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterIndexBuilder: ~
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterIndexMaintenance: ~
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterIndexVerifier: ~
+
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterSessionWriter:
+    public: true
+
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterController:
+    public: true
+
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterSearchCoordinator:
+    public: true
+
+  LeadingSystems\MerconisBundle\FastFilter\FastFilterFormRenderer:
+    public: true
+
+  LeadingSystems\MerconisBundle\Command\FastFilterIndexRebuildCommand:
+    tags:
+      - { name: 'console.command', command: 'merconis:fast-filter:rebuild-index' }
+
+  LeadingSystems\MerconisBundle\Command\FastFilterIndexVerifyCommand:
+    tags:
+      - { name: 'console.command', command: 'merconis:fast-filter:verify-index' }
+
   LeadingSystems\MerconisBundle\EventListener\GetPageLayoutListener:
     tags:
       - { name: contao.hook, hook: getPageLayout, method: switchTemplateInDetailsViewIfNecessary }
@@ -195,6 +225,13 @@ services:
 
   merconis.migration.filter_migration:
     class: LeadingSystems\MerconisBundle\Migration\FilterMigration
+    tags:
+      - { name: contao.migration, priority: 0 }
+
+  merconis.migration.filter_mode_migration:
+    class: LeadingSystems\MerconisBundle\Migration\FilterModeMigration
+    arguments:
+      - '@doctrine.dbal.default_connection'
     tags:
       - { name: contao.migration, priority: 0 }
 

@@ -13,6 +13,17 @@ use Contao\System;
             <input type="hidden" name="productVariantID" value="<?php echo $this->str_productVariantId; ?>">
 
             <?php echo $this->str_widget_inputQuantity; ?>
+            <?php if ($this->bln_showCommentField ?? true): ?>
+                <div class="comment-input">
+                    <label for="<?php echo $this->str_commentFieldId; ?>"><?php echo $this->str_commentLabel; ?></label>
+                    <textarea
+                        id="<?php echo $this->str_commentFieldId; ?>"
+                        name="<?php echo $this->str_commentFieldName; ?>"
+                        placeholder="<?php echo StringUtil::specialchars($this->str_commentPlaceholder); ?>"
+                        rows="3"
+                    ><?php echo StringUtil::specialchars($this->str_commentValue); ?></textarea>
+                </div>
+            <?php endif; ?>
             <?php if($this->obj_productOrVariant->_stockIsInsufficient == true && $this->obj_productOrVariant->_isPreorderable == false){ ?>
                 <button type="submit" class="submit outOfStock" disabled><?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['currentlyNotAvailable']; ?></button>
             <?php

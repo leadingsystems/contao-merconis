@@ -707,6 +707,278 @@
   }
 }
 
+.template_fastFilterForm_default {
+  @include ls_contentWrapper;
+
+  #fast-filter-headline-container {
+    padding-bottom: 0.5rem;
+    border-bottom: 0.1rem solid $ls-color-grey;
+    margin-bottom: 1rem;
+
+    .filter-headline-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+    }
+
+    .all-filter-options {
+      margin: 1rem 0 0;
+
+      &::before {
+        @extend .fas;
+        content: fa-content($fa-var-filter);
+        margin-right: 1rem;
+      }
+    }
+
+    .filter-headline-reset {
+      margin-top: 1rem;
+    }
+  }
+
+  .nothing-to-filter-notice {
+    margin: 0;
+  }
+
+  &[data-fast-filter-auto-submit="1"] {
+    .submitFastFilter {
+      display: none;
+    }
+  }
+
+  .fast-filter-fields {
+    margin-bottom: 2rem;
+  }
+
+  button {
+    &.is-disabled,
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      pointer-events: none;
+    }
+  }
+
+  .fast-filter-submit-box {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    button {
+      width: auto;
+    }
+  }
+
+  &.nothingToFilter {
+    display: none;
+  }
+
+  .filterOptionsBox {
+    margin-bottom: 0.5rem;
+
+    &:not(:last-child) {
+      border-bottom: 0.1rem solid $ls-color-grey;
+    }
+
+    &.has-active-options {
+      > .label {
+        font-weight: $ls-font-weight-bold;
+      }
+    }
+
+    > .label {
+      margin: 0;
+      padding: 2rem 2.6rem 1.5rem 0;
+      position: relative;
+      cursor: pointer;
+    }
+
+    &.useLsUnfold {
+      > .label {
+        &::after {
+          position: absolute;
+          right: 0.5rem;
+          top: 0;
+          font-size: 1.92rem;
+          transition: opacity 0.4s linear;
+          font-weight: bold;
+        }
+      }
+
+      &.lsUnfoldClosed > .label::after {
+        @extend .fas;
+        content: fa-content($fa-var-caret-down);
+        opacity: 1;
+        cursor: pointer;
+        right: 1rem;
+        top: 1.8rem;
+      }
+
+      &.lsUnfoldOpen > .label::after {
+        @extend .fas;
+        content: fa-content($fa-var-caret-up);
+        opacity: 1;
+        cursor: pointer;
+        right: 1rem;
+        top: 1.8rem;
+      }
+
+      &.lsUnfoldRunning > .label::after {
+        opacity: 0;
+      }
+    }
+
+    > .content {
+      padding: 0.5rem 0.5rem 2rem 4rem;
+      display: block;
+      position: relative;
+    }
+
+    [data-fast-filter-options] {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    [data-lsjs-element="optionsBox_filterOption"] {
+      display: inline-block;
+      margin: 0 1rem 1rem 0;
+      @include ls_checkboxAndRadioToButton;
+
+      &.hidden,
+      &.show-more-hidden,
+      &.zero-match-hidden {
+        display: none;
+      }
+
+      &.has-no-matches {
+        opacity: 0.45;
+      }
+
+      &.is-checked {
+        label {
+          border-color: $ls-color-black;
+        }
+      }
+
+      .label-content {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.35rem;
+      }
+
+      .match-estimate {
+        color: $ls-color-grey;
+      }
+    }
+
+    .fast-filter-empty-field-message {
+      color: $ls-color-grey;
+      margin: 0;
+
+      &.hidden {
+        display: none;
+      }
+    }
+
+    &.has-no-visible-fast-filter-options {
+      [data-fast-filter-options],
+      [data-fast-filter-actions] {
+        display: none;
+      }
+
+      .fast-filter-empty-field-message {
+        display: block;
+      }
+    }
+
+    .special-toggler-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+
+      .show-more-less,
+      .check-all,
+      .uncheck-radio {
+        border: none;
+        background: none;
+        color: $ls-color-grey;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .check-all,
+      .uncheck-radio {
+        &::before {
+          @extend .fas;
+          content: fa-content($fa-var-check-circle);
+          margin-right: 1rem;
+        }
+      }
+
+      .show-more-less {
+        &.hidden {
+          display: none;
+        }
+
+        &::before {
+          @extend .fas;
+          margin-right: 1rem;
+        }
+
+        &.show-more-active {
+          display: inline-flex;
+          align-items: center;
+        }
+
+        &.currentlyHiding::before {
+          content: fa-content($fa-var-plus);
+        }
+
+        &.currentlyShowing::before {
+          content: fa-content($fa-var-minus);
+        }
+      }
+
+      .is-disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+        pointer-events: none;
+      }
+    }
+  }
+
+  @include media-breakpoint-down(4, $grid-breakpoints-ls) {
+    #fast-filter-headline-container {
+      .filter-headline-bar {
+        align-items: stretch;
+      }
+
+      .filter-headline-reset {
+        width: 100%;
+        margin-top: 0;
+      }
+    }
+
+    .filterOptionsBox {
+      > .content {
+        padding-left: 0;
+      }
+    }
+
+    .fast-filter-submit-box {
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
 /*
  * Styling of the old filter-template, formerly template_filterForm_default.
  * Must be renamed to *_old becouse the new filter-template (*_new) is now *_default.
