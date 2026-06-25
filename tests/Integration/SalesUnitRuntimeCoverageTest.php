@@ -56,12 +56,14 @@ final class SalesUnitRuntimeCoverageTest extends TestCase
 
         self::assertStringContainsString('useNumberStepper', $quantityHelperContents);
         self::assertStringContainsString("'step' => (string) \$obj_productOrVariant->_displayQuantityStep", $quantityHelperContents);
-        self::assertStringContainsString("'min' => (string) \$obj_productOrVariant->_displayQuantityStep", $quantityHelperContents);
+        self::assertStringContainsString("\$quantityInputState = self::getQuantityInputState(\$obj_productOrVariant);", $quantityHelperContents);
+        self::assertStringContainsString("'min' => \$quantityInputState['min']", $quantityHelperContents);
         self::assertStringContainsString("'max' => '999999999'", $quantityHelperContents);
 
         self::assertStringContainsString('useNumberStepper', $moduleCartContents);
         self::assertStringContainsString("'step' => (string) \$cartItem['objProduct']->_displayQuantityStep", $moduleCartContents);
-        self::assertStringContainsString("'min' => (string) \$cartItem['objProduct']->_displayQuantityStep", $moduleCartContents);
+        self::assertStringContainsString("\$quantityInputState = ls_shop_generalHelper::getQuantityInputState(", $moduleCartContents);
+        self::assertStringContainsString("'min' => \$quantityInputState['min']", $moduleCartContents);
         self::assertStringContainsString("'max' => '999999999'", $moduleCartContents);
 
         self::assertStringContainsString("min=\"<?php echo \$this->arr_moreData['min'] ?? '0'; ?>\"", $numberTemplateContents);

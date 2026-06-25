@@ -62,6 +62,19 @@ final class FlexWidgetValidatorTest extends TestCase
         FlexWidgetValidator::quantityInput($widget);
     }
 
+    public function testQuantityInputAllowsNonPositiveCartRemovalValues(): void
+    {
+        $widget = $this->createWidget(
+            '0',
+            'Quantity',
+            ['salesUnitSize' => 0, 'quantityDecimals' => 1, 'allowNonPositiveQuantity' => true]
+        );
+
+        FlexWidgetValidator::quantityInput($widget);
+
+        self::addToAssertionCount(1);
+    }
+
     private function createWidget(string $value, string $label, array $moreData): FlexWidget
     {
         $widget = (new ReflectionClass(FlexWidget::class))->newInstanceWithoutConstructor();

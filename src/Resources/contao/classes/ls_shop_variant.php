@@ -6,6 +6,7 @@ use Contao\Database;
 use Contao\FrontendTemplate;
 use Contao\PageModel;
 use Contao\System;
+use LeadingSystems\MerconisBundle\Helpers\MinimumOrderQuantityCalculator;
 use LeadingSystems\MerconisBundle\Proxy\ProductDataAccessProxy;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -349,6 +350,23 @@ class ls_shop_variant
                     $bln_orderAllowed = false;
                 }
 
+				if ($bln_orderAllowed && $this->_hasMinimumOrderQuantity) {
+					$availableQuantityForMinimumCheck = ls_shop_cartHelper::getAvailableQuantity(
+						$this->_cartKey,
+						$this->_minimumOrderQuantity
+					);
+
+					if (
+						MinimumOrderQuantityCalculator::shouldDenyOrderDueToStockConflict(
+							$this->_minimumOrderQuantity,
+							$availableQuantityForMinimumCheck,
+							(int) $this->_quantityDecimals
+						)
+					) {
+						$bln_orderAllowed = false;
+					}
+				}
+
                 return $bln_orderAllowed;
 				break;
 
@@ -584,6 +602,36 @@ returns the main image that has been selected explicitly or null if none has bee
 
 			case '_hasQuantityUnitSelf':
 				return $this->_quantityUnitSelf ? true : false;
+				break;
+
+			case '_minimumOrderQuantitySelf':
+				return MinimumOrderQuantityCalculator::normalizeQuantityValue(
+					$this->mainData['lsShopVariantMinimumOrderQuantity'] ?? 0
+				);
+				break;
+
+			case '_minimumOrderQuantity':
+				if (MinimumOrderQuantityCalculator::hasActiveMinimumOrderQuantity($this->_minimumOrderQuantitySelf)) {
+					return $this->_minimumOrderQuantitySelf;
+				}
+
+				return MinimumOrderQuantityCalculator::normalizeQuantityValue(
+					$this->_objParentProduct->mainData['lsShopProductMinimumOrderQuantity'] ?? 0
+				);
+				break;
+
+			case '_hasMinimumOrderQuantity':
+				return MinimumOrderQuantityCalculator::hasActiveMinimumOrderQuantity(
+					$this->_minimumOrderQuantity
+				);
+				break;
+
+			case '_effectiveMinimumOrderQuantity':
+				return MinimumOrderQuantityCalculator::getEffectiveDisplayMinimumQuantity(
+					$this->_minimumOrderQuantity,
+					(int) $this->_salesUnitSize,
+					(int) $this->_quantityDecimals
+				);
 				break;
 
 			case '_salesUnitSizeSelf':

@@ -34,6 +34,18 @@ class ModuleCart extends Module {
 		foreach (ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
 			$arrWidgets[$productCartKey] = array();
 			$bln_isCurrentItemQuantityUpdate = Input::post('FORM_SUBMIT') && preg_match('/^product_quantity_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productID') == $productCartKey;
+			$currentDisplayQuantity = ls_shop_generalHelper::outputDisplayQuantity(
+				$cartItem['quantity'],
+				(int) $cartItem['objProduct']->_quantityDecimals,
+				(int) $cartItem['objProduct']->_salesUnitSize,
+				'.',
+				''
+			);
+			$quantityInputState = ls_shop_generalHelper::getQuantityInputState(
+				$cartItem['objProduct'],
+				true,
+				$currentDisplayQuantity
+			);
 			/*
 			 * Buttons für die Mengenänderung
 			 */
@@ -61,20 +73,15 @@ class ModuleCart extends Module {
                         'quantityDecimals' => $cartItem['objProduct']->_quantityDecimals,
                         'salesUnitSize' => $cartItem['objProduct']->_salesUnitSize,
                         'step' => (string) $cartItem['objProduct']->_displayQuantityStep,
-                        'min' => (string) $cartItem['objProduct']->_displayQuantityStep,
+                        'min' => $quantityInputState['min'],
                         'max' => '999999999',
+                        'allowNonPositiveQuantity' => true,
                         'inputmode' => strpos((string) $cartItem['objProduct']->_displayQuantityStep, '.') !== false ? 'decimal' : 'numeric'
 					),
 
 					'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
 					'str_allowedRequestMethod' => 'post',
-					'var_value' => ls_shop_generalHelper::outputDisplayQuantity(
-					    $cartItem['quantity'],
-                        (int) $cartItem['objProduct']->_quantityDecimals,
-                        (int) $cartItem['objProduct']->_salesUnitSize,
-                        '.',
-                        ''
-                    )
+					'var_value' => $quantityInputState['value']
 				)
 			);
 
@@ -91,12 +98,20 @@ class ModuleCart extends Module {
 			 */
 			if ($bln_isCurrentItemQuantityUpdate) {
 				if (!$obj_FlexWidget_inputQuantity->bln_hasErrors) {
-					ls_shop_cartHelper::updateCartItem(
-						Input::post('productID'),
-						$obj_FlexWidget_inputQuantity->getValue(),
-						Input::post('comment'),
-						true
-					);
+					try {
+						ls_shop_cartHelper::updateCartItem(
+							Input::post('productID'),
+							$obj_FlexWidget_inputQuantity->getValue(),
+							Input::post('comment'),
+							true
+						);
+					} catch (\RuntimeException $exception) {
+						$obj_FlexWidget_inputQuantity->arr_errors[] = $exception->getMessage();
+						$obj_FlexWidget_inputQuantity->bln_hasErrors = true;
+					}
+				}
+
+				if (!$obj_FlexWidget_inputQuantity->bln_hasErrors) {
 					$this->reload();
 				}
 			} else if(Input::post('FORM_SUBMIT') && preg_match('/^product_delete_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productIDDelete') == $productCartKey) {

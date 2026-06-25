@@ -12,6 +12,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_weightUnit']				= array('Weight unit', 'Enter the unit here in which weights in the shop are stated. Weight units are required whenever shipping costs per weight are calculated.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_quantityDefault']			= array('Defaut value for quantity input');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_salesUnit']				= array('Default piece label for sales units', 'Enter the monolingual default piece label of the sales unit here (e.g. "pcs."). This value is only used as a fallback if no multilingual piece label has been maintained on product and variant level.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_minimumOrderQuantityStockHandling']	= array('Behavior when stock falls below minimum order quantity', 'Define here how products shall behave across the shop when the available stock falls below the active minimum order quantity.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_numDecimals']				= array('Number of decimal places for price indication', 'Define here with how many decimal places prices in the shop shall be displayed.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_priceRoundingFactor']		= array('Price rounding model (e.g. Swiss centime rounding)', 'Define here which rounding model Merconis should use for all displayed and calculated prices. Swiss shop owners should use rounding by steps of 0,05 in most cases. If large numbers of small parts are sold and therefore the original price accuracy needs to be used for product prices, it is possible to select rounding by steps of 0,01 here and apply the 0,05-step-rounding only to the invoiced amount and possibly a displayed tax value in the respective templates. Please note that some payment providers validate calculations and reject payments if the cumulated product prices don\'t add up exactly to match the invoiced amount. To prevent payment providers from rejecting payments, Merconis internally uses values with the original accuracy when a special rounding is applied in the templates.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_numDecimalsWeight']		= array('Number of decimal places for weight indication', 'Define here with how many decimal places weights in the shop shall be displayed.');
@@ -235,6 +236,10 @@
 		'withLogin' => array('With login', 'Select this option if you wish to enable only logged-in users to complete an order.'),
 		'withoutLogin' => array('Without login', 'Select this option if you wish to enable non-logged-in users to complete an order and if you also do not wish to offer the possibility to log in during the ordering process.'),
 		'both' => array('With and without login', 'Select this option if you wish to enable both logged-in and non-logged-in users to complete an order and if you wish to offer the possibility to log in during the ordering process.')
+	);
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_minimumOrderQuantityStockHandling']['options'] = array(
+		'denyOrder' => array('Not orderable', 'The product cannot be ordered if the available stock falls below the minimum order quantity.'),
+		'allowAvailableQuantity' => array('Allow available quantity', 'The product remains orderable. In that case the customer must purchase the entire remaining stock, even if it is below the actual minimum order quantity.')
 	);
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchType']['options'] = array(
         'And-Search' => 'Match all words',

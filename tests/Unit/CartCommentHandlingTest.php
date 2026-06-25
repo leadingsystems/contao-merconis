@@ -224,4 +224,20 @@ final class CartCommentHandlingTest extends TestCase
             $capturedArguments
         );
     }
+
+    public function testApiRequestReturnsFailureWhenAddToCartValidationThrows(): void
+    {
+        $result = ls_shop_apiController_cart::processAddToCartRequest(
+            [
+                'productVariantId' => '123',
+                'quantity' => '2',
+            ],
+            function (): array {
+                throw new \RuntimeException('Minimum order quantity not reached.');
+            }
+        );
+
+        self::assertFalse($result['success']);
+        self::assertSame('Minimum order quantity not reached.', $result['data']);
+    }
 }

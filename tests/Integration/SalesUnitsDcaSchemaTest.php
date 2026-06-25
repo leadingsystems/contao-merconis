@@ -59,7 +59,7 @@ final class SalesUnitsDcaSchemaTest extends TestCase
             $productDcaContents
         );
         self::assertStringContainsString(
-            "lsShopProductQuantityUnit,\n\t\t\tlsShopProductSalesUnitSize,\n\t\t\tlsShopProductSalesUnit,\n\t\t\tlsShopProductMengenvergleichUnit;",
+            "lsShopProductQuantityUnit,\n\t\t\tlsShopProductSalesUnitSize,\n\t\t\tlsShopProductSalesUnit,\n\t\t\tlsShopProductMinimumOrderQuantity,\n\t\t\tlsShopProductMengenvergleichUnit;",
             $productDcaContents
         );
     }
@@ -76,7 +76,7 @@ final class SalesUnitsDcaSchemaTest extends TestCase
             $variantDcaContents
         );
         self::assertStringContainsString(
-            "lsShopVariantQuantityUnit,\n\t\t\tlsShopVariantSalesUnitSize,\n\t\t\tlsShopVariantSalesUnit,\n\t\t\tlsShopVariantMengenvergleichUnit;",
+            "lsShopVariantQuantityUnit,\n\t\t\tlsShopVariantSalesUnitSize,\n\t\t\tlsShopVariantSalesUnit,\n\t\t\tlsShopVariantMinimumOrderQuantity,\n\t\t\tlsShopVariantMengenvergleichUnit;",
             $variantDcaContents
         );
     }
@@ -111,7 +111,7 @@ final class SalesUnitsDcaSchemaTest extends TestCase
 
         self::assertStringContainsString("'ls_shop_salesUnit' => [", $shopSettingsDcaContents);
         self::assertStringContainsString(
-            'ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_salesUnit,ls_shop_versandkostenType',
+            'ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_salesUnit,ls_shop_minimumOrderQuantityStockHandling,ls_shop_versandkostenType',
             $shopSettingsDcaContents
         );
     }

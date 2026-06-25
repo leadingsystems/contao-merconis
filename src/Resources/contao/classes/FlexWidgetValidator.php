@@ -6,27 +6,37 @@ use LeadingSystems\Helpers\FlexWidget;
 class FlexWidgetValidator {
 	public static function quantityInput(FlexWidget $obj_flexWidget) {
 		$decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null) ?: '.';
+		$arrMoreData = $obj_flexWidget->getMoreData();
+		$allowNonPositiveQuantity = (bool) ($arrMoreData['allowNonPositiveQuantity'] ?? false);
+		$normalizedQuantityInput = (string) self::normalizeQuantityInput($obj_flexWidget->getValue());
+
 		if (
 			preg_match(
 				'/[^-0-9\\'.$decimalsSeparator.(($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ? '\\'.$GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] : '').']/siU',
 				$obj_flexWidget->getValue()
 			)
-			|| self::normalizeQuantityInput($obj_flexWidget->getValue()) <= 0
 		) {
 			throw new \Exception(sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['numberWithDecimalsFE'], $obj_flexWidget->getLabel()));
 		}
 
-		$arrMoreData = $obj_flexWidget->getMoreData();
+		if ($normalizedQuantityInput <= 0) {
+			if ($allowNonPositiveQuantity) {
+				return;
+			}
+
+			throw new \Exception(sprintf($GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['numberWithDecimalsFE'], $obj_flexWidget->getLabel()));
+		}
+
 		$quantityDecimals = max(0, (int) ($arrMoreData['quantityDecimals'] ?? $arrMoreData['decimalsAmount'] ?? 0));
 		$scaledStep = self::determineScaledStep($arrMoreData, $quantityDecimals);
 		$scaledQuantity = self::scaleQuantityToIntegerDomain(
-			(string) self::normalizeQuantityInput($obj_flexWidget->getValue()),
+			$normalizedQuantityInput,
 			$quantityDecimals
 		);
 
 		if ($scaledQuantity === null || $scaledQuantity % $scaledStep !== 0) {
 			$nextValidScaledQuantity = self::determineNextValidScaledQuantity(
-				(string) self::normalizeQuantityInput($obj_flexWidget->getValue()),
+				$normalizedQuantityInput,
 				$quantityDecimals,
 				$scaledStep
 			);

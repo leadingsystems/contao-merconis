@@ -5,6 +5,8 @@
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['stringHavingPartsWithMinimumLength'] = 'Feld "%s" darf keine Wörter mit weniger als %s Zeichen enthalten';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['numberWithDecimalsFE'] = 'Feld "%s" muss eine Zahl größer 0 enthalten.';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['quantityStepMultipleFE'] = 'Feld "%s" enthält keine zulässige Menge. Der nächste gültige Wert ist %s.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['minimumOrderQuantityFE'] = 'Feld "%s" unterschreitet die Mindestbestellmenge. Bitte geben Sie mindestens %s ein.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityHint'] = 'Mindestbestellmenge: %s';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg1'] = 'Ihre Suche lieferte zu viele Treffer. Es werden Ihnen nur die ersten %s von %s Treffer angezeigt.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg2'] = 'Bitte grenzen Sie Ihre Suche ein, da ansonsten zu viele Treffer gefunden würden.';

@@ -325,6 +325,7 @@ class ls_shop_importController
 			'valueInvalid_weight' => false,
 			'valueInvalid_unit' => false,
 			'valueInvalid_salesUnit' => false,
+			'valueInvalid_minimumOrderQuantity' => false,
 			'valueInvalid_quantityComparisonUnit' => false,
 			'valueInvalid_quantityComparisonDivisor' => false,
 			
@@ -676,6 +677,7 @@ class ls_shop_importController
 							`lsShopProductQuantityDecimals` = ?,
 							`lsShopProductSalesUnitSize` = ?,
 							`lsShopProductSalesUnit` = ?,
+							`lsShopProductMinimumOrderQuantity` = ?,
 							`lsShopProductMengenvergleichUnit` = ?,
 							`lsShopProductMengenvergleichDivisor` = ?,
 							`lsShopProductMainImage` = ?,
@@ -723,6 +725,7 @@ class ls_shop_importController
 				$row['quantityDecimals'] && $row['quantityDecimals'] > 0 ? $row['quantityDecimals'] : 0, // int, empty = 0
 				$row['salesUnitSize'] ? $row['salesUnitSize'] : 0, // int, empty = 0
 				$row['salesUnit'], // String, maxlength 255
+				$row['minimumOrderQuantity'] ? $row['minimumOrderQuantity'] : 0, // decimal, empty = 0
 				$row['quantityComparisonUnit'], // String, maxlength 255
 				$row['quantityComparisonDivisor'] ? $row['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$row['image'], // binary(16), translated, check unclear
@@ -841,6 +844,7 @@ class ls_shop_importController
 							`lsShopProductQuantityDecimals` = ?,
 							`lsShopProductSalesUnitSize` = ?,
 							`lsShopProductSalesUnit` = ?,
+							`lsShopProductMinimumOrderQuantity` = ?,
 							`lsShopProductMengenvergleichUnit` = ?,
 							`lsShopProductMengenvergleichDivisor` = ?,
 							`lsShopProductMainImage` = ?,
@@ -888,6 +892,7 @@ class ls_shop_importController
 				$row['quantityDecimals'] && $row['quantityDecimals'] > 0 ? $row['quantityDecimals'] : 0, // int, empty = 0
 				$row['salesUnitSize'] ? $row['salesUnitSize'] : 0, // int, empty = 0
 				$row['salesUnit'], // String, maxlength 255
+				$row['minimumOrderQuantity'] ? $row['minimumOrderQuantity'] : 0, // decimal, empty = 0
 				$row['quantityComparisonUnit'], // String, maxlength 255
 				$row['quantityComparisonDivisor'] ? $row['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$row['image'], // binary(16), translated, check unclear
@@ -1163,6 +1168,7 @@ class ls_shop_importController
 							`lsShopVariantQuantityUnit` = ?,
 							`lsShopVariantSalesUnitSize` = ?,
 							`lsShopVariantSalesUnit` = ?,
+							`lsShopVariantMinimumOrderQuantity` = ?,
 							`lsShopVariantMengenvergleichUnit` = ?,
 							`lsShopVariantMengenvergleichDivisor` = ?,
 							`lsShopProductVariantMainImage` = ?,
@@ -1205,6 +1211,7 @@ class ls_shop_importController
 				$row['unit'], // String, maxlength 255
 				$row['salesUnitSize'] ? $row['salesUnitSize'] : 0, // int, empty = 0
 				$row['salesUnit'], // String, maxlength 255
+				$row['minimumOrderQuantity'] ? $row['minimumOrderQuantity'] : 0, // decimal, empty = 0
 				$row['quantityComparisonUnit'], // String, maxlength 255
 				$row['quantityComparisonDivisor'] ? $row['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$row['image'], // binary(16), translated, check unclear
@@ -1295,6 +1302,7 @@ class ls_shop_importController
 							`lsShopVariantQuantityUnit` = ?,
 							`lsShopVariantSalesUnitSize` = ?,
 							`lsShopVariantSalesUnit` = ?,
+							`lsShopVariantMinimumOrderQuantity` = ?,
 							`lsShopVariantMengenvergleichUnit` = ?,
 							`lsShopVariantMengenvergleichDivisor` = ?,
 							`lsShopProductVariantMainImage` = ?,
@@ -1338,6 +1346,7 @@ class ls_shop_importController
 				$row['unit'], // String, maxlength 255
 				$row['salesUnitSize'] ? $row['salesUnitSize'] : 0, // int, empty = 0
 				$row['salesUnit'], // String, maxlength 255
+				$row['minimumOrderQuantity'] ? $row['minimumOrderQuantity'] : 0, // decimal, empty = 0
 				$row['quantityComparisonUnit'], // String, maxlength 255
 				$row['quantityComparisonDivisor'] ? $row['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$row['image'], // binary(16), translated, check unclear
@@ -1977,6 +1986,18 @@ class ls_shop_importController
 				}
 
 				return strlen($row['salesUnit']) > 255;
+				break;
+
+			case 'valueInvalid_minimumOrderQuantity':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				if ($row['minimumOrderQuantity'] === '' || $row['minimumOrderQuantity'] === null) {
+					return false;
+				}
+
+				return !preg_match('/^\d+(\.\d{1,4})?$/', $row['minimumOrderQuantity']);
 				break;
 			
 			case 'valueInvalid_quantityComparisonUnit':

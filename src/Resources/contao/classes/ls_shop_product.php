@@ -10,6 +10,7 @@ use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 
+use LeadingSystems\MerconisBundle\Helpers\MinimumOrderQuantityCalculator;
 use LeadingSystems\MerconisBundle\Proxy\ProductDataAccessProxy;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -376,6 +377,23 @@ class ls_shop_product
                 if (!$this->_isAvailableBasedOnDate && !$this->_isPreorderable) {
                     $bln_orderAllowed = false;
                 }
+
+				if ($bln_orderAllowed && $this->_hasMinimumOrderQuantity) {
+					$availableQuantityForMinimumCheck = ls_shop_cartHelper::getAvailableQuantity(
+						$this->_cartKey,
+						$this->_minimumOrderQuantity
+					);
+
+					if (
+						MinimumOrderQuantityCalculator::shouldDenyOrderDueToStockConflict(
+							$this->_minimumOrderQuantity,
+							$availableQuantityForMinimumCheck,
+							(int) $this->_quantityDecimals
+						)
+					) {
+						$bln_orderAllowed = false;
+					}
+				}
 
                 return $bln_orderAllowed;
 				break;
@@ -813,6 +831,34 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 				} else {
 					return $this->_selectedVariant->_hasQuantityUnitSelf;
 				}
+				break;
+
+			case '_minimumOrderQuantitySelf':
+				return MinimumOrderQuantityCalculator::normalizeQuantityValue(
+					$this->mainData['lsShopProductMinimumOrderQuantity'] ?? 0
+				);
+				break;
+
+			case '_minimumOrderQuantity':
+				if ($this->_variantIsSelected) {
+					return $this->_selectedVariant->_minimumOrderQuantity;
+				}
+
+				return $this->_minimumOrderQuantitySelf;
+				break;
+
+			case '_hasMinimumOrderQuantity':
+				return MinimumOrderQuantityCalculator::hasActiveMinimumOrderQuantity(
+					$this->_minimumOrderQuantity
+				);
+				break;
+
+			case '_effectiveMinimumOrderQuantity':
+				return MinimumOrderQuantityCalculator::getEffectiveDisplayMinimumQuantity(
+					$this->_minimumOrderQuantity,
+					(int) $this->_salesUnitSize,
+					(int) $this->_quantityDecimals
+				);
 				break;
 
 			case '_salesUnitSize':

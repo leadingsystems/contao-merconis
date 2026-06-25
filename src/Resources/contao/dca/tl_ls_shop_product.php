@@ -99,6 +99,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			lsShopProductQuantityUnit,
 			lsShopProductSalesUnitSize,
 			lsShopProductSalesUnit,
+			lsShopProductMinimumOrderQuantity,
 			lsShopProductMengenvergleichUnit;
 			
 			{lsShopPages_legend},
@@ -469,6 +470,18 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 				'maxlength' => 255,
 			],
             'sql'                     => "varchar(255) NOT NULL default ''"
+		],
+
+		'lsShopProductMinimumOrderQuantity' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductMinimumOrderQuantity'],
+			'exclude' => true,
+			'inputType' => 'text',
+			'eval' => [
+				'rgxp' => 'numberWithDecimals',
+				'maxlength' => 16,
+				'tl_class' => 'w50',
+			],
+            'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
 		],
 
 		'lsShopProductMengenvergleichUnit' => array(
