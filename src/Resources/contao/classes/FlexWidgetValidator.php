@@ -106,8 +106,13 @@ class FlexWidgetValidator {
 		return 1;
 	}
 
+	/*
+	 * Der Mengenwert stammt aus einem `<input type="number">` und ist daher
+	 * bereits kanonisch (Punkt als Dezimaltrenner, keine Gruppierung). Es ist
+	 * keine Locale-Normalisierung erforderlich oder zulässig.
+	 */
 	protected static function normalizeQuantityInput($quantity) {
-		return ls_shop_cartHelper::normalizeQuantityInputValue($quantity);
+		return (string) $quantity;
 	}
 
 	protected static function scaleQuantityToIntegerDomain(string $normalizedQuantity, int $quantityDecimals): ?int {

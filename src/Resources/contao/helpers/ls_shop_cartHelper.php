@@ -86,53 +86,26 @@ class ls_shop_cartHelper {
 	}
 
 	/*
-	 * Diese Funktion bereinigt die eingegebene Menge entsprechend der für das Produkt definierten Bestimmungen.
-	 * Diese Funktion gibt dabei vor allem eine für Berechnungen verwertbare Zahl zurück.
-	 * Der Parameter `$blnInputIsAlreadyNormalized` steuert, ob der übergebene Wert noch roher Locale-Input ist
-	 * (Default `false` -> `normalizeQuantityInputValue` wird angewandt) oder bereits im internen Punkt-Dezimalformat
-	 * vorliegt (`true` -> der Wert wird nur noch formatiert).
-	 * Hintergrund: `normalizeQuantityInputValue` darf nur auf rohen Locale-Input angewandt werden. Wird die
-	 * Normalisierung auf bereits normalisierte Werte angewandt, entfernt sie in Locales mit "." als
-	 * Tausendertrenner fälschlich den Dezimalpunkt.
-	 * Es wird geprüft, welche Mengenangaben für ein Produkt erlaubt sind und die eingegebene Menge dementsprechend korrigiert.
+	 * Diese Funktion bereinigt eine bereits kanonische Menge (Punkt als
+	 * Dezimaltrenner, keine Tausendergruppierung) auf das für das Produkt
+	 * zulässige Dezimalstellenformat. Die Eingabe stammt aus einem
+	 * `<input type="number">` und ist daher stets kanonisch; eine
+	 * Locale-Normalisierung findet bewusst nicht statt.
 	 */
-	public static function cleanQuantity(&$objProduct, $quantity, $blnInputIsAlreadyNormalized = false) {
-		$normalizedQuantity = $blnInputIsAlreadyNormalized
-			? (string) $quantity
-			: self::normalizeQuantityInputValue($quantity);
-
-		$quantity = number_format((float) $normalizedQuantity, $objProduct->_quantityDecimals, '.', '');
-		return $quantity;
-	}
-
-	public static function normalizeQuantityInputValue($quantity) {
-		$normalizedQuantity = (string) $quantity;
-		$decimalsSeparator = ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? null) ?: '.';
-		$thousandsSeparator = ($GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] ?? null) ?: '';
-
-		if ($thousandsSeparator !== '') {
-			$normalizedQuantity = str_replace($thousandsSeparator, '', $normalizedQuantity);
-		}
-
-		if ($decimalsSeparator !== '.') {
-			$normalizedQuantity = str_replace($decimalsSeparator, '.', $normalizedQuantity);
-		}
-
-		return $normalizedQuantity;
+	public static function cleanQuantity(&$objProduct, $quantity) {
+		return number_format((float) $quantity, $objProduct->_quantityDecimals, '.', '');
 	}
 
 	public static function prepareQuantityForCartOperation(&$objProduct, $quantity) {
-		$normalizedQuantity = self::normalizeQuantityInputValue($quantity);
-
-		if ((float) $normalizedQuantity < 0) {
-			return self::cleanQuantity($objProduct, $normalizedQuantity, true);
+		if ((float) $quantity < 0) {
+			return self::cleanQuantity($objProduct, $quantity);
 		}
 
 		if ($objProduct->_salesUnitSize > 0) {
-			$normalizedQuantity = ls_div($normalizedQuantity, $objProduct->_salesUnitSize);
+			$quantity = ls_div($quantity, $objProduct->_salesUnitSize);
 		}
 
-		return self::cleanQuantity($objProduct, $normalizedQuantity, true);
+		return self::cleanQuantity($objProduct, $quantity);
 	}
 
 	public static function hasAddToCartCustomLogicHook() {

@@ -53,13 +53,13 @@ final class CartQuantityTransformationTest extends TestCase
         self::assertSame('2.2', ls_shop_cartHelper::prepareQuantityForCartOperation($product, '550'));
     }
 
-    public function testCleanQuantitySupportsBothNormalizationModes(): void
+    public function testPrepareQuantityForCartOperationPreservesCanonicalDecimalsInGermanLocale(): void
     {
         $this->setGermanLocale();
         $product = $this->createProduct(1, 0);
 
-        self::assertSame('2.2', ls_shop_cartHelper::cleanQuantity($product, '2.2', true));
-        self::assertSame('2.2', ls_shop_cartHelper::cleanQuantity($product, '2,2'));
+        self::assertSame('4.6', ls_shop_cartHelper::prepareQuantityForCartOperation($product, '4.6'));
+        self::assertSame('10.9', ls_shop_cartHelper::prepareQuantityForCartOperation($product, '10.9'));
     }
 
     private function createProduct(int $quantityDecimals, int $salesUnitSize): ls_shop_product
