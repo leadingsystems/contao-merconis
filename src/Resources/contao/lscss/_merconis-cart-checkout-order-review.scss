@@ -595,6 +595,18 @@ $ls-product-list-field-space: 2%;
       white-space: nowrap;
     }
 
+    .comment {
+      .field-label {
+        text-align: left;
+      }
+
+      .field-content {
+        text-align: left;
+        white-space: normal;
+        line-height: 1.4;
+      }
+    }
+
     .product-title {
       font-size: 2rem;
 
