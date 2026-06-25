@@ -35,7 +35,7 @@ class ls_shop_cartHelper {
 
 	public static function isCartPositionCommentEnabled() {
 		if (!array_key_exists('ls_shop_cartPositionCommentsEnabled', $GLOBALS['TL_CONFIG'])) {
-			return true;
+			return false;
 		}
 
 		return (bool) $GLOBALS['TL_CONFIG']['ls_shop_cartPositionCommentsEnabled'];
