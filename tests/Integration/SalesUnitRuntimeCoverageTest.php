@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Integration;
 
+use LeadingSystems\MerconisBundle\Helpers\MinimumOrderQuantityCalculator;
+use Merconis\Core\ls_shop_generalHelper;
 use PHPUnit\Framework\TestCase;
 
 final class SalesUnitRuntimeCoverageTest extends TestCase
@@ -69,6 +71,34 @@ final class SalesUnitRuntimeCoverageTest extends TestCase
         self::assertStringContainsString("min=\"<?php echo \$this->arr_moreData['min'] ?? '0'; ?>\"", $numberTemplateContents);
         self::assertStringContainsString("max=\"<?php echo \$this->arr_moreData['max']; ?>\"", $numberTemplateContents);
         self::assertStringContainsString("step=\"<?php echo \$this->arr_moreData['step']; ?>\"", $numberTemplateContents);
+    }
+
+    public function testCartQuantityInputInitialValueStaysMachineReadableForDisplayQuantitiesAboveOneThousand(): void
+    {
+        $moduleCartContents = (string) file_get_contents(self::MERCONIS_BASE_PATH . 'frontendModules/ModuleCart.php');
+
+        self::assertStringContainsString("\$currentDisplayQuantity = number_format(", $moduleCartContents);
+        self::assertStringNotContainsString(
+            "\$currentDisplayQuantity = ls_shop_generalHelper::outputDisplayQuantity(",
+            $moduleCartContents
+        );
+        self::assertStringContainsString("\$quantityInputState = ls_shop_generalHelper::getQuantityInputState(", $moduleCartContents);
+
+        $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = ',';
+        $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] = '.';
+
+        $currentDisplayQuantity = number_format(
+            (float) ls_shop_generalHelper::transformDisplayQuantity('5', 250),
+            ls_shop_generalHelper::getDisplayQuantityDecimals(0, 250),
+            '.',
+            ''
+        );
+
+        self::assertSame('1250', $currentDisplayQuantity);
+        self::assertSame(
+            '1250',
+            MinimumOrderQuantityCalculator::normalizeQuantityValue($currentDisplayQuantity)
+        );
     }
 
     public function testBackendOrderTemplatesUseInternalQuantityAndDisplayQuantityUnit(): void

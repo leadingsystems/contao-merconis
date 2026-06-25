@@ -5351,10 +5351,8 @@ class ls_shop_generalHelper
                                 $commentWasSubmitted
                             );
                         } catch (\RuntimeException $exception) {
-                            self::addErrorToFlexWidget(
-                                $obj_flexWidget_inputQuantity,
-                                $exception->getMessage()
-                            );
+                            $obj_flexWidget_inputQuantity->arr_errors[] = $exception->getMessage();
+                            $obj_flexWidget_inputQuantity->bln_hasErrors = true;
                             $arrAddToCartResponse = null;
                         }
 
@@ -5379,18 +5377,6 @@ class ls_shop_generalHelper
         }
 
         return $quantityInput;
-    }
-
-    public static function addErrorToFlexWidget(FlexWidget $objFlexWidget, string $errorMessage): void
-    {
-        $objFlexWidget->arr_errors[] = $errorMessage;
-        $objFlexWidget->bln_hasErrors = true;
-
-        // `FlexWidget` rendert sein HTML bereits im Konstruktor und muss nach
-        // serverseitig ergänzten Fehlern explizit neu geparst werden.
-        $reflectionMethod = new \ReflectionMethod($objFlexWidget, 'parse');
-        $reflectionMethod->setAccessible(true);
-        $reflectionMethod->invoke($objFlexWidget);
     }
 
     public static function getQuantityInputState(

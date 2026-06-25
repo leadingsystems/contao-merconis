@@ -34,10 +34,27 @@ class ModuleCart extends Module {
 		foreach (ls_shop_cartX::getInstance()->itemsExtended as $productCartKey => $cartItem) {
 			$arrWidgets[$productCartKey] = array();
 			$bln_isCurrentItemQuantityUpdate = Input::post('FORM_SUBMIT') && preg_match('/^product_quantity_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productID') == $productCartKey;
-			$currentDisplayQuantity = ls_shop_generalHelper::outputDisplayQuantity(
-				$cartItem['quantity'],
-				(int) $cartItem['objProduct']->_quantityDecimals,
-				(int) $cartItem['objProduct']->_salesUnitSize,
+			/*
+			 * Der Vorbelegungswert des Mengenfeldes muss maschinenlesbar (ohne
+			 * Tausendertrenner) sein, weil getQuantityInputState() ihn anschließend
+			 * per normalizeQuantityValue() parst. outputDisplayQuantity() kann das
+			 * hier nicht leisten: outputQuantity() ersetzt einen explizit
+			 * übergebenen leeren Tausendertrenner fälschlich durch den
+			 * Locale-Trenner (im deutschen Locale "."), wodurch ab Mengen >= 1000
+			 * ein Gruppierungszeichen entsteht, das anschließend als Dezimalpunkt
+			 * fehlinterpretiert wird. Daher wird hier direkt number_format() mit
+			 * echtem leerem Tausendertrenner verwendet -- identische Rundung und
+			 * Dezimalstellen wie outputDisplayQuantity(), aber ohne Gruppierung.
+			 */
+			$currentDisplayQuantity = number_format(
+				(float) ls_shop_generalHelper::transformDisplayQuantity(
+					$cartItem['quantity'],
+					(int) $cartItem['objProduct']->_salesUnitSize
+				),
+				ls_shop_generalHelper::getDisplayQuantityDecimals(
+					(int) $cartItem['objProduct']->_quantityDecimals,
+					(int) $cartItem['objProduct']->_salesUnitSize
+				),
 				'.',
 				''
 			);
@@ -85,6 +102,7 @@ class ModuleCart extends Module {
 				)
 			);
 
+			$arrWidgets[$productCartKey]['inputQuantity'] = $obj_FlexWidget_inputQuantity->getOutput();
 			$arrWidgets[$productCartKey]['commentFieldId'] = 'comment_' . $productCartKey;
 			$arrWidgets[$productCartKey]['commentFieldName'] = 'comment';
 			$arrWidgets[$productCartKey]['commentLabel'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'];
@@ -105,10 +123,8 @@ class ModuleCart extends Module {
 							true
 						);
 					} catch (\RuntimeException $exception) {
-						ls_shop_generalHelper::addErrorToFlexWidget(
-							$obj_FlexWidget_inputQuantity,
-							$exception->getMessage()
-						);
+						$obj_FlexWidget_inputQuantity->arr_errors[] = $exception->getMessage();
+						$obj_FlexWidget_inputQuantity->bln_hasErrors = true;
 					}
 				}
 
@@ -120,8 +136,6 @@ class ModuleCart extends Module {
 				ls_shop_cartHelper::updateCartItem(Input::post('productIDDelete'), -1);
 				$this->reload();
 			}
-
-			$arrWidgets[$productCartKey]['inputQuantity'] = $obj_FlexWidget_inputQuantity->getOutput();
 			
 		}
 
