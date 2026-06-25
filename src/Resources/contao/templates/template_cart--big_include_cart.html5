@@ -109,6 +109,13 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                     }
                     ?>
                     <?php
+                    if (ls_shop_msg::checkMsg('cartPositionBelowMinimumOrderQuantity', $productCartKey)) {
+                        ?>
+                        <p class="error"><?php echo ls_shop_msg::getMsg('cartPositionBelowMinimumOrderQuantity', $productCartKey); ?></p>
+                        <?php
+                    }
+                    ?>
+                    <?php
                     if (ls_shop_msg::checkMsg('checkCartPositionsStockSufficient', $productCartKey)) {
                         $msgDetails = ls_shop_msg::getMsgDetails('checkCartPositionsStockSufficient', $productCartKey);
                         ?>

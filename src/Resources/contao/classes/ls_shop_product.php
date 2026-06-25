@@ -378,23 +378,6 @@ class ls_shop_product
                     $bln_orderAllowed = false;
                 }
 
-				if ($bln_orderAllowed && $this->_hasMinimumOrderQuantity) {
-					$availableQuantityForMinimumCheck = ls_shop_cartHelper::getAvailableQuantity(
-						$this->_cartKey,
-						$this->_minimumOrderQuantity
-					);
-
-					if (
-						MinimumOrderQuantityCalculator::shouldDenyOrderDueToStockConflict(
-							$this->_minimumOrderQuantity,
-							$availableQuantityForMinimumCheck,
-							(int) $this->_quantityDecimals
-						)
-					) {
-						$bln_orderAllowed = false;
-					}
-				}
-
                 return $bln_orderAllowed;
 				break;
 
@@ -551,6 +534,23 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 					// if stock is equal or less than 0 and orders with insufficient stock are not allowed
 					if ($this->_stock <= 0 && !$this->_allowOrdersWithInsufficientStock) {
 						$blnStockIsSufficient = true;
+					}
+
+					if (!$blnStockIsSufficient && $this->_hasMinimumOrderQuantity) {
+						$availableQuantityForMinimumCheck = ls_shop_cartHelper::getAvailableQuantity(
+							$this->_cartKey,
+							$this->_minimumOrderQuantity
+						);
+
+						if (
+							MinimumOrderQuantityCalculator::shouldDenyOrderDueToStockConflict(
+								$this->_minimumOrderQuantity,
+								$availableQuantityForMinimumCheck,
+								(int) $this->_quantityDecimals
+							)
+						) {
+							$blnStockIsSufficient = true;
+						}
 					}
 				}
 

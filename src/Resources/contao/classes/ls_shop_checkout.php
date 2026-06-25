@@ -118,6 +118,7 @@ class ls_shop_checkout {
         }
 
         $cartPositionsStockSufficient = ls_shop_cartHelper::checkCartPositionsStockSufficient();
+        $cartPositionsMinimumOrderQuantityValid = ls_shop_cartHelper::validateMinimumOrderQuantityOfCartPositions();
 
         $bln_couponsAllowed = true;
         if (is_array(ls_shop_cartX::getInstance()->calculation['couponValues'])) {
@@ -133,7 +134,11 @@ class ls_shop_checkout {
             }
         }
 
-        if (!$cartPositionsStockSufficient || !$bln_couponsAllowed) {
+        if (
+            !$cartPositionsStockSufficient
+            || !$cartPositionsMinimumOrderQuantityValid
+            || !$bln_couponsAllowed
+        ) {
             /*
              * Lagerbestand für mindestens eine Position nicht ausreichend, daher Bestellabschluss abbrechen und zurück zur Checkout-Seite
              */

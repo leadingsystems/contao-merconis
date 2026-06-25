@@ -617,6 +617,83 @@ class ls_shop_cartHelper {
 		return $blnValid;
 	}
 
+	public static function validateMinimumOrderQuantityOfCartPositions() {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopCart =  $session->get('lsShopCart');
+        $blnValid = true;
+
+        if (!isset($session_lsShopCart['items']) || !is_array($session_lsShopCart['items'])) {
+            return $blnValid;
+        }
+
+        foreach ($session_lsShopCart['items'] as $cartItemProductCartKey => $arrCartItem) {
+			ls_shop_msg::delMsg('cartPositionBelowMinimumOrderQuantity', $cartItemProductCartKey);
+
+			$objProduct = ls_shop_generalHelper::getObjProduct($cartItemProductCartKey, __METHOD__);
+			$objProductOrVariant = $objProduct->_variantIsSelected ? $objProduct->_selectedVariant : $objProduct;
+
+			if (!$objProductOrVariant->_hasMinimumOrderQuantity) {
+				continue;
+			}
+
+			$quantityDecimals = (int) $objProductOrVariant->_quantityDecimals;
+			$normalizedCurrentQuantity = MinimumOrderQuantityCalculator::normalizeQuantityValue(
+				(string) ($arrCartItem['quantity'] ?? 0)
+			);
+
+			if (MinimumOrderQuantityCalculator::compareQuantities($normalizedCurrentQuantity, '0', $quantityDecimals) <= 0) {
+				continue;
+			}
+
+			$availableQuantityForMinimumCheck = self::getAvailableQuantity(
+				$cartItemProductCartKey,
+				$normalizedCurrentQuantity
+			);
+			$effectiveMinimumOrderQuantity = MinimumOrderQuantityCalculator::resolveMinimumOrderQuantityForStockHandling(
+				$objProductOrVariant->_minimumOrderQuantity,
+				$availableQuantityForMinimumCheck,
+				$quantityDecimals
+			);
+
+			if (
+				MinimumOrderQuantityCalculator::compareQuantities(
+					$normalizedCurrentQuantity,
+					$effectiveMinimumOrderQuantity,
+					$quantityDecimals
+				) >= 0
+			) {
+				continue;
+			}
+
+			$blnValid = false;
+			$minimumQuantityLabel = ls_shop_generalHelper::buildMinimumOrderQuantityDisplayLabel(
+				$objProductOrVariant,
+				MinimumOrderQuantityCalculator::normalizeQuantityValue(
+					(string) $objProductOrVariant->_effectiveMinimumOrderQuantity
+				)
+			);
+
+			ls_shop_msg::setMsg(array(
+				'class' => 'cartPositionBelowMinimumOrderQuantity',
+				'reference' => $cartItemProductCartKey,
+				'msg' => sprintf(
+					$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityCartBelowMinimum'],
+					$minimumQuantityLabel
+				),
+				'arrDetails' => array(
+					'minimumOrderQuantity' => MinimumOrderQuantityCalculator::normalizeQuantityValue(
+						(string) $objProductOrVariant->_minimumOrderQuantity
+					),
+					'effectiveMinimumOrderQuantity' => $effectiveMinimumOrderQuantity,
+					'currentQuantity' => $normalizedCurrentQuantity,
+					'displayMinimumOrderQuantity' => $minimumQuantityLabel,
+				)
+			));
+		}
+
+		return $blnValid;
+	}
+
 	protected static function getCartPositionOrderNotAllowedMessage($objProduct, $cartItemProductCartKey): string
 	{
 		$objProductOrVariant = $objProduct->_variantIsSelected ? $objProduct->_selectedVariant : $objProduct;
