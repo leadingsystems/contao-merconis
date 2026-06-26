@@ -5275,7 +5275,25 @@ class ls_shop_generalHelper
             $objQuantityInputTemplate->str_commentLabel = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'];
             $objQuantityInputTemplate->str_commentPlaceholder = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'];
             $objQuantityInputTemplate->str_commentValue = Input::post('FORM_SUBMIT') == $str_formSubmitValue ? (string) Input::post('comment') : '';
-            $objQuantityInputTemplate->str_minimumOrderQuantityHint = self::getMinimumOrderQuantityHint($obj_productOrVariant);
+            $reducedMinimumDisplayQuantity = null;
+
+            if (
+                $quantityInputState['resolvedMinimumDisplayQuantity'] !== null
+                && MinimumOrderQuantityCalculator::compareQuantities(
+                    $quantityInputState['resolvedMinimumDisplayQuantity'],
+                    MinimumOrderQuantityCalculator::normalizeQuantityValue(
+                        (string) $obj_productOrVariant->_effectiveMinimumOrderQuantity
+                    ),
+                    (int) $obj_productOrVariant->_quantityDecimals
+                ) < 0
+            ) {
+                $reducedMinimumDisplayQuantity = $quantityInputState['resolvedMinimumDisplayQuantity'];
+            }
+
+            $objQuantityInputTemplate->str_minimumOrderQuantityHint = self::getMinimumOrderQuantityHint(
+                $obj_productOrVariant,
+                $reducedMinimumDisplayQuantity
+            );
 
             /*-->
              * Erstellen des Quantity-Feldes
@@ -5396,6 +5414,7 @@ class ls_shop_generalHelper
         );
         $hasActiveMinimumOrderQuantity = (bool) $obj_productOrVariant->_hasMinimumOrderQuantity;
         $inactiveProductPageDefaultValue = null;
+        $resolvedMinimumDisplayQuantity = null;
 
         if (!$hasActiveMinimumOrderQuantity && !$isCartContext) {
             $inactiveProductPageDefaultValue = isset($GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'])
@@ -5456,16 +5475,21 @@ class ls_shop_generalHelper
 				);
 				$minimumValue = $resolvedDisplayMinimumQuantity;
 				$initialValue = $resolvedDisplayMinimumQuantity;
+                $resolvedMinimumDisplayQuantity = $resolvedDisplayMinimumQuantity;
 			}
 		}
 
         return [
 			'min' => $minimumValue,
 			'value' => $initialValue,
+            'resolvedMinimumDisplayQuantity' => $resolvedMinimumDisplayQuantity,
         ];
     }
 
-    public static function getMinimumOrderQuantityHint($obj_productOrVariant): string
+    public static function getMinimumOrderQuantityHint(
+        $obj_productOrVariant,
+        ?string $displayMinimumQuantity = null
+    ): string
     {
         if (!$obj_productOrVariant->_hasMinimumOrderQuantity) {
             return '';
@@ -5473,9 +5497,11 @@ class ls_shop_generalHelper
 
         $displayQuantityLabel = self::buildMinimumOrderQuantityDisplayLabel(
             $obj_productOrVariant,
-            MinimumOrderQuantityCalculator::normalizeQuantityValue(
-                (string) $obj_productOrVariant->_effectiveMinimumOrderQuantity
-            )
+            $displayMinimumQuantity !== null
+                ? $displayMinimumQuantity
+                : MinimumOrderQuantityCalculator::normalizeQuantityValue(
+                    (string) $obj_productOrVariant->_effectiveMinimumOrderQuantity
+                )
         );
 
         if ($displayQuantityLabel === '') {
