@@ -189,7 +189,7 @@ final class MinimumOrderQuantityGetterTest extends TestCase
         self::assertSame(
             [
                 'min' => '1',
-                'value' => '1',
+                'value' => '',
                 'resolvedMinimumDisplayQuantity' => null,
             ],
             ls_shop_generalHelper::getQuantityInputState($product)

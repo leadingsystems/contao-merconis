@@ -5483,6 +5483,13 @@ class ls_shop_generalHelper
 			}
 		}
 
+        if (
+            !$isCartContext
+            && ($GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'] ?? '') === ''
+        ) {
+            $initialValue = '';
+        }
+
         return [
 			'min' => $minimumValue,
 			'value' => $initialValue,
