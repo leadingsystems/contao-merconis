@@ -5417,7 +5417,11 @@ class ls_shop_generalHelper
         $resolvedMinimumDisplayQuantity = null;
 
         if (!$hasActiveMinimumOrderQuantity && !$isCartContext) {
-            $inactiveProductPageDefaultValue = isset($GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'])
+            $inactiveProductPageDefaultValue = (
+                isset($GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'])
+                && $GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'] !== ''
+                && is_numeric($GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'])
+            )
                 ? self::outputDisplayQuantity(
                     $GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'],
                     (int) $obj_productOrVariant->_quantityDecimals,
@@ -5425,7 +5429,7 @@ class ls_shop_generalHelper
                     '.',
                     ''
                 )
-                : '';
+                : null;
         }
 
 		$minimumValue = MinimumOrderQuantityCalculator::getContextualDisplayMinimumValue(

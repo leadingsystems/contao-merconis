@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
+use Contao\System;
 use LeadingSystems\MerconisBundle\Helpers\MinimumOrderQuantityCalculator;
 use Merconis\Core\ls_shop_generalHelper;
 use Merconis\Core\ls_shop_product;
@@ -10,6 +11,7 @@ use Merconis\Core\ls_shop_variant;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 final class MinimumOrderQuantityGetterTest extends TestCase
 {
@@ -22,6 +24,24 @@ final class MinimumOrderQuantityGetterTest extends TestCase
             'The minimum order quantity of %s cannot be reached because of the available stock. Only %s are still available.';
         $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = '.';
         $GLOBALS['merconis_globals']['ls_shop_thousandsSeparator'] = ',';
+        $GLOBALS['TL_CONFIG'] = [];
+
+        $container = new ContainerBuilder();
+        $container->set(
+            'merconis.session',
+            new class () {
+                public function getSession(): object
+                {
+                    return new class () {
+                        public function get(string $key): array
+                        {
+                            return [];
+                        }
+                    };
+                }
+            }
+        );
+        System::setContainer($container);
     }
 
     public function testVariantUsesOwnMinimumOrderQuantityWhenPositive(): void
@@ -145,6 +165,34 @@ final class MinimumOrderQuantityGetterTest extends TestCase
         self::assertSame(
             'The minimum order quantity of 500 pcs. cannot be reached because of the available stock. Only 250 pcs. are still available.',
             ls_shop_generalHelper::getMinimumOrderQuantityStockConflictCartMessage($product, '250')
+        );
+    }
+
+    public function testQuantityInputStateIgnoresEmptyQuantityDefaultConfig(): void
+    {
+        $product = $this->createProduct(
+            [
+                'lsShopProductQuantityDecimals' => 0,
+                'lsShopProductSalesUnitSize' => 0,
+                'lsShopProductMinimumOrderQuantity' => '0',
+            ]
+        );
+        $product->_displayQuantityStep = '1';
+        $product->_effectiveMinimumOrderQuantity = '0';
+        $product->_hasMinimumOrderQuantity = false;
+        $product->_quantityDecimals = 0;
+        $product->_salesUnitSize = 0;
+        $product->_cartKey = 'product-1';
+
+        $GLOBALS['TL_CONFIG']['ls_shop_quantityDefault'] = '';
+
+        self::assertSame(
+            [
+                'min' => '1',
+                'value' => '1',
+                'resolvedMinimumDisplayQuantity' => null,
+            ],
+            ls_shop_generalHelper::getQuantityInputState($product)
         );
     }
 
