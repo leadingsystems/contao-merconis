@@ -102,7 +102,6 @@ class ModuleCart extends Module {
 				)
 			);
 
-			$arrWidgets[$productCartKey]['inputQuantity'] = $obj_FlexWidget_inputQuantity->getOutput();
 			$arrWidgets[$productCartKey]['commentFieldId'] = 'comment_' . $productCartKey;
 			$arrWidgets[$productCartKey]['commentFieldName'] = 'comment';
 			$arrWidgets[$productCartKey]['commentLabel'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'];
@@ -123,8 +122,10 @@ class ModuleCart extends Module {
 							true
 						);
 					} catch (\RuntimeException $exception) {
-						$obj_FlexWidget_inputQuantity->arr_errors[] = $exception->getMessage();
-						$obj_FlexWidget_inputQuantity->bln_hasErrors = true;
+						ls_shop_generalHelper::addErrorToFlexWidget(
+							$obj_FlexWidget_inputQuantity,
+							$exception->getMessage()
+						);
 					}
 				}
 
@@ -136,6 +137,8 @@ class ModuleCart extends Module {
 				ls_shop_cartHelper::updateCartItem(Input::post('productIDDelete'), -1);
 				$this->reload();
 			}
+
+			$arrWidgets[$productCartKey]['inputQuantity'] = $obj_FlexWidget_inputQuantity->getOutput();
 			
 		}
 
