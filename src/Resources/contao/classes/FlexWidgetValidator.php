@@ -41,6 +41,18 @@ class FlexWidgetValidator {
 				$scaledStep
 			);
 
+			$scaledMinimumQuantity = null;
+			if (($arrMoreData['min'] ?? '') !== '') {
+				$scaledMinimumQuantity = self::scaleQuantityToIntegerDomain(
+					(string) $arrMoreData['min'],
+					$quantityDecimals
+				);
+			}
+
+			if ($scaledMinimumQuantity !== null && $nextValidScaledQuantity < $scaledMinimumQuantity) {
+				$nextValidScaledQuantity = $scaledMinimumQuantity;
+			}
+
 			throw new \Exception(
 				sprintf(
 					$GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['quantityStepMultipleFE'],
