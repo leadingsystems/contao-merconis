@@ -147,13 +147,27 @@ final class FastFilterFormService
      */
     private function createBaseField(array $field, array $options): array
     {
+        $type = ((string) ($field['filterFormFieldType'] ?? 'checkbox')) === 'radio' ? 'radio' : 'checkbox';
+        $filterDisplayMode = (string) ($field['filterDisplayMode'] ?? 'showMoreLess');
+
+        if ($type === 'radio' && $filterDisplayMode === 'sliderDirect') {
+            $filterDisplayMode = 'showMoreLess';
+        }
+
         return [
             'id' => (int) $field['id'],
             'alias' => (string) ($field['alias'] ?? ''),
             'label' => (string) ($field['title'] ?? ''),
-            'type' => ((string) ($field['filterFormFieldType'] ?? 'checkbox')) === 'radio' ? 'radio' : 'checkbox',
+            'type' => $type,
             'cssClass' => (string) ($field['classForFilterFormField'] ?? ''),
+            'filterDisplayMode' => $filterDisplayMode,
             'numItemsInReducedMode' => (int) ($field['numItemsInReducedMode'] ?? 0),
+            'rangeSliderDecimalSeparator' => (string) ($field['rangeSliderDecimalSeparator'] ?? 'dot'),
+            'rangeSliderThousandSeparator' => (string) ($field['rangeSliderThousandSeparator'] ?? 'none'),
+            'rangeSliderMinOptionCount' => (int) ($field['rangeSliderMinOptionCount'] ?? 10),
+            'rangeSliderInitialOptionCount' => (int) ($field['rangeSliderInitialOptionCount'] ?? 10),
+            'rangeSliderInitialPosition' => (string) ($field['rangeSliderInitialPosition'] ?? 'bottom'),
+            'rangeSliderAutoOptionVisibility' => (string) ($field['rangeSliderAutoOptionVisibility'] ?? 'show'),
             'isActive' => $this->fieldHasSelectedOption($options),
             'options' => $options,
         ];

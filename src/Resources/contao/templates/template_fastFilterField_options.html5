@@ -15,6 +15,17 @@ $multipleSuffix = count($field['options']) > 1 ? '[]' : '';
      data-filter-field-id="<?php echo $field['id']; ?>"
      data-source="<?php echo $field['source']; ?>"
      data-source-attribute="<?php echo $field['sourceAttribute']; ?>"
+     data-filter-display-mode="<?php echo $field['filterDisplayMode']; ?>"
+     data-range-slider-decimal-separator="<?php echo $field['rangeSliderDecimalSeparator']; ?>"
+     data-range-slider-thousand-separator="<?php echo $field['rangeSliderThousandSeparator']; ?>"
+     data-range-slider-min-option-count="<?php echo $field['rangeSliderMinOptionCount']; ?>"
+     data-range-slider-initial-option-count="<?php echo $field['rangeSliderInitialOptionCount']; ?>"
+     data-range-slider-initial-position="<?php echo $field['rangeSliderInitialPosition']; ?>"
+     data-range-slider-auto-option-visibility="<?php echo $field['rangeSliderAutoOptionVisibility']; ?>"
+     data-range-slider-more-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['moreOptions']; ?>"
+     data-range-slider-more-label-compact="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['moreOptionsCompact']; ?>"
+     data-range-slider-min-handle-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['minHandleLabel']; ?>"
+     data-range-slider-max-handle-label="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['maxHandleLabel']; ?>"
      data-reduced-mode-limit="<?php echo (int) ($field['numItemsInReducedMode'] ?? 0); ?>">
     <input type="hidden" name="<?php echo $inputName; ?>" value="">
 

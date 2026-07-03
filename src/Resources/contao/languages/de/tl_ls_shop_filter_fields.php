@@ -12,8 +12,15 @@
     $GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['flexContentLIMinMaxKey']               = array('Flex-Content-Key LI MinMax', 'Geben Sie den Key eines sprachunabhängigen FlexContent-MinMax-Feldes an, von dem das Filter-Feld seine Werte bezieht.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['sourceAttribute']						= array('Quellmerkmal');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['classForFilterFormField']				= array('CSS-Klasse', 'Diese CSS-Klasse wird im Filter-Formular-Feld verwendet.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterDisplayMode']					= ['Darstellungsmodus', 'Bestimmen Sie, ob dieses Filterfeld den klassischen "Mehr/Weniger"-Toggler oder einen Range-Slider verwendet.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['numItemsInReducedMode']				= array('Anzahl dargestellter Werte im "Reduziert-Modus"', 'Tragen Sie 0 ein, um im "Reduziert-Modus" alle Werte darzustellen oder, sofern einzelne Werte als "wichtig" gekennzeichnet sind, alle "wichtigen"');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterFormFieldType']					= array('Art des Auswahlfeldes');
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderDecimalSeparator']			= ['Dezimaltrennzeichen', 'Bestimmen Sie das Dezimaltrennzeichen, das für die numerische Wertextraktion aus den Options-Labels verwendet wird.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderThousandSeparator']		= ['Tausendertrennzeichen', 'Bestimmen Sie optional ein Tausendertrennzeichen für die numerische Wertextraktion.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderMinOptionCount']			= ['Mindestanzahl für Slider-Aktivierung', 'Der Slider wird nur aktiviert, wenn mindestens diese Anzahl numerischer Optionen verfügbar ist. Minimum: 3.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderInitialOptionCount']		= ['Anzahl initial sichtbarer Optionen', 'Bestimmen Sie, wie viele numerische Optionen im Modus "Slider: Optionsreduktion" initial sichtbar sind.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderInitialPosition']			= ['Initiale Ausrichtung', 'Bestimmen Sie, welcher Bereich der numerisch sortierten Optionen initial sichtbar ist.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderAutoOptionVisibility']		= ['Darstellung auto-aktivierter Optionen', 'Bestimmen Sie im Direktfilter-Modus, ob die automatisch aktivierten Optionen sichtbar oder versteckt gerendert werden.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['priority']								= array('Priorität', 'Die Priorität wird als Sortierkriterium für die Ausgabe der Felder im Filter-Formular verwendet. Felder mit höherer Priorität werden über Feldern mit niederer Priorität angezeigt.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode']							= array('Filter-Modus', 'Bestimmen Sie, mit welcher logischen Verknüpfung mehrere gewählte Filter-Optionen interpretiert werden.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['makeFilterModeUserAdjustable']			= array('Einstellung des Filter-Modus im Frontend ermöglichen');
@@ -42,6 +49,36 @@
 		'checkbox' => 'Checkbox-Menü',
 		'radio' => 'Radio-Menü'
 	);
+
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterDisplayMode']['options'] = [
+		'showMoreLess' => 'Mehr/Weniger',
+		'sliderRange' => 'Slider: Optionsreduktion',
+		'sliderDirect' => 'Slider: Direktfilter'
+	];
+
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderDecimalSeparator']['options'] = [
+		'dot' => 'Punkt',
+		'comma' => 'Komma'
+	];
+
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderThousandSeparator']['options'] = [
+		'none' => 'Keines',
+		'dot' => 'Punkt',
+		'comma' => 'Komma',
+		'space' => 'Leerzeichen',
+		'apostrophe' => 'Apostroph'
+	];
+
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderInitialPosition']['options'] = [
+		'bottom' => 'Unten',
+		'top' => 'Oben',
+		'middle' => 'Mittig'
+	];
+
+	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderAutoOptionVisibility']['options'] = [
+		'show' => 'Sichtbar',
+		'hide' => 'Versteckt'
+	];
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterMode']['options'] = array(
 		'and' => 'und',

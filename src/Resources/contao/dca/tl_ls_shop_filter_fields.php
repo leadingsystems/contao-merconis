@@ -72,16 +72,22 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 	),
 
 	'palettes' => array(
-		'__selector__' => array('dataSource'),
-		'default' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority;{published_legend},published;',
-		'attribute' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse,disableFilterIfOnlyOneValue;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
+		'__selector__' => array('dataSource', 'filterDisplayMode'),
+		'default' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},filterDisplayMode,classForFilterFormField,filterFormFieldType,priority;{published_legend},published;',
+		'attribute' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},filterDisplayMode,classForFilterFormField,filterFormFieldType,priority,templateToUse,disableFilterIfOnlyOneValue;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
         'attributesMinMax' => '{title_legend},title,alias;{dataSource_legend},dataSource,sourceAttribute;{output_legend},classForFilterFormField,priority,templateToUseForRangeField;{filterLogic_legend};{published_legend},published;',
-		'producer' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{published_legend},published;',
+		'producer' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},filterDisplayMode,classForFilterFormField,filterFormFieldType,priority,templateToUse;{published_legend},published;',
 		'price' => '{title_legend},title,alias;{dataSource_legend},dataSource;{output_legend},classForFilterFormField,priority,templateToUseForPriceField;{published_legend},published;',
-        'flexContentLI' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLIField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
-        'flexContentLD' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLDKey;{output_legend},numItemsInReducedMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLDField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
+        'flexContentLI' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},filterDisplayMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLIField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
+        'flexContentLD' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLDKey;{output_legend},filterDisplayMode,classForFilterFormField,filterFormFieldType,priority,templateToUseForFlexContentLDField;{filterLogic_legend},filterMode,makeFilterModeUserAdjustable;{published_legend},published;',
         'flexContentLIMinMax' => '{title_legend},title,alias;{dataSource_legend},dataSource,flexContentLIKey;{output_legend},classForFilterFormField,priority,templateToUseForFlexContentLIMinMaxField;{filterLogic_legend};{published_legend},published;'
 	),
+
+	'subpalettes' => [
+		'filterDisplayMode_showMoreLess' => 'numItemsInReducedMode',
+		'filterDisplayMode_sliderRange' => 'rangeSliderDecimalSeparator,rangeSliderThousandSeparator,rangeSliderMinOptionCount,rangeSliderInitialOptionCount,rangeSliderInitialPosition',
+		'filterDisplayMode_sliderDirect' => 'rangeSliderDecimalSeparator,rangeSliderThousandSeparator,rangeSliderMinOptionCount,rangeSliderAutoOptionVisibility'
+	],
 
 	'fields' => array(
         'id' => array (
@@ -160,6 +166,20 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
             'sql'                     => "int(10) unsigned NOT NULL default '0'"
 		),
 
+		'filterDisplayMode' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterDisplayMode'],
+			'default' => 'showMoreLess',
+			'exclude' => true,
+			'inputType' => 'select',
+			'options_callback' => array('Merconis\Core\ls_shop_filter_fields', 'getFilterDisplayModeOptions'),
+			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterDisplayMode']['options'],
+			'eval' => array('submitOnChange' => true, 'tl_class' => 'w50'),
+			'save_callback' => [
+				['Merconis\Core\ls_shop_filter_fields', 'normalizeFilterDisplayMode']
+			],
+            'sql'                     => "varchar(32) NOT NULL default 'showMoreLess'"
+		],
+
 		'classForFilterFormField' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['classForFilterFormField'],
 			'exclude' => true,
@@ -170,13 +190,76 @@ $GLOBALS['TL_DCA']['tl_ls_shop_filter_fields'] = array(
 
 		'filterFormFieldType' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterFormFieldType'],
+			'default' => 'checkbox',
 			'exclude' => true,
 			'inputType'               => 'select',
 			'options'                 => array('checkbox', 'radio'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['filterFormFieldType']['options'],
-			'eval'                    => array('tl_class'=>'w50'),
+			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
+
+		'rangeSliderDecimalSeparator' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderDecimalSeparator'],
+			'default' => 'dot',
+			'exclude' => true,
+			'inputType' => 'select',
+			'options' => ['dot', 'comma'],
+			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderDecimalSeparator']['options'],
+			'eval' => array('mandatory' => true, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(16) NOT NULL default 'dot'"
+		],
+
+		'rangeSliderThousandSeparator' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderThousandSeparator'],
+			'default' => 'none',
+			'exclude' => true,
+			'inputType' => 'select',
+			'options' => ['none', 'dot', 'comma', 'space', 'apostrophe'],
+			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderThousandSeparator']['options'],
+			'eval' => array('tl_class' => 'w50'),
+            'sql'                     => "varchar(16) NOT NULL default 'none'"
+		],
+
+		'rangeSliderMinOptionCount' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderMinOptionCount'],
+			'default' => 10,
+			'exclude' => true,
+			'inputType' => 'text',
+			'eval' => array('rgxp' => 'digit', 'minval' => 3, 'mandatory' => true, 'tl_class' => 'w50'),
+            'sql'                     => "int(10) unsigned NOT NULL default '10'"
+		],
+
+		'rangeSliderInitialOptionCount' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderInitialOptionCount'],
+			'default' => 10,
+			'exclude' => true,
+			'inputType' => 'text',
+			'eval' => array('rgxp' => 'digit', 'minval' => 1, 'mandatory' => true, 'tl_class' => 'w50'),
+            'sql'                     => "int(10) unsigned NOT NULL default '10'"
+		],
+
+		'rangeSliderInitialPosition' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderInitialPosition'],
+			'default' => 'bottom',
+			'exclude' => true,
+			'inputType' => 'select',
+			'options' => ['bottom', 'top', 'middle'],
+			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderInitialPosition']['options'],
+			'eval' => array('mandatory' => true, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(16) NOT NULL default 'bottom'"
+		],
+
+		'rangeSliderAutoOptionVisibility' => [
+			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderAutoOptionVisibility'],
+			'default' => 'show',
+			'exclude' => true,
+			'inputType' => 'select',
+			'options' => ['show', 'hide'],
+			'reference' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['rangeSliderAutoOptionVisibility']['options'],
+			'eval' => array('mandatory' => true, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(16) NOT NULL default 'show'"
+		],
 
 		'priority' => array (
 			'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_filter_fields']['priority'],
@@ -349,4 +432,44 @@ class ls_shop_filter_fields extends Backend {
     public function getRangeFilterFieldTemplates() {
         return $this->getTemplateGroup('template_formAttributesMinMaxFilterField_');
     }
+
+	public function getFilterDisplayModeOptions($dc) {
+		$filterFormFieldType = Input::post('filterFormFieldType');
+		if (!$filterFormFieldType && isset($dc->activeRecord->filterFormFieldType)) {
+			$filterFormFieldType = $dc->activeRecord->filterFormFieldType;
+		}
+
+		return self::determineFilterDisplayModeOptions($filterFormFieldType);
+	}
+
+	public function normalizeFilterDisplayMode($value, DataContainer $dc) {
+		$filterFormFieldType = Input::post('filterFormFieldType');
+		if (!$filterFormFieldType && isset($dc->activeRecord->filterFormFieldType)) {
+			$filterFormFieldType = $dc->activeRecord->filterFormFieldType;
+		}
+
+		return self::normalizeFilterDisplayModeForFieldType($value, $filterFormFieldType);
+	}
+
+	public static function determineFilterDisplayModeOptions($filterFormFieldType) {
+		$options = ['showMoreLess', 'sliderRange'];
+
+		if ($filterFormFieldType !== 'radio') {
+			$options[] = 'sliderDirect';
+		}
+
+		return $options;
+	}
+
+	public static function normalizeFilterDisplayModeForFieldType($value, $filterFormFieldType) {
+		if (!$value) {
+			return 'showMoreLess';
+		}
+
+		if (!in_array($value, self::determineFilterDisplayModeOptions($filterFormFieldType), true)) {
+			return 'showMoreLess';
+		}
+
+		return $value;
+	}
 }

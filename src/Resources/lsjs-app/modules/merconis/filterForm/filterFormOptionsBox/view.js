@@ -14,7 +14,16 @@ var obj_classdef = 	{
             this.__autoElements.main.optionsBox_filterOption = new Elements();
         }
         this.prepare();
-        this.hideAllPossibleOptions();
+
+        if (!this.usesRangeSlider()) {
+            this.hideAllPossibleOptions();
+        }
+    },
+
+    usesRangeSlider: function() {
+        var str_displayMode = this.__el_container.getProperty('data-filter-display-mode');
+
+        return ['sliderRange', 'sliderDirect'].includes(str_displayMode);
     },
 
     prepare: function() {
@@ -51,6 +60,11 @@ var obj_classdef = 	{
             return;
         }
 
+        if (this.usesRangeSlider()) {
+            this.__autoElements.main.showMoreLess.addClass('hidden');
+            return;
+        }
+
         this.__autoElements.main.showMoreLess.addEvent('click', function() {
             if (this.hasClass('currentlyHiding')) {
                 self.showAllOptions();
@@ -71,7 +85,7 @@ var obj_classdef = 	{
             'click',
             function() {
                 var int_numChecked = 0;
-                var str_selectorForRelevantInputs = '.filterOption:not(.hidden) input';
+                var str_selectorForRelevantInputs = '.filterOption:not(.hidden):not(.range-hidden) input';
                 Array.each(
                     this.__autoElements.main.optionsBox_filterOptionsWrapper.getElements(str_selectorForRelevantInputs),
                     function(el_input) {
@@ -102,6 +116,11 @@ var obj_classdef = 	{
 
     hideShowMoreLessIfUnneeded: function() {
         if (typeOf(this.__autoElements.main.showMoreLess) !== 'element') {
+            return;
+        }
+
+        if (this.usesRangeSlider()) {
+            this.__autoElements.main.showMoreLess.addClass('hidden');
             return;
         }
 
@@ -184,6 +203,10 @@ var obj_classdef = 	{
             return;
         }
 
+        if (this.usesRangeSlider()) {
+            return;
+        }
+
         /*
          * Don't hide anything if there are no important options
          */
@@ -218,6 +241,8 @@ var obj_classdef = 	{
     },
 
     clear: function() {
+        var obj_rangeSliderInstance = this.__el_container.retrieve('filterRangeSliderInstance');
+
         Array.each(
             this.__el_container.getElements('input'),
             function(el_input) {
@@ -228,6 +253,14 @@ var obj_classdef = 	{
                 }
             }
         );
+
+        if (
+            obj_rangeSliderInstance !== null
+            && obj_rangeSliderInstance !== undefined
+            && typeof obj_rangeSliderInstance.resetToInitialRange === 'function'
+        ) {
+            obj_rangeSliderInstance.resetToInitialRange();
+        }
     }
 };
 

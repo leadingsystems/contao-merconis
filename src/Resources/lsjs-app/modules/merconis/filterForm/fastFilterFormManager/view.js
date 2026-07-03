@@ -10,6 +10,8 @@ var obj_classdef = {
     start: function() {
         var els_containers = this.getContainers();
 
+        this.prepareSliderApplyListener();
+
         Array.each(
             els_containers,
             function(el_container) {
@@ -105,6 +107,39 @@ var obj_classdef = {
         this.prepareFields(el_container);
         this.prepareForm(el_container);
         this.updateResetButtonState(el_container);
+    },
+
+    prepareSliderApplyListener: function() {
+        if (lsjs.__moduleHelpers[str_moduleName].bln_sliderApplyListenerPrepared) {
+            return;
+        }
+
+        lsjs.__moduleHelpers[str_moduleName].bln_sliderApplyListenerPrepared = true;
+        window.addEventListener(
+            'filterRangeSlider:applied',
+            function(obj_event) {
+                var el_fieldCandidate = obj_event !== undefined
+                    && obj_event !== null
+                    && obj_event.detail !== undefined
+                    ? obj_event.detail.el_field
+                    : null;
+                var el_container = this.getContainerFromCandidate(el_fieldCandidate);
+                var el_filterForm;
+
+                if (typeOf(el_container) !== 'element') {
+                    return;
+                }
+
+                el_filterForm = el_container.getElement('[data-fast-filter-form]');
+
+                if (typeOf(el_filterForm) !== 'element') {
+                    return;
+                }
+
+                this.updateResetButtonState(el_container);
+                this.submitForm(el_filterForm);
+            }.bind(this)
+        );
     },
 
     prepareForm: function(el_container) {
@@ -223,7 +258,24 @@ var obj_classdef = {
         Array.each(
             el_container.getElements('[data-fast-filter-field] input'),
             function(el_input) {
-                if (['checkbox', 'radio'].includes(el_input.getProperty('type')) && el_input.getProperty('checked')) {
+                if (
+                    ['checkbox', 'radio'].includes(el_input.getProperty('type'))
+                    && el_input.getProperty('checked')
+                    && !el_input.getProperty('disabled')
+                ) {
+                    bln_hasActiveCriteria = true;
+                }
+            }
+        );
+
+        if (bln_hasActiveCriteria) {
+            return true;
+        }
+
+        Array.each(
+            el_container.getElements('[data-fast-filter-generated-input="1"]'),
+            function(el_input) {
+                if ((el_input.getProperty('value') || '') !== '') {
                     bln_hasActiveCriteria = true;
                 }
             }
@@ -549,6 +601,21 @@ var obj_classdef = {
             }.bind(this)
         );
 
+        if (this.isRangeSliderField(el_field)) {
+            if (typeOf(el_showMoreLess) === 'element') {
+                el_showMoreLess.addClass('hidden');
+                el_showMoreLess.removeClass('show-more-active');
+                el_showMoreLess.removeClass('currentlyHiding');
+                el_showMoreLess.removeClass('currentlyShowing');
+                el_showMoreLess.removeClass('is-disabled');
+                el_showMoreLess.setProperty('aria-disabled', 'false');
+                el_showMoreLess.setProperty('aria-expanded', 'false');
+            }
+
+            this.updateEmptyFieldMessage(el_field);
+            return;
+        }
+
         if (typeOf(el_showMoreLess) !== 'element') {
             this.updateEmptyFieldMessage(el_field);
             return;
@@ -625,6 +692,16 @@ var obj_classdef = {
 
         return typeOf(el_container) === 'element'
             && el_container.getProperty('data-fast-filter-hide-zero-matches') === '1';
+    },
+
+    isRangeSliderField: function(el_field) {
+        if (typeOf(el_field) !== 'element') {
+            return false;
+        }
+
+        return ['sliderRange', 'sliderDirect'].includes(
+            el_field.getProperty('data-filter-display-mode') || 'showMoreLess'
+        );
     },
 
     isZeroMatchOption: function(el_option) {
@@ -804,6 +881,21 @@ var obj_classdef = {
 
     clearFieldValues: function(el_container) {
         Array.each(
+            el_container.getElements('[data-fast-filter-field]'),
+            function(el_field) {
+                var obj_rangeSliderInstance = el_field.retrieve('filterRangeSliderInstance');
+
+                if (
+                    obj_rangeSliderInstance !== null
+                    && obj_rangeSliderInstance !== undefined
+                    && typeof obj_rangeSliderInstance.resetToInitialRange === 'function'
+                ) {
+                    obj_rangeSliderInstance.resetToInitialRange();
+                }
+            }
+        );
+
+        Array.each(
             el_container.getElements('[data-fast-filter-field] input'),
             function(el_input) {
                 if (['checkbox', 'radio'].includes(el_input.getProperty('type'))) {
@@ -813,6 +905,7 @@ var obj_classdef = {
             }.bind(this)
         );
 
+        el_container.getElements('[data-fast-filter-generated-input="1"]').destroy();
         this.prepareFields(el_container);
         this.updateResetButtonState(el_container);
     },

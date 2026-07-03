@@ -246,8 +246,15 @@ class ls_shop_filterController
 								'arrFieldInfo' => $arrFilterFieldInfo,
 								'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
 								'classForFilterFormField' => isset($arrFilterFieldInfo['classForFilterFormField']) ? $arrFilterFieldInfo['classForFilterFormField'] : '',
+								'filterDisplayMode' => isset($arrFilterFieldInfo['filterDisplayMode']) && $arrFilterFieldInfo['filterDisplayMode'] ? $arrFilterFieldInfo['filterDisplayMode'] : 'showMoreLess',
 								'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
-								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
+								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox',
+								'rangeSliderDecimalSeparator' => isset($arrFilterFieldInfo['rangeSliderDecimalSeparator']) && $arrFilterFieldInfo['rangeSliderDecimalSeparator'] ? $arrFilterFieldInfo['rangeSliderDecimalSeparator'] : 'dot',
+								'rangeSliderThousandSeparator' => isset($arrFilterFieldInfo['rangeSliderThousandSeparator']) && $arrFilterFieldInfo['rangeSliderThousandSeparator'] ? $arrFilterFieldInfo['rangeSliderThousandSeparator'] : 'none',
+								'rangeSliderMinOptionCount' => isset($arrFilterFieldInfo['rangeSliderMinOptionCount']) && $arrFilterFieldInfo['rangeSliderMinOptionCount'] ? $arrFilterFieldInfo['rangeSliderMinOptionCount'] : 10,
+								'rangeSliderInitialOptionCount' => isset($arrFilterFieldInfo['rangeSliderInitialOptionCount']) && $arrFilterFieldInfo['rangeSliderInitialOptionCount'] ? $arrFilterFieldInfo['rangeSliderInitialOptionCount'] : 10,
+								'rangeSliderInitialPosition' => isset($arrFilterFieldInfo['rangeSliderInitialPosition']) && $arrFilterFieldInfo['rangeSliderInitialPosition'] ? $arrFilterFieldInfo['rangeSliderInitialPosition'] : 'bottom',
+								'rangeSliderAutoOptionVisibility' => isset($arrFilterFieldInfo['rangeSliderAutoOptionVisibility']) && $arrFilterFieldInfo['rangeSliderAutoOptionVisibility'] ? $arrFilterFieldInfo['rangeSliderAutoOptionVisibility'] : 'show'
 							),
 							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['producers']) ? $_SESSION['lsShop']['filter']['criteria']['producers'] : ''
 						)
@@ -349,8 +356,15 @@ class ls_shop_filterController
                                 'arrFieldInfo' => $arrFilterFieldInfo,
                                 'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
                                 'classForFilterFormField' => isset($arrFilterFieldInfo['classForFilterFormField']) ? $arrFilterFieldInfo['classForFilterFormField'] : '',
+                                'filterDisplayMode' => isset($arrFilterFieldInfo['filterDisplayMode']) && $arrFilterFieldInfo['filterDisplayMode'] ? $arrFilterFieldInfo['filterDisplayMode'] : 'showMoreLess',
                                 'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
-                                'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
+                                'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox',
+                                'rangeSliderDecimalSeparator' => isset($arrFilterFieldInfo['rangeSliderDecimalSeparator']) && $arrFilterFieldInfo['rangeSliderDecimalSeparator'] ? $arrFilterFieldInfo['rangeSliderDecimalSeparator'] : 'dot',
+                                'rangeSliderThousandSeparator' => isset($arrFilterFieldInfo['rangeSliderThousandSeparator']) && $arrFilterFieldInfo['rangeSliderThousandSeparator'] ? $arrFilterFieldInfo['rangeSliderThousandSeparator'] : 'none',
+                                'rangeSliderMinOptionCount' => isset($arrFilterFieldInfo['rangeSliderMinOptionCount']) && $arrFilterFieldInfo['rangeSliderMinOptionCount'] ? $arrFilterFieldInfo['rangeSliderMinOptionCount'] : 10,
+                                'rangeSliderInitialOptionCount' => isset($arrFilterFieldInfo['rangeSliderInitialOptionCount']) && $arrFilterFieldInfo['rangeSliderInitialOptionCount'] ? $arrFilterFieldInfo['rangeSliderInitialOptionCount'] : 10,
+                                'rangeSliderInitialPosition' => isset($arrFilterFieldInfo['rangeSliderInitialPosition']) && $arrFilterFieldInfo['rangeSliderInitialPosition'] ? $arrFilterFieldInfo['rangeSliderInitialPosition'] : 'bottom',
+                                'rangeSliderAutoOptionVisibility' => isset($arrFilterFieldInfo['rangeSliderAutoOptionVisibility']) && $arrFilterFieldInfo['rangeSliderAutoOptionVisibility'] ? $arrFilterFieldInfo['rangeSliderAutoOptionVisibility'] : 'show'
                             ),
                             'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']]) ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLI'][$arrFilterFieldInfo['flexContentLIKey']] : ''
                         )
@@ -414,8 +428,15 @@ class ls_shop_filterController
                                 'arrFieldInfo' => $arrFilterFieldInfo,
                                 'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
                                 'classForFilterFormField' => isset($arrFilterFieldInfo['classForFilterFormField']) ? $arrFilterFieldInfo['classForFilterFormField'] : '',
+                                'filterDisplayMode' => isset($arrFilterFieldInfo['filterDisplayMode']) && $arrFilterFieldInfo['filterDisplayMode'] ? $arrFilterFieldInfo['filterDisplayMode'] : 'showMoreLess',
                                 'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
-                                'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
+                                'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox',
+                                'rangeSliderDecimalSeparator' => isset($arrFilterFieldInfo['rangeSliderDecimalSeparator']) && $arrFilterFieldInfo['rangeSliderDecimalSeparator'] ? $arrFilterFieldInfo['rangeSliderDecimalSeparator'] : 'dot',
+                                'rangeSliderThousandSeparator' => isset($arrFilterFieldInfo['rangeSliderThousandSeparator']) && $arrFilterFieldInfo['rangeSliderThousandSeparator'] ? $arrFilterFieldInfo['rangeSliderThousandSeparator'] : 'none',
+                                'rangeSliderMinOptionCount' => isset($arrFilterFieldInfo['rangeSliderMinOptionCount']) && $arrFilterFieldInfo['rangeSliderMinOptionCount'] ? $arrFilterFieldInfo['rangeSliderMinOptionCount'] : 10,
+                                'rangeSliderInitialOptionCount' => isset($arrFilterFieldInfo['rangeSliderInitialOptionCount']) && $arrFilterFieldInfo['rangeSliderInitialOptionCount'] ? $arrFilterFieldInfo['rangeSliderInitialOptionCount'] : 10,
+                                'rangeSliderInitialPosition' => isset($arrFilterFieldInfo['rangeSliderInitialPosition']) && $arrFilterFieldInfo['rangeSliderInitialPosition'] ? $arrFilterFieldInfo['rangeSliderInitialPosition'] : 'bottom',
+                                'rangeSliderAutoOptionVisibility' => isset($arrFilterFieldInfo['rangeSliderAutoOptionVisibility']) && $arrFilterFieldInfo['rangeSliderAutoOptionVisibility'] ? $arrFilterFieldInfo['rangeSliderAutoOptionVisibility'] : 'show'
                             ),
                             'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']]) ? $_SESSION['lsShop']['filter']['criteria']['flexContentsLD'][$str_currentLanguage][$arrFilterFieldInfo['flexContentLDKey']] : ''
                         )
@@ -534,8 +555,15 @@ class ls_shop_filterController
 								'arrFieldInfo' => $arrFilterFieldInfo,
 								'alias' => isset($arrFilterFieldInfo['alias']) ? $arrFilterFieldInfo['alias'] : '',
 								'classForFilterFormField' => isset($arrFilterFieldInfo['classForFilterFormField']) ? $arrFilterFieldInfo['classForFilterFormField'] : '',
+								'filterDisplayMode' => isset($arrFilterFieldInfo['filterDisplayMode']) && $arrFilterFieldInfo['filterDisplayMode'] ? $arrFilterFieldInfo['filterDisplayMode'] : 'showMoreLess',
 								'numItemsInReducedMode' => isset($arrFilterFieldInfo['numItemsInReducedMode']) && $arrFilterFieldInfo['numItemsInReducedMode'] ? $arrFilterFieldInfo['numItemsInReducedMode'] : 0,
-								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox'
+								'filterFormFieldType' => isset($arrFilterFieldInfo['filterFormFieldType']) && $arrFilterFieldInfo['filterFormFieldType'] ? $arrFilterFieldInfo['filterFormFieldType'] : 'checkbox',
+								'rangeSliderDecimalSeparator' => isset($arrFilterFieldInfo['rangeSliderDecimalSeparator']) && $arrFilterFieldInfo['rangeSliderDecimalSeparator'] ? $arrFilterFieldInfo['rangeSliderDecimalSeparator'] : 'dot',
+								'rangeSliderThousandSeparator' => isset($arrFilterFieldInfo['rangeSliderThousandSeparator']) && $arrFilterFieldInfo['rangeSliderThousandSeparator'] ? $arrFilterFieldInfo['rangeSliderThousandSeparator'] : 'none',
+								'rangeSliderMinOptionCount' => isset($arrFilterFieldInfo['rangeSliderMinOptionCount']) && $arrFilterFieldInfo['rangeSliderMinOptionCount'] ? $arrFilterFieldInfo['rangeSliderMinOptionCount'] : 10,
+								'rangeSliderInitialOptionCount' => isset($arrFilterFieldInfo['rangeSliderInitialOptionCount']) && $arrFilterFieldInfo['rangeSliderInitialOptionCount'] ? $arrFilterFieldInfo['rangeSliderInitialOptionCount'] : 10,
+								'rangeSliderInitialPosition' => isset($arrFilterFieldInfo['rangeSliderInitialPosition']) && $arrFilterFieldInfo['rangeSliderInitialPosition'] ? $arrFilterFieldInfo['rangeSliderInitialPosition'] : 'bottom',
+								'rangeSliderAutoOptionVisibility' => isset($arrFilterFieldInfo['rangeSliderAutoOptionVisibility']) && $arrFilterFieldInfo['rangeSliderAutoOptionVisibility'] ? $arrFilterFieldInfo['rangeSliderAutoOptionVisibility'] : 'show'
 							),
 							'var_value' => isset($_SESSION['lsShop']['filter']['criteria']['attributes'][$arrFilterFieldInfo['sourceAttribute']]) ? $_SESSION['lsShop']['filter']['criteria']['attributes'][$arrFilterFieldInfo['sourceAttribute']] : ''
 						)

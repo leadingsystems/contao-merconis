@@ -26,6 +26,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showMore'] = 'Mehr';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showLess'] = 'Weniger';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['toggleAll'] = 'Alle an/aus';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['uncheckRadio'] = 'Auswahl entfernen';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['moreOptions'] = '%s weitere';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['moreOptionsCompact'] = '+ %s';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['minHandleLabel'] = 'Untere Grenze';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['maxHandleLabel'] = 'Obere Grenze';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText001'] = 'inkl. MwSt.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText002'] = 'zzgl. %s MwSt.';

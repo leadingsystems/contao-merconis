@@ -26,6 +26,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showMore'] = 'More';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showLess'] = 'Less';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['toggleAll'] = 'Check/uncheck all';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['uncheckRadio'] = 'Remove selection';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['moreOptions'] = '%s more';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['moreOptionsCompact'] = '+ %s';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['minHandleLabel'] = 'Lower bound';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['rangeSlider']['maxHandleLabel'] = 'Upper bound';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText001'] = 'VAT incl.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText002'] = 'plus %s VAT';

@@ -238,6 +238,12 @@
                     str_reloadElementClass: 'ajax-reload-by-filter'
                 });
 
+                window.setTimeout(function() {
+                    lsjs.__moduleHelpers.filterRangeSliderManager.start({
+                        el_domReference: el_domReference
+                    });
+                }, 0);
+
                 lsjs.__moduleHelpers.conditionalFormManager.start({el_domReference: el_domReference});
 
                 lsjs.__moduleHelpers.formReviewerManager.start({el_domReference: el_domReference});

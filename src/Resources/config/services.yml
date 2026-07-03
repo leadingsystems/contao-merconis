@@ -235,6 +235,13 @@ services:
     tags:
       - { name: contao.migration, priority: 0 }
 
+  merconis.migration.backfill_filter_display_mode_migration:
+    class: LeadingSystems\MerconisBundle\Migration\BackfillFilterDisplayModeMigration
+    arguments:
+      - '@doctrine.dbal.default_connection'
+    tags:
+      - { name: contao.migration, priority: 0 }
+
   merconis.migration.backfill_minimum_order_quantity_migration:
     class: LeadingSystems\MerconisBundle\Migration\BackfillMinimumOrderQuantityMigration
     arguments:
