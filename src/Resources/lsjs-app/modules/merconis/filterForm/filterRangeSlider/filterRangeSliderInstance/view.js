@@ -235,6 +235,21 @@ var obj_classdef = {
         return String(Math.round(float_value * 1000000) / 1000000);
     },
 
+    groupHasAvailableOption: function(obj_group) {
+        var bln_hasAvailable = false;
+
+        Array.each(
+            obj_group.arr_options,
+            function(obj_optionData) {
+                if (!obj_optionData.el_option.hasClass('zero-match-hidden')) {
+                    bln_hasAvailable = true;
+                }
+            }
+        );
+
+        return bln_hasAvailable;
+    },
+
     hideShowMoreLessToggle: function() {
         Array.each(
             this.__el_container.getElements('[data-lsjs-element="showMoreLess"], [data-fast-filter-show-more-less]'),
@@ -451,10 +466,11 @@ var obj_classdef = {
                 if (
                     obj_group.float_value >= obj_state.float_minValue
                     && obj_group.float_value <= obj_state.float_maxValue
+                    && this.groupHasAvailableOption(obj_group)
                 ) {
                     arr_matchingGroupIndices.push(int_groupIndex);
                 }
-            }
+            }.bind(this)
         );
 
         if (!arr_matchingGroupIndices.length) {
@@ -889,6 +905,10 @@ var obj_classdef = {
                             typeOf(obj_optionData.el_input) === 'element'
                             && obj_optionData.el_input.getProperty('checked')
                         ) {
+                            return;
+                        }
+
+                        if (obj_optionData.el_option.hasClass('zero-match-hidden')) {
                             return;
                         }
 
