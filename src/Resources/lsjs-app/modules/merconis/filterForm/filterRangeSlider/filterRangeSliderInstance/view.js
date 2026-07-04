@@ -194,11 +194,7 @@ var obj_classdef = {
             str_normalizedNumericString = str_normalizedNumericString.split(str_thousandCharacter).join('');
         }
 
-        if (this.obj_config.str_thousandSeparator === 'space') {
-            str_normalizedNumericString = str_normalizedNumericString.replace(/\s+/g, '');
-        } else {
-            str_normalizedNumericString = str_normalizedNumericString.replace(/\s+/g, '');
-        }
+        str_normalizedNumericString = str_normalizedNumericString.replace(/\s+/g, '');
 
         if (str_decimalCharacter === ',') {
             str_normalizedNumericString = str_normalizedNumericString.replace(',', '.');
