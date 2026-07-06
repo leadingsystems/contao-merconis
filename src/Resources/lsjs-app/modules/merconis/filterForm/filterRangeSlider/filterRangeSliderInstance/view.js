@@ -29,6 +29,7 @@ var obj_classdef = {
     int_trackRefreshTimer: null,
     obj_resizeObserver: null,
     obj_initialRange: null,
+    str_unit: '',
 
     start: function() {
         this.el_content = this.__el_container.getElement('[data-lsjs-element="optionsBox_content"]') || this.__el_container.getElement('.content');
@@ -40,6 +41,7 @@ var obj_classdef = {
 
         this.obj_config = this.readConfig();
         this.collectOptionData();
+        this.str_unit = this.determineConsistentUnit();
 
         if (!this.arr_optionData.length) {
             return;
@@ -167,6 +169,44 @@ var obj_classdef = {
         );
     },
 
+    determineConsistentUnit: function() {
+        var str_detectedUnit = '';
+        var bln_hasConsistentUnit = true;
+
+        if (!this.arr_numericOptionData.length) {
+            return '';
+        }
+
+        Array.each(
+            this.arr_numericOptionData,
+            function(obj_optionData) {
+                var str_suffix;
+
+                if (!bln_hasConsistentUnit || obj_optionData.obj_numericValue === null) {
+                    return;
+                }
+
+                str_suffix = String(obj_optionData.obj_numericValue.str_suffix || '').trim();
+
+                if (str_suffix === '') {
+                    bln_hasConsistentUnit = false;
+                    return;
+                }
+
+                if (str_detectedUnit === '') {
+                    str_detectedUnit = str_suffix;
+                    return;
+                }
+
+                if (str_detectedUnit !== str_suffix) {
+                    bln_hasConsistentUnit = false;
+                }
+            }
+        );
+
+        return bln_hasConsistentUnit ? str_detectedUnit : '';
+    },
+
     extractNumericValue: function(str_labelText) {
         var str_match = null;
         var str_normalizedNumericString = '';
@@ -174,6 +214,7 @@ var obj_classdef = {
         var str_thousandCharacter = this.getSeparatorCharacter(this.obj_config.str_thousandSeparator);
         var arr_matches;
         var float_value;
+        var str_suffix;
 
         if (!str_labelText) {
             return null;
@@ -205,6 +246,7 @@ var obj_classdef = {
         }
 
         float_value = parseFloat(str_normalizedNumericString);
+        str_suffix = str_labelText.substring(arr_matches.index + arr_matches[0].length).trim();
 
         if (isNaN(float_value)) {
             return null;
@@ -212,7 +254,8 @@ var obj_classdef = {
 
         return {
             float_value: float_value,
-            str_displayValue: str_match.replace(/\s+/g, this.obj_config.str_thousandSeparator === 'space' ? ' ' : '')
+            str_displayValue: str_match.replace(/\s+/g, this.obj_config.str_thousandSeparator === 'space' ? ' ' : ''),
+            str_suffix: str_suffix
         };
     },
 
@@ -865,15 +908,29 @@ var obj_classdef = {
         var float_maxPercent = int_lastIndex > 0 ? (this.int_selectedMaxIndex / int_lastIndex) * 100 : 100;
         var int_leftHiddenOptions = this.getHiddenOptionCount('left');
         var int_rightHiddenOptions = this.getHiddenOptionCount('right');
+        var str_minDisplayValue;
+        var str_maxDisplayValue;
 
         if (obj_minGroup !== undefined) {
-            this.el_sliderValueMin.set('text', obj_minGroup.str_displayValue);
-            this.el_sliderInputMin.setProperty('aria-valuetext', obj_minGroup.str_displayValue);
+            str_minDisplayValue = obj_minGroup.str_displayValue;
+
+            if (this.str_unit !== '') {
+                str_minDisplayValue += ' ' + this.str_unit;
+            }
+
+            this.el_sliderValueMin.set('text', str_minDisplayValue);
+            this.el_sliderInputMin.setProperty('aria-valuetext', str_minDisplayValue);
         }
 
         if (obj_maxGroup !== undefined) {
-            this.el_sliderValueMax.set('text', obj_maxGroup.str_displayValue);
-            this.el_sliderInputMax.setProperty('aria-valuetext', obj_maxGroup.str_displayValue);
+            str_maxDisplayValue = obj_maxGroup.str_displayValue;
+
+            if (this.str_unit !== '') {
+                str_maxDisplayValue += ' ' + this.str_unit;
+            }
+
+            this.el_sliderValueMax.set('text', str_maxDisplayValue);
+            this.el_sliderInputMax.setProperty('aria-valuetext', str_maxDisplayValue);
         }
 
         var float_thumbWidthRem = 1.8;
