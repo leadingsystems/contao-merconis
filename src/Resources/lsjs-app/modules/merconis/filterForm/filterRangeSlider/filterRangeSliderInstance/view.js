@@ -876,8 +876,22 @@ var obj_classdef = {
             this.el_sliderInputMax.setProperty('aria-valuetext', obj_maxGroup.str_displayValue);
         }
 
-        this.el_sliderTrackActive.setStyle('left', float_minPercent + '%');
-        this.el_sliderTrackActive.setStyle('width', Math.max(float_maxPercent - float_minPercent, 0) + '%');
+        var float_thumbWidthRem = 1.8;
+        var float_minFraction = float_minPercent / 100;
+        var float_spanFraction = Math.max(float_maxPercent - float_minPercent, 0) / 100;
+
+        this.el_sliderTrackActive.setStyle(
+            'left',
+            'calc(' + float_minPercent + '% + '
+            + (float_thumbWidthRem / 2 - float_minFraction * float_thumbWidthRem)
+            + 'rem)'
+        );
+        this.el_sliderTrackActive.setStyle(
+            'width',
+            'calc(' + (float_spanFraction * 100) + '% - '
+            + (float_spanFraction * float_thumbWidthRem)
+            + 'rem)'
+        );
 
         this.updateHintText(this.el_leftHintFull, this.el_leftHintCompact, int_leftHiddenOptions);
         this.updateHintText(this.el_rightHintFull, this.el_rightHintCompact, int_rightHiddenOptions);

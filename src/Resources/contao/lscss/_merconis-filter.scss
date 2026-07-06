@@ -1374,6 +1374,7 @@
     }
 
     &::-webkit-slider-thumb {
+      box-sizing: border-box;
       width: 1.8rem;
       height: 1.8rem;
       border-radius: 50%;
@@ -1387,6 +1388,7 @@
     }
 
     &::-moz-range-thumb {
+      box-sizing: border-box;
       width: 1.8rem;
       height: 1.8rem;
       border-radius: 50%;
