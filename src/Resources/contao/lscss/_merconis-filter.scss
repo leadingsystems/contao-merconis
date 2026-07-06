@@ -1320,7 +1320,7 @@
   }
 
   .filter-range-slider__values {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0;
   }
 
   .filter-range-slider__value {
@@ -1329,7 +1329,7 @@
 
   .filter-range-slider__track {
     position: relative;
-    height: 4rem;
+    height: 2.4rem;
 
     &::before {
       content: '';
@@ -1403,7 +1403,7 @@
   }
 
   .filter-range-slider__hints {
-    margin-top: 0.75rem;
+    margin-top: 0;
     color: $ls-color-grey;
     font-size: 0.875em;
   }
