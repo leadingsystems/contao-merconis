@@ -1,0 +1,5 @@
+*.bas -text diff
+*.cls -text diff
+*.frm -text diff
+*.frx binary
+*.xlsm binary

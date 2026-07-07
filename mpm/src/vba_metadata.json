@@ -1,0 +1,80 @@
+{
+  "source_document": "\\\\wsl.localhost\\Ubuntu\\home\\stu\\projects\\contao-merconis\\htdocs\\vendor\\leadingsystems\\contao-merconis\\mpm\\dist\\MPM.xlsm",
+  "export_date": "2026-07-07T17:23:52.488635",
+  "encoding_mode": "fixed",
+  "header_mode": "inline",
+  "encodings": {
+    "DieseArbeitsmappe": {
+      "encoding": "cp1252",
+      "type": "Document Module"
+    },
+    "Tabelle1": {
+      "encoding": "cp1252",
+      "type": "Document Module"
+    },
+    "Tabelle3": {
+      "encoding": "cp1252",
+      "type": "Document Module"
+    },
+    "Modul1": {
+      "encoding": "cp1252",
+      "type": "Standard Module"
+    },
+    "Tabelle4": {
+      "encoding": "cp1252",
+      "type": "Document Module"
+    },
+    "Modul2": {
+      "encoding": "cp1252",
+      "type": "Standard Module"
+    },
+    "Modul3": {
+      "encoding": "cp1252",
+      "type": "Standard Module"
+    },
+    "Modul4_Import": {
+      "encoding": "cp1252",
+      "type": "Standard Module"
+    },
+    "Modul5": {
+      "encoding": "cp1252",
+      "type": "Standard Module"
+    },
+    "VariantCreator": {
+      "encoding": "cp1252",
+      "type": "UserForm"
+    },
+    "Modul6_Sprache": {
+      "encoding": "cp1252",
+      "type": "Standard Module"
+    },
+    "VariantCreatorHelp": {
+      "encoding": "cp1252",
+      "type": "UserForm"
+    },
+    "ImportUpdate": {
+      "encoding": "cp1252",
+      "type": "UserForm"
+    },
+    "Tabelle2": {
+      "encoding": "cp1252",
+      "type": "Document Module"
+    },
+    "EPMInfo": {
+      "encoding": "cp1252",
+      "type": "UserForm"
+    },
+    "Splashscreen": {
+      "encoding": "cp1252",
+      "type": "UserForm"
+    },
+    "WaitFenster": {
+      "encoding": "cp1252",
+      "type": "UserForm"
+    },
+    "Modul7_Debugging": {
+      "encoding": "cp1252",
+      "type": "Standard Module"
+    }
+  }
+}
