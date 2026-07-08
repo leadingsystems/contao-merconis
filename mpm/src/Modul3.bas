@@ -76,6 +76,9 @@ If strOld <> "" And strOld <> strNew Then 'wenn auch wirklich ein neuer Wert ein
             End If
             'Inhalte ersetzen
             zellinhalteErsetzenInSpalte strOld, strNew, mehrsprachigkeitBegriffsrückgabe(aktuellGewählteSprache, "ProductManagement"), zuAktualisierendeProduktSpalte
+            If spaltenBezeichnung = "unit" Then
+                zellinhalteErsetzenInSpalte strOld, strNew, mehrsprachigkeitBegriffsrückgabe(aktuellGewählteSprache, "ProductManagement"), zentralwertProduktverwaltungSpalteStueckbezeichnungVerkaufseinheit
+            End If
         End Select
         MsgBox mehrsprachigkeitTextrückgabeAktuelleSprache(aktuellGewählteSprache, "konfigSyncroÜbernommen")
         GoTo exitHandler
