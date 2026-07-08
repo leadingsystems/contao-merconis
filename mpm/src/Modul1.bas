@@ -353,6 +353,9 @@ Public zentralwertProduktverwaltungSpalteMengeneinheit As Long
 Public zentralwertProduktverwaltungSpalteEinheitMengenvergleichspreis As Long
 Public zentralwertProduktverwaltungSpalteTeilerMengenvergleichspreis As Long
 Public zentralwertProduktverwaltungSpalteMengeNachkommastellen As Long
+Public zentralwertProduktverwaltungSpalteStueckProVerkaufseinheit As Long
+Public zentralwertProduktverwaltungSpalteStueckbezeichnungVerkaufseinheit As Long
+Public zentralwertProduktverwaltungSpalteMindestbestellmenge As Long
 Public zentralwertProduktverwaltungSpalteNeuheit As Long
 Public zentralwertProduktverwaltungSpalteSonderpreis As Long
 Public zentralwertProduktverwaltungSpalteSchlüsselwörter As Long
@@ -929,6 +932,9 @@ zentralwertProduktverwaltungSpalteMengeneinheit = spaltenNummernProduktverwaltun
 zentralwertProduktverwaltungSpalteEinheitMengenvergleichspreis = spaltenNummernProduktverwaltungDatenbanknamenZurückgeben("quantityComparisonUnit")
 zentralwertProduktverwaltungSpalteTeilerMengenvergleichspreis = spaltenNummernProduktverwaltungDatenbanknamenZurückgeben("quantityComparisonDivisor")
 zentralwertProduktverwaltungSpalteMengeNachkommastellen = spaltenNummernProduktverwaltungDatenbanknamenZurückgeben("quantityDecimals")
+zentralwertProduktverwaltungSpalteStueckProVerkaufseinheit = spaltenNummernProduktverwaltungDatenbanknamenZurückgeben("salesUnitSize")
+zentralwertProduktverwaltungSpalteStueckbezeichnungVerkaufseinheit = spaltenNummernProduktverwaltungDatenbanknamenZurückgeben("salesUnit")
+zentralwertProduktverwaltungSpalteMindestbestellmenge = spaltenNummernProduktverwaltungDatenbanknamenZurückgeben("minimumOrderQuantity")
 zentralwertProduktverwaltungSpalteNeuheit = spaltenNummernProduktverwaltungDatenbanknamenZurückgeben("new")
 zentralwertProduktverwaltungSpalteSonderpreis = spaltenNummernProduktverwaltungDatenbanknamenZurückgeben("onSale")
 zentralwertProduktverwaltungSpalteSchlüsselwörter = spaltenNummernProduktverwaltungDatenbanknamenZurückgeben("keywords")
@@ -2051,7 +2057,7 @@ For spaltenzähler = 1 To letzteSpalteProduktverwaltung
                 End If
                 datenüberprüfungFormelSetzen = True
                 'Wenn Spalte = 'Mengeneinheit'
-                Case zentralwertProduktverwaltungSpalteMengeneinheit
+                Case zentralwertProduktverwaltungSpalteMengeneinheit, zentralwertProduktverwaltungSpalteStueckbezeichnungVerkaufseinheit
                 If zentralwertExcelVersion >= zentralwertAltesExcelVorVersion Then
                     formel = "=" & zentralwertTabellenblattNameKonfiguration & "!" & Cells(zentralwertZeileDatenbeginn, zentralwertKonfigurationSpalteMengeneinheit).Address & ":" & Cells(letzteZeileKonfiguration, zentralwertKonfigurationSpalteMengeneinheit).Address 'Bereich für diese Spalte ermitteln. Dieser wird für die Datenprüfungs-Formel verwendet
                 Else
