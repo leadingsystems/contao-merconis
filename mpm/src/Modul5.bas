@@ -132,7 +132,7 @@ For Each zeile In bereich.Rows
 
                 If zeile.Row >= zentralwertZeileDatenbeginn Then
                     Select Case zelle.Column
-                        Case zentralwertProduktverwaltungSpaltePreis, zentralwertProduktverwaltungSpalteStaffelpreisMengenPreisKombinationen, zentralwertProduktverwaltungSpalteAlterPreis, zentralwertProduktverwaltungSpalteTeilerMengenvergleichspreis, zentralwertProduktverwaltungSpalteGewicht, zentralwertProduktverwaltungSpalteMengeNachkommastellen, zentralwertProduktverwaltungSpalteStueckProVerkaufseinheit, zentralwertProduktverwaltungSpalteMindestbestellmenge, zentralwertProduktverwaltungSpalteLagerbestandsänderung, _
+                        Case zentralwertProduktverwaltungSpaltePreis, zentralwertProduktverwaltungSpalteStaffelpreisMengenPreisKombinationen, zentralwertProduktverwaltungSpalteAlterPreis, zentralwertProduktverwaltungSpalteTeilerMengenvergleichspreis, zentralwertProduktverwaltungSpalteGewicht, zentralwertProduktverwaltungSpalteMengeNachkommastellen, zentralwertProduktverwaltungSpalteLagerbestandsänderung, _
                             zentralwertProduktverwaltungSpaltePreisGruppe1, zentralwertProduktverwaltungSpalteStaffelpreisMengenPreisKombinationenGruppe1, zentralwertProduktverwaltungSpalteAlterPreisGruppe1, _
                             zentralwertProduktverwaltungSpaltePreisGruppe2, zentralwertProduktverwaltungSpalteStaffelpreisMengenPreisKombinationenGruppe2, zentralwertProduktverwaltungSpalteAlterPreisGruppe2, _
                             zentralwertProduktverwaltungSpaltePreisGruppe3, zentralwertProduktverwaltungSpalteStaffelpreisMengenPreisKombinationenGruppe3, zentralwertProduktverwaltungSpalteAlterPreisGruppe3, _

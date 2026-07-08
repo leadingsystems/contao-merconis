@@ -454,6 +454,15 @@ Option Explicit
 'mehrsprachigkeitBegriffe(mehrsprachigkeitEnglisch, sprachzähler) = "Quantity decimals"
 'mehrsprachigkeitBegriffe(mehrsprachigkeitDeutsch, sprachzähler) = "Nachkommastellen für die Menge"
 'sprachzähler = sprachzähler + 1
+'mehrsprachigkeitBegriffe(mehrsprachigkeitEnglisch, sprachzähler) = "Pieces per sales unit"
+'mehrsprachigkeitBegriffe(mehrsprachigkeitDeutsch, sprachzähler) = "Stück pro Verkaufseinheit"
+'sprachzähler = sprachzähler + 1
+'mehrsprachigkeitBegriffe(mehrsprachigkeitEnglisch, sprachzähler) = "Piece label of the sales unit"
+'mehrsprachigkeitBegriffe(mehrsprachigkeitDeutsch, sprachzähler) = "Stückbezeichnung der Verkaufseinheit"
+'sprachzähler = sprachzähler + 1
+'mehrsprachigkeitBegriffe(mehrsprachigkeitEnglisch, sprachzähler) = "Minimum order quantity"
+'mehrsprachigkeitBegriffe(mehrsprachigkeitDeutsch, sprachzähler) = "Mindestbestellmenge"
+'sprachzähler = sprachzähler + 1
 'mehrsprachigkeitBegriffe(mehrsprachigkeitEnglisch, sprachzähler) = "New"
 'mehrsprachigkeitBegriffe(mehrsprachigkeitDeutsch, sprachzähler) = "Neuheit"
 'sprachzähler = sprachzähler + 1

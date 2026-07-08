@@ -1,6 +1,6 @@
 {
   "source_document": "\\\\wsl.localhost\\Ubuntu\\home\\stu\\projects\\contao-merconis\\htdocs\\vendor\\leadingsystems\\contao-merconis\\mpm\\dist\\MPM.xlsm",
-  "export_date": "2026-07-07T17:23:52.488635",
+  "export_date": "2026-07-08T03:09:17.255512",
   "encoding_mode": "fixed",
   "header_mode": "inline",
   "encodings": {
@@ -40,11 +40,15 @@
       "encoding": "cp1252",
       "type": "Standard Module"
     },
-    "VariantCreator": {
-      "encoding": "cp1252",
-      "type": "UserForm"
-    },
     "Modul6_Sprache": {
+      "encoding": "cp1252",
+      "type": "Standard Module"
+    },
+    "Tabelle2": {
+      "encoding": "cp1252",
+      "type": "Document Module"
+    },
+    "Modul7_Debugging": {
       "encoding": "cp1252",
       "type": "Standard Module"
     },
@@ -56,11 +60,11 @@
       "encoding": "cp1252",
       "type": "UserForm"
     },
-    "Tabelle2": {
+    "WaitFenster": {
       "encoding": "cp1252",
-      "type": "Document Module"
+      "type": "UserForm"
     },
-    "EPMInfo": {
+    "VariantCreator": {
       "encoding": "cp1252",
       "type": "UserForm"
     },
@@ -68,13 +72,9 @@
       "encoding": "cp1252",
       "type": "UserForm"
     },
-    "WaitFenster": {
+    "EPMInfo": {
       "encoding": "cp1252",
       "type": "UserForm"
-    },
-    "Modul7_Debugging": {
-      "encoding": "cp1252",
-      "type": "Standard Module"
     }
   }
 }
