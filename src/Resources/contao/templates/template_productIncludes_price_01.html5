@@ -286,4 +286,4 @@ if ($this->objVariant !== null) {
 	<?php } ?>
 </div>
 
-<?php echo $this->objProduct->_priceControl; ?>
+<?php # echo $this->objProduct->_priceControl; ?>
