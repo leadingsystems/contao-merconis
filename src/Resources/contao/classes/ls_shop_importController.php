@@ -311,6 +311,7 @@ class ls_shop_importController
 			'notExistingCategory' => false,
 			'notExistingPriceType' => false,
 			'notExistingPriceTypeOld' => false,
+			'notExistingPriceType30DayLowest' => false,
 			'notExistingWeightType' => false,
 			'notExistingDeliveryInfoType' => false,
 			'wrongStockValue' => false,
@@ -980,20 +981,25 @@ class ls_shop_importController
 
 	protected function processVariantData($row) {
 
-        if (empty($row['weight'])) {
-            $row['weightType'] = 'adjustmentPercentaged';
-        }
+		if (!array_key_exists('weight', $row) || $row['weight'] === '' || $row['weight'] === null) {
+			$row['weightType'] = 'adjustmentPercentaged';
+		}
 
-        for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
+		for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
+			$str_multipriceFieldSuffix = $i === 0 ? '' : ('_'.$i);
 
-            if (empty($row['price'.($i === 0 ? '' : ('_'.$i))])) {
-                $row['priceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
-            }
+			if (!array_key_exists('price'.$str_multipriceFieldSuffix, $row) || $row['price'.$str_multipriceFieldSuffix] === '' || $row['price'.$str_multipriceFieldSuffix] === null) {
+				$row['priceType'.$str_multipriceFieldSuffix] = 'adjustmentPercentaged';
+			}
 
-            if (empty($row['oldPrice'.($i === 0 ? '' : ('_'.$i))])) {
-                $row['oldPriceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
-            }
-        }
+			if (!array_key_exists('oldPrice'.$str_multipriceFieldSuffix, $row) || $row['oldPrice'.$str_multipriceFieldSuffix] === '' || $row['oldPrice'.$str_multipriceFieldSuffix] === null) {
+				$row['oldPriceType'.$str_multipriceFieldSuffix] = 'adjustmentPercentaged';
+			}
+
+			if (!array_key_exists('price30DayLowest'.$str_multipriceFieldSuffix, $row) || $row['price30DayLowest'.$str_multipriceFieldSuffix] === '' || $row['price30DayLowest'.$str_multipriceFieldSuffix] === null) {
+				$row['priceType30DayLowest'.$str_multipriceFieldSuffix] = 'adjustmentPercentaged';
+			}
+		}
 
         if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToIgnore'])) {
 			$row['ignore'] = 'x';
@@ -1098,6 +1104,8 @@ class ls_shop_importController
 			$row['priceType'.$str_multipriceFieldSuffix] = $row['priceType'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
 			$row['oldPriceType'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['oldPriceType'.$str_multipriceFieldSuffix]];
 			$row['oldPriceType'.$str_multipriceFieldSuffix] = $row['oldPriceType'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
+			$row['priceType30DayLowest'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['priceType30DayLowest'.$str_multipriceFieldSuffix]];
+			$row['priceType30DayLowest'.$str_multipriceFieldSuffix] = $row['priceType30DayLowest'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
 			$row['scalePriceType'.$str_multipriceFieldSuffix] = $row['scalePriceType'.$str_multipriceFieldSuffix] ? $row['scalePriceType'.$str_multipriceFieldSuffix] : 'scalePriceStandalone';
 			$row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] = $row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] ? $row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] : 'separatedVariantsAndConfigurations';
 			$row['scalePrice'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::generateScalePriceArray($row['scalePrice'.$str_multipriceFieldSuffix]);
@@ -1821,6 +1829,9 @@ class ls_shop_importController
 			case 'notExistingPriceTypeOld':
                 return $this->notExistingPriceType($row, 'oldPriceType', 'oldPrice');
 
+			case 'notExistingPriceType30DayLowest':
+                return $this->notExistingPriceType($row, 'priceType30DayLowest', 'price30DayLowest');
+
 			case 'notExistingWeightType':
 				if ($row['delete']) {
 					break;
@@ -1835,7 +1846,7 @@ class ls_shop_importController
                 }
 
                 /* If weight exists and weightType is empty */
-				if (!empty($row['weight']) && empty($row['weightType'])) {
+				if (array_key_exists('weight', $row) && $row['weight'] !== '' && $row['weight'] !== null && empty($row['weightType'])) {
 					return true;
 				}
 				break;
@@ -2186,7 +2197,12 @@ class ls_shop_importController
             }
 
             /* If price exists and priceType is empty */
-            if (!empty($row[$aliasPrice.($i === 0 ? '' : ('_'.$i))]) && empty($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))])) {
+            if (
+            	array_key_exists($aliasPrice.($i === 0 ? '' : ('_'.$i)), $row)
+            	&& $row[$aliasPrice.($i === 0 ? '' : ('_'.$i))] !== ''
+            	&& $row[$aliasPrice.($i === 0 ? '' : ('_'.$i))] !== null
+            	&& empty($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))])
+            ) {
                 return true;
             }
 

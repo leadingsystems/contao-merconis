@@ -1049,6 +1049,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'notExistingCategory' => 'In der/den Zeile(n) wurde eine Kategorie angegeben, zu der keine entsprechende Seite im Shop existiert: Nr. %s',
 	'notExistingPriceType' => 'In der/den Zeile(n) wurde ein ungültiger Wert im Feld "Preis: Art der Preisangabe" angegeben: Nr. %s',
 	'notExistingPriceTypeOld' => 'In der/den Zeile(n) wurde ein ungültiger Wert im Feld "Alter Preis: Art der Preisangabe" angegeben: Nr. %s',
+	'notExistingPriceType30DayLowest' => 'In der/den Zeile(n) wurde ein ungültiger Wert im Feld "30-Tage-Niedrigstpreis: Art der Preisangabe" angegeben: Nr. %s',
 	'notExistingWeightType' => 'In der/den Zeile(n) wurde ein ungültiger Wert im Feld "Art der Gewichtsangabe" angegeben: Nr. %s',
 	'notExistingDeliveryInfoType' => 'In der/den Zeile(n) wurde eine "Einstellung zu Lagerbestand und Lieferzeit" hinterlegt, welche im Shop nicht angelegt ist: Nr. %s',
 	'wrongStockValue' => 'In der/den Zeile(n) liegt eine inkorrekte Lagerbestandsangabe vor. Erlaubt sind Zahlen sowie die Zeichen "+" (Plus), "-" (Minus) und "." (Punkt als Dezimaltrennzeichen): Nr. %s',

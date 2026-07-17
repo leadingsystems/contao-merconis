@@ -1049,6 +1049,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'notExistingCategory' => 'A category without corresponding page in the shop has been entered in line(s) no. %s.',
 	'notExistingPriceType' => 'An invalid value has been entered in the field "Price: Type of price indication" in line(s) no. %s.',
 	'notExistingPriceTypeOld' => 'An invalid value has been entered in the field "Old price: Type of price indication" in line(s) no. %s.',
+	'notExistingPriceType30DayLowest' => 'An invalid value has been entered in the field "30-day lowest price: Type of price indication" in line(s) no. %s.',
 	'notExistingWeightType' => 'An invalid value has been entered in the field "Type of weight indication" in line(s) no. %s.',
 	'notExistingDeliveryInfoType' => 'A "Setting for goods in stock and delivery time" has been stored which has not been defined in the shop yet in line(s) no. %s.',
 	'wrongStockValue' => 'There is an incorrect statement of number of goods in stock. Permitted entries: Numbers and characters "+" (plus), "-" (minus) and "." (full stop as decimal separator). Line(s) no. %s',
