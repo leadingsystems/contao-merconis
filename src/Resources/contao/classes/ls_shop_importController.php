@@ -311,7 +311,6 @@ class ls_shop_importController
 			'notExistingCategory' => false,
 			'notExistingPriceType' => false,
 			'notExistingPriceTypeOld' => false,
-			'notExistingPriceType30DayLowest' => false,
 			'notExistingWeightType' => false,
 			'notExistingDeliveryInfoType' => false,
 			'wrongStockValue' => false,
@@ -980,27 +979,21 @@ class ls_shop_importController
 	}
 
 	protected function processVariantData($row) {
-		$row['weightType'] = $this->getNormalizedVariantModificationType($row, 'weightType', 'weight');
 
-		for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
-			$str_multipriceFieldSuffix = $i === 0 ? '' : ('_'.$i);
+        if (empty($row['weight'])) {
+            $row['weightType'] = 'adjustmentPercentaged';
+        }
 
-			$row['priceType'.$str_multipriceFieldSuffix] = $this->getNormalizedVariantModificationType(
-				$row,
-				'priceType'.$str_multipriceFieldSuffix,
-				'price'.$str_multipriceFieldSuffix
-			);
-			$row['oldPriceType'.$str_multipriceFieldSuffix] = $this->getNormalizedVariantModificationType(
-				$row,
-				'oldPriceType'.$str_multipriceFieldSuffix,
-				'oldPrice'.$str_multipriceFieldSuffix
-			);
-			$row['priceType30DayLowest'.$str_multipriceFieldSuffix] = $this->getNormalizedVariantModificationType(
-				$row,
-				'priceType30DayLowest'.$str_multipriceFieldSuffix,
-				'price30DayLowest'.$str_multipriceFieldSuffix
-			);
-		}
+        for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
+
+            if (empty($row['price'.($i === 0 ? '' : ('_'.$i))])) {
+                $row['priceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
+            }
+
+            if (empty($row['oldPrice'.($i === 0 ? '' : ('_'.$i))])) {
+                $row['oldPriceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
+            }
+        }
 
         if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToIgnore'])) {
 			$row['ignore'] = 'x';
@@ -1080,6 +1073,9 @@ class ls_shop_importController
          */
         $row['customizer'] = ls_shop_productManagementApiHelper::getCustomizerLogicFileReference($str_configuratorOrCustomizerValue);
 		
+		$row['weightType'] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['weightType']];
+		$row['weightType'] = $row['weightType'] ?: 'adjustmentPercentaged';
+		
 		$row['moreImages'] = ls_shop_productManagementApiHelper::prepareMoreImages($row['moreImages']);
 		
 		$row['flex_contents'] = ls_shop_productManagementApiHelper::generateFlexContentsString($row);
@@ -1098,6 +1094,10 @@ class ls_shop_importController
 				$row['priceForGroups'.$str_multipriceFieldSuffix] = ls_shop_generalHelper::explodeWithoutBlanksAndSpaces(',', $row['priceForGroups'.$str_multipriceFieldSuffix]);
 			}
 			
+			$row['priceType'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['priceType'.$str_multipriceFieldSuffix]];
+			$row['priceType'.$str_multipriceFieldSuffix] = $row['priceType'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
+			$row['oldPriceType'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['oldPriceType'.$str_multipriceFieldSuffix]];
+			$row['oldPriceType'.$str_multipriceFieldSuffix] = $row['oldPriceType'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
 			$row['scalePriceType'.$str_multipriceFieldSuffix] = $row['scalePriceType'.$str_multipriceFieldSuffix] ? $row['scalePriceType'.$str_multipriceFieldSuffix] : 'scalePriceStandalone';
 			$row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] = $row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] ? $row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] : 'separatedVariantsAndConfigurations';
 			$row['scalePrice'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::generateScalePriceArray($row['scalePrice'.$str_multipriceFieldSuffix]);
@@ -1821,9 +1821,6 @@ class ls_shop_importController
 			case 'notExistingPriceTypeOld':
                 return $this->notExistingPriceType($row, 'oldPriceType', 'oldPrice');
 
-			case 'notExistingPriceType30DayLowest':
-                return $this->notExistingPriceType($row, 'priceType30DayLowest', 'price30DayLowest');
-
 			case 'notExistingWeightType':
 				if ($row['delete']) {
 					break;
@@ -1832,7 +1829,15 @@ class ls_shop_importController
 					break;
 				}
 
-				return $this->hasVariantModificationTypeValidationError($row, 'weightType', 'weight');
+                /* make sure weightType is empty or a valid weightType */
+                if (!empty($row['weightType']) && !array_key_exists($row['weightType'], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+                    return true;
+                }
+
+                /* If weight exists and weightType is empty */
+				if (!empty($row['weight']) && empty($row['weightType'])) {
+					return true;
+				}
 				break;
 				
 			case 'notExistingDeliveryInfoType':
@@ -2158,58 +2163,11 @@ class ls_shop_importController
 		}
 		return $string; 
 	}
-	private function getNormalizedVariantModificationType(array $row, string $typeFieldName, string $valueFieldName): string
-	{
-		if (!$this->rowFieldHasValue($row, $valueFieldName)) {
-			return 'adjustmentPercentaged';
-		}
 
-		return $this->translateVariantModificationType($this->getRowFieldValue($row, $typeFieldName)) ?: 'adjustmentPercentaged';
-	}
-
-	private function hasVariantModificationTypeValidationError(array $row, string $typeFieldName, string $valueFieldName): bool
-	{
-		$str_translatedModificationType = $this->translateVariantModificationType($this->getRowFieldValue($row, $typeFieldName));
-
-		if ($this->rowFieldHasValue($row, $typeFieldName) && $str_translatedModificationType === null) {
-			return true;
-		}
-
-		if ($this->rowFieldHasValue($row, $valueFieldName) && $str_translatedModificationType === null) {
-			return true;
-		}
-
-		return false;
-	}
-
-	private function rowFieldHasValue(array $row, string $fieldName): bool
-	{
-		return array_key_exists($fieldName, $row) && $row[$fieldName] !== '' && $row[$fieldName] !== null;
-	}
-
-	private function getRowFieldValue(array $row, string $fieldName): mixed
-	{
-		return array_key_exists($fieldName, $row) ? $row[$fieldName] : null;
-	}
-
-	private function translateVariantModificationType(mixed $modificationTypeValue): ?string
-	{
-		if (!is_string($modificationTypeValue) || $modificationTypeValue === '') {
-			return null;
-		}
-
-		if (array_key_exists($modificationTypeValue, ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
-			return ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$modificationTypeValue];
-		}
-
-		if (in_array($modificationTypeValue, ls_shop_productManagementApiHelper::$modificationTypesTranslationMap, true)) {
-			return $modificationTypeValue;
-		}
-
-		return null;
-	}
 
     private function notExistingPriceType($row, $aliasPriceType, $aliasPrice){
+
+
         if ($row['delete']) {
             return false;
         }
@@ -2221,15 +2179,17 @@ class ls_shop_importController
          * We count from 0 because we also have to check the non-group-specific field
          */
         for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
-			$str_multipriceFieldSuffix = $i === 0 ? '' : ('_'.$i);
 
-			if ($this->hasVariantModificationTypeValidationError(
-				$row,
-				$aliasPriceType.$str_multipriceFieldSuffix,
-				$aliasPrice.$str_multipriceFieldSuffix
-			)) {
-				return true;
-			}
+            /* make sure priceType is empty or a valid priceType */
+            if (!empty($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))]) && !array_key_exists($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))], ls_shop_productManagementApiHelper::$modificationTypesTranslationMap)) {
+                return true;
+            }
+
+            /* If price exists and priceType is empty */
+            if (!empty($row[$aliasPrice.($i === 0 ? '' : ('_'.$i))]) && empty($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))])) {
+                return true;
+            }
+
         }
 
         return false;
