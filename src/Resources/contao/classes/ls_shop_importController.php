@@ -323,6 +323,7 @@ class ls_shop_importController
 			'valueInvalid_sorting' => false,
 			'valueInvalid_price' => false,
 			'valueInvalid_oldPrice' => false,
+			'valueInvalid_price30DayLowest' => false,
 			'valueInvalid_weight' => false,
 			'valueInvalid_unit' => false,
 			'valueInvalid_quantityComparisonUnit' => false,
@@ -1963,6 +1964,25 @@ class ls_shop_importController
 					}					
 				}
 				
+				return false;
+				break;
+
+			case 'valueInvalid_price30DayLowest':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				/*
+				 * We count from 0 because we also have to check the non-group-specific field
+				 */
+				for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
+					if ($row['price30DayLowest'.($i === 0 ? '' : ('_'.$i))]) {
+						if (!preg_match('/^-?\d+(\.\d+)?$/', $row['price30DayLowest'.($i === 0 ? '' : ('_'.$i))])) {
+							return true;
+						}
+					}
+				}
+
 				return false;
 				break;
 			
