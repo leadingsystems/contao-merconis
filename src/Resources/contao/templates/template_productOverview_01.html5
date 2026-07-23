@@ -141,7 +141,8 @@
 
 						<?php if ($this->objProduct->_oldPriceIsUvp) { ?>
 							<span class="uvpPrice">
-								<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['uvp']; ?>: <?php echo $oldPriceOutput; ?>
+								<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['uvp']; ?>:</span>
+								<span class="value"><?php echo $oldPriceOutput; ?></span>
 							</span>
 						<?php } else { ?>
 							<span class="oldPrice">

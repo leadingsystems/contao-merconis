@@ -12,6 +12,22 @@
     color: $ls-color-red;
   }
 
+  .uvpPrice {
+    color: $ls-color-red;
+
+    .value {
+      text-decoration: line-through;
+    }
+  }
+
+  .thirtyDayLowestPriceInfo {
+    font-size: $ls-font-size-body * 0.875;
+    @include ls_decreaseFontSizes(
+      $ls-font-size-body * 0.875,
+      $ls-font-resize-steps-standard-body
+    );
+  }
+
   .currentPrice {
     font-weight: $ls-font-weight-bold;
 
