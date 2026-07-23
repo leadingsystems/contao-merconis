@@ -21,11 +21,7 @@
   }
 
   .thirtyDayLowestPriceInfo {
-    font-size: $ls-font-size-body * 0.875;
-    @include ls_decreaseFontSizes(
-      $ls-font-size-body * 0.875,
-      $ls-font-resize-steps-standard-body
-    );
+    font-size: small;
   }
 
   .currentPrice {
