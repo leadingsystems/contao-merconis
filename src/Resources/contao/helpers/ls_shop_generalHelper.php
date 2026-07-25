@@ -3634,6 +3634,53 @@ class ls_shop_generalHelper
     )
 
      */
+    public static function calculateEffectiveMandatoryState(
+        bool $baseMandatory,
+        array $primaryCondition,
+        array $secondaryCondition,
+        array $validateData
+    ): bool {
+        if (!$baseMandatory) {
+            return false;
+        }
+
+        $arrActiveConditions = array_filter(
+            [$primaryCondition, $secondaryCondition],
+            static function (array $condition): bool {
+                return !empty($condition['field']);
+            }
+        );
+
+        if (empty($arrActiveConditions)) {
+            return true;
+        }
+
+        foreach ($arrActiveConditions as $condition) {
+            $triggerFieldName = static::getFormFieldNameForFormFieldId($condition['field']);
+
+            if (
+                !$triggerFieldName
+                || !isset($validateData[$triggerFieldName])
+                || !is_array($validateData[$triggerFieldName])
+                || !array_key_exists('value', $validateData[$triggerFieldName])
+            ) {
+                return false;
+            }
+
+            $doesConditionApply = $validateData[$triggerFieldName]['value'] == $condition['value'];
+
+            if (!empty($condition['invert'])) {
+                $doesConditionApply = !$doesConditionApply;
+            }
+
+            if (!$doesConditionApply) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static function validateCollectedFormData($arrValidateData, $formID)
     {
         if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
@@ -3694,14 +3741,20 @@ class ls_shop_generalHelper
              * -->
              * Consider the "mandatoryOnCondition" settings
              */
-            if (
-                $arrFieldData['arrData']['lsShop_mandatoryOnConditionField']
-                && $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue'] != $arrValidateData[ls_shop_generalHelper::getFormFieldNameForFormFieldId($arrFieldData['arrData']['lsShop_mandatoryOnConditionField'])]['value']
-                || $arrFieldData['arrData']['lsShop_mandatoryOnConditionField2']
-                && $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue2'] != $arrValidateData[ls_shop_generalHelper::getFormFieldNameForFormFieldId($arrFieldData['arrData']['lsShop_mandatoryOnConditionField2'])]['value']
-            ) {
-                $arrFieldData['arrData']['mandatory'] = false;
-            }
+            $arrFieldData['arrData']['mandatory'] = static::calculateEffectiveMandatoryState(
+                (bool) $arrFieldData['arrData']['mandatory'],
+                [
+                    'field' => $arrFieldData['arrData']['lsShop_mandatoryOnConditionField'] ?? null,
+                    'value' => $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue'] ?? null,
+                    'invert' => !empty($arrFieldData['arrData']['lsShop_mandatoryOnConditionBoolean']),
+                ],
+                [
+                    'field' => $arrFieldData['arrData']['lsShop_mandatoryOnConditionField2'] ?? null,
+                    'value' => $arrFieldData['arrData']['lsShop_mandatoryOnConditionValue2'] ?? null,
+                    'invert' => !empty($arrFieldData['arrData']['lsShop_mandatoryOnConditionBoolean2']),
+                ],
+                $arrValidateData
+            );
             /*
              * <--
              */

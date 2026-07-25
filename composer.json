@@ -30,6 +30,9 @@
     "tecnickcom/tcpdf": "^6.2.22",
     "elasticsearch/elasticsearch": "~8.18.0"
   },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6"
+  },
   "autoload": {
     "psr-4": {
       "LeadingSystems\\MerconisBundle\\": "src/"
@@ -43,6 +46,11 @@
       "src/Resources/contao/languages/",
       "src/Resources/contao/templates/"
     ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "LeadingSystems\\MerconisBundle\\Tests\\": "tests/"
+    }
   },
   "extra": {
     "contao-manager-plugin": "LeadingSystems\\MerconisBundle\\ContaoManager\\Plugin",
