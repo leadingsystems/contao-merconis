@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\Tests\Unit\Core;
 
 use Contao\Database;
+use Contao\FormTextField;
 use Contao\Input;
 use Contao\System;
 use ErrorException;
@@ -20,6 +21,8 @@ final class LsShopGeneralHelperTest extends TestCase
     private array $originalFrontendFormFields;
     private array $originalFormFieldNameCache;
     private array $originalPost;
+    private bool $hadOriginalMandatoryLabel;
+    private mixed $originalMandatoryLabel;
 
     protected function setUp(): void
     {
@@ -30,6 +33,8 @@ final class LsShopGeneralHelperTest extends TestCase
         $this->originalFrontendFormFields = $GLOBALS['TL_FFL'] ?? [];
         $this->originalFormFieldNameCache = $GLOBALS['merconis_globals']['cache']['getFormFieldNameForFormFieldId'] ?? [];
         $this->originalPost = $_POST ?? [];
+        $this->hadOriginalMandatoryLabel = array_key_exists('mandatory', $GLOBALS['TL_LANG']['MSC'] ?? []);
+        $this->originalMandatoryLabel = $GLOBALS['TL_LANG']['MSC']['mandatory'] ?? null;
 
         class_exists(Input::class);
 
@@ -44,6 +49,7 @@ final class LsShopGeneralHelperTest extends TestCase
 
         $GLOBALS['TL_FFL']['unit_test_text'] = FakeRequiredWidget::class;
         $GLOBALS['merconis_globals']['cache']['getFormFieldNameForFormFieldId'] = [];
+        $GLOBALS['TL_LANG']['MSC']['mandatory'] = 'Required field';
         $_POST = [];
     }
 
@@ -53,6 +59,11 @@ final class LsShopGeneralHelperTest extends TestCase
         $this->writeStaticProperty(System::class, 'objContainer', $this->originalSystemContainer);
         $GLOBALS['TL_FFL'] = $this->originalFrontendFormFields;
         $GLOBALS['merconis_globals']['cache']['getFormFieldNameForFormFieldId'] = $this->originalFormFieldNameCache;
+        if ($this->hadOriginalMandatoryLabel) {
+            $GLOBALS['TL_LANG']['MSC']['mandatory'] = $this->originalMandatoryLabel;
+        } else {
+            unset($GLOBALS['TL_LANG']['MSC']['mandatory']);
+        }
         $_POST = $this->originalPost;
 
         parent::tearDown();
@@ -106,6 +117,80 @@ final class LsShopGeneralHelperTest extends TestCase
         } finally {
             restore_error_handler();
         }
+    }
+
+    /**
+     * @dataProvider provideConditionalFormFieldStates
+     */
+    public function testHandleConditionalFormFieldsUsesEffectiveMandatoryState(
+        bool $baseMandatory,
+        array $primaryCondition,
+        array $secondaryCondition,
+        array $postedValues,
+        ?string $submittedFormId,
+        array $fieldNameMap,
+        bool $expectedMandatoryState
+    ): void {
+        $this->primeFormFieldNameCache($fieldNameMap);
+        $this->writeStaticProperty(Database::class, 'arrInstances', [
+            'd41d8cd98f00b204e9800998ecf8427e' => new FakeDatabase(
+                self::createConditionalFormFieldSettings($primaryCondition, $secondaryCondition)
+            ),
+        ]);
+
+        Input::setPost('FORM_SUBMIT', $submittedFormId);
+
+        foreach ($postedValues as $fieldName => $postedValue) {
+            Input::setPost($fieldName, $postedValue);
+        }
+
+        $widget = (new \ReflectionClass(FormTextField::class))->newInstanceWithoutConstructor();
+        $widget->id = 6;
+        $widget->name = 'VATID';
+        $widget->mandatory = $baseMandatory;
+
+        $processedWidget = ls_shop_generalHelper::handleConditionalFormFields(
+            $widget,
+            'auto_customer_data',
+            []
+        );
+
+        self::assertSame($expectedMandatoryState, (bool) $processedWidget->mandatory);
+    }
+
+    public function testHandleConditionalFormFieldsProvidesConditionAttributesAndLocalizedLabel(): void
+    {
+        $this->primeFormFieldNameCache([
+            11 => 'country',
+            12 => 'differentShippingAddress',
+        ]);
+        $this->writeStaticProperty(Database::class, 'arrInstances', [
+            'd41d8cd98f00b204e9800998ecf8427e' => new FakeDatabase(
+                self::createConditionalFormFieldSettings(
+                    self::createCondition(11, 'de', true),
+                    self::createCondition(12, '1')
+                )
+            ),
+        ]);
+
+        $widget = (new \ReflectionClass(FormTextField::class))->newInstanceWithoutConstructor();
+        $widget->id = 6;
+        $widget->name = 'VATID';
+        $widget->mandatory = true;
+
+        $processedWidget = ls_shop_generalHelper::handleConditionalFormFields(
+            $widget,
+            'auto_customer_data',
+            []
+        );
+
+        self::assertSame('country', $processedWidget->{'data-required-field'});
+        self::assertSame('de', $processedWidget->{'data-required-value'});
+        self::assertSame('1', $processedWidget->{'data-required-boolean'});
+        self::assertSame('differentShippingAddress', $processedWidget->{'data-required-field2'});
+        self::assertSame('1', $processedWidget->{'data-required-value2'});
+        self::assertSame(null, $processedWidget->{'data-required-boolean2'});
+        self::assertSame('Required field', $processedWidget->{'data-required-label'});
     }
 
     /**
@@ -267,6 +352,198 @@ final class LsShopGeneralHelperTest extends TestCase
         ];
     }
 
+    public static function provideConditionalFormFieldStates(): array
+    {
+        return [
+            'base false stays optional' => [
+                false,
+                self::createCondition(11, 'company'),
+                [],
+                ['customerType' => 'company'],
+                'auto_customer_data',
+                [11 => 'customerType'],
+                false,
+            ],
+            'base true without conditions stays mandatory' => [
+                true,
+                [],
+                [],
+                [],
+                'auto_customer_data',
+                [],
+                true,
+            ],
+            'primary matching condition keeps field mandatory' => [
+                true,
+                self::createCondition(11, 'company'),
+                [],
+                ['customerType' => 'company'],
+                'auto_customer_data',
+                [11 => 'customerType'],
+                true,
+            ],
+            'primary non matching condition makes field optional' => [
+                true,
+                self::createCondition(11, 'company'),
+                [],
+                ['customerType' => 'private'],
+                'auto_customer_data',
+                [11 => 'customerType'],
+                false,
+            ],
+            'primary inverted matching condition makes field optional' => [
+                true,
+                self::createCondition(11, 'company', true),
+                [],
+                ['customerType' => 'company'],
+                'auto_customer_data',
+                [11 => 'customerType'],
+                false,
+            ],
+            'primary inverted non matching condition keeps field mandatory' => [
+                true,
+                self::createCondition(11, 'company', true),
+                [],
+                ['customerType' => 'private'],
+                'auto_customer_data',
+                [11 => 'customerType'],
+                true,
+            ],
+            'secondary matching condition keeps field mandatory' => [
+                true,
+                [],
+                self::createCondition(12, 'de'),
+                ['country' => 'de'],
+                'auto_customer_data',
+                [12 => 'country'],
+                true,
+            ],
+            'secondary non matching condition makes field optional' => [
+                true,
+                [],
+                self::createCondition(12, 'de'),
+                ['country' => 'at'],
+                'auto_customer_data',
+                [12 => 'country'],
+                false,
+            ],
+            'secondary inverted matching condition makes field optional' => [
+                true,
+                [],
+                self::createCondition(12, 'de', true),
+                ['country' => 'de'],
+                'auto_customer_data',
+                [12 => 'country'],
+                false,
+            ],
+            'secondary inverted non matching condition keeps field mandatory' => [
+                true,
+                [],
+                self::createCondition(12, 'de', true),
+                ['country' => 'at'],
+                'auto_customer_data',
+                [12 => 'country'],
+                true,
+            ],
+            'both configured conditions apply' => [
+                true,
+                self::createCondition(11, 'company'),
+                self::createCondition(12, 'de'),
+                [
+                    'customerType' => 'company',
+                    'country' => 'de',
+                ],
+                'auto_customer_data',
+                [
+                    11 => 'customerType',
+                    12 => 'country',
+                ],
+                true,
+            ],
+            'only primary condition applies' => [
+                true,
+                self::createCondition(11, 'company'),
+                self::createCondition(12, 'de'),
+                [
+                    'customerType' => 'company',
+                    'country' => 'at',
+                ],
+                'auto_customer_data',
+                [
+                    11 => 'customerType',
+                    12 => 'country',
+                ],
+                false,
+            ],
+            'only secondary condition applies' => [
+                true,
+                self::createCondition(11, 'company'),
+                self::createCondition(12, 'de'),
+                [
+                    'customerType' => 'private',
+                    'country' => 'de',
+                ],
+                'auto_customer_data',
+                [
+                    11 => 'customerType',
+                    12 => 'country',
+                ],
+                false,
+            ],
+            'neither configured condition applies' => [
+                true,
+                self::createCondition(11, 'company'),
+                self::createCondition(12, 'de'),
+                [
+                    'customerType' => 'private',
+                    'country' => 'at',
+                ],
+                'auto_customer_data',
+                [
+                    11 => 'customerType',
+                    12 => 'country',
+                ],
+                false,
+            ],
+            'unresolved trigger field makes condition non matching' => [
+                true,
+                self::createCondition(11, 'company'),
+                [],
+                [],
+                'auto_customer_data',
+                [11 => ''],
+                false,
+            ],
+            'missing unchecked checkbox post value remains evaluable' => [
+                true,
+                self::createCondition(11, '1', true),
+                [],
+                [],
+                'auto_customer_data',
+                [11 => 'newsletter'],
+                true,
+            ],
+            'initial rendering preserves base mandatory state' => [
+                true,
+                self::createCondition(11, 'company'),
+                [],
+                ['customerType' => 'private'],
+                null,
+                [11 => 'customerType'],
+                true,
+            ],
+            'unrelated form submission preserves base mandatory state' => [
+                true,
+                self::createCondition(11, 'company'),
+                [],
+                ['customerType' => 'private'],
+                'auto_other_form',
+                [11 => 'customerType'],
+                true,
+            ],
+        ];
+    }
+
     public static function provideWidgetValidationCases(): array
     {
         return [
@@ -311,6 +588,23 @@ final class LsShopGeneralHelperTest extends TestCase
             'invert' => $invert,
         ];
     }
+
+    private static function createConditionalFormFieldSettings(
+        array $primaryCondition,
+        array $secondaryCondition
+    ): array {
+        return [
+            'lsShop_mandatoryOnConditionField' => $primaryCondition['field'] ?? 0,
+            'lsShop_mandatoryOnConditionValue' => $primaryCondition['value'] ?? '',
+            'lsShop_mandatoryOnConditionBoolean' => !empty($primaryCondition['invert']) ? '1' : '',
+            'lsShop_mandatoryOnConditionField2' => $secondaryCondition['field'] ?? 0,
+            'lsShop_mandatoryOnConditionValue2' => $secondaryCondition['value'] ?? '',
+            'lsShop_mandatoryOnConditionBoolean2' => !empty($secondaryCondition['invert']) ? '1' : '',
+            'lsShop_ShowOnConditionField' => 0,
+            'lsShop_ShowOnConditionValue' => '',
+            'lsShop_ShowOnConditionBoolean' => '',
+        ];
+    }
 }
 
 final class FakeContainer implements ContainerInterface
@@ -335,6 +629,11 @@ final class FakeContainer implements ContainerInterface
     {
         return $this->parameters[$name] ?? null;
     }
+
+    public function hasParameter(string $name): bool
+    {
+        return array_key_exists($name, $this->parameters);
+    }
 }
 
 final class FakeRoutingScope
@@ -352,21 +651,36 @@ final class FakeRoutingScope
 
 final class FakeDatabase
 {
+    public function __construct(
+        private array $conditionalFormFieldSettings = []
+    ) {
+    }
+
     public function prepare(string $query): FakeDatabaseStatement
     {
-        return new FakeDatabaseStatement($query);
+        return new FakeDatabaseStatement($query, $this->conditionalFormFieldSettings);
     }
 }
 
 final class FakeDatabaseStatement
 {
     public function __construct(
-        private string $query
+        private string $query,
+        private array $conditionalFormFieldSettings
     ) {
+    }
+
+    public function limit(int $limit): self
+    {
+        return $this;
     }
 
     public function execute(...$params): FakeDatabaseResult
     {
+        if (str_contains($this->query, '`tl_form_field`')) {
+            return new FakeDatabaseResult($this->conditionalFormFieldSettings);
+        }
+
         return new FakeDatabaseResult([
             'allowTags' => false,
             'tableless' => false,
@@ -379,6 +693,15 @@ final class FakeDatabaseResult
     public int $numRows = 1;
     public bool $allowTags = false;
     public bool $tableless = false;
+    public int $lsShop_mandatoryOnConditionField = 0;
+    public string $lsShop_mandatoryOnConditionValue = '';
+    public string $lsShop_mandatoryOnConditionBoolean = '';
+    public int $lsShop_mandatoryOnConditionField2 = 0;
+    public string $lsShop_mandatoryOnConditionValue2 = '';
+    public string $lsShop_mandatoryOnConditionBoolean2 = '';
+    public int $lsShop_ShowOnConditionField = 0;
+    public string $lsShop_ShowOnConditionValue = '';
+    public string $lsShop_ShowOnConditionBoolean = '';
 
     public function __construct(
         private array $rowData

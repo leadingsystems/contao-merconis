@@ -3336,33 +3336,67 @@ class ls_shop_generalHelper
 
         $obj_dbres_mandatoryOnConditionSettings->first();
 
-        if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField) {
-            if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue) {
-                $objWidget->{'data-misc-required'} = $objWidget->mandatory;
-                $objWidget->mandatory = '';
-            }
+        $arrPrimaryCondition = [
+            'field' => $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField,
+            'value' => $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue,
+            'invert' => !empty($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean),
+        ];
+        $arrSecondaryCondition = [
+            'field' => $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2,
+            'value' => $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2,
+            'invert' => !empty($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2),
+        ];
+        $strPrimaryTriggerFieldName = '';
+        $strSecondaryTriggerFieldName = '';
 
-            $objWidget->{'data-required-field'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField);
+        if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField) {
+            $strPrimaryTriggerFieldName = static::getFormFieldNameForFormFieldId($arrPrimaryCondition['field']);
+            $objWidget->{'data-required-field'} = $strPrimaryTriggerFieldName;
             $objWidget->{'data-required-value'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue;
-            if($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean){
+            if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean) {
                 $objWidget->{'data-required-boolean'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean;
             }
-
-
         }
+
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2) {
-
-            if (\Input::post(ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2)) != $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2) {
-                $objWidget->{'data-misc-required'} = $objWidget->mandatory;
-                $objWidget->mandatory = '';
-            }
-
-            $objWidget->{'data-required-field2'} = ls_shop_generalHelper::getFormFieldNameForFormFieldId($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionField2);
+            $strSecondaryTriggerFieldName = static::getFormFieldNameForFormFieldId($arrSecondaryCondition['field']);
+            $objWidget->{'data-required-field2'} = $strSecondaryTriggerFieldName;
             $objWidget->{'data-required-value2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionValue2;
-            if($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2){
+            if ($obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2) {
                 $objWidget->{'data-required-boolean2'} = $obj_dbres_mandatoryOnConditionSettings->lsShop_mandatoryOnConditionBoolean2;
             }
+        }
 
+        if ($arrPrimaryCondition['field'] || $arrSecondaryCondition['field']) {
+            $objWidget->{'data-required-label'} = $GLOBALS['TL_LANG']['MSC']['mandatory'];
+        }
+
+        if (\Input::post('FORM_SUBMIT') === $intId) {
+            $arrPostedConditionalData = [];
+
+            if ($strPrimaryTriggerFieldName) {
+                $arrPostedConditionalData[$strPrimaryTriggerFieldName] = [
+                    'value' => \Input::post($strPrimaryTriggerFieldName),
+                ];
+            }
+
+            if ($strSecondaryTriggerFieldName) {
+                $arrPostedConditionalData[$strSecondaryTriggerFieldName] = [
+                    'value' => \Input::post($strSecondaryTriggerFieldName),
+                ];
+            }
+
+            $blnBaseMandatory = (bool) $objWidget->mandatory;
+            $objWidget->mandatory = static::calculateEffectiveMandatoryState(
+                $blnBaseMandatory,
+                $arrPrimaryCondition,
+                $arrSecondaryCondition,
+                $arrPostedConditionalData
+            );
+
+            if ($blnBaseMandatory && !$objWidget->mandatory) {
+                $objWidget->{'data-misc-required'} = true;
+            }
         }
 
         if ($obj_dbres_mandatoryOnConditionSettings->lsShop_ShowOnConditionField) {
