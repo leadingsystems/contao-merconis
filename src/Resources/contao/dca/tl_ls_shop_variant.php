@@ -384,7 +384,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'wizard' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'beValuePickerWizard')
 			),
-            'sql'                     => "varchar(255) NOT NULL default ''"
+            'sql'                     => "text NOT NULL default ''"
 		),
 
 		'title' => array(
