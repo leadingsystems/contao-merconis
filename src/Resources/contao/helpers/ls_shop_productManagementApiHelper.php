@@ -909,6 +909,7 @@ class ls_shop_productManagementApiHelper {
             ".$customFieldsQuestionMarks."
             )
             ON DUPLICATE KEY UPDATE
+                id = LAST_INSERT_ID(id),
                 title = VALUES(title),
                 alias = VALUES(alias),
                 sorting = VALUES(sorting),
@@ -1131,6 +1132,7 @@ class ls_shop_productManagementApiHelper {
             ".$customFieldsQuestionMarks."
             )
             ON DUPLICATE KEY UPDATE
+                `id` = LAST_INSERT_ID(`id`),
     			`title` = VALUES(`title`),
                 `alias` = VALUES(`alias`),
                 `sorting` = VALUES(`sorting`),
