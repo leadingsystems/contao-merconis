@@ -75,12 +75,15 @@
 				&& !($this->objProduct->_hasOldPrice && $this->objProduct->_oldPriceIsUvp)
 			) {
 				$price30DayLowestOutput = ($this->objProduct->_30DayLowestPricesAreDifferent ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] . ' ' : '') . $this->objProduct->_price30DayLowestMinimumAfterTaxFormatted;
-				$currentPriceNumeric = $this->objProduct->_cheapestPriceComesFromScalePrices ? $this->objProduct->_cheapestPriceRaw : $this->objProduct->_unscaledPriceMinimumAfterTax;
+				$currentPriceNumeric = $this->objProduct->_unscaledPriceMinimumAfterTax;
 				$saving = max(0, $this->objProduct->_price30DayLowestMinimumAfterTax - $currentPriceNumeric);
 				$savingFormatted = \Merconis\Core\ls_shop_generalHelper::outputPrice($saving);
+				$thirtyDayLowestPriceInfoKey = $this->objProduct->_cheapestPriceComesFromScalePrices
+					? 'thirtyDayLowestPriceInfoBasedOnUnitPrice'
+					: 'thirtyDayLowestPriceInfo';
 				?>
 				<div class="thirtyDayLowestPriceInfo">
-					<?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['thirtyDayLowestPriceInfo'], $price30DayLowestOutput, $savingFormatted); ?>
+					<?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc'][$thirtyDayLowestPriceInfoKey], $price30DayLowestOutput, $savingFormatted); ?>
 				</div>
 				<?php
 			}

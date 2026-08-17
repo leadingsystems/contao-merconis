@@ -275,6 +275,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['and'] = 'and';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] = 'from';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['uvp'] = 'MSRP';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['thirtyDayLowestPriceInfo'] = 'Lowest price in the last 30 days: %s You save %s compared to the best price in the last 30 days.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['thirtyDayLowestPriceInfoBasedOnUnitPrice'] = 'Lowest price in the last 30 days: %s. You save %s compared to the best price of the last 30 days (based on unit price).';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['showScalePrices'] = 'Show scale prices';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['scalePriceQuantityFrom'] = 'from';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['priceScale'] = 'Price scale';
