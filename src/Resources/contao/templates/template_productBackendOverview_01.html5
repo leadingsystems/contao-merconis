@@ -16,9 +16,39 @@
 			<?php if ($this->objProduct->_unscaledPricesAreDifferent): ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php endif; ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
 		</div>
 		<?php if ($this->objProduct->_hasOldPrice): ?>
-			<div class="oldPrice">
-				<?php if ($this->objProduct->_oldPricesAreDifferent): ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php endif; ?><?php echo $this->objProduct->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-			</div>
+			<?php
+			$oldPriceOutput = ($this->objProduct->_oldPricesAreDifferent ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] . ' ' : '') . $this->objProduct->_priceOldMinimumAfterTaxFormatted;
+			if ($this->objProduct->_hasQuantityUnit) {
+				$oldPriceOutput .= '/' . $this->objProduct->_quantityUnit;
+			}
+			?>
+
+			<?php if ($this->objProduct->_oldPriceIsUvp): ?>
+				<div class="uvpPrice">
+					<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['uvp']; ?>:</span>
+					<span class="value"><?php echo $oldPriceOutput; ?></span>
+				</div>
+			<?php else: ?>
+				<div class="oldPrice">
+					<?php echo $oldPriceOutput; ?>
+				</div>
+			<?php endif; ?>
 		<?php endif; ?>
+
+		<?php
+		if (
+			$this->objProduct->_has30DayLowestPrice
+			&& !($this->objProduct->_hasOldPrice && $this->objProduct->_oldPriceIsUvp)
+		) {
+			$price30DayLowestOutput = ($this->objProduct->_30DayLowestPricesAreDifferent ? $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] . ' ' : '') . $this->objProduct->_price30DayLowestMinimumAfterTaxFormatted;
+			$saving = max(0, $this->objProduct->_price30DayLowestMinimumAfterTax - $this->objProduct->_unscaledPriceMinimumAfterTax);
+			$savingFormatted = \Merconis\Core\ls_shop_generalHelper::outputPrice($saving);
+			?>
+			<div class="thirtyDayLowestPriceInfo">
+				<?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['thirtyDayLowestPriceInfo'], $price30DayLowestOutput, $savingFormatted); ?>
+			</div>
+			<?php
+		}
+		?>
 	</div>
 </div>

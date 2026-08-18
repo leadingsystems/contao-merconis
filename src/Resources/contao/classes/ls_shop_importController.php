@@ -311,6 +311,7 @@ class ls_shop_importController
 			'notExistingCategory' => false,
 			'notExistingPriceType' => false,
 			'notExistingPriceTypeOld' => false,
+			'notExistingPriceType30DayLowest' => false,
 			'notExistingWeightType' => false,
 			'notExistingDeliveryInfoType' => false,
 			'wrongStockValue' => false,
@@ -322,6 +323,7 @@ class ls_shop_importController
 			'valueInvalid_sorting' => false,
 			'valueInvalid_price' => false,
 			'valueInvalid_oldPrice' => false,
+			'valueInvalid_price30DayLowest' => false,
 			'valueInvalid_weight' => false,
 			'valueInvalid_unit' => false,
 			'valueInvalid_quantityComparisonUnit' => false,
@@ -666,6 +668,9 @@ class ls_shop_importController
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopProductPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopProductPrice30DayLowest` = ?,
 							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
 							`lsShopProductWeight` = ?,
@@ -711,6 +716,9 @@ class ls_shop_importController
 				$row['price'] ? $row['price'] : 0, // decimal, empty = 0
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$row['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$row['price30DayLowest'] ? $row['price30DayLowest'] : 0, // decimal, empty = 0
                 $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
@@ -825,6 +833,9 @@ class ls_shop_importController
 							`lsShopProductPrice` = ?,
 							`lsShopProductPriceOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopProductPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopProductPrice30DayLowest` = ?,
 							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
 							`lsShopProductWeight` = ?,
@@ -870,6 +881,9 @@ class ls_shop_importController
 				$row['price'] ? $row['price'] : 0, // decimal, empty = 0
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$row['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$row['price30DayLowest'] ? $row['price30DayLowest'] : 0, // decimal, empty = 0
                 $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
 				$row['weight'] ? $row['weight'] : 0, // decimal, empty = 0
@@ -968,20 +982,25 @@ class ls_shop_importController
 
 	protected function processVariantData($row) {
 
-        if (empty($row['weight'])) {
-            $row['weightType'] = 'adjustmentPercentaged';
-        }
+		if (!array_key_exists('weight', $row) || $row['weight'] === '' || $row['weight'] === null) {
+			$row['weightType'] = 'adjustmentPercentaged';
+		}
 
-        for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
+		for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
+			$str_multipriceFieldSuffix = $i === 0 ? '' : ('_'.$i);
 
-            if (empty($row['price'.($i === 0 ? '' : ('_'.$i))])) {
-                $row['priceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
-            }
+			if (!array_key_exists('price'.$str_multipriceFieldSuffix, $row) || $row['price'.$str_multipriceFieldSuffix] === '' || $row['price'.$str_multipriceFieldSuffix] === null) {
+				$row['priceType'.$str_multipriceFieldSuffix] = 'adjustmentPercentaged';
+			}
 
-            if (empty($row['oldPrice'.($i === 0 ? '' : ('_'.$i))])) {
-                $row['oldPriceType'.($i === 0 ? '' : ('_'.$i))] = 'adjustmentPercentaged';
-            }
-        }
+			if (!array_key_exists('oldPrice'.$str_multipriceFieldSuffix, $row) || $row['oldPrice'.$str_multipriceFieldSuffix] === '' || $row['oldPrice'.$str_multipriceFieldSuffix] === null) {
+				$row['oldPriceType'.$str_multipriceFieldSuffix] = 'adjustmentPercentaged';
+			}
+
+			if (!array_key_exists('price30DayLowest'.$str_multipriceFieldSuffix, $row) || $row['price30DayLowest'.$str_multipriceFieldSuffix] === '' || $row['price30DayLowest'.$str_multipriceFieldSuffix] === null) {
+				$row['priceType30DayLowest'.$str_multipriceFieldSuffix] = 'adjustmentPercentaged';
+			}
+		}
 
         if (in_array($row['parentProductcode'], $_SESSION['lsShop']['importFileInfo']['arrImportInfos']['productsToIgnore'])) {
 			$row['ignore'] = 'x';
@@ -1086,6 +1105,8 @@ class ls_shop_importController
 			$row['priceType'.$str_multipriceFieldSuffix] = $row['priceType'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
 			$row['oldPriceType'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['oldPriceType'.$str_multipriceFieldSuffix]];
 			$row['oldPriceType'.$str_multipriceFieldSuffix] = $row['oldPriceType'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
+			$row['priceType30DayLowest'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::$modificationTypesTranslationMap[$row['priceType30DayLowest'.$str_multipriceFieldSuffix]];
+			$row['priceType30DayLowest'.$str_multipriceFieldSuffix] = $row['priceType30DayLowest'.$str_multipriceFieldSuffix] ?: 'adjustmentPercentaged';
 			$row['scalePriceType'.$str_multipriceFieldSuffix] = $row['scalePriceType'.$str_multipriceFieldSuffix] ? $row['scalePriceType'.$str_multipriceFieldSuffix] : 'scalePriceStandalone';
 			$row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] = $row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] ? $row['scalePriceQuantityDetectionMethod'.$str_multipriceFieldSuffix] : 'separatedVariantsAndConfigurations';
 			$row['scalePrice'.$str_multipriceFieldSuffix] = ls_shop_productManagementApiHelper::generateScalePriceArray($row['scalePrice'.$str_multipriceFieldSuffix]);
@@ -1141,6 +1162,10 @@ class ls_shop_importController
 							`lsShopVariantPriceOld` = ?,
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopVariantPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopVariantPrice30DayLowest` = ?,
+							`lsShopVariantPriceType30DayLowest` = ?,
 							`overrideAvailabilitySettingsOfParentProduct` = ?,
 							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
@@ -1181,6 +1206,10 @@ class ls_shop_importController
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$row['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$row['price30DayLowest'] ? $row['price30DayLowest'] : 0, // decimal, empty = 0
+				$row['priceType30DayLowest'], // String, maxlength 255
 				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
                 $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
@@ -1269,6 +1298,10 @@ class ls_shop_importController
 							`lsShopVariantPriceOld` = ?,
 							`lsShopVariantPriceTypeOld` = ?,
 							`useOldPrice` = ?,
+							`lsShopVariantPriceOldIsUvp` = ?,
+							`use30DayLowestPrice` = ?,
+							`lsShopVariantPrice30DayLowest` = ?,
+							`lsShopVariantPriceType30DayLowest` = ?,
 							`overrideAvailabilitySettingsOfParentProduct` = ?,
 							`availableFrom` = ?,
 							`preorderingAllowed` = ?,
@@ -1310,6 +1343,10 @@ class ls_shop_importController
 				$row['oldPrice'] ? $row['oldPrice'] : 0, // decimal, empty = 0
 				$row['oldPriceType'], // String, maxlength 255
 				$row['useOldPrice'] ? '1' : '', // 1 or ''
+				$row['oldPriceIsUvp'] ? '1' : '', // 1 or ''
+				$row['use30DayLowestPrice'] ? '1' : '', // 1 or ''
+				$row['price30DayLowest'] ? $row['price30DayLowest'] : 0, // decimal, empty = 0
+				$row['priceType30DayLowest'], // String, maxlength 255
 				$row['overrideAvailabilitySettingsOfParentProduct'] ? '1' : '', // 1 or ''
                 $row['availableFrom'], // String, date in format yyyy-mm-dd or empty string
 				$row['preorderingAllowed'] ? '1' : '', // 1 or ''
@@ -1793,6 +1830,9 @@ class ls_shop_importController
 			case 'notExistingPriceTypeOld':
                 return $this->notExistingPriceType($row, 'oldPriceType', 'oldPrice');
 
+			case 'notExistingPriceType30DayLowest':
+                return $this->notExistingPriceType($row, 'priceType30DayLowest', 'price30DayLowest');
+
 			case 'notExistingWeightType':
 				if ($row['delete']) {
 					break;
@@ -1807,7 +1847,7 @@ class ls_shop_importController
                 }
 
                 /* If weight exists and weightType is empty */
-				if (!empty($row['weight']) && empty($row['weightType'])) {
+				if (array_key_exists('weight', $row) && $row['weight'] !== '' && $row['weight'] !== null && empty($row['weightType'])) {
 					return true;
 				}
 				break;
@@ -1924,6 +1964,25 @@ class ls_shop_importController
 					}					
 				}
 				
+				return false;
+				break;
+
+			case 'valueInvalid_price30DayLowest':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				/*
+				 * We count from 0 because we also have to check the non-group-specific field
+				 */
+				for ($i=0; $i <= ls_shop_productManagementApiHelper::$int_numImportableGroupPrices; $i++) {
+					if ($row['price30DayLowest'.($i === 0 ? '' : ('_'.$i))]) {
+						if (!preg_match('/^-?\d+(\.\d+)?$/', $row['price30DayLowest'.($i === 0 ? '' : ('_'.$i))])) {
+							return true;
+						}
+					}
+				}
+
 				return false;
 				break;
 			
@@ -2158,7 +2217,12 @@ class ls_shop_importController
             }
 
             /* If price exists and priceType is empty */
-            if (!empty($row[$aliasPrice.($i === 0 ? '' : ('_'.$i))]) && empty($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))])) {
+            if (
+            	array_key_exists($aliasPrice.($i === 0 ? '' : ('_'.$i)), $row)
+            	&& $row[$aliasPrice.($i === 0 ? '' : ('_'.$i))] !== ''
+            	&& $row[$aliasPrice.($i === 0 ? '' : ('_'.$i))] !== null
+            	&& empty($row[$aliasPriceType.($i === 0 ? '' : ('_'.$i))])
+            ) {
                 return true;
             }
 

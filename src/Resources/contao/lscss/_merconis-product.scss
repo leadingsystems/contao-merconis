@@ -84,6 +84,15 @@
     text-decoration: line-through;
     color: $ls-color-red;
   }
+  .uvpPrice {
+    font-size: $ls-font-size-h3;
+    @include ls_decreaseFontSizes($ls-font-size-h3);
+    color: $ls-color-red;
+
+    .value {
+      text-decoration: line-through;
+    }
+  }
   .finalPrice {
     font-size: $ls-font-size-h1;
     @include ls_decreaseFontSizes($ls-font-size-h1);

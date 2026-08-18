@@ -12,28 +12,68 @@ if ($this->objVariant !== null) {
 
 <div class="priceContainer">
     <?php if ($obj_tmp_productOrVariant->_hasOldPrice) { ?>
-        <div class="oldPrice">
-            <?php
-            /*
-             * Either a variant is selected or, if it isn't, the product does not have different old variant prices. In both cases we have a precise old price to display
-             */
-            if ($this->objProduct->_variantIsSelected || !$this->objProduct->_oldPricesAreDifferent) {
-                ?>
-                <?php echo $obj_tmp_productOrVariant->_priceOldAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-                <?php
-            }
+		<?php
+		$oldPriceOutput = null;
+		if ($this->objProduct->_variantIsSelected || !$this->objProduct->_oldPricesAreDifferent) {
+			$oldPriceOutput = $obj_tmp_productOrVariant->_priceOldAfterTaxFormatted;
+		} else {
+			$oldPriceOutput = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] . ' ' . $obj_tmp_productOrVariant->_priceOldMinimumAfterTaxFormatted;
+		}
 
-            /*
-             * No variant is selected and the product has different old variant prices which means that we have to show something like "from [minimum old price]"
-             */
-            else {
-                ?>
-                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php echo $obj_tmp_productOrVariant->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
-                <?php
-            }
-            ?>
-        </div>
+		if ($this->objProduct->_hasQuantityUnit) {
+			$oldPriceOutput .= '/' . $this->objProduct->_quantityUnit;
+		}
+		?>
+
+		<?php if ($obj_tmp_productOrVariant->_oldPriceIsUvp) { ?>
+			<div class="uvpPrice">
+				<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['uvp']; ?>:</span>
+				<span class="value"><?php echo $oldPriceOutput; ?></span>
+			</div>
+		<?php } else { ?>
+			<div class="oldPrice">
+				<?php echo $oldPriceOutput; ?>
+			</div>
+		<?php } ?>
     <?php } ?>
+
+	<?php
+	if (
+		$obj_tmp_productOrVariant->_has30DayLowestPrice
+		&& !($obj_tmp_productOrVariant->_hasOldPrice && $obj_tmp_productOrVariant->_oldPriceIsUvp)
+	) {
+		$price30DayLowestOutput = null;
+		$price30DayLowestNumeric = 0;
+
+		if ($this->objProduct->_variantIsSelected || !$this->objProduct->_30DayLowestPricesAreDifferent) {
+			$price30DayLowestOutput = $obj_tmp_productOrVariant->_price30DayLowestAfterTaxFormatted;
+			$price30DayLowestNumeric = $obj_tmp_productOrVariant->_price30DayLowestAfterTax;
+		} else {
+			$price30DayLowestOutput = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] . ' ' . $obj_tmp_productOrVariant->_price30DayLowestMinimumAfterTaxFormatted;
+			$price30DayLowestNumeric = $obj_tmp_productOrVariant->_price30DayLowestMinimumAfterTax;
+		}
+
+		if ($this->objProduct->_variantIsSelected || !$this->objProduct->_unscaledPricesAreDifferent) {
+			$currentPriceNumeric = $obj_tmp_productOrVariant->_unscaledPriceAfterTax;
+		} else {
+			$currentPriceNumeric = $obj_tmp_productOrVariant->_unscaledPriceMinimumAfterTax;
+		}
+
+		$saving = max(0, $price30DayLowestNumeric - $currentPriceNumeric);
+		$savingFormatted = \Merconis\Core\ls_shop_generalHelper::outputPrice($saving);
+		$thirtyDayLowestPriceInfoKey = (
+			$obj_tmp_productOrVariant->_cheapestPriceComesFromScalePrices
+			|| $obj_tmp_productOrVariant->_useScalePrice
+		)
+			? 'thirtyDayLowestPriceInfoBasedOnUnitPrice'
+			: 'thirtyDayLowestPriceInfo';
+		?>
+		<div class="thirtyDayLowestPriceInfo">
+			<?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc'][$thirtyDayLowestPriceInfoKey], $price30DayLowestOutput, $savingFormatted); ?>
+		</div>
+		<?php
+	}
+	?>
 
     <div class="currentPrice">
 		<?php // unscaled price output -> ?>

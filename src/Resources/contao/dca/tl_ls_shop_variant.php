@@ -120,6 +120,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			useOldPrice,
 			lsShopVariantPriceOld,
 			lsShopVariantPriceTypeOld,
+			lsShopVariantPriceOldIsUvp,
+			use30DayLowestPrice,
+			lsShopVariantPrice30DayLowest,
+			lsShopVariantPriceType30DayLowest,
 			lsShopVariantWeight,
 			lsShopVariantWeightType,
 			lsShopVariantMengenvergleichDivisor;
@@ -163,6 +167,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			useOldPrice_1,
 			lsShopVariantPriceOld_1,
 			lsShopVariantPriceTypeOld_1,
+			lsShopVariantPriceOldIsUvp_1,
+			use30DayLowestPrice_1,
+			lsShopVariantPrice30DayLowest_1,
+			lsShopVariantPriceType30DayLowest_1,
 		',
 
 		'useGroupPrices_2' => '
@@ -173,6 +181,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			useOldPrice_2,
 			lsShopVariantPriceOld_2,
 			lsShopVariantPriceTypeOld_2,
+			lsShopVariantPriceOldIsUvp_2,
+			use30DayLowestPrice_2,
+			lsShopVariantPrice30DayLowest_2,
+			lsShopVariantPriceType30DayLowest_2,
 		',
 
 		'useGroupPrices_3' => '
@@ -183,6 +195,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			useOldPrice_3,
 			lsShopVariantPriceOld_3,
 			lsShopVariantPriceTypeOld_3,
+			lsShopVariantPriceOldIsUvp_3,
+			use30DayLowestPrice_3,
+			lsShopVariantPrice30DayLowest_3,
+			lsShopVariantPriceType30DayLowest_3,
 		',
 
 		'useGroupPrices_4' => '
@@ -193,6 +209,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			useOldPrice_4,
 			lsShopVariantPriceOld_4,
 			lsShopVariantPriceTypeOld_4,
+			lsShopVariantPriceOldIsUvp_4,
+			use30DayLowestPrice_4,
+			lsShopVariantPrice30DayLowest_4,
+			lsShopVariantPriceType30DayLowest_4,
 		',
 
 		'useGroupPrices_5' => '
@@ -203,6 +223,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			useOldPrice_5,
 			lsShopVariantPriceOld_5,
 			lsShopVariantPriceTypeOld_5,
+			lsShopVariantPriceOldIsUvp_5,
+			use30DayLowestPrice_5,
+			lsShopVariantPrice30DayLowest_5,
+			lsShopVariantPriceType30DayLowest_5,
 		',
 
 		'useScalePrice' => 'scalePriceType,scalePriceQuantityDetectionMethod,scalePriceQuantityDetectionAlwaysSeparateConfigurations,scalePriceKeyword,scalePrice',
@@ -552,6 +576,42 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
 
+		'lsShopVariantPriceOldIsUvp' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'filter'		=> true,
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'use30DayLowestPrice' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'clr'),
+			'filter'		=> true,
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopVariantPrice30DayLowest' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'			      =>	'text',
+			'eval'					  =>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'lsShopVariantPriceType30DayLowest' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceType30DayLowest'],
+			'exclude' => true,
+			'inputType'               => 'select',
+			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+			'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
+		),
+
 		/*
 		 * Deviant price settings for group 1
 		 */
@@ -686,6 +746,40 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
+		),
+
+		'lsShopVariantPriceOldIsUvp_1' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'use30DayLowestPrice_1' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'clr'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopVariantPrice30DayLowest_1' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'			      =>	'text',
+			'eval'					  =>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'lsShopVariantPriceType30DayLowest_1' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceType30DayLowest'],
+			'exclude' => true,
+			'inputType'               => 'select',
+			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+			'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
 
 		/*
@@ -824,6 +918,40 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
 
+		'lsShopVariantPriceOldIsUvp_2' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'use30DayLowestPrice_2' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'clr'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopVariantPrice30DayLowest_2' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'			      =>	'text',
+			'eval'					  =>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'lsShopVariantPriceType30DayLowest_2' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceType30DayLowest'],
+			'exclude' => true,
+			'inputType'               => 'select',
+			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+			'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
+		),
+
 		/*
 		 * Deviant price settings for group 3
 		 */
@@ -958,6 +1086,40 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
+		),
+
+		'lsShopVariantPriceOldIsUvp_3' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'use30DayLowestPrice_3' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'clr'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopVariantPrice30DayLowest_3' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'			      =>	'text',
+			'eval'					  =>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'lsShopVariantPriceType30DayLowest_3' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceType30DayLowest'],
+			'exclude' => true,
+			'inputType'               => 'select',
+			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+			'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
 
 		/*
@@ -1096,6 +1258,40 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
 
+		'lsShopVariantPriceOldIsUvp_4' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'use30DayLowestPrice_4' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'clr'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopVariantPrice30DayLowest_4' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'			      =>	'text',
+			'eval'					  =>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'lsShopVariantPriceType30DayLowest_4' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceType30DayLowest'],
+			'exclude' => true,
+			'inputType'               => 'select',
+			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+			'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
+		),
+
 		/*
 		 * Deviant price settings for group 5
 		 */
@@ -1230,6 +1426,40 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
             'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
+		),
+
+		'lsShopVariantPriceOldIsUvp_5' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceOldIsUvp'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'w50 m12'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'use30DayLowestPrice_5' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['use30DayLowestPrice'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('doNotCopy'=>true, 'tl_class'=>'clr'),
+			'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'lsShopVariantPrice30DayLowest_5' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPrice30DayLowest'],
+			'exclude' => true,
+			'inputType'			      =>	'text',
+			'eval'					  =>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
+			'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
+		),
+
+		'lsShopVariantPriceType30DayLowest_5' => array (
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantPriceType30DayLowest'],
+			'exclude' => true,
+			'inputType'               => 'select',
+			'options'				  => array('standalone','adjustmentPercentaged','adjustmentFix'),
+			'reference'               => $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['lsShopVariantPriceType'] ?? null,
+			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
+			'sql'                     => "varchar(255) NOT NULL default 'adjustmentPercentaged'"
 		),
 
 		'lsShopVariantWeight' => array (

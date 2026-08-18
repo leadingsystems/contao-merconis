@@ -806,6 +806,17 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				return $this->mainData['useOldPrice'];
 				break;
 
+			case '_oldPriceIsUvp':
+				if ($this->mainData['lsShopVariantPriceOldIsUvp']) {
+					return true;
+				}
+				return $this->_objParentProduct->_oldPriceIsUvp ? true : false;
+				break;
+
+			case '_use30DayLowestPrice':
+				return $this->mainData['use30DayLowestPrice'];
+				break;
+
 			case '_priceBeforeTax':
 				$priceBeforeTax = $this->mainData['lsShopVariantPrice'];
 				$priceBeforeTax = ls_shop_generalHelper::calculateScaledPrice($priceBeforeTax, $this);
@@ -910,6 +921,54 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				return ls_shop_generalHelper::outputPrice($this->_priceOldAfterTax);
 				break;
 
+			case '_price30DayLowestBeforeTax':
+				/*-->
+				 * Keine Berechnung, wenn sowohl der 30-Tage-Niedrigstpreis des Produktes als auch der 30-Tage-Niedrigstpreis der Variante nicht verwendet werden sollen
+				 <--*/
+				if (!$this->_use30DayLowestPrice && !$this->_objParentProduct->_use30DayLowestPrice) {
+					return null;
+				}
+
+				if ($this->_use30DayLowestPrice) {
+					/*--> 30-Tage-Niedrigstpreis der Variante soll verwendet werden, daher kann damit gerechnet werden <--*/
+					$variantPrice = $this->mainData['lsShopVariantPrice30DayLowest'];
+					$priceType = $this->_priceType30DayLowest;
+				} else {
+					/*-->
+					 * 30-Tage-Niedrigstpreis der Variante soll nicht verwendet werden, es muss daher mit dem aktuellen Variantenpreis gerechnet werden,
+					 * wobei dann auch der aktuelle Preistyp gilt.
+					 <--*/
+					$variantPrice = $this->mainData['lsShopVariantPrice'];
+					$priceType = $this->_priceType;
+					if ($priceType == 'standalone') {
+						/*-->
+						 * Soll mit dem aktuellen Variantenpreis gerechnet werden und ist dessen Preistyp "standalone", so ist de facto
+						 * in der Preisermittlung keine 30-Tage-Preiskomponente enthalten. In diesem Fall wird hier also für den 30-Tage-Niedrigstpreis
+						 * gleich NULL zurückgegeben.
+						 <--*/
+						return null;
+					}
+				}
+
+				if ($this->_objParentProduct->_use30DayLowestPrice) {
+					/*--> 30-Tage-Niedrigstpreis des Produktes soll verwendet werden, daher kann damit gerechnet werden <--*/
+					$productPrice = $this->_objParentProduct->_price30DayLowestBeforeTax;
+				} else {
+					/*--> 30-Tage-Niedrigstpreis des Produktes soll nicht verwendet werden, es muss daher mit dem aktuellen Produktpreis gerechnet werden. <--*/
+					$productPrice = $this->_objParentProduct->_priceBeforeTax;
+				}
+
+				return ls_shop_generalHelper::ls_calculateVariantPriceRegardingPriceType($priceType, $productPrice, $variantPrice);
+				break;
+
+			case '_price30DayLowestAfterTax':
+				return ls_shop_generalHelper::getDisplayPrice($this->_price30DayLowestBeforeTax, $this->_steuersatz);
+				break;
+
+			case '_price30DayLowestAfterTaxFormatted':
+				return ls_shop_generalHelper::outputPrice($this->_price30DayLowestAfterTax);
+				break;
+
 			case '_pricesAreDifferent':
 				return $this->_objParentProduct->_pricesAreDifferent;
 				break;
@@ -918,8 +977,16 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 				return $this->_objParentProduct->_oldPricesAreDifferent;
 				break;
 
+			case '_30DayLowestPricesAreDifferent':
+				return $this->_objParentProduct->_30DayLowestPricesAreDifferent;
+				break;
+
 			case '_hasOldPrice':
 				return $this->_useOldPrice && !is_null($this->_priceOldBeforeTax);
+				break;
+
+			case '_has30DayLowestPrice':
+				return $this->_use30DayLowestPrice && !is_null($this->_price30DayLowestBeforeTax);
 				break;
 
 			case '_priceControl':
@@ -936,6 +1003,8 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 							<th></th>
 							<th>old variant price</th>
 							<th></th>
+							<th>30-day lowest variant price</th>
+							<th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -945,12 +1014,16 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 							<td></td>
 							<td title="_oldPriceType"><?php echo $this->_oldPriceType; ?></td>
 							<td></td>
+							<td title="_priceType30DayLowest"><?php echo $this->_priceType30DayLowest; ?></td>
+							<td></td>
 						</tr>
 						<tr>
 							<td class="label">price in db</td>
 							<td title="lsShopVariantPrice"><?php echo $this->mainData['lsShopVariantPrice']; ?></td>
 							<td></td>
 							<td title="lsShopVariantPriceOld"><?php echo $this->mainData['lsShopVariantPriceOld']; ?></td>
+							<td></td>
+							<td title="lsShopVariantPrice30DayLowest"><?php echo $this->mainData['lsShopVariantPrice30DayLowest']; ?></td>
 							<td></td>
 						</tr>
 						<tr>
@@ -959,34 +1032,36 @@ with the separately existing properties &quot;_scalePricesOutputUnconfigured&quo
 							<td title="_getQuantityComparisonText('_priceBeforeTax')"><?php echo $this->_getQuantityComparisonText('_priceBeforeTax'); ?></td>
 							<td title="_priceOldBeforeTax"><?php echo $this->_priceOldBeforeTax; ?></td>
 							<td title="_getQuantityComparisonText('_priceOldBeforeTax')"><?php echo $this->_getQuantityComparisonText('_priceOldBeforeTax'); ?></td>
+							<td title="_price30DayLowestBeforeTax"><?php echo $this->_price30DayLowestBeforeTax; ?></td>
+							<td title="_getQuantityComparisonText('_price30DayLowestBeforeTax')"><?php echo $this->_getQuantityComparisonText('_price30DayLowestBeforeTax'); ?></td>
 						</tr>
 						<tr>
 							<td class="label">beforeTax (unscaled)</td>
 							<td title="_unscaledPriceBeforeTax"><?php echo $this->_unscaledPriceBeforeTax; ?></td>
 							<td title="_getQuantityComparisonText('_unscaledPriceBeforeTax')"><?php echo $this->_getQuantityComparisonText('_unscaledPriceBeforeTax'); ?></td>
-							<td colspan="2"></td>
+							<td colspan="4"></td>
 						</tr>
 						<tr>
 							<td class="label">beforeConfiguratorAfterTax</td>
 							<td title="_priceBeforeConfiguratorAfterTax"><?php echo $this->_priceBeforeConfiguratorAfterTax; ?></td>
 							<td title="_getQuantityComparisonText('_priceBeforeConfiguratorAfterTax')"><?php echo $this->_getQuantityComparisonText('_priceBeforeConfiguratorAfterTax'); ?></td>
-							<td colspan="2"></td>
+							<td colspan="4"></td>
 						</tr>
 						<tr>
 							<td class="label">beforeConfiguratorAfterTax (unscaled)</td>
 							<td title="_unscaledPriceBeforeConfiguratorAfterTax"><?php echo $this->_unscaledPriceBeforeConfiguratorAfterTax; ?></td>
 							<td title="_getQuantityComparisonText('_unscaledPriceBeforeConfiguratorAfterTax')"><?php echo $this->_getQuantityComparisonText('_unscaledPriceBeforeConfiguratorAfterTax'); ?></td>
-							<td colspan="2"></td>
+							<td colspan="4"></td>
 						</tr>
 						<tr>
 							<td class="label">beforeConfiguratorAfterTaxFormatted</td>
 							<td title="_priceBeforeConfiguratorAfterTaxFormatted"><?php echo $this->_priceBeforeConfiguratorAfterTaxFormatted; ?></td>
-							<td colspan="3"></td>
+							<td colspan="5"></td>
 						</tr>
 						<tr>
 							<td class="label">beforeConfiguratorAfterTaxFormatted (unscaled)</td>
 							<td title="_unscaledPriceBeforeConfiguratorAfterTaxFormatted"><?php echo $this->_unscaledPriceBeforeConfiguratorAfterTaxFormatted; ?></td>
-							<td colspan="3"></td>
+							<td colspan="5"></td>
 						</tr>
 						<tr>
 							<td class="label">modificationByConfigurator</td>
@@ -1176,6 +1251,10 @@ returns true if the variant matches, false if it doesn't and NULL if there's no 
 
 			case '_oldPriceType':
 				return $this->mainData['lsShopVariantPriceTypeOld'];
+				break;
+
+			case '_priceType30DayLowest':
+				return $this->mainData['lsShopVariantPriceType30DayLowest'];
 				break;
 
 			case '_steuersatz':

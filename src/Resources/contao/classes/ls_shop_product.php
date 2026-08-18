@@ -1286,6 +1286,10 @@ returns the product price or the cheapest variant price.
 				return $this->mainData['useOldPrice'];
 				break;
 
+			case '_oldPriceIsUvp':
+				return $this->mainData['lsShopProductPriceOldIsUvp'] ? true : false;
+				break;
+
 			case '_priceOldBeforeTax':
 				return $this->_useOldPrice ? $this->mainData['lsShopProductPriceOld'] : 0;
 				break;
@@ -1342,6 +1346,66 @@ returns the product price or the cheapest variant price.
 				return ls_shop_generalHelper::outputPrice($this->_priceOldMinimumAfterTax);
 				break;
 
+			case '_use30DayLowestPrice':
+				return $this->mainData['use30DayLowestPrice'];
+				break;
+
+			case '_price30DayLowestBeforeTax':
+				return $this->_use30DayLowestPrice ? $this->mainData['lsShopProductPrice30DayLowest'] : 0;
+				break;
+
+			case '_price30DayLowestAfterTax':
+				return ls_shop_generalHelper::getDisplayPrice($this->_price30DayLowestBeforeTax, $this->_steuersatz);
+				break;
+
+			case '_price30DayLowestAfterTaxFormatted':
+				return ls_shop_generalHelper::outputPrice($this->_price30DayLowestAfterTax);
+				break;
+
+			case '_price30DayLowestCheapestVariantBeforeTax':
+				$lowestPrice30DayLowestBeforeTax = $this->_price30DayLowestBeforeTax;
+				$count = 0;
+				foreach ($this->_variants as $variant) {
+					/*-->
+					 * Beim ersten Durchlauf, also der ersten geprüften Variante, wird der Variantenpreis auch dann als niedrigster
+					 * Variantenpreis eingetragen, wenn er höher ist als der bislang hinterlegte Produktpreis. Dies ist notwendig,
+					 * um sicherzustellen, dass nicht ein im Falle hinterlegter Varianten überhaupt nicht relevanter Produktpreis
+					 * angegeben wird, nur weil der niedriger ist als der tatsächlich relevante Variantenpreis. Sonst könnte es passieren,
+					 * dass als niedrigster Preis ein Preis angegeben wird, der de facto überhaupt nicht existiert bzw. zu dem das
+					 * Produkt überhaupt nicht bestellt werden kann.
+					 <--*/
+					if ($variant->_price30DayLowestBeforeTax < $lowestPrice30DayLowestBeforeTax || $count == 0) {
+						$lowestPrice30DayLowestBeforeTax = $variant->_price30DayLowestBeforeTax;
+					}
+					$count++;
+				}
+				return $lowestPrice30DayLowestBeforeTax;
+				break;
+
+			case '_price30DayLowestCheapestVariantAfterTax':
+				return ls_shop_generalHelper::getDisplayPrice($this->_price30DayLowestCheapestVariantBeforeTax, $this->_steuersatz);
+				break;
+
+			case '_price30DayLowestCheapestVariantAfterTaxFormatted':
+				return ls_shop_generalHelper::outputPrice($this->_price30DayLowestCheapestVariantAfterTax);
+				break;
+
+			case '_price30DayLowestMinimumBeforeTax'
+				/* ## DESCRIPTION:
+returns the product price or the cheapest variant price.
+				 */
+				:
+				return !$this->_30DayLowestPricesAreDifferent ? $this->_price30DayLowestBeforeTax : $this->_price30DayLowestCheapestVariantBeforeTax;
+				break;
+
+			case '_price30DayLowestMinimumAfterTax':
+				return ls_shop_generalHelper::getDisplayPrice($this->_price30DayLowestMinimumBeforeTax, $this->_steuersatz);
+				break;
+
+			case '_price30DayLowestMinimumAfterTaxFormatted':
+				return ls_shop_generalHelper::outputPrice($this->_price30DayLowestMinimumAfterTax);
+				break;
+
 			case '_pricesAreDifferent':
 				return $this->checkForDifferentPrices();
 				break;
@@ -1354,8 +1418,16 @@ returns the product price or the cheapest variant price.
 				return $this->_priceOldBeforeTax != $this->_priceOldCheapestVariantBeforeTax ? true : false;
 				break;
 
+			case '_30DayLowestPricesAreDifferent':
+				return $this->_price30DayLowestBeforeTax != $this->_price30DayLowestCheapestVariantBeforeTax ? true : false;
+				break;
+
 			case '_hasOldPrice':
 				return $this->_useOldPrice ? true : false;
+				break;
+
+			case '_has30DayLowestPrice':
+				return $this->_use30DayLowestPrice ? true : false;
 				break;
 
 			case '_priceControl':
@@ -1397,7 +1469,10 @@ returns the product price or the cheapest variant price.
 					<h3>Product &quot;<?php echo $this->_title; ?>&quot;</h3>
 					<div class="info">different prices: <?php echo $this->_pricesAreDifferent ? 'yes' : 'no'; ?></div>
 					<div class="info">has old price: <?php echo $this->_hasOldPrice ? 'yes' : 'no'; ?></div>
+					<div class="info">old price is uvp: <?php echo $this->_oldPriceIsUvp ? 'yes' : 'no'; ?></div>
 					<div class="info">different old prices: <?php echo $this->_oldPricesAreDifferent ? 'yes' : 'no'; ?></div>
+					<div class="info">has 30-day lowest price: <?php echo $this->_has30DayLowestPrice ? 'yes' : 'no'; ?></div>
+					<div class="info">different 30-day lowest prices: <?php echo $this->_30DayLowestPricesAreDifferent ? 'yes' : 'no'; ?></div>
 					<div class="info">quantityComparisonUnit: <?php echo $this->_quantityComparisonUnit; ?></div>
 					<div class="info">quantityComparisonDivisor: <?php echo $this->_quantityComparisonDivisor; ?></div>
 					<div>&nbsp;</div>
@@ -1416,6 +1491,12 @@ returns the product price or the cheapest variant price.
 								<th>old price cheapest variant</th>
 								<th></th>
 								<th>old price minimum</th>
+								<th></th>
+								<th>30-day lowest product price</th>
+								<th></th>
+								<th>30-day lowest price cheapest variant</th>
+								<th></th>
+								<th>30-day lowest price minimum</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -1440,6 +1521,15 @@ returns the product price or the cheapest variant price.
 
 								<td title="_priceOldMinimumBeforeTax"><?php echo $this->_priceOldMinimumBeforeTax; ?></td>
 								<td title="_getQuantityComparisonText('_priceOldMinimumBeforeTax')"><?php echo $this->_getQuantityComparisonText('_priceOldMinimumBeforeTax'); ?></td>
+
+								<td title="_price30DayLowestBeforeTax"><?php echo $this->_price30DayLowestBeforeTax; ?></td>
+								<td title="_getQuantityComparisonText('_price30DayLowestBeforeTax')"><?php echo $this->_getQuantityComparisonText('_price30DayLowestBeforeTax'); ?></td>
+
+								<td title="_price30DayLowestCheapestVariantBeforeTax"><?php echo $this->_price30DayLowestCheapestVariantBeforeTax; ?></td>
+								<td title="_getQuantityComparisonText('_price30DayLowestCheapestVariantBeforeTax')"><?php echo $this->_getQuantityComparisonText('_price30DayLowestCheapestVariantBeforeTax'); ?></td>
+
+								<td title="_price30DayLowestMinimumBeforeTax"><?php echo $this->_price30DayLowestMinimumBeforeTax; ?></td>
+								<td title="_getQuantityComparisonText('_price30DayLowestMinimumBeforeTax')"><?php echo $this->_getQuantityComparisonText('_price30DayLowestMinimumBeforeTax'); ?></td>
 							</tr>
 							<tr>
 								<td class="label">beforeTax (unscaled)</td>
@@ -1453,7 +1543,7 @@ returns the product price or the cheapest variant price.
 								<td title="_unscaledPriceMinimumBeforeTax"><?php echo $this->_unscaledPriceMinimumBeforeTax; ?></td>
 								<td title="_getQuantityComparisonText('_unscaledPriceMinimumBeforeTax')"><?php echo $this->_getQuantityComparisonText('_unscaledPriceMinimumBeforeTax'); ?></td>
 
-								<td colspan="6"></td>
+								<td colspan="12"></td>
 							</tr>
 							<tr>
 								<td class="label">beforeConfiguratorAfterTax</td>
@@ -1461,7 +1551,7 @@ returns the product price or the cheapest variant price.
 								<td title="_priceBeforeConfiguratorAfterTax"><?php echo $this->_priceBeforeConfiguratorAfterTax; ?></td>
 								<td title="_getQuantityComparisonText('_priceBeforeConfiguratorAfterTax')"><?php echo $this->_getQuantityComparisonText('_priceBeforeConfiguratorAfterTax'); ?></td>
 
-								<td colspan="10"></td>
+								<td colspan="16"></td>
 							</tr>
 							<tr>
 								<td class="label">beforeConfiguratorAfterTax (unscaled)</td>
@@ -1469,17 +1559,17 @@ returns the product price or the cheapest variant price.
 								<td title="_unscaledPriceBeforeConfiguratorAfterTax"><?php echo $this->_unscaledPriceBeforeConfiguratorAfterTax; ?></td>
 								<td title="_getQuantityComparisonText('_unscaledPriceBeforeConfiguratorAfterTax')"><?php echo $this->_getQuantityComparisonText('_unscaledPriceBeforeConfiguratorAfterTax'); ?></td>
 
-								<td colspan="10"></td>
+								<td colspan="16"></td>
 							</tr>
 							<tr>
 								<td class="label">beforeConfiguratorAfterTaxFormatted</td>
 								<td title="_priceBeforeConfiguratorAfterTaxFormatted"><?php echo $this->_priceBeforeConfiguratorAfterTaxFormatted; ?></td>
-								<td colspan="11"></td>
+								<td colspan="17"></td>
 							</tr>
 							<tr>
 								<td class="label">beforeConfiguratorAfterTaxFormatted (unscaled)</td>
 								<td title="_unscaledPriceBeforeConfiguratorAfterTaxFormatted"><?php echo $this->_unscaledPriceBeforeConfiguratorAfterTaxFormatted; ?></td>
-								<td colspan="11"></td>
+								<td colspan="17"></td>
 							</tr>
 							<tr>
 								<td class="label">modificationByConfigurator</td>
@@ -1487,7 +1577,7 @@ returns the product price or the cheapest variant price.
 								<td title="_priceModificationByConfigurator"><?php echo $this->_priceModificationByConfigurator; ?></td>
 								<td title="_getQuantityComparisonText('_priceModificationByConfigurator')"><?php echo $this->_getQuantityComparisonText('_priceModificationByConfigurator'); ?></td>
 
-								<td colspan="10"></td>
+								<td colspan="16"></td>
 							</tr>
 							<tr>
 								<td class="label">modificationByConfigurator (unscaled)</td>
@@ -1495,17 +1585,17 @@ returns the product price or the cheapest variant price.
 								<td title="_unscaledPriceModificationByConfigurator"><?php echo $this->_unscaledPriceModificationByConfigurator; ?></td>
 								<td title="_getQuantityComparisonText('_unscaledPriceModificationByConfigurator')"><?php echo $this->_getQuantityComparisonText('_unscaledPriceModificationByConfigurator'); ?></td>
 
-								<td colspan="10"></td>
+								<td colspan="16"></td>
 							</tr>
 							<tr>
 								<td class="label">modificationByConfiguratorFormatted</td>
 								<td title="_priceModificationByConfiguratorFormatted"><?php echo $this->_priceModificationByConfiguratorFormatted; ?></td>
-								<td colspan="11"></td>
+								<td colspan="17"></td>
 							</tr>
 							<tr>
 								<td class="label">modificationByConfiguratorFormatted (unscaled)</td>
 								<td title="_unscaledPriceModificationByConfiguratorFormatted"><?php echo $this->_unscaledPriceModificationByConfiguratorFormatted; ?></td>
-								<td colspan="11"></td>
+								<td colspan="17"></td>
 							</tr>
 							<tr>
 								<td class="label">afterTax</td>
@@ -1527,6 +1617,15 @@ returns the product price or the cheapest variant price.
 
 								<td title="_priceOldMinimumAfterTax"><?php echo $this->_priceOldMinimumAfterTax; ?></td>
 								<td title="_getQuantityComparisonText('_priceOldMinimumAfterTax')"><?php echo $this->_getQuantityComparisonText('_priceOldMinimumAfterTax'); ?></td>
+
+								<td title="_price30DayLowestAfterTax"><?php echo $this->_price30DayLowestAfterTax; ?></td>
+								<td title="_getQuantityComparisonText('_price30DayLowestAfterTax')"><?php echo $this->_getQuantityComparisonText('_price30DayLowestAfterTax'); ?></td>
+
+								<td title="_price30DayLowestCheapestVariantAfterTax"><?php echo $this->_price30DayLowestCheapestVariantAfterTax; ?></td>
+								<td title="_getQuantityComparisonText('_price30DayLowestCheapestVariantAfterTax')"><?php echo $this->_getQuantityComparisonText('_price30DayLowestCheapestVariantAfterTax'); ?></td>
+
+								<td title="_price30DayLowestMinimumAfterTax"><?php echo $this->_price30DayLowestMinimumAfterTax; ?></td>
+								<td title="_getQuantityComparisonText('_price30DayLowestMinimumAfterTax')"><?php echo $this->_getQuantityComparisonText('_price30DayLowestMinimumAfterTax'); ?></td>
 							</tr>
 							<tr>
 								<td class="label">afterTax (unscaled)</td>
@@ -1540,7 +1639,7 @@ returns the product price or the cheapest variant price.
 								<td title="_unscaledPriceMinimumAfterTax"><?php echo $this->_unscaledPriceMinimumAfterTax; ?></td>
 								<td title="_getQuantityComparisonText('_unscaledPriceMinimumAfterTax')"><?php echo $this->_getQuantityComparisonText('_unscaledPriceMinimumAfterTax'); ?></td>
 
-								<td colspan="6"></td>
+								<td colspan="12"></td>
 							</tr>
 							<tr>
 								<td class="label">afterTaxFormatted</td>
@@ -1556,6 +1655,12 @@ returns the product price or the cheapest variant price.
 								<td></td>
 								<td title="_priceOldMinimumAfterTaxFormatted"><?php echo $this->_priceOldMinimumAfterTaxFormatted; ?></td>
 								<td></td>
+								<td title="_price30DayLowestAfterTaxFormatted"><?php echo $this->_price30DayLowestAfterTaxFormatted; ?></td>
+								<td></td>
+								<td title="_price30DayLowestCheapestVariantAfterTaxFormatted"><?php echo $this->_price30DayLowestCheapestVariantAfterTaxFormatted; ?></td>
+								<td></td>
+								<td title="_price30DayLowestMinimumAfterTaxFormatted"><?php echo $this->_price30DayLowestMinimumAfterTaxFormatted; ?></td>
+								<td></td>
 							</tr>
 							<tr>
 								<td class="label">afterTaxFormatted (unscaled)</td>
@@ -1564,7 +1669,7 @@ returns the product price or the cheapest variant price.
 								<td title="_unscaledPriceCheapestVariantAfterTaxFormatted"><?php echo $this->_unscaledPriceCheapestVariantAfterTaxFormatted; ?></td>
 								<td></td>
 								<td title="_unscaledPriceMinimumAfterTaxFormatted"><?php echo $this->_unscaledPriceMinimumAfterTaxFormatted; ?></td>
-								<td colspan="7"></td>
+								<td colspan="13"></td>
 							</tr>
 						</tbody>
 					</table>
