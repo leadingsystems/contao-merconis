@@ -61,7 +61,10 @@ if ($this->objVariant !== null) {
 
 		$saving = max(0, $price30DayLowestNumeric - $currentPriceNumeric);
 		$savingFormatted = \Merconis\Core\ls_shop_generalHelper::outputPrice($saving);
-		$thirtyDayLowestPriceInfoKey = $obj_tmp_productOrVariant->_cheapestPriceComesFromScalePrices
+		$thirtyDayLowestPriceInfoKey = (
+			$obj_tmp_productOrVariant->_cheapestPriceComesFromScalePrices
+			|| $obj_tmp_productOrVariant->_useScalePrice
+		)
 			? 'thirtyDayLowestPriceInfoBasedOnUnitPrice'
 			: 'thirtyDayLowestPriceInfo';
 		?>
