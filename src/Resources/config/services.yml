@@ -144,6 +144,10 @@ services:
     tags:
       - { name: kernel.event_listener, priority: 15 }
 
+  LeadingSystems\MerconisBundle\Sitemap\SitemapPageScope: ~
+
+  LeadingSystems\MerconisBundle\Sitemap\SitemapUrlAppender: ~
+
   merconis.eventlistener.loginlistener:
     class: LeadingSystems\MerconisBundle\EventListener\LoginListener
     tags:
