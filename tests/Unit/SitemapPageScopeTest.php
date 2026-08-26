@@ -30,6 +30,17 @@ final class SitemapPageScopeTest extends TestCase
         self::assertTrue($scope->contains($pageModel, $event));
     }
 
+    public function testContainsAcceptsPagesBelowMultipleAllowedRootPages(): void
+    {
+        $scope = new SitemapPageScope();
+        $event = new SitemapEvent($this->createSitemapDocument(), Request::create('/sitemap.xml'), [11, 22]);
+        $firstPageModel = $this->createPageModel(17, 11);
+        $secondPageModel = $this->createPageModel(27, 22);
+
+        self::assertTrue($scope->contains($firstPageModel, $event));
+        self::assertTrue($scope->contains($secondPageModel, $event));
+    }
+
     public function testContainsRejectsPageOutsideAllowedRootPages(): void
     {
         $scope = new SitemapPageScope();
