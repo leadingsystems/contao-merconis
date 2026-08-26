@@ -133,13 +133,18 @@ function exportSitemapState(string $projectDir, string $outputPath): void
                         foreach ($pageAssignment['languageTargets'] as &$languageTarget) {
                             $inScope = in_array($languageTarget['pageId'], $rootPageIds, true)
                                 || in_array($languageTarget['rootId'], $rootPageIds, true);
+                            $shouldBeIncluded = $languageTarget['isCorrespondence']
+                                && $languageTarget['eligibility']['eligible']
+                                && '' !== $languageTarget['productAlias']
+                                && $inScope;
 
                             $languageTarget['hosts'][$host] = [
                                 'inScope' => $inScope,
                                 'expectedUrl' => null,
+                                'included' => $shouldBeIncluded,
                             ];
 
-                            if (!$inScope) {
+                            if (!$shouldBeIncluded) {
                                 continue;
                             }
 
@@ -158,8 +163,12 @@ function exportSitemapState(string $projectDir, string $outputPath): void
                                 'pageId' => $languageTarget['pageId'],
                                 'rootId' => $languageTarget['rootId'],
                                 'language' => $languageTarget['language'],
+                                'pageType' => $languageTarget['pageType'],
                                 'pageAlias' => $languageTarget['pageAlias'],
+                                'productAlias' => $languageTarget['productAlias'],
                                 'sourceAssignedPageId' => $pageAssignment['assignedPageId'],
+                                'isCorrespondence' => $languageTarget['isCorrespondence'],
+                                'correspondenceMainLanguagePageId' => $languageTarget['correspondenceMainLanguagePageId'],
                             ];
                         }
                     }
@@ -220,6 +229,7 @@ function collectProducts(Connection $databaseConnection, object $pageController,
     );
 
     $productStates = [];
+    $currentTimestamp = time();
 
     foreach ($productRows as $productRow) {
         $assignedPageIds = array_values(
@@ -253,7 +263,7 @@ function collectProducts(Connection $databaseConnection, object $pageController,
                 continue;
             }
 
-            $selectionFlags = buildSelectionFlags($pageRecord);
+            $selectionFlags = buildSelectionFlags($pageRecord, $currentTimestamp);
             $languageTargets = [];
 
             if ($selectionFlags['eligibleForSitemap']) {
@@ -270,19 +280,27 @@ function collectProducts(Connection $databaseConnection, object $pageController,
                         continue;
                     }
 
+                    $correspondenceMainLanguagePageId = $languagePageId === $assignedPageId
+                        ? $assignedPageId
+                        : normalizeMainLanguagePageId(
+                            ls_shop_languageHelper::getMainlanguagePageIDForPageID($languagePageId)
+                        );
+                    $eligibility = buildEligibilitySnapshot($targetPage, $currentTimestamp);
                     $language = (string) $targetPage->language;
                     $productAlias = (string) ($productRow['alias_'.$language] ?? '');
-
-                    if ('' === $productAlias) {
-                        continue;
-                    }
 
                     $languageTargets[] = [
                         'pageId' => (int) $targetPage->id,
                         'rootId' => (int) $targetPage->rootId,
                         'language' => $language,
+                        'pageType' => (string) $targetPage->type,
                         'pageAlias' => (string) $targetPage->alias,
                         'productAlias' => $productAlias,
+                        'isOwnLanguageAssignment' => $languagePageId === $assignedPageId,
+                        'correspondenceMainLanguagePageId' => $correspondenceMainLanguagePageId,
+                        'isCorrespondence' => $languagePageId === $assignedPageId
+                            || $correspondenceMainLanguagePageId === $assignedPageId,
+                        'eligibility' => $eligibility,
                         'pageModel' => $targetPage,
                         'hosts' => [],
                     ];
@@ -343,7 +361,7 @@ function deserializePages(mixed $serializedPages): array
 function fetchPageRecord(Connection $databaseConnection, int $pageId): ?array
 {
     $pageRecord = $databaseConnection->fetchAssociative(
-        'SELECT `id`, `alias`, `published`, `start`, `stop`, `noSearch`, `sitemap` FROM `tl_page` WHERE `id` = ?',
+        'SELECT `id`, `alias`, `type`, `published`, `start`, `stop`, `noSearch`, `sitemap` FROM `tl_page` WHERE `id` = ?',
         [$pageId]
     );
 
@@ -355,25 +373,65 @@ function fetchPageRecord(Connection $databaseConnection, int $pageId): ?array
  *
  * @return array<string, bool>
  */
-function buildSelectionFlags(array $pageRecord): array
+function buildSelectionFlags(array $pageRecord, int $currentTimestamp): array
 {
-    $now = time();
-    $start = (string) ($pageRecord['start'] ?? '');
-    $stop = (string) ($pageRecord['stop'] ?? '');
+    $pageTypeIsRegular = 'regular' === (string) ($pageRecord['type'] ?? '');
     $published = '1' === (string) ($pageRecord['published'] ?? '');
-    $withinPublicationWindow = ('' === $start || (int) $start < $now)
-        && ('' === $stop || (int) $stop > $now);
+    $withinPublicationWindow = isWithinPublicationWindow(
+        (string) ($pageRecord['start'] ?? ''),
+        (string) ($pageRecord['stop'] ?? ''),
+        $currentTimestamp
+    );
     $searchable = '1' !== (string) ($pageRecord['noSearch'] ?? '');
     $sitemapIncluded = 'map_never' !== (string) ($pageRecord['sitemap'] ?? '');
 
     return [
         'exists' => true,
+        'pageTypeIsRegular' => $pageTypeIsRegular,
         'published' => $published,
         'withinPublicationWindow' => $withinPublicationWindow,
         'searchable' => $searchable,
         'sitemapIncluded' => $sitemapIncluded,
-        'eligibleForSitemap' => $published && $withinPublicationWindow && $searchable && $sitemapIncluded,
+        'eligibleForSitemap' => $pageTypeIsRegular && $published && $withinPublicationWindow && $searchable && $sitemapIncluded,
     ];
+}
+
+/**
+ * @return array<string, bool>
+ */
+function buildEligibilitySnapshot(PageModel $pageModel, int $currentTimestamp): array
+{
+    $pageTypeIsRegular = 'regular' === (string) $pageModel->type;
+    $published = '1' === (string) $pageModel->published;
+    $withinPublicationWindow = isWithinPublicationWindow(
+        (string) $pageModel->start,
+        (string) $pageModel->stop,
+        $currentTimestamp
+    );
+    $searchable = '1' !== (string) $pageModel->noSearch;
+    $sitemapIncluded = 'map_never' !== (string) $pageModel->sitemap;
+
+    return [
+        'pageTypeIsRegular' => $pageTypeIsRegular,
+        'published' => $published,
+        'withinPublicationWindow' => $withinPublicationWindow,
+        'searchable' => $searchable,
+        'sitemapIncluded' => $sitemapIncluded,
+        'eligible' => $pageTypeIsRegular && $published && $withinPublicationWindow && $searchable && $sitemapIncluded,
+    ];
+}
+
+function isWithinPublicationWindow(string $start, string $stop, int $currentTimestamp): bool
+{
+    return ('' === $start || (int) $start < $currentTimestamp)
+        && ('' === $stop || (int) $stop > $currentTimestamp);
+}
+
+function normalizeMainLanguagePageId(mixed $pageId): ?int
+{
+    $normalizedPageId = (int) $pageId;
+
+    return $normalizedPageId > 0 ? $normalizedPageId : null;
 }
 
 /**

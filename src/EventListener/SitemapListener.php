@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\EventListener;
 
 use Contao\CoreBundle\Event\SitemapEvent;
-use Contao\Database;
 use Contao\PageModel;
 use Contao\StringUtil;
-use Contao\System;
-use LeadingSystems\MerconisBundle\Sitemap\SitemapUrlAppender;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
+use LeadingSystems\MerconisBundle\Sitemap\PageDetailsProviderInterface;
+use LeadingSystems\MerconisBundle\Sitemap\SitemapLanguageTargetProcessor;
 use Merconis\Core\ls_shop_languageHelper;
 
 /*
@@ -19,7 +21,9 @@ use Merconis\Core\ls_shop_languageHelper;
 class SitemapListener
 {
     public function __construct(
-        private readonly SitemapUrlAppender $sitemapUrlAppender,
+        private readonly Connection $connection,
+        private readonly PageDetailsProviderInterface $pageDetailsProvider,
+        private readonly SitemapLanguageTargetProcessor $languageTargetProcessor,
         private readonly bool $productUrlsHandledExternally = false,
     ) {
     }
@@ -30,58 +34,46 @@ class SitemapListener
             return;
         }
 
-        $languageKeys = ls_shop_languageHelper::getAllLanguages();
-        $productRows = Database::getInstance()
-            ->prepare(
-                sprintf(
-                    'SELECT `pages`, %s FROM `tl_ls_shop_product` WHERE `published` = 1',
-                    $this->buildProductColumnList($languageKeys)
-                )
-            )
-            ->limit(10000)
-            ->execute();
+        $languageKeys = array_values(ls_shop_languageHelper::getAllLanguages());
 
-        $pageController = System::getContainer()->get('contao_helper.controller.page_controller');
-
-        while ($productRows->next()) {
-            $assignedPageIds = array_values(
-                array_filter(
-                    array_map('intval', StringUtil::deserialize($productRows->pages, true)),
-                    static fn (int $pageId): bool => $pageId > 0
-                )
-            );
+        foreach ($this->fetchProductRows($languageKeys) as $productRow) {
+            $assignedPageIds = $this->normalizeAssignedPageIds($productRow['pages'] ?? null);
 
             if ([] === $assignedPageIds) {
                 continue;
             }
 
-            $eligiblePages = $this->findEligiblePagesForProduct($assignedPageIds);
+            foreach ($this->findEligibleAssignedPageIds($assignedPageIds) as $assignedPageId) {
+                $assignedPage = $this->pageDetailsProvider->getPageDetailsCached($assignedPageId);
 
-            while ($eligiblePages->next()) {
-                foreach (ls_shop_languageHelper::getLanguagePages((int) $eligiblePages->id) as $languagePageInfo) {
-                    $languagePageId = (int) ($languagePageInfo['id'] ?? 0);
-
-                    if ($languagePageId <= 0) {
-                        continue;
-                    }
-
-                    $targetPage = $pageController->getPageDetailsCached($languagePageId);
-
-                    if (!$targetPage instanceof PageModel) {
-                        continue;
-                    }
-
-                    $aliasColumn = 'alias_'.$targetPage->language;
-                    $languageAlias = (string) ($productRows->{$aliasColumn} ?? '');
-
-                    if ('' === $languageAlias) {
-                        continue;
-                    }
-
-                    $this->sitemapUrlAppender->appendProductUrl($event, $targetPage, $languageAlias);
+                if (!$assignedPage instanceof PageModel) {
+                    continue;
                 }
+
+                $this->languageTargetProcessor->appendProductUrlsForAssignedPage(
+                    $event,
+                    $assignedPage,
+                    $productRow,
+                );
             }
         }
+    }
+
+    /**
+     * @param array<int, string> $languageKeys
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function fetchProductRows(array $languageKeys): array
+    {
+        $columnList = $this->buildProductColumnList($languageKeys);
+
+        return $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT %s FROM `tl_ls_shop_product` WHERE `published` = 1 ORDER BY `id` ASC LIMIT 10000',
+                $columnList
+            )
+        );
     }
 
     /**
@@ -100,23 +92,52 @@ class SitemapListener
 
     /**
      * @param list<int> $assignedPageIds
+     *
+     * @return list<int>
      */
-    private function findEligiblePagesForProduct(array $assignedPageIds): object
+    private function normalizeAssignedPageIds(mixed $serializedPageSelection): array
     {
-        $time = time();
-        $pagePlaceholders = implode(' OR ', array_fill(0, count($assignedPageIds), '`id` = ?'));
-
-        return Database::getInstance()
-            ->prepare(
-                "SELECT `id`
-                 FROM `tl_page`
-                 WHERE ($pagePlaceholders)
-                   AND (`start` = '' OR `start` < ?)
-                   AND (`stop` = '' OR `stop` > ?)
-                   AND `published` = 1
-                   AND `noSearch` != 1
-                   AND `sitemap` != 'map_never'"
+        return array_values(
+            array_filter(
+                array_map('intval', StringUtil::deserialize($serializedPageSelection, true)),
+                static fn (int $pageId): bool => $pageId > 0
             )
-            ->execute(...[...$assignedPageIds, $time, $time]);
+        );
+    }
+
+    /**
+     * @param list<int> $assignedPageIds
+     *
+     * @return list<int>
+     */
+    private function findEligibleAssignedPageIds(array $assignedPageIds): array
+    {
+        if ([] === $assignedPageIds) {
+            return [];
+        }
+
+        $time = time();
+        $eligiblePageIds = $this->connection->fetchFirstColumn(
+            "SELECT `id`
+             FROM `tl_page`
+             WHERE `id` IN (?)
+               AND `type` = ?
+               AND (`start` = '' OR `start` < ?)
+               AND (`stop` = '' OR `stop` > ?)
+               AND `published` = 1
+               AND `noSearch` != 1
+               AND `sitemap` != ?
+             ORDER BY `id` ASC",
+            [$assignedPageIds, 'regular', $time, $time, 'map_never'],
+            [
+                ArrayParameterType::INTEGER,
+                ParameterType::STRING,
+                ParameterType::INTEGER,
+                ParameterType::INTEGER,
+                ParameterType::STRING,
+            ]
+        );
+
+        return array_values(array_map('intval', $eligiblePageIds));
     }
 }
