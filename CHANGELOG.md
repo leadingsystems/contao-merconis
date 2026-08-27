@@ -1,9 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
-### 5.1.17 (2026-06-26)
+### 5.1.17 (2026-08-28)
  * improve product filter (performance)
  * feature cart item comment
+ * fix sitemap output
 
 ### 5.1.16 (2026-06-12)
  * fix feature 'Widerruf': Configurator/Customizer Referenz
