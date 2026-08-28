@@ -5,6 +5,7 @@ use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_msg;
 
 $bln_reviewMode = isset($bln_reviewMode) && $bln_reviewMode;
+$bln_showCartPositionComments = (bool) ($this->bln_cartPositionCommentsEnabled ?? true);
 
 /*
  * IMPORTANT NOTE:
@@ -157,6 +158,15 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                         <?php echo $obj_tmp_productOrVariant->_deliveryTimeMessageInCart($cartItem['quantity']); ?>
                     </div>
 
+                    <?php if ($bln_showCartPositionComments && $this->arrWidgets[$productCartKey]['formattedComment'] !== '') { ?>
+                        <div class="comment">
+                            <div class="field-label"><?php echo $this->arrWidgets[$productCartKey]['commentLabel']; ?></div>
+                            <div class="field-content">
+                                <?php echo $this->arrWidgets[$productCartKey]['formattedComment']; ?>
+                            </div>
+                        </div>
+                    <?php } ?>
+
                     <?php if (!$bln_reviewMode) { ?>
                         <button data-lsjs-element="toggler" class="edit-item"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText155']; ?></button>
                     <?php } ?>
@@ -190,9 +200,11 @@ if (!ls_shop_cartX::getInstance()->numItems) {
 
                 <?php if (!$bln_reviewMode) { ?>
                     <div class="edit-item-box">
+                        <div data-lsjs-element="toggler" class="close-edit-item"></div>
                         <div class="inside">
                             <form
                                 class="form-quantity"
+                                id="product_quantity_form_<?php echo $productCartKey; ?>"
                                 action="<?php echo $this->formAction ?>"
                                 method="<?php echo $this->formMethod ?>"
                                 data-lsjs-component="cajaxCaller"
@@ -207,10 +219,30 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                                 <input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
                                 <input type="hidden" name="FORM_SUBMIT" value="product_quantity_form_<?php echo $productCartKey; ?>">
                                 <input type="hidden" name="productID" value="<?php echo $productCartKey; ?>">
-                                <?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
-                                <button type="submit" id="ctrl_<?= $this->id ?>_submit" title="<?= $this->slabel ?>"></button>
+                                <div class="quantity-input">
+                                    <?php echo $this->arrWidgets[$productCartKey]['inputQuantity']; ?>
+                                </div>
+                                <?php if ($bln_showCartPositionComments) { ?>
+                                    <div class="comment-input">
+                                        <label for="<?php echo $this->arrWidgets[$productCartKey]['commentFieldId']; ?>"><?php echo $this->arrWidgets[$productCartKey]['commentLabel']; ?></label>
+                                        <textarea
+                                            id="<?php echo $this->arrWidgets[$productCartKey]['commentFieldId']; ?>"
+                                            name="<?php echo $this->arrWidgets[$productCartKey]['commentFieldName']; ?>"
+                                            placeholder="<?php echo \Contao\StringUtil::specialchars($this->arrWidgets[$productCartKey]['commentPlaceholder']); ?>"
+                                            rows="3"
+                                        ><?php echo \Contao\StringUtil::specialchars($this->arrWidgets[$productCartKey]['commentValue']); ?></textarea>
+                                    </div>
+                                <?php } ?>
                             </form>
-                            <form
+                            <div class="edit-item-actions">
+                                <button
+                                    class="submit-quantity"
+                                    type="submit"
+                                    id="ctrl_<?= $this->id ?>_submit"
+                                    form="product_quantity_form_<?php echo $productCartKey; ?>"
+                                    title="<?= $this->slabel ?>"
+                                ></button>
+                                <form
                                     class="form-delete"
                                     action="<?php echo $this->formAction ?>"
                                     method="<?php echo $this->formMethod ?>"
@@ -222,14 +254,13 @@ if (!ls_shop_cartX::getInstance()->numItems) {
                                                     }
                                                  }
                                                  "
-                            >
-                                <input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
-                                <input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
-                                <input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
-                                <button type="submit" name="submitDelete" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button>
-                            </form>
-
-                            <div data-lsjs-element="toggler" class="close-edit-item"></div>
+                                >
+                                    <input type="hidden" name="REQUEST_TOKEN" value="<?= System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" />
+                                    <input type="hidden" name="FORM_SUBMIT" value="product_delete_form_<?php echo $productCartKey; ?>">
+                                    <input type="hidden" name="productIDDelete" value="<?php echo $productCartKey; ?>">
+                                    <button type="submit" name="submitDelete" title="<?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText007']; ?>"></button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 <?php } ?>

@@ -19,7 +19,12 @@ class GetPageLayoutListener
     {
         $GLOBALS['merconis_globals']['layoutID'] = $layout->id;
         $GLOBALS['merconis_globals']['layoutName'] = $layout->name;
-        $GLOBALS['merconis_globals']['ls_shop_activateFilter'] = $layout->ls_shop_activateFilter;
+        $filterMode = (string) $layout->ls_shop_filterMode;
+        $GLOBALS['merconis_globals']['ls_shop_activateFilter'] = ($filterMode !== '') ? '1' : '';
+        $GLOBALS['merconis_globals']['ls_shop_useFastFilter'] = ($filterMode === 'fast') ? '1' : '';
+        $GLOBALS['merconis_globals']['ls_shop_fastFilterAutoSubmit'] = $layout->ls_shop_fastFilterAutoSubmit;
+        $GLOBALS['merconis_globals']['ls_shop_fastFilterHideZeroMatches'] = $layout->ls_shop_fastFilterHideZeroMatches;
+        $GLOBALS['merconis_globals']['ls_shop_fastFilterResetMode'] = $layout->ls_shop_fastFilterResetMode;
         $GLOBALS['merconis_globals']['ls_shop_useFilterInStandardProductlist'] = $layout->ls_shop_useFilterInStandardProductlist;
         $GLOBALS['merconis_globals']['ls_shop_numFilterFieldsInSummary'] = $layout->ls_shop_numFilterFieldsInSummary;
         $GLOBALS['merconis_globals']['ls_shop_useFilterMatchEstimates'] = $layout->ls_shop_useFilterMatchEstimates;

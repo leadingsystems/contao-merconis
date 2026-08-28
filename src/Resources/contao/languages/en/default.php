@@ -11,6 +11,19 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg2'] = 'Please narrow d
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['and'] = 'and';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['general']['or'] = 'or';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['filterHeadline'] = 'Product filter';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['headlineEmpty'] = 'All filter options';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['headlineSingle'] = '%s active filter';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['headlineMultiple'] = '%s active filters';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['submit'] = 'Apply';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['reset'] = 'Reset filter';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['empty'] = 'No filter options available';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['emptyField'] = 'No available options for the current selection.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showMore'] = 'More';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['showLess'] = 'Less';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['toggleAll'] = 'Check/uncheck all';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['fastFilter']['uncheckRadio'] = 'Remove selection';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText001'] = 'VAT incl.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText002'] = 'plus %s VAT';
 
@@ -241,6 +254,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = '
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Continue shopping';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart'] = 'open cart';
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Comment for this item';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'] = 'Optional comment';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['orderComment']['label'] = 'Comment';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterModeLabel'] = 'Multiple selection:';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['filterMode']['and'] = 'and';
