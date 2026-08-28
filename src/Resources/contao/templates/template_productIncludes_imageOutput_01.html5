@@ -10,8 +10,73 @@ if ($this->objProduct->_variantIsSelected && $this->objProduct->_selectedVariant
 	$obj_tmp_productOrVariant = &$this->objProduct;
 }
 
-
+// Fragment cache: only if we have a product/variant to render
 if ($obj_tmp_productOrVariant !== null) {
+    // Internal defaults (no backend settings)
+    $enabled = true;
+    $ttlHours = 6;
+    $disableForBEUsers = false;
+    $warmOnBE = true;
+    $warmOnlyProd = false;
+    $exposeServerTiming = false;
+
+    $timeStart = microtime(true);
+    $isBeUser = defined('BE_USER_LOGGED_IN') && \BE_USER_LOGGED_IN;
+    $bypassRead = $disableForBEUsers && $isBeUser;
+
+    // Build signature: language, product code, multiSRC list + mtimes, main image mtime, sort setting
+    /** @var \Contao\PageModel $objPage */
+    global $objPage;
+    $lang = is_object($objPage) && isset($objPage->language) ? $objPage->language : 'xx';
+
+    $gallery = $obj_tmp_productOrVariant->getImageGallery();
+    $multiSRC = (array) $gallery->getMoreImagesUnprocessed();
+    $mainSRC = $gallery->getMainImageUnprocessed();
+    $sortBy = isset($GLOBALS['TL_CONFIG']['ls_shop_imageSortingStandardDirection']) ? (string)$GLOBALS['TL_CONFIG']['ls_shop_imageSortingStandardDirection'] : 'name_asc';
+
+    $projectDir = \Contao\System::getContainer()->getParameter('kernel.project_dir');
+    $sig = array();
+    foreach ($multiSRC as $p) {
+        $abs = $projectDir . '/' . $p;
+        $sig[] = array('p' => $p, 'm' => is_file($abs) ? (int)@filemtime($abs) : 0);
+    }
+    $mainSig = null;
+    if ($mainSRC) {
+        $abs = $projectDir . '/' . $mainSRC;
+        $mainSig = array('p' => $mainSRC, 'm' => is_file($abs) ? (int)@filemtime($abs) : 0);
+    }
+
+    $useCache = $enabled && !$bypassRead;
+    $shouldWarm = $enabled && ($warmOnBE && $isBeUser) && (!$warmOnlyProd || \Contao\System::getContainer()->getParameter('kernel.environment') === 'prod');
+
+    // MerconisCacheHandler echo/capture mode
+    $cacheHandle = null;
+    if ($useCache) {
+        try {
+            /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
+            $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
+            $entityParams = array(
+                'prod' => $this->objProduct->_code,
+                'isVariant' => (bool) $this->objProduct->_variantIsSelected,
+                'sort' => $sortBy,
+                'sig' => $sig,
+                'mis' => $mainSig
+            );
+            $ttlSeconds = max(1, (int)$ttlHours) * 3600;
+            $cacheHandle = $cacheHandler->createForRecipe('gallery_fragment', $entityParams, $ttlSeconds);
+            if ($cacheHandle->start()) {
+                if ($exposeServerTiming) {
+                    $durMs = (microtime(true) - $timeStart) * 1000;
+                    @header('Server-Timing: gallery-fragment;desc="cache-hit";dur=' . number_format($durMs, 1, '.', ''));
+                }
+                return;
+            }
+        } catch (\Throwable $t) {
+            $cacheHandle = null;
+        }
+    }
+
+    ob_start();
     ?>
     <div class="galleryContainer lsNavtabGalleryProductDetails">
         <?php
@@ -31,6 +96,46 @@ if ($obj_tmp_productOrVariant !== null) {
         ?>
     </div>
 
+    <?php
+    $html = ob_get_clean();
+
+    if ($cacheHandle) {
+        // Finish echo-mode: store and echo
+        $cacheHandle->storeAndEcho($html);
+    } else {
+        // If reads were bypassed but warming allowed, warm without echo duplication
+        if ($enabled && $shouldWarm) {
+            try {
+                /** @var \LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler $cacheHandler */
+                $cacheHandler = \Contao\System::getContainer()->get(\LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler::class);
+                $entityParams = array(
+                    'prod' => $this->objProduct->_code,
+                    'isVariant' => (bool) $this->objProduct->_variantIsSelected,
+                    'sort' => $sortBy,
+                    'sig' => $sig,
+                    'mis' => $mainSig
+                );
+                $ttlSeconds = max(1, (int)$ttlHours) * 3600;
+                $cacheHandler->createForRecipe('gallery_fragment', $entityParams, $ttlSeconds)->storeValue($html);
+            } catch (\Throwable $t) {
+                // ignore
+            }
+        }
+        echo $html;
+    }
+    if ($exposeServerTiming) {
+        $durMs = (microtime(true) - $timeStart) * 1000;
+        $label = $enabled ? ($bypassRead ? 'bypass' : 'cache-miss') : 'disabled';
+        @header('Server-Timing: gallery-fragment;desc="' . $label . '";dur=' . number_format($durMs, 1, '.', ''));
+    }
+
+    return;
+}
+
+// No gallery available
+if ($obj_tmp_productOrVariant !== null) {
+    ?>
+    <div class="galleryContainer lsNavtabGalleryProductDetails"></div>
     <?php
 }
 ?>
