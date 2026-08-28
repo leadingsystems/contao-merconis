@@ -382,6 +382,22 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['prepa
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['prepareOrder'] = 'Ihre Bestellung wird abgeschlossen, bitte warten...';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorCreatingPaymentIntent'] = 'Fehler bei der Zahlungsinitialisierung. Bitte versuchen Sie es später erneut.';
 
+
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['paymentErrorAfterFinishedOrder'] = '<p class="error">Die Zahlung konnte nicht erfolgreich abgeschlossen werden, Ihre Bestellung haben wir aber entgegengenommen. Bitte kontaktieren Sie uns, um den Sachverhalt zu klären und eine alternative Möglichkeit der Zahlung zu vereinbaren.</p>';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['paymentSuccessAfterFinishedOrder'] = '<p class="success">Vielen Dank für Ihre Zahlung!</p>';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['paymentSelected'] = 'Zahlungsmöglichkeit ausgewählt, die Bezahlung erfolgt beim abschluss ihrer Bestellung';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['paymentFailedErrorMessage'] = 'Zahlung mit Stripe ist Fehlgeschlagen';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderServerFailedMessage'] = 'Ein Fehler ist aufgetreten beim abschließen der Bestellung, versuchen sie es erneut';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderServerErrorMessage'] = 'Ein Fehler ist aufgetreten beim abschließen der Bestellung, bitte wenden Sie sich an den Shopbetreiber';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderRedirectToFinishPage'] = 'Weiterleitung zum Abschluss';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['tryToPayAgain'] = 'Versuch ${attempt} von ${maxTries}: Bezahlung wird erneut versucht...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['preparePayment'] = 'Bezahlung wird vorbereitet, bitte nicht schließen...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['prepareOrder'] = 'Ihre Bestellung wird abgeschlossen, bitte warten...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['errorCreatingPaymentIntent'] = 'Fehler bei der Zahlungsinitialisierung. Bitte versuchen Sie es später erneut.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['status'] = 'Status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['updateStatus'] = 'Status aktualisieren';
+
+
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentErrorAfterFinishedOrder'] = '<p class="error">Die Zahlung konnte nicht erfolgreich abgeschlossen werden, Ihre Bestellung haben wir aber entgegengenommen. Bitte kontaktieren Sie uns, um den Sachverhalt zu klären und eine alternative Möglichkeit der Zahlung zu vereinbaren.</p>';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentSuccessAfterFinishedOrder'] = '<p class="success">Vielen Dank für Ihre Zahlung!</p>';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['confirmCheckoutMessage'] = 'Nach dem Abschluss Ihrer Bestellung werden Sie zum Zahlungsanbieter weitergeleitet, um dort die Zahlung durchzuführen.';
@@ -1096,6 +1112,8 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['order
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['errorMsgLabel'] = 'Fehlermeldung';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['status'] = 'Status';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['updateStatus'] = 'Status aktualisieren';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationId'] = 'Authorization ID';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['authorizationStatus'] = 'Authorization status';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureId'] = 'Capture ID';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatus'] = 'Capture status';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payPalCheckout']['captureStatusDetailsValid'] = 'Zahlung wurde angenommen. Ist aber auf Grund der Zahlungsmethode noch ausstehend.<br>(Zahlungsmeldung: %s)';

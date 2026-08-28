@@ -19,13 +19,13 @@ class ModuleCheckoutFinish extends Module {
 		if (System::getContainer()->get('contao.security.token_checker')->hasFrontendUser()) {
 			$this->import('Contao\FrontendUser', 'User');
 		}
-
+		
 		if (System::getContainer()->get('merconis.routing.scope')->isBackend()) {
 			$objTemplate = new BackendTemplate('be_wildcard');
 			$objTemplate->wildcard = '### MERCONIS - Bestellabschluss ###';
 			return $objTemplate->parse();
 		}
-
+		
 		/*
 		 * Sollte der Zustand der Checkout-Daten und des Warenkorbs (Mindestwarenwert) nicht okay sein, so wird
 		 * zur Warenkorb-Seite gesprungen.
@@ -34,10 +34,10 @@ class ModuleCheckoutFinish extends Module {
 			ls_shop_languageHelper::getLanguagePage('ls_shop_cartPages');
 			$this->redirect($GLOBALS['merconis_globals']['ls_shop_cartPagesUrl']);
 		}
-
+		
 		return parent::generate();
 	}
-
+	
 	public function compile() {
 		$obj_paymentModule = ls_shop_paymentModule::getInstance();
 

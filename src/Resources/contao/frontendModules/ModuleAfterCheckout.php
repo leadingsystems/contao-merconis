@@ -140,7 +140,7 @@ class ModuleAfterCheckout extends Module {
 		if (!$oih && $idFromOix && is_array($arrOrder) && ($arrOrder['orderIdentificationHash'] ?? null)) {
 			$oih = $arrOrder['orderIdentificationHash'];
 		}
-		
+
 		/*
 		 * If we have an oih we get the order and create the output
 		 */

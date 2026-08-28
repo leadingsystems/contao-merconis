@@ -3,6 +3,7 @@
 namespace Merconis\Core;
 
 	use Contao\Controller;
+use Contao\Input;
 use Contao\System;
 
 /**
@@ -249,6 +250,80 @@ use Contao\System;
 					'payPalPlus_shipToFieldNamePhone' => array(
 						'label' => '',
 						'inputType' => 'text'
+					)
+				)
+			),
+			'stripe' => array(
+				'typeCode' => 'stripe', // Dieser Wert muss dem Array-Key im $types-Array entsprechen, da er z. B. für die Legend-Bezeichnung, also als Array-Key, Verwendung findet
+				'title' => 'Stripe', // Der Title wird als Options-Name im Select-Feld (DCA) verwendet. Mit diesem Namen können im Options-Referenz-Sprach Array eine mehrsprachige Bezeichnung sowie eine Erklärung für den helpwizard hinterlegt werden
+				'className' => 'Merconis\Core\ls_shop_paymentModule_stripe',
+				'BE_formFields' => array(
+					'stripe_privateKey' => array(
+						'label' => '', // Wird hier kein Label eingetragen, so wird automatisch ein Label-Verweis zur Sprachdatei mit dem Feldnamen (Array-Key) verwendet (Standard)
+						'inputType' => 'text'
+					),
+					'stripe_publicKey' => array(
+						'label' => '', // Wird hier kein Label eingetragen, so wird automatisch ein Label-Verweis zur Sprachdatei mit dem Feldnamen (Array-Key) verwendet (Standard)
+						'inputType' => 'text'
+					),
+					'stripe_paymentMethods' => array(
+						'label' => '', // Use the standard language label from tl_ls_shop_payment_methods.php
+						'inputType' => 'select',
+						'options_callback' => array('Merconis\Core\ls_shop_paymentModule_stripe', 'getStripePaymentMethodOptions'),
+						'eval' => array(
+							'mandatory' => true,
+							'includeBlankOption' => true,
+						),
+					),
+					'stripe_merchantName' => array(
+						'label' => '', // Use the standard language label from tl_ls_shop_payment_methods.php
+						'inputType' => 'text',
+					),
+					'stripe_shipToFieldNameFirstname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameLastname' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameStreet' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNamePostal' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameCity' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameCountryCode' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNamePhone' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameEMail' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameAddressLine2' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_shipToFieldNameState' => array(
+						'label' => '',
+						'inputType' => 'text'
+					),
+					'stripe_logMode' => array(
+						'label' => '',
+						'inputType' => 'select',
+						'options' => array('NONE', 'DEBUG', 'INFO', 'ERROR'),
+						'default' => 'NONE'
 					)
 				)
 			),
@@ -607,6 +682,31 @@ use Contao\System;
 			}
 		}
 
+		/**
+		 * Returns the minimum value of goods required for a payment method type.
+		 *
+		 * If the payment module provides a function for this (like other payment-module-specific functions),
+		 * it is called. If no function is available, 0 is returned.
+		 */
+		public function getMinimumValueOfGoodsForPaymentMethodType(string $paymentMethodType): float {
+			if (!isset($this->types[$paymentMethodType]) || !is_array($this->types[$paymentMethodType])) {
+				return 0.0;
+			}
+
+			$className = $this->types[$paymentMethodType]['className'] ?? null;
+			if (!is_string($className) || $className === '') {
+				return 0.0;
+			}
+
+			$objPaymentModule = System::importStatic($className);
+			$methodName = 'getMinimumValueOfGoods';
+			if (is_object($objPaymentModule) && method_exists($objPaymentModule, $methodName)) {
+				return (float) $objPaymentModule->{$methodName}();
+			}
+
+			return 0.0;
+		}
+
 		/*
 		 * Diese Funktion "spezialisiert" das Zahlungsmodul. Hierzu wird die ID des Zahlungsmethoden-Datensatzes
 		 * erwartet, da aus diesem der genaue Typ für die Spezialisierung sowie die im Backend vorgenommenen
@@ -912,6 +1012,19 @@ use Contao\System;
 		}
 
 		public function specialInfoForPaymentMethodAfterCheckoutFinish() {
+			/*
+			 * If one payment was made with one paymentModule and one after that with another the system gets confused
+			 * we need to check and set the correct specialModule for the order, we get the correct specialModule from
+			 * orderIdentificationHash.
+			 */
+
+			if (Input::get('oih')) {
+				$arrOrder = ls_shop_generalHelper::getOrder(Input::get('oih'), 'orderIdentificationHash');
+				if (is_array($arrOrder) && ($arrOrder['paymentMethod_id'] ?? null)) {
+					$this->specializeManuallyWithPaymentID($arrOrder['paymentMethod_id']);
+				}
+			}
+
 			$methodName = __FUNCTION__;
 			if ($this->specialModule && method_exists($this->specialModule, $methodName)) {
 				return $this->specialModule->{$methodName}();

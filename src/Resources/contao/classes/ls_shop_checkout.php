@@ -60,6 +60,7 @@ class ls_shop_checkout {
     }
 
     function isCheckoutDone(){
+        $this->assertCheckoutDone();
         return $this->isCheckoutDone;
     }
 
@@ -188,7 +189,7 @@ class ls_shop_checkout {
         /*
          * Generieren der zusammengefassten Bestellung als HTML- und Text-Version
          */
-        $order = $this->createOrder();
+        $order = $this->createOrder($extraDataToSaveInCreatedOrder);
 
         /*
          * Speichern der Bestellung in der DB
