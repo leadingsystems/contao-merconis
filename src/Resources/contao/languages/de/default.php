@@ -966,7 +966,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importer'] = array(
 	'importFileStatus' => array(
 		'notValidatedYet' => 'Noch nicht validiert',
 		'ok' => 'Geprüft und ok',
-		'notOk' => 'Datei fehlerhaft (siehe Details in System-Log)',
+		'notOk' => 'Datei fehlerhaft, Fehlerprotokoll',
 		'fileChanged' => 'Datei wurde nach Validierung geändert',
 		'importFailed' => 'Import fehlgeschlagen',
 		'importFinished' => 'Import beendet'
@@ -1077,6 +1077,15 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_scalePriceType' => 'Feldwert für "scalePriceType" ist ungültig: Zeile(n) Nr. %s',
 	'valueInvalid_scalePriceQuantityDetectionMethod' => 'Feldwert für "scalePriceQuantityDetectionMethod" ist ungültig: Zeile(n) Nr. %s',
 	'valueInvalid_scalePriceKeyword' => 'Feldwert für "scalePriceKeyword" ist ungültig: Zeile(n) Nr. %s'
+);
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrorLog'] = array(
+	'csvHeader_row' => 'Zeile',
+	'csvHeader_productcode' => 'Artikelnummer',
+	'csvHeader_errorType' => 'Fehlertyp',
+	'csvHeader_description' => 'Fehlerbeschreibung',
+	'systemLogMessage' => 'MERCONIS IMPORTER: Validierung fehlgeschlagen – %d Fehlertyp(en) erkannt. Fehlerprotokoll: %s',
+	'systemLogMessageNoFile' => 'MERCONIS IMPORTER: Validierung fehlgeschlagen – %d Fehlertyp(en) erkannt. Fehlerprotokoll konnte nicht geschrieben werden.',
 );
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['msg001'] = '<div style="font-weight: bold; border: 5px solid #FF0000; padding: 20px; background-color: #FFFFFF;">Bitte beachten Sie, dass Sie mit der unlizensierten Demo-Version von MERCONIS maximal 10 Produkte anbieten können.</div>';

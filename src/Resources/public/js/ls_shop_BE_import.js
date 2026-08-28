@@ -73,10 +73,14 @@ var class_ls_shop_BE_import = new Class({
 					}
 					break;
 				
-				case 'status':
-					elTarget.getParent('.status').setProperty('class', 'status ' + value);
-					elTarget.setProperty('html', this.objConfiguration.lang.importFileStatus[value]);
-					break;
+			case 'status':
+				elTarget.getParent('.status').setProperty('class', 'status ' + value);
+				var statusText = this.objConfiguration.lang.importFileStatus[value];
+				if (value === 'notOk' && this.objConfiguration.fileInfo.errorLogFile) {
+					statusText += ': ' + this.objConfiguration.fileInfo.errorLogFile;
+				}
+				elTarget.setProperty('html', statusText);
+				break;
 				
 				case 'changesStock':
 					if (value) {
