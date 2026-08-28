@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\EventListener;
 
 use Contao\CoreBundle\Event\SitemapEvent;
-use Contao\Database;
-use Contao\Environment;
 use Contao\PageModel;
 use Contao\StringUtil;
-use Contao\System;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
+use LeadingSystems\MerconisBundle\Sitemap\PageDetailsProviderInterface;
+use LeadingSystems\MerconisBundle\Sitemap\SitemapLanguageTargetProcessor;
 use Merconis\Core\ls_shop_languageHelper;
 
 /*
@@ -18,7 +21,10 @@ use Merconis\Core\ls_shop_languageHelper;
 class SitemapListener
 {
     public function __construct(
-        private readonly bool $productUrlsHandledExternally = false
+        private readonly Connection $connection,
+        private readonly PageDetailsProviderInterface $pageDetailsProvider,
+        private readonly SitemapLanguageTargetProcessor $languageTargetProcessor,
+        private readonly bool $productUrlsHandledExternally = false,
     ) {
     }
 
@@ -28,90 +34,110 @@ class SitemapListener
             return;
         }
 
-        $sitemap = $event->getDocument();
-        $urlSet = $sitemap->childNodes[0];
+        $languageKeys = array_values(ls_shop_languageHelper::getAllLanguages());
 
+        foreach ($this->fetchProductRows($languageKeys) as $productRow) {
+            $assignedPageIds = $this->normalizeAssignedPageIds($productRow['pages'] ?? null);
 
-        //für jede verfügbare Sprache im Shop eine alias_[SprachKey] Spalte erzeugen
-        $arr_languageKeys = \Merconis\Core\ls_shop_languageHelper::getAllLanguages();
-
-        $str_columns = '`pages`, `alias`';
-        foreach ($arr_languageKeys as $str_languageKey) {
-            $str_columns .= ', `alias_'.$str_languageKey.'`';
-        }
-
-        $objProducts = Database::getInstance()
-            ->prepare("
-			SELECT			".$str_columns."			
-			FROM			`tl_ls_shop_product`
-			WHERE			`published` = 1
-		")
-            ->limit(10000)
-            ->execute();
-
-        while ($objProducts->next()) {
-            $whereConditionPages = '';
-            $whereConditionValues = array();
-
-            $objProducts->pages = StringUtil::deserialize($objProducts->pages);
-            if (!is_array($objProducts->pages) || !count($objProducts->pages)) {
+            if ([] === $assignedPageIds) {
                 continue;
             }
-            foreach ($objProducts->pages as $page) {
-                if ($whereConditionPages) {
-                    $whereConditionPages .= ' OR ';
+
+            foreach ($this->findEligibleAssignedPageIds($assignedPageIds) as $assignedPageId) {
+                $assignedPage = $this->pageDetailsProvider->getPageDetailsCached($assignedPageId);
+
+                if (!$assignedPage instanceof PageModel) {
+                    continue;
                 }
-                $whereConditionPages .= "`id` = ?";
-                $whereConditionValues[] = $page;
-            }
-            if (!$whereConditionPages || !count($whereConditionValues)) {
-                continue;
-            }
 
-            $time = time();
-            $objPagesForProduct = Database::getInstance()->prepare("
-					SELECT			id,
-									alias
-					FROM 			tl_page
-					WHERE			(" . $whereConditionPages . ")
-						AND			(start = '' OR start < " . $time . ")
-						AND			(stop = '' OR stop > " . $time . ")
-						AND			published = 1
-						AND			noSearch != 1 AND sitemap!='map_never'"
+                $this->languageTargetProcessor->appendProductUrlsForAssignedPage(
+                    $event,
+                    $assignedPage,
+                    $productRow,
+                );
+            }
+        }
+    }
+
+    /**
+     * @param array<int, string> $languageKeys
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function fetchProductRows(array $languageKeys): array
+    {
+        $columnList = $this->buildProductColumnList($languageKeys);
+
+        return $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT %s FROM `tl_ls_shop_product` WHERE `published` = 1 ORDER BY `id` ASC LIMIT 10000',
+                $columnList
             )
-                ->execute(...$whereConditionValues);
+        );
+    }
 
+    /**
+     * @param array<int, string> $languageKeys
+     */
+    private function buildProductColumnList(array $languageKeys): string
+    {
+        $columns = ['`pages`'];
 
-            // Determine domain
-            if (!$objPagesForProduct->numRows) {
-                continue;
-            } else {
-                while ($objPagesForProduct->next()) {
-                    $arrLanguagePages = ls_shop_languageHelper::getLanguagePages($objPagesForProduct->id);
-                    foreach ($arrLanguagePages as $languagePageInfo) {
-                        $objPageForProduct = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached($languagePageInfo['id']);
-
-                        $str_languageAlias = $objProducts->{'alias_' . $objPageForProduct->language};
-                        if ($str_languageAlias == '') {
-                            continue;
-                        }
-
-                        $loc = $sitemap->createElement('loc');
-                        $objRouter = System::getContainer()->get('router');
-                        $frontendUrl = $objPageForProduct->getFrontendUrl('/product/' . $str_languageAlias/*, $objPageForProduct->language*/);
-
-                        if(!(strpos($frontendUrl, "http://") === 0 || strpos($frontendUrl, "https://") === 0)){
-                            $frontendUrl = (Environment::get('ssl') ? 'https://' : 'http://').$objRouter->getContext()->getHost().$frontendUrl;
-                        }
-
-                        $loc->appendChild($sitemap->createTextNode($frontendUrl));
-
-                        $urlEl = $sitemap->createElement('url');
-                        $urlEl->appendChild($loc);
-                        $urlSet->appendChild($urlEl);
-                    }
-                }
-            }
+        foreach ($languageKeys as $languageKey) {
+            $columns[] = sprintf('`alias_%s`', $languageKey);
         }
+
+        return implode(', ', $columns);
+    }
+
+    /**
+     * @param list<int> $assignedPageIds
+     *
+     * @return list<int>
+     */
+    private function normalizeAssignedPageIds(mixed $serializedPageSelection): array
+    {
+        return array_values(
+            array_filter(
+                array_map('intval', StringUtil::deserialize($serializedPageSelection, true)),
+                static fn (int $pageId): bool => $pageId > 0
+            )
+        );
+    }
+
+    /**
+     * @param list<int> $assignedPageIds
+     *
+     * @return list<int>
+     */
+    private function findEligibleAssignedPageIds(array $assignedPageIds): array
+    {
+        if ([] === $assignedPageIds) {
+            return [];
+        }
+
+        $time = time();
+        $eligiblePageIds = $this->connection->fetchFirstColumn(
+            "SELECT `id`
+             FROM `tl_page`
+             WHERE `id` IN (?)
+               AND `type` = ?
+               AND (`start` = '' OR `start` < ?)
+               AND (`stop` = '' OR `stop` > ?)
+               AND `published` = 1
+               AND `noSearch` != 1
+               AND `sitemap` != ?
+             ORDER BY `id` ASC",
+            [$assignedPageIds, 'regular', $time, $time, 'map_never'],
+            [
+                ArrayParameterType::INTEGER,
+                ParameterType::STRING,
+                ParameterType::INTEGER,
+                ParameterType::INTEGER,
+                ParameterType::STRING,
+            ]
+        );
+
+        return array_values(array_map('intval', $eligiblePageIds));
     }
 }

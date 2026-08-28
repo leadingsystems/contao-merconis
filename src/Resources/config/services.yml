@@ -144,6 +144,33 @@ services:
     tags:
       - { name: kernel.event_listener, priority: 15 }
 
+  LeadingSystems\MerconisBundle\Sitemap\SitemapPageScope: ~
+
+  LeadingSystems\MerconisBundle\Sitemap\SitemapUrlAppender: ~
+
+  LeadingSystems\MerconisBundle\Sitemap\LanguageHelperMainLanguagePageResolver: ~
+
+  LeadingSystems\MerconisBundle\Sitemap\MainLanguagePageResolverInterface:
+    alias: LeadingSystems\MerconisBundle\Sitemap\LanguageHelperMainLanguagePageResolver
+
+  LeadingSystems\MerconisBundle\Sitemap\LanguageHelperLanguagePageProvider: ~
+
+  LeadingSystems\MerconisBundle\Sitemap\LanguagePageProviderInterface:
+    alias: LeadingSystems\MerconisBundle\Sitemap\LanguageHelperLanguagePageProvider
+
+  LeadingSystems\MerconisBundle\Sitemap\ContaoPageDetailsProvider:
+    arguments:
+      $pageController: '@contao_helper.controller.page_controller'
+
+  LeadingSystems\MerconisBundle\Sitemap\PageDetailsProviderInterface:
+    alias: LeadingSystems\MerconisBundle\Sitemap\ContaoPageDetailsProvider
+
+  LeadingSystems\MerconisBundle\Sitemap\SitemapPageCorrespondence: ~
+
+  LeadingSystems\MerconisBundle\Sitemap\SitemapPageEligibility: ~
+
+  LeadingSystems\MerconisBundle\Sitemap\SitemapLanguageTargetProcessor: ~
+
   merconis.eventlistener.loginlistener:
     class: LeadingSystems\MerconisBundle\EventListener\LoginListener
     tags:
