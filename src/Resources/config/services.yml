@@ -273,6 +273,14 @@ services:
     tags:
       - { name: contao.migration, priority: 0 }
 
+  merconis.migration.remove_paypal_plus_migration:
+    class: LeadingSystems\MerconisBundle\Migration\RemovePayPalPlusMigration
+    arguments:
+      $connection: '@Doctrine\DBAL\Connection'
+      $projectDir: '%kernel.project_dir%'
+    tags:
+      - { name: contao.migration, priority: 10 }
+
 
   LeadingSystems\MerconisBundle\EventListener\Post:
     tags:

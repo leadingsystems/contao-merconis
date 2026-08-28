@@ -27,9 +27,6 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['freetext']										= array('Free text');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['paymentMethod_moduleReturnData']					= array('Information from the payment module');
 	
-	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_saleId']								= array('PayPal Plus transaction code');
-	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_currentStatus']						= array('PayPal Plus status');
-
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalCheckout_orderId']							= array('PayPal Checkout order ID');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalCheckout_currentStatus']					= array('PayPal Checkout status');
 
