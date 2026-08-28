@@ -4,6 +4,9 @@
  */
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['stringHavingPartsWithMinimumLength'] = 'Feld "%s" darf keine Wörter mit weniger als %s Zeichen enthalten';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['numberWithDecimalsFE'] = 'Feld "%s" muss eine Zahl größer 0 enthalten.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['quantityStepMultipleFE'] = 'Feld "%s" enthält keine zulässige Menge. Der nächste gültige Wert ist %s.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['minimumOrderQuantityFE'] = 'Feld "%s" unterschreitet die Mindestbestellmenge. Bitte geben Sie mindestens %s ein.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityHint'] = 'Mindestbestellmenge: %s';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg1'] = 'Ihre Suche lieferte zu viele Treffer. Es werden Ihnen nur die ersten %s von %s Treffer angezeigt.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg2'] = 'Bitte grenzen Sie Ihre Suche ein, da ansonsten zu viele Treffer gefunden würden.';
@@ -112,6 +115,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText057'] = 'Dieses Produkt ist nicht
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText058'] = 'enthält Fehler';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText059'] = 'Dieses Produkt kann so nicht bestellt werden.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityStockConflictCart'] = 'Die Mindestbestellmenge von %s kann aufgrund des verfügbaren Lagerbestands nicht erreicht werden. Verfügbar sind nur noch %s.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityCartBelowMinimum'] = 'Die Mindestbestellmenge von %s kann aufgrund des aktuellen Lagerbestands nicht erreicht werden. Bitte entfernen Sie das Produkt aus dem Warenkorb.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText060'] = 'zur Erfassung Ihrer Daten';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText061'] = 'zurück zur Erfassung Ihrer Daten';
@@ -1065,7 +1070,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_weight' => 'Feldwert für "weight" ist ungültig (muss ein Dezimalwert sein (0-9, Dezimalpunkt und Minuszeichen sind erlaubt)): Zeile(n) Nr. %s',
 	'variantValueInvalid_weight' => 'Feldwert für "weight" ist ungültig (muss ein Dezimalwert sein (0-9, Dezimalpunkt und Minuszeichen sind erlaubt)): Zeile(n) Nr. %s',
 	'valueInvalid_unit' => 'Feldwert für "unit" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
+	'valueInvalid_salesUnit' => 'Feldwert für "salesUnit" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'productValueInvalid_quantityDecimals' => 'Feldwert für "quantityDecimals" ist ungültig (muss ein Integer sein): Zeile(n) Nr. %s',
+	'productOrVariantValueInvalid_salesUnitSize' => 'Feldwert für "salesUnitSize" ist ungültig (muss ein Integer sein): Zeile(n) Nr. %s',
 	'valueInvalid_quantityComparisonUnit' => 'Feldwert für "quantityComparisonUnit" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'valueInvalid_quantityComparisonDivisor' => 'Feldwert für "quantityComparisonDivisor" ist ungültig (muss ein Dezimalwert sein (0-9, Dezimalpunkt und Minuszeichen sind erlaubt)): Zeile(n) Nr. %s',
 	'productValueInvalid_template' => 'Feldwert für "template" ist ungültig (max. 64 Zeichen sind erlaubt): Zeile(n) Nr. %s',

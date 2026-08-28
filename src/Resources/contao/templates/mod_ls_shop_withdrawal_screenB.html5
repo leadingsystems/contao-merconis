@@ -62,12 +62,10 @@ $errorMessages = isset($this->errorMessages) && is_array($this->errorMessages) ?
                 $combinedProductName = $variantTitle !== ''
                     ? $productName . ', ' . $variantTitle
                     : $productName;
-                $quantityDecimals = max(0, (int) ($item['quantityDecimals'] ?? 0));
-                $minimumQuantity = $quantityDecimals > 0 ? (float) pow(10, -$quantityDecimals) : 1.0;
-                $stepValue = $quantityDecimals > 0
-                    ? number_format($minimumQuantity, $quantityDecimals, '.', '')
-                    : '1';
-                $inputMode = $quantityDecimals > 0 ? 'decimal' : 'numeric';
+                $minimumQuantity = (string) ($item['minimumQuantity'] ?? '1');
+                $stepValue = $minimumQuantity;
+                $inputMode = (string) ($item['inputMode'] ?? 'numeric');
+                $inputClass = !empty($item['salesUnitSize']) ? 'useNumberStepper' : '';
                 ?>
                 <tr data-withdrawal-item-row="<?php echo $itemId; ?>">
                     <td>
@@ -125,6 +123,7 @@ $errorMessages = isset($this->errorMessages) && is_array($this->errorMessages) ?
                             <div data-lsjs-element="toggleableArea">
                                 <div data-withdrawal-quantity-controls="1">
                                     <input type="number"
+                                           class="<?php echo \Contao\StringUtil::specialchars($inputClass); ?>"
                                            min="<?php echo \Contao\StringUtil::specialchars($stepValue); ?>"
                                            max="<?php echo \Contao\StringUtil::specialchars($orderedQuantity); ?>"
                                            step="<?php echo \Contao\StringUtil::specialchars($stepValue); ?>"

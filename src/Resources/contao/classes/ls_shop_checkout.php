@@ -118,6 +118,7 @@ class ls_shop_checkout {
         }
 
         $cartPositionsStockSufficient = ls_shop_cartHelper::checkCartPositionsStockSufficient();
+        $cartPositionsMinimumOrderQuantityValid = ls_shop_cartHelper::validateMinimumOrderQuantityOfCartPositions();
 
         $bln_couponsAllowed = true;
         if (is_array(ls_shop_cartX::getInstance()->calculation['couponValues'])) {
@@ -133,7 +134,11 @@ class ls_shop_checkout {
             }
         }
 
-        if (!$cartPositionsStockSufficient || !$bln_couponsAllowed) {
+        if (
+            !$cartPositionsStockSufficient
+            || !$cartPositionsMinimumOrderQuantityValid
+            || !$bln_couponsAllowed
+        ) {
             /*
              * Lagerbestand für mindestens eine Position nicht ausreichend, daher Bestellabschluss abbrechen und zurück zur Checkout-Seite
              */
@@ -732,6 +737,13 @@ class ls_shop_checkout {
             $arrItem['variantTitle'] = $blnIsVariant ? $objProduct->_selectedVariant->_title : ''; // shop language
             $arrItem['quantityUnit'] = $blnIsVariant ? $objProduct->_selectedVariant->_quantityUnit : $objProduct->_quantityUnit; // shop language
             $arrItem['quantityDecimals'] = $blnIsVariant ? $objProduct->_selectedVariant->_quantityDecimals : $objProduct->_quantityDecimals; // no language
+            $arrItem['salesUnitSize'] = $objProductOrVariant->_salesUnitSize; // no language
+            $arrItem['displayQuantity'] = ls_shop_generalHelper::transformDisplayQuantity(
+                $arrItem['quantity'],
+                (int) $objProductOrVariant->_salesUnitSize
+            ); // no language
+            $arrItem['displayQuantityUnit'] = $objProductOrVariant->_displayQuantityUnit; // shop language
+            $arrItem['salesUnit'] = $objProductOrVariant->_salesUnit; // shop language
             $arrItem['configurator'] = array(
                 'merchantRepresentation' => $objProduct->_hasConfigurator ? $objProduct->_configuratorMerchantRepresentation : '', // depends on customLogic file, most likely shop language
                 'cartRepresentation' => $objProduct->_hasConfigurator ? $objProduct->_configuratorCartRepresentation : '', // customer language
@@ -786,6 +798,12 @@ class ls_shop_checkout {
                 '_hasWeight' => $blnIsVariant ? $objProduct->_selectedVariant->_hasWeight : $objProduct->_hasWeight, // no language
                 '_quantityUnit' => $objProduct->_quantityUnit, // shop language
                 '_hasQuantityUnit' => $objProduct->_hasQuantityUnit, // no language
+                '_salesUnit' => $objProduct->_salesUnit, // shop language
+                '_displayQuantityUnit' => $objProduct->_displayQuantityUnit, // shop language
+                '_displayQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+                    $arrItem['quantity'],
+                    (int) $objProduct->_salesUnitSize
+                ), // no language
                 '_quantityComparisonUnit' => $objProduct->_quantityComparisonUnit, // shop language
                 '_hasQuantityComparisonUnit' => $objProduct->_hasQuantityComparisonUnit, // no language
                 '_linkToProduct' => $objProduct->_linkToProduct, // no language
@@ -816,6 +834,12 @@ class ls_shop_checkout {
             $arrItem['extendedInfo']['_deliveryTimeMessageInCart_customerLanguage'] = $blnIsVariant ? $objProduct->_selectedVariant->_deliveryTimeMessageInCart($arrItem['quantity']) : $objProduct->_deliveryTimeMessageInCart($arrItem['quantity']); // customer language
             $arrItem['extendedInfo']['_shortDescription_customerLanguage'] = $blnIsVariant ? $objProduct->_selectedVariant->_shortDescription : $objProduct->_shortDescription; // customer language
             $arrItem['extendedInfo']['_quantityUnit_customerLanguage'] = $objProduct->_quantityUnit; // customer language
+            $arrItem['extendedInfo']['_salesUnit_customerLanguage'] = $objProduct->_salesUnit; // customer language
+            $arrItem['extendedInfo']['_displayQuantityUnit_customerLanguage'] = $objProduct->_displayQuantityUnit; // customer language
+            $arrItem['extendedInfo']['_displayQuantity_customerLanguage'] = ls_shop_generalHelper::transformDisplayQuantity(
+                $arrItem['quantity'],
+                (int) $objProduct->_salesUnitSize
+            ); // no language
             $arrItem['extendedInfo']['_quantityComparisonUnit_customerLanguage'] = $objProduct->_quantityComparisonUnit; // customer language
             $arrItem['extendedInfo']['_quantityComparisonText_customerLanguage'] = $objProduct->_quantityComparisonText; // customer language
             $arrItem['extendedInfo']['_taxInfo_customerLanguage'] = $blnIsVariant ? $objProduct->_selectedVariant->_taxInfo : $objProduct->_taxInfo; // customer language
@@ -1096,6 +1120,10 @@ class ls_shop_checkout {
 							`variantTitle` = ?,
 							`quantityUnit` = ?,
 							`quantityDecimals` = ?,
+							`salesUnitSize` = ?,
+							`displayQuantity` = ?,
+							`displayQuantityUnit` = ?,
+							`salesUnit` = ?,
 							`configurator_merchantRepresentation` = ?,
 							`configurator_cartRepresentation` = ?,
 							`configurator_hasValue` = ?,
@@ -1128,6 +1156,10 @@ class ls_shop_checkout {
                     $arrItem['variantTitle'],
                     $arrItem['quantityUnit'],
                     $arrItem['quantityDecimals'],
+                    $arrItem['salesUnitSize'],
+                    $arrItem['displayQuantity'],
+                    $arrItem['displayQuantityUnit'],
+                    $arrItem['salesUnit'],
                     $arrItem['configurator']['merchantRepresentation'],
                     $arrItem['configurator']['cartRepresentation'],
                     $arrItem['configurator']['hasValue'],

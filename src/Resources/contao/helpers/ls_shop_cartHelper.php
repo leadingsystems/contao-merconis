@@ -6,6 +6,7 @@ use Contao\Database;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
+use LeadingSystems\MerconisBundle\Helpers\MinimumOrderQuantityCalculator;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
 use function LeadingSystems\Helpers\ls_add;
@@ -85,14 +86,176 @@ class ls_shop_cartHelper {
 	}
 
 	/*
-	 * Diese Funktion bereinigt die eingegebene Menge entsprechend der für das Produkt definierten Bestimmungen.
-	 * Diese Funktion gibt dabei vor allem eine für Berechnungen verwertbare Zahl zurück.
-	 * Diese Funktion kann mit allen Werten gefüttert werden, auch vorgenullte Zahlen.
-	 * Es wird geprüft, welche Mengenangaben für ein Produkt erlaubt sind und die eingegebene Menge dementsprechend korrigiert.
+	 * Diese Funktion bereinigt eine bereits kanonische Menge (Punkt als
+	 * Dezimaltrenner, keine Tausendergruppierung) auf das für das Produkt
+	 * zulässige Dezimalstellenformat. Die Eingabe stammt aus einem
+	 * `<input type="number">` und ist daher stets kanonisch; eine
+	 * Locale-Normalisierung findet bewusst nicht statt.
 	 */
 	public static function cleanQuantity(&$objProduct, $quantity) {
-		$quantity = number_format($quantity, $objProduct->_quantityDecimals, '.', '');
-		return $quantity;
+		return number_format((float) $quantity, $objProduct->_quantityDecimals, '.', '');
+	}
+
+	public static function prepareQuantityForCartOperation(&$objProduct, $quantity) {
+		if ((float) $quantity < 0) {
+			return self::cleanQuantity($objProduct, $quantity);
+		}
+
+		if ($objProduct->_salesUnitSize > 0) {
+			$quantity = ls_div($quantity, $objProduct->_salesUnitSize);
+		}
+
+		return self::cleanQuantity($objProduct, $quantity);
+	}
+
+	public static function hasAddToCartCustomLogicHook() {
+		return isset($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic'])
+			&& is_array($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic'])
+			&& count($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic']) > 0;
+	}
+
+	public static function assertMinimumOrderQuantityForAddToCart(
+		$objProduct,
+		$desiredQuantity,
+		bool $cartItemAlreadyExists,
+		$availableQuantityForMinimumCheck = null
+	): void {
+		if ($cartItemAlreadyExists || !$objProduct->_hasMinimumOrderQuantity) {
+			return;
+		}
+
+		$normalizedDesiredQuantity = MinimumOrderQuantityCalculator::normalizeQuantityValue((string) $desiredQuantity);
+		$quantityDecimals = (int) $objProduct->_quantityDecimals;
+
+		if (MinimumOrderQuantityCalculator::compareQuantities($normalizedDesiredQuantity, '0', $quantityDecimals) <= 0) {
+			return;
+		}
+
+		$normalizedMinimumOrderQuantity = MinimumOrderQuantityCalculator::normalizeQuantityValue(
+			(string) $objProduct->_minimumOrderQuantity
+		);
+		$effectiveMinimumQuantity = $availableQuantityForMinimumCheck !== null
+			? MinimumOrderQuantityCalculator::resolveMinimumOrderQuantityForStockHandling(
+				$normalizedMinimumOrderQuantity,
+				$availableQuantityForMinimumCheck,
+				$quantityDecimals
+			)
+			: $normalizedMinimumOrderQuantity;
+
+		if (
+			MinimumOrderQuantityCalculator::compareQuantities(
+				$normalizedDesiredQuantity,
+				$effectiveMinimumQuantity,
+				$quantityDecimals
+			) >= 0
+		) {
+			return;
+		}
+
+		throw new \RuntimeException(
+			self::buildMinimumOrderQuantityValidationMessage(
+				$objProduct,
+				MinimumOrderQuantityCalculator::normalizeQuantityValue(
+					(string) ls_shop_generalHelper::transformDisplayQuantity(
+						$effectiveMinimumQuantity,
+						(int) $objProduct->_salesUnitSize
+					)
+				)
+			)
+		);
+	}
+
+	public static function assertMinimumOrderQuantityForCartUpdate(
+		$objProduct,
+		$newQuantity,
+		$currentQuantity
+	): void {
+		if (!$objProduct->_hasMinimumOrderQuantity) {
+			return;
+		}
+
+		$quantityDecimals = (int) $objProduct->_quantityDecimals;
+		$normalizedNewQuantity = MinimumOrderQuantityCalculator::normalizeQuantityValue((string) $newQuantity);
+
+		if (MinimumOrderQuantityCalculator::compareQuantities($normalizedNewQuantity, '0', $quantityDecimals) <= 0) {
+			return;
+		}
+
+		$normalizedCurrentQuantity = MinimumOrderQuantityCalculator::normalizeQuantityValue((string) $currentQuantity);
+		$normalizedMinimumOrderQuantity = MinimumOrderQuantityCalculator::normalizeQuantityValue(
+			(string) $objProduct->_minimumOrderQuantity
+		);
+		$effectiveMinimumQuantity = $normalizedMinimumOrderQuantity;
+
+		if (
+			MinimumOrderQuantityCalculator::compareQuantities($normalizedCurrentQuantity, '0', $quantityDecimals) > 0
+			&& MinimumOrderQuantityCalculator::compareQuantities(
+				$normalizedCurrentQuantity,
+				$normalizedMinimumOrderQuantity,
+				$quantityDecimals
+			) < 0
+		) {
+			$effectiveMinimumQuantity = $normalizedCurrentQuantity;
+		}
+
+		if (
+			MinimumOrderQuantityCalculator::compareQuantities(
+				$normalizedNewQuantity,
+				$effectiveMinimumQuantity,
+				$quantityDecimals
+			) >= 0
+		) {
+			return;
+		}
+
+		throw new \RuntimeException(
+			self::buildMinimumOrderQuantityValidationMessage(
+				$objProduct,
+				self::buildDisplayMinimumQuantityForCartUpdate($objProduct, $normalizedCurrentQuantity),
+				$GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016-2'] ?? null
+			)
+		);
+	}
+
+	protected static function buildDisplayMinimumQuantityForCartUpdate($objProduct, string $currentQuantity): string {
+		$currentDisplayQuantity = MinimumOrderQuantityCalculator::normalizeQuantityValue(
+			(string) ls_shop_generalHelper::transformDisplayQuantity(
+				$currentQuantity,
+				(int) $objProduct->_salesUnitSize
+			)
+		);
+
+		return MinimumOrderQuantityCalculator::getContextualDisplayMinimumValue(
+			MinimumOrderQuantityCalculator::normalizeQuantityValue(
+				(string) $objProduct->_displayQuantityStep
+			),
+			MinimumOrderQuantityCalculator::normalizeQuantityValue(
+				(string) $objProduct->_effectiveMinimumOrderQuantity
+			),
+			true,
+			false,
+			true,
+			$currentDisplayQuantity,
+			(int) $objProduct->_quantityDecimals
+		);
+	}
+
+	protected static function buildMinimumOrderQuantityValidationMessage(
+		$objProduct,
+		string $minimumDisplayQuantity,
+		?string $fieldLabel = null
+	): string {
+		$fieldLabel ??= $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'] ?? 'Quantity';
+		$displayQuantityLabel = ls_shop_generalHelper::buildMinimumOrderQuantityDisplayLabel(
+			$objProduct,
+			$minimumDisplayQuantity
+		);
+
+		return sprintf(
+			$GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['minimumOrderQuantityFE'],
+			$fieldLabel,
+			$displayQuantityLabel
+		);
 	}
 
 	/*
@@ -210,7 +373,20 @@ class ls_shop_cartHelper {
 					'desiredQuantity' => $quantity,
 					'availableQuantity' => $availableQuantity,
 					'quantityUnit' => $objProduct4Msg->_quantityUnit,
-					'quantityDecimals' => $objProduct4Msg->_quantityDecimals
+					'quantityDecimals' => $objProduct4Msg->_quantityDecimals,
+					'salesUnit' => $objProduct4Msg->_salesUnit,
+					'displayQuantityDecimals' => ls_shop_generalHelper::getDisplayQuantityDecimals(
+						(int) $objProduct4Msg->_quantityDecimals,
+						(int) $objProduct4Msg->_salesUnitSize
+					),
+					'displayDesiredQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+						$quantity,
+						(int) $objProduct4Msg->_salesUnitSize
+					),
+					'displayAvailableQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+						$availableQuantity,
+						(int) $objProduct4Msg->_salesUnitSize
+					)
 				)
 			));
 		}
@@ -268,11 +444,13 @@ class ls_shop_cartHelper {
 	 * Die Funktion gibt ein Array mit Informationen über die gewünschte und tatsächlich hinzugefügte Menge zurück
 	 */
 	public static function addToCart($productVariantID, $quantity, $checkStock = true, $comment = null, $commentWasSubmitted = false) {
-        if (isset($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic']) && is_array($GLOBALS['MERCONIS_HOOKS']['addToCartCustomLogic'])) {
+        if (self::hasAddToCartCustomLogicHook()) {
             /*
              * Functions hooked here can stop the execution of the addToCart method by returning a non-null value
              * that is then being used as the return value for addToCart. The hooked function can thereby completely
              * replace the logic of the addToCart method.
+             * In diesem Fall wird auch die Standard-VE-Transformation nicht ausgeführt; ersetzende Hook-Logik muss
+             * die Division durch `salesUnitSize` bei Bedarf selbst durchführen.
              * The return value should be an array with the keys 'desiredQuantity', 'quantityPutInCart',
              * 'stockNotSufficient', 'cartKeyCurrentlyPutInCart' just like the original value of addToCart.
              */
@@ -299,7 +477,7 @@ class ls_shop_cartHelper {
          */
 		$objProduct = ls_shop_generalHelper::getObjProduct($productVariantID, __METHOD__);
 
-		$desiredQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
+		$desiredQuantity = ls_shop_cartHelper::prepareQuantityForCartOperation($objProduct, $quantity);
 
         $session = System::getContainer()->get('merconis.session')->getSession();
         $session_lsShopCart =  $session->get('lsShopCart');
@@ -310,6 +488,14 @@ class ls_shop_cartHelper {
 		 * so wird sie eingetragen, ist sie schon vorhanden, so wird nur die Menge geupdatet.
 		 */
 		$cartItemAlreadyExists = isset($session_lsShopCart['items'][$cartKey]);
+		self::assertMinimumOrderQuantityForAddToCart(
+			$objProduct,
+			$desiredQuantity,
+			$cartItemAlreadyExists,
+			$cartItemAlreadyExists
+				? null
+				: ls_shop_cartHelper::getAvailableQuantity($cartKey, $objProduct->_minimumOrderQuantity)
+		);
 
         if (!$cartItemAlreadyExists) {
 			$arrItemInfoToAddToCart = [
@@ -366,7 +552,20 @@ class ls_shop_cartHelper {
 				'quantityPutInCart' => $quantityPutInCart,
 				'quantityCurrentlyInCart' => $quantityCurrentlyInCart,
 				'stockNotSufficient' => $desiredQuantity != $quantityPutInCart ? true : false,
-				'cartKeyCurrentlyPutInCart' => $cartKey
+				'cartKeyCurrentlyPutInCart' => $cartKey,
+				'salesUnit' => $objProduct->_salesUnit,
+				'displayQuantityDecimals' => ls_shop_generalHelper::getDisplayQuantityDecimals(
+					(int) $objProduct->_quantityDecimals,
+					(int) $objProduct->_salesUnitSize
+				),
+				'displayDesiredQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+					$desiredQuantity,
+					(int) $objProduct->_salesUnitSize
+				),
+				'displayQuantityPutInCart' => ls_shop_generalHelper::transformDisplayQuantity(
+					$quantityPutInCart,
+					(int) $objProduct->_salesUnitSize
+				)
 			)
 		));
 
@@ -406,12 +605,117 @@ class ls_shop_cartHelper {
 					$blnValid = false;
 					ls_shop_msg::setMsg(array(
 						'class' => 'cartPositionOrderNotAllowed',
-						'reference' => $cartItemProductCartKey
+						'reference' => $cartItemProductCartKey,
+						'msg' => self::getCartPositionOrderNotAllowedMessage(
+							$objProduct,
+							$cartItemProductCartKey
+						)
 					));
 				}
 			}
 		}
 		return $blnValid;
+	}
+
+	public static function validateMinimumOrderQuantityOfCartPositions() {
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopCart =  $session->get('lsShopCart');
+        $blnValid = true;
+
+        if (!isset($session_lsShopCart['items']) || !is_array($session_lsShopCart['items'])) {
+            return $blnValid;
+        }
+
+        foreach ($session_lsShopCart['items'] as $cartItemProductCartKey => $arrCartItem) {
+			ls_shop_msg::delMsg('cartPositionBelowMinimumOrderQuantity', $cartItemProductCartKey);
+
+			$objProduct = ls_shop_generalHelper::getObjProduct($cartItemProductCartKey, __METHOD__);
+			$objProductOrVariant = $objProduct->_variantIsSelected ? $objProduct->_selectedVariant : $objProduct;
+
+			if (!$objProductOrVariant->_hasMinimumOrderQuantity) {
+				continue;
+			}
+
+			$quantityDecimals = (int) $objProductOrVariant->_quantityDecimals;
+			$normalizedCurrentQuantity = MinimumOrderQuantityCalculator::normalizeQuantityValue(
+				(string) ($arrCartItem['quantity'] ?? 0)
+			);
+
+			if (MinimumOrderQuantityCalculator::compareQuantities($normalizedCurrentQuantity, '0', $quantityDecimals) <= 0) {
+				continue;
+			}
+
+			$availableQuantityForMinimumCheck = self::getAvailableQuantity(
+				$cartItemProductCartKey,
+				$normalizedCurrentQuantity
+			);
+			$effectiveMinimumOrderQuantity = MinimumOrderQuantityCalculator::resolveMinimumOrderQuantityForStockHandling(
+				$objProductOrVariant->_minimumOrderQuantity,
+				$availableQuantityForMinimumCheck,
+				$quantityDecimals
+			);
+
+			if (
+				MinimumOrderQuantityCalculator::compareQuantities(
+					$normalizedCurrentQuantity,
+					$effectiveMinimumOrderQuantity,
+					$quantityDecimals
+				) >= 0
+			) {
+				continue;
+			}
+
+			$blnValid = false;
+			$minimumQuantityLabel = ls_shop_generalHelper::buildMinimumOrderQuantityDisplayLabel(
+				$objProductOrVariant,
+				MinimumOrderQuantityCalculator::normalizeQuantityValue(
+					(string) $objProductOrVariant->_effectiveMinimumOrderQuantity
+				)
+			);
+
+			ls_shop_msg::setMsg(array(
+				'class' => 'cartPositionBelowMinimumOrderQuantity',
+				'reference' => $cartItemProductCartKey,
+				'msg' => sprintf(
+					$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityCartBelowMinimum'],
+					$minimumQuantityLabel
+				),
+				'arrDetails' => array(
+					'minimumOrderQuantity' => MinimumOrderQuantityCalculator::normalizeQuantityValue(
+						(string) $objProductOrVariant->_minimumOrderQuantity
+					),
+					'effectiveMinimumOrderQuantity' => $effectiveMinimumOrderQuantity,
+					'currentQuantity' => $normalizedCurrentQuantity,
+					'displayMinimumOrderQuantity' => $minimumQuantityLabel,
+				)
+			));
+		}
+
+		return $blnValid;
+	}
+
+	protected static function getCartPositionOrderNotAllowedMessage($objProduct, $cartItemProductCartKey): string
+	{
+		$objProductOrVariant = $objProduct->_variantIsSelected ? $objProduct->_selectedVariant : $objProduct;
+		$availableQuantityForMinimumCheck = self::getAvailableQuantity(
+			$cartItemProductCartKey,
+			$objProductOrVariant->_minimumOrderQuantity
+		);
+
+		if (
+			!MinimumOrderQuantityCalculator::shouldDenyOrderDueToStockConflict(
+				$objProductOrVariant->_minimumOrderQuantity,
+				$availableQuantityForMinimumCheck,
+				(int) $objProductOrVariant->_quantityDecimals
+			)
+		) {
+			return '';
+		}
+
+		return ls_shop_generalHelper::getMinimumOrderQuantityStockConflictCartMessage(
+			$objProductOrVariant,
+			(string) $availableQuantityForMinimumCheck
+		);
 	}
 
 	/**
@@ -530,7 +834,20 @@ class ls_shop_cartHelper {
 								'shortage' => $fehlmenge,
 								'newQuantity' => $newItemQuantity,
 								'quantityUnit' => $objProduct4Msg->_quantityUnit,
-								'quantityDecimals' => $objProduct4Msg->_quantityDecimals
+								'quantityDecimals' => $objProduct4Msg->_quantityDecimals,
+								'salesUnit' => $objProduct4Msg->_salesUnit,
+								'displayQuantityDecimals' => ls_shop_generalHelper::getDisplayQuantityDecimals(
+									(int) $objProduct4Msg->_quantityDecimals,
+									(int) $objProduct4Msg->_salesUnitSize
+								),
+								'displayOriginalQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+									$session_lsShopCart['items'][$cartKey]['quantity'],
+									(int) $objProduct4Msg->_salesUnitSize
+								),
+								'displayNewQuantity' => ls_shop_generalHelper::transformDisplayQuantity(
+									$newItemQuantity,
+									(int) $objProduct4Msg->_salesUnitSize
+								)
 
 							)
 						));
@@ -581,7 +898,11 @@ class ls_shop_cartHelper {
 	 */
 	public static function updateCartItem($productCartKey, $quantity, $comment = null, $commentWasSubmitted = false) {
 		$objProduct = ls_shop_generalHelper::getObjProduct($productCartKey, __METHOD__);
-		$cleanQuantity = ls_shop_cartHelper::cleanQuantity($objProduct, $quantity);
+		$cleanQuantity = ls_shop_cartHelper::prepareQuantityForCartOperation($objProduct, $quantity);
+        $session = System::getContainer()->get('merconis.session')->getSession();
+        $session_lsShopCart =  $session->get('lsShopCart');
+		$currentQuantity = $session_lsShopCart['items'][$productCartKey]['quantity'] ?? 0;
+		self::assertMinimumOrderQuantityForCartUpdate($objProduct, $cleanQuantity, $currentQuantity);
 		/*
 		 * Ist die Quantity < 0, so wird die Position aus dem Warenkorb entfernt
 		 */

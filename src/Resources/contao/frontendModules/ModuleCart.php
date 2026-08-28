@@ -35,6 +35,35 @@ class ModuleCart extends Module {
 			$arrWidgets[$productCartKey] = array();
 			$bln_isCurrentItemQuantityUpdate = Input::post('FORM_SUBMIT') && preg_match('/^product_quantity_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productID') == $productCartKey;
 			/*
+			 * Der Vorbelegungswert des Mengenfeldes muss maschinenlesbar (ohne
+			 * Tausendertrenner) sein, weil getQuantityInputState() ihn anschließend
+			 * per normalizeQuantityValue() parst. outputDisplayQuantity() kann das
+			 * hier nicht leisten: outputQuantity() ersetzt einen explizit
+			 * übergebenen leeren Tausendertrenner fälschlich durch den
+			 * Locale-Trenner (im deutschen Locale "."), wodurch ab Mengen >= 1000
+			 * ein Gruppierungszeichen entsteht, das anschließend als Dezimalpunkt
+			 * fehlinterpretiert wird. Daher wird hier direkt number_format() mit
+			 * echtem leerem Tausendertrenner verwendet -- identische Rundung und
+			 * Dezimalstellen wie outputDisplayQuantity(), aber ohne Gruppierung.
+			 */
+			$currentDisplayQuantity = number_format(
+				(float) ls_shop_generalHelper::transformDisplayQuantity(
+					$cartItem['quantity'],
+					(int) $cartItem['objProduct']->_salesUnitSize
+				),
+				ls_shop_generalHelper::getDisplayQuantityDecimals(
+					(int) $cartItem['objProduct']->_quantityDecimals,
+					(int) $cartItem['objProduct']->_salesUnitSize
+				),
+				'.',
+				''
+			);
+			$quantityInputState = ls_shop_generalHelper::getQuantityInputState(
+				$cartItem['objProduct'],
+				true,
+				$currentDisplayQuantity
+			);
+			/*
 			 * Buttons für die Mengenänderung
 			 */
 			$obj_FlexWidget_inputQuantity = new FlexWidget(
@@ -56,20 +85,23 @@ class ModuleCart extends Module {
 					),
 
 					'arr_moreData' => array(
-						'class' => 'quantity-item',
-                        'decimalsAmount' => $cartItem['objProduct']->_quantityDecimals
+						'class' => 'quantity-item' . ($cartItem['objProduct']->_hasSalesUnit ? ' useNumberStepper' : ''),
+                        'decimalsAmount' => $cartItem['objProduct']->_quantityDecimals,
+                        'quantityDecimals' => $cartItem['objProduct']->_quantityDecimals,
+                        'salesUnitSize' => $cartItem['objProduct']->_salesUnitSize,
+                        'step' => (string) $cartItem['objProduct']->_displayQuantityStep,
+                        'min' => $quantityInputState['min'],
+                        'max' => '999999999',
+                        'allowNonPositiveQuantity' => true,
+                        'inputmode' => strpos((string) $cartItem['objProduct']->_displayQuantityStep, '.') !== false ? 'decimal' : 'numeric'
 					),
 
 					'str_label' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'],
 					'str_allowedRequestMethod' => 'post',
-					'var_value' => ls_shop_cartHelper::cleanQuantity(
-					    $cartItem['objProduct'],
-                        $cartItem['quantity']
-                    )
+					'var_value' => $quantityInputState['value']
 				)
 			);
 
-			$arrWidgets[$productCartKey]['inputQuantity'] = $obj_FlexWidget_inputQuantity->getOutput();
 			$arrWidgets[$productCartKey]['commentFieldId'] = 'comment_' . $productCartKey;
 			$arrWidgets[$productCartKey]['commentFieldName'] = 'comment';
 			$arrWidgets[$productCartKey]['commentLabel'] = $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'];
@@ -82,12 +114,22 @@ class ModuleCart extends Module {
 			 */
 			if ($bln_isCurrentItemQuantityUpdate) {
 				if (!$obj_FlexWidget_inputQuantity->bln_hasErrors) {
-					ls_shop_cartHelper::updateCartItem(
-						Input::post('productID'),
-						$obj_FlexWidget_inputQuantity->getValue(),
-						Input::post('comment'),
-						true
-					);
+					try {
+						ls_shop_cartHelper::updateCartItem(
+							Input::post('productID'),
+							$obj_FlexWidget_inputQuantity->getValue(),
+							Input::post('comment'),
+							true
+						);
+					} catch (\RuntimeException $exception) {
+						ls_shop_generalHelper::addErrorToFlexWidget(
+							$obj_FlexWidget_inputQuantity,
+							$exception->getMessage()
+						);
+					}
+				}
+
+				if (!$obj_FlexWidget_inputQuantity->bln_hasErrors) {
 					$this->reload();
 				}
 			} else if(Input::post('FORM_SUBMIT') && preg_match('/^product_delete_form_/siU', Input::post('FORM_SUBMIT')) && Input::post('productIDDelete') == $productCartKey) {
@@ -95,6 +137,8 @@ class ModuleCart extends Module {
 				ls_shop_cartHelper::updateCartItem(Input::post('productIDDelete'), -1);
 				$this->reload();
 			}
+
+			$arrWidgets[$productCartKey]['inputQuantity'] = $obj_FlexWidget_inputQuantity->getOutput();
 			
 		}
 

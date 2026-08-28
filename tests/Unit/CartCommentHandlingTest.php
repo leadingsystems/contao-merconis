@@ -14,6 +14,7 @@ final class CartCommentHandlingTest extends TestCase
 
     protected function setUp(): void
     {
+        $GLOBALS['TL_CONFIG'] ??= [];
         $this->hadPreviousCartPositionCommentsEnabled = array_key_exists(
             'ls_shop_cartPositionCommentsEnabled',
             $GLOBALS['TL_CONFIG']
@@ -222,5 +223,21 @@ final class CartCommentHandlingTest extends TestCase
             ['123', '2', true, null, false],
             $capturedArguments
         );
+    }
+
+    public function testApiRequestReturnsFailureWhenAddToCartValidationThrows(): void
+    {
+        $result = ls_shop_apiController_cart::processAddToCartRequest(
+            [
+                'productVariantId' => '123',
+                'quantity' => '2',
+            ],
+            function (): array {
+                throw new \RuntimeException('Minimum order quantity not reached.');
+            }
+        );
+
+        self::assertFalse($result['success']);
+        self::assertSame('Minimum order quantity not reached.', $result['data']);
     }
 }

@@ -4,6 +4,9 @@
  */
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['numberWithDecimalsFE'] = 'Field "%s" must contain a number greater than 0';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['stringHavingPartsWithMinimumLength'] = 'Field "%s" must not contain words with less than %s characters';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['quantityStepMultipleFE'] = 'Field "%s" contains an invalid quantity. The next valid value is %s.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['rgxpErrorMessages']['minimumOrderQuantityFE'] = 'Field "%s" is below the minimum order quantity. Please enter at least %s.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityHint'] = 'Minimum order quantity: %s';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg1'] = 'Your search had too many results. Only the first %s of %s results are displayed.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['truncatedResultsMsg2'] = 'Please narrow down your search because otherwise it would deliver too many results.';
@@ -112,6 +115,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText057'] = 'This product is no longe
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText058'] = 'Contains faults';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText059'] = 'This product cannot be ordered this way.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityStockConflictCart'] = 'The minimum order quantity of %s cannot be reached because of the available stock. Only %s are still available.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['minimumOrderQuantityCartBelowMinimum'] = 'The minimum order quantity of %s cannot be met due to the current stock level. Please remove the product from your cart.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText060'] = 'Continue with entering your data';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText061'] = 'Go back to the data entry form';
@@ -1065,7 +1070,9 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_weight' => 'Field value for "weight" is invalid (must be a decimal value (0-9, decimal point and minus sign are allowed)): Line(s) no. %s',
 	'variantValueInvalid_weight' => 'Field value for "weight" is invalid (must be a decimal value (0-9, decimal point and minus sign are allowed)): Line(s) no. %s',
 	'valueInvalid_unit' => 'Field value for "unit" is invalid (max. 255 characters are allowed): Line(s) no. %s',
+	'valueInvalid_salesUnit' => 'Field value for "salesUnit" is invalid (max. 255 characters are allowed): Line(s) no. %s',
 	'productValueInvalid_quantityDecimals' => 'Field value for "quantityDecimals" is invalid (must be an integer value): Line(s) no. %s',
+	'productOrVariantValueInvalid_salesUnitSize' => 'Field value for "salesUnitSize" is invalid (must be an integer value): Line(s) no. %s',
 	'valueInvalid_quantityComparisonUnit' => 'Field value for "quantityComparisonUnit" is invalid (max. 255 characters are allowed): Line(s) no. %s',
 	'valueInvalid_quantityComparisonDivisor' => 'Field value for "quantityComparisonDivisor" is invalid (must be a decimal value (0-9, decimal point and minus sign are allowed)): Line(s) no. %s',
 	'productValueInvalid_template' => 'Field value for "template" is invalid (max. 64 characters are allowed): Line(s) no. %s',

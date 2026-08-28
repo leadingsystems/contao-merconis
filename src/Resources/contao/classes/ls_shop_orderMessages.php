@@ -758,6 +758,24 @@ class ls_shop_orderMessages
 				'snapshotQuantityUnit_customerLanguage',
 				$blnUseCustomerLanguageVariant
 			);
+			$intSnapshotSalesUnitSize = max(0, (int) ($arrWithdrawalItem['snapshotSalesUnitSize'] ?? 0));
+			$intSnapshotQuantityDecimals = max(0, (int) ($arrWithdrawalItem['snapshotQuantityDecimals'] ?? 0));
+			if ($intSnapshotSalesUnitSize > 0) {
+				$arrWithdrawalItem['snapshotOrderedQuantity'] = ls_shop_generalHelper::outputDisplayQuantity(
+					(float) ($arrWithdrawalItem['snapshotOrderedQuantity'] ?? 0),
+					$intSnapshotQuantityDecimals,
+					$intSnapshotSalesUnitSize,
+					'.',
+					''
+				);
+				$arrWithdrawalItem['withdrawnQuantity'] = ls_shop_generalHelper::outputDisplayQuantity(
+					(float) ($arrWithdrawalItem['withdrawnQuantity'] ?? 0),
+					$intSnapshotQuantityDecimals,
+					$intSnapshotSalesUnitSize,
+					'.',
+					''
+				);
+			}
 
 			$strConfiguratorRef = trim((string) ($arrWithdrawalItem['snapshotConfiguratorReferenceNumber'] ?? ''));
 			$strCustomizerRef = trim((string) ($arrWithdrawalItem['snapshotCustomizerReferenceNumber'] ?? ''));

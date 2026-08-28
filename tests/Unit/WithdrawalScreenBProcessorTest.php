@@ -12,6 +12,13 @@ final class WithdrawalScreenBProcessorTest extends TestCase
     {
         parent::setUp();
 
+        if (
+            !function_exists('LeadingSystems\\Helpers\\ls_mul')
+            || !function_exists('LeadingSystems\\Helpers\\ls_div')
+        ) {
+            require_once dirname(__DIR__, 2) . '/vendor/leadingsystems/contao-helpers/src/Resources/contao/functions.php';
+        }
+
         $GLOBALS['TL_CONFIG']['ls_shop_numDecimals'] = 2;
         $GLOBALS['TL_CONFIG']['ls_shop_currency'] = 'EUR';
         $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = ',';
@@ -19,25 +26,27 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         $GLOBALS['merconis_globals']['ls_shop_currencyBeforeValue'] = false;
     }
 
-    public function testQuantityValidationRespectsDynamicMinimumQuantity(): void
+    public function testQuantityValidationRespectsDisplayMinimumAndPieceSteps(): void
     {
         $processor = new WithdrawalScreenBProcessor();
 
-        self::assertTrue($processor->isValidWithdrawnQuantity(1.0, 5.0, 1.0, 0));
-        self::assertTrue($processor->isValidWithdrawnQuantity(5.0, 5.0, 1.0, 0));
-        self::assertTrue($processor->isValidWithdrawnQuantity(0.1, 5.0, 0.1, 1));
-        self::assertTrue($processor->isValidWithdrawnQuantity(1.1, 5.0, 0.1, 1));
-        self::assertTrue($processor->isValidWithdrawnQuantity(0.01, 5.0, 0.01, 2));
+        self::assertTrue($processor->isValidWithdrawnQuantity(1.0, 5.0, 1.0, 0, 0));
+        self::assertTrue($processor->isValidWithdrawnQuantity(5.0, 5.0, 1.0, 0, 0));
+        self::assertTrue($processor->isValidWithdrawnQuantity(0.1, 5.0, 0.1, 1, 0));
+        self::assertTrue($processor->isValidWithdrawnQuantity(1.1, 5.0, 0.1, 1, 0));
+        self::assertTrue($processor->isValidWithdrawnQuantity(10.0, 500.0, 10.0, 1, 100));
+        self::assertTrue($processor->isValidWithdrawnQuantity(150.0, 500.0, 10.0, 1, 100));
+        self::assertTrue($processor->isValidWithdrawnQuantity(0.01, 2.0, 0.01, 2, 1));
 
-        self::assertFalse($processor->isValidWithdrawnQuantity(0.0, 5.0, 1.0, 0));
-        self::assertFalse($processor->isValidWithdrawnQuantity(5.5, 6.0, 1.0, 0));
-        self::assertFalse($processor->isValidWithdrawnQuantity(0.09, 5.0, 0.1, 1));
-        self::assertFalse($processor->isValidWithdrawnQuantity(1.05, 5.0, 0.1, 1));
-        self::assertFalse($processor->isValidWithdrawnQuantity(0.009, 5.0, 0.01, 2));
-        self::assertFalse($processor->isValidWithdrawnQuantity(6.0, 5.0, 1.0, 0));
+        self::assertFalse($processor->isValidWithdrawnQuantity(0.0, 5.0, 1.0, 0, 0));
+        self::assertFalse($processor->isValidWithdrawnQuantity(5.5, 6.0, 1.0, 0, 0));
+        self::assertFalse($processor->isValidWithdrawnQuantity(0.09, 5.0, 0.1, 1, 0));
+        self::assertFalse($processor->isValidWithdrawnQuantity(1.05, 5.0, 0.1, 1, 0));
+        self::assertFalse($processor->isValidWithdrawnQuantity(15.0, 500.0, 10.0, 1, 100));
+        self::assertFalse($processor->isValidWithdrawnQuantity(510.0, 500.0, 10.0, 1, 100));
     }
 
-    public function testChildSnapshotStoresCustomerLanguageAndFallbackVariants(): void
+    public function testChildSnapshotStoresDisplayUnitsForSalesUnitOrders(): void
     {
         $processor = new WithdrawalScreenBProcessor();
 
@@ -50,12 +59,17 @@ final class WithdrawalScreenBProcessorTest extends TestCase
                 'artNr' => 'TP-001',
                 'price' => '19.99',
                 'quantityUnit' => 'Stueck',
+                'displayQuantityUnit' => '100 Stueck',
+                'salesUnit' => 'Pack',
+                'salesUnitSize' => 100,
                 'quantity' => '2.5',
                 'quantityDecimals' => 2,
                 'extendedInfo' => [
                     '_productTitle_customerLanguage' => 'Test Product',
                     '_title_customerLanguage' => 'Size L',
                     '_quantityUnit_customerLanguage' => 'pcs',
+                    '_displayQuantityUnit_customerLanguage' => '100 pcs',
+                    '_salesUnit_customerLanguage' => 'pack',
                 ],
             ],
             1.25,
@@ -66,11 +80,12 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         self::assertSame('Test Product', $snapshot['snapshotProductName_customerLanguage']);
         self::assertSame('Groesse L', $snapshot['snapshotVariantTitle']);
         self::assertSame('Size L', $snapshot['snapshotVariantTitle_customerLanguage']);
-        self::assertSame('19,99 EUR/Stueck', $snapshot['snapshotUnitPrice']);
-        self::assertSame('19,99 EUR/pcs', $snapshot['snapshotUnitPrice_customerLanguage']);
-        self::assertSame('Stueck', $snapshot['snapshotQuantityUnit']);
-        self::assertSame('pcs', $snapshot['snapshotQuantityUnit_customerLanguage']);
+        self::assertSame('19,99 EUR/100 Stueck', $snapshot['snapshotUnitPrice']);
+        self::assertSame('19,99 EUR/100 pcs', $snapshot['snapshotUnitPrice_customerLanguage']);
+        self::assertSame('Pack', $snapshot['snapshotQuantityUnit']);
+        self::assertSame('pack', $snapshot['snapshotQuantityUnit_customerLanguage']);
         self::assertSame(2, $snapshot['snapshotQuantityDecimals']);
+        self::assertSame(100, $snapshot['snapshotSalesUnitSize']);
     }
 
     public function testChildSnapshotFallsBackToTopLevelValuesForLegacyOrders(): void
@@ -99,6 +114,7 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         self::assertSame('12,50 EUR/kg', $snapshot['snapshotUnitPrice_customerLanguage']);
         self::assertSame('kg', $snapshot['snapshotQuantityUnit']);
         self::assertSame('kg', $snapshot['snapshotQuantityUnit_customerLanguage']);
+        self::assertSame(0, $snapshot['snapshotSalesUnitSize']);
     }
 
     public function testChildSnapshotDoesNotReuseProductTitleAsVariantForNonVariants(): void
@@ -129,6 +145,26 @@ final class WithdrawalScreenBProcessorTest extends TestCase
         self::assertSame('Cushion', $snapshot['snapshotProductName_customerLanguage']);
         self::assertSame('', $snapshot['snapshotVariantTitle']);
         self::assertSame('', $snapshot['snapshotVariantTitle_customerLanguage']);
+    }
+
+    public function testDisplayQuantitiesCanBeConvertedAndFormattedPrecisionSafely(): void
+    {
+        $processor = new WithdrawalScreenBProcessor();
+
+        self::assertSame(1.5, $processor->convertDisplayQuantityToInternalQuantity(150.0, 100));
+        self::assertSame(2.0, $processor->getOrderedDisplayQuantity([
+            'quantity' => '2.0',
+            'displayQuantity' => '200',
+            'salesUnitSize' => 0,
+        ]));
+        self::assertSame(200.0, $processor->getOrderedDisplayQuantity([
+            'quantity' => '2.0',
+            'displayQuantity' => '200',
+            'salesUnitSize' => 100,
+        ]));
+        self::assertSame('10', $processor->getDisplayStepValue(100, 1));
+        self::assertSame('0.01', $processor->getDisplayStepValue(1, 2));
+        self::assertSame('150', $processor->formatDisplayQuantity(1.5, 1, 100));
     }
 
     public function testParentSnapshotSeparatesBillingAndShippingAddressWhenDeviantShippingAddressIsUsed(): void
