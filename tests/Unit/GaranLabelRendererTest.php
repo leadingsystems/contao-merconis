@@ -47,6 +47,28 @@ final class GaranLabelRendererTest extends TestCase
         self::assertStringNotContainsString('Model identifier', $renderedSvg);
         self::assertStringContainsString('viewBox="0 0 269.29 283.46"', $renderedSvg);
         self::assertStringContainsString('ACME &amp; Co &lt;Premium&gt;', $renderedSvg);
+        self::assertStringContainsString('id="clippath-8"', $renderedSvg);
+        self::assertStringContainsString('M229.14,0v39.02', $renderedSvg);
+        self::assertStringNotContainsString('garan-label-nested', $renderedSvg);
+
+        $templateContents = (string) file_get_contents(
+            $this->createAssetLocator()->getGaranColourTemplatePath()
+        );
+        $templateDocument = new DOMDocument('1.0', 'UTF-8');
+        $templateDocument->loadXML($templateContents);
+        $templateXpath = new DOMXPath($templateDocument);
+        $templateXpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
+
+        self::assertSame(
+            $templateXpath->query('//svg:clipPath')?->length,
+            $xpath->query('//svg:clipPath')?->length
+        );
+        self::assertSame(
+            $templateXpath->query('//svg:image')?->length,
+            $xpath->query('//svg:image')?->length
+        );
+        self::assertSame(3, $xpath->query('//svg:text')?->length);
+        self::assertSame(3, $templateXpath->query('//svg:text')?->length);
     }
 
     private function createAssetLocator(): OfficialGuaranteeAssetLocator
