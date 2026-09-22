@@ -38,6 +38,11 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMainImage']						
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']						= array('Weitere Bilder', 'Wählen Sie hier weitere Bilder für diese Variante aus.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Einstellungen zu Lagerbestand/Lieferzeit');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Einstellungen des Hauptproduktes zu Verfügbarkeit und Vorbestellung überschreiben');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Eigene GARAN-Daten der Variante verwenden');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran']										=	array('GARAN aktivieren');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Garantiedauer in Jahren');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	array('Brand/Trademark', 'Maximal 40 Zeichen.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	array('Model identifier', 'Maximal 25 Zeichen.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Verfügbar ab');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['preorderingAllowed']				                =	array('Vorbestellbar', 'Ist diese Option aktiviert, so kann das Produkt, sofern es noch nicht verfügbar ist, vorbestellt werden. Unabhängig von der dem Produkt zugeordneten Einstellung für das Lagerbestands-Handling kann der Lagerbestand bei aktivierter Vorbestellfunktion ins Minus laufen.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['deliveryInfoSetToUseInPreorderPhase']            =   array('Abweichende Einstellungen zu Lagerbestand/Lieferzeit in Vorbestellungsphase');
@@ -66,6 +71,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_3_legend']								= 'Für
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_4_legend']								= 'Für Gruppe Nr. 4 abweichende Preisangaben';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_5_legend']								= 'Für Gruppe Nr. 5 abweichende Preisangaben';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStockDeliveryTimeAndAvailability_legend']									= 'Lagerbestand, Lieferzeit und Verfügbarkeit';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopGuaranteeLabels_legend']						= 'Gewährleistung und Haltbarkeitsgarantie';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator_legend']								= 'Konfigurator-Einstellungen';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts_legend']							= 'Verbundene Produkte';
 
@@ -117,6 +123,15 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label01'] = 'Schlüssel
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] = 'Produktinformation';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] = 'Schlüsselwort';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Produktinformation';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
+	'garan_disabled_missing_brand' => 'GARAN wurde deaktiviert, weil `Brand/Trademark` fehlt.',
+	'garan_disabled_missing_model' => 'GARAN wurde deaktiviert, weil `Model identifier` fehlt.',
+	'garan_disabled_missing_duration' => 'GARAN wurde deaktiviert, weil die Garantiedauer fehlt.',
+	'garan_disabled_invalid_duration' => 'GARAN wurde deaktiviert, weil "%s" keine gültige Garantiedauer ist.',
+	'garan_disabled_duration_out_of_range' => 'GARAN wurde deaktiviert, weil die Garantiedauer %s außerhalb des zulässigen Bereichs von 2.5 bis 99.5 Jahren liegt.',
+	'garan_disabled_duration_below_minimum' => 'GARAN wurde deaktiviert, weil die Garantiedauer nach der Abrundung nur noch %s Jahre beträgt und mindestens 2.5 Jahre erforderlich sind.',
+	'garan_duration_rounded_down' => 'Die Garantiedauer wurde von %s auf %s Jahre abgerundet.'
+);
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label01'] = 'Merkmal';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label02'] = 'Ausprägung';

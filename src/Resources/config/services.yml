@@ -38,6 +38,7 @@ services:
       $projectDir: '%kernel.project_dir%/vendor/leadingsystems/contao-merconis'
 
   LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer: ~
+  LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator: ~
 
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
@@ -255,6 +256,13 @@ services:
 
   merconis.migration.update_shop_product_page_config_migration:
     class: LeadingSystems\MerconisBundle\Migration\UpdateShopProductPageConfigMigration
+    tags:
+      - { name: contao.migration, priority: 0 }
+
+  merconis.migration.enable_gll_default_migration:
+    class: LeadingSystems\MerconisBundle\Migration\EnableGllDefaultMigration
+    arguments:
+      - '@doctrine.dbal.default_connection'
     tags:
       - { name: contao.migration, priority: 0 }
 

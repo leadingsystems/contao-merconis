@@ -38,6 +38,11 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMainImage']						
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']						= array('Further images', 'Please select further images for this variant here.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Settings on goods in stock/delivery time');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Override availability and pre-order settings of the main product');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Use variant-specific GARAN data');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran']										=	array('Enable GARAN');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Guarantee duration in years');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	array('Brand/Trademark', 'Maximum 40 characters.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	array('Model identifier', 'Maximum 25 characters.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Available from');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['preorderingAllowed']				                =	array('Pre-orderable', 'If this option is enabled, the product can be pre-ordered if it is not yet available. Regardless of the stock handling setting assigned to the product, the stock level can run into the negative if the pre-order function is activated.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['deliveryInfoSetToUseInPreorderPhase']            =   array('Deviating settings on goods in stock/delivery time in pre-order phase');
@@ -66,6 +71,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_3_legend']								= 'Devi
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_4_legend']								= 'Deviant prices for group no. 4';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_5_legend']								= 'Deviant prices for group no. 5';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStockDeliveryTimeAndAvailability_legend']									= 'Goods in stock, delivery time and availability';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopGuaranteeLabels_legend']						= 'Legal guarantee and durability guarantee';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator_legend']								= 'Configurator settings';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts_legend']							= 'Associated products';
 
@@ -117,6 +123,15 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label01'] = 'Keyword';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] = 'Variant information';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] = 'Keyword';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Variant information';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
+	'garan_disabled_missing_brand' => 'GARAN was disabled because `Brand/Trademark` is missing.',
+	'garan_disabled_missing_model' => 'GARAN was disabled because `Model identifier` is missing.',
+	'garan_disabled_missing_duration' => 'GARAN was disabled because the guarantee duration is missing.',
+	'garan_disabled_invalid_duration' => 'GARAN was disabled because "%s" is not a valid guarantee duration.',
+	'garan_disabled_duration_out_of_range' => 'GARAN was disabled because the guarantee duration %s is outside the allowed range of 2.5 to 99.5 years.',
+	'garan_disabled_duration_below_minimum' => 'GARAN was disabled because the rounded duration is only %s years and at least 2.5 years are required.',
+	'garan_duration_rounded_down' => 'The guarantee duration was rounded down from %s to %s years.'
+);
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label01'] = 'Attribute';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label02'] = 'Value';
