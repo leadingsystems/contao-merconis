@@ -31,6 +31,14 @@ services:
     class: LeadingSystems\MerconisBundle\Helpers\IpChecker
     public: true
 
+  LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver: ~
+
+  LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator:
+    arguments:
+      $projectDir: '%kernel.project_dir%/vendor/leadingsystems/contao-merconis'
+
+  LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer: ~
+
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
       - '@contao.framework'
