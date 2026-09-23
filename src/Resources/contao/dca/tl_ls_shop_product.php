@@ -1426,10 +1426,52 @@ class tl_ls_shop_product_controller extends Backend {
 		return $strValue;
 	}
 
+	public function applyGuaranteeBrandDefaultForNewProduct(int $intId): void {
+		if (Input::get('act') !== 'create') {
+			return;
+		}
+
+		$objRecord = Database::getInstance()->prepare("
+			SELECT      `lsShopProductProducer`,
+						`guaranteeBrand`
+			FROM        `tl_ls_shop_product`
+			WHERE       `id` = ?
+		")
+		->limit(1)
+		->execute($intId);
+
+		if (!$objRecord->numRows) {
+			return;
+		}
+
+		$strGuaranteeBrand = trim((string) $objRecord->guaranteeBrand);
+
+		if ($strGuaranteeBrand !== '') {
+			return;
+		}
+
+		$validator = new ProductGuaranteeConfigurationValidator();
+		$strGuaranteeBrand = $validator->getInitialGuaranteeBrand((string) $objRecord->lsShopProductProducer);
+
+		if ($strGuaranteeBrand === '') {
+			return;
+		}
+
+		Database::getInstance()->prepare("
+			UPDATE      `tl_ls_shop_product`
+			SET         `guaranteeBrand` = ?
+			WHERE       `id` = ?
+		")
+		->limit(1)
+		->execute($strGuaranteeBrand, $intId);
+	}
+
 	public function validateLegalGuaranteeConfiguration(DataContainer $dc): void {
 		if (!$dc->id) {
 			return;
 		}
+
+		$this->applyGuaranteeBrandDefaultForNewProduct((int) $dc->id);
 
 		$objRecord = Database::getInstance()->prepare("
 			SELECT      `enableGll`,
