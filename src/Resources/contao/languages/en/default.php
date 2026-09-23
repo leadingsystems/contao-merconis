@@ -255,6 +255,15 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = '
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Continue shopping';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart'] = 'open cart';
 
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['de']['gllTitle'] = 'Gesetzliche Gewährleistung, mindestens zwei Jahre';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['de']['gllEuLinkText'] = 'EU-Information zur gesetzlichen Gewährleistung';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['de']['garanBlockHeadline'] = 'Herstellergarantie für folgende Artikel:';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['de']['garanEuLinkText'] = 'EU-Information zur Herstellergarantie';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['en']['gllTitle'] = 'Legal guarantee, at least two years';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['en']['gllEuLinkText'] = 'EU information about the legal guarantee';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['en']['garanBlockHeadline'] = 'Manufacturer\'s commercial guarantee for the following items:';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['en']['garanEuLinkText'] = 'EU information about the manufacturer\'s commercial guarantee';
+
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Comment for this item';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'] = 'Optional comment';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['orderComment']['label'] = 'Comment';

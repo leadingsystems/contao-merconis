@@ -38,7 +38,15 @@ services:
       $projectDir: '%kernel.project_dir%/vendor/leadingsystems/contao-merconis'
 
   LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer: ~
+  LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver: ~
+  LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBuilder: ~
+  LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider:
+    public: true
   LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator: ~
+
+  LeadingSystems\MerconisBundle\InsertTag\AsInsertTag\GllNotice: ~
+  LeadingSystems\MerconisBundle\InsertTag\AsInsertTag\GllCheckoutLink: ~
+  LeadingSystems\MerconisBundle\InsertTag\AsInsertTag\GaranCheckoutBlock: ~
 
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
