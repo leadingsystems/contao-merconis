@@ -1387,7 +1387,7 @@ class tl_ls_shop_product_controller extends Backend {
 	}
 
 	public function oncreateGuaranteeBrandDefault($strTable, $intId, $arrSet, DataContainer $dc): void {
-		$validator = System::getContainer()->get(ProductGuaranteeConfigurationValidator::class);
+		$validator = new ProductGuaranteeConfigurationValidator();
 		$strGuaranteeBrand = trim((string) ($arrSet['guaranteeBrand'] ?? ''));
 
 		if ($strGuaranteeBrand !== '') {
@@ -1448,7 +1448,7 @@ class tl_ls_shop_product_controller extends Backend {
 		}
 
 		$arrCurrentData = $objRecord->row();
-		$validator = System::getContainer()->get(ProductGuaranteeConfigurationValidator::class);
+		$validator = new ProductGuaranteeConfigurationValidator();
 		$result = $validator->validateProduct($arrCurrentData);
 		$arrNormalizedData = $result->getNormalizedData();
 		$arrFieldsToPersist = array();

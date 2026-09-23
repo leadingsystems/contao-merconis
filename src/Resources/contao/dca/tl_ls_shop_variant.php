@@ -1439,7 +1439,7 @@ class tl_ls_shop_variant_controller extends Backend {
 
 		$arrCurrentVariantData = $objVariant->row();
 		$arrCurrentProductData = $objProduct->row();
-		$validator = System::getContainer()->get(ProductGuaranteeConfigurationValidator::class);
+		$validator = new ProductGuaranteeConfigurationValidator();
 		$result = $validator->validateVariant($arrCurrentVariantData, $arrCurrentProductData);
 		$arrNormalizedData = $result->getNormalizedData();
 		$arrFieldsToPersist = array();
