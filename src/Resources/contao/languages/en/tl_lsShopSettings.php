@@ -57,6 +57,12 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchResultPages'] = array('Page "Product search results"', 'Select the page on which the product search results shall be displayed here. Should you run a multilingual shop, please select the corresponding page for each language.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrdersPages'] = array('Page "My orders"', 'Select the page which contains the module "My orders". Should you run a multilingual shop, please select the corresponding page for each language.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrderDetailsPages'] = array('Page "My orders - details"', 'Select the page which contains the module "My orders - details". Should you run a multilingual shop, please select the corresponding page for each language.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_legalGuaranteeInfoPages'] = array('Page "Legal guarantee information"', 'Select the page on which the notice about the legal guarantee rights is displayed. Should you run a multilingual shop, please select the corresponding page for each language.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl'] = array('GLL migration for existing products', 'Trigger the one-time migration that sets enableGll to true for all existing products. After a successful run, the button remains locked until the flag ls_shop_enableGllMigrationApplied is removed from the localconfig.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['button'] = 'Start migration';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['pending'] = 'The migration has not been executed yet.';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['applied'] = 'The migration has already been executed. To run it again, remove the flag ls_shop_enableGllMigrationApplied from the localconfig.';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['success'] = '%s product records were set to enableGll = true.';
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_defaultProductPages'] = array('Page "Standard Product Page"', 'Select the page on which products are to be displayed that are not assigned to any pages or are only assigned to unpublished pages.');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover']	= array('Default cover for videos', 'Select a graphic to be used as cover image for videos if no cover graphic matching the video can be found.');
@@ -162,6 +168,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemImages_legend']   = 'System images';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderNr_legend']   = 'Order number';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemSettings_legend']   = 'System settings';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['legalGuarantee_legend'] = 'Legal guarantee label';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['liveHits_legend']   = 'MERCONIS LiveHits settings';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderStatusTypes_legend'] = 'Status options';
 	
