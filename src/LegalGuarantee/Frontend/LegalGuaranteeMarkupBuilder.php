@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 
 use DOMDocument;
+use DOMElement;
 use RuntimeException;
 
 final class LegalGuaranteeMarkupBuilder
 {
+    private int $renderSequence = 0;
+
     /**
      * @param array<string, string> $attributes
      */
@@ -28,7 +31,10 @@ final class LegalGuaranteeMarkupBuilder
         }
 
         $svgElement = $document->documentElement;
-        $titleId = 'merconis-legal-guarantee-title-' . substr(md5($title . $svgMarkup), 0, 12);
+        $renderPrefix = $this->generateRenderPrefix();
+        $this->rewriteFragmentIdentifiers($document, $renderPrefix);
+
+        $titleId = $renderPrefix . 'title';
 
         $svgElement->setAttribute('role', 'img');
         $svgElement->setAttribute('aria-labelledby', $titleId);
@@ -132,5 +138,145 @@ final class LegalGuaranteeMarkupBuilder
     private function escape(string $value): string
     {
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
+    private function generateRenderPrefix(): string
+    {
+        ++$this->renderSequence;
+
+        return 'merconis-legal-guarantee-svg-' . $this->renderSequence . '-';
+    }
+
+    private function rewriteFragmentIdentifiers(DOMDocument $document, string $renderPrefix): void
+    {
+        /** @var list<DOMElement> $elementsWithIds */
+        $elementsWithIds = [];
+        $idMap = [];
+
+        foreach ($document->getElementsByTagName('*') as $element) {
+            if (!$element instanceof DOMElement || !$element->hasAttribute('id')) {
+                continue;
+            }
+
+            $currentId = $element->getAttribute('id');
+
+            if ('' === $currentId) {
+                continue;
+            }
+
+            $elementsWithIds[] = $element;
+            $idMap[$currentId] = $renderPrefix . $currentId;
+        }
+
+        if ([] === $idMap) {
+            return;
+        }
+
+        foreach ($elementsWithIds as $element) {
+            $currentId = $element->getAttribute('id');
+            $element->setAttribute('id', $idMap[$currentId]);
+        }
+
+        foreach ($document->getElementsByTagName('*') as $element) {
+            if (!$element instanceof DOMElement) {
+                continue;
+            }
+
+            $attributeNames = [];
+
+            if ($element->hasAttributes()) {
+                foreach ($element->attributes as $attribute) {
+                    if (null === $attribute) {
+                        continue;
+                    }
+
+                    $attributeNames[] = $attribute->nodeName;
+                }
+            }
+
+            foreach ($attributeNames as $attributeName) {
+                if ('id' === $attributeName) {
+                    continue;
+                }
+
+                $rewrittenValue = $this->rewriteAttributeValue(
+                    $element->getAttribute($attributeName),
+                    $attributeName,
+                    $idMap
+                );
+
+                $element->setAttribute($attributeName, $rewrittenValue);
+            }
+
+            if ('style' === $element->localName) {
+                $rewrittenCssContent = $this->rewriteCssContent(
+                    $element->textContent,
+                    $idMap
+                );
+
+                while ($element->firstChild !== null) {
+                    $element->removeChild($element->firstChild);
+                }
+
+                $element->appendChild($document->createTextNode($rewrittenCssContent));
+            }
+        }
+    }
+
+    /**
+     * @param array<string, string> $idMap
+     */
+    private function rewriteAttributeValue(string $value, string $attributeName, array $idMap): string
+    {
+        if ('' === $value) {
+            return $value;
+        }
+
+        if (in_array($attributeName, ['aria-labelledby', 'aria-describedby'], true)) {
+            $tokens = preg_split('/\s+/', trim($value)) ?: [];
+            $rewrittenTokens = [];
+
+            foreach ($tokens as $token) {
+                $rewrittenTokens[] = $idMap[$token] ?? $token;
+            }
+
+            return implode(' ', $rewrittenTokens);
+        }
+
+        $rewrittenValue = $this->rewriteCssContent($value, $idMap);
+
+        if (str_starts_with($rewrittenValue, '#')) {
+            $fragmentId = substr($rewrittenValue, 1);
+
+            if (isset($idMap[$fragmentId])) {
+                return '#' . $idMap[$fragmentId];
+            }
+        }
+
+        return $rewrittenValue;
+    }
+
+    /**
+     * @param array<string, string> $idMap
+     */
+    private function rewriteCssContent(string $value, array $idMap): string
+    {
+        if ([] === $idMap || '' === $value) {
+            return $value;
+        }
+
+        return preg_replace_callback(
+            '/url\(#([^)]+)\)/',
+            static function (array $matches) use ($idMap): string {
+                $fragmentId = $matches[1];
+
+                if (!isset($idMap[$fragmentId])) {
+                    return $matches[0];
+                }
+
+                return 'url(#' . $idMap[$fragmentId] . ')';
+            },
+            $value
+        ) ?? $value;
     }
 }
