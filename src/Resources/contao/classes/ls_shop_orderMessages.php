@@ -11,6 +11,7 @@ use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Validator;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderConfirmationMessageAugmenter;
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -344,6 +345,15 @@ class ls_shop_orderMessages
 				'dynamicAttachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),
 				'attachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['attachments'])
 			);
+
+			$arrMessageToSendAndSave = System::getContainer()
+				->get(OrderConfirmationMessageAugmenter::class)
+				->enhancePayload(
+					$arrMessageToSendAndSave,
+					$this->arrMessageTypes[$arrMessageModel['pid']] ?? [],
+					$this->arrOrder,
+					$strLanguageToLoad
+				);
 				
 			$objEmail = new Email();
 			$objEmail->embedImages = !$arrMessageModel['externalImages'];
@@ -353,6 +363,7 @@ class ls_shop_orderMessages
 			
 			// Dynamic attachments
 			$arrTmpGeneratedDynamicAttachmentFiles = array();
+			$arrDynamicAttachmentCleanupFiles = array();
 			if (is_array($arrMessageToSendAndSave['dynamicAttachmentPaths']) && count($arrMessageToSendAndSave['dynamicAttachmentPaths']) > 0) {
 
 				foreach ($arrMessageToSendAndSave['dynamicAttachmentPaths'] as $strDynamicAttachmentFile) {
@@ -374,10 +385,25 @@ class ls_shop_orderMessages
 						 */
 						$objDynamicAttachment = new $dynamicAttachmentClassName($this->arrOrder, $this->counterNr, createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrMessageModel['flex_parameters'])), 2, 1));
 						$dynamicAttachmentSavedFilename = $objDynamicAttachment->parse();
-						
-						if ($dynamicAttachmentSavedFilename && file_exists($str_projectDir.'/'.$dynamicAttachmentSavedFilename)) {
-							$objEmail->attachFile($str_projectDir.'/'.$dynamicAttachmentSavedFilename);
-							$arrTmpGeneratedDynamicAttachmentFiles[] = $dynamicAttachmentSavedFilename;
+
+						$arrDynamicAttachmentSavedFilenames = is_array($dynamicAttachmentSavedFilename)
+							? $dynamicAttachmentSavedFilename
+							: ($dynamicAttachmentSavedFilename ? array($dynamicAttachmentSavedFilename) : array());
+
+						foreach ($arrDynamicAttachmentSavedFilenames as $dynamicAttachmentSavedSingleFilename) {
+							$strAbsoluteAttachmentPath = $this->resolveAttachmentAbsolutePath($dynamicAttachmentSavedSingleFilename, $str_projectDir);
+
+							if ($strAbsoluteAttachmentPath && file_exists($strAbsoluteAttachmentPath)) {
+								$objEmail->attachFile($strAbsoluteAttachmentPath);
+								$arrTmpGeneratedDynamicAttachmentFiles[] = $dynamicAttachmentSavedSingleFilename;
+							}
+						}
+
+						if (method_exists($objDynamicAttachment, 'getCleanupFilePaths')) {
+							$arrDynamicAttachmentCleanupFiles = array_merge(
+								$arrDynamicAttachmentCleanupFiles,
+								(array) $objDynamicAttachment->getCleanupFilePaths()
+							);
 						}
 					}
 				}
@@ -389,8 +415,9 @@ class ls_shop_orderMessages
 			if (is_array($arrMessageToSendAndSave['attachmentPaths']) && count($arrMessageToSendAndSave['attachmentPaths']) > 0) {
 				foreach ($arrMessageToSendAndSave['attachmentPaths'] as $strAttachment) {
 					$strAttachment = ls_getFilePathFromVariableSources($strAttachment);
-					if ($strAttachment && file_exists($str_projectDir.'/'.$strAttachment)) {
-						$objEmail->attachFile($str_projectDir . '/' . $strAttachment);
+					$strAbsoluteAttachmentPath = $this->resolveAttachmentAbsolutePath($strAttachment, $str_projectDir);
+					if ($strAbsoluteAttachmentPath && file_exists($strAbsoluteAttachmentPath)) {
+						$objEmail->attachFile($strAbsoluteAttachmentPath);
 					}
 				}
 			}
@@ -434,6 +461,7 @@ class ls_shop_orderMessages
 			$this->writeDispatchDate($currentMessageTypeID);
 			
 			$this->saveSentMessage($arrMessageToSendAndSave);
+			$this->cleanupAttachmentFiles($arrDynamicAttachmentCleanupFiles, $str_projectDir);
 		}
 		System::loadLanguageFile('default', $GLOBALS['TL_LANGUAGE'], true);
 	}
@@ -814,6 +842,30 @@ class ls_shop_orderMessages
 		}
 
 		return 'n/a';
+	}
+
+	protected function resolveAttachmentAbsolutePath($strAttachmentPath, $strProjectDir) {
+		if (!$strAttachmentPath || !is_string($strAttachmentPath)) {
+			return null;
+		}
+
+		if (str_starts_with($strAttachmentPath, '/')) {
+			return $strAttachmentPath;
+		}
+
+		return $strProjectDir . '/' . $strAttachmentPath;
+	}
+
+	protected function cleanupAttachmentFiles(array $arrFilePaths, $strProjectDir): void {
+		$arrFilePaths = array_unique(array_filter($arrFilePaths));
+
+		foreach ($arrFilePaths as $strFilePath) {
+			$strAbsoluteFilePath = $this->resolveAttachmentAbsolutePath($strFilePath, $strProjectDir);
+
+			if ($strAbsoluteFilePath && file_exists($strAbsoluteFilePath)) {
+				@unlink($strAbsoluteFilePath);
+			}
+		}
 	}
 }
 

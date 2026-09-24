@@ -72,10 +72,20 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
         $assetLocator = $this->createAssetLocator();
 
         self::assertFileExists($assetLocator->getGaranColourTemplatePath());
+        self::assertFileExists($assetLocator->getGaranPdfTemplatePath());
+        self::assertFileExists($assetLocator->getGaranPdfTemplateNotePath());
         self::assertFileExists($assetLocator->getGaranNestedTemplatePath());
         self::assertStringEndsWith(
             '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-nested.svg',
             $assetLocator->getGaranNestedTemplatePath()
+        );
+        self::assertStringEndsWith(
+            '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-colour-pdf.svg',
+            $assetLocator->getGaranPdfTemplatePath()
+        );
+        self::assertStringEndsWith(
+            '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-colour-pdf.md',
+            $assetLocator->getGaranPdfTemplateNotePath()
         );
         self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-Regular.otf');
         self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-SemiBold.otf');

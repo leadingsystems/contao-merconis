@@ -33,6 +33,14 @@ $GLOBALS['LS_API_HOOKS']['apiReceiver_processRequest'][] = array('Merconis\Core\
  */
 $GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeConfiguratorDataToSession');
 $GLOBALS['LS_API_HOOKS']['afterProcessingRequest'][] = array('Merconis\Core\ls_shop_generalHelper', 'storeCustomizerDataToSession');
+$GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'][] = array(
+    'LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotHook',
+    'storeCartItemSnapshot'
+);
+$GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore'][] = array(
+    'LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotHook',
+    'storeOrderSnapshot'
+);
 
 /** Frontend Hooks */
 if (!System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))) {

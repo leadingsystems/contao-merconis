@@ -4,6 +4,10 @@ namespace Merconis\Core;
 
 use Contao\Backend;
 use Contao\DC_File;
+use Contao\Input;
+use Contao\Message;
+use Contao\System;
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\EnableGllSettingsMigrationManager;
 
 $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	'config' => array(
@@ -11,6 +15,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		'closed' => true,
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_lsShopSettings_controller', 'restartOrderNrCounter'),
+			array('Merconis\Core\tl_lsShopSettings_controller', 'applyEnableGllMigrationRequest'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		)
 	),
@@ -32,6 +37,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		
 		{systemImages_legend},ls_shop_systemImages_videoDummyCover,ls_shop_systemImages_noProductImage;
 		{pageSettings_legend},ls_shop_shippingInfoPages,ls_shop_cartPages,ls_shop_reviewPages,ls_shop_signUpPages,ls_shop_checkoutPaymentErrorPages,ls_shop_checkoutShippingErrorPages,ls_shop_checkoutFinishPages,ls_shop_paymentAfterCheckoutPages,ls_shop_afterCheckoutPages,ls_shop_withdrawalPages,ls_shop_withdrawalConfirmationPages,ls_shop_ajaxPages,ls_shop_searchResultPages,ls_shop_myOrdersPages,ls_shop_myOrderDetailsPages,ls_shop_legalGuaranteeInfoPages,ls_shop_defaultProductPages;
+		{legalGuarantee_legend},ls_shop_enableGllMigrationControl;
 		{systemSettings_legend},ls_shop_loginModuleID,ls_shop_miniCartModuleID,ls_shop_useAjaxForPaginationAndSorting;
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch,ls_shop_alwaysAddIdToAliasDuringProductImport;
 
@@ -89,6 +95,15 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'inputType' => 'select',
 			'options_callback' => array('Merconis\Core\ls_shop_generalHelper', 'getTemplates_beOrderOverview'),
 			'eval' => array('includeBlankOption' => false, 'tl_class' => 'clr w50')
+		),
+
+		'ls_shop_enableGllMigrationControl' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl'],
+			'inputType' => 'htmlDiv',
+			'eval' => array('tl_class' => 'clr'),
+			'load_callback' => array(
+				array('Merconis\Core\tl_lsShopSettings_controller', 'getEnableGllMigrationControlMarkup')
+			)
 		),
 		
 		'ls_shop_ownEmailAddress' => array(
@@ -1050,7 +1065,43 @@ class tl_lsShopSettings_controller extends Backend {
 		}
 	}
 
+	public function getEnableGllMigrationControlMarkup($value = '') {
+		$manager = $this->getEnableGllMigrationManager();
+
+		return $manager->buildControlMarkup(
+			$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['button'] ?? '',
+			$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['pending'] ?? '',
+			$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['applied'] ?? ''
+		);
+	}
+
+	public function applyEnableGllMigrationRequest($dc) {
+		$manager = $this->getEnableGllMigrationManager();
+
+		if (
+			!$manager->shouldApplyForSubmission(
+				Input::post(EnableGllSettingsMigrationManager::SUBMIT_NAME)
+			)
+		) {
+			return;
+		}
+
+		$int_affectedRows = $manager->apply();
+
+		Message::addConfirmation(
+			sprintf(
+				$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['success'] ?? '%s',
+				$int_affectedRows
+			)
+		);
+	}
+
 	public function ls_html_entity_decode($value = '') {
 		return html_entity_decode($value);
+	}
+
+	protected function getEnableGllMigrationManager(): EnableGllSettingsMigrationManager
+	{
+		return System::getContainer()->get(EnableGllSettingsMigrationManager::class);
 	}
 }

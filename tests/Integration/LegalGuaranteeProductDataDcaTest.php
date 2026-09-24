@@ -12,6 +12,9 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
     private const LANGUAGE_BASE_PATH = __DIR__ . '/../../src/Resources/contao/languages/';
     private const SERVICES_PATH = __DIR__ . '/../../src/Resources/config/services.yml';
     private const MIGRATION_PATH = __DIR__ . '/../../src/Migration/EnableGllDefaultMigration.php';
+    private const SETTINGS_DCA_PATH = __DIR__ . '/../../src/Resources/contao/dca/tl_lsShopSettings.php';
+    private const DEFAULT_LANGUAGE_DE_PATH = __DIR__ . '/../../src/Resources/contao/languages/de/default.php';
+    private const DEFAULT_LANGUAGE_EN_PATH = __DIR__ . '/../../src/Resources/contao/languages/en/default.php';
 
     protected function setUp(): void
     {
@@ -28,7 +31,8 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
 
         $tableConfig = $GLOBALS['TL_DCA']['tl_ls_shop_product'];
 
-        self::assertSame("char(1) NOT NULL default '1'", $tableConfig['fields']['enableGll']['sql']);
+        self::assertSame('1', $tableConfig['fields']['enableGll']['default']);
+        self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['enableGll']['sql']);
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['enableGaran']['sql']);
         self::assertSame("decimal(3,1) NULL", $tableConfig['fields']['guaranteeDurationYears']['sql']);
         self::assertSame(40, $tableConfig['fields']['guaranteeBrand']['eval']['maxlength']);
@@ -93,14 +97,36 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             $servicesContents
         );
         self::assertStringContainsString(
+            'LegalGuarantee\ProductData\EnableGllSettingsMigrationManager',
+            $servicesContents
+        );
+        self::assertStringContainsString(
+            "LeadingSystems\\MerconisBundle\\LegalGuarantee\\ProductData\\EnableGllSettingsMigrationManager:\n    public: true",
+            $servicesContents
+        );
+        self::assertStringNotContainsString(
             'merconis.migration.enable_gll_default_migration',
             $servicesContents
         );
-        self::assertStringContainsString("SET `enableGll` = '1'", $migrationContents);
-        self::assertStringContainsString(
-            'Review digital products and services manually and disable GLL where required.',
-            $migrationContents
-        );
+        self::assertStringNotContainsString("SET `enableGll` = '1'", $migrationContents);
+    }
+
+    public function testSettingsDcaAndDashboardTextsExposeOneTimeMigrationControl(): void
+    {
+        $settingsDca = (string) file_get_contents(self::SETTINGS_DCA_PATH);
+        $defaultLanguageDe = (string) file_get_contents(self::DEFAULT_LANGUAGE_DE_PATH);
+        $defaultLanguageEn = (string) file_get_contents(self::DEFAULT_LANGUAGE_EN_PATH);
+        $settingsLanguageDe = (string) file_get_contents(self::LANGUAGE_BASE_PATH . 'de/tl_lsShopSettings.php');
+        $settingsLanguageEn = (string) file_get_contents(self::LANGUAGE_BASE_PATH . 'en/tl_lsShopSettings.php');
+
+        self::assertStringContainsString('{legalGuarantee_legend},ls_shop_enableGllMigrationControl;', $settingsDca);
+        self::assertStringContainsString("'inputType' => 'htmlDiv'", $settingsDca);
+        self::assertStringContainsString('applyEnableGllMigrationRequest', $settingsDca);
+        self::assertStringContainsString("['legalGuarantee_legend']", $settingsLanguageDe);
+        self::assertStringContainsString("['ls_shop_enableGllMigrationControl']", $settingsLanguageDe);
+        self::assertStringContainsString("['ls_shop_enableGllMigrationControl']", $settingsLanguageEn);
+        self::assertStringContainsString("['dashboard']['gllAnnouncement']", $defaultLanguageDe);
+        self::assertStringContainsString("['dashboard']['gllAnnouncement']", $defaultLanguageEn);
     }
 
     private function loadProductDca(): void

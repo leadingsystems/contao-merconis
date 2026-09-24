@@ -5504,6 +5504,16 @@ class ls_shop_generalHelper
             }
         }
 
+        if (!empty($GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['gllAnnouncement'])) {
+            ?>
+            <div class="ls_shop_systemMessage">
+                <div class="ls_shop_announcement">
+                    <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['gllAnnouncement']; ?>
+                </div>
+            </div>
+            <?php
+        }
+
         return ob_get_clean();
     }
 

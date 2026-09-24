@@ -522,6 +522,8 @@ class ls_shop_checkout {
             'orderDate' => date("Y-m-d H:i:s"), // no language
             'customerNr' => $customerNr, // no language
             'customerLanguage' => $objPage->language, // no language
+            'gllVersion' => '', // no language
+            'gllLanguage' => '', // no language
             'customerInfo' => array(
                 'personalData' => $this->createShopLanguageArray(ls_shop_checkoutData::getInstance()->arrCustomerDataReview), // shop language
                 'personalData_originalOptionValues' => ls_shop_checkoutData::getInstance()->arrCustomerDataReviewOnlyOriginalOptionValues, // no language
@@ -865,6 +867,8 @@ class ls_shop_checkout {
                         `orderDate` = ?,
                         `customerNr` = ?,
                         `customerLanguage` = ?,
+                        `gllVersion` = ?,
+                        `gllLanguage` = ?,
                         `firstname` = ?,
                         `lastname` = ?,
                         `personalDataReview` = ?,
@@ -939,6 +943,8 @@ class ls_shop_checkout {
             $order['orderDate'],
             $order['customerNr'],
             $order['customerLanguage'],
+            $order['gllVersion'],
+            $order['gllLanguage'],
             isset($order['customerInfo']['personalData']['firstname']) ? $order['customerInfo']['personalData']['firstname'] : '',
             isset($order['customerInfo']['personalData']['lastname']) ? $order['customerInfo']['personalData']['lastname'] : '',
             $order['customerInfo']['personalDataReview'],
@@ -1106,6 +1112,10 @@ class ls_shop_checkout {
 							`customizer_summaryForMerchant` = ?,
 							`customizer_flexData` = ?,
 							`customizer_referenceNumber` = ?,
+							`garanVersion` = ?,
+							`garanBrand` = ?,
+							`garanModelIdentifier` = ?,
+							`garanDurationYears` = ?,
 							`extendedInfo` = ?
 			")
                 ->execute(
@@ -1138,6 +1148,10 @@ class ls_shop_checkout {
                     $arrItem['customizer']['summaryForMerchant'],
                     $arrItem['customizer']['flexData'],
                     $arrItem['customizer']['referenceNumber'],
+                    isset($arrItem['garanVersion']) ? $arrItem['garanVersion'] : '',
+                    isset($arrItem['garanBrand']) ? $arrItem['garanBrand'] : '',
+                    isset($arrItem['garanModelIdentifier']) ? $arrItem['garanModelIdentifier'] : '',
+                    isset($arrItem['garanDurationYears']) ? $arrItem['garanDurationYears'] : '',
                     serialize($arrItem['extendedInfo'])
                 );
         }

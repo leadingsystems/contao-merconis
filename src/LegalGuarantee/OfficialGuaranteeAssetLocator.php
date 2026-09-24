@@ -56,10 +56,7 @@ final class OfficialGuaranteeAssetLocator
 
     public function resolveGllSvgPath(string $contaoLocale): string
     {
-        return $this->getGllVersionDirectory() . '/' . sprintf(
-            self::GLL_SVG_FILENAME_PATTERN,
-            $this->resolveGllSvgLanguage($contaoLocale)
-        );
+        return $this->getGllSvgPathByLanguage($this->resolveGllSvgLanguage($contaoLocale));
     }
 
     public function resolveGllPdfPath(string $contaoLocale): ?string
@@ -70,30 +67,55 @@ final class OfficialGuaranteeAssetLocator
             return null;
         }
 
-        return $this->getGllVersionDirectory() . '/' . sprintf(
-            self::GLL_PDF_FILENAME_PATTERN,
-            $resolvedLanguage
+        return $this->getGllPdfPathByLanguage($resolvedLanguage);
+    }
+
+    public function getGllVersionDirectory(?string $version = null): string
+    {
+        return $this->projectDir . '/' . self::GLL_BASE_RELATIVE_PATH . ($version ?? self::GLL_VERSION);
+    }
+
+    public function getGllSvgPathByLanguage(string $officialLanguage, ?string $version = null): string
+    {
+        return $this->getGllVersionDirectory($version) . '/' . sprintf(
+            self::GLL_SVG_FILENAME_PATTERN,
+            $officialLanguage
         );
     }
 
-    public function getGllVersionDirectory(): string
+    public function getGllPdfPathByLanguage(string $officialLanguage, ?string $version = null): ?string
     {
-        return $this->projectDir . '/' . self::GLL_BASE_RELATIVE_PATH . self::GLL_VERSION;
+        $path = $this->getGllVersionDirectory($version) . '/' . sprintf(
+            self::GLL_PDF_FILENAME_PATTERN,
+            $officialLanguage
+        );
+
+        return is_file($path) ? $path : null;
     }
 
-    public function getGaranVersionDirectory(): string
+    public function getGaranVersionDirectory(?string $version = null): string
     {
-        return $this->projectDir . '/' . self::GARAN_BASE_RELATIVE_PATH . self::GARAN_VERSION;
+        return $this->projectDir . '/' . self::GARAN_BASE_RELATIVE_PATH . ($version ?? self::GARAN_VERSION);
     }
 
-    public function getGaranColourTemplatePath(): string
+    public function getGaranColourTemplatePath(?string $version = null): string
     {
-        return $this->getGaranVersionDirectory() . '/garan-label-colour.svg';
+        return $this->getGaranVersionDirectory($version) . '/garan-label-colour.svg';
     }
 
-    public function getGaranNestedTemplatePath(): string
+    public function getGaranPdfTemplatePath(?string $version = null): string
     {
-        return $this->getGaranVersionDirectory() . '/garan-label-nested.svg';
+        return $this->getGaranVersionDirectory($version) . '/garan-label-colour-pdf.svg';
+    }
+
+    public function getGaranPdfTemplateNotePath(?string $version = null): string
+    {
+        return $this->getGaranVersionDirectory($version) . '/garan-label-colour-pdf.md';
+    }
+
+    public function getGaranNestedTemplatePath(?string $version = null): string
+    {
+        return $this->getGaranVersionDirectory($version) . '/garan-label-nested.svg';
     }
 
     public function getInterFontDirectory(): string

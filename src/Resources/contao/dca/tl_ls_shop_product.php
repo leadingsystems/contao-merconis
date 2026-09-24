@@ -510,10 +510,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		'enableGll' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll'],
 			'exclude' => true,
+			'default'                 => '1',
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr m12'),
 			'filter'		=> true,
-            'sql'                     => "char(1) NOT NULL default '1'"
+            'sql'                     => "char(1) NOT NULL default ''"
 		),
 
 		'enableGaran' => array(
