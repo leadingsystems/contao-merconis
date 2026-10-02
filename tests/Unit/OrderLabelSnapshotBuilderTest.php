@@ -25,6 +25,7 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
             ],
         ]);
 
+        self::assertSame(['gllVersion', 'gllLanguage'], array_keys($snapshot));
         self::assertSame(OfficialGuaranteeAssetLocator::GLL_VERSION, $snapshot['gllVersion']);
         self::assertSame('en', $snapshot['gllLanguage']);
     }
@@ -50,6 +51,16 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
             ]
         );
 
+        self::assertSame(
+            [
+                OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY,
+                'garanVersion',
+                'garanBrand',
+                'garanModelIdentifier',
+                'garanDurationYears',
+            ],
+            array_keys($snapshot)
+        );
         self::assertSame('1', $snapshot[OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY]);
         self::assertSame(OfficialGuaranteeAssetLocator::GARAN_VERSION, $snapshot['garanVersion']);
         self::assertSame('Variantenmarke', $snapshot['garanBrand']);

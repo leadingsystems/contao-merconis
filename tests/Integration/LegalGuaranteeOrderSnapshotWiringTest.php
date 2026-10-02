@@ -76,20 +76,35 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
         self::assertStringContainsString("'gllLanguage' => ''", $checkoutContents);
     }
 
-    public function testHookRegistrationAndServicesWireSnapshotComponents(): void
+    public function testCheckoutBuildsSnapshotsDirectlyAndKeepsHookExtensionPoints(): void
     {
         $configContents = (string) file_get_contents(self::CONFIG_PATH);
+        $checkoutContents = (string) file_get_contents(self::CHECKOUT_PATH);
         $servicesContents = (string) file_get_contents(self::SERVICES_PATH);
 
-        self::assertStringContainsString(
-            "OrderLabelSnapshotHook',
-    'storeCartItemSnapshot'",
+        self::assertStringNotContainsString(
+            'OrderLabelSnapshotHook',
             $configContents
         );
         self::assertStringContainsString(
-            "OrderLabelSnapshotHook',
-    'storeOrderSnapshot'",
-            $configContents
+            'OrderLabelSnapshotBuilder::class',
+            $checkoutContents
+        );
+        self::assertStringContainsString(
+            'enrichOrderItem(',
+            $checkoutContents
+        );
+        self::assertStringContainsString(
+            'enrichOrder(',
+            $checkoutContents
+        );
+        self::assertStringContainsString(
+            "MERCONIS_HOOKS']['storeCartItemInOrder",
+            $checkoutContents
+        );
+        self::assertStringContainsString(
+            "MERCONIS_HOOKS']['preparingOrderDataToStore",
+            $checkoutContents
         );
         self::assertStringContainsString(
             "LeadingSystems\\MerconisBundle\\LegalGuarantee\\Order\\OrderLabelSnapshotBuilder:\n    public: true",

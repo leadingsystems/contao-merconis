@@ -13,6 +13,7 @@ use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotBuilder;
 use function LeadingSystems\Helpers\ls_add;
 
 class ls_shop_checkout {
@@ -717,6 +718,8 @@ class ls_shop_checkout {
             }
         }
 
+        $orderLabelSnapshotBuilder = System::getContainer()->get(OrderLabelSnapshotBuilder::class);
+
         foreach (ls_shop_cartX::getInstance()->calculation['items'] as $arrItem) {
             $objProduct = ls_shop_generalHelper::getObjProduct($arrItem['productCartKey']);
             $objProduct->ls_setMainLanguageMode(true);
@@ -832,6 +835,12 @@ class ls_shop_checkout {
             $arrItem['extendedInfo']['_attributesOfVariant_customerLanguage'] = $blnIsVariant ? $objProduct->_selectedVariant->_attributes : null; // customer language
             $arrItem['extendedInfo']['_attributesOfVariantAsString_customerLanguage'] = $blnIsVariant ? $objProduct->_selectedVariant->_attributesAsString : null; // customer language
 
+            $arrItem = $orderLabelSnapshotBuilder->enrichOrderItem(
+                $arrItem,
+                $objProduct->mainData,
+                $blnIsVariant ? $objProduct->_selectedVariant->mainData : null
+            );
+
             if (isset($GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder']) && is_array($GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'])) {
                 foreach ($GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'] as $mccb) {
                     $objMccb = System::importStatic($mccb[0]);
@@ -841,6 +850,8 @@ class ls_shop_checkout {
 
             $arrOrder['items'][] = $arrItem;
         }
+
+        $arrOrder = $orderLabelSnapshotBuilder->enrichOrder($arrOrder);
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore']) && is_array($GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore'] as $mccb) {
