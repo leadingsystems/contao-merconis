@@ -128,7 +128,6 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
     public function testServicesAndMigrationAreRegisteredForEnableGllBackfillAndValidation(): void
     {
         $servicesContents = (string) file_get_contents(self::SERVICES_PATH);
-        $migrationContents = (string) file_get_contents(self::MIGRATION_PATH);
 
         self::assertStringContainsString(
             'LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator',
@@ -146,7 +145,7 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             'merconis.migration.enable_gll_default_migration',
             $servicesContents
         );
-        self::assertStringNotContainsString("SET `enableGll` = '1'", $migrationContents);
+        self::assertFileDoesNotExist(self::MIGRATION_PATH);
     }
 
     public function testSettingsDcaAndDashboardTextsExposeOneTimeMigrationControl(): void
