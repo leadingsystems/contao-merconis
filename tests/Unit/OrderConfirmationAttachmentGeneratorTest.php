@@ -60,8 +60,8 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
                 $this->baseNames[] = $preferredBaseName;
 
                 return [
-                    'relativePath' => 'var/tmp/merconis/legal-guarantee/' . $preferredBaseName . '.pdf',
-                    'cleanupAfterSend' => true,
+                    'relativePath' => 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/' . $preferredBaseName . '.pdf',
+                    'cleanupAfterSend' => false,
                 ];
             }
         };
@@ -116,14 +116,11 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
         self::assertSame(
             [
                 'src/Resources/public/legal-guarantee/gll/v1.0/legal-guarantee-notice-en.pdf',
-                'var/tmp/merconis/legal-guarantee/garan-label-order-77-produkt-alpha-variante-blau.pdf',
+                'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/garan-label-order-77-produkt-alpha-variante-blau.pdf',
             ],
             $attachments['relativePaths']
         );
-        self::assertSame(
-            ['var/tmp/merconis/legal-guarantee/garan-label-order-77-produkt-alpha-variante-blau.pdf'],
-            $attachments['cleanupRelativePaths']
-        );
+        self::assertSame([], $attachments['cleanupRelativePaths']);
         self::assertSame(
             ['garan-label-order-77-produkt-alpha-variante-blau'],
             $writer->baseNames

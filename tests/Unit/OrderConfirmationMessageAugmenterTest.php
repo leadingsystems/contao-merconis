@@ -97,8 +97,8 @@ final class OrderConfirmationMessageAugmenterTest extends TestCase
             public function write(string $svgMarkup, string $preferredBaseName): array
             {
                 return [
-                    'relativePath' => 'var/tmp/merconis/legal-guarantee/' . $preferredBaseName . '.pdf',
-                    'cleanupAfterSend' => true,
+                    'relativePath' => 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/' . $preferredBaseName . '.pdf',
+                    'cleanupAfterSend' => false,
                 ];
             }
         };

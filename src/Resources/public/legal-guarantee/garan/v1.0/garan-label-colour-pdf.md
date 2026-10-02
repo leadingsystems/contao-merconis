@@ -39,11 +39,14 @@ zusätzlichen PDF-Vorlage `garan-label-colour-pdf.svg`.
 1. Die vorbereitete SVG wird zur Laufzeit geladen.
 2. Snapshot-Werte werden nur in die drei `data-field`-Textfelder
    injiziert.
-3. Die fertige SVG wird Base64-kodiert als `data:image/svg+xml`
-   in ein `img` eingebettet.
-4. `mPDF` rendert dieses `img` ohne Host-Binaries und ohne
+3. Die fertige SVG wird direkt als Inline-`<svg>` mit Namespace
+   und `viewBox` in das HTML für `mPDF` eingebettet.
+4. `mPDF` rendert dieses Inline-SVG ohne Host-Binaries und ohne
    PNG-Zwischenschritt zu einem PDF.
-5. Das Seitenformat der Produktiv-Ausgabe ist `95mm x 100mm` bei
+5. Die erzeugten PDFs bleiben unter
+   `files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels`
+   liegen.
+6. Das Seitenformat der Produktiv-Ausgabe ist `95mm x 100mm` bei
    null Seitenrand.
 
 ## Bekannte und bewusst akzeptierte Grenzen

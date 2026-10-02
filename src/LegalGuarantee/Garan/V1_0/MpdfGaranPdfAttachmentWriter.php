@@ -11,7 +11,7 @@ use RuntimeException;
 
 final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInterface
 {
-    private const RELATIVE_OUTPUT_DIRECTORY = 'var/tmp/merconis/legal-guarantee';
+    private const RELATIVE_OUTPUT_DIRECTORY = 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels';
     private const RELATIVE_MPDF_TEMP_DIRECTORY = 'var/tmp/merconis/mpdf';
 
     public function __construct(
@@ -34,7 +34,6 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
 
         $relativeFilePath = self::RELATIVE_OUTPUT_DIRECTORY . '/' . $this->createFileName($preferredBaseName, $svgMarkup);
         $absoluteFilePath = $this->projectDir . '/' . $relativeFilePath;
-        $svgDataUri = 'data:image/svg+xml;base64,' . base64_encode($svgMarkup);
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
@@ -44,14 +43,14 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
         $mpdf->SetMargins(0, 0, 0);
         $mpdf->SetAutoPageBreak(false, 0);
         $mpdf->WriteHTML(
-            $this->buildHtml($svgDataUri),
+            $this->buildHtml($svgMarkup),
             HTMLParserMode::DEFAULT_MODE
         );
         $mpdf->Output($absoluteFilePath, Destination::FILE);
 
         return [
             'relativePath' => $relativeFilePath,
-            'cleanupAfterSend' => true,
+            'cleanupAfterSend' => false,
         ];
     }
 
@@ -63,7 +62,7 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
         return sprintf('%s-%s.pdf', $baseName, $suffix);
     }
 
-    private function buildHtml(string $svgDataUri): string
+    private function buildHtml(string $svgMarkup): string
     {
         return <<<HTML
 <style>
@@ -75,13 +74,13 @@ body {
     margin: 0;
     padding: 0;
 }
-img {
+.garan-label-pdf svg {
     display: block;
     width: 95mm;
     height: auto;
 }
 </style>
-<img src="{$svgDataUri}" alt="">
+<div class="garan-label-pdf">{$svgMarkup}</div>
 HTML;
     }
 }
