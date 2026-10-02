@@ -652,6 +652,10 @@ class ls_shop_importController
 		$row = $arrGuaranteeResult['row'];
 		$this->logLegalGuaranteeImportWarnings($arrGuaranteeResult['messages']);
 
+		if ($objGuaranteeApplier->hasBlockingWriteMessages($arrGuaranteeResult['messages'])) {
+			return false;
+		}
+
 		/* ######################################################################################################################
 		 * Update, falls Datensatz vorhanden
 		 * 
@@ -1151,6 +1155,10 @@ class ls_shop_importController
 		$arrGuaranteeResult = $objGuaranteeApplier->applyToVariantRow($row, $arrParentProductGuaranteeData);
 		$row = $arrGuaranteeResult['row'];
 		$this->logLegalGuaranteeImportWarnings($arrGuaranteeResult['messages']);
+
+		if ($objGuaranteeApplier->hasBlockingWriteMessages($arrGuaranteeResult['messages'])) {
+			return false;
+		}
 		
 		/* ######################################################################################################################
 		 * Update, falls Datensatz vorhanden

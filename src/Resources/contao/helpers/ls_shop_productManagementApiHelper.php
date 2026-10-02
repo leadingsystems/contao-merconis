@@ -801,6 +801,10 @@ class ls_shop_productManagementApiHelper {
 		$obj_applier = new ProductGuaranteeConfigurationApplier();
 		$arr_result = $obj_applier->applyToProductRow($arr_preprocessedDataRow, true, 'producer');
 
+		if ($obj_applier->hasBlockingWriteMessages($arr_result['messages'])) {
+			throw new \Exception($obj_applier->formatWriteErrorMessage($arr_result['messages']));
+		}
+
 		return $arr_result['row'];
 	}
 
@@ -808,6 +812,10 @@ class ls_shop_productManagementApiHelper {
 		$obj_applier = new ProductGuaranteeConfigurationApplier();
 		$arr_productData = self::getLegalGuaranteeProductDataById($int_parentProductId);
 		$arr_result = $obj_applier->applyToVariantRow($arr_preprocessedDataRow, $arr_productData);
+
+		if ($obj_applier->hasBlockingWriteMessages($arr_result['messages'])) {
+			throw new \Exception($obj_applier->formatWriteErrorMessage($arr_result['messages']));
+		}
 
 		return $arr_result['row'];
 	}

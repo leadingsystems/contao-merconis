@@ -90,7 +90,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'enableGll' => '1',
                 'garanOverride' => '',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '5.0',
+                'guaranteeDurationYears' => '60',
                 'guaranteeBrand' => 'Product Brand',
                 'guaranteeModelIdentifier' => 'Product Model',
             ],
@@ -101,11 +101,30 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'enableGll' => '',
                 'garanOverride' => '',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '3.5',
+                'guaranteeDurationYears' => '42',
                 'guaranteeBrand' => 'Variant Brand',
                 'guaranteeModelIdentifier' => 'Variant Model',
             ],
             $variantColumns
+        );
+    }
+
+    public function testWriteMessagesBlockPersistenceAndExposeReadableError(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+
+        $result = $applier->applyToProductRow([
+            'producer' => 'ACME Corporation',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '31',
+            'guaranteeBrand' => 'ACME',
+            'guaranteeModelIdentifier' => 'Model 42',
+        ]);
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame(
+            'field "guaranteeDurationYears": GARAN was not saved because "31" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
+            $applier->formatWriteErrorMessage($result['messages'])
         );
     }
 }

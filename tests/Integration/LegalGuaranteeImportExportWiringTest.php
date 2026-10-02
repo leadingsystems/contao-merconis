@@ -24,6 +24,7 @@ final class LegalGuaranteeImportExportWiringTest extends TestCase
         self::assertStringContainsString("'guaranteeDurationYears'", $preprocessorContents);
         self::assertStringContainsString('applyLegalGuaranteeProductData', $helperContents);
         self::assertStringContainsString('applyLegalGuaranteeVariantData', $helperContents);
+        self::assertStringContainsString('formatWriteErrorMessage', $helperContents);
         self::assertStringContainsString('`enableGll` = ?', $helperContents);
         self::assertStringContainsString('`garanOverride` = ?', $helperContents);
     }
@@ -38,6 +39,7 @@ final class LegalGuaranteeImportExportWiringTest extends TestCase
         );
 
         self::assertStringContainsString('logLegalGuaranteeImportWarnings', $importContents);
+        self::assertStringContainsString('hasBlockingWriteMessages', $importContents);
         self::assertStringContainsString('`enableGll` = ?', $importContents);
         self::assertStringContainsString('`garanOverride` = ?', $importContents);
         self::assertStringContainsString('buildExportColumns($arr_productData)', $exportContents);
