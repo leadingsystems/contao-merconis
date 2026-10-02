@@ -19,18 +19,11 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         parent::setUp();
 
         $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] = [
-            'de' => [
-                'gllTitle' => 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
-                'gllEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
-                'garanBlockHeadline' => 'Herstellergarantie für folgende Artikel:',
-                'garanEuLinkText' => 'EU-Information zur Herstellergarantie',
-            ],
-            'en' => [
-                'gllTitle' => 'Legal guarantee, at least two years',
-                'gllEuLinkText' => 'EU information about the legal guarantee',
-                'garanBlockHeadline' => 'Manufacturer\'s commercial guarantee for the following items:',
-                'garanEuLinkText' => 'EU information about the manufacturer\'s commercial guarantee',
-            ],
+            'gllTitle' => 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
+            'gllEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
+            'garanBlockHeadline' => 'Herstellergarantie für folgende Artikel:',
+            'garanEuLinkText' => 'EU-Information zur Herstellergarantie',
+            'garanTitlePattern' => 'Herstellergarantie von %s für %s mit %s Jahren',
         ];
         $GLOBALS['TL_CSS'] = [];
     }
@@ -52,6 +45,13 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
     public function testRenderCurrentLanguageGllNoticeFallsBackToEnglishForUnknownLocale(): void
     {
         $GLOBALS['objPage'] = (object) ['language' => 'zz_ZZ'];
+        $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] = [
+            'gllTitle' => 'Legal guarantee, at least two years',
+            'gllEuLinkText' => 'EU information about the legal guarantee',
+            'garanBlockHeadline' => 'Manufacturer\'s commercial guarantee for the following items:',
+            'garanEuLinkText' => 'EU information about the manufacturer\'s commercial guarantee',
+            'garanTitlePattern' => 'Manufacturer\'s commercial guarantee by %s for %s with %s years',
+        ];
 
         $markup = $this->createProvider()->renderCurrentLanguageGllNotice();
 

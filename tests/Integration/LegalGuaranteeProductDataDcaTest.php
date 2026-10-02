@@ -40,6 +40,24 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString('{lsShopGuaranteeLabels_legend}', $tableConfig['palettes']['default']);
         self::assertStringContainsString('enableGll', $tableConfig['palettes']['default']);
         self::assertStringContainsString('enableGaran', $tableConfig['palettes']['default']);
+        self::assertContains('enableGaran', $tableConfig['palettes']['__selector__']);
+        self::assertStringContainsString('guaranteeDurationYears', $tableConfig['subpalettes']['enableGaran']);
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['guaranteeDurationYears']['save_callback'][0][1]
+        );
+        self::assertSame(
+            'normalizeGuaranteeDurationInput',
+            $tableConfig['fields']['guaranteeDurationYears']['save_callback'][1][1]
+        );
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['guaranteeBrand']['save_callback'][0][1]
+        );
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['guaranteeModelIdentifier']['save_callback'][0][1]
+        );
         self::assertSame(
             'validateLegalGuaranteeConfiguration',
             $tableConfig['config']['onsubmit_callback'][0][1]
@@ -57,13 +75,31 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         $tableConfig = $GLOBALS['TL_DCA']['tl_ls_shop_variant'];
 
         self::assertContains('garanOverride', $tableConfig['palettes']['__selector__']);
-        self::assertStringContainsString('enableGaran', $tableConfig['subpalettes']['garanOverride']);
+        self::assertStringContainsString('enableGaran', $tableConfig['palettes']['default']);
         self::assertStringContainsString('guaranteeDurationYears', $tableConfig['subpalettes']['garanOverride']);
         self::assertStringContainsString('guaranteeBrand', $tableConfig['subpalettes']['garanOverride']);
         self::assertStringContainsString('guaranteeModelIdentifier', $tableConfig['subpalettes']['garanOverride']);
+        self::assertStringNotContainsString('enableGaran', $tableConfig['subpalettes']['garanOverride']);
+        self::assertSame('w50 m12', $tableConfig['fields']['garanOverride']['eval']['tl_class']);
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['garanOverride']['sql']);
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['enableGaran']['sql']);
         self::assertSame("decimal(3,1) NULL", $tableConfig['fields']['guaranteeDurationYears']['sql']);
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['guaranteeDurationYears']['save_callback'][0][1]
+        );
+        self::assertSame(
+            'normalizeGuaranteeDurationInput',
+            $tableConfig['fields']['guaranteeDurationYears']['save_callback'][1][1]
+        );
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['guaranteeBrand']['save_callback'][0][1]
+        );
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['guaranteeModelIdentifier']['save_callback'][0][1]
+        );
         self::assertSame(
             'validateLegalGuaranteeConfiguration',
             $tableConfig['config']['onsubmit_callback'][0][1]
@@ -85,6 +121,8 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['lsShopGuaranteeLabels_legend']", $variantLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $productLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $variantLanguageEn);
+        self::assertStringContainsString('Garantiedauer in Monaten', $productLanguageDe);
+        self::assertStringContainsString('Guarantee duration in months', $productLanguageEn);
     }
 
     public function testServicesAndMigrationAreRegisteredForEnableGllBackfillAndValidation(): void

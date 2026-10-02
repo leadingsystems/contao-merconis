@@ -54,7 +54,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Manufacturer');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll']										=	array('Enable GLL', 'GLL applies to tangible goods and goods with digital elements. For pure digital content, SaaS and services, disable this switch.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	array('Enable GARAN');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears']							=	array('Guarantee duration in years');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears']							=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with a comma: 30 months become 2,5 years, 36 months become 3 years.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	array('Brand/Trademark', 'Maximum 40 characters.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	array('Model identifier', 'Maximum 25 characters.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords']										= 	array('Keywords');
@@ -134,13 +134,10 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label01'] = 'Keyword';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label02'] = 'Product information';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = array(
-		'garan_disabled_missing_brand' => 'GARAN was disabled because `Brand/Trademark` is missing.',
-		'garan_disabled_missing_model' => 'GARAN was disabled because `Model identifier` is missing.',
-		'garan_disabled_missing_duration' => 'GARAN was disabled because the guarantee duration is missing.',
-		'garan_disabled_invalid_duration' => 'GARAN was disabled because "%s" is not a valid guarantee duration.',
-		'garan_disabled_duration_out_of_range' => 'GARAN was disabled because the guarantee duration %s is outside the allowed range of 2.5 to 99.5 years.',
-		'garan_disabled_duration_below_minimum' => 'GARAN was disabled because the rounded duration is only %s years and at least 2.5 years are required.',
-		'garan_duration_rounded_down' => 'The guarantee duration was rounded down from %s to %s years.'
+		'garan_disabled_missing_brand' => 'GARAN was not saved because `Brand/Trademark` is missing.',
+		'garan_disabled_missing_model' => 'GARAN was not saved because `Model identifier` is missing.',
+		'garan_disabled_missing_duration' => 'GARAN was not saved because the guarantee duration is missing.',
+		'garan_disabled_invalid_duration' => 'GARAN was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.'
 	);
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['attributesValues_label01'] = 'Attribute';

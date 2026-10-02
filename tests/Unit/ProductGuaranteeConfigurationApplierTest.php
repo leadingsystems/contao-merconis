@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ProductGuaranteeConfigurationApplierTest extends TestCase
 {
-    public function testApplyToProductRowPrefillsBrandAndDecoratesDurationWarning(): void
+    public function testApplyToProductRowPrefillsBrandAndConvertsMonthsToYears(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
 
@@ -18,21 +18,17 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             'producer' => 'ACME Corporation',
             'enableGll' => '1',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '3,7',
+            'guaranteeDurationYears' => '30',
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => 'Model 42',
         ]);
 
         self::assertSame('ACME Corporation', $result['row']['guaranteeBrand']);
-        self::assertSame('3.5', $result['row']['guaranteeDurationYears']);
-        self::assertSame('guaranteeDurationYears', $result['messages'][0]['field']);
-        self::assertSame(
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DURATION_ROUNDED_DOWN,
-            $result['messages'][0]['code']
-        );
+        self::assertSame('2.5', $result['row']['guaranteeDurationYears']);
+        self::assertSame([], $result['messages']);
     }
 
-    public function testApplyToVariantRowDecoratesMissingBrandMessage(): void
+    public function testApplyToVariantRowKeepsEnableGaranWhenBrandIsMissing(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
 
@@ -40,7 +36,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             [
                 'garanOverride' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '4.5',
+                'guaranteeDurationYears' => '60',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => 'Variant Model',
             ],
@@ -52,7 +48,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             ],
         );
 
-        self::assertSame('', $result['row']['enableGaran']);
+        self::assertSame('1', $result['row']['enableGaran']);
         self::assertSame('guaranteeBrand', $result['messages'][0]['field']);
         self::assertSame(
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,

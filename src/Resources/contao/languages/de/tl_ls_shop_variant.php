@@ -38,9 +38,9 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMainImage']						
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']						= array('Weitere Bilder', 'Wählen Sie hier weitere Bilder für diese Variante aus.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Einstellungen zu Lagerbestand/Lieferzeit');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Einstellungen des Hauptproduktes zu Verfügbarkeit und Vorbestellung überschreiben');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Eigene GARAN-Daten der Variante verwenden');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Eigene GARAN-Daten der Variante verwenden', 'Überschreibt die Angaben des Elternprodukts. Aktiviert GARAN nicht.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran']										=	array('GARAN aktivieren');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Garantiedauer in Jahren');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit Komma: 30 Monate ergeben 2,5 Jahre, 36 Monate ergeben 3 Jahre.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	array('Brand/Trademark', 'Maximal 40 Zeichen.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	array('Model identifier', 'Maximal 25 Zeichen.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Verfügbar ab');
@@ -124,13 +124,10 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] = 'Produktinf
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] = 'Schlüsselwort';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Produktinformation';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
-	'garan_disabled_missing_brand' => 'GARAN wurde deaktiviert, weil `Brand/Trademark` fehlt.',
-	'garan_disabled_missing_model' => 'GARAN wurde deaktiviert, weil `Model identifier` fehlt.',
-	'garan_disabled_missing_duration' => 'GARAN wurde deaktiviert, weil die Garantiedauer fehlt.',
-	'garan_disabled_invalid_duration' => 'GARAN wurde deaktiviert, weil "%s" keine gültige Garantiedauer ist.',
-	'garan_disabled_duration_out_of_range' => 'GARAN wurde deaktiviert, weil die Garantiedauer %s außerhalb des zulässigen Bereichs von 2.5 bis 99.5 Jahren liegt.',
-	'garan_disabled_duration_below_minimum' => 'GARAN wurde deaktiviert, weil die Garantiedauer nach der Abrundung nur noch %s Jahre beträgt und mindestens 2.5 Jahre erforderlich sind.',
-	'garan_duration_rounded_down' => 'Die Garantiedauer wurde von %s auf %s Jahre abgerundet.'
+	'garan_disabled_missing_brand' => 'GARAN wurde nicht gespeichert, weil `Brand/Trademark` fehlt.',
+	'garan_disabled_missing_model' => 'GARAN wurde nicht gespeichert, weil `Model identifier` fehlt.',
+	'garan_disabled_missing_duration' => 'GARAN wurde nicht gespeichert, weil die Garantiedauer fehlt.',
+	'garan_disabled_invalid_duration' => 'GARAN wurde nicht gespeichert, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.'
 );
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label01'] = 'Merkmal';

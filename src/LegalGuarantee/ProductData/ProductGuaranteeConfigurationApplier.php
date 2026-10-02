@@ -129,10 +129,7 @@ final class ProductGuaranteeConfigurationApplier
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'guaranteeBrand',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 'guaranteeModelIdentifier',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION,
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION,
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_DURATION_OUT_OF_RANGE,
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_DURATION_BELOW_MINIMUM,
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DURATION_ROUNDED_DOWN => 'guaranteeDurationYears',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => 'guaranteeDurationYears',
             default => 'enableGaran',
         };
     }

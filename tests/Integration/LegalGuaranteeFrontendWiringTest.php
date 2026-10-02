@@ -59,7 +59,7 @@ final class LegalGuaranteeFrontendWiringTest extends TestCase
         self::assertStringContainsString('InsertTag\AsInsertTag\GllNotice', $servicesContents);
         self::assertStringContainsString('InsertTag\AsInsertTag\GllCheckoutLink', $servicesContents);
         self::assertStringContainsString('InsertTag\AsInsertTag\GaranCheckoutBlock', $servicesContents);
-        self::assertStringContainsString("['legalGuarantee']['de']['gllTitle']", $defaultLanguageDe);
-        self::assertStringContainsString("['legalGuarantee']['en']['garanEuLinkText']", $defaultLanguageEn);
+        self::assertStringContainsString("['legalGuarantee']['gllTitle']", $defaultLanguageDe);
+        self::assertStringContainsString("['legalGuarantee']['garanEuLinkText']", $defaultLanguageEn);
     }
 }

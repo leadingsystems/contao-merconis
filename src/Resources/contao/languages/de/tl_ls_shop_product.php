@@ -54,7 +54,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Hersteller');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll']										=	array('GLL aktivieren', 'GLL gilt für körperliche Waren und Waren mit digitalen Elementen. Für reine digitale Inhalte, SaaS und Dienstleistungen ist der Schalter zu deaktivieren.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	array('GARAN aktivieren');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears']							=	array('Garantiedauer in Jahren');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears']							=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit Komma: 30 Monate ergeben 2,5 Jahre, 36 Monate ergeben 3 Jahre.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	array('Brand/Trademark', 'Maximal 40 Zeichen.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	array('Model identifier', 'Maximal 25 Zeichen.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords']										= 	array('Schlüsselwörter');
@@ -133,13 +133,10 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label01'] = 'Schlüsselwort';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label02'] = 'Produktinformation';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = array(
-		'garan_disabled_missing_brand' => 'GARAN wurde deaktiviert, weil `Brand/Trademark` fehlt.',
-		'garan_disabled_missing_model' => 'GARAN wurde deaktiviert, weil `Model identifier` fehlt.',
-		'garan_disabled_missing_duration' => 'GARAN wurde deaktiviert, weil die Garantiedauer fehlt.',
-		'garan_disabled_invalid_duration' => 'GARAN wurde deaktiviert, weil "%s" keine gültige Garantiedauer ist.',
-		'garan_disabled_duration_out_of_range' => 'GARAN wurde deaktiviert, weil die Garantiedauer %s außerhalb des zulässigen Bereichs von 2.5 bis 99.5 Jahren liegt.',
-		'garan_disabled_duration_below_minimum' => 'GARAN wurde deaktiviert, weil die Garantiedauer nach der Abrundung nur noch %s Jahre beträgt und mindestens 2.5 Jahre erforderlich sind.',
-		'garan_duration_rounded_down' => 'Die Garantiedauer wurde von %s auf %s Jahre abgerundet.'
+		'garan_disabled_missing_brand' => 'GARAN wurde nicht gespeichert, weil `Brand/Trademark` fehlt.',
+		'garan_disabled_missing_model' => 'GARAN wurde nicht gespeichert, weil `Model identifier` fehlt.',
+		'garan_disabled_missing_duration' => 'GARAN wurde nicht gespeichert, weil die Garantiedauer fehlt.',
+		'garan_disabled_invalid_duration' => 'GARAN wurde nicht gespeichert, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.'
 	);
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['attributesValues_label01'] = 'Merkmal';

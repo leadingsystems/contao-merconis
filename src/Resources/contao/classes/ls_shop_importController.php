@@ -2242,37 +2242,18 @@ class ls_shop_importController
 
 		switch ($arr_message['code'] ?? '') {
 			case 'garan_disabled_missing_brand':
-				$str_detail = 'GARAN was disabled because "Brand/Trademark" is missing.';
+				$str_detail = 'GARAN was not saved because "Brand/Trademark" is missing.';
 				break;
 			case 'garan_disabled_missing_model':
-				$str_detail = 'GARAN was disabled because "Model identifier" is missing.';
+				$str_detail = 'GARAN was not saved because "Model identifier" is missing.';
 				break;
 			case 'garan_disabled_missing_duration':
-				$str_detail = 'GARAN was disabled because the guarantee duration is missing.';
+				$str_detail = 'GARAN was not saved because the guarantee duration is missing.';
 				break;
 			case 'garan_disabled_invalid_duration':
 				$str_detail = sprintf(
-					'GARAN was disabled because "%s" is not a valid guarantee duration.',
+					'GARAN was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
 					$arr_parameters[0] ?? ''
-				);
-				break;
-			case 'garan_disabled_duration_out_of_range':
-				$str_detail = sprintf(
-					'GARAN was disabled because the guarantee duration %s is outside the allowed range of 2.5 to 99.5 years.',
-					$arr_parameters[0] ?? ''
-				);
-				break;
-			case 'garan_disabled_duration_below_minimum':
-				$str_detail = sprintf(
-					'GARAN was disabled because the rounded duration is only %s years and at least 2.5 years are required.',
-					$arr_parameters[0] ?? ''
-				);
-				break;
-			case 'garan_duration_rounded_down':
-				$str_detail = sprintf(
-					'The guarantee duration was rounded down from %s to %s.',
-					$arr_parameters[0] ?? '',
-					$arr_parameters[1] ?? ''
 				);
 				break;
 			default:

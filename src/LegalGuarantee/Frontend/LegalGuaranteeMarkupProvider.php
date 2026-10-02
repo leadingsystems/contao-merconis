@@ -170,46 +170,30 @@ final class LegalGuaranteeMarkupProvider
      *   gllTitle: string,
      *   gllEuLinkText: string,
      *   garanBlockHeadline: string,
-     *   garanEuLinkText: string
+     *   garanEuLinkText: string,
+     *   garanTitlePattern: string
      * }
      */
     private function getTranslations(): array
     {
-        $language = str_starts_with($this->getCurrentLocale(), 'de') ? 'de' : 'en';
-        $translations = $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'][$language] ?? [];
-
-        if ('de' === $language) {
-            return [
-                'gllTitle' => $translations['gllTitle'] ?? 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
-                'gllEuLinkText' => $translations['gllEuLinkText'] ?? 'EU-Information zur gesetzlichen Gewährleistung',
-                'garanBlockHeadline' => $translations['garanBlockHeadline'] ?? 'Herstellergarantie für folgende Artikel:',
-                'garanEuLinkText' => $translations['garanEuLinkText'] ?? 'EU-Information zur Herstellergarantie',
-            ];
-        }
+        $translations = $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] ?? [];
 
         return [
             'gllTitle' => $translations['gllTitle'] ?? 'Legal guarantee, at least two years',
             'gllEuLinkText' => $translations['gllEuLinkText'] ?? 'EU information about the legal guarantee',
             'garanBlockHeadline' => $translations['garanBlockHeadline'] ?? 'Manufacturer\'s commercial guarantee for the following items:',
             'garanEuLinkText' => $translations['garanEuLinkText'] ?? 'EU information about the manufacturer\'s commercial guarantee',
+            'garanTitlePattern' => $translations['garanTitlePattern'] ?? 'Manufacturer\'s commercial guarantee by %s for %s with %s years',
         ];
     }
 
     private function buildGaranTitle(string $brand, string $modelIdentifier, string $durationYears): string
     {
         $formattedDuration = $this->formatDurationForText($durationYears);
-
-        if (str_starts_with($this->getCurrentLocale(), 'de')) {
-            return sprintf(
-                'Herstellergarantie von %s für %s mit %s Jahren',
-                $brand,
-                $modelIdentifier,
-                $formattedDuration
-            );
-        }
+        $translations = $this->getTranslations();
 
         return sprintf(
-            'Manufacturer\'s commercial guarantee by %s for %s with %s years',
+            $translations['garanTitlePattern'],
             $brand,
             $modelIdentifier,
             $formattedDuration
@@ -220,11 +204,7 @@ final class LegalGuaranteeMarkupProvider
     {
         $normalizedDuration = preg_replace('/\.0$/', '', $durationYears) ?? $durationYears;
 
-        if (str_starts_with($this->getCurrentLocale(), 'de')) {
-            return str_replace('.', ',', $normalizedDuration);
-        }
-
-        return $normalizedDuration;
+        return str_replace('.', ',', $normalizedDuration);
     }
 
     private function resolveGllEuUrl(string $officialLanguage): string
