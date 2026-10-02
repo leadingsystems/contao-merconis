@@ -15,9 +15,23 @@ use PHPUnit\Framework\TestCase;
 
 final class OrderConfirmationMessageAugmenterTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] = [
+            'gllEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
+            'garanBlockHeadline' => 'Herstellergarantie für folgende Artikel:',
+            'garanEuLinkText' => 'EU-Information zur Herstellergarantie',
+        ];
+    }
+
     public function testEnhancePayloadAppendsLinksWithoutHiddenFormatFlags(): void
     {
-        $augmenter = new OrderConfirmationMessageAugmenter($this->createAttachmentGenerator());
+        $augmenter = new OrderConfirmationMessageAugmenter(
+            $this->createAttachmentGenerator(),
+            $this->createAssetLocator()
+        );
 
         $payload = $augmenter->enhancePayload(
             [
@@ -48,7 +62,11 @@ final class OrderConfirmationMessageAugmenterTest extends TestCase
         self::assertStringContainsString('EU-Information zur gesetzlichen Gewährleistung', $payload['bodyHTML']);
         self::assertStringContainsString('EU-Information zur Herstellergarantie', $payload['bodyHTML']);
         self::assertStringContainsString('Kaffeemaschine (Schwarz)', $payload['bodyHTML']);
-        self::assertStringContainsString('https://europa.eu/youreurope/garantien', $payload['bodyRawtext']);
+        self::assertStringContainsString('index_de.htm', $payload['bodyRawtext']);
+        self::assertStringContainsString(
+            'https://europa.eu/youreurope/commercial-guarantee-durability/index.htm',
+            $payload['bodyRawtext']
+        );
         self::assertContains(
             OrderConfirmationMessageAugmenter::DYNAMIC_ATTACHMENT_PATH,
             $payload['dynamicAttachmentPaths']
@@ -58,10 +76,7 @@ final class OrderConfirmationMessageAugmenterTest extends TestCase
     private function createAttachmentGenerator(): OrderConfirmationAttachmentGenerator
     {
         $projectDir = dirname(__DIR__, 2);
-        $assetLocator = new OfficialGuaranteeAssetLocator(
-            $projectDir,
-            new OfficialGuaranteeLanguageResolver(),
-        );
+        $assetLocator = $this->createAssetLocator();
         $snapshotRenderer = new OrderLabelSnapshotRenderer(
             $assetLocator,
             [
@@ -92,6 +107,14 @@ final class OrderConfirmationMessageAugmenterTest extends TestCase
             $snapshotRenderer,
             $writer,
             $projectDir,
+        );
+    }
+
+    private function createAssetLocator(): OfficialGuaranteeAssetLocator
+    {
+        return new OfficialGuaranteeAssetLocator(
+            dirname(__DIR__, 2),
+            new OfficialGuaranteeLanguageResolver(),
         );
     }
 }

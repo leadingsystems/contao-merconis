@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Order;
 
+use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
+
 final class OrderConfirmationMessageAugmenter
 {
     public const DYNAMIC_ATTACHMENT_PATH = 'vendor/leadingsystems/contao-merconis/src/Resources/contao/classes/dynamicAttachment_legalGuaranteeLabels_01.php';
 
-    private const GLL_EU_URLS = [
-        'de' => 'https://europa.eu/youreurope/garantien',
-        'en' => 'https://europa.eu/youreurope/business/dealing-with-customers/consumer-contracts-guarantees/eu-legal-guarantee-notice-and-garan-label/index_en.htm',
-    ];
-    private const GARAN_EU_URL = 'https://europa.eu/youreurope/commercial-guarantee-durability/index.htm';
-
     public function __construct(
         private readonly OrderConfirmationAttachmentGenerator $attachmentGenerator,
+        private readonly OfficialGuaranteeAssetLocator $assetLocator,
     ) {
     }
 
@@ -40,12 +37,15 @@ final class OrderConfirmationMessageAugmenter
             return $messagePayload;
         }
 
-        $translations = $this->getTranslations($language);
+        $translations = $this->getTranslations();
         $htmlSections = [];
         $rawLines = [];
 
         if ('' !== trim((string) ($order['gllLanguage'] ?? ''))) {
-            $gllEuUrl = $this->resolveGllEuUrl((string) $order['gllLanguage']);
+            $gllEuUrl = $this->assetLocator->getGllEuUrlByLanguage(
+                (string) $order['gllLanguage'],
+                is_string($order['gllVersion'] ?? null) ? (string) $order['gllVersion'] : null
+            );
             $htmlSections[] = sprintf(
                 '<p><a href="%s" target="_blank" rel="noreferrer noopener">%s</a></p>',
                 htmlspecialchars($gllEuUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
@@ -54,15 +54,17 @@ final class OrderConfirmationMessageAugmenter
             $rawLines[] = $translations['gllEuLinkText'] . ': ' . $gllEuUrl;
         }
 
-        $garanItems = $this->collectGaranItemLabels($order);
+        $garanItems = $this->collectGaranItems($order);
         if ([] !== $garanItems) {
             $htmlItems = [];
             $rawLines[] = $translations['garanBlockHeadline'];
 
-            foreach ($garanItems as $garanItemLabel) {
+            foreach ($garanItems as $garanItem) {
+                $garanItemLabel = $garanItem['label'];
+                $garanEuUrl = $this->assetLocator->resolveGaranEuUrl($garanItem['version']);
                 $escapedLabel = htmlspecialchars($garanItemLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                 $escapedLinkText = htmlspecialchars($translations['garanEuLinkText'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-                $escapedUrl = htmlspecialchars(self::GARAN_EU_URL, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $escapedUrl = htmlspecialchars($garanEuUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
                 $htmlItems[] = sprintf(
                     '<li>%s: <a href="%s" target="_blank" rel="noreferrer noopener">%s</a></li>',
@@ -74,7 +76,7 @@ final class OrderConfirmationMessageAugmenter
                     '- %s: %s (%s)',
                     $garanItemLabel,
                     $translations['garanEuLinkText'],
-                    self::GARAN_EU_URL
+                    $garanEuUrl
                 );
             }
 
@@ -114,21 +116,24 @@ final class OrderConfirmationMessageAugmenter
 
     /**
      * @param array<string, mixed> $order
-     * @return list<string>
+     * @return list<array{label: string, version: ?string}>
      */
-    private function collectGaranItemLabels(array $order): array
+    private function collectGaranItems(array $order): array
     {
-        $labels = [];
+        $items = [];
 
         foreach ($order['items'] ?? [] as $item) {
             if (!is_array($item) || '' === trim((string) ($item['garanVersion'] ?? ''))) {
                 continue;
             }
 
-            $labels[] = $this->buildItemLabel($item);
+            $items[] = [
+                'label' => $this->buildItemLabel($item),
+                'version' => is_string($item['garanVersion'] ?? null) ? (string) $item['garanVersion'] : null,
+            ];
         }
 
-        return $labels;
+        return $items;
     }
 
     /**
@@ -162,29 +167,15 @@ final class OrderConfirmationMessageAugmenter
     /**
      * @return array{gllEuLinkText: string, garanBlockHeadline: string, garanEuLinkText: string}
      */
-    private function getTranslations(string $language): array
+    private function getTranslations(): array
     {
-        $languageKey = str_starts_with($language, 'de') ? 'de' : 'en';
-        $translations = $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'][$languageKey] ?? [];
-
-        if ('de' === $languageKey) {
-            return [
-                'gllEuLinkText' => $translations['gllEuLinkText'] ?? 'EU-Information zur gesetzlichen Gewährleistung',
-                'garanBlockHeadline' => $translations['garanBlockHeadline'] ?? 'Herstellergarantie für folgende Artikel:',
-                'garanEuLinkText' => $translations['garanEuLinkText'] ?? 'EU-Information zur Herstellergarantie',
-            ];
-        }
+        $translations = $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] ?? [];
 
         return [
             'gllEuLinkText' => $translations['gllEuLinkText'] ?? 'EU information about the legal guarantee',
             'garanBlockHeadline' => $translations['garanBlockHeadline'] ?? 'Manufacturer\'s commercial guarantee for the following items:',
             'garanEuLinkText' => $translations['garanEuLinkText'] ?? 'EU information about the manufacturer\'s commercial guarantee',
         ];
-    }
-
-    private function resolveGllEuUrl(string $officialLanguage): string
-    {
-        return self::GLL_EU_URLS[$officialLanguage] ?? self::GLL_EU_URLS['en'];
     }
 
     private function appendHtmlSection(string $bodyHtml, string $appendix): string

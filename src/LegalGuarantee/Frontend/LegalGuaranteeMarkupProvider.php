@@ -4,22 +4,16 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 
-use Contao\PageModel;
+use Contao\Database;
+use Contao\System;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use Merconis\Core\ls_shop_cartX;
-use Merconis\Core\ls_shop_languageHelper;
 use Merconis\Core\ls_shop_product;
 use Merconis\Core\ls_shop_variant;
 
 final class LegalGuaranteeMarkupProvider
 {
-    private const GARAN_EU_URL = 'https://europa.eu/youreurope/commercial-guarantee-durability/index.htm';
-    private const GLL_EU_URLS = [
-        'de' => 'https://europa.eu/youreurope/garantien',
-        'en' => 'https://europa.eu/youreurope/business/dealing-with-customers/consumer-contracts-guarantees/eu-legal-guarantee-notice-and-garan-label/index_en.htm',
-    ];
-
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
         private readonly GaranLabelRenderer $garanLabelRenderer,
@@ -34,10 +28,13 @@ final class LegalGuaranteeMarkupProvider
 
         $officialLanguage = $this->assetLocator->resolveGllSvgLanguage($this->getCurrentLocale());
         $svgMarkup = (string) file_get_contents($this->assetLocator->resolveGllSvgPath($officialLanguage));
+        $translations = $this->getTranslations();
 
-        return $this->markupBuilder->buildSvgMarkup(
+        return $this->markupBuilder->buildLabelMarkup(
             $svgMarkup,
-            $this->getTranslations()['gllTitle'],
+            $translations['gllTitle'],
+            $this->assetLocator->getGllEuUrlByLanguage($officialLanguage),
+            $translations['gllEuLinkText'],
             ['lang' => $officialLanguage]
         );
     }
@@ -72,14 +69,17 @@ final class LegalGuaranteeMarkupProvider
             $garanData['modelIdentifier'],
             $garanData['durationYears']
         );
+        $translations = $this->getTranslations();
 
-        return $this->markupBuilder->buildSvgMarkup(
+        return $this->markupBuilder->buildLabelMarkup(
             $renderedSvg,
             $this->buildGaranTitle(
                 $garanData['brand'],
                 $garanData['modelIdentifier'],
                 $garanData['durationYears']
-            )
+            ),
+            $this->assetLocator->resolveGaranEuUrl(),
+            $translations['garanEuLinkText']
         );
     }
 
@@ -90,19 +90,13 @@ final class LegalGuaranteeMarkupProvider
             $displayData = $this->displayResolver->resolve($item['objProduct']->mainData);
 
             if ($displayData['showGll']) {
-                $pageId = (int) ls_shop_languageHelper::getLanguagePage(
-                    'ls_shop_legalGuaranteeInfoPages',
-                    false,
-                    'id'
-                );
-                $pageUrl = ls_shop_languageHelper::getLanguagePage('ls_shop_legalGuaranteeInfoPages');
-                $pageTitle = PageModel::findByPk($pageId)?->title ?? $pageUrl;
                 $officialLanguage = $this->assetLocator->resolveGllSvgLanguage($this->getCurrentLocale());
+                $pageData = $this->resolveGllInfoPage();
 
                 return $this->markupBuilder->buildCheckoutGllLinks(
-                    $pageUrl,
-                    $pageTitle,
-                    $this->resolveGllEuUrl($officialLanguage),
+                    $pageData['url'] ?? null,
+                    $pageData['title'] ?? null,
+                    $this->assetLocator->getGllEuUrlByLanguage($officialLanguage),
                     $this->getTranslations()
                 );
             }
@@ -131,7 +125,6 @@ final class LegalGuaranteeMarkupProvider
                 'productTitle' => (string) $product->_title,
                 'variantTitle' => $this->getSelectedVariantTitle($product),
                 'labelMarkup' => $this->renderProductGaranLabel($product),
-                'euUrl' => self::GARAN_EU_URL,
             ];
         }
 
@@ -207,9 +200,52 @@ final class LegalGuaranteeMarkupProvider
         return str_replace('.', ',', $normalizedDuration);
     }
 
-    private function resolveGllEuUrl(string $officialLanguage): string
+    /**
+     * @return array{url: string, title: string}|null
+     */
+    private function resolveGllInfoPage(): ?array
     {
-        return self::GLL_EU_URLS[$officialLanguage] ?? self::GLL_EU_URLS['en'];
+        $alias = $this->resolveCurrentGllInfoPageAlias();
+        $rootId = (int) ($GLOBALS['objPage']->rootId ?? 0);
+
+        if (null === $alias || $rootId <= 0) {
+            return null;
+        }
+
+        $pageResult = Database::getInstance()
+            ->prepare('SELECT id, title FROM tl_page WHERE alias = ? AND rootId = ?')
+            ->limit(1)
+            ->execute($alias, $rootId);
+
+        if (!$pageResult->numRows) {
+            return null;
+        }
+
+        $pageModel = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached(
+            (int) $pageResult->id
+        );
+        $pageUrl = ltrim(
+            System::getContainer()->get('contao.routing.content_url_generator')->generate($pageModel),
+            '/'
+        );
+
+        if ('' === $pageUrl) {
+            return null;
+        }
+
+        return [
+            'url' => $pageUrl,
+            'title' => (string) $pageResult->title,
+        ];
+    }
+
+    private function resolveCurrentGllInfoPageAlias(): ?string
+    {
+        return match (substr(strtolower($this->getCurrentLocale()), 0, 2)) {
+            'de' => 'gewaehrleistungslabel',
+            'en' => 'legal-guarantee',
+            default => null,
+        };
     }
 
     private function getCurrentLocale(): string
@@ -220,7 +256,7 @@ final class LegalGuaranteeMarkupProvider
             return $pageLanguage;
         }
 
-        return ls_shop_languageHelper::getFallbackLanguage();
+        return 'en';
     }
 
     private function ensureStylesheetRegistered(): void

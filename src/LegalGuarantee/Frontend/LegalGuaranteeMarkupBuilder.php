@@ -71,23 +71,55 @@ final class LegalGuaranteeMarkupBuilder
     }
 
     /**
+     * @param array<string, string> $attributes
+     */
+    public function buildLabelMarkup(
+        string $svgMarkup,
+        string $title,
+        string $euUrl,
+        string $euLinkText,
+        array $attributes = [],
+    ): string {
+        return $this->buildSvgMarkup($svgMarkup, $title, $attributes)
+            . sprintf(
+                '<p class="merconis-legal-guarantee-link">'
+                . '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>'
+                . '</p>',
+                $this->escape($euUrl),
+                $this->escape($euLinkText)
+            );
+    }
+
+    /**
      * @param array<string, string> $translations
      */
     public function buildCheckoutGllLinks(
-        string $pageUrl,
-        string $pageTitle,
+        ?string $pageUrl,
+        ?string $pageTitle,
         string $euUrl,
         array $translations,
     ): string {
-        return sprintf(
-            '<div class="merconis-legal-guarantee-checkout-links">'
-            . '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a> '
-            . '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>'
-            . '</div>',
-            $this->escape($pageUrl),
-            $this->escape($pageTitle),
+        $links = [];
+
+        if (null !== $pageUrl && '' !== $pageUrl && null !== $pageTitle && '' !== $pageTitle) {
+            $links[] = sprintf(
+                '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>',
+                $this->escape($pageUrl),
+                $this->escape($pageTitle)
+            );
+        }
+
+        $links[] = sprintf(
+            '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>',
             $this->escape($euUrl),
             $this->escape($translations['gllEuLinkText'] ?? '')
+        );
+
+        return sprintf(
+            '<div class="merconis-legal-guarantee-checkout-links">'
+            . '%s'
+            . '</div>',
+            implode(' ', $links)
         );
     }
 
@@ -95,8 +127,7 @@ final class LegalGuaranteeMarkupBuilder
      * @param list<array{
      *   productTitle: string,
      *   variantTitle: string,
-     *   labelMarkup: string,
-     *   euUrl: string
+     *   labelMarkup: string
      * }> $items
      * @param array<string, string> $translations
      */
@@ -120,13 +151,6 @@ final class LegalGuaranteeMarkupBuilder
 
             $html .= '</p>';
             $html .= $item['labelMarkup'];
-            $html .= sprintf(
-                '<p class="merconis-legal-guarantee-checkout-item-link">'
-                . '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>'
-                . '</p>',
-                $this->escape($item['euUrl']),
-                $this->escape($translations['garanEuLinkText'] ?? '')
-            );
             $html .= '</div>';
         }
 

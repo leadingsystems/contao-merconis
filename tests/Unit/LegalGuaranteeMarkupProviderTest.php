@@ -36,6 +36,10 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
 
         self::assertStringContainsString('lang="de"', $markup);
         self::assertStringContainsString('Gesetzliche Gewährleistung, mindestens zwei Jahre', $markup);
+        self::assertStringContainsString(
+            'index_de.htm',
+            $markup
+        );
         self::assertContains(
             'bundles/leadingsystemsmerconis/legal-guarantee/legal-guarantee.css',
             $GLOBALS['TL_CSS']
@@ -57,6 +61,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
 
         self::assertStringContainsString('lang="en"', $markup);
         self::assertStringContainsString('Legal guarantee, at least two years', $markup);
+        self::assertStringContainsString('index_en.htm', $markup);
     }
 
     private function createProvider(): LegalGuaranteeMarkupProvider

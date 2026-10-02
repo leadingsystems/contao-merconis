@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee;
 
+use JsonException;
+use RuntimeException;
+
 final class OfficialGuaranteeAssetLocator
 {
     public const GLL_VERSION = 'v1.0';
@@ -15,6 +18,7 @@ final class OfficialGuaranteeAssetLocator
     private const STYLESHEET_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/legal-guarantee.css';
     private const GLL_SVG_FILENAME_PATTERN = 'legal-guarantee-notice-%s.svg';
     private const GLL_PDF_FILENAME_PATTERN = 'legal-guarantee-notice-%s.pdf';
+    private const EU_TEXT_LINKS_FILENAME = 'eu-text-links.json';
 
     public function __construct(
         private readonly string $projectDir,
@@ -93,6 +97,28 @@ final class OfficialGuaranteeAssetLocator
         return is_file($path) ? $path : null;
     }
 
+    public function getGllEuTextLinksPath(?string $version = null): string
+    {
+        return $this->getGllVersionDirectory($version) . '/' . self::EU_TEXT_LINKS_FILENAME;
+    }
+
+    public function resolveGllEuUrl(string $contaoLocale, ?string $version = null): string
+    {
+        return $this->getGllEuUrlByLanguage(
+            $this->resolveGllSvgLanguage($contaoLocale),
+            $version
+        );
+    }
+
+    public function getGllEuUrlByLanguage(string $officialLanguage, ?string $version = null): string
+    {
+        return $this->readRequiredStringValue(
+            $this->readRequiredJsonFile($this->getGllEuTextLinksPath($version)),
+            $officialLanguage,
+            $this->getGllEuTextLinksPath($version)
+        );
+    }
+
     public function getGaranVersionDirectory(?string $version = null): string
     {
         return $this->projectDir . '/' . self::GARAN_BASE_RELATIVE_PATH . ($version ?? self::GARAN_VERSION);
@@ -116,6 +142,20 @@ final class OfficialGuaranteeAssetLocator
     public function getGaranNestedTemplatePath(?string $version = null): string
     {
         return $this->getGaranVersionDirectory($version) . '/garan-label-nested.svg';
+    }
+
+    public function getGaranEuTextLinksPath(?string $version = null): string
+    {
+        return $this->getGaranVersionDirectory($version) . '/' . self::EU_TEXT_LINKS_FILENAME;
+    }
+
+    public function resolveGaranEuUrl(?string $version = null): string
+    {
+        return $this->readRequiredStringValue(
+            $this->readRequiredJsonFile($this->getGaranEuTextLinksPath($version)),
+            'url',
+            $this->getGaranEuTextLinksPath($version)
+        );
     }
 
     public function getInterFontDirectory(): string
@@ -154,5 +194,45 @@ final class OfficialGuaranteeAssetLocator
         sort($languages);
 
         return $languages;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function readRequiredJsonFile(string $path): array
+    {
+        $contents = file_get_contents($path);
+
+        if (false === $contents) {
+            throw new RuntimeException('Required asset metadata file could not be read: ' . $path);
+        }
+
+        try {
+            $data = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            throw new RuntimeException('Required asset metadata file is invalid JSON: ' . $path, 0, $exception);
+        }
+
+        if (!is_array($data)) {
+            throw new RuntimeException('Required asset metadata file must decode to an object: ' . $path);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function readRequiredStringValue(array $data, string $key, string $path): string
+    {
+        $value = $data[$key] ?? null;
+
+        if (!is_string($value) || '' === trim($value)) {
+            throw new RuntimeException(
+                sprintf('Required asset metadata key "%s" is missing in %s.', $key, $path)
+            );
+        }
+
+        return $value;
     }
 }

@@ -66,10 +66,6 @@ services:
       $connection: '@doctrine.dbal.default_connection'
   LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator: ~
 
-  LeadingSystems\MerconisBundle\InsertTag\AsInsertTag\GllNotice: ~
-  LeadingSystems\MerconisBundle\InsertTag\AsInsertTag\GllCheckoutLink: ~
-  LeadingSystems\MerconisBundle\InsertTag\AsInsertTag\GaranCheckoutBlock: ~
-
   LeadingSystems\MerconisBundle\EventSubscriber\LsjsInsertionSubscriber:
     arguments:
       - '@contao.framework'

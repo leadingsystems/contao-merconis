@@ -67,6 +67,32 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
         self::assertSame($svgLanguages, $pdfLanguages);
     }
 
+    public function testResolvesEuTextLinksFromVersionedMetadataFiles(): void
+    {
+        $assetLocator = $this->createAssetLocator();
+
+        self::assertStringEndsWith(
+            '/src/Resources/public/legal-guarantee/gll/v1.0/eu-text-links.json',
+            $assetLocator->getGllEuTextLinksPath()
+        );
+        self::assertSame(
+            'https://europa.eu/youreurope/business/selling-in-eu/consumer-contracts-guarantees/eu-legal-guarantee-notice-and-garan-label/index_de.htm',
+            $assetLocator->getGllEuUrlByLanguage('de')
+        );
+        self::assertSame(
+            'https://europa.eu/youreurope/business/selling-in-eu/consumer-contracts-guarantees/eu-legal-guarantee-notice-and-garan-label/index_en.htm',
+            $assetLocator->resolveGllEuUrl('zz_ZZ')
+        );
+        self::assertStringEndsWith(
+            '/src/Resources/public/legal-guarantee/garan/v1.0/eu-text-links.json',
+            $assetLocator->getGaranEuTextLinksPath()
+        );
+        self::assertSame(
+            'https://europa.eu/youreurope/commercial-guarantee-durability/index.htm',
+            $assetLocator->resolveGaranEuUrl()
+        );
+    }
+
     public function testProvidesVersionedGaranTemplatesAndInterFonts(): void
     {
         $assetLocator = $this->createAssetLocator();
