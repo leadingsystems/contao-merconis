@@ -1390,6 +1390,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product']['config']['oncreate_callback'][] = arra
 );
 
 
+if (!class_exists(tl_ls_shop_product_controller::class, false)) {
 class tl_ls_shop_product_controller extends Backend {
 
 	public function __construct() {
@@ -1451,7 +1452,8 @@ class tl_ls_shop_product_controller extends Backend {
 		}
 
 		$objRecord = Database::getInstance()->prepare("
-			SELECT      `enableGll`,
+			SELECT      `tstamp`,
+						`enableGll`,
 						`enableGaran`,
 						`guaranteeDurationYears`,
 						`guaranteeBrand`,
@@ -1482,12 +1484,9 @@ class tl_ls_shop_product_controller extends Backend {
 	}
 
 	public function applyGuaranteeBrandDefaultForNewProduct(int $intId): void {
-		if (Input::get('act') !== 'create') {
-			return;
-		}
-
 		$objRecord = Database::getInstance()->prepare("
-			SELECT      `lsShopProductProducer`,
+			SELECT      `tstamp`,
+						`lsShopProductProducer`,
 						`guaranteeBrand`
 			FROM        `tl_ls_shop_product`
 			WHERE       `id` = ?
@@ -1499,14 +1498,13 @@ class tl_ls_shop_product_controller extends Backend {
 			return;
 		}
 
-		$strGuaranteeBrand = trim((string) $objRecord->guaranteeBrand);
+		$arrProductData = $objRecord->row();
 
-		if ($strGuaranteeBrand !== '') {
+		if (!$this->shouldApplyGuaranteeBrandDefaultForNewProduct($arrProductData)) {
 			return;
 		}
 
-		$validator = new ProductGuaranteeConfigurationValidator();
-		$strGuaranteeBrand = $validator->getInitialGuaranteeBrand((string) $objRecord->lsShopProductProducer);
+		$strGuaranteeBrand = $this->getInitialGuaranteeBrandFromProductData($arrProductData);
 
 		if ($strGuaranteeBrand === '') {
 			return;
@@ -1529,7 +1527,8 @@ class tl_ls_shop_product_controller extends Backend {
 		$this->applyGuaranteeBrandDefaultForNewProduct((int) $dc->id);
 
 		$objRecord = Database::getInstance()->prepare("
-			SELECT      `enableGll`,
+			SELECT      `tstamp`,
+						`enableGll`,
 						`enableGaran`,
 						`guaranteeDurationYears`,
 						`guaranteeBrand`,
@@ -1611,17 +1610,22 @@ class tl_ls_shop_product_controller extends Backend {
 			$arrValidationData[$strCurrentFieldName] = $varCurrentFieldValue;
 		}
 
-		if (
-				Input::get('act') === 'create'
-			&&	trim((string) ($arrValidationData['guaranteeBrand'] ?? '')) === ''
-		) {
-			$validator = new ProductGuaranteeConfigurationValidator();
-			$arrValidationData['guaranteeBrand'] = $validator->getInitialGuaranteeBrand(
-				(string) ($arrValidationData['lsShopProductProducer'] ?? '')
-			);
+		if ($this->shouldApplyGuaranteeBrandDefaultForNewProduct($arrValidationData)) {
+			$arrValidationData['guaranteeBrand'] = $this->getInitialGuaranteeBrandFromProductData($arrValidationData);
 		}
 
 		return $arrValidationData;
+	}
+
+	private function shouldApplyGuaranteeBrandDefaultForNewProduct(array $arrProductData): bool {
+		return (string) ($arrProductData['tstamp'] ?? '') === '0'
+			&& trim((string) ($arrProductData['guaranteeBrand'] ?? '')) === '';
+	}
+
+	private function getInitialGuaranteeBrandFromProductData(array $arrProductData): string {
+		$validator = new ProductGuaranteeConfigurationValidator();
+
+		return $validator->getInitialGuaranteeBrand((string) ($arrProductData['lsShopProductProducer'] ?? ''));
 	}
 
 	private function convertStoredYearsToMonthsInput($varValue): string {
@@ -1791,4 +1795,5 @@ class tl_ls_shop_product_controller extends Backend {
 
 		return $value;
 	}
-}	
+}
+}
