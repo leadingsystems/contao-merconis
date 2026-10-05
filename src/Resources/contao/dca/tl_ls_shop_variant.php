@@ -1312,6 +1312,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'		=>	'text',
 			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>3),
+			'load_callback' => array (
+				array('Merconis\Core\tl_ls_shop_variant_controller', 'loadGuaranteeDurationInput')
+			),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave'),
 				array('Merconis\Core\tl_ls_shop_variant_controller', 'normalizeGuaranteeDurationInput')
@@ -1389,6 +1392,10 @@ class tl_ls_shop_variant_controller extends Backend {
 	public function __construct() {
 		parent::__construct();
 		$this->import('Contao\BackendUser', 'User');
+	}
+
+	public function loadGuaranteeDurationInput($varValue) {
+		return $this->convertStoredYearsToMonthsInput($varValue);
 	}
 
 	public function normalizeGuaranteeDurationInput($varValue) {
