@@ -213,30 +213,38 @@ final class LegalGuaranteeMarkupProvider
         }
 
         $pageResult = Database::getInstance()
-            ->prepare('SELECT id, title FROM tl_page WHERE alias = ? AND rootId = ?')
-            ->limit(1)
-            ->execute($alias, $rootId);
+            ->prepare('SELECT id, title FROM tl_page WHERE alias = ?')
+            ->execute($alias);
 
         if (!$pageResult->numRows) {
             return null;
         }
 
-        $pageModel = System::getContainer()->get('contao_helper.controller.page_controller')->getPageDetailsCached(
-            (int) $pageResult->id
-        );
-        $pageUrl = ltrim(
-            System::getContainer()->get('contao.routing.content_url_generator')->generate($pageModel),
-            '/'
-        );
+        $pageController = System::getContainer()->get('contao_helper.controller.page_controller');
 
-        if ('' === $pageUrl) {
-            return null;
+        while ($pageResult->next()) {
+            $pageModel = $pageController->getPageDetailsCached((int) $pageResult->id);
+
+            if ((int) ($pageModel->rootId ?? 0) !== $rootId) {
+                continue;
+            }
+
+            $pageUrl = ltrim(
+                System::getContainer()->get('contao.routing.content_url_generator')->generate($pageModel),
+                '/'
+            );
+
+            if ('' === $pageUrl) {
+                return null;
+            }
+
+            return [
+                'url' => $pageUrl,
+                'title' => (string) $pageResult->title,
+            ];
         }
 
-        return [
-            'url' => $pageUrl,
-            'title' => (string) $pageResult->title,
-        ];
+        return null;
     }
 
     private function resolveCurrentGllInfoPageAlias(): ?string
