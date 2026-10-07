@@ -55,7 +55,9 @@ services:
   LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderConfirmationAttachmentGenerator:
     arguments:
       $projectDir: '%kernel.project_dir%'
-  LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderConfirmationMessageAugmenter: ~
+    public: true
+  LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderConfirmationMessageAugmenter:
+    public: true
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBuilder: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider:
