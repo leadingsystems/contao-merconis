@@ -132,9 +132,9 @@ final class LegalGuaranteeMarkupProvider
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return iterable<string, mixed>|null
      */
-    private function getSelectedVariantData(ls_shop_product $product): ?array
+    private function getSelectedVariantData(ls_shop_product $product): ?iterable
     {
         if (!$product->_variantIsSelected) {
             return null;
