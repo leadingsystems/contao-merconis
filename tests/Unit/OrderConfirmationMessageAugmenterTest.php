@@ -28,49 +28,145 @@ final class OrderConfirmationMessageAugmenterTest extends TestCase
 
     public function testEnhancePayloadAppendsLinksWithoutHiddenFormatFlags(): void
     {
-        $augmenter = new OrderConfirmationMessageAugmenter(
-            $this->createAttachmentGenerator(),
-            $this->createAssetLocator()
-        );
+        $augmenter = $this->createAugmenter();
 
         $payload = $augmenter->enhancePayload(
             [
-                'bodyHTML' => '<p>Ausgang</p>',
+                'bodyHTML' => '<html><body><p>Ausgang</p><footer>Fußbereich</footer></body></html>',
                 'bodyRawtext' => 'Ausgang',
                 'dynamicAttachmentPaths' => [],
             ],
             ['sendWhen' => 'asOrderConfirmation'],
-            [
-                'gllVersion' => 'v1.0',
-                'gllLanguage' => 'de',
-                'items' => [
-                    [
-                        'garanVersion' => 'v1.0',
-                        'productTitle' => 'Kaffeemaschine',
-                        'variantTitle' => 'Schwarz',
-                        'isVariant' => true,
-                        'extendedInfo' => [
-                            '_productTitle_customerLanguage' => 'Kaffeemaschine',
-                            '_title_customerLanguage' => 'Schwarz',
-                        ],
-                    ],
-                ],
-            ],
+            $this->createOrderWithGllAndGaran(),
             'de'
         );
 
         self::assertStringContainsString('EU-Information zur gesetzlichen Gewährleistung', $payload['bodyHTML']);
         self::assertStringContainsString('EU-Information zur Herstellergarantie', $payload['bodyHTML']);
         self::assertStringContainsString('Kaffeemaschine (Schwarz)', $payload['bodyHTML']);
-        self::assertStringContainsString('index_de.htm', $payload['bodyRawtext']);
+        self::assertStringContainsString('<footer>Fußbereich</footer>', $payload['bodyHTML']);
+        self::assertStringContainsString(
+            $this->createAssetLocator()->getGllEuUrlByLanguage('de', 'v1.0'),
+            $payload['bodyRawtext']
+        );
         self::assertStringContainsString(
             'https://europa.eu/youreurope/commercial-guarantee-durability/index.htm',
             $payload['bodyRawtext']
+        );
+        self::assertGreaterThan(
+            strpos($payload['bodyHTML'], '<footer>Fußbereich</footer>'),
+            strpos($payload['bodyHTML'], 'EU-Information zur gesetzlichen Gewährleistung')
+        );
+        self::assertLessThan(
+            stripos($payload['bodyHTML'], '</body>'),
+            strpos($payload['bodyHTML'], 'EU-Information zur gesetzlichen Gewährleistung')
         );
         self::assertContains(
             OrderConfirmationMessageAugmenter::DYNAMIC_ATTACHMENT_PATH,
             $payload['dynamicAttachmentPaths']
         );
+    }
+
+    public function testEnhancePayloadInsertsHtmlSectionBeforeClosingHtmlTagWhenBodyTagIsMissing(): void
+    {
+        $augmenter = $this->createAugmenter();
+
+        $payload = $augmenter->enhancePayload(
+            [
+                'bodyHTML' => '<div>Ausgang</div></html>',
+                'bodyRawtext' => 'Ausgang',
+                'dynamicAttachmentPaths' => [],
+            ],
+            ['sendWhen' => 'asOrderConfirmation'],
+            $this->createOrderWithGllOnly(),
+            'de'
+        );
+
+        self::assertLessThan(
+            stripos($payload['bodyHTML'], '</html>'),
+            strpos($payload['bodyHTML'], 'EU-Information zur gesetzlichen Gewährleistung')
+        );
+    }
+
+    public function testEnhancePayloadAppendsHtmlSectionToFragmentWithoutClosingTags(): void
+    {
+        $augmenter = $this->createAugmenter();
+
+        $payload = $augmenter->enhancePayload(
+            [
+                'bodyHTML' => '<div>Ausgang</div>',
+                'bodyRawtext' => 'Ausgang',
+                'dynamicAttachmentPaths' => [],
+            ],
+            ['sendWhen' => 'asOrderConfirmation'],
+            $this->createOrderWithGllOnly(),
+            'de'
+        );
+
+        self::assertStringEndsWith(
+            $this->createExpectedGllHtmlSection(),
+            $payload['bodyHTML']
+        );
+    }
+
+    private function createAugmenter(): OrderConfirmationMessageAugmenter
+    {
+        return new OrderConfirmationMessageAugmenter(
+            $this->createAttachmentGenerator(),
+            $this->createAssetLocator()
+        );
+    }
+
+    private function createExpectedGllHtmlSection(): string
+    {
+        return sprintf(
+            '<p><a href="%s" target="_blank" rel="noreferrer noopener">%s</a></p>',
+            htmlspecialchars(
+                $this->createAssetLocator()->getGllEuUrlByLanguage('de', 'v1.0'),
+                ENT_QUOTES | ENT_SUBSTITUTE,
+                'UTF-8'
+            ),
+            htmlspecialchars(
+                $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllEuLinkText'],
+                ENT_QUOTES | ENT_SUBSTITUTE,
+                'UTF-8'
+            )
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function createOrderWithGllOnly(): array
+    {
+        return [
+            'gllVersion' => 'v1.0',
+            'gllLanguage' => 'de',
+            'items' => [],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function createOrderWithGllAndGaran(): array
+    {
+        return [
+            'gllVersion' => 'v1.0',
+            'gllLanguage' => 'de',
+            'items' => [
+                [
+                    'garanVersion' => 'v1.0',
+                    'productTitle' => 'Kaffeemaschine',
+                    'variantTitle' => 'Schwarz',
+                    'isVariant' => true,
+                    'extendedInfo' => [
+                        '_productTitle_customerLanguage' => 'Kaffeemaschine',
+                        '_title_customerLanguage' => 'Schwarz',
+                    ],
+                ],
+            ],
+        ];
     }
 
     private function createAttachmentGenerator(): OrderConfirmationAttachmentGenerator

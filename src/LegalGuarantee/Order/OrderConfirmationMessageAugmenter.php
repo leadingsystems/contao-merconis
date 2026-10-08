@@ -169,12 +169,10 @@ final class OrderConfirmationMessageAugmenter
      */
     private function getTranslations(): array
     {
-        $translations = $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] ?? [];
-
         return [
-            'gllEuLinkText' => $translations['gllEuLinkText'] ?? 'EU information about the legal guarantee',
-            'garanBlockHeadline' => $translations['garanBlockHeadline'] ?? 'Manufacturer\'s commercial guarantee for the following items:',
-            'garanEuLinkText' => $translations['garanEuLinkText'] ?? 'EU information about the manufacturer\'s commercial guarantee',
+            'gllEuLinkText' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllEuLinkText'],
+            'garanBlockHeadline' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanBlockHeadline'],
+            'garanEuLinkText' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanEuLinkText'],
         ];
     }
 
@@ -186,6 +184,20 @@ final class OrderConfirmationMessageAugmenter
 
         if ('' === trim($bodyHtml)) {
             return $appendix;
+        }
+
+        foreach (['</body>', '</html>'] as $closingTag) {
+            $closingTagPosition = strripos($bodyHtml, $closingTag);
+
+            if (false === $closingTagPosition) {
+                continue;
+            }
+
+            return substr($bodyHtml, 0, $closingTagPosition)
+                . "\n"
+                . $appendix
+                . "\n"
+                . substr($bodyHtml, $closingTagPosition);
         }
 
         return $bodyHtml . "\n" . $appendix;
