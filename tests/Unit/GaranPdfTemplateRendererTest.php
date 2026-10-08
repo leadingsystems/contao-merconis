@@ -20,14 +20,14 @@ final class GaranPdfTemplateRendererTest extends TestCase
             )
         );
 
-        $renderedSvg = $renderer->render('Merconis', 'MX-42', '5');
+        $renderedSvg = $renderer->render('Merconis', 'MX-42', '30.0');
 
         self::assertStringContainsString('data-field="brand"', $renderedSvg);
         self::assertStringContainsString('data-field="model"', $renderedSvg);
         self::assertStringContainsString('data-field="duration"', $renderedSvg);
         self::assertStringContainsString('>Merconis<', $renderedSvg);
         self::assertStringContainsString('>MX-42<', $renderedSvg);
-        self::assertStringContainsString('>5<', $renderedSvg);
+        self::assertStringContainsString('>30<', $renderedSvg);
         self::assertStringNotContainsString('Brand/Trademark', $renderedSvg);
         self::assertStringNotContainsString('Model identifier', $renderedSvg);
     }

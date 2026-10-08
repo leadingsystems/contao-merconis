@@ -7,6 +7,7 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
+use LeadingSystems\MerconisBundle\LegalGuarantee\GuaranteeDurationFormatter;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use RuntimeException;
 
@@ -49,7 +50,12 @@ final class GaranLabelRenderer
 
         $this->replaceTextNodeContents($document, $xpath, self::BRAND_NODE_XPATH, $brand);
         $this->replaceTextNodeContents($document, $xpath, self::MODEL_NODE_XPATH, $modelIdentifier);
-        $this->replaceTextNodeContents($document, $xpath, self::DURATION_NODE_XPATH, $durationText);
+        $this->replaceTextNodeContents(
+            $document,
+            $xpath,
+            self::DURATION_NODE_XPATH,
+            GuaranteeDurationFormatter::formatYearsForDisplay($durationText)
+        );
 
         $renderedSvg = $document->saveXML($document->documentElement);
 

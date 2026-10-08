@@ -7,6 +7,7 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 use Contao\Database;
 use Contao\System;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
+use LeadingSystems\MerconisBundle\LegalGuarantee\GuaranteeDurationFormatter;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_product;
@@ -182,7 +183,7 @@ final class LegalGuaranteeMarkupProvider
 
     private function buildGaranTitle(string $brand, string $modelIdentifier, string $durationYears): string
     {
-        $formattedDuration = $this->formatDurationForText($durationYears);
+        $formattedDuration = GuaranteeDurationFormatter::formatYearsForDisplay($durationYears);
         $translations = $this->getTranslations();
 
         return sprintf(
@@ -191,13 +192,6 @@ final class LegalGuaranteeMarkupProvider
             $modelIdentifier,
             $formattedDuration
         );
-    }
-
-    private function formatDurationForText(string $durationYears): string
-    {
-        $normalizedDuration = preg_replace('/\.0$/', '', $durationYears) ?? $durationYears;
-
-        return str_replace('.', ',', $normalizedDuration);
     }
 
     /**

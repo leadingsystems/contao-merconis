@@ -21,7 +21,7 @@ final class GaranLabelRendererTest extends TestCase
         $renderedSvg = $renderer->render(
             'ACME & Co <Premium>',
             'Model > 42',
-            '5.5',
+            '2.5',
         );
 
         $document = new DOMDocument('1.0', 'UTF-8');
@@ -39,7 +39,7 @@ final class GaranLabelRendererTest extends TestCase
             $this->getTextContent($xpath, '//svg:text[@transform="translate(196.75 74.52)"]')
         );
         self::assertSame(
-            '5.5',
+            '2,5',
             $this->getTextContent($xpath, '//svg:text[@transform="translate(5.07 150.57)"]')
         );
 

@@ -11,6 +11,7 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 
 final class LegalGuaranteeMarkupProviderTest extends TestCase
 {
@@ -62,6 +63,18 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         self::assertStringContainsString('lang="en"', $markup);
         self::assertStringContainsString('Legal guarantee, at least two years', $markup);
         self::assertStringContainsString('index_en.htm', $markup);
+    }
+
+    public function testBuildGaranTitleFormatsStoredDurationForDisplay(): void
+    {
+        $method = new ReflectionMethod(LegalGuaranteeMarkupProvider::class, 'buildGaranTitle');
+        $method->setAccessible(true);
+
+        $formattedHalfYear = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '2.5');
+        $formattedWholeYears = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '30.0');
+
+        self::assertSame('Herstellergarantie von ACME für MX-42 mit 2,5 Jahren', $formattedHalfYear);
+        self::assertSame('Herstellergarantie von ACME für MX-42 mit 30 Jahren', $formattedWholeYears);
     }
 
     private function createProvider(): LegalGuaranteeMarkupProvider
