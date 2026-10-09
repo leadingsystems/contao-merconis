@@ -35,6 +35,9 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['enableGll']['sql']);
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['enableGaran']['sql']);
         self::assertSame("decimal(3,1) NULL", $tableConfig['fields']['guaranteeDurationYears']['sql']);
+        self::assertTrue($tableConfig['fields']['guaranteeDurationYears']['eval']['mandatory']);
+        self::assertTrue($tableConfig['fields']['guaranteeBrand']['eval']['mandatory']);
+        self::assertTrue($tableConfig['fields']['guaranteeModelIdentifier']['eval']['mandatory']);
         self::assertSame(40, $tableConfig['fields']['guaranteeBrand']['eval']['maxlength']);
         self::assertSame(25, $tableConfig['fields']['guaranteeModelIdentifier']['eval']['maxlength']);
         self::assertStringContainsString('{lsShopGuaranteeLabels_legend}', $tableConfig['palettes']['default']);
@@ -121,9 +124,12 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['lsShopGuaranteeLabels_legend']", $variantLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $productLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $variantLanguageEn);
-        self::assertStringContainsString('Garantiedauer in Monaten *', $productLanguageDe);
-        self::assertStringContainsString('Brand/Trademark *', $productLanguageDe);
-        self::assertStringContainsString('Model identifier *', $productLanguageEn);
+        self::assertStringContainsString('Garantiedauer in Monaten', $productLanguageDe);
+        self::assertStringContainsString('Brand/Trademark', $productLanguageDe);
+        self::assertStringContainsString('Model identifier', $productLanguageEn);
+        self::assertStringNotContainsString('Garantiedauer in Monaten *', $productLanguageDe);
+        self::assertStringNotContainsString('Brand/Trademark *', $productLanguageDe);
+        self::assertStringNotContainsString('Model identifier *', $productLanguageEn);
         self::assertStringContainsString('Guarantee duration in months', $variantLanguageEn);
         self::assertStringNotContainsString('Guarantee duration in months *', $variantLanguageEn);
     }

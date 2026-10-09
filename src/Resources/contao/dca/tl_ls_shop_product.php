@@ -9,7 +9,6 @@ use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\Image;
 use Contao\Input;
-use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
@@ -534,7 +533,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>3),
+			'eval'			=> array('mandatory' => true, 'tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>3),
 			'load_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'loadGuaranteeDurationInput')
 			),
@@ -549,7 +548,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>40),
+			'eval'			=> array('mandatory' => true, 'tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>40),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeBeforeSave')
 			),
@@ -561,7 +560,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>25),
+			'eval'			=> array('mandatory' => true, 'tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>25),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeBeforeSave')
 			),
@@ -1427,11 +1426,14 @@ class tl_ls_shop_product_controller extends Backend {
 	}
 
 	public function loadGuaranteeDurationInput($varValue) {
-		return $this->getGuaranteeValidationHelper()->convertStoredYearsToMonthsInput($varValue);
+		$validationHelper = new ProductGuaranteeValidationHelper();
+
+		return $validationHelper->convertStoredYearsToMonthsInput($varValue);
 	}
 
 	public function normalizeGuaranteeDurationInput($varValue) {
-		$arrDurationResult = $this->getGuaranteeValidationHelper()->normalizeDurationInput($varValue);
+		$validationHelper = new ProductGuaranteeValidationHelper();
+		$arrDurationResult = $validationHelper->normalizeDurationInput($varValue);
 
 		return $arrDurationResult['storedValue'];
 	}
@@ -1459,17 +1461,27 @@ class tl_ls_shop_product_controller extends Backend {
 			return $varValue;
 		}
 
+		$validationHelper = new ProductGuaranteeValidationHelper();
 		$validator = new ProductGuaranteeConfigurationValidator();
+		$arrPostedValues = $validationHelper->readPostedFieldValues($this->getProductGuaranteeRequestFieldNames());
 		$result = $validator->validateProduct(
 			$this->buildProductValidationInputData(
 				$objRecord->row(),
+				$arrPostedValues,
+				$this->getProductGuaranteeRequestFieldNames(),
 				$dc->field,
 				$varValue
 			)
 		);
 
-		$this->throwGuaranteeValidationException(
-			$this->getRelevantGuaranteeMessagesForField($result->getMessages(), $dc->field, $validator),
+		$validationHelper->addErrorMessages(
+			$validationHelper->getUnmappedMessages($result->getMessages()),
+			'tl_ls_shop_product'
+		);
+		$this->throwGuaranteeValidationExceptionForField(
+			$validationHelper,
+			$result->getMessages(),
+			$dc->field,
 			'tl_ls_shop_product'
 		);
 
@@ -1537,22 +1549,29 @@ class tl_ls_shop_product_controller extends Backend {
 		}
 
 		$arrCurrentData = $objRecord->row();
+		$validationHelper = new ProductGuaranteeValidationHelper();
+		$arrPostedValues = $validationHelper->readPostedFieldValues($this->getProductGuaranteeRequestFieldNames());
+		$arrVisibleFieldNames = $this->getVisibleProductGuaranteeFieldNames($arrPostedValues);
 		$validator = new ProductGuaranteeConfigurationValidator();
-		$result = $validator->validateProduct($this->buildProductValidationInputData($arrCurrentData));
-		$arrNormalizedData = $result->getNormalizedData();
-		$arrFieldsToPersist = array();
-		$arrFieldNames = array('enableGll', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier');
-
-		foreach ($arrFieldNames as $strFieldName) {
-			$varCurrentValue = $arrCurrentData[$strFieldName] ?? null;
-			$varNormalizedValue = $arrNormalizedData[$strFieldName] ?? null;
-
-			if ((string) $varCurrentValue === (string) $varNormalizedValue && $varCurrentValue === $varNormalizedValue) {
-				continue;
-			}
-
-			$arrFieldsToPersist[$strFieldName] = $varNormalizedValue;
-		}
+		$requestResult = $validator->validateProduct(
+			$this->buildProductValidationInputData(
+				$arrCurrentData,
+				$arrPostedValues,
+				array_keys($arrPostedValues)
+			)
+		);
+		$persistenceResult = $validator->validateProduct(
+			$this->buildProductValidationInputData(
+				$arrCurrentData,
+				$arrPostedValues,
+				$arrVisibleFieldNames
+			)
+		);
+		$arrFieldsToPersist = $this->buildChangedFieldValues(
+			$arrCurrentData,
+			$persistenceResult->getNormalizedData(),
+			$arrVisibleFieldNames
+		);
 
 		if (!empty($arrFieldsToPersist)) {
 			$arrAssignments = array();
@@ -1574,22 +1593,27 @@ class tl_ls_shop_product_controller extends Backend {
 			->execute(...$arrValues);
 		}
 
-		$this->addUnmappedGuaranteeMessages($result->getMessages(), 'tl_ls_shop_product', $validator);
+		$validationHelper->addErrorMessages(
+			$validationHelper->getGlobalMessages($requestResult->getMessages(), $arrVisibleFieldNames),
+			'tl_ls_shop_product'
+		);
 	}
 
-	private function buildProductValidationInputData(array $arrCurrentData, string $strCurrentFieldName = '', $varCurrentFieldValue = null): array {
+	private function buildProductValidationInputData(
+		array $arrCurrentData,
+		array $arrPostedValues = array(),
+		array $arrAcceptedPostedFieldNames = array(),
+		string $strCurrentFieldName = '',
+		$varCurrentFieldValue = null
+	): array {
+		$validationHelper = new ProductGuaranteeValidationHelper();
 		$arrValidationData = $arrCurrentData;
-		$arrValidationData['guaranteeDurationYears'] = $this->getGuaranteeValidationHelper()->convertStoredYearsToMonthsInput($arrCurrentData['guaranteeDurationYears'] ?? null);
-
-		foreach (array('enableGll', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier', 'lsShopProductProducer') as $strFieldName) {
-			$varPostedValue = Input::post($strFieldName);
-
-			if ($varPostedValue === null) {
-				continue;
-			}
-
-			$arrValidationData[$strFieldName] = $varPostedValue;
-		}
+		$arrValidationData['guaranteeDurationYears'] = $validationHelper->convertStoredYearsToMonthsInput($arrCurrentData['guaranteeDurationYears'] ?? null);
+		$arrValidationData = $validationHelper->mergePostedFieldValues(
+			$arrValidationData,
+			$arrPostedValues,
+			$arrAcceptedPostedFieldNames
+		);
 
 		if ($strCurrentFieldName !== '') {
 			$arrValidationData[$strCurrentFieldName] = $varCurrentFieldValue;
@@ -1600,6 +1624,48 @@ class tl_ls_shop_product_controller extends Backend {
 		}
 
 		return $arrValidationData;
+	}
+
+	private function getProductGuaranteeRequestFieldNames(): array {
+		return array(
+			'enableGll',
+			'enableGaran',
+			'guaranteeDurationYears',
+			'guaranteeBrand',
+			'guaranteeModelIdentifier',
+			'lsShopProductProducer'
+		);
+	}
+
+	private function getVisibleProductGuaranteeFieldNames(array $arrPostedValues): array {
+		$validationHelper = new ProductGuaranteeValidationHelper();
+		$arrFieldNames = array('enableGll', 'enableGaran');
+
+		if (!$validationHelper->isTruthy($arrPostedValues['enableGaran'] ?? null)) {
+			return $arrFieldNames;
+		}
+
+		return array_merge(
+			$arrFieldNames,
+			array('guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier')
+		);
+	}
+
+	private function buildChangedFieldValues(array $arrCurrentData, array $arrNormalizedData, array $arrFieldNames): array {
+		$arrFieldsToPersist = array();
+
+		foreach ($arrFieldNames as $strFieldName) {
+			$varCurrentValue = $arrCurrentData[$strFieldName] ?? null;
+			$varNormalizedValue = $arrNormalizedData[$strFieldName] ?? null;
+
+			if ((string) $varCurrentValue === (string) $varNormalizedValue && $varCurrentValue === $varNormalizedValue) {
+				continue;
+			}
+
+			$arrFieldsToPersist[$strFieldName] = $varNormalizedValue;
+		}
+
+		return $arrFieldsToPersist;
 	}
 
 	private function shouldApplyGuaranteeBrandDefaultForNewProduct(array $arrProductData): bool {
@@ -1613,59 +1679,22 @@ class tl_ls_shop_product_controller extends Backend {
 		return $validator->getInitialGuaranteeBrand((string) ($arrProductData['lsShopProductProducer'] ?? ''));
 	}
 
-	private function throwGuaranteeValidationException(array $arrMessages, string $strLanguageScope): void {
-		if (empty($arrMessages)) {
+	private function throwGuaranteeValidationExceptionForField(
+		ProductGuaranteeValidationHelper $validationHelper,
+		array $arrMessages,
+		string $strFieldName,
+		string $strLanguageScope
+	): void {
+		$strMessageText = $validationHelper->getFirstMessageText(
+			$validationHelper->getMessagesForField($arrMessages, $strFieldName),
+			$strLanguageScope
+		);
+
+		if ($strMessageText === null) {
 			return;
 		}
 
-		$arrMessage = reset($arrMessages);
-		$strTemplate = $GLOBALS['TL_LANG'][$strLanguageScope]['guaranteeValidationMessages'][$arrMessage['code']] ?? null;
-
-		if (!$strTemplate) {
-			throw new \Exception($arrMessage['code']);
-		}
-
-		throw new \Exception(vsprintf($strTemplate, $arrMessage['parameters']));
-	}
-
-	private function getRelevantGuaranteeMessagesForField(array $arrMessages, string $strFieldName, ProductGuaranteeConfigurationValidator $validator): array {
-		$arrRelevantMessages = [];
-		$arrFallbackMessages = [];
-
-		foreach ($arrMessages as $arrMessage) {
-			$strMappedFieldName = $validator->getFieldNameForMessageCode((string) ($arrMessage['code'] ?? ''));
-
-			if ($strMappedFieldName === $strFieldName) {
-				$arrRelevantMessages[] = $arrMessage;
-				continue;
-			}
-
-			if ($strMappedFieldName === null) {
-				$arrFallbackMessages[] = $arrMessage;
-			}
-		}
-
-		return !empty($arrRelevantMessages) ? $arrRelevantMessages : $arrFallbackMessages;
-	}
-
-	private function addUnmappedGuaranteeMessages(array $arrMessages, string $strLanguageScope, ProductGuaranteeConfigurationValidator $validator): void {
-		foreach ($arrMessages as $arrMessage) {
-			if ($validator->getFieldNameForMessageCode((string) ($arrMessage['code'] ?? '')) !== null) {
-				continue;
-			}
-
-			$strTemplate = $GLOBALS['TL_LANG'][$strLanguageScope]['guaranteeValidationMessages'][$arrMessage['code']] ?? null;
-
-			if (!$strTemplate) {
-				continue;
-			}
-
-			Message::addError(vsprintf($strTemplate, $arrMessage['parameters']));
-		}
-	}
-
-	private function getGuaranteeValidationHelper(): ProductGuaranteeValidationHelper {
-		return new ProductGuaranteeValidationHelper();
+		throw new \Exception($strMessageText);
 	}
 
 	public function generateAlias($str_value, DataContainer $dc) {

@@ -63,9 +63,49 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
         self::assertSame(
             'guaranteeDurationYears',
             $helper->getFieldNameForMessageCode(
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION
+            )
+        );
+        self::assertSame(
+            'guaranteeDurationYears',
+            $helper->getFieldNameForMessageCode(
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION
             )
         );
         self::assertNull($helper->getFieldNameForMessageCode('unknown_code'));
+    }
+
+    public function testUnmappedMessagesRemainAvailableAlongsideFieldMessages(): void
+    {
+        $helper = new ProductGuaranteeValidationHelper();
+        $messages = [
+            [
+                'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
+                'parameters' => [],
+            ],
+            [
+                'code' => 'unknown_code',
+                'parameters' => ['context'],
+            ],
+        ];
+
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND],
+            array_column($helper->getMessagesForField($messages, 'guaranteeBrand'), 'code')
+        );
+        self::assertSame(
+            ['unknown_code'],
+            array_column($helper->getUnmappedMessages($messages), 'code')
+        );
+        self::assertSame(
+            ['unknown_code'],
+            array_column(
+                $helper->getGlobalMessages(
+                    $messages,
+                    ['guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier']
+                ),
+                'code'
+            )
+        );
     }
 }
