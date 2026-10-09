@@ -27,15 +27,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			array('Merconis\Core\ls_shop_generalHelper', 'attributeValueAllocationRemoveOrphanedRecords'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
-		'onload_callback' => array(
-			array('Merconis\Core\tl_ls_shop_product_controller', 'applyGuaranteeBrandDefaultForNewProduct')
-		),
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeConfiguration'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
-		),
-		'onbeforesubmit_callback' => array(
-			array('Merconis\Core\tl_ls_shop_product_controller', 'applyGuaranteeBrandDefaultForNewProduct')
 		),
 		'onrestore_version_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -1449,82 +1443,6 @@ class tl_ls_shop_product_controller extends Backend {
 		);
 
 		return $varValue;
-	}
-
-	public function applyGuaranteeBrandDefaultForNewProduct($subject, ?DataContainer $dc = null) {
-		$arrSubmittedValues = null;
-
-		if ($subject instanceof DataContainer) {
-			$dc = $subject;
-
-			if (Input::post('FORM_SUBMIT') !== 'tl_ls_shop_product' || Input::post('SUBMIT_TYPE') === 'auto') {
-				return null;
-			}
-		} elseif (is_array($subject) && $dc instanceof DataContainer) {
-			$arrSubmittedValues = $subject;
-		} else {
-			return $subject;
-		}
-
-		if (!$dc->id) {
-			return $arrSubmittedValues ?? null;
-		}
-
-		$objRecord = Database::getInstance()->prepare("
-			SELECT      `tstamp`,
-						`lsShopProductProducer`,
-						`guaranteeBrand`
-			FROM        `tl_ls_shop_product`
-			WHERE       `id` = ?
-		")
-		->limit(1)
-		->execute($dc->id);
-
-		if (!$objRecord->numRows) {
-			return $arrSubmittedValues ?? null;
-		}
-
-		$validationHelper = new ProductGuaranteeValidationHelper();
-		$arrPostedValues = $validationHelper->readPostedFieldValues($validationHelper->getProductRequestFieldNames());
-
-		if ($arrSubmittedValues !== null && !array_key_exists('guaranteeBrand', $arrSubmittedValues)) {
-			unset($arrPostedValues['guaranteeBrand']);
-		}
-
-		$arrProductData = $validationHelper->mergePostedFieldValues(
-			$objRecord->row(),
-			$arrPostedValues,
-			array('lsShopProductProducer', 'guaranteeBrand')
-		);
-
-		if ((string) ($arrProductData['tstamp'] ?? '') !== '0') {
-			return $arrSubmittedValues ?? null;
-		}
-
-		if (trim((string) ($arrProductData['guaranteeBrand'] ?? '')) !== '') {
-			return $arrSubmittedValues ?? null;
-		}
-
-		$validator = new ProductGuaranteeConfigurationValidator();
-		$strGuaranteeBrand = $validator->getInitialGuaranteeBrand((string) ($arrProductData['lsShopProductProducer'] ?? ''));
-
-		if ($strGuaranteeBrand === '') {
-			return $arrSubmittedValues ?? null;
-		}
-
-		if ($arrSubmittedValues === null) {
-			Input::setPost('guaranteeBrand', $strGuaranteeBrand);
-
-			return null;
-		}
-
-		if (trim((string) ($arrSubmittedValues['guaranteeBrand'] ?? '')) !== '') {
-			return $arrSubmittedValues;
-		}
-
-		$arrSubmittedValues['guaranteeBrand'] = $strGuaranteeBrand;
-
-		return $arrSubmittedValues;
 	}
 
 	public function validateLegalGuaranteeConfiguration(DataContainer $dc): void {

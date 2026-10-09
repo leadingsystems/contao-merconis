@@ -372,12 +372,52 @@ var ls_shop_backend = {
 			opacity: 0.6,
 			handle: '.drag-handle'
 		});
+	},
+
+	setupGuaranteeBrandPrefill: function() {
+		if (document._lsShopGuaranteeBrandPrefillInitialized) {
+			return;
+		}
+
+		document._lsShopGuaranteeBrandPrefillInitialized = true;
+		document.addEventListener('focusout', function(event) {
+			ls_shop_backend.prefillGuaranteeBrandFromProducer(event);
+		}, true);
+	},
+
+	prefillGuaranteeBrandFromProducer: function(event) {
+		var producerInput = event.target;
+		var form;
+		var guaranteeBrandInput;
+		var producerValue;
+
+		if (!producerInput || producerInput.name != 'lsShopProductProducer') {
+			return;
+		}
+
+		form = producerInput.form;
+		if (!form) {
+			return;
+		}
+
+		guaranteeBrandInput = form.querySelector('[name="guaranteeBrand"]');
+		if (!guaranteeBrandInput || guaranteeBrandInput.value.trim() !== '') {
+			return;
+		}
+
+		producerValue = producerInput.value.trim();
+		if (producerValue === '') {
+			return;
+		}
+
+		guaranteeBrandInput.value = producerValue;
 	}
 };
 
 window.addEvent('domready', function() {
 	ls_shop_backend.addHeaderImageLinkElements();
 	ls_shop_backend.makeMerconisWizardsSortable();
+	ls_shop_backend.setupGuaranteeBrandPrefill();
 });
 
 window.addEvent('ajax_change', function() {
