@@ -13,6 +13,19 @@ define('TL_MERCONIS_ERROR', 'MERCONIS ERROR');
 define('TL_MERCONIS_MESSAGES', 'MERCONIS MESSAGES');
 define('TL_MERCONIS_STOCK_MANAGEMENT', 'MERCONIS STOCK MANAGEMENT');
 
+$GLOBALS['TL_HOOKS']['loadDataContainer'][] = array(
+    \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingDcaHook::class,
+    'onLoadDataContainer'
+);
+$GLOBALS['MERCONIS_HOOKS']['afterCheckout'][] = array(
+    \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingCheckoutSnapshotHook::class,
+    'afterCheckout'
+);
+$GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'][] = array(
+    \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingCheckoutSnapshotHook::class,
+    'storeCartItemInOrder'
+);
+
 $GLOBALS['TL_HOOKS']['merconisCustomTaxRateCalculation'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconisCustomTaxRateCalculation');
 
 /*

@@ -26,7 +26,9 @@
     "leadingsystems/contao-datacollector": "^3.0",
     "leadingsystems/contao-scheduler": "^1.1",
     "paypal/rest-api-sdk-php": "^1.13",
-    "tecnickcom/tcpdf": "^6.2.22"
+    "tecnickcom/tcpdf": "^6.2.22",
+    "horstoeko/zugferd": "^1.0",
+    "mpdf/mpdf": "^8.0"
   },
   "autoload": {
     "psr-4": {

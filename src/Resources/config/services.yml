@@ -50,6 +50,17 @@ services:
   LeadingSystems\MerconisBundle\FastFilter\FastFilterIndexBuilder: ~
   LeadingSystems\MerconisBundle\FastFilter\FastFilterIndexMaintenance: ~
   LeadingSystems\MerconisBundle\FastFilter\FastFilterIndexVerifier: ~
+  LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingDocumentWriter:
+    arguments:
+      $projectDir: '%kernel.project_dir%'
+    public: true
+  LeadingSystems\MerconisBundle\EInvoicing\Service\SemanticInvoiceBuilder: ~
+  LeadingSystems\MerconisBundle\EInvoicing\Service\VisibleInvoiceHtmlRenderer: ~
+  LeadingSystems\MerconisBundle\EInvoicing\Service\ZugferdXmlGenerator: ~
+  LeadingSystems\MerconisBundle\EInvoicing\Service\ZugferdHybridPdfGenerator: ~
+  LeadingSystems\MerconisBundle\EInvoicing\Service\ZugferdDocumentGenerator: ~
+  LeadingSystems\MerconisBundle\EInvoicing\Service\OrderEInvoicingDocumentGenerator:
+    public: true
 
   LeadingSystems\MerconisBundle\FastFilter\FastFilterSessionWriter:
     public: true
@@ -70,6 +81,10 @@ services:
   LeadingSystems\MerconisBundle\Command\FastFilterIndexVerifyCommand:
     tags:
       - { name: 'console.command', command: 'merconis:fast-filter:verify-index' }
+
+  LeadingSystems\MerconisBundle\Command\EInvoiceExportCommand:
+    tags:
+      - { name: 'console.command', command: 'merconis:einvoice:export' }
 
   LeadingSystems\MerconisBundle\EventListener\GetPageLayoutListener:
     tags:

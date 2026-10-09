@@ -8,3 +8,9 @@
 /build/
 
 .idea/
+
+# Lokale Playwright-Verifikation
+/tests/e2e/
+/tests/e2e/node_modules/
+/tests/e2e/.playwright/
+/tests/e2e/.cache/

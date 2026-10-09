@@ -78,7 +78,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
 			status05;
 			
 			{paymentInfo_legend},
-			paymentMethod_moduleReturnData;
+			paymentMethod_moduleReturnData,
+			ls_shop_einvoicingPaymentMeansCode;
 			
 			{shippingTracking_legend},
 			shippingTrackingNr,
@@ -278,6 +279,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             ),
             'eval' => array('tl_class' => 'paymentMethod_moduleReturnData'),
             'sql'                     => "blob NULL"
+        ),
+
+        'ls_shop_einvoicingPaymentMeansCode' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['ls_shop_einvoicingPaymentMeansCode'],
+            'inputType' => 'text',
+            'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(16) NOT NULL default ''"
         ),
 
         'shippingTrackingNr' => array(
