@@ -1293,6 +1293,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'w50 m12'),
+			'save_callback' => array (
+				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave')
+			),
 			'filter'		=> true,
             'sql'                     => "char(1) NOT NULL default ''"
 		),
@@ -1452,6 +1455,25 @@ class tl_ls_shop_variant_controller extends Backend {
 			$validationHelper->getUnmappedMessages($result->getMessages()),
 			'tl_ls_shop_variant'
 		);
+
+		if ($validationHelper->isSubpaletteToggleRequestForField($dc->field)) {
+			$toggleSaveValue = $validationHelper->getSubpaletteToggleSaveValue(
+				$result->getMessages(),
+				$dc->field,
+				$varValue,
+				$dc->varValue
+			);
+
+			if ($toggleSaveValue === $dc->varValue) {
+				$validationHelper->addErrorMessages(
+					$validationHelper->getSubpaletteToggleFieldMessages($result->getMessages(), $dc->field),
+					'tl_ls_shop_variant'
+				);
+			}
+
+			return $toggleSaveValue;
+		}
+
 		$validationHelper->throwValidationExceptionForField(
 			$result->getMessages(),
 			$dc->field,

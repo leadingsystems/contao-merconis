@@ -1443,6 +1443,25 @@ class tl_ls_shop_product_controller extends Backend {
 			$validationHelper->getUnmappedMessages($result->getMessages()),
 			'tl_ls_shop_product'
 		);
+
+		if ($validationHelper->isSubpaletteToggleRequestForField($dc->field)) {
+			$toggleSaveValue = $validationHelper->getSubpaletteToggleSaveValue(
+				$result->getMessages(),
+				$dc->field,
+				$varValue,
+				$dc->varValue
+			);
+
+			if ($toggleSaveValue === $dc->varValue) {
+				$validationHelper->addErrorMessages(
+					$validationHelper->getSubpaletteToggleFieldMessages($result->getMessages(), $dc->field),
+					'tl_ls_shop_product'
+				);
+			}
+
+			return $toggleSaveValue;
+		}
+
 		$validationHelper->throwValidationExceptionForField(
 			$result->getMessages(),
 			$dc->field,

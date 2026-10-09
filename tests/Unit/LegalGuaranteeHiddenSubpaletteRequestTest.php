@@ -26,8 +26,10 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
     {
         foreach (
             [
+                'action',
                 'enableGll',
                 'enableGaran',
+                'field',
                 'garanOverride',
                 'guaranteeDurationYears',
                 'guaranteeBrand',
@@ -40,6 +42,87 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         Input::resetCache();
 
         parent::tearDown();
+    }
+
+    public function testProductToggleKeepsStoredValueWhenEnableGaranIsBlockedByGll(): void
+    {
+        Input::setPost('action', 'toggleSubpalette');
+        Input::setPost('field', 'enableGaran');
+
+        $currentProductData = [
+            'enableGll' => '',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+
+        $result = $this->validator->validateProduct(
+            $this->validationHelper->buildValidationInputData(
+                $currentProductData,
+                [],
+                [],
+                'enableGaran',
+                '1'
+            )
+        );
+
+        self::assertSame(
+            '',
+            $this->validationHelper->getSubpaletteToggleSaveValue(
+                $result->getMessages(),
+                'enableGaran',
+                '1',
+                $currentProductData['enableGaran']
+            )
+        );
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED],
+            array_column($this->validationHelper->getMessagesForField($result->getMessages(), 'enableGaran'), 'code')
+        );
+    }
+
+    public function testProductTogglePersistsNewValueWhenOnlySubpaletteFieldsAreMissing(): void
+    {
+        Input::setPost('action', 'toggleSubpalette');
+        Input::setPost('field', 'enableGaran');
+
+        $currentProductData = [
+            'enableGll' => '1',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+
+        $result = $this->validator->validateProduct(
+            $this->validationHelper->buildValidationInputData(
+                $currentProductData,
+                [],
+                [],
+                'enableGaran',
+                '1'
+            )
+        );
+
+        self::assertSame(
+            '1',
+            $this->validationHelper->getSubpaletteToggleSaveValue(
+                $result->getMessages(),
+                'enableGaran',
+                '1',
+                $currentProductData['enableGaran']
+            )
+        );
+        self::assertSame([], $this->validationHelper->getMessagesForField($result->getMessages(), 'enableGaran'));
+        self::assertSame(
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION,
+            ],
+            array_column($result->getMessages(), 'code')
+        );
     }
 
     public function testProductRejectsHiddenInvalidDurationGloballyWithoutOverwritingStoredValues(): void
@@ -151,5 +234,154 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         self::assertSame('3', $persistenceResult->getNormalizedData()['guaranteeDurationYears']);
         self::assertSame('Stored brand', $persistenceResult->getNormalizedData()['guaranteeBrand']);
         self::assertSame('Stored model', $persistenceResult->getNormalizedData()['guaranteeModelIdentifier']);
+    }
+
+    public function testVariantOverrideToggleKeepsStoredValueWhenParentGllIsDisabled(): void
+    {
+        Input::setPost('action', 'toggleSubpalette');
+        Input::setPost('field', 'garanOverride');
+
+        $currentVariantData = [
+            'garanOverride' => '',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $currentProductData = [
+            'enableGll' => '',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+
+        $result = $this->validator->validateVariant(
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                [],
+                [],
+                'garanOverride',
+                '1'
+            ),
+            $currentProductData
+        );
+
+        self::assertSame(
+            '',
+            $this->validationHelper->getSubpaletteToggleSaveValue(
+                $result->getMessages(),
+                'garanOverride',
+                '1',
+                $currentVariantData['garanOverride']
+            )
+        );
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED],
+            array_column(
+                $this->validationHelper->getSubpaletteToggleFieldMessages(
+                    $result->getMessages(),
+                    'garanOverride'
+                ),
+                'code'
+            )
+        );
+    }
+
+    public function testVariantOverrideTogglePersistsNewValueWhenParentGllIsEnabled(): void
+    {
+        Input::setPost('action', 'toggleSubpalette');
+        Input::setPost('field', 'garanOverride');
+
+        $currentVariantData = [
+            'garanOverride' => '',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $currentProductData = [
+            'enableGll' => '1',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+
+        $result = $this->validator->validateVariant(
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                [],
+                [],
+                'garanOverride',
+                '1'
+            ),
+            $currentProductData
+        );
+
+        self::assertSame(
+            '1',
+            $this->validationHelper->getSubpaletteToggleSaveValue(
+                $result->getMessages(),
+                'garanOverride',
+                '1',
+                $currentVariantData['garanOverride']
+            )
+        );
+        self::assertSame(
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION,
+            ],
+            array_column($result->getMessages(), 'code')
+        );
+        self::assertSame(
+            [],
+            $this->validationHelper->getSubpaletteToggleFieldMessages($result->getMessages(), 'garanOverride')
+        );
+    }
+
+    public function testVariantOverrideTogglePersistsNewValueWhenNoEffectiveGaranOutputExists(): void
+    {
+        Input::setPost('action', 'toggleSubpalette');
+        Input::setPost('field', 'garanOverride');
+
+        $currentVariantData = [
+            'garanOverride' => '',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $currentProductData = [
+            'enableGll' => '',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+
+        $result = $this->validator->validateVariant(
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                [],
+                [],
+                'garanOverride',
+                '1'
+            ),
+            $currentProductData
+        );
+
+        self::assertSame(
+            '1',
+            $this->validationHelper->getSubpaletteToggleSaveValue(
+                $result->getMessages(),
+                'garanOverride',
+                '1',
+                $currentVariantData['garanOverride']
+            )
+        );
+        self::assertSame([], $result->getMessages());
     }
 }

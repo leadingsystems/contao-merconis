@@ -105,6 +105,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringNotContainsString('enableGaran', $tableConfig['subpalettes']['garanOverride']);
         self::assertSame('w50 m12', $tableConfig['fields']['garanOverride']['eval']['tl_class']);
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['garanOverride']['sql']);
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['garanOverride']['save_callback'][0][1]
+        );
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['enableGaran']['sql']);
         self::assertSame(
             'validateLegalGuaranteeBeforeSave',

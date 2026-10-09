@@ -4,12 +4,22 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
+use Contao\Input;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeValidationHelper;
 use PHPUnit\Framework\TestCase;
 
 final class ProductGuaranteeValidationHelperTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        Input::setPost('action', null);
+        Input::setPost('field', null);
+        Input::resetCache();
+
+        parent::tearDown();
+    }
+
     public function testNormalizeDurationInputConvertsValidMonthsToStoredYears(): void
     {
         $helper = new ProductGuaranteeValidationHelper();
@@ -164,6 +174,77 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             ]],
             'guaranteeDurationYears',
             'tl_ls_shop_product'
+        );
+    }
+
+    public function testSubpaletteToggleRequestIsDetectedOnlyForTheToggledField(): void
+    {
+        $helper = new ProductGuaranteeValidationHelper();
+
+        Input::setPost('action', 'toggleSubpalette');
+        Input::setPost('field', 'enableGaran');
+
+        self::assertTrue($helper->isSubpaletteToggleRequestForField('enableGaran'));
+        self::assertFalse($helper->isSubpaletteToggleRequestForField('guaranteeBrand'));
+    }
+
+    public function testSubpaletteToggleSaveValueKeepsStoredValueOnlyForOwnFieldMessages(): void
+    {
+        $helper = new ProductGuaranteeValidationHelper();
+
+        Input::setPost('action', 'toggleSubpalette');
+        Input::setPost('field', 'enableGaran');
+
+        self::assertSame(
+            '',
+            $helper->getSubpaletteToggleSaveValue(
+                [[
+                    'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+                    'parameters' => [],
+                ]],
+                'enableGaran',
+                '1',
+                ''
+            )
+        );
+        self::assertSame(
+            '1',
+            $helper->getSubpaletteToggleSaveValue(
+                [[
+                    'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
+                    'parameters' => [],
+                ]],
+                'enableGaran',
+                '1',
+                ''
+            )
+        );
+    }
+
+    public function testGaranOverrideToggleUsesEnableGaranMessagesAsBlockingSignal(): void
+    {
+        $helper = new ProductGuaranteeValidationHelper();
+
+        Input::setPost('action', 'toggleSubpalette');
+        Input::setPost('field', 'garanOverride');
+
+        $messages = [[
+            'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+            'parameters' => [],
+        ]];
+
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED],
+            array_column($helper->getSubpaletteToggleFieldMessages($messages, 'garanOverride'), 'code')
+        );
+        self::assertSame(
+            '',
+            $helper->getSubpaletteToggleSaveValue(
+                $messages,
+                'garanOverride',
+                '1',
+                ''
+            )
         );
     }
 }

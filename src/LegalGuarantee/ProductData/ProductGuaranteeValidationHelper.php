@@ -285,10 +285,21 @@ final class ProductGuaranteeValidationHelper
      */
     public function getMessagesForField(array $messages, string $fieldName): array
     {
+        return $this->getMessagesForFields($messages, [$fieldName]);
+    }
+
+    /**
+     * @param list<array{code: string, parameters: array<int, string>}> $messages
+     * @param list<string> $fieldNames
+     *
+     * @return list<array{code: string, parameters: array<int, string>}>
+     */
+    public function getMessagesForFields(array $messages, array $fieldNames): array
+    {
         $fieldMessages = [];
 
         foreach ($messages as $message) {
-            if ($this->getFieldNameForMessageCode($message['code']) !== $fieldName) {
+            if (!in_array($this->getFieldNameForMessageCode($message['code']), $fieldNames, true)) {
                 continue;
             }
 
@@ -393,6 +404,43 @@ final class ProductGuaranteeValidationHelper
         throw new \Exception($messageText);
     }
 
+    public function isSubpaletteToggleRequestForField(string $fieldName): bool
+    {
+        return 'toggleSubpalette' === Input::post('action')
+            && $fieldName === Input::post('field');
+    }
+
+    /**
+     * @param list<array{code: string, parameters: array<int, string>}> $messages
+     */
+    public function getSubpaletteToggleFieldMessages(array $messages, string $fieldName): array
+    {
+        return $this->getMessagesForFields(
+            $messages,
+            $this->getSubpaletteToggleMessageFieldNames($fieldName)
+        );
+    }
+
+    /**
+     * @param list<array{code: string, parameters: array<int, string>}> $messages
+     */
+    public function getSubpaletteToggleSaveValue(
+        array $messages,
+        string $fieldName,
+        mixed $submittedValue,
+        mixed $storedValue
+    ): mixed {
+        if (!$this->isSubpaletteToggleRequestForField($fieldName)) {
+            return $submittedValue;
+        }
+
+        if ([] === $this->getSubpaletteToggleFieldMessages($messages, $fieldName)) {
+            return $submittedValue;
+        }
+
+        return $storedValue;
+    }
+
     /**
      * @param array{code: string, parameters: array<int, string>} $message
      */
@@ -426,6 +474,18 @@ final class ProductGuaranteeValidationHelper
             $alwaysVisibleFieldNames,
             self::GUARANTEE_SUBPALETTE_FIELD_NAMES
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getSubpaletteToggleMessageFieldNames(string $fieldName): array
+    {
+        if ('garanOverride' === $fieldName) {
+            return ['enableGaran'];
+        }
+
+        return [$fieldName];
     }
 
     private function formatStoredYearsFromMonths(int $months): string
