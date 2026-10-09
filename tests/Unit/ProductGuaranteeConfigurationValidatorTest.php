@@ -33,6 +33,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $validator = new ProductGuaranteeConfigurationValidator();
 
         $result = $validator->validateProduct([
+            'enableGll' => '1',
             'enableGaran' => '1',
             'guaranteeDurationYears' => '36',
             'guaranteeBrand' => '',
@@ -66,6 +67,62 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         self::assertSame(['31'], $result->getMessages()[0]['parameters']);
     }
 
+    public function testProductValidationRejectsGaranWhenGllIsDisabled(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+
+        $result = $validator->validateProduct([
+            'enableGll' => '',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => '36',
+            'guaranteeBrand' => 'ACME',
+            'guaranteeModelIdentifier' => 'Model',
+        ]);
+
+        self::assertSame(
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+            $result->getMessages()[0]['code']
+        );
+    }
+
+    public function testProductValidationRejectsDisabledGllWhenVariantsKeepOwnGaran(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+
+        $result = $validator->validateProduct(
+            [
+                'enableGll' => '',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => null,
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            [
+                [
+                    'lsShopVariantCode' => 'VAR-001',
+                    'garanOverride' => '1',
+                    'enableGaran' => '1',
+                ],
+                [
+                    'lsShopVariantCode' => 'VAR-002',
+                    'garanOverride' => '1',
+                    'enableGaran' => '1',
+                ],
+                [
+                    'lsShopVariantCode' => 'VAR-IGNORED',
+                    'garanOverride' => '',
+                    'enableGaran' => '1',
+                ],
+            ]
+        );
+
+        self::assertSame(
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE,
+            $result->getMessages()[0]['code']
+        );
+        self::assertSame(['VAR-001, VAR-002'], $result->getMessages()[0]['parameters']);
+    }
+
     public function testVariantWithoutOverrideUsesParentEffectiveValuesButStillValidatesOwnDuration(): void
     {
         $validator = new ProductGuaranteeConfigurationValidator();
@@ -79,6 +136,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => 'Ignored',
             ],
             [
+                'enableGll' => '1',
                 'enableGaran' => '1',
                 'guaranteeDurationYears' => '4.5',
                 'guaranteeBrand' => 'Parent Brand',
@@ -110,6 +168,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => '',
             ],
             [
+                'enableGll' => '1',
                 'enableGaran' => '1',
                 'guaranteeDurationYears' => '5.0',
                 'guaranteeBrand' => 'Parent Brand',
@@ -122,6 +181,33 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         self::assertSame('5', $result->getEffectiveData()['guaranteeDurationYears']);
         self::assertSame('Parent Brand', $result->getEffectiveData()['guaranteeBrand']);
         self::assertSame('Parent Model', $result->getEffectiveData()['guaranteeModelIdentifier']);
+    }
+
+    public function testVariantWithoutOverrideRejectsEffectiveGaranWhenParentGllIsDisabled(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+
+        $result = $validator->validateVariant(
+            [
+                'garanOverride' => '',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            [
+                'enableGll' => '',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '5.0',
+                'guaranteeBrand' => 'Parent Brand',
+                'guaranteeModelIdentifier' => 'Parent Model',
+            ],
+        );
+
+        self::assertSame(
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+            $result->getMessages()[0]['code']
+        );
     }
 
     public function testVariantOverrideKeepsGaranEnabledWhenEffectiveBrandIsMissing(): void
@@ -137,6 +223,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => 'Variant Model',
             ],
             [
+                'enableGll' => '1',
                 'enableGaran' => '1',
                 'guaranteeDurationYears' => '5.0',
                 'guaranteeBrand' => '',
@@ -147,6 +234,33 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         self::assertSame('1', $result->getNormalizedData()['enableGaran']);
         self::assertSame(
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
+            $result->getMessages()[0]['code']
+        );
+    }
+
+    public function testVariantOverrideRejectsOwnGaranWhenParentGllIsDisabled(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+
+        $result = $validator->validateVariant(
+            [
+                'garanOverride' => '1',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '60',
+                'guaranteeBrand' => 'Variant Brand',
+                'guaranteeModelIdentifier' => 'Variant Model',
+            ],
+            [
+                'enableGll' => '',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '5.0',
+                'guaranteeBrand' => 'Parent Brand',
+                'guaranteeModelIdentifier' => 'Parent Model',
+            ],
+        );
+
+        self::assertSame(
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
             $result->getMessages()[0]['code']
         );
     }

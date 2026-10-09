@@ -41,6 +41,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'guaranteeModelIdentifier' => 'Variant Model',
             ],
             [
+                'enableGll' => '1',
                 'enableGaran' => '1',
                 'guaranteeDurationYears' => '4.5',
                 'guaranteeBrand' => '',
@@ -124,6 +125,59 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
         self::assertSame(
             'field "guaranteeDurationYears": GARAN was not saved because "31" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
+            $applier->formatWriteErrorMessage($result['messages'])
+        );
+    }
+
+    public function testWriteMessagesExposeGllDependencyOnEnableGaran(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+
+        $result = $applier->applyToProductRow([
+            'producer' => 'ACME Corporation',
+            'enableGll' => '',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => '36',
+            'guaranteeBrand' => 'ACME',
+            'guaranteeModelIdentifier' => 'Model 42',
+        ]);
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame('enableGaran', $result['messages'][0]['field']);
+        self::assertSame(
+            'field "enableGaran": GARAN was not saved because GLL is disabled.',
+            $applier->formatWriteErrorMessage($result['messages'])
+        );
+    }
+
+    public function testWriteMessagesExposeAffectedVariantsOnEnableGll(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+
+        $result = $applier->applyToProductRow(
+            [
+                'producer' => 'ACME Corporation',
+                'enableGll' => '',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => null,
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            true,
+            'producer',
+            [
+                [
+                    'lsShopVariantCode' => 'VAR-001',
+                    'garanOverride' => '1',
+                    'enableGaran' => '1',
+                ],
+            ]
+        );
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame('enableGll', $result['messages'][0]['field']);
+        self::assertSame(
+            'field "enableGll": GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: VAR-001.',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }

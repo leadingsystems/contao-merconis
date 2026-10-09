@@ -648,7 +648,12 @@ class ls_shop_importController
 		}
 
 		$objGuaranteeApplier = new ProductGuaranteeConfigurationApplier();
-		$arrGuaranteeResult = $objGuaranteeApplier->applyToProductRow($row, true, 'producer');
+		$arrGuaranteeResult = $objGuaranteeApplier->applyToProductRow(
+			$row,
+			true,
+			'producer',
+			ls_shop_productManagementApiHelper::getLegalGuaranteeVariantDataByProductId((int) $alreadyExistsAsID)
+		);
 		$row = $arrGuaranteeResult['row'];
 		$this->logLegalGuaranteeImportWarnings($arrGuaranteeResult['messages']);
 
@@ -2249,6 +2254,15 @@ class ls_shop_importController
 			: array();
 
 		switch ($arr_message['code'] ?? '') {
+			case 'garan_disabled_gll_required':
+				$str_detail = 'GARAN was not saved because GLL is disabled.';
+				break;
+			case 'garan_disabled_gll_variant_override':
+				$str_detail = sprintf(
+					'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',
+					$arr_parameters[0] ?? ''
+				);
+				break;
 			case 'garan_disabled_missing_brand':
 				$str_detail = 'GARAN was not saved because "Brand/Trademark" is missing.';
 				break;

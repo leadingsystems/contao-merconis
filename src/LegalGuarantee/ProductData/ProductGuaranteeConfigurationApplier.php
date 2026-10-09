@@ -14,6 +14,7 @@ final class ProductGuaranteeConfigurationApplier
 
     /**
      * @param array<string, mixed> $row
+     * @param list<array<string, mixed>> $relatedVariants
      *
      * @return array{
      *   row: array<string, mixed>,
@@ -24,6 +25,7 @@ final class ProductGuaranteeConfigurationApplier
         array $row,
         bool $applyGuaranteeBrandDefault = true,
         string $producerFieldName = 'producer',
+        array $relatedVariants = array(),
     ): array {
         if (
             $applyGuaranteeBrandDefault
@@ -34,7 +36,7 @@ final class ProductGuaranteeConfigurationApplier
             );
         }
 
-        $result = $this->validator->validateProduct($row);
+        $result = $this->validator->validateProduct($row, $relatedVariants);
 
         foreach (
             array('enableGll', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier')
@@ -165,6 +167,11 @@ final class ProductGuaranteeConfigurationApplier
             : array();
 
         return match ($message['code'] ?? '') {
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED => 'GARAN was not saved because GLL is disabled.',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => sprintf(
+                'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',
+                $parameters[0] ?? ''
+            ),
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'GARAN was not saved because "Brand/Trademark" is missing.',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 'GARAN was not saved because "Model identifier" is missing.',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION => 'GARAN was not saved because the guarantee duration is missing.',

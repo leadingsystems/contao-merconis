@@ -49,6 +49,18 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
         $helper = new ProductGuaranteeValidationHelper();
 
         self::assertSame(
+            'enableGaran',
+            $helper->getFieldNameForMessageCode(
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED
+            )
+        );
+        self::assertSame(
+            'enableGll',
+            $helper->getFieldNameForMessageCode(
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE
+            )
+        );
+        self::assertSame(
             'guaranteeBrand',
             $helper->getFieldNameForMessageCode(
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND

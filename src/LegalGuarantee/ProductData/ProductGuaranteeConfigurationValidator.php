@@ -10,6 +10,8 @@ final class ProductGuaranteeConfigurationValidator
     public const MESSAGE_GARAN_DISABLED_MISSING_MODEL = 'garan_disabled_missing_model';
     public const MESSAGE_GARAN_DISABLED_MISSING_DURATION = 'garan_disabled_missing_duration';
     public const MESSAGE_GARAN_DISABLED_INVALID_DURATION = 'garan_disabled_invalid_duration';
+    public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED = 'garan_disabled_gll_required';
+    public const MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE = 'garan_disabled_gll_variant_override';
 
     public function __construct(
         private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),
@@ -18,8 +20,9 @@ final class ProductGuaranteeConfigurationValidator
 
     /**
      * @param array<string, mixed> $productData
+     * @param list<array<string, mixed>> $relatedVariants
      */
-    public function validateProduct(array $productData): GuaranteeValidationResult
+    public function validateProduct(array $productData, array $relatedVariants = array()): GuaranteeValidationResult
     {
         $normalizedData = $this->normalizeSharedFields($productData);
         $durationResult = $this->validationHelper->normalizeDurationInput($productData['guaranteeDurationYears'] ?? null);
@@ -32,7 +35,11 @@ final class ProductGuaranteeConfigurationValidator
         ];
         $messages = $durationResult['messages'];
 
-        if ($this->isTruthy($normalizedData['enableGaran'] ?? null)) {
+        $gllMessages = $this->validateProductGllDependency($normalizedData, $relatedVariants);
+
+        if ($gllMessages !== array()) {
+            $messages = array_merge($messages, $gllMessages);
+        } elseif ($this->isTruthy($normalizedData['enableGaran'] ?? null)) {
             $messages = array_merge(
                 $messages,
                 $this->validateGaranRequirements($effectiveData, $durationResult['messages'])
@@ -63,7 +70,15 @@ final class ProductGuaranteeConfigurationValidator
             $durationResult['effectiveValue'],
         );
 
-        if ($this->isTruthy($normalizedVariantData['garanOverride'] ?? null)
+        if (
+            $this->isTruthy($effectiveData['enableGaran'] ?? null)
+            && !$this->isTruthy($normalizedProductData['enableGll'] ?? null)
+        ) {
+            $messages[] = [
+                'code' => self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+                'parameters' => [],
+            ];
+        } elseif ($this->isTruthy($normalizedVariantData['garanOverride'] ?? null)
             && $this->isTruthy($normalizedVariantData['enableGaran'] ?? null)
         ) {
             $messages = array_merge(
@@ -217,5 +232,73 @@ final class ProductGuaranteeConfigurationValidator
         $normalizedValue = str_replace(',', '.', $value);
 
         return preg_replace('/\.0$/', '', $normalizedValue) ?? $normalizedValue;
+    }
+
+    /**
+     * @param array<string, mixed> $productData
+     * @param list<array<string, mixed>> $relatedVariants
+     *
+     * @return list<array{code: string, parameters: array<int, string>}>
+     */
+    private function validateProductGllDependency(array $productData, array $relatedVariants): array
+    {
+        if ($this->isTruthy($productData['enableGll'] ?? null)) {
+            return array();
+        }
+
+        $affectedVariantIdentifiers = $this->getAffectedVariantIdentifiers($relatedVariants);
+
+        if ($affectedVariantIdentifiers !== array()) {
+            return [[
+                'code' => self::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE,
+                'parameters' => [implode(', ', $affectedVariantIdentifiers)],
+            ]];
+        }
+
+        if (!$this->isTruthy($productData['enableGaran'] ?? null)) {
+            return array();
+        }
+
+        return [[
+            'code' => self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+            'parameters' => [],
+        ]];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $relatedVariants
+     *
+     * @return list<string>
+     */
+    private function getAffectedVariantIdentifiers(array $relatedVariants): array
+    {
+        $identifiers = array();
+
+        foreach ($relatedVariants as $variantData) {
+            if (
+                !$this->isTruthy($variantData['garanOverride'] ?? null)
+                || !$this->isTruthy($variantData['enableGaran'] ?? null)
+            ) {
+                continue;
+            }
+
+            $identifier = trim((string) ($variantData['lsShopVariantCode'] ?? ''));
+
+            if ($identifier === '') {
+                $identifier = trim((string) ($variantData['title'] ?? ''));
+            }
+
+            if ($identifier === '' && isset($variantData['id'])) {
+                $identifier = '#'.(string) $variantData['id'];
+            }
+
+            if ($identifier === '') {
+                continue;
+            }
+
+            $identifiers[] = $identifier;
+        }
+
+        return array_values(array_unique($identifiers));
     }
 }

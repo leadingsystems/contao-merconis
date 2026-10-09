@@ -797,9 +797,35 @@ class ls_shop_productManagementApiHelper {
 		return $obj_dbres_product->row();
 	}
 
+	public static function getLegalGuaranteeVariantDataByProductId($int_productId) {
+		if (!$int_productId) {
+			return array();
+		}
+
+		$obj_dbres_variants = Database::getInstance()
+		->prepare("
+			SELECT		`id`,
+						`lsShopVariantCode`,
+						`title`,
+						`garanOverride`,
+						`enableGaran`
+			FROM		`tl_ls_shop_variant`
+			WHERE		`pid` = ?
+		")
+		->execute($int_productId);
+
+		return $obj_dbres_variants->fetchAllAssoc();
+	}
+
 	public static function applyLegalGuaranteeProductData($arr_preprocessedDataRow) {
 		$obj_applier = new ProductGuaranteeConfigurationApplier();
-		$arr_result = $obj_applier->applyToProductRow($arr_preprocessedDataRow, true, 'producer');
+		$int_productId = self::getProductIdForProductCode($arr_preprocessedDataRow['productcode'] ?? '');
+		$arr_result = $obj_applier->applyToProductRow(
+			$arr_preprocessedDataRow,
+			true,
+			'producer',
+			self::getLegalGuaranteeVariantDataByProductId($int_productId)
+		);
 
 		if ($obj_applier->hasBlockingWriteMessages($arr_result['messages'])) {
 			throw new \Exception($obj_applier->formatWriteErrorMessage($arr_result['messages']));

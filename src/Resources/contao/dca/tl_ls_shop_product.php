@@ -516,6 +516,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'default'                 => '1',
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'clr m12'),
+			'save_callback' => array (
+				array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeBeforeSave')
+			),
 			'filter'		=> true,
             'sql'                     => "char(1) NOT NULL default ''"
 		),
@@ -525,6 +528,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'w50 m12'),
+			'save_callback' => array (
+				array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeBeforeSave')
+			),
 			'filter'		=> true,
             'sql'                     => "char(1) NOT NULL default ''"
 		),
@@ -1429,7 +1435,8 @@ class tl_ls_shop_product_controller extends Backend {
 				$validationHelper->getProductRequestFieldNames(),
 				$dc->field,
 				$varValue
-			)
+			),
+			$this->getRelatedVariantGuaranteeData((int) $dc->id)
 		);
 
 		$validationHelper->addErrorMessages(
@@ -1477,14 +1484,16 @@ class tl_ls_shop_product_controller extends Backend {
 				$arrCurrentData,
 				$arrPostedValues,
 				array_keys($arrPostedValues)
-			)
+			),
+			$this->getRelatedVariantGuaranteeData((int) $dc->id)
 		);
 		$persistenceResult = $validator->validateProduct(
 			$this->buildProductValidationInputData(
 				$arrCurrentData,
 				$arrPostedValues,
 				$arrVisibleFieldNames
-			)
+			),
+			$this->getRelatedVariantGuaranteeData((int) $dc->id)
 		);
 		$arrFieldsToPersist = $validationHelper->buildChangedFieldValues(
 			$arrCurrentData,
@@ -1535,6 +1544,25 @@ class tl_ls_shop_product_controller extends Backend {
 		);
 
 		return $arrValidationData;
+	}
+
+	private function getRelatedVariantGuaranteeData(int $intProductId): array {
+		if ($intProductId <= 0) {
+			return array();
+		}
+
+		$objVariants = Database::getInstance()->prepare("
+			SELECT      `id`,
+						`lsShopVariantCode`,
+						`title`,
+						`garanOverride`,
+						`enableGaran`
+			FROM        `tl_ls_shop_variant`
+			WHERE       `pid` = ?
+		")
+		->execute($intProductId);
+
+		return $objVariants->fetchAllAssoc();
 	}
 
 	public function generateAlias($str_value, DataContainer $dc) {

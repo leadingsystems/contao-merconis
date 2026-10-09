@@ -1302,6 +1302,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('tl_class'=>'w50 m12'),
+			'save_callback' => array (
+				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave')
+			),
 			'filter'		=> true,
             'sql'                     => "char(1) NOT NULL default ''"
 		),
@@ -1416,7 +1419,8 @@ class tl_ls_shop_variant_controller extends Backend {
 		}
 
 		$objProduct = Database::getInstance()->prepare("
-			SELECT      `enableGaran`,
+			SELECT      `enableGll`,
+						`enableGaran`,
 						`guaranteeDurationYears`,
 						`guaranteeBrand`,
 						`guaranteeModelIdentifier`
@@ -1480,7 +1484,8 @@ class tl_ls_shop_variant_controller extends Backend {
 		}
 
 		$objProduct = Database::getInstance()->prepare("
-			SELECT      `enableGaran`,
+			SELECT      `enableGll`,
+						`enableGaran`,
 						`guaranteeDurationYears`,
 						`guaranteeBrand`,
 						`guaranteeModelIdentifier`

@@ -35,6 +35,14 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertSame('1', $tableConfig['fields']['enableGll']['default']);
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['enableGll']['sql']);
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['enableGaran']['sql']);
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['enableGll']['save_callback'][0][1]
+        );
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['enableGaran']['save_callback'][0][1]
+        );
         self::assertSame("decimal(3,1) NULL", $tableConfig['fields']['guaranteeDurationYears']['sql']);
         self::assertTrue($tableConfig['fields']['guaranteeDurationYears']['eval']['mandatory']);
         self::assertTrue($tableConfig['fields']['guaranteeBrand']['eval']['mandatory']);
@@ -98,6 +106,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertSame('w50 m12', $tableConfig['fields']['garanOverride']['eval']['tl_class']);
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['garanOverride']['sql']);
         self::assertSame("char(1) NOT NULL default ''", $tableConfig['fields']['enableGaran']['sql']);
+        self::assertSame(
+            'validateLegalGuaranteeBeforeSave',
+            $tableConfig['fields']['enableGaran']['save_callback'][0][1]
+        );
         self::assertSame("decimal(3,1) NULL", $tableConfig['fields']['guaranteeDurationYears']['sql']);
         self::assertSame(
             'validateLegalGuaranteeBeforeSave',
@@ -148,6 +160,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['lsShopGuaranteeLabels_legend']", $variantLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $productLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $variantLanguageEn);
+        self::assertStringContainsString('garan_disabled_gll_required', $productLanguageDe);
+        self::assertStringContainsString('garan_disabled_gll_variant_override', $productLanguageEn);
+        self::assertStringContainsString('garan_disabled_gll_required', $variantLanguageDe);
+        self::assertStringContainsString('garan_disabled_gll_variant_override', $variantLanguageEn);
         self::assertStringContainsString('Garantiedauer in Monaten', $productLanguageDe);
         self::assertStringContainsString('Brand/Trademark', $productLanguageDe);
         self::assertStringContainsString('Model identifier', $productLanguageEn);
