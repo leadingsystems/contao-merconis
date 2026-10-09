@@ -13,6 +13,7 @@ use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeValidationHelper;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 	'config' => array(
@@ -1395,31 +1396,13 @@ class tl_ls_shop_variant_controller extends Backend {
 	}
 
 	public function loadGuaranteeDurationInput($varValue) {
-		return $this->convertStoredYearsToMonthsInput($varValue);
+		return $this->getGuaranteeValidationHelper()->convertStoredYearsToMonthsInput($varValue);
 	}
 
 	public function normalizeGuaranteeDurationInput($varValue) {
-		$strValue = trim((string) $varValue);
+		$arrDurationResult = $this->getGuaranteeValidationHelper()->normalizeDurationInput($varValue);
 
-		if ($strValue === '') {
-			return null;
-		}
-
-		if (!preg_match('/^\d+$/', $strValue)) {
-			return null;
-		}
-
-		$intMonths = (int) $strValue;
-
-		if ($intMonths < 30 || $intMonths > 360 || 0 !== $intMonths % 6) {
-			return null;
-		}
-
-		if (0 === $intMonths % 12) {
-			return (string) intdiv($intMonths, 12);
-		}
-
-		return number_format($intMonths / 12, 1, '.', '');
+		return $arrDurationResult['storedValue'];
 	}
 
 	public function validateLegalGuaranteeBeforeSave($varValue, DataContainer $dc) {
@@ -1469,7 +1452,10 @@ class tl_ls_shop_variant_controller extends Backend {
 			$objProduct->row()
 		);
 
-		$this->throwGuaranteeValidationException($result->getMessages(), 'tl_ls_shop_variant');
+		$this->throwGuaranteeValidationException(
+			$this->getRelevantGuaranteeMessagesForField($result->getMessages(), $dc->field, $validator),
+			'tl_ls_shop_variant'
+		);
 
 		return $varValue;
 	}
@@ -1553,20 +1539,12 @@ class tl_ls_shop_variant_controller extends Backend {
 			->execute(...$arrValues);
 		}
 
-		foreach ($result->getMessages() as $arrMessage) {
-			$strTemplate = $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'][$arrMessage['code']] ?? null;
-
-			if (!$strTemplate) {
-				continue;
-			}
-
-			Message::addError(vsprintf($strTemplate, $arrMessage['parameters']));
-		}
+		$this->addUnmappedGuaranteeMessages($result->getMessages(), 'tl_ls_shop_variant', $validator);
 	}
 
 	private function buildVariantValidationInputData(array $arrCurrentVariantData, string $strCurrentFieldName = '', $varCurrentFieldValue = null): array {
 		$arrValidationData = $arrCurrentVariantData;
-		$arrValidationData['guaranteeDurationYears'] = $this->convertStoredYearsToMonthsInput($arrCurrentVariantData['guaranteeDurationYears'] ?? null);
+		$arrValidationData['guaranteeDurationYears'] = $this->getGuaranteeValidationHelper()->convertStoredYearsToMonthsInput($arrCurrentVariantData['guaranteeDurationYears'] ?? null);
 
 		foreach (array('garanOverride', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier') as $strFieldName) {
 			$varPostedValue = Input::post($strFieldName);
@@ -1585,24 +1563,6 @@ class tl_ls_shop_variant_controller extends Backend {
 		return $arrValidationData;
 	}
 
-	private function convertStoredYearsToMonthsInput($varValue): string {
-		$strValue = trim((string) $varValue);
-
-		if ($strValue === '') {
-			return '';
-		}
-
-		$floatYears = (float) str_replace(',', '.', $strValue);
-		$floatMonths = $floatYears * 12;
-		$intMonths = (int) round($floatMonths);
-
-		if (abs($floatMonths - $intMonths) > 0.0001) {
-			return $strValue;
-		}
-
-		return (string) $intMonths;
-	}
-
 	private function throwGuaranteeValidationException(array $arrMessages, string $strLanguageScope): void {
 		if (empty($arrMessages)) {
 			return;
@@ -1616,6 +1576,46 @@ class tl_ls_shop_variant_controller extends Backend {
 		}
 
 		throw new \Exception(vsprintf($strTemplate, $arrMessage['parameters']));
+	}
+
+	private function getRelevantGuaranteeMessagesForField(array $arrMessages, string $strFieldName, ProductGuaranteeConfigurationValidator $validator): array {
+		$arrRelevantMessages = [];
+		$arrFallbackMessages = [];
+
+		foreach ($arrMessages as $arrMessage) {
+			$strMappedFieldName = $validator->getFieldNameForMessageCode((string) ($arrMessage['code'] ?? ''));
+
+			if ($strMappedFieldName === $strFieldName) {
+				$arrRelevantMessages[] = $arrMessage;
+				continue;
+			}
+
+			if ($strMappedFieldName === null) {
+				$arrFallbackMessages[] = $arrMessage;
+			}
+		}
+
+		return !empty($arrRelevantMessages) ? $arrRelevantMessages : $arrFallbackMessages;
+	}
+
+	private function addUnmappedGuaranteeMessages(array $arrMessages, string $strLanguageScope, ProductGuaranteeConfigurationValidator $validator): void {
+		foreach ($arrMessages as $arrMessage) {
+			if ($validator->getFieldNameForMessageCode((string) ($arrMessage['code'] ?? '')) !== null) {
+				continue;
+			}
+
+			$strTemplate = $GLOBALS['TL_LANG'][$strLanguageScope]['guaranteeValidationMessages'][$arrMessage['code']] ?? null;
+
+			if (!$strTemplate) {
+				continue;
+			}
+
+			Message::addError(vsprintf($strTemplate, $arrMessage['parameters']));
+		}
+	}
+
+	private function getGuaranteeValidationHelper(): ProductGuaranteeValidationHelper {
+		return new ProductGuaranteeValidationHelper();
 	}
 
 	public function generateAlias($str_value, DataContainer $dc) {

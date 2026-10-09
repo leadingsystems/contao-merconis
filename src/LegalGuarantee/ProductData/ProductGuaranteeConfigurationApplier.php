@@ -8,6 +8,7 @@ final class ProductGuaranteeConfigurationApplier
 {
     public function __construct(
         private readonly ProductGuaranteeConfigurationValidator $validator = new ProductGuaranteeConfigurationValidator(),
+        private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),
     ) {
     }
 
@@ -141,23 +142,12 @@ final class ProductGuaranteeConfigurationApplier
         foreach ($messages as $message) {
             $decoratedMessages[] = array(
                 'code' => $message['code'],
-                'field' => $this->getFieldNameForMessageCode($message['code']),
+                'field' => $this->validationHelper->getFieldNameForMessageCode($message['code']) ?? 'enableGaran',
                 'parameters' => $message['parameters'],
             );
         }
 
         return $decoratedMessages;
-    }
-
-    private function getFieldNameForMessageCode(string $messageCode): string
-    {
-        return match ($messageCode) {
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'guaranteeBrand',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 'guaranteeModelIdentifier',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION,
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => 'guaranteeDurationYears',
-            default => 'enableGaran',
-        };
     }
 
     private function normalizeCheckboxValue(mixed $value): string
@@ -188,18 +178,6 @@ final class ProductGuaranteeConfigurationApplier
 
     private function normalizeExportDurationMonths(mixed $value): string
     {
-        $value = trim((string) $value);
-
-        if ($value === '') {
-            return '';
-        }
-
-        $normalizedValue = str_replace(',', '.', $value);
-
-        if (!is_numeric($normalizedValue)) {
-            return '';
-        }
-
-        return (string) ((int) round(((float) $normalizedValue) * 12));
+        return $this->validationHelper->convertStoredYearsToMonthsInput($value);
     }
 }

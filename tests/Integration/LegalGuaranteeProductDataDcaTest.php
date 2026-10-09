@@ -121,8 +121,11 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['lsShopGuaranteeLabels_legend']", $variantLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $productLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $variantLanguageEn);
-        self::assertStringContainsString('Garantiedauer in Monaten', $productLanguageDe);
-        self::assertStringContainsString('Guarantee duration in months', $productLanguageEn);
+        self::assertStringContainsString('Garantiedauer in Monaten *', $productLanguageDe);
+        self::assertStringContainsString('Brand/Trademark *', $productLanguageDe);
+        self::assertStringContainsString('Model identifier *', $productLanguageEn);
+        self::assertStringContainsString('Guarantee duration in months', $variantLanguageEn);
+        self::assertStringNotContainsString('Guarantee duration in months *', $variantLanguageEn);
     }
 
     public function testServicesAndMigrationAreRegisteredForEnableGllBackfillAndValidation(): void

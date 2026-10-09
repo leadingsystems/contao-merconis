@@ -11,13 +11,18 @@ final class ProductGuaranteeConfigurationValidator
     public const MESSAGE_GARAN_DISABLED_MISSING_DURATION = 'garan_disabled_missing_duration';
     public const MESSAGE_GARAN_DISABLED_INVALID_DURATION = 'garan_disabled_invalid_duration';
 
+    public function __construct(
+        private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),
+    ) {
+    }
+
     /**
      * @param array<string, mixed> $productData
      */
     public function validateProduct(array $productData): GuaranteeValidationResult
     {
         $normalizedData = $this->normalizeSharedFields($productData);
-        $durationResult = $this->normalizeDurationInput($productData['guaranteeDurationYears'] ?? null);
+        $durationResult = $this->validationHelper->normalizeDurationInput($productData['guaranteeDurationYears'] ?? null);
         $normalizedData['guaranteeDurationYears'] = $durationResult['storedValue'];
         $effectiveData = [
             'enableGaran' => $normalizedData['enableGaran'],
@@ -49,7 +54,7 @@ final class ProductGuaranteeConfigurationValidator
     {
         $normalizedVariantData = $this->normalizeSharedFields($variantData);
         $normalizedProductData = $this->normalizeSharedFields($productData);
-        $durationResult = $this->normalizeDurationInput($variantData['guaranteeDurationYears'] ?? null);
+        $durationResult = $this->validationHelper->normalizeDurationInput($variantData['guaranteeDurationYears'] ?? null);
         $normalizedVariantData['guaranteeDurationYears'] = $durationResult['storedValue'];
         $messages = $durationResult['messages'];
         $effectiveData = $this->buildEffectiveVariantData(
@@ -83,6 +88,11 @@ final class ProductGuaranteeConfigurationValidator
         }
 
         return mb_substr($productProducer, 0, 40);
+    }
+
+    public function getFieldNameForMessageCode(string $messageCode): ?string
+    {
+        return $this->validationHelper->getFieldNameForMessageCode($messageCode);
     }
 
     /**
@@ -196,58 +206,6 @@ final class ProductGuaranteeConfigurationValidator
         ];
     }
 
-    /**
-     * @return array{
-     *   effectiveValue: string,
-     *   storedValue: string|null,
-     *   messages: list<array{code: string, parameters: array<int, string>}>
-     * }
-     */
-    private function normalizeDurationInput(mixed $rawValue): array
-    {
-        $originalInput = trim((string) $rawValue);
-
-        if ('' === $originalInput) {
-            return [
-                'effectiveValue' => '',
-                'storedValue' => null,
-                'messages' => [],
-            ];
-        }
-
-        if (!preg_match('/^\d+$/', $originalInput)) {
-            return [
-                'effectiveValue' => '',
-                'storedValue' => null,
-                'messages' => [[
-                    'code' => self::MESSAGE_GARAN_DISABLED_INVALID_DURATION,
-                    'parameters' => [$originalInput],
-                ]],
-            ];
-        }
-
-        $months = (int) $originalInput;
-
-        if ($months < 30 || $months > 360 || 0 !== $months % 6) {
-            return [
-                'effectiveValue' => '',
-                'storedValue' => null,
-                'messages' => [[
-                    'code' => self::MESSAGE_GARAN_DISABLED_INVALID_DURATION,
-                    'parameters' => [$originalInput],
-                ]],
-            ];
-        }
-
-        $storedYears = $this->formatStoredYearsFromMonths($months);
-
-        return [
-            'effectiveValue' => $storedYears,
-            'storedValue' => $storedYears,
-            'messages' => [],
-        ];
-    }
-
     private function normalizeStoredDurationValue(mixed $rawValue): string
     {
         $value = trim((string) $rawValue);
@@ -259,14 +217,5 @@ final class ProductGuaranteeConfigurationValidator
         $normalizedValue = str_replace(',', '.', $value);
 
         return preg_replace('/\.0$/', '', $normalizedValue) ?? $normalizedValue;
-    }
-
-    private function formatStoredYearsFromMonths(int $months): string
-    {
-        if (0 === $months % 12) {
-            return (string) intdiv($months, 12);
-        }
-
-        return number_format($months / 12, 1, '.', '');
     }
 }
