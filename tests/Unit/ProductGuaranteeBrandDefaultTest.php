@@ -4,48 +4,40 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
 use Contao\Database;
+use Contao\DataContainer;
+use Contao\Input;
 use PHPUnit\Framework\TestCase;
-use ReflectionMethod;
 use ReflectionProperty;
 
 final class ProductGuaranteeBrandDefaultTest extends TestCase
 {
     private mixed $previousDatabaseInstance = null;
-    private array $previousPost = [];
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->loadProductControllerClass();
         $this->previousDatabaseInstance = $this->getDatabaseInstanceProperty()->getValue();
-        $this->previousPost = $_POST ?? [];
+        Input::resetCache();
     }
 
     protected function tearDown(): void
     {
-        $_POST = $this->previousPost;
+        foreach ([
+            'FORM_SUBMIT',
+            'SUBMIT_TYPE',
+            'lsShopProductProducer',
+            'guaranteeBrand',
+        ] as $fieldName) {
+            Input::setPost($fieldName, null);
+        }
+
+        Input::resetCache();
         $this->getDatabaseInstanceProperty()->setValue(null, $this->previousDatabaseInstance);
         parent::tearDown();
     }
 
-    public function testApplyGuaranteeBrandDefaultPersistsProducerForUnsavedProduct(): void
-    {
-        $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
-            'tstamp' => '0',
-            'lsShopProductProducer' => 'ACME Corporation',
-            'guaranteeBrand' => '',
-        ]);
-        $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
-
-        $controller = $this->createController();
-        $controller->applyGuaranteeBrandDefaultForNewProduct(17);
-
-        self::assertSame([[17]], $databaseSpy->selectExecutions);
-        self::assertSame([1, 1], $databaseSpy->selectLimits);
-        self::assertSame([['ACME Corporation', 17]], $databaseSpy->updateExecutions);
-    }
-
-    public function testApplyGuaranteeBrandDefaultSkipsUnsavedProductWithoutProducer(): void
+    public function testOnloadCallbackPrefillsBrandFromPostedProducerOnFirstManualSave(): void
     {
         $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
             'tstamp' => '0',
@@ -53,86 +45,178 @@ final class ProductGuaranteeBrandDefaultTest extends TestCase
             'guaranteeBrand' => '',
         ]);
         $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
+        Input::setPost('FORM_SUBMIT', 'tl_ls_shop_product');
+        Input::setPost('lsShopProductProducer', 'ACME Corporation');
+        Input::setPost('guaranteeBrand', '');
 
         $controller = $this->createController();
-        $controller->applyGuaranteeBrandDefaultForNewProduct(18);
+        $controller->applyGuaranteeBrandDefaultForNewProduct($this->createDataContainer(17));
 
-        self::assertSame([], $databaseSpy->updateExecutions);
+        self::assertSame([[17]], $databaseSpy->selectExecutions);
+        self::assertSame([1], $databaseSpy->selectLimits);
+        self::assertSame('ACME Corporation', Input::post('guaranteeBrand'));
     }
 
-    public function testApplyGuaranteeBrandDefaultKeepsExistingBrandOnUnsavedProduct(): void
+    public function testOnloadCallbackSkipsAutoSubmitToAvoidSubpalettePrefill(): void
     {
         $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
             'tstamp' => '0',
-            'lsShopProductProducer' => 'ACME Corporation',
-            'guaranteeBrand' => 'Shop Brand',
-        ]);
-        $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
-
-        $controller = $this->createController();
-        $controller->applyGuaranteeBrandDefaultForNewProduct(19);
-
-        self::assertSame([], $databaseSpy->updateExecutions);
-    }
-
-    public function testApplyGuaranteeBrandDefaultSkipsSavedProductToAvoidLaterProducerOverwrite(): void
-    {
-        $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
-            'tstamp' => '1234567890',
-            'lsShopProductProducer' => 'Changed Producer',
+            'lsShopProductProducer' => '',
             'guaranteeBrand' => '',
         ]);
         $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
+        Input::setPost('FORM_SUBMIT', 'tl_ls_shop_product');
+        Input::setPost('SUBMIT_TYPE', 'auto');
+        Input::setPost('lsShopProductProducer', 'ACME Corporation');
+        Input::setPost('guaranteeBrand', '');
 
         $controller = $this->createController();
-        $controller->applyGuaranteeBrandDefaultForNewProduct(20);
+        $controller->applyGuaranteeBrandDefaultForNewProduct($this->createDataContainer(18));
 
-        self::assertSame([], $databaseSpy->updateExecutions);
+        self::assertSame('', Input::post('guaranteeBrand'));
     }
 
-    public function testBuildProductValidationInputDataPrefillsBrandForUnsavedProductFromPostedProducer(): void
+    public function testOnbeforesubmitCallbackAddsBrandForFirstSaveWithoutPostedBrandField(): void
     {
-        $_POST['lsShopProductProducer'] = 'ACME Corporation';
-        $_POST['guaranteeBrand'] = '';
+        $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
+            'tstamp' => '0',
+            'lsShopProductProducer' => '',
+            'guaranteeBrand' => '',
+        ]);
+        $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
+        Input::setPost('lsShopProductProducer', 'ACME Corporation');
 
         $controller = $this->createController();
-        $result = $this->invokeBuildProductValidationInputData(
-            $controller,
-            [
-                'tstamp' => '0',
-                'enableGll' => '1',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '',
-                'guaranteeBrand' => '',
-                'guaranteeModelIdentifier' => 'Model 42',
-                'lsShopProductProducer' => '',
-            ],
+        $submittedValues = $controller->applyGuaranteeBrandDefaultForNewProduct(
+            ['enableGaran' => ''],
+            $this->createDataContainer(19)
         );
 
-        self::assertSame('ACME Corporation', $result['guaranteeBrand']);
+        self::assertSame('ACME Corporation', $submittedValues['guaranteeBrand']);
     }
 
-    public function testBuildProductValidationInputDataDoesNotPrefillBrandForSavedProduct(): void
+    public function testCallbacksPersistBrandInSameRequestForFirstSaveWithGaranEnabled(): void
     {
-        $_POST['lsShopProductProducer'] = 'Changed Producer';
-        $_POST['guaranteeBrand'] = '';
+        $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
+            'tstamp' => '0',
+            'lsShopProductProducer' => '',
+            'guaranteeBrand' => '',
+        ]);
+        $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
+        Input::setPost('FORM_SUBMIT', 'tl_ls_shop_product');
+        Input::setPost('lsShopProductProducer', 'ACME Corporation');
+        Input::setPost('guaranteeBrand', '');
 
         $controller = $this->createController();
-        $result = $this->invokeBuildProductValidationInputData(
-            $controller,
+        $dataContainer = $this->createDataContainer(23);
+
+        $controller->applyGuaranteeBrandDefaultForNewProduct($dataContainer);
+
+        $submittedValues = $controller->applyGuaranteeBrandDefaultForNewProduct(
             [
-                'tstamp' => '1234567890',
-                'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '',
-                'guaranteeBrand' => '',
-                'guaranteeModelIdentifier' => 'Model 42',
-                'lsShopProductProducer' => 'Original Producer',
+                'guaranteeBrand' => Input::post('guaranteeBrand'),
             ],
+            $dataContainer
         );
 
-        self::assertSame('', $result['guaranteeBrand']);
-        self::assertSame('Changed Producer', $result['lsShopProductProducer']);
+        self::assertSame('ACME Corporation', Input::post('guaranteeBrand'));
+        self::assertSame('ACME Corporation', $submittedValues['guaranteeBrand']);
+    }
+
+    public function testCallbacksPersistBrandInSameRequestForFirstSaveWithGaranDisabled(): void
+    {
+        $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
+            'tstamp' => '0',
+            'lsShopProductProducer' => '',
+            'guaranteeBrand' => '',
+        ]);
+        $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
+        Input::setPost('FORM_SUBMIT', 'tl_ls_shop_product');
+        Input::setPost('lsShopProductProducer', 'ACME Corporation');
+        Input::setPost('guaranteeBrand', '');
+
+        $controller = $this->createController();
+        $dataContainer = $this->createDataContainer(24);
+
+        $controller->applyGuaranteeBrandDefaultForNewProduct($dataContainer);
+
+        $submittedValues = $controller->applyGuaranteeBrandDefaultForNewProduct(
+            ['enableGaran' => ''],
+            $dataContainer
+        );
+
+        self::assertSame('ACME Corporation', Input::post('guaranteeBrand'));
+        self::assertSame('ACME Corporation', $submittedValues['guaranteeBrand']);
+    }
+
+    public function testCallbackSkipsFirstSaveWithoutProducer(): void
+    {
+        $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
+            'tstamp' => '0',
+            'lsShopProductProducer' => '',
+            'guaranteeBrand' => '',
+        ]);
+        $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
+        Input::setPost('FORM_SUBMIT', 'tl_ls_shop_product');
+        Input::setPost('lsShopProductProducer', '');
+        Input::setPost('guaranteeBrand', '');
+
+        $controller = $this->createController();
+        $submittedValues = $controller->applyGuaranteeBrandDefaultForNewProduct(
+            ['enableGaran' => ''],
+            $this->createDataContainer(20)
+        );
+
+        self::assertSame('', Input::post('guaranteeBrand'));
+        self::assertArrayNotHasKey('guaranteeBrand', $submittedValues);
+    }
+
+    public function testCallbackKeepsExistingBrandOnFirstSave(): void
+    {
+        $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
+            'tstamp' => '0',
+            'lsShopProductProducer' => '',
+            'guaranteeBrand' => '',
+        ]);
+        $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
+        Input::setPost('FORM_SUBMIT', 'tl_ls_shop_product');
+        Input::setPost('lsShopProductProducer', 'ACME Corporation');
+        Input::setPost('guaranteeBrand', 'Shop Brand');
+
+        $controller = $this->createController();
+        $submittedValues = $controller->applyGuaranteeBrandDefaultForNewProduct(
+            ['guaranteeBrand' => 'Shop Brand'],
+            $this->createDataContainer(21)
+        );
+
+        $controller->applyGuaranteeBrandDefaultForNewProduct($this->createDataContainer(21));
+
+        self::assertSame('Shop Brand', $submittedValues['guaranteeBrand']);
+        self::assertSame('Shop Brand', Input::post('guaranteeBrand'));
+    }
+
+    public function testCallbackSkipsSavedProductToAvoidLaterProducerOverwrite(): void
+    {
+        $databaseSpy = new ProductGuaranteeBrandDefaultDatabaseSpy([
+            'tstamp' => '1234567890',
+            'lsShopProductProducer' => 'Original Producer',
+            'guaranteeBrand' => '',
+        ]);
+        $this->getDatabaseInstanceProperty()->setValue(null, $databaseSpy);
+        Input::setPost('FORM_SUBMIT', 'tl_ls_shop_product');
+        Input::setPost('lsShopProductProducer', 'Changed Producer');
+        Input::setPost('guaranteeBrand', '');
+
+        $controller = $this->createController();
+        $submittedValues = $controller->applyGuaranteeBrandDefaultForNewProduct(
+            ['enableGaran' => '1'],
+            $this->createDataContainer(22)
+        );
+        $controller->applyGuaranteeBrandDefaultForNewProduct($this->createDataContainer(22));
+
+        self::assertArrayNotHasKey('guaranteeBrand', $submittedValues);
+        self::assertSame('', Input::post('guaranteeBrand'));
     }
 
     private function createController(): object
@@ -144,25 +228,32 @@ final class ProductGuaranteeBrandDefaultTest extends TestCase
         };
     }
 
-    /**
-     * @param array<string, mixed> $currentData
-     *
-     * @return array<string, mixed>
-     */
-    private function invokeBuildProductValidationInputData(object $controller, array $currentData): array
-    {
-        $method = new ReflectionMethod(\Merconis\Core\tl_ls_shop_product_controller::class, 'buildProductValidationInputData');
-        $method->setAccessible(true);
-
-        return $method->invoke($controller, $currentData);
-    }
-
     private function getDatabaseInstanceProperty(): ReflectionProperty
     {
         $databaseInstanceProperty = new ReflectionProperty(Database::class, 'objInstance');
         $databaseInstanceProperty->setAccessible(true);
 
         return $databaseInstanceProperty;
+    }
+
+    private function createDataContainer(int $id): DataContainer
+    {
+        return new class($id) extends DataContainer {
+            public function __construct(int $id)
+            {
+                $this->id = $id;
+            }
+
+            public function getPalette()
+            {
+                return '';
+            }
+
+            protected function save($varValue)
+            {
+                return null;
+            }
+        };
     }
 
     private function loadProductControllerClass(): void
@@ -191,7 +282,6 @@ final class ProductGuaranteeBrandDefaultDatabaseSpy extends Database
 {
     public array $selectExecutions = [];
     public array $selectLimits = [];
-    public array $updateExecutions = [];
 
     /**
      * @param array<string, mixed> $productRow
@@ -219,12 +309,6 @@ final class ProductGuaranteeBrandDefaultDatabaseSpy extends Database
             $this->selectExecutions[] = $params;
 
             return new ProductGuaranteeBrandDefaultResultSpy($this->productRow);
-        }
-
-        if (str_contains($query, 'UPDATE      `tl_ls_shop_product`')) {
-            $this->updateExecutions[] = $params;
-
-            return new \stdClass();
         }
 
         throw new \RuntimeException('Unbekannte Query im Database-Spy.');
@@ -255,6 +339,9 @@ final class ProductGuaranteeBrandDefaultStatementSpy
 final class ProductGuaranteeBrandDefaultResultSpy
 {
     public int $numRows = 1;
+    public mixed $tstamp = null;
+    public mixed $lsShopProductProducer = null;
+    public mixed $guaranteeBrand = null;
 
     /**
      * @param array<string, mixed> $row

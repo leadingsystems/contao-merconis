@@ -27,9 +27,15 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			array('Merconis\Core\ls_shop_generalHelper', 'attributeValueAllocationRemoveOrphanedRecords'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
+		'onload_callback' => array(
+			array('Merconis\Core\tl_ls_shop_product_controller', 'applyGuaranteeBrandDefaultForNewProduct')
+		),
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeConfiguration'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
+		),
+		'onbeforesubmit_callback' => array(
+			array('Merconis\Core\tl_ls_shop_product_controller', 'applyGuaranteeBrandDefaultForNewProduct')
 		),
 		'onrestore_version_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -1387,11 +1393,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 	)
 );
 
-$GLOBALS['TL_DCA']['tl_ls_shop_product']['config']['oncreate_callback'][] = array(
-	tl_ls_shop_product_controller::class,
-	'oncreateGuaranteeBrandDefault'
-);
-
 
 if (!class_exists(tl_ls_shop_product_controller::class, false)) {
 class tl_ls_shop_product_controller extends Backend {
@@ -1399,30 +1400,6 @@ class tl_ls_shop_product_controller extends Backend {
 	public function __construct() {
 		parent::__construct();
 		$this->import('Contao\BackendUser', 'User');
-	}
-
-	public function oncreateGuaranteeBrandDefault($strTable, $intId, $arrSet, DataContainer $dc): void {
-		$validator = new ProductGuaranteeConfigurationValidator();
-		$strGuaranteeBrand = trim((string) ($arrSet['guaranteeBrand'] ?? ''));
-
-		if ($strGuaranteeBrand !== '') {
-			return;
-		}
-
-		$strProducer = $arrSet['lsShopProductProducer'] ?? '';
-		$strGuaranteeBrand = $validator->getInitialGuaranteeBrand($strProducer);
-
-		if ($strGuaranteeBrand === '') {
-			return;
-		}
-
-		Database::getInstance()->prepare("
-			UPDATE      `tl_ls_shop_product`
-			SET         `guaranteeBrand` = ?
-			WHERE       `id` = ?
-		")
-		->limit(1)
-		->execute($strGuaranteeBrand, $intId);
 	}
 
 	public function validateLegalGuaranteeBeforeSave($varValue, DataContainer $dc) {
@@ -1474,7 +1451,25 @@ class tl_ls_shop_product_controller extends Backend {
 		return $varValue;
 	}
 
-	public function applyGuaranteeBrandDefaultForNewProduct(int $intId): void {
+	public function applyGuaranteeBrandDefaultForNewProduct($subject, ?DataContainer $dc = null) {
+		$arrSubmittedValues = null;
+
+		if ($subject instanceof DataContainer) {
+			$dc = $subject;
+
+			if (Input::post('FORM_SUBMIT') !== 'tl_ls_shop_product' || Input::post('SUBMIT_TYPE') === 'auto') {
+				return null;
+			}
+		} elseif (is_array($subject) && $dc instanceof DataContainer) {
+			$arrSubmittedValues = $subject;
+		} else {
+			return $subject;
+		}
+
+		if (!$dc->id) {
+			return $arrSubmittedValues ?? null;
+		}
+
 		$objRecord = Database::getInstance()->prepare("
 			SELECT      `tstamp`,
 						`lsShopProductProducer`,
@@ -1483,39 +1478,59 @@ class tl_ls_shop_product_controller extends Backend {
 			WHERE       `id` = ?
 		")
 		->limit(1)
-		->execute($intId);
+		->execute($dc->id);
 
 		if (!$objRecord->numRows) {
-			return;
+			return $arrSubmittedValues ?? null;
 		}
 
-		$arrProductData = $objRecord->row();
+		$validationHelper = new ProductGuaranteeValidationHelper();
+		$arrPostedValues = $validationHelper->readPostedFieldValues($validationHelper->getProductRequestFieldNames());
 
-		if (!$this->shouldApplyGuaranteeBrandDefaultForNewProduct($arrProductData)) {
-			return;
+		if ($arrSubmittedValues !== null && !array_key_exists('guaranteeBrand', $arrSubmittedValues)) {
+			unset($arrPostedValues['guaranteeBrand']);
 		}
 
-		$strGuaranteeBrand = $this->getInitialGuaranteeBrandFromProductData($arrProductData);
+		$arrProductData = $validationHelper->mergePostedFieldValues(
+			$objRecord->row(),
+			$arrPostedValues,
+			array('lsShopProductProducer', 'guaranteeBrand')
+		);
+
+		if ((string) ($arrProductData['tstamp'] ?? '') !== '0') {
+			return $arrSubmittedValues ?? null;
+		}
+
+		if (trim((string) ($arrProductData['guaranteeBrand'] ?? '')) !== '') {
+			return $arrSubmittedValues ?? null;
+		}
+
+		$validator = new ProductGuaranteeConfigurationValidator();
+		$strGuaranteeBrand = $validator->getInitialGuaranteeBrand((string) ($arrProductData['lsShopProductProducer'] ?? ''));
 
 		if ($strGuaranteeBrand === '') {
-			return;
+			return $arrSubmittedValues ?? null;
 		}
 
-		Database::getInstance()->prepare("
-			UPDATE      `tl_ls_shop_product`
-			SET         `guaranteeBrand` = ?
-			WHERE       `id` = ?
-		")
-		->limit(1)
-		->execute($strGuaranteeBrand, $intId);
+		if ($arrSubmittedValues === null) {
+			Input::setPost('guaranteeBrand', $strGuaranteeBrand);
+
+			return null;
+		}
+
+		if (trim((string) ($arrSubmittedValues['guaranteeBrand'] ?? '')) !== '') {
+			return $arrSubmittedValues;
+		}
+
+		$arrSubmittedValues['guaranteeBrand'] = $strGuaranteeBrand;
+
+		return $arrSubmittedValues;
 	}
 
 	public function validateLegalGuaranteeConfiguration(DataContainer $dc): void {
 		if (!$dc->id) {
 			return;
 		}
-
-		$this->applyGuaranteeBrandDefaultForNewProduct((int) $dc->id);
 
 		$objRecord = Database::getInstance()->prepare("
 			SELECT      `tstamp`,
@@ -1601,22 +1616,7 @@ class tl_ls_shop_product_controller extends Backend {
 			$varCurrentFieldValue
 		);
 
-		if ($this->shouldApplyGuaranteeBrandDefaultForNewProduct($arrValidationData)) {
-			$arrValidationData['guaranteeBrand'] = $this->getInitialGuaranteeBrandFromProductData($arrValidationData);
-		}
-
 		return $arrValidationData;
-	}
-
-	private function shouldApplyGuaranteeBrandDefaultForNewProduct(array $arrProductData): bool {
-		return (string) ($arrProductData['tstamp'] ?? '') === '0'
-			&& trim((string) ($arrProductData['guaranteeBrand'] ?? '')) === '';
-	}
-
-	private function getInitialGuaranteeBrandFromProductData(array $arrProductData): string {
-		$validator = new ProductGuaranteeConfigurationValidator();
-
-		return $validator->getInitialGuaranteeBrand((string) ($arrProductData['lsShopProductProducer'] ?? ''));
 	}
 
 	public function generateAlias($str_value, DataContainer $dc) {

@@ -79,9 +79,14 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             $tableConfig['config']['onsubmit_callback'][0][1]
         );
         self::assertSame(
-            'oncreateGuaranteeBrandDefault',
-            $tableConfig['config']['oncreate_callback'][0][1]
+            'applyGuaranteeBrandDefaultForNewProduct',
+            $tableConfig['config']['onload_callback'][0][1]
         );
+        self::assertSame(
+            'applyGuaranteeBrandDefaultForNewProduct',
+            $tableConfig['config']['onbeforesubmit_callback'][0][1]
+        );
+        self::assertArrayNotHasKey('oncreate_callback', $tableConfig['config']);
     }
 
     public function testVariantDcaContainsOverrideSelectorAndGuaranteeSubpalette(): void
