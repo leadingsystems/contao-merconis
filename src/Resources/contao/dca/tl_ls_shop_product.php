@@ -27,6 +27,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			array('Merconis\Core\ls_shop_generalHelper', 'attributeValueAllocationRemoveOrphanedRecords'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
+		'onload_callback' => array(
+			array('Merconis\Core\tl_ls_shop_product_controller', 'configureLegalGuaranteeFieldLock')
+		),
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeConfiguration'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -1400,6 +1403,45 @@ class tl_ls_shop_product_controller extends Backend {
 	public function __construct() {
 		parent::__construct();
 		$this->import('Contao\BackendUser', 'User');
+	}
+
+	public function configureLegalGuaranteeFieldLock(): void {
+		if (Input::get('act') !== 'edit') {
+			return;
+		}
+
+		$intProductId = (int) Input::get('id');
+
+		if ($intProductId <= 0) {
+			return;
+		}
+
+		$objRecord = Database::getInstance()->prepare("
+			SELECT      `enableGll`,
+						`enableGaran`
+			FROM        `tl_ls_shop_product`
+			WHERE       `id` = ?
+		")
+		->limit(1)
+		->execute($intProductId);
+
+		if (!$objRecord->numRows) {
+			return;
+		}
+
+		$validationHelper = new ProductGuaranteeValidationHelper();
+
+		if (!$validationHelper->shouldDisableProductEnableGaran($objRecord->row())) {
+			return;
+		}
+
+		$this->loadLanguageFile('tl_ls_shop_product');
+
+		$GLOBALS['TL_DCA']['tl_ls_shop_product']['fields']['enableGaran']['eval']['disabled'] = true;
+		$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran'] = $validationHelper->appendHintToFieldLabel(
+			$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran'] ?? array(),
+			(string) ($GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaranActivationRequiresStoredGllHint'] ?? '')
+		);
 	}
 
 	public function validateLegalGuaranteeBeforeSave($varValue, DataContainer $dc) {

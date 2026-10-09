@@ -39,6 +39,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']					
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Settings on goods in stock/delivery time');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Override availability and pre-order settings of the main product');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Use variant-specific GARAN data', 'Overrides the parent product\'s details. Does not activate GARAN.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverrideRequiresStoredGllHint']					=	'Enable and save `GLL` on the parent product first. Afterwards, variant-specific GARAN data can be used.';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran']										=	array('Enable GARAN');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with a comma: 30 months become 2,5 years, 36 months become 3 years.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	array('Brand/Trademark', 'Maximum 40 characters.');

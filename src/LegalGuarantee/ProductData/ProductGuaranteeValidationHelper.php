@@ -442,6 +442,55 @@ final class ProductGuaranteeValidationHelper
     }
 
     /**
+     * @param array<string, mixed> $productData
+     */
+    public function shouldDisableProductEnableGaran(array $productData): bool
+    {
+        return !$this->isTruthy($productData['enableGll'] ?? null)
+            && !$this->isTruthy($productData['enableGaran'] ?? null);
+    }
+
+    /**
+     * @param array<string, mixed> $variantData
+     * @param array<string, mixed> $productData
+     */
+    public function shouldDisableVariantGaranOverride(array $variantData, array $productData): bool
+    {
+        return !$this->isTruthy($productData['enableGll'] ?? null)
+            && !$this->isTruthy($variantData['garanOverride'] ?? null);
+    }
+
+    /**
+     * @param array<int|string, mixed> $fieldLabel
+     *
+     * @return array<int|string, mixed>
+     */
+    public function appendHintToFieldLabel(array $fieldLabel, string $hint): array
+    {
+        $normalizedHint = trim($hint);
+
+        if ('' === $normalizedHint) {
+            return $fieldLabel;
+        }
+
+        $existingDescription = trim((string) ($fieldLabel[1] ?? ''));
+
+        if ('' === $existingDescription) {
+            $fieldLabel[1] = $normalizedHint;
+
+            return $fieldLabel;
+        }
+
+        if (str_contains($existingDescription, $normalizedHint)) {
+            return $fieldLabel;
+        }
+
+        $fieldLabel[1] = $existingDescription . ' ' . $normalizedHint;
+
+        return $fieldLabel;
+    }
+
+    /**
      * @param array{code: string, parameters: array<int, string>} $message
      */
     private function buildMessageText(array $message, string $languageScope): ?string

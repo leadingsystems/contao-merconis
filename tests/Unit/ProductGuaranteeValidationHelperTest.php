@@ -247,4 +247,60 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             )
         );
     }
+
+    public function testProductEnableGaranIsLockedOnlyWhenStoredGllAndGaranAreDisabled(): void
+    {
+        $helper = new ProductGuaranteeValidationHelper();
+
+        self::assertTrue($helper->shouldDisableProductEnableGaran([
+            'enableGll' => '',
+            'enableGaran' => '',
+        ]));
+        self::assertFalse($helper->shouldDisableProductEnableGaran([
+            'enableGll' => '',
+            'enableGaran' => '1',
+        ]));
+        self::assertFalse($helper->shouldDisableProductEnableGaran([
+            'enableGll' => '1',
+            'enableGaran' => '',
+        ]));
+    }
+
+    public function testVariantGaranOverrideIsLockedOnlyWhenStoredOverrideIsDisabledAndParentGllIsDisabled(): void
+    {
+        $helper = new ProductGuaranteeValidationHelper();
+
+        self::assertTrue($helper->shouldDisableVariantGaranOverride(
+            ['garanOverride' => ''],
+            ['enableGll' => '']
+        ));
+        self::assertFalse($helper->shouldDisableVariantGaranOverride(
+            ['garanOverride' => '1'],
+            ['enableGll' => '']
+        ));
+        self::assertFalse($helper->shouldDisableVariantGaranOverride(
+            ['garanOverride' => ''],
+            ['enableGll' => '1']
+        ));
+    }
+
+    public function testAppendHintToFieldLabelKeepsExistingDescription(): void
+    {
+        $helper = new ProductGuaranteeValidationHelper();
+
+        self::assertSame(
+            ['Label', 'Bestehende Beschreibung. Zusätzlicher Hinweis.'],
+            $helper->appendHintToFieldLabel(
+                ['Label', 'Bestehende Beschreibung.'],
+                'Zusätzlicher Hinweis.'
+            )
+        );
+        self::assertSame(
+            ['Label', 'Nur Hinweis.'],
+            $helper->appendHintToFieldLabel(
+                ['Label'],
+                'Nur Hinweis.'
+            )
+        );
+    }
 }

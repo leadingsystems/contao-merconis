@@ -54,6 +54,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Hersteller');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll']										=	array('GLL aktivieren', 'GLL gilt für körperliche Waren und Waren mit digitalen Elementen. Für reine digitale Inhalte, SaaS und Dienstleistungen ist der Schalter zu deaktivieren.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	array('GARAN aktivieren');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaranActivationRequiresStoredGllHint']		=	'Aktivieren und speichern Sie zuerst `GLL`. Danach kann `GARAN` eingeschaltet werden.';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears']							=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit Komma: 30 Monate ergeben 2,5 Jahre, 36 Monate ergeben 3 Jahre.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	array('Brand/Trademark', 'Maximal 40 Zeichen.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	array('Model identifier', 'Maximal 25 Zeichen.');

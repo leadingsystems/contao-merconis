@@ -86,8 +86,11 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             'validateLegalGuaranteeConfiguration',
             $tableConfig['config']['onsubmit_callback'][0][1]
         );
+        self::assertSame(
+            'configureLegalGuaranteeFieldLock',
+            $tableConfig['config']['onload_callback'][0][1]
+        );
         self::assertArrayNotHasKey('oncreate_callback', $tableConfig['config']);
-        self::assertArrayNotHasKey('onload_callback', $tableConfig['config']);
         self::assertArrayNotHasKey('onbeforesubmit_callback', $tableConfig['config']);
     }
 
@@ -147,6 +150,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             'validateLegalGuaranteeConfiguration',
             $tableConfig['config']['onsubmit_callback'][0][1]
         );
+        self::assertSame(
+            'configureLegalGuaranteeFieldLock',
+            $tableConfig['config']['onload_callback'][0][1]
+        );
     }
 
     public function testLanguageFilesContainGuaranteeLabelsAndMessagesInGermanAndEnglish(): void
@@ -164,6 +171,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['lsShopGuaranteeLabels_legend']", $variantLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $productLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $variantLanguageEn);
+        self::assertStringContainsString('enableGaranActivationRequiresStoredGllHint', $productLanguageDe);
+        self::assertStringContainsString('enableGaranActivationRequiresStoredGllHint', $productLanguageEn);
+        self::assertStringContainsString('garanOverrideRequiresStoredGllHint', $variantLanguageDe);
+        self::assertStringContainsString('garanOverrideRequiresStoredGllHint', $variantLanguageEn);
         self::assertStringContainsString('garan_disabled_gll_required', $productLanguageDe);
         self::assertStringContainsString('garan_disabled_gll_variant_override', $productLanguageEn);
         self::assertStringContainsString('garan_disabled_gll_required', $variantLanguageDe);
