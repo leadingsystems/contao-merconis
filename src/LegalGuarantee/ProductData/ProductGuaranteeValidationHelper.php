@@ -9,6 +9,39 @@ use Contao\Message;
 
 final class ProductGuaranteeValidationHelper
 {
+    private const PRODUCT_REQUEST_FIELD_NAMES = [
+        'enableGll',
+        'enableGaran',
+        'guaranteeDurationYears',
+        'guaranteeBrand',
+        'guaranteeModelIdentifier',
+        'lsShopProductProducer',
+    ];
+
+    private const PRODUCT_VISIBLE_FIELD_NAMES = [
+        'enableGll',
+        'enableGaran',
+    ];
+
+    private const VARIANT_REQUEST_FIELD_NAMES = [
+        'garanOverride',
+        'enableGaran',
+        'guaranteeDurationYears',
+        'guaranteeBrand',
+        'guaranteeModelIdentifier',
+    ];
+
+    private const VARIANT_VISIBLE_FIELD_NAMES = [
+        'garanOverride',
+        'enableGaran',
+    ];
+
+    private const GUARANTEE_SUBPALETTE_FIELD_NAMES = [
+        'guaranteeDurationYears',
+        'guaranteeBrand',
+        'guaranteeModelIdentifier',
+    ];
+
     /**
      * @return array{
      *   effectiveValue: string,
@@ -78,6 +111,13 @@ final class ProductGuaranteeValidationHelper
         return (string) ((int) round(((float) $normalizedValue) * 12));
     }
 
+    public function normalizeDurationStoredValue(mixed $rawValue): ?string
+    {
+        $durationResult = $this->normalizeDurationInput($rawValue);
+
+        return $durationResult['storedValue'];
+    }
+
     public function getFieldNameForMessageCode(string $messageCode): ?string
     {
         return match ($messageCode) {
@@ -92,6 +132,50 @@ final class ProductGuaranteeValidationHelper
     public function isTruthy(mixed $value): bool
     {
         return !in_array($value, [null, '', 0, '0', false], true);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getProductRequestFieldNames(): array
+    {
+        return self::PRODUCT_REQUEST_FIELD_NAMES;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getVariantRequestFieldNames(): array
+    {
+        return self::VARIANT_REQUEST_FIELD_NAMES;
+    }
+
+    /**
+     * @param array<string, mixed> $postedValues
+     *
+     * @return list<string>
+     */
+    public function getVisibleProductFieldNames(array $postedValues): array
+    {
+        return $this->getVisibleGuaranteeFieldNames(
+            $postedValues,
+            self::PRODUCT_VISIBLE_FIELD_NAMES,
+            'enableGaran'
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $postedValues
+     *
+     * @return list<string>
+     */
+    public function getVisibleVariantFieldNames(array $postedValues): array
+    {
+        return $this->getVisibleGuaranteeFieldNames(
+            $postedValues,
+            self::VARIANT_VISIBLE_FIELD_NAMES,
+            'garanOverride'
+        );
     }
 
     /**
@@ -134,6 +218,62 @@ final class ProductGuaranteeValidationHelper
         }
 
         return $currentData;
+    }
+
+    /**
+     * @param array<string, mixed> $currentData
+     * @param array<string, mixed> $postedValues
+     * @param list<string> $acceptedFieldNames
+     *
+     * @return array<string, mixed>
+     */
+    public function buildValidationInputData(
+        array $currentData,
+        array $postedValues = [],
+        array $acceptedFieldNames = [],
+        string $currentFieldName = '',
+        mixed $currentFieldValue = null
+    ): array {
+        $validationData = $currentData;
+        $validationData['guaranteeDurationYears'] = $this->convertStoredYearsToMonthsInput(
+            $currentData['guaranteeDurationYears'] ?? null
+        );
+        $validationData = $this->mergePostedFieldValues(
+            $validationData,
+            $postedValues,
+            $acceptedFieldNames
+        );
+
+        if ($currentFieldName !== '') {
+            $validationData[$currentFieldName] = $currentFieldValue;
+        }
+
+        return $validationData;
+    }
+
+    /**
+     * @param array<string, mixed> $currentData
+     * @param array<string, mixed> $normalizedData
+     * @param list<string> $fieldNames
+     *
+     * @return array<string, mixed>
+     */
+    public function buildChangedFieldValues(array $currentData, array $normalizedData, array $fieldNames): array
+    {
+        $fieldsToPersist = [];
+
+        foreach ($fieldNames as $fieldName) {
+            $currentValue = $currentData[$fieldName] ?? null;
+            $normalizedValue = $normalizedData[$fieldName] ?? null;
+
+            if ((string) $currentValue === (string) $normalizedValue && $currentValue === $normalizedValue) {
+                continue;
+            }
+
+            $fieldsToPersist[$fieldName] = $normalizedValue;
+        }
+
+        return $fieldsToPersist;
     }
 
     /**
@@ -230,6 +370,28 @@ final class ProductGuaranteeValidationHelper
     }
 
     /**
+     * @param list<array{code: string, parameters: array<int, string>}> $messages
+     *
+     * @throws \Exception
+     */
+    public function throwValidationExceptionForField(
+        array $messages,
+        string $fieldName,
+        string $languageScope
+    ): void {
+        $messageText = $this->getFirstMessageText(
+            $this->getMessagesForField($messages, $fieldName),
+            $languageScope
+        );
+
+        if ($messageText === null) {
+            return;
+        }
+
+        throw new \Exception($messageText);
+    }
+
+    /**
      * @param array{code: string, parameters: array<int, string>} $message
      */
     private function buildMessageText(array $message, string $languageScope): ?string
@@ -241,6 +403,27 @@ final class ProductGuaranteeValidationHelper
         }
 
         return vsprintf($messageTemplate, $message['parameters']);
+    }
+
+    /**
+     * @param array<string, mixed> $postedValues
+     * @param list<string> $alwaysVisibleFieldNames
+     *
+     * @return list<string>
+     */
+    private function getVisibleGuaranteeFieldNames(
+        array $postedValues,
+        array $alwaysVisibleFieldNames,
+        string $selectorFieldName
+    ): array {
+        if (!$this->isTruthy($postedValues[$selectorFieldName] ?? null)) {
+            return $alwaysVisibleFieldNames;
+        }
+
+        return array_merge(
+            $alwaysVisibleFieldNames,
+            self::GUARANTEE_SUBPALETTE_FIELD_NAMES
+        );
     }
 
     private function formatStoredYearsFromMonths(int $months): string

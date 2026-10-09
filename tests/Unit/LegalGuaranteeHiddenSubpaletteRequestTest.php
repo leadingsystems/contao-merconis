@@ -57,20 +57,24 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
             'guaranteeModelIdentifier' => 'Stored model',
         ];
 
-        $postedValues = $this->validationHelper->readPostedFieldValues([
-            'enableGll',
-            'enableGaran',
-            'guaranteeDurationYears',
-            'guaranteeBrand',
-            'guaranteeModelIdentifier',
-        ]);
-        $visibleFieldNames = ['enableGll', 'enableGaran'];
+        $postedValues = $this->validationHelper->readPostedFieldValues(
+            $this->validationHelper->getProductRequestFieldNames()
+        );
+        $visibleFieldNames = $this->validationHelper->getVisibleProductFieldNames($postedValues);
 
         $requestResult = $this->validator->validateProduct(
-            $this->buildProductValidationData($currentProductData, $postedValues, array_keys($postedValues))
+            $this->validationHelper->buildValidationInputData(
+                $currentProductData,
+                $postedValues,
+                array_keys($postedValues)
+            )
         );
         $persistenceResult = $this->validator->validateProduct(
-            $this->buildProductValidationData($currentProductData, $postedValues, $visibleFieldNames)
+            $this->validationHelper->buildValidationInputData(
+                $currentProductData,
+                $postedValues,
+                $visibleFieldNames
+            )
         );
         $globalMessages = $this->validationHelper->getGlobalMessages(
             $requestResult->getMessages(),
@@ -111,21 +115,25 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
             'guaranteeModelIdentifier' => 'Product model',
         ];
 
-        $postedValues = $this->validationHelper->readPostedFieldValues([
-            'garanOverride',
-            'enableGaran',
-            'guaranteeDurationYears',
-            'guaranteeBrand',
-            'guaranteeModelIdentifier',
-        ]);
-        $visibleFieldNames = ['garanOverride', 'enableGaran'];
+        $postedValues = $this->validationHelper->readPostedFieldValues(
+            $this->validationHelper->getVariantRequestFieldNames()
+        );
+        $visibleFieldNames = $this->validationHelper->getVisibleVariantFieldNames($postedValues);
 
         $requestResult = $this->validator->validateVariant(
-            $this->buildVariantValidationData($currentVariantData, $postedValues, array_keys($postedValues)),
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                $postedValues,
+                array_keys($postedValues)
+            ),
             $currentProductData
         );
         $persistenceResult = $this->validator->validateVariant(
-            $this->buildVariantValidationData($currentVariantData, $postedValues, $visibleFieldNames),
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                $postedValues,
+                $visibleFieldNames
+            ),
             $currentProductData
         );
         $globalMessages = $this->validationHelper->getGlobalMessages(
@@ -143,53 +151,5 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         self::assertSame('3', $persistenceResult->getNormalizedData()['guaranteeDurationYears']);
         self::assertSame('Stored brand', $persistenceResult->getNormalizedData()['guaranteeBrand']);
         self::assertSame('Stored model', $persistenceResult->getNormalizedData()['guaranteeModelIdentifier']);
-    }
-
-    /**
-     * @param array<string, mixed> $currentProductData
-     * @param array<string, mixed> $postedValues
-     * @param list<string> $acceptedPostedFieldNames
-     *
-     * @return array<string, mixed>
-     */
-    private function buildProductValidationData(
-        array $currentProductData,
-        array $postedValues,
-        array $acceptedPostedFieldNames
-    ): array {
-        $validationData = $currentProductData;
-        $validationData['guaranteeDurationYears'] = $this->validationHelper->convertStoredYearsToMonthsInput(
-            $currentProductData['guaranteeDurationYears'] ?? null
-        );
-
-        return $this->validationHelper->mergePostedFieldValues(
-            $validationData,
-            $postedValues,
-            $acceptedPostedFieldNames
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $currentVariantData
-     * @param array<string, mixed> $postedValues
-     * @param list<string> $acceptedPostedFieldNames
-     *
-     * @return array<string, mixed>
-     */
-    private function buildVariantValidationData(
-        array $currentVariantData,
-        array $postedValues,
-        array $acceptedPostedFieldNames
-    ): array {
-        $validationData = $currentVariantData;
-        $validationData['guaranteeDurationYears'] = $this->validationHelper->convertStoredYearsToMonthsInput(
-            $currentVariantData['guaranteeDurationYears'] ?? null
-        );
-
-        return $this->validationHelper->mergePostedFieldValues(
-            $validationData,
-            $postedValues,
-            $acceptedPostedFieldNames
-        );
     }
 }

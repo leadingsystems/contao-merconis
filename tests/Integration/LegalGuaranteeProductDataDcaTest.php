@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Integration;
 
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeValidationHelper;
 use PHPUnit\Framework\TestCase;
 
 final class LegalGuaranteeProductDataDcaTest extends TestCase
@@ -50,8 +51,20 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             $tableConfig['fields']['guaranteeDurationYears']['save_callback'][0][1]
         );
         self::assertSame(
-            'normalizeGuaranteeDurationInput',
+            ProductGuaranteeValidationHelper::class,
+            $tableConfig['fields']['guaranteeDurationYears']['save_callback'][1][0]
+        );
+        self::assertSame(
+            'normalizeDurationStoredValue',
             $tableConfig['fields']['guaranteeDurationYears']['save_callback'][1][1]
+        );
+        self::assertSame(
+            ProductGuaranteeValidationHelper::class,
+            $tableConfig['fields']['guaranteeDurationYears']['load_callback'][0][0]
+        );
+        self::assertSame(
+            'convertStoredYearsToMonthsInput',
+            $tableConfig['fields']['guaranteeDurationYears']['load_callback'][0][1]
         );
         self::assertSame(
             'validateLegalGuaranteeBeforeSave',
@@ -92,8 +105,20 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             $tableConfig['fields']['guaranteeDurationYears']['save_callback'][0][1]
         );
         self::assertSame(
-            'normalizeGuaranteeDurationInput',
+            ProductGuaranteeValidationHelper::class,
+            $tableConfig['fields']['guaranteeDurationYears']['save_callback'][1][0]
+        );
+        self::assertSame(
+            'normalizeDurationStoredValue',
             $tableConfig['fields']['guaranteeDurationYears']['save_callback'][1][1]
+        );
+        self::assertSame(
+            ProductGuaranteeValidationHelper::class,
+            $tableConfig['fields']['guaranteeDurationYears']['load_callback'][0][0]
+        );
+        self::assertSame(
+            'convertStoredYearsToMonthsInput',
+            $tableConfig['fields']['guaranteeDurationYears']['load_callback'][0][1]
         );
         self::assertSame(
             'validateLegalGuaranteeBeforeSave',

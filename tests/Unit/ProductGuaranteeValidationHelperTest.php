@@ -108,4 +108,50 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             )
         );
     }
+
+    public function testBuildChangedFieldValuesOnlyReturnsChangedRequestedFields(): void
+    {
+        $helper = new ProductGuaranteeValidationHelper();
+
+        $fieldsToPersist = $helper->buildChangedFieldValues(
+            [
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '3',
+                'guaranteeBrand' => 'Stored brand',
+                'guaranteeModelIdentifier' => 'Stored model',
+            ],
+            [
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '3',
+                'guaranteeBrand' => 'Changed brand',
+                'guaranteeModelIdentifier' => 'Stored model',
+            ],
+            ['enableGaran', 'guaranteeDurationYears']
+        );
+
+        self::assertSame(
+            ['enableGaran' => ''],
+            $fieldsToPersist
+        );
+    }
+
+    public function testThrowValidationExceptionForFieldUsesMappedFieldMessage(): void
+    {
+        $helper = new ProductGuaranteeValidationHelper();
+        $GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = [
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => 'Ungültige Dauer: %s',
+        ];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Ungültige Dauer: 15');
+
+        $helper->throwValidationExceptionForField(
+            [[
+                'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION,
+                'parameters' => ['15'],
+            ]],
+            'guaranteeDurationYears',
+            'tl_ls_shop_product'
+        );
+    }
 }
