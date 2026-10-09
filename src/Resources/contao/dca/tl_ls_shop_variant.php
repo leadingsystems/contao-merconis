@@ -9,8 +9,10 @@ use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\Image;
 use Contao\Input;
+use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 	'config' => array(
@@ -37,6 +39,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
 		'onsubmit_callback' => array(
+			array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeConfiguration'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
 		'oncut_callback' => array(
@@ -82,7 +85,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		)
 	),
 	'palettes' => array(
-		'__selector__' => array('overrideAvailabilitySettingsOfParentProduct', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
+		'__selector__' => array('overrideAvailabilitySettingsOfParentProduct', 'garanOverride', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
 		'default' => '
 			{lsShopVariantCode_legend},
 			lsShopVariantCode;
@@ -142,6 +145,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			{lsShopStockDeliveryTimeAndAvailability_legend},
 			lsShopVariantDeliveryInfoSet,
 			overrideAvailabilitySettingsOfParentProduct;
+
+			{lsShopGuaranteeLabels_legend},
+			garanOverride,
+			enableGaran;
 			
 			{associatedProducts_legend},
 			associatedProducts;
@@ -154,6 +161,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			preorderingAllowed,
 			deliveryInfoSetToUseInPreorderPhase
 	    ',
+
+		'garanOverride' => '
+			guaranteeDurationYears,
+			guaranteeBrand,
+			guaranteeModelIdentifier
+		',
 
 		'useGroupPrices_1' => '
 			priceForGroups_1,
@@ -1276,6 +1289,63 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'sql'                     => "char(1) NOT NULL default ''"
         ),
 
+		'garanOverride' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'w50 m12'),
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'enableGaran' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'w50 m12'),
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'guaranteeDurationYears' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>3),
+			'load_callback' => array (
+				array('Merconis\Core\tl_ls_shop_variant_controller', 'loadGuaranteeDurationInput')
+			),
+			'save_callback' => array (
+				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave'),
+				array('Merconis\Core\tl_ls_shop_variant_controller', 'normalizeGuaranteeDurationInput')
+			),
+            'sql'                     => "decimal(3,1) NULL"
+		),
+
+		'guaranteeBrand' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>40),
+			'save_callback' => array (
+				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave')
+			),
+			'search'		=> true,
+            'sql'                     => "varchar(40) NOT NULL default ''"
+		),
+
+		'guaranteeModelIdentifier' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>25),
+			'save_callback' => array (
+				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave')
+			),
+			'search'		=> true,
+            'sql'                     => "varchar(25) NOT NULL default ''"
+		),
+
         'availableFrom' => array(
             'exclude'                 => true,
             'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom'],
@@ -1322,6 +1392,230 @@ class tl_ls_shop_variant_controller extends Backend {
 	public function __construct() {
 		parent::__construct();
 		$this->import('Contao\BackendUser', 'User');
+	}
+
+	public function loadGuaranteeDurationInput($varValue) {
+		return $this->convertStoredYearsToMonthsInput($varValue);
+	}
+
+	public function normalizeGuaranteeDurationInput($varValue) {
+		$strValue = trim((string) $varValue);
+
+		if ($strValue === '') {
+			return null;
+		}
+
+		if (!preg_match('/^\d+$/', $strValue)) {
+			return null;
+		}
+
+		$intMonths = (int) $strValue;
+
+		if ($intMonths < 30 || $intMonths > 360 || 0 !== $intMonths % 6) {
+			return null;
+		}
+
+		if (0 === $intMonths % 12) {
+			return (string) intdiv($intMonths, 12);
+		}
+
+		return number_format($intMonths / 12, 1, '.', '');
+	}
+
+	public function validateLegalGuaranteeBeforeSave($varValue, DataContainer $dc) {
+		if (!$dc->id) {
+			return $varValue;
+		}
+
+		$objVariant = Database::getInstance()->prepare("
+			SELECT      `pid`,
+						`garanOverride`,
+						`enableGaran`,
+						`guaranteeDurationYears`,
+						`guaranteeBrand`,
+						`guaranteeModelIdentifier`
+			FROM        `tl_ls_shop_variant`
+			WHERE       `id` = ?
+		")
+		->limit(1)
+		->execute($dc->id);
+
+		if (!$objVariant->numRows) {
+			return $varValue;
+		}
+
+		$objProduct = Database::getInstance()->prepare("
+			SELECT      `enableGaran`,
+						`guaranteeDurationYears`,
+						`guaranteeBrand`,
+						`guaranteeModelIdentifier`
+			FROM        `tl_ls_shop_product`
+			WHERE       `id` = ?
+		")
+		->limit(1)
+		->execute($objVariant->pid);
+
+		if (!$objProduct->numRows) {
+			return $varValue;
+		}
+
+		$validator = new ProductGuaranteeConfigurationValidator();
+		$result = $validator->validateVariant(
+			$this->buildVariantValidationInputData(
+				$objVariant->row(),
+				$dc->field,
+				$varValue
+			),
+			$objProduct->row()
+		);
+
+		$this->throwGuaranteeValidationException($result->getMessages(), 'tl_ls_shop_variant');
+
+		return $varValue;
+	}
+
+	public function validateLegalGuaranteeConfiguration(DataContainer $dc): void {
+		if (!$dc->id) {
+			return;
+		}
+
+		$objVariant = Database::getInstance()->prepare("
+			SELECT      `pid`,
+						`garanOverride`,
+						`enableGaran`,
+						`guaranteeDurationYears`,
+						`guaranteeBrand`,
+						`guaranteeModelIdentifier`
+			FROM        `tl_ls_shop_variant`
+			WHERE       `id` = ?
+		")
+		->limit(1)
+		->execute($dc->id);
+
+		if (!$objVariant->numRows) {
+			return;
+		}
+
+		$objProduct = Database::getInstance()->prepare("
+			SELECT      `enableGaran`,
+						`guaranteeDurationYears`,
+						`guaranteeBrand`,
+						`guaranteeModelIdentifier`
+			FROM        `tl_ls_shop_product`
+			WHERE       `id` = ?
+		")
+		->limit(1)
+		->execute($objVariant->pid);
+
+		if (!$objProduct->numRows) {
+			return;
+		}
+
+		$arrCurrentVariantData = $objVariant->row();
+		$arrCurrentProductData = $objProduct->row();
+		$validator = new ProductGuaranteeConfigurationValidator();
+		$result = $validator->validateVariant(
+			$this->buildVariantValidationInputData($arrCurrentVariantData),
+			$arrCurrentProductData
+		);
+		$arrNormalizedData = $result->getNormalizedData();
+		$arrFieldsToPersist = array();
+		$arrFieldNames = array('garanOverride', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier');
+
+		foreach ($arrFieldNames as $strFieldName) {
+			$varCurrentValue = $arrCurrentVariantData[$strFieldName] ?? null;
+			$varNormalizedValue = $arrNormalizedData[$strFieldName] ?? null;
+
+			if ((string) $varCurrentValue === (string) $varNormalizedValue && $varCurrentValue === $varNormalizedValue) {
+				continue;
+			}
+
+			$arrFieldsToPersist[$strFieldName] = $varNormalizedValue;
+		}
+
+		if (!empty($arrFieldsToPersist)) {
+			$arrAssignments = array();
+			$arrValues = array();
+
+			foreach ($arrFieldsToPersist as $strFieldName => $varValue) {
+				$arrAssignments[] = '`'.$strFieldName.'` = ?';
+				$arrValues[] = $varValue;
+			}
+
+			$arrValues[] = $dc->id;
+
+			Database::getInstance()->prepare("
+				UPDATE      `tl_ls_shop_variant`
+				SET         ".implode(', ', $arrAssignments)."
+				WHERE       `id` = ?
+			")
+			->limit(1)
+			->execute(...$arrValues);
+		}
+
+		foreach ($result->getMessages() as $arrMessage) {
+			$strTemplate = $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'][$arrMessage['code']] ?? null;
+
+			if (!$strTemplate) {
+				continue;
+			}
+
+			Message::addError(vsprintf($strTemplate, $arrMessage['parameters']));
+		}
+	}
+
+	private function buildVariantValidationInputData(array $arrCurrentVariantData, string $strCurrentFieldName = '', $varCurrentFieldValue = null): array {
+		$arrValidationData = $arrCurrentVariantData;
+		$arrValidationData['guaranteeDurationYears'] = $this->convertStoredYearsToMonthsInput($arrCurrentVariantData['guaranteeDurationYears'] ?? null);
+
+		foreach (array('garanOverride', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier') as $strFieldName) {
+			$varPostedValue = Input::post($strFieldName);
+
+			if ($varPostedValue === null) {
+				continue;
+			}
+
+			$arrValidationData[$strFieldName] = $varPostedValue;
+		}
+
+		if ($strCurrentFieldName !== '') {
+			$arrValidationData[$strCurrentFieldName] = $varCurrentFieldValue;
+		}
+
+		return $arrValidationData;
+	}
+
+	private function convertStoredYearsToMonthsInput($varValue): string {
+		$strValue = trim((string) $varValue);
+
+		if ($strValue === '') {
+			return '';
+		}
+
+		$floatYears = (float) str_replace(',', '.', $strValue);
+		$floatMonths = $floatYears * 12;
+		$intMonths = (int) round($floatMonths);
+
+		if (abs($floatMonths - $intMonths) > 0.0001) {
+			return $strValue;
+		}
+
+		return (string) $intMonths;
+	}
+
+	private function throwGuaranteeValidationException(array $arrMessages, string $strLanguageScope): void {
+		if (empty($arrMessages)) {
+			return;
+		}
+
+		$arrMessage = reset($arrMessages);
+		$strTemplate = $GLOBALS['TL_LANG'][$strLanguageScope]['guaranteeValidationMessages'][$arrMessage['code']] ?? null;
+
+		if (!$strTemplate) {
+			throw new \Exception($arrMessage['code']);
+		}
+
+		throw new \Exception(vsprintf($strTemplate, $arrMessage['parameters']));
 	}
 
 	public function generateAlias($str_value, DataContainer $dc) {

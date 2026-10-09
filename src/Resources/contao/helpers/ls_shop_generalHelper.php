@@ -33,6 +33,7 @@ use Contao\Validator;
 use Contao\Widget;
 use LeadingSystems\Helpers\FlexWidget;
 use LeadingSystems\MerconisBundle\EventListener\Post;
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\EnableGllSettingsMigrationManager;
 
 use LeadingSystems\MerconisBundle\License\LicenseKeyValidator;
 use Symfony\Component\Finder\Finder;
@@ -5502,6 +5503,19 @@ class ls_shop_generalHelper
                     <?php
                 }
             }
+        }
+
+        if (
+            !empty($GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['gllAnnouncement'])
+            && (string) Config::get(EnableGllSettingsMigrationManager::CONFIG_FLAG) === ''
+        ) {
+            ?>
+            <div class="ls_shop_systemMessage">
+                <div class="ls_shop_announcement">
+                    <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['gllAnnouncement']; ?>
+                </div>
+            </div>
+            <?php
         }
 
         return ob_get_clean();

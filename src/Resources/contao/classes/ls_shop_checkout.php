@@ -13,6 +13,7 @@ use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotBuilder;
 use function LeadingSystems\Helpers\ls_add;
 
 class ls_shop_checkout {
@@ -522,6 +523,8 @@ class ls_shop_checkout {
             'orderDate' => date("Y-m-d H:i:s"), // no language
             'customerNr' => $customerNr, // no language
             'customerLanguage' => $objPage->language, // no language
+            'gllVersion' => '', // no language
+            'gllLanguage' => '', // no language
             'customerInfo' => array(
                 'personalData' => $this->createShopLanguageArray(ls_shop_checkoutData::getInstance()->arrCustomerDataReview), // shop language
                 'personalData_originalOptionValues' => ls_shop_checkoutData::getInstance()->arrCustomerDataReviewOnlyOriginalOptionValues, // no language
@@ -715,6 +718,8 @@ class ls_shop_checkout {
             }
         }
 
+        $orderLabelSnapshotBuilder = System::getContainer()->get(OrderLabelSnapshotBuilder::class);
+
         foreach (ls_shop_cartX::getInstance()->calculation['items'] as $arrItem) {
             $objProduct = ls_shop_generalHelper::getObjProduct($arrItem['productCartKey']);
             $objProduct->ls_setMainLanguageMode(true);
@@ -830,6 +835,12 @@ class ls_shop_checkout {
             $arrItem['extendedInfo']['_attributesOfVariant_customerLanguage'] = $blnIsVariant ? $objProduct->_selectedVariant->_attributes : null; // customer language
             $arrItem['extendedInfo']['_attributesOfVariantAsString_customerLanguage'] = $blnIsVariant ? $objProduct->_selectedVariant->_attributesAsString : null; // customer language
 
+            $arrItem = $orderLabelSnapshotBuilder->enrichOrderItem(
+                $arrItem,
+                $objProduct->mainData,
+                $blnIsVariant ? $objProduct->_selectedVariant->mainData : null
+            );
+
             if (isset($GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder']) && is_array($GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'])) {
                 foreach ($GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'] as $mccb) {
                     $objMccb = System::importStatic($mccb[0]);
@@ -839,6 +850,8 @@ class ls_shop_checkout {
 
             $arrOrder['items'][] = $arrItem;
         }
+
+        $arrOrder = $orderLabelSnapshotBuilder->enrichOrder($arrOrder);
 
         if (isset($GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore']) && is_array($GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore'])) {
             foreach ($GLOBALS['MERCONIS_HOOKS']['preparingOrderDataToStore'] as $mccb) {
@@ -865,6 +878,8 @@ class ls_shop_checkout {
                         `orderDate` = ?,
                         `customerNr` = ?,
                         `customerLanguage` = ?,
+                        `gllVersion` = ?,
+                        `gllLanguage` = ?,
                         `firstname` = ?,
                         `lastname` = ?,
                         `personalDataReview` = ?,
@@ -939,6 +954,8 @@ class ls_shop_checkout {
             $order['orderDate'],
             $order['customerNr'],
             $order['customerLanguage'],
+            $order['gllVersion'],
+            $order['gllLanguage'],
             isset($order['customerInfo']['personalData']['firstname']) ? $order['customerInfo']['personalData']['firstname'] : '',
             isset($order['customerInfo']['personalData']['lastname']) ? $order['customerInfo']['personalData']['lastname'] : '',
             $order['customerInfo']['personalDataReview'],
@@ -1106,6 +1123,10 @@ class ls_shop_checkout {
 							`customizer_summaryForMerchant` = ?,
 							`customizer_flexData` = ?,
 							`customizer_referenceNumber` = ?,
+							`garanVersion` = ?,
+							`garanBrand` = ?,
+							`garanModelIdentifier` = ?,
+							`garanDurationYears` = ?,
 							`extendedInfo` = ?
 			")
                 ->execute(
@@ -1138,6 +1159,10 @@ class ls_shop_checkout {
                     $arrItem['customizer']['summaryForMerchant'],
                     $arrItem['customizer']['flexData'],
                     $arrItem['customizer']['referenceNumber'],
+                    isset($arrItem['garanVersion']) ? $arrItem['garanVersion'] : '',
+                    isset($arrItem['garanBrand']) ? $arrItem['garanBrand'] : '',
+                    isset($arrItem['garanModelIdentifier']) ? $arrItem['garanModelIdentifier'] : '',
+                    isset($arrItem['garanDurationYears']) ? $arrItem['garanDurationYears'] : '',
                     serialize($arrItem['extendedInfo'])
                 );
         }

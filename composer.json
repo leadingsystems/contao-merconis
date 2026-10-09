@@ -26,6 +26,7 @@
     "leadingsystems/contao-datacollector": "^3.0",
     "leadingsystems/contao-scheduler": "^1.1",
     "paypal/rest-api-sdk-php": "^1.13",
+    "mpdf/mpdf": "^8.3",
     "tecnickcom/tcpdf": "^6.2.22"
   },
   "autoload": {

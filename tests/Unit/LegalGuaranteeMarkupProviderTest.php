@@ -1,0 +1,94 @@
+<?php
+
+declare(strict_types=1);
+
+namespace LeadingSystems\MerconisBundle\Tests\Unit;
+
+use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBuilder;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
+use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
+use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
+use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+
+final class LegalGuaranteeMarkupProviderTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] = [
+            'gllTitle' => 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
+            'gllEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
+            'garanBlockHeadline' => 'Herstellergarantie für folgende Artikel:',
+            'garanEuLinkText' => 'EU-Information zur Herstellergarantie',
+            'garanTitlePattern' => 'Herstellergarantie von %s für %s mit %s Jahren',
+        ];
+        $GLOBALS['TL_CSS'] = [];
+    }
+
+    public function testRenderCurrentLanguageGllNoticeUsesResolvedLanguageAndAccessibilityTitle(): void
+    {
+        $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
+
+        $markup = $this->createProvider()->renderCurrentLanguageGllNotice();
+
+        self::assertStringContainsString('lang="de"', $markup);
+        self::assertStringContainsString('Gesetzliche Gewährleistung, mindestens zwei Jahre', $markup);
+        self::assertStringContainsString(
+            'index_de.htm',
+            $markup
+        );
+        self::assertContains(
+            'bundles/leadingsystemsmerconis/legal-guarantee/legal-guarantee.css',
+            $GLOBALS['TL_CSS']
+        );
+    }
+
+    public function testRenderCurrentLanguageGllNoticeFallsBackToEnglishForUnknownLocale(): void
+    {
+        $GLOBALS['objPage'] = (object) ['language' => 'zz_ZZ'];
+        $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] = [
+            'gllTitle' => 'Legal guarantee, at least two years',
+            'gllEuLinkText' => 'EU information about the legal guarantee',
+            'garanBlockHeadline' => 'Manufacturer\'s commercial guarantee for the following items:',
+            'garanEuLinkText' => 'EU information about the manufacturer\'s commercial guarantee',
+            'garanTitlePattern' => 'Manufacturer\'s commercial guarantee by %s for %s with %s years',
+        ];
+
+        $markup = $this->createProvider()->renderCurrentLanguageGllNotice();
+
+        self::assertStringContainsString('lang="en"', $markup);
+        self::assertStringContainsString('Legal guarantee, at least two years', $markup);
+        self::assertStringContainsString('index_en.htm', $markup);
+    }
+
+    public function testBuildGaranTitleFormatsStoredDurationForDisplay(): void
+    {
+        $method = new ReflectionMethod(LegalGuaranteeMarkupProvider::class, 'buildGaranTitle');
+        $method->setAccessible(true);
+
+        $formattedHalfYear = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '2.5');
+        $formattedWholeYears = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '30.0');
+
+        self::assertSame('Herstellergarantie von ACME für MX-42 mit 2,5 Jahren', $formattedHalfYear);
+        self::assertSame('Herstellergarantie von ACME für MX-42 mit 30 Jahren', $formattedWholeYears);
+    }
+
+    private function createProvider(): LegalGuaranteeMarkupProvider
+    {
+        $assetLocator = new OfficialGuaranteeAssetLocator(
+            dirname(__DIR__, 2),
+            new OfficialGuaranteeLanguageResolver(),
+        );
+
+        return new LegalGuaranteeMarkupProvider(
+            $assetLocator,
+            new GaranLabelRenderer($assetLocator),
+            new ProductGuaranteeDisplayResolver(),
+            new LegalGuaranteeMarkupBuilder(),
+        );
+    }
+}
