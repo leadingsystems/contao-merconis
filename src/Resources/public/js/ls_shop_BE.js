@@ -411,6 +411,137 @@ var ls_shop_backend = {
 		}
 
 		guaranteeBrandInput.value = producerValue;
+	},
+
+	setupGuaranteeFieldVisibility: function(root) {
+		var scope = root && root.querySelectorAll ? root : document;
+
+		ls_shop_backend.bindGuaranteeFieldVisibility(scope, 'enableGaran', function(form, suffix) {
+			return !ls_shop_backend.findGuaranteeFieldInput(form, 'garanOverride', suffix);
+		}, true);
+		ls_shop_backend.bindGuaranteeFieldVisibility(scope, 'garanOverride', function() {
+			return true;
+		}, false);
+	},
+
+	bindGuaranteeFieldVisibility: function(root, controllerFieldName, shouldBindCallback, shouldMarkMandatory) {
+		var controllerInputs = root.querySelectorAll('input[type="checkbox"][name]');
+		var i;
+
+		for (i = 0; i < controllerInputs.length; i++) {
+			(function(controllerInput) {
+				var form = controllerInput.form;
+				var suffix;
+
+				if (!form || !ls_shop_backend.isGuaranteeFieldName(controllerInput.name, controllerFieldName)) {
+					return;
+				}
+
+				suffix = ls_shop_backend.getGuaranteeFieldSuffix(controllerInput.name, controllerFieldName);
+
+				if (!shouldBindCallback(form, suffix)) {
+					return;
+				}
+
+				if (!controllerInput._lsShopGuaranteeVisibilityBound) {
+					controllerInput.addEventListener('change', function() {
+						ls_shop_backend.updateGuaranteeFieldVisibility(controllerInput, controllerFieldName, suffix, shouldMarkMandatory);
+					});
+					controllerInput._lsShopGuaranteeVisibilityBound = true;
+				}
+
+				ls_shop_backend.updateGuaranteeFieldVisibility(controllerInput, controllerFieldName, suffix, shouldMarkMandatory);
+			})(controllerInputs[i]);
+		}
+	},
+
+	updateGuaranteeFieldVisibility: function(controllerInput, controllerFieldName, suffix, shouldMarkMandatory) {
+		var form = controllerInput.form;
+		var guaranteeFieldNames = ['guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier'];
+		var isVisible = !!controllerInput.checked;
+		var i;
+
+		if (!form) {
+			return;
+		}
+
+		for (i = 0; i < guaranteeFieldNames.length; i++) {
+			var fieldInput = ls_shop_backend.findGuaranteeFieldInput(form, guaranteeFieldNames[i], suffix);
+			var widget;
+
+			if (!fieldInput) {
+				continue;
+			}
+
+			widget = ls_shop_backend.findGuaranteeFieldWidget(fieldInput);
+
+			if (widget) {
+				widget.style.display = isVisible ? '' : 'none';
+			}
+
+			if (controllerFieldName === 'enableGaran') {
+				ls_shop_backend.toggleGuaranteeFieldMandatoryPresentation(
+					fieldInput,
+					widget,
+					shouldMarkMandatory && isVisible
+				);
+			}
+		}
+	},
+
+	toggleGuaranteeFieldMandatoryPresentation: function(fieldInput, widget, isRequired) {
+		var label;
+
+		if (fieldInput) {
+			if (isRequired) {
+				fieldInput.setAttribute('aria-required', 'true');
+			} else {
+				fieldInput.removeAttribute('aria-required');
+			}
+		}
+
+		if (!widget) {
+			return;
+		}
+
+		label = widget.querySelector('label');
+
+		if (!label || !label.classList) {
+			return;
+		}
+
+		label.classList.toggle('mandatory', isRequired);
+	},
+
+	findGuaranteeFieldInput: function(form, fieldName, suffix) {
+		return form.querySelector('[name="' + fieldName + suffix + '"]');
+	},
+
+	findGuaranteeFieldWidget: function(fieldInput) {
+		var node = fieldInput;
+
+		while (node) {
+			if (node.classList && node.classList.contains('widget')) {
+				return node;
+			}
+
+			node = node.parentNode;
+		}
+
+		return null;
+	},
+
+	isGuaranteeFieldName: function(fieldName, baseFieldName) {
+		return fieldName === baseFieldName
+			|| new RegExp('^' + baseFieldName + '_[A-Za-z0-9]+$').test(fieldName);
+	},
+
+	getGuaranteeFieldSuffix: function(fieldName, baseFieldName) {
+		if (fieldName === baseFieldName) {
+			return '';
+		}
+
+		return fieldName.substring(baseFieldName.length);
 	}
 };
 
@@ -418,8 +549,10 @@ window.addEvent('domready', function() {
 	ls_shop_backend.addHeaderImageLinkElements();
 	ls_shop_backend.makeMerconisWizardsSortable();
 	ls_shop_backend.setupGuaranteeBrandPrefill();
+	ls_shop_backend.setupGuaranteeFieldVisibility();
 });
 
 window.addEvent('ajax_change', function() {
 	ls_shop_backend.makeMerconisWizardsSortable();
+	ls_shop_backend.setupGuaranteeFieldVisibility();
 });

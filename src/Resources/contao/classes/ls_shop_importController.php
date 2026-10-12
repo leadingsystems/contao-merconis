@@ -2257,6 +2257,9 @@ class ls_shop_importController
 			case 'garan_disabled_gll_required':
 				$str_detail = 'GARAN was not saved because GLL is disabled.';
 				break;
+			case 'garan_inherited_gll_required':
+				$str_detail = 'GARAN was not saved. The variant inherits GARAN from the parent product, where GARAN is enabled but GLL is disabled.';
+				break;
 			case 'garan_disabled_gll_variant_override':
 				$str_detail = sprintf(
 					'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',

@@ -121,7 +121,8 @@ final class ProductGuaranteeValidationHelper
     public function getFieldNameForMessageCode(string $messageCode): ?string
     {
         return match ($messageCode) {
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED => 'enableGaran',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED => 'enableGaran',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => 'enableGll',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'guaranteeBrand',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 'guaranteeModelIdentifier',
@@ -134,6 +135,11 @@ final class ProductGuaranteeValidationHelper
     public function isTruthy(mixed $value): bool
     {
         return !in_array($value, [null, '', 0, '0', false], true);
+    }
+
+    public function isGuaranteeSubpaletteField(string $fieldName): bool
+    {
+        return in_array($fieldName, self::GUARANTEE_SUBPALETTE_FIELD_NAMES, true);
     }
 
     /**
@@ -185,12 +191,12 @@ final class ProductGuaranteeValidationHelper
      *
      * @return array<string, mixed>
      */
-    public function readPostedFieldValues(array $fieldNames): array
+    public function readPostedFieldValues(array $fieldNames, string $inputNameSuffix = ''): array
     {
         $postedValues = [];
 
         foreach ($fieldNames as $fieldName) {
-            $postedValue = Input::post($fieldName);
+            $postedValue = Input::post($fieldName . $inputNameSuffix);
 
             if ($postedValue === null) {
                 continue;
@@ -216,9 +222,7 @@ final class ProductGuaranteeValidationHelper
                 continue;
             }
 
-            $currentData[$fieldName] = $this->normalizeAutoSubmitPlaceholderValue(
-                $postedValues[$fieldName]
-            );
+            $currentData[$fieldName] = $postedValues[$fieldName];
         }
 
         return $currentData;
@@ -249,9 +253,7 @@ final class ProductGuaranteeValidationHelper
         );
 
         if ($currentFieldName !== '') {
-            $validationData[$currentFieldName] = $this->normalizeAutoSubmitPlaceholderValue(
-                $currentFieldValue
-            );
+            $validationData[$currentFieldName] = $currentFieldValue;
         }
 
         return $validationData;
@@ -408,69 +410,6 @@ final class ProductGuaranteeValidationHelper
         throw new \Exception($messageText);
     }
 
-    public function isSubpaletteToggleRequestForField(string $fieldName): bool
-    {
-        return 'toggleSubpalette' === Input::post('action')
-            && $fieldName === Input::post('field');
-    }
-
-    /**
-     * @param list<array{code: string, parameters: array<int, string>}> $messages
-     */
-    public function getSubpaletteToggleFieldMessages(array $messages, string $fieldName): array
-    {
-        return $this->getMessagesForFields(
-            $messages,
-            $this->getSubpaletteToggleMessageFieldNames($fieldName)
-        );
-    }
-
-    /**
-     * @param list<array{code: string, parameters: array<int, string>}> $messages
-     */
-    public function getSubpaletteToggleSaveValue(
-        array $messages,
-        string $fieldName,
-        mixed $submittedValue,
-        mixed $storedValue
-    ): mixed {
-        if (!$this->isSubpaletteToggleRequestForField($fieldName)) {
-            return $submittedValue;
-        }
-
-        if ([] === $this->getSubpaletteToggleFieldMessages($messages, $fieldName)) {
-            return $submittedValue;
-        }
-
-        return $storedValue;
-    }
-
-    /**
-     * @param array<string, mixed> $attributes
-     *
-     * @return array<string, mixed>
-     */
-    public function configureProductEnableGaranAutoSubmitAttributes(array $attributes): array
-    {
-        return $this->configureGuaranteeSelectorAutoSubmitAttributes(
-            $attributes,
-            'tl_ls_shop_product'
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $attributes
-     *
-     * @return array<string, mixed>
-     */
-    public function configureVariantGaranOverrideAutoSubmitAttributes(array $attributes): array
-    {
-        return $this->configureGuaranteeSelectorAutoSubmitAttributes(
-            $attributes,
-            'tl_ls_shop_variant'
-        );
-    }
-
     /**
      * @param array{code: string, parameters: array<int, string>} $message
      */
@@ -506,18 +445,6 @@ final class ProductGuaranteeValidationHelper
         );
     }
 
-    /**
-     * @return list<string>
-     */
-    private function getSubpaletteToggleMessageFieldNames(string $fieldName): array
-    {
-        if ('garanOverride' === $fieldName) {
-            return ['enableGaran'];
-        }
-
-        return [$fieldName];
-    }
-
     private function formatStoredYearsFromMonths(int $months): string
     {
         if (0 === $months % 12) {
@@ -525,40 +452,5 @@ final class ProductGuaranteeValidationHelper
         }
 
         return number_format($months / 12, 1, '.', '');
-    }
-
-    /**
-     * @param array<string, mixed> $attributes
-     *
-     * @return array<string, mixed>
-     */
-    private function configureGuaranteeSelectorAutoSubmitAttributes(array $attributes, string $table): array
-    {
-        if ('edit' !== Input::get('act')) {
-            return $attributes;
-        }
-
-        $attributes['onclick'] = $this->buildGuaranteeSelectorAutoSubmitOnclick($table);
-
-        return $attributes;
-    }
-
-    private function buildGuaranteeSelectorAutoSubmitOnclick(string $table): string
-    {
-        return '(function(form){if(form){["guaranteeDurationYears","guaranteeBrand","guaranteeModelIdentifier"].forEach(function(name){if(form.elements[name]){return;}var input=document.createElement("input");input.type="hidden";input.name=name;input.value="\\u200B";form.appendChild(input);});}Backend.autoSubmit(\'' . $table . '\');})(this.form)';
-    }
-
-    public function normalizeAutoSubmitPlaceholderValue(mixed $value): mixed
-    {
-        if (!is_string($value)) {
-            return $value;
-        }
-
-        return str_replace($this->getAutoSubmitPlaceholderValue(), '', $value);
-    }
-
-    private function getAutoSubmitPlaceholderValue(): string
-    {
-        return html_entity_decode('&#8203;', ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 }

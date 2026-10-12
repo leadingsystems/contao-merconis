@@ -150,6 +150,39 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
     }
 
+    public function testWriteMessagesExposeInheritedGllDependencyOnEnableGaran(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+
+        $result = $applier->applyToVariantRow(
+            [
+                'garanOverride' => '',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            [
+                'enableGll' => '',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '5.0',
+                'guaranteeBrand' => 'Parent Brand',
+                'guaranteeModelIdentifier' => 'Parent Model',
+            ],
+        );
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame('enableGaran', $result['messages'][0]['field']);
+        self::assertSame(
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED,
+            $result['messages'][0]['code']
+        );
+        self::assertSame(
+            'field "enableGaran": GARAN was not saved. The variant inherits GARAN from the parent product, where GARAN is enabled but GLL is disabled.',
+            $applier->formatWriteErrorMessage($result['messages'])
+        );
+    }
+
     public function testWriteMessagesExposeAffectedVariantsOnEnableGll(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();

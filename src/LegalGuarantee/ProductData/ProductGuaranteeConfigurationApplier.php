@@ -168,6 +168,7 @@ final class ProductGuaranteeConfigurationApplier
 
         return match ($message['code'] ?? '') {
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED => 'GARAN was not saved because GLL is disabled.',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED => 'GARAN was not saved. The variant inherits GARAN from the parent product, where GARAN is enabled but GLL is disabled.',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => sprintf(
                 'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',
                 $parameters[0] ?? ''

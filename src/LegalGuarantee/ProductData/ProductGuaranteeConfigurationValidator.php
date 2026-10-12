@@ -11,6 +11,7 @@ final class ProductGuaranteeConfigurationValidator
     public const MESSAGE_GARAN_DISABLED_MISSING_DURATION = 'garan_disabled_missing_duration';
     public const MESSAGE_GARAN_DISABLED_INVALID_DURATION = 'garan_disabled_invalid_duration';
     public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED = 'garan_disabled_gll_required';
+    public const MESSAGE_GARAN_INHERITED_GLL_REQUIRED = 'garan_inherited_gll_required';
     public const MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE = 'garan_disabled_gll_variant_override';
 
     public function __construct(
@@ -75,7 +76,10 @@ final class ProductGuaranteeConfigurationValidator
             && !$this->isTruthy($normalizedProductData['enableGll'] ?? null)
         ) {
             $messages[] = [
-                'code' => self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+                'code' => $this->isTruthy($normalizedVariantData['garanOverride'] ?? null)
+                    && $this->isTruthy($normalizedVariantData['enableGaran'] ?? null)
+                    ? self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED
+                    : self::MESSAGE_GARAN_INHERITED_GLL_REQUIRED,
                 'parameters' => [],
             ];
         } elseif ($this->isTruthy($normalizedVariantData['garanOverride'] ?? null)

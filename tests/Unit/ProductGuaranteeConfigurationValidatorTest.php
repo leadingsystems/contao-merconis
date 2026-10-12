@@ -205,7 +205,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         );
 
         self::assertSame(
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED,
             $result->getMessages()[0]['code']
         );
     }

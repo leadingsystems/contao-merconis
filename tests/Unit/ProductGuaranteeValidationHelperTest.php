@@ -13,9 +13,8 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
 {
     protected function tearDown(): void
     {
-        Input::setPost('action', null);
-        Input::setPost('field', null);
-        Input::setGet('act', null);
+        Input::setPost('enableGaran_42', null);
+        Input::setPost('guaranteeBrand_42', null);
         Input::resetCache();
 
         parent::tearDown();
@@ -63,6 +62,12 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             'enableGaran',
             $helper->getFieldNameForMessageCode(
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED
+            )
+        );
+        self::assertSame(
+            'enableGaran',
+            $helper->getFieldNameForMessageCode(
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED
             )
         );
         self::assertSame(
@@ -178,130 +183,83 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
         );
     }
 
-    public function testSubpaletteToggleRequestIsDetectedOnlyForTheToggledField(): void
+    public function testGuaranteeSubpaletteFieldDetectionReturnsExpectedResult(): void
     {
         $helper = new ProductGuaranteeValidationHelper();
 
-        Input::setPost('action', 'toggleSubpalette');
-        Input::setPost('field', 'enableGaran');
-
-        self::assertTrue($helper->isSubpaletteToggleRequestForField('enableGaran'));
-        self::assertFalse($helper->isSubpaletteToggleRequestForField('guaranteeBrand'));
+        self::assertTrue($helper->isGuaranteeSubpaletteField('guaranteeDurationYears'));
+        self::assertTrue($helper->isGuaranteeSubpaletteField('guaranteeBrand'));
+        self::assertTrue($helper->isGuaranteeSubpaletteField('guaranteeModelIdentifier'));
+        self::assertFalse($helper->isGuaranteeSubpaletteField('enableGaran'));
     }
 
-    public function testSubpaletteToggleSaveValueKeepsStoredValueOnlyForOwnFieldMessages(): void
+    public function testVisibleProductFieldNamesIncludeGuaranteeFieldsOnlyWhenEnableGaranIsTruthy(): void
     {
         $helper = new ProductGuaranteeValidationHelper();
 
-        Input::setPost('action', 'toggleSubpalette');
-        Input::setPost('field', 'enableGaran');
-
         self::assertSame(
-            '',
-            $helper->getSubpaletteToggleSaveValue(
-                [[
-                    'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
-                    'parameters' => [],
-                ]],
-                'enableGaran',
-                '1',
-                ''
-            )
+            ['enableGll', 'enableGaran'],
+            $helper->getVisibleProductFieldNames([
+                'enableGll' => '1',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '36',
+                'guaranteeBrand' => 'Brand',
+                'guaranteeModelIdentifier' => 'Model',
+            ])
         );
         self::assertSame(
-            '1',
-            $helper->getSubpaletteToggleSaveValue(
-                [[
-                    'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
-                    'parameters' => [],
-                ]],
+            [
+                'enableGll',
                 'enableGaran',
-                '1',
-                ''
-            )
+                'guaranteeDurationYears',
+                'guaranteeBrand',
+                'guaranteeModelIdentifier',
+            ],
+            $helper->getVisibleProductFieldNames([
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '36',
+                'guaranteeBrand' => 'Brand',
+                'guaranteeModelIdentifier' => 'Model',
+            ])
         );
     }
 
-    public function testGaranOverrideToggleUsesEnableGaranMessagesAsBlockingSignal(): void
+    public function testVisibleVariantFieldNamesIncludeGuaranteeFieldsOnlyWhenGaranOverrideIsTruthy(): void
     {
         $helper = new ProductGuaranteeValidationHelper();
 
-        Input::setPost('action', 'toggleSubpalette');
-        Input::setPost('field', 'garanOverride');
-
-        $messages = [[
-            'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
-            'parameters' => [],
-        ]];
-
         self::assertSame(
-            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED],
-            array_column($helper->getSubpaletteToggleFieldMessages($messages, 'garanOverride'), 'code')
+            ['garanOverride', 'enableGaran'],
+            $helper->getVisibleVariantFieldNames([
+                'garanOverride' => '',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '36',
+                'guaranteeBrand' => 'Brand',
+                'guaranteeModelIdentifier' => 'Model',
+            ])
         );
         self::assertSame(
-            '',
-            $helper->getSubpaletteToggleSaveValue(
-                $messages,
+            [
                 'garanOverride',
-                '1',
-                ''
-            )
+                'enableGaran',
+                'guaranteeDurationYears',
+                'guaranteeBrand',
+                'guaranteeModelIdentifier',
+            ],
+            $helper->getVisibleVariantFieldNames([
+                'garanOverride' => '1',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '36',
+                'guaranteeBrand' => 'Brand',
+                'guaranteeModelIdentifier' => 'Model',
+            ])
         );
     }
 
-    public function testProductEnableGaranAutoSubmitAttributesReplaceToggleWithBackendSubmitInEditMode(): void
+    public function testBuildValidationInputDataUsesOnlyAcceptedPostedFieldNames(): void
     {
         $helper = new ProductGuaranteeValidationHelper();
-        Input::setGet('act', 'edit');
-
-        $attributes = $helper->configureProductEnableGaranAutoSubmitAttributes([
-            'onclick' => "AjaxRequest.toggleSubpalette(this, 'sub_enableGaran', 'enableGaran')",
-        ]);
-
-        self::assertStringContainsString("Backend.autoSubmit('tl_ls_shop_product')", $attributes['onclick']);
-        self::assertStringContainsString('"guaranteeDurationYears"', $attributes['onclick']);
-        self::assertStringContainsString('"guaranteeBrand"', $attributes['onclick']);
-        self::assertStringContainsString('"guaranteeModelIdentifier"', $attributes['onclick']);
-        self::assertStringContainsString('\\u200B', $attributes['onclick']);
-        self::assertStringNotContainsString('AjaxRequest.toggleSubpalette', $attributes['onclick']);
-    }
-
-    public function testVariantGaranOverrideAutoSubmitAttributesReplaceToggleWithBackendSubmitInEditMode(): void
-    {
-        $helper = new ProductGuaranteeValidationHelper();
-        Input::setGet('act', 'edit');
-
-        $attributes = $helper->configureVariantGaranOverrideAutoSubmitAttributes([
-            'onclick' => "AjaxRequest.toggleSubpalette(this, 'sub_garanOverride', 'garanOverride')",
-        ]);
-
-        self::assertStringContainsString("Backend.autoSubmit('tl_ls_shop_variant')", $attributes['onclick']);
-        self::assertStringContainsString('"guaranteeDurationYears"', $attributes['onclick']);
-        self::assertStringContainsString('"guaranteeBrand"', $attributes['onclick']);
-        self::assertStringContainsString('"guaranteeModelIdentifier"', $attributes['onclick']);
-        self::assertStringContainsString('\\u200B', $attributes['onclick']);
-        self::assertStringNotContainsString('AjaxRequest.toggleSubpalette', $attributes['onclick']);
-    }
-
-    public function testGuaranteeSelectorAutoSubmitAttributesStayUnchangedOutsideEditMode(): void
-    {
-        $helper = new ProductGuaranteeValidationHelper();
-        Input::setGet('act', 'editAll');
-
-        $attributes = [
-            'onclick' => "AjaxRequest.toggleSubpalette(this, 'sub_enableGaran', 'enableGaran')",
-        ];
-
-        self::assertSame(
-            $attributes,
-            $helper->configureProductEnableGaranAutoSubmitAttributes($attributes)
-        );
-    }
-
-    public function testAutoSubmitPlaceholderValuesAreNormalizedToEmptyStrings(): void
-    {
-        $helper = new ProductGuaranteeValidationHelper();
-        $placeholder = html_entity_decode('&#8203;', ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
         $validationData = $helper->buildValidationInputData(
             [
@@ -313,55 +271,35 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             ],
             [
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => $placeholder,
-                'guaranteeBrand' => $placeholder,
-                'guaranteeModelIdentifier' => $placeholder,
+                'guaranteeDurationYears' => '36',
+                'guaranteeBrand' => 'Brand',
+                'guaranteeModelIdentifier' => 'Model',
             ],
-            [
-                'enableGaran',
-                'guaranteeDurationYears',
-                'guaranteeBrand',
-                'guaranteeModelIdentifier',
-            ],
-            'guaranteeBrand',
-            $placeholder
+            ['enableGaran']
         );
 
+        self::assertSame('1', $validationData['enableGaran']);
         self::assertSame('', $validationData['guaranteeDurationYears']);
         self::assertSame('', $validationData['guaranteeBrand']);
         self::assertSame('', $validationData['guaranteeModelIdentifier']);
     }
 
-    public function testAutoSubmitPlaceholderFragmentsAreRemovedFromValidationAndStoredValues(): void
+    public function testReadPostedFieldValuesSupportsEditAllSuffixes(): void
     {
         $helper = new ProductGuaranteeValidationHelper();
-        $placeholder = html_entity_decode('&#8203;', ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-        $validationData = $helper->buildValidationInputData(
+        Input::setPost('enableGaran_42', '1');
+        Input::setPost('guaranteeBrand_42', 'Brand');
+
+        self::assertSame(
             [
-                'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '',
-                'guaranteeBrand' => '',
-                'guaranteeModelIdentifier' => '',
+                'guaranteeBrand' => 'Brand',
             ],
-            [
-                'guaranteeDurationYears' => $placeholder . '36',
-                'guaranteeBrand' => $placeholder . 'Nestle',
-                'guaranteeModelIdentifier' => 'Nestle' . $placeholder,
-            ],
-            [
-                'guaranteeDurationYears',
-                'guaranteeBrand',
-                'guaranteeModelIdentifier',
-            ]
+            $helper->readPostedFieldValues(
+                ['enableGaran', 'guaranteeBrand', 'guaranteeModelIdentifier'],
+                '_42'
+            )
         );
-
-        self::assertSame('36', $validationData['guaranteeDurationYears']);
-        self::assertSame('Nestle', $validationData['guaranteeBrand']);
-        self::assertSame('Nestle', $validationData['guaranteeModelIdentifier']);
-        self::assertSame('Nestle', $helper->normalizeAutoSubmitPlaceholderValue($placeholder . 'Nestle'));
-        self::assertSame('Nestle', $helper->normalizeAutoSubmitPlaceholderValue('Nestle' . $placeholder));
-        self::assertSame('36', $helper->normalizeAutoSubmitPlaceholderValue($placeholder . '36'));
     }
 }

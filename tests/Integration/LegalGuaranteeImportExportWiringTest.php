@@ -42,6 +42,7 @@ final class LegalGuaranteeImportExportWiringTest extends TestCase
         self::assertStringContainsString('hasBlockingWriteMessages', $importContents);
         self::assertStringContainsString('`enableGll` = ?', $importContents);
         self::assertStringContainsString('`garanOverride` = ?', $importContents);
+        self::assertStringContainsString('garan_inherited_gll_required', $importContents);
         self::assertStringContainsString('buildExportColumns($arr_productData)', $exportContents);
         self::assertStringContainsString(
             'buildExportColumns($arr_productData, $arr_variantData)',

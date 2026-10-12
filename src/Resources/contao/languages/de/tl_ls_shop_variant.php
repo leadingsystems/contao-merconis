@@ -125,6 +125,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_labe
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Produktinformation';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
 	'garan_disabled_gll_required' => 'GARAN wurde nicht gespeichert, weil `GLL` des Elternprodukts deaktiviert ist.',
+	'garan_inherited_gll_required' => 'GARAN wurde nicht gespeichert. Die Variante übernimmt GARAN vom Elternprodukt (kein eigener Override). Dort ist GARAN aktiv, GLL aber deaktiviert. Bitte am Elternprodukt GLL aktivieren oder GARAN deaktivieren.',
 	'garan_disabled_gll_variant_override' => 'GARAN wurde nicht gespeichert, weil `GLL` deaktiviert ist und folgende Varianten weiterhin eigene GARAN-Daten verwenden: %s.',
 	'garan_disabled_missing_brand' => 'GARAN wurde nicht gespeichert, weil `Brand/Trademark` fehlt.',
 	'garan_disabled_missing_model' => 'GARAN wurde nicht gespeichert, weil `Model identifier` fehlt.',

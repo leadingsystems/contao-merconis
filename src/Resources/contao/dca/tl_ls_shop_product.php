@@ -19,6 +19,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		'dataContainer' => DC_Table::class,
         'enableVersioning' => true,
 		'ctable' => array('tl_ls_shop_variant'),
+		'onload_callback' => array(
+			array('Merconis\Core\tl_ls_shop_product_controller', 'configureLegalGuaranteeFieldRequirement')
+		),
 		'oncopy_callback' => array (
 			array('Merconis\Core\ls_shop_generalHelper', 'attributeValueAllocationCopy'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -73,7 +76,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		)
 	),
 	'palettes' => array(
-		'__selector__' => array('useGroupRestrictions', 'enableGaran', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
+		'__selector__' => array('useGroupRestrictions', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
 		'default' => '
 			{lsShopTitleAndDescriptions_legend},
 			title,
@@ -113,7 +116,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 
 			{lsShopGuaranteeLabels_legend},
 			enableGll,
-			enableGaran;
+			enableGaran,
+			guaranteeDurationYears,
+			guaranteeBrand,
+			guaranteeModelIdentifier;
 			
 			{lsShopImages_legend},
 			lsShopProductMainImage,
@@ -211,12 +217,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			useScalePrice_5,
 			lsShopProductPriceOld_5,
 			useOldPrice_5
-		',
-
-		'enableGaran' => '
-			guaranteeDurationYears,
-			guaranteeBrand,
-			guaranteeModelIdentifier
 		',
 
 		'useScalePrice' => 'scalePriceType,scalePriceQuantityDetectionMethod,scalePriceQuantityDetectionAlwaysSeparateConfigurations,scalePriceKeyword,scalePrice',
@@ -527,10 +527,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'w50 m12'),
-			'attributes_callback' => array (
-				array(ProductGuaranteeValidationHelper::class, 'configureProductEnableGaranAutoSubmitAttributes')
-			),
+			'eval'                    => array('tl_class'=>'w50 m12'),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeBeforeSave')
 			),
@@ -542,7 +539,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('mandatory' => true, 'tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>3),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>3),
 			'load_callback' => array (
 				array(ProductGuaranteeValidationHelper::class, 'convertStoredYearsToMonthsInput')
 			),
@@ -557,7 +554,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('mandatory' => true, 'tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>40),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>40),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeBeforeSave')
 			),
@@ -569,7 +566,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('mandatory' => true, 'tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>25),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>25),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeBeforeSave')
 			),
@@ -1405,6 +1402,38 @@ class tl_ls_shop_product_controller extends Backend {
 		$this->import('Contao\BackendUser', 'User');
 	}
 
+	public function configureLegalGuaranteeFieldRequirement(DataContainer $dc): void {
+		if (Input::get('act') !== 'edit' || !$dc->id) {
+			return;
+		}
+
+		$enableGaranValue = Input::post('enableGaran');
+
+		if ($enableGaranValue === null) {
+			$objRecord = Database::getInstance()->prepare("
+				SELECT      `enableGaran`
+				FROM        `tl_ls_shop_product`
+				WHERE       `id` = ?
+			")
+			->limit(1)
+			->execute($dc->id);
+
+			if (!$objRecord->numRows) {
+				return;
+			}
+
+			$enableGaranValue = $objRecord->enableGaran;
+		}
+
+		if (!(new ProductGuaranteeValidationHelper())->isTruthy($enableGaranValue)) {
+			return;
+		}
+
+		foreach (['guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier'] as $fieldName) {
+			$GLOBALS['TL_DCA']['tl_ls_shop_product']['fields'][$fieldName]['eval']['mandatory'] = true;
+		}
+	}
+
 	public function validateLegalGuaranteeBeforeSave($varValue, DataContainer $dc) {
 		if (!$dc->id) {
 			return $varValue;
@@ -1430,7 +1459,22 @@ class tl_ls_shop_product_controller extends Backend {
 
 		$validationHelper = new ProductGuaranteeValidationHelper();
 		$validator = new ProductGuaranteeConfigurationValidator();
-		$arrPostedValues = $validationHelper->readPostedFieldValues($validationHelper->getProductRequestFieldNames());
+		$arrPostedValues = $validationHelper->readPostedFieldValues(
+			$validationHelper->getProductRequestFieldNames(),
+			Input::get('act') === 'editAll' ? '_' . $dc->id : ''
+		);
+
+		if (
+			$validationHelper->isGuaranteeSubpaletteField($dc->field)
+			&& !in_array($dc->field, $validationHelper->getVisibleProductFieldNames($arrPostedValues), true)
+		) {
+			if ($dc->field === 'guaranteeDurationYears') {
+				return $validationHelper->convertStoredYearsToMonthsInput($objRecord->guaranteeDurationYears);
+			}
+
+			return $objRecord->{$dc->field};
+		}
+
 		$result = $validator->validateProduct(
 			$this->buildProductValidationInputData(
 				$objRecord->row(),
@@ -1447,31 +1491,13 @@ class tl_ls_shop_product_controller extends Backend {
 			'tl_ls_shop_product'
 		);
 
-		if ($validationHelper->isSubpaletteToggleRequestForField($dc->field)) {
-			$toggleSaveValue = $validationHelper->getSubpaletteToggleSaveValue(
-				$result->getMessages(),
-				$dc->field,
-				$varValue,
-				$dc->varValue
-			);
-
-			if ($toggleSaveValue === $dc->varValue) {
-				$validationHelper->addErrorMessages(
-					$validationHelper->getSubpaletteToggleFieldMessages($result->getMessages(), $dc->field),
-					'tl_ls_shop_product'
-				);
-			}
-
-			return $validationHelper->normalizeAutoSubmitPlaceholderValue($toggleSaveValue);
-		}
-
 		$validationHelper->throwValidationExceptionForField(
 			$result->getMessages(),
 			$dc->field,
 			'tl_ls_shop_product'
 		);
 
-		return $validationHelper->normalizeAutoSubmitPlaceholderValue($varValue);
+		return $varValue;
 	}
 
 	public function validateLegalGuaranteeConfiguration(DataContainer $dc): void {
@@ -1498,14 +1524,17 @@ class tl_ls_shop_product_controller extends Backend {
 
 		$arrCurrentData = $objRecord->row();
 		$validationHelper = new ProductGuaranteeValidationHelper();
-		$arrPostedValues = $validationHelper->readPostedFieldValues($validationHelper->getProductRequestFieldNames());
+		$arrPostedValues = $validationHelper->readPostedFieldValues(
+			$validationHelper->getProductRequestFieldNames(),
+			Input::get('act') === 'editAll' ? '_' . $dc->id : ''
+		);
 		$arrVisibleFieldNames = $validationHelper->getVisibleProductFieldNames($arrPostedValues);
 		$validator = new ProductGuaranteeConfigurationValidator();
 		$requestResult = $validator->validateProduct(
 			$this->buildProductValidationInputData(
 				$arrCurrentData,
 				$arrPostedValues,
-				array_keys($arrPostedValues)
+				$arrVisibleFieldNames
 			),
 			$this->getRelatedVariantGuaranteeData((int) $dc->id)
 		);

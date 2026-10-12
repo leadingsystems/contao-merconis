@@ -85,7 +85,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		)
 	),
 	'palettes' => array(
-		'__selector__' => array('overrideAvailabilitySettingsOfParentProduct', 'garanOverride', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
+		'__selector__' => array('overrideAvailabilitySettingsOfParentProduct', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
 		'default' => '
 			{lsShopVariantCode_legend},
 			lsShopVariantCode;
@@ -148,7 +148,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 
 			{lsShopGuaranteeLabels_legend},
 			garanOverride,
-			enableGaran;
+			enableGaran,
+			guaranteeDurationYears,
+			guaranteeBrand,
+			guaranteeModelIdentifier;
 			
 			{associatedProducts_legend},
 			associatedProducts;
@@ -161,12 +164,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			preorderingAllowed,
 			deliveryInfoSetToUseInPreorderPhase
 	    ',
-
-		'garanOverride' => '
-			guaranteeDurationYears,
-			guaranteeBrand,
-			guaranteeModelIdentifier
-		',
 
 		'useGroupPrices_1' => '
 			priceForGroups_1,
@@ -1293,10 +1290,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'w50 m12'),
-			'attributes_callback' => array (
-				array(ProductGuaranteeValidationHelper::class, 'configureVariantGaranOverrideAutoSubmitAttributes')
-			),
+			'eval'                    => array('tl_class'=>'w50 m12'),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave')
 			),
@@ -1443,7 +1437,22 @@ class tl_ls_shop_variant_controller extends Backend {
 
 		$validationHelper = new ProductGuaranteeValidationHelper();
 		$validator = new ProductGuaranteeConfigurationValidator();
-		$arrPostedValues = $validationHelper->readPostedFieldValues($validationHelper->getVariantRequestFieldNames());
+		$arrPostedValues = $validationHelper->readPostedFieldValues(
+			$validationHelper->getVariantRequestFieldNames(),
+			Input::get('act') === 'editAll' ? '_' . $dc->id : ''
+		);
+
+		if (
+			$validationHelper->isGuaranteeSubpaletteField($dc->field)
+			&& !in_array($dc->field, $validationHelper->getVisibleVariantFieldNames($arrPostedValues), true)
+		) {
+			if ($dc->field === 'guaranteeDurationYears') {
+				return $validationHelper->convertStoredYearsToMonthsInput($objVariant->guaranteeDurationYears);
+			}
+
+			return $objVariant->{$dc->field};
+		}
+
 		$result = $validator->validateVariant(
 			$validationHelper->buildValidationInputData(
 				$objVariant->row(),
@@ -1460,31 +1469,13 @@ class tl_ls_shop_variant_controller extends Backend {
 			'tl_ls_shop_variant'
 		);
 
-		if ($validationHelper->isSubpaletteToggleRequestForField($dc->field)) {
-			$toggleSaveValue = $validationHelper->getSubpaletteToggleSaveValue(
-				$result->getMessages(),
-				$dc->field,
-				$varValue,
-				$dc->varValue
-			);
-
-			if ($toggleSaveValue === $dc->varValue) {
-				$validationHelper->addErrorMessages(
-					$validationHelper->getSubpaletteToggleFieldMessages($result->getMessages(), $dc->field),
-					'tl_ls_shop_variant'
-				);
-			}
-
-			return $validationHelper->normalizeAutoSubmitPlaceholderValue($toggleSaveValue);
-		}
-
 		$validationHelper->throwValidationExceptionForField(
 			$result->getMessages(),
 			$dc->field,
 			'tl_ls_shop_variant'
 		);
 
-		return $validationHelper->normalizeAutoSubmitPlaceholderValue($varValue);
+		return $varValue;
 	}
 
 	public function validateLegalGuaranteeConfiguration(DataContainer $dc): void {
@@ -1528,14 +1519,17 @@ class tl_ls_shop_variant_controller extends Backend {
 		$arrCurrentVariantData = $objVariant->row();
 		$arrCurrentProductData = $objProduct->row();
 		$validationHelper = new ProductGuaranteeValidationHelper();
-		$arrPostedValues = $validationHelper->readPostedFieldValues($validationHelper->getVariantRequestFieldNames());
+		$arrPostedValues = $validationHelper->readPostedFieldValues(
+			$validationHelper->getVariantRequestFieldNames(),
+			Input::get('act') === 'editAll' ? '_' . $dc->id : ''
+		);
 		$arrVisibleFieldNames = $validationHelper->getVisibleVariantFieldNames($arrPostedValues);
 		$validator = new ProductGuaranteeConfigurationValidator();
 		$requestResult = $validator->validateVariant(
 			$validationHelper->buildValidationInputData(
 				$arrCurrentVariantData,
 				$arrPostedValues,
-				array_keys($arrPostedValues)
+				$arrVisibleFieldNames
 			),
 			$arrCurrentProductData
 		);
