@@ -193,6 +193,46 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringNotContainsString('Model identifier *', $productLanguageEn);
         self::assertStringContainsString('Guarantee duration in months', $variantLanguageEn);
         self::assertStringNotContainsString('Guarantee duration in months *', $variantLanguageEn);
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($productLanguageDe, 'garan_disabled_gll_required')
+        );
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($productLanguageDe, 'garan_disabled_gll_variant_override')
+        );
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($productLanguageEn, 'garan_disabled_gll_required')
+        );
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($productLanguageEn, 'garan_disabled_gll_variant_override')
+        );
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($variantLanguageDe, 'garan_disabled_gll_required')
+        );
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($variantLanguageDe, 'garan_disabled_gll_variant_override')
+        );
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($variantLanguageDe, 'garan_inherited_gll_required')
+        );
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($variantLanguageEn, 'garan_disabled_gll_required')
+        );
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($variantLanguageEn, 'garan_disabled_gll_variant_override')
+        );
+        self::assertStringNotContainsString(
+            '`',
+            $this->extractGuaranteeValidationMessage($variantLanguageEn, 'garan_inherited_gll_required')
+        );
     }
 
     public function testServicesAndMigrationAreRegisteredForEnableGllBackfillAndValidation(): void
@@ -256,5 +296,14 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
     private function loadVariantDca(): void
     {
         require self::DCA_BASE_PATH . 'tl_ls_shop_variant.php';
+    }
+
+    private function extractGuaranteeValidationMessage(string $languageFileContents, string $messageCode): string
+    {
+        $pattern = "/'" . preg_quote($messageCode, '/') . "' => '((?:\\\\'|[^'])*)'/";
+
+        self::assertSame(1, preg_match($pattern, $languageFileContents, $matches));
+
+        return str_replace("\\'", "'", $matches[1]);
     }
 }
