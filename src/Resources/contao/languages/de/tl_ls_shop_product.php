@@ -135,8 +135,8 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = array(
 		'garan_disabled_gll_required' => 'GARAN wurde nicht gespeichert, weil GLL deaktiviert ist.',
 		'garan_disabled_gll_variant_override' => 'GARAN wurde nicht gespeichert, weil GLL deaktiviert ist und folgende Varianten weiterhin eigene GARAN-Daten verwenden: %s.',
-		'garan_disabled_missing_brand' => 'GARAN wurde nicht gespeichert, weil `Brand/Trademark` fehlt.',
-		'garan_disabled_missing_model' => 'GARAN wurde nicht gespeichert, weil `Model identifier` fehlt.',
+		'garan_disabled_missing_brand' => 'GARAN wurde nicht gespeichert, weil Brand/Trademark fehlt.',
+		'garan_disabled_missing_model' => 'GARAN wurde nicht gespeichert, weil Model identifier fehlt.',
 		'garan_disabled_missing_duration' => 'GARAN wurde nicht gespeichert, weil die Garantiedauer fehlt.',
 		'garan_disabled_invalid_duration' => 'GARAN wurde nicht gespeichert, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.'
 	);

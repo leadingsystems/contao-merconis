@@ -491,6 +491,7 @@ var ls_shop_backend = {
 
 	toggleGuaranteeFieldMandatoryPresentation: function(fieldInput, widget, isRequired) {
 		var label;
+		var mandatoryMarker;
 
 		if (fieldInput) {
 			if (isRequired) {
@@ -511,6 +512,23 @@ var ls_shop_backend = {
 		}
 
 		label.classList.toggle('mandatory', isRequired);
+		mandatoryMarker = ls_shop_backend.ensureGuaranteeFieldMandatoryMarker(label, isRequired);
+		if (mandatoryMarker) {
+			mandatoryMarker.style.display = isRequired ? '' : 'none';
+		}
+	},
+
+	ensureGuaranteeFieldMandatoryMarker: function(label, shouldCreate) {
+		var mandatoryMarker = label.querySelector('span.mandatory');
+
+		if (!mandatoryMarker && shouldCreate) {
+			mandatoryMarker = document.createElement('span');
+			mandatoryMarker.className = 'mandatory';
+			mandatoryMarker.textContent = '*';
+			label.appendChild(mandatoryMarker);
+		}
+
+		return mandatoryMarker;
 	},
 
 	findGuaranteeFieldInput: function(form, fieldName, suffix) {

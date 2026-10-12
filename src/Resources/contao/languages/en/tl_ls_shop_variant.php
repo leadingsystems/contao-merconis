@@ -127,8 +127,8 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array
 	'garan_disabled_gll_required' => 'GARAN was not saved because the parent product\'s GLL is disabled.',
 	'garan_inherited_gll_required' => 'GARAN was not saved. The variant inherits GARAN from the parent product (no own override). GARAN is enabled there, but GLL is disabled. Please enable GLL or disable GARAN on the parent product.',
 	'garan_disabled_gll_variant_override' => 'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',
-	'garan_disabled_missing_brand' => 'GARAN was not saved because `Brand/Trademark` is missing.',
-	'garan_disabled_missing_model' => 'GARAN was not saved because `Model identifier` is missing.',
+	'garan_disabled_missing_brand' => 'GARAN was not saved because Brand/Trademark is missing.',
+	'garan_disabled_missing_model' => 'GARAN was not saved because Model identifier is missing.',
 	'garan_disabled_missing_duration' => 'GARAN was not saved because the guarantee duration is missing.',
 	'garan_disabled_invalid_duration' => 'GARAN was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.'
 );
