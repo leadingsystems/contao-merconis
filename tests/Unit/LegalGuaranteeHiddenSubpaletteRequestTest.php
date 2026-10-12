@@ -350,14 +350,14 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         $currentVariantData = [
             'garanOverride' => '',
             'enableGaran' => '',
-            'guaranteeDurationYears' => '',
+            'guaranteeDurationYears' => null,
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => '',
         ];
         $currentProductData = [
             'enableGll' => '',
             'enableGaran' => '',
-            'guaranteeDurationYears' => '',
+            'guaranteeDurationYears' => null,
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => '',
         ];
@@ -383,5 +383,245 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
             )
         );
         self::assertSame([], $result->getMessages());
+    }
+
+    public function testProductAutoSubmitPlaceholderTriggersMissingFieldMessagesOnFirstOpen(): void
+    {
+        $placeholder = html_entity_decode('&#8203;', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        $currentProductData = [
+            'enableGll' => '1',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $postedValues = [
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => $placeholder,
+            'guaranteeBrand' => $placeholder,
+            'guaranteeModelIdentifier' => $placeholder,
+        ];
+
+        $brandResult = $this->validator->validateProduct(
+            $this->validationHelper->buildValidationInputData(
+                $currentProductData,
+                $postedValues,
+                $this->validationHelper->getProductRequestFieldNames(),
+                'guaranteeBrand',
+                $placeholder
+            )
+        );
+        $durationResult = $this->validator->validateProduct(
+            $this->validationHelper->buildValidationInputData(
+                $currentProductData,
+                $postedValues,
+                $this->validationHelper->getProductRequestFieldNames(),
+                'guaranteeDurationYears',
+                $placeholder
+            )
+        );
+
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND],
+            array_column($this->validationHelper->getMessagesForField($brandResult->getMessages(), 'guaranteeBrand'), 'code')
+        );
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION],
+            array_column($this->validationHelper->getMessagesForField($durationResult->getMessages(), 'guaranteeDurationYears'), 'code')
+        );
+    }
+
+    public function testVariantAutoSubmitPlaceholderTriggersMissingFieldMessagesOnFirstOpen(): void
+    {
+        $placeholder = html_entity_decode('&#8203;', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        $currentVariantData = [
+            'garanOverride' => '',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $currentProductData = [
+            'enableGll' => '1',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $postedValues = [
+            'garanOverride' => '1',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => $placeholder,
+            'guaranteeBrand' => $placeholder,
+            'guaranteeModelIdentifier' => $placeholder,
+        ];
+
+        $brandResult = $this->validator->validateVariant(
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                $postedValues,
+                $this->validationHelper->getVariantRequestFieldNames(),
+                'guaranteeBrand',
+                $placeholder
+            ),
+            $currentProductData
+        );
+        $durationResult = $this->validator->validateVariant(
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                $postedValues,
+                $this->validationHelper->getVariantRequestFieldNames(),
+                'guaranteeDurationYears',
+                $placeholder
+            ),
+            $currentProductData
+        );
+
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND],
+            array_column($this->validationHelper->getMessagesForField($brandResult->getMessages(), 'guaranteeBrand'), 'code')
+        );
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION],
+            array_column($this->validationHelper->getMessagesForField($durationResult->getMessages(), 'guaranteeDurationYears'), 'code')
+        );
+    }
+
+    public function testVariantAutoSubmitPlaceholderFieldsAreNotPersistedWhenOverrideOpensWithoutEffectiveGaran(): void
+    {
+        $placeholder = html_entity_decode('&#8203;', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $currentVariantData = [
+            'garanOverride' => '',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => null,
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $currentProductData = [
+            'enableGll' => '',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => null,
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+
+        Input::setPost('garanOverride', '1');
+        Input::setPost('guaranteeDurationYears', $placeholder);
+        Input::setPost('guaranteeBrand', $placeholder);
+        Input::setPost('guaranteeModelIdentifier', $placeholder);
+
+        $postedValues = $this->validationHelper->readPostedFieldValues(
+            $this->validationHelper->getVariantRequestFieldNames()
+        );
+        $visibleFieldNames = $this->validationHelper->getVisibleVariantFieldNames($postedValues);
+        $persistenceResult = $this->validator->validateVariant(
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                $postedValues,
+                $visibleFieldNames
+            ),
+            $currentProductData
+        );
+        $fieldsToPersist = $this->validationHelper->buildChangedFieldValues(
+            $currentVariantData,
+            $persistenceResult->getNormalizedData(),
+            $visibleFieldNames
+        );
+
+        self::assertNull($persistenceResult->getNormalizedData()['guaranteeDurationYears']);
+        self::assertSame('', $persistenceResult->getNormalizedData()['guaranteeBrand']);
+        self::assertSame('', $persistenceResult->getNormalizedData()['guaranteeModelIdentifier']);
+        self::assertSame(['garanOverride' => '1'], $fieldsToPersist);
+    }
+
+    public function testProductCompositePlaceholderFragmentsAreRemovedBeforePersistence(): void
+    {
+        $placeholder = html_entity_decode('&#8203;', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $currentProductData = [
+            'enableGll' => '1',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $postedValues = [
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => $placeholder . '36',
+            'guaranteeBrand' => $placeholder . 'Nestle',
+            'guaranteeModelIdentifier' => 'Nestle' . $placeholder,
+        ];
+        $visibleFieldNames = $this->validationHelper->getVisibleProductFieldNames($postedValues);
+        $persistenceResult = $this->validator->validateProduct(
+            $this->validationHelper->buildValidationInputData(
+                $currentProductData,
+                $postedValues,
+                $visibleFieldNames
+            )
+        );
+        $fieldsToPersist = $this->validationHelper->buildChangedFieldValues(
+            $currentProductData,
+            $persistenceResult->getNormalizedData(),
+            $visibleFieldNames
+        );
+
+        self::assertSame(
+            [
+                'guaranteeDurationYears' => '3',
+                'guaranteeBrand' => 'Nestle',
+                'guaranteeModelIdentifier' => 'Nestle',
+            ],
+            $fieldsToPersist
+        );
+    }
+
+    public function testVariantCompositePlaceholderFragmentsAreRemovedBeforePersistence(): void
+    {
+        $placeholder = html_entity_decode('&#8203;', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $currentVariantData = [
+            'garanOverride' => '1',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $currentProductData = [
+            'enableGll' => '1',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $postedValues = [
+            'garanOverride' => '1',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => $placeholder . '36',
+            'guaranteeBrand' => $placeholder . 'Nestle',
+            'guaranteeModelIdentifier' => 'Nestle' . $placeholder,
+        ];
+        $visibleFieldNames = $this->validationHelper->getVisibleVariantFieldNames($postedValues);
+        $persistenceResult = $this->validator->validateVariant(
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                $postedValues,
+                $visibleFieldNames
+            ),
+            $currentProductData
+        );
+        $fieldsToPersist = $this->validationHelper->buildChangedFieldValues(
+            $currentVariantData,
+            $persistenceResult->getNormalizedData(),
+            $visibleFieldNames
+        );
+
+        self::assertSame(
+            [
+                'guaranteeDurationYears' => '3',
+                'guaranteeBrand' => 'Nestle',
+                'guaranteeModelIdentifier' => 'Nestle',
+            ],
+            $fieldsToPersist
+        );
     }
 }

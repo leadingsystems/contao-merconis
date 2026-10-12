@@ -54,7 +54,6 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Manufacturer');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll']										=	array('Enable GLL', 'GLL applies to tangible goods and goods with digital elements. For pure digital content, SaaS and services, disable this switch.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	array('Enable GARAN');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaranActivationRequiresStoredGllHint']		=	'Enable and save `GLL` first. Afterwards, `GARAN` can be turned on.';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears']							=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with a comma: 30 months become 2,5 years, 36 months become 3 years.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	array('Brand/Trademark', 'Maximum 40 characters.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	array('Model identifier', 'Maximum 25 characters.');

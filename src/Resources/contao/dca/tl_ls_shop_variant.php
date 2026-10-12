@@ -38,9 +38,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			array('Merconis\Core\ls_shop_generalHelper', 'attributeValueAllocationRemoveOrphanedRecords'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
-		'onload_callback' => array(
-			array('Merconis\Core\tl_ls_shop_variant_controller', 'configureLegalGuaranteeFieldLock')
-		),
 		'onsubmit_callback' => array(
 			array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeConfiguration'),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -1297,6 +1294,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'exclude' => true,
 			'inputType'               => 'checkbox',
 			'eval'                    => array('submitOnChange' => true, 'tl_class'=>'w50 m12'),
+			'attributes_callback' => array (
+				array(ProductGuaranteeValidationHelper::class, 'configureVariantGaranOverrideAutoSubmitAttributes')
+			),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave')
 			),
@@ -1403,57 +1403,6 @@ class tl_ls_shop_variant_controller extends Backend {
 		$this->import('Contao\BackendUser', 'User');
 	}
 
-	public function configureLegalGuaranteeFieldLock(): void {
-		if (Input::get('act') !== 'edit') {
-			return;
-		}
-
-		$intVariantId = (int) Input::get('id');
-
-		if ($intVariantId <= 0) {
-			return;
-		}
-
-		$objVariant = Database::getInstance()->prepare("
-			SELECT      `pid`,
-						`garanOverride`
-			FROM        `tl_ls_shop_variant`
-			WHERE       `id` = ?
-		")
-		->limit(1)
-		->execute($intVariantId);
-
-		if (!$objVariant->numRows) {
-			return;
-		}
-
-		$objProduct = Database::getInstance()->prepare("
-			SELECT      `enableGll`
-			FROM        `tl_ls_shop_product`
-			WHERE       `id` = ?
-		")
-		->limit(1)
-		->execute($objVariant->pid);
-
-		if (!$objProduct->numRows) {
-			return;
-		}
-
-		$validationHelper = new ProductGuaranteeValidationHelper();
-
-		if (!$validationHelper->shouldDisableVariantGaranOverride($objVariant->row(), $objProduct->row())) {
-			return;
-		}
-
-		$this->loadLanguageFile('tl_ls_shop_variant');
-
-		$GLOBALS['TL_DCA']['tl_ls_shop_variant']['fields']['garanOverride']['eval']['disabled'] = true;
-		$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride'] = $validationHelper->appendHintToFieldLabel(
-			$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride'] ?? array(),
-			(string) ($GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverrideRequiresStoredGllHint'] ?? '')
-		);
-	}
-
 	public function validateLegalGuaranteeBeforeSave($varValue, DataContainer $dc) {
 		if (!$dc->id) {
 			return $varValue;
@@ -1526,7 +1475,7 @@ class tl_ls_shop_variant_controller extends Backend {
 				);
 			}
 
-			return $toggleSaveValue;
+			return $validationHelper->normalizeAutoSubmitPlaceholderValue($toggleSaveValue);
 		}
 
 		$validationHelper->throwValidationExceptionForField(
@@ -1535,7 +1484,7 @@ class tl_ls_shop_variant_controller extends Backend {
 			'tl_ls_shop_variant'
 		);
 
-		return $varValue;
+		return $validationHelper->normalizeAutoSubmitPlaceholderValue($varValue);
 	}
 
 	public function validateLegalGuaranteeConfiguration(DataContainer $dc): void {

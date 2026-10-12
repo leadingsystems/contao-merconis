@@ -39,7 +39,6 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']					
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Einstellungen zu Lagerbestand/Lieferzeit');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Einstellungen des Hauptproduktes zu Verfügbarkeit und Vorbestellung überschreiben');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Eigene GARAN-Daten der Variante verwenden', 'Überschreibt die Angaben des Elternprodukts. Aktiviert GARAN nicht.');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverrideRequiresStoredGllHint']					=	'Aktivieren und speichern Sie zuerst `GLL` am Hauptprodukt. Danach können eigene GARAN-Daten der Variante verwendet werden.';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran']										=	array('GARAN aktivieren');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit Komma: 30 Monate ergeben 2,5 Jahre, 36 Monate ergeben 3 Jahre.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	array('Brand/Trademark', 'Maximal 40 Zeichen.');

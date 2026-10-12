@@ -216,7 +216,9 @@ final class ProductGuaranteeValidationHelper
                 continue;
             }
 
-            $currentData[$fieldName] = $postedValues[$fieldName];
+            $currentData[$fieldName] = $this->normalizeAutoSubmitPlaceholderValue(
+                $postedValues[$fieldName]
+            );
         }
 
         return $currentData;
@@ -247,7 +249,9 @@ final class ProductGuaranteeValidationHelper
         );
 
         if ($currentFieldName !== '') {
-            $validationData[$currentFieldName] = $currentFieldValue;
+            $validationData[$currentFieldName] = $this->normalizeAutoSubmitPlaceholderValue(
+                $currentFieldValue
+            );
         }
 
         return $validationData;
@@ -442,52 +446,29 @@ final class ProductGuaranteeValidationHelper
     }
 
     /**
-     * @param array<string, mixed> $productData
-     */
-    public function shouldDisableProductEnableGaran(array $productData): bool
-    {
-        return !$this->isTruthy($productData['enableGll'] ?? null)
-            && !$this->isTruthy($productData['enableGaran'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $variantData
-     * @param array<string, mixed> $productData
-     */
-    public function shouldDisableVariantGaranOverride(array $variantData, array $productData): bool
-    {
-        return !$this->isTruthy($productData['enableGll'] ?? null)
-            && !$this->isTruthy($variantData['garanOverride'] ?? null);
-    }
-
-    /**
-     * @param array<int|string, mixed> $fieldLabel
+     * @param array<string, mixed> $attributes
      *
-     * @return array<int|string, mixed>
+     * @return array<string, mixed>
      */
-    public function appendHintToFieldLabel(array $fieldLabel, string $hint): array
+    public function configureProductEnableGaranAutoSubmitAttributes(array $attributes): array
     {
-        $normalizedHint = trim($hint);
+        return $this->configureGuaranteeSelectorAutoSubmitAttributes(
+            $attributes,
+            'tl_ls_shop_product'
+        );
+    }
 
-        if ('' === $normalizedHint) {
-            return $fieldLabel;
-        }
-
-        $existingDescription = trim((string) ($fieldLabel[1] ?? ''));
-
-        if ('' === $existingDescription) {
-            $fieldLabel[1] = $normalizedHint;
-
-            return $fieldLabel;
-        }
-
-        if (str_contains($existingDescription, $normalizedHint)) {
-            return $fieldLabel;
-        }
-
-        $fieldLabel[1] = $existingDescription . ' ' . $normalizedHint;
-
-        return $fieldLabel;
+    /**
+     * @param array<string, mixed> $attributes
+     *
+     * @return array<string, mixed>
+     */
+    public function configureVariantGaranOverrideAutoSubmitAttributes(array $attributes): array
+    {
+        return $this->configureGuaranteeSelectorAutoSubmitAttributes(
+            $attributes,
+            'tl_ls_shop_variant'
+        );
     }
 
     /**
@@ -544,5 +525,40 @@ final class ProductGuaranteeValidationHelper
         }
 
         return number_format($months / 12, 1, '.', '');
+    }
+
+    /**
+     * @param array<string, mixed> $attributes
+     *
+     * @return array<string, mixed>
+     */
+    private function configureGuaranteeSelectorAutoSubmitAttributes(array $attributes, string $table): array
+    {
+        if ('edit' !== Input::get('act')) {
+            return $attributes;
+        }
+
+        $attributes['onclick'] = $this->buildGuaranteeSelectorAutoSubmitOnclick($table);
+
+        return $attributes;
+    }
+
+    private function buildGuaranteeSelectorAutoSubmitOnclick(string $table): string
+    {
+        return '(function(form){if(form){["guaranteeDurationYears","guaranteeBrand","guaranteeModelIdentifier"].forEach(function(name){if(form.elements[name]){return;}var input=document.createElement("input");input.type="hidden";input.name=name;input.value="\\u200B";form.appendChild(input);});}Backend.autoSubmit(\'' . $table . '\');})(this.form)';
+    }
+
+    public function normalizeAutoSubmitPlaceholderValue(mixed $value): mixed
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        return str_replace($this->getAutoSubmitPlaceholderValue(), '', $value);
+    }
+
+    private function getAutoSubmitPlaceholderValue(): string
+    {
+        return html_entity_decode('&#8203;', ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 }

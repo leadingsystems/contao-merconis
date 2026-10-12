@@ -87,9 +87,14 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             $tableConfig['config']['onsubmit_callback'][0][1]
         );
         self::assertSame(
-            'configureLegalGuaranteeFieldLock',
-            $tableConfig['config']['onload_callback'][0][1]
+            ProductGuaranteeValidationHelper::class,
+            $tableConfig['fields']['enableGaran']['attributes_callback'][0][0]
         );
+        self::assertSame(
+            'configureProductEnableGaranAutoSubmitAttributes',
+            $tableConfig['fields']['enableGaran']['attributes_callback'][0][1]
+        );
+        self::assertArrayNotHasKey('onload_callback', $tableConfig['config']);
         self::assertArrayNotHasKey('oncreate_callback', $tableConfig['config']);
         self::assertArrayNotHasKey('onbeforesubmit_callback', $tableConfig['config']);
     }
@@ -151,9 +156,14 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             $tableConfig['config']['onsubmit_callback'][0][1]
         );
         self::assertSame(
-            'configureLegalGuaranteeFieldLock',
-            $tableConfig['config']['onload_callback'][0][1]
+            ProductGuaranteeValidationHelper::class,
+            $tableConfig['fields']['garanOverride']['attributes_callback'][0][0]
         );
+        self::assertSame(
+            'configureVariantGaranOverrideAutoSubmitAttributes',
+            $tableConfig['fields']['garanOverride']['attributes_callback'][0][1]
+        );
+        self::assertArrayNotHasKey('onload_callback', $tableConfig['config']);
     }
 
     public function testLanguageFilesContainGuaranteeLabelsAndMessagesInGermanAndEnglish(): void
@@ -171,10 +181,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['lsShopGuaranteeLabels_legend']", $variantLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $productLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $variantLanguageEn);
-        self::assertStringContainsString('enableGaranActivationRequiresStoredGllHint', $productLanguageDe);
-        self::assertStringContainsString('enableGaranActivationRequiresStoredGllHint', $productLanguageEn);
-        self::assertStringContainsString('garanOverrideRequiresStoredGllHint', $variantLanguageDe);
-        self::assertStringContainsString('garanOverrideRequiresStoredGllHint', $variantLanguageEn);
+        self::assertStringNotContainsString('enableGaranActivationRequiresStoredGllHint', $productLanguageDe);
+        self::assertStringNotContainsString('enableGaranActivationRequiresStoredGllHint', $productLanguageEn);
+        self::assertStringNotContainsString('garanOverrideRequiresStoredGllHint', $variantLanguageDe);
+        self::assertStringNotContainsString('garanOverrideRequiresStoredGllHint', $variantLanguageEn);
         self::assertStringContainsString('garan_disabled_gll_required', $productLanguageDe);
         self::assertStringContainsString('garan_disabled_gll_variant_override', $productLanguageEn);
         self::assertStringContainsString('garan_disabled_gll_required', $variantLanguageDe);
