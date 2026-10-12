@@ -491,6 +491,7 @@ var ls_shop_backend = {
 
 	toggleGuaranteeFieldMandatoryPresentation: function(fieldInput, widget, isRequired) {
 		var label;
+		var invisibleMarker;
 		var mandatoryMarker;
 
 		if (fieldInput) {
@@ -516,6 +517,11 @@ var ls_shop_backend = {
 		if (mandatoryMarker) {
 			mandatoryMarker.style.display = isRequired ? '' : 'none';
 		}
+
+		invisibleMarker = ls_shop_backend.ensureGuaranteeFieldMandatoryAnnouncement(label, isRequired);
+		if (invisibleMarker) {
+			invisibleMarker.style.display = isRequired ? '' : 'none';
+		}
 	},
 
 	ensureGuaranteeFieldMandatoryMarker: function(label, shouldCreate) {
@@ -529,6 +535,37 @@ var ls_shop_backend = {
 		}
 
 		return mandatoryMarker;
+	},
+
+	ensureGuaranteeFieldMandatoryAnnouncement: function(label, shouldCreate) {
+		var invisibleMarker = label.querySelector('span.invisible');
+		var mandatoryLabel;
+
+		if (!invisibleMarker && shouldCreate) {
+			mandatoryLabel = ls_shop_backend.getGuaranteeMandatoryLabel();
+
+			if (mandatoryLabel === '') {
+				return null;
+			}
+
+			invisibleMarker = document.createElement('span');
+			invisibleMarker.className = 'invisible';
+			invisibleMarker.textContent = mandatoryLabel + ' ';
+			label.insertBefore(invisibleMarker, label.firstChild);
+		}
+
+		return invisibleMarker;
+	},
+
+	getGuaranteeMandatoryLabel: function() {
+		if (
+			window.ls_shop_backendConfig
+			&& typeof window.ls_shop_backendConfig.guaranteeMandatoryLabel === 'string'
+		) {
+			return window.ls_shop_backendConfig.guaranteeMandatoryLabel;
+		}
+
+		return '';
 	},
 
 	findGuaranteeFieldInput: function(form, fieldName, suffix) {

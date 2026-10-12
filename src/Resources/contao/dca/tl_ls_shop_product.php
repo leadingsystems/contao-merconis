@@ -20,7 +20,8 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
         'enableVersioning' => true,
 		'ctable' => array('tl_ls_shop_variant'),
 		'onload_callback' => array(
-			array('Merconis\Core\tl_ls_shop_product_controller', 'configureLegalGuaranteeFieldRequirement')
+			array('Merconis\Core\tl_ls_shop_product_controller', 'configureLegalGuaranteeFieldRequirement'),
+			array('Merconis\Core\tl_ls_shop_product_controller', 'provideLegalGuaranteeMandatoryLabel')
 		),
 		'oncopy_callback' => array (
 			array('Merconis\Core\ls_shop_generalHelper', 'attributeValueAllocationCopy'),
@@ -1432,6 +1433,20 @@ class tl_ls_shop_product_controller extends Backend {
 		foreach (['guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier'] as $fieldName) {
 			$GLOBALS['TL_DCA']['tl_ls_shop_product']['fields'][$fieldName]['eval']['mandatory'] = true;
 		}
+	}
+
+	public function provideLegalGuaranteeMandatoryLabel(DataContainer $dc): void {
+		if (!in_array(Input::get('act'), array('edit', 'editAll'), true)) {
+			return;
+		}
+
+		$GLOBALS['TL_MOOTOOLS'][] = sprintf(
+			'<script>window.ls_shop_backendConfig = window.ls_shop_backendConfig || {}; window.ls_shop_backendConfig.guaranteeMandatoryLabel = %s;</script>',
+			json_encode(
+				$GLOBALS['TL_LANG']['MSC']['mandatory'],
+				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+			)
+		);
 	}
 
 	public function validateLegalGuaranteeBeforeSave($varValue, DataContainer $dc) {
