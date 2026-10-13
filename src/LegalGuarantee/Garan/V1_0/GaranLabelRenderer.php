@@ -17,6 +17,12 @@ final class GaranLabelRenderer
     private const BRAND_NODE_XPATH = '//svg:text[@transform="translate(6.32 74.52)"]';
     private const MODEL_NODE_XPATH = '//svg:text[@transform="translate(196.75 74.52)"]';
     private const DURATION_NODE_XPATH = '//svg:text[@transform="translate(5.07 150.57)"]';
+    private const BRAND_MODEL_BASE_FONT_SIZE_PX = 9.0;
+    private const DURATION_BASE_FONT_SIZE_PX = 80.0;
+    private const BRAND_MAX_WIDTH_PX = 190.43;
+    private const MODEL_MAX_WIDTH_PX = 66.22;
+    private const DURATION_MAX_WIDTH_PX = 116.4;
+    private const DURATION_LETTER_SPACING_EM = -0.03;
 
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
@@ -47,14 +53,41 @@ final class GaranLabelRenderer
 
         $xpath = new DOMXPath($document);
         $xpath->registerNamespace('svg', self::SVG_NAMESPACE);
+        $textFitCalculator = new GaranTextFitCalculator();
+        $interFontDirectory = $this->assetLocator->getInterFontDirectory();
 
-        $this->replaceTextNodeContents($document, $xpath, self::BRAND_NODE_XPATH, $brand);
-        $this->replaceTextNodeContents($document, $xpath, self::MODEL_NODE_XPATH, $modelIdentifier);
-        $this->replaceTextNodeContents(
+        $brandElement = $this->replaceTextNodeContents($document, $xpath, self::BRAND_NODE_XPATH, $brand);
+        $textFitCalculator->applyFittedInlineFontSizeStyle(
+            $brandElement,
+            $brand,
+            self::BRAND_MODEL_BASE_FONT_SIZE_PX,
+            self::BRAND_MAX_WIDTH_PX,
+            $interFontDirectory . '/Inter-Regular.otf'
+        );
+
+        $modelElement = $this->replaceTextNodeContents($document, $xpath, self::MODEL_NODE_XPATH, $modelIdentifier);
+        $textFitCalculator->applyFittedInlineFontSizeStyle(
+            $modelElement,
+            $modelIdentifier,
+            self::BRAND_MODEL_BASE_FONT_SIZE_PX,
+            self::MODEL_MAX_WIDTH_PX,
+            $interFontDirectory . '/Inter-Regular.otf'
+        );
+
+        $formattedDuration = GuaranteeDurationFormatter::formatYearsForDisplay($durationText);
+        $durationElement = $this->replaceTextNodeContents(
             $document,
             $xpath,
             self::DURATION_NODE_XPATH,
-            GuaranteeDurationFormatter::formatYearsForDisplay($durationText)
+            $formattedDuration
+        );
+        $textFitCalculator->applyFittedInlineFontSizeStyle(
+            $durationElement,
+            $formattedDuration,
+            self::DURATION_BASE_FONT_SIZE_PX,
+            self::DURATION_MAX_WIDTH_PX,
+            $interFontDirectory . '/Inter-ExtraBold.otf',
+            self::DURATION_LETTER_SPACING_EM
         );
 
         $renderedSvg = $document->saveXML($document->documentElement);
@@ -66,7 +99,12 @@ final class GaranLabelRenderer
         return $renderedSvg;
     }
 
-    private function replaceTextNodeContents(DOMDocument $document, DOMXPath $xpath, string $query, string $value): void
+    private function replaceTextNodeContents(
+        DOMDocument $document,
+        DOMXPath $xpath,
+        string $query,
+        string $value
+    ): DOMElement
     {
         $textElement = $xpath->query($query)?->item(0);
 
@@ -84,5 +122,7 @@ final class GaranLabelRenderer
         $tspanElement->appendChild($document->createTextNode($value));
 
         $textElement->appendChild($tspanElement);
+
+        return $textElement;
     }
 }

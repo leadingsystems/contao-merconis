@@ -21,7 +21,7 @@ final class GaranLabelRendererTest extends TestCase
         $renderedSvg = $renderer->render(
             'ACME & Co <Premium>',
             'Model > 42',
-            '2.5',
+            '2.0',
         );
 
         $document = new DOMDocument('1.0', 'UTF-8');
@@ -34,14 +34,17 @@ final class GaranLabelRendererTest extends TestCase
             'ACME & Co <Premium>',
             $this->getTextContent($xpath, '//svg:text[@transform="translate(6.32 74.52)"]')
         );
+        self::assertFalse($this->getTextElement($xpath, '//svg:text[@transform="translate(6.32 74.52)"]')->hasAttribute('font-size'));
         self::assertSame(
             'Model > 42',
             $this->getTextContent($xpath, '//svg:text[@transform="translate(196.75 74.52)"]')
         );
+        self::assertFalse($this->getTextElement($xpath, '//svg:text[@transform="translate(196.75 74.52)"]')->hasAttribute('font-size'));
         self::assertSame(
-            '2,5',
+            '2',
             $this->getTextContent($xpath, '//svg:text[@transform="translate(5.07 150.57)"]')
         );
+        self::assertFalse($this->getTextElement($xpath, '//svg:text[@transform="translate(5.07 150.57)"]')->hasAttribute('font-size'));
 
         self::assertStringNotContainsString('Brand/', $renderedSvg);
         self::assertStringNotContainsString('Model identifier', $renderedSvg);
@@ -71,6 +74,39 @@ final class GaranLabelRendererTest extends TestCase
         self::assertSame(3, $templateXpath->query('//svg:text')?->length);
     }
 
+    public function testRenderReducesFontSizeOnlyForValuesThatWouldOverflow(): void
+    {
+        $renderer = new GaranLabelRenderer($this->createAssetLocator());
+
+        $renderedSvg = $renderer->render(
+            str_repeat('M', 40),
+            str_repeat('W', 25),
+            '2.5',
+        );
+
+        $document = new DOMDocument('1.0', 'UTF-8');
+        $document->loadXML($renderedSvg);
+
+        $xpath = new DOMXPath($document);
+        $xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
+
+        $brandElement = $this->getTextElement($xpath, '//svg:text[@transform="translate(6.32 74.52)"]');
+        $modelElement = $this->getTextElement($xpath, '//svg:text[@transform="translate(196.75 74.52)"]');
+        $durationElement = $this->getTextElement($xpath, '//svg:text[@transform="translate(5.07 150.57)"]');
+
+        self::assertSame(str_repeat('M', 40), trim($brandElement->textContent));
+        self::assertSame(str_repeat('W', 25), trim($modelElement->textContent));
+        self::assertSame('2,5', trim($durationElement->textContent));
+
+        self::assertFalse($brandElement->hasAttribute('font-size'));
+        self::assertFalse($modelElement->hasAttribute('font-size'));
+        self::assertFalse($durationElement->hasAttribute('font-size'));
+
+        self::assertLessThan(9.0, $this->getInlineFontSizeValue($brandElement));
+        self::assertLessThan(9.0, $this->getInlineFontSizeValue($modelElement));
+        self::assertLessThan(80.0, $this->getInlineFontSizeValue($durationElement));
+    }
+
     private function createAssetLocator(): OfficialGuaranteeAssetLocator
     {
         return new OfficialGuaranteeAssetLocator(
@@ -81,10 +117,25 @@ final class GaranLabelRendererTest extends TestCase
 
     private function getTextContent(DOMXPath $xpath, string $query): string
     {
+        return trim($this->getTextElement($xpath, $query)->textContent);
+    }
+
+    private function getTextElement(DOMXPath $xpath, string $query): DOMElement
+    {
         $textElement = $xpath->query($query)?->item(0);
 
         self::assertInstanceOf(DOMElement::class, $textElement);
 
-        return trim($textElement->textContent);
+        return $textElement;
+    }
+
+    private function getInlineFontSizeValue(DOMElement $textElement): float
+    {
+        $style = $textElement->getAttribute('style');
+
+        self::assertMatchesRegularExpression('/(?:^|;)\s*font-size\s*:\s*[0-9.]+px(?:;|$)/', $style);
+        preg_match('/font-size\s*:\s*([0-9.]+)px/', $style, $matches);
+
+        return (float) ($matches[1] ?? 0.0);
     }
 }
