@@ -65,8 +65,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             'enableGll' => '1',
             'enableGaran' => '1',
             'guaranteeDurationYears' => '5,0',
-            'guaranteeBrand' => ' Product Brand ',
-            'guaranteeModelIdentifier' => ' Product Model ',
+            'guaranteeBrand' => ' Product &amp; Brand ',
+            'guaranteeModelIdentifier' => ' Product &quot;Model&quot; ',
         ]);
 
         $variantColumns = $applier->buildExportColumns(
@@ -81,8 +81,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'garanOverride' => '0',
                 'enableGaran' => '1',
                 'guaranteeDurationYears' => '3,5',
-                'guaranteeBrand' => ' Variant Brand ',
-                'guaranteeModelIdentifier' => ' Variant Model ',
+                'guaranteeBrand' => ' Variant &amp; Brand ',
+                'guaranteeModelIdentifier' => ' Variant &quot;Model&quot; ',
             ],
         );
 
@@ -92,8 +92,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'garanOverride' => '',
                 'enableGaran' => '1',
                 'guaranteeDurationYears' => '60',
-                'guaranteeBrand' => 'Product Brand',
-                'guaranteeModelIdentifier' => 'Product Model',
+                'guaranteeBrand' => 'Product & Brand',
+                'guaranteeModelIdentifier' => 'Product "Model"',
             ],
             $productColumns
         );
@@ -103,8 +103,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'garanOverride' => '',
                 'enableGaran' => '1',
                 'guaranteeDurationYears' => '42',
-                'guaranteeBrand' => 'Variant Brand',
-                'guaranteeModelIdentifier' => 'Variant Model',
+                'guaranteeBrand' => 'Variant & Brand',
+                'guaranteeModelIdentifier' => 'Variant "Model"',
             ],
             $variantColumns
         );
@@ -212,6 +212,94 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         self::assertSame(
             'field "enableGll": GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: VAR-001.',
             $applier->formatWriteErrorMessage($result['messages'])
+        );
+    }
+
+    public function testWriteMessagesExposeLengthViolationsForBrandAndModel(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+
+        self::assertSame(
+            'field "guaranteeBrand": GARAN was not saved because "Brand/Trademark" must not be longer than 40 characters.',
+            $applier->formatWriteErrorMessage([[
+                'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
+                'field' => 'guaranteeBrand',
+                'parameters' => ['40'],
+            ]])
+        );
+        self::assertSame(
+            'field "guaranteeModelIdentifier": GARAN was not saved because "Model identifier" must not be longer than 25 characters.',
+            $applier->formatWriteErrorMessage([[
+                'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
+                'field' => 'guaranteeModelIdentifier',
+                'parameters' => ['25'],
+            ]])
+        );
+    }
+
+    public function testApplyToProductRowBlocksOverlongValuesWhenGaranIsDisabled(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 34);
+        $model = 'ä&"<>ß' . str_repeat('B', 20);
+
+        $result = $applier->applyToProductRow([
+            'producer' => 'ACME Corporation',
+            'enableGll' => '1',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => $brand,
+            'guaranteeModelIdentifier' => $model,
+        ]);
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame(
+            ['guaranteeBrand', 'guaranteeModelIdentifier'],
+            array_column($result['messages'], 'field')
+        );
+        self::assertSame(
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
+            ],
+            array_column($result['messages'], 'code')
+        );
+    }
+
+    public function testApplyToVariantRowBlocksInheritedOverlongValuesWhenOverrideIsDisabled(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 34);
+        $model = 'ä&"<>ß' . str_repeat('B', 20);
+
+        $result = $applier->applyToVariantRow(
+            [
+                'garanOverride' => '',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            [
+                'enableGll' => '1',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => $brand,
+                'guaranteeModelIdentifier' => $model,
+            ],
+        );
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame(
+            ['guaranteeBrand', 'guaranteeModelIdentifier'],
+            array_column($result['messages'], 'field')
+        );
+        self::assertSame(
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
+            ],
+            array_column($result['messages'], 'code')
         );
     }
 }

@@ -274,4 +274,168 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             $validator->getInitialGuaranteeBrand('ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGHIJ')
         );
     }
+
+    public function testProductValidationAcceptsExactCharacterLimitsWithSpecialCharactersAndUmlauts(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 33);
+        $model = 'ä&"<>ß' . str_repeat('B', 19);
+
+        self::assertSame(40, mb_strlen($brand));
+        self::assertSame(25, mb_strlen($model));
+
+        $result = $validator->validateProduct([
+            'enableGll' => '1',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => '36',
+            'guaranteeBrand' => $brand,
+            'guaranteeModelIdentifier' => $model,
+        ]);
+
+        self::assertSame([], $result->getMessages());
+        self::assertSame($brand, $result->getNormalizedData()['guaranteeBrand']);
+        self::assertSame($model, $result->getNormalizedData()['guaranteeModelIdentifier']);
+    }
+
+    public function testProductValidationRejectsBrandAndModelLongerThanLimits(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 34);
+        $model = 'ä&"<>ß' . str_repeat('B', 20);
+
+        self::assertSame(41, mb_strlen($brand));
+        self::assertSame(26, mb_strlen($model));
+
+        $result = $validator->validateProduct([
+            'enableGll' => '1',
+            'enableGaran' => '1',
+            'guaranteeDurationYears' => '36',
+            'guaranteeBrand' => $brand,
+            'guaranteeModelIdentifier' => $model,
+        ]);
+
+        self::assertSame(
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
+            ],
+            array_column($result->getMessages(), 'code')
+        );
+        self::assertSame([41, 26], array_map('mb_strlen', [$brand, $model]));
+    }
+
+    public function testProductValidationRejectsOverlongBrandAndModelEvenWhenGaranIsDisabled(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 34);
+        $model = 'ä&"<>ß' . str_repeat('B', 20);
+
+        $result = $validator->validateProduct([
+            'enableGll' => '1',
+            'enableGaran' => '',
+            'guaranteeDurationYears' => '',
+            'guaranteeBrand' => $brand,
+            'guaranteeModelIdentifier' => $model,
+        ]);
+
+        self::assertSame(
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
+            ],
+            array_column($result->getMessages(), 'code')
+        );
+    }
+
+    public function testVariantFallbackDecodesParentEntityValuesBeforeValidation(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+
+        $result = $validator->validateVariant(
+            [
+                'garanOverride' => '',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            [
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '36',
+                'guaranteeBrand' => ' Elternmarke &amp; Co. ',
+                'guaranteeModelIdentifier' => ' Modell &quot;S&quot; ',
+            ],
+        );
+
+        self::assertSame([], $result->getMessages());
+        self::assertSame('Elternmarke & Co.', $result->getEffectiveData()['guaranteeBrand']);
+        self::assertSame('Modell "S"', $result->getEffectiveData()['guaranteeModelIdentifier']);
+    }
+
+    public function testVariantOverrideRejectsOverlongOwnValuesEvenWhenGaranIsDisabled(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 34);
+        $model = 'ä&"<>ß' . str_repeat('B', 20);
+
+        $result = $validator->validateVariant(
+            [
+                'garanOverride' => '1',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => $brand,
+                'guaranteeModelIdentifier' => $model,
+            ],
+            [
+                'enableGll' => '1',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => 'Parent Brand',
+                'guaranteeModelIdentifier' => 'Parent Model',
+            ],
+        );
+
+        self::assertSame(
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
+            ],
+            array_column($result->getMessages(), 'code')
+        );
+    }
+
+    public function testVariantWithoutOverrideRejectsInheritedOverlongValuesWhenParentGaranIsDisabled(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 34);
+        $model = 'ä&"<>ß' . str_repeat('B', 20);
+
+        $result = $validator->validateVariant(
+            [
+                'garanOverride' => '',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            [
+                'enableGll' => '1',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => $brand,
+                'guaranteeModelIdentifier' => $model,
+            ],
+        );
+
+        self::assertSame(
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
+            ],
+            array_column($result->getMessages(), 'code')
+        );
+        self::assertSame($brand, $result->getEffectiveData()['guaranteeBrand']);
+        self::assertSame($model, $result->getEffectiveData()['guaranteeModelIdentifier']);
+    }
 }

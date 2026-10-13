@@ -10,9 +10,13 @@ final class ProductGuaranteeConfigurationValidator
     public const MESSAGE_GARAN_DISABLED_MISSING_MODEL = 'garan_disabled_missing_model';
     public const MESSAGE_GARAN_DISABLED_MISSING_DURATION = 'garan_disabled_missing_duration';
     public const MESSAGE_GARAN_DISABLED_INVALID_DURATION = 'garan_disabled_invalid_duration';
+    public const MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG = 'garan_disabled_brand_too_long';
+    public const MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG = 'garan_disabled_model_too_long';
     public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED = 'garan_disabled_gll_required';
     public const MESSAGE_GARAN_INHERITED_GLL_REQUIRED = 'garan_inherited_gll_required';
     public const MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE = 'garan_disabled_gll_variant_override';
+    private const GUARANTEE_BRAND_MAX_LENGTH = 40;
+    private const GUARANTEE_MODEL_IDENTIFIER_MAX_LENGTH = 25;
 
     public function __construct(
         private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),
@@ -34,7 +38,10 @@ final class ProductGuaranteeConfigurationValidator
             'guaranteeBrand' => $normalizedData['guaranteeBrand'],
             'guaranteeModelIdentifier' => $normalizedData['guaranteeModelIdentifier'],
         ];
-        $messages = $durationResult['messages'];
+        $messages = array_merge(
+            $durationResult['messages'],
+            $this->validateBrandAndModelLengthRequirements($effectiveData)
+        );
 
         $gllMessages = $this->validateProductGllDependency($normalizedData, $relatedVariants);
 
@@ -64,11 +71,14 @@ final class ProductGuaranteeConfigurationValidator
         $normalizedProductData = $this->normalizeSharedFields($productData);
         $durationResult = $this->validationHelper->normalizeDurationInput($variantData['guaranteeDurationYears'] ?? null);
         $normalizedVariantData['guaranteeDurationYears'] = $durationResult['storedValue'];
-        $messages = $durationResult['messages'];
         $effectiveData = $this->buildEffectiveVariantData(
             $normalizedVariantData,
             $normalizedProductData,
             $durationResult['effectiveValue'],
+        );
+        $messages = array_merge(
+            $durationResult['messages'],
+            $this->validateBrandAndModelLengthRequirements($effectiveData)
         );
 
         if (
@@ -148,7 +158,7 @@ final class ProductGuaranteeConfigurationValidator
      */
     private function validateGaranRequirements(array $effectiveData, array $durationMessages): array
     {
-        $messages = $this->validateBrandAndModelRequirements($effectiveData);
+        $messages = $this->validateBrandAndModelPresenceRequirements($effectiveData);
 
         if (
             '' === ($effectiveData['guaranteeDurationYears'] ?? '')
@@ -168,7 +178,7 @@ final class ProductGuaranteeConfigurationValidator
      *
      * @return list<array{code: string, parameters: array<int, string>}>
      */
-    private function validateBrandAndModelRequirements(array $effectiveData): array
+    private function validateBrandAndModelPresenceRequirements(array $effectiveData): array
     {
         $messages = [];
 
@@ -183,6 +193,35 @@ final class ProductGuaranteeConfigurationValidator
             $messages[] = [
                 'code' => self::MESSAGE_GARAN_DISABLED_MISSING_MODEL,
                 'parameters' => [],
+            ];
+        }
+
+        return $messages;
+    }
+
+    /**
+     * @param array<string, mixed> $effectiveData
+     *
+     * @return list<array{code: string, parameters: array<int, string>}>
+     */
+    private function validateBrandAndModelLengthRequirements(array $effectiveData): array
+    {
+        $messages = [];
+
+        if (mb_strlen((string) ($effectiveData['guaranteeBrand'] ?? '')) > self::GUARANTEE_BRAND_MAX_LENGTH) {
+            $messages[] = [
+                'code' => self::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
+                'parameters' => [(string) self::GUARANTEE_BRAND_MAX_LENGTH],
+            ];
+        }
+
+        if (
+            mb_strlen((string) ($effectiveData['guaranteeModelIdentifier'] ?? ''))
+            > self::GUARANTEE_MODEL_IDENTIFIER_MAX_LENGTH
+        ) {
+            $messages[] = [
+                'code' => self::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
+                'parameters' => [(string) self::GUARANTEE_MODEL_IDENTIFIER_MAX_LENGTH],
             ];
         }
 
@@ -206,8 +245,10 @@ final class ProductGuaranteeConfigurationValidator
                 'guaranteeDurationYears' => $this->normalizeStoredDurationValue(
                     $productData['guaranteeDurationYears'] ?? null
                 ),
-                'guaranteeBrand' => trim((string) ($productData['guaranteeBrand'] ?? '')),
-                'guaranteeModelIdentifier' => trim((string) ($productData['guaranteeModelIdentifier'] ?? '')),
+                'guaranteeBrand' => $this->normalizeTextValue($productData['guaranteeBrand'] ?? null),
+                'guaranteeModelIdentifier' => $this->normalizeTextValue(
+                    $productData['guaranteeModelIdentifier'] ?? null
+                ),
             ];
         }
 
@@ -218,14 +259,14 @@ final class ProductGuaranteeConfigurationValidator
                 : $this->normalizeStoredDurationValue($productData['guaranteeDurationYears'] ?? null),
             'guaranteeBrand' => '' !== ($variantData['guaranteeBrand'] ?? '')
                 ? $variantData['guaranteeBrand']
-                : trim((string) ($productData['guaranteeBrand'] ?? '')),
+                : $this->normalizeTextValue($productData['guaranteeBrand'] ?? null),
             'guaranteeModelIdentifier' => '' !== ($variantData['guaranteeModelIdentifier'] ?? '')
                 ? $variantData['guaranteeModelIdentifier']
-                : trim((string) ($productData['guaranteeModelIdentifier'] ?? '')),
+                : $this->normalizeTextValue($productData['guaranteeModelIdentifier'] ?? null),
         ];
     }
 
-    private function normalizeTextValue(mixed $value): string
+    public function normalizeTextValue(mixed $value): string
     {
         return trim(
             html_entity_decode(

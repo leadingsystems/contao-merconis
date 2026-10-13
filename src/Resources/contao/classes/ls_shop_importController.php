@@ -2269,8 +2269,20 @@ class ls_shop_importController
 			case 'garan_disabled_missing_brand':
 				$str_detail = 'GARAN was not saved because "Brand/Trademark" is missing.';
 				break;
+			case 'garan_disabled_brand_too_long':
+				$str_detail = sprintf(
+					'GARAN was not saved because "Brand/Trademark" must not be longer than %s characters.',
+					$arr_parameters[0] ?? '40'
+				);
+				break;
 			case 'garan_disabled_missing_model':
 				$str_detail = 'GARAN was not saved because "Model identifier" is missing.';
+				break;
+			case 'garan_disabled_model_too_long':
+				$str_detail = sprintf(
+					'GARAN was not saved because "Model identifier" must not be longer than %s characters.',
+					$arr_parameters[0] ?? '25'
+				);
 				break;
 			case 'garan_disabled_missing_duration':
 				$str_detail = 'GARAN was not saved because the guarantee duration is missing.';
