@@ -10,6 +10,10 @@ use Throwable;
 
 final class OrderConfirmationAttachmentGenerator
 {
+    private const PUBLIC_BUNDLE_PREFIX = 'bundles/leadingsystemsmerconis/';
+    private const BUNDLE_SOURCE_PREFIX = 'vendor/leadingsystems/contao-merconis/src/Resources/public/';
+    private const LOCAL_SOURCE_PREFIX = 'src/Resources/public/';
+
     public function __construct(
         private readonly OrderLabelSnapshotRenderer $snapshotRenderer,
         private readonly GaranPdfAttachmentWriterInterface $garanPdfAttachmentWriter,
@@ -198,7 +202,17 @@ final class OrderConfirmationAttachmentGenerator
         $normalizedProjectDir = rtrim($this->projectDir, '/');
 
         if (str_starts_with($absolutePath, $normalizedProjectDir . '/')) {
-            return substr($absolutePath, strlen($normalizedProjectDir) + 1);
+            $relativePath = substr($absolutePath, strlen($normalizedProjectDir) + 1);
+
+            if (str_starts_with($relativePath, self::BUNDLE_SOURCE_PREFIX)) {
+                return self::PUBLIC_BUNDLE_PREFIX . substr($relativePath, strlen(self::BUNDLE_SOURCE_PREFIX));
+            }
+
+            if (str_starts_with($relativePath, self::LOCAL_SOURCE_PREFIX)) {
+                return self::PUBLIC_BUNDLE_PREFIX . substr($relativePath, strlen(self::LOCAL_SOURCE_PREFIX));
+            }
+
+            return $relativePath;
         }
 
         return $absolutePath;

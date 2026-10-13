@@ -853,6 +853,23 @@ class ls_shop_orderMessages
 			return $strAttachmentPath;
 		}
 
+		if (str_starts_with($strAttachmentPath, 'bundles/leadingsystemsmerconis/')) {
+			$strBundleRelativePath = substr($strAttachmentPath, strlen('bundles/leadingsystemsmerconis/'));
+			$arrCandidates = [
+				$strProjectDir . '/public/' . $strAttachmentPath,
+				$strProjectDir . '/vendor/leadingsystems/contao-merconis/src/Resources/public/' . $strBundleRelativePath,
+				$strProjectDir . '/src/Resources/public/' . $strBundleRelativePath,
+			];
+
+			foreach ($arrCandidates as $strCandidatePath) {
+				if (file_exists($strCandidatePath)) {
+					return $strCandidatePath;
+				}
+			}
+
+			return $arrCandidates[0];
+		}
+
 		return $strProjectDir . '/' . $strAttachmentPath;
 	}
 

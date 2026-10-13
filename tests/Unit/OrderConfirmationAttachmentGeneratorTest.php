@@ -115,7 +115,7 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
 
         self::assertSame(
             [
-                'src/Resources/public/legal-guarantee/gll/v1.0/legal-guarantee-notice-en.pdf',
+                'bundles/leadingsystemsmerconis/legal-guarantee/gll/v1.0/legal-guarantee-notice-en.pdf',
                 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/garan-label-order-77-produkt-alpha-variante-blau.pdf',
             ],
             $attachments['relativePaths']
