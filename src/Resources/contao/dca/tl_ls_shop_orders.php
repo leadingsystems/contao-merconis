@@ -79,7 +79,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
 			
 			{paymentInfo_legend},
 			paymentMethod_moduleReturnData,
-			ls_shop_einvoicingPaymentMeansCode;
+'
+            // [E-Invoicing] BEGIN -- Palette-Ergänzung: Payment Means Code (BT-81)
+            . '			ls_shop_einvoicingPaymentMeansCode;
+'
+            // [E-Invoicing] END
+            . '
 			
 			{shippingTracking_legend},
 			shippingTrackingNr,
@@ -281,6 +286,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             'sql'                     => "blob NULL"
         ),
 
+        // [E-Invoicing] BEGIN -- Snapshot-Feld: Payment Means Code (BT-81)
         'ls_shop_einvoicingPaymentMeansCode' => array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['ls_shop_einvoicingPaymentMeansCode'],
@@ -288,6 +294,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
             'sql'                     => "varchar(16) NOT NULL default ''"
         ),
+        // [E-Invoicing] END
 
         'shippingTrackingNr' => array(
             'label' =>  &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['shippingTrackingNr'],

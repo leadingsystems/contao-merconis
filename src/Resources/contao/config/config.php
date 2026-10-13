@@ -13,6 +13,7 @@ define('TL_MERCONIS_ERROR', 'MERCONIS ERROR');
 define('TL_MERCONIS_MESSAGES', 'MERCONIS MESSAGES');
 define('TL_MERCONIS_STOCK_MANAGEMENT', 'MERCONIS STOCK MANAGEMENT');
 
+// [E-Invoicing] BEGIN -- Hook-Registrierungen für E-Rechnungs-DCA und Checkout-Snapshot
 $GLOBALS['TL_HOOKS']['loadDataContainer'][] = array(
     \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingDcaHook::class,
     'onLoadDataContainer'
@@ -25,6 +26,7 @@ $GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'][] = array(
     \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingCheckoutSnapshotHook::class,
     'storeCartItemInOrder'
 );
+// [E-Invoicing] END
 
 $GLOBALS['TL_HOOKS']['merconisCustomTaxRateCalculation'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconisCustomTaxRateCalculation');
 
