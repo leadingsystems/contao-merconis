@@ -302,4 +302,70 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             array_column($result['messages'], 'code')
         );
     }
+
+    public function testApplyToVariantRowBlocksOwnOverlongValuesWhenOverrideIsDisabledWithoutDuplicateMessages(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 34);
+        $model = 'ä&"<>ß' . str_repeat('B', 20);
+
+        $result = $applier->applyToVariantRow(
+            [
+                'garanOverride' => '',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => $brand,
+                'guaranteeModelIdentifier' => $model,
+            ],
+            [
+                'enableGll' => '1',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => 'Kurz',
+                'guaranteeModelIdentifier' => 'Kurz',
+            ],
+        );
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame(
+            ['guaranteeBrand', 'guaranteeModelIdentifier'],
+            array_column($result['messages'], 'field')
+        );
+        self::assertSame(
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
+            ],
+            array_column($result['messages'], 'code')
+        );
+        self::assertCount(2, $result['messages']);
+    }
+
+    public function testApplyToVariantRowAcceptsExactOwnLimitsWhenOverrideIsDisabled(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 33);
+        $model = 'ä&"<>ß' . str_repeat('B', 19);
+
+        $result = $applier->applyToVariantRow(
+            [
+                'garanOverride' => '',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => $brand,
+                'guaranteeModelIdentifier' => $model,
+            ],
+            [
+                'enableGll' => '1',
+                'enableGaran' => '',
+                'guaranteeDurationYears' => '',
+                'guaranteeBrand' => 'Kurz',
+                'guaranteeModelIdentifier' => 'Kurz',
+            ],
+        );
+
+        self::assertSame([], $result['messages']);
+        self::assertSame($brand, $result['row']['guaranteeBrand']);
+        self::assertSame($model, $result['row']['guaranteeModelIdentifier']);
+    }
 }
