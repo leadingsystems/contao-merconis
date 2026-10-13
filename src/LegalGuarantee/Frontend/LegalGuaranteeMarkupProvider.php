@@ -65,10 +65,12 @@ final class LegalGuaranteeMarkupProvider
         $this->ensureStylesheetRegistered();
 
         $garanData = $displayData['garan'];
+        $durationDecimalSeparator = $this->resolveDurationDecimalSeparator();
         $renderedSvg = $this->garanLabelRenderer->render(
             $garanData['brand'],
             $garanData['modelIdentifier'],
-            $garanData['durationYears']
+            $garanData['durationYears'],
+            $durationDecimalSeparator
         );
         $translations = $this->getTranslations();
 
@@ -77,7 +79,8 @@ final class LegalGuaranteeMarkupProvider
             $this->buildGaranTitle(
                 $garanData['brand'],
                 $garanData['modelIdentifier'],
-                $garanData['durationYears']
+                $garanData['durationYears'],
+                $durationDecimalSeparator
             ),
             $this->assetLocator->resolveGaranEuUrl(),
             $translations['garanEuLinkText']
@@ -181,9 +184,14 @@ final class LegalGuaranteeMarkupProvider
         ];
     }
 
-    private function buildGaranTitle(string $brand, string $modelIdentifier, string $durationYears): string
+    private function buildGaranTitle(
+        string $brand,
+        string $modelIdentifier,
+        string $durationYears,
+        string $decimalSeparator
+    ): string
     {
-        $formattedDuration = GuaranteeDurationFormatter::formatYearsForDisplay($durationYears);
+        $formattedDuration = GuaranteeDurationFormatter::formatYearsForDisplay($durationYears, $decimalSeparator);
         $translations = $this->getTranslations();
 
         return sprintf(
@@ -259,6 +267,13 @@ final class LegalGuaranteeMarkupProvider
         }
 
         return 'en';
+    }
+
+    private function resolveDurationDecimalSeparator(): string
+    {
+        $decimalSeparator = trim((string) ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? ''));
+
+        return '' !== $decimalSeparator ? $decimalSeparator : ',';
     }
 
     private function ensureStylesheetRegistered(): void

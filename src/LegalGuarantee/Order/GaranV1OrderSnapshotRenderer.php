@@ -24,10 +24,13 @@ final class GaranV1OrderSnapshotRenderer implements GaranOrderSnapshotRendererIn
      */
     public function render(array $itemSnapshot): string
     {
+        $decimalsSeparator = trim((string) ($itemSnapshot['decimalsSeparator'] ?? ''));
+
         return $this->renderer->render(
             trim((string) ($itemSnapshot['garanBrand'] ?? '')),
             trim((string) ($itemSnapshot['garanModelIdentifier'] ?? '')),
-            trim((string) ($itemSnapshot['garanDurationYears'] ?? ''))
+            trim((string) ($itemSnapshot['garanDurationYears'] ?? '')),
+            $decimalsSeparator
         );
     }
 }

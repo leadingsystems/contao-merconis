@@ -23,7 +23,7 @@ final class GaranLabelRenderer
     ) {
     }
 
-    public function render(string $brand, string $modelIdentifier, string $durationText): string
+    public function render(string $brand, string $modelIdentifier, string $durationText, string $decimalSeparator): string
     {
         $templatePath = $this->assetLocator->getGaranColourTemplatePath();
         $templateContents = file_get_contents($templatePath);
@@ -54,7 +54,7 @@ final class GaranLabelRenderer
             $document,
             $xpath,
             self::DURATION_NODE_XPATH,
-            GuaranteeDurationFormatter::formatYearsForDisplay($durationText)
+            GuaranteeDurationFormatter::formatYearsForDisplay($durationText, $decimalSeparator)
         );
 
         $renderedSvg = $document->saveXML($document->documentElement);

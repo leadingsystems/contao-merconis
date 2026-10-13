@@ -6,7 +6,7 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee;
 
 final class GuaranteeDurationFormatter
 {
-    public static function formatYearsForDisplay(string $durationYears): string
+    public static function formatYearsForDisplay(string $durationYears, string $outputDecimalSeparator): string
     {
         $normalizedDuration = trim($durationYears);
 
@@ -15,7 +15,12 @@ final class GuaranteeDurationFormatter
         }
 
         $normalizedDuration = preg_replace('/\.0$/', '', $normalizedDuration) ?? $normalizedDuration;
+        $normalizedDecimalSeparator = trim($outputDecimalSeparator);
 
-        return str_replace('.', ',', $normalizedDuration);
+        if ('' === $normalizedDecimalSeparator) {
+            $normalizedDecimalSeparator = ',';
+        }
+
+        return str_replace('.', $normalizedDecimalSeparator, $normalizedDuration);
     }
 }

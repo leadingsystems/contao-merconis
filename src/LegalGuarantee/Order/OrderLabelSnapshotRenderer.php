@@ -66,7 +66,7 @@ final class OrderLabelSnapshotRenderer
     /**
      * @param array<string, mixed> $itemSnapshot
      */
-    public function renderGaranLabel(array $itemSnapshot): string
+    public function renderGaranLabel(array $itemSnapshot, string $decimalsSeparator = ','): string
     {
         $version = trim((string) ($itemSnapshot['garanVersion'] ?? ''));
 
@@ -80,6 +80,9 @@ final class OrderLabelSnapshotRenderer
             throw new RuntimeException(sprintf('No GARAN snapshot renderer registered for version "%s".', $version));
         }
 
-        return $renderer->render($itemSnapshot);
+        $itemSnapshotWithOrderContext = $itemSnapshot;
+        $itemSnapshotWithOrderContext['decimalsSeparator'] = $decimalsSeparator;
+
+        return $renderer->render($itemSnapshotWithOrderContext);
     }
 }

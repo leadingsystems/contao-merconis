@@ -42,7 +42,10 @@ final class OrderConfirmationAttachmentGenerator
 
         foreach ($this->collectUniqueGaranItems($order['items'] ?? []) as $garanItem) {
             try {
-                $renderedSvg = $this->snapshotRenderer->renderGaranLabel($garanItem);
+                $renderedSvg = $this->snapshotRenderer->renderGaranLabel(
+                    $garanItem,
+                    $this->resolveOrderDecimalSeparator($order)
+                );
 
                 if ('' === $renderedSvg) {
                     continue;
@@ -216,5 +219,15 @@ final class OrderConfirmationAttachmentGenerator
         }
 
         return $absolutePath;
+    }
+
+    /**
+     * @param array<string, mixed> $order
+     */
+    private function resolveOrderDecimalSeparator(array $order): string
+    {
+        $decimalsSeparator = trim((string) ($order['decimalsSeparator'] ?? ''));
+
+        return '' !== $decimalsSeparator ? $decimalsSeparator : ',';
     }
 }

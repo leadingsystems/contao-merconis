@@ -20,7 +20,7 @@ final class GaranPdfTemplateRenderer
     ) {
     }
 
-    public function render(string $brand, string $modelIdentifier, string $durationText): string
+    public function render(string $brand, string $modelIdentifier, string $durationText, string $decimalSeparator): string
     {
         $templatePath = $this->assetLocator->getGaranPdfTemplatePath();
         $templateContents = file_get_contents($templatePath);
@@ -51,7 +51,7 @@ final class GaranPdfTemplateRenderer
             $document,
             $xpath,
             'duration',
-            GuaranteeDurationFormatter::formatYearsForDisplay($durationText)
+            GuaranteeDurationFormatter::formatYearsForDisplay($durationText, $decimalSeparator)
         );
 
         $renderedSvg = $document->saveXML($document->documentElement);

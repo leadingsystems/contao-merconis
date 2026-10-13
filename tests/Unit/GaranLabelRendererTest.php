@@ -22,6 +22,7 @@ final class GaranLabelRendererTest extends TestCase
             'ACME & Co <Premium>',
             'Model > 42',
             '2.5',
+            ','
         );
 
         $document = new DOMDocument('1.0', 'UTF-8');

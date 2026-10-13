@@ -27,6 +27,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             'garanTitlePattern' => 'Herstellergarantie von %s für %s mit %s Jahren',
         ];
         $GLOBALS['TL_CSS'] = [];
+        $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = ',';
     }
 
     public function testRenderCurrentLanguageGllNoticeUsesResolvedLanguageAndAccessibilityTitle(): void
@@ -70,11 +71,21 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         $method = new ReflectionMethod(LegalGuaranteeMarkupProvider::class, 'buildGaranTitle');
         $method->setAccessible(true);
 
-        $formattedHalfYear = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '2.5');
-        $formattedWholeYears = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '30.0');
+        $formattedHalfYear = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '2.5', ',');
+        $formattedWholeYears = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '30.0', ',');
 
         self::assertSame('Herstellergarantie von ACME für MX-42 mit 2,5 Jahren', $formattedHalfYear);
         self::assertSame('Herstellergarantie von ACME für MX-42 mit 30 Jahren', $formattedWholeYears);
+    }
+
+    public function testBuildGaranTitleUsesConfiguredDotSeparator(): void
+    {
+        $method = new ReflectionMethod(LegalGuaranteeMarkupProvider::class, 'buildGaranTitle');
+        $method->setAccessible(true);
+
+        $formattedHalfYear = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '2.5', '.');
+
+        self::assertSame('Herstellergarantie von ACME für MX-42 mit 2.5 Jahren', $formattedHalfYear);
     }
 
     private function createProvider(): LegalGuaranteeMarkupProvider

@@ -6,7 +6,9 @@ namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranOrderSnapshotRendererInterface;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranV1OrderSnapshotRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotRenderer;
 use PHPUnit\Framework\TestCase;
 
@@ -113,6 +115,32 @@ final class OrderLabelSnapshotRendererTest extends TestCase
 
         self::assertSame('Initial Brand|Initial Model|2.0', $renderedBeforeChange);
         self::assertSame('Changed Brand|Changed Model|9.0', $renderer->renderGaranLabel($itemSnapshot));
+    }
+
+    public function testRenderGaranLabelUsesOrderDecimalSeparatorForPdfReconstruction(): void
+    {
+        $assetLocator = $this->createAssetLocator();
+        $renderer = new OrderLabelSnapshotRenderer(
+            $assetLocator,
+            [
+                new GaranV1OrderSnapshotRenderer(
+                    new GaranPdfTemplateRenderer($assetLocator)
+                ),
+            ]
+        );
+
+        $renderedLabel = $renderer->renderGaranLabel(
+            [
+                'garanVersion' => OfficialGuaranteeAssetLocator::GARAN_VERSION,
+                'garanBrand' => 'Brand',
+                'garanModelIdentifier' => 'Model',
+                'garanDurationYears' => '2.5',
+            ],
+            '.'
+        );
+
+        self::assertStringContainsString('>2.5<', $renderedLabel);
+        self::assertStringNotContainsString('>2,5<', $renderedLabel);
     }
 
     private function createAssetLocator(): OfficialGuaranteeAssetLocator
