@@ -18,6 +18,10 @@ final class ZugferdHybridPdfGenerator
     private const FACTUR_X_VERSION = '1.0';
     private const FACTUR_X_CONFORMANCE_LEVEL = 'EN 16931';
 
+    public function __construct(private readonly string $cacheDir)
+    {
+    }
+
     public function generate(SemanticInvoice $invoice, string $visibleHtml, string $xmlContent): string
     {
         $mpdf = new Mpdf([
@@ -56,10 +60,10 @@ final class ZugferdHybridPdfGenerator
 
     private function resolveTempDir(): string
     {
-        $tempDir = sys_get_temp_dir() . '/merconis-einvoicing-mpdf';
+        $tempDir = $this->cacheDir . '/mpdf';
 
         if (!is_dir($tempDir)) {
-            mkdir($tempDir, 0777, true);
+            mkdir($tempDir, 0775, true);
         }
 
         return $tempDir;

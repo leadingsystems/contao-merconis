@@ -57,7 +57,9 @@ services:
   LeadingSystems\MerconisBundle\EInvoicing\Service\SemanticInvoiceBuilder: ~
   LeadingSystems\MerconisBundle\EInvoicing\Service\VisibleInvoiceHtmlRenderer: ~
   LeadingSystems\MerconisBundle\EInvoicing\Service\ZugferdXmlGenerator: ~
-  LeadingSystems\MerconisBundle\EInvoicing\Service\ZugferdHybridPdfGenerator: ~
+  LeadingSystems\MerconisBundle\EInvoicing\Service\ZugferdHybridPdfGenerator:
+    arguments:
+      $cacheDir: '%kernel.cache_dir%'
   LeadingSystems\MerconisBundle\EInvoicing\Service\ZugferdDocumentGenerator: ~
   LeadingSystems\MerconisBundle\EInvoicing\Service\OrderEInvoicingDocumentGenerator:
     public: true

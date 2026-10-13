@@ -262,7 +262,7 @@ final class EInvoicingDcaHook
         ];
 
         PaletteManipulator::create()
-            ->addLegend(self::LEGEND_KEY, 'steuerPeriod2_legend', PaletteManipulator::POSITION_AFTER)
+            ->addLegend(self::LEGEND_KEY, 'title_legend', PaletteManipulator::POSITION_AFTER)
             ->addField(
                 'ls_shop_einvoicingTaxCategory',
                 self::LEGEND_KEY,
