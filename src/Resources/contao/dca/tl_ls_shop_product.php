@@ -1512,7 +1512,11 @@ class tl_ls_shop_product_controller extends Backend {
 			'tl_ls_shop_product'
 		);
 
-		return $varValue;
+		$arrNormalizedData = $result->getNormalizedData();
+
+		return array_key_exists($dc->field, $arrNormalizedData)
+			? $arrNormalizedData[$dc->field]
+			: $varValue;
 	}
 
 	public function validateLegalGuaranteeConfiguration(DataContainer $dc): void {

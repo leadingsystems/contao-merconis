@@ -1475,7 +1475,11 @@ class tl_ls_shop_variant_controller extends Backend {
 			'tl_ls_shop_variant'
 		);
 
-		return $varValue;
+		$arrNormalizedData = $result->getNormalizedData();
+
+		return array_key_exists($dc->field, $arrNormalizedData)
+			? $arrNormalizedData[$dc->field]
+			: $varValue;
 	}
 
 	public function validateLegalGuaranteeConfiguration(DataContainer $dc): void {

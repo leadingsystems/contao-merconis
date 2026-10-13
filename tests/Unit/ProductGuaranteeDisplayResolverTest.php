@@ -17,15 +17,15 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         $result = $resolver->resolve([
             'enableGll' => '1',
             'enableGaran' => '1',
-            'guaranteeBrand' => 'ACME',
-            'guaranteeModelIdentifier' => 'Model 42',
+            'guaranteeBrand' => 'ACME &amp; Co.',
+            'guaranteeModelIdentifier' => 'Model &#34;42&#34;',
             'guaranteeDurationYears' => '4.5',
         ]);
 
         self::assertTrue($result['showGll']);
         self::assertTrue($result['showGaran']);
-        self::assertSame('ACME', $result['garan']['brand']);
-        self::assertSame('Model 42', $result['garan']['modelIdentifier']);
+        self::assertSame('ACME & Co.', $result['garan']['brand']);
+        self::assertSame('Model "42"', $result['garan']['modelIdentifier']);
         self::assertSame('4.5', $result['garan']['durationYears']);
     }
 

@@ -17,14 +17,14 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             'enableGll' => '1',
             'enableGaran' => '1',
             'guaranteeDurationYears' => '30',
-            'guaranteeBrand' => ' ACME ',
-            'guaranteeModelIdentifier' => ' M-42 ',
+            'guaranteeBrand' => ' ACME &amp; Co. ',
+            'guaranteeModelIdentifier' => ' M-42 &quot;Pro&quot; ',
         ]);
 
         self::assertSame('1', $result->getNormalizedData()['enableGaran']);
         self::assertSame('2.5', $result->getNormalizedData()['guaranteeDurationYears']);
-        self::assertSame('ACME', $result->getNormalizedData()['guaranteeBrand']);
-        self::assertSame('M-42', $result->getNormalizedData()['guaranteeModelIdentifier']);
+        self::assertSame('ACME & Co.', $result->getNormalizedData()['guaranteeBrand']);
+        self::assertSame('M-42 "Pro"', $result->getNormalizedData()['guaranteeModelIdentifier']);
         self::assertSame([], $result->getMessages());
     }
 

@@ -38,14 +38,14 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
             [
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeBrand' => 'Produktmarke',
-                'guaranteeModelIdentifier' => 'Produktmodell',
+                'guaranteeBrand' => 'Produkt &amp; Marke',
+                'guaranteeModelIdentifier' => 'Produktmodell &quot;A&quot;',
                 'guaranteeDurationYears' => '2,0',
             ],
             [
                 'garanOverride' => '1',
                 'enableGaran' => '1',
-                'guaranteeBrand' => 'Variantenmarke',
+                'guaranteeBrand' => 'Variantenmarke &lt;S&gt;',
                 'guaranteeModelIdentifier' => '',
                 'guaranteeDurationYears' => '3,5',
             ]
@@ -63,8 +63,8 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
         );
         self::assertSame('1', $snapshot[OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY]);
         self::assertSame(OfficialGuaranteeAssetLocator::GARAN_VERSION, $snapshot['garanVersion']);
-        self::assertSame('Variantenmarke', $snapshot['garanBrand']);
-        self::assertSame('Produktmodell', $snapshot['garanModelIdentifier']);
+        self::assertSame('Variantenmarke <S>', $snapshot['garanBrand']);
+        self::assertSame('Produktmodell "A"', $snapshot['garanModelIdentifier']);
         self::assertSame('3.5', $snapshot['garanDurationYears']);
     }
 

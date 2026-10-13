@@ -57,8 +57,8 @@ final class ProductGuaranteeDisplayResolver
     private function resolveEffectiveGaranData(array $productData, ?array $variantData): array
     {
         $productEnableGaran = $this->normalizeCheckboxValue($productData['enableGaran'] ?? null);
-        $productBrand = trim((string) ($productData['guaranteeBrand'] ?? ''));
-        $productModelIdentifier = trim((string) ($productData['guaranteeModelIdentifier'] ?? ''));
+        $productBrand = $this->normalizeTextValue($productData['guaranteeBrand'] ?? null);
+        $productModelIdentifier = $this->normalizeTextValue($productData['guaranteeModelIdentifier'] ?? null);
         $productDurationYears = $this->normalizeDurationValue($productData['guaranteeDurationYears'] ?? null);
 
         if (null === $variantData || !$this->isTruthy($variantData['garanOverride'] ?? null)) {
@@ -71,8 +71,8 @@ final class ProductGuaranteeDisplayResolver
         }
 
         $variantEnableGaran = $this->normalizeCheckboxValue($variantData['enableGaran'] ?? null);
-        $variantBrand = trim((string) ($variantData['guaranteeBrand'] ?? ''));
-        $variantModelIdentifier = trim((string) ($variantData['guaranteeModelIdentifier'] ?? ''));
+        $variantBrand = $this->normalizeTextValue($variantData['guaranteeBrand'] ?? null);
+        $variantModelIdentifier = $this->normalizeTextValue($variantData['guaranteeModelIdentifier'] ?? null);
         $variantDurationYears = $this->normalizeDurationValue($variantData['guaranteeDurationYears'] ?? null);
 
         return [
@@ -119,6 +119,17 @@ final class ProductGuaranteeDisplayResolver
         }
 
         return str_replace(',', '.', $normalizedValue);
+    }
+
+    private function normalizeTextValue(mixed $value): string
+    {
+        return trim(
+            html_entity_decode(
+                (string) $value,
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            )
+        );
     }
 
     private function isTruthy(mixed $value): bool

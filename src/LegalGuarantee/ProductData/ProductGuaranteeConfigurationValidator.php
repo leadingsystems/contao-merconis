@@ -100,7 +100,7 @@ final class ProductGuaranteeConfigurationValidator
 
     public function getInitialGuaranteeBrand(?string $productProducer): string
     {
-        $productProducer = trim((string) $productProducer);
+        $productProducer = $this->normalizeTextValue($productProducer);
 
         if ('' === $productProducer) {
             return '';
@@ -124,8 +124,8 @@ final class ProductGuaranteeConfigurationValidator
         $data['enableGll'] = $this->normalizeCheckboxValue($data['enableGll'] ?? null);
         $data['enableGaran'] = $this->normalizeCheckboxValue($data['enableGaran'] ?? null);
         $data['garanOverride'] = $this->normalizeCheckboxValue($data['garanOverride'] ?? null);
-        $data['guaranteeBrand'] = trim((string) ($data['guaranteeBrand'] ?? ''));
-        $data['guaranteeModelIdentifier'] = trim((string) ($data['guaranteeModelIdentifier'] ?? ''));
+        $data['guaranteeBrand'] = $this->normalizeTextValue($data['guaranteeBrand'] ?? null);
+        $data['guaranteeModelIdentifier'] = $this->normalizeTextValue($data['guaranteeModelIdentifier'] ?? null);
 
         return $data;
     }
@@ -223,6 +223,17 @@ final class ProductGuaranteeConfigurationValidator
                 ? $variantData['guaranteeModelIdentifier']
                 : trim((string) ($productData['guaranteeModelIdentifier'] ?? '')),
         ];
+    }
+
+    private function normalizeTextValue(mixed $value): string
+    {
+        return trim(
+            html_entity_decode(
+                (string) $value,
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            )
+        );
     }
 
     private function normalizeStoredDurationValue(mixed $rawValue): string

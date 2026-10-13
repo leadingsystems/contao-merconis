@@ -15,7 +15,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         $applier = new ProductGuaranteeConfigurationApplier();
 
         $result = $applier->applyToProductRow([
-            'producer' => 'ACME Corporation',
+            'producer' => 'ACME &amp; Co. &#39;Premium&#39;',
             'enableGll' => '1',
             'enableGaran' => '1',
             'guaranteeDurationYears' => '30',
@@ -23,7 +23,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             'guaranteeModelIdentifier' => 'Model 42',
         ]);
 
-        self::assertSame('ACME Corporation', $result['row']['guaranteeBrand']);
+        self::assertSame("ACME & Co. 'Premium'", $result['row']['guaranteeBrand']);
         self::assertSame('2.5', $result['row']['guaranteeDurationYears']);
         self::assertSame([], $result['messages']);
     }
