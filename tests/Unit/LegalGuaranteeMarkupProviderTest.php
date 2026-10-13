@@ -10,8 +10,12 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDispla
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
+use Merconis\Core\ls_shop_cartX;
+use Merconis\Core\ls_shop_product;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use ReflectionMethod;
+use ReflectionProperty;
 
 final class LegalGuaranteeMarkupProviderTest extends TestCase
 {
@@ -39,7 +43,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         self::assertStringContainsString('lang="de"', $markup);
         self::assertStringContainsString('Gesetzliche Gewährleistung, mindestens zwei Jahre', $markup);
         self::assertStringContainsString(
-            'index_de.htm',
+            'https://europa.eu/youreurope/garantien',
             $markup
         );
         self::assertContains(
@@ -63,7 +67,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
 
         self::assertStringContainsString('lang="en"', $markup);
         self::assertStringContainsString('Legal guarantee, at least two years', $markup);
-        self::assertStringContainsString('index_en.htm', $markup);
+        self::assertStringContainsString('https://europa.eu/youreurope/guarantees', $markup);
     }
 
     public function testBuildGaranTitleFormatsStoredDurationForDisplay(): void
@@ -88,6 +92,49 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         self::assertSame('Herstellergarantie von ACME für MX-42 mit 2.5 Jahren', $formattedHalfYear);
     }
 
+    public function testRenderCheckoutGllLinksReturnsEmptyStringWithoutEligibleCartItems(): void
+    {
+        $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
+        $this->setCartItems([
+            $this->createProduct([
+                'enableGll' => '',
+                'enableGaran' => '',
+            ]),
+        ]);
+
+        $markup = $this->createProvider()->renderCheckoutGllLinks();
+
+        self::assertSame('', $markup);
+        self::assertSame([], $GLOBALS['TL_CSS']);
+    }
+
+    public function testRenderCheckoutGllLinksRendersLabelMarkupForFirstEligibleCartItem(): void
+    {
+        $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
+        $this->setCartItems([
+            $this->createProduct([
+                'enableGll' => '1',
+                'enableGaran' => '',
+            ]),
+            $this->createProduct([
+                'enableGll' => '1',
+                'enableGaran' => '',
+            ]),
+        ]);
+
+        $markup = $this->createProvider()->renderCheckoutGllLinks();
+
+        self::assertStringContainsString('merconis-legal-guarantee-label', $markup);
+        self::assertStringContainsString('lang="de"', $markup);
+        self::assertStringContainsString('EU-Information zur gesetzlichen Gewährleistung', $markup);
+        self::assertStringNotContainsString('gewaehrleistungslabel', $markup);
+        self::assertSame(1, substr_count($markup, '<a '));
+        self::assertContains(
+            'bundles/leadingsystemsmerconis/legal-guarantee/legal-guarantee.css',
+            $GLOBALS['TL_CSS']
+        );
+    }
+
     private function createProvider(): LegalGuaranteeMarkupProvider
     {
         $assetLocator = new OfficialGuaranteeAssetLocator(
@@ -101,5 +148,42 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             new ProductGuaranteeDisplayResolver(),
             new LegalGuaranteeMarkupBuilder(),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $mainData
+     */
+    private function createProduct(array $mainData): ls_shop_product
+    {
+        $productReflection = new ReflectionClass(ls_shop_product::class);
+        /** @var ls_shop_product $product */
+        $product = $productReflection->newInstanceWithoutConstructor();
+        $product->mainData = $mainData;
+
+        return $product;
+    }
+
+    /**
+     * @param list<ls_shop_product> $products
+     */
+    private function setCartItems(array $products): void
+    {
+        $cartReflection = new ReflectionClass(ls_shop_cartX::class);
+        /** @var ls_shop_cartX $cart */
+        $cart = $cartReflection->newInstanceWithoutConstructor();
+
+        $itemsExtendedProperty = new ReflectionProperty(ls_shop_cartX::class, 'itemsExtended');
+        $itemsExtendedProperty->setAccessible(true);
+        $itemsExtendedProperty->setValue(
+            $cart,
+            array_map(
+                static fn (ls_shop_product $product): array => ['objProduct' => $product],
+                $products
+            )
+        );
+
+        $instanceProperty = new ReflectionProperty(ls_shop_cartX::class, 'objInstance');
+        $instanceProperty->setAccessible(true);
+        $instanceProperty->setValue(null, $cart);
     }
 }

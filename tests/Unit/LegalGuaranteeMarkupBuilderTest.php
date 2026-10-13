@@ -74,36 +74,21 @@ SVG;
         );
     }
 
-    public function testBuildCheckoutGllLinksContainsBothAnchors(): void
-    {
-        $builder = new LegalGuaranteeMarkupBuilder();
-
-        $markup = $builder->buildCheckoutGllLinks(
-            'legal-guarantee',
-            'Gewährleistungslabel',
-            'https://example.invalid/eu',
-            ['gllEuLinkText' => 'EU-Information']
-        );
-
-        self::assertStringContainsString('href="legal-guarantee"', $markup);
-        self::assertStringContainsString('Gewährleistungslabel', $markup);
-        self::assertStringContainsString('href="https://example.invalid/eu"', $markup);
-        self::assertStringContainsString('EU-Information', $markup);
-    }
-
-    public function testBuildCheckoutGllLinksCanRenderOnlyEuAnchor(): void
+    public function testBuildLabelMarkupRendersSingleEuAnchorWithSvgAttributes(): void
     {
         $builder = new LegalGuaranteeMarkupBuilder();
         $euUrl = 'https://europa.eu/youreurope/garantías';
 
-        $markup = $builder->buildCheckoutGllLinks(
-            null,
-            null,
+        $markup = $builder->buildLabelMarkup(
+            '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>',
+            'Gewährleistungslabel',
             $euUrl,
-            ['gllEuLinkText' => 'EU-Information']
+            'EU-Information',
+            ['lang' => 'de']
         );
 
-        self::assertStringNotContainsString('Gewährleistungslabel', $markup);
+        self::assertStringContainsString('lang="de"', $markup);
+        self::assertStringContainsString('Gewährleistungslabel', $markup);
         self::assertStringContainsString(
             'href="https://europa.eu/youreurope/garant%C3%ADas"',
             $markup

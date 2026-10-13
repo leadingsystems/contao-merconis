@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 
-use Contao\Database;
 use Contao\System;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GuaranteeDurationFormatter;
@@ -94,15 +93,7 @@ final class LegalGuaranteeMarkupProvider
             $displayData = $this->displayResolver->resolve($item['objProduct']->mainData);
 
             if ($displayData['showGll']) {
-                $officialLanguage = $this->assetLocator->resolveGllSvgLanguage($this->getCurrentLocale());
-                $pageData = $this->resolveGllInfoPage();
-
-                return $this->markupBuilder->buildCheckoutGllLinks(
-                    $pageData['url'] ?? null,
-                    $pageData['title'] ?? null,
-                    $this->assetLocator->getGllEuUrlByLanguage($officialLanguage),
-                    $this->getTranslations()
-                );
+                return $this->renderCurrentLanguageGllNotice();
             }
         }
 
@@ -200,62 +191,6 @@ final class LegalGuaranteeMarkupProvider
             $modelIdentifier,
             $formattedDuration
         );
-    }
-
-    /**
-     * @return array{url: string, title: string}|null
-     */
-    private function resolveGllInfoPage(): ?array
-    {
-        $alias = $this->resolveCurrentGllInfoPageAlias();
-        $rootId = (int) ($GLOBALS['objPage']->rootId ?? 0);
-
-        if (null === $alias || $rootId <= 0) {
-            return null;
-        }
-
-        $pageResult = Database::getInstance()
-            ->prepare('SELECT id, title FROM tl_page WHERE alias = ?')
-            ->execute($alias);
-
-        if (!$pageResult->numRows) {
-            return null;
-        }
-
-        $pageController = System::getContainer()->get('contao_helper.controller.page_controller');
-
-        while ($pageResult->next()) {
-            $pageModel = $pageController->getPageDetailsCached((int) $pageResult->id);
-
-            if ((int) ($pageModel->rootId ?? 0) !== $rootId) {
-                continue;
-            }
-
-            $pageUrl = ltrim(
-                System::getContainer()->get('contao.routing.content_url_generator')->generate($pageModel),
-                '/'
-            );
-
-            if ('' === $pageUrl) {
-                return null;
-            }
-
-            return [
-                'url' => $pageUrl,
-                'title' => (string) $pageResult->title,
-            ];
-        }
-
-        return null;
-    }
-
-    private function resolveCurrentGllInfoPageAlias(): ?string
-    {
-        return match (substr(strtolower($this->getCurrentLocale()), 0, 2)) {
-            'de' => 'gewaehrleistungslabel',
-            'en' => 'legal-guarantee',
-            default => null,
-        };
     }
 
     private function getCurrentLocale(): string

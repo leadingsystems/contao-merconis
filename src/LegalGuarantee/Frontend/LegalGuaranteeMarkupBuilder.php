@@ -92,39 +92,6 @@ final class LegalGuaranteeMarkupBuilder
     }
 
     /**
-     * @param array<string, string> $translations
-     */
-    public function buildCheckoutGllLinks(
-        ?string $pageUrl,
-        ?string $pageTitle,
-        string $euUrl,
-        array $translations,
-    ): string {
-        $links = [];
-
-        if (null !== $pageUrl && '' !== $pageUrl && null !== $pageTitle && '' !== $pageTitle) {
-            $links[] = sprintf(
-                '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>',
-                $this->escape($pageUrl),
-                $this->escape($pageTitle)
-            );
-        }
-
-        $links[] = sprintf(
-            '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>',
-            $this->escape(HrefUrlEncoder::encode($euUrl)),
-            $this->escape($translations['gllEuLinkText'] ?? '')
-        );
-
-        return sprintf(
-            '<div class="merconis-legal-guarantee-checkout-links">'
-            . '%s'
-            . '</div>',
-            implode(' ', $links)
-        );
-    }
-
-    /**
      * @param list<array{
      *   productTitle: string,
      *   variantTitle: string,
