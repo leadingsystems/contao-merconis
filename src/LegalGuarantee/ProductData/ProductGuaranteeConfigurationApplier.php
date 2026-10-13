@@ -26,6 +26,7 @@ final class ProductGuaranteeConfigurationApplier
         bool $applyGuaranteeBrandDefault = true,
         string $producerFieldName = 'producer',
         array $relatedVariants = array(),
+        mixed $rawDurationInput = null,
     ): array {
         if (
             $applyGuaranteeBrandDefault
@@ -36,7 +37,7 @@ final class ProductGuaranteeConfigurationApplier
             );
         }
 
-        $result = $this->validator->validateProduct($row, $relatedVariants);
+        $result = $this->validator->validateProduct($row, $relatedVariants, $rawDurationInput);
 
         foreach (
             array('enableGll', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier')
@@ -60,9 +61,9 @@ final class ProductGuaranteeConfigurationApplier
      *   messages: list<array{code: string, field: string, parameters: array<int, string>}>
      * }
      */
-    public function applyToVariantRow(array $variantRow, array $productData): array
+    public function applyToVariantRow(array $variantRow, array $productData, mixed $rawDurationInput = null): array
     {
-        $result = $this->validator->validateVariant($variantRow, $productData);
+        $result = $this->validator->validateVariant($variantRow, $productData, $rawDurationInput);
 
         foreach (
             array('garanOverride', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier')

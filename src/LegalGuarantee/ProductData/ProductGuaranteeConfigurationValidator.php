@@ -27,10 +27,16 @@ final class ProductGuaranteeConfigurationValidator
      * @param array<string, mixed> $productData
      * @param list<array<string, mixed>> $relatedVariants
      */
-    public function validateProduct(array $productData, array $relatedVariants = array()): GuaranteeValidationResult
+    public function validateProduct(
+        array $productData,
+        array $relatedVariants = array(),
+        mixed $rawDurationInput = null
+    ): GuaranteeValidationResult
     {
         $normalizedData = $this->normalizeSharedFields($productData);
-        $durationResult = $this->validationHelper->normalizeDurationInput($productData['guaranteeDurationYears'] ?? null);
+        $durationResult = $this->validationHelper->normalizeDurationInput(
+            $rawDurationInput ?? ($productData['guaranteeDurationYears'] ?? null)
+        );
         $normalizedData['guaranteeDurationYears'] = $durationResult['storedValue'];
         $effectiveData = [
             'enableGaran' => $normalizedData['enableGaran'],
@@ -65,11 +71,13 @@ final class ProductGuaranteeConfigurationValidator
      * @param array<string, mixed> $variantData
      * @param array<string, mixed> $productData
      */
-    public function validateVariant(array $variantData, array $productData): GuaranteeValidationResult
+    public function validateVariant(array $variantData, array $productData, mixed $rawDurationInput = null): GuaranteeValidationResult
     {
         $normalizedVariantData = $this->normalizeSharedFields($variantData);
         $normalizedProductData = $this->normalizeSharedFields($productData);
-        $durationResult = $this->validationHelper->normalizeDurationInput($variantData['guaranteeDurationYears'] ?? null);
+        $durationResult = $this->validationHelper->normalizeDurationInput(
+            $rawDurationInput ?? ($variantData['guaranteeDurationYears'] ?? null)
+        );
         $normalizedVariantData['guaranteeDurationYears'] = $durationResult['storedValue'];
         $effectiveData = $this->buildEffectiveVariantData(
             $normalizedVariantData,

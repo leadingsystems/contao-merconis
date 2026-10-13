@@ -129,6 +129,33 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
     }
 
+    public function testApplyToProductRowValidatesRawImportMonthsAgainstStoredYearLikeRowValue(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+
+        $result = $applier->applyToProductRow(
+            [
+                'producer' => 'ACME Corporation',
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '18.0',
+                'guaranteeBrand' => 'ACME',
+                'guaranteeModelIdentifier' => 'Model 42',
+            ],
+            true,
+            'producer',
+            [],
+            '24'
+        );
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertNull($result['row']['guaranteeDurationYears']);
+        self::assertSame(
+            'field "guaranteeDurationYears": GARAN was not saved because "24" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
+            $applier->formatWriteErrorMessage($result['messages'])
+        );
+    }
+
     public function testWriteMessagesExposeGllDependencyOnEnableGaran(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
@@ -179,6 +206,36 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
         self::assertSame(
             'field "enableGaran": GARAN was not saved. The variant inherits GARAN from the parent product, where GARAN is enabled but GLL is disabled.',
+            $applier->formatWriteErrorMessage($result['messages'])
+        );
+    }
+
+    public function testApplyToVariantRowValidatesRawImportMonthsAgainstStoredYearLikeRowValue(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+
+        $result = $applier->applyToVariantRow(
+            [
+                'garanOverride' => '1',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '18.0',
+                'guaranteeBrand' => 'Variant Brand',
+                'guaranteeModelIdentifier' => 'Variant Model',
+            ],
+            [
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeDurationYears' => '15.5',
+                'guaranteeBrand' => 'Parent Brand',
+                'guaranteeModelIdentifier' => 'Parent Model',
+            ],
+            '24'
+        );
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertNull($result['row']['guaranteeDurationYears']);
+        self::assertSame(
+            'field "guaranteeDurationYears": GARAN was not saved because "24" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }

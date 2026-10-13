@@ -519,6 +519,10 @@ class ls_shop_importController
 	 * oder das Aktualisieren eines Eintrags in der Datenbank bedeuten kann.
 	 */
 	protected function processProductData($row) {
+		$str_rawGuaranteeDurationInput = array_key_exists('guaranteeDurationYears', $row)
+			? $row['guaranteeDurationYears']
+			: null;
+
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData'] as $mccb) {
 				$objMccb = System::importStatic($mccb[0]);
@@ -652,7 +656,8 @@ class ls_shop_importController
 			$row,
 			true,
 			'producer',
-			ls_shop_productManagementApiHelper::getLegalGuaranteeVariantDataByProductId((int) $alreadyExistsAsID)
+			ls_shop_productManagementApiHelper::getLegalGuaranteeVariantDataByProductId((int) $alreadyExistsAsID),
+			$str_rawGuaranteeDurationInput
 		);
 		$row = $arrGuaranteeResult['row'];
 		$this->logLegalGuaranteeImportWarnings($arrGuaranteeResult['messages']);
@@ -1002,6 +1007,9 @@ class ls_shop_importController
 	}
 
 	protected function processVariantData($row) {
+		$str_rawGuaranteeDurationInput = array_key_exists('guaranteeDurationYears', $row)
+			? $row['guaranteeDurationYears']
+			: null;
 
         if (empty($row['weight'])) {
             $row['weightType'] = 'adjustmentPercentaged';
@@ -1157,7 +1165,11 @@ class ls_shop_importController
 
 		$objGuaranteeApplier = new ProductGuaranteeConfigurationApplier();
 		$arrParentProductGuaranteeData = ls_shop_productManagementApiHelper::getLegalGuaranteeProductDataById($parentProductID);
-		$arrGuaranteeResult = $objGuaranteeApplier->applyToVariantRow($row, $arrParentProductGuaranteeData);
+		$arrGuaranteeResult = $objGuaranteeApplier->applyToVariantRow(
+			$row,
+			$arrParentProductGuaranteeData,
+			$str_rawGuaranteeDurationInput
+		);
 		$row = $arrGuaranteeResult['row'];
 		$this->logLegalGuaranteeImportWarnings($arrGuaranteeResult['messages']);
 
