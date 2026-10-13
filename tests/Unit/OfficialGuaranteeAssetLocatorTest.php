@@ -76,11 +76,11 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
             $assetLocator->getGllEuTextLinksPath()
         );
         self::assertSame(
-            'https://europa.eu/youreurope/business/selling-in-eu/consumer-contracts-guarantees/eu-legal-guarantee-notice-and-garan-label/index_de.htm',
+            'https://europa.eu/youreurope/garantien',
             $assetLocator->getGllEuUrlByLanguage('de')
         );
         self::assertSame(
-            'https://europa.eu/youreurope/business/selling-in-eu/consumer-contracts-guarantees/eu-legal-guarantee-notice-and-garan-label/index_en.htm',
+            'https://europa.eu/youreurope/guarantees',
             $assetLocator->resolveGllEuUrl('zz_ZZ')
         );
         self::assertStringEndsWith(

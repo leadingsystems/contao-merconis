@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfAttachmentWriterInterface;
+use LeadingSystems\MerconisBundle\LegalGuarantee\HrefUrlEncoder;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranOrderSnapshotRendererInterface;
@@ -109,6 +110,31 @@ final class OrderConfirmationMessageAugmenterTest extends TestCase
         );
     }
 
+    public function testEnhancePayloadPercentEncodesUnicodeGllHrefOnlyInHtml(): void
+    {
+        $augmenter = $this->createAugmenter();
+
+        $payload = $augmenter->enhancePayload(
+            [
+                'bodyHTML' => '<div>Ausgang</div>',
+                'bodyRawtext' => 'Ausgang',
+                'dynamicAttachmentPaths' => [],
+            ],
+            ['sendWhen' => 'asOrderConfirmation'],
+            $this->createOrderWithGllOnly('bg'),
+            'bg'
+        );
+
+        self::assertStringContainsString(
+            'href="https://europa.eu/youreurope/%D0%B3%D0%B0%D1%80%D0%B0%D0%BD%D1%86%D0%B8%D0%B8"',
+            $payload['bodyHTML']
+        );
+        self::assertStringContainsString(
+            'https://europa.eu/youreurope/гаранции',
+            $payload['bodyRawtext']
+        );
+    }
+
     private function createAugmenter(): OrderConfirmationMessageAugmenter
     {
         return new OrderConfirmationMessageAugmenter(
@@ -117,12 +143,12 @@ final class OrderConfirmationMessageAugmenterTest extends TestCase
         );
     }
 
-    private function createExpectedGllHtmlSection(): string
+    private function createExpectedGllHtmlSection(string $language = 'de'): string
     {
         return sprintf(
             '<p><a href="%s" target="_blank" rel="noreferrer noopener">%s</a></p>',
             htmlspecialchars(
-                $this->createAssetLocator()->getGllEuUrlByLanguage('de', 'v1.0'),
+                HrefUrlEncoder::encode($this->createAssetLocator()->getGllEuUrlByLanguage($language, 'v1.0')),
                 ENT_QUOTES | ENT_SUBSTITUTE,
                 'UTF-8'
             ),
@@ -137,11 +163,11 @@ final class OrderConfirmationMessageAugmenterTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function createOrderWithGllOnly(): array
+    private function createOrderWithGllOnly(string $language = 'de'): array
     {
         return [
             'gllVersion' => 'v1.0',
-            'gllLanguage' => 'de',
+            'gllLanguage' => $language,
             'items' => [],
         ];
     }

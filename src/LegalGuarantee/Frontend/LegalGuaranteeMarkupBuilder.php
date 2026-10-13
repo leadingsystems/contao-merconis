@@ -6,6 +6,7 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 
 use DOMDocument;
 use DOMElement;
+use LeadingSystems\MerconisBundle\LegalGuarantee\HrefUrlEncoder;
 use RuntimeException;
 
 final class LegalGuaranteeMarkupBuilder
@@ -85,7 +86,7 @@ final class LegalGuaranteeMarkupBuilder
                 '<p class="merconis-legal-guarantee-link">'
                 . '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>'
                 . '</p>',
-                $this->escape($euUrl),
+                $this->escape(HrefUrlEncoder::encode($euUrl)),
                 $this->escape($euLinkText)
             );
     }
@@ -111,7 +112,7 @@ final class LegalGuaranteeMarkupBuilder
 
         $links[] = sprintf(
             '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>',
-            $this->escape($euUrl),
+            $this->escape(HrefUrlEncoder::encode($euUrl)),
             $this->escape($translations['gllEuLinkText'] ?? '')
         );
 

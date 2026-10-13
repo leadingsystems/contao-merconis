@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Order;
 
+use LeadingSystems\MerconisBundle\LegalGuarantee\HrefUrlEncoder;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 
 final class OrderConfirmationMessageAugmenter
@@ -48,7 +49,7 @@ final class OrderConfirmationMessageAugmenter
             );
             $htmlSections[] = sprintf(
                 '<p><a href="%s" target="_blank" rel="noreferrer noopener">%s</a></p>',
-                htmlspecialchars($gllEuUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+                htmlspecialchars(HrefUrlEncoder::encode($gllEuUrl), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
                 htmlspecialchars($translations['gllEuLinkText'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             );
             $rawLines[] = $translations['gllEuLinkText'] . ': ' . $gllEuUrl;
@@ -64,7 +65,7 @@ final class OrderConfirmationMessageAugmenter
                 $garanEuUrl = $this->assetLocator->resolveGaranEuUrl($garanItem['version']);
                 $escapedLabel = htmlspecialchars($garanItemLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                 $escapedLinkText = htmlspecialchars($translations['garanEuLinkText'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-                $escapedUrl = htmlspecialchars($garanEuUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $escapedUrl = htmlspecialchars(HrefUrlEncoder::encode($garanEuUrl), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
                 $htmlItems[] = sprintf(
                     '<li>%s: <a href="%s" target="_blank" rel="noreferrer noopener">%s</a></li>',
