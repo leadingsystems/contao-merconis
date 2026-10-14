@@ -277,19 +277,19 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         $applier = new ProductGuaranteeConfigurationApplier();
 
         self::assertSame(
-            'field "guaranteeBrand": GARAN was not saved because "Brand/Trademark" must not be longer than 30 characters.',
+            'field "guaranteeBrand": GARAN was not saved because "Brand/Trademark" must not be longer than 35 characters.',
             $applier->formatWriteErrorMessage([[
                 'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
                 'field' => 'guaranteeBrand',
-                'parameters' => ['30'],
+                'parameters' => ['35'],
             ]])
         );
         self::assertSame(
-            'field "guaranteeModelIdentifier": GARAN was not saved because "Model identifier" must not be longer than 10 characters.',
+            'field "guaranteeModelIdentifier": GARAN was not saved because "Model identifier" must not be longer than 11 characters.',
             $applier->formatWriteErrorMessage([[
                 'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
                 'field' => 'guaranteeModelIdentifier',
-                'parameters' => ['10'],
+                'parameters' => ['11'],
             ]])
         );
     }
@@ -297,8 +297,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
     public function testApplyToProductRowBlocksOverlongValuesWhenGaranIsDisabled(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
-        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 24);
-        $model = 'ä&"<>ß' . str_repeat('B', 5);
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 29);
+        $model = 'ä&"<>ß' . str_repeat('B', 6);
 
         $result = $applier->applyToProductRow([
             'producer' => 'ACME Corporation',
@@ -326,8 +326,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
     public function testApplyToVariantRowBlocksInheritedOverlongValuesWhenOverrideIsDisabled(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
-        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 24);
-        $model = 'ä&"<>ß' . str_repeat('B', 5);
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 29);
+        $model = 'ä&"<>ß' . str_repeat('B', 6);
 
         $result = $applier->applyToVariantRow(
             [
@@ -363,8 +363,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
     public function testApplyToVariantRowBlocksOwnOverlongValuesWhenOverrideIsDisabledWithoutDuplicateMessages(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
-        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 24);
-        $model = 'ä&"<>ß' . str_repeat('B', 5);
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 29);
+        $model = 'ä&"<>ß' . str_repeat('B', 6);
 
         $result = $applier->applyToVariantRow(
             [
@@ -401,8 +401,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
     public function testApplyToVariantRowAcceptsExactOwnLimitsWhenOverrideIsDisabled(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
-        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 23);
-        $model = 'ä&"<>ß' . str_repeat('B', 4);
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 28);
+        $model = 'ä&"<>ß' . str_repeat('B', 5);
 
         $result = $applier->applyToVariantRow(
             [
