@@ -47,8 +47,8 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertArrayNotHasKey('mandatory', $tableConfig['fields']['guaranteeDurationYears']['eval']);
         self::assertArrayNotHasKey('mandatory', $tableConfig['fields']['guaranteeBrand']['eval']);
         self::assertArrayNotHasKey('mandatory', $tableConfig['fields']['guaranteeModelIdentifier']['eval']);
-        self::assertSame(20, $tableConfig['fields']['guaranteeBrand']['eval']['maxlength']);
-        self::assertSame(7, $tableConfig['fields']['guaranteeModelIdentifier']['eval']['maxlength']);
+        self::assertSame(30, $tableConfig['fields']['guaranteeBrand']['eval']['maxlength']);
+        self::assertSame(10, $tableConfig['fields']['guaranteeModelIdentifier']['eval']['maxlength']);
         self::assertStringContainsString('{lsShopGuaranteeLabels_legend}', $tableConfig['palettes']['default']);
         self::assertStringContainsString('enableGll', $tableConfig['palettes']['default']);
         self::assertStringContainsString('enableGaran', $tableConfig['palettes']['default']);

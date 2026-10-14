@@ -11,22 +11,22 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
 {
     private function createBrandAtLimit(): string
     {
-        return 'ÄÖÜ&<>ß' . str_repeat('A', 13);
+        return 'ÄÖÜ&<>ß' . str_repeat('A', 23);
     }
 
     private function createModelAtLimit(): string
     {
-        return 'ä&"<>ß' . str_repeat('B', 1);
+        return 'ä&"<>ß' . str_repeat('B', 4);
     }
 
     private function createBrandAboveLimit(): string
     {
-        return 'ÄÖÜ&<>ß' . str_repeat('A', 14);
+        return 'ÄÖÜ&<>ß' . str_repeat('A', 24);
     }
 
     private function createModelAboveLimit(): string
     {
-        return 'ä&"<>ß' . str_repeat('B', 2);
+        return 'ä&"<>ß' . str_repeat('B', 5);
     }
 
     public function testProductValidationStoresWholeMonthsAsYears(): void
@@ -285,12 +285,12 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         );
     }
 
-    public function testInitialGuaranteeBrandUsesProducerWithMaximumLengthTwenty(): void
+    public function testInitialGuaranteeBrandUsesProducerWithMaximumLengthThirty(): void
     {
         $validator = new ProductGuaranteeConfigurationValidator();
 
         self::assertSame(
-            'ABCDEFGHIJKLMNOPQRST',
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234',
             $validator->getInitialGuaranteeBrand('ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGHIJ')
         );
     }
@@ -301,8 +301,8 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $brand = $this->createBrandAtLimit();
         $model = $this->createModelAtLimit();
 
-        self::assertSame(20, mb_strlen($brand));
-        self::assertSame(7, mb_strlen($model));
+        self::assertSame(30, mb_strlen($brand));
+        self::assertSame(10, mb_strlen($model));
 
         $result = $validator->validateProduct([
             'enableGll' => '1',
@@ -323,8 +323,8 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $brand = $this->createBrandAboveLimit();
         $model = $this->createModelAboveLimit();
 
-        self::assertSame(21, mb_strlen($brand));
-        self::assertSame(8, mb_strlen($model));
+        self::assertSame(31, mb_strlen($brand));
+        self::assertSame(11, mb_strlen($model));
 
         $result = $validator->validateProduct([
             'enableGll' => '1',
@@ -341,7 +341,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             ],
             array_column($result->getMessages(), 'code')
         );
-        self::assertSame([21, 8], array_map('mb_strlen', [$brand, $model]));
+        self::assertSame([31, 11], array_map('mb_strlen', [$brand, $model]));
     }
 
     public function testProductValidationRejectsOverlongBrandAndModelEvenWhenGaranIsDisabled(): void

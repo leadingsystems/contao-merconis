@@ -1329,7 +1329,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>20),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>30),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave')
 			),
@@ -1341,7 +1341,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>7),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>10),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_variant_controller', 'validateLegalGuaranteeBeforeSave')
 			),

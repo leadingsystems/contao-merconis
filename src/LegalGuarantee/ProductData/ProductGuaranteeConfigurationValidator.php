@@ -15,8 +15,8 @@ final class ProductGuaranteeConfigurationValidator
     public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED = 'garan_disabled_gll_required';
     public const MESSAGE_GARAN_INHERITED_GLL_REQUIRED = 'garan_inherited_gll_required';
     public const MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE = 'garan_disabled_gll_variant_override';
-    private const GUARANTEE_BRAND_MAX_LENGTH = 20;
-    private const GUARANTEE_MODEL_IDENTIFIER_MAX_LENGTH = 7;
+    private const GUARANTEE_BRAND_MAX_LENGTH = 30;
+    private const GUARANTEE_MODEL_IDENTIFIER_MAX_LENGTH = 10;
 
     public function __construct(
         private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),

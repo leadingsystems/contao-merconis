@@ -107,12 +107,12 @@ class ls_shop_productManagementApiPreprocessor
 					'fieldType' => 'input_output'
 				),
 				'guaranteeBrand' => array(
-					'preprocessor' => 'preprocess_string_maxlength_20',
+					'preprocessor' => 'preprocess_string_maxlength_30',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
 				'guaranteeModelIdentifier' => array(
-					'preprocessor' => 'preprocess_string_maxlength_7',
+					'preprocessor' => 'preprocess_string_maxlength_10',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
@@ -966,21 +966,21 @@ class ls_shop_productManagementApiPreprocessor
 		return $str_output;
 	}
 
-	protected static function preprocess_string_maxlength_20($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+	protected static function preprocess_string_maxlength_30($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		$str_output = trim($var_input);
 
-		if (mb_strlen($str_output) > 20) {
-			throw new \Exception('the value must not be longer than 20 characters');
+		if (mb_strlen($str_output) > 30) {
+			throw new \Exception('the value must not be longer than 30 characters');
 		}
 
 		return $str_output;
 	}
 
-	protected static function preprocess_string_maxlength_7($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+	protected static function preprocess_string_maxlength_10($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		$str_output = trim($var_input);
 
-		if (mb_strlen($str_output) > 7) {
-			throw new \Exception('the value must not be longer than 7 characters');
+		if (mb_strlen($str_output) > 10) {
+			throw new \Exception('the value must not be longer than 10 characters');
 		}
 
 		return $str_output;
