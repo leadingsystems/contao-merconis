@@ -183,12 +183,12 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
         ];
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Brand ist zu lang: 40');
+        $this->expectExceptionMessage('Brand ist zu lang: 20');
 
         $helper->throwValidationExceptionForField(
             [[
                 'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
-                'parameters' => ['40'],
+                'parameters' => ['20'],
             ]],
             'guaranteeBrand',
             'tl_ls_shop_product'

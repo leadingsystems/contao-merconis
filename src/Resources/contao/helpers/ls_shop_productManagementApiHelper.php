@@ -947,8 +947,8 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['enableGll'], // 1 or ''
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
 				$arr_preprocessedDataRow['guaranteeDurationYears'], // decimal, empty = null
-				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 40
-				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 25
+				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 20
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 7
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
@@ -1109,8 +1109,8 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['enableGll'], // 1 or ''
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
 				$arr_preprocessedDataRow['guaranteeDurationYears'], // decimal, empty = null
-				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 40
-				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 25
+				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 20
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 7
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
@@ -1301,8 +1301,8 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['garanOverride'], // 1 or ''
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
 				$arr_preprocessedDataRow['guaranteeDurationYears'], // decimal, empty = null
-				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 40
-				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 25
+				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 20
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 7
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''
@@ -1448,8 +1448,8 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['garanOverride'], // 1 or ''
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
 				$arr_preprocessedDataRow['guaranteeDurationYears'], // decimal, empty = null
-				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 40
-				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 25
+				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 20
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 7
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''

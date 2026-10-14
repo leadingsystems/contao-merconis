@@ -54,15 +54,15 @@ final class LegalGuaranteeImportControllerTest extends TestCase
         yield 'brand' => [
             'garan_disabled_brand_too_long',
             'guaranteeBrand',
-            '40',
-            'GARAN was not saved because "Brand/Trademark" must not be longer than 40 characters.',
+            '20',
+            'GARAN was not saved because "Brand/Trademark" must not be longer than 20 characters.',
         ];
 
         yield 'model' => [
             'garan_disabled_model_too_long',
             'guaranteeModelIdentifier',
-            '25',
-            'GARAN was not saved because "Model identifier" must not be longer than 25 characters.',
+            '7',
+            'GARAN was not saved because "Model identifier" must not be longer than 7 characters.',
         ];
     }
 }

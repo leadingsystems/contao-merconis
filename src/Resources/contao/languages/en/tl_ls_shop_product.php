@@ -55,8 +55,8 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll']										=	array('Enable GLL', 'GLL applies to tangible goods and goods with digital elements. For pure digital content, SaaS and services, disable this switch.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	array('Enable GARAN');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears']							=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with the shop language\'s decimal separator: 30 months become 2,5 or 2.5 years, 36 months become 3 years.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	array('Brand/Trademark', 'Maximum 40 characters.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	array('Model identifier', 'Maximum 25 characters.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	array('Brand/Trademark', 'Maximum 20 characters.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	array('Model identifier', 'Maximum 7 characters.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords']										= 	array('Keywords');
     $GLOBALS['TL_LANG']['tl_ls_shop_product']['pageTitle']										=	array('Page title', 'Enter the page title to be used on the product detail page. You can use it to improve the importance of the product detail page for search engines. If you do not enter anything, the product name will precede the regular Contao page title.');
     $GLOBALS['TL_LANG']['tl_ls_shop_product']['pageDescription']								=	array('Meta page description', 'Enter here the page description to be used on the product detail page in the search engine relevant meta element "description". Up to 255 characters are possible, a maximum of 160 is recommended. If you enter something here, this text will be used under all circumstances. If you leave the field empty, either the page description, which Contao regularly creates, or the normal product description can be used, depending on the basic settings.');

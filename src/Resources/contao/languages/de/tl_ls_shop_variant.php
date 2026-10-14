@@ -41,8 +41,8 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentP
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Eigene GARAN-Daten der Variante verwenden', 'Überschreibt die Angaben des Elternprodukts. Aktiviert GARAN nicht.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran']										=	array('GARAN aktivieren');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit dem Dezimaltrennzeichen der Shopsprache: 30 Monate ergeben 2,5 oder 2.5 Jahre, 36 Monate ergeben 3 Jahre.');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	array('Brand/Trademark', 'Maximal 40 Zeichen.');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	array('Model identifier', 'Maximal 25 Zeichen.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	array('Brand/Trademark', 'Maximal 20 Zeichen.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	array('Model identifier', 'Maximal 7 Zeichen.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Verfügbar ab');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['preorderingAllowed']				                =	array('Vorbestellbar', 'Ist diese Option aktiviert, so kann das Produkt, sofern es noch nicht verfügbar ist, vorbestellt werden. Unabhängig von der dem Produkt zugeordneten Einstellung für das Lagerbestands-Handling kann der Lagerbestand bei aktivierter Vorbestellfunktion ins Minus laufen.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['deliveryInfoSetToUseInPreorderPhase']            =   array('Abweichende Einstellungen zu Lagerbestand/Lieferzeit in Vorbestellungsphase');
