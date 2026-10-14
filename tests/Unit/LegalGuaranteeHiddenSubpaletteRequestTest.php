@@ -76,7 +76,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
             'enableGaran' => '1',
             'guaranteeDurationYears' => '3',
             'guaranteeBrand' => 'Product brand',
-            'guaranteeModelIdentifier' => 'Product model',
+            'guaranteeModelIdentifier' => 'Product mdl',
         ];
         $postedValues = [
             'garanOverride' => '',
