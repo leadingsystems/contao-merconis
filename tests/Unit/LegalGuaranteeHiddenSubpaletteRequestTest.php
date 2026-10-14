@@ -28,7 +28,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
             'enableGaran' => '1',
             'guaranteeDurationYears' => '3',
             'guaranteeBrand' => 'Stored brand',
-            'guaranteeModelIdentifier' => 'Stored model',
+            'guaranteeModelIdentifier' => 'Stored mdl',
         ];
         $postedValues = [
             'enableGaran' => '',
@@ -59,7 +59,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         );
         self::assertSame('3', $persistenceResult->getNormalizedData()['guaranteeDurationYears']);
         self::assertSame('Stored brand', $persistenceResult->getNormalizedData()['guaranteeBrand']);
-        self::assertSame('Stored model', $persistenceResult->getNormalizedData()['guaranteeModelIdentifier']);
+        self::assertSame('Stored mdl', $persistenceResult->getNormalizedData()['guaranteeModelIdentifier']);
     }
 
     public function testVariantKeepsStoredGuaranteeValuesWhenOverrideIsTurnedOffBeforeSave(): void
@@ -69,7 +69,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
             'enableGaran' => '1',
             'guaranteeDurationYears' => '3',
             'guaranteeBrand' => 'Stored brand',
-            'guaranteeModelIdentifier' => 'Stored model',
+            'guaranteeModelIdentifier' => 'Stored mdl',
         ];
         $currentProductData = [
             'enableGll' => '1',
@@ -110,7 +110,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         );
         self::assertSame('3', $persistenceResult->getNormalizedData()['guaranteeDurationYears']);
         self::assertSame('Stored brand', $persistenceResult->getNormalizedData()['guaranteeBrand']);
-        self::assertSame('Stored model', $persistenceResult->getNormalizedData()['guaranteeModelIdentifier']);
+        self::assertSame('Stored mdl', $persistenceResult->getNormalizedData()['guaranteeModelIdentifier']);
     }
 
     public function testProductRequiresGuaranteeFieldsOnlyWhenEnableGaranIsEnabled(): void
