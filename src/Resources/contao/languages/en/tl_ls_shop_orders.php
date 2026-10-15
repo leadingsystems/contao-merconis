@@ -27,7 +27,11 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['freetext']										= array('Free text');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['paymentMethod_moduleReturnData']					= array('Information from the payment module');
 	// [E-Invoicing] BEGIN
-	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['ls_shop_einvoicingPaymentMeansCode']				= array('Payment Means Code');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingPaymentMeansCode']				= array('Payment means code (EN 16931)');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingTaxCountry']					= array('Tax country');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingVatExemptionStatus']			= array('VAT exemption status');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingShippingTaxCategory']			= array('Shipping tax category');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingPaymentTaxCategory']			= array('Payment fee tax category');
 	// [E-Invoicing] END
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_saleId']								= array('PayPal Plus transaction code');

@@ -47,6 +47,22 @@ final class ZugferdXmlGenerator
             )
         ;
 
+        $builder
+            ->setDocumentShipTo(
+                $invoice->shipTo['name'],
+                null,
+                null
+            )
+            ->setDocumentShipToAddress(
+                $invoice->shipTo['street'],
+                null,
+                null,
+                $invoice->shipTo['postalCode'],
+                $invoice->shipTo['city'],
+                $invoice->shipTo['countryCode']
+            )
+        ;
+
         if ($invoice->seller['vatId'] !== null) {
             $builder->addDocumentSellerTaxRegistration('VA', $invoice->seller['vatId']);
         }

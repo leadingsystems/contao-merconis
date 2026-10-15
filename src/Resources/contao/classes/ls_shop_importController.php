@@ -796,7 +796,7 @@ class ls_shop_importController
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData'] as $mccb) {
 					$objMccb = System::importStatic($mccb[0]);
-					$objMccb->{$mccb[1]}($alreadyExistsAsID);
+					$objMccb->{$mccb[1]}($alreadyExistsAsID, $row);
 				}
 			}
 			
@@ -958,7 +958,7 @@ class ls_shop_importController
 			if (isset($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData'])) {
 				foreach ($GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData'] as $mccb) {
 					$objMccb = System::importStatic($mccb[0]);
-					$objMccb->{$mccb[1]}($newProductID);
+					$objMccb->{$mccb[1]}($newProductID, $row);
 				}
 			}
 			

@@ -81,7 +81,11 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
 			paymentMethod_moduleReturnData,
 '
             // [E-Invoicing] BEGIN -- Palette-Ergänzung: Payment Means Code (BT-81)
-            . '			ls_shop_einvoicingPaymentMeansCode;
+            . '			einvoicingPaymentMeansCode;
+			einvoicingTaxCountry,
+			einvoicingVatExemptionStatus,
+			einvoicingShippingTaxCategory,
+			einvoicingPaymentTaxCategory;
 '
             // [E-Invoicing] END
             . '
@@ -287,9 +291,37 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
         ),
 
         // [E-Invoicing] BEGIN -- Snapshot-Feld: Payment Means Code (BT-81)
-        'ls_shop_einvoicingPaymentMeansCode' => array(
+        'einvoicingPaymentMeansCode' => array(
             'exclude' => true,
-            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['ls_shop_einvoicingPaymentMeansCode'],
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingPaymentMeansCode'],
+            'inputType' => 'text',
+            'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(16) NOT NULL default ''"
+        ),
+        'einvoicingTaxCountry' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingTaxCountry'],
+            'inputType' => 'text',
+            'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(2) NOT NULL default ''"
+        ),
+        'einvoicingVatExemptionStatus' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingVatExemptionStatus'],
+            'inputType' => 'text',
+            'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(32) NOT NULL default ''"
+        ),
+        'einvoicingShippingTaxCategory' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingShippingTaxCategory'],
+            'inputType' => 'text',
+            'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(16) NOT NULL default ''"
+        ),
+        'einvoicingPaymentTaxCategory' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingPaymentTaxCategory'],
             'inputType' => 'text',
             'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
             'sql'                     => "varchar(16) NOT NULL default ''"

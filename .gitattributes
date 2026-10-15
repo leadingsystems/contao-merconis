@@ -2,3 +2,4 @@
 /tests             export-ignore
 /phpunit.xml.dist  export-ignore
 /docs              export-ignore
+/pcf-migrations    export-ignore

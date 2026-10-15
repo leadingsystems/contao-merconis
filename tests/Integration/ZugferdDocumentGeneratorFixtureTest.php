@@ -55,7 +55,7 @@ final class ZugferdDocumentGeneratorFixtureTest extends TestCase
         $generatedDocument = (new ZugferdDocumentGenerator(
             new ZugferdXmlGenerator(),
             $htmlRenderer,
-            new ZugferdHybridPdfGenerator(),
+            new ZugferdHybridPdfGenerator(sys_get_temp_dir() . '/merconis-zugferd-tests'),
         ))->generate($invoice, $visibleHtml);
 
         self::assertSame('invoice-' . $invoiceNumber . '-zugferd.pdf', $generatedDocument->fileName);
@@ -89,5 +89,10 @@ final class ZugferdDocumentGeneratorFixtureTest extends TestCase
                 'S1-EINV-003: Produkt 2: 7%',
             ],
         ];
+        yield 'fixture-004' => ['S4-EINV-001', 'RE-2026-0401', ['S4-EINV-001: Produkt 1: 19%']];
+        yield 'fixture-005' => ['S4-EINV-002', 'RE-2026-0402', ['S4-EINV-001: Produkt 1: 19%']];
+        yield 'fixture-006' => ['S4-EINV-003', 'RE-2026-0403', ['S4-EINV-001: Produkt 1: 19%']];
+        yield 'fixture-007' => ['S4-EINV-004', 'RE-2026-0404', ['S4-EINV-004: Produkt 1: 0% (Z)']];
+        yield 'fixture-008' => ['S4-EINV-006', 'RE-2026-0406', ['S4-EINV-001: Produkt 1: 19%']];
     }
 }

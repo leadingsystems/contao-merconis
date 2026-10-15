@@ -247,6 +247,7 @@ class ls_shop_orderMessages
 			
 			$arrMessageModels[$objMessageModels->id] = $objMessageModels->row();
 			$arrMessageModels[$objMessageModels->id]['multilanguage'] = ls_shop_languageHelper::getMultiLanguage($objMessageModels->id, "tl_ls_shop_message_model_languages", array('subject', 'senderName', 'content_html', 'content_rawtext', 'attachments', 'dynamicAttachments'), array($this->ls_language));
+			$arrMessageModels[$objMessageModels->id]['messageLanguage'] = $this->ls_language;
 		}
 		
 		$this->arrMessageModels = $arrMessageModels;

@@ -4,7 +4,14 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\EInvoicing\Contao;
 
 use Contao\CoreBundle\DataContainer\PaletteManipulator;
+use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingCodeLists;
 
+/**
+ * DCA-Erweiterungen werden im Core-first-Modus bewusst per Hook
+ * registriert. Bei einer späteren Extension-Extraktion sollen
+ * diese Anpassungen in Standard-DCA-Dateien unter `contao/dca/`
+ * überführt werden.
+ */
 final class EInvoicingDcaHook
 {
     private const LEGEND_KEY = 'ls_contao_merconis_einvoicing_legend';
@@ -14,6 +21,7 @@ final class EInvoicingDcaHook
     private const SHOP_SETTINGS_TABLE = 'tl_lsShopSettings';
     private const MEMBER_GROUP_TABLE = 'tl_member_group';
     private const PAYMENT_METHODS_TABLE = 'tl_ls_shop_payment_methods';
+    private const PRODUCT_TABLE = 'tl_ls_shop_product';
     private const TAX_RATES_TABLE = 'tl_ls_shop_steuersaetze';
 
     private static array $loadedLanguages = [];
@@ -37,6 +45,10 @@ final class EInvoicingDcaHook
 
             case self::PAYMENT_METHODS_TABLE:
                 $this->extendPaymentMethodsDca();
+                return;
+
+            case self::PRODUCT_TABLE:
+                $this->extendProductDca();
                 return;
 
             case self::TAX_RATES_TABLE:
@@ -127,6 +139,9 @@ final class EInvoicingDcaHook
             'label' => $this->fieldLabel(self::SHOP_SETTINGS_TABLE, 'ls_shop_einvoicingSellerElectronicAddressScheme'),
             'inputType' => 'text',
             'eval' => ['mandatory' => true, 'maxlength' => 16, 'tl_class' => 'w50'],
+            'save_callback' => [
+                [self::class, 'validateElectronicAddressScheme'],
+            ],
         ];
 
         $GLOBALS['TL_DCA'][self::SHOP_SETTINGS_TABLE]['fields']['ls_shop_einvoicingSellerIban'] = [
@@ -143,20 +158,6 @@ final class EInvoicingDcaHook
             'eval' => ['maxlength' => 11, 'tl_class' => 'w50'],
         ];
 
-        $GLOBALS['TL_DCA'][self::SHOP_SETTINGS_TABLE]['fields']['ls_shop_einvoicingPaymentTermsDays'] = [
-            'exclude' => true,
-            'label' => $this->fieldLabel(self::SHOP_SETTINGS_TABLE, 'ls_shop_einvoicingPaymentTermsDays'),
-            'inputType' => 'text',
-            'eval' => ['rgxp' => 'digit', 'maxlength' => 5, 'tl_class' => 'w50'],
-        ];
-
-        $GLOBALS['TL_DCA'][self::SHOP_SETTINGS_TABLE]['fields']['ls_shop_einvoicingPaymentTermsNote'] = [
-            'exclude' => true,
-            'label' => $this->fieldLabel(self::SHOP_SETTINGS_TABLE, 'ls_shop_einvoicingPaymentTermsNote'),
-            'inputType' => 'textarea',
-            'eval' => ['rows' => 4, 'tl_class' => 'clr'],
-        ];
-
         PaletteManipulator::create()
             ->addLegend(self::LEGEND_KEY, 'euSettings_legend', PaletteManipulator::POSITION_BEFORE)
             ->addField(
@@ -170,8 +171,6 @@ final class EInvoicingDcaHook
                     'ls_shop_einvoicingSellerElectronicAddressScheme',
                     'ls_shop_einvoicingSellerIban',
                     'ls_shop_einvoicingSellerBic',
-                    'ls_shop_einvoicingPaymentTermsDays',
-                    'ls_shop_einvoicingPaymentTermsNote',
                 ],
                 self::LEGEND_KEY,
                 PaletteManipulator::POSITION_APPEND
@@ -221,42 +220,90 @@ final class EInvoicingDcaHook
 
     private function extendPaymentMethodsDca(): void
     {
-        if (isset($GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['ls_shop_einvoicingPaymentMeansCode'])) {
+        if (isset($GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['einvoicingPaymentMeansCode'])) {
             return;
         }
 
-        $GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['ls_shop_einvoicingPaymentMeansCode'] = [
+        $GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['einvoicingPaymentMeansCode'] = [
             'exclude' => true,
-            'label' => $this->fieldLabel(self::PAYMENT_METHODS_TABLE, 'ls_shop_einvoicingPaymentMeansCode'),
-            'default' => '58',
+            'label' => $this->fieldLabel(self::PAYMENT_METHODS_TABLE, 'einvoicingPaymentMeansCode'),
+            'inputType' => 'select',
+            'options' => EInvoicingCodeLists::getPaymentMeansCodeOptions(),
+            'reference' => EInvoicingCodeLists::getPaymentMeansCodeReferences(),
+            'eval' => ['chosen' => true, 'includeBlankOption' => true, 'mandatory' => true, 'tl_class' => 'w50'],
+            'sql' => "varchar(16) NOT NULL default ''",
+        ];
+
+        $GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['ls_shop_einvoicingPaymentTermsDays'] = [
+            'exclude' => true,
+            'label' => $this->fieldLabel(self::PAYMENT_METHODS_TABLE, 'ls_shop_einvoicingPaymentTermsDays'),
             'inputType' => 'text',
-            'eval' => ['rgxp' => 'digit', 'maxlength' => 4, 'tl_class' => 'w50'],
-            'sql' => "varchar(16) NOT NULL default '58'",
+            'eval' => ['rgxp' => 'digit', 'maxlength' => 5, 'tl_class' => 'w50'],
+            'sql' => "varchar(16) NOT NULL default ''",
+        ];
+
+        $GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['ls_shop_einvoicingPaymentTermsNote'] = [
+            'exclude' => true,
+            'label' => $this->fieldLabel(self::PAYMENT_METHODS_TABLE, 'ls_shop_einvoicingPaymentTermsNote'),
+            'inputType' => 'textarea',
+            'eval' => [
+                'rows' => 4,
+                'tl_class' => 'clr',
+                'merconis_multilanguage' => true,
+                'merconis_multilanguage_noTopLinedGroup' => true,
+            ],
+            'sql' => "text NULL",
         ];
 
         PaletteManipulator::create()
-            ->addLegend(self::LEGEND_KEY, 'published_legend', PaletteManipulator::POSITION_BEFORE)
+            ->addLegend(self::LEGEND_KEY, 'steuersatz_legend', PaletteManipulator::POSITION_BEFORE)
             ->addField(
-                'ls_shop_einvoicingPaymentMeansCode',
+                [
+                    'einvoicingPaymentMeansCode',
+                    'ls_shop_einvoicingPaymentTermsDays',
+                    'ls_shop_einvoicingPaymentTermsNote',
+                ],
                 self::LEGEND_KEY,
                 PaletteManipulator::POSITION_APPEND
             )
             ->applyToPalette('default', self::PAYMENT_METHODS_TABLE);
     }
 
-    private function extendTaxRatesDca(): void
+    private function extendProductDca(): void
     {
-        if (isset($GLOBALS['TL_DCA'][self::TAX_RATES_TABLE]['fields']['ls_shop_einvoicingTaxCategory'])) {
+        if (isset($GLOBALS['TL_DCA'][self::PRODUCT_TABLE]['fields']['einvoicingUnitCode'])) {
             return;
         }
 
-        $GLOBALS['TL_DCA'][self::TAX_RATES_TABLE]['fields']['ls_shop_einvoicingTaxCategory'] = [
+        $GLOBALS['TL_DCA'][self::PRODUCT_TABLE]['fields']['einvoicingUnitCode'] = [
             'exclude' => true,
-            'label' => $this->fieldLabel(self::TAX_RATES_TABLE, 'ls_shop_einvoicingTaxCategory'),
+            'label' => $this->fieldLabel(self::PRODUCT_TABLE, 'einvoicingUnitCode'),
+            'default' => EInvoicingCodeLists::DEFAULT_UNIT_CODE,
+            'inputType' => 'select',
+            'options' => EInvoicingCodeLists::getUnitCodeOptions(),
+            'reference' => EInvoicingCodeLists::getUnitCodeReferences(),
+            'eval' => ['chosen' => true, 'mandatory' => true, 'tl_class' => 'w50'],
+            'sql' => "varchar(16) NOT NULL default 'H87'",
+        ];
+
+        PaletteManipulator::create()
+            ->addField('einvoicingUnitCode', 'lsShopProductQuantityUnit', PaletteManipulator::POSITION_AFTER)
+            ->applyToPalette('default', self::PRODUCT_TABLE);
+    }
+
+    private function extendTaxRatesDca(): void
+    {
+        if (isset($GLOBALS['TL_DCA'][self::TAX_RATES_TABLE]['fields']['einvoicingTaxCategory'])) {
+            return;
+        }
+
+        $GLOBALS['TL_DCA'][self::TAX_RATES_TABLE]['fields']['einvoicingTaxCategory'] = [
+            'exclude' => true,
+            'label' => $this->fieldLabel(self::TAX_RATES_TABLE, 'einvoicingTaxCategory'),
             'default' => 'auto',
             'inputType' => 'select',
             'options' => ['auto', 'S', 'Z', 'E', 'AE', 'K', 'G'],
-            'reference' => $this->fieldOptions(self::TAX_RATES_TABLE, 'ls_shop_einvoicingTaxCategory'),
+            'reference' => $this->fieldOptions(self::TAX_RATES_TABLE, 'einvoicingTaxCategory'),
             'eval' => ['includeBlankOption' => false, 'tl_class' => 'w50'],
             'sql' => "varchar(16) NOT NULL default 'auto'",
         ];
@@ -264,7 +311,7 @@ final class EInvoicingDcaHook
         PaletteManipulator::create()
             ->addLegend(self::LEGEND_KEY, 'title_legend', PaletteManipulator::POSITION_AFTER)
             ->addField(
-                'ls_shop_einvoicingTaxCategory',
+                'einvoicingTaxCategory',
                 self::LEGEND_KEY,
                 PaletteManipulator::POSITION_APPEND
             )
@@ -303,6 +350,19 @@ final class EInvoicingDcaHook
         return $node;
     }
 
+    public static function validateElectronicAddressScheme(mixed $value): string
+    {
+        $normalizedValue = EInvoicingCodeLists::normalizeCode($value);
+
+        if ($normalizedValue === null || !EInvoicingCodeLists::hasElectronicAddressScheme($normalizedValue)) {
+            throw new \RuntimeException(
+                'Please enter a valid EN 16931 electronic address scheme code from the official code list.'
+            );
+        }
+
+        return $normalizedValue;
+    }
+
     private function resolveLanguage(string $language): string
     {
         if (str_starts_with($language, 'de')) {
@@ -321,6 +381,7 @@ final class EInvoicingDcaHook
             self::SHOP_SETTINGS_TABLE,
             self::MEMBER_GROUP_TABLE,
             self::PAYMENT_METHODS_TABLE,
+            self::PRODUCT_TABLE,
             self::TAX_RATES_TABLE,
         ];
     }

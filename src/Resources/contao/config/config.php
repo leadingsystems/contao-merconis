@@ -26,6 +26,18 @@ $GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'][] = array(
     \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingCheckoutSnapshotHook::class,
     'storeCartItemInOrder'
 );
+$GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData'][] = array(
+    \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingProductImportHook::class,
+    'afterInsertingProductData'
+);
+$GLOBALS['MERCONIS_HOOKS']['import_afterUpdatingProductData'][] = array(
+    \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingProductImportHook::class,
+    'afterUpdatingProductData'
+);
+$GLOBALS['MERCONIS_HOOKS']['beforeSendingOrderMessage'][] = array(
+    \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingOrderMessageHook::class,
+    'beforeSendingOrderMessage'
+);
 // [E-Invoicing] END
 
 $GLOBALS['TL_HOOKS']['merconisCustomTaxRateCalculation'][] = array('Merconis\Core\ls_shop_generalHelper', 'merconisCustomTaxRateCalculation');

@@ -40,14 +40,6 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = [
                 'BIC',
                 'Please optionally enter the seller BIC for payment information in the e-invoice here.',
             ],
-            'ls_shop_einvoicingPaymentTermsDays' => [
-                'Payment terms (days)',
-                'Please optionally enter the default number of days until due date for e-invoices here.',
-            ],
-            'ls_shop_einvoicingPaymentTermsNote' => [
-                'Payment terms note',
-                'Please optionally enter the default payment terms note for e-invoices here.',
-            ],
         ],
     ],
     'tl_member_group' => [
@@ -66,16 +58,32 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = [
     'tl_ls_shop_payment_methods' => [
         'ls_contao_merconis_einvoicing_legend' => 'E-Invoicing',
         'ls_contao-merconis' => [
-            'ls_shop_einvoicingPaymentMeansCode' => [
-                'Payment Means Code',
-                'Please enter the EN 16931 payment means code for this payment method here. Stage 1 uses 58 for SEPA transfer by default.',
+            'einvoicingPaymentMeansCode' => [
+                'Payment means code (EN 16931)',
+                'Select the EN 16931 code that identifies this payment method.',
+            ],
+            'ls_shop_einvoicingPaymentTermsDays' => [
+                'Payment terms (days)',
+                'Please optionally enter the number of days until due date for this payment method here.',
+            ],
+            'ls_shop_einvoicingPaymentTermsNote' => [
+                'Payment terms note',
+                'Please optionally enter the payment terms note for this payment method here.',
+            ],
+        ],
+    ],
+    'tl_ls_shop_product' => [
+        'ls_contao-merconis' => [
+            'einvoicingUnitCode' => [
+                'Unit code (EN 16931)',
+                'Select the UN/ECE Rec. 20 code to be used for BT-130 in the e-invoice.',
             ],
         ],
     ],
     'tl_ls_shop_steuersaetze' => [
         'ls_contao_merconis_einvoicing_legend' => 'E-Invoicing',
         'ls_contao-merconis' => [
-            'ls_shop_einvoicingTaxCategory' => [
+            'einvoicingTaxCategory' => [
                 'Tax category',
                 'Choose the EN 16931 tax category here. The default value derives the category automatically from the tax rate.',
                 'options' => [

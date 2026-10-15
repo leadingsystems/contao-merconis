@@ -32,6 +32,7 @@ use Contao\System;
 use Contao\Validator;
 use Contao\Widget;
 use LeadingSystems\Helpers\FlexWidget;
+use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingSnapshotFields;
 use LeadingSystems\MerconisBundle\EventListener\Post;
 
 use LeadingSystems\MerconisBundle\License\LicenseKeyValidator;
@@ -4443,6 +4444,11 @@ class ls_shop_generalHelper
 
             $arrOrder['shippingMethod_infoAfterCheckout'] = ls_shop_generalHelper::ls_replaceOrderWildcards($arrOrder['shippingMethod_infoAfterCheckout'], $arrOrder);
             $arrOrder['shippingMethod_infoAfterCheckout_customerLanguage'] = ls_shop_generalHelper::ls_replaceOrderWildcards($arrOrder['shippingMethod_infoAfterCheckout_customerLanguage'], $arrOrder);
+
+            if (array_key_exists(EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_COLUMN, $arrOrder)) {
+                $arrOrder[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] =
+                    $arrOrder[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_COLUMN];
+            }
 
             // count how many orders are already saved
             $orderCount = isset($GLOBALS['merconis_globals']['order'])? count($GLOBALS['merconis_globals']['order']): 0;

@@ -40,14 +40,6 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = [
                 'BIC',
                 'Bitte tragen Sie hier optional den BIC des Verkäufers für Zahlungsinformationen in der E-Rechnung ein.',
             ],
-            'ls_shop_einvoicingPaymentTermsDays' => [
-                'Zahlungsziel (Tage)',
-                'Bitte tragen Sie hier optional die Anzahl der Tage bis zur Fälligkeit als Standardwert für E-Rechnungen ein.',
-            ],
-            'ls_shop_einvoicingPaymentTermsNote' => [
-                'Zahlungsbedingungen',
-                'Bitte tragen Sie hier optional die Standard-Zahlungsbedingungen für E-Rechnungen ein.',
-            ],
         ],
     ],
     'tl_member_group' => [
@@ -66,16 +58,32 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = [
     'tl_ls_shop_payment_methods' => [
         'ls_contao_merconis_einvoicing_legend' => 'E-Rechnung',
         'ls_contao-merconis' => [
-            'ls_shop_einvoicingPaymentMeansCode' => [
-                'Payment Means Code',
-                'Bitte tragen Sie hier den EN-16931 Payment Means Code für diese Zahlungsart ein. In Stufe 1 ist standardmäßig 58 für SEPA-Überweisung vorgesehen.',
+            'einvoicingPaymentMeansCode' => [
+                'Zahlungsart-Code (EN 16931)',
+                'Wählen Sie den EN-16931-Code, der diese Zahlungsart identifiziert.',
+            ],
+            'ls_shop_einvoicingPaymentTermsDays' => [
+                'Zahlungsziel (Tage)',
+                'Bitte tragen Sie hier optional die Anzahl der Tage bis zur Fälligkeit für diese Zahlungsart ein.',
+            ],
+            'ls_shop_einvoicingPaymentTermsNote' => [
+                'Zahlungsbedingungen',
+                'Bitte tragen Sie hier optional die Zahlungsbedingungen für diese Zahlungsart ein.',
+            ],
+        ],
+    ],
+    'tl_ls_shop_product' => [
+        'ls_contao-merconis' => [
+            'einvoicingUnitCode' => [
+                'Mengeneinheitencode (EN 16931)',
+                'Wählen Sie den UN/ECE-Rec.-20-Code, der für BT-130 in der E-Rechnung verwendet werden soll.',
             ],
         ],
     ],
     'tl_ls_shop_steuersaetze' => [
         'ls_contao_merconis_einvoicing_legend' => 'E-Rechnung',
         'ls_contao-merconis' => [
-            'ls_shop_einvoicingTaxCategory' => [
+            'einvoicingTaxCategory' => [
                 'Steuerkategorie',
                 'Bestimmen Sie hier die EN-16931-Steuerkategorie. Der Standardwert leitet die Kategorie automatisch aus dem Steuersatz ab.',
                 'options' => [

@@ -71,12 +71,20 @@ use DateTimeImmutable;
  *   roundingAmount: float,
  *   totalPrepaidAmount: float
  * }
+ * @phpstan-type ShipTo array{
+ *   name: ?string,
+ *   street: ?string,
+ *   postalCode: ?string,
+ *   city: ?string,
+ *   countryCode: string
+ * }
  */
 final readonly class SemanticInvoice
 {
     /**
      * @param Party               $seller
      * @param Party               $buyer
+     * @param ShipTo              $shipTo
      * @param Payment             $payment
      * @param list<LineItem>      $lineItems
      * @param list<DocumentCharge> $documentCharges
@@ -93,6 +101,7 @@ final readonly class SemanticInvoice
         public string $currencyCode,
         public array $seller,
         public array $buyer,
+        public array $shipTo,
         public array $payment,
         public array $lineItems,
         public array $documentCharges,

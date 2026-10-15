@@ -7,15 +7,16 @@ use DateInterval;
 use DateTimeImmutable;
 use LeadingSystems\MerconisBundle\EInvoicing\Exception\InvoiceValidationException;
 use LeadingSystems\MerconisBundle\EInvoicing\Model\SemanticInvoice;
+use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingCodeLists;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingSnapshotFields;
+use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingTaxResolver;
 
 final class SemanticInvoiceBuilder
 {
     private const DEFAULT_GUIDELINE_ID = 'urn:cen.eu:en16931:2017';
     private const DEFAULT_INVOICE_TYPE_CODE = '380';
-    private const DEFAULT_BILLED_QUANTITY_UNIT_CODE = 'C62';
+    private const DEFAULT_BILLED_QUANTITY_UNIT_CODE = EInvoicingCodeLists::DEFAULT_UNIT_CODE;
     private const TAX_TYPE_CODE = 'VAT';
-    private const DEFAULT_PAYMENT_MEANS_CODE = '58';
 
     /**
      * @param array<string, mixed>                   $orderData
@@ -44,11 +45,32 @@ final class SemanticInvoiceBuilder
 
         $seller = $this->buildSeller($shopSettings, $violations);
         $buyer = $this->buildBuyer($orderData, $violations);
+        $taxCountry = strtoupper($this->requireString(
+            $orderData[EInvoicingSnapshotFields::ORDER_TAX_COUNTRY_ORDER_KEY] ?? null,
+            'Der Checkout-Snapshot für das Steuerland fehlt.',
+            $violations
+        ));
+        $vatExemptionStatus = $this->requireString(
+            $orderData[EInvoicingSnapshotFields::ORDER_VAT_EXEMPTION_STATUS_ORDER_KEY] ?? null,
+            'Der Checkout-Snapshot für den Befreiungsstatus fehlt.',
+            $violations
+        );
+
+        if (!in_array($vatExemptionStatus, [
+            EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_EXEMPT_EU,
+            EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_EXEMPT_NON_EU,
+            EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_NOT_EXEMPT_EU,
+            EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_NOT_EXEMPT_NON_EU,
+        ], true)) {
+            $violations[] = 'Der Checkout-Snapshot für den Befreiungsstatus ist ungültig.';
+        }
+
+        $shipTo = $this->buildShipTo($orderData, $taxCountry, $violations);
         $payment = $this->buildPayment($orderData, $shopSettings, $paymentMethod, $memberGroup, $invoiceDate, $violations);
 
         $isGrossMode = $this->isGrossMode($shopSettings, $orderData);
         $lineItems = $this->buildLineItems($orderData, $isGrossMode, $violations);
-        $documentCharges = $this->buildDocumentCharges($orderData, $paymentMethod, $shippingMethod, $taxRateDataById, $violations);
+        $documentCharges = $this->buildDocumentCharges($orderData, $paymentMethod, $shippingMethod, $violations);
         $taxSummaries = $this->buildTaxSummaries($lineItems, $documentCharges);
         $totals = $this->buildTotals($orderData, $lineItems, $documentCharges, $taxSummaries);
 
@@ -73,6 +95,7 @@ final class SemanticInvoiceBuilder
             $currencyCode,
             $seller,
             $buyer,
+            $shipTo,
             $payment,
             $lineItems,
             $documentCharges,
@@ -92,9 +115,16 @@ final class SemanticInvoiceBuilder
     {
         $vatId = $this->optionalString($shopSettings['ls_shop_ownVATID'] ?? null);
         $taxNumber = $this->optionalString($shopSettings['ls_shop_einvoicingSellerTaxNumber'] ?? null);
+        $electronicAddressScheme = EInvoicingCodeLists::normalizeCode(
+            $shopSettings['ls_shop_einvoicingSellerElectronicAddressScheme'] ?? null
+        );
 
         if ($vatId === null && $taxNumber === null) {
             $violations[] = 'Es fehlt mindestens eine Verkäufer-Steuerkennung (BT-31 oder BT-32).';
+        }
+
+        if ($electronicAddressScheme === null || !EInvoicingCodeLists::hasElectronicAddressScheme($electronicAddressScheme)) {
+            $violations[] = 'Das Schema der Verkäufer-E-Adresse (BT-34-1) ist ungültig.';
         }
 
         return [
@@ -111,12 +141,7 @@ final class SemanticInvoiceBuilder
                 'Die Verkäufer-E-Adresse (BT-34) fehlt.',
                 $violations
             ),
-            'electronicAddressScheme' => strtoupper($this->requireValue(
-                $shopSettings,
-                'ls_shop_einvoicingSellerElectronicAddressScheme',
-                'Das Schema der Verkäufer-E-Adresse (BT-34-1) fehlt.',
-                $violations
-            )),
+            'electronicAddressScheme' => $electronicAddressScheme ?? '',
             'iban' => $this->optionalString($shopSettings['ls_shop_einvoicingSellerIban'] ?? null),
             'bic' => $this->optionalString($shopSettings['ls_shop_einvoicingSellerBic'] ?? null),
             'email' => $this->optionalString($shopSettings['ls_shop_ownEmailAddress'] ?? null),
@@ -177,6 +202,53 @@ final class SemanticInvoiceBuilder
     }
 
     /**
+     * @param array<string, mixed> $orderData
+     * @param list<string>         $violations
+     *
+     * @return array<string, mixed>
+     */
+    private function buildShipTo(array $orderData, string $taxCountry, array &$violations): array
+    {
+        $customerData = $this->arrayValue($orderData, 'customerData');
+        $personalData = $this->arrayValue($customerData, 'personalData');
+        $originalValues = $this->arrayValue($customerData, 'personalData_originalOptionValues');
+        $useAlternativeAddress = $this->isTruthy(
+            $originalValues['useDeviantShippingAddress'] ?? $personalData['useDeviantShippingAddress'] ?? null
+        );
+
+        $shipToCountry = null;
+
+        if ($useAlternativeAddress) {
+            $shipToCountry = $this->optionalString($originalValues['country_alternative'] ?? $personalData['country_alternative'] ?? null);
+        }
+
+        if ($shipToCountry === null) {
+            $shipToCountry = $this->optionalString($originalValues['country'] ?? null);
+        }
+
+        if ($shipToCountry !== null) {
+            $shipToCountry = strtoupper($shipToCountry);
+        }
+
+        if ($shipToCountry === null || !preg_match('/^[A-Z]{2}$/', $shipToCountry)) {
+            if ($taxCountry !== '') {
+                $shipToCountry = $taxCountry;
+            } else {
+                $violations[] = 'Der Liefer-Ländercode (BT-80) fehlt.';
+                $shipToCountry = '';
+            }
+        }
+
+        return [
+            'name' => $this->resolveShipToName($personalData, $useAlternativeAddress),
+            'street' => $this->resolveShipToValue($personalData, 'street', 'street_alternative', $useAlternativeAddress),
+            'postalCode' => $this->resolveShipToValue($personalData, 'postal', 'postal_alternative', $useAlternativeAddress),
+            'city' => $this->resolveShipToValue($personalData, 'city', 'city_alternative', $useAlternativeAddress),
+            'countryCode' => $shipToCountry,
+        ];
+    }
+
+    /**
      * @param array<string, mixed>      $shopSettings
      * @param array<string, mixed>      $paymentMethod
      * @param array<string, mixed>|null $memberGroup
@@ -192,18 +264,37 @@ final class SemanticInvoiceBuilder
         DateTimeImmutable $invoiceDate,
         array &$violations,
     ): array {
-        $meansCode = $this->optionalString($orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE] ?? null);
+        $meansCode = EInvoicingCodeLists::normalizeCode(
+            $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] ?? null
+        );
 
         if ($meansCode === null) {
             $violations[] = 'Der Checkout-Snapshot für Payment Means Code (BT-81) fehlt.';
-            $meansCode = $this->optionalString($paymentMethod['ls_shop_einvoicingPaymentMeansCode'] ?? null)
-                ?? self::DEFAULT_PAYMENT_MEANS_CODE;
+            $meansCode = EInvoicingCodeLists::normalizeCode(
+                $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] ?? null
+            );
         }
 
-        $termsDays = $this->optionalString($memberGroup['lsShopEinvoicingPaymentTermsDays'] ?? null)
-            ?? $this->optionalString($shopSettings['ls_shop_einvoicingPaymentTermsDays'] ?? null);
-        $termsNote = $this->optionalString($memberGroup['lsShopEinvoicingPaymentTermsNote'] ?? null)
-            ?? $this->optionalString($shopSettings['ls_shop_einvoicingPaymentTermsNote'] ?? null);
+        if ($meansCode === null) {
+            $violations[] = 'Der Payment Means Code (BT-81) fehlt.';
+            $meansCode = EInvoicingCodeLists::DEFAULT_PAYMENT_MEANS_CODE;
+        } elseif (!EInvoicingCodeLists::hasPaymentMeansCode($meansCode)) {
+            $violations[] = 'Der Payment Means Code (BT-81) ist ungültig.';
+            $meansCode = EInvoicingCodeLists::DEFAULT_PAYMENT_MEANS_CODE;
+        }
+
+        $language = $this->resolveLanguage($orderData);
+        $memberGroupTermsDays = $memberGroup !== null
+            ? $this->optionalString($memberGroup['lsShopEinvoicingPaymentTermsDays'] ?? null)
+            : null;
+        $memberGroupTermsNote = $memberGroup !== null
+            ? $this->resolveLocalizedFieldValue($memberGroup, 'lsShopEinvoicingPaymentTermsNote', $language)
+            : null;
+
+        $termsDays = $memberGroupTermsDays
+            ?? $this->optionalString($paymentMethod['ls_shop_einvoicingPaymentTermsDays'] ?? null);
+        $termsNote = $memberGroupTermsNote
+            ?? $this->resolveLocalizedFieldValue($paymentMethod, 'ls_shop_einvoicingPaymentTermsNote', $language);
 
         $dueDate = null;
 
@@ -302,7 +393,6 @@ final class SemanticInvoiceBuilder
      * @param array<string, mixed>                    $orderData
      * @param array<string, mixed>                    $paymentMethod
      * @param array<string, mixed>                    $shippingMethod
-     * @param array<int|string, array<string, mixed>> $taxRateDataById
      * @param list<string>                            $violations
      *
      * @return list<array<string, mixed>>
@@ -311,7 +401,6 @@ final class SemanticInvoiceBuilder
         array $orderData,
         array $paymentMethod,
         array $shippingMethod,
-        array $taxRateDataById,
         array &$violations,
     ): array {
         $charges = [];
@@ -321,7 +410,7 @@ final class SemanticInvoiceBuilder
             $orderData['paymentMethod_amount'] ?? null,
             $orderData['paymentMethod_amountTaxedWith'] ?? null,
             $paymentMethod,
-            $taxRateDataById,
+            $this->optionalString($orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_TAX_CATEGORY_ORDER_KEY] ?? null),
             $violations
         );
 
@@ -334,7 +423,7 @@ final class SemanticInvoiceBuilder
             $orderData['shippingMethod_amount'] ?? null,
             $orderData['shippingMethod_amountTaxedWith'] ?? null,
             $shippingMethod,
-            $taxRateDataById,
+            $this->optionalString($orderData[EInvoicingSnapshotFields::ORDER_SHIPPING_TAX_CATEGORY_ORDER_KEY] ?? null),
             $violations
         );
 
@@ -453,7 +542,6 @@ final class SemanticInvoiceBuilder
 
     /**
      * @param array<string, mixed>                    $methodData
-     * @param array<int|string, array<string, mixed>> $taxRateDataById
      * @param list<string>                            $violations
      *
      * @return array<string, mixed>|null
@@ -463,7 +551,7 @@ final class SemanticInvoiceBuilder
         mixed $amountValue,
         mixed $taxedWithValue,
         array $methodData,
-        array $taxRateDataById,
+        ?string $taxCategorySnapshot,
         array &$violations,
     ): ?array {
         $feeType = $this->optionalString($methodData['feeType'] ?? null);
@@ -488,11 +576,12 @@ final class SemanticInvoiceBuilder
             return null;
         }
 
-        $taxClassId = $taxEntry['_taxClassId'] ?? null;
-        $taxConfiguration = is_scalar($taxClassId) && isset($taxRateDataById[(string) $taxClassId]) && is_array($taxRateDataById[(string) $taxClassId])
-            ? $taxRateDataById[(string) $taxClassId]
-            : [];
-        $taxCategoryCode = $this->resolveTaxCategoryCode($taxConfiguration, $taxRate, $reason, $violations);
+        $taxCategoryCode = strtoupper($taxCategorySnapshot ?? '');
+
+        if ($taxCategoryCode === '') {
+            $violations[] = 'Für den Dokumentzuschlag "' . $reason . '" fehlt der Checkout-Snapshot der Steuerkategorie (BT-118).';
+            return null;
+        }
 
         return [
             'reason' => $reason,
@@ -501,26 +590,6 @@ final class SemanticInvoiceBuilder
             'taxRate' => $taxRate,
             'isCharge' => true,
         ];
-    }
-
-    /**
-     * @param array<string, mixed> $taxConfiguration
-     * @param list<string>         $violations
-     */
-    private function resolveTaxCategoryCode(array $taxConfiguration, float $taxRate, string $context, array &$violations): string
-    {
-        $configuredCategory = strtoupper($this->optionalString($taxConfiguration['ls_shop_einvoicingTaxCategory'] ?? null) ?? 'AUTO');
-
-        if ($configuredCategory === 'AUTO') {
-            if ($taxRate > 0.0) {
-                return 'S';
-            }
-
-            $violations[] = 'Die Steuerkategorie kann für "' . $context . '" bei 0 % nicht automatisch abgeleitet werden.';
-            return 'S';
-        }
-
-        return $configuredCategory;
     }
 
     /**
@@ -560,10 +629,13 @@ final class SemanticInvoiceBuilder
     private function resolveUnitCode(array $item): string
     {
         $extendedInfo = is_array($item['extendedInfo'] ?? null) ? $item['extendedInfo'] : [];
-        $quantityUnit = $this->optionalString($item['quantityUnit'] ?? null)
-            ?? $this->optionalString($extendedInfo['_quantityUnit'] ?? null);
+        $unitCode = EInvoicingCodeLists::normalizeCode($extendedInfo[EInvoicingSnapshotFields::ITEM_UNIT_CODE] ?? null);
 
-        return $quantityUnit !== null ? strtoupper($quantityUnit) : self::DEFAULT_BILLED_QUANTITY_UNIT_CODE;
+        if ($unitCode === null || !EInvoicingCodeLists::hasUnitCode($unitCode)) {
+            return self::DEFAULT_BILLED_QUANTITY_UNIT_CODE;
+        }
+
+        return $unitCode;
     }
 
     /**
@@ -651,12 +723,84 @@ final class SemanticInvoiceBuilder
 
     /**
      * @param array<string, mixed> $values
+     */
+    private function resolveLocalizedFieldValue(array $values, string $field, string $language): ?string
+    {
+        $normalizedLanguage = strtolower(trim($language));
+
+        if ($normalizedLanguage !== '') {
+            $languageKey = preg_replace('/[^a-z].*$/', '', $normalizedLanguage) ?: $normalizedLanguage;
+            $localizedValue = $this->optionalString($values[$field . '_' . $languageKey] ?? null);
+
+            if ($localizedValue !== null) {
+                return $localizedValue;
+            }
+        }
+
+        return $this->optionalString($values[$field] ?? null);
+    }
+
+    /**
+     * @param array<string, mixed> $orderData
+     */
+    private function resolveLanguage(array $orderData): string
+    {
+        return $this->optionalString($orderData['customerLanguage'] ?? null) ?? 'en';
+    }
+
+    /**
+     * @param array<string, mixed> $personalData
+     */
+    private function resolveShipToName(array $personalData, bool $useAlternativeAddress): ?string
+    {
+        $company = $this->resolveShipToValue($personalData, 'company', 'company_alternative', $useAlternativeAddress);
+
+        if ($company !== null) {
+            return $company;
+        }
+
+        $firstName = $this->resolveShipToValue($personalData, 'firstname', 'firstname_alternative', $useAlternativeAddress);
+        $lastName = $this->resolveShipToValue($personalData, 'lastname', 'lastname_alternative', $useAlternativeAddress);
+        $name = trim(implode(' ', array_filter([$firstName, $lastName], static fn (?string $value): bool => $value !== null)));
+
+        return $name !== '' ? $name : null;
+    }
+
+    /**
+     * @param array<string, mixed> $personalData
+     */
+    private function resolveShipToValue(
+        array $personalData,
+        string $billingKey,
+        string $alternativeKey,
+        bool $useAlternativeAddress,
+    ): ?string {
+        if ($useAlternativeAddress) {
+            $alternativeValue = $this->optionalString($personalData[$alternativeKey] ?? null);
+
+            if ($alternativeValue !== null) {
+                return $alternativeValue;
+            }
+        }
+
+        return $this->optionalString($personalData[$billingKey] ?? null);
+    }
+
+    /**
+     * @param array<string, mixed> $values
      *
      * @return array<string, mixed>
      */
     private function arrayValue(array $values, string $key): array
     {
         return is_array($values[$key] ?? null) ? $values[$key] : [];
+    }
+
+    private function isTruthy(mixed $value): bool
+    {
+        $value = $this->optionalString($value);
+
+        return $value !== null && !in_array(strtolower($value), ['0', 'false', 'off', 'no'], true);
     }
 
     private function money(float $amount): float
