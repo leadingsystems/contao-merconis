@@ -497,8 +497,10 @@ var ls_shop_backend = {
 		if (fieldInput) {
 			if (isRequired) {
 				fieldInput.setAttribute('aria-required', 'true');
+				fieldInput.setAttribute('required', 'required');
 			} else {
 				fieldInput.removeAttribute('aria-required');
+				fieldInput.removeAttribute('required');
 			}
 		}
 
