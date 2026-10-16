@@ -8,6 +8,9 @@ use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingTaxResolver;
 
 final class EInvoicingFixtureLoader
 {
+    private const DDEV_PCF_REPOSITORY_PATH = '/var/www/project-control-contao-merconis';
+    private const FIXTURE_DIRECTORY = 'meta/reference/e-rechnung/fixtures';
+
     /**
      * @return array{
      *   0: array<string, mixed>,
@@ -20,9 +23,7 @@ final class EInvoicingFixtureLoader
      */
     public static function loadFixtureInput(string $fixtureId): array
     {
-        $fixtureBasePath = self::workspaceRoot()
-            . '/project-control-contao-merconis/meta/reference/e-rechnung/fixtures/'
-            . $fixtureId;
+        $fixtureBasePath = self::fixtureBasePath($fixtureId);
 
         /** @var array<string, mixed> $configuration */
         $configuration = json_decode(
@@ -74,16 +75,35 @@ final class EInvoicingFixtureLoader
 
     public static function loadReferenceXml(string $fixtureId): string
     {
-        $fixtureBasePath = self::workspaceRoot()
-            . '/project-control-contao-merconis/meta/reference/e-rechnung/fixtures/'
-            . $fixtureId;
+        $fixtureBasePath = self::fixtureBasePath($fixtureId);
 
         return (string) file_get_contents($fixtureBasePath . '/reference-cii.xml');
     }
 
-    private static function workspaceRoot(): string
+    private static function fixtureBasePath(string $fixtureId): string
     {
-        return dirname(__DIR__, 6);
+        return self::pcfRepositoryPath() . '/' . self::FIXTURE_DIRECTORY . '/' . $fixtureId;
+    }
+
+    private static function pcfRepositoryPath(): string
+    {
+        $configuredPath = getenv('EINVOICING_PCF_REPOSITORY_PATH');
+
+        if (is_string($configuredPath) && $configuredPath !== '' && is_dir($configuredPath)) {
+            return rtrim($configuredPath, '/');
+        }
+
+        if (is_dir(self::DDEV_PCF_REPOSITORY_PATH)) {
+            return self::DDEV_PCF_REPOSITORY_PATH;
+        }
+
+        $localRepositoryPath = dirname(__DIR__, 6) . '/project-control-contao-merconis';
+
+        if (is_dir($localRepositoryPath)) {
+            return $localRepositoryPath;
+        }
+
+        throw new \RuntimeException('PCF-Repository mit Fixtures konnte nicht aufgelöst werden.');
     }
 
     /**

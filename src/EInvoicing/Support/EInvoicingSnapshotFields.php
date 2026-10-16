@@ -18,8 +18,8 @@ final class EInvoicingSnapshotFields
     public const ORDER_PAYMENT_TAX_CATEGORY_COLUMN = 'einvoicingPaymentTaxCategory';
     public const ORDER_PAYMENT_TAX_CATEGORY_ORDER_KEY = 'paymentMethod_einvoicingTaxCategory';
     public const TAX_CONFIGURATION_CATEGORY_FIELD = 'einvoicingTaxCategory';
-    public const ITEM_TAX_CATEGORY_CODE = 'ls_shop_einvoicingTaxCategory';
-    public const ITEM_UNIT_CODE = 'ls_shop_einvoicingUnitCode';
-    public const ITEM_TAX_EXEMPTION_REASON = 'ls_shop_einvoicingTaxExemptionReason';
-    public const ITEM_TAX_EXEMPTION_REASON_CODE = 'ls_shop_einvoicingTaxExemptionReasonCode';
+    public const ITEM_TAX_CATEGORY_CODE = 'einvoicingTaxCategory';
+    public const ITEM_UNIT_CODE = 'einvoicingUnitCode';
+    public const ITEM_TAX_EXEMPTION_REASON = 'einvoicingTaxExemptionReason';
+    public const ITEM_TAX_EXEMPTION_REASON_CODE = 'einvoicingTaxExemptionReasonCode';
 }

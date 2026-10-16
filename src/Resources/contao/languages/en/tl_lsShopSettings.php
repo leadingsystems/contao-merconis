@@ -7,6 +7,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_licenseKey']				= array('License key', 'Please enter the license key here (signed license key or legacy serial number).');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownVATID']				= array('Own VAT ident number', 'Should you have a VAT ident number, please enter it here.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_euCountrycodes']			= array('EU countries', 'Enter the two-digit country codes (ISO-3166-1 coding list) of the countries in the EU.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['einvoicingEasValidationError']	= 'Please enter a valid EN 16931 electronic address scheme code from the official code list.';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_currency']				= array('Currency', 'Please enter the currency here that shall be used everywhere in the shop.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_currencyCode']			= array('Currency code according to ISO-4217', 'Enter the three-digit currency code according to ISO-4217 (e.g. "EUR" for Euro, "GBP" for British Pound or "USD" for US Dollar) here for the currency used by you.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_weightUnit']				= array('Weight unit', 'Enter the unit here in which weights in the shop are stated. Weight units are required whenever shipping costs per weight are calculated.');

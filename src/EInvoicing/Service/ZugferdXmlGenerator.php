@@ -22,6 +22,7 @@ final class ZugferdXmlGenerator
                 $invoice->invoiceDate,
                 $invoice->currencyCode
             )
+            ->setDocumentSupplyChainEvent($invoice->deliveryDate)
             ->setDocumentGeneralPaymentInformation(null, $invoice->invoiceNumber)
             ->setDocumentSeller($invoice->seller['name'])
             ->setDocumentSellerAddress(

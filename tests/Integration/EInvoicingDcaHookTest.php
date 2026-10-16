@@ -40,7 +40,11 @@ final class EInvoicingDcaHookTest extends TestCase
             'palettes' => [
                 'default' => '{basic_legend},ls_shop_country;{euSettings_legend},ls_shop_ownVATID;',
             ],
-            'fields' => [],
+            'fields' => [
+                'ls_shop_euCountrycodes' => [
+                    'eval' => [],
+                ],
+            ],
         ];
 
         $this->hook->onLoadDataContainer('tl_lsShopSettings');
@@ -50,11 +54,11 @@ final class EInvoicingDcaHookTest extends TestCase
             $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']
         );
         self::assertArrayNotHasKey(
-            'ls_shop_einvoicingPaymentTermsDays',
+            'einvoicingPaymentTermsDays',
             $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']
         );
         self::assertArrayNotHasKey(
-            'ls_shop_einvoicingPaymentTermsNote',
+            'einvoicingPaymentTermsNote',
             $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']
         );
         self::assertSame(
@@ -62,6 +66,23 @@ final class EInvoicingDcaHookTest extends TestCase
             $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']['ls_shop_einvoicingSellerName']['label']
         );
         self::assertTrue($GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']['ls_shop_einvoicingSellerName']['eval']['mandatory']);
+        self::assertTrue($GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']['ls_shop_euCountrycodes']['eval']['mandatory']);
+
+        $easField = $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']['ls_shop_einvoicingSellerElectronicAddressScheme'];
+        self::assertSame('select', $easField['inputType']);
+        self::assertCount(102, $easField['options']);
+        self::assertContains('0204', $easField['options']);
+        self::assertSame(
+            '0204 - Leitweg-ID',
+            $easField['reference']['0204']
+        );
+        self::assertSame(
+            $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_einvoicingSellerElectronicAddressSchemeRef'],
+            $easField['reference']
+        );
+        self::assertTrue($easField['eval']['chosen']);
+        self::assertTrue($easField['eval']['includeBlankOption']);
+        self::assertTrue($easField['eval']['mandatory']);
 
         $palette = $GLOBALS['TL_DCA']['tl_lsShopSettings']['palettes']['default'];
         self::assertStringContainsString('{ls_contao_merconis_einvoicing_legend}', $palette);
@@ -128,20 +149,24 @@ final class EInvoicingDcaHookTest extends TestCase
         self::assertContains('ZZZ', $field['options']);
         self::assertSame('58 - SEPA credit transfer', $field['reference']['58']);
         self::assertSame('ZZZ - Mutually defined', $field['reference']['ZZZ']);
+        self::assertSame(
+            $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['einvoicingPaymentMeansCodeRef'],
+            $field['reference']
+        );
         self::assertTrue($field['eval']['chosen']);
         self::assertTrue($field['eval']['includeBlankOption']);
         self::assertTrue($field['eval']['mandatory']);
         self::assertSame(
             "varchar(16) NOT NULL default ''",
-            $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields']['ls_shop_einvoicingPaymentTermsDays']['sql']
+            $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields']['einvoicingPaymentTermsDays']['sql']
         );
         self::assertTrue(
-            $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields']['ls_shop_einvoicingPaymentTermsNote']['eval']['merconis_multilanguage']
+            $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['fields']['einvoicingPaymentTermsNote']['eval']['merconis_multilanguage']
         );
 
         $palette = $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods']['palettes']['default'];
         self::assertStringContainsString(
-            '{ls_contao_merconis_einvoicing_legend},einvoicingPaymentMeansCode,ls_shop_einvoicingPaymentTermsDays,ls_shop_einvoicingPaymentTermsNote',
+            '{ls_contao_merconis_einvoicing_legend},einvoicingPaymentMeansCode,einvoicingPaymentTermsDays,einvoicingPaymentTermsNote',
             $palette
         );
         self::assertGreaterThan(
@@ -173,6 +198,10 @@ final class EInvoicingDcaHookTest extends TestCase
         self::assertSame("varchar(16) NOT NULL default 'H87'", $field['sql']);
         self::assertSame('Mengeneinheitencode (EN 16931)', $field['label'][0]);
         self::assertSame('H87 - piece', $field['reference']['H87']);
+        self::assertSame(
+            $GLOBALS['TL_LANG']['tl_ls_shop_product']['einvoicingUnitCodeRef'],
+            $field['reference']
+        );
         self::assertTrue($field['eval']['chosen']);
         self::assertTrue($field['eval']['mandatory']);
         self::assertStringContainsString(
@@ -225,10 +254,16 @@ final class EInvoicingDcaHookTest extends TestCase
 
     public function testElectronicAddressSchemeValidationNormalizesAndRejectsUnknownCodes(): void
     {
+        $GLOBALS['TL_LANG']['tl_lsShopSettings']['einvoicingEasValidationError'] =
+            'Please enter a valid EN 16931 electronic address scheme code from the official code list.';
+
         self::assertSame('0204', EInvoicingDcaHook::validateElectronicAddressScheme('0204'));
         self::assertSame('EM', EInvoicingDcaHook::validateElectronicAddressScheme('em'));
 
         $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(
+            'Please enter a valid EN 16931 electronic address scheme code from the official code list.'
+        );
         EInvoicingDcaHook::validateElectronicAddressScheme('unknown');
     }
 

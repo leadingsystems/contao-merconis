@@ -10,6 +10,7 @@ use LeadingSystems\MerconisBundle\EInvoicing\Model\SemanticInvoice;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingCodeLists;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingSnapshotFields;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingTaxResolver;
+use LeadingSystems\MerconisBundle\EInvoicing\Support\LocalizedFieldValueResolver;
 
 final class SemanticInvoiceBuilder
 {
@@ -67,6 +68,7 @@ final class SemanticInvoiceBuilder
 
         $shipTo = $this->buildShipTo($orderData, $taxCountry, $violations);
         $payment = $this->buildPayment($orderData, $shopSettings, $paymentMethod, $memberGroup, $invoiceDate, $violations);
+        $deliveryDate = $this->resolveDeliveryDate($orderData, $invoiceDate);
 
         $isGrossMode = $this->isGrossMode($shopSettings, $orderData);
         $lineItems = $this->buildLineItems($orderData, $isGrossMode, $violations);
@@ -92,6 +94,7 @@ final class SemanticInvoiceBuilder
             $invoiceNumber,
             (string) ($orderData['orderNr'] ?? ''),
             $invoiceDate,
+            $deliveryDate,
             $currencyCode,
             $seller,
             $buyer,
@@ -288,13 +291,13 @@ final class SemanticInvoiceBuilder
             ? $this->optionalString($memberGroup['lsShopEinvoicingPaymentTermsDays'] ?? null)
             : null;
         $memberGroupTermsNote = $memberGroup !== null
-            ? $this->resolveLocalizedFieldValue($memberGroup, 'lsShopEinvoicingPaymentTermsNote', $language)
+            ? LocalizedFieldValueResolver::resolve($memberGroup, 'lsShopEinvoicingPaymentTermsNote', $language)
             : null;
 
         $termsDays = $memberGroupTermsDays
-            ?? $this->optionalString($paymentMethod['ls_shop_einvoicingPaymentTermsDays'] ?? null);
+            ?? $this->optionalString($paymentMethod['einvoicingPaymentTermsDays'] ?? null);
         $termsNote = $memberGroupTermsNote
-            ?? $this->resolveLocalizedFieldValue($paymentMethod, 'ls_shop_einvoicingPaymentTermsNote', $language);
+            ?? LocalizedFieldValueResolver::resolve($paymentMethod, 'einvoicingPaymentTermsNote', $language);
 
         $dueDate = null;
 
@@ -489,6 +492,30 @@ final class SemanticInvoiceBuilder
         unset($group);
 
         return array_values($groups);
+    }
+
+    /**
+     * @param array<string, mixed> $orderData
+     */
+    private function resolveDeliveryDate(array $orderData, DateTimeImmutable $invoiceDate): DateTimeImmutable
+    {
+        $orderDate = $this->optionalString($orderData['orderDate'] ?? null);
+
+        if ($orderDate !== null) {
+            $resolvedOrderDate = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $orderDate);
+
+            if ($resolvedOrderDate instanceof DateTimeImmutable) {
+                return $resolvedOrderDate;
+            }
+        }
+
+        $orderTimestamp = $orderData['orderDateUnixTimestamp'] ?? null;
+
+        if (is_numeric($orderTimestamp)) {
+            return (new DateTimeImmutable())->setTimestamp((int) $orderTimestamp);
+        }
+
+        return $invoiceDate;
     }
 
     /**
@@ -722,25 +749,6 @@ final class SemanticInvoiceBuilder
     }
 
     /**
-     * @param array<string, mixed> $values
-     */
-    private function resolveLocalizedFieldValue(array $values, string $field, string $language): ?string
-    {
-        $normalizedLanguage = strtolower(trim($language));
-
-        if ($normalizedLanguage !== '') {
-            $languageKey = preg_replace('/[^a-z].*$/', '', $normalizedLanguage) ?: $normalizedLanguage;
-            $localizedValue = $this->optionalString($values[$field . '_' . $languageKey] ?? null);
-
-            if ($localizedValue !== null) {
-                return $localizedValue;
-            }
-        }
-
-        return $this->optionalString($values[$field] ?? null);
-    }
-
-    /**
      * @param array<string, mixed> $orderData
      */
     private function resolveLanguage(array $orderData): string
@@ -828,9 +836,19 @@ final class SemanticInvoiceBuilder
             'taxAmount' => 0.0,
             'lineTotalBasisAmount' => 0.0,
             'allowanceChargeBasisAmount' => 0.0,
-            'exemptionReason' => null,
+            'exemptionReason' => $this->defaultExemptionReason($taxCategoryCode),
             'exemptionReasonCode' => null,
         ];
+    }
+
+    private function defaultExemptionReason(string $taxCategoryCode): ?string
+    {
+        return match (strtoupper($taxCategoryCode)) {
+            'K' => 'Intra-community supply',
+            'G' => 'Export outside the EU',
+            'AE' => 'Reverse charge',
+            default => null,
+        };
     }
 
     private function taxGroupKey(string $taxCategoryCode, float $taxRate): string

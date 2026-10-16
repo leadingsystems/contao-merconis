@@ -91,6 +91,7 @@ final readonly class SemanticInvoice
      * @param list<TaxSummary>    $taxSummaries
      * @param Totals              $totals
      * @param list<string>        $notes
+     * @param ?DateTimeImmutable  $deliveryDate
      */
     public function __construct(
         public string $guidelineId,
@@ -98,6 +99,7 @@ final readonly class SemanticInvoice
         public string $invoiceNumber,
         public string $orderNumber,
         public DateTimeImmutable $invoiceDate,
+        public ?DateTimeImmutable $deliveryDate,
         public string $currencyCode,
         public array $seller,
         public array $buyer,

@@ -2406,6 +2406,14 @@ final class EInvoicingCodeLists
     }
 
     /**
+     * @return list<string>
+     */
+    public static function getEasCodeOptions(): array
+    {
+        return array_map('strval', array_keys(self::ELECTRONIC_ADDRESS_SCHEMES));
+    }
+
+    /**
      * @return array<string, string>
      */
     public static function getPaymentMeansCodes(): array
@@ -2468,14 +2476,14 @@ final class EInvoicingCodeLists
     /**
      * @param array<int|string, string> $codes
      *
-     * @return array<int|string, string>
+     * @return array<string, string>
      */
     private static function buildReferences(array $codes): array
     {
         $references = [];
 
         foreach ($codes as $code => $name) {
-            $references[$code] = $code . ' - ' . $name;
+            $references[(string) $code] = (string) $code . ' - ' . $name;
         }
 
         return $references;

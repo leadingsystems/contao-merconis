@@ -8,6 +8,7 @@ use Contao\Database;
 use Contao\Date;
 use DateInterval;
 use DateTimeImmutable;
+use LeadingSystems\MerconisBundle\EInvoicing\Support\LocalizedFieldValueResolver;
 
 final class EInvoicingOrderMessageHook
 {
@@ -27,9 +28,9 @@ final class EInvoicingOrderMessageHook
 
         $language = $this->resolveLanguage($messageModel, $order);
         $termsDays = $this->optionalString($memberGroup['lsShopEinvoicingPaymentTermsDays'] ?? null)
-            ?? $this->optionalString($paymentMethod['ls_shop_einvoicingPaymentTermsDays'] ?? null);
-        $termsNote = $this->resolveLocalizedFieldValue($memberGroup, 'lsShopEinvoicingPaymentTermsNote', $language)
-            ?? $this->resolveLocalizedFieldValue($paymentMethod, 'ls_shop_einvoicingPaymentTermsNote', $language)
+            ?? $this->optionalString($paymentMethod['einvoicingPaymentTermsDays'] ?? null);
+        $termsNote = LocalizedFieldValueResolver::resolve($memberGroup, 'lsShopEinvoicingPaymentTermsNote', $language)
+            ?? LocalizedFieldValueResolver::resolve($paymentMethod, 'einvoicingPaymentTermsNote', $language)
             ?? '';
         $dueDate = $this->formatDueDate($termsDays);
 
@@ -56,24 +57,6 @@ final class EInvoicingOrderMessageHook
     }
 
     /**
-     * @param array<string, mixed> $values
-     */
-    private function resolveLocalizedFieldValue(array $values, string $field, string $language): ?string
-    {
-        $normalizedLanguage = $this->normalizeLanguage($language);
-
-        if ($normalizedLanguage !== '') {
-            $localizedValue = $this->optionalString($values[$field . '_' . $normalizedLanguage] ?? null);
-
-            if ($localizedValue !== null) {
-                return $localizedValue;
-            }
-        }
-
-        return $this->optionalString($values[$field] ?? null);
-    }
-
-    /**
      * @param array<string, mixed> $messageModel
      * @param array<string, mixed> $order
      */
@@ -82,27 +65,16 @@ final class EInvoicingOrderMessageHook
         $messageLanguage = $this->optionalString($messageModel['messageLanguage'] ?? null);
 
         if ($messageLanguage !== null) {
-            return $this->normalizeLanguage($messageLanguage);
+            return LocalizedFieldValueResolver::normalizeLanguage($messageLanguage);
         }
 
         $orderLanguage = $this->optionalString($order['customerLanguage'] ?? null);
 
         if ($orderLanguage !== null) {
-            return $this->normalizeLanguage($orderLanguage);
+            return LocalizedFieldValueResolver::normalizeLanguage($orderLanguage);
         }
 
         return 'en';
-    }
-
-    private function normalizeLanguage(string $language): string
-    {
-        $normalizedLanguage = strtolower(trim($language));
-
-        if ($normalizedLanguage === '') {
-            return '';
-        }
-
-        return preg_replace('/[^a-z].*$/', '', $normalizedLanguage) ?: $normalizedLanguage;
     }
 
     private function formatDueDate(?string $termsDays): string

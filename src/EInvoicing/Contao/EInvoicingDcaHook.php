@@ -88,6 +88,10 @@ final class EInvoicingDcaHook
 
     private function extendShopSettingsDca(): void
     {
+        if (isset($GLOBALS['TL_DCA'][self::SHOP_SETTINGS_TABLE]['fields']['ls_shop_euCountrycodes']['eval'])) {
+            $GLOBALS['TL_DCA'][self::SHOP_SETTINGS_TABLE]['fields']['ls_shop_euCountrycodes']['eval']['mandatory'] = true;
+        }
+
         if (isset($GLOBALS['TL_DCA'][self::SHOP_SETTINGS_TABLE]['fields']['ls_shop_einvoicingSellerName'])) {
             return;
         }
@@ -137,8 +141,10 @@ final class EInvoicingDcaHook
         $GLOBALS['TL_DCA'][self::SHOP_SETTINGS_TABLE]['fields']['ls_shop_einvoicingSellerElectronicAddressScheme'] = [
             'exclude' => true,
             'label' => $this->fieldLabel(self::SHOP_SETTINGS_TABLE, 'ls_shop_einvoicingSellerElectronicAddressScheme'),
-            'inputType' => 'text',
-            'eval' => ['mandatory' => true, 'maxlength' => 16, 'tl_class' => 'w50'],
+            'inputType' => 'select',
+            'options' => EInvoicingCodeLists::getEasCodeOptions(),
+            'reference' => &$GLOBALS['TL_LANG'][self::SHOP_SETTINGS_TABLE]['ls_shop_einvoicingSellerElectronicAddressSchemeRef'],
+            'eval' => ['chosen' => true, 'includeBlankOption' => true, 'mandatory' => true, 'tl_class' => 'w50'],
             'save_callback' => [
                 [self::class, 'validateElectronicAddressScheme'],
             ],
@@ -229,22 +235,22 @@ final class EInvoicingDcaHook
             'label' => $this->fieldLabel(self::PAYMENT_METHODS_TABLE, 'einvoicingPaymentMeansCode'),
             'inputType' => 'select',
             'options' => EInvoicingCodeLists::getPaymentMeansCodeOptions(),
-            'reference' => EInvoicingCodeLists::getPaymentMeansCodeReferences(),
+            'reference' => &$GLOBALS['TL_LANG'][self::PAYMENT_METHODS_TABLE]['einvoicingPaymentMeansCodeRef'],
             'eval' => ['chosen' => true, 'includeBlankOption' => true, 'mandatory' => true, 'tl_class' => 'w50'],
             'sql' => "varchar(16) NOT NULL default ''",
         ];
 
-        $GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['ls_shop_einvoicingPaymentTermsDays'] = [
+        $GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['einvoicingPaymentTermsDays'] = [
             'exclude' => true,
-            'label' => $this->fieldLabel(self::PAYMENT_METHODS_TABLE, 'ls_shop_einvoicingPaymentTermsDays'),
+            'label' => $this->fieldLabel(self::PAYMENT_METHODS_TABLE, 'einvoicingPaymentTermsDays'),
             'inputType' => 'text',
             'eval' => ['rgxp' => 'digit', 'maxlength' => 5, 'tl_class' => 'w50'],
             'sql' => "varchar(16) NOT NULL default ''",
         ];
 
-        $GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['ls_shop_einvoicingPaymentTermsNote'] = [
+        $GLOBALS['TL_DCA'][self::PAYMENT_METHODS_TABLE]['fields']['einvoicingPaymentTermsNote'] = [
             'exclude' => true,
-            'label' => $this->fieldLabel(self::PAYMENT_METHODS_TABLE, 'ls_shop_einvoicingPaymentTermsNote'),
+            'label' => $this->fieldLabel(self::PAYMENT_METHODS_TABLE, 'einvoicingPaymentTermsNote'),
             'inputType' => 'textarea',
             'eval' => [
                 'rows' => 4,
@@ -260,8 +266,8 @@ final class EInvoicingDcaHook
             ->addField(
                 [
                     'einvoicingPaymentMeansCode',
-                    'ls_shop_einvoicingPaymentTermsDays',
-                    'ls_shop_einvoicingPaymentTermsNote',
+                    'einvoicingPaymentTermsDays',
+                    'einvoicingPaymentTermsNote',
                 ],
                 self::LEGEND_KEY,
                 PaletteManipulator::POSITION_APPEND
@@ -281,7 +287,7 @@ final class EInvoicingDcaHook
             'default' => EInvoicingCodeLists::DEFAULT_UNIT_CODE,
             'inputType' => 'select',
             'options' => EInvoicingCodeLists::getUnitCodeOptions(),
-            'reference' => EInvoicingCodeLists::getUnitCodeReferences(),
+            'reference' => &$GLOBALS['TL_LANG'][self::PRODUCT_TABLE]['einvoicingUnitCodeRef'],
             'eval' => ['chosen' => true, 'mandatory' => true, 'tl_class' => 'w50'],
             'sql' => "varchar(16) NOT NULL default 'H87'",
         ];
@@ -355,12 +361,19 @@ final class EInvoicingDcaHook
         $normalizedValue = EInvoicingCodeLists::normalizeCode($value);
 
         if ($normalizedValue === null || !EInvoicingCodeLists::hasElectronicAddressScheme($normalizedValue)) {
-            throw new \RuntimeException(
-                'Please enter a valid EN 16931 electronic address scheme code from the official code list.'
-            );
+            throw new \RuntimeException(self::resolveElectronicAddressSchemeErrorMessage());
         }
 
         return $normalizedValue;
+    }
+
+    private static function resolveElectronicAddressSchemeErrorMessage(): string
+    {
+        $message = $GLOBALS['TL_LANG'][self::SHOP_SETTINGS_TABLE]['einvoicingEasValidationError'] ?? null;
+
+        return is_string($message) && $message !== ''
+            ? $message
+            : 'Please enter a valid EN 16931 electronic address scheme code from the official code list.';
     }
 
     private function resolveLanguage(string $language): string

@@ -38,8 +38,8 @@ final class SemanticInvoiceBuilderTest extends TestCase
         self::assertSame('Merconis GmbH', $shopSettings['ls_shop_einvoicingSellerName'] ?? null);
         self::assertSame('58', $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] ?? null);
         self::assertSame('58', $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] ?? null);
-        self::assertSame('14', $paymentMethod['ls_shop_einvoicingPaymentTermsDays'] ?? null);
-        self::assertSame('Zahlbar innerhalb von 14 Tagen netto.', $paymentMethod['ls_shop_einvoicingPaymentTermsNote'] ?? null);
+        self::assertSame('14', $paymentMethod['einvoicingPaymentTermsDays'] ?? null);
+        self::assertSame('Zahlbar innerhalb von 14 Tagen netto.', $paymentMethod['einvoicingPaymentTermsNote'] ?? null);
 
         foreach ($orderData['items'] as $item) {
             self::assertSame(
@@ -244,6 +244,26 @@ final class SemanticInvoiceBuilderTest extends TestCase
 
         self::assertSame('FR', $invoice->buyer['countryCode']);
         self::assertSame('DE', $invoice->shipTo['countryCode']);
+    }
+
+    public function testBuildAddsDeliveryDateAndExemptionReasonForIntraCommunitySupply(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S4-EINV-001');
+
+        $invoice = (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0401',
+            new DateTimeImmutable('2026-10-14')
+        );
+
+        self::assertNotNull($invoice->deliveryDate);
+        self::assertSame('2026-10-14', $invoice->deliveryDate?->format('Y-m-d'));
+        self::assertSame('Intra-community supply', $invoice->taxSummaries[0]['exemptionReason']);
     }
 
     public function testBuildUsesDocumentChargeTaxCategoryFromCheckoutSnapshot(): void

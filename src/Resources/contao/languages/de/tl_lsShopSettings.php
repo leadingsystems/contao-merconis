@@ -7,6 +7,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['merconis_licenseKey']				= array('Lizenzschlüssel', 'Bitte tragen Sie hier den Lizenzschlüssel ein (signierter License Key oder Legacy-Seriennummer).');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_ownVATID']				= array('Eigene USt-IdNr.', 'Sofern sie über eine USt-IdNr. verfügen, tragen Sie diese hier bitte ein.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_euCountrycodes']			= array('EU-Länder', 'Tragen Sie hier die zweistelligen Länderkennungen (ISO-3166-1-Kodierliste) der EU-Staaten ein.');
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['einvoicingEasValidationError']	= 'Bitte geben Sie einen gültigen EAS-Code (EN 16931) aus der offiziellen Codeliste ein.';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_currency']				= array('Währung', 'Tragen Sie hier die Währung ein, wie Sie überall im Shop verwendet werden soll.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_currencyCode']			= array('Währungs-Code gemäß ISO-4217', 'Tragen Sie hier für die von Ihnen verwendete Währung den dreistelligen Währungs-Code gemäß ISO-4217 ein (z. B. "EUR" für Euro, "GBP" für britische Pfund oder "USD" für den US-Dollar.)');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_weightUnit']				= array('Gewichtseinheit', 'Tragen Sie hier die Einheit ein, in der Sie Gewichte im Shop angeben. Gewichtsangaben werden im Falle einer Versandkostenberechnung nach Gewicht benötigt.');

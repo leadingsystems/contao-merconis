@@ -90,4 +90,34 @@ final class EInvoicingTaxResolverTest extends TestCase
             null,
         ];
     }
+
+    public function testFallsBackToDefaultEuCountriesWhenConfigurationIsEmpty(): void
+    {
+        [$orderData, $shopSettings] = EInvoicingFixtureLoader::loadFixtureInput('S4-EINV-001');
+        $shopSettings['ls_shop_euCountrycodes'] = '';
+
+        $taxContext = EInvoicingTaxResolver::resolveSnapshotTaxContextFromOrder($orderData, $shopSettings);
+
+        self::assertSame('FR', $taxContext['taxCountry']);
+        self::assertTrue($taxContext['isEuCountry']);
+        self::assertSame(
+            EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_EXEMPT_EU,
+            $taxContext['vatExemptionStatus']
+        );
+    }
+
+    public function testUsesConfiguredEuCountriesListForTaxClassification(): void
+    {
+        [$orderData, $shopSettings] = EInvoicingFixtureLoader::loadFixtureInput('S4-EINV-001');
+        $shopSettings['ls_shop_euCountrycodes'] = 'de,be';
+
+        $taxContext = EInvoicingTaxResolver::resolveSnapshotTaxContextFromOrder($orderData, $shopSettings);
+
+        self::assertSame('FR', $taxContext['taxCountry']);
+        self::assertFalse($taxContext['isEuCountry']);
+        self::assertSame(
+            EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_EXEMPT_NON_EU,
+            $taxContext['vatExemptionStatus']
+        );
+    }
 }

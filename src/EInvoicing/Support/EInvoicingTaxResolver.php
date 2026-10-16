@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\EInvoicing\Support;
 
+use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\System;
 use Merconis\Core\ls_shop_generalHelper;
 
 final class EInvoicingTaxResolver
@@ -199,6 +201,8 @@ final class EInvoicingTaxResolver
         $configuredCountries = self::optionalString($configuredCountries);
 
         if ($configuredCountries === null) {
+            self::logEuCountryFallback();
+
             return self::DEFAULT_EU_COUNTRIES;
         }
 
@@ -210,7 +214,17 @@ final class EInvoicingTaxResolver
             }
         }
 
-        return $countries !== [] ? array_values(array_unique($countries)) : self::DEFAULT_EU_COUNTRIES;
+        if ($countries === []) {
+            self::logEuCountryFallback();
+
+            return self::DEFAULT_EU_COUNTRIES;
+        }
+
+        $normalizedCountries = array_values(array_unique($countries));
+
+        self::logEuCountryDifferenceIfNeeded($normalizedCountries);
+
+        return $normalizedCountries;
     }
 
     private static function normalizeCountryCode(mixed $value): ?string
@@ -250,5 +264,72 @@ final class EInvoicingTaxResolver
         $value = self::optionalString($value);
 
         return $value !== null && !in_array(strtolower($value), ['0', 'false', 'off', 'no'], true);
+    }
+
+    /**
+     * @param list<string> $configuredCountries
+     */
+    private static function logEuCountryDifferenceIfNeeded(array $configuredCountries): void
+    {
+        $configuredCountriesSorted = $configuredCountries;
+        $defaultCountriesSorted = self::DEFAULT_EU_COUNTRIES;
+
+        sort($configuredCountriesSorted);
+        sort($defaultCountriesSorted);
+
+        if ($configuredCountriesSorted === $defaultCountriesSorted) {
+            return;
+        }
+
+        $missingCountries = array_values(array_diff(self::DEFAULT_EU_COUNTRIES, $configuredCountries));
+        $additionalCountries = array_values(array_diff($configuredCountries, self::DEFAULT_EU_COUNTRIES));
+
+        self::logToContao(
+            sprintf(
+                'MERCONIS E-INVOICING: Configured EU country list differs from DEFAULT_EU_COUNTRIES. Missing: %s. Additional: %s. Configured: %s.',
+                self::formatCountriesForLog($missingCountries),
+                self::formatCountriesForLog($additionalCountries),
+                self::formatCountriesForLog($configuredCountries)
+            )
+        );
+    }
+
+    private static function logEuCountryFallback(): void
+    {
+        self::logToContao(
+            sprintf(
+                'MERCONIS E-INVOICING: EU country list missing or empty. Falling back to DEFAULT_EU_COUNTRIES (%s). Please check the shop settings.',
+                self::formatCountriesForLog(self::DEFAULT_EU_COUNTRIES)
+            )
+        );
+    }
+
+    /**
+     * @param list<string> $countries
+     */
+    private static function formatCountriesForLog(array $countries): string
+    {
+        if ($countries === []) {
+            return '(none)';
+        }
+
+        return strtoupper(implode(', ', $countries));
+    }
+
+    private static function logToContao(string $message): void
+    {
+        try {
+            $container = System::getContainer();
+
+            if ($container === null || !$container->has('monolog.logger.contao')) {
+                return;
+            }
+
+            $container
+                ->get('monolog.logger.contao')
+                ->warning($message, ['contao' => new ContaoContext('MERCONIS E-INVOICING', ContaoContext::ERROR)])
+            ;
+        } catch (\Throwable) {
+        }
     }
 }

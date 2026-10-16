@@ -24,8 +24,8 @@ final class EInvoicingOrderMessageHookTest extends TestCase
         $order = [
             'customerLanguage' => 'de',
             'paymentMethod' => [
-                'ls_shop_einvoicingPaymentTermsDays' => '14',
-                'ls_shop_einvoicingPaymentTermsNote_de' => 'Zahlbar innerhalb von 14 Tagen netto.',
+                'einvoicingPaymentTermsDays' => '14',
+                'einvoicingPaymentTermsNote_de' => 'Zahlbar innerhalb von 14 Tagen netto.',
             ],
             'memberGroup' => [
                 'lsShopEinvoicingPaymentTermsDays' => '',
@@ -56,8 +56,8 @@ final class EInvoicingOrderMessageHookTest extends TestCase
         $order = [
             'customerLanguage' => 'de',
             'paymentMethod' => [
-                'ls_shop_einvoicingPaymentTermsDays' => '14',
-                'ls_shop_einvoicingPaymentTermsNote_de' => 'Später fällig.',
+                'einvoicingPaymentTermsDays' => '14',
+                'einvoicingPaymentTermsNote_de' => 'Später fällig.',
             ],
             'memberGroup' => [
                 'lsShopEinvoicingPaymentTermsDays' => '0',

@@ -70,7 +70,7 @@ final class ZugferdXmlGeneratorFixtureTest extends TestCase
             $this->xpathStrings($xpath, '//ram:ApplicableHeaderTradeSettlement/ram:ApplicableTradeTax/ram:RateApplicablePercent')
         );
         self::assertSame(
-            $this->canonicalizeXml($this->normalizeReferenceXml(EInvoicingFixtureLoader::loadReferenceXml($fixtureId))),
+            $this->canonicalizeXml(EInvoicingFixtureLoader::loadReferenceXml($fixtureId)),
             $this->canonicalizeXml($xml)
         );
     }
@@ -102,6 +102,44 @@ final class ZugferdXmlGeneratorFixtureTest extends TestCase
             'DE',
             $xpath->evaluate(
                 'string(/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeDelivery/ram:ShipToTradeParty/ram:PostalTradeAddress/ram:CountryID)'
+            )
+        );
+    }
+
+    public function testGeneratesDeliveryDateAndExemptionReasonForIntraCommunitySupply(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S4-EINV-001');
+
+        $invoice = (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0401',
+            new DateTimeImmutable('2026-10-14')
+        );
+
+        $xml = (new ZugferdXmlGenerator())->generate($invoice);
+        $document = new DOMDocument();
+        $document->loadXML($xml);
+
+        $xpath = new DOMXPath($document);
+        $xpath->registerNamespace('rsm', 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100');
+        $xpath->registerNamespace('ram', 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100');
+        $xpath->registerNamespace('udt', 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100');
+
+        self::assertSame(
+            '20261014',
+            $xpath->evaluate(
+                'string(/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeDelivery/ram:ActualDeliverySupplyChainEvent/ram:OccurrenceDateTime/udt:DateTimeString)'
+            )
+        );
+        self::assertSame(
+            'Intra-community supply',
+            $xpath->evaluate(
+                'string(/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeSettlement/ram:ApplicableTradeTax/ram:ExemptionReason)'
             )
         );
     }
@@ -141,41 +179,6 @@ final class ZugferdXmlGeneratorFixtureTest extends TestCase
         $document->loadXML($xml);
 
         return (string) $document->C14N();
-    }
-
-    private function normalizeReferenceXml(string $xml): string
-    {
-        $xml = str_replace('unitCode="C62"', 'unitCode="H87"', $xml);
-
-        $document = new DOMDocument();
-        $document->loadXML($xml);
-
-        $xpath = new DOMXPath($document);
-        $xpath->registerNamespace('rsm', 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100');
-        $xpath->registerNamespace('ram', 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100');
-
-        $deliveryNode = $xpath->query('/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeDelivery')->item(0);
-        $existingShipTo = $xpath->query('/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeDelivery/ram:ShipToTradeParty')->item(0);
-        $buyerNode = $xpath->query('/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:BuyerTradeParty')->item(0);
-
-        if ($deliveryNode !== null && $existingShipTo === null && $buyerNode !== null) {
-            $shipToNode = $document->createElementNS(
-                'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100',
-                'ram:ShipToTradeParty'
-            );
-
-            foreach (['Name', 'PostalTradeAddress'] as $childName) {
-                $childNode = $xpath->query('ram:' . $childName, $buyerNode)->item(0);
-
-                if ($childNode !== null) {
-                    $shipToNode->appendChild($document->importNode($childNode, true));
-                }
-            }
-
-            $deliveryNode->appendChild($shipToNode);
-        }
-
-        return (string) $document->saveXML($document->documentElement);
     }
 
     /**

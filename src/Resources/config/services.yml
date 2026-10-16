@@ -289,6 +289,11 @@ services:
     tags:
       - { name: contao.migration, priority: 0 }
 
+  merconis.migration.initialize_eu_country_codes_migration:
+    class: LeadingSystems\MerconisBundle\Migration\InitializeEuCountryCodesMigration
+    tags:
+      - { name: contao.migration, priority: 0 }
+
   merconis.migration.migrate_shop_serial_to_merconis_license_key_migration:
     class: LeadingSystems\MerconisBundle\Migration\MigrateShopSerialToMerconisLicenseKeyMigration
     tags:
