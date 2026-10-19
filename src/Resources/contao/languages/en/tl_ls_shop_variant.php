@@ -38,6 +38,11 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMainImage']						
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']						= array('Further images', 'Please select further images for this variant here.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Settings on goods in stock/delivery time');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Override availability and pre-order settings of the main product');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Use variant-specific GARAN data', 'Overrides the parent product\'s details. Does not activate GARAN.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran']										=	array('Enable GARAN');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with the shop language\'s decimal separator: 30 months become 2,5 or 2.5 years, 36 months become 3 years.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	array('Brand/Trademark', 'Maximum 35 characters.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	array('Model identifier', 'Maximum 11 characters.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Available from');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['preorderingAllowed']				                =	array('Pre-orderable', 'If this option is enabled, the product can be pre-ordered if it is not yet available. Regardless of the stock handling setting assigned to the product, the stock level can run into the negative if the pre-order function is activated.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['deliveryInfoSetToUseInPreorderPhase']            =   array('Deviating settings on goods in stock/delivery time in pre-order phase');
@@ -66,6 +71,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_3_legend']								= 'Devi
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_4_legend']								= 'Deviant prices for group no. 4';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_5_legend']								= 'Deviant prices for group no. 5';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStockDeliveryTimeAndAvailability_legend']									= 'Goods in stock, delivery time and availability';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopGuaranteeLabels_legend']						= 'Legal guarantee and durability guarantee';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator_legend']								= 'Configurator settings';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts_legend']							= 'Associated products';
 
@@ -117,6 +123,17 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label01'] = 'Keyword';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] = 'Variant information';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] = 'Keyword';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Variant information';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
+	'garan_disabled_gll_required' => 'GARAN was not saved because the parent product\'s GLL is disabled.',
+	'garan_inherited_gll_required' => 'GARAN was not saved. The variant inherits GARAN from the parent product (no own override). GARAN is enabled there, but GLL is disabled. Please enable GLL or disable GARAN on the parent product.',
+	'garan_disabled_gll_variant_override' => 'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',
+	'garan_disabled_missing_brand' => 'GARAN was not saved because Brand/Trademark is missing.',
+	'garan_disabled_brand_too_long' => 'GARAN was not saved because Brand/Trademark must not be longer than %s characters.',
+	'garan_disabled_missing_model' => 'GARAN was not saved because Model identifier is missing.',
+	'garan_disabled_model_too_long' => 'GARAN was not saved because Model identifier must not be longer than %s characters.',
+	'garan_disabled_missing_duration' => 'GARAN was not saved because the guarantee duration is missing.',
+	'garan_disabled_invalid_duration' => 'GARAN was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.'
+);
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label01'] = 'Attribute';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label02'] = 'Value';

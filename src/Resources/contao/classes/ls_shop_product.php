@@ -10,6 +10,7 @@ use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 
+use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider;
 use LeadingSystems\MerconisBundle\Proxy\ProductDataAccessProxy;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -900,6 +901,18 @@ returns the id of the variant that has currently been selected
 
             case '_link':
                 return $this->_linkToProduct;
+                break;
+
+            case '_gllNotice':
+                return System::getContainer()
+                    ->get(LegalGuaranteeMarkupProvider::class)
+                    ->renderProductGllNotice($this);
+                break;
+
+            case '_garanLabel':
+                return System::getContainer()
+                    ->get(LegalGuaranteeMarkupProvider::class)
+                    ->renderProductGaranLabel($this);
                 break;
 
 			case '_quantityComparisonText':
