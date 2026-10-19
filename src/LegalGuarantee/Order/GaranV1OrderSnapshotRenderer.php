@@ -8,8 +8,6 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRend
 
 final class GaranV1OrderSnapshotRenderer implements GaranOrderSnapshotRendererInterface
 {
-    private const VERSION = 'v1.0';
-
     public function __construct(
         private readonly GaranPdfTemplateRenderer $renderer,
     ) {
@@ -17,7 +15,7 @@ final class GaranV1OrderSnapshotRenderer implements GaranOrderSnapshotRendererIn
 
     public function getVersion(): string
     {
-        return self::VERSION;
+        return $this->renderer->getVersion();
     }
 
     /**

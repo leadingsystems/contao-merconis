@@ -37,8 +37,16 @@ services:
     arguments:
       $projectDir: '%kernel.project_dir%/vendor/leadingsystems/contao-merconis'
 
-  LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer: ~
-  LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer: ~
+  merconis.legal_guarantee.garan_label_renderer.v1_0:
+    class: LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer
+    arguments:
+      $version: 'v1.0'
+    tags:
+      - { name: 'merconis.legal_guarantee.garan_label_renderer' }
+  merconis.legal_guarantee.garan_pdf_template_renderer.v1_0:
+    class: LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer
+    arguments:
+      $version: 'v1.0'
   LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\MpdfGaranPdfAttachmentWriter:
     arguments:
       $projectDir: '%kernel.project_dir%'
@@ -46,7 +54,10 @@ services:
     alias: LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\MpdfGaranPdfAttachmentWriter
   LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotBuilder:
     public: true
-  LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranV1OrderSnapshotRenderer:
+  merconis.legal_guarantee.garan_order_snapshot_renderer.v1_0:
+    class: LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranV1OrderSnapshotRenderer
+    arguments:
+      $renderer: '@merconis.legal_guarantee.garan_pdf_template_renderer.v1_0'
     tags:
       - { name: 'merconis.legal_guarantee.garan_order_snapshot_renderer' }
   LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotRenderer:
@@ -61,6 +72,8 @@ services:
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBuilder: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider:
+    arguments:
+      $garanLabelRenderers: !tagged_iterator merconis.legal_guarantee.garan_label_renderer
     public: true
   LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\EnableGllSettingsMigrationManager:
     public: true

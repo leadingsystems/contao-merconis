@@ -7,6 +7,7 @@ namespace LeadingSystems\MerconisBundle\Tests\Unit;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBuilder;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\GaranLabelRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
@@ -135,18 +136,76 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         );
     }
 
-    private function createProvider(): LegalGuaranteeMarkupProvider
+    public function testRenderProductGaranLabelUsesRendererMatchingCurrentVersion(): void
+    {
+        $product = $this->createProduct([
+            'enableGaran' => '1',
+            'guaranteeBrand' => 'ACME',
+            'guaranteeModelIdentifier' => 'MX-42',
+            'guaranteeDurationYears' => '2.5',
+        ]);
+
+        $markup = $this->createProvider(
+            dirname(__DIR__, 2),
+            [
+                new class implements GaranLabelRendererInterface {
+                    public function getVersion(): string
+                    {
+                        return 'v1.1';
+                    }
+
+                    public function render(
+                        string $brand,
+                        string $modelIdentifier,
+                        string $durationText,
+                        string $decimalSeparator
+                    ): string {
+                        return '<svg xmlns="http://www.w3.org/2000/svg"><text>wrong-version</text></svg>';
+                    }
+                },
+                new class implements GaranLabelRendererInterface {
+                    public function getVersion(): string
+                    {
+                        return OfficialGuaranteeAssetLocator::GARAN_VERSION;
+                    }
+
+                    public function render(
+                        string $brand,
+                        string $modelIdentifier,
+                        string $durationText,
+                        string $decimalSeparator
+                    ): string {
+                        return sprintf(
+                            '<svg xmlns="http://www.w3.org/2000/svg"><text>%s|%s|%s|%s</text></svg>',
+                            $brand,
+                            $modelIdentifier,
+                            $durationText,
+                            $decimalSeparator
+                        );
+                    }
+                },
+            ]
+        )->renderProductGaranLabel($product);
+
+        self::assertStringContainsString('ACME|MX-42|2.5|,', $markup);
+        self::assertStringNotContainsString('wrong-version', $markup);
+    }
+
+    /**
+     * @param iterable<GaranLabelRendererInterface>|null $garanLabelRenderers
+     */
+    private function createProvider(?string $projectDir = null, ?iterable $garanLabelRenderers = null): LegalGuaranteeMarkupProvider
     {
         $assetLocator = new OfficialGuaranteeAssetLocator(
-            dirname(__DIR__, 2),
+            $projectDir ?? dirname(__DIR__, 2),
             new OfficialGuaranteeLanguageResolver(),
         );
 
         return new LegalGuaranteeMarkupProvider(
             $assetLocator,
-            new GaranLabelRenderer($assetLocator),
             new ProductGuaranteeDisplayResolver(),
             new LegalGuaranteeMarkupBuilder(),
+            $garanLabelRenderers ?? [new GaranLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],
         );
     }
 

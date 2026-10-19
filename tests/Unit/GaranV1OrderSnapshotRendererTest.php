@@ -12,13 +12,13 @@ use PHPUnit\Framework\TestCase;
 
 final class GaranV1OrderSnapshotRendererTest extends TestCase
 {
-    public function testGetVersionReturnsFixedV10(): void
+    public function testGetVersionReturnsRegisteredVersion(): void
     {
         $renderer = new GaranV1OrderSnapshotRenderer(
-            new GaranPdfTemplateRenderer($this->createAssetLocator())
+            new GaranPdfTemplateRenderer($this->createAssetLocator(), 'v1.1')
         );
 
-        self::assertSame('v1.0', $renderer->getVersion());
+        self::assertSame('v1.1', $renderer->getVersion());
     }
 
     private function createAssetLocator(): OfficialGuaranteeAssetLocator

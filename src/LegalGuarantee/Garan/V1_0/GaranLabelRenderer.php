@@ -7,13 +7,13 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\GaranLabelRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GuaranteeDurationFormatter;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use RuntimeException;
 
-final class GaranLabelRenderer
+final class GaranLabelRenderer implements GaranLabelRendererInterface
 {
-    private const VERSION = 'v1.0';
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     private const BRAND_NODE_XPATH = '//svg:text[@transform="translate(6.32 74.52)"]';
     private const MODEL_NODE_XPATH = '//svg:text[@transform="translate(196.75 74.52)"]';
@@ -21,12 +21,18 @@ final class GaranLabelRenderer
 
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
+        private readonly string $version,
     ) {
+    }
+
+    public function getVersion(): string
+    {
+        return $this->version;
     }
 
     public function render(string $brand, string $modelIdentifier, string $durationText, string $decimalSeparator): string
     {
-        $templatePath = $this->assetLocator->getGaranColourTemplatePath(self::VERSION);
+        $templatePath = $this->assetLocator->getGaranColourTemplatePath($this->version);
         $templateContents = file_get_contents($templatePath);
 
         if (false === $templateContents) {

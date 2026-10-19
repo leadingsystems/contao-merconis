@@ -5,21 +5,33 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 
 use Contao\System;
-use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\GaranLabelRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GuaranteeDurationFormatter;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_product;
 use Merconis\Core\ls_shop_variant;
+use RuntimeException;
 
 final class LegalGuaranteeMarkupProvider
 {
+    /**
+     * @var array<string, GaranLabelRendererInterface>
+     */
+    private array $garanLabelRenderersByVersion = [];
+
+    /**
+     * @param iterable<GaranLabelRendererInterface> $garanLabelRenderers
+     */
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
-        private readonly GaranLabelRenderer $garanLabelRenderer,
         private readonly ProductGuaranteeDisplayResolver $displayResolver,
         private readonly LegalGuaranteeMarkupBuilder $markupBuilder,
+        iterable $garanLabelRenderers,
     ) {
+        foreach ($garanLabelRenderers as $renderer) {
+            $this->garanLabelRenderersByVersion[$renderer->getVersion()] = $renderer;
+        }
     }
 
     public function renderCurrentLanguageGllNotice(): string
@@ -65,7 +77,7 @@ final class LegalGuaranteeMarkupProvider
 
         $garanData = $displayData['garan'];
         $durationDecimalSeparator = $this->resolveDurationDecimalSeparator();
-        $renderedSvg = $this->garanLabelRenderer->render(
+        $renderedSvg = $this->getCurrentGaranLabelRenderer()->render(
             $garanData['brand'],
             $garanData['modelIdentifier'],
             $garanData['durationYears'],
@@ -209,6 +221,20 @@ final class LegalGuaranteeMarkupProvider
         $decimalSeparator = trim((string) ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? ''));
 
         return '' !== $decimalSeparator ? $decimalSeparator : ',';
+    }
+
+    private function getCurrentGaranLabelRenderer(): GaranLabelRendererInterface
+    {
+        $renderer = $this->garanLabelRenderersByVersion[OfficialGuaranteeAssetLocator::GARAN_VERSION] ?? null;
+
+        if (null === $renderer) {
+            throw new RuntimeException(sprintf(
+                'No GARAN label renderer registered for version "%s".',
+                OfficialGuaranteeAssetLocator::GARAN_VERSION
+            ));
+        }
+
+        return $renderer;
     }
 
     private function ensureStylesheetRegistered(): void

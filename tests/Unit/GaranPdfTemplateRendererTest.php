@@ -14,7 +14,7 @@ final class GaranPdfTemplateRendererTest extends TestCase
     public function testRenderInjectsSnapshotValuesIntoPreparedPdfTemplate(): void
     {
         $assetLocator = $this->createAssetLocator();
-        $renderer = new GaranPdfTemplateRenderer($assetLocator);
+        $renderer = new GaranPdfTemplateRenderer($assetLocator, 'v1.0');
         $templateContents = (string) file_get_contents(
             $assetLocator->getGaranPdfTemplatePath('v1.0')
         );
@@ -33,11 +33,49 @@ final class GaranPdfTemplateRendererTest extends TestCase
         self::assertStringNotContainsString('Model identifier', $renderedSvg);
     }
 
+    public function testRenderUsesTemplateDirectoryOfRegisteredVersion(): void
+    {
+        $projectDir = $this->createTempProjectDirWithPdfTemplateOverride(
+            'v1.1',
+            '<svg ',
+            '<svg data-version="v1.1" '
+        );
+        $renderer = new GaranPdfTemplateRenderer(
+            new OfficialGuaranteeAssetLocator($projectDir, new OfficialGuaranteeLanguageResolver()),
+            'v1.1'
+        );
+
+        $renderedSvg = $renderer->render('Merconis', 'MX-42', '30.0', ',');
+
+        self::assertStringContainsString('data-version="v1.1"', $renderedSvg);
+    }
+
     private function createAssetLocator(): OfficialGuaranteeAssetLocator
     {
         return new OfficialGuaranteeAssetLocator(
             dirname(__DIR__, 2),
             new OfficialGuaranteeLanguageResolver(),
         );
+    }
+
+    private function createTempProjectDirWithPdfTemplateOverride(
+        string $version,
+        string $search,
+        string $replace
+    ): string {
+        $projectDir = sys_get_temp_dir() . '/merconis-garan-pdf-template-' . uniqid('', true);
+        $targetDirectory = $projectDir . '/src/Resources/public/legal-guarantee/garan/' . $version;
+
+        mkdir($targetDirectory, 0777, true);
+
+        $templateContents = (string) file_get_contents(
+            dirname(__DIR__, 2) . '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-colour-pdf.svg'
+        );
+        file_put_contents(
+            $targetDirectory . '/garan-label-colour-pdf.svg',
+            str_replace($search, $replace, $templateContents)
+        );
+
+        return $projectDir;
     }
 }

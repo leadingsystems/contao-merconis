@@ -16,7 +16,7 @@ final class GaranLabelRendererTest extends TestCase
 {
     public function testRenderReplacesOnlyTheThreeEditableTextFields(): void
     {
-        $renderer = new GaranLabelRenderer($this->createAssetLocator());
+        $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
 
         $renderedSvg = $renderer->render(
             'ACME & Co <Premium>',
@@ -72,12 +72,50 @@ final class GaranLabelRendererTest extends TestCase
         self::assertSame(3, $templateXpath->query('//svg:text')?->length);
     }
 
+    public function testRenderUsesTemplateDirectoryOfRegisteredVersion(): void
+    {
+        $projectDir = $this->createTempProjectDirWithGaranTemplateOverride(
+            'v1.1',
+            'viewBox="0 0 269.29 283.46"',
+            'viewBox="9 9 9 9"'
+        );
+        $renderer = new GaranLabelRenderer(
+            new OfficialGuaranteeAssetLocator($projectDir, new OfficialGuaranteeLanguageResolver()),
+            'v1.1'
+        );
+
+        $renderedSvg = $renderer->render('ACME', 'MX-42', '2.5', ',');
+
+        self::assertStringContainsString('viewBox="9 9 9 9"', $renderedSvg);
+    }
+
     private function createAssetLocator(): OfficialGuaranteeAssetLocator
     {
         return new OfficialGuaranteeAssetLocator(
             dirname(__DIR__, 2),
             new OfficialGuaranteeLanguageResolver(),
         );
+    }
+
+    private function createTempProjectDirWithGaranTemplateOverride(
+        string $version,
+        string $search,
+        string $replace
+    ): string {
+        $projectDir = sys_get_temp_dir() . '/merconis-garan-label-' . uniqid('', true);
+        $targetDirectory = $projectDir . '/src/Resources/public/legal-guarantee/garan/' . $version;
+
+        mkdir($targetDirectory, 0777, true);
+
+        $templateContents = (string) file_get_contents(
+            dirname(__DIR__, 2) . '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-colour.svg'
+        );
+        file_put_contents(
+            $targetDirectory . '/garan-label-colour.svg',
+            str_replace($search, $replace, $templateContents)
+        );
+
+        return $projectDir;
     }
 
     private function getTextContent(DOMXPath $xpath, string $query): string

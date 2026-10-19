@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Integration;
 
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
@@ -122,20 +123,47 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
         );
     }
 
-    public function testCurrentGaranVersionHasRegisteredSnapshotRenderer(): void
+    public function testCurrentGaranVersionHasRegisteredLabelAndSnapshotRenderers(): void
     {
         $servicesContents = (string) file_get_contents(self::SERVICES_PATH);
+        $registeredLabelRenderer = new GaranLabelRenderer(
+            $this->createAssetLocator(),
+            OfficialGuaranteeAssetLocator::GARAN_VERSION
+        );
         $registeredRenderer = new GaranV1OrderSnapshotRenderer(
-            new GaranPdfTemplateRenderer($this->createAssetLocator())
+            new GaranPdfTemplateRenderer(
+                $this->createAssetLocator(),
+                OfficialGuaranteeAssetLocator::GARAN_VERSION
+            )
         );
 
         self::assertStringContainsString(
-            "LeadingSystems\\MerconisBundle\\LegalGuarantee\\Order\\GaranV1OrderSnapshotRenderer:\n    tags:",
+            "merconis.legal_guarantee.garan_label_renderer.v1_0:\n    class: LeadingSystems\\MerconisBundle\\LegalGuarantee\\Garan\\V1_0\\GaranLabelRenderer",
+            $servicesContents
+        );
+        self::assertStringContainsString(
+            "name: 'merconis.legal_guarantee.garan_label_renderer'",
+            $servicesContents
+        );
+        self::assertStringContainsString(
+            "merconis.legal_guarantee.garan_pdf_template_renderer.v1_0:\n    class: LeadingSystems\\MerconisBundle\\LegalGuarantee\\Garan\\V1_0\\GaranPdfTemplateRenderer",
+            $servicesContents
+        );
+        self::assertStringContainsString(
+            "merconis.legal_guarantee.garan_order_snapshot_renderer.v1_0:\n    class: LeadingSystems\\MerconisBundle\\LegalGuarantee\\Order\\GaranV1OrderSnapshotRenderer",
             $servicesContents
         );
         self::assertStringContainsString(
             "name: 'merconis.legal_guarantee.garan_order_snapshot_renderer'",
             $servicesContents
+        );
+        self::assertStringContainsString(
+            "$version: 'v1.0'",
+            $servicesContents
+        );
+        self::assertSame(
+            OfficialGuaranteeAssetLocator::GARAN_VERSION,
+            $registeredLabelRenderer->getVersion()
         );
         self::assertSame(
             OfficialGuaranteeAssetLocator::GARAN_VERSION,

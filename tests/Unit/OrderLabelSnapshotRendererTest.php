@@ -124,7 +124,7 @@ final class OrderLabelSnapshotRendererTest extends TestCase
             $assetLocator,
             [
                 new GaranV1OrderSnapshotRenderer(
-                    new GaranPdfTemplateRenderer($assetLocator)
+                    new GaranPdfTemplateRenderer($assetLocator, 'v1.0')
                 ),
                 new class implements GaranOrderSnapshotRendererInterface {
                     public function getVersion(): string
@@ -155,11 +155,68 @@ final class OrderLabelSnapshotRendererTest extends TestCase
         self::assertStringNotContainsString('fake-v1.1', $renderedLabel);
     }
 
+    public function testRenderGaranLabelUsesStoredVersionDirectoryForSecondRegisteredRenderer(): void
+    {
+        $projectDir = $this->createTempProjectDirWithSecondGaranPdfVersion();
+        $assetLocator = new OfficialGuaranteeAssetLocator(
+            $projectDir,
+            new OfficialGuaranteeLanguageResolver(),
+        );
+        $renderer = new OrderLabelSnapshotRenderer(
+            $assetLocator,
+            [
+                new GaranV1OrderSnapshotRenderer(
+                    new GaranPdfTemplateRenderer($assetLocator, 'v1.0')
+                ),
+                new GaranV1OrderSnapshotRenderer(
+                    new GaranPdfTemplateRenderer($assetLocator, 'v1.1')
+                ),
+            ]
+        );
+
+        $renderedV10 = $renderer->renderGaranLabel([
+            'garanVersion' => 'v1.0',
+            'garanBrand' => 'Brand',
+            'garanModelIdentifier' => 'Model',
+            'garanDurationYears' => '2.5',
+        ]);
+        $renderedV11 = $renderer->renderGaranLabel([
+            'garanVersion' => 'v1.1',
+            'garanBrand' => 'Brand',
+            'garanModelIdentifier' => 'Model',
+            'garanDurationYears' => '2.5',
+        ]);
+
+        self::assertStringNotContainsString('data-version="v1.1"', $renderedV10);
+        self::assertStringContainsString('data-version="v1.1"', $renderedV11);
+    }
+
     private function createAssetLocator(): OfficialGuaranteeAssetLocator
     {
         return new OfficialGuaranteeAssetLocator(
             dirname(__DIR__, 2),
             new OfficialGuaranteeLanguageResolver(),
         );
+    }
+
+    private function createTempProjectDirWithSecondGaranPdfVersion(): string
+    {
+        $projectDir = sys_get_temp_dir() . '/merconis-order-label-' . uniqid('', true);
+        $baseDirectory = $projectDir . '/src/Resources/public/legal-guarantee/garan/';
+
+        mkdir($baseDirectory . 'v1.0', 0777, true);
+        mkdir($baseDirectory . 'v1.1', 0777, true);
+
+        $v10Contents = (string) file_get_contents(
+            dirname(__DIR__, 2) . '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-colour-pdf.svg'
+        );
+
+        file_put_contents($baseDirectory . 'v1.0/garan-label-colour-pdf.svg', $v10Contents);
+        file_put_contents(
+            $baseDirectory . 'v1.1/garan-label-colour-pdf.svg',
+            str_replace('<svg ', '<svg data-version="v1.1" ', $v10Contents)
+        );
+
+        return $projectDir;
     }
 }
