@@ -13,6 +13,7 @@ use RuntimeException;
 
 final class GaranPdfTemplateRenderer
 {
+    private const VERSION = 'v1.0';
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
     public function __construct(
@@ -22,7 +23,7 @@ final class GaranPdfTemplateRenderer
 
     public function render(string $brand, string $modelIdentifier, string $durationText, string $decimalSeparator): string
     {
-        $templatePath = $this->assetLocator->getGaranPdfTemplatePath();
+        $templatePath = $this->assetLocator->getGaranPdfTemplatePath(self::VERSION);
         $templateContents = file_get_contents($templatePath);
 
         if (false === $templateContents) {

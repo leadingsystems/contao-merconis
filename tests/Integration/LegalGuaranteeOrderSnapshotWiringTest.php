@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Integration;
 
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer;
+use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
+use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranV1OrderSnapshotRenderer;
 use PHPUnit\Framework\TestCase;
 
 final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
@@ -115,6 +119,35 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
         self::assertStringContainsString(
             'merconis.legal_guarantee.garan_order_snapshot_renderer',
             $servicesContents
+        );
+    }
+
+    public function testCurrentGaranVersionHasRegisteredSnapshotRenderer(): void
+    {
+        $servicesContents = (string) file_get_contents(self::SERVICES_PATH);
+        $registeredRenderer = new GaranV1OrderSnapshotRenderer(
+            new GaranPdfTemplateRenderer($this->createAssetLocator())
+        );
+
+        self::assertStringContainsString(
+            "LeadingSystems\\MerconisBundle\\LegalGuarantee\\Order\\GaranV1OrderSnapshotRenderer:\n    tags:",
+            $servicesContents
+        );
+        self::assertStringContainsString(
+            "name: 'merconis.legal_guarantee.garan_order_snapshot_renderer'",
+            $servicesContents
+        );
+        self::assertSame(
+            OfficialGuaranteeAssetLocator::GARAN_VERSION,
+            $registeredRenderer->getVersion()
+        );
+    }
+
+    private function createAssetLocator(): OfficialGuaranteeAssetLocator
+    {
+        return new OfficialGuaranteeAssetLocator(
+            dirname(__DIR__, 2),
+            new OfficialGuaranteeLanguageResolver(),
         );
     }
 }

@@ -53,7 +53,7 @@ final class GaranLabelRendererTest extends TestCase
         self::assertStringNotContainsString('garan-label-nested', $renderedSvg);
 
         $templateContents = (string) file_get_contents(
-            $this->createAssetLocator()->getGaranColourTemplatePath()
+            $this->createAssetLocator()->getGaranColourTemplatePath('v1.0')
         );
         $templateDocument = new DOMDocument('1.0', 'UTF-8');
         $templateDocument->loadXML($templateContents);

@@ -13,15 +13,16 @@ final class GaranPdfTemplateRendererTest extends TestCase
 {
     public function testRenderInjectsSnapshotValuesIntoPreparedPdfTemplate(): void
     {
-        $renderer = new GaranPdfTemplateRenderer(
-            new OfficialGuaranteeAssetLocator(
-                dirname(__DIR__, 2),
-                new OfficialGuaranteeLanguageResolver(),
-            )
+        $assetLocator = $this->createAssetLocator();
+        $renderer = new GaranPdfTemplateRenderer($assetLocator);
+        $templateContents = (string) file_get_contents(
+            $assetLocator->getGaranPdfTemplatePath('v1.0')
         );
 
         $renderedSvg = $renderer->render('Merconis', 'MX-42', '30.0', ',');
 
+        self::assertStringContainsString('data-field="brand"', $templateContents);
+        self::assertStringContainsString('data-field="model"', $templateContents);
         self::assertStringContainsString('data-field="brand"', $renderedSvg);
         self::assertStringContainsString('data-field="model"', $renderedSvg);
         self::assertStringContainsString('data-field="duration"', $renderedSvg);
@@ -30,5 +31,13 @@ final class GaranPdfTemplateRendererTest extends TestCase
         self::assertStringContainsString('>30<', $renderedSvg);
         self::assertStringNotContainsString('Brand/Trademark', $renderedSvg);
         self::assertStringNotContainsString('Model identifier', $renderedSvg);
+    }
+
+    private function createAssetLocator(): OfficialGuaranteeAssetLocator
+    {
+        return new OfficialGuaranteeAssetLocator(
+            dirname(__DIR__, 2),
+            new OfficialGuaranteeLanguageResolver(),
+        );
     }
 }

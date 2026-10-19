@@ -13,6 +13,7 @@ use RuntimeException;
 
 final class GaranLabelRenderer
 {
+    private const VERSION = 'v1.0';
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     private const BRAND_NODE_XPATH = '//svg:text[@transform="translate(6.32 74.52)"]';
     private const MODEL_NODE_XPATH = '//svg:text[@transform="translate(196.75 74.52)"]';
@@ -25,7 +26,7 @@ final class GaranLabelRenderer
 
     public function render(string $brand, string $modelIdentifier, string $durationText, string $decimalSeparator): string
     {
-        $templatePath = $this->assetLocator->getGaranColourTemplatePath();
+        $templatePath = $this->assetLocator->getGaranColourTemplatePath(self::VERSION);
         $templateContents = file_get_contents($templatePath);
 
         if (false === $templateContents) {

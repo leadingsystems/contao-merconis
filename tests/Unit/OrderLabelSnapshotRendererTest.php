@@ -126,12 +126,23 @@ final class OrderLabelSnapshotRendererTest extends TestCase
                 new GaranV1OrderSnapshotRenderer(
                     new GaranPdfTemplateRenderer($assetLocator)
                 ),
+                new class implements GaranOrderSnapshotRendererInterface {
+                    public function getVersion(): string
+                    {
+                        return 'v1.1';
+                    }
+
+                    public function render(array $itemSnapshot): string
+                    {
+                        return 'fake-v1.1:' . $itemSnapshot['garanBrand'];
+                    }
+                },
             ]
         );
 
         $renderedLabel = $renderer->renderGaranLabel(
             [
-                'garanVersion' => OfficialGuaranteeAssetLocator::GARAN_VERSION,
+                'garanVersion' => 'v1.0',
                 'garanBrand' => 'Brand',
                 'garanModelIdentifier' => 'Model',
                 'garanDurationYears' => '2.5',
@@ -141,6 +152,7 @@ final class OrderLabelSnapshotRendererTest extends TestCase
 
         self::assertStringContainsString('>2.5<', $renderedLabel);
         self::assertStringNotContainsString('>2,5<', $renderedLabel);
+        self::assertStringNotContainsString('fake-v1.1', $renderedLabel);
     }
 
     private function createAssetLocator(): OfficialGuaranteeAssetLocator

@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Order;
 
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer;
-use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 
 final class GaranV1OrderSnapshotRenderer implements GaranOrderSnapshotRendererInterface
 {
+    private const VERSION = 'v1.0';
+
     public function __construct(
         private readonly GaranPdfTemplateRenderer $renderer,
     ) {
@@ -16,7 +17,7 @@ final class GaranV1OrderSnapshotRenderer implements GaranOrderSnapshotRendererIn
 
     public function getVersion(): string
     {
-        return OfficialGuaranteeAssetLocator::GARAN_VERSION;
+        return self::VERSION;
     }
 
     /**
