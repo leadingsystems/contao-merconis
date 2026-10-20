@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 final class EInvoicingDcaHookTest extends TestCase
 {
     private const CONFIG_FILE = __DIR__ . '/../../src/Resources/contao/config/config.php';
+    private const LANGUAGE_FILE_DE = __DIR__ . '/../../src/Resources/contao/languages/de/einvoicing.php';
+    private const LANGUAGE_FILE_EN = __DIR__ . '/../../src/Resources/contao/languages/en/einvoicing.php';
 
     private EInvoicingDcaHook $hook;
 
@@ -21,12 +23,14 @@ final class EInvoicingDcaHookTest extends TestCase
         unset(
             $GLOBALS['TL_DCA']['tl_lsShopSettings'],
             $GLOBALS['TL_DCA']['tl_member_group'],
+            $GLOBALS['TL_DCA']['tl_ls_shop_orders'],
             $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'],
             $GLOBALS['TL_DCA']['tl_ls_shop_product'],
             $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'],
             $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'],
             $GLOBALS['TL_LANG']['tl_lsShopSettings'],
             $GLOBALS['TL_LANG']['tl_member_group'],
+            $GLOBALS['TL_LANG']['tl_ls_shop_orders'],
             $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods'],
             $GLOBALS['TL_LANG']['tl_ls_shop_product'],
             $GLOBALS['TL_LANG']['tl_ls_shop_steuersaetze']
@@ -69,20 +73,12 @@ final class EInvoicingDcaHookTest extends TestCase
         self::assertTrue($GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']['ls_shop_euCountrycodes']['eval']['mandatory']);
 
         $easField = $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']['ls_shop_einvoicingSellerElectronicAddressScheme'];
-        self::assertSame('select', $easField['inputType']);
-        self::assertCount(102, $easField['options']);
-        self::assertContains('0204', $easField['options']);
-        self::assertSame(
-            '0204 - Leitweg-ID',
-            $easField['reference']['0204']
-        );
-        self::assertSame(
-            $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_einvoicingSellerElectronicAddressSchemeRef'],
-            $easField['reference']
-        );
-        self::assertTrue($easField['eval']['chosen']);
-        self::assertTrue($easField['eval']['includeBlankOption']);
+        self::assertSame('text', $easField['inputType']);
         self::assertTrue($easField['eval']['mandatory']);
+        self::assertSame(16, $easField['eval']['maxlength']);
+        self::assertArrayNotHasKey('options', $easField);
+        self::assertArrayNotHasKey('reference', $easField);
+        self::assertArrayHasKey('save_callback', $easField);
 
         $palette = $GLOBALS['TL_DCA']['tl_lsShopSettings']['palettes']['default'];
         self::assertStringContainsString('{ls_contao_merconis_einvoicing_legend}', $palette);
@@ -119,6 +115,36 @@ final class EInvoicingDcaHookTest extends TestCase
         self::assertStringContainsString(
             'lsShopEinvoicingPaymentTermsDays,lsShopEinvoicingPaymentTermsNote',
             $GLOBALS['TL_DCA']['tl_member_group']['palettes']['default']
+        );
+    }
+
+    public function testOrdersDcaAddsOptionalDeliveryDateOverrideField(): void
+    {
+        $GLOBALS['TL_LANGUAGE'] = 'de';
+        $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = [
+            'palettes' => [
+                'default' => '{paymentInfo_legend},paymentMethod_moduleReturnData;{shippingTracking_legend},shippingTrackingNr;',
+            ],
+            'fields' => [],
+        ];
+
+        $this->hook->onLoadDataContainer('tl_ls_shop_orders');
+
+        $field = $GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['einvoicingDeliveryDate'];
+
+        self::assertSame('text', $field['inputType']);
+        self::assertSame("int(10) unsigned NOT NULL default '0'", $field['sql']);
+        self::assertSame('date', $field['eval']['rgxp']);
+        self::assertTrue($field['eval']['datepicker']);
+        self::assertSame('w50 wizard', $field['eval']['tl_class']);
+        self::assertSame('Lieferdatum (BT-72)', $field['label'][0]);
+        self::assertSame(
+            'Optionales Händler-Override für das tatsächliche Lieferdatum. Leer bedeutet: Rechnungsdatum verwenden.',
+            $field['label'][1]
+        );
+        self::assertStringContainsString(
+            '{ls_contao_merconis_einvoicing_legend},einvoicingDeliveryDate',
+            $GLOBALS['TL_DCA']['tl_ls_shop_orders']['palettes']['default']
         );
     }
 
@@ -274,5 +300,30 @@ final class EInvoicingDcaHookTest extends TestCase
         self::assertStringContainsString("'loadDataContainer'", $configContents);
         self::assertStringContainsString(EInvoicingDcaHook::class, $configContents);
         self::assertStringContainsString("'onLoadDataContainer'", $configContents);
+    }
+
+    public function testReferenceLanguageFilesDeclareNumericKeysAsStrings(): void
+    {
+        foreach ([self::LANGUAGE_FILE_DE, self::LANGUAGE_FILE_EN] as $languageFile) {
+            $contents = (string) file_get_contents($languageFile);
+
+            foreach ([
+                'ls_shop_einvoicingSellerElectronicAddressSchemeRef',
+                'einvoicingPaymentMeansCodeRef',
+                'einvoicingUnitCodeRef',
+            ] as $arrayKey) {
+                self::assertMatchesRegularExpression(
+                    "/'" . preg_quote($arrayKey, '/') . "'\\s*=>\\s*array\\s*\\((.*?)\\n\\s*\\),/s",
+                    $contents
+                );
+                preg_match(
+                    "/'" . preg_quote($arrayKey, '/') . "'\\s*=>\\s*array\\s*\\((.*?)\\n\\s*\\),/s",
+                    $contents,
+                    $matches
+                );
+                self::assertArrayHasKey(1, $matches);
+                self::assertDoesNotMatchRegularExpression('/^\\s+\\d+\\s=>/m', $matches[1]);
+            }
+        }
     }
 }

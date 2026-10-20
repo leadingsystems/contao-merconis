@@ -20,6 +20,7 @@ final class EInvoicingDcaHook
 
     private const SHOP_SETTINGS_TABLE = 'tl_lsShopSettings';
     private const MEMBER_GROUP_TABLE = 'tl_member_group';
+    private const ORDERS_TABLE = 'tl_ls_shop_orders';
     private const PAYMENT_METHODS_TABLE = 'tl_ls_shop_payment_methods';
     private const PRODUCT_TABLE = 'tl_ls_shop_product';
     private const TAX_RATES_TABLE = 'tl_ls_shop_steuersaetze';
@@ -41,6 +42,10 @@ final class EInvoicingDcaHook
 
             case self::MEMBER_GROUP_TABLE:
                 $this->extendMemberGroupDca();
+                return;
+
+            case self::ORDERS_TABLE:
+                $this->extendOrdersDca();
                 return;
 
             case self::PAYMENT_METHODS_TABLE:
@@ -141,10 +146,8 @@ final class EInvoicingDcaHook
         $GLOBALS['TL_DCA'][self::SHOP_SETTINGS_TABLE]['fields']['ls_shop_einvoicingSellerElectronicAddressScheme'] = [
             'exclude' => true,
             'label' => $this->fieldLabel(self::SHOP_SETTINGS_TABLE, 'ls_shop_einvoicingSellerElectronicAddressScheme'),
-            'inputType' => 'select',
-            'options' => EInvoicingCodeLists::getEasCodeOptions(),
-            'reference' => &$GLOBALS['TL_LANG'][self::SHOP_SETTINGS_TABLE]['ls_shop_einvoicingSellerElectronicAddressSchemeRef'],
-            'eval' => ['chosen' => true, 'includeBlankOption' => true, 'mandatory' => true, 'tl_class' => 'w50'],
+            'inputType' => 'text',
+            'eval' => ['mandatory' => true, 'maxlength' => 16, 'tl_class' => 'w50'],
             'save_callback' => [
                 [self::class, 'validateElectronicAddressScheme'],
             ],
@@ -222,6 +225,34 @@ final class EInvoicingDcaHook
                 PaletteManipulator::POSITION_APPEND
             )
             ->applyToPalette('default', self::MEMBER_GROUP_TABLE);
+    }
+
+    private function extendOrdersDca(): void
+    {
+        if (!isset($GLOBALS['TL_DCA'][self::ORDERS_TABLE]['fields']['einvoicingDeliveryDate'])) {
+            $GLOBALS['TL_DCA'][self::ORDERS_TABLE]['fields']['einvoicingDeliveryDate'] = [
+                'exclude' => true,
+                'label' => $this->fieldLabel(self::ORDERS_TABLE, 'einvoicingDeliveryDate'),
+                'inputType' => 'text',
+                'eval' => ['rgxp' => 'date', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
+                'sql' => "int(10) unsigned NOT NULL default '0'",
+            ];
+        }
+
+        $defaultPalette = (string) ($GLOBALS['TL_DCA'][self::ORDERS_TABLE]['palettes']['default'] ?? '');
+
+        if (str_contains($defaultPalette, 'einvoicingDeliveryDate')) {
+            return;
+        }
+
+        PaletteManipulator::create()
+            ->addLegend(self::LEGEND_KEY, 'paymentInfo_legend', PaletteManipulator::POSITION_AFTER)
+            ->addField(
+                'einvoicingDeliveryDate',
+                self::LEGEND_KEY,
+                PaletteManipulator::POSITION_APPEND
+            )
+            ->applyToPalette('default', self::ORDERS_TABLE);
     }
 
     private function extendPaymentMethodsDca(): void
@@ -393,6 +424,7 @@ final class EInvoicingDcaHook
         return [
             self::SHOP_SETTINGS_TABLE,
             self::MEMBER_GROUP_TABLE,
+            self::ORDERS_TABLE,
             self::PAYMENT_METHODS_TABLE,
             self::PRODUCT_TABLE,
             self::TAX_RATES_TABLE,

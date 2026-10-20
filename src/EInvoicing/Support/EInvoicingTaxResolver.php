@@ -15,18 +15,6 @@ final class EInvoicingTaxResolver
     public const VAT_EXEMPTION_STATUS_NOT_EXEMPT_NON_EU = 'not_exempt_non_eu';
 
     /**
-     * Fallback auf die projektweit erwartete EU-Liste, falls die Konfiguration
-     * in Testdaten oder Altbestellungen noch fehlt.
-     *
-     * @var list<string>
-     */
-    private const DEFAULT_EU_COUNTRIES = [
-        'de', 'be', 'bg', 'dk', 'ee', 'fi', 'fr', 'el', 'ie', 'it', 'hr',
-        'lv', 'lt', 'lu', 'mt', 'nl', 'at', 'pl', 'pt', 'ro', 'se', 'sk',
-        'si', 'es', 'cz', 'hu', 'cy', 'gr',
-    ];
-
-    /**
      * @param array<string, mixed> $orderData
      * @param array<string, mixed> $shopSettings
      *
@@ -203,7 +191,7 @@ final class EInvoicingTaxResolver
         if ($configuredCountries === null) {
             self::logEuCountryFallback();
 
-            return self::DEFAULT_EU_COUNTRIES;
+            return EInvoicingCodeLists::DEFAULT_EU_COUNTRIES;
         }
 
         $countries = [];
@@ -217,7 +205,7 @@ final class EInvoicingTaxResolver
         if ($countries === []) {
             self::logEuCountryFallback();
 
-            return self::DEFAULT_EU_COUNTRIES;
+            return EInvoicingCodeLists::DEFAULT_EU_COUNTRIES;
         }
 
         $normalizedCountries = array_values(array_unique($countries));
@@ -272,7 +260,7 @@ final class EInvoicingTaxResolver
     private static function logEuCountryDifferenceIfNeeded(array $configuredCountries): void
     {
         $configuredCountriesSorted = $configuredCountries;
-        $defaultCountriesSorted = self::DEFAULT_EU_COUNTRIES;
+        $defaultCountriesSorted = EInvoicingCodeLists::DEFAULT_EU_COUNTRIES;
 
         sort($configuredCountriesSorted);
         sort($defaultCountriesSorted);
@@ -281,8 +269,8 @@ final class EInvoicingTaxResolver
             return;
         }
 
-        $missingCountries = array_values(array_diff(self::DEFAULT_EU_COUNTRIES, $configuredCountries));
-        $additionalCountries = array_values(array_diff($configuredCountries, self::DEFAULT_EU_COUNTRIES));
+        $missingCountries = array_values(array_diff(EInvoicingCodeLists::DEFAULT_EU_COUNTRIES, $configuredCountries));
+        $additionalCountries = array_values(array_diff($configuredCountries, EInvoicingCodeLists::DEFAULT_EU_COUNTRIES));
 
         self::logToContao(
             sprintf(
@@ -299,7 +287,7 @@ final class EInvoicingTaxResolver
         self::logToContao(
             sprintf(
                 'MERCONIS E-INVOICING: EU country list missing or empty. Falling back to DEFAULT_EU_COUNTRIES (%s). Please check the shop settings.',
-                self::formatCountriesForLog(self::DEFAULT_EU_COUNTRIES)
+                self::formatCountriesForLog(EInvoicingCodeLists::DEFAULT_EU_COUNTRIES)
             )
         );
     }

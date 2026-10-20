@@ -499,23 +499,42 @@ final class SemanticInvoiceBuilder
      */
     private function resolveDeliveryDate(array $orderData, DateTimeImmutable $invoiceDate): DateTimeImmutable
     {
-        $orderDate = $this->optionalString($orderData['orderDate'] ?? null);
+        $deliveryDateOverride = $this->resolveOrderDateValue($orderData['einvoicingDeliveryDate'] ?? null);
 
-        if ($orderDate !== null) {
-            $resolvedOrderDate = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $orderDate);
-
-            if ($resolvedOrderDate instanceof DateTimeImmutable) {
-                return $resolvedOrderDate;
-            }
-        }
-
-        $orderTimestamp = $orderData['orderDateUnixTimestamp'] ?? null;
-
-        if (is_numeric($orderTimestamp)) {
-            return (new DateTimeImmutable())->setTimestamp((int) $orderTimestamp);
+        if ($deliveryDateOverride instanceof DateTimeImmutable) {
+            return $deliveryDateOverride;
         }
 
         return $invoiceDate;
+    }
+
+    private function resolveOrderDateValue(mixed $value): ?DateTimeImmutable
+    {
+        if (is_int($value) || is_float($value) || (is_string($value) && is_numeric($value))) {
+            $timestamp = (int) $value;
+
+            if ($timestamp <= 0) {
+                return null;
+            }
+
+            return (new DateTimeImmutable())->setTimestamp($timestamp);
+        }
+
+        $dateValue = $this->optionalString($value);
+
+        if ($dateValue === null) {
+            return null;
+        }
+
+        foreach (['Y-m-d', 'Y-m-d H:i:s'] as $format) {
+            $resolvedDate = DateTimeImmutable::createFromFormat('!' . $format, $dateValue);
+
+            if ($resolvedDate instanceof DateTimeImmutable) {
+                return $resolvedDate;
+            }
+        }
+
+        return null;
     }
 
     /**

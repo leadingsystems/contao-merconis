@@ -266,6 +266,77 @@ final class SemanticInvoiceBuilderTest extends TestCase
         self::assertSame('Intra-community supply', $invoice->taxSummaries[0]['exemptionReason']);
     }
 
+    public function testBuildUsesMerchantDeliveryDateOverrideForBt72(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        $orderData['einvoicingDeliveryDate'] = (new DateTimeImmutable('2026-10-09'))->getTimestamp();
+
+        $invoice = (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0072',
+            new DateTimeImmutable('2026-10-14')
+        );
+
+        self::assertSame('2026-10-09', $invoice->deliveryDate?->format('Y-m-d'));
+    }
+
+    public function testBuildFallsBackToInvoiceDateWhenMerchantDeliveryDateOverrideIsEmpty(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        $orderData['einvoicingDeliveryDate'] = '';
+
+        $invoice = (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0073',
+            new DateTimeImmutable('2026-10-14')
+        );
+
+        self::assertSame('2026-10-14', $invoice->deliveryDate?->format('Y-m-d'));
+    }
+
+    public function testBuildFallsBackToInvoiceDateWhenMerchantDeliveryDateOverrideIsZeroOrMissing(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        $orderData['einvoicingDeliveryDate'] = 0;
+
+        $invoiceWithZeroOverride = (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0074',
+            new DateTimeImmutable('2026-10-14')
+        );
+
+        $orderData['einvoicingDeliveryDate'] = null;
+
+        $invoiceWithMissingOverride = (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0075',
+            new DateTimeImmutable('2026-10-14')
+        );
+
+        self::assertSame('2026-10-14', $invoiceWithZeroOverride->deliveryDate?->format('Y-m-d'));
+        self::assertSame('2026-10-14', $invoiceWithMissingOverride->deliveryDate?->format('Y-m-d'));
+    }
+
     public function testBuildUsesDocumentChargeTaxCategoryFromCheckoutSnapshot(): void
     {
         [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');

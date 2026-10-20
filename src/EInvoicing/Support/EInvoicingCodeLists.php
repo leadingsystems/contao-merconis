@@ -7,6 +7,17 @@ final class EInvoicingCodeLists
 {
     public const DEFAULT_PAYMENT_MEANS_CODE = '58';
     public const DEFAULT_UNIT_CODE = 'H87';
+    /**
+     * Contao verwendet für Griechenland `el`, normative ISO-Quellen `gr`.
+     * Für robuste Vergleiche werden beide Codes zentral mitgeführt.
+     *
+     * @var list<string>
+     */
+    public const DEFAULT_EU_COUNTRIES = [
+        'de', 'be', 'bg', 'dk', 'ee', 'fi', 'fr', 'el', 'ie', 'it', 'hr',
+        'lv', 'lt', 'lu', 'mt', 'nl', 'at', 'pl', 'pt', 'ro', 'se', 'sk',
+        'si', 'es', 'cz', 'hu', 'cy', 'gr',
+    ];
 
     private const ELECTRONIC_ADDRESS_SCHEMES = [
         '0002' => 'System Information et Repertoire des Entreprise et des Etablissements: SIRENE',

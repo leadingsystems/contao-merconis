@@ -326,6 +326,13 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
             'sql'                     => "varchar(16) NOT NULL default ''"
         ),
+        'einvoicingDeliveryDate' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingDeliveryDate'],
+            'inputType' => 'text',
+            'eval' => array('rgxp' => 'date', 'datepicker' => true, 'tl_class' => 'w50 wizard'),
+            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        ),
         // [E-Invoicing] END
 
         'shippingTrackingNr' => array(
