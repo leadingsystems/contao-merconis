@@ -229,21 +229,17 @@ final class EInvoicingDcaHook
 
     private function extendOrdersDca(): void
     {
-        if (!isset($GLOBALS['TL_DCA'][self::ORDERS_TABLE]['fields']['einvoicingDeliveryDate'])) {
-            $GLOBALS['TL_DCA'][self::ORDERS_TABLE]['fields']['einvoicingDeliveryDate'] = [
-                'exclude' => true,
-                'label' => $this->fieldLabel(self::ORDERS_TABLE, 'einvoicingDeliveryDate'),
-                'inputType' => 'text',
-                'eval' => ['rgxp' => 'date', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
-                'sql' => "int(10) unsigned NOT NULL default '0'",
-            ];
-        }
-
-        $defaultPalette = (string) ($GLOBALS['TL_DCA'][self::ORDERS_TABLE]['palettes']['default'] ?? '');
-
-        if (str_contains($defaultPalette, 'einvoicingDeliveryDate')) {
+        if (isset($GLOBALS['TL_DCA'][self::ORDERS_TABLE]['fields']['einvoicingDeliveryDate'])) {
             return;
         }
+
+        $GLOBALS['TL_DCA'][self::ORDERS_TABLE]['fields']['einvoicingDeliveryDate'] = [
+            'exclude' => true,
+            'label' => $this->fieldLabel(self::ORDERS_TABLE, 'einvoicingDeliveryDate'),
+            'inputType' => 'text',
+            'eval' => ['rgxp' => 'date', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
+            'sql' => "varchar(10) NOT NULL default ''",
+        ];
 
         PaletteManipulator::create()
             ->addLegend(self::LEGEND_KEY, 'paymentInfo_legend', PaletteManipulator::POSITION_AFTER)
