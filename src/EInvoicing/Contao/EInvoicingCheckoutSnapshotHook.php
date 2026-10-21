@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\EInvoicing\Contao;
 
 use Contao\Database;
+use Contao\StringUtil;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingCodeLists;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingSnapshotFields;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingTaxResolver;
+use Merconis\Core\ls_shop_generalHelper;
 
 final class EInvoicingCheckoutSnapshotHook
 {
@@ -22,25 +24,32 @@ final class EInvoicingCheckoutSnapshotHook
             return;
         }
 
+        $persistedOrder = ls_shop_generalHelper::getOrder($orderIdInDb, 'id', true);
+        $snapshotOrder = $order;
+
+        if (is_array($persistedOrder) && $persistedOrder !== []) {
+            $snapshotOrder = $persistedOrder;
+        }
+
         $taxContext = EInvoicingTaxResolver::resolveSnapshotTaxContextFromOrder(
-            $order,
+            $snapshotOrder,
             [
                 'ls_shop_country' => $GLOBALS['TL_CONFIG']['ls_shop_country'] ?? null,
                 'ls_shop_ownVATID' => $GLOBALS['TL_CONFIG']['ls_shop_ownVATID'] ?? null,
                 'ls_shop_euCountrycodes' => $GLOBALS['TL_CONFIG']['ls_shop_euCountrycodes'] ?? null,
             ]
         );
-        $paymentMethodId = (int) ($order['paymentMethod']['id'] ?? 0);
+        $paymentMethodId = (int) ($order['paymentMethod']['id'] ?? $snapshotOrder['paymentMethod_id'] ?? 0);
         $paymentMethod = $this->loadRecordById('tl_ls_shop_payment_methods', $paymentMethodId);
         $meansCode = EInvoicingCodeLists::normalizeCode(
             $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] ?? null
         ) ?? '';
         $paymentTaxCategory = $this->resolveChargeTaxCategory(
-            $order['paymentMethod_amountTaxedWith'] ?? null,
+            $snapshotOrder['paymentMethod_amountTaxedWith'] ?? null,
             $taxContext
         );
         $shippingTaxCategory = $this->resolveChargeTaxCategory(
-            $order['shippingMethod_amountTaxedWith'] ?? null,
+            $snapshotOrder['shippingMethod_amountTaxedWith'] ?? null,
             $taxContext
         );
 
@@ -69,7 +78,7 @@ final class EInvoicingCheckoutSnapshotHook
                 $orderIdInDb
             );
 
-        $this->clearCachedOrder($orderIdInDb, $order['orderIdentificationHash'] ?? null);
+        $this->clearCachedOrder($orderIdInDb, $snapshotOrder['orderIdentificationHash'] ?? $order['orderIdentificationHash'] ?? null);
     }
 
     /**
@@ -221,7 +230,7 @@ final class EInvoicingCheckoutSnapshotHook
      */
     private function resolveChargeTaxCategory(mixed $taxedWithValue, array $taxContext): ?string
     {
-        $taxedWith = is_array($taxedWithValue) ? $taxedWithValue : [];
+        $taxedWith = $this->deserializeTaxedWith($taxedWithValue);
         $taxEntry = $this->firstTaxedAmountEntry($taxedWith);
 
         if ($taxEntry === null) {
@@ -253,5 +262,27 @@ final class EInvoicingCheckoutSnapshotHook
         }
 
         return null;
+    }
+
+    /**
+     * Der `afterCheckout`-Hook liefert die Steueraufschlüsselung noch
+     * als serialisierten DB-Wert. Für echte Checkout-Läufe wird sie
+     * hier auf dieselbe Array-Form normalisiert wie in den Fixtures.
+     *
+     * @return array<int|string, mixed>
+     */
+    private function deserializeTaxedWith(mixed $taxedWithValue): array
+    {
+        if (is_array($taxedWithValue)) {
+            return $taxedWithValue;
+        }
+
+        if (!is_string($taxedWithValue) || trim($taxedWithValue) === '') {
+            return [];
+        }
+
+        $deserializedValue = StringUtil::deserialize($taxedWithValue);
+
+        return is_array($deserializedValue) ? $deserializedValue : [];
     }
 }

@@ -133,7 +133,7 @@ final class EInvoicingDcaHookTest extends TestCase
         $field = $GLOBALS['TL_DCA']['tl_ls_shop_orders']['fields']['einvoicingDeliveryDate'];
 
         self::assertSame('text', $field['inputType']);
-        self::assertSame("int(10) unsigned NOT NULL default '0'", $field['sql']);
+        self::assertSame("varchar(10) NOT NULL default ''", $field['sql']);
         self::assertSame('date', $field['eval']['rgxp']);
         self::assertTrue($field['eval']['datepicker']);
         self::assertSame('w50 wizard', $field['eval']['tl_class']);
