@@ -106,6 +106,53 @@ final class ZugferdXmlGeneratorFixtureTest extends TestCase
         );
     }
 
+    public function testGeneratesSeparateSevenPercentTaxSummaryForMinimumDynamicShippingRate(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S2-EINV-010');
+
+        $invoice = (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0210',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        $xml = (new ZugferdXmlGenerator())->generate($invoice);
+        $document = new DOMDocument();
+        $document->loadXML($xml);
+
+        $xpath = new DOMXPath($document);
+        $xpath->registerNamespace('rsm', 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100');
+        $xpath->registerNamespace('ram', 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100');
+
+        self::assertSame(
+            '7.00',
+            $xpath->evaluate(
+                'string(//ram:SpecifiedTradeAllowanceCharge/ram:CategoryTradeTax/ram:RateApplicablePercent)'
+            )
+        );
+        self::assertSame(
+            '15.90',
+            $xpath->evaluate(
+                'string(//ram:ApplicableHeaderTradeSettlement/ram:ApplicableTradeTax[ram:RateApplicablePercent="7.00"]/ram:BasisAmount)'
+            )
+        );
+        self::assertSame(
+            '10.00',
+            $xpath->evaluate(
+                'string(//ram:ApplicableHeaderTradeSettlement/ram:ApplicableTradeTax[ram:RateApplicablePercent="19.00"]/ram:BasisAmount)'
+            )
+        );
+        self::assertSame(
+            '3.01',
+            $xpath->evaluate('string(//ram:SpecifiedTradeSettlementHeaderMonetarySummation/ram:TaxTotalAmount)')
+        );
+    }
+
     public function testGeneratesDeliveryDateAndExemptionReasonForIntraCommunitySupply(): void
     {
         [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S4-EINV-001');
@@ -190,10 +237,11 @@ final class ZugferdXmlGeneratorFixtureTest extends TestCase
         yield 'fixture-002' => ['S1-EINV-002', 'RE-2026-0002', '132.09', 3, ['19.00']];
         yield 'fixture-003' => ['S1-EINV-003', 'RE-2026-0003', '22.60', 2, ['19.00', '7.00']];
         yield 'fixture-004' => ['S2-EINV-006', 'RE-2026-0206', '18.92', 1, ['19.00']];
-        yield 'fixture-005' => ['S4-EINV-001', 'RE-2026-0401', '10.00', 1, ['0.00']];
-        yield 'fixture-006' => ['S4-EINV-002', 'RE-2026-0402', '11.90', 1, ['19.00']];
-        yield 'fixture-007' => ['S4-EINV-003', 'RE-2026-0403', '10.00', 1, ['0.00']];
-        yield 'fixture-008' => ['S4-EINV-004', 'RE-2026-0404', '10.00', 1, ['0.00']];
-        yield 'fixture-009' => ['S4-EINV-006', 'RE-2026-0406', '10.00', 1, ['0.00']];
+        yield 'fixture-005' => ['S2-EINV-010', 'RE-2026-0210', '28.91', 2, ['19.00', '7.00']];
+        yield 'fixture-006' => ['S4-EINV-001', 'RE-2026-0401', '10.00', 1, ['0.00']];
+        yield 'fixture-007' => ['S4-EINV-002', 'RE-2026-0402', '11.90', 1, ['19.00']];
+        yield 'fixture-008' => ['S4-EINV-003', 'RE-2026-0403', '10.00', 1, ['0.00']];
+        yield 'fixture-009' => ['S4-EINV-004', 'RE-2026-0404', '10.00', 1, ['0.00']];
+        yield 'fixture-010' => ['S4-EINV-006', 'RE-2026-0406', '10.00', 1, ['0.00']];
     }
 }

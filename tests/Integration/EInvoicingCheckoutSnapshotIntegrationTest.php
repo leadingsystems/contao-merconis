@@ -31,15 +31,15 @@ final class EInvoicingCheckoutSnapshotIntegrationTest extends TestCase
     {
         $ordersDcaContents = (string) file_get_contents(self::ORDERS_DCA_FILE);
 
-        self::assertStringContainsString('einvoicingPaymentMeansCode', $ordersDcaContents);
+        self::assertStringContainsString('paymentMethod_einvoicingPaymentMeansCode', $ordersDcaContents);
         self::assertStringContainsString('einvoicingTaxCountry', $ordersDcaContents);
         self::assertStringContainsString('einvoicingVatExemptionStatus', $ordersDcaContents);
-        self::assertStringContainsString('einvoicingShippingTaxCategory', $ordersDcaContents);
-        self::assertStringContainsString('einvoicingPaymentTaxCategory', $ordersDcaContents);
+        self::assertStringContainsString('shippingMethod_einvoicingTaxCategory', $ordersDcaContents);
+        self::assertStringContainsString('paymentMethod_einvoicingTaxCategory', $ordersDcaContents);
         self::assertStringContainsString("varchar(16) NOT NULL default ''", $ordersDcaContents);
         self::assertStringContainsString("varchar(2) NOT NULL default ''", $ordersDcaContents);
         self::assertStringContainsString("varchar(32) NOT NULL default ''", $ordersDcaContents);
         self::assertStringContainsString('paymentMethod_moduleReturnData,', $ordersDcaContents);
-        self::assertStringContainsString('einvoicingPaymentMeansCode;', $ordersDcaContents);
+        self::assertStringContainsString('paymentMethod_einvoicingPaymentMeansCode;', $ordersDcaContents);
     }
 }
