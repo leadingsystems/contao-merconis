@@ -141,6 +141,7 @@ class OrderEInvoicingDocumentGenerator
             'ls_shop_einvoicingSellerElectronicAddressScheme' => $config->get('ls_shop_einvoicingSellerElectronicAddressScheme'),
             'ls_shop_einvoicingSellerIban' => $config->get('ls_shop_einvoicingSellerIban'),
             'ls_shop_einvoicingSellerBic' => $config->get('ls_shop_einvoicingSellerBic'),
+            'ls_shop_einvoicingSellerCreditorId' => $config->get('ls_shop_einvoicingSellerCreditorId'),
         ];
     }
 

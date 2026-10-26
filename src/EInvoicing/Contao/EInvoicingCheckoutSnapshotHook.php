@@ -12,6 +12,8 @@ use Merconis\Core\ls_shop_generalHelper;
 
 final class EInvoicingCheckoutSnapshotHook
 {
+    private const SEPA_DIRECT_DEBIT_CODE = '59';
+
     /**
      * Persistiert den Payment Means Code im Bestell-Snapshot,
      * nachdem der Bestelldatensatz angelegt wurde.
@@ -52,31 +54,45 @@ final class EInvoicingCheckoutSnapshotHook
             $snapshotOrder['shippingMethod_amountTaxedWith'] ?? null,
             $taxContext
         );
+        $memberId = (int) ($snapshotOrder['customerNr'] ?? $order['customerNr'] ?? 0);
+        $memberRecord = $memberId > 0 ? $this->loadRecordById('tl_member', $memberId) : [];
+
+        $updateColumns = [
+            EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_COLUMN => $meansCode,
+            EInvoicingSnapshotFields::ORDER_TAX_COUNTRY_COLUMN => $taxContext['taxCountry'],
+            EInvoicingSnapshotFields::ORDER_VAT_EXEMPTION_STATUS_COLUMN => $taxContext['vatExemptionStatus'],
+            EInvoicingSnapshotFields::ORDER_SHIPPING_TAX_CATEGORY_COLUMN => $shippingTaxCategory ?? '',
+            EInvoicingSnapshotFields::ORDER_PAYMENT_TAX_CATEGORY_COLUMN => $paymentTaxCategory ?? '',
+        ];
+
+        if ($meansCode === self::SEPA_DIRECT_DEBIT_CODE) {
+            $updateColumns[EInvoicingSnapshotFields::ORDER_MANDATE_REFERENCE_COLUMN] = $this->optionalString(
+                $memberRecord[EInvoicingSnapshotFields::MEMBER_MANDATE_REFERENCE_FIELD] ?? null
+            ) ?? '';
+            $updateColumns[EInvoicingSnapshotFields::ORDER_CREDITOR_ID_COLUMN] = $this->optionalString(
+                $GLOBALS['TL_CONFIG'][EInvoicingSnapshotFields::SHOP_SETTINGS_CREDITOR_ID_FIELD] ?? null
+            ) ?? '';
+            $updateColumns[EInvoicingSnapshotFields::ORDER_DEBTOR_IBAN_COLUMN] = $this->optionalString(
+                $memberRecord[EInvoicingSnapshotFields::MEMBER_DEBTOR_IBAN_FIELD] ?? null
+            ) ?? '';
+        }
+        $setFragments = [];
+        $params = [];
+
+        foreach ($updateColumns as $column => $value) {
+            $setFragments[] = sprintf('`%s` = ?', $column);
+            $params[] = $value;
+        }
+
+        $params[] = $orderIdInDb;
 
         Database::getInstance()
             ->prepare(
                 'UPDATE `tl_ls_shop_orders`'
-                . ' SET `'
-                . EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_COLUMN
-                . '` = ?, `'
-                . EInvoicingSnapshotFields::ORDER_TAX_COUNTRY_COLUMN
-                . '` = ?, `'
-                . EInvoicingSnapshotFields::ORDER_VAT_EXEMPTION_STATUS_COLUMN
-                . '` = ?, `'
-                . EInvoicingSnapshotFields::ORDER_SHIPPING_TAX_CATEGORY_COLUMN
-                . '` = ?, `'
-                . EInvoicingSnapshotFields::ORDER_PAYMENT_TAX_CATEGORY_COLUMN
-                . '` = ?'
+                . ' SET ' . implode(', ', $setFragments)
                 . ' WHERE `id` = ?'
             )
-            ->execute(
-                $meansCode,
-                $taxContext['taxCountry'],
-                $taxContext['vatExemptionStatus'],
-                $shippingTaxCategory ?? '',
-                $paymentTaxCategory ?? '',
-                $orderIdInDb
-            );
+            ->execute(...$params);
 
         $this->clearCachedOrder($orderIdInDb, $snapshotOrder['orderIdentificationHash'] ?? $order['orderIdentificationHash'] ?? null);
     }

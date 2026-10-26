@@ -23,7 +23,10 @@ final class ZugferdXmlGenerator
                 $invoice->currencyCode
             )
             ->setDocumentSupplyChainEvent($invoice->deliveryDate)
-            ->setDocumentGeneralPaymentInformation(null, $invoice->invoiceNumber)
+            ->setDocumentGeneralPaymentInformation(
+                $invoice->payment['meansCode'] === '59' ? $invoice->payment['creditorId'] : null,
+                $invoice->invoiceNumber
+            )
             ->setDocumentSeller($invoice->seller['name'])
             ->setDocumentSellerAddress(
                 $invoice->seller['street'],
@@ -80,23 +83,44 @@ final class ZugferdXmlGenerator
             $builder->setDocumentBuyerCommunication('EM', $invoice->buyer['email']);
         }
 
-        $builder->addDocumentPaymentMean(
-            $invoice->payment['meansCode'],
-            null,
-            null,
-            null,
-            null,
-            null,
-            $invoice->payment['iban'],
-            null,
-            null,
-            $invoice->payment['bic']
-        );
+        if ($invoice->payment['meansCode'] === '59') {
+            $builder->addDocumentPaymentMean(
+                $invoice->payment['meansCode'],
+                null,
+                null,
+                null,
+                null,
+                $invoice->payment['debtorIban'],
+                $invoice->payment['iban'],
+                null,
+                null,
+                $invoice->payment['bic']
+            );
 
-        if ($invoice->payment['termsNote'] !== null || $invoice->payment['dueDate'] !== null) {
+        } else {
+            $builder->addDocumentPaymentMean(
+                $invoice->payment['meansCode'],
+                null,
+                null,
+                null,
+                null,
+                null,
+                $invoice->payment['iban'],
+                null,
+                null,
+                $invoice->payment['bic']
+            );
+        }
+
+        if (
+            $invoice->payment['termsNote'] !== null
+            || $invoice->payment['dueDate'] !== null
+            || $invoice->payment['mandateReference'] !== null
+        ) {
             $builder->addDocumentPaymentTerm(
                 $invoice->payment['termsNote'],
-                $invoice->payment['dueDate']
+                $invoice->payment['dueDate'],
+                $invoice->payment['mandateReference']
             );
         }
 

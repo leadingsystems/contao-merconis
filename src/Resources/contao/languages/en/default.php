@@ -900,7 +900,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline'] = 'Additional d
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['fieldNames'] = array(
 	'kontoinhaber' => 'Account holder',
 	'kontonummer' => 'Account number/IBAN',
-	'bankleitzahl' => 'BIN/BIC'
+	'bankleitzahl' => 'BIN/BIC',
+	'iban' => 'IBAN'
 );
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['shippingData']['headline'] = 'Additional details for shipping by';
@@ -1243,6 +1244,12 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_error_rate
 
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_id_heading'] = 'Your withdrawal ID: %s';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_text'] = 'Your withdrawal was submitted successfully (withdrawal ID: %s). A receipt confirmation will be sent to %s. Please also check your spam folder. If you do not receive an email, please contact our customer service.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_heading'] = 'Stored SEPA mandate';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_account_holder_label'] = 'Account holder';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_iban_label'] = 'IBAN';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_reference_label'] = 'Mandate reference';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_change_notice'] = 'If you want to use a different account, please choose another payment method or clarify the change outside the order process.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_value_unavailable'] = 'not set';
 
 /*
  * <- Backend

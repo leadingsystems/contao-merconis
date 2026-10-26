@@ -98,10 +98,12 @@ final class ZugferdDocumentGeneratorFixtureTest extends TestCase
                 'S1-EINV-003: Produkt 2: 7%',
             ],
         ];
-        yield 'fixture-006' => ['S4-EINV-001', 'RE-2026-0401', ['S4-EINV-001: Produkt 1: 19%']];
-        yield 'fixture-007' => ['S4-EINV-002', 'RE-2026-0402', ['S4-EINV-001: Produkt 1: 19%']];
-        yield 'fixture-008' => ['S4-EINV-003', 'RE-2026-0403', ['S4-EINV-001: Produkt 1: 19%']];
-        yield 'fixture-009' => ['S4-EINV-004', 'RE-2026-0404', ['S4-EINV-004: Produkt 1: 0% (Z)']];
-        yield 'fixture-010' => ['S4-EINV-006', 'RE-2026-0406', ['S4-EINV-001: Produkt 1: 19%']];
+        yield 'fixture-006' => ['S3-EINV-001', '2026102677', ['S1-EINV-001: Produkt 1: 19%']];
+        yield 'fixture-007' => ['S3-EINV-002', '2026102678', ['S1-EINV-001: Produkt 1: 19%']];
+        yield 'fixture-008' => ['S4-EINV-001', 'RE-2026-0401', ['S4-EINV-001: Produkt 1: 19%']];
+        yield 'fixture-009' => ['S4-EINV-002', 'RE-2026-0402', ['S4-EINV-001: Produkt 1: 19%']];
+        yield 'fixture-010' => ['S4-EINV-003', 'RE-2026-0403', ['S4-EINV-001: Produkt 1: 19%']];
+        yield 'fixture-011' => ['S4-EINV-004', 'RE-2026-0404', ['S4-EINV-004: Produkt 1: 0% (Z)']];
+        yield 'fixture-012' => ['S4-EINV-006', 'RE-2026-0406', ['S4-EINV-001: Produkt 1: 19%']];
     }
 }

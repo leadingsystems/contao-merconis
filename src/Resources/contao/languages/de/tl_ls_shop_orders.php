@@ -32,6 +32,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingVatExemptionStatus']			= array('USt-Befreiungsstatus');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['shippingMethod_einvoicingTaxCategory']	= array('Steuerkategorie Versand');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['paymentMethod_einvoicingTaxCategory']	= array('Steuerkategorie Zahlungsgebühr');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingMandateReference']			= array('Mandatsreferenz (BT-89)');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingCreditorId']				= array('Gläubiger-ID (BT-90)');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingDebtorIban']				= array('Käufer-IBAN (BT-91)');
 	// [E-Invoicing] END
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_saleId']								= array('PayPal Plus Transaktionscode');

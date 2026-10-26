@@ -307,9 +307,36 @@ final class SemanticInvoiceBuilder
 
         $iban = $this->optionalString($shopSettings['ls_shop_einvoicingSellerIban'] ?? null);
         $bic = $this->optionalString($shopSettings['ls_shop_einvoicingSellerBic'] ?? null);
+        $mandateReference = $this->optionalString(
+            $orderData[EInvoicingSnapshotFields::ORDER_MANDATE_REFERENCE_ORDER_KEY] ?? null
+        );
+        $creditorId = $this->optionalString(
+            $shopSettings[EInvoicingSnapshotFields::SHOP_SETTINGS_CREDITOR_ID_FIELD] ?? null
+        );
+        $debtorIban = $this->optionalString(
+            $orderData[EInvoicingSnapshotFields::ORDER_DEBTOR_IBAN_ORDER_KEY] ?? null
+        );
 
-        if (in_array($meansCode, ['30', '58'], true) && $iban === null) {
-            $violations[] = 'Für Payment Means Code ' . $meansCode . ' ist eine IBAN (BT-84) erforderlich.';
+        if (in_array($meansCode, ['58', '59'], true) && $iban === null) {
+            $violations[] = 'Für Payment Means Code ' . $meansCode . ' ist eine Verkäufer-IBAN (BT-84) erforderlich.';
+        }
+
+        if ($meansCode === '59') {
+            if ($mandateReference === null) {
+                $violations[] = 'Für Payment Means Code 59 ist die Mandatsreferenz (BT-89) erforderlich.';
+            }
+
+            if ($creditorId === null) {
+                $violations[] = 'Für Payment Means Code 59 ist die Gläubiger-ID (BT-90) erforderlich.';
+            }
+
+            if ($debtorIban === null) {
+                $violations[] = 'Für Payment Means Code 59 ist die Käufer-IBAN (BT-91) erforderlich.';
+            }
+        }
+
+        if (in_array($meansCode, ['48', '54', '55'], true)) {
+            $violations[] = 'Payment Means Code ' . $meansCode . ' wird nicht unterstützt, weil die Kartennummer (BT-87) in Merconis nicht verfügbar ist.';
         }
 
         return [
@@ -318,6 +345,9 @@ final class SemanticInvoiceBuilder
             'termsNote' => $termsNote,
             'iban' => $iban,
             'bic' => $bic,
+            'mandateReference' => $mandateReference,
+            'creditorId' => $creditorId,
+            'debtorIban' => $debtorIban,
         ];
     }
 

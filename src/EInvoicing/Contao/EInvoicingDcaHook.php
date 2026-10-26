@@ -19,6 +19,7 @@ final class EInvoicingDcaHook
     private const TRANSLATION_SCOPE = 'ls_contao-merconis';
 
     private const SHOP_SETTINGS_TABLE = 'tl_lsShopSettings';
+    private const MEMBER_TABLE = 'tl_member';
     private const MEMBER_GROUP_TABLE = 'tl_member_group';
     private const ORDERS_TABLE = 'tl_ls_shop_orders';
     private const PAYMENT_METHODS_TABLE = 'tl_ls_shop_payment_methods';
@@ -38,6 +39,10 @@ final class EInvoicingDcaHook
         switch ($table) {
             case self::SHOP_SETTINGS_TABLE:
                 $this->extendShopSettingsDca();
+                return;
+
+            case self::MEMBER_TABLE:
+                $this->extendMemberDca();
                 return;
 
             case self::MEMBER_GROUP_TABLE:
@@ -167,6 +172,13 @@ final class EInvoicingDcaHook
             'eval' => ['maxlength' => 11, 'tl_class' => 'w50'],
         ];
 
+        $GLOBALS['TL_DCA'][self::SHOP_SETTINGS_TABLE]['fields']['ls_shop_einvoicingSellerCreditorId'] = [
+            'exclude' => true,
+            'label' => $this->fieldLabel(self::SHOP_SETTINGS_TABLE, 'ls_shop_einvoicingSellerCreditorId'),
+            'inputType' => 'text',
+            'eval' => ['maxlength' => 35, 'tl_class' => 'w50'],
+        ];
+
         PaletteManipulator::create()
             ->addLegend(self::LEGEND_KEY, 'euSettings_legend', PaletteManipulator::POSITION_BEFORE)
             ->addField(
@@ -180,11 +192,47 @@ final class EInvoicingDcaHook
                     'ls_shop_einvoicingSellerElectronicAddressScheme',
                     'ls_shop_einvoicingSellerIban',
                     'ls_shop_einvoicingSellerBic',
+                    'ls_shop_einvoicingSellerCreditorId',
                 ],
                 self::LEGEND_KEY,
                 PaletteManipulator::POSITION_APPEND
             )
             ->applyToPalette('default', self::SHOP_SETTINGS_TABLE);
+    }
+
+    private function extendMemberDca(): void
+    {
+        if (isset($GLOBALS['TL_DCA'][self::MEMBER_TABLE]['fields']['lsShopEinvoicingMandateReference'])) {
+            return;
+        }
+
+        $GLOBALS['TL_DCA'][self::MEMBER_TABLE]['fields']['lsShopEinvoicingMandateReference'] = [
+            'exclude' => true,
+            'label' => $this->fieldLabel(self::MEMBER_TABLE, 'lsShopEinvoicingMandateReference'),
+            'inputType' => 'text',
+            'eval' => ['maxlength' => 35, 'tl_class' => 'w50'],
+            'sql' => "varchar(35) NOT NULL default ''",
+        ];
+
+        $GLOBALS['TL_DCA'][self::MEMBER_TABLE]['fields']['lsShopEinvoicingDebtorIban'] = [
+            'exclude' => true,
+            'label' => $this->fieldLabel(self::MEMBER_TABLE, 'lsShopEinvoicingDebtorIban'),
+            'inputType' => 'text',
+            'eval' => ['maxlength' => 34, 'tl_class' => 'w50'],
+            'sql' => "varchar(34) NOT NULL default ''",
+        ];
+
+        PaletteManipulator::create()
+            ->addLegend(self::LEGEND_KEY, 'lsShop_legend', PaletteManipulator::POSITION_AFTER)
+            ->addField(
+                [
+                    'lsShopEinvoicingMandateReference',
+                    'lsShopEinvoicingDebtorIban',
+                ],
+                self::LEGEND_KEY,
+                PaletteManipulator::POSITION_APPEND
+            )
+            ->applyToPalette('default', self::MEMBER_TABLE);
     }
 
     private function extendMemberGroupDca(): void
@@ -419,6 +467,7 @@ final class EInvoicingDcaHook
     {
         return [
             self::SHOP_SETTINGS_TABLE,
+            self::MEMBER_TABLE,
             self::MEMBER_GROUP_TABLE,
             self::ORDERS_TABLE,
             self::PAYMENT_METHODS_TABLE,

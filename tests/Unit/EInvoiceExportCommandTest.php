@@ -6,6 +6,7 @@ namespace LeadingSystems\MerconisBundle\Tests\Unit;
 use LeadingSystems\MerconisBundle\Command\EInvoiceExportCommand;
 use LeadingSystems\MerconisBundle\EInvoicing\Model\GeneratedZugferdDocument;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingDocumentWriter;
+use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingFailureReporter;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\OrderEInvoicingDocumentGenerator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
@@ -43,9 +44,14 @@ final class EInvoiceExportCommandTest extends TestCase
                 '%PDF-test'
             ));
 
+        $failureReporter = $this->createMock(EInvoicingFailureReporter::class);
+        $failureReporter->expects(self::never())->method('formatFailureReason');
+        $failureReporter->expects(self::never())->method('reportFailure');
+
         $command = new EInvoiceExportCommand(
             $documentGenerator,
-            new EInvoicingDocumentWriter($this->projectDir)
+            new EInvoicingDocumentWriter($this->projectDir),
+            $failureReporter
         );
 
         $commandTester = new CommandTester($command);
@@ -70,15 +76,28 @@ final class EInvoiceExportCommandTest extends TestCase
     public function testReturnsFailureWhenGenerationThrows(): void
     {
         $documentGenerator = $this->createMock(OrderEInvoicingDocumentGenerator::class);
+        $exception = new \RuntimeException('Order "ORDER-404" was not found.');
         $documentGenerator
             ->expects(self::once())
             ->method('generateForOrderNumber')
             ->with('ORDER-404', 'INV-404')
-            ->willThrowException(new \RuntimeException('Order "ORDER-404" was not found.'));
+            ->willThrowException($exception);
+
+        $failureReporter = $this->createMock(EInvoicingFailureReporter::class);
+        $failureReporter
+            ->expects(self::once())
+            ->method('formatFailureReason')
+            ->with($exception)
+            ->willReturn('Order "ORDER-404" was not found.');
+        $failureReporter
+            ->expects(self::once())
+            ->method('reportFailure')
+            ->with('ORDER-404', $exception, 'console command');
 
         $command = new EInvoiceExportCommand(
             $documentGenerator,
-            new EInvoicingDocumentWriter($this->projectDir)
+            new EInvoicingDocumentWriter($this->projectDir),
+            $failureReporter
         );
 
         $commandTester = new CommandTester($command);

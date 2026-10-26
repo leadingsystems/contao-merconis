@@ -85,7 +85,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
 			einvoicingTaxCountry,
 			einvoicingVatExemptionStatus,
 			shippingMethod_einvoicingTaxCategory,
-			paymentMethod_einvoicingTaxCategory;
+			paymentMethod_einvoicingTaxCategory,
+			einvoicingMandateReference,
+			einvoicingCreditorId,
+			einvoicingDebtorIban;
 '
             // [E-Invoicing] END
             . '
@@ -325,6 +328,27 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             'inputType' => 'text',
             'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
             'sql'                     => "varchar(16) NOT NULL default ''"
+        ),
+        'einvoicingMandateReference' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingMandateReference'],
+            'inputType' => 'text',
+            'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'clr w50'),
+            'sql'                     => "varchar(35) NOT NULL default ''"
+        ),
+        'einvoicingCreditorId' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingCreditorId'],
+            'inputType' => 'text',
+            'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'w50'),
+            'sql'                     => "varchar(35) NOT NULL default ''"
+        ),
+        'einvoicingDebtorIban' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingDebtorIban'],
+            'inputType' => 'text',
+            'eval' => array('readonly' => true, 'disabled' => true, 'tl_class' => 'clr w50'),
+            'sql'                     => "varchar(34) NOT NULL default ''"
         ),
         // [E-Invoicing] END
 

@@ -6,8 +6,8 @@ namespace Merconis\Core;
 use Contao\Controller;
 use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\System;
-use LeadingSystems\MerconisBundle\EInvoicing\Exception\InvoiceValidationException;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingDocumentWriter;
+use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingFailureReporter;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\OrderEInvoicingDocumentGenerator;
 
 class dynamicAttachment_einvoice_01 extends Controller
@@ -37,10 +37,14 @@ class dynamicAttachment_einvoice_01 extends Controller
         }
 
         if ($invoiceNumber === '') {
-            $this->logError(sprintf(
-                'Unable to generate dynamic e-invoice attachment for order "%s" because no invoice number was provided.',
-                (string) ($this->arrOrder['orderNr'] ?? $orderId)
-            ));
+            /** @var EInvoicingFailureReporter $failureReporter */
+            $failureReporter = System::getContainer()->get(EInvoicingFailureReporter::class);
+            $failureReporter->reportFailureForOrder(
+                $this->arrOrder,
+                new \RuntimeException('No invoice number was provided.'),
+                'dynamic attachment'
+            );
+
             return null;
         }
 
@@ -54,19 +58,10 @@ class dynamicAttachment_einvoice_01 extends Controller
             $generatedDocument = $documentGenerator->generateForOrderId($orderId, $invoiceNumber);
 
             return $documentWriter->writePdf($generatedDocument, self::OUTPUT_DIRECTORY, true);
-        } catch (InvoiceValidationException) {
-            $this->logError(sprintf(
-                'Unable to generate dynamic e-invoice attachment for order "%s" because the order data is incomplete for EN 16931 export.',
-                (string) ($this->arrOrder['orderNr'] ?? $orderId)
-            ));
-
-            return null;
         } catch (\Throwable $throwable) {
-            $this->logError(sprintf(
-                'Unable to generate dynamic e-invoice attachment for order "%s": %s',
-                (string) ($this->arrOrder['orderNr'] ?? $orderId),
-                $throwable->getMessage()
-            ));
+            /** @var EInvoicingFailureReporter $failureReporter */
+            $failureReporter = System::getContainer()->get(EInvoicingFailureReporter::class);
+            $failureReporter->reportFailureForOrder($this->arrOrder, $throwable, 'dynamic attachment');
 
             return null;
         }

@@ -55,6 +55,10 @@ services:
     arguments:
       $projectDir: '%kernel.project_dir%'
     public: true
+  LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingFailureReporter:
+    arguments:
+      $contaoLogger: '@monolog.logger.contao'
+    public: true
   LeadingSystems\MerconisBundle\EInvoicing\Service\SemanticInvoiceBuilder: ~
   LeadingSystems\MerconisBundle\EInvoicing\Service\VisibleInvoiceHtmlRenderer: ~
   LeadingSystems\MerconisBundle\EInvoicing\Service\ZugferdXmlGenerator: ~

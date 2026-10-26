@@ -51,6 +51,11 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = array (
         0 => 'BIC',
         1 => 'Bitte tragen Sie hier optional den BIC des Verkäufers für Zahlungsinformationen in der E-Rechnung ein.',
       ),
+      'ls_shop_einvoicingSellerCreditorId' => 
+      array (
+        0 => 'Gläubiger-ID',
+        1 => 'Bitte tragen Sie hier optional die SEPA-Gläubiger-ID des Verkäufers für Lastschriftfälle ein.',
+      ),
     ),
     'ls_shop_einvoicingSellerElectronicAddressSchemeRef' => 
     array (
@@ -156,6 +161,23 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = array (
       'AS' => 'AS - AS2 exchange',
       'AU' => 'AU - File Transfer Protocol',
       'EM' => 'EM - Electronic mail (SMPT)',
+    ),
+  ),
+  'tl_member' => 
+  array (
+    'ls_contao_merconis_einvoicing_legend' => 'E-Rechnung',
+    'ls_contao-merconis' => 
+    array (
+      'lsShopEinvoicingMandateReference' => 
+      array (
+        0 => 'Mandatsreferenz',
+        1 => 'Bitte tragen Sie hier optional die SEPA-Mandatsreferenz dieses Mitglieds ein.',
+      ),
+      'lsShopEinvoicingDebtorIban' => 
+      array (
+        0 => 'Käufer-IBAN',
+        1 => 'Bitte tragen Sie hier optional die dem SEPA-Mandat zugeordnete IBAN dieses Mitglieds ein.',
+      ),
     ),
   ),
   'tl_member_group' => 

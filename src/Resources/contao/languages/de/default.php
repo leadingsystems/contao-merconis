@@ -900,7 +900,8 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['headline'] = 'Zusätzliche
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['paymentData']['fieldNames'] = array(
 	'kontoinhaber' => 'Kontoinhaber',
 	'kontonummer' => 'Kontonummer/IBAN',
-	'bankleitzahl' => 'Bankleitzahl/BIC'
+	'bankleitzahl' => 'Bankleitzahl/BIC',
+	'iban' => 'IBAN'
 );
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['shippingData']['headline'] = 'Zusätzliche Angaben zum Versand per';
@@ -1243,6 +1244,12 @@ $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_fallback_error_rate
 
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_id_heading'] = 'Ihre Widerrufs-ID: %s';
 $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['withdrawal_confirmation_text'] = 'Ihr Widerruf wurde erfolgreich eingereicht (Widerrufs-ID: %s). Eine Eingangsbestätigung wird an %s versendet. Bitte prüfen Sie auch Ihren Spam-Ordner. Sollten Sie keine E-Mail erhalten, wenden Sie sich bitte an unseren Kundenservice.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_heading'] = 'Hinterlegtes SEPA-Mandat';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_account_holder_label'] = 'Kontoinhaber';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_iban_label'] = 'IBAN';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_reference_label'] = 'Mandatsreferenz';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_change_notice'] = 'Wenn Sie ein anderes Konto verwenden möchten, wählen Sie bitte eine andere Zahlungsmethode oder klären Sie die Änderung außerhalb der Bestellung.';
+$GLOBALS['TL_LANG']['MSC']['ls_contao-merconis']['einvoicing_sepa_mandate_value_unavailable'] = 'nicht hinterlegt';
 
 
 /*

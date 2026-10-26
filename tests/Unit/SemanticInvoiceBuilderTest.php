@@ -28,6 +28,7 @@ final class SemanticInvoiceBuilderTest extends TestCase
         float $expectedTaxTotalAmount,
         float $expectedGrandTotalAmount,
         array $expectedTaxRates,
+        string $expectedPaymentMeansCode,
         string $expectedTaxCategoryCode,
         string $expectedBuyerCountry,
         string $expectedShipToCountry,
@@ -38,8 +39,8 @@ final class SemanticInvoiceBuilderTest extends TestCase
         [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput($fixtureId);
 
         self::assertSame('Merconis GmbH', $shopSettings['ls_shop_einvoicingSellerName'] ?? null);
-        self::assertSame('58', $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] ?? null);
-        self::assertSame('58', $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] ?? null);
+        self::assertSame($expectedPaymentMeansCode, $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] ?? null);
+        self::assertSame($expectedPaymentMeansCode, $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] ?? null);
         self::assertSame($expectedPaymentTermsDays, $paymentMethod['einvoicingPaymentTermsDays'] ?? null);
         self::assertSame($expectedPaymentTermsNote, $paymentMethod['einvoicingPaymentTermsNote'] ?? null);
 
@@ -69,7 +70,7 @@ final class SemanticInvoiceBuilderTest extends TestCase
         self::assertSame('LS-Vorname LS-Nachname', $invoice->buyer['name']);
         self::assertSame($expectedBuyerCountry, $invoice->buyer['countryCode']);
         self::assertSame($expectedShipToCountry, $invoice->shipTo['countryCode']);
-        self::assertSame('58', $invoice->payment['meansCode']);
+        self::assertSame($expectedPaymentMeansCode, $invoice->payment['meansCode']);
         self::assertCount($expectedLineItemCount, $invoice->lineItems);
         self::assertSame('H87', $invoice->lineItems[0]['unitCode']);
         self::assertCount($expectedTaxSummaryCount, $invoice->taxSummaries);
@@ -124,6 +125,102 @@ final class SemanticInvoiceBuilderTest extends TestCase
         );
 
         self::assertSame('68', $invoice->payment['meansCode']);
+    }
+
+    public function testBuildAllowsOnlinePaymentWithoutSellerIban(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] = '68';
+        $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] = '68';
+        unset($shopSettings['ls_shop_einvoicingSellerIban']);
+
+        $invoice = (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0069',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame('68', $invoice->payment['meansCode']);
+        self::assertNull($invoice->payment['iban']);
+    }
+
+    public function testBuildValidatesSepaDirectDebitSnapshotFields(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] = '59';
+        $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] = '59';
+        $orderData[EInvoicingSnapshotFields::ORDER_MANDATE_REFERENCE_ORDER_KEY] = 'MANDATE-2026-0001';
+        $shopSettings[EInvoicingSnapshotFields::SHOP_SETTINGS_CREDITOR_ID_FIELD] = 'DE98ZZZ09999999999';
+        $orderData[EInvoicingSnapshotFields::ORDER_DEBTOR_IBAN_ORDER_KEY] = 'DE44500105175407324931';
+
+        $invoice = (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0059',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame('59', $invoice->payment['meansCode']);
+        self::assertSame('MANDATE-2026-0001', $invoice->payment['mandateReference']);
+        self::assertSame('DE98ZZZ09999999999', $invoice->payment['creditorId']);
+        self::assertSame('DE44500105175407324931', $invoice->payment['debtorIban']);
+    }
+
+    public function testBuildRejectsSepaDirectDebitWithoutMandatorySnapshotFields(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] = '59';
+        $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] = '59';
+        unset($orderData[EInvoicingSnapshotFields::ORDER_MANDATE_REFERENCE_ORDER_KEY]);
+        unset($shopSettings[EInvoicingSnapshotFields::SHOP_SETTINGS_CREDITOR_ID_FIELD]);
+        unset($orderData[EInvoicingSnapshotFields::ORDER_DEBTOR_IBAN_ORDER_KEY]);
+
+        $this->expectException(InvoiceValidationException::class);
+        $this->expectExceptionMessage('BT-89');
+
+        (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0059',
+            new DateTimeImmutable('2026-10-08')
+        );
+    }
+
+    /**
+     * @dataProvider unsupportedCardPaymentMeansProvider
+     */
+    public function testBuildRejectsUnsupportedCardPaymentMeansCodes(string $meansCode): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] = $meansCode;
+        $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] = $meansCode;
+
+        $this->expectException(InvoiceValidationException::class);
+        $this->expectExceptionMessage('BT-87');
+
+        (new SemanticInvoiceBuilder())->build(
+            $orderData,
+            $shopSettings,
+            $paymentMethod,
+            $shippingMethod,
+            $taxRates,
+            $memberGroup,
+            'RE-2026-0048',
+            new DateTimeImmutable('2026-10-08')
+        );
     }
 
     public function testBuildUsesPaymentMethodTermsWhenMemberGroupOverrideIsEmpty(): void
@@ -409,18 +506,30 @@ final class SemanticInvoiceBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, string, int, int, float, float, float, list<float>, string, string, string, string, string}>
+     * @return iterable<string, array{string, string, int, int, float, float, float, list<float>, string, string, string, string, string, string}>
      */
     public static function fixtureProvider(): iterable
     {
-        yield 'fixture-001' => ['S1-EINV-001', 'RE-2026-0001', 1, 1, 10.0, 1.9, 11.9, [19.0], 'S', 'DE', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
-        yield 'fixture-002' => ['S1-EINV-002', 'RE-2026-0002', 3, 1, 111.0, 21.09, 132.09, [19.0], 'S', 'DE', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
-        yield 'fixture-003' => ['S1-EINV-003', 'RE-2026-0003', 2, 2, 20.0, 2.6, 22.6, [7.0, 19.0], 'S', 'DE', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
-        yield 'fixture-004' => ['S2-EINV-010', 'RE-2026-0210', 2, 2, 20.0, 3.01, 28.91, [7.0, 19.0], 'S', 'DE', 'DE', '12', 'Zahlbar in 12 Tagen.'];
-        yield 'fixture-005' => ['S4-EINV-001', 'RE-2026-0401', 1, 1, 10.0, 0.0, 10.0, [0.0], 'K', 'FR', 'FR', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
-        yield 'fixture-006' => ['S4-EINV-002', 'RE-2026-0402', 1, 1, 10.0, 1.9, 11.9, [19.0], 'S', 'FR', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
-        yield 'fixture-007' => ['S4-EINV-003', 'RE-2026-0403', 1, 1, 10.0, 0.0, 10.0, [0.0], 'G', 'CH', 'CH', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
-        yield 'fixture-008' => ['S4-EINV-004', 'RE-2026-0404', 1, 1, 10.0, 0.0, 10.0, [0.0], 'Z', 'DE', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
-        yield 'fixture-009' => ['S4-EINV-006', 'RE-2026-0406', 1, 1, 10.0, 0.0, 10.0, [0.0], 'G', 'FR', 'CH', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
+        yield 'fixture-001' => ['S1-EINV-001', 'RE-2026-0001', 1, 1, 10.0, 1.9, 11.9, [19.0], '58', 'S', 'DE', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
+        yield 'fixture-002' => ['S1-EINV-002', 'RE-2026-0002', 3, 1, 111.0, 21.09, 132.09, [19.0], '58', 'S', 'DE', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
+        yield 'fixture-003' => ['S1-EINV-003', 'RE-2026-0003', 2, 2, 20.0, 2.6, 22.6, [7.0, 19.0], '58', 'S', 'DE', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
+        yield 'fixture-004' => ['S2-EINV-010', 'RE-2026-0210', 2, 2, 20.0, 3.01, 28.91, [7.0, 19.0], '58', 'S', 'DE', 'DE', '12', 'Zahlbar in 12 Tagen.'];
+        yield 'fixture-005' => ['S3-EINV-001', '2026102677', 1, 1, 10.0, 1.9, 11.9, [19.0], '59', 'S', 'DE', 'DE', '0', 'Einzug per SEPA-Lastschrift.'];
+        yield 'fixture-006' => ['S3-EINV-002', '2026102678', 1, 1, 10.0, 1.9, 11.9, [19.0], '68', 'S', 'DE', 'DE', '', ''];
+        yield 'fixture-007' => ['S4-EINV-001', 'RE-2026-0401', 1, 1, 10.0, 0.0, 10.0, [0.0], '58', 'K', 'FR', 'FR', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
+        yield 'fixture-008' => ['S4-EINV-002', 'RE-2026-0402', 1, 1, 10.0, 1.9, 11.9, [19.0], '58', 'S', 'FR', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
+        yield 'fixture-009' => ['S4-EINV-003', 'RE-2026-0403', 1, 1, 10.0, 0.0, 10.0, [0.0], '58', 'G', 'CH', 'CH', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
+        yield 'fixture-010' => ['S4-EINV-004', 'RE-2026-0404', 1, 1, 10.0, 0.0, 10.0, [0.0], '58', 'Z', 'DE', 'DE', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
+        yield 'fixture-011' => ['S4-EINV-006', 'RE-2026-0406', 1, 1, 10.0, 0.0, 10.0, [0.0], '58', 'G', 'FR', 'CH', '14', 'Zahlbar innerhalb von 14 Tagen netto.'];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function unsupportedCardPaymentMeansProvider(): iterable
+    {
+        yield 'bank-card' => ['48'];
+        yield 'credit-card' => ['54'];
+        yield 'debit-card' => ['55'];
     }
 }

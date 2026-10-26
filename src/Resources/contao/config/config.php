@@ -26,6 +26,10 @@ $GLOBALS['MERCONIS_HOOKS']['storeCartItemInOrder'][] = array(
     \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingCheckoutSnapshotHook::class,
     'storeCartItemInOrder'
 );
+$GLOBALS['MERCONIS_HOOKS']['modifyPaymentModuleTypes'][] = array(
+    \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingPaymentModuleHook::class,
+    'modifyPaymentModuleTypes'
+);
 $GLOBALS['MERCONIS_HOOKS']['import_afterInsertingProductData'][] = array(
     \LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingProductImportHook::class,
     'afterInsertingProductData'

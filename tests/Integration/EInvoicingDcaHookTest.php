@@ -22,6 +22,7 @@ final class EInvoicingDcaHookTest extends TestCase
 
         unset(
             $GLOBALS['TL_DCA']['tl_lsShopSettings'],
+            $GLOBALS['TL_DCA']['tl_member'],
             $GLOBALS['TL_DCA']['tl_member_group'],
             $GLOBALS['TL_DCA']['tl_ls_shop_orders'],
             $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'],
@@ -29,6 +30,7 @@ final class EInvoicingDcaHookTest extends TestCase
             $GLOBALS['TL_DCA']['tl_ls_shop_steuersaetze'],
             $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'],
             $GLOBALS['TL_LANG']['tl_lsShopSettings'],
+            $GLOBALS['TL_LANG']['tl_member'],
             $GLOBALS['TL_LANG']['tl_member_group'],
             $GLOBALS['TL_LANG']['tl_ls_shop_orders'],
             $GLOBALS['TL_LANG']['tl_ls_shop_payment_methods'],
@@ -65,6 +67,10 @@ final class EInvoicingDcaHookTest extends TestCase
             'einvoicingPaymentTermsNote',
             $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']
         );
+        self::assertArrayHasKey(
+            'ls_shop_einvoicingSellerCreditorId',
+            $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']
+        );
         self::assertSame(
             ['Firmenname', 'Bitte tragen Sie hier den Firmennamen ein, der in der E-Rechnung als Verkäufername verwendet werden soll.'],
             $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']['ls_shop_einvoicingSellerName']['label']
@@ -80,11 +86,53 @@ final class EInvoicingDcaHookTest extends TestCase
         self::assertArrayNotHasKey('reference', $easField);
         self::assertArrayHasKey('save_callback', $easField);
 
+        $creditorIdField = $GLOBALS['TL_DCA']['tl_lsShopSettings']['fields']['ls_shop_einvoicingSellerCreditorId'];
+        self::assertSame('text', $creditorIdField['inputType']);
+        self::assertSame(35, $creditorIdField['eval']['maxlength']);
+
         $palette = $GLOBALS['TL_DCA']['tl_lsShopSettings']['palettes']['default'];
         self::assertStringContainsString('{ls_contao_merconis_einvoicing_legend}', $palette);
         self::assertLessThan(
             strpos($palette, '{euSettings_legend}'),
             strpos($palette, '{ls_contao_merconis_einvoicing_legend}')
+        );
+        self::assertStringContainsString(
+            'ls_shop_einvoicingSellerCreditorId',
+            $palette
+        );
+    }
+
+    public function testMemberDcaAddsSepaFieldsInDedicatedLegend(): void
+    {
+        $GLOBALS['TL_LANGUAGE'] = 'de';
+        $GLOBALS['TL_DCA']['tl_member'] = [
+            'palettes' => [
+                'default' => '{contact_legend},firstname,lastname;{lsShop_legend},VATID;',
+            ],
+            'fields' => [],
+        ];
+
+        $this->hook->onLoadDataContainer('tl_member');
+
+        self::assertSame(
+            "varchar(35) NOT NULL default ''",
+            $GLOBALS['TL_DCA']['tl_member']['fields']['lsShopEinvoicingMandateReference']['sql']
+        );
+        self::assertSame(
+            "varchar(34) NOT NULL default ''",
+            $GLOBALS['TL_DCA']['tl_member']['fields']['lsShopEinvoicingDebtorIban']['sql']
+        );
+        self::assertSame(
+            ['Mandatsreferenz', 'Bitte tragen Sie hier optional die SEPA-Mandatsreferenz dieses Mitglieds ein.'],
+            $GLOBALS['TL_DCA']['tl_member']['fields']['lsShopEinvoicingMandateReference']['label']
+        );
+        self::assertSame(
+            ['Käufer-IBAN', 'Bitte tragen Sie hier optional die dem SEPA-Mandat zugeordnete IBAN dieses Mitglieds ein.'],
+            $GLOBALS['TL_DCA']['tl_member']['fields']['lsShopEinvoicingDebtorIban']['label']
+        );
+        self::assertStringContainsString(
+            '{ls_contao_merconis_einvoicing_legend},lsShopEinvoicingMandateReference,lsShopEinvoicingDebtorIban',
+            $GLOBALS['TL_DCA']['tl_member']['palettes']['default']
         );
     }
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Command;
 
-use LeadingSystems\MerconisBundle\EInvoicing\Exception\InvoiceValidationException;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingDocumentWriter;
+use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingFailureReporter;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\OrderEInvoicingDocumentGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -23,6 +23,7 @@ final class EInvoiceExportCommand extends Command
     public function __construct(
         private readonly OrderEInvoicingDocumentGenerator $documentGenerator,
         private readonly EInvoicingDocumentWriter $documentWriter,
+        private readonly EInvoicingFailureReporter $failureReporter,
     ) {
         parent::__construct();
     }
@@ -66,10 +67,12 @@ final class EInvoiceExportCommand extends Command
             $xmlPath = $this->documentWriter->writeXml($generatedDocument, $outputDirectory);
             $pdfPath = $this->documentWriter->writePdf($generatedDocument, $outputDirectory);
         } catch (Throwable $throwable) {
+            $failureReason = $this->failureReporter->formatFailureReason($throwable);
+            $this->failureReporter->reportFailure($orderNumber, $throwable, 'console command');
             $output->writeln(sprintf(
                 '<error>Export failed for order "%s". %s</error>',
                 $orderNumber,
-                $this->formatFailureReason($throwable)
+                $failureReason
             ));
 
             return Command::FAILURE;
@@ -86,20 +89,5 @@ final class EInvoiceExportCommand extends Command
         $output->writeln('PDF: ' . $pdfPath);
 
         return Command::SUCCESS;
-    }
-
-    private function formatFailureReason(Throwable $throwable): string
-    {
-        if ($throwable instanceof InvoiceValidationException) {
-            return 'The order data is incomplete for EN 16931 export.';
-        }
-
-        $message = trim($throwable->getMessage());
-
-        if ($message === '') {
-            return 'An unspecified error occurred.';
-        }
-
-        return $message;
     }
 }

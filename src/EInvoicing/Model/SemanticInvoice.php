@@ -27,7 +27,10 @@ use DateTimeImmutable;
  *   dueDate: ?DateTimeImmutable,
  *   termsNote: ?string,
  *   iban: ?string,
- *   bic: ?string
+ *   bic: ?string,
+ *   mandateReference: ?string,
+ *   creditorId: ?string,
+ *   debtorIban: ?string
  * }
  * @phpstan-type LineItem array{
  *   lineId: string,

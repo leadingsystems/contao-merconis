@@ -32,6 +32,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingVatExemptionStatus']			= array('VAT exemption status');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['shippingMethod_einvoicingTaxCategory']	= array('Shipping tax category');
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['paymentMethod_einvoicingTaxCategory']	= array('Payment fee tax category');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingMandateReference']			= array('Mandate reference (BT-89)');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingCreditorId']				= array('Creditor identifier (BT-90)');
+	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['einvoicingDebtorIban']				= array('Buyer IBAN (BT-91)');
 	// [E-Invoicing] END
 	
 	$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_saleId']								= array('PayPal Plus transaction code');
