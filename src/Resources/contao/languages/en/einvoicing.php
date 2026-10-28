@@ -1,9 +1,9 @@
 <?php
 
-$GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = array (
+$GLOBALS['TL_LANG']['lsShopEinvoicing'] = array (
   'tl_lsShopSettings' => 
   array (
-    'ls_contao_merconis_einvoicing_legend' => 'E-Invoicing',
+    'lsShopEinvoicing_legend' => 'E-Invoicing',
     'ls_contao-merconis' => 
     array (
       'ls_shop_einvoicingSellerName' => 
@@ -165,7 +165,7 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = array (
   ),
   'tl_member' => 
   array (
-    'ls_contao_merconis_einvoicing_legend' => 'E-Invoicing',
+    'lsShopEinvoicing_legend' => 'E-Invoicing',
     'ls_contao-merconis' => 
     array (
       'lsShopEinvoicingMandateReference' => 
@@ -182,7 +182,7 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = array (
   ),
   'tl_member_group' => 
   array (
-    'ls_contao_merconis_einvoicing_legend' => 'E-Invoicing',
+    'lsShopEinvoicing_legend' => 'E-Invoicing',
     'ls_contao-merconis' => 
     array (
       'lsShopEinvoicingPaymentTermsDays' => 
@@ -199,7 +199,7 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = array (
   ),
   'tl_ls_shop_payment_methods' => 
   array (
-    'ls_contao_merconis_einvoicing_legend' => 'E-Invoicing',
+    'lsShopEinvoicing_legend' => 'E-Invoicing',
     'ls_contao-merconis' => 
     array (
       'einvoicingPaymentMeansCode' => 
@@ -2484,7 +2484,7 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = array (
   ),
   'tl_ls_shop_orders' => 
   array (
-    'ls_contao_merconis_einvoicing_legend' => 'E-Invoicing',
+    'lsShopEinvoicing_legend' => 'E-Invoicing',
     'ls_contao-merconis' => 
     array (
       'einvoicingDeliveryDate' => 
@@ -2496,7 +2496,7 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = array (
   ),
   'tl_ls_shop_steuersaetze' => 
   array (
-    'ls_contao_merconis_einvoicing_legend' => 'E-Invoicing',
+    'lsShopEinvoicing_legend' => 'E-Invoicing',
     'ls_contao-merconis' => 
     array (
       'einvoicingTaxCategory' => 

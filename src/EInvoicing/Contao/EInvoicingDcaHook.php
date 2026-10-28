@@ -14,8 +14,8 @@ use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingCodeLists;
  */
 final class EInvoicingDcaHook
 {
-    private const LEGEND_KEY = 'ls_contao_merconis_einvoicing_legend';
-    private const TRANSLATION_DOMAIN = 'ls_contao_merconis_einvoicing';
+    private const LEGEND_KEY = 'lsShopEinvoicing_legend';
+    private const TRANSLATION_DOMAIN = 'lsShopEinvoicing';
     private const TRANSLATION_SCOPE = 'ls_contao-merconis';
 
     private const SHOP_SETTINGS_TABLE = 'tl_lsShopSettings';

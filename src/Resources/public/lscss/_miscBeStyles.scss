@@ -595,15 +595,7 @@ ul.ls_shop_productSelectionWizard li .widgetProductSelection .selectedProductOut
  */
 fieldset[data-contao--toggle-fieldset-id-value="lscss4c_legend"],
 fieldset[data-contao--toggle-fieldset-id-value="lsjs4c_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShopConditionalOutput_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShop_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShopFilter_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShopJsComponents_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShopCart_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShopLoginSwitch_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShopCheckoutConfirm_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShopCheckoutConfirm_legend"],
-fieldset[data-contao--toggle-fieldset-id-value="lsShopCrossSeller_legend"]{
+fieldset[data-contao--toggle-fieldset-id-value^="lsShop"][data-contao--toggle-fieldset-id-value$="_legend"] {
   padding-top: 0px;
   position: relative;
   margin-bottom: 6px;
