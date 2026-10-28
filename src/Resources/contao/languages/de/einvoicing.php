@@ -8,8 +8,8 @@ $GLOBALS['TL_LANG']['ls_contao_merconis_einvoicing'] = array (
     array (
       'ls_shop_einvoicingSellerName' => 
       array (
-        0 => 'Firmenname',
-        1 => 'Bitte tragen Sie hier den Firmennamen ein, der in der E-Rechnung als Verkäufername verwendet werden soll.',
+        0 => 'Firmenname/Händlername',
+        1 => 'Bitte tragen Sie hier den Firmennamen, Händlernamen oder persönlichen Namen ein, der in der E-Rechnung als Verkäufername verwendet werden soll.',
       ),
       'ls_shop_einvoicingSellerStreet' => 
       array (
