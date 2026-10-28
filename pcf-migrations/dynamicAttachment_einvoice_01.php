@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Merconis\Core;
 
 use Contao\Controller;
-use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\System;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingDocumentWriter;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingFailureReporter;
@@ -32,7 +31,14 @@ class dynamicAttachment_einvoice_01 extends Controller
         $invoiceNumber = is_scalar($this->counterNr) ? trim((string) $this->counterNr) : '';
 
         if ($orderId <= 0) {
-            $this->logError('Unable to generate dynamic e-invoice attachment because the order ID is missing.');
+            /** @var EInvoicingFailureReporter $failureReporter */
+            $failureReporter = System::getContainer()->get(EInvoicingFailureReporter::class);
+            $failureReporter->reportFailureForOrder(
+                $this->arrOrder,
+                new \RuntimeException('Unable to generate dynamic e-invoice attachment because the order ID is missing.'),
+                'dynamic attachment'
+            );
+
             return null;
         }
 
@@ -65,13 +71,5 @@ class dynamicAttachment_einvoice_01 extends Controller
 
             return null;
         }
-    }
-
-    private function logError(string $message): void
-    {
-        System::getContainer()->get('monolog.logger.contao')->error(
-            'MERCONIS: ' . $message,
-            ['contao' => new ContaoContext('MERCONIS MESSAGES', TL_MERCONIS_ERROR)]
-        );
     }
 }
