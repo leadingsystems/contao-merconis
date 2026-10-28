@@ -6,6 +6,7 @@ namespace LeadingSystems\MerconisBundle\EInvoicing\Support;
 final class EInvoicingCodeLists
 {
     public const DEFAULT_PAYMENT_MEANS_CODE = '58';
+    public const SEPA_DIRECT_DEBIT_CODE = '59';
     public const DEFAULT_UNIT_CODE = 'H87';
     /**
      * Contao verwendet für Griechenland `el`, normative ISO-Quellen `gr`.

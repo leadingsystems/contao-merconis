@@ -6,6 +6,7 @@ namespace LeadingSystems\MerconisBundle\EInvoicing\Service;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
 use LeadingSystems\MerconisBundle\EInvoicing\Model\SemanticInvoice;
+use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingCodeLists;
 
 final class ZugferdXmlGenerator
 {
@@ -24,7 +25,7 @@ final class ZugferdXmlGenerator
             )
             ->setDocumentSupplyChainEvent($invoice->deliveryDate)
             ->setDocumentGeneralPaymentInformation(
-                $invoice->payment['meansCode'] === '59' ? $invoice->payment['creditorId'] : null,
+                $invoice->payment['meansCode'] === EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE ? $invoice->payment['creditorId'] : null,
                 $invoice->invoiceNumber
             )
             ->setDocumentSeller($invoice->seller['name'])
@@ -83,7 +84,7 @@ final class ZugferdXmlGenerator
             $builder->setDocumentBuyerCommunication('EM', $invoice->buyer['email']);
         }
 
-        if ($invoice->payment['meansCode'] === '59') {
+        if ($invoice->payment['meansCode'] === EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE) {
             $builder->addDocumentPaymentMean(
                 $invoice->payment['meansCode'],
                 null,

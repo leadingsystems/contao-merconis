@@ -317,21 +317,30 @@ final class SemanticInvoiceBuilder
             $orderData[EInvoicingSnapshotFields::ORDER_DEBTOR_IBAN_ORDER_KEY] ?? null
         );
 
-        if (in_array($meansCode, ['58', '59'], true) && $iban === null) {
+        if (in_array($meansCode, [
+            EInvoicingCodeLists::DEFAULT_PAYMENT_MEANS_CODE,
+            EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE,
+        ], true) && $iban === null) {
             $violations[] = 'Für Payment Means Code ' . $meansCode . ' ist eine Verkäufer-IBAN (BT-84) erforderlich.';
         }
 
-        if ($meansCode === '59') {
+        if ($meansCode === EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE) {
             if ($mandateReference === null) {
-                $violations[] = 'Für Payment Means Code 59 ist die Mandatsreferenz (BT-89) erforderlich.';
+                $violations[] = 'Für Payment Means Code '
+                    . EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE
+                    . ' ist die Mandatsreferenz (BT-89) erforderlich.';
             }
 
             if ($creditorId === null) {
-                $violations[] = 'Für Payment Means Code 59 ist die Gläubiger-ID (BT-90) erforderlich.';
+                $violations[] = 'Für Payment Means Code '
+                    . EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE
+                    . ' ist die Gläubiger-ID (BT-90) erforderlich.';
             }
 
             if ($debtorIban === null) {
-                $violations[] = 'Für Payment Means Code 59 ist die Käufer-IBAN (BT-91) erforderlich.';
+                $violations[] = 'Für Payment Means Code '
+                    . EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE
+                    . ' ist die Käufer-IBAN (BT-91) erforderlich.';
             }
         }
 

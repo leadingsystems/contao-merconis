@@ -12,8 +12,6 @@ use Merconis\Core\ls_shop_generalHelper;
 
 final class EInvoicingCheckoutSnapshotHook
 {
-    private const SEPA_DIRECT_DEBIT_CODE = '59';
-
     /**
      * Persistiert den Payment Means Code im Bestell-Snapshot,
      * nachdem der Bestelldatensatz angelegt wurde.
@@ -65,7 +63,7 @@ final class EInvoicingCheckoutSnapshotHook
             EInvoicingSnapshotFields::ORDER_PAYMENT_TAX_CATEGORY_COLUMN => $paymentTaxCategory ?? '',
         ];
 
-        if ($meansCode === self::SEPA_DIRECT_DEBIT_CODE) {
+        if ($meansCode === EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE) {
             $updateColumns[EInvoicingSnapshotFields::ORDER_MANDATE_REFERENCE_COLUMN] = $this->optionalString(
                 $memberRecord[EInvoicingSnapshotFields::MEMBER_MANDATE_REFERENCE_FIELD] ?? null
             ) ?? '';

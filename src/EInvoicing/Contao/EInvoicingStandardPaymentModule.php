@@ -120,7 +120,7 @@ final class EInvoicingStandardPaymentModule extends ls_shop_paymentModule_standa
     {
         return EInvoicingCodeLists::normalizeCode(
             $this->arrCurrentSettings[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] ?? null
-        ) === '59';
+        ) === EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE;
     }
 
     /**
