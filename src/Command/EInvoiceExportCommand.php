@@ -68,7 +68,6 @@ final class EInvoiceExportCommand extends Command
             $pdfPath = $this->documentWriter->writePdf($generatedDocument, $outputDirectory);
         } catch (Throwable $throwable) {
             $failureReason = $this->failureReporter->formatFailureReason($throwable);
-            $this->failureReporter->reportFailure($orderNumber, $throwable, 'console command');
             $output->writeln(sprintf(
                 '<error>Export failed for order "%s". %s</error>',
                 $orderNumber,
