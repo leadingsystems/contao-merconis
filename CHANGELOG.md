@@ -1,6 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.1.18 (unreleased)
+ * MPM: VBA source code as plain text (mpm/src) with build/export tooling (mpm/build), MPM 1.66
+ * MPM: new columns for sales units and minimum order quantity (not yet processed by the importer)
+
 ### 5.1.17 (2026-08-28)
  * improve product filter (performance)
  * feature cart item comment
