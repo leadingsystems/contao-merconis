@@ -223,62 +223,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'sql'                     => "tinytext NULL"
         ),
 
-        'payPalPlus_clientID' => array (
-            'sql'                     => "text NULL"
-        ),
-
-        'payPalPlus_clientSecret' => array (
-            'sql'                     => "text NULL"
-        ),
-
-        'payPalPlus_liveMode' => array (
-            'sql'                     => "char(1) NOT NULL default ''"
-        ),
-
-        'payPalPlus_logMode' => array (
-            'sql'                     => "varchar(128) NOT NULL default 'NONE'"
-        ),
-
-        'payPalPlus_shipToFieldNameFirstname' => array (
-            'eval'                    => array('maxlength' => 250),
-            'sql'                     => "tinytext NULL"
-        ),
-
-        'payPalPlus_shipToFieldNameLastname' => array (
-            'eval'                    => array('maxlength' => 250),
-            'sql'                     => "tinytext NULL"
-        ),
-
-        'payPalPlus_shipToFieldNameStreet' => array (
-            'eval'                    => array('maxlength' => 250),
-            'sql'                     => "tinytext NULL"
-        ),
-
-        'payPalPlus_shipToFieldNameCity' => array (
-            'eval'                    => array('maxlength' => 250),
-            'sql'                     => "tinytext NULL"
-        ),
-
-        'payPalPlus_shipToFieldNamePostal' => array (
-            'eval'                    => array('maxlength' => 250),
-            'sql'                     => "tinytext NULL"
-        ),
-
-        'payPalPlus_shipToFieldNameState' => array (
-            'eval'                    => array('maxlength' => 250),
-            'sql'                     => "tinytext NULL"
-        ),
-
-        'payPalPlus_shipToFieldNameCountryCode' => array (
-            'eval'                    => array('maxlength' => 250),
-            'sql'                     => "tinytext NULL"
-        ),
-
-        'payPalPlus_shipToFieldNamePhone' => array (
-            'eval'                    => array('maxlength' => 250),
-            'sql'                     => "tinytext NULL"
-        ),
-
         'payPalCheckout_clientID' => array (
             'sql'                     => "text NULL"
         ),
