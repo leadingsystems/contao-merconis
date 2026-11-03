@@ -425,8 +425,11 @@ class ThemeInstaller
 
                 $int_newId = $this->insertData($str_tableName, $arr_row, $bln_preserveID, $bln_preserveAlias);
 
-                $str_detailsAboutImportedRows .= ($str_detailsAboutImportedRows ? ", " : "").$int_newId;
-                $this->arr_mapOldIDToNewID[$str_tableName][$arr_row['id']] = $int_newId;
+                if($int_newId){
+                    $str_detailsAboutImportedRows .= ($str_detailsAboutImportedRows ? ", " : "").$int_newId;
+                    $this->arr_mapOldIDToNewID[$str_tableName][$arr_row['id']] = $int_newId;
+                }
+
             }
 
             System::getContainer()->get('monolog.logger.contao')->info(TL_MERCONIS_THEME_SETUP . ': Importing '.count($arr_rows).' rows into '.$str_tableName."\r\n (ID: ".$str_detailsAboutImportedRows.")", ['contao' => new ContaoContext('MERCONIS THEME SETUP', TL_MERCONIS_THEME_SETUP)]);
@@ -484,7 +487,16 @@ class ThemeInstaller
 		")
             ->execute(...array_values($arr_data));
 
-        $int_insertId = $obj_dbquery->insertId;
+        /*
+         * In cases where no auto-increment ID is returned (e.g., in junction/mapping tables
+         * without a primary ID), the assignment fails and is caught here.
+         */
+        try{
+            $int_insertId = (int) $obj_dbquery->insertId;
+        }catch (\Exception $e){
+            $int_insertId = false;
+        }
+
 
         /*
          * If the alias is not to be retained and the alias field exists in the target table, a new alias is generated,
