@@ -966,7 +966,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importer'] = array(
 	'importFileStatus' => array(
 		'notValidatedYet' => 'Not validated yet',
 		'ok' => 'Checked and ok',
-		'notOk' => 'File not ok (see details in the system log)',
+		'notOk' => 'File not ok, error log',
 		'fileChanged' => 'File has been changed after validation',
 		'importFailed' => 'Import failed',
 		'importFinished' => 'Import finished'
@@ -1077,6 +1077,15 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_scalePriceType' => 'Field value for "scalePriceType" is invalid: Line(s) no. %s',
 	'valueInvalid_scalePriceQuantityDetectionMethod' => 'Field value for "scalePriceQuantityDetectionMethod" is invalid: Line(s) no. %s',
 	'valueInvalid_scalePriceKeyword' => 'Field value for "scalePriceKeyword" is invalid: Line(s) no. %s',
+);
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrorLog'] = array(
+	'csvHeader_row' => 'Row',
+	'csvHeader_productcode' => 'Product code',
+	'csvHeader_errorType' => 'Error type',
+	'csvHeader_description' => 'Error description',
+	'systemLogMessage' => 'MERCONIS IMPORTER: Validation failed – %d error type(s) detected. Error log: %s',
+	'systemLogMessageNoFile' => 'MERCONIS IMPORTER: Validation failed – %d error type(s) detected. Error log could not be written.',
 );
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['msg001'] = '<div style="font-weight: bold; border: 5px solid #FF0000; padding: 20px; background-color: #FFFFFF;">Please note that you can only offer 10 products in the unlicensed demo version of MERCONIS.</div>';

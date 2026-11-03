@@ -7,6 +7,7 @@ use Contao\Date;
 use Contao\File;
 use Contao\FilesModel;
 use Contao\Folder;
+use Contao\BackendUser;
 use Contao\System;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
@@ -64,6 +65,7 @@ class ls_shop_importController
 			'date' => $_SESSION['lsShop']['importFileInfo']['date'],
 			'size' => $_SESSION['lsShop']['importFileInfo']['size'],
 			'status' => $_SESSION['lsShop']['importFileInfo']['status'],
+			'errorLogFile' => $_SESSION['lsShop']['importFileInfo']['errorLogFile'] ?? null,
 			'numRecords' => $_SESSION['lsShop']['importFileInfo']['numRecords'],
 			'numProcessedRecords' => $_SESSION['lsShop']['importFileInfo']['numProcessedRecords'],
 			'changesStock' => $_SESSION['lsShop']['importFileInfo']['changesStock'],
@@ -176,9 +178,28 @@ class ls_shop_importController
 		$this->analyzeImportFile();
 		
 		if ($_SESSION['lsShop']['importFileInfo']['hasError']) {
-			foreach ($_SESSION['lsShop']['importFileInfo']['arrMessages'] as $message) {
-                System::getContainer()->get('monolog.logger.contao')->info('MERCONIS IMPORTER: '.$message, ['contao' => new ContaoContext('MERCONIS IMPORTER', TL_MERCONIS_IMPORTER)]);
+			$str_logFile = $_SESSION['lsShop']['importFileInfo']['errorLogFile'] ?? null;
+			$int_errorCount = count($_SESSION['lsShop']['importFileInfo']['arrMessages']);
+			$arr_langKeys = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrorLog'] ?? [];
+
+			if ($str_logFile) {
+				$str_summary = sprintf(
+					$arr_langKeys['systemLogMessage'] ?? 'MERCONIS IMPORTER: Validation failed – %d error type(s) detected. Error log: %s',
+					$int_errorCount,
+					$str_logFile
+				);
+			} else {
+				$str_summary = sprintf(
+					$arr_langKeys['systemLogMessageNoFile'] ?? 'MERCONIS IMPORTER: Validation failed – %d error type(s) detected.',
+					$int_errorCount
+				);
 			}
+
+			System::getContainer()->get('monolog.logger.contao')->info(
+				$str_summary,
+				['contao' => new ContaoContext('MERCONIS IMPORTER', TL_MERCONIS_IMPORTER)]
+			);
+
 			$_SESSION['lsShop']['importFileInfo']['status'] = 'notOk';
 			return false;
 		} else {
@@ -362,7 +383,14 @@ class ls_shop_importController
 			
 			foreach ($arrDataErrors as $errorKey => $arrErrorDetected) {
 				if ($this->checkDataFor($errorKey, $row)) {
-					$arrDataErrors[$errorKey][] = $rowCounter;
+					$str_articleCode = $row['productcode'] ?? '';
+					if (!$str_articleCode && isset($row['parentProductcode'])) {
+						$str_articleCode = $row['parentProductcode'];
+					}
+					$arrDataErrors[$errorKey][] = [
+						'row' => $rowCounter,
+						'productcode' => $str_articleCode,
+					];
 				}
 			}
 		}
@@ -373,18 +401,134 @@ class ls_shop_importController
 		foreach ($arrDataErrors as $errorKey => $arrErrorDetected) {
 			if ($arrErrorDetected && is_array($arrErrorDetected)) {
 				$strRowNumbers = '';
-				foreach ($arrErrorDetected as $rowNr) {
+				foreach ($arrErrorDetected as $arrErrorInfo) {
 					if ($strRowNumbers) {
 						$strRowNumbers .= ', ';
 					}
-					$strRowNumbers .= $rowNr;
+					$strRowNumbers .= $arrErrorInfo['row'];
 				}
 				$_SESSION['lsShop']['importFileInfo']['hasError'] = true;
 				$_SESSION['lsShop']['importFileInfo']['arrMessages'][] = sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'][$errorKey], $strRowNumbers);
 			}
 		}
+
+		if ($_SESSION['lsShop']['importFileInfo']['hasError']) {
+			$_SESSION['lsShop']['importFileInfo']['errorLogFile'] = $this->writeImportErrorLog($arrDataErrors);
+		}
 	}
 	
+	/**
+	 * Schreibt ein strukturiertes Fehlerprotokoll als CSV-Datei
+	 * unterhalb von files/ (tl_files), damit Backend-Nutzer die
+	 * Datei ueber den Contao File Manager erreichen und z. B. in
+	 * Excel oeffnen koennen.
+	 *
+	 * Format: Eine Zeile pro Fehler-Vorkommen mit CSV-Zeilennummer,
+	 * Artikelnummer, Fehlertyp und Fehlerbeschreibung.
+	 *
+	 * @param array<string, array<array{row: int, productcode: string}>|false> $arrDataErrors Fehlerdaten aus der Analyse
+	 * @return string|null Relativer Pfad zur Log-Datei oder null bei Fehler
+	 */
+	protected function writeImportErrorLog(array $arrDataErrors): ?string
+	{
+		$this->ensureSupportedErrorLogLanguage();
+
+		$str_logDir = 'files/merconis_import_logs';
+
+		try {
+			new Folder($str_logDir);
+		} catch (\Exception $e) {
+			return null;
+		}
+
+		$str_projectDir = System::getContainer()->getParameter('kernel.project_dir');
+		$str_filename = 'import-errors-' . date('Y-m-d-His') . '.csv';
+		$str_filePathRelative = $str_logDir . '/' . $str_filename;
+		$str_filePathAbsolute = $str_projectDir . '/' . $str_filePathRelative;
+
+		$handle = fopen($str_filePathAbsolute, 'w');
+
+		if ($handle === false) {
+			return null;
+		}
+
+		$str_delimiter = ';';
+		$str_enclosure = '"';
+
+		fwrite($handle, "\xEF\xBB\xBF");
+
+		$arr_langKeys = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrorLog'] ?? [];
+
+		fputcsv($handle, [
+			$arr_langKeys['csvHeader_row'] ?? 'Row',
+			$arr_langKeys['csvHeader_productcode'] ?? 'Product code',
+			$arr_langKeys['csvHeader_errorType'] ?? 'Error type',
+			$arr_langKeys['csvHeader_description'] ?? 'Error description',
+		], $str_delimiter, $str_enclosure);
+
+		$bln_hasData = false;
+
+		foreach ($arrDataErrors as $str_errorKey => $arr_errorDetected) {
+			if (!$arr_errorDetected || !is_array($arr_errorDetected)) {
+				continue;
+			}
+
+			$str_description = $this->getCleanErrorDescription($str_errorKey);
+
+			foreach ($arr_errorDetected as $arr_errorInfo) {
+				$bln_hasData = true;
+
+				fputcsv($handle, [
+					$arr_errorInfo['row'],
+					$arr_errorInfo['productcode'],
+					$str_errorKey,
+					$str_description,
+				], $str_delimiter, $str_enclosure);
+			}
+		}
+
+		fclose($handle);
+
+		if (!$bln_hasData) {
+			unlink($str_filePathAbsolute);
+			return null;
+		}
+
+		return $str_filePathRelative;
+	}
+
+	/**
+	 * Extrahiert aus dem Sprachschlüssel-Template eine bereinigte
+	 * Fehlerbeschreibung ohne Zeilennummern-Platzhalter.
+	 */
+	private function getCleanErrorDescription(string $str_errorKey): string
+	{
+		$str_template = $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'][$str_errorKey] ?? $str_errorKey;
+
+		$str_clean = str_replace('%s', '', $str_template);
+		$str_clean = rtrim(trim($str_clean), '.:, ');
+		$str_clean = preg_replace('/[:\s]*(Nr\.?|no\.?)\s*$/i', '', $str_clean);
+		$str_clean = preg_replace('/[:\s]*(Zeile\(n\)|Line\(s\))\s*$/i', '', $str_clean);
+		$str_clean = preg_replace('/\s+in\s*$/i', '', $str_clean);
+
+		return rtrim($str_clean, '.:, ');
+	}
+
+	/**
+	 * Stellt sicher, dass die Sprachschlüssel in einer
+	 * unterstützten Sprache (de oder en) vorliegen.
+	 * Ist die Backend-Sprache des Benutzers weder de noch en,
+	 * wird en als Fallback geladen.
+	 */
+	private function ensureSupportedErrorLogLanguage(): void
+	{
+		$str_backendLang = BackendUser::getInstance()->language ?? 'en';
+
+		if (!in_array($str_backendLang, ['de', 'en'], true)) {
+			System::loadLanguageFile('default', 'en');
+		}
+	}
+
 	public function importFile() {
 		if ($_SESSION['lsShop']['importFileInfo']['status'] != 'ok') {
 			$_SESSION['lsShop']['importFileInfo']['status'] = 'importFailed';
