@@ -1,0 +1,235 @@
+<?php
+declare(strict_types=1);
+
+namespace LeadingSystems\MerconisBundle\Cache;
+
+use Psr\Cache\CacheItemPoolInterface;
+use LeadingSystems\MerconisBundle\Cache\CacheElementNoHitException;
+use LeadingSystems\MerconisBundle\Cache\CacheToggle;
+
+class MerconisCache
+{
+    private CacheItemPoolInterface $cachePool;
+
+    private string $namespacePrefix;
+
+    public function __construct(CacheItemPoolInterface $cachePool, string $namespacePrefix = 'merconis.custom.cache.')
+    {
+        $this->cachePool = $cachePool;
+        $this->namespacePrefix = rtrim($namespacePrefix, '.') . '.';
+    }
+
+    public function getCacheElement(int $ttlSeconds, array $tags): MerconisCacheElement
+    {
+        if (!CacheToggle::$enabled) {
+            // Fake element with zero TTL so callers can still call storeContent/getContent paths if they choose
+            return new MerconisCacheElement($this->cachePool, $this->namespacePrefix, $this->namespacePrefix.'disabled.'.uniqid('', true), 0, $this->normalizeTags($tags));
+        }
+        $normalizedTags = $this->normalizeTags($tags);
+        $tagHash = sha1(json_encode($normalizedTags));
+        $elementKey = $this->namespacePrefix . 'element.' . $tagHash;
+        return new MerconisCacheElement($this->cachePool, $this->namespacePrefix, $elementKey, $ttlSeconds, $normalizedTags);
+    }
+
+    public function invalidateCacheElementsByTags(array $tags): void
+    {
+        $normalizedTags = $this->normalizeTags($tags);
+        if (!$normalizedTags) {
+            return;
+        }
+
+        $tokenKeys = [];
+        foreach ($normalizedTags as $key => $value) {
+            $tokenKeys[] = $this->tagIndexKey($key, $value);
+        }
+
+        $lists = [];
+        foreach ($tokenKeys as $tokenKey) {
+            $item = $this->cachePool->getItem($tokenKey);
+            $lists[] = $item->isHit() ? (array) $item->get() : [];
+        }
+
+        if (!$lists) {
+            return;
+        }
+
+        $keysToDelete = array_shift($lists);
+        foreach ($lists as $l) {
+            $keysToDelete = array_values(array_intersect($keysToDelete, $l));
+            if (!$keysToDelete) {
+                break;
+            }
+        }
+
+        if ($keysToDelete) {
+            foreach ($keysToDelete as $k) {
+                $this->cachePool->deleteItem($k);
+            }
+        }
+    }
+
+    /**
+     * Compute with stampede protection.
+     */
+    public function compute(int $ttlSeconds, array $tags, callable $producer, int $maxWaitMs = 2000, int $retryEveryMs = 50): mixed
+    {
+        if (!CacheToggle::$enabled) {
+            // Bypass: just run producer immediately
+            return $producer();
+        }
+        $element = $this->getCacheElement($ttlSeconds, $tags);
+        try {
+            return $element->getContent();
+        } catch (CacheElementNoHitException $e) {
+            // continue
+        }
+
+        $lockKey = $this->computeLockKey($tags);
+
+        $t0 = (int) (microtime(true) * 1000);
+        $haveLock = false;
+        while (true) {
+            // try to acquire lock
+            $lockItem = $this->cachePool->getItem($lockKey);
+            if (!$lockItem->isHit()) {
+                $lockItem->set('1');
+                $lockItem->expiresAfter(5);
+                $this->cachePool->save($lockItem);
+                $haveLock = true;
+            }
+
+            if ($haveLock) {
+                try {
+                    $result = $producer();
+                    $element->storeContent($result);
+                    return $result;
+                } finally {
+                    $this->cachePool->deleteItem($lockKey);
+                }
+            } else {
+                usleep(max(1, $retryEveryMs) * 1000);
+                try {
+                    return $element->getContent();
+                } catch (CacheElementNoHitException $e) {
+                }
+                if (((int) (microtime(true) * 1000) - $t0) >= max(0, $maxWaitMs)) {
+                    $result = $producer();
+                    $element->storeContent($result);
+                    return $result;
+                }
+            }
+        }
+    }
+
+    /**
+     * Acquire a short-lived compute lock for the given tag set.
+     * Returns true if the caller now holds the lock.
+     */
+    public function acquireComputeLock(array $tags, int $lockTtlSeconds = 5): bool
+    {
+        if (!CacheToggle::$enabled) {
+            return true; // pretend we own the lock to allow straight produce/store without waits
+        }
+        $lockKey = $this->computeLockKey($tags);
+        $lockItem = $this->cachePool->getItem($lockKey);
+        if ($lockItem->isHit()) {
+            return false;
+        }
+        $lockItem->set('1');
+        $lockItem->expiresAfter(max(1, $lockTtlSeconds));
+        $this->cachePool->save($lockItem);
+        return true;
+    }
+
+    /**
+     * Release a compute lock acquired via acquireComputeLock.
+     */
+    public function releaseComputeLock(array $tags): void
+    {
+        if (!CacheToggle::$enabled) {
+            return;
+        }
+        $lockKey = $this->computeLockKey($tags);
+        $this->cachePool->deleteItem($lockKey);
+    }
+
+    /**
+     * Wait briefly for content to appear (another process is computing) and return it if available; null otherwise.
+     */
+    public function waitForContent(int $ttlSeconds, array $tags, int $maxWaitMs = 2000, int $retryEveryMs = 50): mixed
+    {
+        if (!CacheToggle::$enabled) {
+            return null;
+        }
+        $element = $this->getCacheElement($ttlSeconds, $tags);
+        $t0 = (int) (microtime(true) * 1000);
+        while (true) {
+            try {
+                return $element->getContent();
+            } catch (CacheElementNoHitException $e) {
+                // keep waiting
+            }
+            if (((int) (microtime(true) * 1000) - $t0) >= max(0, $maxWaitMs)) {
+                return null;
+            }
+            usleep(max(1, $retryEveryMs) * 1000);
+        }
+    }
+
+    private function computeLockKey(array $tags): string
+    {
+        $normalizedTags = $this->normalizeTags($tags);
+        $tagHash = sha1(json_encode($normalizedTags));
+        return $this->namespacePrefix . 'lock.' . $tagHash;
+    }
+
+    private function tagIndexKey(string $key, mixed $value): string
+    {
+        $token = $this->encodeScalarToken($key, $value);
+        return $this->namespacePrefix . 'tagindex.' . sha1($token);
+    }
+
+    private function encodeScalarToken(string $key, mixed $value): string
+    {
+        if (is_bool($value)) {
+            $v = $value ? '1' : '0';
+        } elseif (is_int($value) || is_float($value)) {
+            $v = (string) $value;
+        } elseif (is_null($value)) {
+            $v = 'null';
+        } else {
+            $v = (string) $value;
+        }
+        return $key . '=' . $v;
+    }
+
+    private function normalizeTags(array $tags): array
+    {
+        $normalized = [];
+        foreach ($tags as $k => $v) {
+            if (is_array($v)) {
+                $v = $this->normalizeArray($v);
+            }
+            $normalized[(string) $k] = $v;
+        }
+        ksort($normalized);
+        return $normalized;
+    }
+
+    private function normalizeArray(array $arr): array
+    {
+        $out = [];
+        foreach ($arr as $k => $v) {
+            $key = (string) $k;
+            if (is_array($v)) {
+                $out[$key] = $this->normalizeArray($v);
+            } else {
+                $out[$key] = $v;
+            }
+        }
+        ksort($out);
+        return $out;
+    }
+}
+
+

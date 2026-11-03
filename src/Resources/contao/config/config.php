@@ -4,6 +4,7 @@ namespace Merconis\Core;
 
 use Contao\System;
 use Symfony\Component\HttpFoundation\Request;
+use LeadingSystems\MerconisBundle\Maintenance\PurgeMerconisCache;
 
 define('TL_MERCONIS_INSTALLER', 'MERCONIS INSTALLER');
 define('TL_MERCONIS_THEME_SETUP', 'MERCONIS THEME_SETUP');
@@ -136,6 +137,23 @@ if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendReques
         )
 	)
 ));
+
+// Maintenance purge job for dedicated Merconis cache pool
+$GLOBALS['TL_PURGE']['custom']['merconis_cache'] = array(
+    'callback' => array(PurgeMerconisCache::class, 'purge')
+);
+
+$GLOBALS['TL_PURGE']['custom']['merconis_cache_gallery'] = array(
+    'callback' => array(PurgeMerconisCache::class, 'purgeGallery')
+);
+
+$GLOBALS['TL_PURGE']['custom']['merconis_cache_fragment'] = array(
+    'callback' => array(PurgeMerconisCache::class, 'purgeFragment')
+);
+
+$GLOBALS['TL_PURGE']['custom']['merconis_cache_meta'] = array(
+    'callback' => array(PurgeMerconisCache::class, 'purgeMeta')
+);
 
 $GLOBALS['BE_FFL']['htmlDiv'] = 'Merconis\Core\ls_shop_htmlDiv';
 $GLOBALS['BE_FFL']['simpleOutput'] = 'Merconis\Core\ls_shop_simpleOutput';
