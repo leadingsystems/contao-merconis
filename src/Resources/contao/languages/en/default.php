@@ -382,6 +382,22 @@ $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['mi
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc11'] = 'Open financing application form';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['santanderWebQuick']['misc12'] = 'Because of a changed invoice amount, a financing application that you might have filled out before, has been canceled. Please reapply!';
 
+
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['paymentErrorAfterFinishedOrder'] = '<p class="error">The payment could not be completed successfully, but we have received your order. Please contact us to clarify the situation and arrange an alternative payment method.</p>';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['paymentSuccessAfterFinishedOrder'] = '<p class="success">Thank you for your payment!</p>';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['paymentSelected'] = 'Payment method selected, payment will be processed upon completing your order';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['paymentFailedErrorMessage'] = 'Payment with Stripe has failed';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderServerFailedMessage'] = 'An error occurred while completing the order, please try again';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderServerErrorMessage'] = 'An error occurred while completing the order, please contact the shop operator';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderRedirectToFinishPage'] = 'Redirecting to completion page';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['tryToPayAgain'] = 'Attempt ${attempt} of ${maxTries}: Retrying payment...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['preparePayment'] = 'Preparing payment, please do not close...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['prepareOrder'] = 'Your order is being completed, please wait...';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['errorCreatingPaymentIntent'] = 'Error initializing payment. Please try again later.';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['status'] = 'Status';
+$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['updateStatus'] = 'Update status';
+
+
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentErrorAfterFinishedOrder'] = '<p class="error">The payment could not be finished successfully but we have received your order. Please contact us in order to resolve this issue and to agree upon an alternative payment option.</p>';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['paymentSuccessAfterFinishedOrder'] = '<p class="success">Thank you for your payment!</p>';
 $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['payone']['confirmCheckoutMessage'] = 'After confirmation of the order you will be redirected to the payment provider where you can finish your payment.';

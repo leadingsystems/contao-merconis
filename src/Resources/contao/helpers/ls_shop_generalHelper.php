@@ -47,8 +47,55 @@ use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_generalHelper
 {
-
     private static bool $cacheWarningShown = false;
+  
+    /**
+     * Returns hook callbacks sorted by priority
+     *
+     * Callback format:
+     * - ['Vendor\\Class', 'method']              -> default priority 1000 (runs after internal hooks)
+     * - ['Vendor\\Class', 'method', 10]          -> explicit priority
+     *
+     * Lower priority values run earlier.
+     *
+     * @return array<int, array{0:string,1:string,2?:int}>
+     */
+    public static function getSortedMerconisHookCallbacks(string $hookName): array
+    {
+        $callbacks = $GLOBALS['MERCONIS_HOOKS'][$hookName] ?? null;
+        if (!is_array($callbacks)) {
+            return [];
+        }
+
+        $normalizedCallbacks = [];
+        foreach ($callbacks as $index => $callback) {
+            if (!is_array($callback) || !isset($callback[0], $callback[1])) {
+                continue;
+            }
+
+            $priority = (isset($callback[2]) && is_int($callback[2])) ? $callback[2] : 1000;
+            $normalizedCallbacks[] = [
+                'callback' => $callback,
+                'priority' => $priority,
+                'index' => (int) $index,
+            ];
+        }
+
+        usort($normalizedCallbacks, static function (array $a, array $b): int {
+            $priorityComparison = $a['priority'] <=> $b['priority'];
+            if ($priorityComparison !== 0) {
+                return $priorityComparison;
+            }
+
+            // Keep original registration order for identical priorities.
+            return $a['index'] <=> $b['index'];
+        });
+
+        return array_map(
+            static fn (array $entry): array => $entry['callback'],
+            $normalizedCallbacks
+        );
+    }
 
     /*
      * This function takes the attribute value allocations as an array (possibly serialized)
@@ -1791,6 +1838,20 @@ class ls_shop_generalHelper
         $groupInfo = ls_shop_generalHelper::getGroupSettings4User();
 
         /*
+         * Lizenz-Feature-Gates (nur Zahlungsarten)
+         */
+        if (
+            $what === 'payment'
+            && isset($method['type'])
+            && (string) $method['type'] === 'stripe'
+        ) {
+            $licenseCheck = LicenseKeyValidator::featureAllowed('stripe');
+            if (!($licenseCheck['allowed'] ?? false)) {
+                return false;
+            }
+        }
+
+        /*
          * Ist die Methode nicht veröffentlicht? False!
          */
         if (!$method['published']) {
@@ -1968,6 +2029,9 @@ class ls_shop_generalHelper
         }
         return $arrSteuersatzOptions;
     }
+
+
+
 
     /*
      * Returns tax classes as an options array. Dynamic tax classes (with ##customCalculation## wildcards)
