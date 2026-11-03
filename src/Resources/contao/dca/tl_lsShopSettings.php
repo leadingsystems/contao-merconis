@@ -18,7 +18,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 	'palettes' => array(
 		'__selector__' => array('ls_shop_useVATIDValidation','ls_shop_imageHandlingType'),
 		'default' => '
-		{basic_legend},merconis_licenseKey,ls_shop_country,ls_shop_currency,ls_shop_currencyCode,ls_shop_numDecimals,ls_shop_priceRoundingFactor,ls_shop_priceType,ls_shop_numDecimalsWeight,ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_versandkostenType,ls_shop_autoSelectCheapestPossibleShippingAndPaymentMethods,ls_shop_useProductDescriptionAsSeoDescription,ls_shop_cartPositionCommentsEnabled,ls_shop_ownEmailAddress,ls_shop_output_definitionset,ls_shop_delivery_infoSet,ls_shop_productDetailsTemplate,ls_shop_standardProductImageFolder,ls_shop_imageSortingStandardDirection,ls_shop_imageHandlingType,ls_shop_beOrderTemplateOverview,ls_shop_beOrderTemplateDetails;
+		{basic_legend},merconis_licenseKey,ls_shop_country,ls_shop_currency,ls_shop_currencyCode,ls_shop_numDecimals,ls_shop_priceRoundingFactor,ls_shop_priceType,ls_shop_numDecimalsWeight,ls_shop_weightUnit,ls_shop_quantityDefault,ls_shop_salesUnit,ls_shop_minimumOrderQuantityStockHandling,ls_shop_versandkostenType,ls_shop_autoSelectCheapestPossibleShippingAndPaymentMethods,ls_shop_useProductDescriptionAsSeoDescription,ls_shop_cartPositionCommentsEnabled,ls_shop_ownEmailAddress,ls_shop_output_definitionset,ls_shop_delivery_infoSet,ls_shop_productDetailsTemplate,ls_shop_standardProductImageFolder,ls_shop_imageSortingStandardDirection,ls_shop_imageHandlingType,ls_shop_beOrderTemplateOverview,ls_shop_beOrderTemplateDetails;
 		
 		{euSettings_legend},ls_shop_ownVATID,ls_shop_euCountrycodes,ls_shop_useVATIDValidation;
 
@@ -311,6 +311,28 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'inputType' => 'text',
 			'eval' => array('minlength' => 1, 'maxlength' => 10, 'tl_class'=>'w50')
 		),
+
+		'ls_shop_salesUnit' => [
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_salesUnit'],
+			'inputType' => 'text',
+			'eval' => [
+				'decodeEntities' => true,
+				'maxlength' => 255,
+				'tl_class' => 'w50',
+			]
+		],
+
+		'ls_shop_minimumOrderQuantityStockHandling' => [
+			'exclude' => true,
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_minimumOrderQuantityStockHandling'],
+			'inputType' => 'select',
+			'options' => ['denyOrder', 'allowAvailableQuantity'],
+			'reference' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_minimumOrderQuantityStockHandling']['options'],
+			'eval' => [
+				'tl_class' => 'w50',
+			],
+		],
 		
 		'ls_shop_delivery_infoSet' => array(
 			'exclude'		=> true,

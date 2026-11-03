@@ -202,7 +202,7 @@ class ls_shop_apiController_payment_payPalCheckout
             } else {
                 $unitPrice = number_format($cartItem['priceCumulative'], 2, '.', '');
                 $quantity = 1;
-                $itemDescription = trim($itemDescription.' ('.$cartItemExtended['quantity'].' '.$cartItemExtended['objProduct']->_quantityUnit.' * '.$cartItemExtended['objProduct']->_priceAfterTaxFormatted.')');
+                $itemDescription = trim($itemDescription.' ('.$cartItemExtended['quantity'].' '.$cartItemExtended['objProduct']->_displayQuantityUnit.' * '.$cartItemExtended['objProduct']->_priceAfterTaxFormatted.')');
                 $lineTotal = (float) $unitPrice;
             }
 

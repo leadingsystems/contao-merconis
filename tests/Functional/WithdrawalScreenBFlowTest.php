@@ -47,11 +47,17 @@ final class WithdrawalScreenBFlowTest extends TestCase
             'artNr' => 'ART-001',
             'price' => '12.50',
             'quantityUnit' => 'Stueck',
+            'displayQuantityUnit' => '100 Stueck',
+            'salesUnit' => 'Pack',
+            'salesUnitSize' => 100,
             'quantity' => 5.0,
+            'displayQuantity' => 500.0,
             'extendedInfo' => [
                 '_productTitle_customerLanguage' => 'Product A',
                 '_title_customerLanguage' => 'Variant M',
                 '_quantityUnit_customerLanguage' => 'pcs',
+                '_displayQuantityUnit_customerLanguage' => '100 pcs',
+                '_salesUnit_customerLanguage' => 'pack',
             ],
         ];
 
@@ -94,11 +100,12 @@ final class WithdrawalScreenBFlowTest extends TestCase
         self::assertSame('Product A', $childSnapshot['snapshotProductName_customerLanguage']);
         self::assertSame('Variante M', $childSnapshot['snapshotVariantTitle']);
         self::assertSame('Variant M', $childSnapshot['snapshotVariantTitle_customerLanguage']);
-        self::assertSame('12,50 EUR/Stueck', $childSnapshot['snapshotUnitPrice']);
-        self::assertSame('12,50 EUR/pcs', $childSnapshot['snapshotUnitPrice_customerLanguage']);
-        self::assertSame('Stueck', $childSnapshot['snapshotQuantityUnit']);
-        self::assertSame('pcs', $childSnapshot['snapshotQuantityUnit_customerLanguage']);
+        self::assertSame('12,50 EUR/100 Stueck', $childSnapshot['snapshotUnitPrice']);
+        self::assertSame('12,50 EUR/100 pcs', $childSnapshot['snapshotUnitPrice_customerLanguage']);
+        self::assertSame('Pack', $childSnapshot['snapshotQuantityUnit']);
+        self::assertSame('pack', $childSnapshot['snapshotQuantityUnit_customerLanguage']);
         self::assertSame(5.0, $childSnapshot['snapshotOrderedQuantity']);
+        self::assertSame(100, $childSnapshot['snapshotSalesUnitSize']);
         self::assertSame(3.0, $childSnapshot['withdrawnQuantity']);
     }
 

@@ -86,13 +86,13 @@ use Contao\Date;
                 <div class="price-single">
                     <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText014'] ?></div>
                     <div class="field-content">
-                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($cartItem['price']); ?><?php echo $cartItem['extendedInfo']['_hasQuantityUnit'] ? '/<span class="quantityUnit">'.$cartItem['extendedInfo']['_quantityUnit_customerLanguage'].'</span>' : '' ?>
+                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputPrice($cartItem['price']); ?><?php echo ($cartItem['extendedInfo']['_displayQuantityUnit_customerLanguage'] ?? '') !== '' ? '/<span class="quantityUnit">'.$cartItem['extendedInfo']['_displayQuantityUnit_customerLanguage'].'</span>' : '' ?>
                     </div>
                 </div>
                 <div class="quantity">
                     <div class="field-label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['miscText016'] ?></div>
                     <div class="field-content">
-                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($cartItem['quantity'], $cartItem['extendedInfo']['_quantityDecimals']); ?><?php echo $cartItem['extendedInfo']['_hasQuantityUnit'] ? ' <span class="quantityUnit">'.$cartItem['extendedInfo']['_quantityUnit'].'</span>' : '' ?>
+                        <?php echo \Merconis\Core\ls_shop_generalHelper::outputDisplayQuantity($cartItem['quantity'], (int) $cartItem['quantityDecimals'], (int) ($cartItem['salesUnitSize'] ?? 0)); ?><?php echo ($cartItem['extendedInfo']['_salesUnit_customerLanguage'] ?? '') !== '' ? ' <span class="quantityUnit">'.$cartItem['extendedInfo']['_salesUnit_customerLanguage'].'</span>' : '' ?>
                     </div>
                 </div>
 

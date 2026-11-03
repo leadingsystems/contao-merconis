@@ -10,7 +10,7 @@ if ($this->objVariant !== null && $this->objVariant->_useStock) {
 
 if ($obj_tmp_productOrVariant !== null) {
 	?>
-	<div class="stockInfo stockInfo-icon <?php echo $obj_tmp_productOrVariant->_stockIsInsufficient ? ' error-all' : ' success-all'  ?>"><p><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['stockAvailable'], \Merconis\Core\ls_shop_generalHelper::outputQuantity($obj_tmp_productOrVariant->_stock, $obj_tmp_productOrVariant->_quantityDecimals), $obj_tmp_productOrVariant->_quantityUnit); ?></p></div>
+	<div class="stockInfo stockInfo-icon <?php echo $obj_tmp_productOrVariant->_stockIsInsufficient ? ' error-all' : ' success-all'  ?>"><p><?php echo sprintf($GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['stockAvailable'], \Merconis\Core\ls_shop_generalHelper::outputDisplayQuantity($obj_tmp_productOrVariant->_stock, (int) $obj_tmp_productOrVariant->_quantityDecimals, (int) $obj_tmp_productOrVariant->_salesUnitSize), $obj_tmp_productOrVariant->_salesUnit); ?></p></div>
 	<?php
 }
 ?>

@@ -9,6 +9,18 @@ use ReflectionClass;
 
 final class WithdrawalOrderMessagesTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (
+            !function_exists('LeadingSystems\\Helpers\\ls_mul')
+            || !function_exists('LeadingSystems\\Helpers\\ls_div')
+        ) {
+            require_once dirname(__DIR__, 2) . '/vendor/leadingsystems/contao-helpers/src/Resources/contao/functions.php';
+        }
+    }
+
     public function testMessageContextReplacesWithdrawalWildcards(): void
     {
         $orderMessages = $this->createOrderMessagesInstanceWithWithdrawal([
@@ -425,6 +437,30 @@ final class WithdrawalOrderMessagesTest extends TestCase
         );
     }
 
+    public function testPreparedWithdrawalItemsExposeDisplayQuantitiesForSalesUnitSnapshots(): void
+    {
+        $orderMessages = $this->createOrderMessagesInstanceWithOrderAndWithdrawal(
+            $this->buildOrderData(['customerLanguage' => 'en']),
+            $this->buildWithdrawalData(),
+            'en'
+        );
+
+        $this->invokeProtectedMethod(
+            $orderMessages,
+            'ls_replaceWildcards',
+            [
+                '##template::mail_withdrawal##',
+                static function (string $template, $orderData, $withdrawalData): string {
+                    self::assertSame('mail_withdrawal', $template);
+                    self::assertSame('200', $withdrawalData['items'][0]['snapshotOrderedQuantity'] ?? null);
+                    self::assertSame('150', $withdrawalData['items'][0]['withdrawnQuantity'] ?? null);
+
+                    return '';
+                },
+            ]
+        );
+    }
+
     public function testPreparedWithdrawalItemsContainConfigReferenceNumberFromConfiguratorSnapshot(): void
     {
         $withdrawalData = $this->buildWithdrawalData();
@@ -643,6 +679,10 @@ final class WithdrawalOrderMessagesTest extends TestCase
                     'snapshotUnitPrice_customerLanguage' => '19,99 EUR/Stueck',
                     'snapshotQuantityUnit' => 'piece',
                     'snapshotQuantityUnit_customerLanguage' => 'Stueck',
+                    'snapshotOrderedQuantity' => 2.0,
+                    'withdrawnQuantity' => 1.5,
+                    'snapshotQuantityDecimals' => 1,
+                    'snapshotSalesUnitSize' => 100,
                 ],
             ],
         ];

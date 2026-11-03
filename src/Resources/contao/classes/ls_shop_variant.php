@@ -6,6 +6,7 @@ use Contao\Database;
 use Contao\FrontendTemplate;
 use Contao\PageModel;
 use Contao\System;
+use LeadingSystems\MerconisBundle\Helpers\MinimumOrderQuantityCalculator;
 use LeadingSystems\MerconisBundle\Proxy\ProductDataAccessProxy;
 use function LeadingSystems\Helpers\ls_mul;
 use function LeadingSystems\Helpers\ls_div;
@@ -586,6 +587,74 @@ returns the main image that has been selected explicitly or null if none has bee
 				return $this->_quantityUnitSelf ? true : false;
 				break;
 
+			case '_minimumOrderQuantitySelf':
+				return MinimumOrderQuantityCalculator::normalizeQuantityValue(
+					$this->mainData['lsShopVariantMinimumOrderQuantity'] ?? 0
+				);
+				break;
+
+			case '_minimumOrderQuantity':
+				if (MinimumOrderQuantityCalculator::hasActiveMinimumOrderQuantity($this->_minimumOrderQuantitySelf)) {
+					return $this->_minimumOrderQuantitySelf;
+				}
+
+				return MinimumOrderQuantityCalculator::normalizeQuantityValue(
+					$this->_objParentProduct->mainData['lsShopProductMinimumOrderQuantity'] ?? 0
+				);
+				break;
+
+			case '_hasMinimumOrderQuantity':
+				return MinimumOrderQuantityCalculator::hasActiveMinimumOrderQuantity(
+					$this->_minimumOrderQuantity
+				);
+				break;
+
+			case '_effectiveMinimumOrderQuantity':
+				return MinimumOrderQuantityCalculator::getEffectiveDisplayMinimumQuantity(
+					$this->_minimumOrderQuantity,
+					(int) $this->_salesUnitSize,
+					(int) $this->_quantityDecimals
+				);
+				break;
+
+			case '_salesUnitSizeSelf':
+				return (int) ($this->mainData['lsShopVariantSalesUnitSize'] ?? 0);
+				break;
+
+			case '_salesUnitSelf':
+				return ($this->currentLanguageData['lsShopVariantSalesUnit'] ?? null) ? $this->currentLanguageData['lsShopVariantSalesUnit'] : ($this->mainData['lsShopVariantSalesUnit'] ?? '');
+				break;
+
+			case '_salesUnitSize':
+				if ($this->_salesUnitSizeSelf > 0) {
+					return $this->_salesUnitSizeSelf;
+				}
+
+				return (int) ($this->_objParentProduct->mainData['lsShopProductSalesUnitSize'] ?? 0);
+				break;
+
+			case '_hasSalesUnit':
+				return $this->_salesUnitSize > 0;
+				break;
+
+			case '_salesUnit':
+				if (!$this->_hasSalesUnit) {
+					return $this->_quantityUnit;
+				}
+
+				if ($this->_salesUnitSelf) {
+					return $this->_salesUnitSelf;
+				}
+
+				$strProductSalesUnit = ($this->_objParentProduct->currentLanguageData['lsShopProductSalesUnit'] ?? null) ? $this->_objParentProduct->currentLanguageData['lsShopProductSalesUnit'] : ($this->_objParentProduct->mainData['lsShopProductSalesUnit'] ?? '');
+
+				if ($strProductSalesUnit) {
+					return $strProductSalesUnit;
+				}
+
+				return $GLOBALS['TL_CONFIG']['ls_shop_salesUnit'] ?? '';
+				break;
+
 			case '_quantityUnit':
 				if ($this->_hasQuantityUnitSelf) {
 					return $this->_quantityUnitSelf;
@@ -600,6 +669,26 @@ returns the main image that has been selected explicitly or null if none has bee
 				} else {
 					return $this->_objParentProduct->_hasQuantityUnit;
 				}
+				break;
+
+			case '_displayQuantityUnit':
+				if ($this->_hasSalesUnit) {
+					return $this->_salesUnitSize . ' ' . $this->_salesUnit;
+				}
+
+				return $this->_quantityUnit;
+				break;
+
+			case '_displayQuantityStep':
+				if ($this->_hasSalesUnit) {
+					return ls_div($this->_salesUnitSize, pow(10, $this->_quantityDecimals));
+				}
+
+				if ($this->_quantityDecimals > 0) {
+					return ls_div(1, pow(10, $this->_quantityDecimals));
+				}
+
+				return 1;
 				break;
 
 			case '_quantityComparisonUnitSelf':
@@ -702,6 +791,14 @@ returns the main image that has been selected explicitly or null if none has bee
 				return number_format($this->mainData['lsShopVariantStock'], $this->_quantityDecimals, '.', '');
 				break;
 
+			case '_displayStock':
+				if ($this->_hasSalesUnit) {
+					return ls_mul($this->_stock, $this->_salesUnitSize);
+				}
+
+				return $this->_stock;
+				break;
+
 			case '_stockIsInsufficient'
 				/* ## DESCRIPTION:
 Indicates whether or not stock is insufficient. Returns true if stock should be used (_useStock == true), stock is equal or less than 0 (_stock <= 0) and orders with insufficient stock aren't allowed (_allowOrdersWithInsufficientStock == false), otherwise returns false.
@@ -713,6 +810,23 @@ Indicates whether or not stock is insufficient. Returns true if stock should be 
 					// if stock is equal or less than 0 and orders with insufficient stock are not allowed
 					if ($this->_stock <= 0 && !$this->_allowOrdersWithInsufficientStock) {
 						$blnStockIsSufficient = true;
+					}
+
+					if (!$blnStockIsSufficient && $this->_hasMinimumOrderQuantity) {
+						$availableQuantityForMinimumCheck = ls_shop_cartHelper::getAvailableQuantity(
+							$this->_cartKey,
+							$this->_minimumOrderQuantity
+						);
+
+						if (
+							MinimumOrderQuantityCalculator::shouldDenyOrderDueToStockConflict(
+								$this->_minimumOrderQuantity,
+								$availableQuantityForMinimumCheck,
+								(int) $this->_quantityDecimals
+							)
+						) {
+							$blnStockIsSufficient = true;
+						}
 					}
 				}
 
@@ -1512,9 +1626,30 @@ This method can be used to call a function hooked with the "callingHookedProduct
 			if (is_array($arrStepsCombined)) {
 				foreach ($arrStepsCombined as $minQuantity) {
 					$GLOBALS['merconis_globals']['temporarilyFixedScalePriceQuantity'] = $minQuantity;
+					$intSalesUnitSize = $this->_salesUnitSizeSelf > 0
+						? $this->_salesUnitSizeSelf
+						: (int) ($this->_objParentProduct->mainData['lsShopProductSalesUnitSize'] ?? 0);
+					$strSalesUnit = $this->_salesUnitSelf;
+
+					if (!$strSalesUnit) {
+						$strSalesUnit = ($this->_objParentProduct->currentLanguageData['lsShopProductSalesUnit'] ?? null)
+							? $this->_objParentProduct->currentLanguageData['lsShopProductSalesUnit']
+							: ($this->_objParentProduct->mainData['lsShopProductSalesUnit'] ?? '');
+					}
+
+					if (!$strSalesUnit && $intSalesUnitSize > 0) {
+						$strSalesUnit = $GLOBALS['TL_CONFIG']['ls_shop_salesUnit'] ?? '';
+					}
+
+					$floatDisplayMinQuantity = $intSalesUnitSize > 0
+						? ls_mul($minQuantity, $intSalesUnitSize)
+						: $minQuantity;
+					$strDisplayQuantityUnit = $intSalesUnitSize > 0
+						? $strSalesUnit
+						: $this->_quantityUnit;
 
 					$arrTmp = array(
-						'minQuantity' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['scalePriceQuantityFrom'].' '.ls_shop_generalHelper::outputQuantity($minQuantity, $this->_quantityDecimals).' '.$this->_quantityUnit
+						'minQuantity' => $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['scalePriceQuantityFrom'].' '.ls_shop_generalHelper::outputQuantity($floatDisplayMinQuantity, $this->_quantityDecimals).' '.$strDisplayQuantityUnit
 					);
 
 					switch ($mode) {

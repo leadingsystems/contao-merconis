@@ -176,10 +176,10 @@ class dynamicAttachment_invoice_01 extends Controller {
             $this->pdf->SetTextColor(0, 0, 0);
 
             $this->pdf->SetXY(113, $y, true);
-            $this->pdf->Cell(25, 4, html_entity_decode(ls_shop_generalHelper::outputPrice($cartItem['price']).($cartItem['extendedInfo']['_hasQuantityUnit'] ? '/'.$cartItem['extendedInfo']['_quantityUnit_customerLanguage'] : ''), ENT_COMPAT, 'UTF-8'), $strBorder, 0, 'R', false, '', 0, false, 'T', 'B');
+            $this->pdf->Cell(25, 4, html_entity_decode(ls_shop_generalHelper::outputPrice($cartItem['price']).(($cartItem['extendedInfo']['_displayQuantityUnit_customerLanguage'] ?? '') !== '' ? '/'.$cartItem['extendedInfo']['_displayQuantityUnit_customerLanguage'] : ''), ENT_COMPAT, 'UTF-8'), $strBorder, 0, 'R', false, '', 0, false, 'T', 'B');
 
             $this->pdf->SetXY(138, $y, true);
-            $this->pdf->Cell(15, 4, ls_shop_generalHelper::outputQuantity($cartItem['quantity']), $strBorder, 0, 'R', false, '', 0, false, 'T', 'B');
+            $this->pdf->Cell(15, 4, ls_shop_generalHelper::outputDisplayQuantity($cartItem['quantity'], (int) $cartItem['quantityDecimals'], (int) ($cartItem['salesUnitSize'] ?? 0)).(($cartItem['extendedInfo']['_salesUnit_customerLanguage'] ?? '') !== '' ? ' '.$cartItem['extendedInfo']['_salesUnit_customerLanguage'] : ''), $strBorder, 0, 'R', false, '', 0, false, 'T', 'B');
 
             $this->pdf->SetXY(153, $y, true);
             $this->pdf->Cell(28, 4, ls_shop_generalHelper::outputPrice($cartItem['priceCumulative']), $strBorder.($this->blnShowTaxColumn ? '' : 'R'), 0, 'R', false, '', 0, false, 'T', 'B');

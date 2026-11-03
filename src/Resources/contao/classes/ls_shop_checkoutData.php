@@ -845,7 +845,10 @@ class ls_shop_checkoutData {
         if (!isset($session_lsShop['items']) || !is_array($session_lsShop['items']) || !count($session_lsShop['items'])) {
 			return false;
 		}
-		return ls_shop_cartHelper::validateOrderPermissionOfCartPositions();
+		$cartPositionsOrderAllowed = ls_shop_cartHelper::validateOrderPermissionOfCartPositions();
+		$cartPositionsMinimumOrderQuantityValid = ls_shop_cartHelper::validateMinimumOrderQuantityOfCartPositions();
+
+		return $cartPositionsOrderAllowed && $cartPositionsMinimumOrderQuantityValid;
 	}
 
 	

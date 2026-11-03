@@ -41,6 +41,19 @@ final class WithdrawalSnapshotReferenceFieldsTest extends TestCase
         );
     }
 
+    public function testSnapshotSalesUnitSizeFieldExistsInDca(): void
+    {
+        require self::DCA_BASE_PATH . 'tl_ls_shop_withdrawal_items.php';
+
+        $tableConfig = $GLOBALS['TL_DCA']['tl_ls_shop_withdrawal_items'];
+
+        self::assertArrayHasKey('snapshotSalesUnitSize', $tableConfig['fields']);
+        self::assertSame(
+            "int(10) unsigned NOT NULL default '0'",
+            $tableConfig['fields']['snapshotSalesUnitSize']['sql']
+        );
+    }
+
     public function testWithdrawalItemsInsertStatementContainsSnapshotReferenceFields(): void
     {
         $moduleContents = (string) file_get_contents(
@@ -61,6 +74,14 @@ final class WithdrawalSnapshotReferenceFieldsTest extends TestCase
         );
         self::assertStringContainsString(
             "childSnapshot['snapshotCustomizerReferenceNumber']",
+            $moduleContents
+        );
+        self::assertStringContainsString(
+            '`snapshotSalesUnitSize`',
+            $moduleContents
+        );
+        self::assertStringContainsString(
+            "childSnapshot['snapshotSalesUnitSize']",
             $moduleContents
         );
     }
@@ -94,6 +115,32 @@ final class WithdrawalSnapshotReferenceFieldsTest extends TestCase
         self::assertStringContainsString(
             "'snapshotCustomizerReferenceNumber' => \$this->resolveCustomizerReferenceNumber(",
             $processorContents
+        );
+        self::assertStringContainsString(
+            "'snapshotSalesUnitSize' => \$salesUnitSize",
+            $processorContents
+        );
+    }
+
+    public function testScreenBTemplateActivatesNumberStepperForSalesUnits(): void
+    {
+        $templateContents = (string) file_get_contents(
+            __DIR__ . '/../../src/Resources/contao/templates/mod_ls_shop_withdrawal_screenB.html5'
+        );
+
+        self::assertStringContainsString('useNumberStepper', $templateContents);
+        self::assertStringContainsString("['minimumQuantity']", $templateContents);
+    }
+
+    public function testScreenBInitializesWithdrawnQuantitiesFromDisplayQuantities(): void
+    {
+        $moduleContents = (string) file_get_contents(
+            __DIR__ . '/../../src/Resources/contao/frontendModules/ModuleWithdrawal.php'
+        );
+
+        self::assertStringContainsString(
+            '$withdrawnQuantities[$orderItemId] = (float) $processor->getOrderedDisplayQuantity($orderItem);',
+            $moduleContents
         );
     }
 }

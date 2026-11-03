@@ -17,7 +17,7 @@ use Contao\System;
 	<td><strong><?php echo $this->objProduct->_code; ?></strong></td>
 	<td></td>
 	<td><strong><?php echo $this->objProduct->_title; ?></strong></td>
-	<td style="text-align: right;"><?php echo $this->objProduct->_stock; ?> <?php echo $this->objProduct->_quantityUnit; ?></td>
+	<td style="text-align: right;"><?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($this->objProduct->_stock, (int) $this->objProduct->_quantityDecimals); ?><?php echo $this->objProduct->_hasSalesUnit ? ' × '.$this->objProduct->_displayQuantityUnit : ' '.$this->objProduct->_quantityUnit; ?></td>
 	<td>
 		<?php
 			if (isset($GLOBALS['merconis_globals']['stockManagement']['errorMsg'][$this->objProduct->ls_productVariantID])) {
@@ -55,7 +55,7 @@ use Contao\System;
 					<td></td>
 					<td><?php echo $variant->_code; ?></td>
 					<td><?php echo $variant->_title; ?></td>
-					<td style="text-align: right;"><?php echo $variant->_stock; ?> <?php echo $variant->_quantityUnit; ?></td>
+					<td style="text-align: right;"><?php echo \Merconis\Core\ls_shop_generalHelper::outputQuantity($variant->_stock, (int) $variant->_quantityDecimals); ?><?php echo $variant->_hasSalesUnit ? ' × '.$variant->_displayQuantityUnit : ' '.$variant->_quantityUnit; ?></td>
 					<td>
 						<?php
 							if (isset($GLOBALS['merconis_globals']['stockManagement']['errorMsg'][$variant->ls_productVariantID])) {

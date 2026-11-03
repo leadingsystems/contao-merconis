@@ -810,6 +810,9 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductSteuersatz` = ?,
 							`lsShopProductQuantityUnit` = ?,
 							`lsShopProductQuantityDecimals` = ?,
+							`lsShopProductSalesUnitSize` = ?,
+							`lsShopProductSalesUnit` = ?,
+							`lsShopProductMinimumOrderQuantity` = ?,
 							`lsShopProductMengenvergleichUnit` = ?,
 							`lsShopProductMengenvergleichDivisor` = ?,
 							`lsShopProductMainImage` = ?,
@@ -851,6 +854,9 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['taxclass'] ? $arr_preprocessedDataRow['taxclass'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['unit'], // String, maxlength 255
 				$arr_preprocessedDataRow['quantityDecimals'] && $arr_preprocessedDataRow['quantityDecimals'] > 0 ? $arr_preprocessedDataRow['quantityDecimals'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['salesUnitSize'] ? $arr_preprocessedDataRow['salesUnitSize'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['salesUnit'], // String, maxlength 255
+				$arr_preprocessedDataRow['minimumOrderQuantity'] ? $arr_preprocessedDataRow['minimumOrderQuantity'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
 				$arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
@@ -910,6 +916,7 @@ class ls_shop_productManagementApiHelper {
 					'keywords',
 					'description',
 					'lsShopProductQuantityUnit',
+					'lsShopProductSalesUnit',
 					'lsShopProductMengenvergleichUnit',
 					'shortDescription',
 					'flex_contents',
@@ -927,6 +934,7 @@ class ls_shop_productManagementApiHelper {
 					$arr_preprocessedDataRow['keywords'],
 					$arr_preprocessedDataRow['description'],
 					$arr_preprocessedDataRow['unit'],
+					$arr_preprocessedDataRow['salesUnit'],
 					$arr_preprocessedDataRow['quantityComparisonUnit'],
 					$arr_preprocessedDataRow['shortDescription'],
 					$arr_preprocessedDataRow['flex_contents'],
@@ -962,6 +970,9 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductSteuersatz` = ?,
 							`lsShopProductQuantityUnit` = ?,
 							`lsShopProductQuantityDecimals` = ?,
+							`lsShopProductSalesUnitSize` = ?,
+							`lsShopProductSalesUnit` = ?,
+							`lsShopProductMinimumOrderQuantity` = ?,
 							`lsShopProductMengenvergleichUnit` = ?,
 							`lsShopProductMengenvergleichDivisor` = ?,
 							`lsShopProductMainImage` = ?,
@@ -1003,6 +1014,9 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['taxclass'] ? $arr_preprocessedDataRow['taxclass'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['unit'], // String, maxlength 255
 				$arr_preprocessedDataRow['quantityDecimals'] && $arr_preprocessedDataRow['quantityDecimals'] > 0 ? $arr_preprocessedDataRow['quantityDecimals'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['salesUnitSize'] ? $arr_preprocessedDataRow['salesUnitSize'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['salesUnit'], // String, maxlength 255
+				$arr_preprocessedDataRow['minimumOrderQuantity'] ? $arr_preprocessedDataRow['minimumOrderQuantity'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
 				$arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
@@ -1061,6 +1075,7 @@ class ls_shop_productManagementApiHelper {
 					'keywords',
 					'description',
 					'lsShopProductQuantityUnit',
+					'lsShopProductSalesUnit',
 					'lsShopProductMengenvergleichUnit',
 					'shortDescription',
 					'flex_contents',
@@ -1078,6 +1093,7 @@ class ls_shop_productManagementApiHelper {
 					$arr_preprocessedDataRow['keywords'],
 					$arr_preprocessedDataRow['description'],
 					$arr_preprocessedDataRow['unit'],
+					$arr_preprocessedDataRow['salesUnit'],
 					$arr_preprocessedDataRow['quantityComparisonUnit'],
 					$arr_preprocessedDataRow['shortDescription'],
 					$arr_preprocessedDataRow['flex_contents'],
@@ -1129,6 +1145,9 @@ class ls_shop_productManagementApiHelper {
 								`lsShopVariantWeight` = ?,
 								`lsShopVariantWeightType` = ?,
 								`lsShopVariantQuantityUnit` = ?,
+								`lsShopVariantSalesUnitSize` = ?,
+								`lsShopVariantSalesUnit` = ?,
+								`lsShopVariantMinimumOrderQuantity` = ?,
 								`lsShopVariantMengenvergleichUnit` = ?,
 								`lsShopVariantMengenvergleichDivisor` = ?,
 								`lsShopProductVariantMainImage` = ?,
@@ -1164,6 +1183,9 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['weightType'], // String, maxlength 255
 				$arr_preprocessedDataRow['unit'], // String, maxlength 255
+				$arr_preprocessedDataRow['salesUnitSize'] ? $arr_preprocessedDataRow['salesUnitSize'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['salesUnit'], // String, maxlength 255
+				$arr_preprocessedDataRow['minimumOrderQuantity'] ? $arr_preprocessedDataRow['minimumOrderQuantity'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
 				$arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
@@ -1216,6 +1238,7 @@ class ls_shop_productManagementApiHelper {
 					'alias',
 					'description',
 					'lsShopVariantQuantityUnit',
+					'lsShopVariantSalesUnit',
 					'lsShopVariantMengenvergleichUnit',
 					'shortDescription',
 					'flex_contents'
@@ -1230,6 +1253,7 @@ class ls_shop_productManagementApiHelper {
 					),
 					$arr_preprocessedDataRow['description'],
 					$arr_preprocessedDataRow['unit'],
+					$arr_preprocessedDataRow['salesUnit'],
 					$arr_preprocessedDataRow['quantityComparisonUnit'],
 					$arr_preprocessedDataRow['shortDescription'],
 					$arr_preprocessedDataRow['flex_contents']
@@ -1271,6 +1295,9 @@ class ls_shop_productManagementApiHelper {
 							`lsShopVariantWeight` = ?,
 							`lsShopVariantWeightType` = ?,
 							`lsShopVariantQuantityUnit` = ?,
+							`lsShopVariantSalesUnitSize` = ?,
+							`lsShopVariantSalesUnit` = ?,
+							`lsShopVariantMinimumOrderQuantity` = ?,
 							`lsShopVariantMengenvergleichUnit` = ?,
 							`lsShopVariantMengenvergleichDivisor` = ?,
 							`lsShopProductVariantMainImage` = ?,
@@ -1307,6 +1334,9 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['weight'] ? $arr_preprocessedDataRow['weight'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['weightType'], // String, maxlength 255
 				$arr_preprocessedDataRow['unit'], // String, maxlength 255
+				$arr_preprocessedDataRow['salesUnitSize'] ? $arr_preprocessedDataRow['salesUnitSize'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['salesUnit'], // String, maxlength 255
+				$arr_preprocessedDataRow['minimumOrderQuantity'] ? $arr_preprocessedDataRow['minimumOrderQuantity'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['quantityComparisonUnit'], // String, maxlength 255
 				$arr_preprocessedDataRow['quantityComparisonDivisor'] ? $arr_preprocessedDataRow['quantityComparisonDivisor'] : 0, // decimal, empty = 0
 				$arr_preprocessedDataRow['image'], // binary(16), translated, check unclear
@@ -1358,6 +1388,7 @@ class ls_shop_productManagementApiHelper {
 					'alias',
 					'description',
 					'lsShopVariantQuantityUnit',
+					'lsShopVariantSalesUnit',
 					'lsShopVariantMengenvergleichUnit',
 					'shortDescription',
 					'flex_contents'
@@ -1372,6 +1403,7 @@ class ls_shop_productManagementApiHelper {
 					),
 					$arr_preprocessedDataRow['description'],
 					$arr_preprocessedDataRow['unit'],
+					$arr_preprocessedDataRow['salesUnit'],
 					$arr_preprocessedDataRow['quantityComparisonUnit'],
 					$arr_preprocessedDataRow['shortDescription'],
 					$arr_preprocessedDataRow['flex_contents']
@@ -1398,6 +1430,7 @@ class ls_shop_productManagementApiHelper {
 				'keywords',
 				'description',
 				'lsShopProductQuantityUnit',
+				'lsShopProductSalesUnit',
 				'lsShopProductMengenvergleichUnit',
 				'shortDescription',
 				'flex_contents',
@@ -1415,6 +1448,7 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['keywords'],
 				$arr_preprocessedDataRow['description'],
 				$arr_preprocessedDataRow['unit'],
+				$arr_preprocessedDataRow['salesUnit'],
 				$arr_preprocessedDataRow['quantityComparisonUnit'],
 				$arr_preprocessedDataRow['shortDescription'],
 				$arr_preprocessedDataRow['flex_contents'],
@@ -1443,6 +1477,7 @@ class ls_shop_productManagementApiHelper {
 				'alias',
 				'description',
 				'lsShopVariantQuantityUnit',
+				'lsShopVariantSalesUnit',
 				'lsShopVariantMengenvergleichUnit',
 				'shortDescription',
 				'flex_contents'
@@ -1457,6 +1492,7 @@ class ls_shop_productManagementApiHelper {
 				),
 				$arr_preprocessedDataRow['description'],
 				$arr_preprocessedDataRow['unit'],
+				$arr_preprocessedDataRow['salesUnit'],
 				$arr_preprocessedDataRow['quantityComparisonUnit'],
 				$arr_preprocessedDataRow['shortDescription'],
 				$arr_preprocessedDataRow['flex_contents']

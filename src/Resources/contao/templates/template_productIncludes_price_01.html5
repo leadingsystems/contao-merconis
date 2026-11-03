@@ -19,7 +19,7 @@ if ($this->objVariant !== null) {
              */
             if ($this->objProduct->_variantIsSelected || !$this->objProduct->_oldPricesAreDifferent) {
                 ?>
-                <?php echo $obj_tmp_productOrVariant->_priceOldAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                <?php echo $obj_tmp_productOrVariant->_priceOldAfterTaxFormatted; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?>/<?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?>
                 <?php
             }
 
@@ -28,7 +28,7 @@ if ($this->objVariant !== null) {
              */
             else {
                 ?>
-                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php echo $obj_tmp_productOrVariant->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php echo $obj_tmp_productOrVariant->_priceOldMinimumAfterTaxFormatted; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?>/<?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?>
                 <?php
             }
             ?>
@@ -46,11 +46,11 @@ if ($this->objVariant !== null) {
 				?>
 				<div class="basePrice">
 					<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['basePrice']; ?>:</span>
-					<span class="value"><?php echo $obj_tmp_productOrVariant->_unscaledPriceBeforeConfiguratorAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
+					<span class="value"><?php echo $obj_tmp_productOrVariant->_unscaledPriceBeforeConfiguratorAfterTaxFormatted; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?> / <?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?></span>
 				</div>
 				<div class="configuratorPrice">
 					<span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['configuratorPrice']; ?>:</span>
-					<span class="value"><?php echo $obj_tmp_productOrVariant->_unscaledPriceModificationByConfiguratorFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
+					<span class="value"><?php echo $obj_tmp_productOrVariant->_unscaledPriceModificationByConfiguratorFormatted; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?> / <?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?></span>
 				</div>
 			<?php } ?>
 			<div class="finalPrice">
@@ -60,7 +60,7 @@ if ($this->objVariant !== null) {
                      */
                     if ($this->objProduct->_variantIsSelected || !$this->objProduct->_unscaledPricesAreDifferent) {
                         ?>
-                        <?php echo $obj_tmp_productOrVariant->_unscaledPriceAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                        <?php echo $obj_tmp_productOrVariant->_unscaledPriceAfterTaxFormatted; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?>/<?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?>
                         <?php
                     }
 
@@ -69,7 +69,7 @@ if ($this->objVariant !== null) {
                      */
                     else {
                         ?>
-                        <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php echo $obj_tmp_productOrVariant->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit): ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                        <?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php echo $obj_tmp_productOrVariant->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?>/<?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?>
                         <?php
                     }
                 ?>
@@ -173,11 +173,11 @@ if ($this->objVariant !== null) {
                                             ?>
                                             <div class="basePrice">
                                                 <span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['basePrice']; ?>:</span>
-                                                <span class="value"><?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
+                                                <span class="value"><?php echo $arrStep['priceUnconfigured']; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?> / <?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?></span>
                                             </div>
                                             <div class="configuratorPrice">
                                                 <span class="label"><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['configuratorPrice']; ?>:</span>
-                                                <span class="value"><?php echo $arrStep['priceConfigurator']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?></span>
+                                                <span class="value"><?php echo $arrStep['priceConfigurator']; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?> / <?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?></span>
                                             </div>
                                         <?php } ?>
                                         <div class="finalPrice scalePrice<?php echo $count; ?>">
@@ -187,9 +187,9 @@ if ($this->objVariant !== null) {
                                                 $obj_tmp_productOrVariant->_unscaledPriceModificationByConfigurator
                                             ) {
                                                 ?>
-                                                <?php echo $arrStep['priceConfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                                                <?php echo $arrStep['priceConfigured']; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?> / <?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?>
                                             <?php } else { ?>
-                                                <?php echo $arrStep['priceUnconfigured']; ?><?php if ($this->objProduct->_hasQuantityUnit): ?> / <?php echo $this->objProduct->_quantityUnit; ?><?php endif; ?>
+                                                <?php echo $arrStep['priceUnconfigured']; ?><?php if ($obj_tmp_productOrVariant->_displayQuantityUnit): ?> / <?php echo $obj_tmp_productOrVariant->_displayQuantityUnit; ?><?php endif; ?>
                                             <?php } ?>
                                         </div>
                                         <div class="quantityComparison">

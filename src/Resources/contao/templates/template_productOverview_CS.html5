@@ -37,10 +37,10 @@
                     <?php
                     if (!$this->objProduct->_cheapestPriceComesFromScalePrices) {
                         // Standard-Ausgabe
-                        if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php }
+                        if ($this->objProduct->_unscaledPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_unscaledPriceMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_displayQuantityUnit) { ?>/<?php echo $this->objProduct->_displayQuantityUnit; ?><?php }
                     } else {
                         ?>
-                        <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] ?> <?= $this->objProduct->_cheapestPriceOutput ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?><?php echo $this->objProduct->_minQuantityInfo ? '<span class="min-quantity-info"> ('.$this->objProduct->_minQuantityInfo.')</span>' : ''; ?>
+                        <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from'] ?> <?= $this->objProduct->_cheapestPriceOutput ?><?php if ($this->objProduct->_displayQuantityUnit) { ?>/<?php echo $this->objProduct->_displayQuantityUnit; ?><?php } ?><?php echo $this->objProduct->_minQuantityInfo ? '<span class="min-quantity-info"> ('.$this->objProduct->_minQuantityInfo.')</span>' : ''; ?>
                         <?php
                     }
                     ?>
@@ -50,7 +50,7 @@
 			<?php // ##### OLD PRICE ##### -> ?>
 				<?php if ($this->objProduct->_hasOldPrice) { ?>
 					<p class="oldPrice">
-						<?php if ($this->objProduct->_oldPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_hasQuantityUnit) { ?>/<?php echo $this->objProduct->_quantityUnit; ?><?php } ?>
+						<?php if ($this->objProduct->_oldPricesAreDifferent) { ?><?php echo $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['from']; ?> <?php } ?><?php echo $this->objProduct->_priceOldMinimumAfterTaxFormatted; ?><?php if ($this->objProduct->_displayQuantityUnit) { ?>/<?php echo $this->objProduct->_displayQuantityUnit; ?><?php } ?>
 					</p>
 				<?php } ?>
 			<?php // <- ##### OLD PRICE ##### ?>

@@ -524,7 +524,7 @@ use function LeadingSystems\Helpers\ls_sub;
 				} else {
 					$arr_payoneParams['no'][count($arr_payoneParams['no'] ?? []) + 1] = 1;
 					$arr_payoneParams['pr'][count($arr_payoneParams['pr'] ?? []) + 1] = ls_mul($arr_item['priceCumulative'], 100);
-					$arr_payoneParams['de'][count($arr_payoneParams['de'] ?? []) + 1] = $arr_item['quantity'].' '.$arr_item['extendedInfo']['_quantityUnit_customerLanguage'].' '.$arr_item['productTitle'].($arr_item['variantTitle'] ? ' ('.$arr_item['variantTitle'].')' : '');
+					$arr_payoneParams['de'][count($arr_payoneParams['de'] ?? []) + 1] = $arr_item['quantity'].' '.$arr_item['displayQuantityUnit'].' '.$arr_item['productTitle'].($arr_item['variantTitle'] ? ' ('.$arr_item['variantTitle'].')' : '');
 				}
 			}
 			return $arr_payoneParams;

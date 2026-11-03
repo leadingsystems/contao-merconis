@@ -63,15 +63,24 @@ class ls_shop_apiController_cart {
 			$requestData['comment'] = null;
 		}
 
-		return [
-			'success' => true,
-			'data' => $addToCartCallback(
+		try {
+			$result = $addToCartCallback(
 				$requestData['productVariantId'],
 				$requestData['quantity'],
 				true,
 				$requestData['comment'] ?? null,
 				$commentWasSubmitted
-			)
+			);
+		} catch (\RuntimeException $exception) {
+			return [
+				'success' => false,
+				'data' => $exception->getMessage()
+			];
+		}
+
+		return [
+			'success' => true,
+			'data' => $result
 		];
 	}
 	

@@ -471,7 +471,7 @@ class ls_shop_paymentModule_payPalPlus extends ls_shop_paymentModule_standard {
 				$obj_item
 					->setQuantity(1)
 					->setPrice(number_format($arr_cartItem['priceCumulative'], 2, '.', ''))
-					->setDescription($obj_item->getDescription().' ('.$arr_cartItemExtended['quantity'].' '.$arr_cartItemExtended['objProduct']->_quantityUnit.' * '.$arr_cartItemExtended['objProduct']->_priceAfterTaxFormatted.')');
+					->setDescription($obj_item->getDescription().' ('.$arr_cartItemExtended['quantity'].' '.$arr_cartItemExtended['objProduct']->_displayQuantityUnit.' * '.$arr_cartItemExtended['objProduct']->_priceAfterTaxFormatted.')');
 			}
 			/* */
 			
