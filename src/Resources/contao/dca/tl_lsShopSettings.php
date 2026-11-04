@@ -108,7 +108,6 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 
 		'garanLabelTruncationLength' => array(
 			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['garanLabelTruncationLength'],
-			'default' => 30,
 			'inputType' => 'text',
 			'eval' => array('rgxp' => 'digit', 'nospace' => true, 'tl_class' => 'clr w50')
 		),
