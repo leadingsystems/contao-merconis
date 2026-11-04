@@ -134,11 +134,6 @@ final class OfficialGuaranteeAssetLocator
         return $this->getGaranColourTemplatePath($version);
     }
 
-    public function getGaranPdfTemplateNotePath(?string $version = null): string
-    {
-        return $this->getGaranVersionDirectory($version) . '/garan-label-colour-pdf.md';
-    }
-
     public function getGaranNestedTemplatePath(?string $version = null): string
     {
         return $this->getGaranVersionDirectory($version) . '/garan-label-nested.svg';
