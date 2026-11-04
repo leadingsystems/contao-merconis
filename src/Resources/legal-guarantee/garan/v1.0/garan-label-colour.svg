@@ -18,7 +18,7 @@
     <rect x="3.09" y="2.63" width="263.11" height="165.38" stroke-width=".5px" stroke="#231f20" stroke-miterlimit="10" fill="none" />
     <rect x="3.09" y="171.68" width="263.11" height="108.38" stroke-width=".5px" stroke="#231f20" stroke-miterlimit="10" fill="none" />
     <text transform="translate(6.32 74.52)" fill="#231f20" font-family="Inter-Regular, Inter" font-size="9px" style="font-variation-settings: 'wght' 400, 'slnt' 0" data-field="brand" clip-path="url(#garan-brand-clip)"><tspan x="0" y="0">Brand/</tspan><tspan x="28.34" y="0" letter-spacing="-.06em">T</tspan><tspan x="33.61" y="0" letter-spacing="0em">rademark</tspan></text>
-    <text transform="translate(196.75 74.52)" fill="#231f20" font-family="Inter-Regular, Inter" font-size="9px" style="font-variation-settings: 'wght' 400, 'slnt' 0" text-anchor="end" data-field="model" clip-path="url(#garan-model-clip)"><tspan x="0" y="0">Model identifier</tspan></text>
+    <text transform="translate(262.97 74.52)" fill="#231f20" font-family="Inter-Regular, Inter" font-size="9px" style="font-variation-settings: 'wght' 400, 'slnt' 0" text-anchor="end" data-field="model" clip-path="url(#garan-model-clip)"><tspan x="0" y="0">Model identifier</tspan></text>
     <line x1="6.32" y1="61.34" x2="262.97" y2="61.34" stroke="#231f20" stroke-miterlimit="10" fill="none" />
     <path d="M229.14,0v39.02c0,1.72.91,3.24,2.24,3.75l13.63,5.22c.67.26,1.38.26,2.05.01l13.59-5.01c1.35-.5,2.27-2.03,2.27-3.76V0h-33.79Z" fill="#034ea2" />
     <g>
