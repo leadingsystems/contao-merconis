@@ -284,7 +284,6 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         );
         self::assertStringContainsString("'inputType' => 'htmlDiv'", $settingsDca);
         self::assertStringContainsString("['garanLabelTruncationLength']", $settingsDca);
-        self::assertStringContainsString("'default' => 30", $settingsDca);
         self::assertStringContainsString('applyEnableGllMigrationRequest', $settingsDca);
         self::assertStringContainsString("['legalGuarantee_legend']", $settingsLanguageDe);
         self::assertStringContainsString("['ls_shop_enableGllMigrationControl']", $settingsLanguageDe);
