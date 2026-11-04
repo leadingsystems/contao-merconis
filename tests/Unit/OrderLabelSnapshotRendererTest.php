@@ -6,7 +6,7 @@ namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
-use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranOrderSnapshotRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranV1OrderSnapshotRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotRenderer;
@@ -124,7 +124,7 @@ final class OrderLabelSnapshotRendererTest extends TestCase
             $assetLocator,
             [
                 new GaranV1OrderSnapshotRenderer(
-                    new GaranPdfTemplateRenderer($assetLocator, 'v1.0')
+                    new GaranLabelRenderer($assetLocator, 'v1.0')
                 ),
                 new class implements GaranOrderSnapshotRendererInterface {
                     public function getVersion(): string
@@ -166,10 +166,10 @@ final class OrderLabelSnapshotRendererTest extends TestCase
             $assetLocator,
             [
                 new GaranV1OrderSnapshotRenderer(
-                    new GaranPdfTemplateRenderer($assetLocator, 'v1.0')
+                    new GaranLabelRenderer($assetLocator, 'v1.0')
                 ),
                 new GaranV1OrderSnapshotRenderer(
-                    new GaranPdfTemplateRenderer($assetLocator, 'v1.1')
+                    new GaranLabelRenderer($assetLocator, 'v1.1')
                 ),
             ]
         );
@@ -202,18 +202,18 @@ final class OrderLabelSnapshotRendererTest extends TestCase
     private function createTempProjectDirWithSecondGaranPdfVersion(): string
     {
         $projectDir = sys_get_temp_dir() . '/merconis-order-label-' . uniqid('', true);
-        $baseDirectory = $projectDir . '/src/Resources/public/legal-guarantee/garan/';
+        $baseDirectory = $projectDir . '/src/Resources/legal-guarantee/garan/';
 
         mkdir($baseDirectory . 'v1.0', 0777, true);
         mkdir($baseDirectory . 'v1.1', 0777, true);
 
         $v10Contents = (string) file_get_contents(
-            dirname(__DIR__, 2) . '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-colour-pdf.svg'
+            dirname(__DIR__, 2) . '/src/Resources/legal-guarantee/garan/v1.0/garan-label-colour.svg'
         );
 
-        file_put_contents($baseDirectory . 'v1.0/garan-label-colour-pdf.svg', $v10Contents);
+        file_put_contents($baseDirectory . 'v1.0/garan-label-colour.svg', $v10Contents);
         file_put_contents(
-            $baseDirectory . 'v1.1/garan-label-colour-pdf.svg',
+            $baseDirectory . 'v1.1/garan-label-colour.svg',
             str_replace('<svg ', '<svg data-version="v1.1" ', $v10Contents)
         );
 

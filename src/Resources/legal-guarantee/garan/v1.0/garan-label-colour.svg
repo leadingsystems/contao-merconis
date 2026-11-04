@@ -1,13 +1,24 @@
 <?xml version='1.0' encoding='utf-8'?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 269.29 283.46">
+  <defs>
+    <clipPath id="garan-brand-clip" clipPathUnits="userSpaceOnUse">
+      <rect x="6.32" y="63.52" width="184.00" height="14.00" />
+    </clipPath>
+    <clipPath id="garan-model-clip" clipPathUnits="userSpaceOnUse">
+      <rect x="124.00" y="63.52" width="138.97" height="14.00" />
+    </clipPath>
+    <clipPath id="garan-duration-clip" clipPathUnits="userSpaceOnUse">
+      <rect x="5.07" y="80.30" width="182.26" height="74.75" />
+    </clipPath>
+  </defs>
   <g>
     <rect width="269.52" height="284.16" fill="#fff" />
   </g>
   <g>
     <rect x="3.09" y="2.63" width="263.11" height="165.38" stroke-width=".5px" stroke="#231f20" stroke-miterlimit="10" fill="none" />
     <rect x="3.09" y="171.68" width="263.11" height="108.38" stroke-width=".5px" stroke="#231f20" stroke-miterlimit="10" fill="none" />
-    <text transform="translate(6.32 74.52)" fill="#231f20" font-family="Inter-Regular, Inter" font-size="9px" style="font-variation-settings: 'wght' 400, 'slnt' 0" data-field="brand"><tspan x="0" y="0">Brand/</tspan><tspan x="28.34" y="0" letter-spacing="-.06em">T</tspan><tspan x="33.61" y="0" letter-spacing="0em">rademark</tspan></text>
-    <text transform="translate(196.75 74.52)" fill="#231f20" font-family="Inter-Regular, Inter" font-size="9px" style="font-variation-settings: 'wght' 400, 'slnt' 0" data-field="model"><tspan x="0" y="0">Model identifier</tspan></text>
+    <text transform="translate(6.32 74.52)" fill="#231f20" font-family="Inter-Regular, Inter" font-size="9px" style="font-variation-settings: 'wght' 400, 'slnt' 0" data-field="brand" clip-path="url(#garan-brand-clip)"><tspan x="0" y="0">Brand/</tspan><tspan x="28.34" y="0" letter-spacing="-.06em">T</tspan><tspan x="33.61" y="0" letter-spacing="0em">rademark</tspan></text>
+    <text transform="translate(196.75 74.52)" fill="#231f20" font-family="Inter-Regular, Inter" font-size="9px" style="font-variation-settings: 'wght' 400, 'slnt' 0" text-anchor="end" data-field="model" clip-path="url(#garan-model-clip)"><tspan x="0" y="0">Model identifier</tspan></text>
     <line x1="6.32" y1="61.34" x2="262.97" y2="61.34" stroke="#231f20" stroke-miterlimit="10" fill="none" />
     <path d="M229.14,0v39.02c0,1.72.91,3.24,2.24,3.75l13.63,5.22c.67.26,1.38.26,2.05.01l13.59-5.01c1.35-.5,2.27-2.03,2.27-3.76V0h-33.79Z" fill="#034ea2" />
     <g>
@@ -720,7 +731,7 @@
       <path d="M194.13,43.87s-1.05,1.2-1.41,1.58c-.25.26-.57.73-.96.93-1.02.52-1.22.5-2.24.24-.43-.11-.83-.43-1.16-.73l-6.81-6.08c-.82-.74-.27-2.1.83-2.06l4.27.16c.52.02,1.02.23,1.4.58l6.09,5.36Z" fill="#fff" stroke-width=".5px" stroke="#231f20" stroke-miterlimit="10" />
       <path d="M186.62,44.36l2.04,1.82c1.19.84,2.62.87,3.66-.28l12.06-13.48c.69-.78.19-2.02-.88-2.14l-2.02-.24c-.92-.11-1.83.22-2.44.88l-12.42,13.45Z" fill="#fff" stroke-width=".5px" stroke="#231f20" stroke-miterlimit="10" />
     </g>
-    <text transform="translate(5.07 150.57)" font-family="Inter-ExtraBold, Inter" font-size="80px" font-weight="700" letter-spacing="-.03em" fill="#231f20" style="font-variation-settings: 'wght' 800, 'slnt' 0" data-field="duration"><tspan x="0" y="0">XX</tspan></text>
+    <text transform="translate(5.07 150.57)" font-family="Inter-ExtraBold, Inter" font-size="80px" font-weight="700" letter-spacing="-.03em" fill="#231f20" style="font-variation-settings: 'wght' 800, 'slnt' 0" data-field="duration" clip-path="url(#garan-duration-clip)"><tspan x="0" y="0">XX</tspan></text>
     <g>
       <rect x="121.47" y="127.8" width="26.36" height="22.68" rx="1.66" ry="1.66" stroke-width=".5px" stroke="#231f20" stroke-miterlimit="10" fill="none" />
       <rect x="128.31" y="124.74" width="3.13" height="6.19" rx=".54" ry=".54" fill="#fff" stroke-width=".5px" stroke="#231f20" stroke-miterlimit="10" />

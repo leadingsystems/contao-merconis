@@ -107,12 +107,12 @@ class ls_shop_productManagementApiPreprocessor
 					'fieldType' => 'input_output'
 				),
 				'guaranteeBrand' => array(
-					'preprocessor' => 'preprocess_string_maxlength_35',
+					'preprocessor' => 'preprocess_string',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
 				'guaranteeModelIdentifier' => array(
-					'preprocessor' => 'preprocess_string_maxlength_11',
+					'preprocessor' => 'preprocess_string',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
@@ -966,22 +966,8 @@ class ls_shop_productManagementApiPreprocessor
 		return $str_output;
 	}
 
-	protected static function preprocess_string_maxlength_35($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+	protected static function preprocess_string($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		$str_output = trim($var_input);
-
-		if (mb_strlen($str_output) > 35) {
-			throw new \Exception('the value must not be longer than 35 characters');
-		}
-
-		return $str_output;
-	}
-
-	protected static function preprocess_string_maxlength_11($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
-		$str_output = trim($var_input);
-
-		if (mb_strlen($str_output) > 11) {
-			throw new \Exception('the value must not be longer than 11 characters');
-		}
 
 		return $str_output;
 	}

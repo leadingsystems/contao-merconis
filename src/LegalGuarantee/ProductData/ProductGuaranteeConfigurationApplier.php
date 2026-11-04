@@ -179,15 +179,7 @@ final class ProductGuaranteeConfigurationApplier
                 $parameters[0] ?? ''
             ),
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'GARAN was not saved because "Brand/Trademark" is missing.',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG => sprintf(
-                'GARAN was not saved because "Brand/Trademark" must not be longer than %s characters.',
-                $parameters[0] ?? '35'
-            ),
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 'GARAN was not saved because "Model identifier" is missing.',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG => sprintf(
-                'GARAN was not saved because "Model identifier" must not be longer than %s characters.',
-                $parameters[0] ?? '11'
-            ),
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION => 'GARAN was not saved because the guarantee duration is missing.',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => sprintf(
                 'GARAN was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',

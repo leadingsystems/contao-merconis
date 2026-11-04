@@ -43,10 +43,6 @@ services:
       $version: 'v1.0'
     tags:
       - { name: 'merconis.legal_guarantee.garan_label_renderer' }
-  merconis.legal_guarantee.garan_pdf_template_renderer.v1_0:
-    class: LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer
-    arguments:
-      $version: 'v1.0'
   LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\MpdfGaranPdfAttachmentWriter:
     arguments:
       $projectDir: '%kernel.project_dir%'
@@ -57,7 +53,7 @@ services:
   merconis.legal_guarantee.garan_order_snapshot_renderer.v1_0:
     class: LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranV1OrderSnapshotRenderer
     arguments:
-      $renderer: '@merconis.legal_guarantee.garan_pdf_template_renderer.v1_0'
+      $renderer: '@merconis.legal_guarantee.garan_label_renderer.v1_0'
     tags:
       - { name: 'merconis.legal_guarantee.garan_order_snapshot_renderer' }
   LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotRenderer:

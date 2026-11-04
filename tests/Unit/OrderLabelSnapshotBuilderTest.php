@@ -38,14 +38,14 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
             [
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeBrand' => 'Produkt &amp; Marke',
-                'guaranteeModelIdentifier' => 'Produktmodell &quot;A&quot;',
+                'guaranteeBrand' => 'Produkt & Marke',
+                'guaranteeModelIdentifier' => 'Produktmodell "A"',
                 'guaranteeDurationYears' => '2,0',
             ],
             [
                 'garanOverride' => '1',
                 'enableGaran' => '1',
-                'guaranteeBrand' => 'Variantenmarke &lt;S&gt;',
+                'guaranteeBrand' => 'Variantenmarke <S>',
                 'guaranteeModelIdentifier' => '',
                 'guaranteeDurationYears' => '3,5',
             ]

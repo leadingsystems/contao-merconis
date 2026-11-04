@@ -40,7 +40,6 @@ final class OfficialGuaranteeLanguageResolver
     public function normalizeLanguage(string $language): string
     {
         $normalizedLanguage = strtolower(trim($language));
-        $normalizedLanguage = str_replace('-', '_', $normalizedLanguage);
 
         if (preg_match('/^[a-z]{2}/', $normalizedLanguage, $matches)) {
             return $matches[0];

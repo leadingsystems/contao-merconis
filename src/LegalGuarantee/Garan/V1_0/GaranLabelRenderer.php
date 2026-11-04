@@ -15,9 +15,7 @@ use RuntimeException;
 final class GaranLabelRenderer implements GaranLabelRendererInterface
 {
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-    private const BRAND_NODE_XPATH = '//svg:text[@transform="translate(6.32 74.52)"]';
-    private const MODEL_NODE_XPATH = '//svg:text[@transform="translate(196.75 74.52)"]';
-    private const DURATION_NODE_XPATH = '//svg:text[@transform="translate(5.07 150.57)"]';
+    private const DEFAULT_TRUNCATION_LENGTH = 30;
 
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
@@ -32,6 +30,13 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
 
     public function render(string $brand, string $modelIdentifier, string $durationText, string $decimalSeparator): string
     {
+        $brand = $this->truncateLabelText(
+            $this->requireNonEmptyValue($brand, 'brand')
+        );
+        $modelIdentifier = $this->truncateLabelText(
+            $this->requireNonEmptyValue($modelIdentifier, 'model')
+        );
+        $durationText = $this->requireNonEmptyValue($durationText, 'duration');
         $templatePath = $this->assetLocator->getGaranColourTemplatePath($this->version);
         $templateContents = file_get_contents($templatePath);
 
@@ -55,12 +60,12 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
         $xpath = new DOMXPath($document);
         $xpath->registerNamespace('svg', self::SVG_NAMESPACE);
 
-        $this->replaceTextNodeContents($document, $xpath, self::BRAND_NODE_XPATH, $brand);
-        $this->replaceTextNodeContents($document, $xpath, self::MODEL_NODE_XPATH, $modelIdentifier);
+        $this->replaceTextNodeContents($document, $xpath, 'brand', $brand);
+        $this->replaceTextNodeContents($document, $xpath, 'model', $modelIdentifier);
         $this->replaceTextNodeContents(
             $document,
             $xpath,
-            self::DURATION_NODE_XPATH,
+            'duration',
             GuaranteeDurationFormatter::formatYearsForDisplay($durationText, $decimalSeparator)
         );
 
@@ -73,12 +78,12 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
         return $renderedSvg;
     }
 
-    private function replaceTextNodeContents(DOMDocument $document, DOMXPath $xpath, string $query, string $value): void
+    private function replaceTextNodeContents(DOMDocument $document, DOMXPath $xpath, string $field, string $value): void
     {
-        $textElement = $xpath->query($query)?->item(0);
+        $textElement = $xpath->query(sprintf('//svg:text[@data-field="%s"]', $field))?->item(0);
 
         if (!$textElement instanceof DOMElement) {
-            throw new RuntimeException(sprintf('Required GARAN text node not found: %s', $query));
+            throw new RuntimeException(sprintf('Required GARAN text node not found: %s', $field));
         }
 
         while ($textElement->firstChild !== null) {
@@ -91,5 +96,38 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
         $tspanElement->appendChild($document->createTextNode($value));
 
         $textElement->appendChild($tspanElement);
+    }
+
+    private function requireNonEmptyValue(string $value, string $field): string
+    {
+        $trimmedValue = trim($value);
+
+        if ('' === $trimmedValue) {
+            throw new RuntimeException(sprintf('Required GARAN field is empty: %s', $field));
+        }
+
+        return $trimmedValue;
+    }
+
+    private function truncateLabelText(string $value): string
+    {
+        $truncationLength = $this->getTruncationLength();
+
+        if (mb_strlen($value) <= $truncationLength) {
+            return $value;
+        }
+
+        return mb_substr($value, 0, $truncationLength) . '...';
+    }
+
+    private function getTruncationLength(): int
+    {
+        $configuredLength = (int) ($GLOBALS['TL_CONFIG']['garanLabelTruncationLength'] ?? 0);
+
+        if ($configuredLength < 1) {
+            return self::DEFAULT_TRUNCATION_LENGTH;
+        }
+
+        return $configuredLength;
     }
 }

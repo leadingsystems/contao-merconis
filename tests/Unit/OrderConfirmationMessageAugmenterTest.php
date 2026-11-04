@@ -51,7 +51,7 @@ final class OrderConfirmationMessageAugmenterTest extends TestCase
             $payload['bodyRawtext']
         );
         self::assertStringContainsString(
-            'https://europa.eu/youreurope/commercial-guarantee-durability/index.htm',
+            'https://europa.eu/youreurope/commercial-guarantee-durability/',
             $payload['bodyRawtext']
         );
         self::assertGreaterThan(

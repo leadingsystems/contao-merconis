@@ -10,13 +10,9 @@ final class ProductGuaranteeConfigurationValidator
     public const MESSAGE_GARAN_DISABLED_MISSING_MODEL = 'garan_disabled_missing_model';
     public const MESSAGE_GARAN_DISABLED_MISSING_DURATION = 'garan_disabled_missing_duration';
     public const MESSAGE_GARAN_DISABLED_INVALID_DURATION = 'garan_disabled_invalid_duration';
-    public const MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG = 'garan_disabled_brand_too_long';
-    public const MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG = 'garan_disabled_model_too_long';
     public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED = 'garan_disabled_gll_required';
     public const MESSAGE_GARAN_INHERITED_GLL_REQUIRED = 'garan_inherited_gll_required';
     public const MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE = 'garan_disabled_gll_variant_override';
-    private const GUARANTEE_BRAND_MAX_LENGTH = 35;
-    private const GUARANTEE_MODEL_IDENTIFIER_MAX_LENGTH = 11;
 
     public function __construct(
         private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),
@@ -44,10 +40,7 @@ final class ProductGuaranteeConfigurationValidator
             'guaranteeBrand' => $normalizedData['guaranteeBrand'],
             'guaranteeModelIdentifier' => $normalizedData['guaranteeModelIdentifier'],
         ];
-        $messages = array_merge(
-            $durationResult['messages'],
-            $this->validateBrandAndModelLengthRequirements($effectiveData)
-        );
+        $messages = $durationResult['messages'];
 
         $gllMessages = $this->validateProductGllDependency($normalizedData, $relatedVariants);
 
@@ -84,10 +77,7 @@ final class ProductGuaranteeConfigurationValidator
             $normalizedProductData,
             $durationResult['effectiveValue'],
         );
-        $messages = array_merge(
-            $durationResult['messages'],
-            $this->validateVariantBrandAndModelLengthRequirements($normalizedVariantData, $effectiveData)
-        );
+        $messages = $durationResult['messages'];
 
         if (
             $this->isTruthy($effectiveData['enableGaran'] ?? null)
@@ -120,11 +110,7 @@ final class ProductGuaranteeConfigurationValidator
     {
         $productProducer = $this->normalizeTextValue($productProducer);
 
-        if ('' === $productProducer) {
-            return '';
-        }
-
-        return mb_substr($productProducer, 0, self::GUARANTEE_BRAND_MAX_LENGTH);
+        return $productProducer;
     }
 
     public function getFieldNameForMessageCode(string $messageCode): ?string
@@ -208,16 +194,6 @@ final class ProductGuaranteeConfigurationValidator
     }
 
     /**
-     * @param array<string, mixed> $effectiveData
-     *
-     * @return list<array{code: string, parameters: array<int, string>}>
-     */
-    private function validateBrandAndModelLengthRequirements(array $effectiveData): array
-    {
-        return array_values($this->getBrandAndModelLengthMessages($effectiveData));
-    }
-
-    /**
      * @param array<string, mixed> $variantData
      * @param array<string, mixed> $productData
      *
@@ -255,91 +231,9 @@ final class ProductGuaranteeConfigurationValidator
         ];
     }
 
-    /**
-     * @param array<string, mixed> $normalizedVariantData
-     * @param array<string, mixed> $effectiveData
-     *
-     * @return list<array{code: string, parameters: array<int, string>}>
-     */
-    private function validateVariantBrandAndModelLengthRequirements(
-        array $normalizedVariantData,
-        array $effectiveData
-    ): array {
-        $messagesByField = $this->getBrandAndModelLengthMessages($normalizedVariantData);
-
-        foreach (['guaranteeBrand', 'guaranteeModelIdentifier'] as $fieldName) {
-            if (($normalizedVariantData[$fieldName] ?? '') === ($effectiveData[$fieldName] ?? '')) {
-                continue;
-            }
-
-            $effectiveFieldMessage = $this->getLengthMessageForField(
-                $fieldName,
-                (string) ($effectiveData[$fieldName] ?? '')
-            );
-
-            if ($effectiveFieldMessage === null) {
-                continue;
-            }
-
-            $messagesByField[$fieldName] = $effectiveFieldMessage;
-        }
-
-        return array_values($messagesByField);
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     *
-     * @return array<string, array{code: string, parameters: array<int, string>}>
-     */
-    private function getBrandAndModelLengthMessages(array $data): array
-    {
-        $messages = [];
-
-        foreach (['guaranteeBrand', 'guaranteeModelIdentifier'] as $fieldName) {
-            $fieldMessage = $this->getLengthMessageForField($fieldName, (string) ($data[$fieldName] ?? ''));
-
-            if ($fieldMessage === null) {
-                continue;
-            }
-
-            $messages[$fieldName] = $fieldMessage;
-        }
-
-        return $messages;
-    }
-
-    /**
-     * @return array{code: string, parameters: array<int, string>}|null
-     */
-    private function getLengthMessageForField(string $fieldName, string $value): ?array
-    {
-        return match ($fieldName) {
-            'guaranteeBrand' => mb_strlen($value) > self::GUARANTEE_BRAND_MAX_LENGTH
-                ? [
-                    'code' => self::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
-                    'parameters' => [(string) self::GUARANTEE_BRAND_MAX_LENGTH],
-                ]
-                : null,
-            'guaranteeModelIdentifier' => mb_strlen($value) > self::GUARANTEE_MODEL_IDENTIFIER_MAX_LENGTH
-                ? [
-                    'code' => self::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
-                    'parameters' => [(string) self::GUARANTEE_MODEL_IDENTIFIER_MAX_LENGTH],
-                ]
-                : null,
-            default => null,
-        };
-    }
-
     public function normalizeTextValue(mixed $value): string
     {
-        return trim(
-            html_entity_decode(
-                (string) $value,
-                ENT_QUOTES | ENT_HTML5,
-                'UTF-8'
-            )
-        );
+        return trim((string) $value);
     }
 
     private function normalizeStoredDurationValue(mixed $rawValue): string

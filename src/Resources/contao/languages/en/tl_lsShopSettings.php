@@ -62,6 +62,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['pending'] = 'The migration has not been executed yet.';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['applied'] = 'The migration has already been executed. To run it again, remove the flag ls_shop_enableGllMigrationApplied from the localconfig.';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['success'] = '%s product records were set to enableGll = true.';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['garanLabelTruncationLength'] = array('Truncation threshold for GARAN text fields', 'Maximum number of characters for Brand and Model in the GARAN label before the displayed value is shortened with "...". Default: 30.');
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_defaultProductPages'] = array('Page "Standard Product Page"', 'Select the page on which products are to be displayed that are not assigned to any pages or are only assigned to unpublished pages.');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover']	= array('Default cover for videos', 'Select a graphic to be used as cover image for videos if no cover graphic matching the video can be found.');
@@ -167,7 +168,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemImages_legend']   = 'System images';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderNr_legend']   = 'Order number';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemSettings_legend']   = 'System settings';
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['legalGuarantee_legend'] = 'Legal guarantee label';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['legalGuarantee_legend'] = 'Legal guarantee and manufacturer's commercial guarantee';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['liveHits_legend']   = 'MERCONIS LiveHits settings';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderStatusTypes_legend'] = 'Status options';
 	

@@ -47,8 +47,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertArrayNotHasKey('mandatory', $tableConfig['fields']['guaranteeDurationYears']['eval']);
         self::assertArrayNotHasKey('mandatory', $tableConfig['fields']['guaranteeBrand']['eval']);
         self::assertArrayNotHasKey('mandatory', $tableConfig['fields']['guaranteeModelIdentifier']['eval']);
-        self::assertSame(35, $tableConfig['fields']['guaranteeBrand']['eval']['maxlength']);
-        self::assertSame(11, $tableConfig['fields']['guaranteeModelIdentifier']['eval']['maxlength']);
+        self::assertArrayNotHasKey('maxlength', $tableConfig['fields']['guaranteeBrand']['eval']);
+        self::assertArrayNotHasKey('maxlength', $tableConfig['fields']['guaranteeModelIdentifier']['eval']);
+        self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeBrand']['sql']);
+        self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeModelIdentifier']['sql']);
         self::assertStringContainsString('{lsShopGuaranteeLabels_legend}', $tableConfig['palettes']['default']);
         self::assertStringContainsString('enableGll', $tableConfig['palettes']['default']);
         self::assertStringContainsString('enableGaran', $tableConfig['palettes']['default']);
@@ -85,6 +87,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             'validateLegalGuaranteeBeforeSave',
             $tableConfig['fields']['guaranteeModelIdentifier']['save_callback'][0][1]
         );
+        self::assertArrayNotHasKey('maxlength', $tableConfig['fields']['guaranteeBrand']['eval']);
+        self::assertArrayNotHasKey('maxlength', $tableConfig['fields']['guaranteeModelIdentifier']['eval']);
+        self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeBrand']['sql']);
+        self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeModelIdentifier']['sql']);
         self::assertSame(
             'validateLegalGuaranteeConfiguration',
             $tableConfig['config']['onsubmit_callback'][0][1]
@@ -188,6 +194,12 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString('Garantiedauer in Monaten', $productLanguageDe);
         self::assertStringContainsString('Brand/Trademark', $productLanguageDe);
         self::assertStringContainsString('Model identifier', $productLanguageEn);
+        self::assertStringNotContainsString('Maximal 35 Zeichen.', $productLanguageDe);
+        self::assertStringNotContainsString('Maximal 11 Zeichen.', $variantLanguageDe);
+        self::assertStringNotContainsString('Maximum 35 characters.', $productLanguageEn);
+        self::assertStringNotContainsString('Maximum 11 characters.', $variantLanguageEn);
+        self::assertStringNotContainsString('garan_disabled_brand_too_long', $productLanguageDe);
+        self::assertStringNotContainsString('garan_disabled_model_too_long', $variantLanguageEn);
         self::assertStringNotContainsString('Garantiedauer in Monaten *', $productLanguageDe);
         self::assertStringNotContainsString('Brand/Trademark *', $productLanguageDe);
         self::assertStringNotContainsString('Model identifier *', $productLanguageEn);
@@ -266,12 +278,24 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         $settingsLanguageDe = (string) file_get_contents(self::LANGUAGE_BASE_PATH . 'de/tl_lsShopSettings.php');
         $settingsLanguageEn = (string) file_get_contents(self::LANGUAGE_BASE_PATH . 'en/tl_lsShopSettings.php');
 
-        self::assertStringContainsString('{legalGuarantee_legend},ls_shop_enableGllMigrationControl;', $settingsDca);
+        self::assertStringContainsString(
+            '{legalGuarantee_legend},ls_shop_enableGllMigrationControl,garanLabelTruncationLength;',
+            $settingsDca
+        );
         self::assertStringContainsString("'inputType' => 'htmlDiv'", $settingsDca);
+        self::assertStringContainsString("['garanLabelTruncationLength']", $settingsDca);
+        self::assertStringContainsString("'default' => 30", $settingsDca);
         self::assertStringContainsString('applyEnableGllMigrationRequest', $settingsDca);
         self::assertStringContainsString("['legalGuarantee_legend']", $settingsLanguageDe);
         self::assertStringContainsString("['ls_shop_enableGllMigrationControl']", $settingsLanguageDe);
+        self::assertStringContainsString("['garanLabelTruncationLength']", $settingsLanguageDe);
         self::assertStringContainsString("['ls_shop_enableGllMigrationControl']", $settingsLanguageEn);
+        self::assertStringContainsString("['garanLabelTruncationLength']", $settingsLanguageEn);
+        self::assertStringContainsString('Gewährleistung und Herstellergarantie', $settingsLanguageDe);
+        self::assertStringContainsString(
+            "Legal guarantee and manufacturer's commercial guarantee",
+            $settingsLanguageEn
+        );
         self::assertStringContainsString("['dashboard']['gllAnnouncement']", $defaultLanguageDe);
         self::assertStringContainsString("['dashboard']['gllAnnouncement']", $defaultLanguageEn);
     }

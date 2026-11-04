@@ -123,13 +123,7 @@ final class ProductGuaranteeDisplayResolver
 
     private function normalizeTextValue(mixed $value): string
     {
-        return trim(
-            html_entity_decode(
-                (string) $value,
-                ENT_QUOTES | ENT_HTML5,
-                'UTF-8'
-            )
-        );
+        return trim((string) $value);
     }
 
     private function isTruthy(mixed $value): bool

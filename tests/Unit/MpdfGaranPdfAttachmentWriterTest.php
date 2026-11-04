@@ -40,10 +40,11 @@ final class MpdfGaranPdfAttachmentWriterTest extends TestCase
             189.472
         );
 
-        self::assertStringContainsString('data:image/svg+xml;base64,', $html);
-        self::assertStringContainsString('width:180mm;', $html);
-        self::assertStringContainsString('height:189.472mm;', $html);
-        self::assertStringNotContainsString('width:100%;', $html);
+        self::assertStringStartsWith('<svg ', $html);
+        self::assertStringContainsString('viewBox="0 0 269.29 283.46"', $html);
+        self::assertStringContainsString('width="180mm"', $html);
+        self::assertStringContainsString('height="189.472mm"', $html);
+        self::assertStringNotContainsString('data:image/svg+xml;base64,', $html);
     }
 
     public function testLegalGuaranteePdfWriteCreatesAnA4PdfFile(): void

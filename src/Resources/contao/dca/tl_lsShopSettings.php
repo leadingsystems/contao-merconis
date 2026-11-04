@@ -37,7 +37,7 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 		
 		{systemImages_legend},ls_shop_systemImages_videoDummyCover,ls_shop_systemImages_noProductImage;
 		{pageSettings_legend},ls_shop_shippingInfoPages,ls_shop_cartPages,ls_shop_reviewPages,ls_shop_signUpPages,ls_shop_checkoutPaymentErrorPages,ls_shop_checkoutShippingErrorPages,ls_shop_checkoutFinishPages,ls_shop_paymentAfterCheckoutPages,ls_shop_afterCheckoutPages,ls_shop_withdrawalPages,ls_shop_withdrawalConfirmationPages,ls_shop_ajaxPages,ls_shop_searchResultPages,ls_shop_myOrdersPages,ls_shop_myOrderDetailsPages,ls_shop_defaultProductPages;
-		{legalGuarantee_legend},ls_shop_enableGllMigrationControl;
+		{legalGuarantee_legend},ls_shop_enableGllMigrationControl,garanLabelTruncationLength;
 		{systemSettings_legend},ls_shop_loginModuleID,ls_shop_miniCartModuleID,ls_shop_useAjaxForPaginationAndSorting;
 		{performanceSettings_legend},ls_shop_maxNumParallelSearchCaches,ls_shop_searchCacheLifetimeSec,ls_shop_considerGroupPricesInFilterAndSorting,ls_shop_ignoreGroupRestrictionsInSearch,ls_shop_alwaysAddIdToAliasDuringProductImport;
 
@@ -104,6 +104,13 @@ $GLOBALS['TL_DCA']['tl_lsShopSettings'] = array(
 			'load_callback' => array(
 				array('Merconis\Core\tl_lsShopSettings_controller', 'getEnableGllMigrationControlMarkup')
 			)
+		),
+
+		'garanLabelTruncationLength' => array(
+			'label' => &$GLOBALS['TL_LANG']['tl_lsShopSettings']['garanLabelTruncationLength'],
+			'default' => 30,
+			'inputType' => 'text',
+			'eval' => array('rgxp' => 'digit', 'nospace' => true, 'tl_class' => 'clr w50')
 		),
 		
 		'ls_shop_ownEmailAddress' => array(

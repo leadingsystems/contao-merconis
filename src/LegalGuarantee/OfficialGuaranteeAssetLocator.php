@@ -13,9 +13,9 @@ final class OfficialGuaranteeAssetLocator
     public const GARAN_VERSION = 'v1.0';
 
     private const GLL_BASE_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/gll/';
-    private const GARAN_BASE_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/garan/';
+    private const GARAN_BASE_RELATIVE_PATH = 'src/Resources/legal-guarantee/garan/';
     private const FONT_BASE_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/fonts/inter';
-    private const STYLESHEET_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/legal-guarantee.css';
+    private const FONT_STYLESHEET_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/legal-guarantee-fonts.css';
     private const GLL_SVG_FILENAME_PATTERN = 'legal-guarantee-notice-%s.svg';
     private const GLL_PDF_FILENAME_PATTERN = 'legal-guarantee-notice-%s.pdf';
     private const EU_TEXT_LINKS_FILENAME = 'eu-text-links.json';
@@ -131,7 +131,7 @@ final class OfficialGuaranteeAssetLocator
 
     public function getGaranPdfTemplatePath(?string $version = null): string
     {
-        return $this->getGaranVersionDirectory($version) . '/garan-label-colour-pdf.svg';
+        return $this->getGaranColourTemplatePath($version);
     }
 
     public function getGaranPdfTemplateNotePath(?string $version = null): string
@@ -163,9 +163,9 @@ final class OfficialGuaranteeAssetLocator
         return $this->projectDir . '/' . self::FONT_BASE_RELATIVE_PATH;
     }
 
-    public function getScopedStylesheetPath(): string
+    public function getFontStylesheetPath(): string
     {
-        return $this->projectDir . '/' . self::STYLESHEET_RELATIVE_PATH;
+        return $this->projectDir . '/' . self::FONT_STYLESHEET_RELATIVE_PATH;
     }
 
     /**

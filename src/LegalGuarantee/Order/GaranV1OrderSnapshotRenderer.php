@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Order;
 
-use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\GaranLabelRendererInterface;
 
 final class GaranV1OrderSnapshotRenderer implements GaranOrderSnapshotRendererInterface
 {
     public function __construct(
-        private readonly GaranPdfTemplateRenderer $renderer,
+        private readonly GaranLabelRendererInterface $renderer,
     ) {
     }
 

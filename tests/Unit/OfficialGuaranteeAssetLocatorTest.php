@@ -84,11 +84,11 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
             $assetLocator->resolveGllEuUrl('zz_ZZ')
         );
         self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/garan/v1.0/eu-text-links.json',
+            '/src/Resources/legal-guarantee/garan/v1.0/eu-text-links.json',
             $assetLocator->getGaranEuTextLinksPath()
         );
         self::assertSame(
-            'https://europa.eu/youreurope/commercial-guarantee-durability/index.htm',
+            'https://europa.eu/youreurope/commercial-guarantee-durability/',
             $assetLocator->resolveGaranEuUrl()
         );
     }
@@ -99,35 +99,36 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
 
         self::assertFileExists($assetLocator->getGaranColourTemplatePath());
         self::assertFileExists($assetLocator->getGaranPdfTemplatePath());
-        self::assertFileExists($assetLocator->getGaranPdfTemplateNotePath());
         self::assertFileExists($assetLocator->getGaranNestedTemplatePath());
         self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-nested.svg',
+            '/src/Resources/legal-guarantee/garan/v1.0/garan-label-nested.svg',
             $assetLocator->getGaranNestedTemplatePath()
         );
         self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-colour-pdf.svg',
+            '/src/Resources/legal-guarantee/garan/v1.0/garan-label-colour.svg',
             $assetLocator->getGaranPdfTemplatePath()
         );
-        self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-colour-pdf.md',
-            $assetLocator->getGaranPdfTemplateNotePath()
-        );
+        self::assertSame($assetLocator->getGaranColourTemplatePath(), $assetLocator->getGaranPdfTemplatePath());
         self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-Regular.otf');
         self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-SemiBold.otf');
         self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-ExtraBold.otf');
     }
 
-    public function testScopedStylesheetPreparesInterWithoutSettingShopFont(): void
+    public function testFontStylesheetPreparesInterWithoutSettingShopFont(): void
     {
-        $stylesheetPath = $this->createAssetLocator()->getScopedStylesheetPath();
+        $stylesheetPath = $this->createAssetLocator()->getFontStylesheetPath();
         $stylesheetContents = (string) file_get_contents($stylesheetPath);
 
+        self::assertStringEndsWith(
+            '/src/Resources/public/legal-guarantee/legal-guarantee-fonts.css',
+            $stylesheetPath
+        );
         self::assertStringContainsString('@font-face', $stylesheetContents);
         self::assertStringContainsString('Inter-Regular.otf', $stylesheetContents);
         self::assertStringContainsString('Inter-SemiBold.otf', $stylesheetContents);
         self::assertStringContainsString('Inter-ExtraBold.otf', $stylesheetContents);
-        self::assertStringContainsString('max-width: 600px', $stylesheetContents);
+        self::assertStringNotContainsString('.merconis-legal-guarantee-label', $stylesheetContents);
+        self::assertStringNotContainsString('max-width: 600px', $stylesheetContents);
         self::assertDoesNotMatchRegularExpression(
             '/\b(body|html)\b[^{]*\{[^}]*font-family\s*:/s',
             $stylesheetContents

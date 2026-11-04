@@ -48,7 +48,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             $markup
         );
         self::assertContains(
-            'bundles/leadingsystemsmerconis/legal-guarantee/legal-guarantee.css',
+            'bundles/leadingsystemsmerconis/legal-guarantee/legal-guarantee-fonts.css',
             $GLOBALS['TL_CSS']
         );
     }
@@ -131,7 +131,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         self::assertStringNotContainsString('gewaehrleistungslabel', $markup);
         self::assertSame(1, substr_count($markup, '<a '));
         self::assertContains(
-            'bundles/leadingsystemsmerconis/legal-guarantee/legal-guarantee.css',
+            'bundles/leadingsystemsmerconis/legal-guarantee/legal-guarantee-fonts.css',
             $GLOBALS['TL_CSS']
         );
     }

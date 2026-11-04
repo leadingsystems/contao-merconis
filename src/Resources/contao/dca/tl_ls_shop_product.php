@@ -555,24 +555,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>35),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeBeforeSave')
 			),
 			'search'		=> true,
-            'sql'                     => "varchar(40) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'guaranteeModelIdentifier' => array(
 			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier'],
 			'exclude' => true,
 			'inputType'		=>	'text',
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'maxlength'=>11),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true),
 			'save_callback' => array (
 				array('Merconis\Core\tl_ls_shop_product_controller', 'validateLegalGuaranteeBeforeSave')
 			),
 			'search'		=> true,
-            'sql'                     => "varchar(25) NOT NULL default ''"
+            'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
 		'lsShopProductMainImage' => array(

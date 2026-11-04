@@ -83,21 +83,9 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             )
         );
         self::assertSame(
-            'guaranteeBrand',
-            $helper->getFieldNameForMessageCode(
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG
-            )
-        );
-        self::assertSame(
             'guaranteeModelIdentifier',
             $helper->getFieldNameForMessageCode(
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL
-            )
-        );
-        self::assertSame(
-            'guaranteeModelIdentifier',
-            $helper->getFieldNameForMessageCode(
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG
             )
         );
         self::assertSame(
@@ -179,16 +167,16 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
     {
         $helper = new ProductGuaranteeValidationHelper();
         $GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = [
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG => 'Brand ist zu lang: %s',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'Brand fehlt.',
         ];
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Brand ist zu lang: 35');
+        $this->expectExceptionMessage('Brand fehlt.');
 
         $helper->throwValidationExceptionForField(
             [[
-                'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
-                'parameters' => ['35'],
+                'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
+                'parameters' => [],
             ]],
             'guaranteeBrand',
             'tl_ls_shop_product'

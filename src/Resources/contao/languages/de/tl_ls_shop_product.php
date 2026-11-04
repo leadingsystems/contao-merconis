@@ -55,8 +55,8 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll']										=	array('GLL aktivieren', 'GLL gilt für körperliche Waren und Waren mit digitalen Elementen. Für reine digitale Inhalte, SaaS und Dienstleistungen ist der Schalter zu deaktivieren.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	array('GARAN aktivieren');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears']							=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit dem Dezimaltrennzeichen der Shopsprache: 30 Monate ergeben 2,5 oder 2.5 Jahre, 36 Monate ergeben 3 Jahre.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	array('Brand/Trademark', 'Maximal 35 Zeichen.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	array('Model identifier', 'Maximal 11 Zeichen.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	array('Brand/Trademark');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	array('Model identifier');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords']										= 	array('Schlüsselwörter');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['pageTitle']										=	array('Seitentitel', 'Tragen Sie hier den Seitentitel ein, der auf der Produktdetailseite verwendet werden soll. Sie können die Bedeutung der Produktdetailseite für Suchmaschinen damit verbessern. Falls Sie nichts eintragen, so wird dem von Contao regulär erstellten Seitentitel die Produktbezeichnung vorangestellt.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['pageDescription']								=	array('Meta-Seitenbeschreibung', 'Tragen Sie hier die Seitenbeschreibung ein, die auf der Produktdetailseite im suchmaschinenrelevanten Meta-Element "description" verwendet werden soll. Möglich sind bis zu 255 Zeichen, empfehlenswert sind maximal 160. Sofern Sie hier etwas eintragen, wird dieser Text unter allen Umständen verwendet. Lassen Sie das Feld leer, so kann je nach Grundeinstellung entweder die Seitenbeschreibung verwendet werden, die Contao regulär erstellt, oder es kommt die normale Produktbeschreibung zum Einsatz.');
@@ -136,9 +136,7 @@
 		'garan_disabled_gll_required' => 'GARAN wurde nicht gespeichert, weil GLL deaktiviert ist.',
 		'garan_disabled_gll_variant_override' => 'GARAN wurde nicht gespeichert, weil GLL deaktiviert ist und folgende Varianten weiterhin eigene GARAN-Daten verwenden: %s.',
 		'garan_disabled_missing_brand' => 'GARAN wurde nicht gespeichert, weil Brand/Trademark fehlt.',
-		'garan_disabled_brand_too_long' => 'GARAN wurde nicht gespeichert, weil Brand/Trademark nicht länger als %s Zeichen sein darf.',
 		'garan_disabled_missing_model' => 'GARAN wurde nicht gespeichert, weil Model identifier fehlt.',
-		'garan_disabled_model_too_long' => 'GARAN wurde nicht gespeichert, weil Model identifier nicht länger als %s Zeichen sein darf.',
 		'garan_disabled_missing_duration' => 'GARAN wurde nicht gespeichert, weil die Garantiedauer fehlt.',
 		'garan_disabled_invalid_duration' => 'GARAN wurde nicht gespeichert, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.'
 	);

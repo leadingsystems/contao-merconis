@@ -62,6 +62,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['pending'] = 'Die Übernahme wurde noch nicht ausgeführt.';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['applied'] = 'Die Übernahme wurde bereits ausgeführt. Für einen erneuten Lauf muss das Flag ls_shop_enableGllMigrationApplied aus der localconfig entfernt werden.';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_enableGllMigrationControl']['success'] = '%s Produktdatensätze wurden auf enableGll = true gesetzt.';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['garanLabelTruncationLength'] = array('Truncation-Schwellenwert für GARAN-Textfelder', 'Maximale Zeichenanzahl für Brand und Model im GARAN-Label, bevor der Wert in der Darstellung mit "..." abgeschnitten wird. Standard: 30.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_defaultProductPages'] = array('Seite "Standard Produkt Seite"', 'Wählen Sie hier die Seite aus, auf der Produkte angezeigt werden sollen, die keiner oder nur unveröffentlichten Seiten zugeordnet sind.');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover']	= array('Default-Cover für Videos', 'Wählen Sie hier eine Grafik aus, die als Coverbild für Videos verwendet werden soll, wenn keine zum Video passende Cover-Grafik ermittelt werden kann.');
@@ -168,7 +169,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemImages_legend']   = 'Systembilder';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderNr_legend']   = 'Bestellnummer';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemSettings_legend']   = 'System-Einstellungen';
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['legalGuarantee_legend'] = 'Gewährleistungslabel';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['legalGuarantee_legend'] = 'Gewährleistung und Herstellergarantie';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['liveHits_legend']   = 'Einstellungen für MERCONIS LiveHits';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderStatusTypes_legend'] = 'Statusmöglichkeiten';
 	

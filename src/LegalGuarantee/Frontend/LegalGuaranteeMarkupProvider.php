@@ -239,7 +239,7 @@ final class LegalGuaranteeMarkupProvider
 
     private function ensureStylesheetRegistered(): void
     {
-        $stylesheetPath = 'bundles/leadingsystemsmerconis/legal-guarantee/legal-guarantee.css';
+        $stylesheetPath = 'bundles/leadingsystemsmerconis/legal-guarantee/legal-guarantee-fonts.css';
 
         if (!isset($GLOBALS['TL_CSS']) || !is_array($GLOBALS['TL_CSS'])) {
             $GLOBALS['TL_CSS'] = [];

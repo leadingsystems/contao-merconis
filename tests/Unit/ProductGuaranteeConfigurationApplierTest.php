@@ -13,9 +13,10 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
     public function testApplyToProductRowPrefillsBrandAndConvertsMonthsToYears(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
+        $producer = "ACME & Co. 'Premium' " . str_repeat('X', 60);
 
         $result = $applier->applyToProductRow([
-            'producer' => 'ACME &amp; Co. &#39;Premium&#39;',
+            'producer' => $producer,
             'enableGll' => '1',
             'enableGaran' => '1',
             'guaranteeDurationYears' => '30',
@@ -23,7 +24,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             'guaranteeModelIdentifier' => 'Model42',
         ]);
 
-        self::assertSame("ACME & Co. 'Premium'", $result['row']['guaranteeBrand']);
+        self::assertSame("ACME & Co. 'Premium' " . str_repeat('X', 60), $result['row']['guaranteeBrand']);
         self::assertSame('2.5', $result['row']['guaranteeDurationYears']);
         self::assertSame([], $result['messages']);
     }
@@ -65,8 +66,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             'enableGll' => '1',
             'enableGaran' => '1',
             'guaranteeDurationYears' => '5,0',
-            'guaranteeBrand' => ' Product &amp; Brand ',
-            'guaranteeModelIdentifier' => ' Product &quot;Model&quot; ',
+            'guaranteeBrand' => ' Product & Brand ',
+            'guaranteeModelIdentifier' => ' Product "Model" ',
         ]);
 
         $variantColumns = $applier->buildExportColumns(
@@ -81,8 +82,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'garanOverride' => '0',
                 'enableGaran' => '1',
                 'guaranteeDurationYears' => '3,5',
-                'guaranteeBrand' => ' Variant &amp; Brand ',
-                'guaranteeModelIdentifier' => ' Variant &quot;Model&quot; ',
+                'guaranteeBrand' => ' Variant & Brand ',
+                'guaranteeModelIdentifier' => ' Variant "Model" ',
             ],
         );
 
@@ -272,33 +273,11 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
     }
 
-    public function testWriteMessagesExposeLengthViolationsForBrandAndModel(): void
+    public function testApplyToProductRowKeepsLongValuesWhenGaranIsDisabled(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
-
-        self::assertSame(
-            'field "guaranteeBrand": GARAN was not saved because "Brand/Trademark" must not be longer than 35 characters.',
-            $applier->formatWriteErrorMessage([[
-                'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
-                'field' => 'guaranteeBrand',
-                'parameters' => ['35'],
-            ]])
-        );
-        self::assertSame(
-            'field "guaranteeModelIdentifier": GARAN was not saved because "Model identifier" must not be longer than 11 characters.',
-            $applier->formatWriteErrorMessage([[
-                'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
-                'field' => 'guaranteeModelIdentifier',
-                'parameters' => ['11'],
-            ]])
-        );
-    }
-
-    public function testApplyToProductRowBlocksOverlongValuesWhenGaranIsDisabled(): void
-    {
-        $applier = new ProductGuaranteeConfigurationApplier();
-        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 29);
-        $model = 'ä&"<>ß' . str_repeat('B', 6);
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 80);
+        $model = 'ä&"<>ß' . str_repeat('B', 60);
 
         $result = $applier->applyToProductRow([
             'producer' => 'ACME Corporation',
@@ -309,25 +288,16 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             'guaranteeModelIdentifier' => $model,
         ]);
 
-        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
-        self::assertSame(
-            ['guaranteeBrand', 'guaranteeModelIdentifier'],
-            array_column($result['messages'], 'field')
-        );
-        self::assertSame(
-            [
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
-            ],
-            array_column($result['messages'], 'code')
-        );
+        self::assertFalse($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame($brand, $result['row']['guaranteeBrand']);
+        self::assertSame($model, $result['row']['guaranteeModelIdentifier']);
     }
 
-    public function testApplyToVariantRowBlocksInheritedOverlongValuesWhenOverrideIsDisabled(): void
+    public function testApplyToVariantRowKeepsInheritedLongValuesWhenOverrideIsDisabled(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
-        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 29);
-        $model = 'ä&"<>ß' . str_repeat('B', 6);
+        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 80);
+        $model = 'ä&"<>ß' . str_repeat('B', 60);
 
         $result = $applier->applyToVariantRow(
             [
@@ -346,83 +316,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             ],
         );
 
-        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
-        self::assertSame(
-            ['guaranteeBrand', 'guaranteeModelIdentifier'],
-            array_column($result['messages'], 'field')
-        );
-        self::assertSame(
-            [
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
-            ],
-            array_column($result['messages'], 'code')
-        );
-    }
-
-    public function testApplyToVariantRowBlocksOwnOverlongValuesWhenOverrideIsDisabledWithoutDuplicateMessages(): void
-    {
-        $applier = new ProductGuaranteeConfigurationApplier();
-        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 29);
-        $model = 'ä&"<>ß' . str_repeat('B', 6);
-
-        $result = $applier->applyToVariantRow(
-            [
-                'garanOverride' => '',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
-                'guaranteeBrand' => $brand,
-                'guaranteeModelIdentifier' => $model,
-            ],
-            [
-                'enableGll' => '1',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
-                'guaranteeBrand' => 'Kurz',
-                'guaranteeModelIdentifier' => 'Kurz',
-            ],
-        );
-
-        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
-        self::assertSame(
-            ['guaranteeBrand', 'guaranteeModelIdentifier'],
-            array_column($result['messages'], 'field')
-        );
-        self::assertSame(
-            [
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_BRAND_TOO_LONG,
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MODEL_TOO_LONG,
-            ],
-            array_column($result['messages'], 'code')
-        );
-        self::assertCount(2, $result['messages']);
-    }
-
-    public function testApplyToVariantRowAcceptsExactOwnLimitsWhenOverrideIsDisabled(): void
-    {
-        $applier = new ProductGuaranteeConfigurationApplier();
-        $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 28);
-        $model = 'ä&"<>ß' . str_repeat('B', 5);
-
-        $result = $applier->applyToVariantRow(
-            [
-                'garanOverride' => '',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
-                'guaranteeBrand' => $brand,
-                'guaranteeModelIdentifier' => $model,
-            ],
-            [
-                'enableGll' => '1',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
-                'guaranteeBrand' => 'Kurz',
-                'guaranteeModelIdentifier' => 'Kurz',
-            ],
-        );
-
-        self::assertSame([], $result['messages']);
-        self::assertSame($brand, $result['row']['guaranteeBrand']);
-        self::assertSame($model, $result['row']['guaranteeModelIdentifier']);
+        self::assertFalse($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame('', $result['row']['guaranteeBrand']);
+        self::assertSame('', $result['row']['guaranteeModelIdentifier']);
     }
 }

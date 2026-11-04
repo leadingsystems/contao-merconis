@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
-use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfTemplateRenderer;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranV1OrderSnapshotRenderer;
@@ -15,7 +15,7 @@ final class GaranV1OrderSnapshotRendererTest extends TestCase
     public function testGetVersionReturnsRegisteredVersion(): void
     {
         $renderer = new GaranV1OrderSnapshotRenderer(
-            new GaranPdfTemplateRenderer($this->createAssetLocator(), 'v1.1')
+            new GaranLabelRenderer($this->createAssetLocator(), 'v1.1')
         );
 
         self::assertSame('v1.1', $renderer->getVersion());

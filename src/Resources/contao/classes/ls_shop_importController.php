@@ -756,8 +756,8 @@ class ls_shop_importController
 				$row['enableGll'], // 1 or ''
 				$row['enableGaran'], // 1 or ''
 				$row['guaranteeDurationYears'], // decimal, empty = null
-				$row['guaranteeBrand'], // String, maxlength 35
-				$row['guaranteeModelIdentifier'], // String, maxlength 11
+				$row['guaranteeBrand'], // String
+				$row['guaranteeModelIdentifier'], // String
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
 				$row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
@@ -925,8 +925,8 @@ class ls_shop_importController
 				$row['enableGll'], // 1 or ''
 				$row['enableGaran'], // 1 or ''
 				$row['guaranteeDurationYears'], // decimal, empty = null
-				$row['guaranteeBrand'], // String, maxlength 35
-				$row['guaranteeModelIdentifier'], // String, maxlength 11
+				$row['guaranteeBrand'], // String
+				$row['guaranteeModelIdentifier'], // String
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
                 $row['flex_contents'], // blob, translated, check unclear
@@ -1260,8 +1260,8 @@ class ls_shop_importController
 				$row['garanOverride'], // 1 or ''
 				$row['enableGaran'], // 1 or ''
 				$row['guaranteeDurationYears'], // decimal, empty = null
-				$row['guaranteeBrand'], // String, maxlength 35
-				$row['guaranteeModelIdentifier'], // String, maxlength 11
+				$row['guaranteeBrand'], // String
+				$row['guaranteeModelIdentifier'], // String
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['useScalePrice'] ? '1' : '', // 1 or ''
@@ -1399,8 +1399,8 @@ class ls_shop_importController
 				$row['garanOverride'], // 1 or ''
 				$row['enableGaran'], // 1 or ''
 				$row['guaranteeDurationYears'], // decimal, empty = null
-				$row['guaranteeBrand'], // String, maxlength 35
-				$row['guaranteeModelIdentifier'], // String, maxlength 11
+				$row['guaranteeBrand'], // String
+				$row['guaranteeModelIdentifier'], // String
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['useScalePrice'] ? '1' : '', // 1 or ''
@@ -2281,20 +2281,8 @@ class ls_shop_importController
 			case 'garan_disabled_missing_brand':
 				$str_detail = 'GARAN was not saved because "Brand/Trademark" is missing.';
 				break;
-			case 'garan_disabled_brand_too_long':
-				$str_detail = sprintf(
-					'GARAN was not saved because "Brand/Trademark" must not be longer than %s characters.',
-					$arr_parameters[0] ?? '35'
-				);
-				break;
 			case 'garan_disabled_missing_model':
 				$str_detail = 'GARAN was not saved because "Model identifier" is missing.';
-				break;
-			case 'garan_disabled_model_too_long':
-				$str_detail = sprintf(
-					'GARAN was not saved because "Model identifier" must not be longer than %s characters.',
-					$arr_parameters[0] ?? '11'
-				);
 				break;
 			case 'garan_disabled_missing_duration':
 				$str_detail = 'GARAN was not saved because the guarantee duration is missing.';

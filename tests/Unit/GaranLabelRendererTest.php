@@ -11,9 +11,16 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class GaranLabelRendererTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        unset($GLOBALS['TL_CONFIG']['garanLabelTruncationLength']);
+    }
+
     public function testRenderReplacesOnlyTheThreeEditableTextFields(): void
     {
         $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
@@ -33,24 +40,29 @@ final class GaranLabelRendererTest extends TestCase
 
         self::assertSame(
             'ACME & Co <Premium>',
-            $this->getTextContent($xpath, '//svg:text[@transform="translate(6.32 74.52)"]')
+            $this->getTextContent($xpath, '//svg:text[@data-field="brand"]')
         );
         self::assertSame(
             'Model > 42',
-            $this->getTextContent($xpath, '//svg:text[@transform="translate(196.75 74.52)"]')
+            $this->getTextContent($xpath, '//svg:text[@data-field="model"]')
         );
         self::assertSame(
             '2,5',
-            $this->getTextContent($xpath, '//svg:text[@transform="translate(5.07 150.57)"]')
+            $this->getTextContent($xpath, '//svg:text[@data-field="duration"]')
         );
 
         self::assertStringNotContainsString('Brand/', $renderedSvg);
         self::assertStringNotContainsString('Model identifier', $renderedSvg);
         self::assertStringContainsString('viewBox="0 0 269.29 283.46"', $renderedSvg);
         self::assertStringContainsString('ACME &amp; Co &lt;Premium&gt;', $renderedSvg);
-        self::assertStringContainsString('id="clippath-8"', $renderedSvg);
+        self::assertStringContainsString('data-field="brand"', $renderedSvg);
+        self::assertStringContainsString('data-field="model"', $renderedSvg);
+        self::assertStringContainsString('data-field="duration"', $renderedSvg);
+        self::assertStringContainsString('text-anchor="end"', $renderedSvg);
+        self::assertStringContainsString('id="garan-duration-clip"', $renderedSvg);
         self::assertStringContainsString('M229.14,0v39.02', $renderedSvg);
         self::assertStringNotContainsString('garan-label-nested', $renderedSvg);
+        self::assertStringNotContainsString('class="cls-', $renderedSvg);
 
         $templateContents = (string) file_get_contents(
             $this->createAssetLocator()->getGaranColourTemplatePath('v1.0')
@@ -64,12 +76,62 @@ final class GaranLabelRendererTest extends TestCase
             $templateXpath->query('//svg:clipPath')?->length,
             $xpath->query('//svg:clipPath')?->length
         );
-        self::assertSame(
-            $templateXpath->query('//svg:image')?->length,
-            $xpath->query('//svg:image')?->length
-        );
+        self::assertSame(3, $xpath->query('//svg:clipPath')?->length);
+        self::assertSame(0, $xpath->query('//svg:style')?->length);
         self::assertSame(3, $xpath->query('//svg:text')?->length);
         self::assertSame(3, $templateXpath->query('//svg:text')?->length);
+    }
+
+    public function testRenderTruncatesBrandAndModelUsingConfiguredThreshold(): void
+    {
+        $GLOBALS['TL_CONFIG']['garanLabelTruncationLength'] = '5';
+        $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
+
+        $renderedSvg = $renderer->render(
+            'ABCDEFGHIJ',
+            '1234567890',
+            '2.5',
+            ','
+        );
+
+        $document = new DOMDocument('1.0', 'UTF-8');
+        $document->loadXML($renderedSvg);
+
+        $xpath = new DOMXPath($document);
+        $xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
+
+        self::assertSame('ABCDE...', $this->getTextContent($xpath, '//svg:text[@data-field="brand"]'));
+        self::assertSame('12345...', $this->getTextContent($xpath, '//svg:text[@data-field="model"]'));
+    }
+
+    public function testRenderDoesNotTruncateShortValues(): void
+    {
+        $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
+
+        $renderedSvg = $renderer->render('Kurz', 'Modell', '2.5', ',');
+
+        self::assertStringContainsString('>Kurz<', $renderedSvg);
+        self::assertStringContainsString('>Modell<', $renderedSvg);
+        self::assertStringNotContainsString('Kurz...', $renderedSvg);
+        self::assertStringNotContainsString('Modell...', $renderedSvg);
+    }
+
+    /**
+     * @dataProvider provideEmptyRequiredValues
+     */
+    public function testRenderRejectsEmptyRequiredValues(
+        string $brand,
+        string $modelIdentifier,
+        string $durationText,
+        string $expectedField
+    ): void
+    {
+        $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Required GARAN field is empty: ' . $expectedField);
+
+        $renderer->render($brand, $modelIdentifier, $durationText, ',');
     }
 
     public function testRenderUsesTemplateDirectoryOfRegisteredVersion(): void
@@ -103,12 +165,12 @@ final class GaranLabelRendererTest extends TestCase
         string $replace
     ): string {
         $projectDir = sys_get_temp_dir() . '/merconis-garan-label-' . uniqid('', true);
-        $targetDirectory = $projectDir . '/src/Resources/public/legal-guarantee/garan/' . $version;
+        $targetDirectory = $projectDir . '/src/Resources/legal-guarantee/garan/' . $version;
 
         mkdir($targetDirectory, 0777, true);
 
         $templateContents = (string) file_get_contents(
-            dirname(__DIR__, 2) . '/src/Resources/public/legal-guarantee/garan/v1.0/garan-label-colour.svg'
+            dirname(__DIR__, 2) . '/src/Resources/legal-guarantee/garan/v1.0/garan-label-colour.svg'
         );
         file_put_contents(
             $targetDirectory . '/garan-label-colour.svg',
@@ -125,5 +187,15 @@ final class GaranLabelRendererTest extends TestCase
         self::assertInstanceOf(DOMElement::class, $textElement);
 
         return trim($textElement->textContent);
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string, 2: string, 3: string}>
+     */
+    public static function provideEmptyRequiredValues(): iterable
+    {
+        yield 'brand' => ['', 'Model', '2.5', 'brand'];
+        yield 'model' => ['Brand', '', '2.5', 'model'];
+        yield 'duration' => ['Brand', 'Model', '', 'duration'];
     }
 }

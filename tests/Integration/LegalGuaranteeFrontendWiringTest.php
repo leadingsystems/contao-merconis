@@ -78,4 +78,23 @@ final class LegalGuaranteeFrontendWiringTest extends TestCase
         self::assertStringContainsString('merconis-legal-guarantee-checkout-output', $templateContents);
         self::assertStringContainsString("#[AsInsertTag('shop_eu_lgn')]", $insertTagContents);
     }
+
+    public function testLegalGuaranteeLayoutIsProvidedViaLscssPartial(): void
+    {
+        $scssBundleContents = (string) file_get_contents(
+            self::SRC_BASE_PATH . 'Resources/contao/lscss/_merconis.scss'
+        );
+        $scssPartialContents = (string) file_get_contents(
+            self::SRC_BASE_PATH . 'Resources/contao/lscss/_merconis-legal-guarantee.scss'
+        );
+
+        self::assertStringContainsString(
+            '@import "_merconis-legal-guarantee.scss";',
+            $scssBundleContents
+        );
+        self::assertStringContainsString('.merconis-legal-guarantee-label', $scssPartialContents);
+        self::assertStringContainsString('text-transform: none;', $scssPartialContents);
+        self::assertStringContainsString('max-width: 600px;', $scssPartialContents);
+        self::assertStringContainsString('@include media-breakpoint-up(lg)', $scssPartialContents);
+    }
 }

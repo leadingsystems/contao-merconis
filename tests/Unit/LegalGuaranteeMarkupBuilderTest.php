@@ -90,7 +90,7 @@ SVG;
         self::assertStringContainsString('lang="de"', $markup);
         self::assertStringContainsString('Gewährleistungslabel', $markup);
         self::assertStringContainsString(
-            'href="https://europa.eu/youreurope/garant%C3%ADas"',
+            'href="https://europa.eu/youreurope/garantías"',
             $markup
         );
         self::assertSame(1, substr_count($markup, '<a '));
@@ -111,7 +111,7 @@ SVG;
         self::assertStringContainsString('merconis-legal-guarantee-label', $markup);
         self::assertStringContainsString('merconis-legal-guarantee-link', $markup);
         self::assertStringContainsString(
-            'href="https://europa.eu/youreurope/%D0%B3%D0%B0%D1%80%D0%B0%D0%BD%D1%86%D0%B8%D0%B8"',
+            'href="https://europa.eu/youreurope/гаранции"',
             $markup
         );
         self::assertStringContainsString('EU-Information', $markup);

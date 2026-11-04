@@ -73,15 +73,7 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
 
     private function buildHtml(string $svgMarkup, float $labelHeightMm): string
     {
-        $svgDataUri = 'data:image/svg+xml;base64,' . base64_encode($svgMarkup);
-        $labelHeight = $this->formatMillimetres($labelHeightMm);
-
-        return sprintf(
-            '<img src="%s" style="display:block;width:%s;height:%s;" alt="" />',
-            $svgDataUri,
-            $this->formatMillimetres(self::PDF_LABEL_WIDTH_MM),
-            $labelHeight
-        );
+        return $svgMarkup;
     }
 
     /**

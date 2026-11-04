@@ -18,11 +18,11 @@ final class LegalGuaranteeImportControllerTest extends TestCase
         parent::tearDown();
     }
 
-    #[DataProvider('provideLengthWarningMessages')]
-    public function testFormatLegalGuaranteeImportWarningIncludesRowFieldAndLimit(
+    #[DataProvider('provideWarningMessages')]
+    public function testFormatLegalGuaranteeImportWarningIncludesRowFieldAndDetail(
         string $code,
         string $field,
-        string $limit,
+        array $parameters,
         string $expectedDetail
     ): void {
         $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] = 7;
@@ -37,7 +37,7 @@ final class LegalGuaranteeImportControllerTest extends TestCase
         $message = $method->invoke($controller, [
             'code' => $code,
             'field' => $field,
-            'parameters' => [$limit],
+            'parameters' => $parameters,
         ]);
 
         self::assertSame(
@@ -47,22 +47,22 @@ final class LegalGuaranteeImportControllerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, string, string, string}>
+     * @return iterable<string, array{string, string, array<int, string>, string}>
      */
-    public static function provideLengthWarningMessages(): iterable
+    public static function provideWarningMessages(): iterable
     {
-        yield 'brand' => [
-            'garan_disabled_brand_too_long',
+        yield 'missing brand' => [
+            'garan_disabled_missing_brand',
             'guaranteeBrand',
-            '35',
-            'GARAN was not saved because "Brand/Trademark" must not be longer than 35 characters.',
+            [],
+            'GARAN was not saved because "Brand/Trademark" is missing.',
         ];
 
-        yield 'model' => [
-            'garan_disabled_model_too_long',
-            'guaranteeModelIdentifier',
-            '11',
-            'GARAN was not saved because "Model identifier" must not be longer than 11 characters.',
+        yield 'invalid duration' => [
+            'garan_disabled_invalid_duration',
+            'guaranteeDurationYears',
+            ['24'],
+            'GARAN was not saved because "24" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
         ];
     }
 }
