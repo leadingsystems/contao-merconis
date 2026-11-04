@@ -168,7 +168,7 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemImages_legend']   = 'System images';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderNr_legend']   = 'Order number';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemSettings_legend']   = 'System settings';
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['legalGuarantee_legend'] = 'Legal guarantee and manufacturer's commercial guarantee';
+	$GLOBALS['TL_LANG']['tl_lsShopSettings']['legalGuarantee_legend'] = 'Legal guarantee and manufacturer\'s commercial guarantee';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['liveHits_legend']   = 'MERCONIS LiveHits settings';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderStatusTypes_legend'] = 'Status options';
 	
