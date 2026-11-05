@@ -117,6 +117,31 @@ final class GaranLabelRendererTest extends TestCase
     }
 
     /**
+     * @dataProvider provideDurationFontSizes
+     */
+    public function testRenderUsesExpectedDurationFontSize(
+        string $durationText,
+        string $expectedText,
+        string $expectedFontSize
+    ): void {
+        $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
+
+        $renderedSvg = $renderer->render('Brand', 'Model', $durationText, ',');
+
+        $document = new DOMDocument('1.0', 'UTF-8');
+        $document->loadXML($renderedSvg);
+
+        $xpath = new DOMXPath($document);
+        $xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
+
+        $durationElement = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
+
+        self::assertInstanceOf(DOMElement::class, $durationElement);
+        self::assertSame($expectedText, trim($durationElement->textContent));
+        self::assertSame($expectedFontSize, $durationElement->getAttribute('font-size'));
+    }
+
+    /**
      * @dataProvider provideEmptyRequiredValues
      */
     public function testRenderRejectsEmptyRequiredValues(
@@ -197,5 +222,16 @@ final class GaranLabelRendererTest extends TestCase
         yield 'brand' => ['', 'Model', '2.5', 'brand'];
         yield 'model' => ['Brand', '', '2.5', 'model'];
         yield 'duration' => ['Brand', 'Model', '', 'duration'];
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string, 2: string}>
+     */
+    public static function provideDurationFontSizes(): iterable
+    {
+        yield 'minimum decimal' => ['2.5', '2,5', '54.5px'];
+        yield 'maximum decimal' => ['29.5', '29,5', '54.5px'];
+        yield 'minimum integer' => ['3', '3', '80px'];
+        yield 'maximum integer' => ['30', '30', '80px'];
     }
 }

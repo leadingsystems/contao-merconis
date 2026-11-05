@@ -1,14 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
+<!-- This file is technically prepared and is not the untouched EU original. It contains inline styles, data-field attributes, clipPath definitions, and a path-based QR code. Replacing it with the untouched EU original breaks the renderer. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 269.29 283.46">
   <defs>
     <clipPath id="garan-brand-clip" clipPathUnits="userSpaceOnUse">
-      <rect x="6.32" y="63.52" width="184.00" height="14.00" />
+      <rect x="0" y="-11" width="184" height="14" />
     </clipPath>
     <clipPath id="garan-model-clip" clipPathUnits="userSpaceOnUse">
-      <rect x="124.00" y="63.52" width="138.97" height="14.00" />
+      <rect x="-138.97" y="-11" width="138.97" height="14" />
     </clipPath>
     <clipPath id="garan-duration-clip" clipPathUnits="userSpaceOnUse">
-      <rect x="5.07" y="80.30" width="182.26" height="74.75" />
+      <rect x="0" y="-70.27" width="116" height="74.75" />
     </clipPath>
   </defs>
   <g>

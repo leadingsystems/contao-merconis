@@ -16,6 +16,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
     private const SETTINGS_DCA_PATH = __DIR__ . '/../../src/Resources/contao/dca/tl_lsShopSettings.php';
     private const DEFAULT_LANGUAGE_DE_PATH = __DIR__ . '/../../src/Resources/contao/languages/de/default.php';
     private const DEFAULT_LANGUAGE_EN_PATH = __DIR__ . '/../../src/Resources/contao/languages/en/default.php';
+    private const GUARANTEE_BRAND_DESCRIPTION_DE = "Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit '...' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.";
+    private const GUARANTEE_BRAND_DESCRIPTION_EN = "The full value is stored. If too long, the brand name is truncated with '...' in the label display. The truncation length is configurable in the shop settings.";
+    private const GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_DE = "Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit '...' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.";
+    private const GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_EN = "The full value is stored. If too long, the model identifier is truncated with '...' in the label display. The truncation length is configurable in the shop settings.";
 
     protected function setUp(): void
     {
@@ -205,6 +209,54 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringNotContainsString('Model identifier *', $productLanguageEn);
         self::assertStringContainsString('Guarantee duration in months', $variantLanguageEn);
         self::assertStringNotContainsString('Guarantee duration in months *', $variantLanguageEn);
+        $this->assertGuaranteeFieldLabelAndDescription(
+            $productLanguageDe,
+            'guaranteeBrand',
+            'Brand/Trademark',
+            self::GUARANTEE_BRAND_DESCRIPTION_DE
+        );
+        $this->assertGuaranteeFieldLabelAndDescription(
+            $productLanguageEn,
+            'guaranteeBrand',
+            'Brand/Trademark',
+            self::GUARANTEE_BRAND_DESCRIPTION_EN
+        );
+        $this->assertGuaranteeFieldLabelAndDescription(
+            $variantLanguageDe,
+            'guaranteeBrand',
+            'Brand/Trademark',
+            self::GUARANTEE_BRAND_DESCRIPTION_DE
+        );
+        $this->assertGuaranteeFieldLabelAndDescription(
+            $variantLanguageEn,
+            'guaranteeBrand',
+            'Brand/Trademark',
+            self::GUARANTEE_BRAND_DESCRIPTION_EN
+        );
+        $this->assertGuaranteeFieldLabelAndDescription(
+            $productLanguageDe,
+            'guaranteeModelIdentifier',
+            'Model identifier',
+            self::GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_DE
+        );
+        $this->assertGuaranteeFieldLabelAndDescription(
+            $productLanguageEn,
+            'guaranteeModelIdentifier',
+            'Model identifier',
+            self::GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_EN
+        );
+        $this->assertGuaranteeFieldLabelAndDescription(
+            $variantLanguageDe,
+            'guaranteeModelIdentifier',
+            'Model identifier',
+            self::GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_DE
+        );
+        $this->assertGuaranteeFieldLabelAndDescription(
+            $variantLanguageEn,
+            'guaranteeModelIdentifier',
+            'Model identifier',
+            self::GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_EN
+        );
         self::assertStringNotContainsString(
             '`',
             $this->extractGuaranteeValidationMessage($productLanguageDe, 'garan_disabled_gll_required')
@@ -292,7 +344,7 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['garanLabelTruncationLength']", $settingsLanguageEn);
         self::assertStringContainsString('Gewährleistung und Herstellergarantie', $settingsLanguageDe);
         self::assertStringContainsString(
-            "Legal guarantee and manufacturer's commercial guarantee",
+            "Legal guarantee and manufacturer\\'s commercial guarantee",
             $settingsLanguageEn
         );
         self::assertStringContainsString("['dashboard']['gllAnnouncement']", $defaultLanguageDe);
@@ -328,5 +380,26 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertSame(1, preg_match($pattern, $languageFileContents, $matches));
 
         return str_replace("\\'", "'", $matches[1]);
+    }
+
+    private function assertGuaranteeFieldLabelAndDescription(
+        string $languageFileContents,
+        string $fieldName,
+        string $expectedLabel,
+        string $expectedDescription
+    ): void {
+        $pattern = "/\\['" . preg_quote($fieldName, '/') . "'\\]\\s*=\\s*(?:array\\(|\\[)\\s*'((?:\\\\'|[^'])*)'\\s*,\\s*'((?:\\\\'|[^'])*)'/";
+
+        self::assertSame(1, preg_match($pattern, $languageFileContents, $matches));
+
+        $actualLabel = str_replace("\\'", "'", $matches[1]);
+        $actualDescription = str_replace("\\'", "'", $matches[2]);
+
+        self::assertSame($expectedLabel, $actualLabel);
+        self::assertSame($expectedDescription, $actualDescription);
+        self::assertStringNotContainsString('‘', $actualDescription);
+        self::assertStringNotContainsString('’', $actualDescription);
+        self::assertStringNotContainsString('“', $actualDescription);
+        self::assertStringNotContainsString('”', $actualDescription);
     }
 }

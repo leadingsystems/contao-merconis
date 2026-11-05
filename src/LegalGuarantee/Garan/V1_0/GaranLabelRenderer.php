@@ -16,6 +16,8 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
 {
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     private const DEFAULT_TRUNCATION_LENGTH = 30;
+    private const ORIGINAL_DURATION_FONT_SIZE = '80px';
+    private const DECIMAL_DURATION_FONT_SIZE = '54.5px';
 
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
@@ -68,6 +70,7 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
             'duration',
             GuaranteeDurationFormatter::formatYearsForDisplay($durationText, $decimalSeparator)
         );
+        $this->configureDurationFontSize($xpath, $durationText);
 
         $renderedSvg = $document->saveXML($document->documentElement);
 
@@ -118,6 +121,30 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
         }
 
         return mb_substr($value, 0, $truncationLength) . '...';
+    }
+
+    private function configureDurationFontSize(DOMXPath $xpath, string $durationText): void
+    {
+        $durationElement = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
+
+        if (!$durationElement instanceof DOMElement) {
+            throw new RuntimeException('Required GARAN text node not found: duration');
+        }
+
+        $durationElement->setAttribute(
+            'font-size',
+            $this->isDecimalDuration($durationText)
+                ? self::DECIMAL_DURATION_FONT_SIZE
+                : self::ORIGINAL_DURATION_FONT_SIZE
+        );
+    }
+
+    private function isDecimalDuration(string $durationText): bool
+    {
+        $normalisedDuration = trim($durationText);
+        $durationYears = (float) $normalisedDuration;
+
+        return abs($durationYears - round($durationYears)) > 0.00001;
     }
 
     private function getTruncationLength(): int
