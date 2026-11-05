@@ -32,6 +32,9 @@ BACKUP_FAILED = 47
 RESTORE_FAILED = 48
 TIMEOUT = 50
 COM_ERROR = 60
+FORM_GIT_COMPARISON_FAILED = 70
+UNKNOWN_KEEP_FORM = 71
+FORM_CLEANUP_FAILED = 72
 INTERRUPTED = 130
 
 DESCRIPTIONS = {
@@ -60,6 +63,9 @@ DESCRIPTIONS = {
     RESTORE_FAILED: "Wiederherstellung der Mappe fehlgeschlagen",
     TIMEOUT: "Zeitüberschreitung",
     COM_ERROR: "Sonstiger COM- oder Excel-Fehler",
+    FORM_GIT_COMPARISON_FAILED: "Vergleich der Formulare mit HEAD per Git fehlgeschlagen",
+    UNKNOWN_KEEP_FORM: "Unbekanntes Formular in --keep-forms",
+    FORM_CLEANUP_FAILED: "Formular nicht bereinigt (Datei- oder Formatfehler)",
     INTERRUPTED: "Abbruch mit Strg+C",
 }
 
