@@ -11,8 +11,8 @@ die Wrapper-Skripte für Export und Build.
 - `src/`: Exportierter VBA-Quellcode (`.bas`, `.cls`, `.frm`, `.frx`)
 - `dist/`: Binäre Arbeitsmappe `MPM.xlsm`
 - `build/`: Python-Wrapper `build_mpm.py` und `export_mpm.py` (WSL-Host),
-  Windows-Runner `vba_runner.py` (nutzt `vba-edit` als Bibliothek) und
-  gemeinsame Hilfsmodule
+  Windows-Runner `vba_runner.py` (nutzt `vba-edit` als Bibliothek),
+  Formularbereinigung `form_cleanup.py` (Export) und gemeinsame Hilfsmodule
 
 ## Voraussetzungen
 
@@ -75,7 +75,8 @@ prüfen.
 - `.frx`-Dateien werden nicht zwischen `dist/` und `src/` kopiert. Excel
   liest und schreibt sie direkt in `src/`. Sie werden nicht schreibgeschützt
   gesetzt; die Meldung von `vba-edit`, sie seien "exported as read-only",
-  trifft daher nicht zu.
+  trifft daher nicht zu. Nach dem Export entfernt der Wrapper das
+  Formular-Rauschen (siehe "Formular-Rauschen beim Export").
 - Schlägt beim Build der Import einer Komponente fehl, wird die Mappe nicht
   gespeichert.
 - Existiert `dist/~$MPM.xlsm`, starten Build und Export nicht.
@@ -136,6 +137,75 @@ cp /mnt/c/Users/<Name>/AppData/Local/Temp/MPM-build-sicherung-<Kennung>.xlsm mpm
   Mappe geprüft ist (ggf. nach dem Wiederherstellen), können sie gefahrlos
   gelöscht werden.
 
+## Formular-Rauschen beim Export
+
+Excel schreibt bei jedem Export ein anderes `.frx` (Zeitstempel und zufällige
+Füllbytes), auch wenn das Formular unverändert ist. Zusätzlich weichen im
+Kopfbereich des `.frm` die Werte `ClientLeft`, `ClientTop`, `ClientWidth` und
+`ClientHeight` je nach Rechner um wenige Twips ab. Nach einem erfolgreichen
+Export entfernt der Wrapper dieses Rauschen automatisch. Er vergleicht jedes
+exportierte Formular nur lesend mit seinem Stand in `HEAD`
+(`git show HEAD:<pfad>`):
+
+1. `.frm`: Im Kopfbereich werden `ClientLeft` und `ClientTop` immer auf den
+   Wert aus `HEAD` gesetzt; die Position ist wegen `StartUpPosition = 1`
+   ohne Wirkung. `ClientWidth` und `ClientHeight` werden nur bei einer
+   Abweichung bis 30 Twips zurückgesetzt (`CLIENT_SIZE_TOLERANCE_TWIPS` in
+   `build/form_cleanup.py`). Größere Abweichungen gelten als bewusste
+   Größenänderung und bleiben. Alle übrigen Zeilen, Encoding (CP1252) und
+   Zeilenenden bleiben wie exportiert.
+2. `.frx`: Ist das bereinigte `.frm` byte-identisch mit `HEAD`, gilt das
+   Formular als unverändert, und das `.frx` wird byte-genau aus `HEAD`
+   geschrieben. Sonst bleibt das exportierte `.frx` stehen. Rauschen und echte
+   Änderungen lassen sich im `.frx` nicht unterscheiden.
+3. Formulare ohne Stand in `HEAD` (neue Formulare) bleiben unverändert.
+
+Je Formular gibt der Export eine Zeile `Formular <Name>: <Ergebnis>` aus:
+
+- `unverändert, Rauschen entfernt`: `.frx` aus `HEAD` übernommen bzw.
+  `Client*`-Werte zurückgesetzt; das Formular zeigt keinen Diff.
+- `unverändert, kein Rauschen`: Der Export war bereits identisch mit `HEAD`.
+- `geändert, Client*-Rauschen entfernt` bzw. `geändert`: Das `.frm` enthält
+  eine echte Änderung; das exportierte `.frx` bleibt stehen.
+- `beibehalten (--keep-forms)`: siehe unten.
+- `neu (nicht in HEAD), unverändert übernommen`
+
+In Klammern folgen die zurückgesetzten `Client*`-Werte (Export -> `HEAD`) und
+die beibehaltenen Abweichungen oberhalb der Toleranz.
+
+Liegt `mpm/src` in keinem Git-Repository, ist `git` nicht installiert oder hat
+das Repository noch keinen Commit, gibt der Wrapper nur einen Hinweis aus; die
+exportierten Dateien bleiben dann unverändert. Git wird nur lesend
+aufgerufen (`rev-parse`, `ls-tree`, `show`).
+
+### Option `--keep-forms`
+
+Eine Änderung ausschließlich im Designer (z. B. ein verschobenes
+Steuerelement) steht nur im `.frx`. Das `.frm` bliebe unverändert, und der
+Export würde das `.frx` aus `HEAD` wiederherstellen und die Änderung in
+`mpm/src/` verwerfen. Für solche Formulare die Option angeben:
+
+```bash
+python3 mpm/build/export_mpm.py --keep-forms VariantCreator,EPMInfo
+```
+
+- Für die genannten Formulare bleibt das exportierte `.frx` stehen. Die
+  Bereinigung der `Client*`-Werte im `.frm` gilt weiterhin. Änderungen an
+  `ClientWidth` oder `ClientHeight` bis einschließlich 30 Twips werden daher
+  immer auf `HEAD` zurückgesetzt, auch mit der Option. Bewusste
+  Größenänderungen deshalb um mehr als 30 Twips vornehmen.
+- Namen ohne Rücksicht auf Groß-/Kleinschreibung, durch Komma getrennt; die
+  Option ist wiederholbar. Ist ein Name kein exportiertes Formular, endet der
+  Export mit 71, und es wird nichts bereinigt.
+- Ohne die Option ist die Designer-Änderung nur in `mpm/src/` verworfen; die
+  Mappe enthält sie weiterhin. Ein erneuter Export mit der Option stellt sie
+  wieder her, solange kein Build die Mappe aus `mpm/src/` neu aufgebaut hat.
+- Verglichen wird immer mit `HEAD`, nicht mit dem Stand in `mpm/src/` vor dem
+  Export. Die Option daher bei jedem Export angeben, bis die Designer-Änderung
+  committet ist. Ein Export ohne die Option setzt das `.frx` sonst wieder auf
+  `HEAD` zurück und meldet `unverändert, Rauschen entfernt`; folgt dann ein
+  Build oder ein Commit, ist die Änderung verloren.
+
 ## Export-Workflow
 
 1. Die aktuelle `dist/MPM.xlsm` bereitstellen.
@@ -145,7 +215,11 @@ cp /mnt/c/Users/<Name>/AppData/Local/Temp/MPM-build-sicherung-<Kennung>.xlsm mpm
 python3 mpm/build/export_mpm.py
 ```
 
-3. Den exportierten Inhalt in `mpm/src/` prüfen und versionieren.
+Wurde ein Formular ausschließlich im Designer geändert, `--keep-forms <Name>`
+angeben (siehe "Formular-Rauschen beim Export").
+
+3. Den exportierten Inhalt in `mpm/src/` und die Meldungen je Formular
+   prüfen und versionieren.
 
 ## Build-Workflow
 
@@ -171,13 +245,18 @@ python3 mpm/build/build_mpm.py
 5. Build mit `python3 mpm/build/build_mpm.py`.
 6. Die Mappe frisch in Excel mit aktivierten Makros öffnen und manuell
    prüfen.
-7. Erneut exportieren und den Diff kontrollieren.
+7. Erneut exportieren und den Diff kontrollieren. Unveränderte Formulare
+   zeigen keinen Diff. Formulare mit einer noch nicht committeten
+   Designer-Änderung bei jedem Export mit `--keep-forms <Name>` angeben;
+   sonst wird ihr `.frx` auf `HEAD` zurückgesetzt, und die Änderung geht
+   verloren (siehe "Option `--keep-forms`").
 
 ## Exit-Codes
 
 Jede Fehlerart hat einen festen Exit-Code. Der Wrapper reicht den Exit-Code
 des Runners unverändert durch, gibt die Fehlerart auf stderr aus und endet
-mit einer Zeile, die Exit-Code und Fehlerart nennt.
+mit einer Zeile, die Exit-Code und Fehlerart nennt. Die Codes 70 bis 72
+stammen aus der Formularbereinigung nach einem erfolgreichen Export.
 
 | Code | Fehlerart | Erkannt durch |
 |------|-----------|---------------|
@@ -204,6 +283,9 @@ mit einer Zeile, die Exit-Code und Fehlerart nennt.
 | 48 | Wiederherstellung der Mappe fehlgeschlagen | Runner |
 | 50 | Zeitüberschreitung | Wrapper |
 | 60 | Sonstiger COM- oder Excel-Fehler | Runner |
+| 70 | Vergleich der Formulare mit `HEAD` per Git fehlgeschlagen | Wrapper |
+| 71 | Unbekanntes Formular in `--keep-forms` | Wrapper |
+| 72 | Formular nicht bereinigt (Datei- oder Formatfehler) | Wrapper |
 | 130 | Abbruch mit Strg+C | Wrapper, Runner |
 
 - 13: Der Exit-Code stammt nicht vom Runner, sondern z. B. vom `py`-Launcher
@@ -236,6 +318,16 @@ mit einer Zeile, die Exit-Code und Fehlerart nennt.
   Excel-Instanzen im Task-Manager prüfen und den Lauf wiederholen. Nennt die
   Meldung -2147418111 oder -2147417846, hat Excel den Aufruf auch nach
   30 Sekunden Wiederholung abgelehnt; den Lauf wiederholen.
+- 70 bis 72: Der Export selbst ist abgeschlossen; Formulare mit einer Zeile
+  `Formular <Name>: ...` sind fertig behandelt. Ursache beheben und den Export
+  wiederholen.
+  - 70: Die Meldung nennt den Git-Aufruf. Das genannte und alle folgenden
+    Formulare stehen wie exportiert.
+  - 71: Die Meldung nennt die exportierten Formulare. Kein Formular wurde
+    bereinigt.
+  - 72: Die Meldung nennt den Datei- oder Formatfehler, z. B. einen nicht
+    erkannten Kopfbereich. Das genannte Formular ist nicht oder nur teilweise
+    bereinigt; die übrigen werden weiter bereinigt.
 - 130: Strg+C erreicht Wrapper und Runner. Der Runner schließt die Mappe
   und beendet seine Instanz, soweit er dazu noch kommt; der Wrapper beendet
   Runner und Instanz wie bei einer Zeitüberschreitung. Eine verbliebene

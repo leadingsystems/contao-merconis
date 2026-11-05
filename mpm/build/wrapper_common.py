@@ -15,6 +15,7 @@ import shlex
 import subprocess
 import sys
 import threading
+from collections.abc import Callable
 from pathlib import Path
 
 import runner_protocol as protocol
@@ -90,7 +91,10 @@ def quote_powershell(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
 
 
-def parse_arguments(description: str) -> argparse.Namespace:
+def parse_arguments(
+    description: str,
+    configure_parser: Callable[[argparse.ArgumentParser], None] | None = None,
+) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "--timeout",
@@ -102,6 +106,8 @@ def parse_arguments(description: str) -> argparse.Namespace:
             f"(Standard: {DEFAULT_TIMEOUT_SECONDS})"
         ),
     )
+    if configure_parser is not None:
+        configure_parser(parser)
     args = parser.parse_args()
     if args.timeout <= 0:
         parser.error("--timeout muss größer als 0 sein.")
@@ -640,9 +646,15 @@ def finish(mode: str, exit_code: int) -> int:
     return exit_code
 
 
-def main(mode: str, description: str) -> int:
+def main(
+    mode: str,
+    description: str,
+    configure_parser: Callable[[argparse.ArgumentParser], None] | None = None,
+    after_success: Callable[[argparse.Namespace], int] | None = None,
+) -> int:
+    """Führt den Lauf aus; `after_success` folgt nur auf Exit-Code 0 des Laufs."""
     try:
-        args = parse_arguments(description)
+        args = parse_arguments(description, configure_parser)
     except SystemExit as exc:
         if exc.code in (None, 0):
             raise
@@ -650,6 +662,8 @@ def main(mode: str, description: str) -> int:
 
     try:
         exit_code = execute(mode, args.timeout)
+        if exit_code == protocol.SUCCESS and after_success is not None:
+            exit_code = after_success(args)
     except KeyboardInterrupt:
         print_error(protocol.INTERRUPTED, "Lauf abgebrochen.")
         exit_code = protocol.INTERRUPTED
