@@ -89,29 +89,13 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
             throw new RuntimeException(sprintf('Required GARAN text node not found: %s', $field));
         }
 
-        $templateTspan = null;
-
-        foreach ($textElement->childNodes as $childNode) {
-            if ($childNode instanceof DOMElement && 'tspan' === $childNode->localName) {
-                $templateTspan = $childNode;
-                break;
-            }
-        }
-
         while ($textElement->firstChild !== null) {
             $textElement->removeChild($textElement->firstChild);
         }
 
-        $templateTspanX = $templateTspan instanceof DOMElement && '' !== $templateTspan->getAttribute('x')
-            ? $templateTspan->getAttribute('x')
-            : '0';
-        $templateTspanY = $templateTspan instanceof DOMElement && '' !== $templateTspan->getAttribute('y')
-            ? $templateTspan->getAttribute('y')
-            : '0';
-
         $tspanElement = $document->createElementNS(self::SVG_NAMESPACE, 'tspan');
-        $tspanElement->setAttribute('x', $templateTspanX);
-        $tspanElement->setAttribute('y', $templateTspanY);
+        $tspanElement->setAttribute('x', '0');
+        $tspanElement->setAttribute('y', '0');
         $tspanElement->appendChild($document->createTextNode($value));
 
         $textElement->appendChild($tspanElement);

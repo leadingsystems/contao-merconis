@@ -60,7 +60,8 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         $durationText = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
         self::assertInstanceOf(DOMElement::class, $durationText);
         self::assertSame('end', $durationText->getAttribute('text-anchor'));
-        self::assertEqualsWithDelta(110.0, $this->extractFirstTspanX($durationText), 0.01);
+        self::assertEqualsWithDelta(115.07, $this->extractTranslateX($durationText->getAttribute('transform')), 0.01);
+        self::assertEqualsWithDelta(0.0, $this->extractFirstTspanX($durationText), 0.01);
     }
 
     public function testGaranTemplateClipRectsUseLocalTextCoordinates(): void
@@ -82,7 +83,7 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         $this->assertClipRectMatchesLocalTextCoordinates(
             $xpath,
             'duration',
-            ['x' => 0.0, 'y' => -70.27, 'width' => 116.0, 'height' => 74.75]
+            ['x' => -110.0, 'y' => -70.27, 'width' => 116.0, 'height' => 74.75]
         );
     }
 
@@ -108,14 +109,16 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         $durationAnchorX = $this->extractFirstTspanX($durationText);
         $durationLabelAnchorX = $this->extractTranslateX($durationText->getAttribute('transform'))
             + $durationAnchorX;
+        $durationClipRightEdgeInLabelCoordinates = $durationLabelAnchorX + $durationClipRightEdge;
         $calendarLeftEdge = $this->extractFloatAttribute($calendarRect, 'x');
 
         self::assertLessThanOrEqual($durationClipRightEdge, $durationAnchorX);
         self::assertGreaterThanOrEqual($durationClipLeftEdge, $durationAnchorX);
-        self::assertEqualsWithDelta(116.0, $durationClipRightEdge, 0.01);
+        self::assertEqualsWithDelta(6.0, $durationClipRightEdge, 0.01);
         self::assertEqualsWithDelta(115.07, $durationLabelAnchorX, 0.01);
+        self::assertEqualsWithDelta(121.07, $durationClipRightEdgeInLabelCoordinates, 0.01);
         self::assertEqualsWithDelta(121.47, $calendarLeftEdge, 0.01);
-        self::assertGreaterThan($durationLabelAnchorX, $calendarLeftEdge);
+        self::assertGreaterThan($durationClipRightEdgeInLabelCoordinates, $calendarLeftEdge);
     }
 
     public function testBuildSvgMarkupKeepsFragmentIdsUniquePerRender(): void
