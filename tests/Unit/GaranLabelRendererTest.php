@@ -104,7 +104,7 @@ final class GaranLabelRendererTest extends TestCase
         self::assertSame('12345...', $this->getTextContent($xpath, '//svg:text[@data-field="model"]'));
     }
 
-    public function testRenderKeepsTemplateAnchorsForBrandModelAndDuration(): void
+    public function testRenderUsesCanonicalAnchorsForBrandModelAndDuration(): void
     {
         $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
 
@@ -124,9 +124,39 @@ final class GaranLabelRendererTest extends TestCase
         self::assertInstanceOf(DOMElement::class, $modelElement);
         self::assertInstanceOf(DOMElement::class, $durationElement);
         self::assertSame('0', $this->getFirstTspanAttribute($brandElement, 'x'));
+        self::assertSame('0', $this->getFirstTspanAttribute($brandElement, 'y'));
         self::assertSame('0', $this->getFirstTspanAttribute($modelElement, 'x'));
-        self::assertSame('110', $this->getFirstTspanAttribute($durationElement, 'x'));
+        self::assertSame('0', $this->getFirstTspanAttribute($modelElement, 'y'));
+        self::assertSame('0', $this->getFirstTspanAttribute($durationElement, 'x'));
+        self::assertSame('0', $this->getFirstTspanAttribute($durationElement, 'y'));
         self::assertSame('end', $durationElement->getAttribute('text-anchor'));
+        self::assertSame('translate(115.07 150.57)', $durationElement->getAttribute('transform'));
+    }
+
+    public function testRenderNormalisesManipulatedTemplateTspanCoordinates(): void
+    {
+        $projectDir = $this->createTempProjectDirWithGaranTemplateOverride(
+            'v1.0',
+            'data-field="duration" clip-path="url(#garan-duration-clip)"><tspan x="0" y="0">XX</tspan>',
+            'data-field="duration" clip-path="url(#garan-duration-clip)"><tspan x="42" y="99">XX</tspan>'
+        );
+        $renderer = new GaranLabelRenderer(
+            new OfficialGuaranteeAssetLocator($projectDir, new OfficialGuaranteeLanguageResolver()),
+            'v1.0'
+        );
+
+        $renderedSvg = $renderer->render('ACME', 'X100', '20.5', ',');
+
+        $document = new DOMDocument('1.0', 'UTF-8');
+        $document->loadXML($renderedSvg);
+
+        $xpath = new DOMXPath($document);
+        $xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
+
+        $durationElement = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
+        self::assertInstanceOf(DOMElement::class, $durationElement);
+        self::assertSame('0', $this->getFirstTspanAttribute($durationElement, 'x'));
+        self::assertSame('0', $this->getFirstTspanAttribute($durationElement, 'y'));
     }
 
     public function testRenderDoesNotTruncateShortValues(): void
