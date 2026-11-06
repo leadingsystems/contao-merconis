@@ -104,6 +104,31 @@ final class GaranLabelRendererTest extends TestCase
         self::assertSame('12345...', $this->getTextContent($xpath, '//svg:text[@data-field="model"]'));
     }
 
+    public function testRenderKeepsTemplateAnchorsForBrandModelAndDuration(): void
+    {
+        $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
+
+        $renderedSvg = $renderer->render('ACME', 'X100', '20.5', ',');
+
+        $document = new DOMDocument('1.0', 'UTF-8');
+        $document->loadXML($renderedSvg);
+
+        $xpath = new DOMXPath($document);
+        $xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
+
+        $brandElement = $xpath->query('//svg:text[@data-field="brand"]')?->item(0);
+        $modelElement = $xpath->query('//svg:text[@data-field="model"]')?->item(0);
+        $durationElement = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
+
+        self::assertInstanceOf(DOMElement::class, $brandElement);
+        self::assertInstanceOf(DOMElement::class, $modelElement);
+        self::assertInstanceOf(DOMElement::class, $durationElement);
+        self::assertSame('0', $this->getFirstTspanAttribute($brandElement, 'x'));
+        self::assertSame('0', $this->getFirstTspanAttribute($modelElement, 'x'));
+        self::assertSame('110', $this->getFirstTspanAttribute($durationElement, 'x'));
+        self::assertSame('end', $durationElement->getAttribute('text-anchor'));
+    }
+
     public function testRenderDoesNotTruncateShortValues(): void
     {
         $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
@@ -229,9 +254,19 @@ final class GaranLabelRendererTest extends TestCase
      */
     public static function provideDurationFontSizes(): iterable
     {
-        yield 'minimum decimal' => ['2.5', '2,5', '54.5px'];
-        yield 'maximum decimal' => ['29.5', '29,5', '54.5px'];
+        yield 'minimum decimal' => ['2.5', '2,5', '50.5px'];
+        yield 'worst-case decimal' => ['20.5', '20,5', '50.5px'];
+        yield 'maximum decimal' => ['29.5', '29,5', '50.5px'];
         yield 'minimum integer' => ['3', '3', '80px'];
         yield 'maximum integer' => ['30', '30', '80px'];
+    }
+
+    private function getFirstTspanAttribute(DOMElement $textElement, string $attributeName): string
+    {
+        $tspanElement = $textElement->getElementsByTagNameNS('http://www.w3.org/2000/svg', 'tspan')->item(0);
+
+        self::assertInstanceOf(DOMElement::class, $tspanElement);
+
+        return $tspanElement->getAttribute($attributeName);
     }
 }

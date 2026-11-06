@@ -56,6 +56,11 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         self::assertInstanceOf(DOMElement::class, $modelText);
         self::assertSame('end', $modelText->getAttribute('text-anchor'));
         self::assertSame(262.97, $this->extractTranslateX($modelText->getAttribute('transform')));
+
+        $durationText = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
+        self::assertInstanceOf(DOMElement::class, $durationText);
+        self::assertSame('end', $durationText->getAttribute('text-anchor'));
+        self::assertEqualsWithDelta(110.0, $this->extractFirstTspanX($durationText), 0.01);
     }
 
     public function testGaranTemplateClipRectsUseLocalTextCoordinates(): void
@@ -98,16 +103,19 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         $calendarRect = $xpath->query('//svg:rect[@x="121.47" and @y="127.8"]')?->item(0);
         self::assertInstanceOf(DOMElement::class, $calendarRect);
 
-        $durationLocalRightEdge = $this->extractFloatAttribute($clipRect, 'x')
-            + $this->extractFloatAttribute($clipRect, 'width');
-        $durationLabelRightEdge = $this->extractTranslateX($durationText->getAttribute('transform'))
-            + $durationLocalRightEdge;
+        $durationClipLeftEdge = $this->extractFloatAttribute($clipRect, 'x');
+        $durationClipRightEdge = $durationClipLeftEdge + $this->extractFloatAttribute($clipRect, 'width');
+        $durationAnchorX = $this->extractFirstTspanX($durationText);
+        $durationLabelAnchorX = $this->extractTranslateX($durationText->getAttribute('transform'))
+            + $durationAnchorX;
         $calendarLeftEdge = $this->extractFloatAttribute($calendarRect, 'x');
 
-        self::assertEqualsWithDelta(116.0, $durationLocalRightEdge, 0.01);
-        self::assertEqualsWithDelta(121.07, $durationLabelRightEdge, 0.01);
+        self::assertLessThanOrEqual($durationClipRightEdge, $durationAnchorX);
+        self::assertGreaterThanOrEqual($durationClipLeftEdge, $durationAnchorX);
+        self::assertEqualsWithDelta(116.0, $durationClipRightEdge, 0.01);
+        self::assertEqualsWithDelta(115.07, $durationLabelAnchorX, 0.01);
         self::assertEqualsWithDelta(121.47, $calendarLeftEdge, 0.01);
-        self::assertGreaterThan($durationLabelRightEdge, $calendarLeftEdge);
+        self::assertGreaterThan($durationLabelAnchorX, $calendarLeftEdge);
     }
 
     public function testBuildSvgMarkupKeepsFragmentIdsUniquePerRender(): void
@@ -245,5 +253,13 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         self::assertSame(1, preg_match('/translate\(([0-9.]+)\s+[0-9.]+\)/', $transform, $matches));
 
         return (float) $matches[1];
+    }
+
+    private function extractFirstTspanX(DOMElement $textElement): float
+    {
+        $tspanElement = $textElement->getElementsByTagNameNS(self::SVG_NAMESPACE, 'tspan')->item(0);
+        self::assertInstanceOf(DOMElement::class, $tspanElement);
+
+        return $this->extractFloatAttribute($tspanElement, 'x');
     }
 }

@@ -17,7 +17,7 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     private const DEFAULT_TRUNCATION_LENGTH = 30;
     private const ORIGINAL_DURATION_FONT_SIZE = '80px';
-    private const DECIMAL_DURATION_FONT_SIZE = '54.5px';
+    private const DECIMAL_DURATION_FONT_SIZE = '50.5px';
 
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
@@ -89,13 +89,29 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
             throw new RuntimeException(sprintf('Required GARAN text node not found: %s', $field));
         }
 
+        $templateTspan = null;
+
+        foreach ($textElement->childNodes as $childNode) {
+            if ($childNode instanceof DOMElement && 'tspan' === $childNode->localName) {
+                $templateTspan = $childNode;
+                break;
+            }
+        }
+
         while ($textElement->firstChild !== null) {
             $textElement->removeChild($textElement->firstChild);
         }
 
+        $templateTspanX = $templateTspan instanceof DOMElement && '' !== $templateTspan->getAttribute('x')
+            ? $templateTspan->getAttribute('x')
+            : '0';
+        $templateTspanY = $templateTspan instanceof DOMElement && '' !== $templateTspan->getAttribute('y')
+            ? $templateTspan->getAttribute('y')
+            : '0';
+
         $tspanElement = $document->createElementNS(self::SVG_NAMESPACE, 'tspan');
-        $tspanElement->setAttribute('x', '0');
-        $tspanElement->setAttribute('y', '0');
+        $tspanElement->setAttribute('x', $templateTspanX);
+        $tspanElement->setAttribute('y', $templateTspanY);
         $tspanElement->appendChild($document->createTextNode($value));
 
         $textElement->appendChild($tspanElement);
