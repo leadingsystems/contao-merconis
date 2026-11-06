@@ -86,6 +86,36 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
+				'enableGll' => array(
+					'preprocessor' => 'preprocess_pseudoBoolean',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'garanOverride' => array(
+					'preprocessor' => 'preprocess_pseudoBoolean',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'enableGaran' => array(
+					'preprocessor' => 'preprocess_pseudoBoolean',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'guaranteeDurationYears' => array(
+					'preprocessor' => 'preprocess_guaranteeDurationYears',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'guaranteeBrand' => array(
+					'preprocessor' => 'preprocess_string',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'guaranteeModelIdentifier' => array(
+					'preprocessor' => 'preprocess_string',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
                 'pageTitle' => array(
                     'preprocessor' => 'preprocess_string_maxlength_255',
                     'description' => '',
@@ -934,6 +964,22 @@ class ls_shop_productManagementApiPreprocessor
 		}
 
 		return $str_output;
+	}
+
+	protected static function preprocess_string($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		$str_output = trim($var_input);
+
+		return $str_output;
+	}
+
+	protected static function preprocess_guaranteeDurationYears($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (
+			!in_array($arr_row['type'], array('product', 'variant'))
+		) {
+			return '';
+		}
+
+		return trim((string) $var_input);
 	}
 
 	/**

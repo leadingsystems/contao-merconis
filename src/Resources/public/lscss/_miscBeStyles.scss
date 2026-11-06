@@ -49,6 +49,20 @@ html[data-color-scheme="dark"] .lsm-dashboard-branding-logo {
   font-size: 0.875rem;
 }
 
+.ls_shop_enableGllMigrationControl {
+  margin-top: 0.5rem;
+
+  .ls_shop_enableGllMigrationControl__status {
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .ls_shop_enableGllMigrationControl__button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
 .gracePeriodMessage {
   font-size: 20px;
   font-weight: bold;

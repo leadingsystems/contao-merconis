@@ -1,0 +1,18 @@
+.merconis-legal-guarantee-label {
+  max-width: 100%;
+
+  svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+
+    text {
+      text-transform: none;
+    }
+  }
+
+  @include media-breakpoint-up(lg) {
+    max-width: 600px;
+  }
+}

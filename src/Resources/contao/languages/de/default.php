@@ -254,6 +254,13 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = '
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Weiter einkaufen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart'] = 'Warenkorb öffnen';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['gllAnnouncement'] = 'Mit Version 5.1.18 wurde GLL eingeführt. In den Grundeinstellungen kann eine Migration ausgelöst werden, die bei allen Produkten enableGll auf true setzt.';
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllTitle'] = 'Gesetzliche Gewährleistung, mindestens zwei Jahre';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllEuLinkText'] = 'EU-Information zur gesetzlichen Gewährleistung';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanBlockHeadline'] = 'Herstellergarantie für folgende Artikel:';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanEuLinkText'] = 'EU-Information zur Herstellergarantie';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanTitlePattern'] = 'Herstellergarantie von %s für %s mit %s Jahren';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Kommentar zur Position';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'] = 'Optionaler Kommentar';

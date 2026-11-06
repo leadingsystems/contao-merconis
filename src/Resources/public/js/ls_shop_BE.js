@@ -372,14 +372,244 @@ var ls_shop_backend = {
 			opacity: 0.6,
 			handle: '.drag-handle'
 		});
+	},
+
+	setupGuaranteeBrandPrefill: function() {
+		if (document._lsShopGuaranteeBrandPrefillInitialized) {
+			return;
+		}
+
+		document._lsShopGuaranteeBrandPrefillInitialized = true;
+		document.addEventListener('focusout', function(event) {
+			ls_shop_backend.prefillGuaranteeBrandFromProducer(event);
+		}, true);
+	},
+
+	prefillGuaranteeBrandFromProducer: function(event) {
+		var producerInput = event.target;
+		var form;
+		var guaranteeBrandInput;
+		var producerValue;
+
+		if (!producerInput || producerInput.name != 'lsShopProductProducer') {
+			return;
+		}
+
+		form = producerInput.form;
+		if (!form) {
+			return;
+		}
+
+		guaranteeBrandInput = form.querySelector('[name="guaranteeBrand"]');
+		if (!guaranteeBrandInput || guaranteeBrandInput.value.trim() !== '') {
+			return;
+		}
+
+		producerValue = producerInput.value.trim();
+		if (producerValue === '') {
+			return;
+		}
+
+		guaranteeBrandInput.value = producerValue;
+	},
+
+	setupGuaranteeFieldVisibility: function(root) {
+		var scope = root && root.querySelectorAll ? root : document;
+
+		ls_shop_backend.bindGuaranteeFieldVisibility(scope, 'enableGaran', function(form, suffix) {
+			return !ls_shop_backend.findGuaranteeFieldInput(form, 'garanOverride', suffix);
+		}, true);
+		ls_shop_backend.bindGuaranteeFieldVisibility(scope, 'garanOverride', function() {
+			return true;
+		}, false);
+	},
+
+	bindGuaranteeFieldVisibility: function(root, controllerFieldName, shouldBindCallback, shouldMarkMandatory) {
+		var controllerInputs = root.querySelectorAll('input[type="checkbox"][name]');
+		var i;
+
+		for (i = 0; i < controllerInputs.length; i++) {
+			(function(controllerInput) {
+				var form = controllerInput.form;
+				var suffix;
+
+				if (!form || !ls_shop_backend.isGuaranteeFieldName(controllerInput.name, controllerFieldName)) {
+					return;
+				}
+
+				suffix = ls_shop_backend.getGuaranteeFieldSuffix(controllerInput.name, controllerFieldName);
+
+				if (!shouldBindCallback(form, suffix)) {
+					return;
+				}
+
+				if (!controllerInput._lsShopGuaranteeVisibilityBound) {
+					controllerInput.addEventListener('change', function() {
+						ls_shop_backend.updateGuaranteeFieldVisibility(controllerInput, controllerFieldName, suffix, shouldMarkMandatory);
+					});
+					controllerInput._lsShopGuaranteeVisibilityBound = true;
+				}
+
+				ls_shop_backend.updateGuaranteeFieldVisibility(controllerInput, controllerFieldName, suffix, shouldMarkMandatory);
+			})(controllerInputs[i]);
+		}
+	},
+
+	updateGuaranteeFieldVisibility: function(controllerInput, controllerFieldName, suffix, shouldMarkMandatory) {
+		var form = controllerInput.form;
+		var guaranteeFieldNames = ['guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier'];
+		var isVisible = !!controllerInput.checked;
+		var i;
+
+		if (!form) {
+			return;
+		}
+
+		for (i = 0; i < guaranteeFieldNames.length; i++) {
+			var fieldInput = ls_shop_backend.findGuaranteeFieldInput(form, guaranteeFieldNames[i], suffix);
+			var widget;
+
+			if (!fieldInput) {
+				continue;
+			}
+
+			widget = ls_shop_backend.findGuaranteeFieldWidget(fieldInput);
+
+			if (widget) {
+				widget.style.display = isVisible ? '' : 'none';
+			}
+
+			if (controllerFieldName === 'enableGaran') {
+				ls_shop_backend.toggleGuaranteeFieldMandatoryPresentation(
+					fieldInput,
+					widget,
+					shouldMarkMandatory && isVisible
+				);
+			}
+		}
+	},
+
+	toggleGuaranteeFieldMandatoryPresentation: function(fieldInput, widget, isRequired) {
+		var label;
+		var invisibleMarker;
+		var mandatoryMarker;
+
+		if (fieldInput) {
+			if (isRequired) {
+				fieldInput.setAttribute('aria-required', 'true');
+				fieldInput.setAttribute('required', 'required');
+			} else {
+				fieldInput.removeAttribute('aria-required');
+				fieldInput.removeAttribute('required');
+			}
+		}
+
+		if (!widget) {
+			return;
+		}
+
+		label = widget.querySelector('label');
+
+		if (!label || !label.classList) {
+			return;
+		}
+
+		label.classList.toggle('mandatory', isRequired);
+		mandatoryMarker = ls_shop_backend.ensureGuaranteeFieldMandatoryMarker(label, isRequired);
+		if (mandatoryMarker) {
+			mandatoryMarker.style.display = isRequired ? '' : 'none';
+		}
+
+		invisibleMarker = ls_shop_backend.ensureGuaranteeFieldMandatoryAnnouncement(label, isRequired);
+		if (invisibleMarker) {
+			invisibleMarker.style.display = isRequired ? '' : 'none';
+		}
+	},
+
+	ensureGuaranteeFieldMandatoryMarker: function(label, shouldCreate) {
+		var mandatoryMarker = label.querySelector('span.mandatory');
+
+		if (!mandatoryMarker && shouldCreate) {
+			mandatoryMarker = document.createElement('span');
+			mandatoryMarker.className = 'mandatory';
+			mandatoryMarker.textContent = '*';
+			label.appendChild(mandatoryMarker);
+		}
+
+		return mandatoryMarker;
+	},
+
+	ensureGuaranteeFieldMandatoryAnnouncement: function(label, shouldCreate) {
+		var invisibleMarker = label.querySelector('span.invisible');
+		var mandatoryLabel;
+
+		if (!invisibleMarker && shouldCreate) {
+			mandatoryLabel = ls_shop_backend.getGuaranteeMandatoryLabel();
+
+			if (mandatoryLabel === '') {
+				return null;
+			}
+
+			invisibleMarker = document.createElement('span');
+			invisibleMarker.className = 'invisible';
+			invisibleMarker.textContent = mandatoryLabel + ' ';
+			label.insertBefore(invisibleMarker, label.firstChild);
+		}
+
+		return invisibleMarker;
+	},
+
+	getGuaranteeMandatoryLabel: function() {
+		if (
+			window.ls_shop_backendConfig
+			&& typeof window.ls_shop_backendConfig.guaranteeMandatoryLabel === 'string'
+		) {
+			return window.ls_shop_backendConfig.guaranteeMandatoryLabel;
+		}
+
+		return '';
+	},
+
+	findGuaranteeFieldInput: function(form, fieldName, suffix) {
+		return form.querySelector('[name="' + fieldName + suffix + '"]');
+	},
+
+	findGuaranteeFieldWidget: function(fieldInput) {
+		var node = fieldInput;
+
+		while (node) {
+			if (node.classList && node.classList.contains('widget')) {
+				return node;
+			}
+
+			node = node.parentNode;
+		}
+
+		return null;
+	},
+
+	isGuaranteeFieldName: function(fieldName, baseFieldName) {
+		return fieldName === baseFieldName
+			|| new RegExp('^' + baseFieldName + '_[A-Za-z0-9]+$').test(fieldName);
+	},
+
+	getGuaranteeFieldSuffix: function(fieldName, baseFieldName) {
+		if (fieldName === baseFieldName) {
+			return '';
+		}
+
+		return fieldName.substring(baseFieldName.length);
 	}
 };
 
 window.addEvent('domready', function() {
 	ls_shop_backend.addHeaderImageLinkElements();
 	ls_shop_backend.makeMerconisWizardsSortable();
+	ls_shop_backend.setupGuaranteeBrandPrefill();
+	ls_shop_backend.setupGuaranteeFieldVisibility();
 });
 
 window.addEvent('ajax_change', function() {
 	ls_shop_backend.makeMerconisWizardsSortable();
+	ls_shop_backend.setupGuaranteeFieldVisibility();
 });
